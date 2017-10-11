@@ -322,6 +322,9 @@ namespace MongoDB.Driver
 
         /// <summary>
         /// Creates a $changeStream stage.
+        /// Normally you would prefer to use the Watch method of <see cref="IMongoCollection{TDocument}" />.
+        /// Only use this method if subsequent stages project away the resume token (the _id)
+        /// or you don't want the resulting cursor to automatically resume.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>
         /// <param name="options">The options.</param>
@@ -343,7 +346,7 @@ namespace MongoDB.Driver
                         renderedOptions.Add("resumeAfter", options.ResumeAfter);
                     }
                     var document = new BsonDocument(operatorName, renderedOptions);
-                    var outputSerializer = new ChangeStreamOutputSerializer<TInput>(s, options.FullDocument);
+                    var outputSerializer = new ChangeStreamOutputSerializer<TInput>(s);
                     return new RenderedPipelineStageDefinition<ChangeStreamOutput<TInput>>(
                         operatorName,
                         document,

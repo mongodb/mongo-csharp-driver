@@ -31,16 +31,16 @@ namespace MongoDB.Driver.Core.Operations
     /// </summary>
     /// <typeparam name="TDocument">The type of the output documents.</typeparam>
     /// <seealso cref="MongoDB.Driver.IAsyncCursor{TOutput}" />
-    public sealed class ChangeStreamCursor<TDocument> : IAsyncCursor<TDocument>
+    internal sealed class ChangeStreamCursor<TDocument> : IAsyncCursor<TDocument>
     {
         // private fields
         private readonly IReadBinding _binding;
-        private readonly ChangeStreamOperation<TDocument> _changeStreamOperation;
+        private readonly IChangeStreamOperation<TDocument> _changeStreamOperation;
         private IEnumerable<TDocument> _current;
         private IAsyncCursor<RawBsonDocument> _cursor;
         private bool _disposed;
         private IBsonSerializer<TDocument> _documentSerializer;
-        private BsonDocument _resumeAfter;
+        private BsonDocument _resumeToken;
 
         // public properties
         /// <inheritdoc />
@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Core.Operations
             IAsyncCursor<RawBsonDocument> cursor,
             IBsonSerializer<TDocument> documentSerializer,
             IReadBinding binding,
-            ChangeStreamOperation<TDocument> changeStreamOperation)
+            IChangeStreamOperation<TDocument> changeStreamOperation)
         {
             _cursor = Ensure.IsNotNull(cursor, nameof(cursor));
             _documentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
@@ -90,10 +90,13 @@ namespace MongoDB.Driver.Core.Operations
             {
                 if (CanResumeAfter(ex))
                 {
-                    _cursor = _changeStreamOperation.Resume(_binding, _resumeAfter, cancellationToken);
+                    _cursor = _changeStreamOperation.Resume(_binding, _resumeToken, cancellationToken);
                     hasMore = _cursor.MoveNext(cancellationToken);
                 }
-                throw;
+                else
+                {
+                    throw;
+                }
             }
 
             ProcessBatch(hasMore);
@@ -101,15 +104,34 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <inheritdoc/>
-        public Task<bool> MoveNextAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<bool> MoveNextAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new NotImplementedException();
+            bool hasMore;
+            try
+            {
+                hasMore = await _cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                if (CanResumeAfter(ex))
+                {
+                    _cursor = await _changeStreamOperation.ResumeAsync(_binding, _resumeToken, cancellationToken).ConfigureAwait(false);
+                    hasMore = await _cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false);
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            ProcessBatch(hasMore);
+            return hasMore;
         }
 
         // private methods
-        private bool CanResumeAfter(Exception ex)
+        private bool CanResumeAfter(Exception exception)
         {
-            return false; // TODO: implement
+            return exception is IOException || exception is MongoCursorNotFoundException || exception is MongoNotPrimaryException;
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
@@ -134,7 +156,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 if (!rawDocument.Contains("_id"))
                 {
-                    throw new MongoException("Cannot provide resume functionality when the resume token is missing.");
+                    throw new MongoClientException("Cannot provide resume functionality when the resume token is missing.");
                 }
 
                 var document = DeserializeDocument(rawDocument);
@@ -145,7 +167,7 @@ namespace MongoDB.Driver.Core.Operations
 
             if (lastRawDocument != null)
             {
-                _resumeAfter = lastRawDocument["_id"].DeepClone().AsBsonDocument;
+                _resumeToken = lastRawDocument["_id"].DeepClone().AsBsonDocument;
             }
 
             return documents;

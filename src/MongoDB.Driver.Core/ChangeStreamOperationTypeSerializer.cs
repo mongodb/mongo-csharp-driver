@@ -53,7 +53,7 @@ namespace MongoDB.Driver
                 case ChangeStreamOperationType.Invalidate: writer.WriteString("invalidate"); break;
                 case ChangeStreamOperationType.Replace: writer.WriteString("replace"); break;
                 case ChangeStreamOperationType.Update: writer.WriteString("update"); break;
-                default: throw new FormatException($"Invalid ChangeStreamOperationType: {value}.");
+                default: throw new ArgumentException($"Invalid ChangeStreamOperationType: {value}.", nameof(value));
             }
         }
     }

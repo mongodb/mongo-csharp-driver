@@ -29,39 +29,36 @@ namespace MongoDB.Driver
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     public class ChangeStreamOutputSerializer<TDocument> : SealedClassSerializerBase<ChangeStreamOutput<TDocument>>
     {
+        #region static
+        // private static fields
+        private static readonly IBsonSerializer<ChangeStreamOperationType> __operationTypeSerializer = new ChangeStreamOperationTypeSerializer();
+        private readonly ChangeStreamUpdateDescriptionSerializer __updateDescriptionSerializer = new ChangeStreamUpdateDescriptionSerializer();
+        #endregion
+
         // private fields
         private readonly IBsonSerializer<TDocument> _documentSerializer;
-        private readonly IBsonSerializer<ChangeStreamOperationType> _operationTypeSerializer;
-        private readonly ChangeStreamFullDocumentOption _fullDocument;
-        private readonly ChangeStreamUpdateDescriptionSerializer _updateDescriptionSerializer;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="ChangeStreamOutputSerializer{TDocument}"/> class.
         /// </summary>
         /// <param name="documentSerializer">The document serializer.</param>
-        /// <param name="fullDocument">The options.</param>
         public ChangeStreamOutputSerializer(
-            IBsonSerializer<TDocument> documentSerializer,
-            ChangeStreamFullDocumentOption fullDocument)
+            IBsonSerializer<TDocument> documentSerializer)
         {
             _documentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
-            _fullDocument = fullDocument;
-
-            _operationTypeSerializer = new ChangeStreamOperationTypeSerializer();
-            _updateDescriptionSerializer = new ChangeStreamUpdateDescriptionSerializer();
         }
 
         // public methods
         /// <inheritdoc />
-        public override ChangeStreamOutput<TDocument> Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+        protected override ChangeStreamOutput<TDocument> DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var reader = context.Reader;
 
             CollectionNamespace collectionNamespace = null;
             BsonDocument documentKey = null;
             TDocument fullDocument = default(TDocument);
-            BsonDocument id = null;
+            BsonDocument resumeToken = null;
             ChangeStreamOperationType? operationType = null;
             ChangeStreamUpdateDescription updateDescription = null;
 
@@ -72,7 +69,7 @@ namespace MongoDB.Driver
                 switch (fieldName)
                 {
                     case "_id":
-                        id = BsonDocumentSerializer.Instance.Deserialize(context);
+                        resumeToken = BsonDocumentSerializer.Instance.Deserialize(context);
                         break;
 
                     case "ns":
@@ -96,11 +93,11 @@ namespace MongoDB.Driver
                         break;
 
                     case "operationType":
-                        operationType = _operationTypeSerializer.Deserialize(context);
+                        operationType = __operationTypeSerializer.Deserialize(context);
                         break;
 
                     case "updateDescription":
-                        updateDescription = _updateDescriptionSerializer.Deserialize(context);
+                        updateDescription = __updateDescriptionSerializer.Deserialize(context);
                         break;
 
                     default:
@@ -110,7 +107,7 @@ namespace MongoDB.Driver
             reader.ReadEndDocument();
 
             return new ChangeStreamOutput<TDocument>(
-                id,
+                resumeToken,
                 operationType.Value,
                 collectionNamespace,
                 documentKey,
@@ -124,11 +121,14 @@ namespace MongoDB.Driver
             var writer = context.Writer;
             writer.WriteStartDocument();
             writer.WriteName("_id");
-            BsonDocumentSerializer.Instance.Serialize(context, value.Id);
+            BsonDocumentSerializer.Instance.Serialize(context, value.ResumeToken);
             writer.WriteName("operationType");
-            _operationTypeSerializer.Serialize(context, value.OperationType);
-            writer.WriteName("ns");
-            SerializeCollectionNamespace(writer, value.CollectionNamespace);
+            __operationTypeSerializer.Serialize(context, value.OperationType);
+            if (value.CollectionNamespace != null)
+            {
+                writer.WriteName("ns");
+                SerializeCollectionNamespace(writer, value.CollectionNamespace);
+            }
             if (value.DocumentKey != null)
             {
                 writer.WriteName("documentKey");
@@ -137,9 +137,9 @@ namespace MongoDB.Driver
             if (value.UpdateDescription != null)
             {
                 writer.WriteName("updateDescription");
-                _updateDescriptionSerializer.Serialize(context, value.UpdateDescription);
+                __updateDescriptionSerializer.Serialize(context, value.UpdateDescription);
             }
-            if (ShouldSerializeFullDocument(value))
+            if (value.FullDocument != null)
             {
                 writer.WriteName("fullDocument");
                 _documentSerializer.Serialize(context, value.FullDocument);
@@ -185,22 +185,6 @@ namespace MongoDB.Driver
             writer.WriteName("coll");
             writer.WriteString(value.CollectionName);
             writer.WriteEndDocument();
-        }
-
-        private bool ShouldSerializeFullDocument(ChangeStreamOutput<TDocument> value)
-        {
-            switch (value.OperationType)
-            {
-                case ChangeStreamOperationType.Insert:
-                case ChangeStreamOperationType.Replace:
-                    return true;
-
-                case ChangeStreamOperationType.Update:
-                    return _fullDocument == ChangeStreamFullDocumentOption.UpdateLookup;
-
-                default:
-                    return false;
-            }
         }
     }
 }

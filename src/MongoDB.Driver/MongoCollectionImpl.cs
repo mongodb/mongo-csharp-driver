@@ -575,11 +575,11 @@ namespace MongoDB.Driver
         {
             options = options ?? new ChangeStreamOptions();
 
-            var changeStreamOutputSerializer = new ChangeStreamOutputSerializer<TDocument>(_documentSerializer, options.FullDocument);
+            var changeStreamOutputSerializer = new ChangeStreamOutputSerializer<TDocument>(_documentSerializer);
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var renderedPipeline = pipeline.Render(changeStreamOutputSerializer, serializerRegistry);
 
-            var aggregateOperation = new ChangeStreamOperation<TResult>(
+            var changeStreamOperation = new ChangeStreamOperation<TResult>(
                 _collectionNamespace,
                 renderedPipeline.Documents,
                 renderedPipeline.OutputSerializer,
@@ -593,7 +593,7 @@ namespace MongoDB.Driver
                 ResumeAfter = options.ResumeAfter
             };
 
-            return aggregateOperation;
+            return changeStreamOperation;
         }
 
         private CountOperation CreateCountOperation(FilterDefinition<TDocument> filter, CountOptions options)

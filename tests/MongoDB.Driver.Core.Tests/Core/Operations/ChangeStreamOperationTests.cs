@@ -266,7 +266,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             RequireServer.Check().Supports(Feature.ChangeStreamStage).ClusterTypes(ClusterType.ReplicaSet);
             var pipeline = new[] { BsonDocument.Parse("{ $match : { operationType : \"invalidate\" } }") };
-            var resultSerializer = new ChangeStreamOutputSerializer<BsonDocument>(BsonDocumentSerializer.Instance, ChangeStreamFullDocumentOption.Default);
+            var resultSerializer = new ChangeStreamOutputSerializer<BsonDocument>(BsonDocumentSerializer.Instance);
             var messageEncoderSettings = new MessageEncoderSettings();
             var subject = new ChangeStreamOperation<ChangeStreamOutput<BsonDocument>>(_collectionNamespace, pipeline, resultSerializer, messageEncoderSettings);
             DropCollection();
@@ -283,7 +283,7 @@ namespace MongoDB.Driver.Core.Operations
             change.CollectionNamespace.Should().BeNull();
             change.DocumentKey.Should().BeNull();
             change.FullDocument.Should().BeNull();
-            change.Id.Should().NotBeNull();
+            change.ResumeToken.Should().NotBeNull();
             change.UpdateDescription.Should().BeNull();
         }
 
@@ -294,7 +294,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             RequireServer.Check().Supports(Feature.ChangeStreamStage).ClusterTypes(ClusterType.ReplicaSet);
             var pipeline = new[] { BsonDocument.Parse("{ $match : { operationType : \"delete\" } }") };
-            var resultSerializer = new ChangeStreamOutputSerializer<BsonDocument>(BsonDocumentSerializer.Instance, ChangeStreamFullDocumentOption.Default);
+            var resultSerializer = new ChangeStreamOutputSerializer<BsonDocument>(BsonDocumentSerializer.Instance);
             var messageEncoderSettings = new MessageEncoderSettings();
             var subject = new ChangeStreamOperation<ChangeStreamOutput<BsonDocument>>(_collectionNamespace, pipeline, resultSerializer, messageEncoderSettings);
             DropCollection();
@@ -311,7 +311,7 @@ namespace MongoDB.Driver.Core.Operations
             change.CollectionNamespace.Should().Be(_collectionNamespace);
             change.DocumentKey.Should().Be("{ _id : 1 }");
             change.FullDocument.Should().BeNull();
-            change.Id.Should().NotBeNull();
+            change.ResumeToken.Should().NotBeNull();
             change.UpdateDescription.Should().BeNull();
         }
 
@@ -322,7 +322,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             RequireServer.Check().Supports(Feature.ChangeStreamStage).ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded);
             var pipeline = new[] { BsonDocument.Parse("{ $match : { operationType : \"insert\" } }") };
-            var resultSerializer = new ChangeStreamOutputSerializer<BsonDocument>(BsonDocumentSerializer.Instance, ChangeStreamFullDocumentOption.Default);
+            var resultSerializer = new ChangeStreamOutputSerializer<BsonDocument>(BsonDocumentSerializer.Instance);
             var messageEncoderSettings = new MessageEncoderSettings();
             var subject = new ChangeStreamOperation<ChangeStreamOutput<BsonDocument>>(_collectionNamespace, pipeline, resultSerializer, messageEncoderSettings);
             DropCollection();
@@ -340,7 +340,7 @@ namespace MongoDB.Driver.Core.Operations
             change.CollectionNamespace.Should().Be(_collectionNamespace);
             change.DocumentKey.Should().Be("{ _id : 2 }");
             change.FullDocument.Should().Be("{ _id : 2, x : 2 }");
-            change.Id.Should().NotBeNull();
+            change.ResumeToken.Should().NotBeNull();
             change.UpdateDescription.Should().BeNull();
         }
 
@@ -352,7 +352,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             RequireServer.Check().Supports(Feature.ChangeStreamStage).ClusterTypes(ClusterType.ReplicaSet);
             var pipeline = new[] { BsonDocument.Parse("{ $match : { operationType : \"update\" } }") };
-            var resultSerializer = new ChangeStreamOutputSerializer<BsonDocument>(BsonDocumentSerializer.Instance, ChangeStreamFullDocumentOption.Default);
+            var resultSerializer = new ChangeStreamOutputSerializer<BsonDocument>(BsonDocumentSerializer.Instance);
             var messageEncoderSettings = new MessageEncoderSettings();
             var subject = new ChangeStreamOperation<ChangeStreamOutput<BsonDocument>>(_collectionNamespace, pipeline, resultSerializer, messageEncoderSettings)
             {
@@ -372,7 +372,7 @@ namespace MongoDB.Driver.Core.Operations
             change.CollectionNamespace.Should().Be(_collectionNamespace);
             change.DocumentKey.Should().Be("{ _id : 1 }");
             change.FullDocument.Should().Be(fullDocument == ChangeStreamFullDocumentOption.Default ? null :  "{ _id : 1, x : 2 }");
-            change.Id.Should().NotBeNull();
+            change.ResumeToken.Should().NotBeNull();
             change.UpdateDescription.RemovedFields.Should().BeEmpty();
             change.UpdateDescription.UpdatedFields.Should().Be("{ x : 2 }");
         }

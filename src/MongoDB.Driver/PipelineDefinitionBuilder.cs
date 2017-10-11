@@ -273,6 +273,9 @@ namespace MongoDB.Driver
 
         /// <summary>
         /// Appends a $changeStream stage to the pipeline.
+        /// Normally you would prefer to use the Watch method of <see cref="IMongoCollection{TDocument}" />.
+        /// Only use this method if subsequent stages project away the resume token (the _id)
+        /// or you don't want the resulting cursor to automatically resume.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>
         /// <typeparam name="TIntermediate">The type of the intermediate documents.</typeparam>

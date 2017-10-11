@@ -123,6 +123,9 @@ namespace MongoDB.Driver
 
         /// <summary>
         /// Appends a $changeStream stage to the pipeline.
+        /// Normally you would prefer to use the Watch method of <see cref="IMongoCollection{TDocument}" />.
+        /// Only use this method if subsequent stages project away the resume token (the _id)
+        /// or you don't want the resulting cursor to automatically resume.
         /// </summary>
         /// <param name="options">The options.</param>
         /// <returns>The fluent aggregate interface.</returns>

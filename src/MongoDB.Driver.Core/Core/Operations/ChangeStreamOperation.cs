@@ -30,8 +30,33 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// A change stream operation.
     /// </summary>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
+    public interface IChangeStreamOperation<TResult> : IReadOperation<IAsyncCursor<TResult>>
+    {
+        /// <summary>
+        /// Resumes the operation after a resume token.
+        /// </summary>
+        /// <param name="binding">The binding.</param>
+        /// <param name="resumeAfter">The resume token.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A cursor.</returns>
+        IAsyncCursor<RawBsonDocument> Resume(IReadBinding binding, BsonDocument resumeAfter, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Resumes the operation after a resume token.
+        /// </summary>
+        /// <param name="binding">The binding.</param>
+        /// <param name="resumeAfter">The resume token.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task whose result is a cursor.</returns>
+        Task<IAsyncCursor<RawBsonDocument>> ResumeAsync(IReadBinding binding, BsonDocument resumeAfter, CancellationToken cancellationToken);
+    }
+
+    /// <summary>
+    /// A change stream operation.
+    /// </summary>
     /// <typeparam name="TResult">The type of the result values.</typeparam>
-    public class ChangeStreamOperation<TResult> : IReadOperation<IAsyncCursor<TResult>>
+    public class ChangeStreamOperation<TResult> : IChangeStreamOperation<TResult>
     {
         // private fields
         private int? _batchSize;
@@ -197,14 +222,15 @@ namespace MongoDB.Driver.Core.Operations
             return new ChangeStreamCursor<TResult>(cursor, _resultSerializer, bindingHandle.Fork(), this);
         }
 
-        // internal methods
-        internal IAsyncCursor<RawBsonDocument> Resume(IReadBinding binding, BsonDocument resumeAfter, CancellationToken cancellationToken)
+        /// <inheritdoc />
+        public IAsyncCursor<RawBsonDocument> Resume(IReadBinding binding, BsonDocument resumeAfter, CancellationToken cancellationToken)
         {
             var aggregateOperation = CreateAggregateOperation(resumeAfter);
             return aggregateOperation.Execute(binding, cancellationToken);
         }
 
-        internal Task<IAsyncCursor<RawBsonDocument>> ResumeAsync(IReadBinding binding, BsonDocument resumeAfter, CancellationToken cancellationToken)
+        /// <inheritdoc />
+        public Task<IAsyncCursor<RawBsonDocument>> ResumeAsync(IReadBinding binding, BsonDocument resumeAfter, CancellationToken cancellationToken)
         {
             var aggregateOperation = CreateAggregateOperation(resumeAfter);
             return aggregateOperation.ExecuteAsync(binding, cancellationToken);

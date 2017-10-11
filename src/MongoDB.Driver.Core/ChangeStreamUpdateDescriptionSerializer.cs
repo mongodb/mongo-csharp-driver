@@ -27,15 +27,9 @@ namespace MongoDB.Driver
     /// </summary>
     public class ChangeStreamUpdateDescriptionSerializer : SealedClassSerializerBase<ChangeStreamUpdateDescription>
     {
-        private readonly IBsonSerializer<string[]> _stringArraySerializer;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ChangeStreamUpdateDescriptionSerializer"/> class.
-        /// </summary>
-        public ChangeStreamUpdateDescriptionSerializer()
-        {
-            _stringArraySerializer = new ArraySerializer<string>();
-        }
+        #region static
+        private static readonly IBsonSerializer<string[]> __stringArraySerializer = new ArraySerializer<string>();
+        #endregion
 
         /// <inheritdoc />
         protected override ChangeStreamUpdateDescription DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
@@ -56,7 +50,7 @@ namespace MongoDB.Driver
                         break;
 
                     case "removedFields":
-                        removedFields = _stringArraySerializer.Deserialize(context);
+                        removedFields = __stringArraySerializer.Deserialize(context);
                         break;
 
                     default:
@@ -77,7 +71,7 @@ namespace MongoDB.Driver
             writer.WriteName("updatedFields");
             BsonDocumentSerializer.Instance.Serialize(context, value.UpdatedFields);
             writer.WriteName("removedFields");
-            _stringArraySerializer.Serialize(context, value.RemovedFields);
+            __stringArraySerializer.Serialize(context, value.RemovedFields);
             writer.WriteEndDocument();
         }
     }

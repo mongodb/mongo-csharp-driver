@@ -27,29 +27,29 @@ namespace MongoDB.Driver
         private readonly CollectionNamespace _collectionNamespace;
         private readonly BsonDocument _documentKey;
         private readonly TDocument _fullDocument;
-        private readonly BsonDocument _id;
         private readonly ChangeStreamOperationType _operationType;
+        private readonly BsonDocument _resumeToken;
         private readonly ChangeStreamUpdateDescription _updateDescription;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="ChangeStreamOutput{TDocument}"/> class.
+        /// Initializes a new instance of the <see cref="ChangeStreamOutput{TDocument}" /> class.
         /// </summary>
-        /// <param name="id">The identifier.</param>
+        /// <param name="resumeToken">The resume token.</param>
         /// <param name="operationType">Type of the operation.</param>
         /// <param name="collectionNamespace">Namespace of the collection.</param>
         /// <param name="documentKey">The document key.</param>
         /// <param name="updateDescription">The update description.</param>
         /// <param name="fullDocument">The full document.</param>
         public ChangeStreamOutput(
-            BsonDocument id,
+            BsonDocument resumeToken,
             ChangeStreamOperationType operationType,
             CollectionNamespace collectionNamespace,
             BsonDocument documentKey,
             ChangeStreamUpdateDescription updateDescription,
             TDocument fullDocument)
         {
-            _id = Ensure.IsNotNull(id, nameof(id));
+            _resumeToken = Ensure.IsNotNull(resumeToken, nameof(resumeToken));
             _operationType = operationType;
             _collectionNamespace = collectionNamespace; // can be null when operationType is Invalidate
             _documentKey = documentKey; // can be null
@@ -83,20 +83,20 @@ namespace MongoDB.Driver
         public TDocument FullDocument => _fullDocument;
 
         /// <summary>
-        /// Gets the identifier.
-        /// </summary>
-        /// <value>
-        /// The identifier.
-        /// </value>
-        public BsonDocument Id => _id;
-
-        /// <summary>
         /// Gets the type of the operation.
         /// </summary>
         /// <value>
         /// The type of the operation.
         /// </value>
         public ChangeStreamOperationType OperationType => _operationType;
+
+        /// <summary>
+        /// Gets the resume token.
+        /// </summary>
+        /// <value>
+        /// The resume token.
+        /// </value>
+        public BsonDocument ResumeToken => _resumeToken;
 
         /// <summary>
         /// Gets the update description.
