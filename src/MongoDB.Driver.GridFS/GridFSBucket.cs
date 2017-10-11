@@ -814,7 +814,7 @@ namespace MongoDB.Driver.GridFS
             {
                 if (!_ensureIndexesDone)
                 {
-                    if (!_options.SuppressEnsureIndexes)
+                    if (!_options.AssumeIndexesExist)
                     {
                         var isFilesCollectionEmpty = IsFilesCollectionEmpty(binding, cancellationToken);
                         if (isFilesCollectionEmpty)
@@ -846,7 +846,7 @@ namespace MongoDB.Driver.GridFS
             {
                 if (!_ensureIndexesDone)
                 {
-                    if (!_options.SuppressEnsureIndexes)
+                    if (!_options.AssumeIndexesExist)
                     {
                         var isFilesCollectionEmpty = await IsFilesCollectionEmptyAsync(binding, cancellationToken).ConfigureAwait(false);
                         if (isFilesCollectionEmpty)

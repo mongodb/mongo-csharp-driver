@@ -29,7 +29,7 @@ namespace MongoDB.Driver.GridFS
         private ReadConcern _readConcern;
         private ReadPreference _readPreference;
         private WriteConcern _writeConcern;
-        private bool _suppressEnsureIndexes;
+        private bool _assumeIndexesExist;
 
         // constructors
         /// <summary>
@@ -52,7 +52,7 @@ namespace MongoDB.Driver.GridFS
             _readConcern = other.ReadConcern;
             _readPreference = other.ReadPreference;
             _writeConcern = other.WriteConcern;
-            _suppressEnsureIndexes = other.SuppressEnsureIndexes;
+            _assumeIndexesExist = other.AssumeIndexesExist;
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace MongoDB.Driver.GridFS
             _readConcern = other.ReadConcern;
             _readPreference = other.ReadPreference;
             _writeConcern = other.WriteConcern;
-            _suppressEnsureIndexes = other.SuppressEnsureIndexes;
+            _assumeIndexesExist = other.AssumeIndexesExist;
         }
 
         // properties
@@ -140,15 +140,15 @@ namespace MongoDB.Driver.GridFS
         }
 
         /// <summary>
-        /// Gets or sets the suppress ensure indexes setting
+        /// Gets or sets the assume indexes exist setting
         /// </summary>
         /// <value>
-        /// The suppress ensure indexes setting
+        /// The assume indexes exist setting
         /// </value>
-        public bool SuppressEnsureIndexes
+        public bool AssumeIndexesExist
         {
-            get { return _suppressEnsureIndexes; }
-            set { _suppressEnsureIndexes = value; }
+            get { return _assumeIndexesExist; }
+            set { _assumeIndexesExist = value; }
         }
     }
 
@@ -180,7 +180,7 @@ namespace MongoDB.Driver.GridFS
         private readonly ReadConcern _readConcern;
         private readonly ReadPreference _readPreference;
         private readonly WriteConcern _writeConcern;
-        private readonly bool _suppressEnsureIndexes;
+        private readonly bool _assumeIndexesExist;
 
         // constructors
         /// <summary>
@@ -190,7 +190,7 @@ namespace MongoDB.Driver.GridFS
         {
             _bucketName = "fs";
             _chunkSizeBytes = 255 * 1024;
-            _suppressEnsureIndexes = false;
+            _assumeIndexesExist = false;
         }
 
         /// <summary>
@@ -205,7 +205,7 @@ namespace MongoDB.Driver.GridFS
             _readConcern = other.ReadConcern;
             _readPreference = other.ReadPreference;
             _writeConcern = other.WriteConcern;
-            _suppressEnsureIndexes = other.SuppressEnsureIndexes;
+            _assumeIndexesExist = other.AssumeIndexesExist;
         }
 
         // properties
@@ -276,14 +276,14 @@ namespace MongoDB.Driver.GridFS
         }
 
         /// <summary>
-        /// Gets the suppress ensure indexes setting
+        /// Gets the assume ensure indexes setting
         /// </summary>
         /// <value>
-        /// The suppress ensure indexes setting
+        /// The assume ensure indexes setting
         /// </value>
-        public bool SuppressEnsureIndexes
+        public bool AssumeIndexesExist
         {
-            get { return _suppressEnsureIndexes; }
+            get { return _assumeIndexesExist; }
         }
     }
 }
