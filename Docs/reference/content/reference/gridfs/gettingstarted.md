@@ -34,12 +34,12 @@ You can also provide options when instantiating the [`GridFSBucket`]({{< apiref 
 ```csharp
 IMongoDatabase database;
 
-var bucket = new GridFSBucket(database, new GridFSOptions
+var bucket = new GridFSBucket(database, new GridFSBucketOptions
 {
     BucketName = "videos",
     ChunkSizeBytes = 1048576, // 1MB
-    WriteConcern = WriteConcern.Majority,
-    ReadPreference = ReadPeference.Secondary
+    WriteConcern = WriteConcern.WMajority,
+    ReadPreference = ReadPreference.Secondary
 });
 ```
 
