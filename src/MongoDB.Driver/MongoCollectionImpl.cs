@@ -883,13 +883,13 @@ namespace MongoDB.Driver
             public override IAsyncCursor<BsonDocument> List(CancellationToken cancellationToken = default(CancellationToken))
             {
                 var operation = CreateListIndexesOperation();
-                return _collection.ExecuteReadOperation(operation, ReadPreference.Primary, cancellationToken);
+                return _collection.ExecuteReadOperation(operation, _collection._settings.ReadPreference ?? ReadPreference.Primary, cancellationToken);
             }
 
             public override Task<IAsyncCursor<BsonDocument>> ListAsync(CancellationToken cancellationToken = default(CancellationToken))
             {
                 var operation = CreateListIndexesOperation();
-                return _collection.ExecuteReadOperationAsync(operation, ReadPreference.Primary, cancellationToken);
+                return _collection.ExecuteReadOperationAsync(operation, _collection._settings.ReadPreference ?? ReadPreference.Primary, cancellationToken);
             }
 
             // private methods

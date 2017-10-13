@@ -161,14 +161,14 @@ namespace MongoDB.Driver
         {
             options = options ?? new ListCollectionsOptions();
             var operation = CreateListCollectionsOperation(options);
-            return ExecuteReadOperation(operation, ReadPreference.Primary, cancellationToken);
+            return ExecuteReadOperation(operation, _settings.ReadPreference ?? ReadPreference.Primary, cancellationToken);
         }
 
         public override Task<IAsyncCursor<BsonDocument>> ListCollectionsAsync(ListCollectionsOptions options, CancellationToken cancellationToken)
         {
             options = options ?? new ListCollectionsOptions();
             var operation = CreateListCollectionsOperation(options);
-            return ExecuteReadOperationAsync(operation, ReadPreference.Primary, cancellationToken);
+            return ExecuteReadOperationAsync(operation, _settings.ReadPreference ?? ReadPreference.Primary, cancellationToken);
         }
 
         public override void RenameCollection(string oldName, string newName, RenameCollectionOptions options, CancellationToken cancellationToken)
