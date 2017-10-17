@@ -1,4 +1,4 @@
-/* Copyright 2013-2016 MongoDB Inc.
+/* Copyright 2013-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -50,6 +50,7 @@ namespace MongoDB.Driver.Core.Servers
             subject.CanonicalEndPoint.Should().BeNull();
             subject.ElectionId.Should().BeNull();
             subject.EndPoint.Should().Be(__endPoint);
+            subject.LogicalSessionTimeout.Should().NotHaveValue();
             subject.ReplicaSetConfig.Should().BeNull();
             subject.ServerId.Should().Be(__serverId);
             subject.State.Should().Be(ServerState.Disconnected);
@@ -65,6 +66,7 @@ namespace MongoDB.Driver.Core.Servers
             var averageRoundTripTime = TimeSpan.FromSeconds(1);
             var canonicalEndPoint = new DnsEndPoint("localhost", 27017);
             var electionId = new ElectionId(ObjectId.GenerateNewId());
+            var logicalSessionTimeout = TimeSpan.FromMinutes(1);
             var replicaSetConfig = new ReplicaSetConfig(
                 new[] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("localhost", 27018) },
                 "name",
@@ -84,6 +86,7 @@ namespace MongoDB.Driver.Core.Servers
                 averageRoundTripTime: averageRoundTripTime,
                 canonicalEndPoint: canonicalEndPoint,
                 electionId: electionId,
+                logicalSessionTimeout: logicalSessionTimeout,
                 replicaSetConfig: replicaSetConfig,
                 tags: tags,
                 version: version,
@@ -93,6 +96,7 @@ namespace MongoDB.Driver.Core.Servers
             subject.CanonicalEndPoint.Should().Be(canonicalEndPoint);
             subject.ElectionId.Should().Be(electionId);
             subject.EndPoint.Should().Be(__endPoint);
+            subject.LogicalSessionTimeout.Should().Be(logicalSessionTimeout);
             subject.ReplicaSetConfig.Should().Be(replicaSetConfig);
             subject.ServerId.Should().Be(__serverId);
             subject.State.Should().Be(state);
@@ -105,6 +109,7 @@ namespace MongoDB.Driver.Core.Servers
         [InlineData("CanonicalEndPoint")]
         [InlineData("ElectionId")]
         [InlineData("EndPoint")]
+        [InlineData("LogicalSessionTimeout")]
         [InlineData("ReplicaSetConfig")]
         [InlineData("ServerId")]
         [InlineData("State")]
@@ -118,6 +123,7 @@ namespace MongoDB.Driver.Core.Servers
             var canonicalEndPoint = new DnsEndPoint("localhost", 27017);
             var electionId = new ElectionId(ObjectId.GenerateNewId());
             var endPoint = new DnsEndPoint("localhost", 27017);
+            var logicalSessionTimeout = TimeSpan.FromMinutes(1);
             var replicaSetConfig = new ReplicaSetConfig(
                 new[] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("localhost", 27018) },
                 "name",
@@ -137,6 +143,7 @@ namespace MongoDB.Driver.Core.Servers
                 type: type,
                 averageRoundTripTime: averageRoundTripTime,
                 canonicalEndPoint: canonicalEndPoint,
+                logicalSessionTimeout: logicalSessionTimeout,
                 replicaSetConfig: replicaSetConfig,
                 tags: tags,
                 version: version,
@@ -148,6 +155,7 @@ namespace MongoDB.Driver.Core.Servers
                 case "CanonicalEndPoint": canonicalEndPoint = new DnsEndPoint("localhost", 27018); break;
                 case "ElectionId": electionId = new ElectionId(ObjectId.Empty); break;
                 case "EndPoint": endPoint = new DnsEndPoint(endPoint.Host, endPoint.Port + 1); serverId = new ServerId(__clusterId, endPoint); break;
+                case "LogicalSessionTimeout": logicalSessionTimeout = TimeSpan.FromMinutes(2); break;
                 case "ReplicaSetConfig": replicaSetConfig = new ReplicaSetConfig(replicaSetConfig.Members, "newname", replicaSetConfig.Primary, replicaSetConfig.Version); break;
                 case "State": state = ServerState.Disconnected; break;
                 case "ServerId": serverId = new ServerId(new ClusterId(), endPoint); break;
@@ -165,6 +173,7 @@ namespace MongoDB.Driver.Core.Servers
                 averageRoundTripTime: averageRoundTripTime,
                 canonicalEndPoint: canonicalEndPoint,
                 electionId: electionId,
+                logicalSessionTimeout: logicalSessionTimeout,
                 replicaSetConfig: replicaSetConfig,
                 tags: tags,
                 version: version,
@@ -186,19 +195,65 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         [Theory]
+        [InlineData(null, true)]
+        [InlineData(new[] { 0, 0 }, false)]
+        [InlineData(new[] { 0, 1 }, false)]
+        [InlineData(new[] { 0, 2 }, true)]
+        [InlineData(new[] { 0, 6 }, true)]
+        [InlineData(new[] { 0, 7 }, true)]
+        [InlineData(new[] { 2, 2 }, true)]
+        [InlineData(new[] { 2, 6 }, true)]
+        [InlineData(new[] { 2, 7 }, true)]
+        [InlineData(new[] { 6, 6 }, true)]
+        [InlineData(new[] { 6, 7 }, true)]
+        [InlineData(new[] { 7, 7 }, false)]
+        [InlineData(new[] { 7, 8 }, false)]
+        public void IsCompatibleWithDriver_should_return_expected_result(int[] minMaxWireVersions, bool expectedResult)
+        {
+            var clusterId = new ClusterId(1);
+            var endPoint = new DnsEndPoint("localhost", 27017);
+            var serverId = new ServerId(clusterId, endPoint);
+            var wireVersionRange = minMaxWireVersions == null ? null : new Range<int>(minMaxWireVersions[0], minMaxWireVersions[1]);
+            var subject = new ServerDescription(serverId, endPoint, wireVersionRange: wireVersionRange);
+
+            var result = subject.IsCompatibleWithDriver;
+
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
         [InlineData("AverageRoundTripTime")]
         [InlineData("CanonicalEndPoint")]
         [InlineData("ElectionId")]
+        [InlineData("HeartbeatException")]
+        [InlineData("HeartbeatInterval")]
+        [InlineData("LastUpdateTimestamp")]
+        [InlineData("LastWriteTimestamp")]
+        [InlineData("LogicalSessionTimeout")]
+        [InlineData("MaxBatchCount")]
+        [InlineData("MaxDocumentSize")]
+        [InlineData("MaxMessageSize")]
+        [InlineData("MaxWireDocumentSize")]
         [InlineData("ReplicaSetConfig")]
+        [InlineData("State")]
         [InlineData("Tags")]
         [InlineData("Type")]
         [InlineData("Version")]
         [InlineData("WireVersionRange")]
-        public void WithHeartbeat_should_return_new_instance_when_a_field_is_not_equal(string notEqualField)
+        public void With_should_return_new_instance_when_a_field_is_not_equal(string notEqualField)
         {
             var averageRoundTripTime = TimeSpan.FromSeconds(1);
             var canonicalEndPoint = new DnsEndPoint("localhost", 27017);
             var electionId = new ElectionId(ObjectId.GenerateNewId());
+            var heartbeatException = new Exception();
+            var heartbeatInterval = TimeSpan.FromSeconds(10);
+            var lastUpdateTimestamp = DateTime.UtcNow;
+            var lastWriteTimestamp = DateTime.UtcNow;
+            var logicalSessionTimeout = TimeSpan.FromMinutes(1);
+            var maxBatchCount = 1000;
+            var maxDocumentSize = 16000000;
+            var maxMessageSize = 48000000;
+            var maxWireDocumentSize = 16000000;
             var replicaSetConfig = new ReplicaSetConfig(
                 new[] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("localhost", 27018) },
                 "name",
@@ -213,12 +268,22 @@ namespace MongoDB.Driver.Core.Servers
             var subject = new ServerDescription(
                 __serverId,
                 __endPoint,
-                state: state,
-                type: type,
                 averageRoundTripTime: averageRoundTripTime,
+                canonicalEndPoint: canonicalEndPoint,
                 electionId: electionId,
+                heartbeatException: heartbeatException,
+                heartbeatInterval: heartbeatInterval,
+                lastUpdateTimestamp: lastUpdateTimestamp,
+                lastWriteTimestamp: lastWriteTimestamp,
+                logicalSessionTimeout: logicalSessionTimeout,
+                maxBatchCount: maxBatchCount,
+                maxDocumentSize: maxDocumentSize,
+                maxMessageSize: maxMessageSize,
+                maxWireDocumentSize: maxWireDocumentSize,
                 replicaSetConfig: replicaSetConfig,
+                state: state,
                 tags: tags,
+                type: type,
                 version: version,
                 wireVersionRange: wireVersionRange);
 
@@ -227,33 +292,54 @@ namespace MongoDB.Driver.Core.Servers
                 case "AverageRoundTripTime": averageRoundTripTime = averageRoundTripTime.Add(TimeSpan.FromSeconds(1)); break;
                 case "CanonicalEndPoint": canonicalEndPoint = new DnsEndPoint("localhost", 27018); break;
                 case "ElectionId": electionId = new ElectionId(ObjectId.Empty); break;
+                case "HeartbeatException": heartbeatException = new Exception(); break;
+                case "HeartbeatInterval": heartbeatInterval = TimeSpan.FromSeconds(11); break;
+                case "LastUpdateTimestamp": lastUpdateTimestamp = lastUpdateTimestamp.Add(TimeSpan.FromSeconds(1)); break;
+                case "LastWriteTimestamp": lastWriteTimestamp = lastWriteTimestamp.Add(TimeSpan.FromSeconds(1)); break;
+                case "LogicalSessionTimeout": logicalSessionTimeout = TimeSpan.FromMinutes(2); break;
+                case "MaxBatchCount": maxBatchCount += 1; break;
+                case "MaxDocumentSize": maxDocumentSize += 1; break;
+                case "MaxMessageSize": maxMessageSize += 1; break;
+                case "MaxWireDocumentSize": maxWireDocumentSize += 1; break;
                 case "ReplicaSetConfig": replicaSetConfig = new ReplicaSetConfig(replicaSetConfig.Members, "newname", replicaSetConfig.Primary, replicaSetConfig.Version); break;
+                case "State": state = ServerState.Disconnected; break;
                 case "Tags": tags = new TagSet(new[] { new Tag("x", "b") }); break;
                 case "Type": type = ServerType.ReplicaSetSecondary; break;
                 case "Version": version = new SemanticVersion(version.Major, version.Minor, version.Patch + 1); break;
                 case "WireVersionRange": wireVersionRange = new Range<int>(0, 0); break;
             }
 
-            var serverDescription2 = subject.With(
+            var result = subject.With(
                 averageRoundTripTime: averageRoundTripTime,
                 canonicalEndPoint: canonicalEndPoint,
-                replicaSetConfig: replicaSetConfig,
-                state: ServerState.Connected,
                 electionId: electionId,
+                heartbeatException: heartbeatException,
+                heartbeatInterval: heartbeatInterval,
+                lastUpdateTimestamp: lastUpdateTimestamp,
+                lastWriteTimestamp: lastWriteTimestamp,
+                logicalSessionTimeout: logicalSessionTimeout,
+                maxBatchCount: maxBatchCount,
+                maxDocumentSize: maxDocumentSize,
+                maxMessageSize: maxMessageSize,
+                maxWireDocumentSize: maxWireDocumentSize,
+                replicaSetConfig: replicaSetConfig,
+                state: state,
                 tags: tags,
                 type: type,
                 version: version,
                 wireVersionRange: wireVersionRange);
 
-            subject.Equals(serverDescription2).Should().BeFalse();
-            subject.Equals((object)serverDescription2).Should().BeFalse();
-            subject.GetHashCode().Should().NotBe(serverDescription2.GetHashCode());
+            result.Should().NotBeSameAs(subject);
+            result.Equals(subject).Should().BeFalse();
+            result.Equals((object)subject).Should().BeFalse();
+            result.GetHashCode().Should().NotBe(subject.GetHashCode());
         }
 
         [Fact]
-        public void WithHeartbeat_should_return_same_instance_when_all_fields_are_equal()
+        public void With_should_return_same_instance_when_all_fields_are_equal()
         {
             var averageRoundTripTime = TimeSpan.FromSeconds(1);
+            var lastUpdateTimestamp = DateTime.UtcNow;
             var replicaSetConfig = new ReplicaSetConfig(
                 new[] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("localhost", 27018) },
                 "name",
@@ -268,16 +354,18 @@ namespace MongoDB.Driver.Core.Servers
             var subject = new ServerDescription(
                 __serverId,
                 __endPoint,
-                state: state,
-                type: type,
                 averageRoundTripTime: averageRoundTripTime,
+                lastUpdateTimestamp: lastUpdateTimestamp,
                 replicaSetConfig: replicaSetConfig,
+                state: state,
                 tags: tags,
+                type: type,
                 version: version,
                 wireVersionRange: wireVersionRange);
 
-            var serverDescription2 = subject.With(
+            var result = subject.With(
                 averageRoundTripTime: averageRoundTripTime,
+                lastUpdateTimestamp: lastUpdateTimestamp,
                 replicaSetConfig: replicaSetConfig,
                 state: ServerState.Connected,
                 tags: tags,
@@ -285,7 +373,7 @@ namespace MongoDB.Driver.Core.Servers
                 version: version,
                 wireVersionRange: wireVersionRange);
 
-            serverDescription2.Should().BeSameAs(subject);
+            result.Should().BeSameAs(subject);
         }
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -43,6 +43,7 @@ namespace MongoDB.Driver.Core.Clusters
         // fields
         private readonly ClusterId _clusterId;
         private readonly ClusterConnectionMode _connectionMode;
+        private readonly TimeSpan? _logicalSessionTimeout;
         private readonly IReadOnlyList<ServerDescription> _servers;
         private readonly ClusterType _type;
 
@@ -64,6 +65,7 @@ namespace MongoDB.Driver.Core.Clusters
             _connectionMode = connectionMode;
             _type = type;
             _servers = (servers ?? new ServerDescription[0]).OrderBy(n => n.EndPoint, new ToStringComparer<EndPoint>()).ToList();
+            _logicalSessionTimeout = CalculateLogicalSessionTimeout(_servers);
         }
 
         // properties
@@ -81,6 +83,28 @@ namespace MongoDB.Driver.Core.Clusters
         public ClusterConnectionMode ConnectionMode
         {
             get { return _connectionMode; }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether this cluster is compatible with the driver.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this cluster is compatible with the driver; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsCompatibleWithDriver
+        {
+            get
+            {
+                return _servers.All(s => s.IsCompatibleWithDriver);
+            }
+        }
+
+        /// <summary>
+        /// Gets the logical session timeout.
+        /// </summary>
+        public TimeSpan? LogicalSessionTimeout
+        {
+            get { return _logicalSessionTimeout; }
         }
 
         /// <summary>
@@ -215,6 +239,27 @@ namespace MongoDB.Driver.Core.Clusters
         public ClusterDescription WithType(ClusterType value)
         {
             return _type == value ? this : new ClusterDescription(_clusterId, _connectionMode, value, _servers);
+        }
+
+        // private methods
+        private TimeSpan? CalculateLogicalSessionTimeout(IEnumerable<ServerDescription> servers)
+        {
+            TimeSpan? logicalSessionTimeout = null;
+
+            foreach (var server in servers)
+            {
+                if (server.LogicalSessionTimeout == null)
+                {
+                    return null;
+                }
+
+                if (logicalSessionTimeout == null || server.LogicalSessionTimeout.Value < logicalSessionTimeout.Value)
+                {
+                    logicalSessionTimeout = server.LogicalSessionTimeout;
+                }
+            }
+
+            return logicalSessionTimeout;
         }
     }
 }

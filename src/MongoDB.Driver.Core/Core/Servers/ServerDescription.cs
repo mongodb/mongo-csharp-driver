@@ -1,4 +1,4 @@
-/* Copyright 2013-2016 MongoDB Inc.
+/* Copyright 2013-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,15 +14,9 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
-using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
 
@@ -42,6 +36,7 @@ namespace MongoDB.Driver.Core.Servers
         private readonly TimeSpan _heartbeatInterval;
         private readonly DateTime _lastUpdateTimestamp;
         private readonly DateTime? _lastWriteTimestamp;
+        private readonly TimeSpan? _logicalSessionTimeout;
         private readonly int _maxBatchCount;
         private readonly int _maxDocumentSize;
         private readonly int _maxMessageSize;
@@ -67,6 +62,7 @@ namespace MongoDB.Driver.Core.Servers
         /// <param name="heartbeatInterval">The heartbeat interval.</param>
         /// <param name="lastUpdateTimestamp">The last update timestamp.</param>
         /// <param name="lastWriteTimestamp">The last write timestamp.</param>
+        /// <param name="logicalSessionTimeout">The logical session timeout.</param>
         /// <param name="maxBatchCount">The maximum batch count.</param>
         /// <param name="maxDocumentSize">The maximum size of a document.</param>
         /// <param name="maxMessageSize">The maximum size of a message.</param>
@@ -77,6 +73,7 @@ namespace MongoDB.Driver.Core.Servers
         /// <param name="type">The server type.</param>
         /// <param name="version">The server version.</param>
         /// <param name="wireVersionRange">The wire version range.</param>
+        /// <exception cref="ArgumentException">EndPoint and ServerId.EndPoint must match.</exception>
         public ServerDescription(
             ServerId serverId,
             EndPoint endPoint,
@@ -87,6 +84,7 @@ namespace MongoDB.Driver.Core.Servers
             Optional<TimeSpan> heartbeatInterval = default(Optional<TimeSpan>),
             Optional<DateTime> lastUpdateTimestamp = default(Optional<DateTime>),
             Optional<DateTime?> lastWriteTimestamp = default(Optional<DateTime?>),
+            Optional<TimeSpan?> logicalSessionTimeout = default(Optional<TimeSpan?>),
             Optional<int> maxBatchCount = default(Optional<int>),
             Optional<int> maxDocumentSize = default(Optional<int>),
             Optional<int> maxMessageSize = default(Optional<int>),
@@ -113,6 +111,7 @@ namespace MongoDB.Driver.Core.Servers
             _heartbeatInterval = heartbeatInterval.WithDefault(TimeSpan.Zero);
             _lastUpdateTimestamp = lastUpdateTimestamp.WithDefault(DateTime.UtcNow);
             _lastWriteTimestamp = lastWriteTimestamp.WithDefault(null);
+            _logicalSessionTimeout = logicalSessionTimeout.WithDefault(null);
             _maxBatchCount = maxBatchCount.WithDefault(1000);
             _maxDocumentSize = maxDocumentSize.WithDefault(4 * 1024 * 1024);
             _maxMessageSize = maxMessageSize.WithDefault(Math.Max(_maxDocumentSize + 1024, 16000000));
@@ -190,6 +189,20 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         /// <summary>
+        /// Gets a value indicating whether this server is compatible with the driver.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this server is compatible with the driver; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsCompatibleWithDriver
+        {
+            get
+            {
+                return _wireVersionRange == null || _wireVersionRange.Overlaps(Cluster.SupportedWireVersionRange);
+            }
+        }
+
+        /// <summary>
         /// Gets the last update timestamp (when the ServerDescription itself was last updated).
         /// </summary>
         /// <value>
@@ -209,6 +222,17 @@ namespace MongoDB.Driver.Core.Servers
         public DateTime? LastWriteTimestamp
         {
             get { return _lastWriteTimestamp; }
+        }
+
+        /// <summary>
+        /// Gets the logical session timeout.
+        /// </summary>
+        /// <value>
+        /// The logical session timeout.
+        /// </value>
+        public TimeSpan? LogicalSessionTimeout
+        {
+            get { return _logicalSessionTimeout; }
         }
 
         /// <summary>
@@ -356,6 +380,7 @@ namespace MongoDB.Driver.Core.Servers
                 _heartbeatInterval == other._heartbeatInterval &&
                 _lastUpdateTimestamp == other._lastUpdateTimestamp &&
                 _lastWriteTimestamp == other._lastWriteTimestamp &&
+                _logicalSessionTimeout == other._logicalSessionTimeout &&
                 _maxBatchCount == other._maxBatchCount &&
                 _maxDocumentSize == other._maxDocumentSize &&
                 _maxMessageSize == other._maxMessageSize &&
@@ -382,6 +407,7 @@ namespace MongoDB.Driver.Core.Servers
                 .Hash(_heartbeatInterval)
                 .Hash(_lastUpdateTimestamp)
                 .Hash(_lastWriteTimestamp)
+                .Hash(_logicalSessionTimeout)
                 .Hash(_maxBatchCount)
                 .Hash(_maxDocumentSize)
                 .Hash(_maxMessageSize)
@@ -423,6 +449,7 @@ namespace MongoDB.Driver.Core.Servers
         /// <param name="heartbeatInterval">The heartbeat interval.</param>
         /// <param name="lastUpdateTimestamp">The last update timestamp.</param>
         /// <param name="lastWriteTimestamp">The last write timestamp.</param>
+        /// <param name="logicalSessionTimeout">The logical session timeout.</param>
         /// <param name="maxBatchCount">The maximum batch count.</param>
         /// <param name="maxDocumentSize">The maximum size of a document.</param>
         /// <param name="maxMessageSize">The maximum size of a message.</param>
@@ -444,6 +471,7 @@ namespace MongoDB.Driver.Core.Servers
             Optional<TimeSpan> heartbeatInterval = default(Optional<TimeSpan>),
             Optional<DateTime> lastUpdateTimestamp = default(Optional<DateTime>),
             Optional<DateTime?> lastWriteTimestamp = default(Optional<DateTime?>),
+            Optional<TimeSpan?> logicalSessionTimeout = default(Optional<TimeSpan?>),
             Optional<int> maxBatchCount = default(Optional<int>),
             Optional<int> maxDocumentSize = default(Optional<int>),
             Optional<int> maxMessageSize = default(Optional<int>),
@@ -468,6 +496,7 @@ namespace MongoDB.Driver.Core.Servers
                 heartbeatInterval.Replaces(_heartbeatInterval) ||
                 lastUpdateTimestamp.Replaces(_lastUpdateTimestamp) ||
                 lastWriteTimestamp.Replaces(_lastWriteTimestamp) ||
+                logicalSessionTimeout.Replaces(_logicalSessionTimeout) ||
                 maxBatchCount.Replaces(_maxBatchCount) ||
                 maxDocumentSize.Replaces(_maxDocumentSize) ||
                 maxMessageSize.Replaces(_maxMessageSize) ||
@@ -489,6 +518,7 @@ namespace MongoDB.Driver.Core.Servers
                     heartbeatInterval: heartbeatInterval.WithDefault(_heartbeatInterval),
                     lastUpdateTimestamp: lastUpdateTimestamp.WithDefault(_lastUpdateTimestamp),
                     lastWriteTimestamp: lastWriteTimestamp.WithDefault(_lastWriteTimestamp),
+                    logicalSessionTimeout: logicalSessionTimeout.WithDefault(_logicalSessionTimeout),
                     maxBatchCount: maxBatchCount.WithDefault(_maxBatchCount),
                     maxDocumentSize: maxDocumentSize.WithDefault(_maxDocumentSize),
                     maxMessageSize: maxMessageSize.WithDefault(_maxMessageSize),

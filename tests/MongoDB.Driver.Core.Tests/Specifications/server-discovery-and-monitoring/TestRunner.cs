@@ -1,4 +1,4 @@
-/* Copyright 2013-2016 MongoDB Inc.
+/* Copyright 2013-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,16 +13,16 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Reflection;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
@@ -45,135 +45,226 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
         [ClassData(typeof(TestCaseFactory))]
         public void RunTestDefinition(BsonDocument definition)
         {
+            VerifyFields(definition, "description", "path", "phases", "uri");
+
             _cluster = BuildCluster(definition);
             _cluster.Initialize();
 
             var phases = definition["phases"].AsBsonArray;
-            foreach (var phase in phases)
+            foreach (BsonDocument phase in phases)
             {
                 ApplyPhase(phase);
             }
         }
 
-        private void ApplyPhase(BsonValue phase)
+        private void ApplyPhase(BsonDocument phase)
         {
+            VerifyFields(phase, "outcome", "responses");
+
             var responses = phase["responses"].AsBsonArray;
-            foreach (var response in responses)
+            foreach (BsonArray response in responses)
             {
                 ApplyResponse(response);
             }
 
             var outcome = (BsonDocument)phase["outcome"];
-            var topologyType = (string)outcome["topologyType"];
-
-            VerifyTopology(topologyType);
             VerifyOutcome(outcome);
         }
 
-        private void ApplyResponse(BsonValue response)
+        private void ApplyResponse(BsonArray response)
         {
-            var server = (string)response[0];
-            var endPoint = EndPointHelper.Parse(server);
-            var isMasterResult = new IsMasterResult((BsonDocument)response[1]);
+            if (response.Count != 2)
+            {
+                throw new FormatException($"Invalid response count: {response.Count}.");
+            }
+
+            var address = response[0].AsString;
+            var isMasterDocument = response[1].AsBsonDocument;
+            VerifyFields(isMasterDocument, "arbiterOnly", "arbiters", "electionId", "hidden", "hosts", "ismaster", "isreplicaset", "logicalSessionTimeoutMinutes", "maxWireVersion", "me", "minWireVersion", "msg", "ok", "passive", "passives", "primary", "secondary", "setName", "setVersion");
+
+            var endPoint = EndPointHelper.Parse(address);
+            var isMasterResult = new IsMasterResult(isMasterDocument);
             var currentServerDescription = _serverFactory.GetServerDescription(endPoint);
             var newServerDescription = currentServerDescription.With(
-                state: isMasterResult.Wrapped.GetValue("ok", false).ToBoolean() ? ServerState.Connected : ServerState.Disconnected,
-                type: isMasterResult.ServerType,
                 canonicalEndPoint: isMasterResult.Me,
                 electionId: isMasterResult.ElectionId,
-                replicaSetConfig: isMasterResult.GetReplicaSetConfig());
+                logicalSessionTimeout: isMasterResult.LogicalSessionTimeout,
+                replicaSetConfig: isMasterResult.GetReplicaSetConfig(),
+                state: isMasterResult.Wrapped.GetValue("ok", false).ToBoolean() ? ServerState.Connected : ServerState.Disconnected,
+                type: isMasterResult.ServerType,
+                wireVersionRange: new Range<int>(isMasterResult.MinWireVersion, isMasterResult.MaxWireVersion));
 
             var currentClusterDescription = _cluster.Description;
             _serverFactory.PublishDescription(newServerDescription);
             SpinWait.SpinUntil(() => !object.ReferenceEquals(_cluster.Description, currentClusterDescription), 100); // sometimes returns false and that's OK
         }
 
-        private void VerifyTopology(string topologyType)
+        private void VerifyFields(BsonDocument document, params string[] expectedNames)
         {
-            switch (topologyType)
+            foreach (var name in document.Names)
+            {
+                if (!expectedNames.Contains(name))
+                {
+                    throw new FormatException($"Invalid field: \"{name}\".");
+                }
+            }
+        }
+
+        private void VerifyTopology(ICluster cluster, string expectedType)
+        {
+            switch (expectedType)
             {
                 case "Single":
-                    _cluster.Should().BeOfType<SingleServerCluster>();
+                    cluster.Should().BeOfType<SingleServerCluster>();
                     break;
                 case "ReplicaSetWithPrimary":
-                    _cluster.Should().BeOfType<MultiServerCluster>();
-                    _cluster.Description.Type.Should().Be(ClusterType.ReplicaSet);
-                    _cluster.Description.Servers.Should().ContainSingle(x => x.Type == ServerType.ReplicaSetPrimary);
+                    cluster.Should().BeOfType<MultiServerCluster>();
+                    cluster.Description.Type.Should().Be(ClusterType.ReplicaSet);
+                    cluster.Description.Servers.Should().ContainSingle(x => x.Type == ServerType.ReplicaSetPrimary);
                     break;
                 case "ReplicaSetNoPrimary":
-                    _cluster.Should().BeOfType<MultiServerCluster>();
-                    _cluster.Description.Type.Should().Be(ClusterType.ReplicaSet);
-                    _cluster.Description.Servers.Should().NotContain(x => x.Type == ServerType.ReplicaSetPrimary);
+                    cluster.Should().BeOfType<MultiServerCluster>();
+                    cluster.Description.Type.Should().Be(ClusterType.ReplicaSet);
+                    cluster.Description.Servers.Should().NotContain(x => x.Type == ServerType.ReplicaSetPrimary);
                     break;
                 case "Sharded":
-                    _cluster.Should().BeOfType<MultiServerCluster>();
-                    _cluster.Description.Type.Should().Be(ClusterType.Sharded);
+                    cluster.Should().BeOfType<MultiServerCluster>();
+                    cluster.Description.Type.Should().Be(ClusterType.Sharded);
                     break;
                 case "Unknown":
-                    _cluster.Description.Type.Should().Be(ClusterType.Unknown);
+                    cluster.Description.Type.Should().Be(ClusterType.Unknown);
                     break;
                 default:
-                    throw new AssertionException($"Unexpected topology type {topologyType}.");
+                    throw new FormatException($"Invalid topology type: \"{expectedType}\".");
             }
         }
 
         private void VerifyOutcome(BsonDocument outcome)
         {
-            var description = _cluster.Description;
+            VerifyFields(outcome, "compatible", "logicalSessionTimeoutMinutes", "servers", "setName", "topologyType");
 
+            var expectedTopologyType = (string)outcome["topologyType"];
+            VerifyTopology(_cluster, expectedTopologyType);
+
+            var actualDescription = _cluster.Description;
+
+            var actualServers = actualDescription.Servers.Select(x => x.EndPoint);
             var expectedServers = outcome["servers"].AsBsonDocument.Elements.Select(x => new
             {
                 EndPoint = EndPointHelper.Parse(x.Name),
                 Description = (BsonDocument)x.Value
             });
+            actualServers.WithComparer(EndPointHelper.EndPointEqualityComparer).Should().BeEquivalentTo(expectedServers.Select(x => x.EndPoint).WithComparer(EndPointHelper.EndPointEqualityComparer));
 
-            var actualServers = description.Servers.Select(x => x.EndPoint);
-
-            actualServers.Should().BeEquivalentTo(expectedServers.Select(x => x.EndPoint));
-
-            foreach (var actualServer in description.Servers)
+            foreach (var actualServer in actualDescription.Servers)
             {
-                var expectedServer = expectedServers.Single(x => x.EndPoint.Equals(actualServer.EndPoint));
-                VerifyServer(actualServer, expectedServer.Description);
+                var expectedServer = expectedServers.Single(x => EndPointHelper.EndPointEqualityComparer.Equals(x.EndPoint, actualServer.EndPoint));
+                VerifyServerDescription(actualServer, expectedServer.Description);
+            }
+
+            if (outcome.Contains("setName"))
+            {
+                // TODO: assert something against setName
+            }
+
+            if (outcome.Contains("logicalSessionTimeoutMinutes"))
+            {
+                TimeSpan? expectedLogicalSessionTimeout;
+                switch (outcome["logicalSessionTimeoutMinutes"].BsonType)
+                {
+                    case BsonType.Null:
+                        expectedLogicalSessionTimeout = null;
+                        break;
+                    case BsonType.Int32:
+                    case BsonType.Int64:
+                        expectedLogicalSessionTimeout = TimeSpan.FromMinutes(outcome["logicalSessionTimeoutMinutes"].ToDouble());
+                        break;
+                    default:
+                        throw new FormatException($"Invalid logicalSessionTimeoutMinutes BSON type: {outcome["setName"].BsonType}.");
+                }
+                actualDescription.LogicalSessionTimeout.Should().Be(expectedLogicalSessionTimeout);
+            }
+
+            if (outcome.Contains("compatible"))
+            {
+                var expectedIsCompatibleWithDriver = outcome["compatible"].ToBoolean();
+                actualDescription.IsCompatibleWithDriver.Should().Be(expectedIsCompatibleWithDriver);
             }
         }
 
-        private void VerifyServer(ServerDescription actualServer, BsonDocument expectedServer)
+        private void VerifyServerDescription(ServerDescription actualDescription, BsonDocument expectedDescription)
         {
-            var type = (string)expectedServer["type"];
-            switch (type)
+            VerifyFields(expectedDescription, "electionId", "setName", "setVersion", "type");
+
+            var expectedType = (string)expectedDescription["type"];
+            switch (expectedType)
             {
                 case "RSPrimary":
-                    actualServer.Type.Should().Be(ServerType.ReplicaSetPrimary);
+                    actualDescription.Type.Should().Be(ServerType.ReplicaSetPrimary);
                     break;
                 case "RSSecondary":
-                    actualServer.Type.Should().Be(ServerType.ReplicaSetSecondary);
+                    actualDescription.Type.Should().Be(ServerType.ReplicaSetSecondary);
                     break;
                 case "RSArbiter":
-                    actualServer.Type.Should().Be(ServerType.ReplicaSetArbiter);
+                    actualDescription.Type.Should().Be(ServerType.ReplicaSetArbiter);
                     break;
                 case "RSGhost":
-                    actualServer.Type.Should().Be(ServerType.ReplicaSetGhost);
+                    actualDescription.Type.Should().Be(ServerType.ReplicaSetGhost);
                     break;
                 case "RSOther":
-                    actualServer.Type.Should().Be(ServerType.ReplicaSetOther);
+                    actualDescription.Type.Should().Be(ServerType.ReplicaSetOther);
                     break;
                 case "Mongos":
-                    actualServer.Type.Should().Be(ServerType.ShardRouter);
+                    actualDescription.Type.Should().Be(ServerType.ShardRouter);
                     break;
                 case "Standalone":
-                    actualServer.Type.Should().Be(ServerType.Standalone);
+                    actualDescription.Type.Should().Be(ServerType.Standalone);
                     break;
                 default:
-                    actualServer.Type.Should().Be(ServerType.Unknown);
+                    actualDescription.Type.Should().Be(ServerType.Unknown);
                     break;
             }
 
-            BsonValue setName;
-            if (expectedServer.TryGetValue("setName", out setName) && !setName.IsBsonNull)
+            if (expectedDescription.Contains("setName"))
             {
-                actualServer.ReplicaSetConfig.Should().NotBeNull();
-                actualServer.ReplicaSetConfig.Name.Should().Be(setName.ToString());
+                string expectedSetName;
+                switch (expectedDescription["setName"].BsonType)
+                {
+                    case BsonType.Null: expectedSetName = null; break;
+                    case BsonType.String: expectedSetName = expectedDescription["setName"].AsString; ; break;
+                    default: throw new FormatException($"Invalid setName BSON type: {expectedDescription["setName"].BsonType}.");
+                }
+                actualDescription.ReplicaSetConfig?.Name.Should().Be(expectedSetName);
+            }
+
+            if (expectedDescription.Contains("setVersion"))
+            {
+                int? expectedSetVersion;
+                switch (expectedDescription["setVersion"].BsonType)
+                {
+                    case BsonType.Null:
+                        expectedSetVersion = null;
+                        break;
+                    case BsonType.Int32:
+                    case BsonType.Int64:
+                        expectedSetVersion = expectedDescription["setVersion"].ToInt32();
+                        break;
+                    default:
+                        throw new FormatException($"Invalid setVersion BSON type: {expectedDescription["setVersion"].BsonType}.");
+                }
+                actualDescription.ReplicaSetConfig?.Version.Should().Be(expectedSetVersion);
+            }
+
+            if (expectedDescription.Contains("electionId"))
+            {
+                ElectionId expectedElectionId;
+                switch (expectedDescription["electionId"].BsonType)
+                {
+                    case BsonType.Null: expectedElectionId = null; break;
+                    case BsonType.ObjectId: expectedElectionId = new ElectionId(expectedDescription["electionId"].AsObjectId); break;
+                    default: throw new FormatException($"Invalid electionId BSON type: {expectedDescription["electionId"].BsonType}.");
+                }
+                actualDescription.ElectionId.Should().Be(expectedElectionId);
             }
         }
 
@@ -207,18 +298,8 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
                     .GetManifestResourceNames()
                     .Where(path => path.StartsWith(prefix) && path.EndsWith(".json"))
                     .Where(path => !path.StartsWith(monitoringPrefix))
-                    .Select(path =>
-                    {
-                        var definition = ReadDefinition(path);
-                        //var fullName = path.Remove(0, prefix.Length);
-                        //var data = new TestCaseData(definition);
-                        //data.SetCategory("Specifications");
-                        //data.SetCategory("server-discovery-and-monitoring");
-                        //return data
-                        //    .SetName(fullName.Remove(fullName.Length - 5).Replace(".", "_"))
-                        //    .SetDescription(definition["description"].ToString());
-                        return new object[] { definition };
-                    });
+                    .Select(path => ReadDefinition(path))
+                    .Select(definition => new object[] { definition });
                 return enumerable.GetEnumerator();
             }
 
@@ -234,7 +315,9 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
                 using (var definitionStringReader = new StreamReader(definitionStream))
                 {
                     var definitionString = definitionStringReader.ReadToEnd();
-                    return BsonDocument.Parse(definitionString);
+                    var definition = BsonDocument.Parse(definitionString);
+                    definition.InsertAt(0, new BsonElement("path", path));
+                    return definition;
                 }
             }
         }

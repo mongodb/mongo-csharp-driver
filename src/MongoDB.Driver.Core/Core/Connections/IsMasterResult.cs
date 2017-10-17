@@ -1,4 +1,4 @@
-/* Copyright 2013-2016 MongoDB Inc.
+/* Copyright 2013-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,9 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
@@ -99,6 +96,33 @@ namespace MongoDB.Driver.Core.Connections
                 if (_wrapped.TryGetValue("lastWrite", out value))
                 {
                     return value["lastWriteDate"].ToUniversalTime();
+                }
+
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Gets the logical session timeout.
+        /// </summary>
+        /// <value>
+        /// The logical session timeout.
+        /// </value>
+        public TimeSpan? LogicalSessionTimeout
+        {
+            get
+            {
+                BsonValue value;
+                if (_wrapped.TryGetValue("logicalSessionTimeoutMinutes", out value))
+                {
+                    if (value.BsonType == BsonType.Null)
+                    {
+                        return null;
+                    }
+                    else
+                    {
+                        return TimeSpan.FromMinutes(value.ToDouble());
+                    }
                 }
 
                 return null;

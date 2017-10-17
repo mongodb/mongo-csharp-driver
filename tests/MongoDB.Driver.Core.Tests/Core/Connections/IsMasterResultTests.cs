@@ -1,4 +1,4 @@
-/* Copyright 2013-2016 MongoDB Inc.
+/* Copyright 2013-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -85,6 +85,22 @@ namespace MongoDB.Driver.Core.Connections
             var result = subject.LastWriteTimestamp;
 
             var expectedResult = expectedYear.HasValue ? new DateTime(expectedYear.Value, 1, 1, 0, 0, 0, DateTimeKind.Utc) : (DateTime?)null;
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [InlineData("{ }", null)]
+        [InlineData("{ logicalSessionTimeoutMinutes : null }", null)]
+        [InlineData("{ logicalSessionTimeoutMinutes : NumberInt(1) }", 1)]
+        [InlineData("{ logicalSessionTimeoutMinutes : NumberLong(2) }", 2)]
+        [InlineData("{ logicalSessionTimeoutMinutes : 3.0 }", 3)]
+        public void LogicalSessionTimeout_should_parse_document_correctly(string json, int? expectedResultMinutes)
+        {
+            var subject = new IsMasterResult(BsonDocument.Parse(json));
+            var expectedResult = expectedResultMinutes == null ? (TimeSpan?)null : TimeSpan.FromMinutes(expectedResultMinutes.Value);
+
+            var result = subject.LogicalSessionTimeout;
+
             result.Should().Be(expectedResult);
         }
 

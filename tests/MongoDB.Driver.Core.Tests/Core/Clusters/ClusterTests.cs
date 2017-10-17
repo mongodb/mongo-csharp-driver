@@ -1,4 +1,4 @@
-/* Copyright 2013-2016 MongoDB Inc.
+/* Copyright 2013-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -52,6 +52,14 @@ namespace MongoDB.Driver.Core.Clusters
                     return mockServer.Object;
                 });
             _capturedEvents = new EventCapturer();
+        }
+
+        [Fact]
+        public void SupportedWireVersionRange_should_return_expected_result()
+        {
+            var result = Cluster.SupportedWireVersionRange;
+
+            result.Should().Be(new Range<int>(2, 6));
         }
 
         [Fact]

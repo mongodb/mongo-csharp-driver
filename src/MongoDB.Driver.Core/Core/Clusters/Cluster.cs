@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -38,8 +38,17 @@ namespace MongoDB.Driver.Core.Clusters
         #region static
         // static fields
         private static readonly TimeSpan __minHeartbeatInterval = TimeSpan.FromMilliseconds(500);
-        private static readonly Range<int> __supportedWireVersionRange = new Range<int>(0, 3);
+        private static readonly Range<int> __supportedWireVersionRange = new Range<int>(2, 6);
         private static readonly IServerSelector __randomServerSelector = new RandomServerSelector();
+
+        // static properties
+        /// <summary>
+        /// Gets the supported wire version range.
+        /// </summary>
+        /// <value>
+        /// The supported wire version range.
+        /// </value>
+        public static Range<int> SupportedWireVersionRange => __supportedWireVersionRange;
         #endregion
 
         // fields
