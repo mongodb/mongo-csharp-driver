@@ -179,7 +179,7 @@ namespace MongoDB.Driver.Core.Connections
                 {
                     var dnsEndPoint = endPoint as DnsEndPoint;
 #if NETSTANDARD1_5 || NETSTANDARD1_6
-                    await Task.Run(() => socket.Connect(endPoint)); // TODO: honor cancellationToken
+                    await socket.ConnectAsync(endPoint).ConfigureAwait(false); // TODO: honor cancellationToken
 #else
                     if (dnsEndPoint != null)
                     {
