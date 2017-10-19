@@ -159,11 +159,24 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(WriteConcern.Unacknowledged, settings.WriteConcern);
         }
 
+        private static void ClusterConfigurator(ClusterBuilder clusterBuilder)
+        {
+            clusterBuilder.ToString();
+        }
+
         [Fact]
         public void TestEquals()
         {
             var settings = new MongoServerSettings();
+            settings.ClusterConfigurator = ClusterConfigurator;
+
             var clone = settings.Clone();
+
+            clone.ReadConcern = new ReadConcern(settings.ReadConcern.Level);
+            clone.WriteConcern = new WriteConcern(settings.WriteConcern.W, settings.WriteConcern.WTimeout, settings.WriteConcern.FSync, settings.WriteConcern.Journal);
+            clone.Credentials = settings.Credentials.ToArray();
+            clone.ClusterConfigurator = ClusterConfigurator;
+
             Assert.True(clone.Equals(settings));
 
             clone = settings.Clone();

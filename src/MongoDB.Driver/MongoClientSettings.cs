@@ -653,7 +653,7 @@ namespace MongoDB.Driver
             var rhs = (MongoClientSettings)obj;
             return
                 _applicationName == rhs._applicationName &&
-                object.ReferenceEquals(_clusterConfigurator, rhs._clusterConfigurator) &&
+                _clusterConfigurator == rhs._clusterConfigurator &&
                 _connectionMode == rhs._connectionMode &&
                 _connectTimeout == rhs._connectTimeout &&
                 _credentials == rhs._credentials &&
@@ -678,7 +678,7 @@ namespace MongoDB.Driver
                 _verifySslCertificate == rhs._verifySslCertificate &&
                 _waitQueueSize == rhs._waitQueueSize &&
                 _waitQueueTimeout == rhs._waitQueueTimeout &&
-                _writeConcern == rhs._writeConcern &&
+                object.Equals(_writeConcern, rhs._writeConcern) &&
                 object.Equals(_writeEncoding, rhs._writeEncoding);
         }
 

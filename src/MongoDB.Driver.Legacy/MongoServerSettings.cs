@@ -718,7 +718,7 @@ namespace MongoDB.Driver
             var rhs = (MongoServerSettings)obj;
             return
                 _applicationName == rhs._applicationName &&
-                object.ReferenceEquals(_clusterConfigurator, rhs._clusterConfigurator) &&
+                _clusterConfigurator == rhs._clusterConfigurator &&
                _connectionMode == rhs._connectionMode &&
                _connectTimeout == rhs._connectTimeout &&
                _credentials == rhs._credentials &&
