@@ -1389,7 +1389,7 @@ namespace MongoDB.Driver.Linq.Translators
                 return null;
             }
 
-            if (operatorType != ExpressionType.Equal)
+            if (operatorType != ExpressionType.Equal && operatorType != ExpressionType.NotEqual)
             {
                 return null;
             }
@@ -1460,8 +1460,16 @@ namespace MongoDB.Driver.Linq.Translators
 
                 if (!stringValueTrimMatches)
                 {
-                    // == "untrimmed string" matches no documents
-                    return TranslateBoolean(false);
+                    if (operatorType == ExpressionType.Equal)
+                    {
+                        // == "untrimmed string" matches no documents
+                        return TranslateBoolean(false);
+                    }
+                    else
+                    {
+                        // != "untrimmed string" matches all documents
+                        return TranslateBoolean(true);
+                    }
                 }
 
                 var pattern = Regex.Escape(stringValue);
@@ -1483,11 +1491,27 @@ namespace MongoDB.Driver.Linq.Translators
                     }
                 }
                 pattern = "^" + pattern + "$";
-                return __builder.Regex(fieldExpression.FieldName, new BsonRegularExpression(pattern, "s"));
+                var regex = new BsonRegularExpression(pattern, "s");
+
+                if (operatorType == ExpressionType.Equal)
+                {
+                    return __builder.Regex(fieldExpression.FieldName, regex);
+                }
+                else
+                {
+                    return __builder.Not(__builder.Regex(fieldExpression.FieldName, regex));
+                }
             }
             else if (serializedValue.IsBsonNull)
             {
-                return __builder.Eq(fieldExpression.FieldName, BsonNull.Value);
+                if (operatorType == ExpressionType.Equal)
+                {
+                    return __builder.Eq(fieldExpression.FieldName, BsonNull.Value);
+                }
+                else
+                {
+                    return __builder.Ne(fieldExpression.FieldName, BsonNull.Value);
+                }
             }
             else
             {

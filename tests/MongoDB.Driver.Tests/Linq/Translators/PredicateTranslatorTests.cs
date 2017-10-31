@@ -735,6 +735,15 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Fact]
+        public void StringTrim_not_equal()
+        {
+            Assert(
+                x => x.A.Trim() != "some",
+                2,
+                "{A: {$not: /^\\s*some\\s*$/s}}");
+        }
+
+        [Fact]
         public void StringTrim_with_chars()
         {
             Assert(
