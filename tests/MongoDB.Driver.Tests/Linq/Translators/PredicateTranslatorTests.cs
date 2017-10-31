@@ -726,6 +726,42 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Fact]
+        public void StringTrim()
+        {
+            Assert(
+                x => x.A.Trim() == "some",
+                0,
+                "{A: /^\\s*some\\s*$/s}");
+        }
+
+        [Fact]
+        public void StringTrim_with_chars()
+        {
+            Assert(
+                x => x.A.Trim('a', 'b', 'c') == "some",
+                0,
+                "{A: /^[abc]*some[abc]*$/s}");
+        }
+
+        [Fact]
+        public void StringTrimEnd()
+        {
+            Assert(
+                x => x.A.TrimEnd('a', 'b', 'c') == "some",
+                0,
+                "{A: /^some[abc]*$/s}");
+        }
+
+        [Fact]
+        public void StringTrimStart()
+        {
+            Assert(
+                x => x.A.TrimStart('A', 'w', 'e') == "some",
+                1,
+                "{A: /^[Awe]*some$/s}");
+        }
+
+        [Fact]
         public void StringEquals()
         {
             Assert(

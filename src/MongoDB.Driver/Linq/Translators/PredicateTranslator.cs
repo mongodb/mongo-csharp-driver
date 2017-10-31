@@ -398,6 +398,12 @@ namespace MongoDB.Driver.Linq.Translators
                 return query;
             }
 
+            query = TranslateStringTrimQuery(variableExpression, operatorType, constantExpression);
+            if (query != null)
+            {
+                return query;
+            }
+
             query = TranslateTypeComparisonQuery(variableExpression, operatorType, constantExpression);
             if (query != null)
             {
@@ -1358,6 +1364,130 @@ namespace MongoDB.Driver.Linq.Translators
                 {
                     return __builder.Ne(fieldExpression.FieldName, BsonNull.Value);
                 }
+            }
+            else
+            {
+                var message = string.Format("When using {0} in a LINQ string comparison the value being compared to must serialize as a string.", methodName);
+                throw new ArgumentException(message);
+            }
+        }
+
+        private FilterDefinition<BsonDocument> TranslateStringTrimQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
+        {
+            var methodExpression = variableExpression as MethodCallExpression;
+            if (methodExpression == null)
+            {
+                return null;
+            }
+
+            var methodName = methodExpression.Method.Name;
+            if ((methodName != "Trim" && methodName != "TrimEnd" && methodName != "TrimStart") ||
+                methodExpression.Object == null ||
+                methodExpression.Type != typeof(string) ||
+                methodExpression.Arguments.Count > 1)
+            {
+                return null;
+            }
+
+            if (operatorType != ExpressionType.Equal)
+            {
+                return null;
+            }
+
+            var fieldExpression = GetFieldExpression(methodExpression.Object);
+            var serializedValue = fieldExpression.SerializeValue(constantExpression.Type, constantExpression.Value);
+
+            if (serializedValue.IsString)
+            {
+                var trimStart = false;
+                var trimEnd = false;
+                Expression trimCharsExpression = null;
+
+                switch (methodName)
+                {
+                    case "Trim":
+                        trimStart = true;
+                        trimEnd = true;
+                        trimCharsExpression = methodExpression.Arguments.FirstOrDefault();
+                        break;
+                    case "TrimEnd":
+                        trimEnd = true;
+                        trimCharsExpression = methodExpression.Arguments.First();
+                        break;
+                    case "TrimStart":
+                        trimStart = true;
+                        trimCharsExpression = methodExpression.Arguments.First();
+                        break;
+                    default:
+                        return null;
+                }
+
+                char[] trimChars = null;
+                if (trimCharsExpression != null)
+                {
+                    ConstantExpression trimCharsConstantExpression = trimCharsExpression as ConstantExpression;
+                    if (trimCharsConstantExpression == null || !trimCharsConstantExpression.Type.IsArray || trimCharsConstantExpression.Type.GetElementType() != typeof(char))
+                    {
+                        return null;
+                    }
+                    trimChars = (char[])trimCharsConstantExpression.Value;
+                }
+
+                var stringValue = serializedValue.AsString;
+                var stringValueTrimMatches = false;
+
+                switch (methodName)
+                {
+                    case "Trim":
+                        if (trimChars != null)
+                        {
+                            stringValueTrimMatches = stringValue == stringValue.Trim(trimChars);
+                        }
+                        else
+                        {
+                            stringValueTrimMatches = stringValue == stringValue.Trim();
+                        }
+                        break;
+                    case "TrimEnd":
+                        stringValueTrimMatches = stringValue == stringValue.TrimEnd(trimChars);
+                        break;
+                    case "TrimStart":
+                        stringValueTrimMatches = stringValue == stringValue.TrimStart(trimChars);
+                        break;
+                    default:
+                        return null;
+                }
+
+                if (!stringValueTrimMatches)
+                {
+                    // == "untrimmed string" matches no documents
+                    return TranslateBoolean(false);
+                }
+
+                var pattern = Regex.Escape(stringValue);
+                if (trimStart || trimEnd)
+                {
+                    var trimCharsPattern = GetTrimCharsPattern(trimCharsExpression);
+                    if (trimCharsPattern == null)
+                    {
+                        return null;
+                    }
+
+                    if (trimStart)
+                    {
+                        pattern = trimCharsPattern + pattern;
+                    }
+                    if (trimEnd)
+                    {
+                        pattern = pattern + trimCharsPattern;
+                    }
+                }
+                pattern = "^" + pattern + "$";
+                return __builder.Regex(fieldExpression.FieldName, new BsonRegularExpression(pattern, "s"));
+            }
+            else if (serializedValue.IsBsonNull)
+            {
+                return __builder.Eq(fieldExpression.FieldName, BsonNull.Value);
             }
             else
             {
