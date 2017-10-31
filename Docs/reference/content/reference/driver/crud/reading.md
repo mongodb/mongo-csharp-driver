@@ -274,7 +274,7 @@ Unwind(x => x.ArrayFieldToUnwind);
 
 #### $group
 
-A `$group` stage is defined using the [`Group`]({{< apiref "M_MongoDB_Driver_IAggregateFluent_1_Group__1" >}}) method and its overloads. Because $unwind is a type of projection, you must provide a return type. The most useful of the overloads is where two lambda expressions are expressed, the first for the key and the second for the grouping. See [expressions]({{< relref "reference\driver\expressions.md#grouping" >}}) for more detail about the expressions available inside a $group.
+A `$group` stage is defined using the [`Group`]({{< apiref "M_MongoDB_Driver_IAggregateFluent_1_Group__1" >}}) method and its overloads. Because `$unwind` is a type of projection, you must provide a return type. The most useful of the overloads is where two lambda expressions are expressed, the first for the key and the second for the grouping. See [expressions]({{< relref "reference\driver\expressions.md#grouping" >}}) for more detail about the expressions available inside a `$group`.
 
 ```csharp
 Group(x => x.Name, g => new { Name = g.Key, AverageAge = g.Average(x = x.Age) });
