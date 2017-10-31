@@ -307,8 +307,7 @@ var query = from p in collection.AsQueryable()
 ]
 ```
 
-.. note::
-   An anonymous type, as above, has a constructor with two parameters as required.
+{{% note %}}An anonymous type, as above, has a constructor with two parameters as required.{{% /note %}}
 
 Sometimes, the compiler will also generate this two-parameter anonymous type transparently. Below is an example of this with a custom projection:
 
@@ -506,7 +505,7 @@ var result = collection.AsQueryable().Select(p => p.Age).Sum();
 ```
 ```json
 [
-    { $group: { _id: 1, __result: { $Sum: "$Age" } } }
+    { $group: { _id: 1, __result: { $sum: "$Age" } } }
 ]
 ```
 
