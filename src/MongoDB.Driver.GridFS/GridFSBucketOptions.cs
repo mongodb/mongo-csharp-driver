@@ -29,6 +29,7 @@ namespace MongoDB.Driver.GridFS
         private ReadConcern _readConcern;
         private ReadPreference _readPreference;
         private WriteConcern _writeConcern;
+        private bool _suppressEnsureIndexes;
 
         // constructors
         /// <summary>
@@ -51,6 +52,7 @@ namespace MongoDB.Driver.GridFS
             _readConcern = other.ReadConcern;
             _readPreference = other.ReadPreference;
             _writeConcern = other.WriteConcern;
+            _suppressEnsureIndexes = other.SuppressEnsureIndexes;
         }
 
         /// <summary>
@@ -65,6 +67,7 @@ namespace MongoDB.Driver.GridFS
             _readConcern = other.ReadConcern;
             _readPreference = other.ReadPreference;
             _writeConcern = other.WriteConcern;
+            _suppressEnsureIndexes = other.SuppressEnsureIndexes;
         }
 
         // properties
@@ -135,6 +138,18 @@ namespace MongoDB.Driver.GridFS
             get { return _writeConcern; }
             set { _writeConcern = value; }
         }
+
+        /// <summary>
+        /// Gets or sets the suppress ensure indexes setting
+        /// </summary>
+        /// <value>
+        /// The suppress ensure indexes setting
+        /// </value>
+        public bool SuppressEnsureIndexes
+        {
+            get { return _suppressEnsureIndexes; }
+            set { _suppressEnsureIndexes = value; }
+        }
     }
 
     /// <summary>
@@ -165,6 +180,7 @@ namespace MongoDB.Driver.GridFS
         private readonly ReadConcern _readConcern;
         private readonly ReadPreference _readPreference;
         private readonly WriteConcern _writeConcern;
+        private readonly bool _suppressEnsureIndexes;
 
         // constructors
         /// <summary>
@@ -174,6 +190,7 @@ namespace MongoDB.Driver.GridFS
         {
             _bucketName = "fs";
             _chunkSizeBytes = 255 * 1024;
+            _suppressEnsureIndexes = false;
         }
 
         /// <summary>
@@ -188,6 +205,7 @@ namespace MongoDB.Driver.GridFS
             _readConcern = other.ReadConcern;
             _readPreference = other.ReadPreference;
             _writeConcern = other.WriteConcern;
+            _suppressEnsureIndexes = other.SuppressEnsureIndexes;
         }
 
         // properties
@@ -255,6 +273,17 @@ namespace MongoDB.Driver.GridFS
         public WriteConcern WriteConcern
         {
             get { return _writeConcern; }
+        }
+
+        /// <summary>
+        /// Gets the suppress ensure indexes setting
+        /// </summary>
+        /// <value>
+        /// The suppress ensure indexes setting
+        /// </value>
+        public bool SuppressEnsureIndexes
+        {
+            get { return _suppressEnsureIndexes; }
         }
     }
 }
