@@ -6,6 +6,7 @@
 #load buildhelpers.cake
 
 using System.Text.RegularExpressions;
+using System.Linq;
 
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
@@ -46,8 +47,8 @@ Task("TestAndPackage")
     .IsDependentOn("Package");
 
 Task("Build")
-    .IsDependentOn("BuildNet45");
-    //.IsDependentOn("BuildNetStandard15");
+    .IsDependentOn("BuildNet45")
+    .IsDependentOn("BuildNetStandard15");
 
 Task("BuildNet45")
     .Does(() =>
@@ -81,13 +82,19 @@ Task("BuildNet45")
 Task("BuildNetStandard15")
     .Does(() =>
     {
-        DotNetCoreRestore();
-        GlobalAssemblyInfo.OverwriteGlobalAssemblyInfoFile(Context, solutionDirectory, configuration, gitVersion);
-        DotNetCoreBuild("./**/project.json", new DotNetCoreBuildSettings
+        var dotNetProjectDirectories = srcProjectNames.Select(
+            projectName=>srcDirectory.Combine(projectName+".Dotnet"));
+
+        foreach (var directory in dotNetProjectDirectories) 
         {
-            Configuration = configuration
-        });
- 
+            DotNetCoreRestore(directory.ToString());
+        }
+        GlobalAssemblyInfo.OverwriteGlobalAssemblyInfoFile(Context, solutionDirectory, configuration, gitVersion);
+        var settings= new DotNetCoreBuildSettings { Configuration = configuration };
+        foreach (var directory in dotNetProjectDirectories) 
+        {
+            DotNetCoreBuild(directory.ToString(), settings);
+        }
         EnsureDirectoryExists(artifactsBinNetStandard15Directory);
         foreach (var projectName in srcProjectNames)
         {
@@ -111,8 +118,8 @@ Task("Test")
     .IsDependentOn("TestWindows");
 
 Task("TestWindows")
-    .IsDependentOn("TestNet45");
-    //.IsDependentOn("TestNetStandard15");
+    .IsDependentOn("TestNet45")
+    .IsDependentOn("TestNetStandard15");
 
 Task("TestLinux")
     .IsDependentOn("TestNetStandard15");
@@ -145,7 +152,8 @@ Task("TestNetStandard15")
         foreach (var testProjectName in testProjectNames)
         {
             var testProjectDirectory = testsDirectory.Combine(testProjectName);
-            var testProjectFile = testProjectDirectory.CombineWithFilePath("project.json");
+            DotNetCoreRestore(testProjectDirectory.ToString());
+            var testProjectFile = testProjectDirectory.CombineWithFilePath($"{testProjectName}.csproj");
             var testSettings = new DotNetCoreTestSettings();
             var xunitSettings = new XUnit2Settings
             {

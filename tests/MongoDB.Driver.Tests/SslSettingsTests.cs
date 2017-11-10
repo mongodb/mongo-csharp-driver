@@ -187,11 +187,7 @@ namespace MongoDB.Driver.Tests
             var codeBaseUrl = new Uri(codeBase);
             var codeBasePath = Uri.UnescapeDataString(codeBaseUrl.AbsolutePath);
             var codeBaseDirectory = Path.GetDirectoryName(codeBasePath);
-#if NET45
             var certificateDirectory = codeBaseDirectory;
-#else
-            var certificateDirectory = Path.Combine(codeBaseDirectory, "MongoDB.Driver.Tests");
-#endif
             return Path.Combine(certificateDirectory, "testcert.pfx");
         }
     }

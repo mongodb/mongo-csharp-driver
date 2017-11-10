@@ -24,7 +24,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyProduct("MongoDB.Bson.Tests")]
 [assembly: AssemblyCompany("MongoDB Inc.")]
 [assembly: AssemblyCopyright("Copyright © 2010-2016 MongoDB Inc.")]
-[assembly: AssemblyVersion("0.0.*")]
+[assembly: AssemblyVersion("0.0.0.0")]
 [assembly: AssemblyInformationalVersion("unofficial")]
 [assembly: AssemblyFileVersion("0.0.0.0")]
 [assembly: AssemblyMetadata("githash", "none")]
