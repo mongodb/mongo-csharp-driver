@@ -46,8 +46,8 @@ Task("TestAndPackage")
     .IsDependentOn("Package");
 
 Task("Build")
-    .IsDependentOn("BuildNet45")
-    .IsDependentOn("BuildNetStandard15");
+    .IsDependentOn("BuildNet45");
+    //.IsDependentOn("BuildNetStandard15");
 
 Task("BuildNet45")
     .Does(() =>
@@ -111,8 +111,8 @@ Task("Test")
     .IsDependentOn("TestWindows");
 
 Task("TestWindows")
-    .IsDependentOn("TestNet45")
-    .IsDependentOn("TestNetStandard15");
+    .IsDependentOn("TestNet45");
+    //.IsDependentOn("TestNetStandard15");
 
 Task("TestLinux")
     .IsDependentOn("TestNetStandard15");
