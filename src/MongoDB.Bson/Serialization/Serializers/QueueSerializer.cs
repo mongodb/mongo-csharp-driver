@@ -80,6 +80,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The accumulator.</returns>
         protected override object CreateAccumulator()
         {
+            if (TargetInstance != null)
+            {
+                TargetInstance.Clear();
+                return TargetInstance;
+            }
+
             return new Queue();
         }
 
@@ -100,6 +106,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The result.</returns>
         protected override Queue FinalizeResult(object accumulator)
         {
+            if (TargetInstance != null)
+            {
+                // TargetInstance has already been cleared and populated so just return it
+                return TargetInstance;
+            }
+
             return (Queue)accumulator;
         }
 
@@ -178,6 +190,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The accumulator.</returns>
         protected override object CreateAccumulator()
         {
+            if (TargetInstance != null)
+            {
+                TargetInstance.Clear();
+                return TargetInstance;
+            }
+
             return new Queue<TItem>();
         }
 
@@ -198,6 +216,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The result.</returns>
         protected override Queue<TItem> FinalizeResult(object accumulator)
         {
+            if (TargetInstance != null)
+            {
+                // TargetInstance has already been cleared and populated so just return it
+                return TargetInstance;
+            }
+
             return (Queue<TItem>)accumulator;
         }
 

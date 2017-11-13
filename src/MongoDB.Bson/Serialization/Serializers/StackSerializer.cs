@@ -84,6 +84,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The accumulator.</returns>
         protected override object CreateAccumulator()
         {
+            if (TargetInstance != null)
+            {
+                TargetInstance.Clear();
+                return TargetInstance;
+            }
+
             return new Stack();
         }
 
@@ -104,6 +110,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The result.</returns>
         protected override Stack FinalizeResult(object accumulator)
         {
+            if (TargetInstance != null)
+            {
+                // TargetInstance has already been cleared and populated so just return it
+                return TargetInstance;
+            }
+
             return (Stack)accumulator;
         }
 
@@ -182,6 +194,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The accumulator.</returns>
         protected override object CreateAccumulator()
         {
+            if (TargetInstance != null)
+            {
+                TargetInstance.Clear();
+                return TargetInstance;
+            }
+
             return new Stack<TItem>();
         }
 
@@ -202,6 +220,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The result.</returns>
         protected override Stack<TItem> FinalizeResult(object accumulator)
         {
+            if (TargetInstance != null)
+            {
+                // TargetInstance has already been cleared and populated so just return it
+                return TargetInstance;
+            }
+
             return (Stack<TItem>)accumulator;
         }
 

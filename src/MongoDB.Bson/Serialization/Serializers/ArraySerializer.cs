@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 
 namespace MongoDB.Bson.Serialization.Serializers
@@ -26,6 +27,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         IBsonArraySerializer,
         IChildSerializerConfigurable
     {
+        private int _index;
+
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="ArraySerializer{TItem}"/> class.
@@ -71,7 +74,15 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="item">The item.</param>
         protected override void AddItem(object accumulator, TItem item)
         {
-            ((List<TItem>)accumulator).Add(item);
+            if (TargetInstance != null)
+            {
+                TargetInstance[_index++] = item;
+            }
+            else
+            {
+                var accumulatorAsList = (IList<TItem>)accumulator;
+                accumulatorAsList.Add(item);
+            }
         }
 
         /// <summary>
@@ -80,6 +91,13 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The accumulator.</returns>
         protected override object CreateAccumulator()
         {
+            if (TargetInstance != null)
+            {
+                Array.Clear(TargetInstance, 0, TargetInstance.Length);
+                _index = 0;
+                return TargetInstance;
+            }
+
             return new List<TItem>();
         }
 
@@ -100,6 +118,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The result.</returns>
         protected override TItem[] FinalizeResult(object accumulator)
         {
+            if (TargetInstance != null)
+            {
+                // TargetInstance has already been cleared and populated so just return it
+                return TargetInstance;
+            }
+
             return ((List<TItem>)accumulator).ToArray();
         }
 

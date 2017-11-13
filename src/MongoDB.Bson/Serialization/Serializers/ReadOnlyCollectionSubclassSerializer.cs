@@ -59,6 +59,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The accumulator.</returns>
         protected override object CreateAccumulator()
         {
+            if (TargetInstance != null)
+            {
+                throw new NotSupportedException($"An existing readonly collection instance can not be deserialized into.");
+            }
+
             return new List<TItem>();
         }
 

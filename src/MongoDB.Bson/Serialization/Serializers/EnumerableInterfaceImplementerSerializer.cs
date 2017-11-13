@@ -27,7 +27,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class EnumerableInterfaceImplementerSerializer<TValue> :
         EnumerableInterfaceImplementerSerializerBase<TValue>,
         IChildSerializerConfigurable
-            where TValue : class, IList, new()
+        where TValue : class, IList, new()
     {
         // constructors
         /// <summary>
@@ -73,6 +73,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The accumulator.</returns>
         protected override object CreateAccumulator()
         {
+            if (TargetInstance != null)
+            {
+                TargetInstance.Clear();
+                return TargetInstance;
+            }
+
             return new TValue();
         }
 
@@ -93,10 +99,10 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     /// <typeparam name="TValue">The type of the value.</typeparam>
     /// <typeparam name="TItem">The type of the item.</typeparam>
-    public class EnumerableInterfaceImplementerSerializer<TValue, TItem> : 
+    public class EnumerableInterfaceImplementerSerializer<TValue, TItem> :
         EnumerableInterfaceImplementerSerializerBase<TValue, TItem>,
         IChildSerializerConfigurable
-            where TValue : class, IEnumerable<TItem>
+        where TValue : class, IEnumerable<TItem>
     {
         // constructors
         /// <summary>
@@ -130,7 +136,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="itemSerializer">The item serializer.</param>
         /// <returns>The reconfigured serializer.</returns>
-        public EnumerableInterfaceImplementerSerializer<TValue, TItem> WithItemSerializer(IBsonSerializer<TItem> itemSerializer)
+        public EnumerableInterfaceImplementerSerializer<TValue, TItem> WithItemSerializer(
+            IBsonSerializer<TItem> itemSerializer)
         {
             return new EnumerableInterfaceImplementerSerializer<TValue, TItem>(itemSerializer);
         }
@@ -142,6 +149,23 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The accumulator.</returns>
         protected override object CreateAccumulator()
         {
+            var targetInstanceAsList = TargetInstance as IList<TItem>;
+            if (targetInstanceAsList != null)
+            {
+                targetInstanceAsList.Clear();
+                return targetInstanceAsList;
+            }
+
+            if (TargetInstance != null)
+            {
+                // try to find a Clear method
+                var clearMethodInfo = typeof(TValue).GetTypeInfo().GetMethod("Clear");
+                if (clearMethodInfo != null)
+                {
+                    clearMethodInfo.Invoke(TargetInstance, null);
+                }
+            }
+
             return new List<TItem>();
         }
 
@@ -152,33 +176,55 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The final result.</returns>
         protected override TValue FinalizeResult(object accumulator)
         {
+            if (ReferenceEquals(TargetInstance, accumulator))
+            {
+                // TargetInstance has already been cleared and populated so just return it
+                return TargetInstance;
+            }
+
+            if (TargetInstance != null)
+            {
+                return AddValues(accumulator, TargetInstance);
+            }
+
             // find and call a constructor that we can pass the accumulator to
             var accumulatorType = accumulator.GetType();
             foreach (var constructorInfo in typeof(TValue).GetTypeInfo().GetConstructors())
             {
                 var parameterInfos = constructorInfo.GetParameters();
-                if (parameterInfos.Length == 1 && parameterInfos[0].ParameterType.GetTypeInfo().IsAssignableFrom(accumulatorType))
+                if (parameterInfos.Length == 1 &&
+                    parameterInfos[0].ParameterType.GetTypeInfo().IsAssignableFrom(accumulatorType))
                 {
-                    return (TValue)constructorInfo.Invoke(new object[] { accumulator });
+                    return (TValue) constructorInfo.Invoke(new object[] {accumulator});
                 }
             }
 
             // otherwise try to find a no-argument constructor and an Add method
             var valueTypeInfo = typeof(TValue).GetTypeInfo();
             var noArgumentConstructorInfo = valueTypeInfo.GetConstructor(new Type[] { });
-            var addMethodInfo = typeof(TValue).GetTypeInfo().GetMethod("Add", new Type[] { typeof(TItem) });
-            if (noArgumentConstructorInfo != null && addMethodInfo != null)
+            if (noArgumentConstructorInfo != null)
             {
-                var value = (TValue)noArgumentConstructorInfo.Invoke(new Type[] { });
-                foreach (var item in (IEnumerable<TItem>)accumulator)
-                {
-                    addMethodInfo.Invoke(value, new object[] { item });
-                }
-                return value;
+                var value = (TValue) noArgumentConstructorInfo.Invoke(new Type[] { });
+                return AddValues(accumulator, value);
             }
 
-            var message = string.Format("Type '{0}' does not have a suitable constructor or Add method.", typeof(TValue).FullName);
+            var message = string.Format("Type '{0}' does not have a suitable constructor or Add method.",
+                typeof(TValue).FullName);
             throw new BsonSerializationException(message);
+        }
+
+        private static TValue AddValues(object accumulator, TValue targetInstance)
+        {
+            var addMethodInfo = typeof(TValue).GetTypeInfo().GetMethod("Add", new Type[] {typeof(TItem)});
+            if (addMethodInfo != null)
+            {
+                foreach (var item in (IEnumerable<TItem>) accumulator)
+                {
+                    addMethodInfo.Invoke(targetInstance, new object[] {item});
+                }
+            }
+
+            return targetInstance;
         }
 
         // explicit interface implementations
@@ -189,7 +235,7 @@ namespace MongoDB.Bson.Serialization.Serializers
 
         IBsonSerializer IChildSerializerConfigurable.WithChildSerializer(IBsonSerializer childSerializer)
         {
-            return WithItemSerializer((IBsonSerializer<TItem>)childSerializer);
+            return WithItemSerializer((IBsonSerializer<TItem>) childSerializer);
         }
     }
 }

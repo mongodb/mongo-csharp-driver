@@ -27,7 +27,7 @@ namespace MongoDB.Bson.Serialization
     /// Represents a serializer for a class map.
     /// </summary>
     /// <typeparam name="TClass">The type of the class.</typeparam>
-    public class BsonClassMapSerializer<TClass> : SerializerBase<TClass>, IBsonIdProvider, IBsonDocumentSerializer, IBsonPolymorphicSerializer
+    public class BsonClassMapSerializer<TClass> : SerializerBase<TClass>, IBsonIdProvider, IBsonDocumentSerializer, IBsonPolymorphicSerializer where TClass : class
     {
         // private fields
         private BsonClassMap _classMap;
@@ -97,7 +97,7 @@ namespace MongoDB.Bson.Serialization
                 var actualType = discriminatorConvention.GetActualType(bsonReader, args.NominalType);
                 if (actualType == typeof(TClass))
                 {
-                    return DeserializeClass(context);
+                    return DeserializeClass(context, args.TargetInstance);
                 }
                 else
                 {
@@ -112,8 +112,9 @@ namespace MongoDB.Bson.Serialization
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
+        /// <param name="currentInstance">The current document instance or null.</param>
         /// <returns>A deserialized value.</returns>
-        public TClass DeserializeClass(BsonDeserializationContext context)
+        public TClass DeserializeClass(BsonDeserializationContext context, object currentInstance = null)
         {
             var bsonReader = context.Reader;
 
@@ -139,7 +140,7 @@ namespace MongoDB.Bson.Serialization
             else
             {
                 // for mutable classes we deserialize the values directly into the result object
-                document = (TClass)_classMap.CreateInstance();
+                document = currentInstance as TClass ?? (TClass)_classMap.CreateInstance();
 
 #if NET452
                 supportsInitialization = document as ISupportInitialize;
@@ -170,19 +171,36 @@ namespace MongoDB.Bson.Serialization
                     {
                         if (document != null)
                         {
-                            if (memberMap.IsReadOnly)
+                            if (memberMap.UseExistingInstance)
+                            {
+                                object existingInstance = memberMap.Getter(document);
+                                if (existingInstance != null)
+                                {
+                                    DeserializeMemberValue(context, memberMap, existingInstance);
+                                }
+                                else if (!memberMap.IsReadOnly)
+                                {
+                                    var value = DeserializeMemberValue(context, memberMap, null);
+                                    memberMap.Setter(document, value);
+                                }
+                                else
+                                {
+                                    bsonReader.SkipValue();
+                                }
+                            }
+                            else if (memberMap.IsReadOnly)
                             {
                                 bsonReader.SkipValue();
                             }
                             else
                             {
-                                var value = DeserializeMemberValue(context, memberMap);
+                                var value = DeserializeMemberValue(context, memberMap, null);
                                 memberMap.Setter(document, value);
                             }
                         }
                         else
                         {
-                            var value = DeserializeMemberValue(context, memberMap);
+                            var value = DeserializeMemberValue(context, memberMap, null);
                             values[elementName] = value;
                         }
                     }
@@ -447,6 +465,11 @@ namespace MongoDB.Bson.Serialization
                 var value = keyValuePair.Value;
 
                 var memberMap = _classMap.GetMemberMapForElement(elementName);
+                if (memberMap.UseExistingInstance)
+                {
+                    throw new NotSupportedException($"The 'UseExistingInstance' feature cannot be used in conjunction with a creator.");
+                }
+
                 if (!memberMap.IsReadOnly)
                 {
                     memberMap.Setter.Invoke(document, value);
@@ -555,13 +578,13 @@ namespace MongoDB.Bson.Serialization
             }
         }
 
-        private object DeserializeMemberValue(BsonDeserializationContext context, BsonMemberMap memberMap)
+        private object DeserializeMemberValue(BsonDeserializationContext context, BsonMemberMap memberMap, object existingInstance)
         {
             var bsonReader = context.Reader;
 
             try
             {
-                return memberMap.GetSerializer().Deserialize(context);
+                return memberMap.GetSerializer().Deserialize(context, existingInstance);
             }
             catch (Exception ex)
             {

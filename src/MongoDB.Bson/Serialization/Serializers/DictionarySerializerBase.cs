@@ -516,9 +516,9 @@ namespace MongoDB.Bson.Serialization.Serializers
             switch (bsonType)
             {
                 case BsonType.Array:
-                    return DeserializeArrayRepresentation(context);
+                    return DeserializeArrayRepresentation(context, args.TargetInstance);
                 case BsonType.Document:
-                    return DeserializeDocumentRepresentation(context);
+                    return DeserializeDocumentRepresentation(context, args.TargetInstance);
                 default:
                     throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
@@ -591,10 +591,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         // private methods
-        private TDictionary DeserializeArrayRepresentation(BsonDeserializationContext context)
+        private TDictionary DeserializeArrayRepresentation(BsonDeserializationContext context, object targetInstance)
         {
+            var accumulator = (ICollection<KeyValuePair<TKey, TValue>>)targetInstance ?? CreateAccumulator();
+            accumulator.Clear();
 
-            var accumulator = CreateAccumulator();
             var bsonReader = context.Reader;
             bsonReader.ReadStartArray();
             while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
@@ -636,9 +637,10 @@ namespace MongoDB.Bson.Serialization.Serializers
             return FinalizeAccumulator(accumulator);
         }
 
-        private TDictionary DeserializeDocumentRepresentation(BsonDeserializationContext context)
+        private TDictionary DeserializeDocumentRepresentation(BsonDeserializationContext context, object targetInstance)
         {
-            var accumulator = CreateAccumulator();
+            var accumulator = (ICollection<KeyValuePair<TKey, TValue>>)targetInstance ?? CreateAccumulator();
+            accumulator.Clear();
 
             var bsonReader = context.Reader;
             bsonReader.ReadStartDocument();

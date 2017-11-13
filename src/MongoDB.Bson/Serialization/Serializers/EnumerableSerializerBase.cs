@@ -30,6 +30,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         private readonly IDiscriminatorConvention _discriminatorConvention = new ScalarDiscriminatorConvention("_t");
         private readonly Lazy<IBsonSerializer> _lazyItemSerializer;
 
+        // protected properties
+        /// <summary>
+        /// Gets the target instance or null.
+        /// </summary>
+        protected TValue TargetInstance { get; private set; }
+
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="EnumerableSerializerBase{TValue}"/> class.
@@ -98,7 +104,7 @@ namespace MongoDB.Bson.Serialization.Serializers
 
                 case BsonType.Array:
                     bsonReader.ReadStartArray();
-                    var accumulator = CreateAccumulator();
+                    var accumulator = CreateAccumulatorInternal(args.TargetInstance);
                     while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                     {
                         var item = _lazyItemSerializer.Value.Deserialize(context);
@@ -121,6 +127,17 @@ namespace MongoDB.Bson.Serialization.Serializers
                 default:
                     throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
+        }
+
+        private object CreateAccumulatorInternal(object targetInstance)
+        {
+            if (targetInstance != null && !(targetInstance is TValue))
+            {
+                throw new ArgumentException($"Cannot deserialize a value of type '{typeof(TValue).FullName}' into a target instance of type '{targetInstance.GetType().FullName}'.", nameof(targetInstance));
+            }
+            TargetInstance = (TValue)targetInstance;
+
+            return CreateAccumulator();
         }
 
         /// <summary>
@@ -211,6 +228,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         private readonly IDiscriminatorConvention _discriminatorConvention = new ScalarDiscriminatorConvention("_t");
         private readonly Lazy<IBsonSerializer<TItem>> _lazyItemSerializer;
 
+        // protected properties
+        /// <summary>
+        /// Gets the target instance or null.
+        /// </summary>
+        protected TValue TargetInstance { get; private set; }
+
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="EnumerableSerializerBase{TValue, TItem}"/> class.
@@ -280,7 +303,7 @@ namespace MongoDB.Bson.Serialization.Serializers
 
                 case BsonType.Array:
                     bsonReader.ReadStartArray();
-                    var accumulator = CreateAccumulator();
+                    var accumulator = CreateAccumulatorInternal(args.TargetInstance);
                     while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                     {
                         var item = _lazyItemSerializer.Value.Deserialize(context);
@@ -293,7 +316,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     var serializer = new DiscriminatedWrapperSerializer<TValue>(_discriminatorConvention, this);
                     if (serializer.IsPositionedAtDiscriminatedWrapper(context))
                     {
-                        return (TValue)serializer.Deserialize(context);
+                        return (TValue)serializer.Deserialize(context, args.TargetInstance);
                     }
                     else
                     {
@@ -304,6 +327,17 @@ namespace MongoDB.Bson.Serialization.Serializers
                     throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
 
+        }
+
+        private object CreateAccumulatorInternal(object targetInstance)
+        {
+            if (targetInstance != null && !(targetInstance is TValue))
+            {
+                throw new ArgumentException($"Cannot deserialize a value of type '{typeof(TValue).FullName}' into a target instance of type '{targetInstance.GetType().FullName}'.", nameof(targetInstance));
+            }
+            TargetInstance = (TValue)targetInstance;
+
+            return CreateAccumulator();
         }
 
         /// <summary>

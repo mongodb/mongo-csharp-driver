@@ -59,12 +59,19 @@ namespace MongoDB.Bson.Serialization.Serializers
             var bsonReader = context.Reader;
 
             bsonReader.ReadStartDocument();
-            var document = new BsonDocument(allowDuplicateNames: context.AllowDuplicateElementNames);
+            var document = (BsonDocument)args.TargetInstance ?? new BsonDocument(allowDuplicateNames: context.AllowDuplicateElementNames);
             while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
             {
                 var name = bsonReader.ReadName();
                 var value = BsonValueSerializer.Instance.Deserialize(context);
-                document.Add(name, value);
+                if (args.TargetInstance != null)
+                {
+                    document.Set(name, value);
+                }
+                else
+                {
+                    document.Add(name, value);
+                }
             }
             bsonReader.ReadEndDocument();
 

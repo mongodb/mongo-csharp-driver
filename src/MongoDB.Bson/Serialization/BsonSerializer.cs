@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Threading;
 
@@ -25,7 +24,6 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.IdGenerators;
-using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization
 {
@@ -94,12 +92,13 @@ namespace MongoDB.Bson.Serialization
         /// <typeparam name="TNominalType">The nominal type of the object.</typeparam>
         /// <param name="document">The BsonDocument.</param>
         /// <param name="configurator">The configurator.</param>
+        /// <param name="existingInstance">An existing target instance or null.</param>
         /// <returns>A deserialized value.</returns>
-        public static TNominalType Deserialize<TNominalType>(BsonDocument document, Action<BsonDeserializationContext.Builder> configurator = null)
+        public static TNominalType Deserialize<TNominalType>(BsonDocument document, Action<BsonDeserializationContext.Builder> configurator = null, TNominalType existingInstance = default(TNominalType))
         {
             using (var bsonReader = new BsonDocumentReader(document))
             {
-                return Deserialize<TNominalType>(bsonReader, configurator);
+                return Deserialize(bsonReader, configurator, existingInstance);
             }
         }
 
@@ -109,12 +108,13 @@ namespace MongoDB.Bson.Serialization
         /// <typeparam name="TNominalType">The nominal type of the object.</typeparam>
         /// <param name="bsonReader">The BsonReader.</param>
         /// <param name="configurator">The configurator.</param>
+        /// <param name="existingInstance">An existing target instance or null.</param>
         /// <returns>A deserialized value.</returns>
-        public static TNominalType Deserialize<TNominalType>(IBsonReader bsonReader, Action<BsonDeserializationContext.Builder> configurator = null)
+        public static TNominalType Deserialize<TNominalType>(IBsonReader bsonReader, Action<BsonDeserializationContext.Builder> configurator = null, TNominalType existingInstance = default(TNominalType))
         {
             var serializer = LookupSerializer<TNominalType>();
             var context = BsonDeserializationContext.CreateRoot(bsonReader, configurator);
-            return serializer.Deserialize(context);
+            return serializer.Deserialize(context, existingInstance);
         }
 
         /// <summary>
@@ -123,13 +123,14 @@ namespace MongoDB.Bson.Serialization
         /// <typeparam name="TNominalType">The nominal type of the object.</typeparam>
         /// <param name="bytes">The BSON byte array.</param>
         /// <param name="configurator">The configurator.</param>
+        /// <param name="existingInstance">An existing target instance or null.</param>
         /// <returns>A deserialized value.</returns>
-        public static TNominalType Deserialize<TNominalType>(byte[] bytes, Action<BsonDeserializationContext.Builder> configurator = null)
+        public static TNominalType Deserialize<TNominalType>(byte[] bytes, Action<BsonDeserializationContext.Builder> configurator = null, TNominalType existingInstance = default(TNominalType))
         {
             using (var buffer = new ByteArrayBuffer(bytes, isReadOnly: true))
             using (var stream = new ByteBufferStream(buffer))
             {
-                return Deserialize<TNominalType>(stream, configurator);
+                return Deserialize(stream, configurator, existingInstance);
             }
         }
 
@@ -139,12 +140,13 @@ namespace MongoDB.Bson.Serialization
         /// <typeparam name="TNominalType">The nominal type of the object.</typeparam>
         /// <param name="stream">The BSON Stream.</param>
         /// <param name="configurator">The configurator.</param>
+        /// <param name="existingInstance">An existing target instance or null.</param>
         /// <returns>A deserialized value.</returns>
-        public static TNominalType Deserialize<TNominalType>(Stream stream, Action<BsonDeserializationContext.Builder> configurator = null)
+        public static TNominalType Deserialize<TNominalType>(Stream stream, Action<BsonDeserializationContext.Builder> configurator = null, TNominalType existingInstance = default(TNominalType))
         {
             using (var bsonReader = new BsonBinaryReader(stream))
             {
-                return Deserialize<TNominalType>(bsonReader, configurator);
+                return Deserialize(bsonReader, configurator, existingInstance);
             }
         }
 
@@ -154,12 +156,13 @@ namespace MongoDB.Bson.Serialization
         /// <typeparam name="TNominalType">The nominal type of the object.</typeparam>
         /// <param name="json">The JSON string.</param>
         /// <param name="configurator">The configurator.</param>
+        /// <param name="existingInstance">An existing target instance or null.</param>
         /// <returns>A deserialized value.</returns>
-        public static TNominalType Deserialize<TNominalType>(string json, Action<BsonDeserializationContext.Builder> configurator = null)
+        public static TNominalType Deserialize<TNominalType>(string json, Action<BsonDeserializationContext.Builder> configurator = null, TNominalType existingInstance = default(TNominalType))
         {
             using (var bsonReader = new JsonReader(json))
             {
-                return Deserialize<TNominalType>(bsonReader, configurator);
+                return Deserialize(bsonReader, configurator, existingInstance);
             }
         }
 
@@ -169,12 +172,13 @@ namespace MongoDB.Bson.Serialization
         /// <typeparam name="TNominalType">The nominal type of the object.</typeparam>
         /// <param name="textReader">The JSON TextReader.</param>
         /// <param name="configurator">The configurator.</param>
+        /// <param name="existingInstance">An existing target instance or null.</param>
         /// <returns>A deserialized value.</returns>
-        public static TNominalType Deserialize<TNominalType>(TextReader textReader, Action<BsonDeserializationContext.Builder> configurator = null)
+        public static TNominalType Deserialize<TNominalType>(TextReader textReader, Action<BsonDeserializationContext.Builder> configurator = null, TNominalType existingInstance = default(TNominalType))
         {
             using (var bsonReader = new JsonReader(textReader))
             {
-                return Deserialize<TNominalType>(bsonReader, configurator);
+                return Deserialize(bsonReader, configurator, existingInstance);
             }
         }
 
@@ -184,12 +188,13 @@ namespace MongoDB.Bson.Serialization
         /// <param name="document">The BsonDocument.</param>
         /// <param name="nominalType">The nominal type of the object.</param>
         /// <param name="configurator">The configurator.</param>
+        /// <param name="existingInstance">An existing target instance or null.</param>
         /// <returns>A deserialized value.</returns>
-        public static object Deserialize(BsonDocument document, Type nominalType, Action<BsonDeserializationContext.Builder> configurator = null)
+        public static object Deserialize(BsonDocument document, Type nominalType, Action<BsonDeserializationContext.Builder> configurator = null, object existingInstance = null)
         {
             using (var bsonReader = new BsonDocumentReader(document))
             {
-                return Deserialize(bsonReader, nominalType, configurator);
+                return Deserialize(bsonReader, nominalType, configurator, existingInstance);
             }
         }
 
@@ -199,12 +204,13 @@ namespace MongoDB.Bson.Serialization
         /// <param name="bsonReader">The BsonReader.</param>
         /// <param name="nominalType">The nominal type of the object.</param>
         /// <param name="configurator">The configurator.</param>
+        /// <param name="existingInstance">An existing target instance or null.</param>
         /// <returns>A deserialized value.</returns>
-        public static object Deserialize(IBsonReader bsonReader, Type nominalType, Action<BsonDeserializationContext.Builder> configurator = null)
+        public static object Deserialize(IBsonReader bsonReader, Type nominalType, Action<BsonDeserializationContext.Builder> configurator = null, object existingInstance = null)
         {
             var serializer = LookupSerializer(nominalType);
             var context = BsonDeserializationContext.CreateRoot(bsonReader, configurator);
-            return serializer.Deserialize(context);
+            return serializer.Deserialize(context, existingInstance);
         }
 
         /// <summary>
@@ -213,13 +219,14 @@ namespace MongoDB.Bson.Serialization
         /// <param name="bytes">The BSON byte array.</param>
         /// <param name="nominalType">The nominal type of the object.</param>
         /// <param name="configurator">The configurator.</param>
+        /// <param name="existingInstance">An existing target instance or null.</param>
         /// <returns>A deserialized value.</returns>
-        public static object Deserialize(byte[] bytes, Type nominalType, Action<BsonDeserializationContext.Builder> configurator = null)
+        public static object Deserialize(byte[] bytes, Type nominalType, Action<BsonDeserializationContext.Builder> configurator = null, object existingInstance = null)
         {
             using (var buffer = new ByteArrayBuffer(bytes, isReadOnly: true))
             using (var stream = new ByteBufferStream(buffer))
             {
-                return Deserialize(stream, nominalType, configurator);
+                return Deserialize(stream, nominalType, configurator, existingInstance);
             }
         }
 
@@ -229,12 +236,13 @@ namespace MongoDB.Bson.Serialization
         /// <param name="stream">The BSON Stream.</param>
         /// <param name="nominalType">The nominal type of the object.</param>
         /// <param name="configurator">The configurator.</param>
+        /// <param name="existingInstance">An existing target instance or null.</param>
         /// <returns>A deserialized value.</returns>
-        public static object Deserialize(Stream stream, Type nominalType, Action<BsonDeserializationContext.Builder> configurator = null)
+        public static object Deserialize(Stream stream, Type nominalType, Action<BsonDeserializationContext.Builder> configurator = null, object existingInstance = null)
         {
             using (var bsonReader = new BsonBinaryReader(stream))
             {
-                return Deserialize(bsonReader, nominalType, configurator);
+                return Deserialize(bsonReader, nominalType, configurator, existingInstance);
             }
         }
 
@@ -244,12 +252,13 @@ namespace MongoDB.Bson.Serialization
         /// <param name="json">The JSON string.</param>
         /// <param name="nominalType">The nominal type of the object.</param>
         /// <param name="configurator">The configurator.</param>
+        /// <param name="existingInstance">An existing target instance or null.</param>
         /// <returns>A deserialized value.</returns>
-        public static object Deserialize(string json, Type nominalType, Action<BsonDeserializationContext.Builder> configurator = null)
+        public static object Deserialize(string json, Type nominalType, Action<BsonDeserializationContext.Builder> configurator = null, object existingInstance = null)
         {
             using (var bsonReader = new JsonReader(json))
             {
-                return Deserialize(bsonReader, nominalType, configurator);
+                return Deserialize(bsonReader, nominalType, configurator, existingInstance);
             }
         }
 
@@ -259,12 +268,13 @@ namespace MongoDB.Bson.Serialization
         /// <param name="textReader">The JSON TextReader.</param>
         /// <param name="nominalType">The nominal type of the object.</param>
         /// <param name="configurator">The configurator.</param>
+        /// <param name="existingInstance">An existing target instance or null.</param>
         /// <returns>A deserialized value.</returns>
-        public static object Deserialize(TextReader textReader, Type nominalType, Action<BsonDeserializationContext.Builder> configurator = null)
+        public static object Deserialize(TextReader textReader, Type nominalType, Action<BsonDeserializationContext.Builder> configurator = null, object existingInstance = null)
         {
             using (var bsonReader = new JsonReader(textReader))
             {
-                return Deserialize(bsonReader, nominalType, configurator);
+                return Deserialize(bsonReader, nominalType, configurator, existingInstance);
             }
         }
 

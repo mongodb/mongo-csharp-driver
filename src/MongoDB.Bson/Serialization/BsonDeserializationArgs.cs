@@ -14,7 +14,6 @@
 */
 
 using System;
-using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization
 {
@@ -25,13 +24,7 @@ namespace MongoDB.Bson.Serialization
     {
         // private fields
         private Type _nominalType;
-
-        // constructors
-        private BsonDeserializationArgs(
-            Type nominalType)
-        {
-            _nominalType = nominalType;
-        }
+        private object _targetInstance;
 
         // public properties
         /// <summary>
@@ -44,6 +37,18 @@ namespace MongoDB.Bson.Serialization
         {
             get { return _nominalType; }
             set { _nominalType = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the target instance.
+        /// </summary>
+        /// <value>
+        /// The target instance or null.
+        /// </value>
+        public object TargetInstance
+        {
+            get { return _targetInstance; }
+            set { _targetInstance = value; }
         }
     }
 }
