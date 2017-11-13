@@ -53,6 +53,7 @@ namespace MongoDB.Bson.Serialization
 
         // private fields
         private BsonClassMap _classMap;
+        private bool _isValueType;
 #if NETSTANDARD1_5
         private readonly MethodInfo _beginInitMethodInfo;
         private readonly MethodInfo _endInitMethodInfo;
@@ -80,6 +81,7 @@ namespace MongoDB.Bson.Serialization
             }
 
             _classMap = classMap;
+            _isValueType = _classMap.ClassType.GetTypeInfo().IsValueType;
 #if NETSTANDARD1_5
             CheckForISupportInitializeInterface(out _beginInitMethodInfo, out _endInitMethodInfo);
 #endif
@@ -108,7 +110,7 @@ namespace MongoDB.Bson.Serialization
         {
             var bsonReader = context.Reader;
 
-            if (_classMap.ClassType.GetTypeInfo().IsValueType)
+            if (_isValueType)
             {
                 var message = string.Format("Value class {0} cannot be deserialized.", _classMap.ClassType.FullName);
                 throw new BsonSerializationException(message);
