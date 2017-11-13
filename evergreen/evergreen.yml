@@ -430,7 +430,6 @@ buildvariants:
 
 - matrix_name: "tests"
   matrix_spec: { version: "*", topology: "*", auth: "*", ssl: "*", os: "*" }
-  exclude_spec: { version: "2.4", topology: "*", auth: "*", ssl: "ssl", os: "*" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
