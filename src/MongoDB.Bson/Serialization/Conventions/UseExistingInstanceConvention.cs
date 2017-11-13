@@ -21,7 +21,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     public class UseExistingInstanceConvention : ConventionBase, IMemberMapConvention
     {
         // private fields
-        private bool _useExistingInstance;
+        private readonly bool _useExistingInstance;
 
         // constructors
         /// <summary>
@@ -39,7 +39,10 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="memberMap">The member map.</param>
         public void Apply(BsonMemberMap memberMap)
         {
-            memberMap.SetUseExistingInstance(_useExistingInstance);
+            if (!memberMap.MemberType.IsValueType)
+            {
+                memberMap.SetUseExistingInstance(_useExistingInstance);
+            }
         }
     }
 }
