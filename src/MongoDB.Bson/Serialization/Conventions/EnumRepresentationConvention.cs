@@ -50,49 +50,65 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="memberMap">The member map.</param>
         public void Apply(BsonMemberMap memberMap)
         {
-            var memberType = memberMap.MemberType;
-            var memberTypeInfo = memberType.GetTypeInfo();
-
-            if (memberTypeInfo.IsEnum)
+            var serializer = memberMap.GetSerializer();
+            var reconfiguredSerializer = Apply(serializer);
+            if (reconfiguredSerializer != null)
             {
-                var serializer = memberMap.GetSerializer();
+                memberMap.SetSerializer(reconfiguredSerializer);
+            }
+        }
+
+        private IBsonSerializer Apply(IBsonSerializer serializer)
+        {
+#if NETSTANDARD1_5 || NETSTANDARD1_6
+            var type = serializer.ValueType.GetTypeInfo();
+#else
+            var type = serializer.ValueType;
+#endif
+
+            if (type.IsEnum)
+            {
                 var representationConfigurableSerializer = serializer as IRepresentationConfigurable;
                 if (representationConfigurableSerializer != null)
                 {
                     var reconfiguredSerializer = representationConfigurableSerializer.WithRepresentation(_representation);
-                    memberMap.SetSerializer(reconfiguredSerializer);
+                    return reconfiguredSerializer;
                 }
-                return;
             }
-
-            if (IsNullableEnum(memberType))
+            // order matters
+            var childSerializersConfigurableSerializer = serializer as IChildSerializersConfigurable;
+            if (childSerializersConfigurableSerializer != null)
             {
-                var serializer = memberMap.GetSerializer();
+                var childSerializers = childSerializersConfigurableSerializer.ChildSerializers;
+                for (int i = 0; i < childSerializers.Count; i++)
+                {
+                    var reconfiguredChildSerializer = Apply(childSerializers[i]);
+                    if (reconfiguredChildSerializer != null)
+                    {
+                        var reconfiguredSerializer = childSerializersConfigurableSerializer.WithChildSerializer(i, reconfiguredChildSerializer);
+                        return reconfiguredSerializer;
+                    }
+                }
+            }
+            else
+            {
                 var childSerializerConfigurableSerializer = serializer as IChildSerializerConfigurable;
                 if (childSerializerConfigurableSerializer != null)
                 {
                     var childSerializer = childSerializerConfigurableSerializer.ChildSerializer;
-                    var representationConfigurableChildSerializer = childSerializer as IRepresentationConfigurable;
-                    if (representationConfigurableChildSerializer != null)
+                    var reconfiguredChildSerializer = Apply(childSerializer);
+                    if (reconfiguredChildSerializer != null)
                     {
-                        var reconfiguredChildSerializer = representationConfigurableChildSerializer.WithRepresentation(_representation);
                         var reconfiguredSerializer = childSerializerConfigurableSerializer.WithChildSerializer(reconfiguredChildSerializer);
-                        memberMap.SetSerializer(reconfiguredSerializer);
+                        return reconfiguredSerializer;
                     }
                 }
-                return;
             }
+
+            return null;
         }
 
         // private methods
-        private bool IsNullableEnum(Type type)
-        {
-            return
-                type.GetTypeInfo().IsGenericType &&
-                type.GetGenericTypeDefinition() == typeof(Nullable<>) &&
-                Nullable.GetUnderlyingType(type).GetTypeInfo().IsEnum;
-        }
-
         private void EnsureRepresentationIsValidForEnums(BsonType representation)
         {
             if (

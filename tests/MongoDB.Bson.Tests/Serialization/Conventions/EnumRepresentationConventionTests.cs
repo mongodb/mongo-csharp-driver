@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Bson.Serialization;
@@ -32,6 +33,10 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             public E E { get; set; }
             public E? NE { get; set; }
             public int I { get; set; }
+            public List<E> L { get; set; }
+            public List<List<List<E>>> L3 { get; set; }
+            public Dictionary<E, int> DK { get; set; }
+            public Dictionary<int, E> DV { get; set; }
         }
 
         [Theory]
@@ -48,7 +53,6 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             serializer.Representation.Should().Be(representation);
         }
 
-
         [Theory]
         [InlineData(BsonType.Int32)]
         [InlineData(BsonType.Int64)]
@@ -62,6 +66,64 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             var serializer = (IChildSerializerConfigurable)memberMap.GetSerializer();
             var childSerializer = (EnumSerializer<E>)serializer.ChildSerializer;
             childSerializer.Representation.Should().Be(representation);
+        }
+
+        [Theory]
+        [InlineData(BsonType.Int32)]
+        [InlineData(BsonType.Int64)]
+        public void Apply_should_configure_serializer_when_member_is_a_dictionary_with_enum_keys(BsonType representation)
+        {
+            var subject = new EnumRepresentationConvention(representation);
+            var memberMap = CreateMemberMap(c => c.DK);
+
+            subject.Apply(memberMap);
+
+            var serializer = (DictionaryInterfaceImplementerSerializer<Dictionary<E, int>, E, int>)memberMap.GetSerializer();
+            ((IRepresentationConfigurable)serializer.KeySerializer).Representation.Should().Be(representation);
+        }
+
+        [Theory]
+        [InlineData(BsonType.Int32)]
+        [InlineData(BsonType.Int64)]
+        public void Apply_should_configure_serializer_when_member_is_a_dictionary_with_enum_values(BsonType representation)
+        {
+            var subject = new EnumRepresentationConvention(representation);
+            var memberMap = CreateMemberMap(c => c.DV);
+
+            subject.Apply(memberMap);
+
+            var serializer = (DictionaryInterfaceImplementerSerializer<Dictionary<int, E>, int, E>)memberMap.GetSerializer();
+            ((IRepresentationConfigurable)serializer.ValueSerializer).Representation.Should().Be(representation);
+        }
+
+        [Theory]
+        [InlineData(BsonType.Int32)]
+        [InlineData(BsonType.Int64)]
+        public void Apply_should_configure_serializer_when_member_is_a_collection_of_enums(BsonType representation)
+        {
+            var subject = new EnumRepresentationConvention(representation);
+            var memberMap = CreateMemberMap(c => c.L);
+
+            subject.Apply(memberMap);
+
+            var serializer = (EnumerableInterfaceImplementerSerializer<List<E>, E>)memberMap.GetSerializer();
+            ((IRepresentationConfigurable)serializer.ItemSerializer).Representation.Should().Be(representation);
+        }
+
+        [Theory]
+        [InlineData(BsonType.Int32)]
+        [InlineData(BsonType.Int64)]
+        public void Apply_should_configure_serializer_when_member_is_a_nested_collection_of_enums(BsonType representation)
+        {
+            var subject = new EnumRepresentationConvention(representation);
+            var memberMap = CreateMemberMap(c => c.L3);
+
+            subject.Apply(memberMap);
+
+            var serializer = (IChildSerializerConfigurable)memberMap.GetSerializer();
+            serializer = (IChildSerializerConfigurable)serializer.ChildSerializer;
+            var childSerializer = (EnumerableInterfaceImplementerSerializer<List<E>, E>)serializer.ChildSerializer;
+            ((IRepresentationConfigurable)childSerializer.ItemSerializer).Representation.Should().Be(representation);
         }
 
         [Fact]

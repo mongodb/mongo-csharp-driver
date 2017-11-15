@@ -28,6 +28,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class DictionaryInterfaceImplementerSerializer<TDictionary> :
         DictionarySerializerBase<TDictionary>,
         IChildSerializerConfigurable,
+        IChildSerializersConfigurable,
         IDictionaryRepresentationConfigurable
             where TDictionary : class, IDictionary, new()
     {
@@ -154,6 +155,31 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             return WithDictionaryRepresentation(dictionaryRepresentation);
         }
+
+        IList<IBsonSerializer> IChildSerializersConfigurable.ChildSerializers
+        {
+            get
+            {
+                return new[]
+                {
+                    KeySerializer,
+                    ValueSerializer,
+                };
+            }
+        }
+
+        IBsonSerializer IChildSerializersConfigurable.WithChildSerializer(int serializerIndex, IBsonSerializer childSerializer)
+        {
+            switch (serializerIndex)
+            {
+                case 0:
+                    return WithKeySerializer(childSerializer);
+                case 1:
+                    return WithValueSerializer(childSerializer);
+            }
+
+            return null;
+        }
     }
 
     /// <summary>
@@ -165,6 +191,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class DictionaryInterfaceImplementerSerializer<TDictionary, TKey, TValue> :
         DictionarySerializerBase<TDictionary, TKey, TValue>,
         IChildSerializerConfigurable,
+        IChildSerializersConfigurable,
         IDictionaryRepresentationConfigurable<DictionaryInterfaceImplementerSerializer<TDictionary, TKey, TValue>>
             where TDictionary : class, IDictionary<TKey, TValue>
     {
@@ -280,6 +307,31 @@ namespace MongoDB.Bson.Serialization.Serializers
         IBsonSerializer IDictionaryRepresentationConfigurable.WithDictionaryRepresentation(DictionaryRepresentation dictionaryRepresentation)
         {
             return WithDictionaryRepresentation(dictionaryRepresentation);
+        }
+
+        IList<IBsonSerializer> IChildSerializersConfigurable.ChildSerializers
+        {
+            get
+            {
+                return new IBsonSerializer[]
+                {
+                    KeySerializer,
+                    ValueSerializer,
+                };
+            }
+        }
+
+        IBsonSerializer IChildSerializersConfigurable.WithChildSerializer(int serializerIndex, IBsonSerializer childSerializer)
+        {
+            switch (serializerIndex)
+            {
+                case 0:
+                    return WithKeySerializer((IBsonSerializer<TKey>) childSerializer);
+                case 1:
+                    return WithValueSerializer((IBsonSerializer<TValue>) childSerializer);
+            }
+
+            return null;
         }
         
         /// <inheritdoc/>
