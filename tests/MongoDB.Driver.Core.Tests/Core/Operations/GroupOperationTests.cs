@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2016 MongoDB Inc.
+﻿/* Copyright 2013-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -524,6 +524,18 @@ namespace MongoDB.Driver.Core.Operations
             var exception = Record.Exception(() => ExecuteOperation(subject, async));
 
             exception.Should().BeOfType<NotSupportedException>();
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_send_session_id_when_supported(
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check();
+            EnsureTestData();
+            var subject = new GroupOperation<BsonDocument>(_collectionNamespace, _key, _initial, _reduceFunction, null, _messageEncoderSettings);
+
+            VerifySessionIdWasSentWhenSupported(subject, "group", async);
         }
 
         // helper methods

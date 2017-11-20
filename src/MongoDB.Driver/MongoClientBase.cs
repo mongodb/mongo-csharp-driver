@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ namespace MongoDB.Driver
     public abstract class MongoClientBase : IMongoClient
     {
         /// <inheritdoc />
-        public abstract ICluster Cluster { get;  }
+        public abstract ICluster Cluster { get; }
 
         /// <inheritdoc />
         public abstract MongoClientSettings Settings { get; }
@@ -39,7 +39,19 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
+        public virtual void DropDatabase(IClientSessionHandle session, string name, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
         public abstract Task DropDatabaseAsync(string name, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <inheritdoc />
+        public virtual Task DropDatabaseAsync(IClientSessionHandle session, string name, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
 
         /// <inheritdoc />
         public abstract IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings = null);
@@ -51,7 +63,31 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
+        public virtual IAsyncCursor<BsonDocument> ListDatabases(IClientSessionHandle session, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
         public abstract Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <inheritdoc />
+        public virtual Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(IClientSessionHandle session, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public virtual IClientSessionHandle StartSession(ClientSessionOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public virtual Task<IClientSessionHandle> StartSessionAsync(ClientSessionOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
 
         /// <inheritdoc />
         public virtual IMongoClient WithReadConcern(ReadConcern readConcern)

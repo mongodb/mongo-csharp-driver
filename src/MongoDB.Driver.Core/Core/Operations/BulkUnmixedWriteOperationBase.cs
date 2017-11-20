@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -106,13 +106,13 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // public methods
-        public BulkWriteOperationResult Execute(IChannelHandle channel, CancellationToken cancellationToken)
+        public BulkWriteOperationResult Execute(IChannelHandle channel, ICoreSessionHandle session, CancellationToken cancellationToken)
         {
             using (EventContext.BeginOperation())
             {
                 if (Feature.WriteCommands.IsSupported(channel.ConnectionDescription.ServerVersion))
                 {
-                    return ExecuteBatches(channel, cancellationToken);
+                    return ExecuteBatches(channel, session, cancellationToken);
                 }
                 else
                 {
@@ -127,17 +127,17 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelSource = binding.GetWriteChannelSource(cancellationToken))
             using (var channel = channelSource.GetChannel(cancellationToken))
             {
-                return Execute(channel, cancellationToken);
+                return Execute(channel, channelSource.Session, cancellationToken);
             }
         }
 
-        public async Task<BulkWriteOperationResult> ExecuteAsync(IChannelHandle channel, CancellationToken cancellationToken)
+        public async Task<BulkWriteOperationResult> ExecuteAsync(IChannelHandle channel, ICoreSessionHandle session, CancellationToken cancellationToken)
         {
             using (EventContext.BeginOperation())
             {
                 if (Feature.WriteCommands.IsSupported(channel.ConnectionDescription.ServerVersion))
                 {
-                    return await ExecuteBatchesAsync(channel, cancellationToken).ConfigureAwait(false);
+                    return await ExecuteBatchesAsync(channel, session, cancellationToken).ConfigureAwait(false);
                 }
                 else
                 {
@@ -152,7 +152,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
             using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             {
-                return await ExecuteAsync(channel, cancellationToken).ConfigureAwait(false);
+                return await ExecuteAsync(channel, channelSource.Session, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -204,48 +204,51 @@ namespace MongoDB.Driver.Core.Operations
             return requests;
         }
 
-        private BulkWriteBatchResult ExecuteBatch(IChannelHandle channel, BatchableSource<WriteRequest> requestSource, int originalIndex, CancellationToken cancellationToken)
+        private BulkWriteBatchResult ExecuteBatch(IChannelHandle channel, ICoreSessionHandle session, BatchableSource<WriteRequest> requestSource, int originalIndex, CancellationToken cancellationToken)
         {
             var writeCommand = CreateBatchCommand(channel, requestSource);
-            var writeCommandResult = ExecuteProtocol(channel, writeCommand, () => GetResponseHandling(requestSource), cancellationToken);
+            var writeCommandResult = ExecuteProtocol(channel, session, writeCommand, () => GetResponseHandling(requestSource), cancellationToken);
             return CreateBatchResult(requestSource, originalIndex, writeCommandResult);
         }
 
-        private async Task<BulkWriteBatchResult> ExecuteBatchAsync(IChannelHandle channel, BatchableSource<WriteRequest> requestSource, int originalIndex, CancellationToken cancellationToken)
+        private async Task<BulkWriteBatchResult> ExecuteBatchAsync(IChannelHandle channel, ICoreSessionHandle session, BatchableSource<WriteRequest> requestSource, int originalIndex, CancellationToken cancellationToken)
         {
             var writeCommand = CreateBatchCommand(channel, requestSource);
-            var writeCommandResult = await ExecuteProtocolAsync(channel, writeCommand, () => GetResponseHandling(requestSource), cancellationToken).ConfigureAwait(false);
+            var writeCommandResult = await ExecuteProtocolAsync(channel, session, writeCommand, () => GetResponseHandling(requestSource), cancellationToken).ConfigureAwait(false);
             return CreateBatchResult(requestSource, originalIndex, writeCommandResult);
         }
 
-        private BulkWriteOperationResult ExecuteBatches(IChannelHandle channel, CancellationToken cancellationToken)
+        private BulkWriteOperationResult ExecuteBatches(IChannelHandle channel, ICoreSessionHandle session, CancellationToken cancellationToken)
         {
             var decoratedRequests = DecorateRequests(_requests);
             var helper = new BatchHelper(decoratedRequests, _writeConcern, _isOrdered);
             foreach (var batch in helper.Batches)
             {
-                batch.Result = ExecuteBatch(channel, batch.RequestSource, batch.OriginalIndex, cancellationToken);
+                batch.Result = ExecuteBatch(channel, session, batch.RequestSource, batch.OriginalIndex, cancellationToken);
             }
             return helper.CreateFinalResultOrThrow(channel);
         }
 
-        private async Task<BulkWriteOperationResult> ExecuteBatchesAsync(IChannelHandle channel, CancellationToken cancellationToken)
+        private async Task<BulkWriteOperationResult> ExecuteBatchesAsync(IChannelHandle channel, ICoreSessionHandle session, CancellationToken cancellationToken)
         {
             var decoratedRequests = DecorateRequests(_requests);
             var helper = new BatchHelper(decoratedRequests, _writeConcern, _isOrdered);
             foreach (var batch in helper.Batches)
             {
-                batch.Result = await ExecuteBatchAsync(channel, batch.RequestSource, batch.OriginalIndex, cancellationToken).ConfigureAwait(false);
+                batch.Result = await ExecuteBatchAsync(channel, session, batch.RequestSource, batch.OriginalIndex, cancellationToken).ConfigureAwait(false);
             }
             return helper.CreateFinalResultOrThrow(channel);
         }
 
-        private BsonDocument ExecuteProtocol(IChannelHandle channel, BsonDocument command, Func<CommandResponseHandling> responseHandling, CancellationToken cancellationToken)
+        private BsonDocument ExecuteProtocol(IChannelHandle channel, ICoreSessionHandle session, BsonDocument command, Func<CommandResponseHandling> responseHandling, CancellationToken cancellationToken)
         {
             return channel.Command<BsonDocument>(
+                session,
+                null,
                 _collectionNamespace.DatabaseNamespace,
                 command,
                 NoOpElementNameValidator.Instance,
+                null,
                 responseHandling,
                 false, // slaveOk
                 BsonDocumentSerializer.Instance,
@@ -253,12 +256,15 @@ namespace MongoDB.Driver.Core.Operations
                 cancellationToken) ?? new BsonDocument("ok", 1);
         }
 
-        private async Task<BsonDocument> ExecuteProtocolAsync(IChannelHandle channel, BsonDocument command, Func<CommandResponseHandling> responseHandling, CancellationToken cancellationToken)
+        private async Task<BsonDocument> ExecuteProtocolAsync(IChannelHandle channel, ICoreSessionHandle session, BsonDocument command, Func<CommandResponseHandling> responseHandling, CancellationToken cancellationToken)
         {
             return (await channel.CommandAsync<BsonDocument>(
+                session,
+                null, // readPreference
                 _collectionNamespace.DatabaseNamespace,
                 command,
                 NoOpElementNameValidator.Instance,
+                null, // additionalOptions
                 responseHandling,
                 false, // slaveOk
                 BsonDocumentSerializer.Instance,
@@ -378,28 +384,32 @@ namespace MongoDB.Driver.Core.Operations
             // methods
             private void AddRequest(BsonSerializationContext context, IByteBuffer overflow)
             {
-                var bsonBinaryWriter = (BsonBinaryWriter)context.Writer;
-                var stream = bsonBinaryWriter.BsonStream;
-                _lastRequestPosition = (int)stream.Position;
-                bsonBinaryWriter.WriteRawBsonDocument(overflow);
+                var writer = context.Writer;
+                _lastRequestPosition = (int)writer.Position;
+                writer.WriteRawBsonDocument(overflow);
                 _batchCount++;
-                _batchLength = (int)stream.Position - _batchStartPosition;
+                _batchLength = (int)writer.Position - _batchStartPosition;
             }
 
             private void AddRequest(BsonSerializationContext context, WriteRequest request)
             {
-                var bsonBinaryWriter = (BsonBinaryWriter)context.Writer;
-                var stream = bsonBinaryWriter.BsonStream;
-                _lastRequestPosition = (int)stream.Position;
+                var writer = context.Writer;
+                _lastRequestPosition = (int)writer.Position;
                 SerializeRequest(context, request);
                 _batchCount++;
-                _batchLength = (int)stream.Position - _batchStartPosition;
+                _batchLength = (int)writer.Position - _batchStartPosition;
             }
 
             private IByteBuffer RemoveLastRequest(BsonSerializationContext context)
             {
-                var bsonBinaryWriter = (BsonBinaryWriter)context.Writer;
-                var stream = bsonBinaryWriter.BsonStream;
+                var writer = context.Writer;
+                while (writer is WrappingBsonWriter)
+                {
+                    writer = ((WrappingBsonWriter)writer).Wrapped;
+                }
+
+                var binaryWriter = (BsonBinaryWriter)writer;
+                var stream = binaryWriter.BsonStream;
                 var lastRequestLength = (int)stream.Position - _lastRequestPosition;
                 stream.Position = _lastRequestPosition;
                 var lastRequest = new byte[lastRequestLength];
@@ -435,8 +445,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 var batch = new List<WriteRequest>();
 
-                var bsonBinaryWriter = (BsonBinaryWriter)context.Writer;
-                _batchStartPosition = (int)bsonBinaryWriter.BsonStream.Position;
+                _batchStartPosition = (int)context.Writer.Position;
 
                 var overflow = requestSource.StartBatch();
                 if (overflow != null)
@@ -467,8 +476,7 @@ namespace MongoDB.Driver.Core.Operations
 
             private void SerializeSingleBatch(BsonSerializationContext context, BatchableSource<WriteRequest> requestSource)
             {
-                var bsonBinaryWriter = (BsonBinaryWriter)context.Writer;
-                _batchStartPosition = (int)bsonBinaryWriter.BsonStream.Position;
+                _batchStartPosition = (int)context.Writer.Position;
 
                 // always go one document too far so that we can set IsDone as early as possible
                 foreach (var request in requestSource.Batch)

@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Reflection;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -83,7 +84,7 @@ namespace MongoDB.Driver.Tests
                 Modifiers = new BsonDocument("$hint", "hint"),
                 Skip = 2
             };
-            var subject = CreateSubject(findOptions);
+            var subject = CreateSubject(options: findOptions);
 
             Predicate<CountOptions> countOptionsPredicate = countOptions =>
             {
@@ -116,6 +117,68 @@ namespace MongoDB.Driver.Tests
                         It.Is<CountOptions>(o => countOptionsPredicate(o)),
                         It.IsAny<CancellationToken>()),
                     Times.Once);
+            }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void ToCursor_should_call_collection_Find_with_expected_arguments(
+            [Values(false, true)] bool usingSession,
+            [Values(false, true)] bool async)
+        {
+            var session = usingSession ? new Mock<IClientSessionHandle>().Object : null;
+            var filter = Builders<Person>.Filter.Eq("_id", 1);
+            var options = new FindOptions<Person, Person>();
+            var subject = CreateSubject(session, filter, options);
+            var cancellationToken = new CancellationTokenSource().Token;
+
+            if (async)
+            {
+                var _ = subject.ToCursorAsync(cancellationToken).GetAwaiter().GetResult();
+
+                if (usingSession)
+                {
+                    _mockCollection.Verify(
+                        collection => collection.FindAsync(
+                            session,
+                            filter,
+                            options,
+                            cancellationToken),
+                    Times.Once);
+                }
+                else
+                {
+                    _mockCollection.Verify(
+                       collection => collection.FindAsync(
+                           filter,
+                           options,
+                           cancellationToken),
+                   Times.Once);
+                }
+            }
+            else
+            {
+                var _ = subject.ToCursor(cancellationToken);
+
+                if (usingSession)
+                {
+                    _mockCollection.Verify(
+                        collection => collection.FindSync(
+                            session,
+                            filter,
+                            options,
+                            cancellationToken),
+                    Times.Once);
+                }
+                else
+                {
+                    _mockCollection.Verify(
+                       collection => collection.FindSync(
+                           filter,
+                           options,
+                           cancellationToken),
+                   Times.Once);
+               }
             }
         }
 
@@ -154,14 +217,15 @@ namespace MongoDB.Driver.Tests
                 "._addSpecial(\"$hint\", \"ix_1\")");
         }
 
-        private IFindFluent<Person, Person> CreateSubject(FindOptions<Person, Person> options = null)
+        private IFindFluent<Person, Person> CreateSubject(IClientSessionHandle session = null, FilterDefinition<Person> filter = null, FindOptions<Person, Person> options = null)
         {
             var settings = new MongoCollectionSettings();
             _mockCollection = new Mock<IMongoCollection<Person>>();
             _mockCollection.SetupGet(c => c.DocumentSerializer).Returns(BsonSerializer.SerializerRegistry.GetSerializer<Person>());
             _mockCollection.SetupGet(c => c.Settings).Returns(settings);
+            filter = filter ?? new BsonDocument();
             options = options ?? new FindOptions<Person, Person>();
-            var subject = new FindFluent<Person, Person>(_mockCollection.Object, new BsonDocument(), options);
+            var subject = new FindFluent<Person, Person>(session: session, collection: _mockCollection.Object, filter: filter, options: options);
 
             return subject;
         }
@@ -171,6 +235,33 @@ namespace MongoDB.Driver.Tests
             public string FirstName;
             public string LastName;
             public int Age;
+        }
+    }
+
+    internal static class FindFluentReflector
+    {
+        public static IMongoCollection<TDocument> _collection<TDocument, TProjection>(this FindFluent<TDocument, TProjection> obj)
+        {
+            var fieldInfo = typeof(FindFluent<TDocument, TProjection>).GetField("_collection", BindingFlags.NonPublic | BindingFlags.Instance);
+            return (IMongoCollection<TDocument>)fieldInfo.GetValue(obj);
+        }
+
+        public static FilterDefinition<TDocument> _filter<TDocument, TProjection>(this FindFluent<TDocument, TProjection> obj)
+        {
+            var fieldInfo = typeof(FindFluent<TDocument, TProjection>).GetField("_filter", BindingFlags.NonPublic | BindingFlags.Instance);
+            return (FilterDefinition<TDocument>)fieldInfo.GetValue(obj);
+        }
+
+        public static FindOptions<TDocument, TProjection> _options<TDocument, TProjection>(this FindFluent<TDocument, TProjection> obj)
+        {
+            var fieldInfo = typeof(FindFluent<TDocument, TProjection>).GetField("_options", BindingFlags.NonPublic | BindingFlags.Instance);
+            return (FindOptions<TDocument, TProjection>)fieldInfo.GetValue(obj);
+        }
+
+        public static IClientSessionHandle _session<TDocument, TProjection>(this FindFluent<TDocument, TProjection> obj)
+        {
+            var fieldInfo = typeof(FindFluent<TDocument, TProjection>).GetField("_session", BindingFlags.NonPublic | BindingFlags.Instance);
+            return (IClientSessionHandle)fieldInfo.GetValue(obj);
         }
     }
 }

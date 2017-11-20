@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Operations
             {
                 var collectionNamespace = new CollectionNamespace(_databaseNamespace, "system.users");
 
-                var user = FindUser(channelSource, collectionNamespace, cancellationToken);
+                var user = FindUser(channelSource, binding.Session, collectionNamespace, cancellationToken);
                 if (user == null)
                 {
                     user = new BsonDocument
@@ -66,13 +66,13 @@ namespace MongoDB.Driver.Operations
                         { "pwd", _passwordHash },
                         { "readOnly", _readOnly },
                     };
-                    InsertUser(channelSource, collectionNamespace, user, cancellationToken);
+                    InsertUser(channelSource, binding.Session, collectionNamespace, user, cancellationToken);
                 }
                 else
                 {
                     user["pwd"] = _passwordHash;
                     user["readOnly"] = _readOnly;
-                    UpdateUser(channelSource, collectionNamespace, user, cancellationToken);
+                    UpdateUser(channelSource, binding.Session, collectionNamespace, user, cancellationToken);
                 }
             }
 
@@ -84,31 +84,31 @@ namespace MongoDB.Driver.Operations
             throw new NotSupportedException();
         }
 
-        private BsonDocument FindUser(IChannelSourceHandle channelSource, CollectionNamespace collectionNamespace, CancellationToken cancellationToken)
+        private BsonDocument FindUser(IChannelSourceHandle channelSource, ICoreSessionHandle session, CollectionNamespace collectionNamespace, CancellationToken cancellationToken)
         {
             var operation = new FindOperation<BsonDocument>(collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
                 Filter = new BsonDocument("user", _username),
                 Limit = -1
             };
-            var cursor = operation.Execute(channelSource, ReadPreference.Primary, cancellationToken);
+            var cursor = operation.Execute(channelSource, ReadPreference.Primary, session, cancellationToken);
             var userDocuments = cursor.ToList();
             return userDocuments.FirstOrDefault();
         }
 
-        private void InsertUser(IChannelSourceHandle channelSource, CollectionNamespace collectionNamespace, BsonDocument user, CancellationToken cancellationToken)
+        private void InsertUser(IChannelSourceHandle channelSource, ICoreSessionHandle session, CollectionNamespace collectionNamespace, BsonDocument user, CancellationToken cancellationToken)
         {
             var inserts = new[] { new InsertRequest(user) };
             var operation = new BulkMixedWriteOperation(collectionNamespace, inserts, _messageEncoderSettings) { WriteConcern = WriteConcern.Acknowledged };
-            operation.Execute(channelSource, cancellationToken);
+            operation.Execute(channelSource, session, cancellationToken);
         }
 
-        private void UpdateUser(IChannelSourceHandle channelSource, CollectionNamespace collectionNamespace, BsonDocument user, CancellationToken cancellationToken)
+        private void UpdateUser(IChannelSourceHandle channelSource, ICoreSessionHandle session, CollectionNamespace collectionNamespace, BsonDocument user, CancellationToken cancellationToken)
         {
             var filter = new BsonDocument("_id", user["_id"]);
             var updates = new[] { new UpdateRequest(UpdateType.Replacement, filter, user) };
             var operation = new BulkMixedWriteOperation(collectionNamespace, updates, _messageEncoderSettings) { WriteConcern = WriteConcern.Acknowledged };
-            operation.Execute(channelSource, cancellationToken);
+            operation.Execute(channelSource, session, cancellationToken);
         }
     }
 }

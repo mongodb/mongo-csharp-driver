@@ -46,6 +46,7 @@
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\MongoDB.Bson.XML</DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>6</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -88,6 +89,7 @@
     <Compile Include="IO\ByteArrayChunk.cs" />
     <Compile Include="IO\ByteBufferSlice.cs" />
     <Compile Include="IO\CStringUtf8Encoding.cs" />
+    <Compile Include="IO\ElementAppendingBsonWriter.cs" />
     <Compile Include="IO\IBsonChunk.cs" />
     <Compile Include="IO\IBsonChunkSource.cs" />
     <Compile Include="IO\IBsonReader.cs" />
@@ -112,6 +114,7 @@
     <Compile Include="IO\Utf8NameDecoder.cs" />
     <Compile Include="IO\SingleChunkBuffer.cs" />
     <Compile Include="IO\Utf8Helper.cs" />
+    <Compile Include="IO\WrappingBsonWriter.cs" />
     <Compile Include="ObjectModel\BsonDecimal128.cs" />
     <Compile Include="ObjectModel\Decimal128.cs" />
     <Compile Include="ObjectModel\GuidRepresentation.cs" />
@@ -224,6 +227,7 @@
     <Compile Include="Serialization\Serializers\BsonBooleanSerializer.cs" />
     <Compile Include="Serialization\IBsonSerializerExtensions.cs" />
     <Compile Include="Serialization\Serializers\Decimal128Serializer.cs" />
+    <Compile Include="Serialization\Serializers\ElementAppendingSerializer.cs" />
     <Compile Include="Serialization\Serializers\PartiallyRawBsonDocumentSerializer.cs" />
     <Compile Include="Serialization\Serializers\ProjectingDeserializer.cs" />
     <Compile Include="Serialization\Serializers\SerializerHelper.cs" />

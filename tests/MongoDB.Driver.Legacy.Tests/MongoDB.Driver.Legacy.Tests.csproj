@@ -20,6 +20,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <LangVersion>6</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -37,6 +38,9 @@
     <Reference Include="FluentAssertions.Core, Version=4.5.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\FluentAssertions.4.5.0\lib\net45\FluentAssertions.Core.dll</HintPath>
       <Private>True</Private>
+    </Reference>
+    <Reference Include="Moq, Version=4.2.1510.2205, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Moq.4.2.1510.2205\lib\net40\Moq.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -80,6 +84,7 @@
     <Compile Include="CommandResults\CommandResultTests.cs" />
     <Compile Include="CommandResults\DatabaseStatsResultTests.cs" />
     <Compile Include="CommandResults\ValidateCollectionResultTests.cs" />
+    <Compile Include="DefaultLegacyOperationExecutorTests.cs" />
     <Compile Include="FailPoint.cs" />
     <Compile Include="Jira\CSharp100Tests.cs" />
     <Compile Include="Jira\CSharp101Tests.cs" />

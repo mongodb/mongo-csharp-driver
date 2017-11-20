@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Tests.Operations
         {
             RequireServer.Check().Supports(Feature.CurrentOpCommand);
             var subject = new CurrentOpUsingCommandOperation(_adminDatabaseNamespace, _messageEncoderSettings);
-            using (var binding = new ReadPreferenceBinding(CoreTestConfiguration.Cluster, ReadPreference.PrimaryPreferred))
+            using (var binding = new ReadPreferenceBinding(CoreTestConfiguration.Cluster, ReadPreference.PrimaryPreferred, NoCoreSession.NewHandle()))
             {
                 var result = subject.Execute(binding, CancellationToken.None);
 

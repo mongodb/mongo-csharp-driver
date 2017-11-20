@@ -13,11 +13,8 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -83,9 +80,9 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             // methods
-            private void SerializeFilter(BsonBinaryWriter bsonWriter, BsonDocument filter)
+            private void SerializeFilter(IBsonWriter binaryWriter, BsonDocument filter)
             {
-                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                var context = BsonSerializationContext.CreateRoot(binaryWriter);
                 BsonDocumentSerializer.Instance.Serialize(context, filter);
             }
 
@@ -95,57 +92,57 @@ namespace MongoDB.Driver.Core.Operations
                 Feature.Collation.ThrowIfNotSupported(ConnectionDescription.ServerVersion, updateRequest.Collation);
                 Feature.ArrayFilters.ThrowIfNotSupported(ConnectionDescription.ServerVersion, updateRequest.ArrayFilters);
 
-                var bsonWriter = (BsonBinaryWriter)context.Writer;
-                bsonWriter.PushMaxDocumentSize(ConnectionDescription.MaxWireDocumentSize);
+                var writer = context.Writer;
+                writer.PushSettings(s => { var bs = s as BsonBinaryWriterSettings; if (bs != null) { bs.MaxDocumentSize = ConnectionDescription.MaxWireDocumentSize; } });
                 try
                 {
-                    bsonWriter.WriteStartDocument();
-                    bsonWriter.WriteName("q");
-                    SerializeFilter(bsonWriter, updateRequest.Filter);
-                    bsonWriter.WriteName("u");
-                    SerializeUpdate(bsonWriter, updateRequest.Update, updateRequest.UpdateType);
+                    writer.WriteStartDocument();
+                    writer.WriteName("q");
+                    SerializeFilter(writer, updateRequest.Filter);
+                    writer.WriteName("u");
+                    SerializeUpdate(writer, updateRequest.Update, updateRequest.UpdateType);
                     if (updateRequest.IsMulti)
                     {
-                        bsonWriter.WriteBoolean("multi", updateRequest.IsMulti);
+                        writer.WriteBoolean("multi", updateRequest.IsMulti);
                     }
                     if (updateRequest.IsUpsert)
                     {
-                        bsonWriter.WriteBoolean("upsert", updateRequest.IsUpsert);
+                        writer.WriteBoolean("upsert", updateRequest.IsUpsert);
                     }
                     if (updateRequest.Collation != null)
                     {
-                        bsonWriter.WriteName("collation");
+                        writer.WriteName("collation");
                         BsonDocumentSerializer.Instance.Serialize(context, updateRequest.Collation.ToBsonDocument());
                     }
                     if (updateRequest.ArrayFilters != null)
                     {
-                        bsonWriter.WriteName("arrayFilters");
+                        writer.WriteName("arrayFilters");
                         BsonArraySerializer.Instance.Serialize(context, new BsonArray(updateRequest.ArrayFilters));
                     }
-                    bsonWriter.WriteEndDocument();
+                    writer.WriteEndDocument();
                 }
                 finally
                 {
-                    bsonWriter.PopMaxDocumentSize();
+                    writer.PopSettings();
                 }
             }
 
-            private void SerializeUpdate(BsonBinaryWriter bsonWriter, BsonDocument update, UpdateType updateType)
+            private void SerializeUpdate(IBsonWriter writer, BsonDocument update, UpdateType updateType)
             {
-                bsonWriter.PushElementNameValidator(ElementNameValidatorFactory.ForUpdateType(updateType));
+                writer.PushElementNameValidator(ElementNameValidatorFactory.ForUpdateType(updateType));
                 try
                 {
-                    var position = bsonWriter.BaseStream.Position;
-                    var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                    var position = writer.Position;
+                    var context = BsonSerializationContext.CreateRoot(writer);
                     BsonDocumentSerializer.Instance.Serialize(context, update);
-                    if (updateType == UpdateType.Update && bsonWriter.BaseStream.Position == position + 8)
+                    if (updateType == UpdateType.Update && writer.Position == position + 8)
                     {
                         throw new BsonSerializationException("Update documents cannot be empty.");
                     }
                 }
                 finally
                 {
-                    bsonWriter.PopElementNameValidator();
+                    writer.PopElementNameValidator();
                 }
             }
         }

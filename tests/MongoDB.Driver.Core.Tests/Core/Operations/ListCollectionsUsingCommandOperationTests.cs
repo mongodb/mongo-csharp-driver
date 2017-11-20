@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2016 MongoDB Inc.
+﻿/* Copyright 2013-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -126,6 +126,19 @@ namespace MongoDB.Driver.Core.Operations
             var list = ReadCursorToEnd(result, async);
 
             list.Should().HaveCount(0);
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_send_session_id_when_supported(
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.ListCollectionsCommand);
+            EnsureCollectionsExist();
+            var subject = new ListCollectionsUsingCommandOperation(_databaseNamespace, _messageEncoderSettings);
+            var expectedNames = new[] { "regular", "capped" };
+
+            VerifySessionIdWasSentWhenSupported(subject, "listCollections", async);
         }
 
         // helper methods

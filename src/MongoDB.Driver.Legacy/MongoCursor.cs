@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -280,6 +280,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A cursor.
         /// </returns>
+        [Obsolete("Use a method that returns a cursor instead.")]
         public static MongoCursor Create(Type documentType, MongoCollection collection, IMongoQuery query, ReadPreference readPreference, IBsonSerializer serializer)
         {
             var cursorDefinition = typeof(MongoCursor<>);
@@ -300,6 +301,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A cursor.
         /// </returns>
+        [Obsolete("Use a method that returns a cursor instead.")]
         public static MongoCursor Create(Type documentType, MongoCollection collection, IMongoQuery query, ReadConcern readConcern, ReadPreference readPreference, IBsonSerializer serializer)
         {
             var cursorDefinition = typeof(MongoCursor<>);
@@ -353,7 +355,9 @@ namespace MongoDB.Driver
         /// </returns>
         public virtual MongoCursor Clone(Type documentType, IBsonSerializer serializer)
         {
+#pragma warning disable 618
             var clone = Create(documentType, _collection, _query, _readConcern, _readPreference, serializer);
+#pragma warning restore
             clone._batchSize = _batchSize;
             clone._collation = _collation;
             clone._fields = _fields;
@@ -785,6 +789,7 @@ namespace MongoDB.Driver
         /// <param name="query">The query.</param>
         /// <param name="readPreference">The read preference.</param>
         /// <param name="serializer">The serializer.</param>
+        [Obsolete("Use a method that returns a cursor instead.")]
         public MongoCursor(MongoCollection collection, IMongoQuery query, ReadPreference readPreference, IBsonSerializer serializer)
             : base(collection, query, readPreference, serializer)
         {
@@ -798,6 +803,7 @@ namespace MongoDB.Driver
         /// <param name="readConcern">The read concern.</param>
         /// <param name="readPreference">The read preference.</param>
         /// <param name="serializer">The serializer.</param>
+        [Obsolete("Use a method that returns a cursor instead.")]
         public MongoCursor(MongoCollection collection, IMongoQuery query, ReadConcern readConcern, ReadPreference readPreference, IBsonSerializer serializer)
                     : base(collection, query, readConcern, readPreference, serializer)
         {
@@ -819,6 +825,11 @@ namespace MongoDB.Driver
         /// </summary>
         /// <returns>An enumerator that can be used to iterate over the cursor.</returns>
         public virtual IEnumerator<TDocument> GetEnumerator()
+        {
+            return Collection.UsingImplicitSession(session => GetEnumerator(session));
+        }
+
+        private IEnumerator<TDocument> GetEnumerator(IClientSessionHandle session)
         {
             IsFrozen = true;
 
@@ -862,11 +873,8 @@ namespace MongoDB.Driver
                 Skip = Skip
             };
 
-            using (var binding = Server.GetReadBinding(ReadPreference))
-            {
-                var cursor = operation.Execute(binding, CancellationToken.None);
-                return cursor.ToEnumerable().GetEnumerator();
-            }
+            var cursor = Collection.ExecuteReadOperation(session, operation, ReadPreference);
+            return cursor.ToEnumerable().GetEnumerator();
         }
 
         /// <summary>

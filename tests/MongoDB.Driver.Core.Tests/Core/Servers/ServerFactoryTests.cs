@@ -84,8 +84,20 @@ namespace MongoDB.Driver.Core.Servers
         public void CreateServer_should_throw_if_clusterId_is_null()
         {
             var subject = new ServerFactory(_clusterConnectionMode, _settings, _connectionPoolFactory, _serverMonitorFactory, _eventSubscriber);
+            var clusterClock = new Mock<IClusterClock>().Object;
 
-            Action act = () => subject.CreateServer(null, _endPoint);
+            Action act = () => subject.CreateServer(null, clusterClock, _endPoint);
+
+            act.ShouldThrow<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void CreateServer_should_throw_if_clusterClock_is_null()
+        {
+            var subject = new ServerFactory(_clusterConnectionMode, _settings, _connectionPoolFactory, _serverMonitorFactory, _eventSubscriber);
+            var clusterId = new ClusterId();
+
+            Action act = () => subject.CreateServer(clusterId, null, _endPoint);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -94,8 +106,9 @@ namespace MongoDB.Driver.Core.Servers
         public void CreateServer_should_throw_if_endPoint_is_null()
         {
             var subject = new ServerFactory(_clusterConnectionMode, _settings, _connectionPoolFactory, _serverMonitorFactory, _eventSubscriber);
+            var clusterClock = new Mock<IClusterClock>().Object;
 
-            Action act = () => subject.CreateServer(_clusterId, null);
+            Action act = () => subject.CreateServer(_clusterId, clusterClock, null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -104,8 +117,9 @@ namespace MongoDB.Driver.Core.Servers
         public void CreateServer_should_return_Server()
         {
             var subject = new ServerFactory(_clusterConnectionMode, _settings, _connectionPoolFactory, _serverMonitorFactory, _eventSubscriber);
+            var clusterClock = new Mock<IClusterClock>().Object;
 
-            var result = subject.CreateServer(_clusterId, _endPoint);
+            var result = subject.CreateServer(_clusterId, clusterClock, _endPoint);
 
             result.Should().NotBeNull();
             result.Should().BeOfType<Server>();

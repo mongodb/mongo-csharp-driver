@@ -1,4 +1,4 @@
-/* Copyright 2013-2016 MongoDB Inc.
+/* Copyright 2013-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -130,6 +130,26 @@ namespace MongoDB.Driver.Core.Operations
             var result = ExecuteOperation(subject, async);
 
             result["results"].Should().NotBeNull();
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_send_session_id_when_supported(
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
+            EnsureTestData();
+            var subject = new GeoSearchOperation<BsonDocument>(
+                _collectionNamespace,
+                new BsonArray { 1, 2 },
+                BsonDocumentSerializer.Instance,
+                _messageEncoderSettings)
+            {
+                MaxDistance = 20,
+                Search = new BsonDocument("Type", "restaraunt")
+            };
+
+            VerifySessionIdWasSentWhenSupported(subject, "geoSearch", async);
         }
 
         // helper methods

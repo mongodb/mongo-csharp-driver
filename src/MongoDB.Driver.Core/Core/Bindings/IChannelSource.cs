@@ -43,6 +43,14 @@ namespace MongoDB.Driver.Core.Bindings
         ServerDescription ServerDescription { get; }
 
         /// <summary>
+        /// Gets the session.
+        /// </summary>
+        /// <value>
+        /// The session.
+        /// </value>
+        ICoreSessionHandle Session { get; }
+
+        /// <summary>
         /// Gets a channel.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>

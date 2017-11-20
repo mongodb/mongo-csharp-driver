@@ -40,6 +40,16 @@ namespace MongoDB.Driver.Core.Bindings
             act.ShouldThrow<ArgumentNullException>();
         }
 
+        [Fact]
+        public void Session_should_delegate_to_reference()
+        {
+            var subject = new ReadWriteBindingHandle(_mockReadWriteBinding.Object);
+
+            var result = subject.Session;
+
+            _mockReadWriteBinding.Verify(m => m.Session, Times.Once);
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void GetReadChannelSource_should_throw_if_disposed(

@@ -75,9 +75,12 @@ namespace MongoDB.Driver.Core.Operations
 
                 mockChannel.Verify(
                     c => c.CommandAsync(
+                        binding.Session,
+                        ReadPreference.Primary,
                         subject.DatabaseNamespace,
                         subject.Command,
                         subject.CommandValidator,
+                        null, // additionalOptions
                         It.Is<Func<CommandResponseHandling>>(f => f() == CommandResponseHandling.Return),
                         slaveOk,
                         subject.ResultSerializer,
@@ -91,9 +94,12 @@ namespace MongoDB.Driver.Core.Operations
 
                 mockChannel.Verify(
                     c => c.Command(
+                        binding.Session,
+                        ReadPreference.Primary,
                         subject.DatabaseNamespace,
                         subject.Command,
                         subject.CommandValidator,
+                        null, // additionalOptions
                         It.Is<Func<CommandResponseHandling>>(f => f() == CommandResponseHandling.Return),
                         slaveOk,
                         subject.ResultSerializer,
@@ -115,7 +121,7 @@ namespace MongoDB.Driver.Core.Operations
             var channelSource = CreateMockChannelSource(serverDescription, mockChannel.Object).Object;
             var binding = CreateMockWriteBinding(channelSource).Object;
             var cancellationToken = new CancellationTokenSource().Token;
-            var wrappedCommand = BsonDocument.Parse("{ $query : { command : 1 }, additional : 1 }");
+            var command = BsonDocument.Parse("{ command : 1 }");
             var slaveOk = false;
 
             BsonDocument result;
@@ -125,9 +131,12 @@ namespace MongoDB.Driver.Core.Operations
 
                 mockChannel.Verify(
                     c => c.CommandAsync(
+                        It.IsAny<ICoreSessionHandle>(),
+                        It.IsAny<ReadPreference>(),
                         subject.DatabaseNamespace,
-                        wrappedCommand,
+                        command,
                         subject.CommandValidator,
+                        subject.AdditionalOptions,
                         It.Is<Func<CommandResponseHandling>>(f => f() == CommandResponseHandling.Return),
                         slaveOk,
                         subject.ResultSerializer,
@@ -141,9 +150,12 @@ namespace MongoDB.Driver.Core.Operations
 
                 mockChannel.Verify(
                     c => c.Command(
+                        It.IsAny<ICoreSessionHandle>(),
+                        It.IsAny<ReadPreference>(),
                         subject.DatabaseNamespace,
-                        wrappedCommand,
+                        command,
                         subject.CommandValidator,
+                        subject.AdditionalOptions,
                         It.Is<Func<CommandResponseHandling>>(f => f() == CommandResponseHandling.Return),
                         slaveOk,
                         subject.ResultSerializer,
@@ -165,7 +177,7 @@ namespace MongoDB.Driver.Core.Operations
             var channelSource = CreateMockChannelSource(serverDescription, mockChannel.Object).Object;
             var binding = CreateMockWriteBinding(channelSource).Object;
             var cancellationToken = new CancellationTokenSource().Token;
-            var wrappedCommand = BsonDocument.Parse("{ $query : { command : 1 }, $comment : \"comment\" }");
+            var additionalOptions = BsonDocument.Parse("{ $comment : \"comment\" }");
             var slaveOk = false;
 
             BsonDocument result;
@@ -175,9 +187,12 @@ namespace MongoDB.Driver.Core.Operations
 
                 mockChannel.Verify(
                     c => c.CommandAsync(
+                        binding.Session,
+                        ReadPreference.Primary,
                         subject.DatabaseNamespace,
-                        wrappedCommand,
+                        subject.Command,
                         subject.CommandValidator,
+                        additionalOptions,
                         It.Is<Func<CommandResponseHandling>>(f => f() == CommandResponseHandling.Return),
                         slaveOk,
                         subject.ResultSerializer,
@@ -191,9 +206,12 @@ namespace MongoDB.Driver.Core.Operations
 
                 mockChannel.Verify(
                     c => c.Command(
+                        binding.Session,
+                        ReadPreference.Primary,
                         subject.DatabaseNamespace,
-                        wrappedCommand,
+                        subject.Command,
                         subject.CommandValidator,
+                        additionalOptions,
                         It.Is<Func<CommandResponseHandling>>(f => f() == CommandResponseHandling.Return),
                         slaveOk,
                         subject.ResultSerializer,
@@ -207,6 +225,8 @@ namespace MongoDB.Driver.Core.Operations
         private Mock<IWriteBinding> CreateMockWriteBinding(IChannelSourceHandle channelSource)
         {
             var mockBinding = new Mock<IWriteBinding>();
+            var mockSession = new Mock<ICoreSessionHandle>();
+            mockBinding.SetupGet(b => b.Session).Returns(mockSession.Object);
             mockBinding.Setup(b => b.GetWriteChannelSource(It.IsAny<CancellationToken>())).Returns(channelSource);
             mockBinding.Setup(b => b.GetWriteChannelSourceAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult(channelSource));
             return mockBinding;

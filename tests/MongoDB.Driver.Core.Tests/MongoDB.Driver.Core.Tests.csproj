@@ -20,6 +20,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <LangVersion>6</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -68,6 +69,16 @@
     <Compile Include="ChangeStreamDocumentSerializerTests.cs" />
     <Compile Include="ChangeStreamUpdateDescriptionSerializerTests.cs" />
     <Compile Include="CollationTests.cs" />
+    <Compile Include="Core\Bindings\ChannelChannelSourceTests.cs" />
+    <Compile Include="Core\Bindings\ChannelReadBindingTests.cs" />
+    <Compile Include="Core\Bindings\ChannelReadWriteBindingTests.cs" />
+    <Compile Include="Core\Bindings\CoreSessionHandleTests.cs" />
+    <Compile Include="Core\Bindings\NoCoreSessionTests.cs" />
+    <Compile Include="Core\Bindings\ReferenceCountedCoreSessionTests.cs" />
+    <Compile Include="Core\Bindings\SingleServerReadBindingTests.cs" />
+    <Compile Include="Core\Bindings\SingleServerReadWriteBindingTests.cs" />
+    <Compile Include="Core\Bindings\WrappingCoreSessionTests.cs" />
+    <Compile Include="Core\Clusters\ClusterClockTests.cs" />
     <Compile Include="Core\Clusters\ElectionIdTests.cs" />
     <Compile Include="Core\Clusters\ReplicaSetConfigTests.cs" />
     <Compile Include="Core\Configuration\ClusterSettingsTests.cs" />
@@ -93,6 +104,7 @@
     <Compile Include="Core\Operations\ChangeStreamOperationTests.cs" />
     <Compile Include="Core\Operations\CommandOperationBaseTests.cs" />
     <Compile Include="Core\Operations\CreateViewOperationTests.cs" />
+    <Compile Include="Core\Operations\OperationClockTests.cs" />
     <Compile Include="Core\Operations\ReIndexOperationTests.cs" />
     <Compile Include="Core\Operations\UpdateRequestTests.cs" />
     <Compile Include="Core\Operations\GeoSearchOperationTests.cs" />
@@ -134,6 +146,7 @@
     <Compile Include="Core\Operations\QueryHelperTests.cs" />
     <Compile Include="Core\Operations\WriteCommandOperationTests.cs" />
     <Compile Include="Core\Operations\WriteConcernErrorHelperTests.cs" />
+    <Compile Include="Core\Servers\ClusterClockAdvancingCoreSessionTests.cs" />
     <Compile Include="Core\Servers\ServerDescriptionWithSimilarLastUpdateTimestampEqualityComparer.cs" />
     <Compile Include="Core\Servers\ServerMonitorTests.cs" />
     <Compile Include="Core\Servers\HeartbeatDelayTests.cs" />

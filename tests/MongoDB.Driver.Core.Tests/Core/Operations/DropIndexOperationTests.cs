@@ -1,4 +1,4 @@
-/* Copyright 2013-2016 MongoDB Inc.
+/* Copyright 2013-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -174,7 +174,8 @@ namespace MongoDB.Driver.Core.Operations
         {
             RequireServer.Check();
             DropCollection();
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
+
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding(_session.Fork()))
             {
                 var indexName = "x_1";
                 var subject = new DropIndexOperation(_collectionNamespace, indexName, _messageEncoderSettings);
@@ -231,6 +232,19 @@ namespace MongoDB.Driver.Core.Operations
             var exception = Record.Exception(() => ExecuteOperation(subject, async));
 
             exception.Should().BeOfType<MongoWriteConcernException>();
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_send_session_id_when_supported(
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check();
+            EnsureIndexExists();
+            var indexName = "x_1";
+            var subject = new DropIndexOperation(_collectionNamespace, indexName, _messageEncoderSettings);
+
+            VerifySessionIdWasSentWhenSupported(subject, "dropIndexes", async);
         }
 
         [Fact]

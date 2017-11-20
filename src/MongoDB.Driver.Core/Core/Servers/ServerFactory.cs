@@ -43,9 +43,9 @@ namespace MongoDB.Driver.Core.Servers
 
         // methods
         /// <inheritdoc/>
-        public IClusterableServer CreateServer(ClusterId clusterId, EndPoint endPoint)
+        public IClusterableServer CreateServer(ClusterId clusterId, IClusterClock clusterClock, EndPoint endPoint)
         {
-            return new Server(clusterId, _clusterConnectionMode, _settings, endPoint, _connectionPoolFactory, _serverMonitorFactory, _eventSubscriber);
+            return new Server(clusterId, clusterClock, _clusterConnectionMode, _settings, endPoint, _connectionPoolFactory, _serverMonitorFactory, _eventSubscriber);
         }
     }
 }

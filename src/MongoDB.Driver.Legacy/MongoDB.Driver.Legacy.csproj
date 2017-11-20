@@ -24,6 +24,7 @@
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\MongoDB.Driver.Legacy.XML</DocumentationFile>
     <UseVSHostingProcess>true</UseVSHostingProcess>
+    <LangVersion>6</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -81,6 +82,7 @@
     <Compile Include="Communication\MongoServerInstance.cs" />
     <Compile Include="Communication\MongoServerInstanceType.cs" />
     <Compile Include="CountArgs.cs" />
+    <Compile Include="DefaultLegacyOperationExecutor.cs" />
     <Compile Include="DistinctArgs.cs" />
     <Compile Include="EvalArgs.cs" />
     <Compile Include="EvalFlags.cs" />
@@ -147,6 +149,7 @@
     <Compile Include="MongoServerState.cs" />
     <Compile Include="MongoUpdateOptions.cs" />
     <Compile Include="MongoUser.cs" />
+    <Compile Include="NoClientSession.cs" />
     <Compile Include="Operations\AddUserOperation.cs" />
     <Compile Include="Operations\AddUserUsingSystemUsersCollectionOperation.cs" />
     <Compile Include="Operations\AddUserUsingUserManagementCommandsOperation.cs" />

@@ -59,6 +59,12 @@ namespace MongoDB.Driver.Core.Bindings
             get { return _reference.Instance.ServerDescription; }
         }
 
+        /// <inheritdoc/>
+        public ICoreSessionHandle Session
+        {
+            get { return _reference.Instance.Session; }
+        }
+
         // methods
         /// <inheritdoc/>
         public IChannelHandle GetChannel(CancellationToken cancellationToken)

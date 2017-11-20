@@ -26,6 +26,7 @@ using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace MongoDB.Driver.Tests
 {
@@ -374,49 +375,70 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
-        public void ToCursor_should_call_Aggregate(
+        public void ToCursor_should_call_collection_Aggregate_with_expected_arguments(
+            [Values(false, true)] bool usingSession,
             [Values(false, true)] bool async)
         {
+            var session = usingSession ? new Mock<IClientSessionHandle>().Object : null;
             var subject =
-                CreateSubject()
+                CreateSubject(session)
                 .Match(Builders<C>.Filter.Eq(c => c.X, 1));
+            var expectedPipeline = ((AggregateFluent<C, C>)subject)._pipeline();
+            var expectedOptions = subject.Options;
+            var cancellationToken = new CancellationTokenSource().Token;
 
-            Predicate<PipelineDefinition<C, C>> isExpectedPipeline = pipeline =>
-            {
-                var renderedPipeline = RenderPipeline(pipeline);
-                return
-                    renderedPipeline.Documents.Count == 1 &&
-                    renderedPipeline.Documents[0] == BsonDocument.Parse("{ $match : { X : 1 } }") &&
-                    renderedPipeline.OutputSerializer.ValueType == typeof(C);
-            };
-
-            IAsyncCursor<C> cursor;
             if (async)
             {
-                cursor = subject.ToCursorAsync(CancellationToken.None).GetAwaiter().GetResult();
+                var _ = subject.ToCursorAsync(cancellationToken).GetAwaiter().GetResult();
 
-                _mockCollection.Verify(
-                    c => c.AggregateAsync<C>(
-                        It.Is<PipelineDefinition<C, C>>(pipeline => isExpectedPipeline(pipeline)),
-                        It.IsAny<AggregateOptions>(),
-                        CancellationToken.None),
-                    Times.Once);
+                if (usingSession)
+                {
+                    _mockCollection.Verify(
+                        c => c.AggregateAsync<C>(
+                            session,
+                            expectedPipeline,
+                            expectedOptions,
+                            cancellationToken),
+                        Times.Once);
+                }
+                else
+                {
+                    _mockCollection.Verify(
+                        c => c.AggregateAsync<C>(
+                            expectedPipeline,
+                            expectedOptions,
+                            cancellationToken),
+                        Times.Once);
+                }
             }
             else
             {
-                cursor = subject.ToCursor(CancellationToken.None);
+                var _ = subject.ToCursor(cancellationToken);
 
-                _mockCollection.Verify(
-                    c => c.Aggregate<C>(
-                        It.Is<PipelineDefinition<C, C>>(pipeline => isExpectedPipeline(pipeline)),
-                        It.IsAny<AggregateOptions>(),
-                        CancellationToken.None),
-                    Times.Once);
+                if (usingSession)
+                {
+                    _mockCollection.Verify(
+                        c => c.Aggregate<C>(
+                            session,
+                            expectedPipeline,
+                            expectedOptions,
+                            cancellationToken),
+                        Times.Once);
+                }
+                else
+                {
+                    _mockCollection.Verify(
+                        c => c.Aggregate<C>(
+                            expectedPipeline,
+                            expectedOptions,
+                            cancellationToken),
+                        Times.Once);
+                }
             }
         }
 
         // private methods
-        private IAggregateFluent<C> CreateSubject()
+        private IAggregateFluent<C> CreateSubject(IClientSessionHandle session = null)
         {
             var mockDatabase = new Mock<IMongoDatabase>();
             SetupDatabaseGetCollectionMethod<C>(mockDatabase);
@@ -427,7 +449,7 @@ namespace MongoDB.Driver.Tests
             _mockCollection.SetupGet(c => c.DocumentSerializer).Returns(settings.SerializerRegistry.GetSerializer<C>());
             _mockCollection.SetupGet(c => c.Settings).Returns(settings);
             var options = new AggregateOptions();
-            var subject = new AggregateFluent<C, C>(_mockCollection.Object, new EmptyPipelineDefinition<C>(), options);
+            var subject = new AggregateFluent<C, C>(session, _mockCollection.Object, new EmptyPipelineDefinition<C>(), options);
 
             return subject;
         }
@@ -477,6 +499,33 @@ namespace MongoDB.Driver.Tests
         public class D : C
         {
             public int Y;
+        }
+    }
+
+    internal static class AggregateFluentReflector
+    {
+        public static IMongoCollection<TDocument> _collection<TDocument, TResult>(this AggregateFluent<TDocument, TResult> obj)
+        {
+            var fieldInfo = typeof(AggregateFluent<TDocument, TResult>).GetField("_collection", BindingFlags.NonPublic | BindingFlags.Instance);
+            return (IMongoCollection<TDocument>)fieldInfo.GetValue(obj);
+        }
+
+        public static AggregateOptions _options<TDocument, TResult>(this AggregateFluent<TDocument, TResult> obj)
+        {
+            var fieldInfo = typeof(AggregateFluent<TDocument, TResult>).GetField("_options", BindingFlags.NonPublic | BindingFlags.Instance);
+            return (AggregateOptions)fieldInfo.GetValue(obj);
+        }
+
+        public static PipelineDefinition<TDocument, TResult> _pipeline<TDocument, TResult>(this AggregateFluent<TDocument, TResult> obj)
+        {
+            var fieldInfo = typeof(AggregateFluent<TDocument, TResult>).GetField("_pipeline", BindingFlags.NonPublic | BindingFlags.Instance);
+            return (PipelineDefinition<TDocument, TResult>)fieldInfo.GetValue(obj);
+        }
+
+        public static IClientSessionHandle _session<TDocument, TResult>(this AggregateFluent<TDocument, TResult> obj)
+        {
+            var fieldInfo = typeof(AggregateFluent<TDocument, TResult>).GetField("_session", BindingFlags.NonPublic | BindingFlags.Instance);
+            return (IClientSessionHandle)fieldInfo.GetValue(obj);
         }
     }
 }

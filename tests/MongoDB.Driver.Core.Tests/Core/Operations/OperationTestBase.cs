@@ -18,10 +18,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using Xunit;
 
@@ -33,16 +37,20 @@ namespace MongoDB.Driver.Core.Operations
         protected CollectionNamespace _collectionNamespace;
         protected MessageEncoderSettings _messageEncoderSettings;
         private bool _hasOncePerFixtureRun;
+        protected readonly ICoreSessionHandle _session;
 
         public OperationTestBase()
         {
             _databaseNamespace = CoreTestConfiguration.DatabaseNamespace;
-            _collectionNamespace = new CollectionNamespace(_databaseNamespace, GetType().Name);
+            _collectionNamespace = CoreTestConfiguration.GetCollectionNamespaceForTestClass(GetType());
             _messageEncoderSettings = CoreTestConfiguration.MessageEncoderSettings;
+            _session = CoreTestConfiguration.StartSession();
         }
 
         public virtual void Dispose()
         {
+            _session.ReferenceCount().Should().Be(1);
+
             try
             {
                 // TODO: DropDatabase
@@ -93,7 +101,7 @@ namespace MongoDB.Driver.Core.Operations
 
         protected TResult ExecuteOperation<TResult>(IReadOperation<TResult> operation)
         {
-            using (var binding = CoreTestConfiguration.GetReadBinding())
+            using (var binding = CoreTestConfiguration.GetReadBinding(_session.Fork()))
             using (var bindingHandle = new ReadBindingHandle(binding))
             {
                 return operation.Execute(bindingHandle, CancellationToken.None);
@@ -127,7 +135,7 @@ namespace MongoDB.Driver.Core.Operations
         protected TResult ExecuteOperation<TResult>(IReadOperation<TResult> operation, ReadPreference readPreference, bool async)
         {
             var cluster = CoreTestConfiguration.Cluster;
-            using (var binding = new ReadPreferenceBinding(cluster, readPreference))
+            using (var binding = new ReadPreferenceBinding(cluster, readPreference, NoCoreSession.NewHandle()))
             using (var bindingHandle = new ReadBindingHandle(binding))
             {
                 return ExecuteOperation(operation, bindingHandle, async);
@@ -136,7 +144,7 @@ namespace MongoDB.Driver.Core.Operations
 
         protected TResult ExecuteOperation<TResult>(IWriteOperation<TResult> operation)
         {
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding(_session.Fork()))
             using (var bindingHandle = new ReadWriteBindingHandle(binding))
             {
                 return operation.Execute(bindingHandle, CancellationToken.None);
@@ -169,7 +177,7 @@ namespace MongoDB.Driver.Core.Operations
 
         protected async Task<TResult> ExecuteOperationAsync<TResult>(IReadOperation<TResult> operation)
         {
-            using (var binding = CoreTestConfiguration.GetReadBinding())
+            using (var binding = CoreTestConfiguration.GetReadBinding(_session.Fork()))
             using (var bindingHandle = new ReadBindingHandle(binding))
             {
                 return await ExecuteOperationAsync(operation, bindingHandle);
@@ -183,7 +191,7 @@ namespace MongoDB.Driver.Core.Operations
 
         protected async Task<TResult> ExecuteOperationAsync<TResult>(IWriteOperation<TResult> operation)
         {
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding(_session.Fork()))
             using (var bindingHandle = new ReadWriteBindingHandle(binding))
             {
                 return await operation.ExecuteAsync(bindingHandle, CancellationToken.None);
@@ -247,8 +255,10 @@ namespace MongoDB.Driver.Core.Operations
         protected List<BsonDocument> ReadAllFromCollection(CollectionNamespace collectionNamespace)
         {
             var operation = new FindOperation<BsonDocument>(collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-            var cursor = ExecuteOperation(operation);
-            return ReadCursorToEnd(cursor);
+            using (var cursor = ExecuteOperation(operation))
+            {
+                return ReadCursorToEnd(cursor);
+            }
         }
 
         protected List<BsonDocument> ReadAllFromCollection(CollectionNamespace collectionNamespace, bool async)
@@ -271,8 +281,10 @@ namespace MongoDB.Driver.Core.Operations
         protected async Task<List<BsonDocument>> ReadAllFromCollectionAsync(CollectionNamespace collectionNamespace)
         {
             var operation = new FindOperation<BsonDocument>(collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-            var cursor = await ExecuteOperationAsync(operation);
-            return await ReadCursorToEndAsync(cursor);
+            using (var cursor = await ExecuteOperationAsync(operation))
+            {
+                return await ReadCursorToEndAsync(cursor);
+            }
         }
 
         protected List<T> ReadCursorToEnd<T>(IAsyncCursor<T> cursor)
@@ -332,6 +344,61 @@ namespace MongoDB.Driver.Core.Operations
         protected void Update(string filter, string update)
         {
             Update(BsonDocument.Parse(filter), BsonDocument.Parse(update));
+        }
+
+        protected void VerifySessionIdWasSentWhenSupported<TResult>(IReadOperation<TResult> operation, string commandName, bool async)
+        {
+            VerifySessionIdWasSentWhenSupported(
+                (binding, cancellationToken) => operation.ExecuteAsync(binding, cancellationToken),
+                (binding, cancellationToken) => operation.Execute(binding, cancellationToken),
+                commandName,
+                async);
+        }
+
+        protected void VerifySessionIdWasSentWhenSupported<TResult>(IWriteOperation<TResult> operation, string commandName, bool async)
+        {
+            VerifySessionIdWasSentWhenSupported(
+                (binding, cancellationToken) => operation.ExecuteAsync(binding, cancellationToken),
+                (binding, cancellationToken) => operation.Execute(binding, cancellationToken),
+                commandName,
+                async);
+        }
+
+        protected void VerifySessionIdWasSentWhenSupported<TResult>(
+            Func<WritableServerBinding, CancellationToken, Task<TResult>> executeAsync,
+            Func<WritableServerBinding, CancellationToken, TResult> execute, 
+            string commandName,
+            bool async)
+        {
+            var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == commandName);
+            using (var cluster = CoreTestConfiguration.CreateCluster(b => b.Subscribe(eventCapturer)))
+            {
+                using (var session = CoreTestConfiguration.StartSession(cluster))
+                using (var binding = new WritableServerBinding(cluster, session))
+                {
+                    var cancellationToken = new CancellationTokenSource().Token;
+                    if (async)
+                    {
+                        executeAsync(binding, cancellationToken).GetAwaiter().GetResult();
+                    }
+                    else
+                    {
+                        execute(binding, cancellationToken);
+                    }
+
+                    var commandStartedEvent = (CommandStartedEvent)eventCapturer.Next();
+                    var command = commandStartedEvent.Command;
+                    if (session.Id == null)
+                    {
+                        command.Contains("lsid").Should().BeFalse();
+                    }
+                    else
+                    {
+                        command["lsid"].Should().Be(session.Id);
+                    }
+                    session.ReferenceCount().Should().Be(1);
+                }
+            }
         }
     }
 }

@@ -519,7 +519,7 @@ namespace MongoDB.Driver.Core.Operations
         // private methods
         private IAsyncCursor<TDocument> CreateCursor(IChannelSourceHandle channelSource, BsonDocument query, CursorBatch<TDocument> batch)
         {
-            var getMoreChannelSource = new ServerChannelSource(channelSource.Server);
+            var getMoreChannelSource = new ServerChannelSource(channelSource.Server, channelSource.Session.Fork());
             return new AsyncCursor<TDocument>(
                 getMoreChannelSource,
                 _collectionNamespace,

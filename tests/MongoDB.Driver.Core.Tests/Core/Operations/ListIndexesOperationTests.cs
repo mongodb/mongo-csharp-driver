@@ -1,4 +1,4 @@
-/* Copyright 2013-2016 MongoDB Inc.
+/* Copyright 2013-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using Xunit;
@@ -117,6 +118,18 @@ namespace MongoDB.Driver.Core.Operations
             Action action = () => ExecuteOperation(subject, binding, async);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("binding");
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_send_session_id_when_supported(
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.ListIndexesCommand);
+            EnsureCollectionExists(async);
+            var subject = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
+
+            VerifySessionIdWasSentWhenSupported(subject, "listIndexes", async);
         }
 
         [Fact]

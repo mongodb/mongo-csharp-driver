@@ -200,7 +200,7 @@ namespace MongoDB.Driver.Core.Operations
             using (EventContext.BeginOperation())
             using (var channelSource = binding.GetReadChannelSource(cancellationToken))
             using (var channel = channelSource.GetChannel(cancellationToken))
-            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference))
+            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
             {
                 var operation = CreateOperation(channel);
                 var result = operation.Execute(channelBinding, cancellationToken);
@@ -217,7 +217,7 @@ namespace MongoDB.Driver.Core.Operations
             using (EventContext.BeginOperation())
             using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false))
             using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
-            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference))
+            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
             {
                 var operation = CreateOperation(channel);
                 var result = await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
@@ -291,7 +291,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private AsyncCursor<TResult> CreateCursorFromCursorResult(IChannelSourceHandle channelSource, BsonDocument command, AggregateResult result)
         {
-            var getMoreChannelSource = new ServerChannelSource(channelSource.Server);
+            var getMoreChannelSource = new ServerChannelSource(channelSource.Server, channelSource.Session.Fork());
             return new AsyncCursor<TResult>(
                 getMoreChannelSource,
                 CollectionNamespace,

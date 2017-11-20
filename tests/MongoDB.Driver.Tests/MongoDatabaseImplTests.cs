@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,10 +14,7 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -42,6 +39,7 @@ namespace MongoDB.Driver
         {
             _operationExecutor = new MockOperationExecutor();
             _subject = CreateSubject(_operationExecutor);
+            _operationExecutor.Client = _subject.Client;
         }
 
         [Fact]
@@ -64,10 +62,17 @@ namespace MongoDB.Driver
 
         [Theory]
         [ParameterAttributeData]
-        public void CreateCollection_should_execute_the_CreateCollectionOperation_when_options_is_generic(
+        public void CreateCollection_should_execute_a_CreateCollectionOperation_when_options_is_generic(
+            [Values(false, true)] bool usingSession,
             [Values(false, true)] bool async)
         {
+            var writeConcern = new WriteConcern(1);
+            var subject = _subject.WithWriteConcern(writeConcern);
+            var session = CreateSession(usingSession);
+            var name = "bar";
             var storageEngine = new BsonDocument("awesome", true);
+            var validatorDocument = BsonDocument.Parse("{ x : 1 }");
+            var validatorDefinition = (FilterDefinition<BsonDocument>)validatorDocument;
             var options = new CreateCollectionOptions<BsonDocument>
             {
                 AutoIndexId = false,
@@ -81,25 +86,38 @@ namespace MongoDB.Driver
                 UsePowerOf2Sizes = true,
                 ValidationAction = DocumentValidationAction.Warn,
                 ValidationLevel = DocumentValidationLevel.Off,
-                Validator = new BsonDocument("x", 1)
+                Validator = validatorDefinition
             };
-            var writeConcern = new WriteConcern(1);
-            var subject = _subject.WithWriteConcern(writeConcern);
+            var cancellationToken = new CancellationTokenSource().Token;
 
-            if (async)
+            if (usingSession)
             {
-                subject.CreateCollectionAsync("bar", options, CancellationToken.None).GetAwaiter().GetResult();
+                if (async)
+                {
+                    subject.CreateCollectionAsync(session, name, options, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    subject.CreateCollection(session, name, options, cancellationToken);
+                }
             }
             else
             {
-                subject.CreateCollection("bar", options, CancellationToken.None);
+                if (async)
+                {
+                    subject.CreateCollectionAsync(name, options, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    subject.CreateCollection(name, options, cancellationToken);
+                }
             }
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
+            VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            call.Operation.Should().BeOfType<CreateCollectionOperation>();
-            var op = (CreateCollectionOperation)call.Operation;
-            op.CollectionNamespace.Should().Be(new CollectionNamespace(new DatabaseNamespace("foo"), "bar"));
+            var op = call.Operation.Should().BeOfType<CreateCollectionOperation>().Subject;
+            op.CollectionNamespace.Should().Be(new CollectionNamespace(_subject.DatabaseNamespace, name));
             op.AutoIndexId.Should().Be(options.AutoIndexId);
             op.Capped.Should().Be(options.Capped);
             op.Collation.Should().BeSameAs(options.Collation);
@@ -111,18 +129,20 @@ namespace MongoDB.Driver
             op.UsePowerOf2Sizes.Should().Be(options.UsePowerOf2Sizes);
             op.ValidationAction.Should().Be(options.ValidationAction);
             op.ValidationLevel.Should().Be(options.ValidationLevel);
-            var serializerRegistry = options.SerializerRegistry ?? BsonSerializer.SerializerRegistry;
-            var documentSerializer = options.DocumentSerializer ?? serializerRegistry.GetSerializer<BsonDocument>();
-            var renderedValidator = options.Validator.Render(documentSerializer, serializerRegistry);
-            op.Validator.Should().Be(renderedValidator);
+            op.Validator.Should().Be(validatorDocument);
             op.WriteConcern.Should().BeSameAs(writeConcern);
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void CreateCollection_should_execute_the_CreateCollectionOperation_when_options_is_not_generic(
+        public void CreateCollection_should_execute_a_CreateCollectionOperation_when_options_is_not_generic(
+            [Values(false, true)] bool usingSession,
             [Values(false, true)] bool async)
         {
+            var writeConcern = new WriteConcern(1);
+            var subject = _subject.WithWriteConcern(writeConcern);
+            var session = CreateSession(usingSession);
+            var name = "bar";
             var storageEngine = new BsonDocument("awesome", true);
             var options = new CreateCollectionOptions
             {
@@ -138,23 +158,36 @@ namespace MongoDB.Driver
                 ValidationAction = DocumentValidationAction.Warn,
                 ValidationLevel = DocumentValidationLevel.Off
             };
-            var writeConcern = new WriteConcern(1);
-            var subject = _subject.WithWriteConcern(writeConcern);
+            var cancellationToken = new CancellationTokenSource().Token;
 
-            if (async)
+            if (usingSession)
             {
-                subject.CreateCollectionAsync("bar", options, CancellationToken.None).GetAwaiter().GetResult();
+                if (async)
+                {
+                    subject.CreateCollectionAsync(session, name, options, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    subject.CreateCollection(session, name, options, cancellationToken);
+                }
             }
             else
             {
-                subject.CreateCollection("bar", options, CancellationToken.None);
+                if (async)
+                {
+                    subject.CreateCollectionAsync(name, options, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    subject.CreateCollection(name, options, cancellationToken);
+                }
             }
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
+            VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            call.Operation.Should().BeOfType<CreateCollectionOperation>();
-            var op = (CreateCollectionOperation)call.Operation;
-            op.CollectionNamespace.Should().Be(new CollectionNamespace(new DatabaseNamespace("foo"), "bar"));
+            var op = call.Operation.Should().BeOfType<CreateCollectionOperation>().Subject;
+            op.CollectionNamespace.Should().Be(new CollectionNamespace(_subject.DatabaseNamespace, name));
             op.AutoIndexId.Should().Be(options.AutoIndexId);
             op.Capped.Should().Be(options.Capped);
             op.Collation.Should().BeSameAs(options.Collation);
@@ -171,27 +204,44 @@ namespace MongoDB.Driver
 
         [Theory]
         [ParameterAttributeData]
-        public void CreateCollection_should_execute_the_CreateCollectionOperation_when_options_is_null(
+        public void CreateCollection_should_execute_a_CreateCollectionOperation_when_options_is_null(
+            [Values(false, true)] bool usingSession,
             [Values(false, true)] bool async)
         {
             var writeConcern = new WriteConcern(1);
             var subject = _subject.WithWriteConcern(writeConcern);
-            CreateCollectionOptions options = null;
+            var session = CreateSession(usingSession);
+            var name = "bar";
+            var cancellationToken = new CancellationTokenSource().Token;
 
-            if (async)
+            if (usingSession)
             {
-                subject.CreateCollectionAsync("bar", options, CancellationToken.None).GetAwaiter().GetResult();
+                if (async)
+                {
+                    subject.CreateCollectionAsync(session, name, null, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    subject.CreateCollection(session, name, null, cancellationToken);
+                }
             }
             else
             {
-                subject.CreateCollection("bar", options, CancellationToken.None);
+                if (async)
+                {
+                    subject.CreateCollectionAsync(name, null, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    subject.CreateCollection(name, null, cancellationToken);
+                }
             }
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
+            VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            call.Operation.Should().BeOfType<CreateCollectionOperation>();
-            var op = (CreateCollectionOperation)call.Operation;
-            op.CollectionNamespace.Should().Be(new CollectionNamespace(new DatabaseNamespace("foo"), "bar"));
+            var op = call.Operation.Should().BeOfType<CreateCollectionOperation>().Subject;
+            op.CollectionNamespace.Should().Be(new CollectionNamespace(_subject.DatabaseNamespace, name));
             op.AutoIndexId.Should().NotHaveValue();
             op.Capped.Should().NotHaveValue();
             op.IndexOptionDefaults.Should().BeNull();
@@ -208,242 +258,93 @@ namespace MongoDB.Driver
 
         [Theory]
         [ParameterAttributeData]
-        public void CreateView_should_execute_a_CreateViewOperation_with_the_expected_ViewName(
-            [Values("a", "b")]
-            string viewName,
-            [Values(false, true)]
-            bool async)
+        public void CreateView_should_execute_a_CreateViewOperation(
+            [Values(false, true)] bool usingSession,
+            [Values(false, true)] bool async)
         {
-            var pipeline = new BsonDocumentStagePipelineDefinition<BsonDocument, BsonDocument>(new BsonDocument[0]);
-
-            if (async)
-            {
-                _subject.CreateViewAsync<BsonDocument, BsonDocument>(viewName, "viewOn", pipeline, null, CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                _subject.CreateView<BsonDocument, BsonDocument>(viewName, "viewOn", pipeline, null, CancellationToken.None);
-            }
-
-            var call = _operationExecutor.GetWriteCall<BsonDocument>();
-            var operation = call.Operation.Should().BeOfType<CreateViewOperation>().Subject;
-            operation.ViewName.Should().Be(viewName);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void CreateView_should_execute_a_CreateViewOperation_with_the_expected_ViewOn(
-            [Values("a", "b")]
-            string viewOn,
-            [Values(false, true)]
-            bool async)
-        {
-            var pipeline = new BsonDocumentStagePipelineDefinition<BsonDocument, BsonDocument>(new BsonDocument[0]);
-
-            if (async)
-            {
-                _subject.CreateViewAsync<BsonDocument, BsonDocument>("viewName", viewOn, pipeline, null, CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                _subject.CreateView<BsonDocument, BsonDocument>("viewName", viewOn, pipeline, null, CancellationToken.None);
-            }
-
-            var call = _operationExecutor.GetWriteCall<BsonDocument>();
-            var operation = call.Operation.Should().BeOfType<CreateViewOperation>().Subject;
-            operation.ViewOn.Should().Be(viewOn);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void CreateView_should_execute_a_CreateViewOperation_with_the_expected_WriteConcern(
-            [Values(1, 2)]
-            int w,
-            [Values(false, true)]
-            bool async)
-        {
-            var writeConcern = new WriteConcern(w);
+            var writeConcern = new WriteConcern(1);
             var subject = _subject.WithWriteConcern(writeConcern);
-            var pipeline = new BsonDocumentStagePipelineDefinition<BsonDocument, BsonDocument>(new BsonDocument[0]);
-
-            if (async)
-            {
-                subject.CreateViewAsync<BsonDocument, BsonDocument>("viewName", "viewOn", pipeline, null, CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                subject.CreateView<BsonDocument, BsonDocument>("viewName", "viewOn", pipeline, null, CancellationToken.None);
-            }
-
-            var call = _operationExecutor.GetWriteCall<BsonDocument>();
-            var operation = call.Operation.Should().BeOfType<CreateViewOperation>().Subject;
-            operation.WriteConcern.Should().BeSameAs(writeConcern);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void CreateView_should_execute_a_CreateViewOperation_with_the_expected_Pipeline(
-            [Values(1, 2)]
-            int x,
-            [Values(false, true)]
-            bool async)
-        {
-            var stages = new[] { new BsonDocument("$match", new BsonDocument("x", x)) };
-            var pipeline = new BsonDocumentStagePipelineDefinition<BsonDocument, BsonDocument>(stages);
-
-            if (async)
-            {
-                _subject.CreateViewAsync<BsonDocument, BsonDocument>("viewName", "viewOn", pipeline, null, CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                _subject.CreateView<BsonDocument, BsonDocument>("viewName", "viewOn", pipeline, null, CancellationToken.None);
-            }
-
-            var call = _operationExecutor.GetWriteCall<BsonDocument>();
-            var operation = call.Operation.Should().BeOfType<CreateViewOperation>().Subject;
-            operation.Pipeline.Should().Equal(stages);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void CreateView_should_execute_a_CreateViewOperation_with_the_expected_Collation(
-            [Values(null, "en_US", "fr_CA")]
-            string locale,
-            [Values(false, true)]
-            bool async)
-        {
-            var pipeline = new BsonDocumentStagePipelineDefinition<BsonDocument, BsonDocument>(new BsonDocument[0]);
-            var collation = locale == null ? null : new Collation(locale);
+            var session = CreateSession(usingSession);
+            var viewName = "view";
+            var viewOn = "on";
+            var pipelineDocuments = new[] { BsonDocument.Parse("{ a : 1 }") };
+            var pipelineDefinition = (PipelineDefinition<BsonDocument, BsonDocument>)pipelineDocuments;
+            var collation = new Collation("en-us");
             var options = new CreateViewOptions<BsonDocument>
             {
-                Collation = collation
+                Collation = collation,
+                DocumentSerializer = BsonDocumentSerializer.Instance,
+                SerializerRegistry = BsonSerializer.SerializerRegistry
             };
-
-            if (async)
-            {
-                _subject.CreateViewAsync<BsonDocument, BsonDocument>("viewName", "viewOn", pipeline, options, CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                _subject.CreateView<BsonDocument, BsonDocument>("viewName", "viewOn", pipeline, options, CancellationToken.None);
-            }
-
-            var call = _operationExecutor.GetWriteCall<BsonDocument>();
-            var operation = call.Operation.Should().BeOfType<CreateViewOperation>().Subject;
-            operation.Collation.Should().BeSameAs(collation);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void CreateView_should_execute_a_CreateViewOperation_with_the_expected_DocumentSerializer(
-            [Values(false, true)]
-            bool isDocumentSerializerNull,
-            [Values(false, true)]
-            bool async)
-        {
-            var mockPipeline = new Mock<PipelineDefinition<BsonDocument, BsonDocument>>();
-            var documentSerializer = isDocumentSerializerNull ? null : new BsonDocumentSerializer();
-            var stages = new [] { new BsonDocument("$match", new BsonDocument("x", 1)) };
-            var renderedPipeline = new RenderedPipelineDefinition<BsonDocument>(stages, BsonDocumentSerializer.Instance);
-            mockPipeline.Setup(p => p.Render(documentSerializer ?? BsonSerializer.SerializerRegistry.GetSerializer<BsonDocument>(), BsonSerializer.SerializerRegistry)).Returns(renderedPipeline);
-
-            var options = new CreateViewOptions<BsonDocument>
-            {
-                DocumentSerializer = documentSerializer
-            };
-
-            if (async)
-            {
-                _subject.CreateViewAsync<BsonDocument, BsonDocument>("viewName", "viewOn", mockPipeline.Object, options, CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                _subject.CreateView<BsonDocument, BsonDocument>("viewName", "viewOn", mockPipeline.Object, options, CancellationToken.None);
-            }
-
-            var call = _operationExecutor.GetWriteCall<BsonDocument>();
-            var operation = call.Operation.Should().BeOfType<CreateViewOperation>().Subject;
-            operation.Pipeline.Should().Equal(stages); // test output of call to Render to see if DocumentSerializer was used
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void CreateView_should_execute_a_CreateViewOperation_with_the_expected_SerializerRegistry(
-            [Values(false, true)]
-            bool isSerializerRegistryNull,
-            [Values(false, true)]
-            bool async)
-        {
-            var mockPipeline = new Mock<PipelineDefinition<BsonDocument, BsonDocument>>();
-            var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<BsonDocument>();
-            var mockSerializerRegistry = new Mock<IBsonSerializerRegistry>();
-            mockSerializerRegistry.Setup(r => r.GetSerializer(typeof(BsonDocument))).Returns(BsonDocumentSerializer.Instance);
-            mockSerializerRegistry.Setup(r => r.GetSerializer<BsonDocument>()).Returns(BsonDocumentSerializer.Instance);
-            var serializerRegistry = isSerializerRegistryNull ? null : mockSerializerRegistry.Object;
-            var stages = new[] { new BsonDocument("$match", new BsonDocument("x", 1)) };
-            var renderedPipeline = new RenderedPipelineDefinition<BsonDocument>(stages, BsonDocumentSerializer.Instance);
-            mockPipeline.Setup(p => p.Render(documentSerializer, serializerRegistry ?? BsonSerializer.SerializerRegistry)).Returns(renderedPipeline);
-
-            var options = new CreateViewOptions<BsonDocument>
-            {
-                SerializerRegistry = serializerRegistry
-            };
-
-            if (async)
-            {
-                _subject.CreateViewAsync<BsonDocument, BsonDocument>("viewName", "viewOn", mockPipeline.Object, options, CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                _subject.CreateView<BsonDocument, BsonDocument>("viewName", "viewOn", mockPipeline.Object, options, CancellationToken.None);
-            }
-
-            var call = _operationExecutor.GetWriteCall<BsonDocument>();
-            var operation = call.Operation.Should().BeOfType<CreateViewOperation>().Subject;
-            operation.Pipeline.Should().Equal(stages); // test output of call to Render
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void CreateView_should_execute_a_CreateViewOperation_with_the_expected_CancellationToken(
-            [Values(false, true)]
-            bool async)
-        {
-            var pipeline = new BsonDocumentStagePipelineDefinition<BsonDocument, BsonDocument>(new BsonDocument[0]);
             var cancellationToken = new CancellationTokenSource().Token;
 
-            if (async)
+            if (usingSession)
             {
-                _subject.CreateViewAsync<BsonDocument, BsonDocument>("viewName", "viewOn", pipeline, null, cancellationToken).GetAwaiter().GetResult();
+                if (async)
+                {
+                    subject.CreateViewAsync(session, viewName, viewOn, pipelineDefinition, options, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    subject.CreateView(session, viewName, viewOn, pipelineDefinition, options, cancellationToken);
+                }
             }
             else
             {
-                _subject.CreateView<BsonDocument, BsonDocument>("viewName", "viewOn", pipeline, null, cancellationToken);
+                if (async)
+                {
+                    subject.CreateViewAsync(viewName, viewOn, pipelineDefinition, options, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    subject.CreateView(viewName, viewOn, pipelineDefinition, options, cancellationToken);
+                }
             }
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
+            VerifySessionAndCancellationToken(call, session, cancellationToken);
+
             var operation = call.Operation.Should().BeOfType<CreateViewOperation>().Subject;
-            call.CancellationToken.Should().Be(cancellationToken);
+            operation.Collation.Should().Be(collation);
+            operation.DatabaseNamespace.Should().Be(subject.DatabaseNamespace);
+            operation.Pipeline.Should().Equal(pipelineDocuments);
+            operation.ViewName.Should().Be(viewName);
+            operation.ViewOn.Should().Be(viewOn);
+            operation.WriteConcern.Should().Be(writeConcern);
         }
 
         [Theory]
         [ParameterAttributeData]
         public void CreateView_should_throw_when_viewName_is_null(
-            [Values(false, true)]
-            bool async)
+            [Values(false, true)] bool usingSession,
+            [Values(false, true)] bool async)
         {
-            var pipeline = new BsonDocumentStagePipelineDefinition<BsonDocument, BsonDocument>(new BsonDocument[0]);
+            var session = CreateSession(usingSession);
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
 
             var exception = Record.Exception(() =>
             {
-                if (async)
+                if(usingSession)
                 {
-                    _subject.CreateViewAsync<BsonDocument, BsonDocument>(null, "viewOn", pipeline).GetAwaiter().GetResult();
+                    if (async)
+                    {
+                        _subject.CreateViewAsync(session, null, "viewOn", pipeline).GetAwaiter().GetResult();
+                    }
+                    else
+                    {
+                        _subject.CreateView(session, null, "viewOn", pipeline);
+                    }
                 }
                 else
                 {
-                    _subject.CreateView<BsonDocument, BsonDocument>(null, "viewOn", pipeline);
+                    if (async)
+                    {
+                        _subject.CreateViewAsync(null, "viewOn", pipeline).GetAwaiter().GetResult();
+                    }
+                    else
+                    {
+                        _subject.CreateView(null, "viewOn", pipeline);
+                    }
                 }
             });
 
@@ -454,20 +355,35 @@ namespace MongoDB.Driver
         [Theory]
         [ParameterAttributeData]
         public void CreateView_should_throw_when_viewOn_is_null(
-            [Values(false, true)]
-            bool async)
+            [Values(false, true)] bool usingSession,
+            [Values(false, true)] bool async)
         {
-            var pipeline = new BsonDocumentStagePipelineDefinition<BsonDocument, BsonDocument>(new BsonDocument[0]);
+            var session = CreateSession(usingSession);
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
 
             var exception = Record.Exception(() =>
             {
-                if (async)
+                if (usingSession)
                 {
-                    _subject.CreateViewAsync<BsonDocument, BsonDocument>("viewName", null, pipeline).GetAwaiter().GetResult();
+                    if (async)
+                    {
+                        _subject.CreateViewAsync(session, "viewName", null, pipeline).GetAwaiter().GetResult();
+                    }
+                    else
+                    {
+                        _subject.CreateView(session, "viewName", null, pipeline);
+                    }
                 }
                 else
                 {
-                    _subject.CreateView<BsonDocument, BsonDocument>("viewName", null, pipeline);
+                    if (async)
+                    {
+                        _subject.CreateViewAsync("viewName", null, pipeline).GetAwaiter().GetResult();
+                    }
+                    else
+                    {
+                        _subject.CreateView("viewName", null, pipeline);
+                    }
                 }
             });
 
@@ -478,18 +394,34 @@ namespace MongoDB.Driver
         [Theory]
         [ParameterAttributeData]
         public void CreateView_should_throw_when_pipeline_is_null(
-            [Values(false, true)]
-            bool async)
+            [Values(false, true)] bool usingSession,
+            [Values(false, true)] bool async)
         {
+            var session = CreateSession(usingSession);
+
             var exception = Record.Exception(() =>
             {
-                if (async)
+                if (usingSession)
                 {
-                    _subject.CreateViewAsync<BsonDocument, BsonDocument>("viewName", "viewOn", null).GetAwaiter().GetResult();
+                    if (async)
+                    {
+                        _subject.CreateViewAsync<BsonDocument, BsonDocument>(session, "viewName", "viewOn", null).GetAwaiter().GetResult();
+                    }
+                    else
+                    {
+                        _subject.CreateView<BsonDocument, BsonDocument>(session, "viewName", "viewOn", null);
+                    }
                 }
                 else
                 {
-                    _subject.CreateView<BsonDocument, BsonDocument>("viewName", "viewOn", null);
+                    if (async)
+                    {
+                        _subject.CreateViewAsync<BsonDocument, BsonDocument>("viewName", "viewOn", null).GetAwaiter().GetResult();
+                    }
+                    else
+                    {
+                        _subject.CreateView<BsonDocument, BsonDocument>("viewName", "viewOn", null);
+                    }
                 }
             });
 
@@ -499,81 +431,142 @@ namespace MongoDB.Driver
 
         [Theory]
         [ParameterAttributeData]
-        public void DropCollection_should_execute_the_DropCollectionOperation(
+        public void DropCollection_should_execute_a_DropCollectionOperation(
+            [Values(false, true)] bool usingSession,
             [Values(false, true)] bool async)
         {
             var writeConcern = new WriteConcern(1);
             var subject = _subject.WithWriteConcern(writeConcern);
+            var session = CreateSession(usingSession);
+            var name = "bar";
+            var cancellationToken = new CancellationTokenSource().Token;
 
-            if (async)
+            if (usingSession)
             {
-                subject.DropCollectionAsync("bar", CancellationToken.None).GetAwaiter().GetResult();
+                if (async)
+                {
+                    subject.DropCollectionAsync(session, name, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    subject.DropCollection(session, name, cancellationToken);
+                }
             }
             else
             {
-                subject.DropCollection("bar", CancellationToken.None);
+                if (async)
+                {
+                    subject.DropCollectionAsync(name, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    subject.DropCollection(name, cancellationToken);
+                }
             }
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
+            VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            call.Operation.Should().BeOfType<DropCollectionOperation>();
-            var op = (DropCollectionOperation)call.Operation;
-            op.CollectionNamespace.Should().Be(new CollectionNamespace(new DatabaseNamespace("foo"), "bar"));
+            var op = call.Operation.Should().BeOfType<DropCollectionOperation>().Subject;
+            op.CollectionNamespace.Should().Be(new CollectionNamespace(subject.DatabaseNamespace, name));
             op.WriteConcern.Should().BeSameAs(writeConcern);
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void ListCollections_should_execute_the_ListCollectionsOperation(
+        public void ListCollections_should_execute_a_ListCollectionsOperation(
+            [Values(false, true)] bool usingSession,
             [Values(false, true)] bool async)
         {
+            var session = CreateSession(usingSession);
+            var filterDocument = BsonDocument.Parse("{ name : \"awesome\" }");
+            var filterDefinition = (FilterDefinition<BsonDocument>)filterDocument;
+            var options = new ListCollectionsOptions
+            {
+                Filter = filterDefinition
+            };
+            var cancellationToken = new CancellationTokenSource().Token;
+
             var mockCursor = new Mock<IAsyncCursor<BsonDocument>>();
             _operationExecutor.EnqueueResult<IAsyncCursor<BsonDocument>>(mockCursor.Object);
-            var filter = new BsonDocument("name", "awesome");
 
-            if (async)
+            if (usingSession)
             {
-                _subject.ListCollectionsAsync(new ListCollectionsOptions { Filter = filter }, CancellationToken.None).GetAwaiter().GetResult();
+                if (async)
+                {
+                    _subject.ListCollectionsAsync(session, options, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    _subject.ListCollections(session, options, cancellationToken);
+                }
             }
             else
             {
-                _subject.ListCollections(new ListCollectionsOptions { Filter = filter }, CancellationToken.None);
+                if (async)
+                {
+                    _subject.ListCollectionsAsync(options, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    _subject.ListCollections(options, cancellationToken);
+                }
             }
 
             var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
-            call.Operation.Should().BeOfType<ListCollectionsOperation>();
-            var op = (ListCollectionsOperation)call.Operation;
-            op.DatabaseNamespace.DatabaseName.Should().Be("foo");
-            op.Filter.Should().Be(filter);
+            VerifySessionAndCancellationToken(call, session, cancellationToken);
+
+            var op = call.Operation.Should().BeOfType<ListCollectionsOperation>().Subject;
+            op.DatabaseNamespace.Should().Be(_subject.DatabaseNamespace);
+            op.Filter.Should().Be(filterDocument);
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void RenameCollection_should_execute_the_RenameCollectionOperation(
+        public void RenameCollection_should_execute_a_RenameCollectionOperation(
+            [Values(false, true)] bool usingSession,
             [Values(false, true)] bool async)
         {
             var writeConcern = new WriteConcern(1);
             var subject = _subject.WithWriteConcern(writeConcern);
+            var session = CreateSession(usingSession);
+            var oldName = "bar";
+            var newName = "baz";
             var options = new RenameCollectionOptions
             {
-                DropTarget = false,
+                DropTarget = true,
             };
+            var cancellationToken = new CancellationTokenSource().Token;
 
-            if (async)
+            if (usingSession)
             {
-                subject.RenameCollectionAsync("bar", "baz", options, CancellationToken.None).GetAwaiter().GetResult();
+                if (async)
+                {
+                    subject.RenameCollectionAsync(session, oldName, newName, options, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    subject.RenameCollection(session, oldName, newName, options, cancellationToken);
+                }
             }
             else
             {
-                subject.RenameCollection("bar", "baz", options, CancellationToken.None);
+                if (async)
+                {
+                    subject.RenameCollectionAsync(oldName, newName, options, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    subject.RenameCollection(oldName, newName, options, cancellationToken);
+                }
             }
 
             var call = _operationExecutor.GetWriteCall<BsonDocument>();
+            VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            call.Operation.Should().BeOfType<RenameCollectionOperation>();
-            var op = (RenameCollectionOperation)call.Operation;
-            op.CollectionNamespace.Should().Be(new CollectionNamespace(new DatabaseNamespace("foo"), "bar"));
-            op.NewCollectionNamespace.Should().Be(new CollectionNamespace(new DatabaseNamespace("foo"), "baz"));
+            var op = call.Operation.Should().BeOfType<RenameCollectionOperation>().Subject;
+            op.CollectionNamespace.Should().Be(new CollectionNamespace(_subject.DatabaseNamespace, oldName));
+            op.NewCollectionNamespace.Should().Be(new CollectionNamespace(_subject.DatabaseNamespace, newName));
             op.DropTarget.Should().Be(options.DropTarget);
             op.WriteConcern.Should().BeSameAs(writeConcern);
         }
@@ -581,139 +574,227 @@ namespace MongoDB.Driver
         [Theory]
         [ParameterAttributeData]
         public void RunCommand_should_default_to_ReadPreference_primary(
+            [Values(false, true)] bool usingSession,
             [Values(false, true)] bool async)
         {
-            var cmd = new BsonDocument("count", "foo");
+            var session = CreateSession(usingSession);
+            var commandDocument = BsonDocument.Parse("{ count : \"foo\" }");
+            var command = (Command<BsonDocument>)commandDocument;
+            var cancellationToken = new CancellationTokenSource().Token;
 
-            if (async)
+            if (usingSession)
             {
-                _subject.RunCommandAsync<BsonDocument>(cmd).GetAwaiter().GetResult();
+                if (async)
+                {
+                    _subject.RunCommandAsync(session, command, null, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    _subject.RunCommand(session, command, null, cancellationToken);
+                }
             }
             else
             {
-                _subject.RunCommand<BsonDocument>(cmd);
+                if (async)
+                {
+                    _subject.RunCommandAsync(command, null, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    _subject.RunCommand(command, null, cancellationToken);
+                }
             }
 
             var call = _operationExecutor.GetReadCall<BsonDocument>();
+            VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            call.Binding.Should().BeOfType<ReadPreferenceBinding>();
-            var binding = (ReadPreferenceBinding)call.Binding;
+            var binding = call.Binding.Should().BeOfType<ReadPreferenceBinding>().Subject;
             binding.ReadPreference.Should().Be(ReadPreference.Primary);
 
-            call.Operation.Should().BeOfType<ReadCommandOperation<BsonDocument>>();
-            var op = (ReadCommandOperation<BsonDocument>)call.Operation;
-            op.DatabaseNamespace.DatabaseName.Should().Be("foo");
-            op.Command.Should().Be("{count: \"foo\"}");
+            var op = call.Operation.Should().BeOfType<ReadCommandOperation<BsonDocument>>().Subject;
+            op.DatabaseNamespace.Should().Be(_subject.DatabaseNamespace);
+            op.Command.Should().Be(commandDocument);
         }
 
         [Theory]
         [ParameterAttributeData]
         public void RunCommand_should_use_the_provided_ReadPreference(
+            [Values(false, true)] bool usingSession,
             [Values(false, true)] bool async)
         {
-            var cmd = new BsonDocument("count", "foo");
+            var session = CreateSession(usingSession);
+            var commandDocument = new BsonDocument("count", "foo");
+            var command = (Command<BsonDocument>)commandDocument;
+            var readPreference = ReadPreference.Secondary;
+            var cancellationToken = new CancellationTokenSource().Token;
 
-            if (async)
+            if (usingSession)
             {
-                _subject.RunCommandAsync<BsonDocument>(cmd, ReadPreference.Secondary, CancellationToken.None).GetAwaiter().GetResult();
+                if (async)
+                {
+                    _subject.RunCommandAsync(session, command, readPreference, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    _subject.RunCommand(session, command, readPreference, cancellationToken);
+                }
             }
             else
             {
-                _subject.RunCommand<BsonDocument>(cmd, ReadPreference.Secondary, CancellationToken.None);
+                if (async)
+                {
+                    _subject.RunCommandAsync(command, readPreference, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    _subject.RunCommand(command, readPreference, cancellationToken);
+                }
             }
 
             var call = _operationExecutor.GetReadCall<BsonDocument>();
+            VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            call.Binding.Should().BeOfType<ReadPreferenceBinding>();
-            var binding = (ReadPreferenceBinding)call.Binding;
-            binding.ReadPreference.Should().Be(ReadPreference.Secondary);
+            var binding = call.Binding.Should().BeOfType<ReadPreferenceBinding>().Subject;
+            binding.ReadPreference.Should().Be(readPreference);
 
-            call.Operation.Should().BeOfType<ReadCommandOperation<BsonDocument>>();
-            var op = (ReadCommandOperation<BsonDocument>)call.Operation;
-            op.DatabaseNamespace.DatabaseName.Should().Be("foo");
-            op.Command.Should().Be("{count: \"foo\"}");
+            var op = call.Operation.Should().BeOfType<ReadCommandOperation<BsonDocument>>().Subject;
+            op.DatabaseNamespace.Should().Be(_subject.DatabaseNamespace);
+            op.Command.Should().Be(commandDocument);
         }
 
         [Theory]
         [ParameterAttributeData]
         public void RunCommand_should_run_a_non_read_command(
+            [Values(false, true)] bool usingSession,
             [Values(false, true)] bool async)
         {
-            var cmd = new BsonDocument("shutdown", 1);
+            var session = CreateSession(usingSession);
+            var commandDocument = new BsonDocument("shutdown", 1);
+            var command = (Command<BsonDocument>)commandDocument;
+            var cancellationToken = new CancellationTokenSource().Token;
 
-            if (async)
+            if (usingSession)
             {
-                _subject.RunCommandAsync<BsonDocument>(cmd).GetAwaiter().GetResult();
+                if (async)
+                {
+                    _subject.RunCommandAsync(session, command, null, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    _subject.RunCommand(session, command, null, cancellationToken);
+                }
             }
             else
             {
-                _subject.RunCommand<BsonDocument>(cmd);
+                if (async)
+                {
+                    _subject.RunCommandAsync(command, null, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    _subject.RunCommand(command, null, cancellationToken);
+                }
             }
 
             var call = _operationExecutor.GetReadCall<BsonDocument>();
+            VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            call.Binding.Should().BeOfType<ReadPreferenceBinding>();
-            var binding = (ReadPreferenceBinding)call.Binding;
+            var binding = call.Binding.Should().BeOfType<ReadPreferenceBinding>().Subject;
             binding.ReadPreference.Should().Be(ReadPreference.Primary);
 
-            call.Operation.Should().BeOfType<ReadCommandOperation<BsonDocument>>();
-            var op = (ReadCommandOperation<BsonDocument>)call.Operation;
-            op.DatabaseNamespace.DatabaseName.Should().Be("foo");
-            op.Command.Should().Be(cmd);
+            var op = call.Operation.Should().BeOfType<ReadCommandOperation<BsonDocument>>().Subject;
+            op.DatabaseNamespace.Should().Be(_subject.DatabaseNamespace);
+            op.Command.Should().Be(commandDocument);
         }
 
         [Theory]
         [ParameterAttributeData]
         public void RunCommand_should_run_a_json_command(
+            [Values(false, true)] bool usingSession,
             [Values(false, true)] bool async)
         {
-            if (async)
+            var session = CreateSession(usingSession);
+            var commandJson = "{ count : \"foo\" }";
+            var commandDocument = BsonDocument.Parse(commandJson);
+            var cancellationToken = new CancellationTokenSource().Token;
+
+            if (usingSession)
             {
-                _subject.RunCommandAsync<BsonDocument>("{count: \"foo\"}").GetAwaiter().GetResult();
+                if (async)
+                {
+                    _subject.RunCommandAsync<BsonDocument>(session, commandJson, null, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    _subject.RunCommand<BsonDocument>(session, commandJson, null, cancellationToken);
+                }
             }
             else
             {
-                _subject.RunCommand<BsonDocument>("{count: \"foo\"}");
+                if (async)
+                {
+                    _subject.RunCommandAsync<BsonDocument>(commandJson, null, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    _subject.RunCommand<BsonDocument>(commandJson, null, cancellationToken);
+                }
             }
 
             var call = _operationExecutor.GetReadCall<BsonDocument>();
+            VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            call.Binding.Should().BeOfType<ReadPreferenceBinding>();
-            var binding = (ReadPreferenceBinding)call.Binding;
+            var binding = call.Binding.Should().BeOfType<ReadPreferenceBinding>().Subject;
             binding.ReadPreference.Should().Be(ReadPreference.Primary);
 
-            call.Operation.Should().BeOfType<ReadCommandOperation<BsonDocument>>();
-            var op = (ReadCommandOperation<BsonDocument>)call.Operation;
-            op.DatabaseNamespace.DatabaseName.Should().Be("foo");
-            op.Command.Should().Be("{count: \"foo\"}");
+            var op = call.Operation.Should().BeOfType<ReadCommandOperation<BsonDocument>>().Subject;
+            op.DatabaseNamespace.Should().Be(_subject.DatabaseNamespace);
+            op.Command.Should().Be(commandDocument);
         }
 
         [Theory]
         [ParameterAttributeData]
         public void RunCommand_should_run_a_serialized_command(
+            [Values(false, true)] bool usingSession,
             [Values(false, true)] bool async)
         {
-            var cmd = new CountCommand { Collection = "foo" };
+            var session = CreateSession(usingSession);
+            var commandObject = new CountCommand { Collection = "foo" };
+            var command = new ObjectCommand<BsonDocument>(commandObject);
+            var cancellationToken = new CancellationTokenSource().Token;
 
-            if (async)
+            if (usingSession)
             {
-                _subject.RunCommandAsync(new ObjectCommand<BsonDocument>(cmd)).GetAwaiter().GetResult();
+                if (async)
+                {
+                    _subject.RunCommandAsync(session, command, null, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    _subject.RunCommand(session, command, null, cancellationToken);
+                }
             }
             else
             {
-                _subject.RunCommand(new ObjectCommand<BsonDocument>(cmd));
+                if (async)
+                {
+                    _subject.RunCommandAsync(command, null, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    _subject.RunCommand(command, null, cancellationToken);
+                }
             }
 
             var call = _operationExecutor.GetReadCall<BsonDocument>();
+            VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            call.Binding.Should().BeOfType<ReadPreferenceBinding>();
-            var binding = (ReadPreferenceBinding)call.Binding;
+            var binding = call.Binding.Should().BeOfType<ReadPreferenceBinding>().Subject;
             binding.ReadPreference.Should().Be(ReadPreference.Primary);
 
-            call.Operation.Should().BeOfType<ReadCommandOperation<BsonDocument>>();
-            var op = (ReadCommandOperation<BsonDocument>)call.Operation;
-            op.DatabaseNamespace.DatabaseName.Should().Be("foo");
-            op.Command.Should().Be("{count: \"foo\"}");
+            var op = call.Operation.Should().BeOfType<ReadCommandOperation<BsonDocument>>().Subject;
+            op.DatabaseNamespace.Should().Be(_subject.DatabaseNamespace);
+            op.Command.Should().Be("{ count : \"foo\" }");
         }
 
         [Fact]
@@ -759,16 +840,59 @@ namespace MongoDB.Driver
         }
 
         // private methods
+        private IClientSessionHandle CreateSession(bool usingSession)
+        {
+            if (usingSession)
+            {
+                var client = new Mock<IMongoClient>().Object;
+                var options = new ClientSessionOptions();
+                var serverSession = new ServerSession();
+                var clientSession = new ClientSession(client, options, serverSession, isImplicit: false);
+                return new ClientSessionHandle(clientSession);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         private MongoDatabaseImpl CreateSubject(IOperationExecutor operationExecutor)
         {
+            var mockClient = new Mock<IMongoClient>();
             var settings = new MongoDatabaseSettings();
             settings.ApplyDefaultValues(new MongoClientSettings());
             return new MongoDatabaseImpl(
-                new Mock<IMongoClient>().Object,
+                mockClient.Object,
                 new DatabaseNamespace("foo"),
                 settings,
                 new Mock<ICluster>().Object,
                 _operationExecutor);
+        }
+
+        private static void VerifySessionAndCancellationToken<TDocument>(MockOperationExecutor.ReadCall<TDocument> call, IClientSessionHandle session, CancellationToken cancellationToken)
+        {
+            call.CancellationToken.Should().Be(cancellationToken);
+            if (session == null)
+            {
+                call.UsedImplicitSession.Should().BeTrue();
+            }
+            else
+            {
+                call.SessionId.Should().Be(session.ServerSession.Id);
+            }
+        }
+
+        private static void VerifySessionAndCancellationToken<TDocument>(MockOperationExecutor.WriteCall<TDocument> call, IClientSessionHandle session, CancellationToken cancellationToken)
+        {
+            call.CancellationToken.Should().Be(cancellationToken);
+            if (session == null)
+            {
+                call.UsedImplicitSession.Should().BeTrue();
+            }
+            else
+            {
+                call.SessionId.Should().Be(session.ServerSession.Id);
+            }
         }
 
         private class CountCommand

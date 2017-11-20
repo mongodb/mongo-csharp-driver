@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Operations
         {
             using (var channelSource = binding.GetWriteChannelSource(cancellationToken))
             {
-                var userExists = UserExists(channelSource, cancellationToken);
+                var userExists = UserExists(channelSource, binding.Session, cancellationToken);
 
                 var roles = new BsonArray();
                 if (_databaseNamespace.DatabaseName == "admin")
@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Operations
                 };
 
                 var operation = new WriteCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-                operation.Execute(channelSource, cancellationToken);
+                operation.Execute(channelSource, binding.Session, cancellationToken);
             }
 
             return true;
@@ -86,13 +86,13 @@ namespace MongoDB.Driver.Operations
             throw new NotSupportedException();
         }
 
-        private bool UserExists(IChannelSourceHandle channelSource, CancellationToken cancellationToken)
+        private bool UserExists(IChannelSourceHandle channelSource, ICoreSessionHandle session, CancellationToken cancellationToken)
         {
             try
             {
                 var command = new BsonDocument("usersInfo", _username);
                 var operation = new ReadCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-                var result = operation.Execute(channelSource, ReadPreference.Primary, cancellationToken);
+                var result = operation.Execute(channelSource, ReadPreference.Primary, session, cancellationToken);
 
                 BsonValue users;
                 if (result.TryGetValue("users", out users) && users.IsBsonArray && users.AsBsonArray.Count > 0)

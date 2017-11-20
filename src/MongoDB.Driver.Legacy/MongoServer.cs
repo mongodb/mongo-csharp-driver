@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ namespace MongoDB.Driver
         public static MongoServer GetServer(this MongoClient client)
         {
             var serverSettings = MongoServerSettings.FromClientSettings(client.Settings);
-            return MongoServer.Create(serverSettings);
+            return MongoServer.Create(serverSettings, client.OperationExecutor);
         }
     }
 
@@ -70,6 +70,7 @@ namespace MongoDB.Driver
 
         // private fields
         private ICluster _cluster;
+        private IOperationExecutor _operationExecutor;
         private readonly object _serverLock = new object();
         private readonly MongoServerSettings _settings;
         private readonly int _sequentialId;
@@ -91,9 +92,16 @@ namespace MongoDB.Driver
         /// of the constructor to create instances of this class.
         /// </summary>
         /// <param name="settings">The settings for this instance of MongoServer.</param>
+        [Obsolete("Use client.GetServer instead.")]
         public MongoServer(MongoServerSettings settings)
+            : this(settings, new DefaultLegacyOperationExecutor())
+        {
+        }
+
+        internal MongoServer(MongoServerSettings settings, IOperationExecutor operationExecutor)
         {
             _settings = settings.FrozenCopy();
+            _operationExecutor = operationExecutor;
             _sequentialId = Interlocked.Increment(ref __nextSequentialId);
             // Console.WriteLine("MongoServer[{0}]: {1}", sequentialId, settings);
 
@@ -107,10 +115,12 @@ namespace MongoDB.Driver
         /// is created for each combination of server settings.
         /// </summary>
         /// <param name="settings">Server settings.</param>
+        /// <param name="operationExecutor">The operation executor.</param>
         /// <returns>
         /// A new or existing instance of MongoServer.
         /// </returns>
-        internal static MongoServer Create(MongoServerSettings settings)
+        /// <exception cref="MongoException"></exception>
+        internal static MongoServer Create(MongoServerSettings settings, IOperationExecutor operationExecutor)
         {
             lock (__staticLock)
             {
@@ -122,7 +132,7 @@ namespace MongoDB.Driver
                         var message = string.Format("MongoServer.Create has already created {0} servers which is the maximum number of servers allowed.", __maxServerCount);
                         throw new MongoException(message);
                     }
-                    server = new MongoServer(settings);
+                    server = new MongoServer(settings, operationExecutor);
                     __servers.Add(settings, server);
                 }
                 return server;
@@ -134,14 +144,15 @@ namespace MongoDB.Driver
         /// is created for each combination of server settings.
         /// </summary>
         /// <param name="connectionString">Server settings in the form of a connection string.</param>
+        /// <param name="operationExecutor">The operation executor.</param>
         /// <returns>
         /// A new or existing instance of MongoServer.
         /// </returns>
-        internal static MongoServer Create(string connectionString)
+        internal static MongoServer Create(string connectionString, IOperationExecutor operationExecutor)
         {
             var url = MongoUrl.Create(connectionString);
             var serverSettings = MongoServerSettings.FromUrl(url);
-            return Create(serverSettings);
+            return Create(serverSettings, operationExecutor);
         }
 
         // public static properties
@@ -524,13 +535,18 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="CommandResult"/>.</returns>
         public virtual CommandResult DropDatabase(string databaseName)
         {
+            return UsingImplicitSession(session => DropDatabase(session, databaseName));
+        }
+
+        private CommandResult DropDatabase(IClientSessionHandle session, string databaseName)
+        {
             var databaseNamespace = new DatabaseNamespace(databaseName);
             var messageEncoderSettings = GetMessageEncoderSettings();
             var operation = new DropDatabaseOperation(databaseNamespace, messageEncoderSettings)
             {
                 WriteConcern = _settings.WriteConcern
             };
-            var response = ExecuteWriteOperation(operation);
+            var response = ExecuteWriteOperation(session, operation);
             return new CommandResult(response);
         }
 
@@ -615,7 +631,7 @@ namespace MongoDB.Driver
             {
                 throw new ArgumentNullException("databaseSettings");
             }
-            return new MongoDatabase(this, databaseName, databaseSettings);
+            return new MongoDatabase(this, databaseName, databaseSettings, _operationExecutor);
         }
 
         /// <summary>
@@ -624,9 +640,14 @@ namespace MongoDB.Driver
         /// <returns>A list of database names.</returns>
         public virtual IEnumerable<string> GetDatabaseNames()
         {
+            return UsingImplicitSession(session => GetDatabaseNames(session));
+        }
+
+        private IEnumerable<string> GetDatabaseNames(IClientSessionHandle session)
+        {
             var messageEncoderSettings = GetMessageEncoderSettings();
             var operation = new ListDatabasesOperation(messageEncoderSettings);
-            var list = ExecuteReadOperation(operation).ToList();
+            var list = ExecuteReadOperation(session, operation).ToList();
             return list.Select(x => (string)x["name"]).OrderBy(name => name);
         }
 
@@ -725,6 +746,7 @@ namespace MongoDB.Driver
                 if (--request.NestingLevel == 0)
                 {
                     request.Binding.Dispose();
+                    request.Session.Dispose();
                     __threadStaticRequest = null;
                 }
             }
@@ -782,7 +804,7 @@ namespace MongoDB.Driver
         {
             var newSettings = _settings.Clone();
             newSettings.ReadConcern = readConcern;
-            return new MongoServer(newSettings);
+            return new MongoServer(newSettings, _operationExecutor);
         }
 
         /// <summary>
@@ -794,7 +816,7 @@ namespace MongoDB.Driver
         {
             var newSettings = _settings.Clone();
             newSettings.ReadPreference = readPreference;
-            return new MongoServer(newSettings);
+            return new MongoServer(newSettings, _operationExecutor);
         }
 
         /// <summary>
@@ -806,11 +828,11 @@ namespace MongoDB.Driver
         {
             var newSettings = _settings.Clone();
             newSettings.WriteConcern = writeConcern;
-            return new MongoServer(newSettings);
+            return new MongoServer(newSettings, _operationExecutor);
         }
 
         // internal methods
-        internal IReadBindingHandle GetReadBinding(ReadPreference readPreference)
+        internal IReadBindingHandle GetReadBinding(ReadPreference readPreference, IClientSessionHandle session)
         {
             var request = __threadStaticRequest;
             if (request != null)
@@ -820,11 +842,11 @@ namespace MongoDB.Driver
 
             if (readPreference.ReadPreferenceMode == ReadPreferenceMode.Primary)
             {
-                return new ReadWriteBindingHandle(new WritableServerBinding(_cluster));
+                return new ReadWriteBindingHandle(new WritableServerBinding(_cluster, session.ToCoreSession()));
             }
             else
             {
-                return new ReadBindingHandle(new ReadPreferenceBinding(_cluster, readPreference));
+                return new ReadBindingHandle(new ReadPreferenceBinding(_cluster, readPreference, session.ToCoreSession()));
             }
 
         }
@@ -837,7 +859,7 @@ namespace MongoDB.Driver
             }
         }
 
-        internal IWriteBindingHandle GetWriteBinding()
+        internal IWriteBindingHandle GetWriteBinding(IClientSessionHandle session)
         {
             var request = __threadStaticRequest;
             if (request != null)
@@ -845,24 +867,24 @@ namespace MongoDB.Driver
                 return ToWriteBinding(request.Binding).Fork();
             }
 
-            return new ReadWriteBindingHandle(new WritableServerBinding(_cluster));
+            return new ReadWriteBindingHandle(new WritableServerBinding(_cluster, session.ToCoreSession()));
         }
 
         // private methods
-        private TResult ExecuteReadOperation<TResult>(IReadOperation<TResult> operation, ReadPreference readPreference = null)
+        private TResult ExecuteReadOperation<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, ReadPreference readPreference = null)
         {
             readPreference = readPreference ?? _settings.ReadPreference ?? ReadPreference.Primary;
-            using (var binding = GetReadBinding(readPreference))
+            using (var binding = GetReadBinding(readPreference, session))
             {
-                return operation.Execute(binding, CancellationToken.None);
+                return _operationExecutor.ExecuteReadOperation(binding, operation, CancellationToken.None);
             }
         }
 
-        private TResult ExecuteWriteOperation<TResult>(IWriteOperation<TResult> operation)
+        private TResult ExecuteWriteOperation<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation)
         {
-            using (var binding = GetWriteBinding())
+            using (var binding = GetWriteBinding(session))
             {
-                return operation.Execute(binding, CancellationToken.None);
+                return _operationExecutor.ExecuteWriteOperation(binding, operation, CancellationToken.None);
             }
         }
 
@@ -914,18 +936,19 @@ namespace MongoDB.Driver
             {
                 if (readPreference.ReadPreferenceMode == ReadPreferenceMode.Primary)
                 {
-                    channelBinding = new ReadWriteBindingHandle(new ChannelReadWriteBinding(server, channel.Fork()));
+                    channelBinding = new ReadWriteBindingHandle(new ChannelReadWriteBinding(server, channel.Fork(), NoCoreSession.NewHandle()));
                 }
                 else
                 {
-                    channelBinding = new ReadBindingHandle(new ChannelReadBinding(server, channel.Fork(), readPreference));
+                    channelBinding = new ReadBindingHandle(new ChannelReadBinding(server, channel.Fork(), readPreference, NoCoreSession.NewHandle()));
                 }
                 connectionId = channel.ConnectionDescription.ConnectionId;
             }
 
             var serverDescription = server.Description;
             var serverInstance = _serverInstances.Single(i => EndPointHelper.Equals(i.EndPoint, serverDescription.EndPoint));
-            __threadStaticRequest = new Request(serverDescription, serverInstance, channelBinding, connectionId);
+            var session = _operationExecutor.StartImplicitSession(CancellationToken.None);
+            __threadStaticRequest = new Request(serverDescription, serverInstance, channelBinding, connectionId, session);
 
             return new RequestStartResult(this);
         }
@@ -971,6 +994,14 @@ namespace MongoDB.Driver
             return writeBinding;
         }
 
+        private TResult UsingImplicitSession<TResult>(Func<IClientSessionHandle, TResult> func)
+        {
+            using (var session = _operationExecutor.StartImplicitSession(CancellationToken.None))
+            {
+                return func(session);
+            }
+        }
+
         // private nested classes
         private class ServerInstanceAddressComparer : IComparer<MongoServerInstance>
         {
@@ -995,14 +1026,16 @@ namespace MongoDB.Driver
             private int _nestingLevel;
             private readonly ServerDescription _serverDescription;
             private readonly MongoServerInstance _serverInstance;
+            private readonly IClientSessionHandle _session;
 
             // constructors
-            public Request(ServerDescription serverDescription, MongoServerInstance serverInstance, IReadBindingHandle binding, ConnectionId connectionId)
+            public Request(ServerDescription serverDescription, MongoServerInstance serverInstance, IReadBindingHandle binding, ConnectionId connectionId, IClientSessionHandle session)
             {
                 _serverDescription = serverDescription;
                 _serverInstance = serverInstance;
                 _binding = binding;
                 _connectionId = connectionId;
+                _session = session;
                 _nestingLevel = 1;
             }
 
@@ -1031,6 +1064,11 @@ namespace MongoDB.Driver
             public ServerDescription ServerDescription
             {
                 get { return _serverDescription; }
+            }
+
+            public IClientSessionHandle Session
+            {
+                get { return _session; }
             }
         }
 

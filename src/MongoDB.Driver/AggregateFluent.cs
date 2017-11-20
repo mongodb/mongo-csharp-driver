@@ -28,10 +28,12 @@ namespace MongoDB.Driver
         private readonly IMongoCollection<TDocument> _collection;
         private readonly AggregateOptions _options;
         private readonly PipelineDefinition<TDocument, TResult> _pipeline;
+        private readonly IClientSessionHandle _session;
 
         // constructors
-        public AggregateFluent(IMongoCollection<TDocument> collection, PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options)
+        public AggregateFluent(IClientSessionHandle session, IMongoCollection<TDocument> collection, PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options)
         {
+            _session = session; // can be null
             _collection = Ensure.IsNotNull(collection, nameof(collection));
             _pipeline = Ensure.IsNotNull(pipeline, nameof(pipeline));
             _options = Ensure.IsNotNull(options, nameof(options));
@@ -220,12 +222,26 @@ namespace MongoDB.Driver
 
         public override IAsyncCursor<TResult> ToCursor(CancellationToken cancellationToken)
         {
-            return _collection.Aggregate(_pipeline, _options, cancellationToken);
+            if (_session == null)
+            {
+                return _collection.Aggregate(_pipeline, _options, cancellationToken);
+            }
+            else
+            {
+                return _collection.Aggregate(_session, _pipeline, _options, cancellationToken);
+            }
         }
 
         public override Task<IAsyncCursor<TResult>> ToCursorAsync(CancellationToken cancellationToken)
         {
-            return _collection.AggregateAsync(_pipeline, _options, cancellationToken);
+            if (_session == null)
+            {
+                return _collection.AggregateAsync(_pipeline, _options, cancellationToken);
+            }
+            else
+            {
+                return _collection.AggregateAsync(_session, _pipeline, _options, cancellationToken);
+            }
         }
 
         public override string ToString()
@@ -235,7 +251,7 @@ namespace MongoDB.Driver
 
         public IAggregateFluent<TNewResult> WithPipeline<TNewResult>(PipelineDefinition<TDocument, TNewResult> pipeline)
         {
-            return new AggregateFluent<TDocument, TNewResult>(_collection, pipeline, _options);
+            return new AggregateFluent<TDocument, TNewResult>(_session, _collection, pipeline, _options);
         }
     }
 }

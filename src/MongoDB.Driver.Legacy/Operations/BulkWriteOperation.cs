@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ namespace MongoDB.Driver
         /// <returns>A BulkWriteResult.</returns>
         public BulkWriteResult<TDocument> Execute()
         {
-            return ExecuteHelper(_collection.Settings.WriteConcern ?? WriteConcern.Acknowledged);
+            return Execute(_collection.Settings.WriteConcern ?? WriteConcern.Acknowledged);
         }
 
         /// <summary>
@@ -129,6 +129,11 @@ namespace MongoDB.Driver
 
         private BulkWriteResult<TDocument> ExecuteHelper(WriteConcern writeConcern)
         {
+            return _collection.UsingImplicitSession(session => ExecuteHelper(session, writeConcern));
+        }
+
+        private BulkWriteResult<TDocument> ExecuteHelper(IClientSessionHandle session, WriteConcern writeConcern)
+        {
             if (_hasBeenExecuted)
             {
                 throw new InvalidOperationException("The bulk write operation has already been executed.");
@@ -170,17 +175,14 @@ namespace MongoDB.Driver
                 WriteConcern = writeConcern
             };
 
-            using (var binding = _collection.Database.Server.GetWriteBinding())
+            try
             {
-                try
-                {
-                    var result = operation.Execute(binding, CancellationToken.None);
-                    return BulkWriteResult<TDocument>.FromCore(result);
-                }
-                catch (MongoBulkWriteOperationException ex)
-                {
-                    throw MongoBulkWriteException<TDocument>.FromCore(ex);
-                }
+                var result = _collection.ExecuteWriteOperation(session, operation);
+                return BulkWriteResult<TDocument>.FromCore(result);
+            }
+            catch (MongoBulkWriteOperationException ex)
+            {
+                throw MongoBulkWriteException<TDocument>.FromCore(ex);
             }
         }
     }

@@ -60,6 +60,18 @@ namespace MongoDB.Driver
         /// <summary>
         /// Creates an index.
         /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="keys">The keys.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The name of the index that was created.
+        /// </returns>
+        string CreateOne(IClientSessionHandle session, IndexKeysDefinition<TDocument> keys, CreateIndexOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Creates an index.
+        /// </summary>
         /// <param name="keys">The keys.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
@@ -67,6 +79,18 @@ namespace MongoDB.Driver
         /// A task whose result is the name of the index that was created.
         /// </returns>
         Task<string> CreateOneAsync(IndexKeysDefinition<TDocument> keys, CreateIndexOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Creates an index.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="keys">The keys.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// A task whose result is the name of the index that was created.
+        /// </returns>
+        Task<string> CreateOneAsync(IClientSessionHandle session, IndexKeysDefinition<TDocument> keys, CreateIndexOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Creates multiple indexes.
@@ -81,12 +105,34 @@ namespace MongoDB.Driver
         /// <summary>
         /// Creates multiple indexes.
         /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="models">The models defining each of the indexes.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// An <see cref="IEnumerable{String}" /> of the names of the indexes that were created.
+        /// </returns>
+        IEnumerable<string> CreateMany(IClientSessionHandle session, IEnumerable<CreateIndexModel<TDocument>> models, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Creates multiple indexes.
+        /// </summary>
         /// <param name="models">The models defining each of the indexes.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// A task whose result is an <see cref="IEnumerable{String}" /> of the names of the indexes that were created.
         /// </returns>
         Task<IEnumerable<string>> CreateManyAsync(IEnumerable<CreateIndexModel<TDocument>> models, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Creates multiple indexes.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="models">The models defining each of the indexes.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// A task whose result is an <see cref="IEnumerable{String}" /> of the names of the indexes that were created.
+        /// </returns>
+        Task<IEnumerable<string>> CreateManyAsync(IClientSessionHandle session, IEnumerable<CreateIndexModel<TDocument>> models, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Drops all the indexes.
@@ -97,9 +143,26 @@ namespace MongoDB.Driver
         /// <summary>
         /// Drops all the indexes.
         /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        void DropAll(IClientSessionHandle session, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Drops all the indexes.
+        /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task.</returns>
         Task DropAllAsync(CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Drops all the indexes.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// A task.
+        /// </returns>
+        Task DropAllAsync(IClientSessionHandle session, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Drops an index by its name.
@@ -111,10 +174,29 @@ namespace MongoDB.Driver
         /// <summary>
         /// Drops an index by its name.
         /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="name">The name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        void DropOne(IClientSessionHandle session, string name, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Drops an index by its name.
+        /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task.</returns>
         Task DropOneAsync(string name, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Drops an index by its name.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="name">The name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// A task.
+        /// </returns>
+        Task DropOneAsync(IClientSessionHandle session, string name, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Lists the indexes.
@@ -126,8 +208,28 @@ namespace MongoDB.Driver
         /// <summary>
         /// Lists the indexes.
         /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// A cursor.
+        /// </returns>
+        IAsyncCursor<BsonDocument> List(IClientSessionHandle session, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Lists the indexes.
+        /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result is a cursor.</returns>
         Task<IAsyncCursor<BsonDocument>> ListAsync(CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Lists the indexes.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// A Task whose result is a cursor.
+        /// </returns>
+        Task<IAsyncCursor<BsonDocument>> ListAsync(IClientSessionHandle session, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

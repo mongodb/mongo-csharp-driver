@@ -57,6 +57,7 @@ namespace MongoDB.Driver.Tests
             Assert.True(_database.CollectionExists(collectionName));
         }
 
+#pragma warning disable 618
         [Fact]
         public void TestConstructorArgumentChecking()
         {
@@ -66,6 +67,7 @@ namespace MongoDB.Driver.Tests
             Assert.Throws<ArgumentNullException>(() => { new MongoDatabase(_server, "name", null); });
             Assert.Throws<ArgumentOutOfRangeException>(() => { new MongoDatabase(_server, "", settings); });
         }
+#pragma warning restore
 
         [Fact]
         public void TestCreateCollection()

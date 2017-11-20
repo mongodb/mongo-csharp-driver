@@ -271,20 +271,21 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new ChangeStreamOperation<ChangeStreamDocument<BsonDocument>>(_collectionNamespace, pipeline, resultSerializer, messageEncoderSettings);
             DropCollection();
 
-            var cursor = ExecuteOperation(subject, async);
-            var enumerator = new AsyncCursorEnumerator<ChangeStreamDocument<BsonDocument>>(cursor, CancellationToken.None);
+            using (var cursor = ExecuteOperation(subject, async))
+            using (var enumerator = new AsyncCursorEnumerator<ChangeStreamDocument<BsonDocument>>(cursor, CancellationToken.None))
+            {
+                Insert("{ _id : 1, x : 1 }");
+                DropCollection();
 
-            Insert("{ _id : 1, x : 1 }");
-            DropCollection();
-
-            enumerator.MoveNext().Should().BeTrue();
-            var change = enumerator.Current;
-            change.OperationType.Should().Be(ChangeStreamOperationType.Invalidate);
-            change.CollectionNamespace.Should().BeNull();
-            change.DocumentKey.Should().BeNull();
-            change.FullDocument.Should().BeNull();
-            change.ResumeToken.Should().NotBeNull();
-            change.UpdateDescription.Should().BeNull();
+                enumerator.MoveNext().Should().BeTrue();
+                var change = enumerator.Current;
+                change.OperationType.Should().Be(ChangeStreamOperationType.Invalidate);
+                change.CollectionNamespace.Should().BeNull();
+                change.DocumentKey.Should().BeNull();
+                change.FullDocument.Should().BeNull();
+                change.ResumeToken.Should().NotBeNull();
+                change.UpdateDescription.Should().BeNull();
+            }
         }
 
         [SkippableTheory]
@@ -299,20 +300,21 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new ChangeStreamOperation<ChangeStreamDocument<BsonDocument>>(_collectionNamespace, pipeline, resultSerializer, messageEncoderSettings);
             DropCollection();
 
-            var cursor = ExecuteOperation(subject, async);
-            var enumerator = new AsyncCursorEnumerator<ChangeStreamDocument<BsonDocument>>(cursor, CancellationToken.None);
+            using (var cursor = ExecuteOperation(subject, async))
+            using (var enumerator = new AsyncCursorEnumerator<ChangeStreamDocument<BsonDocument>>(cursor, CancellationToken.None))
+            {
+                Insert("{ _id : 1, x : 1 }");
+                Delete("{ _id : 1 }");
 
-            Insert("{ _id : 1, x : 1 }");
-            Delete("{ _id : 1 }");
-
-            enumerator.MoveNext().Should().BeTrue();
-            var change = enumerator.Current;
-            change.OperationType.Should().Be(ChangeStreamOperationType.Delete);
-            change.CollectionNamespace.Should().Be(_collectionNamespace);
-            change.DocumentKey.Should().Be("{ _id : 1 }");
-            change.FullDocument.Should().BeNull();
-            change.ResumeToken.Should().NotBeNull();
-            change.UpdateDescription.Should().BeNull();
+                enumerator.MoveNext().Should().BeTrue();
+                var change = enumerator.Current;
+                change.OperationType.Should().Be(ChangeStreamOperationType.Delete);
+                change.CollectionNamespace.Should().Be(_collectionNamespace);
+                change.DocumentKey.Should().Be("{ _id : 1 }");
+                change.FullDocument.Should().BeNull();
+                change.ResumeToken.Should().NotBeNull();
+                change.UpdateDescription.Should().BeNull();
+            }
         }
 
         [SkippableTheory]
@@ -328,20 +330,21 @@ namespace MongoDB.Driver.Core.Operations
             DropCollection();
             Insert("{ _id : 1, x : 1 }");
 
-            var cursor = ExecuteOperation(subject, async);
-            var enumerator = new AsyncCursorEnumerator<ChangeStreamDocument<BsonDocument>>(cursor, CancellationToken.None);
+            using (var cursor = ExecuteOperation(subject, async))
+            using (var enumerator = new AsyncCursorEnumerator<ChangeStreamDocument<BsonDocument>>(cursor, CancellationToken.None))
+            {
+                Update("{ _id : 1 }", "{ $set : { x : 2  } }");
+                Insert("{ _id : 2, x : 2 }");
 
-            Update("{ _id : 1 }", "{ $set : { x : 2  } }");
-            Insert("{ _id : 2, x : 2 }");
-
-            enumerator.MoveNext().Should().BeTrue();
-            var change = enumerator.Current;
-            change.OperationType.Should().Be(ChangeStreamOperationType.Insert);
-            change.CollectionNamespace.Should().Be(_collectionNamespace);
-            change.DocumentKey.Should().Be("{ _id : 2 }");
-            change.FullDocument.Should().Be("{ _id : 2, x : 2 }");
-            change.ResumeToken.Should().NotBeNull();
-            change.UpdateDescription.Should().BeNull();
+                enumerator.MoveNext().Should().BeTrue();
+                var change = enumerator.Current;
+                change.OperationType.Should().Be(ChangeStreamOperationType.Insert);
+                change.CollectionNamespace.Should().Be(_collectionNamespace);
+                change.DocumentKey.Should().Be("{ _id : 2 }");
+                change.FullDocument.Should().Be("{ _id : 2, x : 2 }");
+                change.ResumeToken.Should().NotBeNull();
+                change.UpdateDescription.Should().BeNull();
+            }
         }
 
         [SkippableTheory]
@@ -360,21 +363,22 @@ namespace MongoDB.Driver.Core.Operations
             };
             DropCollection();
 
-            var cursor = ExecuteOperation(subject, async);
-            var enumerator = new AsyncCursorEnumerator<ChangeStreamDocument<BsonDocument>>(cursor, CancellationToken.None);
+            using (var cursor = ExecuteOperation(subject, async))
+            using (var enumerator = new AsyncCursorEnumerator<ChangeStreamDocument<BsonDocument>>(cursor, CancellationToken.None))
+            {
+                Insert("{ _id : 1, x : 1 }");
+                Update("{ _id : 1 }", "{ $set : { x : 2  } }");
 
-            Insert("{ _id : 1, x : 1 }");
-            Update("{ _id : 1 }", "{ $set : { x : 2  } }");
-
-            enumerator.MoveNext().Should().BeTrue();
-            var change = enumerator.Current;
-            change.OperationType.Should().Be(ChangeStreamOperationType.Update);
-            change.CollectionNamespace.Should().Be(_collectionNamespace);
-            change.DocumentKey.Should().Be("{ _id : 1 }");
-            change.FullDocument.Should().Be(fullDocument == ChangeStreamFullDocumentOption.Default ? null :  "{ _id : 1, x : 2 }");
-            change.ResumeToken.Should().NotBeNull();
-            change.UpdateDescription.RemovedFields.Should().BeEmpty();
-            change.UpdateDescription.UpdatedFields.Should().Be("{ x : 2 }");
+                enumerator.MoveNext().Should().BeTrue();
+                var change = enumerator.Current;
+                change.OperationType.Should().Be(ChangeStreamOperationType.Update);
+                change.CollectionNamespace.Should().Be(_collectionNamespace);
+                change.DocumentKey.Should().Be("{ _id : 1 }");
+                change.FullDocument.Should().Be(fullDocument == ChangeStreamFullDocumentOption.Default ? null : "{ _id : 1, x : 2 }");
+                change.ResumeToken.Should().NotBeNull();
+                change.UpdateDescription.RemovedFields.Should().BeEmpty();
+                change.UpdateDescription.UpdatedFields.Should().Be("{ x : 2 }");
+            }
         }
 
         [Theory]

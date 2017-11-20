@@ -108,17 +108,17 @@ namespace MongoDB.Driver.Core.Operations
 
                 var serializer = _cachedSerializer;
 
-                var bsonWriter = (BsonBinaryWriter)context.Writer;
-                bsonWriter.PushMaxDocumentSize(ConnectionDescription.MaxDocumentSize);
-                bsonWriter.PushElementNameValidator(_elementNameValidator);
+                var writer = context.Writer;
+                writer.PushSettings(s => { var bs = s as BsonBinaryWriterSettings; if (bs != null) { bs.MaxDocumentSize = ConnectionDescription.MaxDocumentSize; } });
+                writer.PushElementNameValidator(_elementNameValidator);
                 try
                 {
                     serializer.Serialize(context, document);
                 }
                 finally
                 {
-                    bsonWriter.PopMaxDocumentSize();
-                    bsonWriter.PopElementNameValidator();
+                    writer.PopElementNameValidator();
+                    writer.PopSettings();
                 }
             }
         }

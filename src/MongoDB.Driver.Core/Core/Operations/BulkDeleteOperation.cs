@@ -84,19 +84,25 @@ namespace MongoDB.Driver.Core.Operations
                 var deleteRequest = (DeleteRequest)request;
                 Feature.Collation.ThrowIfNotSupported(ConnectionDescription.ServerVersion, deleteRequest.Collation);
 
-                var bsonWriter = (BsonBinaryWriter)context.Writer;
-                bsonWriter.PushMaxDocumentSize(ConnectionDescription.MaxDocumentSize);
-                bsonWriter.WriteStartDocument();
-                bsonWriter.WriteName("q");
-                BsonSerializer.Serialize(bsonWriter, deleteRequest.Filter);
-                bsonWriter.WriteInt32("limit", deleteRequest.Limit);
-                if (deleteRequest.Collation != null)
+                var writer = context.Writer;
+                writer.PushSettings(s => { var bs = s as BsonBinaryWriterSettings; if (bs != null) { bs.MaxDocumentSize = ConnectionDescription.MaxDocumentSize; } });
+                try
                 {
-                    bsonWriter.WriteName("collation");
-                    BsonDocumentSerializer.Instance.Serialize(context, deleteRequest.Collation.ToBsonDocument());
+                    writer.WriteStartDocument();
+                    writer.WriteName("q");
+                    BsonSerializer.Serialize(writer, deleteRequest.Filter);
+                    writer.WriteInt32("limit", deleteRequest.Limit);
+                    if (deleteRequest.Collation != null)
+                    {
+                        writer.WriteName("collation");
+                        BsonDocumentSerializer.Instance.Serialize(context, deleteRequest.Collation.ToBsonDocument());
+                    }
+                    writer.WriteEndDocument();
                 }
-                bsonWriter.WriteEndDocument();
-                bsonWriter.PopMaxDocumentSize();
+                finally
+                {
+                    writer.PopSettings();
+                }
             }
         }
     }

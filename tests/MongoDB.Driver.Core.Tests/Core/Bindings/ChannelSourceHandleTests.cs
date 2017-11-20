@@ -14,10 +14,12 @@
 */
 
 using System;
+using System.Reflection;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Misc;
 using Moq;
 using Xunit;
 
@@ -38,6 +40,16 @@ namespace MongoDB.Driver.Core.Bindings
             Action act = () => new ChannelSourceHandle(null);
 
             act.ShouldThrow<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void Session_should_delegate_to_reference()
+        {
+            var subject = new ChannelSourceHandle(_mockChannelSource.Object);
+
+            var result = subject.Session;
+
+            _mockChannelSource.Verify(m => m.Session, Times.Once);
         }
 
         [Theory]
@@ -138,6 +150,15 @@ namespace MongoDB.Driver.Core.Bindings
             forked.Dispose();
 
             _mockChannelSource.Verify(s => s.Dispose(), Times.Once);
+        }
+    }
+
+    internal static class ChannelSourceHandleReflector
+    {
+        public static ReferenceCounted<IChannelSource> _reference(this ChannelSourceHandle obj)
+        {
+            var fieldInfo = typeof(ChannelSourceHandle).GetField("_reference", BindingFlags.NonPublic | BindingFlags.Instance);
+            return (ReferenceCounted<IChannelSource>)fieldInfo.GetValue(obj);
         }
     }
 }

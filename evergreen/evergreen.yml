@@ -136,12 +136,12 @@ functions:
       params:
         script: |
           ${PREPARE_SHELL}
-          find $MONGO_ORCHESTRATION_HOME -name \*.log | xargs tar czf ${PROJECT_DIRECTORY}/mongodb-logs.tar.gz
+          find $MONGO_ORCHESTRATION_HOME -name \*.log | xargs tar czf mongodb-logs.tar.gz
     - command: s3.put
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: ${PROJECT_DIRECTORY}/mongodb-logs.tar.gz
+        local_file: mongodb-logs.tar.gz
         remote_file: ${UPLOAD_BUCKET}/${build_variant}/${revision}/${version_id}/${build_id}/logs/${task_id}-${execution}-mongodb-logs.tar.gz
         bucket: mciuploads
         permissions: public-read
@@ -151,7 +151,7 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: ${DRIVERS_TOOLS}/.evergreen/orchestration/server.log
+        local_file: drivers-tools/.evergreen/orchestration/server.log
         remote_file: ${UPLOAD_BUCKET}/${build_variant}/${revision}/${version_id}/${build_id}/logs/${task_id}-${execution}-orchestration.log
         bucket: mciuploads
         permissions: public-read
@@ -349,10 +349,14 @@ axes:
   - id: version
     display_name: MongoDB Version
     values:
-      - id: "latest"
-        display_name: "latest"
+#      - id: "latest"
+#        display_name: "latest"
+#        variables:
+#           VERSION: "latest"
+      - id: "3.6"
+        display_name: "3.6"
         variables:
-           VERSION: "latest"
+           VERSION: "3.6"
       - id: "3.4"
         display_name: "3.4"
         variables:

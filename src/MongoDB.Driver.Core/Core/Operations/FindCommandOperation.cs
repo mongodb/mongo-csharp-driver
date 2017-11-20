@@ -1,4 +1,4 @@
-﻿/* Copyright 2015-2016 MongoDB Inc.
+﻿/* Copyright 2015-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -453,7 +453,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private AsyncCursor<TDocument> CreateCursor(IChannelSourceHandle channelSource, BsonDocument commandResult, bool slaveOk)
         {
-            var getMoreChannelSource = new ServerChannelSource(channelSource.Server);
+            var getMoreChannelSource = new ServerChannelSource(channelSource.Server, channelSource.Session.Fork());
             var firstBatch = CreateCursorBatch(commandResult);
 
             return new AsyncCursor<TDocument>(
@@ -490,7 +490,7 @@ namespace MongoDB.Driver.Core.Operations
             using (EventContext.BeginOperation())
             using (var channelSource = binding.GetReadChannelSource(cancellationToken))
             using (var channel = channelSource.GetChannel(cancellationToken))
-            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference))
+            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
             {
                 var readPreference = binding.ReadPreference;
                 var slaveOk = readPreference != null && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
@@ -498,7 +498,7 @@ namespace MongoDB.Driver.Core.Operations
                 using (EventContext.BeginFind(_batchSize, _limit))
                 {
                     var operation = CreateOperation(channel.ConnectionDescription.ServerVersion, channelSource.ServerDescription.Type);
-                    var commandResult = operation.Execute(binding, cancellationToken);
+                    var commandResult = operation.Execute(channelBinding, cancellationToken);
                     return CreateCursor(channelSource, commandResult, slaveOk);
                 }
             }
@@ -512,7 +512,7 @@ namespace MongoDB.Driver.Core.Operations
             using (EventContext.BeginOperation())
             using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false))
             using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
-            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference))
+            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
             {
                 var readPreference = binding.ReadPreference;
                 var slaveOk = readPreference != null && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
@@ -520,7 +520,7 @@ namespace MongoDB.Driver.Core.Operations
                 using (EventContext.BeginFind(_batchSize, _limit))
                 {
                     var operation = CreateOperation(channel.ConnectionDescription.ServerVersion, channelSource.ServerDescription.Type);
-                    var commandResult = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+                    var commandResult = await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
                     return CreateCursor(channelSource, commandResult, slaveOk);
                 }
             }

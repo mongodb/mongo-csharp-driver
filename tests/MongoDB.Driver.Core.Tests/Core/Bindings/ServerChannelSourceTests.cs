@@ -42,7 +42,16 @@ namespace MongoDB.Driver.Core.Bindings
         [Fact]
         public void Constructor_should_throw_when_server_is_null()
         {
-            Action act = () => new ServerChannelSource(null);
+            var session = new Mock<ICoreSessionHandle>().Object;
+            Action act = () => new ServerChannelSource(null, session);
+
+            act.ShouldThrow<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void Constructor_should_throw_when_session_is_null()
+        {
+            Action act = () => new ServerChannelSource(_mockServer.Object, null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -50,7 +59,8 @@ namespace MongoDB.Driver.Core.Bindings
         [Fact]
         public void ServerDescription_should_return_description_of_server()
         {
-            var subject = new ServerChannelSource(_mockServer.Object);
+            var session = new Mock<ICoreSessionHandle>().Object;
+            var subject = new ServerChannelSource(_mockServer.Object, session);
 
             var desc = ServerDescriptionHelper.Disconnected(new ClusterId());
 
@@ -61,13 +71,25 @@ namespace MongoDB.Driver.Core.Bindings
             result.Should().BeSameAs(desc);
         }
 
+        [Fact]
+        public void Session_should_return_expected_result()
+        {
+            var session = new Mock<ICoreSessionHandle>().Object;
+            var subject = new ServerChannelSource(_mockServer.Object, session);
+
+            var result = subject.Session;
+
+            result.Should().BeSameAs(session);
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void GetChannel_should_throw_if_disposed(
             [Values(false, true)]
             bool async)
         {
-            var subject = new ServerChannelSource(_mockServer.Object);
+            var session = new Mock<ICoreSessionHandle>().Object;
+            var subject = new ServerChannelSource(_mockServer.Object, session);
             subject.Dispose();
 
             Action act;
@@ -89,7 +111,8 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)]
             bool async)
         {
-            var subject = new ServerChannelSource(_mockServer.Object);
+            var session = new Mock<ICoreSessionHandle>().Object;
+            var subject = new ServerChannelSource(_mockServer.Object, session);
 
             if (async)
             {
@@ -103,6 +126,17 @@ namespace MongoDB.Driver.Core.Bindings
 
                 _mockServer.Verify(s => s.GetChannel(CancellationToken.None), Times.Once);
             }
+        }
+
+        [Fact]
+        public void Dispose_should_dispose_session()
+        {
+            var mockSession = new Mock<ICoreSessionHandle>();
+            var subject = new ServerChannelSource(_mockServer.Object, mockSession.Object);
+
+            subject.Dispose();
+
+            mockSession.Verify(m => m.Dispose(), Times.Once);
         }
     }
 }

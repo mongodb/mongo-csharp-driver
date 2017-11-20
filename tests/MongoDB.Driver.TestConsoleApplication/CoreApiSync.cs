@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -87,7 +87,7 @@ namespace MongoDB.Driver.TestConsoleApplication
 
         private void ClearData(ICluster cluster)
         {
-            using (var binding = new WritableServerBinding(cluster))
+            using (var binding = new WritableServerBinding(cluster, NoCoreSession.NewHandle()))
             {
                 var commandOp = new DropDatabaseOperation(_collection.DatabaseNamespace, _messageEncoderSettings);
                 commandOp.Execute(binding, CancellationToken.None);
@@ -96,7 +96,7 @@ namespace MongoDB.Driver.TestConsoleApplication
 
         private void InsertData(ICluster cluster)
         {
-            using (var binding = new WritableServerBinding(cluster))
+            using (var binding = new WritableServerBinding(cluster, NoCoreSession.NewHandle()))
             {
                 for (int i = 0; i < 100; i++)
                 {
@@ -108,7 +108,7 @@ namespace MongoDB.Driver.TestConsoleApplication
         private void DoWork(ICluster cluster)
         {
             var rand = new Random();
-            using (var binding = new WritableServerBinding(cluster))
+            using (var binding = new WritableServerBinding(cluster, NoCoreSession.NewHandle()))
             {
                 while (!_cancellationTokenSource.IsCancellationRequested)
                 {

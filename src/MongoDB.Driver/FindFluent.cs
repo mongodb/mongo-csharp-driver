@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2016 MongoDB Inc.
+﻿/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -29,10 +29,12 @@ namespace MongoDB.Driver
         private readonly IMongoCollection<TDocument> _collection;
         private FilterDefinition<TDocument> _filter;
         private readonly FindOptions<TDocument, TProjection> _options;
+        private readonly IClientSessionHandle _session;
 
         // constructors
-        public FindFluent(IMongoCollection<TDocument> collection, FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options)
+        public FindFluent(IClientSessionHandle session, IMongoCollection<TDocument> collection, FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options)
         {
+            _session = session; // can be null
             _collection = Ensure.IsNotNull(collection, nameof(collection));
             _filter = Ensure.IsNotNull(filter, nameof(filter));
             _options = Ensure.IsNotNull(options, nameof(options));
@@ -94,7 +96,7 @@ namespace MongoDB.Driver
                 Skip = _options.Skip,
                 Sort = _options.Sort,
             };
-            return new FindFluent<TDocument, TNewProjection>(_collection, _filter, newOptions);
+            return new FindFluent<TDocument, TNewProjection>(_session, _collection, _filter, newOptions);
         }
 
         public override IFindFluent<TDocument, TProjection> Skip(int? skip)
@@ -111,12 +113,26 @@ namespace MongoDB.Driver
 
         public override IAsyncCursor<TProjection> ToCursor(CancellationToken cancellationToken = default(CancellationToken))
         {
-            return _collection.FindSync(_filter, _options, cancellationToken);
+            if (_session == null)
+            {
+                return _collection.FindSync(_filter, _options, cancellationToken);
+            }
+            else
+            {
+                return _collection.FindSync(_session, _filter, _options, cancellationToken);
+            }
         }
 
         public override Task<IAsyncCursor<TProjection>> ToCursorAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            return _collection.FindAsync(_filter, _options, cancellationToken);
+            if (_session == null)
+            {
+                return _collection.FindAsync(_filter, _options, cancellationToken);
+            }
+            else
+            {
+                return _collection.FindAsync(_session, _filter, _options, cancellationToken);
+            }
         }
 
         public override string ToString()

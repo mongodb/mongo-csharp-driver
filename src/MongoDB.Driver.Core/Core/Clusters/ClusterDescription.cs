@@ -248,7 +248,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             foreach (var server in servers)
             {
-                if (IsDataBearingServer(server))
+                if (server.IsDataBearing)
                 {
                     if (server.LogicalSessionTimeout == null)
                     {
@@ -263,21 +263,6 @@ namespace MongoDB.Driver.Core.Clusters
             }
 
             return logicalSessionTimeout;
-        }
-
-        private bool IsDataBearingServer(ServerDescription server)
-        {
-            switch (server.Type)
-            {
-                case ServerType.Standalone:
-                case ServerType.ReplicaSetPrimary:
-                case ServerType.ReplicaSetSecondary:
-                case ServerType.ShardRouter:
-                    return true;
-
-                default:
-                    return false;
-            }
         }
     }
 }

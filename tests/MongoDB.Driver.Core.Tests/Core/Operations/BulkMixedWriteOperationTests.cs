@@ -1,4 +1,4 @@
-/* Copyright 2013-2016 MongoDB Inc.
+/* Copyright 2013-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,7 +23,11 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -1082,10 +1086,10 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern = WriteConcern.Unacknowledged
             };
 
-            using (var readWriteBinding = CoreTestConfiguration.GetReadWriteBinding())
+            using (var readWriteBinding = CoreTestConfiguration.GetReadWriteBinding(_session.Fork()))
             using (var channelSource = readWriteBinding.GetWriteChannelSource(CancellationToken.None))
             using (var channel = channelSource.GetChannel(CancellationToken.None))
-            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, readWriteBinding.Session.Fork()))
             {
                 var result = ExecuteOperation(subject, channelBinding, async);
 
@@ -1126,10 +1130,10 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern = WriteConcern.Unacknowledged
             };
 
-            using (var readWriteBinding = CoreTestConfiguration.GetReadWriteBinding())
+            using (var readWriteBinding = CoreTestConfiguration.GetReadWriteBinding(_session.Fork()))
             using (var channelSource = readWriteBinding.GetWriteChannelSource(CancellationToken.None))
             using (var channel = channelSource.GetChannel(CancellationToken.None))
-            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, readWriteBinding.Session.Fork()))
             {
                 var result = ExecuteOperation(subject, channelBinding, async);
                 result.ProcessedRequests.Should().HaveCount(5);
@@ -1164,10 +1168,10 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern = WriteConcern.Unacknowledged
             };
 
-            using (var readWriteBinding = CoreTestConfiguration.GetReadWriteBinding())
+            using (var readWriteBinding = CoreTestConfiguration.GetReadWriteBinding(_session.Fork()))
             using (var channelSource = readWriteBinding.GetWriteChannelSource(CancellationToken.None))
             using (var channel = channelSource.GetChannel(CancellationToken.None))
-            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, readWriteBinding.Session.Fork()))
             {
                 var result = ExecuteOperation(subject, channelBinding, async);
                 result.ProcessedRequests.Should().HaveCount(5);
@@ -1202,10 +1206,10 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern = WriteConcern.Unacknowledged
             };
 
-            using (var readWriteBinding = CoreTestConfiguration.GetReadWriteBinding())
+            using (var readWriteBinding = CoreTestConfiguration.GetReadWriteBinding(_session.Fork()))
             using (var channelSource = readWriteBinding.GetWriteChannelSource(CancellationToken.None))
             using (var channel = channelSource.GetChannel(CancellationToken.None))
-            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, readWriteBinding.Session.Fork()))
             {
                 var result = ExecuteOperation(subject, channelBinding, async);
                 result.ProcessedRequests.Should().HaveCount(4);
@@ -1214,6 +1218,43 @@ namespace MongoDB.Driver.Core.Operations
                 var list = ReadAllFromCollection(channelBinding);
                 list.Should().HaveCount(3);
             }
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_with_delete_should_send_session_id_when_supported(
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check();
+            var requests = new[] { new DeleteRequest(BsonDocument.Parse("{ x : 1 }")) };
+            var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
+
+            VerifySessionIdWasSentWhenSupported(subject, "delete", async);
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_with_insert_should_send_session_id_when_supported(
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check();
+            DropCollection();
+            var requests = new[] { new InsertRequest(BsonDocument.Parse("{ _id : 1, x : 3 }")) };
+            var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
+
+            VerifySessionIdWasSentWhenSupported(subject, "insert", async);
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_with_update_should_send_session_id_when_supported(
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check();
+            var requests = new[] { new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{ x : 1 }"), BsonDocument.Parse("{ $set : { a : 1 } }")) };
+            var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
+
+            VerifySessionIdWasSentWhenSupported(subject, "update", async);
         }
 
         private List<BsonDocument> ReadAllFromCollection(IReadBinding binding)

@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -42,7 +42,12 @@ namespace MongoDB.Driver
         // methods
         public IEnumerator<BsonDocument> GetEnumerator()
         {
-            var cursor = _collection.ExecuteReadOperation(_operation, _readPreference);
+            return _collection.UsingImplicitSession(session => GetEnumerator(session));
+        }
+
+        private IEnumerator<BsonDocument> GetEnumerator(IClientSessionHandle session)
+        {
+            var cursor = _collection.ExecuteReadOperation(session, _operation, _readPreference);
             return cursor.ToEnumerable().GetEnumerator();
         }
 

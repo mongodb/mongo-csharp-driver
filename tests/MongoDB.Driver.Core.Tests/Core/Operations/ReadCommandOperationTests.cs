@@ -87,9 +87,12 @@ namespace MongoDB.Driver.Core.Operations
 
                 mockChannel.Verify(
                     c => c.CommandAsync(
+                        binding.Session,
+                        readPreference,
                         subject.DatabaseNamespace,
                         subject.Command,
                         subject.CommandValidator,
+                        null, // additionalOptions
                         It.Is<Func<CommandResponseHandling>>(f => f() == CommandResponseHandling.Return),
                         slaveOk,
                         subject.ResultSerializer,
@@ -103,9 +106,12 @@ namespace MongoDB.Driver.Core.Operations
 
                 mockChannel.Verify(
                     c => c.Command(
+                        binding.Session,
+                        readPreference,
                         subject.DatabaseNamespace,
                         subject.Command,
                         subject.CommandValidator,
+                        null, // additionalOptions
                         It.Is<Func<CommandResponseHandling>>(f => f() == CommandResponseHandling.Return),
                         slaveOk,
                         subject.ResultSerializer,
@@ -122,13 +128,14 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = CreateSubject<BsonDocument>();
             subject.AdditionalOptions = new BsonDocument("additional", 1);
+            subject.Comment = "comment";
             var readPreference = ReadPreference.Primary;
             var serverDescription = CreateServerDescription(ServerType.Standalone);
             var mockChannel = CreateMockChannel();
             var channelSource = CreateMockChannelSource(serverDescription, mockChannel.Object).Object;
             var binding = CreateMockReadBinding(readPreference, channelSource).Object;
             var cancellationToken = new CancellationTokenSource().Token;
-            var wrappedCommand = BsonDocument.Parse("{ $query : { command : 1 }, additional : 1 }");
+            var additionalOptions = BsonDocument.Parse("{ $comment : \"comment\", additional : 1 }");
             var slaveOk = false;
 
             BsonDocument result;
@@ -138,9 +145,12 @@ namespace MongoDB.Driver.Core.Operations
 
                 mockChannel.Verify(
                     c => c.CommandAsync(
+                        binding.Session,
+                        readPreference,
                         subject.DatabaseNamespace,
-                        wrappedCommand,
+                        subject.Command,
                         subject.CommandValidator,
+                        additionalOptions,
                         It.Is<Func<CommandResponseHandling>>(f => f() == CommandResponseHandling.Return),
                         slaveOk,
                         subject.ResultSerializer,
@@ -154,9 +164,12 @@ namespace MongoDB.Driver.Core.Operations
 
                 mockChannel.Verify(
                     c => c.Command(
+                        binding.Session,
+                        readPreference,
                         subject.DatabaseNamespace,
-                        wrappedCommand,
+                        subject.Command,
                         subject.CommandValidator,
+                        additionalOptions,
                         It.Is<Func<CommandResponseHandling>>(f => f() == CommandResponseHandling.Return),
                         slaveOk,
                         subject.ResultSerializer,
@@ -179,7 +192,7 @@ namespace MongoDB.Driver.Core.Operations
             var channelSource = CreateMockChannelSource(serverDescription, mockChannel.Object).Object;
             var binding = CreateMockReadBinding(readPreference, channelSource).Object;
             var cancellationToken = new CancellationTokenSource().Token;
-            var wrappedCommand = BsonDocument.Parse("{ $query : { command : 1 }, $comment : \"comment\" }");
+            var additionalOptions = BsonDocument.Parse("{ $comment : \"comment\" }");
             var slaveOk = false;
 
             BsonDocument result;
@@ -189,9 +202,12 @@ namespace MongoDB.Driver.Core.Operations
 
                 mockChannel.Verify(
                     c => c.CommandAsync(
+                        binding.Session,
+                        readPreference,
                         subject.DatabaseNamespace,
-                        wrappedCommand,
+                        subject.Command,
                         subject.CommandValidator,
+                        additionalOptions,
                         It.Is<Func<CommandResponseHandling>>(f => f() == CommandResponseHandling.Return),
                         slaveOk,
                         subject.ResultSerializer,
@@ -205,9 +221,12 @@ namespace MongoDB.Driver.Core.Operations
 
                 mockChannel.Verify(
                     c => c.Command(
+                        binding.Session,
+                        readPreference,
                         subject.DatabaseNamespace,
-                        wrappedCommand,
+                        subject.Command,
                         subject.CommandValidator,
+                        additionalOptions,
                         It.Is<Func<CommandResponseHandling>>(f => f() == CommandResponseHandling.Return),
                         slaveOk,
                         subject.ResultSerializer,
@@ -223,13 +242,15 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject<BsonDocument>();
+            subject.AdditionalOptions = new BsonDocument("additional", 1);
+            subject.Comment = "comment";
             var readPreference = ReadPreference.Secondary;
             var serverDescription = CreateServerDescription(ServerType.ShardRouter);
             var mockChannel = CreateMockChannel();
             var channelSource = CreateMockChannelSource(serverDescription, mockChannel.Object).Object;
             var binding = CreateMockReadBinding(readPreference, channelSource).Object;
             var cancellationToken = new CancellationTokenSource().Token;
-            var wrappedCommand = BsonDocument.Parse("{ $query : { command : 1 }, $readPreference : { mode : \"secondary\"} }");
+            var additionalOptions = BsonDocument.Parse("{ $comment : \"comment\", additional : 1 }");
             var slaveOk = true;
 
             BsonDocument result;
@@ -239,9 +260,12 @@ namespace MongoDB.Driver.Core.Operations
 
                 mockChannel.Verify(
                     c => c.CommandAsync(
+                        binding.Session,
+                        readPreference,
                         subject.DatabaseNamespace,
-                        wrappedCommand,
+                        subject.Command,
                         subject.CommandValidator,
+                        additionalOptions,
                         It.Is<Func<CommandResponseHandling>>(f => f() == CommandResponseHandling.Return),
                         slaveOk,
                         subject.ResultSerializer,
@@ -255,9 +279,12 @@ namespace MongoDB.Driver.Core.Operations
 
                 mockChannel.Verify(
                     c => c.Command(
+                        binding.Session,
+                        readPreference,
                         subject.DatabaseNamespace,
-                        wrappedCommand,
+                        subject.Command,
                         subject.CommandValidator,
+                        additionalOptions,
                         It.Is<Func<CommandResponseHandling>>(f => f() == CommandResponseHandling.Return),
                         slaveOk,
                         subject.ResultSerializer,
@@ -271,7 +298,9 @@ namespace MongoDB.Driver.Core.Operations
         private Mock<IReadBinding> CreateMockReadBinding(ReadPreference readPreference, IChannelSourceHandle channelSource)
         {
             var mockBinding = new Mock<IReadBinding>();
+            var mockSession = new Mock<ICoreSessionHandle>();
             mockBinding.SetupGet(b => b.ReadPreference).Returns(readPreference);
+            mockBinding.SetupGet(b => b.Session).Returns(mockSession.Object);
             mockBinding.Setup(b => b.GetReadChannelSource(It.IsAny<CancellationToken>())).Returns(channelSource);
             mockBinding.Setup(b => b.GetReadChannelSourceAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult(channelSource));
             return mockBinding;

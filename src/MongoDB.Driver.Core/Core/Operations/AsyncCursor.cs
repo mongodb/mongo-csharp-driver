@@ -167,9 +167,12 @@ namespace MongoDB.Driver.Core.Operations
         {
             var command = CreateGetMoreCommand();
             var result = channel.Command<BsonDocument>(
+                _channelSource.Session,
+                null, // readPreference
                 _collectionNamespace.DatabaseNamespace,
                 command,
                 NoOpElementNameValidator.Instance,
+                null, // additionalOptions
                 () => CommandResponseHandling.Return,
                 false, // slaveOk
                 __getMoreCommandResultSerializer,
@@ -183,9 +186,12 @@ namespace MongoDB.Driver.Core.Operations
         {
             var command = CreateGetMoreCommand();
             var result = await channel.CommandAsync<BsonDocument>(
+                _channelSource.Session,
+                null, // readPreference
                 _collectionNamespace.DatabaseNamespace,
                 command,
                 NoOpElementNameValidator.Instance,
+                null, // additionalOptions
                 () => CommandResponseHandling.Return,
                 false, // slaveOk
                 __getMoreCommandResultSerializer,

@@ -1,4 +1,4 @@
-﻿/* Copyright 2016 MongoDB Inc.
+﻿/* Copyright 2016-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -949,7 +949,7 @@ namespace MongoDB.Driver.GridFS
             var readPreference = _options.ReadPreference ?? _database.Settings.ReadPreference;
             var selector = new ReadPreferenceServerSelector(readPreference);
             var server = _cluster.SelectServer(selector, cancellationToken);
-            var binding = new SingleServerReadBinding(server, readPreference);
+            var binding = new SingleServerReadBinding(server, readPreference, NoCoreSession.NewHandle());
             return new ReadBindingHandle(binding);
         }
 
@@ -958,7 +958,7 @@ namespace MongoDB.Driver.GridFS
             var readPreference = _options.ReadPreference ?? _database.Settings.ReadPreference;
             var selector = new ReadPreferenceServerSelector(readPreference);
             var server = await _cluster.SelectServerAsync(selector, cancellationToken).ConfigureAwait(false);
-            var binding = new SingleServerReadBinding(server, readPreference);
+            var binding = new SingleServerReadBinding(server, readPreference, NoCoreSession.NewHandle());
             return new ReadBindingHandle(binding);
         }
 
@@ -966,7 +966,7 @@ namespace MongoDB.Driver.GridFS
         {
             var selector = WritableServerSelector.Instance;
             var server = _cluster.SelectServer(selector, cancellationToken);
-            var binding = new SingleServerReadWriteBinding(server);
+            var binding = new SingleServerReadWriteBinding(server, NoCoreSession.NewHandle());
             return new ReadWriteBindingHandle(binding);
         }
 
@@ -974,7 +974,7 @@ namespace MongoDB.Driver.GridFS
         {
             var selector = WritableServerSelector.Instance;
             var server = await _cluster.SelectServerAsync(selector, cancellationToken).ConfigureAwait(false);
-            var binding = new SingleServerReadWriteBinding(server);
+            var binding = new SingleServerReadWriteBinding(server, NoCoreSession.NewHandle());
             return new ReadWriteBindingHandle(binding);
         }
 

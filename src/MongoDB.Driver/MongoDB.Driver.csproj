@@ -46,6 +46,7 @@
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\MongoDB.Driver.XML</DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>6</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -99,14 +100,21 @@
     <Compile Include="Builders.cs" />
     <Compile Include="ChangeStreamOptions.cs" />
     <Compile Include="ChangeStreamStageOptions.cs" />
+    <Compile Include="ClientSession.cs" />
+    <Compile Include="ClientSessionHandle.cs" />
+    <Compile Include="ClientSessionOptions.cs" />
+    <Compile Include="ClientSessionWrappingCoreSession.cs" />
     <Compile Include="CreateIndexModel.cs" />
     <Compile Include="CreateViewOptions.cs" />
     <Compile Include="DeleteOptions.cs" />
     <Compile Include="FieldValueSerializerHelper.cs" />
     <Compile Include="FilteredMongoCollectionBase.cs" />
+    <Compile Include="IClientSession.cs" />
+    <Compile Include="IClientSessionExtensions.cs" />
     <Compile Include="IndexKeysDefinition.cs" />
     <Compile Include="IndexOptionDefaults.cs" />
     <Compile Include="InsertOneOptions.cs" />
+    <Compile Include="IServerSessionPool.cs" />
     <Compile Include="Linq\AggregateQueryableExecutionModel.cs" />
     <Compile Include="Linq\ExecutionPlanBuilder.cs" />
     <Compile Include="Linq\ExpressionHelper.cs" />
@@ -283,6 +291,7 @@
     <Compile Include="Linq\Translators\PredicateTranslator.cs" />
     <Compile Include="ExpressionTranslationOptions.cs" />
     <Compile Include="MongoX509Identity.cs" />
+    <Compile Include="NoServerSession.cs" />
     <Compile Include="OfTypeSerializer.cs" />
     <Compile Include="PipelineDefinitionBuilder.cs" />
     <Compile Include="PipelineStageDefinition.cs" />
@@ -294,6 +303,10 @@
     <Compile Include="PipelineStageDefinitionBuilder.cs" />
     <Compile Include="ProjectionDefinitionBuilder.cs" />
     <Compile Include="IndexKeysDefinitionBuilder.cs" />
+    <Compile Include="IServerSession.cs" />
+    <Compile Include="ReferenceCountedClientSession.cs" />
+    <Compile Include="ServerSession.cs" />
+    <Compile Include="ServerSessionPool.cs" />
     <Compile Include="SortDefinitionBuilder.cs" />
     <Compile Include="FilterDefinitionBuilder.cs" />
     <Compile Include="IAggregateFluentExtensions.cs" />
@@ -356,6 +369,8 @@
     <Compile Include="OperationExecutor.cs" />
     <Compile Include="ReplaceOneResult.cs" />
     <Compile Include="UpdateResult.cs" />
+    <Compile Include="WrappingClientSession.cs" />
+    <Compile Include="WrappingServerSession.cs" />
     <Compile Include="WriteConcernError.cs" />
     <Compile Include="BulkWriteResult.cs" />
     <Compile Include="BulkWriteUpsert.cs" />

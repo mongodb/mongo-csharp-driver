@@ -458,11 +458,13 @@ namespace MongoDB.Driver.Core.Operations
                 BatchSize = batchSize
             };
 
-            var cursor = ExecuteOperation(subject, async);
-            var result = ReadCursorToEnd(cursor, async);
+            using (var cursor = ExecuteOperation(subject, async))
+            {
+                var result = ReadCursorToEnd(cursor, async);
 
-            result.Should().NotBeNull();
-            result.Should().HaveCount(1);
+                result.Should().NotBeNull();
+                result.Should().HaveCount(1);
+            }
         }
 
         [SkippableTheory]
@@ -614,6 +616,18 @@ namespace MongoDB.Driver.Core.Operations
 
             result.Should().NotBeNull();
             result.Should().HaveCount(1);
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_send_session_id_when_supported(
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.Aggregate);
+            EnsureTestData();
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings);
+
+            VerifySessionIdWasSentWhenSupported(subject, "aggregate", async);
         }
 
         private void EnsureTestData()

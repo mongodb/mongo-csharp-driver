@@ -67,6 +67,37 @@ namespace MongoDB.Driver.Core.Bindings
         /// Executes a Command protocol.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="session">The session.</param>
+        /// <param name="readPreference">The read preference.</param>
+        /// <param name="databaseNamespace">The database namespace.</param>
+        /// <param name="command">The command.</param>
+        /// <param name="commandValidator">The command validator.</param>
+        /// <param name="additionalOptions">The additional options.</param>
+        /// <param name="responseHandling">The response handling.</param>
+        /// <param name="slaveOk">if set to <c>true</c> sets the SlaveOk bit to true in the command message sent to the server.</param>
+        /// <param name="resultSerializer">The result serializer.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of the Command protocol.
+        /// </returns>
+        TResult Command<TResult>(
+            ICoreSession session,
+            ReadPreference readPreference,
+            DatabaseNamespace databaseNamespace,
+            BsonDocument command,
+            IElementNameValidator commandValidator,
+            BsonDocument additionalOptions,
+            Func<CommandResponseHandling> responseHandling,
+            bool slaveOk,
+            IBsonSerializer<TResult> resultSerializer,
+            MessageEncoderSettings messageEncoderSettings,
+            CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Executes a Command protocol.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="databaseNamespace">The database namespace.</param>
         /// <param name="command">The command.</param>
         /// <param name="commandValidator">The command validator.</param>
@@ -80,6 +111,37 @@ namespace MongoDB.Driver.Core.Bindings
             DatabaseNamespace databaseNamespace,
             BsonDocument command,
             IElementNameValidator commandValidator,
+            Func<CommandResponseHandling> responseHandling,
+            bool slaveOk,
+            IBsonSerializer<TResult> resultSerializer,
+            MessageEncoderSettings messageEncoderSettings,
+            CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Executes a Command protocol.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="session">The session.</param>
+        /// <param name="readPreference">The read preference.</param>
+        /// <param name="databaseNamespace">The database namespace.</param>
+        /// <param name="command">The command.</param>
+        /// <param name="commandValidator">The command validator.</param>
+        /// <param name="additionalOptions">The additional options.</param>
+        /// <param name="responseHandling">The response handling.</param>
+        /// <param name="slaveOk">if set to <c>true</c> sets the SlaveOk bit to true in the command message sent to the server.</param>
+        /// <param name="resultSerializer">The result serializer.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// A Task whose result is the result of the Command protocol.
+        /// </returns>
+        Task<TResult> CommandAsync<TResult>(
+            ICoreSession session,
+            ReadPreference readPreference,
+            DatabaseNamespace databaseNamespace,
+            BsonDocument command,
+            IElementNameValidator commandValidator,
+            BsonDocument additionalOptions,
             Func<CommandResponseHandling> responseHandling,
             bool slaveOk,
             IBsonSerializer<TResult> resultSerializer,

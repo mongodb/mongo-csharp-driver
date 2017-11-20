@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,10 +14,6 @@
 */
 
 using System;
-using System.Diagnostics;
-using MongoDB.Bson;
-using MongoDB.Driver.Core.Configuration;
-using MongoDB.Driver.Core.Events.Diagnostics;
 
 namespace MongoDB.Driver.Tests
 {
@@ -34,18 +30,7 @@ namespace MongoDB.Driver.Tests
         // static constructor
         static DriverTestConfiguration()
         {
-            var connectionString = CoreTestConfiguration.ConnectionString.ToString();
-            var clientSettings = MongoClientSettings.FromUrl(new MongoUrl(connectionString));
-
-            var serverSelectionTimeoutString = Environment.GetEnvironmentVariable("MONGO_SERVER_SELECTION_TIMEOUT_MS");
-            if (serverSelectionTimeoutString == null)
-            {
-                serverSelectionTimeoutString = "30000";
-            }
-            clientSettings.ServerSelectionTimeout = TimeSpan.FromMilliseconds(int.Parse(serverSelectionTimeoutString));
-            clientSettings.ClusterConfigurator = cb => CoreTestConfiguration.ConfigureLogging(cb);
-
-            __client = new Lazy<MongoClient>(() => new MongoClient(clientSettings), true);
+            __client = new Lazy<MongoClient>(() => new MongoClient(GetClientSettings()), true);
             __databaseNamespace = CoreTestConfiguration.DatabaseNamespace;
             __collectionNamespace = new CollectionNamespace(__databaseNamespace, "testcollection");
         }
@@ -79,6 +64,23 @@ namespace MongoDB.Driver.Tests
         public static DatabaseNamespace DatabaseNamespace
         {
             get { return __databaseNamespace; }
+        }
+
+        // public static methods
+        public static MongoClientSettings GetClientSettings()
+        {
+            var connectionString = CoreTestConfiguration.ConnectionString.ToString();
+            var clientSettings = MongoClientSettings.FromUrl(new MongoUrl(connectionString));
+
+            var serverSelectionTimeoutString = Environment.GetEnvironmentVariable("MONGO_SERVER_SELECTION_TIMEOUT_MS");
+            if (serverSelectionTimeoutString == null)
+            {
+                serverSelectionTimeoutString = "30000";
+            }
+            clientSettings.ServerSelectionTimeout = TimeSpan.FromMilliseconds(int.Parse(serverSelectionTimeoutString));
+            clientSettings.ClusterConfigurator = cb => CoreTestConfiguration.ConfigureLogging(cb);
+
+            return clientSettings;
         }
     }
 }

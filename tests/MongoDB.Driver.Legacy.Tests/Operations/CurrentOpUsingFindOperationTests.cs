@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Tests.Operations
         {
             RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet).StorageEngine("mmapv1");
             var subject = new CurrentOpUsingFindOperation(_adminDatabaseNamespace, _messageEncoderSettings);
-            using (var binding = new ReadPreferenceBinding(CoreTestConfiguration.Cluster, ReadPreference.PrimaryPreferred))
+            using (var binding = new ReadPreferenceBinding(CoreTestConfiguration.Cluster, ReadPreference.PrimaryPreferred, NoCoreSession.NewHandle()))
             {
                 var result = subject.Execute(binding, CancellationToken.None);
 

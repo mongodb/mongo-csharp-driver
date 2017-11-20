@@ -1,4 +1,4 @@
-/* Copyright 2013-2016 MongoDB Inc.
+/* Copyright 2013-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -83,6 +83,25 @@ namespace MongoDB.Driver.Core.Operations
             var result = ExecuteOperation(subject, async);
 
             result["results"].Should().Be(new BsonArray(expectedResults));
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_send_session_id_when_supported(
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check();
+            EnsureTestData();
+            var mapFunction = "function() { emit(this.x, this.v); }";
+            var reduceFunction = "function(key, values) { var sum = 0; for (var i = 0; i < values.length; i++) { sum += values[i]; }; return sum; }";
+            var subject = new MapReduceLegacyOperation(_collectionNamespace, mapFunction, reduceFunction, _messageEncoderSettings);
+            var expectedResults = new List<BsonDocument>
+            {
+                new BsonDocument { {"_id", 1 }, { "value", 3 } },
+                new BsonDocument { {"_id", 2 }, { "value", 4 } },
+            };
+
+            VerifySessionIdWasSentWhenSupported(subject, "mapreduce", async);
         }
 
         [Theory]

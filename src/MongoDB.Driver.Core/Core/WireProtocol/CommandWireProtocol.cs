@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,8 +22,12 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
@@ -32,12 +37,15 @@ namespace MongoDB.Driver.Core.WireProtocol
     internal class CommandWireProtocol<TCommandResult> : IWireProtocol<TCommandResult>
     {
         // fields
+        private readonly BsonDocument _additionalOptions;
         private readonly BsonDocument _command;
         private readonly Func<CommandResponseHandling> _responseHandling;
         private readonly IElementNameValidator _commandValidator;
         private readonly DatabaseNamespace _databaseNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
+        private readonly ReadPreference _readPreference;
         private readonly IBsonSerializer<TCommandResult> _resultSerializer;
+        private readonly ICoreSession _session;
         private readonly bool _slaveOk;
 
         // constructors
@@ -66,10 +74,38 @@ namespace MongoDB.Driver.Core.WireProtocol
             bool slaveOk,
             IBsonSerializer<TCommandResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings)
+            : this(
+                  NoCoreSession.Instance,
+                  null, // readPreference
+                  databaseNamespace,
+                  command,
+                  commandValidator,
+                  null, // aditionalOptions
+                  responseHandling,
+                  slaveOk,
+                  resultSerializer,
+                  messageEncoderSettings)
         {
+        }
+
+        public CommandWireProtocol(
+            ICoreSession session,
+            ReadPreference readPreference,
+            DatabaseNamespace databaseNamespace,
+            BsonDocument command,
+            IElementNameValidator commandValidator,
+            BsonDocument additionalOptions,
+            Func<CommandResponseHandling> responseHandling,
+            bool slaveOk,
+            IBsonSerializer<TCommandResult> resultSerializer,
+            MessageEncoderSettings messageEncoderSettings)
+        {
+            _session = Ensure.IsNotNull(session, nameof(session));
+            _readPreference = readPreference;
             _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));
             _command = Ensure.IsNotNull(command, nameof(command));
             _commandValidator = Ensure.IsNotNull(commandValidator, nameof(commandValidator));
+            _additionalOptions = additionalOptions; // can be null
             _responseHandling = responseHandling;
             _slaveOk = slaveOk;
             _resultSerializer = Ensure.IsNotNull(resultSerializer, nameof(resultSerializer));
@@ -77,12 +113,14 @@ namespace MongoDB.Driver.Core.WireProtocol
         }
 
         // methods
-        private QueryMessage CreateMessage()
+        private QueryMessage CreateMessage(ConnectionDescription connectionDescription, out bool messageContainsSessionId)
         {
+            var wrappedCommand = WrapCommandForQueryMessage(connectionDescription, out messageContainsSessionId);
+
             return new QueryMessage(
                 RequestMessage.GetNextRequestId(),
                 _databaseNamespace.CommandCollection,
-                _command,
+                wrappedCommand,
                 null,
                 _commandValidator,
                 0,
@@ -97,8 +135,13 @@ namespace MongoDB.Driver.Core.WireProtocol
 
         public TCommandResult Execute(IConnection connection, CancellationToken cancellationToken)
         {
-            var message = CreateMessage();
+            bool messageContainsSessionId;
+            var message = CreateMessage(connection.Description, out messageContainsSessionId);
             connection.SendMessage(message, _messageEncoderSettings, cancellationToken);
+            if (messageContainsSessionId)
+            {
+                _session.WasUsed();
+            }
 
             switch (_responseHandling())
             {
@@ -114,8 +157,14 @@ namespace MongoDB.Driver.Core.WireProtocol
 
         public async Task<TCommandResult> ExecuteAsync(IConnection connection, CancellationToken cancellationToken)
         {
-            var message = CreateMessage();
+            bool messageContainsSessionId;
+            var message = CreateMessage(connection.Description, out messageContainsSessionId);
             await connection.SendMessageAsync(message, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
+            if (messageContainsSessionId)
+            {
+                _session.WasUsed();
+            }
+
             switch (_responseHandling())
             {
                 case CommandResponseHandling.Ignore:
@@ -153,14 +202,27 @@ namespace MongoDB.Driver.Core.WireProtocol
 
             using (var rawDocument = reply.Documents[0])
             {
+                var binaryReaderSettings = new BsonBinaryReaderSettings();
+                if (_messageEncoderSettings != null)
+                {
+                    binaryReaderSettings.Encoding = _messageEncoderSettings.GetOrDefault<UTF8Encoding>(MessageEncoderSettingsName.ReadEncoding, Utf8Encodings.Strict);
+                    binaryReaderSettings.GuidRepresentation = _messageEncoderSettings.GetOrDefault<GuidRepresentation>(MessageEncoderSettingsName.GuidRepresentation, GuidRepresentation.CSharpLegacy);
+                };
+
+                BsonValue clusterTime;
+                if (rawDocument.TryGetValue("$clusterTime", out clusterTime))
+                {
+                    var materializedClusterTime = ((RawBsonDocument)clusterTime).Materialize(binaryReaderSettings);
+                    _session.AdvanceClusterTime(materializedClusterTime);
+                }
+                BsonValue operationTime;
+                if (rawDocument.TryGetValue("operationTime", out operationTime))
+                {
+                    _session.AdvanceOperationTime(operationTime.AsBsonTimestamp);
+                }
+
                 if (!rawDocument.GetValue("ok", false).ToBoolean())
                 {
-                    var binaryReaderSettings = new BsonBinaryReaderSettings();
-                    if (_messageEncoderSettings != null)
-                    {
-                        binaryReaderSettings.Encoding = _messageEncoderSettings.GetOrDefault<UTF8Encoding>(MessageEncoderSettingsName.ReadEncoding, Utf8Encodings.Strict);
-                        binaryReaderSettings.GuidRepresentation = _messageEncoderSettings.GetOrDefault<GuidRepresentation>(MessageEncoderSettingsName.GuidRepresentation, GuidRepresentation.CSharpLegacy);
-                    };
                     var materializedDocument = rawDocument.Materialize(binaryReaderSettings);
 
                     var commandName = _command.GetElement(0).Name;
@@ -209,6 +271,63 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
         }
 
+        private BsonDocument WrapCommandForQueryMessage(ConnectionDescription connectionDescription, out bool messageContainsSessionId)
+        {
+            messageContainsSessionId = false;
+            var extraElements = new List<BsonElement>();
+            if (_session.Id != null)
+            {
+                var areSessionsSupported = connectionDescription.IsMasterResult.LogicalSessionTimeout.HasValue;
+                if (areSessionsSupported)
+                {
+                    var lsid = new BsonElement("lsid", _session.Id);
+                    extraElements.Add(lsid);
+                    messageContainsSessionId = true;
+                }
+                else
+                {
+                    if (!_session.IsImplicit)
+                    {
+                        throw new MongoClientException("Sessions are not supported.");
+                    }
+                }
+            }
+            if (_session.ClusterTime != null)
+            {
+                var clusterTime = new BsonElement("$clusterTime", _session.ClusterTime);
+                extraElements.Add(clusterTime);
+            }
+            var appendExtraElementsSerializer = new ElementAppendingSerializer<BsonDocument>(BsonDocumentSerializer.Instance, extraElements);
+            var commandWithExtraElements = new BsonDocumentWrapper(_command, appendExtraElementsSerializer);
+
+            BsonDocument readPreferenceDocument = null;
+            if (connectionDescription != null)
+            {
+                var serverType = connectionDescription.IsMasterResult.ServerType;
+                readPreferenceDocument = QueryHelper.CreateReadPreferenceDocument(serverType, _readPreference);
+            }
+
+            var wrappedCommand = new BsonDocument
+            {
+                { "$query", commandWithExtraElements },
+                { "$readPreference", readPreferenceDocument, readPreferenceDocument != null }
+            };
+            if (_additionalOptions != null)
+            {
+                wrappedCommand.Merge(_additionalOptions, overwriteExistingElements: false);
+            }
+
+            if (wrappedCommand.ElementCount == 1)
+            {
+                return wrappedCommand["$query"].AsBsonDocument;
+            }
+            else
+            {
+                return wrappedCommand;
+            }
+        }
+
+        // nested types
         private class IgnoredReply
         {
             public static IgnoredReply Instance = new IgnoredReply();

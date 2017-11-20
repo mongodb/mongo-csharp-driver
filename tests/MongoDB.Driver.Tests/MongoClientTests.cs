@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,13 +14,12 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
-using MongoDB.Driver;
 using MongoDB.Driver.Core.Operations;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -63,22 +62,48 @@ namespace MongoDB.Driver.Tests
         [Theory]
         [ParameterAttributeData]
         public void DropDatabase_should_invoke_the_correct_operation(
+            [Values(false, true)] bool usingSession,
             [Values(false, true)] bool async)
         {
             var operationExecutor = new MockOperationExecutor();
             var writeConcern = new WriteConcern(1);
-            var client = new MongoClient(operationExecutor, new MongoClientSettings()).WithWriteConcern(writeConcern);
+            var subject = new MongoClient(operationExecutor, DriverTestConfiguration.GetClientSettings()).WithWriteConcern(writeConcern);
+            var session = CreateClientSession();
+            var cancellationToken = new CancellationTokenSource().Token;
 
-            if (async)
+            if (usingSession)
             {
-                client.DropDatabaseAsync("awesome").GetAwaiter().GetResult();
+                if (async)
+                {
+                    subject.DropDatabaseAsync(session, "awesome", cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    subject.DropDatabase(session, "awesome", cancellationToken);
+                }
             }
             else
             {
-                client.DropDatabase("awesome");
+                if (async)
+                {
+                    subject.DropDatabaseAsync("awesome", cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    subject.DropDatabase("awesome", cancellationToken);
+                }
             }
 
             var call = operationExecutor.GetWriteCall<BsonDocument>();
+            if (usingSession)
+            {
+                call.SessionId.Should().BeSameAs(session.ServerSession.Id);
+            }
+            else
+            {
+                call.UsedImplicitSession.Should().BeTrue();
+            }
+            call.CancellationToken.Should().Be(cancellationToken);
 
             var dropDatabaseOperation = call.Operation.Should().BeOfType<DropDatabaseOperation>().Subject;
             dropDatabaseOperation.DatabaseNamespace.Should().Be(new DatabaseNamespace("awesome"));
@@ -88,21 +113,47 @@ namespace MongoDB.Driver.Tests
         [Theory]
         [ParameterAttributeData]
         public void ListDatabases_should_invoke_the_correct_operation(
+            [Values(false, true)] bool usingSession,
             [Values(false, true)] bool async)
         {
             var operationExecutor = new MockOperationExecutor();
-            var client = new MongoClient(operationExecutor, new MongoClientSettings());
+            var subject = new MongoClient(operationExecutor, DriverTestConfiguration.GetClientSettings());
+            var session = CreateClientSession();
+            var cancellationToken = new CancellationTokenSource().Token;
 
-            if (async)
+            if (usingSession)
             {
-                client.ListDatabasesAsync().GetAwaiter().GetResult();
+                if (async)
+                {
+                    subject.ListDatabasesAsync(session, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    subject.ListDatabases(session, cancellationToken);
+                }
             }
             else
             {
-                client.ListDatabases();
+                if (async)
+                {
+                    subject.ListDatabasesAsync(cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    subject.ListDatabases(cancellationToken);
+                }
             }
 
             var call = operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
+            if (usingSession)
+            {
+                call.SessionId.Should().BeSameAs(session.ServerSession.Id);
+            }
+            else
+            {
+                call.UsedImplicitSession.Should().BeTrue();
+            }
+            call.CancellationToken.Should().Be(cancellationToken);
 
             call.Operation.Should().BeOfType<ListDatabasesOperation>();
         }
@@ -147,6 +198,16 @@ namespace MongoDB.Driver.Tests
             subject.Settings.WriteConcern.Should().BeSameAs(originalWriteConcern);
             result.Settings.WriteConcern.Should().BeSameAs(newWriteConcern);
             result.WithWriteConcern(originalWriteConcern).Settings.Should().Be(subject.Settings);
+        }
+
+        // private methods
+        private IClientSessionHandle CreateClientSession()
+        {
+            var client = new Mock<IMongoClient>().Object;
+            var options = new ClientSessionOptions();
+            var serverSession = new ServerSession();
+            var clientSession = new ClientSession(client, options, serverSession, isImplicit: false);
+            return new ClientSessionHandle(clientSession);
         }
     }
 }

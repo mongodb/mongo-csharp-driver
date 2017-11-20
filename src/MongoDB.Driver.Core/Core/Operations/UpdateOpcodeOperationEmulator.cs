@@ -1,4 +1,4 @@
-/* Copyright 2013-2015 MongoDB Inc.
+/* Copyright 2013-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // public methods
-        public WriteConcernResult Execute(IChannelHandle channel, CancellationToken cancellationToken)
+        public WriteConcernResult Execute(IChannelHandle channel, ICoreSessionHandle session, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(channel, nameof(channel));
 
@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Core.Operations
             MongoBulkWriteOperationException exception = null;
             try
             {
-                result = operation.Execute(channel, cancellationToken);
+                result = operation.Execute(channel, session, cancellationToken);
             }
             catch (MongoBulkWriteOperationException ex)
             {
@@ -105,7 +105,7 @@ namespace MongoDB.Driver.Core.Operations
             return CreateResultOrThrow(channel, result, exception);
         }
 
-        public async Task<WriteConcernResult> ExecuteAsync(IChannelHandle channel, CancellationToken cancellationToken)
+        public async Task<WriteConcernResult> ExecuteAsync(IChannelHandle channel, ICoreSessionHandle session, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(channel, nameof(channel));
 
@@ -114,7 +114,7 @@ namespace MongoDB.Driver.Core.Operations
             MongoBulkWriteOperationException exception = null;
             try
             {
-                result = await operation.ExecuteAsync(channel, cancellationToken).ConfigureAwait(false);
+                result = await operation.ExecuteAsync(channel, session, cancellationToken).ConfigureAwait(false);
             }
             catch (MongoBulkWriteOperationException ex)
             {

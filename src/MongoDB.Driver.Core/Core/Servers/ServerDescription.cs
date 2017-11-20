@@ -203,6 +203,30 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         /// <summary>
+        /// Gets a value indicating whether this instance is a data bearing server.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is a data bearing server; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsDataBearing
+        {
+            get
+            {
+                switch (_type)
+                {
+                    case ServerType.Standalone:
+                    case ServerType.ReplicaSetPrimary:
+                    case ServerType.ReplicaSetSecondary:
+                    case ServerType.ShardRouter:
+                        return true;
+
+                    default:
+                        return false;
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets the last update timestamp (when the ServerDescription itself was last updated).
         /// </summary>
         /// <value>

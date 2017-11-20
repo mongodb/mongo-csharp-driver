@@ -71,11 +71,37 @@ namespace MongoDB.Driver
         /// Runs an aggregation pipeline.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="session">The session.</param>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// A cursor.
+        /// </returns>
+        IAsyncCursor<TResult> Aggregate<TResult>(IClientSessionHandle session, PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Runs an aggregation pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="pipeline">The pipeline.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result is a cursor.</returns>
         Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Runs an aggregation pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="session">The session.</param>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// A Task whose result is a cursor.
+        /// </returns>
+        Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(IClientSessionHandle session, PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Performs multiple write operations.
@@ -89,11 +115,35 @@ namespace MongoDB.Driver
         /// <summary>
         /// Performs multiple write operations.
         /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="requests">The requests.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of writing.
+        /// </returns>
+        BulkWriteResult<TDocument> BulkWrite(IClientSessionHandle session, IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Performs multiple write operations.
+        /// </summary>
         /// <param name="requests">The requests.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The result of writing.</returns>
         Task<BulkWriteResult<TDocument>> BulkWriteAsync(IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Performs multiple write operations.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="requests">The requests.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of writing.
+        /// </returns>
+        Task<BulkWriteResult<TDocument>> BulkWriteAsync(IClientSessionHandle session, IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Counts the number of documents in the collection.
@@ -109,6 +159,18 @@ namespace MongoDB.Driver
         /// <summary>
         /// Counts the number of documents in the collection.
         /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The number of documents in the collection.
+        /// </returns>
+        long Count(IClientSessionHandle session, FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Counts the number of documents in the collection.
+        /// </summary>
         /// <param name="filter">The filter.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
@@ -116,6 +178,18 @@ namespace MongoDB.Driver
         /// The number of documents in the collection.
         /// </returns>
         Task<long> CountAsync(FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Counts the number of documents in the collection.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The number of documents in the collection.
+        /// </returns>
+        Task<long> CountAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Deletes multiple documents.
@@ -141,6 +215,18 @@ namespace MongoDB.Driver
         /// <summary>
         /// Deletes multiple documents.
         /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of the delete operation.
+        /// </returns>
+        DeleteResult DeleteMany(IClientSessionHandle session, FilterDefinition<TDocument> filter, DeleteOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Deletes multiple documents.
+        /// </summary>
         /// <param name="filter">The filter.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
@@ -158,6 +244,18 @@ namespace MongoDB.Driver
         /// The result of the delete operation.
         /// </returns>
         Task<DeleteResult> DeleteManyAsync(FilterDefinition<TDocument> filter, DeleteOptions options, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Deletes multiple documents.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of the delete operation.
+        /// </returns>
+        Task<DeleteResult> DeleteManyAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, DeleteOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Deletes a single document.
@@ -183,6 +281,18 @@ namespace MongoDB.Driver
         /// <summary>
         /// Deletes a single document.
         /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of the delete operation.
+        /// </returns>
+        DeleteResult DeleteOne(IClientSessionHandle session, FilterDefinition<TDocument> filter, DeleteOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Deletes a single document.
+        /// </summary>
         /// <param name="filter">The filter.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
@@ -202,6 +312,18 @@ namespace MongoDB.Driver
         Task<DeleteResult> DeleteOneAsync(FilterDefinition<TDocument> filter, DeleteOptions options, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
+        /// Deletes a single document.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of the delete operation.
+        /// </returns>
+        Task<DeleteResult> DeleteOneAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, DeleteOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
         /// Gets the distinct values for a specified field.
         /// </summary>
         /// <typeparam name="TField">The type of the result.</typeparam>
@@ -216,12 +338,40 @@ namespace MongoDB.Driver
         /// Gets the distinct values for a specified field.
         /// </summary>
         /// <typeparam name="TField">The type of the result.</typeparam>
+        /// <param name="session">The session.</param>
+        /// <param name="field">The field.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// A cursor.
+        /// </returns>
+        IAsyncCursor<TField> Distinct<TField>(IClientSessionHandle session, FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Gets the distinct values for a specified field.
+        /// </summary>
+        /// <typeparam name="TField">The type of the result.</typeparam>
         /// <param name="field">The field.</param>
         /// <param name="filter">The filter.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result is a cursor.</returns>
         Task<IAsyncCursor<TField>> DistinctAsync<TField>(FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Gets the distinct values for a specified field.
+        /// </summary>
+        /// <typeparam name="TField">The type of the result.</typeparam>
+        /// <param name="session">The session.</param>
+        /// <param name="field">The field.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// A Task whose result is a cursor.
+        /// </returns>
+        Task<IAsyncCursor<TField>> DistinctAsync<TField>(IClientSessionHandle session, FieldDefinition<TDocument, TField> field, FilterDefinition<TDocument> filter, DistinctOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Finds the documents matching the filter.
@@ -237,11 +387,37 @@ namespace MongoDB.Driver
         /// Finds the documents matching the filter.
         /// </summary>
         /// <typeparam name="TProjection">The type of the projection (same as TDocument if there is no projection).</typeparam>
+        /// <param name="session">The session.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// A cursor.
+        /// </returns>
+        IAsyncCursor<TProjection> FindSync<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Finds the documents matching the filter.
+        /// </summary>
+        /// <typeparam name="TProjection">The type of the projection (same as TDocument if there is no projection).</typeparam>
         /// <param name="filter">The filter.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result is a cursor.</returns>
         Task<IAsyncCursor<TProjection>> FindAsync<TProjection>(FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Finds the documents matching the filter.
+        /// </summary>
+        /// <typeparam name="TProjection">The type of the projection (same as TDocument if there is no projection).</typeparam>
+        /// <param name="session">The session.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// A Task whose result is a cursor.
+        /// </returns>
+        Task<IAsyncCursor<TProjection>> FindAsync<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Finds a single document and deletes it atomically.
@@ -259,6 +435,19 @@ namespace MongoDB.Driver
         /// Finds a single document and deletes it atomically.
         /// </summary>
         /// <typeparam name="TProjection">The type of the projection (same as TDocument if there is no projection).</typeparam>
+        /// <param name="session">The session.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The returned document.
+        /// </returns>
+        TProjection FindOneAndDelete<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, FindOneAndDeleteOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Finds a single document and deletes it atomically.
+        /// </summary>
+        /// <typeparam name="TProjection">The type of the projection (same as TDocument if there is no projection).</typeparam>
         /// <param name="filter">The filter.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
@@ -266,6 +455,19 @@ namespace MongoDB.Driver
         /// The returned document.
         /// </returns>
         Task<TProjection> FindOneAndDeleteAsync<TProjection>(FilterDefinition<TDocument> filter, FindOneAndDeleteOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Finds a single document and deletes it atomically.
+        /// </summary>
+        /// <typeparam name="TProjection">The type of the projection (same as TDocument if there is no projection).</typeparam>
+        /// <param name="session">The session.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The returned document.
+        /// </returns>
+        Task<TProjection> FindOneAndDeleteAsync<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, FindOneAndDeleteOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Finds a single document and replaces it atomically.
@@ -284,6 +486,20 @@ namespace MongoDB.Driver
         /// Finds a single document and replaces it atomically.
         /// </summary>
         /// <typeparam name="TProjection">The type of the projection (same as TDocument if there is no projection).</typeparam>
+        /// <param name="session">The session.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="replacement">The replacement.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The returned document.
+        /// </returns>
+        TProjection FindOneAndReplace<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, FindOneAndReplaceOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Finds a single document and replaces it atomically.
+        /// </summary>
+        /// <typeparam name="TProjection">The type of the projection (same as TDocument if there is no projection).</typeparam>
         /// <param name="filter">The filter.</param>
         /// <param name="replacement">The replacement.</param>
         /// <param name="options">The options.</param>
@@ -292,6 +508,20 @@ namespace MongoDB.Driver
         /// The returned document.
         /// </returns>
         Task<TProjection> FindOneAndReplaceAsync<TProjection>(FilterDefinition<TDocument> filter, TDocument replacement, FindOneAndReplaceOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Finds a single document and replaces it atomically.
+        /// </summary>
+        /// <typeparam name="TProjection">The type of the projection (same as TDocument if there is no projection).</typeparam>
+        /// <param name="session">The session.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="replacement">The replacement.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The returned document.
+        /// </returns>
+        Task<TProjection> FindOneAndReplaceAsync<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, FindOneAndReplaceOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Finds a single document and updates it atomically.
@@ -310,6 +540,20 @@ namespace MongoDB.Driver
         /// Finds a single document and updates it atomically.
         /// </summary>
         /// <typeparam name="TProjection">The type of the projection (same as TDocument if there is no projection).</typeparam>
+        /// <param name="session">The session.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="update">The update.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The returned document.
+        /// </returns>
+        TProjection FindOneAndUpdate<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Finds a single document and updates it atomically.
+        /// </summary>
+        /// <typeparam name="TProjection">The type of the projection (same as TDocument if there is no projection).</typeparam>
         /// <param name="filter">The filter.</param>
         /// <param name="update">The update.</param>
         /// <param name="options">The options.</param>
@@ -320,12 +564,35 @@ namespace MongoDB.Driver
         Task<TProjection> FindOneAndUpdateAsync<TProjection>(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
+        /// Finds a single document and updates it atomically.
+        /// </summary>
+        /// <typeparam name="TProjection">The type of the projection (same as TDocument if there is no projection).</typeparam>
+        /// <param name="session">The session.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="update">The update.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The returned document.
+        /// </returns>
+        Task<TProjection> FindOneAndUpdateAsync<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
         /// Inserts a single document.
         /// </summary>
         /// <param name="document">The document.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         void InsertOne(TDocument document, InsertOneOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Inserts a single document.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="document">The document.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        void InsertOne( IClientSessionHandle session, TDocument document, InsertOneOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Inserts a single document.
@@ -350,12 +617,33 @@ namespace MongoDB.Driver
         Task InsertOneAsync(TDocument document, InsertOneOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
+        /// Inserts a single document.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="document">The document.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of the insert operation.
+        /// </returns>
+        Task InsertOneAsync(IClientSessionHandle session, TDocument document, InsertOneOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
         /// Inserts many documents.
         /// </summary>
         /// <param name="documents">The documents.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         void InsertMany(IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Inserts many documents.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="documents">The documents.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        void InsertMany(IClientSessionHandle session, IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Inserts many documents.
@@ -367,6 +655,18 @@ namespace MongoDB.Driver
         /// The result of the insert operation.
         /// </returns>
         Task InsertManyAsync(IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Inserts many documents.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="documents">The documents.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of the insert operation.
+        /// </returns>
+        Task InsertManyAsync(IClientSessionHandle session, IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Executes a map-reduce command.
@@ -383,12 +683,40 @@ namespace MongoDB.Driver
         /// Executes a map-reduce command.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="session">The session.</param>
+        /// <param name="map">The map function.</param>
+        /// <param name="reduce">The reduce function.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// A cursor.
+        /// </returns>
+        IAsyncCursor<TResult> MapReduce<TResult>(IClientSessionHandle session, BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Executes a map-reduce command.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="map">The map function.</param>
         /// <param name="reduce">The reduce function.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result is a cursor.</returns>
         Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Executes a map-reduce command.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="session">The session.</param>
+        /// <param name="map">The map function.</param>
+        /// <param name="reduce">The reduce function.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// A Task whose result is a cursor.
+        /// </returns>
+        Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(IClientSessionHandle session, BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Returns a filtered collection that appears to contain only documents of the derived type.
@@ -413,6 +741,19 @@ namespace MongoDB.Driver
         /// <summary>
         /// Replaces a single document.
         /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="replacement">The replacement.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of the replacement.
+        /// </returns>
+        ReplaceOneResult ReplaceOne(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Replaces a single document.
+        /// </summary>
         /// <param name="filter">The filter.</param>
         /// <param name="replacement">The replacement.</param>
         /// <param name="options">The options.</param>
@@ -421,6 +762,19 @@ namespace MongoDB.Driver
         /// The result of the replacement.
         /// </returns>
         Task<ReplaceOneResult> ReplaceOneAsync(FilterDefinition<TDocument> filter, TDocument replacement, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Replaces a single document.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="replacement">The replacement.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of the replacement.
+        /// </returns>
+        Task<ReplaceOneResult> ReplaceOneAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Updates many documents.
@@ -437,6 +791,19 @@ namespace MongoDB.Driver
         /// <summary>
         /// Updates many documents.
         /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="update">The update.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of the update operation.
+        /// </returns>
+        UpdateResult UpdateMany(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Updates many documents.
+        /// </summary>
         /// <param name="filter">The filter.</param>
         /// <param name="update">The update.</param>
         /// <param name="options">The options.</param>
@@ -445,6 +812,19 @@ namespace MongoDB.Driver
         /// The result of the update operation.
         /// </returns>
         Task<UpdateResult> UpdateManyAsync(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Updates many documents.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="update">The update.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of the update operation.
+        /// </returns>
+        Task<UpdateResult> UpdateManyAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Updates a single document.
@@ -461,6 +841,19 @@ namespace MongoDB.Driver
         /// <summary>
         /// Updates a single document.
         /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="update">The update.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of the update operation.
+        /// </returns>
+        UpdateResult UpdateOne(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Updates a single document.
+        /// </summary>
         /// <param name="filter">The filter.</param>
         /// <param name="update">The update.</param>
         /// <param name="options">The options.</param>
@@ -469,6 +862,19 @@ namespace MongoDB.Driver
         /// The result of the update operation.
         /// </returns>
         Task<UpdateResult> UpdateOneAsync(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Updates a single document.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="update">The update.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of the update operation.
+        /// </returns>
+        Task<UpdateResult> UpdateOneAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Watches changes on the collection.
@@ -489,6 +895,23 @@ namespace MongoDB.Driver
         /// Watches changes on the collection.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="session">The session.</param>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// A change stream.
+        /// </returns>
+        IAsyncCursor<TResult> Watch<TResult>(
+            IClientSessionHandle session,
+            PipelineDefinition<ChangeStreamDocument<TDocument>, TResult> pipeline,
+            ChangeStreamOptions options = null,
+            CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Watches changes on the collection.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="pipeline">The pipeline.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
@@ -496,6 +919,23 @@ namespace MongoDB.Driver
         /// A change stream.
         /// </returns>
         Task<IAsyncCursor<TResult>> WatchAsync<TResult>(
+            PipelineDefinition<ChangeStreamDocument<TDocument>, TResult> pipeline,
+            ChangeStreamOptions options = null,
+            CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Watches changes on the collection.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="session">The session.</param>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// A change stream.
+        /// </returns>
+        Task<IAsyncCursor<TResult>> WatchAsync<TResult>(
+            IClientSessionHandle session,
             PipelineDefinition<ChangeStreamDocument<TDocument>, TResult> pipeline,
             ChangeStreamOptions options = null,
             CancellationToken cancellationToken = default(CancellationToken));

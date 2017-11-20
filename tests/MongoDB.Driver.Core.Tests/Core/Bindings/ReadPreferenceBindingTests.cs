@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -21,6 +22,7 @@ using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using Moq;
 using Xunit;
@@ -39,7 +41,7 @@ namespace MongoDB.Driver.Core.Bindings
         [Fact]
         public void Constructor_should_throw_if_cluster_is_null()
         {
-            Action act = () => new ReadPreferenceBinding(null, ReadPreference.Primary);
+            Action act = () => new ReadPreferenceBinding(null, ReadPreference.Primary, NoCoreSession.NewHandle());
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -47,9 +49,28 @@ namespace MongoDB.Driver.Core.Bindings
         [Fact]
         public void Constructor_should_throw_if_readPreference_is_null()
         {
-            Action act = () => new ReadPreferenceBinding(_mockCluster.Object, null);
+            Action act = () => new ReadPreferenceBinding(_mockCluster.Object, null, NoCoreSession.NewHandle());
 
             act.ShouldThrow<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void Constructor_should_throw_if_session_is_null()
+        {
+            Action act = () => new ReadPreferenceBinding(_mockCluster.Object, ReadPreference.Primary, null);
+
+            act.ShouldThrow<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void Session_should_return_expected_result()
+        {
+            var session = new Mock<ICoreSessionHandle>().Object;
+            var subject = new ReadPreferenceBinding(_mockCluster.Object, ReadPreference.Primary, session);
+
+            var result = subject.Session;
+
+            result.Should().BeSameAs(session);
         }
 
         [Theory]
@@ -58,7 +79,7 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)]
             bool async)
         {
-            var subject = new ReadPreferenceBinding(_mockCluster.Object, ReadPreference.Primary);
+            var subject = new ReadPreferenceBinding(_mockCluster.Object, ReadPreference.Primary, NoCoreSession.NewHandle());
             subject.Dispose();
 
             Action act;
@@ -80,7 +101,7 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)]
             bool async)
         {
-            var subject = new ReadPreferenceBinding(_mockCluster.Object, ReadPreference.Primary);
+            var subject = new ReadPreferenceBinding(_mockCluster.Object, ReadPreference.Primary, NoCoreSession.NewHandle());
             var selectedServer = new Mock<IServer>().Object;
 
             if (async)
@@ -101,14 +122,65 @@ namespace MongoDB.Driver.Core.Bindings
             }
         }
 
+        [Theory]
+        [ParameterAttributeData]
+        public void GetReadChannelSource_should_fork_the_session(
+            [Values(false, true)] bool async)
+        {
+            var mockSession = new Mock<ICoreSessionHandle>();
+            var subject = new ReadPreferenceBinding(_mockCluster.Object, ReadPreference.Primary, mockSession.Object);
+            var cancellationToken = new CancellationTokenSource().Token;
+
+            var selectedServer = new Mock<IServer>().Object;
+            _mockCluster.Setup(m => m.SelectServer(It.IsAny<IServerSelector>(), cancellationToken)).Returns(selectedServer);
+            _mockCluster.Setup(m => m.SelectServerAsync(It.IsAny<IServerSelector>(), cancellationToken)).Returns(Task.FromResult(selectedServer));
+            var forkedSession = new Mock<ICoreSessionHandle>().Object;
+            mockSession.Setup(m => m.Fork()).Returns(forkedSession);
+
+            IChannelSourceHandle result;
+            if (async)
+            {
+                result = subject.GetReadChannelSourceAsync(cancellationToken).GetAwaiter().GetResult();
+            }
+            else
+            {
+                result = subject.GetReadChannelSource(cancellationToken);
+            }
+
+            var handle = result.Should().BeOfType<ChannelSourceHandle>().Subject;
+            var referenceCounted = handle._reference().Should().BeOfType<ReferenceCounted<IChannelSource>>().Subject;
+            var source = referenceCounted.Instance;
+            source.Session.Should().BeSameAs(forkedSession);
+        }
+
         [Fact]
         public void Dispose_should_not_call_dispose_on_the_cluster()
         {
-            var subject = new ReadPreferenceBinding(_mockCluster.Object, ReadPreference.Primary);
+            var subject = new ReadPreferenceBinding(_mockCluster.Object, ReadPreference.Primary, NoCoreSession.NewHandle());
 
             subject.Dispose();
 
             _mockCluster.Verify(c => c.Dispose(), Times.Never);
+        }
+
+        [Fact]
+        public void Dispose_should_call_dispose_on_the_session()
+        {
+            var mockSession = new Mock<ICoreSessionHandle>();
+            var subject = new ReadPreferenceBinding(_mockCluster.Object, ReadPreference.Primary, mockSession.Object);
+
+            subject.Dispose();
+
+            mockSession.Verify(c => c.Dispose(), Times.Once);
+        }
+    }
+
+    public static class ReadPreferenceBindingReflector
+    {
+        public static ICluster _cluster(this ReadPreferenceBinding obj)
+        {
+            var fieldInfo = typeof(ReadPreferenceBinding).GetField("_cluster", BindingFlags.NonPublic | BindingFlags.Instance);
+            return (ICluster)fieldInfo.GetValue(obj);
         }
     }
 }

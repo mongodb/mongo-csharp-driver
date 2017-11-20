@@ -1,4 +1,4 @@
-/* Copyright 2013-2016 MongoDB Inc.
+/* Copyright 2013-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -112,7 +112,7 @@ namespace MongoDB.Driver.Core.Operations
                 if (Feature.WriteCommands.IsSupported(channel.ConnectionDescription.ServerVersion) && _writeConcern.IsAcknowledged)
                 {
                     var emulator = CreateEmulator();
-                    return emulator.Execute(channel, cancellationToken);
+                    return emulator.Execute(channel, channelSource.Session, cancellationToken);
                 }
                 else
                 {
@@ -133,7 +133,7 @@ namespace MongoDB.Driver.Core.Operations
                 if (Feature.WriteCommands.IsSupported(channel.ConnectionDescription.ServerVersion) && _writeConcern.IsAcknowledged)
                 {
                     var emulator = CreateEmulator();
-                    return await emulator.ExecuteAsync(channel, cancellationToken).ConfigureAwait(false);
+                    return await emulator.ExecuteAsync(channel, channelSource.Session, cancellationToken).ConfigureAwait(false);
                 }
                 else
                 {

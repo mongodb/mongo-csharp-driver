@@ -1,4 +1,4 @@
-/* Copyright 2013-2016 MongoDB Inc.
+/* Copyright 2013-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -27,15 +27,13 @@ using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class EvalOperationTests
+    public class EvalOperationTests : OperationTestBase
     {
         private DatabaseNamespace _adminDatabaseNamespace;
-        private MessageEncoderSettings _messageEncoderSettings;
 
         public EvalOperationTests()
         {
             _adminDatabaseNamespace = DatabaseNamespace.Admin;
-            _messageEncoderSettings = CoreTestConfiguration.MessageEncoderSettings;
         }
 
         [Fact]
@@ -256,7 +254,7 @@ namespace MongoDB.Driver.Core.Operations
         // private methods
         private BsonValue ExecuteOperation(EvalOperation operation, bool async)
         {
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding(_session.Fork()))
             {
                 return ExecuteOperation(operation, binding, async);
             }

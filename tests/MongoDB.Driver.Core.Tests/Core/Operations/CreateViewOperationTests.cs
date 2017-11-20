@@ -1,4 +1,4 @@
-﻿/* Copyright 2016 MongoDB Inc.
+﻿/* Copyright 2016-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -140,7 +141,7 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new CreateViewOperation(_databaseNamespace, viewName, _collectionNamespace.CollectionName, _pipeline, _messageEncoderSettings);
 
             BsonDocument info;
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding(_session.Fork()))
             {
                 ExecuteOperation(subject, binding, async);
                 info = GetViewInfo(binding, viewName);
@@ -168,7 +169,7 @@ namespace MongoDB.Driver.Core.Operations
             };
 
             BsonDocument info;
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding(_session.Fork()))
             {
                 ExecuteOperation(subject, binding, async);
                 info = GetViewInfo(binding, _viewName);
@@ -203,7 +204,7 @@ namespace MongoDB.Driver.Core.Operations
             };
 
             BsonDocument info;
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
+            using (var binding = CoreTestConfiguration.GetReadWriteBinding(_session.Fork()))
             {
                 ExecuteOperation(subject, binding, async);
                 info = GetViewInfo(binding, viewName);
@@ -230,6 +231,19 @@ namespace MongoDB.Driver.Core.Operations
             var exception = Record.Exception(() => ExecuteOperation(subject, async));
 
             exception.Should().BeOfType<MongoWriteConcernException>();
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_send_session_id_when_supported(
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.Views);
+            var viewName = "view";
+            DropView(viewName);
+            var subject = new CreateViewOperation(_databaseNamespace, viewName, _collectionNamespace.CollectionName, _pipeline, _messageEncoderSettings);
+
+            VerifySessionIdWasSentWhenSupported(subject, "create", async);
         }
 
         [Theory]

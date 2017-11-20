@@ -1,4 +1,4 @@
-﻿/* Copyright 2015-2016 MongoDB Inc.
+﻿/* Copyright 2015-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,13 +15,21 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using Moq;
 using Xunit;
@@ -182,7 +190,106 @@ namespace MongoDB.Driver.Core.Operations
             mockChannelSource.Verify(s => s.Dispose(), Times.Once);
         }
 
+        [Theory]
+        [ParameterAttributeData]
+        public void GetMore_should_use_same_session(
+            [Values(false, true)] bool async)
+        {
+            var mockChannelSource = new Mock<IChannelSource>();
+            var channelSource = mockChannelSource.Object;
+            var mockChannel = new Mock<IChannelHandle>();
+            var channel = mockChannel.Object;
+            var mockSession = new Mock<ICoreSessionHandle>();
+            var session = mockSession.Object;
+            var databaseNamespace = new DatabaseNamespace("database");
+            var collectionNamespace = new CollectionNamespace(databaseNamespace, "collection");
+            var cursorId = 1;
+            var subject = CreateSubject(collectionNamespace: collectionNamespace, cursorId: cursorId, channelSource: Optional.Create(channelSource));
+            var cancellationToken = new CancellationTokenSource().Token;
+            var connectionDescription = CreateConnectionDescriptionSupportingSession();
+
+            mockChannelSource.SetupGet(m => m.Session).Returns(session);
+            mockChannel.SetupGet(m => m.ConnectionDescription).Returns(connectionDescription);
+            var nextBatchBytes = new byte[] { 5, 0, 0, 0, 0 };
+            var nextBatchSlice = new ByteArrayBuffer(nextBatchBytes, isReadOnly: true);
+            var secondBatch = new BsonDocument
+            {
+                { "cursor", new BsonDocument
+                    {
+                        { "id", 0 },
+                        { "nextBatch", new RawBsonArray(nextBatchSlice) }
+                    }
+                }
+            };
+
+            subject.MoveNext(cancellationToken); // skip empty first batch
+            var sameSessionWasUsed = false;
+            if (async)
+            {
+                mockChannelSource.Setup(m => m.GetChannelAsync(cancellationToken)).Returns(Task.FromResult(channel));
+                mockChannel
+                    .Setup(m => m.CommandAsync(
+                        session,
+                        null,
+                        databaseNamespace,
+                        It.IsAny<BsonDocument>(),
+                        NoOpElementNameValidator.Instance,
+                        null,
+                        It.IsAny<Func<CommandResponseHandling>>(),
+                        false,
+                        It.IsAny<IBsonSerializer<BsonDocument>>(),
+                        It.IsAny<MessageEncoderSettings>(),
+                        cancellationToken))
+                    .Callback(() => sameSessionWasUsed = true)
+                    .Returns(Task.FromResult(secondBatch));
+
+                subject.MoveNextAsync(cancellationToken).GetAwaiter().GetResult();
+            }
+            else
+            {
+                mockChannelSource.Setup(m => m.GetChannel(cancellationToken)).Returns(channel);
+                mockChannel
+                    .Setup(m => m.Command(
+                        session,
+                        null,
+                        databaseNamespace,
+                        It.IsAny<BsonDocument>(),
+                        NoOpElementNameValidator.Instance,
+                        null,
+                        It.IsAny<Func<CommandResponseHandling>>(),
+                        false,
+                        It.IsAny<IBsonSerializer<BsonDocument>>(),
+                        It.IsAny<MessageEncoderSettings>(),
+                        cancellationToken))
+                    .Callback(() => sameSessionWasUsed = true)
+                    .Returns(secondBatch);
+
+                subject.MoveNext(cancellationToken);
+            }
+
+            sameSessionWasUsed.Should().BeTrue();
+        }
+
         // private methods
+        private ConnectionDescription CreateConnectionDescriptionSupportingSession()
+        {
+            var clusterId = new ClusterId(1);
+            var endPoint = new DnsEndPoint("localhost", 27017);
+            var serverId = new ServerId(clusterId, endPoint);
+            var connectionId = new ConnectionId(serverId, 1);
+            var isMasterDocument = new BsonDocument
+            {
+                { "logicalSessionTimeoutMinutes", 30 }
+            };
+            var isMasterResult = new IsMasterResult(isMasterDocument);
+            var buildInfoDocument = new BsonDocument
+            {
+                { "version", "3.6.0" }
+            };
+            var buildInfoResult = new BuildInfoResult(buildInfoDocument);
+            return new ConnectionDescription(connectionId, isMasterResult, buildInfoResult);
+        }
+
         private AsyncCursor<BsonDocument> CreateSubject(
             Optional<IChannelSource> channelSource = default(Optional<IChannelSource>),
             Optional<CollectionNamespace> collectionNamespace = default(Optional<CollectionNamespace>),

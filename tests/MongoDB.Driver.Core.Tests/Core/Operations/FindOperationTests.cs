@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2016 MongoDB Inc.
+﻿/* Copyright 2013-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -455,10 +455,12 @@ namespace MongoDB.Driver.Core.Operations
                 BatchSize = 2
             };
 
-            var cursor = ExecuteOperation(subject, async);
-            var result = ReadCursorToEnd(cursor, async);
+            using (var cursor = ExecuteOperation(subject, async))
+            {
+                var result = ReadCursorToEnd(cursor, async);
 
-            result.Should().HaveCount(5);
+                result.Should().HaveCount(5);
+            }
         }
 
         [SkippableTheory]
@@ -564,6 +566,18 @@ namespace MongoDB.Driver.Core.Operations
 
             var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
             argumentNullException.ParamName.Should().Be("binding");
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_send_session_id_when_supported(
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.FindCommand);
+            EnsureTestData();
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+
+            VerifySessionIdWasSentWhenSupported(subject, "find", async);
         }
 
         [Theory]

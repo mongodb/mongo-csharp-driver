@@ -260,6 +260,9 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
                     break;
             }
 
+            massagedCommand.Remove("$clusterTime");
+            massagedCommand.Remove("lsid");
+
             return massagedCommand;
         }
 

@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.Helpers
             _eventSubscriber = eventSubscriber;
         }
 
-        public IClusterableServer CreateServer(ClusterId clusterId, EndPoint endPoint)
+        public IClusterableServer CreateServer(ClusterId clusterId, IClusterClock clusterClock, EndPoint endPoint)
         {
             ServerTuple result;
             if (!_servers.TryGetValue(endPoint, out result))
@@ -69,6 +69,7 @@ namespace MongoDB.Driver.Core.Helpers
                     {
                         Server = new Server(
                             clusterId,
+                            clusterClock,
                             ClusterConnectionMode.Automatic,
                             new ServerSettings(),
                             endPoint,

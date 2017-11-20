@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Tests.Operations
         {
             RequireServer.Check().VersionGreaterThanOrEqualTo("3.1.2");
             var subject = new CurrentOpOperation(_adminDatabaseNamespace, _messageEncoderSettings);
-            using (var binding = new ReadPreferenceBinding(CoreTestConfiguration.Cluster, ReadPreference.PrimaryPreferred))
+            using (var binding = new ReadPreferenceBinding(CoreTestConfiguration.Cluster, ReadPreference.PrimaryPreferred, NoCoreSession.NewHandle()))
             {
                 var result = subject.Execute(binding);
 

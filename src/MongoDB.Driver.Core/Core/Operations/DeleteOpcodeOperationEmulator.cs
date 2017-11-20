@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // public methods
-        public WriteConcernResult Execute(IChannelHandle channel, CancellationToken cancellationToken)
+        public WriteConcernResult Execute(IChannelHandle channel, ICoreSessionHandle session, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(channel, nameof(channel));
 
@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Core.Operations
             MongoBulkWriteOperationException exception = null;
             try
             {
-                result = operation.Execute(channel, cancellationToken);
+                result = operation.Execute(channel, session, cancellationToken);
             }
             catch (MongoBulkWriteOperationException ex)
             {
@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Core.Operations
             return CreateResultOrThrow(channel, result, exception);
         }
 
-        public async Task<WriteConcernResult> ExecuteAsync(IChannelHandle channel, CancellationToken cancellationToken)
+        public async Task<WriteConcernResult> ExecuteAsync(IChannelHandle channel, ICoreSessionHandle session, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(channel, nameof(channel));
 
@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Core.Operations
             MongoBulkWriteOperationException exception = null;
             try
             {
-                result = await operation.ExecuteAsync(channel, cancellationToken).ConfigureAwait(false);
+                result = await operation.ExecuteAsync(channel, session, cancellationToken).ConfigureAwait(false);
             }
             catch (MongoBulkWriteOperationException ex)
             {

@@ -23,6 +23,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\MongoDB.Driver.Core.XML</DocumentationFile>
+    <LangVersion>6</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -32,6 +33,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\MongoDB.Driver.Core.XML</DocumentationFile>
+    <LangVersion>6</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -83,6 +85,11 @@
     <Compile Include="Core\Bindings\ChannelReadBinding.cs" />
     <Compile Include="Core\Bindings\ChannelReadWriteBinding.cs" />
     <Compile Include="Core\Bindings\ChannelSourceReadWriteBinding.cs" />
+    <Compile Include="Core\Bindings\CoreSessionHandle.cs" />
+    <Compile Include="Core\Bindings\ICoreSession.cs" />
+    <Compile Include="Core\Bindings\NoCoreSession.cs" />
+    <Compile Include="Core\Bindings\ReferenceCountedCoreSession.cs" />
+    <Compile Include="Core\Bindings\WrappingCoreSession.cs" />
     <Compile Include="Core\Connections\ClientDocumentHelper.cs" />
     <Compile Include="Core\Misc\ArrayFiltersFeature.cs" />
     <Compile Include="Core\Misc\CachedEnumerable.cs" />
@@ -95,9 +102,14 @@
     <Compile Include="Core\Misc\TaskExtensions.cs" />
     <Compile Include="Core\Operations\ChangeStreamCursor.cs" />
     <Compile Include="Core\Operations\ChangeStreamOperation.cs" />
+    <Compile Include="Core\Clusters\ClusterClock.cs" />
     <Compile Include="Core\Operations\CreateViewOperation.cs" />
+    <Compile Include="Core\Clusters\IClusterClock.cs" />
+    <Compile Include="Core\Operations\IOperationClock.cs" />
+    <Compile Include="Core\Operations\OperationClock.cs" />
     <Compile Include="Core\Operations\ReIndexOperation.cs" />
     <Compile Include="Core\Operations\WriteConcernErrorHelper.cs" />
+    <Compile Include="Core\Servers\ClusterClockAdvancingCoreSession.cs" />
     <Compile Include="Core\Servers\IServerMonitor.cs" />
     <Compile Include="Core\Servers\IServerMonitorFactory.cs" />
     <Compile Include="Core\Servers\ServerMonitorFactory.cs" />

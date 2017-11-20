@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -39,7 +40,17 @@ namespace MongoDB.Driver.Core.Bindings
         [Fact]
         public void Constructor_should_throw_if_cluster_is_null()
         {
-            Action act = () => new WritableServerBinding(null);
+            Action act = () => new WritableServerBinding(null, NoCoreSession.NewHandle());
+
+            act.ShouldThrow<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void Constructor_should_throw_if_session_is_null()
+        {
+            var cluster = new Mock<ICluster>().Object;
+
+            Action act = () => new WritableServerBinding(cluster, null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -47,9 +58,21 @@ namespace MongoDB.Driver.Core.Bindings
         [Fact]
         public void ReadPreference_should_be_primary()
         {
-            var subject = new WritableServerBinding(_mockCluster.Object);
+            var subject = new WritableServerBinding(_mockCluster.Object, NoCoreSession.NewHandle());
 
             subject.ReadPreference.Should().Be(ReadPreference.Primary);
+        }
+
+        [Fact]
+        public void Session_should_return_expected_result()
+        {
+            var cluster = new Mock<ICluster>().Object;
+            var session = new Mock<ICoreSessionHandle>().Object;
+            var subject = new WritableServerBinding(cluster, session);
+
+            var result = subject.Session;
+
+            result.Should().BeSameAs(session);
         }
 
         [Theory]
@@ -58,7 +81,7 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)]
             bool async)
         {
-            var subject = new WritableServerBinding(_mockCluster.Object);
+            var subject = new WritableServerBinding(_mockCluster.Object, NoCoreSession.NewHandle());
             subject.Dispose();
 
             Action act;
@@ -80,7 +103,7 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)]
             bool async)
         {
-            var subject = new WritableServerBinding(_mockCluster.Object);
+            var subject = new WritableServerBinding(_mockCluster.Object, NoCoreSession.NewHandle());
             var selectedServer = new Mock<IServer>().Object;
 
             if (async)
@@ -107,7 +130,7 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)]
             bool async)
         {
-            var subject = new WritableServerBinding(_mockCluster.Object);
+            var subject = new WritableServerBinding(_mockCluster.Object, NoCoreSession.NewHandle());
             subject.Dispose();
 
             Action act;
@@ -129,7 +152,7 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)]
             bool async)
         {
-            var subject = new WritableServerBinding(_mockCluster.Object);
+            var subject = new WritableServerBinding(_mockCluster.Object, NoCoreSession.NewHandle());
             var selectedServer = new Mock<IServer>().Object;
 
             if (async)
@@ -151,13 +174,24 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         [Fact]
-        public void Dispose_should_call_dispose_on_read_binding_and_write_binding()
+        public void Dispose_should_call_dispose_on_owned_resources()
         {
-            var subject = new WritableServerBinding(_mockCluster.Object);
+            var mockSession = new Mock<ICoreSessionHandle>();
+            var subject = new WritableServerBinding(_mockCluster.Object, mockSession.Object);
 
             subject.Dispose();
 
             _mockCluster.Verify(c => c.Dispose(), Times.Never);
+            mockSession.Verify(m => m.Dispose(), Times.Once);
+        }
+    }
+
+    public static class WritableServerBindingReflector
+    {
+        public static ICluster _cluster(this WritableServerBinding obj)
+        {
+            var fieldInfo = typeof(WritableServerBinding).GetField("_cluster", BindingFlags.NonPublic | BindingFlags.Instance);
+            return (ICluster)fieldInfo.GetValue(obj);
         }
     }
 }

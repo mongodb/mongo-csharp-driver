@@ -43,6 +43,7 @@
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>6</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -107,6 +108,9 @@
     <Compile Include="AggregateFluentGraphLookupWithAirportsCollectionTests.cs" />
     <Compile Include="AsyncCursorHelperTests.cs" />
     <Compile Include="BulkWriteErrorTests.cs" />
+    <Compile Include="ClientSessionHandleTests.cs" />
+    <Compile Include="ClientSessionTests.cs" />
+    <Compile Include="ClientSessionWrappingCoreSessionTests.cs" />
     <Compile Include="CreateViewOptionsTests.cs" />
     <Compile Include="FieldDefinitionTests.cs" />
     <Compile Include="FilterDefinitionBuilderEnumComparedToEnumWithStringRepresentationTests.cs" />
@@ -138,6 +142,7 @@
     <Compile Include="Linq\MongoQueryableIntComparedToDoubleWithStringRepresentationTests.cs" />
     <Compile Include="Linq\MongoQueryableIntComparedToNullableIntWithStringRepresentationTests.cs" />
     <Compile Include="Linq\MongoQueryableNullableEnumComparedToNullableEnumWithStringRepresentationTests.cs" />
+    <Compile Include="Linq\MongoQueryProviderImplTests.cs" />
     <Compile Include="Linq\MongoQueryableWithDotNotationTests.cs" />
     <Compile Include="Linq\Translators\AggregateGroupTranslatorTests.cs" />
     <Compile Include="Linq\Translators\AggregateProjectTranslatorTests.cs" />
@@ -148,12 +153,16 @@
     <Compile Include="Linq\Translators\PredicateValueConversionTests.cs" />
     <Compile Include="Linq\Translators\PredicateTranslatorTests.cs" />
     <Compile Include="Linq\MongoQueryableNullableEnumComparedToNullableEnumTests.cs" />
+    <Compile Include="NoServerSessionTests.cs" />
     <Compile Include="OfTypeMongoCollectionTests.cs" />
     <Compile Include="PipelineDefinitionBuilderTests.cs" />
     <Compile Include="PipelineDefinitionTests.cs" />
     <Compile Include="PipelineStageDefinitionBuilderTests.cs" />
     <Compile Include="ProjectionDefinitionBuilderTests.cs" />
     <Compile Include="IndexKeysDefinitionBuilderTests.cs" />
+    <Compile Include="ReferenceCountedClientSessionTests.cs" />
+    <Compile Include="ServerSessionPoolTests.cs" />
+    <Compile Include="ServerSessionTests.cs" />
     <Compile Include="SortDefinitionBuilderTests.cs" />
     <Compile Include="Specifications\command-monitoring\CountTest.cs" />
     <Compile Include="Specifications\command-monitoring\BulkWriteTest.cs" />
@@ -194,6 +203,8 @@
     <Compile Include="Specifications\crud\CountTest.cs" />
     <Compile Include="Specifications\crud\AggregateTest.cs" />
     <Compile Include="Specifications\crud\ICrudOperationTest.cs" />
+    <Compile Include="WrappingClientSessionTests.cs" />
+    <Compile Include="WrappingServerSessionTests.cs" />
     <Compile Include="WriteModelTests.cs" />
     <Compile Include="BulkWriteResultTests.cs" />
     <Compile Include="ClusterKeyTests.cs" />

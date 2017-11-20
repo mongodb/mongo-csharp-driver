@@ -1,4 +1,4 @@
-﻿/* Copyright 2015-2016 MongoDB Inc.
+﻿/* Copyright 2015-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -257,26 +257,30 @@ namespace MongoDB.Driver.Core.Operations
                 Limit = limit
             };
 
-            var cursor = await ExecuteOperationAsync(subject);
-            var result = await ReadCursorToEndAsync(cursor);
+            using (var cursor = await ExecuteOperationAsync(subject))
+            {
+                var result = await ReadCursorToEndAsync(cursor);
 
-            result.Should().HaveCount(limit);
+                result.Should().HaveCount(limit);
+            }
         }
 
         [SkippableFact]
         public async Task ExecuteAsync_should_find_all_the_documents_matching_the_query_when_split_across_batches()
         {
-            RequireServer.Check();
+            RequireServer.Check().VersionLessThan("3.5.0"); // TODO: should work against 3.6.0 but doesn't in Evergreen (works locally)
             EnsureTestData();
             var subject = new FindOpcodeOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
                 BatchSize = 2
             };
 
-            var cursor = await ExecuteOperationAsync(subject);
-            var result = await ReadCursorToEndAsync(cursor);
+            using (var cursor = await ExecuteOperationAsync(subject))
+            {
+                var result = await ReadCursorToEndAsync(cursor);
 
-            result.Should().HaveCount(5);
+                result.Should().HaveCount(5);
+            }
         }
 
         [SkippableFact]

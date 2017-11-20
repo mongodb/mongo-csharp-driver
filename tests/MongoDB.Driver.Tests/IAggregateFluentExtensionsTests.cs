@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -565,7 +565,7 @@ namespace MongoDB.Driver.Tests
         private IAggregateFluent<Person> CreateSubject(CancellationToken cancellationToken = default(CancellationToken))
         {
             var collection = CreateCollection<Person>();
-            return new AggregateFluent<Person, Person>(collection, new EmptyPipelineDefinition<Person>(), new AggregateOptions());
+            return new AggregateFluent<Person, Person>(null, collection, new EmptyPipelineDefinition<Person>(), new AggregateOptions());
         }
 
         private IMongoCollection<T> CreateCollection<T>()

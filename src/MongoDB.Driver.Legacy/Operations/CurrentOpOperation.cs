@@ -1,4 +1,4 @@
-﻿/* Copyright 2015 MongoDB Inc.
+﻿/* Copyright 2015-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Operations
         {
             using (var channelSource = binding.GetReadChannelSource(cancellationToken))
             using (var channel = channelSource.GetChannel(cancellationToken))
-            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference))
+            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
             {
                 var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
                 return operation.Execute(channelBinding, cancellationToken);

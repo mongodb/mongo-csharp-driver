@@ -29,7 +29,6 @@ namespace MongoDB.Bson.IO
     {
         // private fields
         private TextWriter _textWriter;
-        private JsonWriterSettings _jsonWriterSettings; // same value as in base class just declared as derived class
         private JsonWriterContext _context;
 
         // constructors
@@ -56,7 +55,6 @@ namespace MongoDB.Bson.IO
             }
 
             _textWriter = writer;
-            _jsonWriterSettings = settings; // already frozen by base class
             _context = new JsonWriterContext(null, ContextType.TopLevel, "");
             State = BsonWriterState.Initial;
         }
@@ -71,6 +69,15 @@ namespace MongoDB.Bson.IO
         public TextWriter BaseTextWriter
         {
             get { return _textWriter; }
+        }
+
+        /// <inheritdoc />
+        public override long Position => 0L;
+
+        /// <inheritdoc />
+        public new JsonWriterSettings Settings
+        {
+            get { return (JsonWriterSettings)base.Settings; }
         }
 
         // public methods
@@ -114,7 +121,7 @@ namespace MongoDB.Bson.IO
             var guidRepresentation = binaryData.GuidRepresentation;
 
             WriteNameHelper(Name);
-            switch (_jsonWriterSettings.OutputMode)
+            switch (Settings.OutputMode)
             {
                 case JsonOutputMode.Strict:
                     _textWriter.Write("{{ \"$binary\" : \"{0}\", \"$type\" : \"{1}\" }}", Convert.ToBase64String(bytes), ((int)subType).ToString("x2"));
@@ -179,7 +186,7 @@ namespace MongoDB.Bson.IO
             }
 
             WriteNameHelper(Name);
-            switch (_jsonWriterSettings.OutputMode)
+            switch (Settings.OutputMode)
             {
                 case JsonOutputMode.Strict:
                     _textWriter.Write("{{ \"$date\" : {0} }}", value);
@@ -214,7 +221,7 @@ namespace MongoDB.Bson.IO
             }
 
             WriteNameHelper(Name);
-            switch (_jsonWriterSettings.OutputMode)
+            switch (Settings.OutputMode)
             {
                 case JsonOutputMode.Shell:
                     _textWriter.Write("NumberDecimal(\"{0}\")", value.ToString());
@@ -283,9 +290,9 @@ namespace MongoDB.Bson.IO
             }
 
             base.WriteEndDocument();
-            if (_jsonWriterSettings.Indent && _context.HasElements)
+            if (Settings.Indent && _context.HasElements)
             {
-                _textWriter.Write(_jsonWriterSettings.NewLineChars);
+                _textWriter.Write(Settings.NewLineChars);
                 if (_context.ParentContext != null)
                 {
                     _textWriter.Write(_context.ParentContext.Indentation);
@@ -348,7 +355,7 @@ namespace MongoDB.Bson.IO
             }
 
             WriteNameHelper(Name);
-            switch (_jsonWriterSettings.OutputMode)
+            switch (Settings.OutputMode)
             {
                 case JsonOutputMode.Strict:
                     _textWriter.Write(value);
@@ -420,7 +427,7 @@ namespace MongoDB.Bson.IO
             }
 
             WriteNameHelper(Name);
-            switch (_jsonWriterSettings.OutputMode)
+            switch (Settings.OutputMode)
             {
                 case JsonOutputMode.Strict:
                     _textWriter.Write("{ \"$maxKey\" : 1 }");
@@ -447,7 +454,7 @@ namespace MongoDB.Bson.IO
             }
 
             WriteNameHelper(Name);
-            switch (_jsonWriterSettings.OutputMode)
+            switch (Settings.OutputMode)
             {
                 case JsonOutputMode.Strict:
                     _textWriter.Write("{ \"$minKey\" : 1 }");
@@ -492,7 +499,7 @@ namespace MongoDB.Bson.IO
             }
 
             WriteNameHelper(Name);
-            switch (_jsonWriterSettings.OutputMode)
+            switch (Settings.OutputMode)
             {
                 case JsonOutputMode.Strict:
                     _textWriter.Write("{{ \"$oid\" : \"{0}\" }}", objectId.ToString());
@@ -523,7 +530,7 @@ namespace MongoDB.Bson.IO
             var options = regex.Options;
 
             WriteNameHelper(Name);
-            switch (_jsonWriterSettings.OutputMode)
+            switch (Settings.OutputMode)
             {
                 case JsonOutputMode.Strict:
                     _textWriter.Write("{{ \"$regex\" : \"{0}\", \"$options\" : \"{1}\" }}", EscapedString(pattern), EscapedString(options));
@@ -554,7 +561,7 @@ namespace MongoDB.Bson.IO
             WriteNameHelper(Name);
             _textWriter.Write("[");
 
-            _context = new JsonWriterContext(_context, ContextType.Array, _jsonWriterSettings.IndentChars);
+            _context = new JsonWriterContext(_context, ContextType.Array, Settings.IndentChars);
             State = BsonWriterState.Value;
         }
 
@@ -577,7 +584,7 @@ namespace MongoDB.Bson.IO
             _textWriter.Write("{");
 
             var contextType = (State == BsonWriterState.ScopeDocument) ? ContextType.ScopeDocument : ContextType.Document;
-            _context = new JsonWriterContext(_context, contextType, _jsonWriterSettings.IndentChars);
+            _context = new JsonWriterContext(_context, contextType, Settings.IndentChars);
             State = BsonWriterState.Name;
         }
 
@@ -633,7 +640,7 @@ namespace MongoDB.Bson.IO
             var increment = (int)(value & 0xffffffff);
 
             WriteNameHelper(Name);
-            switch (_jsonWriterSettings.OutputMode)
+            switch (Settings.OutputMode)
             {
                 case JsonOutputMode.Strict:
                     _textWriter.Write("{{ \"$timestamp\" : {{ \"t\" : {0}, \"i\" : {1} }} }}", secondsSinceEpoch, increment);
@@ -660,7 +667,7 @@ namespace MongoDB.Bson.IO
             }
 
             WriteNameHelper(Name);
-            switch (_jsonWriterSettings.OutputMode)
+            switch (Settings.OutputMode)
             {
                 case JsonOutputMode.Strict:
                     _textWriter.Write("{ \"$undefined\" : true }");
@@ -867,9 +874,9 @@ namespace MongoDB.Bson.IO
                     {
                         _textWriter.Write(",");
                     }
-                    if (_jsonWriterSettings.Indent)
+                    if (Settings.Indent)
                     {
-                        _textWriter.Write(_jsonWriterSettings.NewLineChars);
+                        _textWriter.Write(Settings.NewLineChars);
                         _textWriter.Write(_context.Indentation);
                     }
                     else

@@ -1,4 +1,4 @@
-/* Copyright 2013-2016 MongoDB Inc.
+/* Copyright 2013-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -29,19 +29,8 @@ using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class DropCollectionOperationTests
+    public class DropCollectionOperationTests : OperationTestBase
     {
-        // fields
-        private CollectionNamespace _collectionNamespace;
-        private MessageEncoderSettings _messageEncoderSettings;
-
-        // constructor
-        public DropCollectionOperationTests()
-        {
-            _collectionNamespace = CoreTestConfiguration.GetCollectionNamespaceForTestClass(typeof(DropCollectionOperationTests));
-            _messageEncoderSettings = CoreTestConfiguration.MessageEncoderSettings;
-        }
-
         // test methods
         [Fact]
         public void CollectionNamespace_get_should_return_expected_result()
@@ -160,6 +149,18 @@ namespace MongoDB.Driver.Core.Operations
             exception.Should().BeOfType<MongoWriteConcernException>();
         }
 
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_send_session_id_when_supported(
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check();
+            EnsureCollectionExists();
+            var subject = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings);
+
+            VerifySessionIdWasSentWhenSupported(subject, "drop", async);
+        }
+
         [Fact]
         public void MessageEncoderSettings_get_should_return_expected_result()
         {
@@ -186,32 +187,11 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // private methods
-        private void DropCollection()
-        {
-            var operation = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings);
-            ExecuteOperation(operation, false);
-        }
-
         private void EnsureCollectionExists()
         {
             DropCollection();
             var operation = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
             ExecuteOperation(operation, false);
-        }
-
-        private TResult ExecuteOperation<TResult>(IWriteOperation<TResult> operation, bool async)
-        {
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding())
-            {
-                if (async)
-                {
-                    return operation.ExecuteAsync(binding, CancellationToken.None).GetAwaiter().GetResult();
-                }
-                else
-                {
-                    return operation.Execute(binding, CancellationToken.None);
-                }
-            }
         }
     }
 }

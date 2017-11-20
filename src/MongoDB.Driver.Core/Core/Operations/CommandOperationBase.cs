@@ -144,44 +144,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        private BsonDocument CreateWrappedCommand(ServerDescription serverDescription, ReadPreference readPreference)
+        private TCommandResult ExecuteProtocol(IChannelHandle channel, ICoreSessionHandle session, ReadPreference readPreference, CancellationToken cancellationToken)
         {
-            BsonDocument readPreferenceDocument = null;
-            if (serverDescription.Type == ServerType.ShardRouter)
-            {
-                readPreferenceDocument = QueryHelper.CreateReadPreferenceDocument(serverDescription.Type, readPreference);
-            }
-
-            var wrappedCommand = new BsonDocument
-            {
-                { "$query", _command },
-                { "$readPreference", readPreferenceDocument, readPreferenceDocument != null },
-                { "$comment", () => _comment, _comment != null }
-            };
-            if (_additionalOptions != null)
-            {
-                wrappedCommand.Merge(_additionalOptions, overwriteExistingElements: false);
-            }
-
-            if (wrappedCommand.ElementCount == 1)
-            {
-                return _command;
-            }
-            else
-            {
-                return wrappedCommand;
-            }
-        }
-
-        private TCommandResult ExecuteProtocol(IChannelHandle channel, ServerDescription serverDescription, ReadPreference readPreference, CancellationToken cancellationToken)
-        {
-            var wrappedCommand = CreateWrappedCommand(serverDescription, readPreference);
             var slaveOk = readPreference != null && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
+            var additionalOptions = GetEffectiveAdditionalOptions();
 
-            return channel.Command<TCommandResult>(
+            return channel.Command(
+                session,
+                readPreference,
                 _databaseNamespace,
-                wrappedCommand,
+                _command,
                 _commandValidator,
+                additionalOptions,
                 () => CommandResponseHandling.Return,
                 slaveOk,
                 _resultSerializer,
@@ -193,29 +167,36 @@ namespace MongoDB.Driver.Core.Operations
         /// Executes the protocol.
         /// </summary>
         /// <param name="channelSource">The channel source.</param>
+        /// <param name="session">The session.</param>
         /// <param name="readPreference">The read preference.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task whose result is the command result.</returns>
+        /// <returns>
+        /// A Task whose result is the command result.
+        /// </returns>
         protected TCommandResult ExecuteProtocol(
             IChannelSource channelSource,
+            ICoreSessionHandle session,
             ReadPreference readPreference,
             CancellationToken cancellationToken)
         {
             using (var channel = channelSource.GetChannel(cancellationToken))
             {
-                return ExecuteProtocol(channel, channelSource.ServerDescription, readPreference, cancellationToken);
+                return ExecuteProtocol(channel, session, readPreference, cancellationToken);
             }
         }
 
-        private Task<TCommandResult> ExecuteProtocolAsync(IChannelHandle channel, ServerDescription serverDescription, ReadPreference readPreference, CancellationToken cancellationToken)
+        private Task<TCommandResult> ExecuteProtocolAsync(IChannelHandle channel, ICoreSessionHandle session, ReadPreference readPreference, CancellationToken cancellationToken)
         {
-            var wrappedCommand = CreateWrappedCommand(serverDescription, readPreference);
             var slaveOk = readPreference != null && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
+            var additionalOptions = GetEffectiveAdditionalOptions();
 
-            return channel.CommandAsync<TCommandResult>(
+            return channel.CommandAsync(
+                session,
+                readPreference,
                 _databaseNamespace,
-                wrappedCommand,
+                _command,
                 _commandValidator,
+                additionalOptions,
                 () => CommandResponseHandling.Return,
                 slaveOk,
                 _resultSerializer,
@@ -227,17 +208,44 @@ namespace MongoDB.Driver.Core.Operations
         /// Executes the protocol.
         /// </summary>
         /// <param name="channelSource">The channel source.</param>
+        /// <param name="session">The session.</param>
         /// <param name="readPreference">The read preference.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task whose result is the command result.</returns>
+        /// <returns>
+        /// A Task whose result is the command result.
+        /// </returns>
         protected async Task<TCommandResult> ExecuteProtocolAsync(
             IChannelSource channelSource,
+            ICoreSessionHandle session,
             ReadPreference readPreference,
             CancellationToken cancellationToken)
         {
             using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             {
-                return await ExecuteProtocolAsync(channel, channelSource.ServerDescription, readPreference, cancellationToken).ConfigureAwait(false);
+                return await ExecuteProtocolAsync(channel, session, readPreference, cancellationToken).ConfigureAwait(false);
+            }
+        }
+
+        // private methods
+        private BsonDocument GetEffectiveAdditionalOptions()
+        {
+            if (_additionalOptions == null && _comment == null)
+            {
+                return null;
+            }
+            else if (_additionalOptions != null && _comment == null)
+            {
+                return _additionalOptions;
+            }
+            else if (_additionalOptions == null && _comment != null)
+            {
+                return new BsonDocument("$comment", _comment);
+            }
+            else
+            {
+                var additionalOptions = new BsonDocument("$comment", _comment);
+                additionalOptions.Merge(_additionalOptions, overwriteExistingElements: false);
+                return additionalOptions;
             }
         }
     }

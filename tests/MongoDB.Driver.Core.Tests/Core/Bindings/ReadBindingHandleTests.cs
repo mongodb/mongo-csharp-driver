@@ -17,7 +17,6 @@ using System;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.Bindings;
 using Moq;
 using Xunit;
 
@@ -38,6 +37,16 @@ namespace MongoDB.Driver.Core.Bindings
             Action act = () => new ReadBindingHandle(null);
 
             act.ShouldThrow<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void Session_should_delegate_to_reference()
+        {
+            var subject = new ReadBindingHandle(_mockReadBinding.Object);
+
+            var result = subject.Session;
+
+            _mockReadBinding.Verify(m => m.Session, Times.Once);
         }
 
         [Theory]

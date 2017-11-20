@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -294,7 +294,7 @@ namespace MongoDB.Driver
             var operation = new PingOperation(messageEncoderSettings);
 
             var server = GetServer();
-            using (var binding = new SingleServerReadBinding(server, ReadPreference.PrimaryPreferred))
+            using (var binding = new SingleServerReadBinding(server, ReadPreference.PrimaryPreferred, NoCoreSession.NewHandle()))
             {
                 operation.Execute(binding, CancellationToken.None);
             }

@@ -403,6 +403,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(0, _collection.Count());
         }
 
+#pragma warning disable 618
         [Fact]
         public void TestConstructorArgumentChecking()
         {
@@ -412,6 +413,7 @@ namespace MongoDB.Driver.Tests
             Assert.Throws<ArgumentNullException>(() => { new MongoCollection<BsonDocument>(_database, "name", null); });
             Assert.Throws<ArgumentOutOfRangeException>(() => { new MongoCollection<BsonDocument>(_database, "", settings); });
         }
+#pragma warning disable
 
         [Fact]
         public void TestCountZero()
