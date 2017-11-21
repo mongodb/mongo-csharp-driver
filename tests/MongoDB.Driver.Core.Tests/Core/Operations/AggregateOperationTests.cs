@@ -177,7 +177,10 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings);
             var serverVersion = Feature.AggregateCursorResult.SupportedOrNotSupportedVersion(useServerVersionSupportingAggregateCursorResult);
 
-            var result = subject.CreateCommand(serverVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion);
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
 
             var expectedResult = new BsonDocument
             {
@@ -199,7 +202,10 @@ namespace MongoDB.Driver.Core.Operations
                 AllowDiskUse = allowDiskUse
             };
 
-            var result = subject.CreateCommand(Feature.AggregateCursorResult.FirstSupportedVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.AggregateCursorResult.FirstSupportedVersion);
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
 
             var expectedResult = new BsonDocument
             {
@@ -225,7 +231,10 @@ namespace MongoDB.Driver.Core.Operations
             };
             var serverVersion = Feature.AggregateCursorResult.SupportedOrNotSupportedVersion(useServerVersionSupportingAggregateCursorResult);
 
-            var result = subject.CreateCommand(serverVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion);
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
 
             BsonDocument cursor = null;
             if (Feature.AggregateCursorResult.IsSupported(serverVersion))
@@ -256,7 +265,10 @@ namespace MongoDB.Driver.Core.Operations
                 Collation = collation
             };
 
-            var result = subject.CreateCommand(Feature.Collation.FirstSupportedVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.Collation.FirstSupportedVersion);
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
 
             var expectedResult = new BsonDocument
             {
@@ -276,7 +288,10 @@ namespace MongoDB.Driver.Core.Operations
                 Collation = new Collation("en_US")
             };
 
-            var exception = Record.Exception(() => subject.CreateCommand(Feature.Collation.LastNotSupportedVersion));
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.Collation.LastNotSupportedVersion);
+            var session = OperationTestHelper.CreateSession();
+
+            var exception = Record.Exception(() => subject.CreateCommand(connectionDescription, session));
 
             exception.Should().BeOfType<NotSupportedException>();
         }
@@ -293,7 +308,10 @@ namespace MongoDB.Driver.Core.Operations
                 MaxTime = maxTime
             };
 
-            var result = subject.CreateCommand(Feature.AggregateCursorResult.FirstSupportedVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.AggregateCursorResult.FirstSupportedVersion);
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
 
             var expectedResult = new BsonDocument
             {
@@ -317,7 +335,10 @@ namespace MongoDB.Driver.Core.Operations
                 ReadConcern = readConcern
             };
 
-            var result = subject.CreateCommand(Feature.ReadConcern.FirstSupportedVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.ReadConcern.FirstSupportedVersion);
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
 
             var expectedResult = new BsonDocument
             {
@@ -337,9 +358,42 @@ namespace MongoDB.Driver.Core.Operations
                 ReadConcern = new ReadConcern(ReadConcernLevel.Linearizable)
             };
 
-            var exception = Record.Exception(() => subject.CreateCommand(Feature.ReadConcern.LastNotSupportedVersion));
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.ReadConcern.LastNotSupportedVersion);
+            var session = OperationTestHelper.CreateSession();
+
+            var exception = Record.Exception(() => subject.CreateCommand(connectionDescription, session));
 
             exception.Should().BeOfType<MongoClientException>();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_the_expected_result_when_using_causal_consistency(
+            [Values(null, ReadConcernLevel.Linearizable)]
+            ReadConcernLevel? level)
+        {
+            var readConcern = new ReadConcern(level);
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
+            {
+                ReadConcern = readConcern
+            };
+
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.ReadConcern.FirstSupportedVersion, supportsSessions: true);
+            var session = OperationTestHelper.CreateSession(true, new BsonTimestamp(100));
+
+            var result = subject.CreateCommand(connectionDescription, session);
+
+            var expectedReadConcernDocument = readConcern.ToBsonDocument();
+            expectedReadConcernDocument["afterClusterTime"] = new BsonTimestamp(100);
+
+            var expectedResult = new BsonDocument
+            {
+                { "aggregate", _collectionNamespace.CollectionName },
+                { "pipeline", new BsonArray(__pipeline) },
+                { "readConcern", expectedReadConcernDocument },
+                { "cursor", new BsonDocument() }
+            };
+            result.Should().Be(expectedResult);
         }
 
         [Theory]
@@ -356,7 +410,10 @@ namespace MongoDB.Driver.Core.Operations
             };
             var serverVersion = Feature.AggregateCursorResult.SupportedOrNotSupportedVersion(useServerVersionSupportingAggregateCursorResult);
 
-            var result = subject.CreateCommand(serverVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion);
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
 
             var expectedResult = new BsonDocument
             {

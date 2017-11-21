@@ -18,6 +18,8 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
@@ -223,11 +225,12 @@ namespace MongoDB.Driver.Core.Operations
         /// <summary>
         /// Creates the command.
         /// </summary>
-        /// <param name="serverVersion">The server version.</param>
+        /// <param name="connectionDescription">The connection description.</param>
+        /// <param name="session">The session.</param>
         /// <returns>The command.</returns>
-        protected internal virtual BsonDocument CreateCommand(SemanticVersion serverVersion)
+        protected internal virtual BsonDocument CreateCommand(ConnectionDescription connectionDescription, ICoreSession session)
         {
-            Feature.Collation.ThrowIfNotSupported(serverVersion, _collation);
+            Feature.Collation.ThrowIfNotSupported(connectionDescription.ServerVersion, _collation);
 
             return new BsonDocument
             {

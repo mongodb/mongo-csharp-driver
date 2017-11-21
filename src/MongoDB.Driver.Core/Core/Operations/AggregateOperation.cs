@@ -23,6 +23,7 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -202,7 +203,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var channel = channelSource.GetChannel(cancellationToken))
             using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
             {
-                var operation = CreateOperation(channel);
+                var operation = CreateOperation(channel, channelBinding);
                 var result = operation.Execute(channelBinding, cancellationToken);
                 return CreateCursor(channelSource, channel, operation.Command, result);
             }
@@ -219,7 +220,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
             {
-                var operation = CreateOperation(channel);
+                var operation = CreateOperation(channel, channelBinding);
                 var result = await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
                 return CreateCursor(channelSource, channel, operation.Command, result);
             }
@@ -240,10 +241,10 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        internal BsonDocument CreateCommand(SemanticVersion serverVersion)
+        internal BsonDocument CreateCommand(ConnectionDescription connectionDescription, ICoreSession session)
         {
-            Feature.ReadConcern.ThrowIfNotSupported(serverVersion, _readConcern);
-            Feature.Collation.ThrowIfNotSupported(serverVersion, _collation);
+            Feature.ReadConcern.ThrowIfNotSupported(connectionDescription.ServerVersion, _readConcern);
+            Feature.Collation.ThrowIfNotSupported(connectionDescription.ServerVersion, _collation);
 
             var command = new BsonDocument
             {
@@ -251,13 +252,14 @@ namespace MongoDB.Driver.Core.Operations
                 { "pipeline", new BsonArray(_pipeline) },
                 { "allowDiskUse", () => _allowDiskUse.Value, _allowDiskUse.HasValue },
                 { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
-                { "readConcern", () => _readConcern.ToBsonDocument(), !_readConcern.IsServerDefault },
                 { "collation", () => _collation.ToBsonDocument(), _collation != null }
             };
 
-            if (Feature.AggregateCursorResult.IsSupported(serverVersion))
+            ReadConcernHelper.AppendReadConcern(command, _readConcern, connectionDescription, session);
+
+            if (Feature.AggregateCursorResult.IsSupported(connectionDescription.ServerVersion))
             {
-                var useCursor = _useCursor.GetValueOrDefault(true) || serverVersion >= new SemanticVersion(3, 5, 0);
+                var useCursor = _useCursor.GetValueOrDefault(true) || connectionDescription.ServerVersion >= new SemanticVersion(3, 5, 0);
                 if (useCursor)
                 {
                     command["cursor"] = new BsonDocument
@@ -270,9 +272,9 @@ namespace MongoDB.Driver.Core.Operations
             return command;
         }
 
-        private ReadCommandOperation<AggregateResult> CreateOperation(IChannelHandle channel)
+        private ReadCommandOperation<AggregateResult> CreateOperation(IChannel channel, IBinding binding)
         {
-            var command = CreateCommand(channel.ConnectionDescription.ServerVersion);
+            var command = CreateCommand(channel.ConnectionDescription, binding.Session);
             var serializer = new AggregateResultDeserializer(_resultSerializer);
             return new ReadCommandOperation<AggregateResult>(CollectionNamespace.DatabaseNamespace, command, serializer, MessageEncoderSettings);
         }

@@ -50,6 +50,8 @@ namespace MongoDB.Driver.Core
 
         public BsonDocument Id => _id;
 
+        public bool IsCausallyConsistent => false;
+
         public bool IsImplicit => false;
 
         public BsonTimestamp OperationTime => _operationClock.OperationTime;

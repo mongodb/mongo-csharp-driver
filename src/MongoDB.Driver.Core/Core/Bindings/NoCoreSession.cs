@@ -55,6 +55,9 @@ namespace MongoDB.Driver.Core.Bindings
         public BsonDocument Id => null;
 
         /// <inheritdoc />
+        public bool IsCausallyConsistent => false;
+
+        /// <inheritdoc />
         public bool IsImplicit => true;
 
         /// <inheritdoc />

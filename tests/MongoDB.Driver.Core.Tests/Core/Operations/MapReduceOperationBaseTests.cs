@@ -121,7 +121,10 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
 
-            var result = subject.CreateCommand(null);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
 
             var expectedResult = new BsonDocument
             {
@@ -145,7 +148,10 @@ namespace MongoDB.Driver.Core.Operations
                 Collation = collation
             };
 
-            var result = subject.CreateCommand(Feature.Collation.FirstSupportedVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.Collation.FirstSupportedVersion);
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
 
             var expectedResult = new BsonDocument
             {
@@ -166,7 +172,10 @@ namespace MongoDB.Driver.Core.Operations
                 Collation = new Collation("en_US")
             };
 
-            var exception = Record.Exception(() => subject.CreateCommand(Feature.Collation.LastNotSupportedVersion));
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.Collation.LastNotSupportedVersion);
+            var session = OperationTestHelper.CreateSession();
+
+            var exception = Record.Exception(() => subject.CreateCommand(connectionDescription, session));
 
             exception.Should().BeOfType<NotSupportedException>();
         }
@@ -183,7 +192,10 @@ namespace MongoDB.Driver.Core.Operations
                 Filter = filter
             };
 
-            var result = subject.CreateCommand(null);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
 
             var expectedResult = new BsonDocument
             {
@@ -207,7 +219,11 @@ namespace MongoDB.Driver.Core.Operations
             {
                 FinalizeFunction = finalizeFunction
             };
-            var result = subject.CreateCommand(null);
+
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
 
             var expectedResult = new BsonDocument
             {
@@ -231,7 +247,10 @@ namespace MongoDB.Driver.Core.Operations
                 JavaScriptMode = javaScriptMode
             };
 
-            var result = subject.CreateCommand(null);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
 
             var expectedResult = new BsonDocument
             {
@@ -255,7 +274,10 @@ namespace MongoDB.Driver.Core.Operations
                 Limit = limit
             };
 
-            var result = subject.CreateCommand(null);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
 
             var expectedResult = new BsonDocument
             {
@@ -280,7 +302,10 @@ namespace MongoDB.Driver.Core.Operations
                 MaxTime = maxTime
             };
 
-            var result = subject.CreateCommand(null);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
 
             var expectedResult = new BsonDocument
             {
@@ -305,7 +330,10 @@ namespace MongoDB.Driver.Core.Operations
                 Scope = scope
             };
 
-            var result = subject.CreateCommand(null);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
 
             var expectedResult = new BsonDocument
             {
@@ -330,7 +358,10 @@ namespace MongoDB.Driver.Core.Operations
                 Sort = sort
             };
 
-            var result = subject.CreateCommand(null);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
 
             var expectedResult = new BsonDocument
             {
@@ -354,7 +385,10 @@ namespace MongoDB.Driver.Core.Operations
                 Verbose = verbose
             };
 
-            var result = subject.CreateCommand(null);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
 
             var expectedResult = new BsonDocument
             {

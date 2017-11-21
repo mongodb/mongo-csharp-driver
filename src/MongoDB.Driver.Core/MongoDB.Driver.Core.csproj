@@ -107,6 +107,7 @@
     <Compile Include="Core\Clusters\IClusterClock.cs" />
     <Compile Include="Core\Operations\IOperationClock.cs" />
     <Compile Include="Core\Operations\OperationClock.cs" />
+    <Compile Include="Core\Operations\ReadConcernHelper.cs" />
     <Compile Include="Core\Operations\ReIndexOperation.cs" />
     <Compile Include="Core\Operations\WriteConcernErrorHelper.cs" />
     <Compile Include="Core\Servers\ClusterClockAdvancingCoreSession.cs" />

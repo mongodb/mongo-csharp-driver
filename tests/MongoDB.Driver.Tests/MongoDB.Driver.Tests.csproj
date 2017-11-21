@@ -108,6 +108,7 @@
     <Compile Include="AggregateFluentGraphLookupWithAirportsCollectionTests.cs" />
     <Compile Include="AsyncCursorHelperTests.cs" />
     <Compile Include="BulkWriteErrorTests.cs" />
+    <Compile Include="CausalConsistencyTests.cs" />
     <Compile Include="ClientSessionHandleTests.cs" />
     <Compile Include="ClientSessionTests.cs" />
     <Compile Include="ClientSessionWrappingCoreSessionTests.cs" />

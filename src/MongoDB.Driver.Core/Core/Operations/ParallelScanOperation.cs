@@ -23,6 +23,7 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -133,21 +134,23 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        internal BsonDocument CreateCommand(SemanticVersion serverVersion)
+        internal BsonDocument CreateCommand(ConnectionDescription connectionDescription, ICoreSession session)
         {
-            Feature.ReadConcern.ThrowIfNotSupported(serverVersion, _readConcern);
+            Feature.ReadConcern.ThrowIfNotSupported(connectionDescription.ServerVersion, _readConcern);
 
-            return new BsonDocument
+            var command = new BsonDocument
             {
                 { "parallelCollectionScan", _collectionNamespace.CollectionName },
                 { "numCursors", _numberOfCursors },
-                { "readConcern", _readConcern.ToBsonDocument(), !_readConcern.IsServerDefault }
             };
+
+            ReadConcernHelper.AppendReadConcern(command, _readConcern, connectionDescription, session);
+            return command;
         }
 
-        private ReadCommandOperation<BsonDocument> CreateOperation(SemanticVersion serverVersion)
+        private ReadCommandOperation<BsonDocument> CreateOperation(IChannel channel, IBinding binding)
         {
-            var command = CreateCommand(serverVersion);
+            var command = CreateCommand(channel.ConnectionDescription, binding.Session);
             return new ReadCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
         }
 
@@ -200,7 +203,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var channel = channelSource.GetChannel(cancellationToken))
             using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
             {
-                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
+                var operation = CreateOperation(channel, channelBinding);
                 var result = operation.Execute(channelBinding, cancellationToken);
                 return CreateCursors(channelSource, operation.Command, result);
             }
@@ -216,7 +219,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
             {
-                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
+                var operation = CreateOperation(channel, channelBinding);
                 var result = await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
                 return CreateCursors(channelSource, operation.Command, result);
             }

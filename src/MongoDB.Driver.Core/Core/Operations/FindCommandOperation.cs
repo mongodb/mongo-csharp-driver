@@ -21,6 +21,7 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
@@ -412,13 +413,13 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        internal BsonDocument CreateCommand(SemanticVersion serverVersion, ServerType serverType)
+        internal BsonDocument CreateCommand(ConnectionDescription connectionDescription, ICoreSession session)
         {
-            Feature.ReadConcern.ThrowIfNotSupported(serverVersion, _readConcern);
-            Feature.Collation.ThrowIfNotSupported(serverVersion, _collation);
+            Feature.ReadConcern.ThrowIfNotSupported(connectionDescription.ServerVersion, _readConcern);
+            Feature.Collation.ThrowIfNotSupported(connectionDescription.ServerVersion, _collation);
 
             var firstBatchSize = _firstBatchSize ?? (_batchSize > 0 ? _batchSize : null);
-            var isShardRouter = serverType == ServerType.ShardRouter;
+            var isShardRouter = connectionDescription.IsMasterResult.ServerType == ServerType.ShardRouter;
 
             var command = new BsonDocument
             {
@@ -444,9 +445,10 @@ namespace MongoDB.Driver.Core.Operations
                 { "noCursorTimeout", () => _noCursorTimeout.Value, _noCursorTimeout.HasValue },
                 { "awaitData", true, _cursorType == CursorType.TailableAwait },
                 { "allowPartialResults", () => _allowPartialResults.Value, _allowPartialResults.HasValue && isShardRouter },
-                { "readConcern", () => _readConcern.ToBsonDocument(), !_readConcern.IsServerDefault },
                 { "collation", () => _collation.ToBsonDocument(), _collation != null }
             };
+
+            ReadConcernHelper.AppendReadConcern(command, _readConcern, connectionDescription, session);
 
             return command;
         }
@@ -497,7 +499,7 @@ namespace MongoDB.Driver.Core.Operations
 
                 using (EventContext.BeginFind(_batchSize, _limit))
                 {
-                    var operation = CreateOperation(channel.ConnectionDescription.ServerVersion, channelSource.ServerDescription.Type);
+                    var operation = CreateOperation(channel, channelBinding);
                     var commandResult = operation.Execute(channelBinding, cancellationToken);
                     return CreateCursor(channelSource, commandResult, slaveOk);
                 }
@@ -519,16 +521,16 @@ namespace MongoDB.Driver.Core.Operations
 
                 using (EventContext.BeginFind(_batchSize, _limit))
                 {
-                    var operation = CreateOperation(channel.ConnectionDescription.ServerVersion, channelSource.ServerDescription.Type);
+                    var operation = CreateOperation(channel, channelBinding);
                     var commandResult = await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
                     return CreateCursor(channelSource, commandResult, slaveOk);
                 }
             }
         }
 
-        private ReadCommandOperation<BsonDocument> CreateOperation(SemanticVersion serverVersion, ServerType serverType)
+        private ReadCommandOperation<BsonDocument> CreateOperation(IChannel channel, IBinding binding)
         {
-            var command = CreateCommand(serverVersion, serverType);
+            var command = CreateCommand(channel.ConnectionDescription, binding.Session);
             var operation = new ReadCommandOperation<BsonDocument>(
                 _collectionNamespace.DatabaseNamespace,
                 command,

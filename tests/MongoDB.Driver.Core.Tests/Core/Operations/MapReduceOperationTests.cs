@@ -462,7 +462,10 @@ namespace MongoDB.Driver.Core.Operations
                 ReadConcern = readConcern
             };
 
-            var result = subject.CreateCommand(Feature.ReadConcern.FirstSupportedVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.ReadConcern.FirstSupportedVersion);
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
 
             var expectedResult = new BsonDocument
             {
@@ -483,9 +486,43 @@ namespace MongoDB.Driver.Core.Operations
                 ReadConcern = ReadConcern.Majority
             };
 
-            var exception = Record.Exception(() => subject.CreateCommand(Feature.ReadConcern.LastNotSupportedVersion));
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.ReadConcern.LastNotSupportedVersion);
+            var session = OperationTestHelper.CreateSession();
+
+            var exception = Record.Exception(() => subject.CreateCommand(connectionDescription, session));
 
             exception.Should().BeOfType<MongoClientException>();
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_the_expected_result_when_using_causal_consistency(
+            [Values(null, ReadConcernLevel.Linearizable, ReadConcernLevel.Local)]
+            ReadConcernLevel? level)
+        {
+            var readConcern = level.HasValue ? new ReadConcern(level.Value) : ReadConcern.Default;
+            var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings)
+            {
+                ReadConcern = readConcern
+            };
+
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.ReadConcern.FirstSupportedVersion, supportsSessions: true);
+            var session = OperationTestHelper.CreateSession(true, new BsonTimestamp(100));
+
+            var result = subject.CreateCommand(connectionDescription, session);
+
+            var expectedReadConcernDocument = readConcern.ToBsonDocument();
+            expectedReadConcernDocument["afterClusterTime"] = new BsonTimestamp(100);
+
+            var expectedResult = new BsonDocument
+            {
+                { "mapreduce", _collectionNamespace.CollectionName },
+                { "map", _mapFunction },
+                { "reduce", _reduceFunction },
+                { "out", new BsonDocument("inline", 1) },
+                { "readConcern", expectedReadConcernDocument }
+            };
+            result.Should().Be(expectedResult);
         }
 
         // helper methods

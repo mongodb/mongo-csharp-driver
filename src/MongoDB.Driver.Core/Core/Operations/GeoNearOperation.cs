@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
@@ -190,7 +191,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var channel = channelSource.GetChannel(cancellationToken))
             using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
             {
-                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
+                var operation = CreateOperation(channel, channelBinding);
                 return operation.Execute(channelBinding, cancellationToken);
             }
         }
@@ -203,17 +204,17 @@ namespace MongoDB.Driver.Core.Operations
             using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
             {
-                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
+                var operation = CreateOperation(channel, channelBinding);
                 return await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
             }
         }
 
-        internal BsonDocument CreateCommand(SemanticVersion serverVersion)
+        internal BsonDocument CreateCommand(ConnectionDescription connectionDescription, ICoreSession session)
         {
-            Feature.ReadConcern.ThrowIfNotSupported(serverVersion, _readConcern);
-            Feature.Collation.ThrowIfNotSupported(serverVersion, _collation);
+            Feature.ReadConcern.ThrowIfNotSupported(connectionDescription.ServerVersion, _readConcern);
+            Feature.Collation.ThrowIfNotSupported(connectionDescription.ServerVersion, _collation);
 
-            return new BsonDocument
+            var command = new BsonDocument
             {
                 { "geoNear", _collectionNamespace.CollectionName },
                 { "near", _near },
@@ -225,14 +226,16 @@ namespace MongoDB.Driver.Core.Operations
                 { "includeLocs", () => _includeLocs.Value, _includeLocs.HasValue },
                 { "uniqueDocs", () => _uniqueDocs.Value, _uniqueDocs.HasValue },
                 { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
-                { "readConcern", _readConcern.ToBsonDocument(), !_readConcern.IsServerDefault },
                 { "collation", () => _collation.ToBsonDocument(), _collation != null }
             };
+
+            ReadConcernHelper.AppendReadConcern(command, _readConcern, connectionDescription, session);
+            return command;
         }
 
-        private ReadCommandOperation<TResult> CreateOperation(SemanticVersion serverVersion)
+        private ReadCommandOperation<TResult> CreateOperation(IChannel channel, IBinding binding)
         {
-            var command = CreateCommand(serverVersion);
+            var command = CreateCommand(channel.ConnectionDescription, binding.Session);
             return new ReadCommandOperation<TResult>(
                 _collectionNamespace.DatabaseNamespace,
                 command,

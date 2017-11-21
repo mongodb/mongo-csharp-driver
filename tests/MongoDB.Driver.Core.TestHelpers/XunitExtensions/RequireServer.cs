@@ -93,6 +93,23 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
             return this;
         }
 
+        public RequireServer SupportsCausalConsistency()
+        {
+            return VersionGreaterThanOrEqualTo("3.6.0-rc0")
+                .ClusterTypes(Clusters.ClusterType.Sharded, Clusters.ClusterType.ReplicaSet)
+                .SupportsSessions();
+        }
+
+        public RequireServer SupportsSessions()
+        {
+            var clusterDescription = CoreTestConfiguration.Cluster.Description;
+            if (clusterDescription.LogicalSessionTimeout != null)
+            {
+               return this;
+            }
+            throw new SkipTestException($"Test skipped because the cluster does not support sessions.");
+        }
+
         public RequireServer DoesNotSupport(Feature feature)
         {
             if (!feature.IsSupported(_serverVersion))

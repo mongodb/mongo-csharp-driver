@@ -153,7 +153,10 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new DistinctOperation<int>(_collectionNamespace, _valueSerializer, _fieldName, _messageEncoderSettings);
 
-            var result = subject.CreateCommand(null);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
 
             var expectedResult = new BsonDocument
             {
@@ -175,7 +178,10 @@ namespace MongoDB.Driver.Core.Operations
                 Collation = collation
             };
 
-            var result = subject.CreateCommand(Feature.Collation.FirstSupportedVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.Collation.FirstSupportedVersion);
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
 
             var expectedResult = new BsonDocument
             {
@@ -198,7 +204,10 @@ namespace MongoDB.Driver.Core.Operations
                 Filter = filter
             };
 
-            var result = subject.CreateCommand(null);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
 
             var expectedResult = new BsonDocument
             {
@@ -221,7 +230,10 @@ namespace MongoDB.Driver.Core.Operations
                 MaxTime = maxTime
             };
 
-            var result = subject.CreateCommand(null);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
 
             var expectedResult = new BsonDocument
             {
@@ -244,7 +256,10 @@ namespace MongoDB.Driver.Core.Operations
                 ReadConcern = readConcern
             };
 
-            var result = subject.CreateCommand(Feature.ReadConcern.FirstSupportedVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.ReadConcern.FirstSupportedVersion);
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
 
             var expectedResult = new BsonDocument
             {
@@ -263,7 +278,10 @@ namespace MongoDB.Driver.Core.Operations
                 Collation = new Collation("en_US")
             };
 
-            var exception = Record.Exception(() => subject.CreateCommand(Feature.Collation.LastNotSupportedVersion));
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.Collation.LastNotSupportedVersion);
+            var session = OperationTestHelper.CreateSession();
+
+            var exception = Record.Exception(() => subject.CreateCommand(connectionDescription, session));
 
             exception.Should().BeOfType<NotSupportedException>();
         }
@@ -276,9 +294,41 @@ namespace MongoDB.Driver.Core.Operations
                 ReadConcern = new ReadConcern(ReadConcernLevel.Local)
             };
 
-            var exception = Record.Exception(() => subject.CreateCommand(Feature.ReadConcern.LastNotSupportedVersion));
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.ReadConcern.LastNotSupportedVersion);
+            var session = OperationTestHelper.CreateSession();
+
+            var exception = Record.Exception(() => subject.CreateCommand(connectionDescription, session));
 
             exception.Should().BeOfType<MongoClientException>();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_the_expected_result_when_using_causal_consistency(
+            [Values(null, ReadConcernLevel.Linearizable, ReadConcernLevel.Local)]
+            ReadConcernLevel? level)
+        {
+            var readConcern = level.HasValue ? new ReadConcern(level.Value) : ReadConcern.Default;
+            var subject = new DistinctOperation<int>(_collectionNamespace, _valueSerializer, _fieldName, _messageEncoderSettings)
+            {
+                ReadConcern = readConcern
+            };
+
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.ReadConcern.FirstSupportedVersion, supportsSessions: true);
+            var session = OperationTestHelper.CreateSession(true, new BsonTimestamp(100));
+
+            var result = subject.CreateCommand(connectionDescription, session);
+
+            var expectedReadConcernDocument = readConcern.ToBsonDocument();
+            expectedReadConcernDocument["afterClusterTime"] = new BsonTimestamp(100);
+
+            var expectedResult = new BsonDocument
+            {
+                { "distinct", _collectionNamespace.CollectionName },
+                { "key", _fieldName },
+                { "readConcern", expectedReadConcernDocument }
+            };
+            result.Should().Be(expectedResult);
         }
 
         [SkippableTheory]

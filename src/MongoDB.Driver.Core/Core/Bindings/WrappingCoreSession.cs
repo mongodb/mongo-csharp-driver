@@ -64,6 +64,16 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         /// <inheritdoc />
+        public virtual bool IsCausallyConsistent
+        {
+            get
+            {
+                ThrowIfDisposed();
+                return _wrapped.IsCausallyConsistent;
+            }
+        }
+
+        /// <inheritdoc />
         public virtual bool IsImplicit
         {
             get

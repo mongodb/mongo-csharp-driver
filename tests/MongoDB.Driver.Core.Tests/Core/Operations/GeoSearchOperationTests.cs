@@ -84,15 +84,18 @@ namespace MongoDB.Driver.Core.Operations
                 ReadConcern = readConcern
             };
 
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion);
+            var session = OperationTestHelper.CreateSession();
+
             if (!readConcern.IsServerDefault && !Feature.ReadConcern.IsSupported(serverVersion))
             {
-                var exception = Record.Exception(() => subject.CreateCommand(serverVersion));
+                var exception = Record.Exception(() => subject.CreateCommand(connectionDescription, session));
 
                 exception.Should().BeOfType<MongoClientException>();
             }
             else
             {
-                var result = subject.CreateCommand(serverVersion);
+                var result = subject.CreateCommand(connectionDescription, session);
 
                 var expectedResult = new BsonDocument
                 {

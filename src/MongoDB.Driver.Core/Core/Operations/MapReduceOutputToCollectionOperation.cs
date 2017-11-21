@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
@@ -136,14 +137,14 @@ namespace MongoDB.Driver.Core.Operations
 
         // methods
         /// <inheritdoc/>
-        protected internal override BsonDocument CreateCommand(SemanticVersion serverVersion)
+        protected internal override BsonDocument CreateCommand(ConnectionDescription connectionDescription, ICoreSession session)
         {
-            var command = base.CreateCommand(serverVersion);
-            if (_bypassDocumentValidation.HasValue && Feature.BypassDocumentValidation.IsSupported(serverVersion))
+            var command = base.CreateCommand(connectionDescription, session);
+            if (_bypassDocumentValidation.HasValue && Feature.BypassDocumentValidation.IsSupported(connectionDescription.ServerVersion))
             {
                 command["bypassDocumentValidation"] = _bypassDocumentValidation.Value;
             }
-            if (Feature.CommandsThatWriteAcceptWriteConcern.ShouldSendWriteConcern(serverVersion, _writeConcern))
+            if (Feature.CommandsThatWriteAcceptWriteConcern.ShouldSendWriteConcern(connectionDescription.ServerVersion, _writeConcern))
             {
                 command["writeConcern"] = _writeConcern.ToBsonDocument();
             }
@@ -172,7 +173,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var channel = channelSource.GetChannel(cancellationToken))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
+                var operation = CreateOperation(channel, channelBinding);
                 var result = operation.Execute(channelBinding, cancellationToken);
                 WriteConcernErrorHelper.ThrowIfHasWriteConcernError(channel.ConnectionDescription.ConnectionId, result);
                 return result;
@@ -188,16 +189,16 @@ namespace MongoDB.Driver.Core.Operations
             using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
+                var operation = CreateOperation(channel, channelBinding);
                 var result = await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
                 WriteConcernErrorHelper.ThrowIfHasWriteConcernError(channel.ConnectionDescription.ConnectionId, result);
                 return result;
             }
         }
 
-        private WriteCommandOperation<BsonDocument> CreateOperation(SemanticVersion serverVersion)
+        private WriteCommandOperation<BsonDocument> CreateOperation(IChannel channel, IBinding binding)
         {
-            var command = CreateCommand(serverVersion);
+            var command = CreateCommand(channel.ConnectionDescription, binding.Session);
             return new WriteCommandOperation<BsonDocument>(CollectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, MessageEncoderSettings);
         }
     }

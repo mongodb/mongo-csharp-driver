@@ -41,6 +41,14 @@ namespace MongoDB.Driver.Core.Bindings
         BsonDocument Id { get; }
 
         /// <summary>
+        /// Gets a value indicate whether this instance is causally consistent.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if the session is causally consistent.
+        /// </value>
+        bool IsCausallyConsistent { get; }
+
+        /// <summary>
         /// Gets a value indicating whether this instance is implicit session.
         /// </summary>
         /// <value>

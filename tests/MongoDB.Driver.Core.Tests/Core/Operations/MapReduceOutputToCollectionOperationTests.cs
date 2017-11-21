@@ -18,7 +18,9 @@ using System.Reflection;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
@@ -190,7 +192,10 @@ namespace MongoDB.Driver.Core.Operations
             var subjectReflector = new Reflector(subject);
             var serverVersion = Feature.BypassDocumentValidation.SupportedOrNotSupportedVersion(useServerVersionSupportingBypassDocumentValidation);
 
-            var result = subjectReflector.CreateCommand(serverVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion);
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subjectReflector.CreateCommand(connectionDescription, session);
 
             var expectedResult = new BsonDocument
             {
@@ -219,7 +224,10 @@ namespace MongoDB.Driver.Core.Operations
             var subjectReflector = new Reflector(subject);
             var serverVersion = Feature.CommandsThatWriteAcceptWriteConcern.SupportedOrNotSupportedVersion(isWriteConcernSupported);
 
-            var result = subjectReflector.CreateCommand(serverVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion);
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subjectReflector.CreateCommand(connectionDescription, session);
 
             var expectedResult = new BsonDocument
             {
@@ -593,10 +601,10 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             // methods
-            public BsonDocument CreateCommand(SemanticVersion serverVersion)
+            public BsonDocument CreateCommand(ConnectionDescription connectionDescription, ICoreSession session)
             {
                 var method = typeof(MapReduceOutputToCollectionOperation).GetMethod("CreateCommand", BindingFlags.NonPublic | BindingFlags.Instance);
-                return (BsonDocument)method.Invoke(_instance, new object[] { serverVersion });
+                return (BsonDocument)method.Invoke(_instance, new object[] { connectionDescription, session });
             }
 
             public BsonDocument CreateOutputOptions()

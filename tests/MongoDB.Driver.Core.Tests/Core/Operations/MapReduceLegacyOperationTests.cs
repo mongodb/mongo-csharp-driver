@@ -117,15 +117,18 @@ namespace MongoDB.Driver.Core.Operations
                 ReadConcern = readConcern
             };
 
-            var command = subject.CreateCommand(new SemanticVersion(3, 2, 0));
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.ReadConcern.FirstSupportedVersion);
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
 
             if (readConcern.IsServerDefault)
             {
-                command.Contains("readConcern").Should().BeFalse();
+                result.Contains("readConcern").Should().BeFalse();
             }
             else
             {
-                command["readConcern"].Should().Be(readConcern.ToBsonDocument());
+                result["readConcern"].Should().Be(readConcern.ToBsonDocument());
             }
         }
 
@@ -139,8 +142,35 @@ namespace MongoDB.Driver.Core.Operations
                 ReadConcern = ReadConcern.Majority
             };
 
-            Action act = () => subject.CreateCommand(new SemanticVersion(3, 0, 0));
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.ReadConcern.LastNotSupportedVersion);
+            var session = OperationTestHelper.CreateSession();
+
+            Action act = () => subject.CreateCommand(connectionDescription, session);
             act.ShouldThrow<MongoClientException>();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_include_readConcern_when_using_causal_consistency(
+            [Values(null, ReadConcernLevel.Local, ReadConcernLevel.Majority)] ReadConcernLevel? readConcernLevel)
+        {
+            var readConcern = new ReadConcern(readConcernLevel);
+            var mapFunction = "function() { emit(this.x, this.v); }";
+            var reduceFunction = "function(key, values) { var sum = 0; for (var i = 0; i < values.length; i++) { sum += values[i]; }; return sum; }";
+            var subject = new MapReduceLegacyOperation(_collectionNamespace, mapFunction, reduceFunction, _messageEncoderSettings)
+            {
+                ReadConcern = readConcern
+            };
+
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.ReadConcern.FirstSupportedVersion, supportsSessions: true);
+            var session = OperationTestHelper.CreateSession(true, new BsonTimestamp(100));
+
+            var result = subject.CreateCommand(connectionDescription, session);
+
+            var expectedReadConcernDocument = readConcern.ToBsonDocument();
+            expectedReadConcernDocument["afterClusterTime"] = new BsonTimestamp(100);
+
+            result["readConcern"].Should().Be(expectedReadConcernDocument);
         }
 
         [Theory]

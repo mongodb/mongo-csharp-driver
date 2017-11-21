@@ -21,6 +21,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
@@ -95,7 +96,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var channel = channelSource.GetChannel(cancellationToken))
             using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
             {
-                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
+                var operation = CreateOperation(channel, channelBinding);
                 var result = operation.Execute(channelBinding, cancellationToken);
                 return new SingleBatchAsyncCursor<TResult>(result);
             }
@@ -110,29 +111,27 @@ namespace MongoDB.Driver.Core.Operations
             using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
             {
-                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
+                var operation = CreateOperation(channel, channelBinding);
                 var result = await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
                 return new SingleBatchAsyncCursor<TResult>(result);
             }
         }
 
         /// <inheritdoc/>
-        protected internal override BsonDocument CreateCommand(SemanticVersion serverVersion)
+        protected internal override BsonDocument CreateCommand(ConnectionDescription connectionDescription, ICoreSession session)
         {
-            Feature.ReadConcern.ThrowIfNotSupported(serverVersion, _readConcern);
+            Feature.ReadConcern.ThrowIfNotSupported(connectionDescription.ServerVersion, _readConcern);
 
-            var command = base.CreateCommand(serverVersion);
-            if (!_readConcern.IsServerDefault)
-            {
-                command["readConcern"] = _readConcern.ToBsonDocument();
-            }
+            var command = base.CreateCommand(connectionDescription, session);
+
+            ReadConcernHelper.AppendReadConcern(command, _readConcern, connectionDescription, session);
 
             return command;
         }
 
-        private ReadCommandOperation<TResult[]> CreateOperation(SemanticVersion serverVersion)
+        private ReadCommandOperation<TResult[]> CreateOperation(IChannel channel, IBinding binding)
         {
-            var command = CreateCommand(serverVersion);
+            var command = CreateCommand(channel.ConnectionDescription, binding.Session);
             var resultArraySerializer = new ArraySerializer<TResult>(_resultSerializer);
             var resultSerializer = new ElementDeserializer<TResult[]>("results", resultArraySerializer);
             return new ReadCommandOperation<TResult[]>(CollectionNamespace.DatabaseNamespace, command, resultSerializer, MessageEncoderSettings);

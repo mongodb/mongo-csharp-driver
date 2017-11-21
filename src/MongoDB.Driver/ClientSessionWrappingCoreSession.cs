@@ -51,6 +51,15 @@ namespace MongoDB.Driver
             }
         }
 
+        public bool IsCausallyConsistent
+        {
+            get
+            {
+                ThrowIfDisposed();
+                return _clientSession.Options.CausalConsistency.GetValueOrDefault(true);
+            }
+        }
+
         public bool IsImplicit
         {
             get

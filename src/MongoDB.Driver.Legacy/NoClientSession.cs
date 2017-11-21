@@ -21,6 +21,7 @@ namespace MongoDB.Driver
     internal class NoClientSession : IClientSession
     {
         private readonly IServerSession _noServerSession = new NoServerSession();
+        private readonly ClientSessionOptions _options = new ClientSessionOptions();
 
         public IMongoClient Client => null;
 
@@ -30,7 +31,7 @@ namespace MongoDB.Driver
 
         public BsonTimestamp OperationTime => null;
 
-        public ClientSessionOptions Options => null;
+        public ClientSessionOptions Options => _options;
 
         public IServerSession ServerSession => _noServerSession;
 
