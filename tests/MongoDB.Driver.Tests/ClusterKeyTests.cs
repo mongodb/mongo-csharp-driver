@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Tests
             var applicationName = "app1";
             var connectionMode = ConnectionMode.Direct;
             var connectTimeout = TimeSpan.FromSeconds(1);
-            var credentials = new[] { MongoCredential.CreateMongoCRCredential("source", "username", "password") };
+            var credential = MongoCredential.CreateMongoCRCredential("source", "username", "password");
             var guidRepresentation = GuidRepresentation.Standard;
             var heartbeatInterval = TimeSpan.FromSeconds(7);
             var heartbeatTimeout = TimeSpan.FromSeconds(8);
@@ -101,7 +101,7 @@ namespace MongoDB.Driver.Tests
                 case "ApplicationName": applicationName = "app2"; break;
                 case "ConnectionMode": connectionMode = ConnectionMode.ReplicaSet; break;
                 case "ConnectTimeout": connectTimeout = TimeSpan.FromSeconds(99); break;
-                case "Credentials": credentials = new[] { MongoCredential.CreateMongoCRCredential("different", "different", "different") }; break;
+                case "Credentials": credential = MongoCredential.CreateMongoCRCredential("different", "different", "different"); break;
                 case "HeartbeatInterval": heartbeatInterval = TimeSpan.FromSeconds(99); break;
                 case "HeartbeatTimeout": heartbeatTimeout = TimeSpan.FromSeconds(99); break;
                 case "IPv6": ipv6 = !ipv6; break;
@@ -126,7 +126,7 @@ namespace MongoDB.Driver.Tests
                 ApplicationName = applicationName,
                 ConnectionMode = connectionMode,
                 ConnectTimeout = connectTimeout,
-                Credentials = credentials,
+                Credential = credential,
                 GuidRepresentation = guidRepresentation,
                 HeartbeatInterval = heartbeatInterval,
                 HeartbeatTimeout = heartbeatTimeout,

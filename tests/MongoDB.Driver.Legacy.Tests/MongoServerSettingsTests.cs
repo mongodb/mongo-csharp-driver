@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -83,7 +83,7 @@ namespace MongoDB.Driver.Tests
             var settings = MongoServerSettings.FromUrl(url);
 
             // a few settings can only be made in code
-            settings.Credentials = new[] { MongoCredential.CreateMongoCRCredential("database", "username", "password").WithMechanismProperty("SERVICE_NAME", "other") };
+            settings.Credential = MongoCredential.CreateMongoCRCredential("database", "username", "password").WithMechanismProperty("SERVICE_NAME", "other");
             settings.SslSettings = new SslSettings { CheckCertificateRevocation = false };
 
             var clone = settings.Clone();
@@ -121,10 +121,19 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void TestCredential()
+        {
+            var settings = new MongoServerSettings();
+            Assert.Equal(null, settings.Credential);
+        }
+
+        [Fact]
         public void TestCredentials()
         {
             var settings = new MongoServerSettings();
+#pragma warning disable 618
             Assert.Equal(0, settings.Credentials.Count());
+#pragma warning restore
         }
 
         [Fact]
@@ -134,7 +143,9 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(null, settings.ApplicationName);
             Assert.Equal(ConnectionMode.Automatic, settings.ConnectionMode);
             Assert.Equal(MongoDefaults.ConnectTimeout, settings.ConnectTimeout);
+#pragma warning disable 618
             Assert.Equal(0, settings.Credentials.Count());
+#pragma warning restore
             Assert.Equal(MongoDefaults.GuidRepresentation, settings.GuidRepresentation);
             Assert.Equal(ServerSettings.DefaultHeartbeatInterval, settings.HeartbeatInterval);
             Assert.Equal(ServerSettings.DefaultHeartbeatTimeout, settings.HeartbeatTimeout);
@@ -179,11 +190,11 @@ namespace MongoDB.Driver.Tests
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
-            clone.Credentials = new[] { MongoCredential.CreateMongoCRCredential("db2", "user2", "password2") };
+            clone.Credential = MongoCredential.CreateMongoCRCredential("db2", "user2", "password2");
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
-            clone.Credentials = new[] { MongoCredential.CreateMongoCRCredential("db1", "user2", "password2") };
+            clone.Credential = MongoCredential.CreateMongoCRCredential("db1", "user2", "password2");
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
@@ -305,13 +316,15 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(url.ApplicationName, settings.ApplicationName);
             Assert.Equal(url.ConnectionMode, settings.ConnectionMode);
             Assert.Equal(url.ConnectTimeout, settings.ConnectTimeout);
+#pragma warning disable 618
             Assert.Equal(1, settings.Credentials.Count());
-            Assert.Equal(url.Username, settings.Credentials.Single().Username);
-            Assert.Equal(url.AuthenticationMechanism, settings.Credentials.Single().Mechanism);
-            Assert.Equal("other", settings.Credentials.Single().GetMechanismProperty<string>("SERVICE_NAME", "mongodb"));
-            Assert.Equal(true, settings.Credentials.Single().GetMechanismProperty<bool>("CANONICALIZE_HOST_NAME", false));
-            Assert.Equal(url.AuthenticationSource, settings.Credentials.Single().Source);
-            Assert.Equal(new PasswordEvidence(builder.Password), settings.Credentials.Single().Evidence);
+#pragma warning restore
+            Assert.Equal(url.Username, settings.Credential.Username);
+            Assert.Equal(url.AuthenticationMechanism, settings.Credential.Mechanism);
+            Assert.Equal("other", settings.Credential.GetMechanismProperty<string>("SERVICE_NAME", "mongodb"));
+            Assert.Equal(true, settings.Credential.GetMechanismProperty<bool>("CANONICALIZE_HOST_NAME", false));
+            Assert.Equal(url.AuthenticationSource, settings.Credential.Source);
+            Assert.Equal(new PasswordEvidence(builder.Password), settings.Credential.Evidence);
             Assert.Equal(url.GuidRepresentation, settings.GuidRepresentation);
             Assert.Equal(url.HeartbeatInterval, settings.HeartbeatInterval);
             Assert.Equal(url.HeartbeatTimeout, settings.HeartbeatTimeout);
@@ -352,11 +365,13 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(url.ApplicationName, settings.ApplicationName);
             Assert.Equal(url.ConnectionMode, settings.ConnectionMode);
             Assert.Equal(url.ConnectTimeout, settings.ConnectTimeout);
+#pragma warning disable 618
             Assert.Equal(1, settings.Credentials.Count());
-            Assert.Equal(url.Username, settings.Credentials.Single().Username);
-            Assert.Equal(url.AuthenticationMechanism, settings.Credentials.Single().Mechanism);
-            Assert.Equal(url.AuthenticationSource, settings.Credentials.Single().Source);
-            Assert.Equal(new PasswordEvidence(url.Password), settings.Credentials.Single().Evidence);
+#pragma warning restore
+            Assert.Equal(url.Username, settings.Credential.Username);
+            Assert.Equal(url.AuthenticationMechanism, settings.Credential.Mechanism);
+            Assert.Equal(url.AuthenticationSource, settings.Credential.Source);
+            Assert.Equal(new PasswordEvidence(url.Password), settings.Credential.Evidence);
             Assert.Equal(url.GuidRepresentation, settings.GuidRepresentation);
             Assert.Equal(url.HeartbeatInterval, settings.HeartbeatInterval);
             Assert.Equal(url.HeartbeatTimeout, settings.HeartbeatTimeout);
@@ -757,7 +772,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void ToClusterKey_should_copy_relevant_values()
         {
-            var credentials = new[] { MongoCredential.CreateMongoCRCredential("source", "username", "password") };
+            var credential = MongoCredential.CreateMongoCRCredential("source", "username", "password");
             var servers = new[] { new MongoServerAddress("localhost") };
             var sslSettings = new SslSettings
             {
@@ -770,7 +785,7 @@ namespace MongoDB.Driver.Tests
                 ApplicationName = "app",
                 ConnectionMode = ConnectionMode.Direct,
                 ConnectTimeout = TimeSpan.FromSeconds(1),
-                Credentials = credentials,
+                Credential = credential,
                 GuidRepresentation = GuidRepresentation.Standard,
                 HeartbeatInterval = TimeSpan.FromMinutes(1),
                 HeartbeatTimeout = TimeSpan.FromMinutes(2),
@@ -796,7 +811,9 @@ namespace MongoDB.Driver.Tests
             result.ApplicationName.Should().Be(subject.ApplicationName);
             result.ConnectionMode.Should().Be(subject.ConnectionMode);
             result.ConnectTimeout.Should().Be(subject.ConnectTimeout);
+#pragma warning disable 618
             result.Credentials.Should().Equal(subject.Credentials);
+#pragma warning restore
             result.HeartbeatInterval.Should().Be(subject.HeartbeatInterval);
             result.HeartbeatTimeout.Should().Be(subject.HeartbeatTimeout);
             result.IPv6.Should().Be(subject.IPv6);

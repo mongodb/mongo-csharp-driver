@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -166,8 +166,29 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the credential.
+        /// </summary>
+        public MongoCredential Credential
+        {
+            get { return _credentials.SingleOrDefault(); }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
+                if (value == null)
+                {
+                    _credentials = new MongoCredentialStore(Enumerable.Empty<MongoCredential>());
+                }
+                else
+                {
+                    _credentials = new MongoCredentialStore(new[] { value });
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the credentials.
         /// </summary>
+        [Obsolete("Use Credential instead. Using multiple credentials is deprecated.")]
         public IEnumerable<MongoCredential> Credentials
         {
             get { return _credentials; }
@@ -572,7 +593,9 @@ namespace MongoDB.Driver
             serverSettings.ClusterConfigurator = clientSettings.ClusterConfigurator;
             serverSettings.ConnectionMode = clientSettings.ConnectionMode;
             serverSettings.ConnectTimeout = clientSettings.ConnectTimeout;
+#pragma warning disable 618
             serverSettings.Credentials = clientSettings.Credentials;
+#pragma warning restore
             serverSettings.GuidRepresentation = clientSettings.GuidRepresentation;
             serverSettings.HeartbeatInterval = clientSettings.HeartbeatInterval;
             serverSettings.HeartbeatTimeout = clientSettings.HeartbeatTimeout;
@@ -625,7 +648,7 @@ namespace MongoDB.Driver
                         credential = credential.WithMechanismProperty(property.Key, property.Value);
                     }
                 }
-                serverSettings.Credentials = new[] { credential };
+                serverSettings.Credential = credential;
             }
             serverSettings.GuidRepresentation = url.GuidRepresentation;
             serverSettings.HeartbeatInterval = url.HeartbeatInterval;

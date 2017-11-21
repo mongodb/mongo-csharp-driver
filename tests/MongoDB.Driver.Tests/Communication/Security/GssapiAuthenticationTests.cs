@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
         public void TestNoCredentials()
         {
             RequireEnvironment.Check().EnvironmentVariable("EXPLICIT");
-            _settings.Credentials = Enumerable.Empty<MongoCredential>();
+            _settings.Credential = null;
             var client = new MongoClient(_settings);
 
             Assert.Throws<MongoCommandException>(() =>
@@ -72,11 +72,8 @@ namespace MongoDB.Driver.Tests.Communication.Security
         public void TestBadPassword()
         {
             RequireEnvironment.Check().EnvironmentVariable("EXPLICIT");
-            var currentCredentialUsername = _settings.Credentials.Single().Username;
-            _settings.Credentials = new[]
-            {
-                MongoCredential.CreateGssapiCredential(currentCredentialUsername, "wrongPassword")
-            };
+            var currentCredentialUsername = _settings.Credential.Username;
+            _settings.Credential = MongoCredential.CreateGssapiCredential(currentCredentialUsername, "wrongPassword");
 
             var client = new MongoClient(_settings);
 

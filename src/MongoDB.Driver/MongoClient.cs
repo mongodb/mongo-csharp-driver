@@ -338,7 +338,9 @@ namespace MongoDB.Driver
             var options = new ClientSessionOptions();
 
             IServerSession serverSession;
+#pragma warning disable 618
             var areMultipleUsersAuthenticated = _settings.Credentials.Count() > 1;
+#pragma warning restore
             if (areSessionsSupported && !areMultipleUsersAuthenticated)
             {
                 serverSession = AcquireServerSession();

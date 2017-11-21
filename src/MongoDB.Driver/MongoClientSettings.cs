@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -155,8 +155,31 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the credential.
+        /// </summary>
+        public MongoCredential Credential
+        {
+            get
+            {
+                return _credentials.SingleOrDefault(); ;
+            }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                if (value == null)
+                {
+                    _credentials = new MongoCredentialStore(Enumerable.Empty<MongoCredential>());
+                }
+                else
+                {
+                    _credentials = new MongoCredentialStore(new[] { value });
+                }
+            }
+        }
+        /// <summary>
         /// Gets or sets the credentials.
         /// </summary>
+        [Obsolete("Use Credential instead. Using multiple credentials is deprecated.")]
         public IEnumerable<MongoCredential> Credentials
         {
             get { return _credentials; }
@@ -561,7 +584,7 @@ namespace MongoDB.Driver
                         credential = credential.WithMechanismProperty(property.Key, property.Value);
                     }
                 }
-                clientSettings.Credentials = new[] { credential };
+                clientSettings.Credential = credential;
             }
             clientSettings.GuidRepresentation = url.GuidRepresentation;
             clientSettings.HeartbeatInterval = url.HeartbeatInterval;

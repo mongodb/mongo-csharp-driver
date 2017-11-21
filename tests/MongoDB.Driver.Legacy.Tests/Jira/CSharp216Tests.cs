@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp216
         [Fact]
         public void TestAmbiguousEvalArguments()
         {
+#pragma warning disable 618
             if (!DriverTestConfiguration.Client.Settings.Credentials.Any())
             {
                 var code = "function (x, y) { return y; }";
@@ -43,22 +44,23 @@ namespace MongoDB.Driver.Tests.Jira.CSharp216
                 Assert.Equal(BsonType.Boolean, result.BsonType);
                 Assert.Equal(true, result.AsBoolean);
             }
+#pragma warning restore
         }
 
         [Fact]
         public void TestNoLock()
         {
+#pragma warning disable 618
             if (!DriverTestConfiguration.Client.Settings.Credentials.Any())
             {
                 var code = "function (x, y) { return y; }";
                 var objectArrayArg = new object[] { 1, 2, 3 };
                 var boolArg = true;
-#pragma warning disable 618
                 var result = _adminDatabase.Eval(EvalFlags.NoLock, code, objectArrayArg, boolArg); // before change boolArg was being misinterpreted as nolock argument
-#pragma warning restore
                 Assert.Equal(BsonType.Boolean, result.BsonType);
                 Assert.Equal(true, result.AsBoolean);
             }
+#pragma warning restore
         }
     }
 }

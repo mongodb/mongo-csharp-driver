@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -192,32 +192,33 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestEvalNoArgs()
         {
+#pragma warning disable 618
             if (!DriverTestConfiguration.Client.Settings.Credentials.Any())
             {
                 var code = "function() { return 1; }";
-#pragma warning disable 618
                 var result = _database.Eval(code);
-#pragma warning restore
                 Assert.Equal(1, result.ToInt32());
             }
+#pragma warning restore
         }
 
         [Fact]
         public void TestEvalNoArgsNoLock()
         {
+#pragma warning disable 618
             if (!DriverTestConfiguration.Client.Settings.Credentials.Any())
             {
                 var code = "function() { return 1; }";
-#pragma warning disable 618
                 var result = _adminDatabase.Eval(EvalFlags.NoLock, code);
-#pragma warning restore
                 Assert.Equal(1, result.ToInt32());
             }
+#pragma warning restore
         }
 
         [Fact]
         public void TestEvalWithMaxTime()
         {
+#pragma warning disable 618
             if (!DriverTestConfiguration.Client.Settings.Credentials.Any())
             {
                 if (_primary.Supports(FeatureId.MaxTime))
@@ -237,58 +238,59 @@ namespace MongoDB.Driver.Tests
                     }
                 }
             }
+#pragma warning restore
         }
 
         [Fact]
         public void TestEvalWithOneArg()
         {
+#pragma warning disable 618
             if (!DriverTestConfiguration.Client.Settings.Credentials.Any())
             {
                 var code = "function(x) { return x + 1; }";
-#pragma warning disable 618
                 var result = _adminDatabase.Eval(code, 1);
-#pragma warning restore
                 Assert.Equal(2, result.ToInt32());
             }
+#pragma warning restore
         }
 
         [Fact]
         public void TestEvalWithOneArgNoLock()
         {
+#pragma warning disable 618
             if (!DriverTestConfiguration.Client.Settings.Credentials.Any())
             {
                 var code = "function(x) { return x + 1; }";
-#pragma warning disable 618
                 var result = _adminDatabase.Eval(EvalFlags.NoLock, code, 1);
-#pragma warning restore
                 Assert.Equal(2, result.ToInt32());
             }
+#pragma warning restore
         }
 
         [Fact]
         public void TestEvalWithTwoArgs()
         {
+#pragma warning disable 618
             if (!DriverTestConfiguration.Client.Settings.Credentials.Any())
             {
                 var code = "function(x, y) { return x / y; }";
-#pragma warning disable 618
                 var result = _adminDatabase.Eval(code, 6, 2);
-#pragma warning restore
                 Assert.Equal(3, result.ToInt32());
             }
+#pragma warning restore
         }
 
         [Fact]
         public void TestEvalWithTwoArgsNoLock()
         {
+#pragma warning disable 618
             if (!DriverTestConfiguration.Client.Settings.Credentials.Any())
             {
                 var code = "function(x, y) { return x / y; }";
-#pragma warning disable 618
                 var result = _adminDatabase.Eval(EvalFlags.NoLock, code, 6, 2);
-#pragma warning restore
                 Assert.Equal(3, result.ToInt32());
             }
+#pragma warning restore
         }
 
         [Fact]

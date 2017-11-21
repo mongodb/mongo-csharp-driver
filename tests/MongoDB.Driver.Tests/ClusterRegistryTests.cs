@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void GetOrCreateCluster_should_return_a_cluster_with_the_correct_settings()
         {
-            var credentials = new[] { MongoCredential.CreateMongoCRCredential("source", "username", "password") };
+            var credential = MongoCredential.CreateMongoCRCredential("source", "username", "password");
             var servers = new[] { new MongoServerAddress("localhost"), new MongoServerAddress("127.0.0.1", 30000), new MongoServerAddress("[::1]", 27018) };
 
             var sslSettings = new SslSettings
@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Tests
                 ApplicationName = "app1",
                 ConnectionMode = ConnectionMode.ReplicaSet,
                 ConnectTimeout = TimeSpan.FromSeconds(1),
-                Credentials = credentials,
+                Credential = credential,
                 GuidRepresentation = GuidRepresentation.Standard,
                 HeartbeatInterval = TimeSpan.FromSeconds(7),
                 HeartbeatTimeout = TimeSpan.FromSeconds(8),
