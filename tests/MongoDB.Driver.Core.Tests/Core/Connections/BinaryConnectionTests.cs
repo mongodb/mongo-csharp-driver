@@ -14,14 +14,15 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
@@ -715,26 +716,76 @@ namespace MongoDB.Driver.Core.Connections
                 Func<Task> act2 = () => task2;
                 act2.ShouldThrow<MongoConnectionClosedException>();
 
-                _capturedEvents.Next().Should().BeOfType<ConnectionSendingMessagesEvent>();
-                _capturedEvents.Next().Should().BeOfType<CommandStartedEvent>();
-                _capturedEvents.Next().Should().BeOfType<ConnectionSendingMessagesEvent>();
-                _capturedEvents.Next().Should().BeOfType<CommandStartedEvent>();
-                _capturedEvents.Next().Should().BeOfType<ConnectionFailedEvent>();
-                _capturedEvents.Next().Should().BeOfType<CommandFailedEvent>();
-                var events7And8Types = new Type[]
+                SpinWait.SpinUntil(() => _capturedEvents.Count >= 9, TimeSpan.FromSeconds(5));
+                _capturedEvents.Count.Should().Be(9);
+
+                var allEvents = new List<object>();
+                while (_capturedEvents.Any())
                 {
-                    _capturedEvents.Next().GetType(),
-                    _capturedEvents.Next().GetType()
-                };
-                var expectedEventTypes = new Type[]
-                {
-                    typeof(CommandFailedEvent),
-                    typeof(ConnectionSendingMessagesFailedEvent)
-                };
-                events7And8Types.Should().BeEquivalentTo(expectedEventTypes);
-                _capturedEvents.Next().Should().BeOfType<ConnectionSendingMessagesFailedEvent>();
-                _capturedEvents.Any().Should().BeFalse();
+                    allEvents.Add(_capturedEvents.Next());
+                }
+
+                var request1Events = GetEventsForRequest(allEvents, message1.RequestId);
+                request1Events.Should().HaveCount(4);
+                request1Events[0].Should().BeOfType<ConnectionSendingMessagesEvent>();
+                request1Events[1].Should().BeOfType<CommandStartedEvent>();
+                request1Events[2].Should().BeOfType<CommandFailedEvent>();
+                request1Events[3].Should().BeOfType<ConnectionSendingMessagesFailedEvent>();
+
+                var request2Events = GetEventsForRequest(allEvents, message2.RequestId);
+                request2Events.Should().HaveCount(4);
+                request2Events[0].Should().BeOfType<ConnectionSendingMessagesEvent>();
+                request2Events[1].Should().BeOfType<CommandStartedEvent>();
+                request2Events[2].Should().BeOfType<CommandFailedEvent>();
+                request2Events[3].Should().BeOfType<ConnectionSendingMessagesFailedEvent>();
+
+                var connectionFailedEvents = allEvents.OfType<ConnectionFailedEvent>().ToList();
+                connectionFailedEvents.Should().HaveCount(1);
             }
+        }
+
+        // private methods
+        private List<object> GetEventsForRequest(List<object> events, int requestId)
+        {
+            var eventsForRequest = new List<object>();
+
+            foreach (var @event in events)
+            {
+                if (@event is ConnectionSendingMessagesEvent)
+                {
+                    var e = (ConnectionSendingMessagesEvent)@event;
+                    if (e.RequestIds.Single() == requestId)
+                    {
+                        eventsForRequest.Add(@event);
+                    }
+                }
+                else if (@event is CommandStartedEvent)
+                {
+                    var e = (CommandStartedEvent)@event;
+                    if (e.RequestId == requestId)
+                    {
+                        eventsForRequest.Add(@event);
+                    }
+                }
+                else if (@event is CommandFailedEvent)
+                {
+                    var e = (CommandFailedEvent)@event;
+                    if (e.RequestId == requestId)
+                    {
+                        eventsForRequest.Add(@event);
+                    }
+                }
+                else if (@event is ConnectionSendingMessagesFailedEvent)
+                {
+                    var e = (ConnectionSendingMessagesFailedEvent)@event;
+                    if (e.RequestIds.Single() == requestId)
+                    {
+                        eventsForRequest.Add(@event);
+                    }
+                }
+            }
+
+            return eventsForRequest;
         }
     }
 }
