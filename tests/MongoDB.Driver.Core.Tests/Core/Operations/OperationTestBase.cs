@@ -243,6 +243,19 @@ namespace MongoDB.Driver.Core.Operations
             await ExecuteOperationAsync(insertOperation);
         }
 
+        protected Profiler Profile(DatabaseNamespace databaseNamespace)
+        {
+            var op = new WriteCommandOperation<BsonDocument>(
+                    _databaseNamespace,
+                    new BsonDocument("profile", 2),
+                    BsonDocumentSerializer.Instance,
+                    new MessageEncoderSettings());
+
+            ExecuteOperation(op);
+
+            return new Profiler(this, databaseNamespace);
+        }
+
         protected List<BsonDocument> ReadAllFromCollection()
         {
             return ReadAllFromCollection(_collectionNamespace);
@@ -399,6 +412,45 @@ namespace MongoDB.Driver.Core.Operations
                     }
                     session.ReferenceCount().Should().Be(1);
                 }
+            }
+        }
+
+        protected class Profiler : IDisposable
+        {
+            private readonly OperationTestBase _testBase;
+            private readonly DatabaseNamespace _databaseNamespace;
+
+            public Profiler(OperationTestBase testBase, DatabaseNamespace databaseNamespace)
+            {
+                _testBase = testBase;
+                _databaseNamespace = databaseNamespace;
+            }
+
+            public CollectionNamespace CollectionNamespace => new CollectionNamespace(_databaseNamespace, "system.profile");
+
+            public List<BsonDocument> Find(BsonDocument filter)
+            {
+                var find = new FindOperation<BsonDocument>(CollectionNamespace, BsonDocumentSerializer.Instance, new MessageEncoderSettings())
+                {
+                    Filter = filter
+                };
+
+                var cursor = _testBase.ExecuteOperation(find, false);
+                return _testBase.ReadCursorToEnd(cursor, false);
+            }
+
+            public void Dispose()
+            {
+                var turnOff = new WriteCommandOperation<BsonDocument>(
+                    _databaseNamespace,
+                    new BsonDocument("profile", 0),
+                    BsonDocumentSerializer.Instance,
+                    new MessageEncoderSettings());
+
+                _testBase.ExecuteOperation(turnOff);
+
+                var drop = new DropCollectionOperation(CollectionNamespace, new MessageEncoderSettings());
+                _testBase.ExecuteOperation(drop);
             }
         }
     }

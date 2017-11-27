@@ -82,6 +82,8 @@ namespace MongoDB.Driver
                 AllowDiskUse = true,
                 BatchSize = 10,
                 Collation = new Collation("en_US"),
+                Comment = "test",
+                Hint = new BsonDocument("x", 1),
                 MaxAwaitTime = TimeSpan.FromSeconds(4),
                 MaxTime = TimeSpan.FromSeconds(3),
                 UseCursor = false
@@ -120,6 +122,8 @@ namespace MongoDB.Driver
             operation.BatchSize.Should().Be(options.BatchSize);
             operation.Collation.Should().BeSameAs(options.Collation);
             operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
+            operation.Comment.Should().Be(options.Comment);
+            operation.Hint.Should().Be(options.Hint);
             operation.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.Pipeline.Should().Equal(renderedPipeline.Documents);
@@ -146,6 +150,8 @@ namespace MongoDB.Driver
                 BatchSize = 10,
                 BypassDocumentValidation = true,
                 Collation = new Collation("en_US"),
+                Comment = "test",
+                Hint = new BsonDocument("x", 1),
                 MaxTime = TimeSpan.FromSeconds(3),
                 UseCursor = false,
             };
@@ -185,6 +191,8 @@ namespace MongoDB.Driver
             aggregateOperation.BypassDocumentValidation.Should().Be(options.BypassDocumentValidation);
             aggregateOperation.Collation.Should().BeSameAs(options.Collation);
             aggregateOperation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
+            aggregateOperation.Comment.Should().Be(options.Comment);
+            aggregateOperation.Hint.Should().Be(options.Hint);
             aggregateOperation.MaxTime.Should().Be(options.MaxTime);
             aggregateOperation.Pipeline.Should().Equal(renderedPipeline.Documents);
             aggregateOperation.WriteConcern.Should().BeSameAs(writeConcern);

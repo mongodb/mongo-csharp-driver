@@ -94,6 +94,30 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Fact]
+        public void Comment_get_and_set_should_work()
+        {
+            var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings);
+            var value = "test";
+
+            subject.Comment = value;
+            var result = subject.Comment;
+
+            result.Should().BeSameAs(value);
+        }
+
+        [Fact]
+        public void Hint_get_and_set_should_work()
+        {
+            var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings);
+            var value = new BsonDocument("x", 1);
+
+            subject.Hint = value;
+            var result = subject.Hint;
+
+            result.Should().BeSameAs(value);
+        }
+
+        [Fact]
         public void MaxTime_get_and_set_should_work()
         {
             var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings);
@@ -164,6 +188,53 @@ namespace MongoDB.Driver.Core.Operations
                 { "explain", true },
                 { "pipeline", new BsonArray(__pipeline) },
                 { "collation", collation.ToBsonDocument() }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_Comment_is_set(
+            [Values(null, "test")]
+            string comment)
+        {
+            var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings)
+            {
+                Comment = comment,
+            };
+
+            var result = subject.CreateCommand(null);
+
+            var expectedResult = new BsonDocument
+            {
+                { "aggregate", _collectionNamespace.CollectionName },
+                { "explain", true },
+                { "pipeline", new BsonArray(__pipeline) },
+                { "comment", () => comment, comment != null }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_the_expected_result_when_Hint_is_set(
+            [Values(null, "{x: 1}")]
+            string hintJson)
+        {
+            var hint = hintJson == null ? null : BsonDocument.Parse(hintJson);
+            var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings)
+            {
+                Hint = hint
+            };
+
+            var result = subject.CreateCommand(null);
+
+            var expectedResult = new BsonDocument
+            {
+                { "aggregate", _collectionNamespace.CollectionName },
+                { "explain", true },
+                { "pipeline", new BsonArray(__pipeline) },
+                { "hint", () => hint, hint != null }
             };
             result.Should().Be(expectedResult);
         }
@@ -268,6 +339,49 @@ namespace MongoDB.Driver.Core.Operations
             var exception = Record.Exception(() => ExecuteOperation(subject, async));
 
             exception.Should().BeOfType<NotSupportedException>();
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_return_expected_result_when_Comment_is_set(
+            [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check()
+                .ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet)
+                .Supports(Feature.AggregateExplain, Feature.AggregateComment);
+            var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings)
+            {
+                Comment = "test"
+            };
+
+            using (var profile = Profile(_collectionNamespace.DatabaseNamespace))
+            {
+                var result = ExecuteOperation(subject, async);
+
+                result.Should().NotBeNull();
+
+                var profileEntries = profile.Find(new BsonDocument("command.aggregate", new BsonDocument("$exists", true)));
+                profileEntries.Should().HaveCount(1);
+                profileEntries[0]["command"]["comment"].AsString.Should().Be(subject.Comment);
+            }
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_return_expected_result_when_Hint_is_set(
+            [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check().Supports(Feature.AggregateExplain, Feature.AggregateHint);
+            var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings)
+            {
+                Hint = "_id_"
+            };
+
+            var result = ExecuteOperation(subject, async);
+
+            result.Should().NotBeNull();
         }
 
         [SkippableTheory]

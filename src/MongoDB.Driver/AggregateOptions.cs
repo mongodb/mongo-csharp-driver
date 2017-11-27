@@ -14,6 +14,7 @@
 */
 
 using System;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
@@ -28,6 +29,8 @@ namespace MongoDB.Driver
         private int? _batchSize;
         private bool? _bypassDocumentValidation;
         private Collation _collation;
+        private string _comment;
+        private BsonValue _hint;
         private TimeSpan? _maxAwaitTime;
         private TimeSpan? _maxTime;
         private ExpressionTranslationOptions _translationOptions;
@@ -68,6 +71,24 @@ namespace MongoDB.Driver
         {
             get { return _collation; }
             set { _collation = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the comment.
+        /// </summary>
+        public string Comment
+        {
+            get { return _comment; }
+            set { _comment = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the hint. This must either be a BsonString representing the index name or a BsonDocument representing the key pattern of the index.
+        /// </summary>
+        public BsonValue Hint
+        {
+            get { return _hint; }
+            set { _hint = value; }
         }
 
         /// <summary>

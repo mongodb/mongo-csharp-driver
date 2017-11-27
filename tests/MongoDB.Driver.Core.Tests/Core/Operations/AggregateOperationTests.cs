@@ -24,6 +24,7 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
 using System.Reflection;
+using MongoDB.Driver.Core.Clusters;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -119,6 +120,30 @@ namespace MongoDB.Driver.Core.Operations
             var result = subject.Collation;
 
             result.Should().BeSameAs(collation);
+        }
+
+        [Fact]
+        public void Comment_get_and_set_should_work()
+        {
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings);
+            var value = "test";
+
+            subject.Comment = value;
+            var result = subject.Comment;
+
+            result.Should().BeSameAs(value);
+        }
+
+        [Fact]
+        public void Hint_get_and_set_should_work()
+        {
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings);
+            var value = new BsonDocument("x", 1);
+
+            subject.Hint = value;
+            var result = subject.Hint;
+
+            result.Should().BeSameAs(value);
         }
 
         [Fact]
@@ -294,6 +319,59 @@ namespace MongoDB.Driver.Core.Operations
             var exception = Record.Exception(() => subject.CreateCommand(connectionDescription, session));
 
             exception.Should().BeOfType<NotSupportedException>();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_Comment_is_set(
+            [Values(null, "test")]
+            string comment)
+        {
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
+            {
+                Comment = comment,
+            };
+
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.AggregateComment.FirstSupportedVersion);
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
+
+            var expectedResult = new BsonDocument
+            {
+                { "aggregate", _collectionNamespace.CollectionName },
+                { "pipeline", new BsonArray(__pipeline) },
+                { "comment", () => comment, comment != null },
+                { "cursor", new BsonDocument() }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_the_expected_result_when_Hint_is_set(
+            [Values(null, "{x: 1}")]
+            string hintJson)
+        {
+            var hint = hintJson == null ? null : BsonDocument.Parse(hintJson);
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
+            {
+                Hint = hint
+            };
+
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.AggregateHint.FirstSupportedVersion);
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
+
+            var expectedResult = new BsonDocument
+            {
+                { "aggregate", _collectionNamespace.CollectionName },
+                { "pipeline", new BsonArray(__pipeline) },
+                { "hint", () => hint, hint != null },
+                { "cursor", new BsonDocument() }
+            };
+            result.Should().Be(expectedResult);
         }
 
         [Theory]
@@ -563,6 +641,54 @@ namespace MongoDB.Driver.Core.Operations
             var exception = Record.Exception(() => ExecuteOperation(subject, async));
 
             exception.Should().BeOfType<NotSupportedException>();
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_return_expected_result_when_Comment_is_set(
+            [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check()
+                .ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet)
+                .Supports(Feature.Aggregate, Feature.AggregateComment);
+            EnsureTestData();
+
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
+            {
+                Comment = "test"
+            };
+
+            using (var profile = Profile(_collectionNamespace.DatabaseNamespace))
+            {
+                var cursor = ExecuteOperation(subject, async);
+                var result = ReadCursorToEnd(cursor, async);
+
+                result.Should().NotBeNull();
+
+                var profileEntries = profile.Find(new BsonDocument("command.aggregate", new BsonDocument("$exists", true)));
+                profileEntries.Should().HaveCount(1);
+                profileEntries[0]["command"]["comment"].AsString.Should().Be(subject.Comment);
+            }
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_return_expected_result_when_Hint_is_set(
+            [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check().Supports(Feature.Aggregate, Feature.AggregateHint);
+            EnsureTestData();
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
+            {
+                Hint = "_id_"
+            };
+
+            var cursor = ExecuteOperation(subject, async);
+            var result = ReadCursorToEnd(cursor, async);
+
+            result.Should().NotBeNull();
         }
 
         [SkippableTheory]

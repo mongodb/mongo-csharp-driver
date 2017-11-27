@@ -652,6 +652,8 @@ namespace MongoDB.Driver
                 AllowDiskUse = options.AllowDiskUse,
                 BatchSize = options.BatchSize,
                 Collation = options.Collation,
+                Comment = options.Comment,
+                Hint = options.Hint,
                 MaxAwaitTime = options.MaxAwaitTime,
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
@@ -685,6 +687,8 @@ namespace MongoDB.Driver
                 AllowDiskUse = options.AllowDiskUse,
                 BypassDocumentValidation = options.BypassDocumentValidation,
                 Collation = options.Collation,
+                Comment = options.Comment,
+                Hint = options.Hint,
                 MaxTime = options.MaxTime,
                 WriteConcern = _settings.WriteConcern
             };

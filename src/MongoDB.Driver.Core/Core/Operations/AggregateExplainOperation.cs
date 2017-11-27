@@ -35,6 +35,8 @@ namespace MongoDB.Driver.Core.Operations
         private bool? _allowDiskUse;
         private Collation _collation;
         private CollectionNamespace _collectionNamespace;
+        private string _comment;
+        private BsonValue _hint;
         private TimeSpan? _maxTime;
         private MessageEncoderSettings _messageEncoderSettings;
         private IReadOnlyList<BsonDocument> _pipeline;
@@ -90,6 +92,30 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
+        /// Gets or sets the comment.
+        /// </summary>
+        /// <value>
+        /// The comment.
+        /// </value>
+        public string Comment
+        {
+            get { return _comment; }
+            set { _comment = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the hint. This must either be a BsonString representing the index name or a BsonDocument representing the key pattern of the index.
+        /// </summary>
+        /// <value>
+        /// The hint.
+        /// </value>
+        public BsonValue Hint
+        {
+            get { return _hint; }
+            set { _hint = value; }
+        }
+
+        /// <summary>
         /// Gets or sets the maximum time the server should spend on this operation.
         /// </summary>
         /// <value>
@@ -135,7 +161,9 @@ namespace MongoDB.Driver.Core.Operations
                 { "pipeline", new BsonArray(_pipeline) },
                 { "allowDiskUse", () => _allowDiskUse.Value, _allowDiskUse.HasValue },
                 { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
-                { "collation", () => _collation.ToBsonDocument(), _collation != null }
+                { "collation", () => _collation.ToBsonDocument(), _collation != null },
+                { "hint", () => _hint, _hint != null },
+                { "comment", () => _comment, _comment != null }
             };
         }
 

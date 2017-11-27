@@ -26,11 +26,13 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __aggregate = new Feature("Aggregate", new SemanticVersion(2, 2, 0));
         private static readonly Feature __aggregateAllowDiskUse = new Feature("AggregateAllowDiskUse", new SemanticVersion(2, 6, 0));
         private static readonly Feature __aggregateBucketStage = new Feature("AggregateBucketStage", new SemanticVersion(3, 3, 11));
+        private static readonly Feature __aggregateComment = new Feature("AggregateComment", new SemanticVersion(3, 6, 0, "rc0"));
         private static readonly Feature __aggregateCountStage = new Feature("AggregateCountStage", new SemanticVersion(3, 3, 11));
         private static readonly Feature __aggregateCursorResult = new Feature("AggregateCursorResult", new SemanticVersion(2, 6, 0));
         private static readonly Feature __aggregateExplain = new Feature("AggregateExplain", new SemanticVersion(2, 6, 0));
         private static readonly Feature __aggregateFacetStage = new Feature("AggregateFacetStage", new SemanticVersion(3, 4, 0, "rc0"));
         private static readonly Feature __aggregateGraphLookupStage = new Feature("AggregateGraphLookupStage", new SemanticVersion(3, 4, 0, "rc0"));
+        private static readonly Feature __aggregateHint = new Feature("AggregateHint", new SemanticVersion(3, 6, 0, "rc0"));
         private static readonly Feature __aggregateOut = new Feature("Aggregate", new SemanticVersion(2, 6, 0));
         private static readonly ArrayFiltersFeature __arrayFilters = new ArrayFiltersFeature("ArrayFilters", new SemanticVersion(3, 5, 11));
         private static readonly Feature __bypassDocumentValidation = new Feature("BypassDocumentValidation", new SemanticVersion(3, 2, 0));
@@ -73,6 +75,11 @@ namespace MongoDB.Driver.Core.Misc
         public static Feature AggregateBucketStage => __aggregateBucketStage;
 
         /// <summary>
+        /// Gets the aggregate comment feature.
+        /// </summary>
+        public static Feature AggregateComment => __aggregateComment;
+
+        /// <summary>
         /// Gets the aggregate count stage feature.
         /// </summary>
         public static Feature AggregateCountStage => __aggregateCountStage;
@@ -96,6 +103,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the aggregate $graphLookup stage feature.
         /// </summary>
         public static Feature AggregateGraphLookupStage => __aggregateGraphLookupStage;
+
+        /// <summary>
+        /// Gets the aggregate hint feature.
+        /// </summary>
+        public static Feature AggregateHint => __aggregateHint;
 
         /// <summary>
         /// Gets the aggregate out feature.

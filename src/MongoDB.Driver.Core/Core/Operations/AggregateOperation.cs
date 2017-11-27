@@ -41,6 +41,8 @@ namespace MongoDB.Driver.Core.Operations
         private int? _batchSize;
         private Collation _collation;
         private readonly CollectionNamespace _collectionNamespace;
+        private string _comment;
+        private BsonValue _hint;
         private TimeSpan? _maxAwaitTime;
         private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
@@ -108,6 +110,30 @@ namespace MongoDB.Driver.Core.Operations
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
+        }
+
+        /// <summary>
+        /// Gets or sets the comment.
+        /// </summary>
+        /// <value>
+        /// The comment.
+        /// </value>
+        public string Comment
+        {
+            get { return _comment; }
+            set { _comment = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the hint. This must either be a BsonString representing the index name or a BsonDocument representing the key pattern of the index.
+        /// </summary>
+        /// <value>
+        /// The hint.
+        /// </value>
+        public BsonValue Hint
+        {
+            get { return _hint; }
+            set { _hint = value; }
         }
 
         /// <summary>
@@ -252,7 +278,9 @@ namespace MongoDB.Driver.Core.Operations
                 { "pipeline", new BsonArray(_pipeline) },
                 { "allowDiskUse", () => _allowDiskUse.Value, _allowDiskUse.HasValue },
                 { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
-                { "collation", () => _collation.ToBsonDocument(), _collation != null }
+                { "collation", () => _collation.ToBsonDocument(), _collation != null },
+                { "hint", () => _hint, _hint != null },
+                { "comment", () => _comment, _comment != null }
             };
 
             ReadConcernHelper.AppendReadConcern(command, _readConcern, connectionDescription, session);

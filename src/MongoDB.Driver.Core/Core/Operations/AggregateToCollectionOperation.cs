@@ -36,6 +36,8 @@ namespace MongoDB.Driver.Core.Operations
         private bool? _bypassDocumentValidation;
         private Collation _collation;
         private readonly CollectionNamespace _collectionNamespace;
+        private string _comment;
+        private BsonValue _hint;
         private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly IReadOnlyList<BsonDocument> _pipeline;
@@ -103,6 +105,30 @@ namespace MongoDB.Driver.Core.Operations
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
+        }
+
+        /// <summary>
+        /// Gets or sets the comment.
+        /// </summary>
+        /// <value>
+        /// The comment.
+        /// </value>
+        public string Comment
+        {
+            get { return _comment; }
+            set { _comment = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the hint. This must either be a BsonString representing the index name or a BsonDocument representing the key pattern of the index.
+        /// </summary>
+        /// <value>
+        /// The hint.
+        /// </value>
+        public BsonValue Hint
+        {
+            get { return _hint; }
+            set { _hint = value; }
         }
 
         /// <summary>
@@ -197,7 +223,9 @@ namespace MongoDB.Driver.Core.Operations
                 { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
                 { "collation", () => _collation.ToBsonDocument(), _collation != null },
                 { "writeConcern", () => _writeConcern.ToBsonDocument(), Feature.CommandsThatWriteAcceptWriteConcern.ShouldSendWriteConcern(serverVersion, _writeConcern) },
-                { "cursor", new BsonDocument(), serverVersion >= new SemanticVersion(3, 5, 0) }
+                { "cursor", new BsonDocument(), serverVersion >= new SemanticVersion(3, 5, 0) },
+                { "hint", () => _hint, _hint != null },
+                { "comment", () => _comment, _comment != null }
             };
         }
 
