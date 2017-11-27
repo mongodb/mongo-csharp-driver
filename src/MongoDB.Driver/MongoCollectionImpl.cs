@@ -1192,7 +1192,7 @@ namespace MongoDB.Driver
             {
                 Ensure.IsNotNull(session, nameof(session));
                 var operation = CreateListIndexesOperation();
-                return _collection.ExecuteReadOperation(session, operation, ReadPreference.Primary, cancellationToken);
+                return _collection.ExecuteReadOperation(session, operation, cancellationToken);
             }
 
             public override Task<IAsyncCursor<BsonDocument>> ListAsync(CancellationToken cancellationToken = default(CancellationToken))
@@ -1204,7 +1204,7 @@ namespace MongoDB.Driver
             {
                 Ensure.IsNotNull(session, nameof(session));
                 var operation = CreateListIndexesOperation();
-                return _collection.ExecuteReadOperationAsync(session, operation, ReadPreference.Primary, cancellationToken);
+                return _collection.ExecuteReadOperationAsync(session, operation, cancellationToken);
             }
 
             // private methods
