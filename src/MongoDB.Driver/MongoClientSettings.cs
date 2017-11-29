@@ -565,6 +565,11 @@ namespace MongoDB.Driver
         /// <returns>A MongoClientSettings.</returns>
         public static MongoClientSettings FromUrl(MongoUrl url)
         {
+            if (url.Scheme == ConnectionStringScheme.MongoDBPlusSrv)
+            {
+                url = url.Resolve();
+            }
+
             var credential = url.GetCredential();
 
             var clientSettings = new MongoClientSettings();
