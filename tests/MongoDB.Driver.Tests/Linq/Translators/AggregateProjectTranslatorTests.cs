@@ -815,6 +815,24 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Result.Should().Be(2420);
         }
 
+        [SkippableFact]
+        public void Should_translate_new_DateTime()
+        {
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.6.0-rc0");
+
+            var result = Project(x => new { Result = new DateTime(x.Id, 11, 12) });
+            result.Projection.Should().Be("{ Result: { \"$dateFromParts\": { \"year\": \"$_id\", \"month\": 11, \"day\": 12 } }, _id: 0 }");
+            result.Value.Result.Should().Be(new DateTime(10, 11, 12));
+
+            result = Project(x => new { Result = new DateTime(x.Id, 11, 12, 1, 2, 3) });
+            result.Projection.Should().Be("{ Result: { \"$dateFromParts\": { \"year\": \"$_id\", \"month\": 11, \"day\": 12, \"hour\": 1, \"minute\": 2, \"second\": 3 } }, _id: 0 }");
+            result.Value.Result.Should().Be(new DateTime(10, 11, 12, 1, 2, 3));
+
+            result = Project(x => new { Result = new DateTime(x.Id, 11, 12, 1, 2, 3, 4) });
+            result.Projection.Should().Be("{ Result: { \"$dateFromParts\": { \"year\": \"$_id\", \"month\": 11, \"day\": 12, \"hour\": 1, \"minute\": 2, \"second\": 3, \"millisecond\": 4 } }, _id: 0 }");
+            result.Value.Result.Should().Be(new DateTime(10, 11, 12, 1, 2, 3, 4));
+        }
+
         [Fact]
         public void Should_translate_not()
         {
@@ -863,6 +881,18 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Projection.Should().Be("{ Result: { \"$or\": [{ \"$eq\": [\"$A\", \"yes\"] }, { \"$eq\": [\"$B\", \"no\"] }, { \"$eq\" : [\"$C.D\", \"maybe\"] } ] }, _id: 0 }");
 
             result.Value.Result.Should().BeFalse();
+        }
+
+        [SkippableFact]
+        public void Should_translate_DateTime_parse()
+        {
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.6.0-rc0");
+
+            var result = Project(x => new { Result = DateTime.Parse(x.V) });
+
+            result.Projection.Should().Be("{ Result: { \"$dateFromString\": { \"dateString\": \"$V\" } }, _id: 0 }");
+
+            result.Value.Result.Should().Be(new DateTime(2017, 2, 8, 12, 10, 40, 787, DateTimeKind.Utc));
         }
 
         [SkippableFact]
