@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -131,6 +131,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(readPreference, builder.ReadPreference);
                 Assert.Equal("name", builder.ReplicaSetName);
                 Assert.Equal(TimeSpan.FromSeconds(6), builder.LocalThreshold);
+                Assert.Equal(ConnectionStringScheme.MongoDB, builder.Scheme);
                 Assert.Equal(new MongoServerAddress("host", 27017), builder.Server);
                 Assert.Equal(TimeSpan.FromSeconds(10), builder.ServerSelectionTimeout);
                 Assert.Equal(TimeSpan.FromSeconds(7), builder.SocketTimeout);
@@ -872,6 +873,15 @@ namespace MongoDB.Driver.Tests
             Assert.Throws<ArgumentOutOfRangeException>(() => { builder.LocalThreshold = TimeSpan.FromSeconds(-1); });
             builder.LocalThreshold = TimeSpan.Zero;
             builder.LocalThreshold = TimeSpan.FromSeconds(1);
+        }
+
+        [Theory]
+        [InlineData("mongodb://host", ConnectionStringScheme.MongoDB)]
+        [InlineData("mongodb+srv://host", ConnectionStringScheme.MongoDBPlusSrv)]
+        public void TestScheme(string url, ConnectionStringScheme scheme)
+        {
+            var built = new MongoUrlBuilder(url);
+            Assert.Equal(scheme, built.Scheme);
         }
 
         [Theory]

@@ -27,6 +27,7 @@
     <PackageReference Include="System.Net.NameResolution" Version="4.0.0" />
     <PackageReference Include="System.Net.Security" Version="4.0.0" />
     <PackageReference Include="System.Security.SecureString" Version="4.0.0" />
+    <PackageReference Include="DnsClient" Version="1.0.7" />
   </ItemGroup>
 
 </Project>

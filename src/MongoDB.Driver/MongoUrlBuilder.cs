@@ -60,6 +60,7 @@ namespace MongoDB.Driver
         private ReadConcernLevel? _readConcernLevel;
         private ReadPreference _readPreference;
         private string _replicaSetName;
+        private ConnectionStringScheme _scheme;
         private IEnumerable<MongoServerAddress> _servers;
         private TimeSpan _serverSelectionTimeout;
         private TimeSpan _socketTimeout;
@@ -421,6 +422,15 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// The scheme used to connect with mongodb.
+        /// </summary>
+        public ConnectionStringScheme Scheme
+        {
+            get { return _scheme; }
+            set { _scheme = value; }
+        }
+
+        /// <summary>
         /// Gets or sets the address of the server (see also Servers if using more than one address).
         /// </summary>
         public MongoServerAddress Server
@@ -644,6 +654,7 @@ namespace MongoDB.Driver
             }
             _replicaSetName = connectionString.ReplicaSet;
             _localThreshold = connectionString.LocalThreshold.GetValueOrDefault(MongoDefaults.LocalThreshold);
+            _scheme = connectionString.Scheme;
             _servers = connectionString.Hosts.Select(endPoint =>
             {
                 DnsEndPoint dnsEndPoint;
@@ -702,7 +713,14 @@ namespace MongoDB.Driver
         public override string ToString()
         {
             StringBuilder url = new StringBuilder();
-            url.Append("mongodb://");
+            if (_scheme == ConnectionStringScheme.MongoDB)
+            {
+                url.Append("mongodb://");
+            }
+            else
+            {
+                url.Append("mongodb+srv://");
+            }
             if (!string.IsNullOrEmpty(_username))
             {
                 url.Append(Uri.EscapeDataString(_username));

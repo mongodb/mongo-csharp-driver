@@ -1,4 +1,4 @@
-/* Copyright 2013-2016 MongoDB Inc.
+/* Copyright 2013-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
@@ -765,6 +766,66 @@ namespace MongoDB.Driver.Core.Configuration
             subject.AllUnknownOptionNames.Should().Contain("two");
             subject.GetOption("one").Should().Be("1");
             subject.GetOption("two").Should().Be("2");
+        }
+
+        [Fact]
+        public void When_multiple_hosts_are_provided_with_a_srv_scheme()
+        {
+            var connectionString = "mongodb+srv://localhost1,localhost2";
+
+            var exception = Record.Exception(() => new ConnectionString(connectionString));
+
+            exception.Should().BeOfType<MongoConfigurationException>();
+        }
+
+        [Fact]
+        public void When_a_port_is_specified_with_a_srv_scheme()
+        {
+            var connectionString = "mongodb+srv://localhost1:53";
+
+            var exception = Record.Exception(() => new ConnectionString(connectionString));
+
+            exception.Should().BeOfType<MongoConfigurationException>();
+        }
+
+        [Fact]
+        public void When_calling_resolve_on_a_srv_connection_string()
+        {
+            // NOTE: this requires SRV and TXT records in DNS as specified here:
+            // https://github.com/mongodb/specifications/tree/master/source/initial-dns-seedlist-discovery
+            var connectionString = "mongodb+srv://user%40GSSAPI.COM:password@test5.test.build.10gen.cc/funny?replicaSet=rs0";
+
+            var subject = new ConnectionString(connectionString);
+
+            var resolved = subject.Resolve();
+
+            resolved.ToString().Should().Be("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc:27017/funny/?authSource=thisDB&ssl=true&replicaSet=rs0");
+        }
+
+        [Fact]
+        public async Task When_calling_resolve_async_on_a_srv_connection_string()
+        {
+            // NOTE: this requires SRV and TXT records in DNS as specified here:
+            // https://github.com/mongodb/specifications/tree/master/source/initial-dns-seedlist-discovery
+            var connectionString = "mongodb+srv://user%40GSSAPI.COM:password@test5.test.build.10gen.cc/funny?replicaSet=rs0";
+
+            var subject = new ConnectionString(connectionString);
+
+            var resolved = await subject.ResolveAsync();
+
+            resolved.ToString().Should().Be("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc:27017/funny/?authSource=thisDB&ssl=true&replicaSet=rs0");
+        }
+
+        [Fact]
+        public void When_calling_resolve_on_a_native_connection_string()
+        {
+            var connectionString = "mongodb://localhost";
+
+            var subject = new ConnectionString(connectionString);
+
+            var resolved = subject.Resolve();
+
+            resolved.Should().BeSameAs(subject);
         }
     }
 }

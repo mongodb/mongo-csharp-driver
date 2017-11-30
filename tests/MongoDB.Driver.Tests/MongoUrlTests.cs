@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,9 +16,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Core.Configuration;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -127,6 +129,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(readPreference, url.ReadPreference);
                 Assert.Equal("name", url.ReplicaSetName);
                 Assert.Equal(TimeSpan.FromSeconds(6), url.LocalThreshold);
+                Assert.Equal(ConnectionStringScheme.MongoDB, url.Scheme);
                 Assert.Equal(new MongoServerAddress("host", 27017), url.Server);
                 Assert.Equal(TimeSpan.FromSeconds(10), url.ServerSelectionTimeout);
                 Assert.Equal(TimeSpan.FromSeconds(7), url.SocketTimeout);
@@ -154,6 +157,48 @@ namespace MongoDB.Driver.Tests
 
             url.ReadPreference.MaxStaleness.Should().NotHaveValue();
             url.ToString().Should().Be("mongodb://localhost/?readPreference=secondary");
+        }
+
+        [Fact]
+        public void TestResolveWithANativeUrl()
+        {
+            var connectionString = "mongodb://localhost";
+
+            var subject = new MongoUrl(connectionString);
+
+            var resolved = subject.Resolve();
+
+            resolved.Should().BeSameAs(subject);
+        }
+
+        [Fact]
+        public void TestResolveWithASrvUrl()
+        {
+            // NOTE: this requires SRV and TXT records in DNS as specified here:
+            // https://github.com/mongodb/specifications/tree/master/source/initial-dns-seedlist-discovery
+
+            var connectionString = "mongodb+srv://user%40GSSAPI.COM:password@test5.test.build.10gen.cc/funny?replicaSet=rs0";
+
+            var subject = new MongoUrl(connectionString);
+
+            var resolved = subject.Resolve();
+
+            Assert.Equal("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc/funny?authSource=thisDB;ssl=true;replicaSet=rs0", resolved.ToString());
+        }
+
+        [Fact]
+        public async Task TestResolveAsyncWithASrvUrl()
+        {
+            // NOTE: this requires SRV and TXT records in DNS as specified here:
+            // https://github.com/mongodb/specifications/tree/master/source/initial-dns-seedlist-discovery
+
+            var connectionString = "mongodb+srv://user%40GSSAPI.COM:password@test5.test.build.10gen.cc/funny?replicaSet=rs0";
+
+            var subject = new MongoUrl(connectionString);
+
+            var resolved = await subject.ResolveAsync();
+
+            Assert.Equal("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc/funny?authSource=thisDB;ssl=true;replicaSet=rs0", resolved.ToString());
         }
 
         // private methods

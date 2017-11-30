@@ -1,4 +1,4 @@
-/* Copyright 2010-2016 MongoDB Inc.
+/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -46,6 +46,7 @@ namespace MongoDB.Driver.Core.Configuration
             Ensure.IsNotNullOrEmpty(connectionString, nameof(connectionString));
 
             var parsedConnectionString = new ConnectionString(connectionString);
+
             return ConfigureWithConnectionString(builder, parsedConnectionString);
         }
 
@@ -59,6 +60,8 @@ namespace MongoDB.Driver.Core.Configuration
         {
             Ensure.IsNotNull(builder, nameof(builder));
             Ensure.IsNotNull(connectionString, nameof(connectionString));
+
+            connectionString = connectionString.Resolve();
 
             // TCP
             if (connectionString.ConnectTimeout != null)
