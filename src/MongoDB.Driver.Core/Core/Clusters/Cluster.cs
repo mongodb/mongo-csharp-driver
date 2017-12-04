@@ -39,9 +39,18 @@ namespace MongoDB.Driver.Core.Clusters
         // static fields
         private static readonly TimeSpan __minHeartbeatInterval = TimeSpan.FromMilliseconds(500);
         private static readonly Range<int> __supportedWireVersionRange = new Range<int>(2, 6);
+        private static readonly SemanticVersion __minSupportedServerVersion = new SemanticVersion(2, 6, 0);
         private static readonly IServerSelector __randomServerSelector = new RandomServerSelector();
 
         // static properties
+        /// <summary>
+        /// Gets the minimum supported server version.
+        /// </summary>
+        /// <value>
+        /// The minimum supported server version
+        /// </value>
+        public static SemanticVersion MinSupportedServerVersion => __minSupportedServerVersion;
+
         /// <summary>
         /// Gets the supported wire version range.
         /// </summary>
@@ -416,7 +425,7 @@ namespace MongoDB.Driver.Core.Clusters
                     }
                 }
 
-                ThrowIfIncompatible(_description);
+                MongoIncompatibleDriverException.ThrowIfNotSupported(_description);
 
                 var connectedServers = _description.Servers.Where(s => s.State == ServerState.Connected);
                 var selectedServers = _selector.SelectServers(_description, connectedServers).ToList();
@@ -487,16 +496,6 @@ namespace MongoDB.Driver.Core.Clusters
                 }
 
                 return selector;
-            }
-            private void ThrowIfIncompatible(ClusterDescription description)
-            {
-                var isIncompatible = description.Servers
-                    .Any(sd => sd.WireVersionRange != null && !sd.WireVersionRange.Overlaps(__supportedWireVersionRange));
-
-                if (isIncompatible)
-                {
-                    throw new MongoIncompatibleDriverException(description);
-                }
             }
         }
 

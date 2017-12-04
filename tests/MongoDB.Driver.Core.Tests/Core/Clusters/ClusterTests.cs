@@ -304,15 +304,16 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         [Theory]
-        [ParameterAttributeData]
-        public void SelectServer_should_throw_if_any_servers_are_incompatible(
-            [Values(false, true)]
-            bool async)
+        [InlineData(0, 0, false)]
+        [InlineData(0, 0, true)]
+        [InlineData(10, 12, false)]
+        [InlineData(10, 12, true)]
+        public void SelectServer_should_throw_if_any_servers_are_incompatible(int min, int max, bool async)
         {
             var subject = CreateSubject();
             subject.Initialize();
 
-            var connected = ServerDescriptionHelper.Connected(subject.Description.ClusterId, wireVersionRange: new Range<int>(10, 12));
+            var connected = ServerDescriptionHelper.Connected(subject.Description.ClusterId, wireVersionRange: new Range<int>(min, max));
             subject.SetServerDescriptions(connected);
             _capturedEvents.Clear();
 
@@ -328,7 +329,7 @@ namespace MongoDB.Driver.Core.Clusters
                 act = () => subject.SelectServer(selector, CancellationToken.None);
             }
 
-            act.ShouldThrow<MongoException>();
+            act.ShouldThrow<MongoIncompatibleDriverException>();
 
             _capturedEvents.Next().Should().BeOfType<ClusterSelectingServerEvent>();
             _capturedEvents.Next().Should().BeOfType<ClusterSelectingServerFailedEvent>();
