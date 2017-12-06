@@ -130,17 +130,8 @@ namespace MongoDB.Bson.Serialization
         {
             foreach (var serializationProvider in _serializationProviders)
             {
-                IBsonSerializer serializer;
-
                 var registryAwareSerializationProvider = serializationProvider as IRegistryAwareBsonSerializationProvider;
-                if (registryAwareSerializationProvider != null)
-                {
-                    serializer = registryAwareSerializationProvider.GetSerializer(type, this);
-                }
-                else
-                {
-                    serializer = serializationProvider.GetSerializer(type);
-                }
+                var serializer = registryAwareSerializationProvider != null ? registryAwareSerializationProvider.GetSerializer(type, this) : serializationProvider.GetSerializer(type);
 
                 if (serializer != null)
                 {

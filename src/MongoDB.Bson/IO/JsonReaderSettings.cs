@@ -42,14 +42,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public static JsonReaderSettings Defaults
         {
-            get
-            {
-                if (__defaults == null)
-                {
-                    __defaults = new JsonReaderSettings();
-                }
-                return __defaults;
-            }
+            get { return __defaults ?? (__defaults = new JsonReaderSettings()); }
             set { __defaults = value; }
         }
 

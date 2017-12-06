@@ -65,15 +65,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             var bsonWriter = context.Writer;
 
-            string stringValue;
-            if (value.AddressFamily == AddressFamily.InterNetwork)
-            {
-                stringValue = value.ToString();
-            }
-            else
-            {
-                stringValue = $"[{value}]";
-            }
+            var stringValue = value.AddressFamily == AddressFamily.InterNetwork ? value.ToString() : $"[{value}]";
             bsonWriter.WriteString(stringValue);
         }
     }

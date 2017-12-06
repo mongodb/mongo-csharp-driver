@@ -218,14 +218,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 case BsonType.String:
-                    if (_dateOnly)
-                    {
-                        value = DateTime.SpecifyKind(DateTime.ParseExact(bsonReader.ReadString(), "yyyy-MM-dd", null), DateTimeKind.Utc);
-                    }
-                    else
-                    {
-                        value = JsonConvert.ToDateTime(bsonReader.ReadString());
-                    }
+                    value = _dateOnly ? DateTime.SpecifyKind(DateTime.ParseExact(bsonReader.ReadString(), "yyyy-MM-dd", null), DateTimeKind.Utc) : JsonConvert.ToDateTime(bsonReader.ReadString());
                     break;
 
                 default:

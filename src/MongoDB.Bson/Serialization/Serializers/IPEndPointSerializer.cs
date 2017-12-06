@@ -74,15 +74,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             var bsonWriter = context.Writer;
 
-            string stringValue;
-            if (value.AddressFamily == AddressFamily.InterNetwork)
-            {
-                stringValue = $"{value.Address}:{value.Port}"; // IPv4
-            }
-            else
-            {
-                stringValue = $"[{value.Address}]:{value.Port}"; // IPv6
-            }
+            var stringValue = value.AddressFamily == AddressFamily.InterNetwork ? $"{value.Address}:{value.Port}" : $"[{value.Address}]:{value.Port}";
             bsonWriter.WriteString(stringValue);
         }
     }

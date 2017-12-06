@@ -67,16 +67,7 @@ namespace MongoDB.Bson
         public static BsonTypeMapperOptions Defaults
         {
             get { return __defaults; }
-            set {
-                if (value.IsFrozen)
-                {
-                    __defaults = value;
-                }
-                else
-                {
-                    __defaults = value.Clone().Freeze();
-                }
-            }
+            set { __defaults = value.IsFrozen ? value : value.Clone().Freeze(); }
         }
 
         // public properties

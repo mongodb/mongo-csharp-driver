@@ -49,14 +49,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public static BsonBinaryReaderSettings Defaults
         {
-            get
-            {
-                if (__defaults == null)
-                {
-                    __defaults = new BsonBinaryReaderSettings();
-                }
-                return __defaults;
-            }
+            get { return __defaults ?? (__defaults = new BsonBinaryReaderSettings()); }
             set { __defaults = value; }
         }
 

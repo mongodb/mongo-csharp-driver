@@ -185,11 +185,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
 
             var bsonDocument = (BsonDocument)document;
-            var idBsonValue = id as BsonValue;
-            if (idBsonValue == null)
-            {
-                idBsonValue = BsonValue.Create(id); // be helpful and provide automatic conversion to BsonValue if necessary
-            }
+            var idBsonValue = id as BsonValue ?? BsonValue.Create(id);
 
             var idIndex = bsonDocument.IndexOfName("_id");
             if (idIndex != -1)

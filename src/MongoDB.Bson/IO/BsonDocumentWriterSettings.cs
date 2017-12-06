@@ -52,14 +52,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public static BsonDocumentWriterSettings Defaults
         {
-            get
-            {
-                if (__defaults == null)
-                {
-                    __defaults = new BsonDocumentWriterSettings();
-                }
-                return __defaults;
-            }
+            get { return __defaults ?? (__defaults = new BsonDocumentWriterSettings()); }
             set { __defaults = value; }
         }
 

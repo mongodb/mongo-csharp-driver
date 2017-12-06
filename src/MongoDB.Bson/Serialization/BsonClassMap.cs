@@ -536,17 +536,7 @@ namespace MongoDB.Bson.Serialization
                                 var conflictingFieldOrProperty = (conflictingMemberMap.MemberInfo is FieldInfo) ? "field" : "property";
                                 var conflictingType = conflictingMemberMap.MemberInfo.DeclaringType;
 
-                                string message;
-                                if (conflictingType == _classType)
-                                {
-                                    message =
-                                        $"The {fieldOrProperty} '{memberMap.MemberName}' of type '{_classType.FullName}' cannot use element name '{memberMap.ElementName}' because it is already being used by {conflictingFieldOrProperty} '{conflictingMemberMap.MemberName}'.";
-                                }
-                                else
-                                {
-                                    message =
-                                        $"The {fieldOrProperty} '{memberMap.MemberName}' of type '{_classType.FullName}' cannot use element name '{memberMap.ElementName}' because it is already being used by {conflictingFieldOrProperty} '{conflictingMemberMap.MemberName}' of type '{conflictingType.FullName}'.";
-                                }
+                                var message = conflictingType == _classType ? $"The {fieldOrProperty} '{memberMap.MemberName}' of type '{_classType.FullName}' cannot use element name '{memberMap.ElementName}' because it is already being used by {conflictingFieldOrProperty} '{conflictingMemberMap.MemberName}'." : $"The {fieldOrProperty} '{memberMap.MemberName}' of type '{_classType.FullName}' cannot use element name '{memberMap.ElementName}' because it is already being used by {conflictingFieldOrProperty} '{conflictingMemberMap.MemberName}' of type '{conflictingType.FullName}'.";
                                 throw new BsonSerializationException(message);
                             }
                             if (memberMap == _extraElementsMemberMap)

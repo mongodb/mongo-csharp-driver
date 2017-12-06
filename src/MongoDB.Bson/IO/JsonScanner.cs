@@ -113,14 +113,7 @@ namespace MongoDB.Bson.IO
                                 state = NumberState.SawMinusI;
                                 break;
                             default:
-                                if (char.IsDigit((char)c))
-                                {
-                                    state = NumberState.SawIntegerDigits;
-                                }
-                                else
-                                {
-                                    state = NumberState.Invalid;
-                                }
+                                state = char.IsDigit((char)c) ? NumberState.SawIntegerDigits : NumberState.Invalid;
                                 break;
                         }
                         break;
@@ -142,14 +135,7 @@ namespace MongoDB.Bson.IO
                                 state = NumberState.Done;
                                 break;
                             default:
-                                if (char.IsWhiteSpace((char)c))
-                                {
-                                    state = NumberState.Done;
-                                }
-                                else
-                                {
-                                    state = NumberState.Invalid;
-                                }
+                                state = char.IsWhiteSpace((char)c) ? NumberState.Done : NumberState.Invalid;
                                 break;
                         }
                         break;
@@ -188,14 +174,7 @@ namespace MongoDB.Bson.IO
                         break;
                     case NumberState.SawDecimalPoint:
                         type = JsonTokenType.Double;
-                        if (char.IsDigit((char)c))
-                        {
-                            state = NumberState.SawFractionDigits;
-                        }
-                        else
-                        {
-                            state = NumberState.Invalid;
-                        }
+                        state = char.IsDigit((char)c) ? NumberState.SawFractionDigits : NumberState.Invalid;
                         break;
                     case NumberState.SawFractionDigits:
                         switch (c)
@@ -236,26 +215,12 @@ namespace MongoDB.Bson.IO
                                 state = NumberState.SawExponentSign;
                                 break;
                             default:
-                                if (char.IsDigit((char)c))
-                                {
-                                    state = NumberState.SawExponentDigits;
-                                }
-                                else
-                                {
-                                    state = NumberState.Invalid;
-                                }
+                                state = char.IsDigit((char)c) ? NumberState.SawExponentDigits : NumberState.Invalid;
                                 break;
                         }
                         break;
                     case NumberState.SawExponentSign:
-                        if (char.IsDigit((char)c))
-                        {
-                            state = NumberState.SawExponentDigits;
-                        }
-                        else
-                        {
-                            state = NumberState.Invalid;
-                        }
+                        state = char.IsDigit((char)c) ? NumberState.SawExponentDigits : NumberState.Invalid;
                         break;
                     case NumberState.SawExponentDigits:
                         switch (c)
@@ -308,14 +273,7 @@ namespace MongoDB.Bson.IO
                                     state = NumberState.Done;
                                     break;
                                 default:
-                                    if (char.IsWhiteSpace((char)c))
-                                    {
-                                        state = NumberState.Done;
-                                    }
-                                    else
-                                    {
-                                        state = NumberState.Invalid;
-                                    }
+                                    state = char.IsWhiteSpace((char)c) ? NumberState.Done : NumberState.Invalid;
                                     break;
                             }
                         }
@@ -392,14 +350,7 @@ namespace MongoDB.Bson.IO
                                 state = RegularExpressionState.Done;
                                 break;
                             default:
-                                if (char.IsWhiteSpace((char)c))
-                                {
-                                    state = RegularExpressionState.Done;
-                                }
-                                else
-                                {
-                                    state = RegularExpressionState.Invalid;
-                                }
+                                state = char.IsWhiteSpace((char)c) ? RegularExpressionState.Done : RegularExpressionState.Invalid;
                                 break;
                         }
                         break;

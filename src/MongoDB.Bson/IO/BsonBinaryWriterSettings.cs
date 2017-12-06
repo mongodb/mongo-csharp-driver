@@ -48,14 +48,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public static BsonBinaryWriterSettings Defaults
         {
-            get
-            {
-                if (__defaults == null)
-                {
-                    __defaults = new BsonBinaryWriterSettings();
-                }
-                return __defaults;
-            }
+            get { return __defaults ?? (__defaults = new BsonBinaryWriterSettings()); }
             set { __defaults = value; }
         }
 

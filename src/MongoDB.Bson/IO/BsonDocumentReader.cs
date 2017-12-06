@@ -425,16 +425,8 @@ namespace MongoDB.Bson.IO
             if (Disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadStartDocument", BsonType.Document);
 
-            BsonDocument document;
             var script = _currentValue as BsonJavaScriptWithScope;
-            if (script != null)
-            {
-                document = script.Scope;
-            }
-            else
-            {
-                document = _currentValue.AsBsonDocument;
-            }
+            var document = script != null ? script.Scope : _currentValue.AsBsonDocument;
             _context = new BsonDocumentReaderContext(_context, ContextType.Document, document);
             State = BsonReaderState.Type;
         }

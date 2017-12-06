@@ -125,14 +125,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         public Func<object, object> Getter
         {
-            get
-            {
-                if (_getter == null)
-                {
-                    _getter = GetGetter();
-                }
-                return _getter;
-            }
+            get { return _getter ?? (_getter = GetGetter()); }
         }
 
         /// <summary>

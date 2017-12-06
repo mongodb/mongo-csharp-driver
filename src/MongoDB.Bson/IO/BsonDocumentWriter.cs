@@ -234,14 +234,7 @@ namespace MongoDB.Bson.IO
                 }
             }
 
-            if (_context == null)
-            {
-                State = BsonWriterState.Done;
-            }
-            else
-            {
-                State = GetNextState();
-            }
+            State = _context == null ? BsonWriterState.Done : GetNextState();
         }
 
         /// <summary>

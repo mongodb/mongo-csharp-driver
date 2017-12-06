@@ -51,14 +51,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public static JsonWriterSettings Defaults
         {
-            get
-            {
-                if (__defaults == null)
-                {
-                    __defaults = new JsonWriterSettings();
-                }
-                return __defaults;
-            }
+            get { return __defaults ?? (__defaults = new JsonWriterSettings()); }
             set { __defaults = value; }
         }
 
