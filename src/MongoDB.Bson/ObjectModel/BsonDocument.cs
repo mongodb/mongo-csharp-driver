@@ -563,7 +563,7 @@ namespace MongoDB.Bson
         [Obsolete("Use AddRange(IEnumerable<BsonElement> elements) instead.")]
         public virtual BsonDocument Add(params BsonElement[] elements)
         {
-            return AddRange((IEnumerable<BsonElement>)elements);
+            return AddRange(elements);
         }
 
         /// <summary>

@@ -72,7 +72,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="value">The object.</param>
         protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, TClass value)
         {
-            var backingDocument = ((BsonDocumentBackedClass)value).BackingDocument;
+            var backingDocument = value.BackingDocument;
             BsonDocumentSerializer.Instance.Serialize(context, backingDocument);
         }
 

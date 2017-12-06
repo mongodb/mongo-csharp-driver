@@ -100,8 +100,8 @@ namespace MongoDB.Bson
             }
 
             _a = timestamp;
-            _b = (machine << 8) | (((int)pid >> 8) & 0xff);
-            _c = ((int)pid << 24) | increment;
+            _b = (machine << 8) | ((pid >> 8) & 0xff);
+            _c = (pid << 24) | increment;
         }
 
         /// <summary>

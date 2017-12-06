@@ -51,7 +51,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         protected override BsonDecimal128 DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
-            return (BsonDecimal128)bsonReader.ReadDecimal128();
+            return bsonReader.ReadDecimal128();
         }
 
         /// <summary>

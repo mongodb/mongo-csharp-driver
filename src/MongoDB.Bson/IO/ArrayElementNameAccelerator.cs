@@ -86,9 +86,9 @@ namespace MongoDB.Bson.IO
 
             if (n == 0)
             {
-                if (d != (byte)asciiZero) { return new[] { d, c, b, a }; }
-                if (c != (byte)asciiZero) { return new[] { c, b, a }; }
-                if (b != (byte)asciiZero) { return new[] { b, a }; }
+                if (d != asciiZero) { return new[] { d, c, b, a }; }
+                if (c != asciiZero) { return new[] { c, b, a }; }
+                if (b != asciiZero) { return new[] { b, a }; }
                 return new[] { a };
             }
 

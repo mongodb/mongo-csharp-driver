@@ -111,7 +111,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     var serializer = new DiscriminatedWrapperSerializer<TValue>(_discriminatorConvention, this);
                     if (serializer.IsPositionedAtDiscriminatedWrapper(context))
                     {
-                        return (TValue)serializer.Deserialize(context);
+                        return serializer.Deserialize(context);
                     }
                     else
                     {
@@ -293,7 +293,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     var serializer = new DiscriminatedWrapperSerializer<TValue>(_discriminatorConvention, this);
                     if (serializer.IsPositionedAtDiscriminatedWrapper(context))
                     {
-                        return (TValue)serializer.Deserialize(context);
+                        return serializer.Deserialize(context);
                     }
                     else
                     {

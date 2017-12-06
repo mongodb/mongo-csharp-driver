@@ -168,7 +168,7 @@ namespace MongoDB.Bson.Serialization.Conventions
             {
                 foreach (var memberMap in classMap.DeclaredMemberMaps.ToList())
                 {
-                    var ignoreAttribute = (BsonIgnoreAttribute)memberMap.MemberInfo.GetCustomAttributes(inherit: false).OfType<BsonIgnoreAttribute>().FirstOrDefault();
+                    var ignoreAttribute = memberMap.MemberInfo.GetCustomAttributes(inherit: false).OfType<BsonIgnoreAttribute>().FirstOrDefault();
                     if (ignoreAttribute != null)
                     {
                         classMap.UnmapMember(memberMap.MemberInfo);

@@ -42,7 +42,7 @@ namespace MongoDB.Bson.Serialization
             var serializerAttributes = typeInfo.GetCustomAttributes<BsonSerializerAttribute>(false).ToArray();
             if (serializerAttributes.Length == 1)
             {
-                var serializerAttribute = (BsonSerializerAttribute)serializerAttributes[0];
+                var serializerAttribute = serializerAttributes[0];
                 return serializerAttribute.CreateSerializer(type);
             }
 

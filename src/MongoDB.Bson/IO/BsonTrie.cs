@@ -240,7 +240,7 @@ namespace MongoDB.Bson.IO
             }
             else if (_children != null)
             {
-                var index = (uint)((int)keyByte - _minChildKeyByte);
+                var index = (uint)(keyByte - _minChildKeyByte);
                 if (index < _childrenIndexes.Length)
                 {
                     index = _childrenIndexes[index];

@@ -743,7 +743,7 @@ namespace MongoDB.Bson
                     // bring exponent within range
                     while (exponent > 0)
                     {
-                        significand = UInt128.Multiply(significand, (uint)10);
+                        significand = UInt128.Multiply(significand, 10);
                         exponent -= 1;
                     }
                 }
@@ -759,7 +759,7 @@ namespace MongoDB.Bson
                     while (exponent < -28)
                     {
                         uint remainder; // ignored
-                        significand = UInt128.Divide(significand, (uint)10, out remainder);
+                        significand = UInt128.Divide(significand, 10, out remainder);
                         exponent += 1;
                     }
 
@@ -1223,7 +1223,7 @@ namespace MongoDB.Bson
 
             while (exponent > goal)
             {
-                var significandTimes10 = UInt128.Multiply(significand, (uint)10);
+                var significandTimes10 = UInt128.Multiply(significand, 10);
                 if (significandTimes10.CompareTo(Decimal128.__maxSignificand) > 0)
                 {
                     break;
@@ -1270,7 +1270,7 @@ namespace MongoDB.Bson
             while (exponent < goal)
             {
                 uint remainder;
-                var significandDividedBy10 = UInt128.Divide(significand, (uint)10, out remainder);
+                var significandDividedBy10 = UInt128.Divide(significand, 10, out remainder);
                 if (remainder != 0)
                 {
                     break;
@@ -1415,7 +1415,7 @@ namespace MongoDB.Bson
             var scale = (short)((bits[3] & 0x00FF0000) >> 16);
             var exponent = (short)-scale;
             var significandHigh = (ulong)(uint)bits[2];
-            var significandLow = ((ulong)(uint)bits[1] << 32) | (ulong)(uint)bits[0];
+            var significandLow = ((ulong)(uint)bits[1] << 32) | (uint)bits[0];
 
             _highBits = (isNegative ? Flags.SignBit : 0) | ((ulong)MapExponentToDecimal128BiasedExponent(exponent) << 49) | significandHigh;
             _lowBits = significandLow;
@@ -1776,7 +1776,7 @@ namespace MongoDB.Bson
                 while (exponent < 0)
                 {
                     uint remainder; // ignored because we are truncating
-                    significand = UInt128.Divide(significand, (uint)10, out remainder);
+                    significand = UInt128.Divide(significand, 10, out remainder);
                     if (significand.Equals(UInt128.Zero))
                     {
                         value = 0;
@@ -1789,7 +1789,7 @@ namespace MongoDB.Bson
             {
                 while (exponent > 0)
                 {
-                    significand = UInt128.Multiply(significand, (uint)10);
+                    significand = UInt128.Multiply(significand, 10);
                     if (significand.CompareTo(__maxSignificand) > 0)
                     {
                         value = 0;

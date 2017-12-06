@@ -411,7 +411,7 @@ namespace MongoDB.Bson.IO
             {
                 var chunk = _chunkSource.GetChunk(minimumCapacity);
                 _chunks.Add(chunk);
-                var newCapacity = (long)_capacity + (long)chunk.Bytes.Count;
+                var newCapacity = _capacity + (long)chunk.Bytes.Count;
                 if (newCapacity > int.MaxValue)
                 {
                     throw new InvalidOperationException("Capacity is limited to 2GB.");

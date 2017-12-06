@@ -37,7 +37,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the <see cref="EnumSerializer{TEnum}"/> class.
         /// </summary>
         public EnumSerializer()
-            : this((BsonType)0) // 0 means use underlying type
+            : this(0) // 0 means use underlying type
         {
         }
 

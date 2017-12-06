@@ -90,7 +90,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The items.</returns>
         protected override IEnumerable<TItem> EnumerateItemsInSerializationOrder(TItem[] value)
         {
-            return (IEnumerable<TItem>)value;
+            return value;
         }
 
         /// <summary>

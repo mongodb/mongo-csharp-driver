@@ -161,13 +161,13 @@ namespace MongoDB.Bson
             var otherInt32 = other as BsonInt32;
             if (otherInt32 != null)
             {
-                return _value.CompareTo((double)otherInt32.Value);
+                return _value.CompareTo(otherInt32.Value);
             }
 
             var otherInt64 = other as BsonInt64;
             if (otherInt64 != null)
             {
-                return _value.CompareTo((double)otherInt64.Value);
+                return _value.CompareTo(otherInt64.Value);
             }
 
             var otherDecimal128 = other as BsonDecimal128;
@@ -353,13 +353,13 @@ namespace MongoDB.Bson
             var rhsInt32 = rhs as BsonInt32;
             if (rhsInt32 != null)
             {
-                return _value == (double)rhsInt32.Value;
+                return _value == rhsInt32.Value;
             }
 
             var rhsInt64 = rhs as BsonInt64;
             if (rhsInt64 != null)
             {
-                return _value == (double)rhsInt64.Value;
+                return _value == rhsInt64.Value;
             }
 
             var rhsDecimal128 = rhs as BsonDecimal128;

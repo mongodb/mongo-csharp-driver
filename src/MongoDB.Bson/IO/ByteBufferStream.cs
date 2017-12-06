@@ -296,7 +296,7 @@ namespace MongoDB.Bson.IO
 
         private void PrepareToWrite(int count)
         {
-            var minimumCapacity = (long)_position + (long)count;
+            var minimumCapacity = _position + (long)count;
             if (minimumCapacity > int.MaxValue)
             {
                 throw new IOException("Stream was too long.");
@@ -338,7 +338,7 @@ namespace MongoDB.Bson.IO
 
         private void ThrowIfEndOfStream(int count)
         {
-            var minimumLength = (long)_position + (long)count;
+            var minimumLength = _position + (long)count;
             if (_length < minimumLength)
             {
                 if (_position < _length)

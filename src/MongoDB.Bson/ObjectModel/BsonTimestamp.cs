@@ -46,7 +46,7 @@ namespace MongoDB.Bson
         /// <param name="increment">The increment.</param>
         public BsonTimestamp(int timestamp, int increment)
         {
-            _value = (long)(((ulong)(uint)timestamp << 32) | (ulong)(uint)increment);
+            _value = (long)(((ulong)(uint)timestamp << 32) | (uint)increment);
         }
 
         // public operators

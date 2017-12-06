@@ -52,7 +52,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         protected override BsonBoolean DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
-            return (BsonBoolean)bsonReader.ReadBoolean();
+            return bsonReader.ReadBoolean();
         }
 
         /// <summary>

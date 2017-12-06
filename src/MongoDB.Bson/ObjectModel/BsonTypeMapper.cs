@@ -600,7 +600,7 @@ namespace MongoDB.Bson
                 case Conversion.StringToBsonString: return (BsonString)(string)value;
                 case Conversion.StringToBsonSymbol: return BsonSymbolTable.Lookup((string)value);
                 case Conversion.StringToBsonTimestamp: return new BsonTimestamp(JsonConvert.ToInt64((string)value));
-                case Conversion.UInt16ToBsonBoolean: return (BsonValue)((ushort)value != 0);
+                case Conversion.UInt16ToBsonBoolean: return (ushort)value != 0;
                 case Conversion.UInt16ToBsonDecimal128: return (BsonDecimal128)(Decimal128)(ushort)value;
                 case Conversion.UInt16ToBsonDouble: return (BsonDouble)(double)(ushort)value;
                 case Conversion.UInt16ToBsonInt32: return (BsonInt32)(int)(ushort)value;

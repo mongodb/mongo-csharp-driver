@@ -182,7 +182,7 @@ namespace MongoDB.Bson
                     return false;
                 }
 
-                var combinedValue = UInt128.Multiply(value, (uint)1000000000);
+                var combinedValue = UInt128.Multiply(value, 1000000000);
                 combinedValue = UInt128.Add(combinedValue, new UInt128(0, fragmentValue));
                 if (UInt128.Compare(combinedValue, value) < 0)
                 {
@@ -260,7 +260,7 @@ namespace MongoDB.Bson
             {
                 // convert 9 decimal digits at a time to a string
                 uint remainder;
-                value = UInt128.Divide(value, (uint)1000000000, out remainder);
+                value = UInt128.Divide(value, 1000000000, out remainder);
                 var fragmentString = remainder.ToString(NumberFormatInfo.InvariantInfo);
 
                 if (UInt128.Equals(value, UInt128.Zero))

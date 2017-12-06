@@ -52,7 +52,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         protected override BsonInt64 DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
-            return (BsonInt64)bsonReader.ReadInt64();
+            return bsonReader.ReadInt64();
         }
 
         /// <summary>

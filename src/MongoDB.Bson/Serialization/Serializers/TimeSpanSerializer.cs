@@ -255,11 +255,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (units == TimeSpanUnits.Nanoseconds)
             {
-                return (double)(timeSpan.Ticks) * 100.0;
+                return timeSpan.Ticks * 100.0;
             }
             else
             {
-                return (double)timeSpan.Ticks / (double)TicksPerUnit(units); // cast first then divide to preserve fractional part of result
+                return timeSpan.Ticks / (double)TicksPerUnit(units); // cast first then divide to preserve fractional part of result
             }
         }
 

@@ -62,7 +62,7 @@ namespace MongoDB.Bson
         [Obsolete("Use (BsonInt32)(-1) instead.")]
         public static BsonInt32 MinusOne
         {
-            get { return (BsonInt32)(-1); }
+            get { return -1; }
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace MongoDB.Bson
         [Obsolete("Use (BsonInt32)0 instead.")]
         public static BsonInt32 Zero
         {
-            get { return (BsonInt32)0; }
+            get { return 0; }
         }
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace MongoDB.Bson
         [Obsolete("Use (BsonInt32)1 instead.")]
         public static BsonInt32 One
         {
-            get { return (BsonInt32)1; }
+            get { return 1; }
         }
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace MongoDB.Bson
         [Obsolete("Use (BsonInt32)2 instead.")]
         public static BsonInt32 Two
         {
-            get { return (BsonInt32)2; }
+            get { return 2; }
         }
 
         /// <summary>
@@ -98,7 +98,7 @@ namespace MongoDB.Bson
         [Obsolete("Use (BsonInt32)3 instead.")]
         public static BsonInt32 Three
         {
-            get { return (BsonInt32)3; }
+            get { return 3; }
         }
 
         // public properties
@@ -276,13 +276,13 @@ namespace MongoDB.Bson
         /// <inheritdoc/>
         public override decimal ToDecimal()
         {
-            return (decimal)_value;
+            return _value;
         }
 
         /// <inheritdoc/>
         public override Decimal128 ToDecimal128()
         {
-            return (Decimal128)_value;
+            return _value;
         }
 
         /// <summary>
@@ -291,7 +291,7 @@ namespace MongoDB.Bson
         /// <returns>A Double.</returns>
         public override double ToDouble()
         {
-            return (double)_value;
+            return _value;
         }
 
         /// <summary>
@@ -309,7 +309,7 @@ namespace MongoDB.Bson
         /// <returns>An Int32.</returns>
         public override long ToInt64()
         {
-            return (long)_value;
+            return _value;
         }
 
         /// <summary>
@@ -436,13 +436,13 @@ namespace MongoDB.Bson
             var rhsInt64 = rhs as BsonInt64;
             if (rhsInt64 != null)
             {
-                return (long)_value == rhsInt64.Value;
+                return _value == rhsInt64.Value;
             }
 
             var rhsDouble = rhs as BsonDouble;
             if (rhsDouble != null)
             {
-                return (double)_value == rhsDouble.Value; // use == instead of Equals so NaN is handled correctly
+                return _value == rhsDouble.Value; // use == instead of Equals so NaN is handled correctly
             }
 
             var rhsDecimal128 = rhs as BsonDecimal128;

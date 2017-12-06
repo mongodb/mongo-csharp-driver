@@ -101,13 +101,13 @@ namespace MongoDB.Bson.Serialization.Serializers
                 case BsonType.Int32:
                     var int32Value = bsonReader.ReadInt32();
                     value = (byte)int32Value;
-                    lostData = (int)value != int32Value;
+                    lostData = value != int32Value;
                     break;
 
                 case BsonType.Int64:
                     var int64Value = bsonReader.ReadInt64();
                     value = (byte)int64Value;
-                    lostData = (int)value != int64Value;
+                    lostData = value != int64Value;
                     break;
 
                 case BsonType.String:

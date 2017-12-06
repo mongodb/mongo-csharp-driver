@@ -631,7 +631,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(byte[] value)
         {
-            return (value != null) ? (BsonValue)new BsonBinaryData(value) : null;
+            return (value != null) ? new BsonBinaryData(value) : null;
         }
 
         /// <summary>
@@ -811,7 +811,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(Regex value)
         {
-            return (value != null) ? (BsonValue)new BsonRegularExpression(value) : null;
+            return (value != null) ? new BsonRegularExpression(value) : null;
         }
 
         /// <summary>
@@ -821,7 +821,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(string value)
         {
-            return (value != null) ? (BsonValue)(BsonString)value : null;
+            return (value != null) ? (BsonString)value : null;
         }
 
         /// <summary>
