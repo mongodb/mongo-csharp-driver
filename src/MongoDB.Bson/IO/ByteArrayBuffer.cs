@@ -35,7 +35,7 @@ namespace MongoDB.Bson.IO
         /// <param name="bytes">The bytes.</param>
         /// <param name="isReadOnly">Whether the buffer is read only.</param>
         public ByteArrayBuffer(byte[] bytes, bool isReadOnly = false)
-            : this(bytes, bytes == null ? 0 : bytes.Length, isReadOnly)
+            : this(bytes, bytes?.Length ?? 0, isReadOnly)
         {
         }
 
