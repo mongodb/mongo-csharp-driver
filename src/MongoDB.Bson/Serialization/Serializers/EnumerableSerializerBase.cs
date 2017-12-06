@@ -47,7 +47,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (itemSerializer == null)
             {
-                throw new ArgumentNullException("itemSerializer");
+                throw new ArgumentNullException(nameof(itemSerializer));
             }
 
             _lazyItemSerializer = new Lazy<IBsonSerializer>(() => itemSerializer);
@@ -61,7 +61,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (serializerRegistry == null)
             {
-                throw new ArgumentNullException("serializerRegistry");
+                throw new ArgumentNullException(nameof(serializerRegistry));
             }
 
             _lazyItemSerializer = new Lazy<IBsonSerializer>(() => serializerRegistry.GetSerializer(typeof(object)));
@@ -228,7 +228,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (itemSerializer == null)
             {
-                throw new ArgumentNullException("itemSerializer");
+                throw new ArgumentNullException(nameof(itemSerializer));
             }
 
             _lazyItemSerializer = new Lazy<IBsonSerializer<TItem>>(() => itemSerializer);
@@ -242,7 +242,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (serializerRegistry == null)
             {
-                throw new ArgumentNullException("serializerRegistry");
+                throw new ArgumentNullException(nameof(serializerRegistry));
             }
 
             _lazyItemSerializer = new Lazy<IBsonSerializer<TItem>>(() => serializerRegistry.GetSerializer<TItem>());

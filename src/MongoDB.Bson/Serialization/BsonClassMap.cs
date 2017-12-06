@@ -274,7 +274,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (memberInfo == null)
             {
-                throw new ArgumentNullException("memberInfo");
+                throw new ArgumentNullException(nameof(memberInfo));
             }
 
             if (memberInfo is FieldInfo)
@@ -315,7 +315,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (type == null)
             {
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
             }
 
             BsonSerializer.ConfigLock.EnterReadLock();
@@ -338,7 +338,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (classType == null)
             {
-                throw new ArgumentNullException("classType");
+                throw new ArgumentNullException(nameof(classType));
             }
 
             BsonSerializer.ConfigLock.EnterReadLock();
@@ -410,7 +410,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (classMap == null)
             {
-                throw new ArgumentNullException("classMap");
+                throw new ArgumentNullException(nameof(classMap));
             }
 
             BsonSerializer.ConfigLock.EnterWriteLock();
@@ -608,7 +608,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (memberName == null)
             {
-                throw new ArgumentNullException("memberName");
+                throw new ArgumentNullException(nameof(memberName));
             }
 
             // can be called whether frozen or not
@@ -624,7 +624,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (elementName == null)
             {
-                throw new ArgumentNullException("elementName");
+                throw new ArgumentNullException(nameof(elementName));
             }
 
             if (!_frozen) { ThrowNotFrozenException(); }
@@ -646,7 +646,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (constructorInfo == null)
             {
-                throw new ArgumentNullException("constructorInfo");
+                throw new ArgumentNullException(nameof(constructorInfo));
             }
             EnsureMemberInfoIsForThisClass(constructorInfo);
 
@@ -683,7 +683,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (@delegate == null)
             {
-                throw new ArgumentNullException("delegate");
+                throw new ArgumentNullException(nameof(@delegate));
             }
 
             if (_frozen) { ThrowFrozenException(); }
@@ -714,7 +714,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (fieldName == null)
             {
-                throw new ArgumentNullException("fieldName");
+                throw new ArgumentNullException(nameof(fieldName));
             }
 
             if (_frozen) { ThrowFrozenException(); }
@@ -732,7 +732,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (memberInfo == null)
             {
-                throw new ArgumentNullException("memberInfo");
+                throw new ArgumentNullException(nameof(memberInfo));
             }
 
             if (_frozen) { ThrowFrozenException(); }
@@ -750,7 +750,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (propertyName == null)
             {
-                throw new ArgumentNullException("propertyName");
+                throw new ArgumentNullException(nameof(propertyName));
             }
 
             if (_frozen) { ThrowFrozenException(); }
@@ -768,7 +768,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (methodInfo == null)
             {
-                throw new ArgumentNullException("methodInfo");
+                throw new ArgumentNullException(nameof(methodInfo));
             }
             EnsureMemberInfoIsForThisClass(methodInfo);
 
@@ -805,7 +805,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (fieldName == null)
             {
-                throw new ArgumentNullException("fieldName");
+                throw new ArgumentNullException(nameof(fieldName));
             }
 
             if (_frozen) { ThrowFrozenException(); }
@@ -827,7 +827,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (fieldName == null)
             {
-                throw new ArgumentNullException("fieldName");
+                throw new ArgumentNullException(nameof(fieldName));
             }
 
             if (_frozen) { ThrowFrozenException(); }
@@ -845,7 +845,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (memberInfo == null)
             {
-                throw new ArgumentNullException("memberInfo");
+                throw new ArgumentNullException(nameof(memberInfo));
             }
 
             if (_frozen) { ThrowFrozenException(); }
@@ -863,7 +863,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (propertyName == null)
             {
-                throw new ArgumentNullException("propertyName");
+                throw new ArgumentNullException(nameof(propertyName));
             }
 
             if (_frozen) { ThrowFrozenException(); }
@@ -881,11 +881,11 @@ namespace MongoDB.Bson.Serialization
         {
             if (memberInfo == null)
             {
-                throw new ArgumentNullException("memberInfo");
+                throw new ArgumentNullException(nameof(memberInfo));
             }
             if (!(memberInfo is FieldInfo) && !(memberInfo is PropertyInfo))
             {
-                throw new ArgumentException("MemberInfo must be either a FieldInfo or a PropertyInfo.", "memberInfo");
+                throw new ArgumentException("MemberInfo must be either a FieldInfo or a PropertyInfo.", nameof(memberInfo));
             }
             EnsureMemberInfoIsForThisClass(memberInfo);
 
@@ -908,7 +908,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (propertyName == null)
             {
-                throw new ArgumentNullException("propertyName");
+                throw new ArgumentNullException(nameof(propertyName));
             }
 
             if (_frozen) { ThrowFrozenException(); }
@@ -960,7 +960,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (discriminator == null)
             {
-                throw new ArgumentNullException("discriminator");
+                throw new ArgumentNullException(nameof(discriminator));
             }
 
             if (_frozen) { ThrowFrozenException(); }
@@ -985,7 +985,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (memberMap == null)
             {
-                throw new ArgumentNullException("memberMap");
+                throw new ArgumentNullException(nameof(memberMap));
             }
             EnsureMemberMapIsForThisClass(memberMap);
 
@@ -1008,7 +1008,7 @@ namespace MongoDB.Bson.Serialization
             if (!_classType.GetTypeInfo().IsAssignableFrom(type))
             {
                 string message = string.Format("Class {0} cannot be assigned to Class {1}.  Ensure that known types are derived from the mapped class.", type.FullName, _classType.FullName);
-                throw new ArgumentNullException("type", message);
+                throw new ArgumentNullException(nameof(type), message);
             }
 
             if (_frozen) { ThrowFrozenException(); }
@@ -1069,7 +1069,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (constructorInfo == null)
             {
-                throw new ArgumentNullException("constructorInfo");
+                throw new ArgumentNullException(nameof(constructorInfo));
             }
             EnsureMemberInfoIsForThisClass(constructorInfo);
 
@@ -1089,7 +1089,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (methodInfo == null)
             {
-                throw new ArgumentNullException("methodInfo");
+                throw new ArgumentNullException(nameof(methodInfo));
             }
             EnsureMemberInfoIsForThisClass(methodInfo);
 
@@ -1109,7 +1109,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (fieldName == null)
             {
-                throw new ArgumentNullException("fieldName");
+                throw new ArgumentNullException(nameof(fieldName));
             }
 
             if (_frozen) { ThrowFrozenException(); }
@@ -1130,7 +1130,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (memberInfo == null)
             {
-                throw new ArgumentNullException("memberInfo");
+                throw new ArgumentNullException(nameof(memberInfo));
             }
             EnsureMemberInfoIsForThisClass(memberInfo);
 
@@ -1158,7 +1158,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (propertyName == null)
             {
-                throw new ArgumentNullException("propertyName");
+                throw new ArgumentNullException(nameof(propertyName));
             }
 
             if (_frozen) { ThrowFrozenException(); }
@@ -1218,7 +1218,7 @@ namespace MongoDB.Bson.Serialization
                     "The memberInfo argument must be for class {0}, but was for class {1}.",
                     _classType.Name,
                     memberInfo.DeclaringType.Name);
-                throw new ArgumentOutOfRangeException("memberInfo", message);
+                throw new ArgumentOutOfRangeException(nameof(memberInfo), message);
             }
         }
 
@@ -1230,7 +1230,7 @@ namespace MongoDB.Bson.Serialization
                     "The memberMap argument must be for class {0}, but was for class {1}.",
                     _classType.Name,
                     memberMap.ClassMap.ClassType.Name);
-                throw new ArgumentOutOfRangeException("memberMap", message);
+                throw new ArgumentOutOfRangeException(nameof(memberMap), message);
             }
         }
 
@@ -1364,7 +1364,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (creatorLambda == null)
             {
-                throw new ArgumentNullException("creatorLambda");
+                throw new ArgumentNullException(nameof(creatorLambda));
             }
 
             IEnumerable<MemberInfo> arguments;

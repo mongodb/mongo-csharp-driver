@@ -36,7 +36,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         {
             if (action == null)
             {
-                throw new ArgumentNullException("action");
+                throw new ArgumentNullException(nameof(action));
             }
             _action = action;
         }

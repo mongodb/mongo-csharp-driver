@@ -44,7 +44,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (nominalTypeSerializer == null)
             {
-                throw new ArgumentNullException("nominalTypeSerializer");
+                throw new ArgumentNullException(nameof(nominalTypeSerializer));
             }
 
             _lazyNominalTypeSerializer = new Lazy<IBsonSerializer<TNominalType>>(() => nominalTypeSerializer);
@@ -58,7 +58,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (serializerRegistry == null)
             {
-                throw new ArgumentNullException("serializerRegistry");
+                throw new ArgumentNullException(nameof(serializerRegistry));
             }
 
             _lazyNominalTypeSerializer = new Lazy<IBsonSerializer<TNominalType>>(() => serializerRegistry.GetSerializer<TNominalType>());

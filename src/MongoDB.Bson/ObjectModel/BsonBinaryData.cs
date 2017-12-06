@@ -61,7 +61,7 @@ namespace MongoDB.Bson
         {
             if (bytes == null)
             {
-                throw new ArgumentNullException("bytes");
+                throw new ArgumentNullException(nameof(bytes));
             }
             if (subType == BsonBinarySubType.UuidStandard || subType == BsonBinarySubType.UuidLegacy)
             {
@@ -227,7 +227,7 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
 
             return (BsonBinaryData)BsonTypeMapper.MapToBsonValue(value, BsonType.Binary);

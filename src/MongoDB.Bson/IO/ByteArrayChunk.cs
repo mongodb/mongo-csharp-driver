@@ -27,7 +27,7 @@ namespace MongoDB.Bson.IO
         {
             if (size < 0)
             {
-                throw new ArgumentOutOfRangeException("size");
+                throw new ArgumentOutOfRangeException(nameof(size));
             }
             return new byte[size];
         }
@@ -56,7 +56,7 @@ namespace MongoDB.Bson.IO
         {
             if (bytes == null)
             {
-                throw new ArgumentNullException("bytes");
+                throw new ArgumentNullException(nameof(bytes));
             }
             _bytes = bytes;
         }

@@ -39,7 +39,7 @@ namespace MongoDB.Bson
         {
             if (pattern == null)
             {
-                throw new ArgumentNullException("pattern");
+                throw new ArgumentNullException(nameof(pattern));
             }
             if (pattern.Length > 0 && pattern[0] == '/')
             {
@@ -65,7 +65,7 @@ namespace MongoDB.Bson
         {
             if (pattern == null)
             {
-                throw new ArgumentNullException("pattern");
+                throw new ArgumentNullException(nameof(pattern));
             }
             _pattern = pattern;
             _options = options ?? "";
@@ -79,7 +79,7 @@ namespace MongoDB.Bson
         {
             if (regex == null)
             {
-                throw new ArgumentNullException("regex");
+                throw new ArgumentNullException(nameof(regex));
             }
             _pattern = regex.ToString();
             _options = "";
@@ -180,7 +180,7 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
 
             return (BsonRegularExpression)BsonTypeMapper.MapToBsonValue(value, BsonType.RegularExpression);

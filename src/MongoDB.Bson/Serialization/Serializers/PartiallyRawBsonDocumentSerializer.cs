@@ -38,15 +38,15 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (name == null)
             {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
             if (rawSerializer == null)
             {
-                throw new ArgumentNullException("rawSerializer");
+                throw new ArgumentNullException(nameof(rawSerializer));
             }
             if (!typeof(BsonValue).GetTypeInfo().IsAssignableFrom(rawSerializer.ValueType))
             {
-                throw new ArgumentException("RawSerializer ValueType must be a BsonValue.", "rawSerializer");
+                throw new ArgumentException("RawSerializer ValueType must be a BsonValue.", nameof(rawSerializer));
             }
 
             _name = name;

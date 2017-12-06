@@ -44,7 +44,7 @@ namespace MongoDB.Bson.IO
         {
             if (buffer == null)
             {
-                throw new ArgumentNullException("buffer");
+                throw new ArgumentNullException(nameof(buffer));
             }
 
             _buffer = buffer;
@@ -114,7 +114,7 @@ namespace MongoDB.Bson.IO
             {
                 if (value < 0 || value > int.MaxValue)
                 {
-                    throw new ArgumentOutOfRangeException("value");
+                    throw new ArgumentOutOfRangeException(nameof(value));
                 }
                 ThrowIfDisposed();
                 _position = (int)value;
@@ -134,15 +134,15 @@ namespace MongoDB.Bson.IO
         {
             if (buffer == null)
             {
-                throw new ArgumentNullException("buffer");
+                throw new ArgumentNullException(nameof(buffer));
             }
             if (offset < 0 || offset > buffer.Length)
             {
-                throw new ArgumentOutOfRangeException("offset");
+                throw new ArgumentOutOfRangeException(nameof(offset));
             }
             if (count < 0 || offset + count > buffer.Length)
             {
-                throw new ArgumentOutOfRangeException("count");
+                throw new ArgumentOutOfRangeException(nameof(count));
             }
             ThrowIfDisposed();
 
@@ -185,7 +185,7 @@ namespace MongoDB.Bson.IO
                 case SeekOrigin.Begin: position = offset; break;
                 case SeekOrigin.Current: position = _position + offset; break;
                 case SeekOrigin.End: position = _length + offset; break;
-                default: throw new ArgumentException("Invalid origin.", "origin");
+                default: throw new ArgumentException("Invalid origin.", nameof(origin));
             }
             if (position < 0)
             {
@@ -205,7 +205,7 @@ namespace MongoDB.Bson.IO
         {
             if (value < 0 || value > int.MaxValue)
             {
-                throw new ArgumentOutOfRangeException("value");
+                throw new ArgumentOutOfRangeException(nameof(value));
             }
             ThrowIfDisposed();
             EnsureWriteable();
@@ -223,15 +223,15 @@ namespace MongoDB.Bson.IO
         {
             if (buffer == null)
             {
-                throw new ArgumentNullException("buffer");
+                throw new ArgumentNullException(nameof(buffer));
             }
             if (offset < 0 || offset > buffer.Length)
             {
-                throw new ArgumentOutOfRangeException("offset");
+                throw new ArgumentOutOfRangeException(nameof(offset));
             }
             if (count < 0 || offset + count > buffer.Length)
             {
-                throw new ArgumentOutOfRangeException("count");
+                throw new ArgumentOutOfRangeException(nameof(count));
             }
             ThrowIfDisposed();
             EnsureWriteable();
@@ -354,7 +354,7 @@ namespace MongoDB.Bson.IO
         {
             if (encoding == null)
             {
-                throw new ArgumentNullException("encoding");
+                throw new ArgumentNullException(nameof(encoding));
             }
             ThrowIfDisposed();
 
@@ -492,7 +492,7 @@ namespace MongoDB.Bson.IO
         {
             if (encoding == null)
             {
-                throw new ArgumentNullException("encoding");
+                throw new ArgumentNullException(nameof(encoding));
             }
             ThrowIfDisposed();
 
@@ -539,7 +539,7 @@ namespace MongoDB.Bson.IO
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
             ThrowIfDisposed();
 
@@ -566,7 +566,7 @@ namespace MongoDB.Bson.IO
                     bytes = Utf8Encodings.Strict.GetBytes(value);
                     if (Array.IndexOf<byte>(bytes, 0) != -1)
                     {
-                        throw new ArgumentException("A CString cannot contain null bytes.", "value");
+                        throw new ArgumentException("A CString cannot contain null bytes.", nameof(value));
                     }
                     actualLength = bytes.Length;
                 }
@@ -583,7 +583,7 @@ namespace MongoDB.Bson.IO
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
             ThrowIfDisposed();
 

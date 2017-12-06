@@ -42,7 +42,7 @@ namespace MongoDB.Bson.IO
         {
             if (settings == null)
             {
-                throw new ArgumentNullException("settings");
+                throw new ArgumentNullException(nameof(settings));
             }
 
             _settings = settings.FrozenCopy();

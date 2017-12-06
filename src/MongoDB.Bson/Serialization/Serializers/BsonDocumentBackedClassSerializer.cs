@@ -87,15 +87,15 @@ namespace MongoDB.Bson.Serialization
         {
             if (memberName == null)
             {
-                throw new ArgumentNullException("memberName");
+                throw new ArgumentNullException(nameof(memberName));
             }
             if (elementName == null)
             {
-                throw new ArgumentNullException("elementName");
+                throw new ArgumentNullException(nameof(elementName));
             }
             if (serializer == null)
             {
-                throw new ArgumentNullException("serializer");
+                throw new ArgumentNullException(nameof(serializer));
             }
 
             var info = new BsonSerializationInfo(elementName, serializer, serializer.ValueType);

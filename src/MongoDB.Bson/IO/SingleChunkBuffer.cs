@@ -39,11 +39,11 @@ namespace MongoDB.Bson.IO
         {
             if (chunk == null)
             {
-                throw new ArgumentNullException("chunk");
+                throw new ArgumentNullException(nameof(chunk));
             }
             if (length < 0 || length > chunk.Bytes.Count)
             {
-                throw new ArgumentOutOfRangeException("length");
+                throw new ArgumentOutOfRangeException(nameof(length));
             }
 
             _chunk = chunk;
@@ -85,7 +85,7 @@ namespace MongoDB.Bson.IO
                 ThrowIfDisposed();
                 if (value < 0 || value > _chunk.Bytes.Count)
                 {
-                    throw new ArgumentOutOfRangeException("value");
+                    throw new ArgumentOutOfRangeException(nameof(value));
                 }
                 EnsureIsWritable();
 
@@ -100,7 +100,7 @@ namespace MongoDB.Bson.IO
             ThrowIfDisposed();
             if (position < 0 || position > _length)
             {
-                throw new ArgumentOutOfRangeException("position");
+                throw new ArgumentOutOfRangeException(nameof(position));
             }
 
             var segment = _chunk.Bytes;
@@ -113,11 +113,11 @@ namespace MongoDB.Bson.IO
             ThrowIfDisposed();
             if (position < 0 || position > _length)
             {
-                throw new ArgumentOutOfRangeException("position");
+                throw new ArgumentOutOfRangeException(nameof(position));
             }
             if (count < 0 || position + count > _length)
             {
-                throw new ArgumentOutOfRangeException("count");
+                throw new ArgumentOutOfRangeException(nameof(count));
             }
             EnsureIsWritable();
 
@@ -141,7 +141,7 @@ namespace MongoDB.Bson.IO
         {
             if (minimumCapacity < 0)
             {
-                throw new ArgumentOutOfRangeException("minimumCapacity");
+                throw new ArgumentOutOfRangeException(nameof(minimumCapacity));
             }
             ThrowIfDisposed();
             EnsureIsWritable();
@@ -158,7 +158,7 @@ namespace MongoDB.Bson.IO
             ThrowIfDisposed();
             if (position < 0 || position > _length)
             {
-                throw new ArgumentOutOfRangeException("position");
+                throw new ArgumentOutOfRangeException(nameof(position));
             }
 
             var segment = _chunk.Bytes;
@@ -171,19 +171,19 @@ namespace MongoDB.Bson.IO
             ThrowIfDisposed();
             if (position < 0 || position > _length)
             {
-                throw new ArgumentOutOfRangeException("position");
+                throw new ArgumentOutOfRangeException(nameof(position));
             }
             if (destination == null)
             {
-                throw new ArgumentNullException("destination");
+                throw new ArgumentNullException(nameof(destination));
             }
             if (offset < 0 || offset > destination.Length)
             {
-                throw new ArgumentOutOfRangeException("offset");
+                throw new ArgumentOutOfRangeException(nameof(offset));
             }
             if (count < 0 || position + count > _length || offset + count > destination.Length)
             {
-                throw new ArgumentOutOfRangeException("count");
+                throw new ArgumentOutOfRangeException(nameof(count));
             }
 
             var segment = _chunk.Bytes;
@@ -196,11 +196,11 @@ namespace MongoDB.Bson.IO
             ThrowIfDisposed();
             if (position < 0 || position > _length)
             {
-                throw new ArgumentOutOfRangeException("position");
+                throw new ArgumentOutOfRangeException(nameof(position));
             }
             if (length < 0 || position + length > _length)
             {
-                throw new ArgumentOutOfRangeException("length");
+                throw new ArgumentOutOfRangeException(nameof(length));
             }
             EnsureIsReadOnly();
 
@@ -221,7 +221,7 @@ namespace MongoDB.Bson.IO
             ThrowIfDisposed();
             if (position < 0 || position > _length)
             {
-                throw new ArgumentOutOfRangeException("position");
+                throw new ArgumentOutOfRangeException(nameof(position));
             }
             EnsureIsWritable();
 
@@ -235,19 +235,19 @@ namespace MongoDB.Bson.IO
             ThrowIfDisposed();
             if (position < 0 || position > _length)
             {
-                throw new ArgumentOutOfRangeException("position");
+                throw new ArgumentOutOfRangeException(nameof(position));
             }
             if (source == null)
             {
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException(nameof(source));
             }
             if (offset < 0 || offset > source.Length)
             {
-                throw new ArgumentOutOfRangeException("offset");
+                throw new ArgumentOutOfRangeException(nameof(offset));
             }
             if (count < 0 || position + count > _length || offset + count > source.Length)
             {
-                throw new ArgumentOutOfRangeException("count");
+                throw new ArgumentOutOfRangeException(nameof(count));
             }
             EnsureIsWritable();
 

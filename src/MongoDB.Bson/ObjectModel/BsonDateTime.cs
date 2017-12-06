@@ -143,7 +143,7 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
 
             return (BsonDateTime)BsonTypeMapper.MapToBsonValue(value, BsonType.DateTime);

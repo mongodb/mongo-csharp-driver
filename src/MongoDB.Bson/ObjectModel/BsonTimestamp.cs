@@ -116,7 +116,7 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
 
             return (BsonTimestamp)BsonTypeMapper.MapToBsonValue(value, BsonType.Timestamp);

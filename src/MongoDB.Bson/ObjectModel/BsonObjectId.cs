@@ -211,7 +211,7 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
 
             return (BsonObjectId)BsonTypeMapper.MapToBsonValue(value, BsonType.ObjectId);

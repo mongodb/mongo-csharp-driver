@@ -41,11 +41,11 @@ namespace MongoDB.Bson
         {
             if (name == null)
             {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
             ValidateElementName(name);
             _name = name;

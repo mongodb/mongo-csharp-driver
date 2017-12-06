@@ -342,7 +342,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (defaultValueCreator == null)
             {
-                throw new ArgumentNullException("defaultValueCreator");
+                throw new ArgumentNullException(nameof(defaultValueCreator));
             }
             if (_frozen) { ThrowFrozenException(); }
             _defaultValue = defaultValueCreator(); // need an instance to compare against
@@ -374,11 +374,11 @@ namespace MongoDB.Bson.Serialization
         {
             if (elementName == null)
             {
-                throw new ArgumentNullException("elementName");
+                throw new ArgumentNullException(nameof(elementName));
             }
             if (elementName.IndexOf('\0') != -1)
             {
-                throw new ArgumentException("Element names cannot contain nulls.", "elementName");
+                throw new ArgumentException("Element names cannot contain nulls.", nameof(elementName));
             }
             if (_frozen) { ThrowFrozenException(); }
 
@@ -469,12 +469,12 @@ namespace MongoDB.Bson.Serialization
         {
             if (serializer == null)
             {
-                throw new ArgumentNullException("serializer");
+                throw new ArgumentNullException(nameof(serializer));
             }
             if (serializer.ValueType != _memberType)
             {
                 var message = string.Format("Value type of serializer is {0} and does not match member type {1}.", serializer.ValueType.FullName, _memberType.FullName);
-                throw new ArgumentException(message, "serializer");
+                throw new ArgumentException(message, nameof(serializer));
             }
 
             if (_frozen) { ThrowFrozenException(); }

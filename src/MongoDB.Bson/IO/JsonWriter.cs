@@ -51,7 +51,7 @@ namespace MongoDB.Bson.IO
         {
             if (writer == null)
             {
-                throw new ArgumentNullException("writer");
+                throw new ArgumentNullException(nameof(writer));
             }
 
             _textWriter = writer;

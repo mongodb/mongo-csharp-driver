@@ -144,7 +144,7 @@ namespace MongoDB.Bson.Serialization
             {
                 if (reader == null)
                 {
-                    throw new ArgumentNullException("reader");
+                    throw new ArgumentNullException(nameof(reader));
                 }
 
                 _reader = reader;

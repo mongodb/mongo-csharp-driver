@@ -47,7 +47,7 @@ namespace MongoDB.Bson
         {
             if (slice == null)
             {
-                throw new ArgumentNullException("slice");
+                throw new ArgumentNullException(nameof(slice));
             }
 
             _slice = slice;
@@ -177,7 +177,7 @@ namespace MongoDB.Bson
             {
                 if (index < 0)
                 {
-                    throw new ArgumentOutOfRangeException("index");
+                    throw new ArgumentOutOfRangeException(nameof(index));
                 }
                 ThrowIfDisposed();
 
@@ -200,7 +200,7 @@ namespace MongoDB.Bson
                     }
                     bsonReader.ReadEndDocument();
 
-                    throw new ArgumentOutOfRangeException("index");
+                    throw new ArgumentOutOfRangeException(nameof(index));
                 }
             }
             set

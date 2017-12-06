@@ -42,7 +42,7 @@ namespace MongoDB.Bson.IO
             {
                 if (value == null)
                 {
-                    throw new ArgumentNullException("value");
+                    throw new ArgumentNullException(nameof(value));
                 }
                 __default = value;
             }
@@ -66,11 +66,11 @@ namespace MongoDB.Bson.IO
         {
             if (maxChunkCount < 0)
             {
-                throw new ArgumentOutOfRangeException("maxChunkCount");
+                throw new ArgumentOutOfRangeException(nameof(maxChunkCount));
             }
             if (chunkSize <= 0)
             {
-                throw new ArgumentOutOfRangeException("chunkSize");
+                throw new ArgumentOutOfRangeException(nameof(chunkSize));
             }
 
             _maxChunkCount = maxChunkCount;

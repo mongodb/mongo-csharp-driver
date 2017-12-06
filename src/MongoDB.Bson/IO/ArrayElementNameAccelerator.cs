@@ -111,7 +111,7 @@ namespace MongoDB.Bson.IO
         {
             if (index < 0)
             {
-                throw new ArgumentOutOfRangeException("index", "index is negative.");
+                throw new ArgumentOutOfRangeException(nameof(index), "index is negative.");
             }
 
             if (index < _cachedElementNames.Length)

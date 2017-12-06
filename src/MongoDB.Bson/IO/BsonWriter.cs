@@ -46,7 +46,7 @@ namespace MongoDB.Bson.IO
         {
             if (settings == null)
             {
-                throw new ArgumentNullException("settings");
+                throw new ArgumentNullException(nameof(settings));
             }
 
             _settings = settings.FrozenCopy();
@@ -148,7 +148,7 @@ namespace MongoDB.Bson.IO
         {
             if (validator == null)
             {
-                throw new ArgumentNullException("validator");
+                throw new ArgumentNullException(nameof(validator));
             }
 
             _elementNameValidatorStack.Push(_elementNameValidator);
@@ -259,7 +259,7 @@ namespace MongoDB.Bson.IO
         {
             if (name == null)
             {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
             if (name.IndexOf('\0') != -1)
             {

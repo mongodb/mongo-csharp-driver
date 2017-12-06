@@ -48,7 +48,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (discriminatorConvention == null)
             {
-                throw new ArgumentNullException("discriminatorConvention");
+                throw new ArgumentNullException(nameof(discriminatorConvention));
             }
 
             _discriminatorConvention = discriminatorConvention;

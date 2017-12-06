@@ -50,11 +50,11 @@ namespace MongoDB.Bson.IO
         {
             if (stream == null)
             {
-                throw new ArgumentNullException("stream");
+                throw new ArgumentNullException(nameof(stream));
             }
             if (!stream.CanSeek)
             {
-                throw new ArgumentException("The stream must be capable of seeking.", "stream");
+                throw new ArgumentException("The stream must be capable of seeking.", nameof(stream));
             }
 
             _baseStream = stream;
@@ -461,7 +461,7 @@ namespace MongoDB.Bson.IO
         {
             if (nameDecoder == null)
             {
-                throw new ArgumentNullException("nameDecoder");
+                throw new ArgumentNullException(nameof(nameDecoder));
             }
 
             if (Disposed) { ThrowObjectDisposedException(); }

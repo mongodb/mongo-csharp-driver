@@ -38,19 +38,19 @@ namespace MongoDB.Bson.IO
         {
             if (buffer == null)
             {
-                throw new ArgumentNullException("buffer");
+                throw new ArgumentNullException(nameof(buffer));
             }
             if (!buffer.IsReadOnly)
             {
-                throw new ArgumentException("The buffer is not read only.", "buffer");
+                throw new ArgumentException("The buffer is not read only.", nameof(buffer));
             }
             if (offset < 0 || offset > buffer.Length)
             {
-                throw new ArgumentOutOfRangeException("offset");
+                throw new ArgumentOutOfRangeException(nameof(offset));
             }
             if (length < 0 || offset + length > buffer.Length)
             {
-                throw new ArgumentOutOfRangeException("length");
+                throw new ArgumentOutOfRangeException(nameof(length));
             }
 
             _buffer = buffer;
@@ -202,7 +202,7 @@ namespace MongoDB.Bson.IO
         {
             if (position < 0 || position > _length)
             {
-                throw new ArgumentOutOfRangeException("position");
+                throw new ArgumentOutOfRangeException(nameof(position));
             }
         }
 
@@ -211,7 +211,7 @@ namespace MongoDB.Bson.IO
             EnsureValidPosition(position);
             if (count < 0 || position + count > _length)
             {
-                throw new ArgumentOutOfRangeException("count");
+                throw new ArgumentOutOfRangeException(nameof(count));
             }
         }
 
@@ -220,7 +220,7 @@ namespace MongoDB.Bson.IO
             EnsureValidPosition(position);
             if (length < 0 || position + length > _length)
             {
-                throw new ArgumentOutOfRangeException("length");
+                throw new ArgumentOutOfRangeException(nameof(length));
             }
         }
 

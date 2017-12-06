@@ -70,7 +70,7 @@ namespace MongoDB.Bson.IO
             {
                 if (value == null)
                 {
-                    throw new ArgumentNullException("value");
+                    throw new ArgumentNullException(nameof(value));
                 }
                 if (IsFrozen) { throw new InvalidOperationException("BsonBinaryWriterSettings is frozen."); }
                 _encoding = value;

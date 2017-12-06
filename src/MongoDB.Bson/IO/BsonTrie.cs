@@ -340,7 +340,7 @@ namespace MongoDB.Bson.IO
         {
             if (elementName == null)
             {
-                throw new ArgumentNullException("elementName");
+                throw new ArgumentNullException(nameof(elementName));
             }
             if (_elementName != null)
             {

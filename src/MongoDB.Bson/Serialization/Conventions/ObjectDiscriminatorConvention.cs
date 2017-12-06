@@ -41,11 +41,11 @@ namespace MongoDB.Bson.Serialization.Conventions
         {
             if (elementName == null)
             {
-                throw new ArgumentNullException("elementName");
+                throw new ArgumentNullException(nameof(elementName));
             }
             if (elementName.IndexOf('\0') != -1)
             {
-                throw new ArgumentException("Element names cannot contain nulls.", "elementName");
+                throw new ArgumentException("Element names cannot contain nulls.", nameof(elementName));
             }
             _elementName = elementName;
         }

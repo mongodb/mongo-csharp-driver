@@ -48,7 +48,7 @@ namespace MongoDB.Bson
         {
             if (slice == null)
             {
-                throw new ArgumentNullException("slice");
+                throw new ArgumentNullException(nameof(slice));
             }
 
             _slice = slice;
@@ -445,7 +445,7 @@ namespace MongoDB.Bson
         {
             if (name == null)
             {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
             ThrowIfDisposed();
 
@@ -529,7 +529,7 @@ namespace MongoDB.Bson
         {
             if (index < 0)
             {
-                throw new ArgumentOutOfRangeException("index");
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
             ThrowIfDisposed();
 
@@ -555,7 +555,7 @@ namespace MongoDB.Bson
                 }
                 bsonReader.ReadEndDocument();
 
-                throw new ArgumentOutOfRangeException("index");
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 
@@ -615,7 +615,7 @@ namespace MongoDB.Bson
         {
             if (index < 0)
             {
-                throw new ArgumentOutOfRangeException("index");
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
             ThrowIfDisposed();
 
@@ -639,7 +639,7 @@ namespace MongoDB.Bson
                 }
                 bsonReader.ReadEndDocument();
 
-                throw new ArgumentOutOfRangeException("index");
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
 

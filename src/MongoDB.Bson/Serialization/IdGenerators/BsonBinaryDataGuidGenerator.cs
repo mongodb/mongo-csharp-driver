@@ -100,7 +100,7 @@ namespace MongoDB.Bson.Serialization.IdGenerators
                 case GuidRepresentation.PythonLegacy: return __pythonLegacyInstance;
                 case GuidRepresentation.Standard: return __standardInstance;
                 case GuidRepresentation.Unspecified: return __unspecifiedInstance;
-                default: throw new ArgumentOutOfRangeException("guidRepresentation");
+                default: throw new ArgumentOutOfRangeException(nameof(guidRepresentation));
             }
         }
 
@@ -132,7 +132,7 @@ namespace MongoDB.Bson.Serialization.IdGenerators
             var subType = idBsonBinaryData.SubType;
             if (subType != BsonBinarySubType.UuidLegacy && subType != BsonBinarySubType.UuidStandard)
             {
-                throw new ArgumentOutOfRangeException("id", "The binary sub type of the id value passed to the BsonBinaryDataGuidGenerator IsEmpty method is not UuidLegacy or UuidStandard.");
+                throw new ArgumentOutOfRangeException(nameof(id), "The binary sub type of the id value passed to the BsonBinaryDataGuidGenerator IsEmpty method is not UuidLegacy or UuidStandard.");
             }
             return idBsonBinaryData.Bytes.SequenceEqual(__emptyGuidBytes);
         }

@@ -100,7 +100,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (type == null)
             {
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
             }
             var typeInfo = type.GetTypeInfo();
 

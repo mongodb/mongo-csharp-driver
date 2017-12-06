@@ -51,31 +51,31 @@ namespace MongoDB.Bson.IO
         {
             if (baseSource == null)
             {
-                throw new ArgumentNullException("baseSource");
+                throw new ArgumentNullException(nameof(baseSource));
             }
             if (initialUnpooledChunkSize < 0)
             {
-                throw new ArgumentOutOfRangeException("initialUnpooledChunkSize");
+                throw new ArgumentOutOfRangeException(nameof(initialUnpooledChunkSize));
             }
             if (minChunkSize <= 0)
             {
-                throw new ArgumentOutOfRangeException("minChunkSize");
+                throw new ArgumentOutOfRangeException(nameof(minChunkSize));
             }
             if (maxChunkSize <= 0)
             {
-                throw new ArgumentOutOfRangeException("maxChunkSize");
+                throw new ArgumentOutOfRangeException(nameof(maxChunkSize));
             }
             if (!PowerOf2.IsPowerOf2(minChunkSize))
             {
-                throw new ArgumentException("minChunkSize is not a power of 2.", "minChunkSize");
+                throw new ArgumentException("minChunkSize is not a power of 2.", nameof(minChunkSize));
             }
             if (!PowerOf2.IsPowerOf2(maxChunkSize))
             {
-                throw new ArgumentException("maxChunkSize is not a power of 2.", "maxChunkSize");
+                throw new ArgumentException("maxChunkSize is not a power of 2.", nameof(maxChunkSize));
             }
             if (maxChunkSize < minChunkSize)
             {
-                throw new ArgumentException("maxChunkSize is less than minChunkSize", "maxChunkSize");
+                throw new ArgumentException("maxChunkSize is less than minChunkSize", nameof(maxChunkSize));
             }
 
             _baseSource = baseSource;
@@ -145,7 +145,7 @@ namespace MongoDB.Bson.IO
         {
             if (requestedSize <= 0)
             {
-                throw new ArgumentOutOfRangeException("requestedSize");
+                throw new ArgumentOutOfRangeException(nameof(requestedSize));
             }
             ThrowIfDisposed();
 

@@ -177,11 +177,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (document == null)
             {
-                throw new ArgumentNullException("document");
+                throw new ArgumentNullException(nameof(document));
             }
             if (id == null)
             {
-                throw new ArgumentNullException("id");
+                throw new ArgumentNullException(nameof(id));
             }
 
             var bsonDocument = (BsonDocument)document;

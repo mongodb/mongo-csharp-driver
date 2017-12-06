@@ -618,7 +618,7 @@ namespace MongoDB.Bson.IO
         {
             if (nameDecoder == null)
             {
-                throw new ArgumentNullException("nameDecoder");
+                throw new ArgumentNullException(nameof(nameDecoder));
             }
 
             if (Disposed) { ThrowObjectDisposedException(); }

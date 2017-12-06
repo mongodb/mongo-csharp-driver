@@ -49,11 +49,11 @@ namespace MongoDB.Bson
         {
             if (bytes == null)
             {
-                throw new ArgumentNullException("bytes");
+                throw new ArgumentNullException(nameof(bytes));
             }
             if (bytes.Length != 12)
             {
-                throw new ArgumentException("Byte array must be 12 bytes long", "bytes");
+                throw new ArgumentException("Byte array must be 12 bytes long", nameof(bytes));
             }
 
             FromByteArray(bytes, 0, out _a, out _b, out _c);
@@ -92,11 +92,11 @@ namespace MongoDB.Bson
         {
             if ((machine & 0xff000000) != 0)
             {
-                throw new ArgumentOutOfRangeException("machine", "The machine value must be between 0 and 16777215 (it must fit in 3 bytes).");
+                throw new ArgumentOutOfRangeException(nameof(machine), "The machine value must be between 0 and 16777215 (it must fit in 3 bytes).");
             }
             if ((increment & 0xff000000) != 0)
             {
-                throw new ArgumentOutOfRangeException("increment", "The increment value must be between 0 and 16777215 (it must fit in 3 bytes).");
+                throw new ArgumentOutOfRangeException(nameof(increment), "The increment value must be between 0 and 16777215 (it must fit in 3 bytes).");
             }
 
             _a = timestamp;
@@ -112,7 +112,7 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
 
             var bytes = BsonUtils.ParseHexString(value);
@@ -279,11 +279,11 @@ namespace MongoDB.Bson
         {
             if ((machine & 0xff000000) != 0)
             {
-                throw new ArgumentOutOfRangeException("machine", "The machine value must be between 0 and 16777215 (it must fit in 3 bytes).");
+                throw new ArgumentOutOfRangeException(nameof(machine), "The machine value must be between 0 and 16777215 (it must fit in 3 bytes).");
             }
             if ((increment & 0xff000000) != 0)
             {
-                throw new ArgumentOutOfRangeException("increment", "The increment value must be between 0 and 16777215 (it must fit in 3 bytes).");
+                throw new ArgumentOutOfRangeException(nameof(increment), "The increment value must be between 0 and 16777215 (it must fit in 3 bytes).");
             }
 
             byte[] bytes = new byte[12];
@@ -311,7 +311,7 @@ namespace MongoDB.Bson
         {
             if (s == null)
             {
-                throw new ArgumentNullException("s");
+                throw new ArgumentNullException(nameof(s));
             }
 
             ObjectId objectId;
@@ -361,11 +361,11 @@ namespace MongoDB.Bson
         {
             if (bytes == null)
             {
-                throw new ArgumentNullException("bytes");
+                throw new ArgumentNullException(nameof(bytes));
             }
             if (bytes.Length != 12)
             {
-                throw new ArgumentOutOfRangeException("bytes", "Byte array must be 12 bytes long.");
+                throw new ArgumentOutOfRangeException(nameof(bytes), "Byte array must be 12 bytes long.");
             }
 
             timestamp = (bytes[0] << 24) + (bytes[1] << 16) + (bytes[2] << 8) + bytes[3];
@@ -424,7 +424,7 @@ namespace MongoDB.Bson
             var secondsSinceEpoch = (long)Math.Floor((BsonUtils.ToUniversalTime(timestamp) - BsonConstants.UnixEpoch).TotalSeconds);
             if (secondsSinceEpoch < int.MinValue || secondsSinceEpoch > int.MaxValue)
             {
-                throw new ArgumentOutOfRangeException("timestamp");
+                throw new ArgumentOutOfRangeException(nameof(timestamp));
             }
             return (int)secondsSinceEpoch;
         }
@@ -514,11 +514,11 @@ namespace MongoDB.Bson
         {
             if (destination == null)
             {
-                throw new ArgumentNullException("destination");
+                throw new ArgumentNullException(nameof(destination));
             }
             if (offset + 12 > destination.Length)
             {
-                throw new ArgumentException("Not enough room in destination buffer.", "offset");
+                throw new ArgumentException("Not enough room in destination buffer.", nameof(offset));
             }
 
             destination[offset + 0] = (byte)(_a >> 24);

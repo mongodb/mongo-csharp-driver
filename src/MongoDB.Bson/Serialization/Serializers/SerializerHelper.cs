@@ -40,11 +40,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (members == null)
             {
-                throw new ArgumentNullException("members");
+                throw new ArgumentNullException(nameof(members));
             }
             if (members.Length > 64)
             {
-                throw new ArgumentException("SerializerHelper supports a maximum of 64 members.", "members");
+                throw new ArgumentException("SerializerHelper supports a maximum of 64 members.", nameof(members));
             }
 
             _members = members;

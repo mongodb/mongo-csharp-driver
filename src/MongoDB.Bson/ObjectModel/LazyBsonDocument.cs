@@ -47,7 +47,7 @@ namespace MongoDB.Bson
         {
             if (slice == null)
             {
-                throw new ArgumentNullException("slice");
+                throw new ArgumentNullException(nameof(slice));
             }
 
             _slice = slice;

@@ -28,7 +28,7 @@ namespace MongoDB.Bson
         {
             if (n < 0 || n > 0x40000000)
             {
-                throw new ArgumentOutOfRangeException("n");
+                throw new ArgumentOutOfRangeException(nameof(n));
             }
 
             // see: Hacker's Delight, by Henry S. Warren

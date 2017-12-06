@@ -198,7 +198,7 @@ namespace MongoDB.Bson
                 else
                 {
                     message = string.Format("C# null cannot be mapped to BsonType.{0}.", bsonType);
-                    throw new ArgumentException(message, "value");
+                    throw new ArgumentException(message, nameof(value));
                 }
             }
 
@@ -259,7 +259,7 @@ namespace MongoDB.Bson
             }
 
             message = string.Format(".NET type {0} cannot be mapped to BsonType.{1}.", value.GetType().FullName, bsonType);
-            throw new ArgumentException(message, "value");
+            throw new ArgumentException(message, nameof(value));
         }
 
         /// <summary>
@@ -367,7 +367,7 @@ namespace MongoDB.Bson
                                         break;
                                     case DuplicateNameHandling.ThrowException:
                                         var message = string.Format("Duplicate element name '{0}'.", element.Name);
-                                        throw new ArgumentOutOfRangeException("bsonValue", message);
+                                        throw new ArgumentOutOfRangeException(nameof(bsonValue), message);
                                 }
                             }
                             else
@@ -395,7 +395,7 @@ namespace MongoDB.Bson
                                         break;
                                     case DuplicateNameHandling.ThrowException:
                                         var message = string.Format("Duplicate element name '{0}'.", element.Name);
-                                        throw new ArgumentOutOfRangeException("bsonValue", message);
+                                        throw new ArgumentOutOfRangeException(nameof(bsonValue), message);
                                 }
                             }
                             else

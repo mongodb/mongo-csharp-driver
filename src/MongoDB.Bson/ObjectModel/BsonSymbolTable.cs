@@ -37,7 +37,7 @@ namespace MongoDB.Bson
         {
             if (name == null)
             {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
             lock (__staticLock)
             {

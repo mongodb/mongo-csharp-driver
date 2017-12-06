@@ -48,7 +48,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (serializer == null)
             {
-                throw new ArgumentNullException("serializer");
+                throw new ArgumentNullException(nameof(serializer));
             }
 
             _lazySerializer = new Lazy<IBsonSerializer<T>>(() => serializer);
@@ -62,7 +62,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (serializerRegistry == null)
             {
-                throw new ArgumentNullException("serializerRegistry");
+                throw new ArgumentNullException(nameof(serializerRegistry));
             }
 
             _lazySerializer = new Lazy<IBsonSerializer<T>>(() => serializerRegistry.GetSerializer<T>());

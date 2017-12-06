@@ -34,11 +34,11 @@ namespace MongoDB.Bson.IO
         {
             if (chunkSource == null)
             {
-                throw new ArgumentNullException("chunkSource");
+                throw new ArgumentNullException(nameof(chunkSource));
             }
             if (minimumCapacity <= 0)
             {
-                throw new ArgumentOutOfRangeException("minimumCapacity");
+                throw new ArgumentOutOfRangeException(nameof(minimumCapacity));
             }
 
             var capacity = 0;

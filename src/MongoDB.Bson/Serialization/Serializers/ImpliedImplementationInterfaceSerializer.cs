@@ -55,7 +55,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (implementationSerializer == null)
             {
-                throw new ArgumentNullException("implementationSerializer");
+                throw new ArgumentNullException(nameof(implementationSerializer));
             }
         }
 
@@ -68,7 +68,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (serializerRegistry == null)
             {
-                throw new ArgumentNullException("serializerRegistry");
+                throw new ArgumentNullException(nameof(serializerRegistry));
             }
         }
 

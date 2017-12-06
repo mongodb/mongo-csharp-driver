@@ -32,7 +32,7 @@ namespace MongoDB.Bson
         {
             if (name == null)
             {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
             _name = name;
         }
@@ -98,7 +98,7 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
 
             return (BsonSymbol)BsonTypeMapper.MapToBsonValue(value, BsonType.Symbol);

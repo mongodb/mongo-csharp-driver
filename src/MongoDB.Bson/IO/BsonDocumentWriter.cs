@@ -46,7 +46,7 @@ namespace MongoDB.Bson.IO
         {
             if (document == null)
             {
-                throw new ArgumentNullException("document");
+                throw new ArgumentNullException(nameof(document));
             }
 
             _document = document;

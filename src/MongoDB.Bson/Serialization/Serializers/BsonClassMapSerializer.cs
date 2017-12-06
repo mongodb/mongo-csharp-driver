@@ -41,12 +41,12 @@ namespace MongoDB.Bson.Serialization
         {
             if (classMap == null)
             {
-                throw new ArgumentNullException("classMap");
+                throw new ArgumentNullException(nameof(classMap));
             }
             if (classMap.ClassType != typeof(TClass))
             {
                 var message = string.Format("Must be a BsonClassMap for the type {0}.", typeof(TClass));
-                throw new ArgumentException(message, "classMap");
+                throw new ArgumentException(message, nameof(classMap));
             }
             if (!classMap.IsFrozen)
             {
