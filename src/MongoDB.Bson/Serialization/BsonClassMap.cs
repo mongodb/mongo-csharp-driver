@@ -539,15 +539,13 @@ namespace MongoDB.Bson.Serialization
                                 string message;
                                 if (conflictingType == _classType)
                                 {
-                                    message = string.Format(
-                                        "The {0} '{1}' of type '{2}' cannot use element name '{3}' because it is already being used by {4} '{5}'.",
-                                        fieldOrProperty, memberMap.MemberName, _classType.FullName, memberMap.ElementName, conflictingFieldOrProperty, conflictingMemberMap.MemberName);
+                                    message =
+                                        $"The {fieldOrProperty} '{memberMap.MemberName}' of type '{_classType.FullName}' cannot use element name '{memberMap.ElementName}' because it is already being used by {conflictingFieldOrProperty} '{conflictingMemberMap.MemberName}'.";
                                 }
                                 else
                                 {
-                                    message = string.Format(
-                                        "The {0} '{1}' of type '{2}' cannot use element name '{3}' because it is already being used by {4} '{5}' of type '{6}'.",
-                                        fieldOrProperty, memberMap.MemberName, _classType.FullName, memberMap.ElementName, conflictingFieldOrProperty, conflictingMemberMap.MemberName, conflictingType.FullName);
+                                    message =
+                                        $"The {fieldOrProperty} '{memberMap.MemberName}' of type '{_classType.FullName}' cannot use element name '{memberMap.ElementName}' because it is already being used by {conflictingFieldOrProperty} '{conflictingMemberMap.MemberName}' of type '{conflictingType.FullName}'.";
                                 }
                                 throw new BsonSerializationException(message);
                             }
@@ -812,7 +810,7 @@ namespace MongoDB.Bson.Serialization
             var fieldInfo = _classType.GetTypeInfo().GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
             if (fieldInfo == null)
             {
-                var message = string.Format("The class '{0}' does not have a field named '{1}'.", _classType.FullName, fieldName);
+                var message = $"The class '{_classType.FullName}' does not have a field named '{fieldName}'.";
                 throw new BsonSerializationException(message);
             }
             return MapMember(fieldInfo);
@@ -915,7 +913,7 @@ namespace MongoDB.Bson.Serialization
             var propertyInfo = _classType.GetTypeInfo().GetProperty(propertyName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
             if (propertyInfo == null)
             {
-                var message = string.Format("The class '{0}' does not have a property named '{1}'.", _classType.FullName, propertyName);
+                var message = $"The class '{_classType.FullName}' does not have a property named '{propertyName}'.";
                 throw new BsonSerializationException(message);
             }
             return MapMember(propertyInfo);
@@ -1007,7 +1005,8 @@ namespace MongoDB.Bson.Serialization
         {
             if (!_classType.GetTypeInfo().IsAssignableFrom(type))
             {
-                string message = string.Format("Class {0} cannot be assigned to Class {1}.  Ensure that known types are derived from the mapped class.", type.FullName, _classType.FullName);
+                string message =
+                    $"Class {type.FullName} cannot be assigned to Class {_classType.FullName}.  Ensure that known types are derived from the mapped class.";
                 throw new ArgumentNullException(nameof(type), message);
             }
 
@@ -1116,7 +1115,7 @@ namespace MongoDB.Bson.Serialization
             var fieldInfo = _classType.GetTypeInfo().GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
             if (fieldInfo == null)
             {
-                var message = string.Format("The class '{0}' does not have a field named '{1}'.", _classType.FullName, fieldName);
+                var message = $"The class '{_classType.FullName}' does not have a field named '{fieldName}'.";
                 throw new BsonSerializationException(message);
             }
             UnmapMember(fieldInfo);
@@ -1165,7 +1164,7 @@ namespace MongoDB.Bson.Serialization
             var propertyInfo = _classType.GetTypeInfo().GetProperty(propertyName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
             if (propertyInfo == null)
             {
-                var message = string.Format("The class '{0}' does not have a property named '{1}'.", _classType.FullName, propertyName);
+                var message = $"The class '{_classType.FullName}' does not have a property named '{propertyName}'.";
                 throw new BsonSerializationException(message);
             }
             UnmapMember(propertyInfo);
@@ -1214,10 +1213,8 @@ namespace MongoDB.Bson.Serialization
         {
             if (memberInfo.DeclaringType != _classType)
             {
-                var message = string.Format(
-                    "The memberInfo argument must be for class {0}, but was for class {1}.",
-                    _classType.Name,
-                    memberInfo.DeclaringType.Name);
+                var message =
+                    $"The memberInfo argument must be for class {_classType.Name}, but was for class {memberInfo.DeclaringType.Name}.";
                 throw new ArgumentOutOfRangeException(nameof(memberInfo), message);
             }
         }
@@ -1226,10 +1223,8 @@ namespace MongoDB.Bson.Serialization
         {
             if (memberMap.ClassMap != this)
             {
-                var message = string.Format(
-                    "The memberMap argument must be for class {0}, but was for class {1}.",
-                    _classType.Name,
-                    memberMap.ClassMap.ClassType.Name);
+                var message =
+                    $"The memberMap argument must be for class {_classType.Name}, but was for class {memberMap.ClassMap.ClassType.Name}.";
                 throw new ArgumentOutOfRangeException(nameof(memberMap), message);
             }
         }
@@ -1297,13 +1292,13 @@ namespace MongoDB.Bson.Serialization
 
         private void ThrowFrozenException()
         {
-            var message = string.Format("Class map for {0} has been frozen and no further changes are allowed.", _classType.FullName);
+            var message = $"Class map for {_classType.FullName} has been frozen and no further changes are allowed.";
             throw new InvalidOperationException(message);
         }
 
         private void ThrowNotFrozenException()
         {
-            var message = string.Format("Class map for {0} has been not been frozen yet.", _classType.FullName);
+            var message = $"Class map for {_classType.FullName} has been not been frozen yet.";
             throw new InvalidOperationException(message);
         }
     }

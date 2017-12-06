@@ -47,7 +47,7 @@ namespace MongoDB.Bson.Serialization
             var typeInfo = type.GetTypeInfo();
             if (typeInfo.IsGenericType && typeInfo.ContainsGenericParameters)
             {
-                var message = string.Format("Generic type {0} has unassigned type parameters.", BsonUtils.GetFriendlyTypeName(type));
+                var message = $"Generic type {BsonUtils.GetFriendlyTypeName(type)} has unassigned type parameters.";
                 throw new ArgumentException(message, nameof(type));
             }
 
@@ -104,7 +104,8 @@ namespace MongoDB.Bson.Serialization
 
             if (!_serializerTypes.TryAdd(type, serializerType))
             {
-                var message = string.Format("There is already a serializer mapping registered for type {0}.", BsonUtils.GetFriendlyTypeName(type));
+                var message =
+                    $"There is already a serializer mapping registered for type {BsonUtils.GetFriendlyTypeName(type)}.";
                 throw new BsonSerializationException(message);
             }
         }

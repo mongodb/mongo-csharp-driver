@@ -568,7 +568,7 @@ namespace MongoDB.Bson
         {
             ThrowIfDisposed();
             var parts = Values.Select(v => v.ToString()).ToArray();
-            return string.Format("[{0}]", string.Join(", ", parts));
+            return $"[{string.Join(", ", parts)}]";
         }
 
         // protected methods

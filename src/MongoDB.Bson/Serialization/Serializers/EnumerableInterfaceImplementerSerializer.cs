@@ -177,7 +177,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 return value;
             }
 
-            var message = string.Format("Type '{0}' does not have a suitable constructor or Add method.", typeof(TValue).FullName);
+            var message = $"Type '{typeof(TValue).FullName}' does not have a suitable constructor or Add method.";
             throw new BsonSerializationException(message);
         }
 

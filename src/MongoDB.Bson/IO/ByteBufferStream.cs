@@ -499,7 +499,7 @@ namespace MongoDB.Bson.IO
             var length = ReadInt32();
             if (length <= 0)
             {
-                var message = string.Format("Invalid string length: {0}.", length);
+                var message = $"Invalid string length: {length}.";
                 throw new FormatException(message);
             }
 

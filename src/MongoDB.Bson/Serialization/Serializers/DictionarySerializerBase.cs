@@ -177,7 +177,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    var message = string.Format("'{0}' is not a valid IDictionary representation.", _dictionaryRepresentation);
+                    var message = $"'{_dictionaryRepresentation}' is not a valid IDictionary representation.";
                     throw new BsonSerializationException(message);
             }
         }
@@ -544,10 +544,8 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    var message = string.Format("'{0}' is not a valid IDictionary<{1}, {2}> representation.",
-                        _dictionaryRepresentation,
-                        BsonUtils.GetFriendlyTypeName(typeof(TKey)),
-                        BsonUtils.GetFriendlyTypeName(typeof(TValue)));
+                    var message =
+                        $"'{_dictionaryRepresentation}' is not a valid IDictionary<{BsonUtils.GetFriendlyTypeName(typeof(TKey))}, {BsonUtils.GetFriendlyTypeName(typeof(TValue))}> representation.";
                     throw new BsonSerializationException(message);
             }
         }

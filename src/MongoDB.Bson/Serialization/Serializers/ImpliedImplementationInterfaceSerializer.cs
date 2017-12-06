@@ -77,7 +77,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             var interfaceTypeInfo = typeof(TInterface).GetTypeInfo();
             if (!interfaceTypeInfo.IsInterface)
             {
-                var message = string.Format("{0} is not an interface.", typeof(TInterface).FullName);
+                var message = $"{typeof(TInterface).FullName} is not an interface.";
                 throw new ArgumentException(message, "<TInterface>");
             }
 
@@ -102,9 +102,8 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return dictionarySerializer.DictionaryRepresentation;
                 }
 
-                var message = string.Format(
-                    "{0} does not have a DictionaryRepresentation.",
-                    BsonUtils.GetFriendlyTypeName(_lazyImplementationSerializer.Value.GetType()));
+                var message =
+                    $"{BsonUtils.GetFriendlyTypeName(_lazyImplementationSerializer.Value.GetType())} does not have a DictionaryRepresentation.";
                 throw new NotSupportedException(message);
             }
         }
@@ -126,9 +125,8 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return dictionarySerializer.KeySerializer;
                 }
 
-                var message = string.Format(
-                    "{0} does not have a KeySerializer.",
-                    BsonUtils.GetFriendlyTypeName(_lazyImplementationSerializer.Value.GetType()));
+                var message =
+                    $"{BsonUtils.GetFriendlyTypeName(_lazyImplementationSerializer.Value.GetType())} does not have a KeySerializer.";
                 throw new NotSupportedException(message);
             }
         }
@@ -161,9 +159,8 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return dictionarySerializer.ValueSerializer;
                 }
 
-                var message = string.Format(
-                    "{0} does not have a ValueSerializer.",
-                    BsonUtils.GetFriendlyTypeName(_lazyImplementationSerializer.Value.GetType()));
+                var message =
+                    $"{BsonUtils.GetFriendlyTypeName(_lazyImplementationSerializer.Value.GetType())} does not have a ValueSerializer.";
                 throw new NotSupportedException(message);
             }
         }

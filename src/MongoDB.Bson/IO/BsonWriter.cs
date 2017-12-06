@@ -273,7 +273,7 @@ namespace MongoDB.Bson.IO
 
             if (!_elementNameValidator.IsValidElementName(name))
             {
-                var message = string.Format("Element name '{0}' is not valid'.", name);
+                var message = $"Element name '{name}' is not valid'.";
                 throw new BsonSerializationException(message);
             }
             _childElementNameValidatorFactory = () => _elementNameValidator.GetValidatorForChildContent(name);
@@ -428,9 +428,8 @@ namespace MongoDB.Bson.IO
             params ContextType[] validContextTypes)
         {
             var validContextTypesString = string.Join(" or ", validContextTypes.Select(c => c.ToString()).ToArray());
-            var message = string.Format(
-                "{0} can only be called when ContextType is {1}, not when ContextType is {2}.",
-                methodName, validContextTypesString, actualContextType);
+            var message =
+                $"{methodName} can only be called when ContextType is {validContextTypesString}, not when ContextType is {actualContextType}.";
             throw new InvalidOperationException(message);
         }
 
@@ -456,17 +455,13 @@ namespace MongoDB.Bson.IO
                     {
                         article = "An";
                     }
-                    message = string.Format(
-                        "{0} {1} value cannot be written to the root level of a BSON document.",
-                        article, typeName);
+                    message = $"{article} {typeName} value cannot be written to the root level of a BSON document.";
                     throw new InvalidOperationException(message);
                 }
             }
 
             var validStatesString = string.Join(" or ", validStates.Select(s => s.ToString()).ToArray());
-            message = string.Format(
-                "{0} can only be called when State is {1}, not when State is {2}",
-                methodName, validStatesString, _state);
+            message = $"{methodName} can only be called when State is {validStatesString}, not when State is {_state}";
             throw new InvalidOperationException(message);
         }
     }

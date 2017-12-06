@@ -176,7 +176,7 @@ namespace MongoDB.Bson
         /// <returns>A string representation of the value.</returns>
         public override string ToString()
         {
-            return string.Format("new BsonJavaScript(\"{0}\")", _code);
+            return $"new BsonJavaScript(\"{_code}\")";
         }
     }
 }

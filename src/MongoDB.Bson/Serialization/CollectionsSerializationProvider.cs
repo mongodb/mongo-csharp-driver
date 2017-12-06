@@ -54,7 +54,7 @@ namespace MongoDB.Bson.Serialization
             var typeInfo = type.GetTypeInfo();
             if (typeInfo.IsGenericType && typeInfo.ContainsGenericParameters)
             {
-                var message = string.Format("Generic type {0} has unassigned type parameters.", BsonUtils.GetFriendlyTypeName(type));
+                var message = $"Generic type {BsonUtils.GetFriendlyTypeName(type)} has unassigned type parameters.";
                 throw new ArgumentException(message, nameof(type));
             }
 
@@ -88,7 +88,7 @@ namespace MongoDB.Bson.Serialization
                         var threeDimensionalArraySerializerDefinition = typeof(ThreeDimensionalArraySerializer<>);
                         return CreateGenericSerializer(threeDimensionalArraySerializerDefinition, new[] { elementType }, serializerRegistry);
                     default:
-                        var message = string.Format("No serializer found for array for rank {0}.", type.GetArrayRank());
+                        var message = $"No serializer found for array for rank {type.GetArrayRank()}.";
                         throw new BsonSerializationException(message);
                 }
             }

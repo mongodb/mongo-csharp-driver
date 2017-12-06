@@ -172,7 +172,7 @@ namespace MongoDB.Bson
         /// <returns>A string representation of the value.</returns>
         public override string ToString()
         {
-            return string.Format("{0}={1}", _name, _value);
+            return $"{_name}={_value}";
         }
     }
 }

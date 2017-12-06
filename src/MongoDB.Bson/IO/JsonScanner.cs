@@ -80,7 +80,7 @@ namespace MongoDB.Bson.IO
         {
             var maxLength = 20;
             var snippet = buffer.GetSnippet(start, maxLength);
-            return string.Format("{0} '{1}'.", message, snippet);
+            return $"{message} '{snippet}'.";
         }
 
         private static JsonToken GetNumberToken(JsonBuffer buffer, int firstChar)
@@ -456,7 +456,7 @@ namespace MongoDB.Bson.IO
                             default:
                                 if (c != -1)
                                 {
-                                    var message = string.Format("Invalid escape sequence in JSON string '\\{0}'.", (char)c);
+                                    var message = $"Invalid escape sequence in JSON string '\\{(char) c}'.";
                                     throw new FormatException(message);
                                 }
                                 break;

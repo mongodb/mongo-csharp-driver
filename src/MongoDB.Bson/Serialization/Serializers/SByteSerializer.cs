@@ -55,7 +55,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    var message = string.Format("{0} is not a valid representation for an SByteSerializer.", representation);
+                    var message = $"{representation} is not a valid representation for an SByteSerializer.";
                     throw new ArgumentException(message);
             }
 
@@ -126,7 +126,7 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             if (lostData)
             {
-                var message = string.Format("Data loss occurred when trying to convert from {0} to SByte.", bsonType);
+                var message = $"Data loss occurred when trying to convert from {bsonType} to SByte.";
                 throw new FormatException(message);
             }
 
@@ -158,11 +158,11 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 case BsonType.String:
-                    bsonWriter.WriteString(string.Format("{0:x2}", (byte)value));
+                    bsonWriter.WriteString($"{(byte) value:x2}");
                     break;
 
                 default:
-                    var message = string.Format("'{0}' is not a valid SByte representation.", _representation);
+                    var message = $"'{_representation}' is not a valid SByte representation.";
                     throw new BsonSerializationException(message);
             }
         }

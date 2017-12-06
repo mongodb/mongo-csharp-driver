@@ -176,7 +176,7 @@ namespace MongoDB.Bson
                 return bsonValue;
             }
 
-            var message = string.Format(".NET type {0} cannot be mapped to a BsonValue.", value.GetType().FullName);
+            var message = $".NET type {value.GetType().FullName} cannot be mapped to a BsonValue.";
             throw new ArgumentException(message);
         }
 
@@ -197,7 +197,7 @@ namespace MongoDB.Bson
                 }
                 else
                 {
-                    message = string.Format("C# null cannot be mapped to BsonType.{0}.", bsonType);
+                    message = $"C# null cannot be mapped to BsonType.{bsonType}.";
                     throw new ArgumentException(message, nameof(value));
                 }
             }
@@ -258,7 +258,7 @@ namespace MongoDB.Bson
                     break;
             }
 
-            message = string.Format(".NET type {0} cannot be mapped to BsonType.{1}.", value.GetType().FullName, bsonType);
+            message = $".NET type {value.GetType().FullName} cannot be mapped to BsonType.{bsonType}.";
             throw new ArgumentException(message, nameof(value));
         }
 
@@ -317,7 +317,8 @@ namespace MongoDB.Bson
                     }
                     else
                     {
-                        var message = string.Format("A BsonArray can't be mapped to a {0}.", BsonUtils.GetFriendlyTypeName(options.MapBsonArrayTo));
+                        var message =
+                            $"A BsonArray can't be mapped to a {BsonUtils.GetFriendlyTypeName(options.MapBsonArrayTo)}.";
                         throw new NotSupportedException(message);
                     }
                 case BsonType.Binary:
@@ -366,7 +367,7 @@ namespace MongoDB.Bson
                                         dictionary[element.Name] = mappedValue;
                                         break;
                                     case DuplicateNameHandling.ThrowException:
-                                        var message = string.Format("Duplicate element name '{0}'.", element.Name);
+                                        var message = $"Duplicate element name '{element.Name}'.";
                                         throw new ArgumentOutOfRangeException(nameof(bsonValue), message);
                                 }
                             }
@@ -394,7 +395,7 @@ namespace MongoDB.Bson
                                         dictionary[element.Name] = mappedValue;
                                         break;
                                     case DuplicateNameHandling.ThrowException:
-                                        var message = string.Format("Duplicate element name '{0}'.", element.Name);
+                                        var message = $"Duplicate element name '{element.Name}'.";
                                         throw new ArgumentOutOfRangeException(nameof(bsonValue), message);
                                 }
                             }
@@ -407,7 +408,8 @@ namespace MongoDB.Bson
                     }
                     else
                     {
-                        var message = string.Format("A BsonDocument can't be mapped to a {0}.", BsonUtils.GetFriendlyTypeName(options.MapBsonArrayTo));
+                        var message =
+                            $"A BsonDocument can't be mapped to a {BsonUtils.GetFriendlyTypeName(options.MapBsonArrayTo)}.";
                         throw new NotSupportedException(message);
                     }
                 case BsonType.Double:

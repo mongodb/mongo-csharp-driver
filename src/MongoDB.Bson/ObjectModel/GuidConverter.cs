@@ -32,8 +32,7 @@ namespace MongoDB.Bson
         {
             if (bytes.Length != 16)
             {
-                var message = string.Format("Length of byte array must be 16, not {0}.", bytes.Length);
-                throw new ArgumentException(message);
+                throw new ArgumentException($"Length of byte array must be 16, not { bytes.Length }.");
             }
             bytes = (byte[])bytes.Clone();
             switch (representation)

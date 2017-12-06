@@ -325,7 +325,7 @@ namespace MongoDB.Bson
                 }
                 else
                 {
-                    string message = string.Format("Element '{0}' not found.", name);
+                    string message = $"Element '{name}' not found.";
                     throw new KeyNotFoundException(message);
                 }
             }
@@ -417,7 +417,7 @@ namespace MongoDB.Bson
             var isDuplicate = IndexOfName(element.Name) != -1;
             if (isDuplicate && !_allowDuplicateNames)
             {
-                var message = string.Format("Duplicate element name '{0}'.", element.Name);
+                var message = $"Duplicate element name '{element.Name}'.";
                 throw new InvalidOperationException(message);
             }
             else
@@ -881,7 +881,7 @@ namespace MongoDB.Bson
             }
             else
             {
-                string message = string.Format("Element '{0}' not found.", name);
+                string message = $"Element '{name}' not found.";
                 throw new KeyNotFoundException(message);
             }
         }
@@ -999,7 +999,7 @@ namespace MongoDB.Bson
             var isDuplicate = IndexOfName(element.Name) != -1;
             if (isDuplicate && !_allowDuplicateNames)
             {
-                var message = string.Format("Duplicate element name '{0}' not allowed.", element.Name);
+                var message = $"Duplicate element name '{element.Name}' not allowed.";
                 throw new InvalidOperationException(message);
             }
             else

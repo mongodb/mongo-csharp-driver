@@ -51,7 +51,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    var message = string.Format("{0} is not a valid representation for a GuidSerializer.", representation);
+                    var message = $"{representation} is not a valid representation for a GuidSerializer.";
                     throw new ArgumentException(message);
             }
 
@@ -92,12 +92,12 @@ namespace MongoDB.Bson.Serialization.Serializers
                     var guidRepresentation = binaryData.GuidRepresentation;
                     if (bytes.Length != 16)
                     {
-                        message = string.Format("Expected length to be 16, not {0}.", bytes.Length);
+                        message = $"Expected length to be 16, not {bytes.Length}.";
                         throw new FormatException(message);
                     }
                     if (subType != BsonBinarySubType.UuidStandard && subType != BsonBinarySubType.UuidLegacy)
                     {
-                        message = string.Format("Expected binary sub type to be UuidStandard or UuidLegacy, not {0}.", subType);
+                        message = $"Expected binary sub type to be UuidStandard or UuidLegacy, not {subType}.";
                         throw new FormatException(message);
                     }
                     if (guidRepresentation == GuidRepresentation.Unspecified)
@@ -142,7 +142,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    var message = string.Format("'{0}' is not a valid Guid representation.", _representation);
+                    var message = $"'{_representation}' is not a valid Guid representation.";
                     throw new BsonSerializationException(message);
             }
         }

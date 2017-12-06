@@ -109,7 +109,7 @@ namespace MongoDB.Bson.Serialization
                 case ExpressionType.ListInit:
                     return this.VisitListInit((ListInitExpression)node);
                 default:
-                    throw new Exception(string.Format("Unhandled expression type: '{0}'", node.NodeType));
+                    throw new Exception($"Unhandled expression type: '{node.NodeType}'");
             }
         }
 
@@ -343,7 +343,7 @@ namespace MongoDB.Bson.Serialization
                 case MemberBindingType.ListBinding:
                     return this.VisitMemberListBinding((MemberListBinding)node);
                 default:
-                    throw new Exception(string.Format("Unhandled binding type '{0}'", node.BindingType));
+                    throw new Exception($"Unhandled binding type '{node.BindingType}'");
             }
         }
 

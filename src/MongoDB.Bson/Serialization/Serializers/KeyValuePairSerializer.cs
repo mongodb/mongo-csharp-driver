@@ -110,7 +110,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    var message = string.Format("{0} is not a valid representation for a KeyValuePairSerializer.", representation);
+                    var message = $"{representation} is not a valid representation for a KeyValuePairSerializer.";
                     throw new ArgumentException(message);
             }
 
@@ -200,10 +200,8 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    var message = string.Format(
-                        "'{0}' is not a valid {1} representation.",
-                        _representation,
-                        BsonUtils.GetFriendlyTypeName(typeof(KeyValuePair<TKey, TValue>)));
+                    var message =
+                        $"'{_representation}' is not a valid {BsonUtils.GetFriendlyTypeName(typeof(KeyValuePair<TKey, TValue>))} representation.";
                     throw new BsonSerializationException(message);
             }
         }

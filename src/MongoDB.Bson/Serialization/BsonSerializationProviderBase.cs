@@ -91,9 +91,8 @@ namespace MongoDB.Bson.Serialization
                 return (IBsonSerializer)constructorInfo.Invoke(new object[0]);
             }
 
-            throw new MissingMethodException(string.Format(
-                "No suitable constructor found for serializer type: '{0}'.",
-                serializerType.FullName));
+            throw new MissingMethodException(
+                $"No suitable constructor found for serializer type: '{serializerType.FullName}'.");
         }
     }
 }

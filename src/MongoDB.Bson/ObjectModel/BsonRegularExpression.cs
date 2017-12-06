@@ -284,7 +284,7 @@ namespace MongoDB.Bson
         public override string ToString()
         {
             var escaped = (_pattern == "") ? "(?:)" :_pattern.Replace("/", @"\/");
-            return string.Format("/{0}/{1}", escaped, _options);
+            return $"/{escaped}/{_options}";
         }
     }
 }

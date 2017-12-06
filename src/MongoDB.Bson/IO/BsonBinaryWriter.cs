@@ -183,9 +183,8 @@ namespace MongoDB.Bson.IO
                         var expectedSubType = (Settings.GuidRepresentation == GuidRepresentation.Standard) ? BsonBinarySubType.UuidStandard : BsonBinarySubType.UuidLegacy;
                         if (subType != expectedSubType)
                         {
-                            var message = string.Format(
-                                "The GuidRepresentation for the writer is {0}, which requires the subType argument to be {1}, not {2}.",
-                                Settings.GuidRepresentation, expectedSubType, subType);
+                            var message =
+                                $"The GuidRepresentation for the writer is {Settings.GuidRepresentation}, which requires the subType argument to be {expectedSubType}, not {subType}.";
                             throw new BsonSerializationException(message);
                         }
                         if (guidRepresentation != Settings.GuidRepresentation)
@@ -734,7 +733,7 @@ namespace MongoDB.Bson.IO
             var size = _bsonStream.Position - _context.StartPosition;
             if (size > Settings.MaxDocumentSize)
             {
-                var message = string.Format("Size {0} is larger than MaxDocumentSize {1}.", size, Settings.MaxDocumentSize);
+                var message = $"Size {size} is larger than MaxDocumentSize {Settings.MaxDocumentSize}.";
                 throw new FormatException(message);
             }
 

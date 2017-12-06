@@ -61,10 +61,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (value == null)
             {
-                var message = string.Format(
-                    "C# null values of type '{0}' cannot be serialized using a serializer of type '{1}'.",
-                    BsonUtils.GetFriendlyTypeName(ValueType),
-                    BsonUtils.GetFriendlyTypeName(GetType()));
+                var message =
+                    $"C# null values of type '{BsonUtils.GetFriendlyTypeName(ValueType)}' cannot be serialized using a serializer of type '{BsonUtils.GetFriendlyTypeName(GetType())}'.";
                 throw new BsonSerializationException(message);
             }
 

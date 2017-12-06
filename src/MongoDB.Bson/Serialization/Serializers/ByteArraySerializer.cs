@@ -49,7 +49,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    var message = string.Format("{0} is not a valid representation for a ByteArraySerializer.", representation);
+                    var message = $"{representation} is not a valid representation for a ByteArraySerializer.";
                     throw new ArgumentException(message);
             }
 
@@ -128,7 +128,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    var message = string.Format("'{0}' is not a valid Byte[] representation.", _representation);
+                    var message = $"'{_representation}' is not a valid Byte[] representation.";
                     throw new BsonSerializationException(message);
             }
         }

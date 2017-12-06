@@ -68,7 +68,7 @@ namespace MongoDB.Bson.IO
             {
                 if (value < 0 || value > _buffer.Length)
                 {
-                    var message = string.Format("Invalid position: {0}.", value);
+                    var message = $"Invalid position: {value}.";
                     throw new ArgumentOutOfRangeException(nameof(value), message);
                 }
                 _position = value;

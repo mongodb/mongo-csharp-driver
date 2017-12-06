@@ -575,7 +575,7 @@ namespace MongoDB.Bson
                 return element;
             }
 
-            string message = string.Format("Element '{0}' not found.", name);
+            string message = $"Element '{name}' not found.";
             throw new KeyNotFoundException(message);
         }
 
@@ -659,7 +659,7 @@ namespace MongoDB.Bson
                 return value;
             }
 
-            string message = string.Format("Element '{0}' not found.", name);
+            string message = $"Element '{name}' not found.";
             throw new KeyNotFoundException(message);
         }
 

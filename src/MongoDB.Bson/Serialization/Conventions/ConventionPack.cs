@@ -163,7 +163,7 @@ namespace MongoDB.Bson.Serialization.Conventions
             var index = _conventions.FindIndex(x => x.Name == name);
             if (index == -1)
             {
-                var message = string.Format("Unable to find a convention by the name of '{0}'.", name);
+                var message = $"Unable to find a convention by the name of '{name}'.";
                 throw new ArgumentOutOfRangeException(nameof(name), message);
             }
 
@@ -189,7 +189,7 @@ namespace MongoDB.Bson.Serialization.Conventions
             var index = _conventions.FindIndex(x => x.Name == name);
             if (index == -1)
             {
-                var message = string.Format("Unable to find a convention by the name of '{0}'.", name);
+                var message = $"Unable to find a convention by the name of '{name}'.";
                 throw new ArgumentOutOfRangeException(nameof(name), message);
             }
 

@@ -80,7 +80,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 case BsonType.Undefined: return BsonUndefinedSerializer.Instance.Deserialize(context);
 
                 default:
-                    var message = string.Format("Invalid BsonType {0}.", bsonType);
+                    var message = $"Invalid BsonType {bsonType}.";
                     throw new BsonInternalException(message);
             }
         }

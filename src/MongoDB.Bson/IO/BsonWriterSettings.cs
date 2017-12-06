@@ -130,7 +130,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         protected void ThrowFrozenException()
         {
-            var message = string.Format("{0} is frozen.", this.GetType().Name);
+            var message = $"{this.GetType().Name} is frozen.";
             throw new InvalidOperationException(message);
         }
     }

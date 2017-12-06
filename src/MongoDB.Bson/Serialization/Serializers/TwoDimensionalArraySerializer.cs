@@ -114,7 +114,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 var innerList = outerList[i];
                 if (innerList.Count != length2)
                 {
-                    var message = string.Format("Inner list {0} is of length {1} but should be of length {2}.", i, innerList.Count, length2);
+                    var message = $"Inner list {i} is of length {innerList.Count} but should be of length {length2}.";
                     throw new FormatException(message);
                 }
                 for (int j = 0; j < length2; j++)

@@ -313,7 +313,7 @@ namespace MongoDB.Bson.Serialization
                             }
                             else
                             {
-                                string message = string.Format("Ambiguous discriminator '{0}'.", discriminator);
+                                string message = $"Ambiguous discriminator '{discriminator}'.";
                                 throw new BsonSerializationException(message);
                             }
                         }
@@ -327,15 +327,14 @@ namespace MongoDB.Bson.Serialization
 
                 if (actualType == null)
                 {
-                    string message = string.Format("Unknown discriminator value '{0}'.", discriminator);
+                    string message = $"Unknown discriminator value '{discriminator}'.";
                     throw new BsonSerializationException(message);
                 }
 
                 if (!nominalType.GetTypeInfo().IsAssignableFrom(actualType))
                 {
-                    string message = string.Format(
-                        "Actual type {0} is not assignable to expected type {1}.",
-                        actualType.FullName, nominalType.FullName);
+                    string message =
+                        $"Actual type {actualType.FullName} is not assignable to expected type {nominalType.FullName}.";
                     throw new BsonSerializationException(message);
                 }
 
@@ -514,7 +513,7 @@ namespace MongoDB.Bson.Serialization
             var typeInfo = type.GetTypeInfo();
             if (typeInfo.IsInterface)
             {
-                var message = string.Format("Discriminators can only be registered for classes, not for interface {0}.", type.FullName);
+                var message = $"Discriminators can only be registered for classes, not for interface {type.FullName}.";
                 throw new BsonSerializationException(message);
             }
 
@@ -561,7 +560,7 @@ namespace MongoDB.Bson.Serialization
                 }
                 else
                 {
-                    var message = string.Format("There is already a discriminator convention registered for type {0}.", type.FullName);
+                    var message = $"There is already a discriminator convention registered for type {type.FullName}.";
                     throw new BsonSerializationException(message);
                 }
             }

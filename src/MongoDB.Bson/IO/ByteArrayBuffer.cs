@@ -261,7 +261,7 @@ namespace MongoDB.Bson.IO
         {
             if (!_isReadOnly)
             {
-                var message = string.Format("{0} is not read only.", GetType().Name);
+                var message = $"{GetType().Name} is not read only.";
                 throw new InvalidOperationException(message);
             }
         }
@@ -270,7 +270,7 @@ namespace MongoDB.Bson.IO
         {
             if (_isReadOnly)
             {
-                var message = string.Format("{0} is not writable.", GetType().Name);
+                var message = $"{GetType().Name} is not writable.";
                 throw new InvalidOperationException(message);
             }
         }

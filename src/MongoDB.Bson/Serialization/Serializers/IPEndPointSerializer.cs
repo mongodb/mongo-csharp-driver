@@ -60,7 +60,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 }
             }
 
-            var message = string.Format("Invalid IPEndPoint value '{0}'.", stringValue);
+            var message = $"Invalid IPEndPoint value '{stringValue}'.";
             throw new FormatException(message);
         }
 
@@ -77,11 +77,11 @@ namespace MongoDB.Bson.Serialization.Serializers
             string stringValue;
             if (value.AddressFamily == AddressFamily.InterNetwork)
             {
-                stringValue = string.Format("{0}:{1}", value.Address, value.Port); // IPv4
+                stringValue = $"{value.Address}:{value.Port}"; // IPv4
             }
             else
             {
-                stringValue = string.Format("[{0}]:{1}", value.Address, value.Port); // IPv6
+                stringValue = $"[{value.Address}]:{value.Port}"; // IPv6
             }
             bsonWriter.WriteString(stringValue);
         }

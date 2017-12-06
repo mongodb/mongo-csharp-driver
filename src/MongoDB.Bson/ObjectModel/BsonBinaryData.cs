@@ -67,17 +67,14 @@ namespace MongoDB.Bson
             {
                 if (bytes.Length != 16)
                 {
-                    var message = string.Format(
-                        "Length must be 16, not {0}, when subType is {1}.",
-                        bytes.Length, subType);
+                    var message = $"Length must be 16, not {bytes.Length}, when subType is {subType}.";
                     throw new ArgumentException(message);
                 }
                 var expectedSubType = (guidRepresentation == GuidRepresentation.Standard) ? BsonBinarySubType.UuidStandard : BsonBinarySubType.UuidLegacy;
                 if (subType != expectedSubType)
                 {
-                    var message = string.Format(
-                        "SubType must be {0}, not {1}, when GuidRepresentation is {2}.",
-                        expectedSubType, subType, GuidRepresentation);
+                    var message =
+                        $"SubType must be {expectedSubType}, not {subType}, when GuidRepresentation is {GuidRepresentation}.";
                     throw new ArgumentException(message);
                 }
             }
@@ -85,9 +82,8 @@ namespace MongoDB.Bson
             {
                 if (guidRepresentation != GuidRepresentation.Unspecified)
                 {
-                    var message = string.Format(
-                        "GuidRepresentation must be Unspecified, not {0}, when SubType is not UuidStandard or UuidLegacy.",
-                        guidRepresentation);
+                    var message =
+                        $"GuidRepresentation must be Unspecified, not {guidRepresentation}, when SubType is not UuidStandard or UuidLegacy.";
                     throw new ArgumentException(message);
                 }
             }
@@ -326,7 +322,7 @@ namespace MongoDB.Bson
         {
             if (_subType != BsonBinarySubType.UuidStandard && _subType != BsonBinarySubType.UuidLegacy)
             {
-                var message = string.Format("SubType must be UuidStandard or UuidLegacy, not {0}.", _subType);
+                var message = $"SubType must be UuidStandard or UuidLegacy, not {_subType}.";
                 throw new InvalidOperationException(message);
             }
             if (guidRepresentation == GuidRepresentation.Unspecified)
@@ -342,7 +338,7 @@ namespace MongoDB.Bson
         /// <returns>A string representation of the binary data.</returns>
         public override string ToString()
         {
-            return string.Format("{0}:0x{1}", _subType, BsonUtils.ToHexString(_bytes));
+            return $"{_subType}:0x{BsonUtils.ToHexString(_bytes)}";
         }
     }
 }

@@ -100,7 +100,7 @@ namespace MongoDB.Bson.Serialization
                 ParameterExpression parameter;
                 if (!_parameters.TryGetValue(memberInfo, out parameter))
                 {
-                    var parameterName = string.Format("_p{0}_", _parameters.Count + 1); // avoid naming conflicts with body
+                    var parameterName = $"_p{_parameters.Count + 1}_"; // avoid naming conflicts with body
                     parameter = Expression.Parameter(node.Type, parameterName);
                     _parameters.Add(memberInfo, parameter);
                 }

@@ -321,7 +321,7 @@ namespace MongoDB.Bson
             }
             else
             {
-                var message = string.Format("'{0}' is not a valid 24 digit hex string.", s);
+                var message = $"'{s}' is not a valid 24 digit hex string.";
                 throw new FormatException(message);
             }
         }

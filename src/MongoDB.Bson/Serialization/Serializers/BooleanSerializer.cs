@@ -55,7 +55,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    var message = string.Format("{0} is not a valid representation for a BooleanSerializer.", representation);
+                    var message = $"{representation} is not a valid representation for a BooleanSerializer.";
                     throw new ArgumentException(message);
             }
 
@@ -152,7 +152,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    var message = string.Format("'{0}' is not a valid Boolean representation.", _representation);
+                    var message = $"'{_representation}' is not a valid Boolean representation.";
                     throw new BsonSerializationException(message);
             }
         }

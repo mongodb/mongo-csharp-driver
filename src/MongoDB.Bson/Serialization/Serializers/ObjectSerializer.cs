@@ -130,7 +130,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return bsonReader.ReadString();
 
                 default:
-                    var message = string.Format("ObjectSerializer does not support BSON type '{0}'.", bsonType);
+                    var message = $"ObjectSerializer does not support BSON type '{bsonType}'.";
                     throw new FormatException(message);
             }
         }
@@ -276,7 +276,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                         }
                         else
                         {
-                            var message = string.Format("Unexpected element name: '{0}'.", name);
+                            var message = $"Unexpected element name: '{name}'.";
                             throw new FormatException(message);
                         }
                     }

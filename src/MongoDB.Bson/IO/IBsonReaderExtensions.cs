@@ -351,9 +351,7 @@ namespace MongoDB.Bson.IO
             var actualName = reader.ReadName();
             if (actualName != expectedName)
             {
-                var message = string.Format(
-                    "Expected element name to be '{0}', not '{1}'.",
-                    expectedName, actualName);
+                var message = $"Expected element name to be '{expectedName}', not '{actualName}'.";
                 throw new FormatException(message);
             }
         }

@@ -55,7 +55,7 @@ namespace MongoDB.Bson.IO
             var size = stream.Position - startPosition;
             if (size > int.MaxValue)
             {
-                var message = string.Format("Size {0} is larger than {1} (Int32.MaxValue).", size, int.MaxValue);
+                var message = $"Size {size} is larger than {int.MaxValue} (Int32.MaxValue).";
                 throw new FormatException(message);
             }
 
@@ -124,7 +124,7 @@ namespace MongoDB.Bson.IO
             }
             if (!__validBsonTypes[b])
             {
-                var message = string.Format("Detected unknown BSON type \"\\x{0:x2}\". Are you using the latest driver version?", b);
+                var message = $"Detected unknown BSON type \"\\x{b:x2}\". Are you using the latest driver version?";
                 throw new FormatException(message);
             }
             return (BsonType)b;

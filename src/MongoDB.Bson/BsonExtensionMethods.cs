@@ -77,7 +77,8 @@ namespace MongoDB.Bson
             }
             if (serializer.ValueType != nominalType)
             {
-                var message = string.Format("Serializer type {0} value type does not match document types {1}.", serializer.GetType().FullName, nominalType.FullName);
+                var message =
+                    $"Serializer type {serializer.GetType().FullName} value type does not match document types {nominalType.FullName}.";
                 throw new ArgumentException(message, nameof(serializer));
             }
 
@@ -157,7 +158,8 @@ namespace MongoDB.Bson
             }
             if (serializer.ValueType != nominalType)
             {
-                var message = string.Format("Serializer type {0} value type does not match document types {1}.", serializer.GetType().FullName, nominalType.FullName);
+                var message =
+                    $"Serializer type {serializer.GetType().FullName} value type does not match document types {nominalType.FullName}.";
                 throw new ArgumentException(message, nameof(serializer));
             }
 
@@ -227,7 +229,8 @@ namespace MongoDB.Bson
             }
             if (serializer.ValueType != nominalType)
             {
-                var message = string.Format("Serializer type {0} value type does not match document types {1}.", serializer.GetType().FullName, nominalType.FullName);
+                var message =
+                    $"Serializer type {serializer.GetType().FullName} value type does not match document types {nominalType.FullName}.";
                 throw new ArgumentException(message, nameof(serializer));
             }
 

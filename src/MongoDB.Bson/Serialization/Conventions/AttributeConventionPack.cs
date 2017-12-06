@@ -188,7 +188,7 @@ namespace MongoDB.Bson.Serialization.Conventions
                     {
                         if (nonDuplicatesAlreadySeen.Contains(attributeType))
                         {
-                            var message = string.Format("Attributes of type {0} can only be applied to a single member.", attributeType);
+                            var message = $"Attributes of type {attributeType} can only be applied to a single member.";
                             throw new DuplicateBsonMemberMapAttributeException(message);
                         }
 

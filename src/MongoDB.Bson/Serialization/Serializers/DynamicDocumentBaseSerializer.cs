@@ -66,7 +66,8 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return document;
 
                 default:
-                    message = string.Format("Cannot deserialize a '{0}' from BsonType '{1}'.", BsonUtils.GetFriendlyTypeName(typeof(T)), bsonType);
+                    message =
+                        $"Cannot deserialize a '{BsonUtils.GetFriendlyTypeName(typeof(T))}' from BsonType '{bsonType}'.";
                     throw new FormatException(message);
             }
         }

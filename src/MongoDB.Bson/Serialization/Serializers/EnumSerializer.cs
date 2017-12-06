@@ -56,7 +56,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    var message = string.Format("{0} is not a valid representation for an EnumSerializer.", representation);
+                    var message = $"{representation} is not a valid representation for an EnumSerializer.";
                     throw new ArgumentException(message);
             }
 
@@ -64,7 +64,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             var enumTypeInfo = typeof(TEnum).GetTypeInfo();
             if (!enumTypeInfo.IsEnum)
             {
-                var message = string.Format("{0} is not an enum type.", typeof(TEnum).FullName);
+                var message = $"{typeof(TEnum).FullName} is not an enum type.";
                 throw new BsonSerializationException(message);
             }
 

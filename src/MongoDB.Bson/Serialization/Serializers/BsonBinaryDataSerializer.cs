@@ -76,9 +76,8 @@ namespace MongoDB.Bson.Serialization.Serializers
 
                     if (guidRepresentation == GuidRepresentation.Unspecified)
                     {
-                        var message = string.Format(
-                            "Cannot serialize BsonBinaryData with GuidRepresentation Unspecified to destination with GuidRepresentation {0}.",
-                            writerGuidRepresentation);
+                        var message =
+                            $"Cannot serialize BsonBinaryData with GuidRepresentation Unspecified to destination with GuidRepresentation {writerGuidRepresentation}.";
                         throw new BsonSerializationException(message);
                     }
                     if (guidRepresentation != writerGuidRepresentation)

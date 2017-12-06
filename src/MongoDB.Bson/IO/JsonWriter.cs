@@ -772,7 +772,7 @@ namespace MongoDB.Bson.IO
         {
             if (bytes.Length != 16)
             {
-                var message = string.Format("Length of binary subtype {0} must be 16, not {1}.", subType, bytes.Length);
+                var message = $"Length of binary subtype {subType} must be 16, not {bytes.Length}.";
                 throw new ArgumentException(message);
             }
             if (subType == BsonBinarySubType.UuidLegacy && guidRepresentation == GuidRepresentation.Standard)
@@ -781,7 +781,8 @@ namespace MongoDB.Bson.IO
             }
             if (subType == BsonBinarySubType.UuidStandard && guidRepresentation != GuidRepresentation.Standard)
             {
-                var message = string.Format("GuidRepresentation for binary subtype UuidStandard must be Standard, not {0}.", guidRepresentation);
+                var message =
+                    $"GuidRepresentation for binary subtype UuidStandard must be Standard, not {guidRepresentation}.";
                 throw new ArgumentException(message);
             }
 
@@ -796,7 +797,7 @@ namespace MongoDB.Bson.IO
                     s.Substring(16, 4),
                     s.Substring(20, 12)
                 };
-                return string.Format("HexData({0}, \"{1}\")", (int)subType, string.Join("-", parts));
+                return $"HexData({(int) subType}, \"{string.Join("-", parts)}\")";
             }
             else
             {
@@ -810,7 +811,7 @@ namespace MongoDB.Bson.IO
                     default: throw new BsonInternalException("Unexpected GuidRepresentation");
                 }
                 var guid = GuidConverter.FromBytes(bytes, guidRepresentation);
-                return string.Format("{0}(\"{1}\")", uuidConstructorName, guid.ToString());
+                return $"{uuidConstructorName}(\"{guid.ToString()}\")";
             }
         }
 
