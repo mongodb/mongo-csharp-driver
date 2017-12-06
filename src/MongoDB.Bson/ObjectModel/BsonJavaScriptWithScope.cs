@@ -64,7 +64,7 @@ namespace MongoDB.Bson
         /// <returns>True if the two BsonJavaScriptWithScope values are equal according to ==.</returns>
         public static bool operator ==(BsonJavaScriptWithScope lhs, BsonJavaScriptWithScope rhs)
         {
-            if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
+            if (ReferenceEquals(lhs, null)) { return ReferenceEquals(rhs, null); }
             return lhs.Equals(rhs);
         }
 
@@ -161,7 +161,7 @@ namespace MongoDB.Bson
         /// <returns>True if the two BsonJavaScriptWithScope values are equal.</returns>
         public bool Equals(BsonJavaScriptWithScope rhs)
         {
-            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
+            if (ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             return Code == rhs.Code && _scope == rhs._scope;
         }
 

@@ -97,7 +97,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             serializationInfo = new BsonSerializationInfo(
                 memberName,
-                BsonValueSerializer.Instance,
+                Instance,
                 typeof(BsonValue));
             return true;
         }
@@ -113,7 +113,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             serializationInfo = new BsonSerializationInfo(
                 null,
-                BsonValueSerializer.Instance,
+                Instance,
                 typeof(BsonValue));
             return true;
         }

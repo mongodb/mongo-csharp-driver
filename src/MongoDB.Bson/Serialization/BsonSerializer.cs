@@ -44,8 +44,8 @@ namespace MongoDB.Bson.Serialization
         private static TypeMappingSerializationProvider __typeMappingSerializationProvider;
         private static readonly HashSet<Type> __typesWithRegisteredKnownTypes = new HashSet<Type>();
 
-        private static bool __useNullIdChecker = false;
-        private static bool __useZeroIdChecker = false;
+        private static bool __useNullIdChecker;
+        private static bool __useZeroIdChecker;
 
         // static constructor
         static BsonSerializer()

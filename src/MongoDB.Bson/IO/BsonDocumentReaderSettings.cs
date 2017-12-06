@@ -26,7 +26,7 @@ namespace MongoDB.Bson.IO
     public class BsonDocumentReaderSettings : BsonReaderSettings
     {
         // private static fields
-        private static BsonDocumentReaderSettings __defaults = null; // delay creation to pick up the latest default values
+        private static BsonDocumentReaderSettings __defaults; // delay creation to pick up the latest default values
 
         // constructors
         /// <summary>

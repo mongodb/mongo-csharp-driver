@@ -61,7 +61,7 @@ namespace MongoDB.Bson.Serialization.Attributes
             }
 
             var message =
-                $"A serializer of type '{BsonUtils.GetFriendlyTypeName(serializer.GetType())}' is not configurable using an attribute of type '{BsonUtils.GetFriendlyTypeName(this.GetType())}'.";
+                $"A serializer of type '{BsonUtils.GetFriendlyTypeName(serializer.GetType())}' is not configurable using an attribute of type '{BsonUtils.GetFriendlyTypeName(GetType())}'.";
             throw new NotSupportedException(message);
         }
     }

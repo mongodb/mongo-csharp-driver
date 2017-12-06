@@ -40,7 +40,7 @@ namespace MongoDB.Bson
         // use a list and a dictionary because we want to preserve the order in which the elements were added
         // if duplicate names are present only the first one will be in the dictionary (the others can only be accessed by index)
         private readonly List<BsonElement> _elements = new List<BsonElement>();
-        private Dictionary<string, int> _indexes = null; // maps names to indexes into elements list (not created until there are enough elements to justify it)
+        private Dictionary<string, int> _indexes; // maps names to indexes into elements list (not created until there are enough elements to justify it)
         private bool _allowDuplicateNames;
 
         // constructors
@@ -189,7 +189,7 @@ namespace MongoDB.Bson
         /// <returns>True if the two BsonDocument values are equal according to ==.</returns>
         public static bool operator ==(BsonDocument lhs, BsonDocument rhs)
         {
-            return object.Equals(lhs, rhs); // handles lhs == null correctly
+            return Equals(lhs, rhs); // handles lhs == null correctly
         }
 
         // public properties
@@ -846,7 +846,7 @@ namespace MongoDB.Bson
         /// <returns>True if the other object is a BsonDocument and equal to this one.</returns>
         public override bool Equals(object obj)
         {
-            if (object.ReferenceEquals(obj, null) || !(obj is BsonDocument)) { return false; }
+            if (ReferenceEquals(obj, null) || !(obj is BsonDocument)) { return false; }
 
             // lhs and rhs might be subclasses of BsonDocument
             var rhs = (BsonDocument)obj;

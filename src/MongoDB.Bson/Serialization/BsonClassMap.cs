@@ -45,7 +45,7 @@ namespace MongoDB.Bson.Serialization
             .GetTypeInfo()
             ?.GetMethod("GetUninitializedObject", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
 
-        private static int __freezeNestingLevel = 0;
+        private static int __freezeNestingLevel;
 
         // private fields
         private readonly Type _classType;
@@ -1581,7 +1581,7 @@ namespace MongoDB.Bson.Serialization
 
             var actualPropertyAccessors = interfacePropertyAccessors.Select(interfacePropertyAccessor =>
             {
-                var index = Array.IndexOf<MethodInfo>(interfaceMap.InterfaceMethods, interfacePropertyAccessor);
+                var index = Array.IndexOf(interfaceMap.InterfaceMethods, interfacePropertyAccessor);
 
                 return interfaceMap.TargetMethods[index];
             });

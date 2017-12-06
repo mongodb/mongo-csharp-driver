@@ -28,7 +28,7 @@ namespace MongoDB.Bson.IO
     {
         // private fields
         private Func<IElementNameValidator> _childElementNameValidatorFactory = () => NoOpElementNameValidator.Instance;
-        private bool _disposed = false;
+        private bool _disposed;
         private IElementNameValidator _elementNameValidator = NoOpElementNameValidator.Instance;
         private readonly Stack<IElementNameValidator> _elementNameValidatorStack = new Stack<IElementNameValidator>();
         private BsonWriterSettings _settings;
@@ -265,7 +265,7 @@ namespace MongoDB.Bson.IO
             {
                 throw new BsonSerializationException("Element names cannot contain nulls.");
             }
-            if (_disposed) { throw new ObjectDisposedException(this.GetType().Name); }
+            if (_disposed) { throw new ObjectDisposedException(GetType().Name); }
             if (_state != BsonWriterState.Name)
             {
                 ThrowInvalidState("WriteName", BsonWriterState.Name);

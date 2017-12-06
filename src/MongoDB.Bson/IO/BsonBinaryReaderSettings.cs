@@ -27,7 +27,7 @@ namespace MongoDB.Bson.IO
     public class BsonBinaryReaderSettings : BsonReaderSettings
     {
         // private static fields
-        private static BsonBinaryReaderSettings __defaults = null; // delay creation to pick up the latest default values
+        private static BsonBinaryReaderSettings __defaults; // delay creation to pick up the latest default values
 
         // private fields
         private UTF8Encoding _encoding = Utf8Encodings.Strict;

@@ -166,7 +166,7 @@ namespace MongoDB.Bson
         /// <returns>True if the two BsonRegularExpression values are equal according to ==.</returns>
         public static bool operator ==(BsonRegularExpression lhs, BsonRegularExpression rhs)
         {
-            if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
+            if (ReferenceEquals(lhs, null)) { return ReferenceEquals(rhs, null); }
             return lhs.Equals(rhs);
         }
 
@@ -223,7 +223,7 @@ namespace MongoDB.Bson
         /// <returns>True if the two BsonRegularExpression values are equal.</returns>
         public bool Equals(BsonRegularExpression rhs)
         {
-            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
+            if (ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             return _pattern == rhs._pattern && _options == rhs._options;
         }
 

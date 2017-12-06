@@ -243,7 +243,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (_defaultValueSpecified)
             {
-                this.Setter(obj, DefaultValue);
+                Setter(obj, DefaultValue);
             }
         }
 
@@ -503,7 +503,7 @@ namespace MongoDB.Bson.Serialization
 
             if (_ignoreIfDefault)
             {
-                if (object.Equals(_defaultValue, value))
+                if (Equals(_defaultValue, value))
                 {
                     return false; // don't serialize default value
                 }

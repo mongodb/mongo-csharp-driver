@@ -57,7 +57,7 @@ namespace MongoDB.Bson
             if (x.High == 0 && x.Low == 0)
             {
                 remainder = 0;
-                return UInt128.Zero;
+                return Zero;
             }
 
             var a = x.High >> 32;
@@ -130,7 +130,7 @@ namespace MongoDB.Bson
         public static UInt128 Parse(string s)
         {
             UInt128 value;
-            if (!UInt128.TryParse(s, out value))
+            if (!TryParse(s, out value))
             {
                 throw new FormatException($"Error parsing UInt128 string: \"{s}\".");
             }
@@ -150,7 +150,7 @@ namespace MongoDB.Bson
             {
                 if (s.Length == 1)
                 {
-                    value = UInt128.Zero;
+                    value = Zero;
                     return true;
                 }
                 else
@@ -158,14 +158,14 @@ namespace MongoDB.Bson
                     s = Regex.Replace(s, "^0+", "");
                     if (s.Length == 0)
                     {
-                        value = UInt128.Zero;
+                        value = Zero;
                         return true;
                     }
                 }
             }
 
             // parse 9 or fewer decimal digits at a time
-            value = UInt128.Zero;
+            value = Zero;
             while (s.Length > 0)
             {
                 int fragmentSize = s.Length % 9;
@@ -182,9 +182,9 @@ namespace MongoDB.Bson
                     return false;
                 }
 
-                var combinedValue = UInt128.Multiply(value, 1000000000);
-                combinedValue = UInt128.Add(combinedValue, new UInt128(0, fragmentValue));
-                if (UInt128.Compare(combinedValue, value) < 0)
+                var combinedValue = Multiply(value, 1000000000);
+                combinedValue = Add(combinedValue, new UInt128(0, fragmentValue));
+                if (Compare(combinedValue, value) < 0)
                 {
                     // overflow means s represents a value larger than UInt128.MaxValue
                     value = default(UInt128);
@@ -230,7 +230,7 @@ namespace MongoDB.Bson
         // public methods
         public int CompareTo(UInt128 other)
         {
-            return UInt128.Compare(this, other);
+            return Compare(this, other);
         }
 
         public override bool Equals(object obj)
@@ -260,10 +260,10 @@ namespace MongoDB.Bson
             {
                 // convert 9 decimal digits at a time to a string
                 uint remainder;
-                value = UInt128.Divide(value, 1000000000, out remainder);
+                value = Divide(value, 1000000000, out remainder);
                 var fragmentString = remainder.ToString(NumberFormatInfo.InvariantInfo);
 
-                if (UInt128.Equals(value, UInt128.Zero))
+                if (Equals(value, Zero))
                 {
                     if (builder == null)
                     {

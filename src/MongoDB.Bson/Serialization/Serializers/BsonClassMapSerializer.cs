@@ -85,7 +85,7 @@ namespace MongoDB.Bson.Serialization
                 throw new BsonSerializationException(message);
             }
 
-            if (bsonReader.GetCurrentBsonType() == Bson.BsonType.Null)
+            if (bsonReader.GetCurrentBsonType() == BsonType.Null)
             {
                 bsonReader.ReadNull();
                 return default(TClass);

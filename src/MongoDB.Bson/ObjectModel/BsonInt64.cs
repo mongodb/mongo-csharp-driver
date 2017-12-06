@@ -116,7 +116,7 @@ namespace MongoDB.Bson
         /// <returns>True if the two BsonInt64 values are equal according to ==.</returns>
         public static bool operator ==(BsonInt64 lhs, BsonInt64 rhs)
         {
-            if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
+            if (ReferenceEquals(lhs, null)) { return ReferenceEquals(rhs, null); }
             return lhs.OperatorEqualsImplementation(rhs);
         }
 
@@ -191,7 +191,7 @@ namespace MongoDB.Bson
         /// <returns>True if the two BsonInt64 values are equal.</returns>
         public bool Equals(BsonInt64 rhs)
         {
-            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
+            if (ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             return _value == rhs._value;
         }
 
@@ -405,7 +405,7 @@ namespace MongoDB.Bson
                 return _value == (long)rhsDecimal128.Value;
             }
 
-            return this.Equals(rhs);
+            return Equals(rhs);
         }
     }
 }

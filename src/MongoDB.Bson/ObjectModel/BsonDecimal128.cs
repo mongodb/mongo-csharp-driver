@@ -91,7 +91,7 @@ namespace MongoDB.Bson
         /// <returns>True if the two BsonDecimal128 values are equal according to ==.</returns>
         public static bool operator ==(BsonDecimal128 lhs, BsonDecimal128 rhs)
         {
-            if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
+            if (ReferenceEquals(lhs, null)) { return ReferenceEquals(rhs, null); }
             return lhs.OperatorEqualsImplementation(rhs);
         }
 
@@ -162,7 +162,7 @@ namespace MongoDB.Bson
         /// <returns>True if the two BsonDecimal128 values are equal.</returns>
         public bool Equals(BsonDecimal128 rhs)
         {
-            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
+            if (ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             return _value.Equals(rhs._value); // use Equals instead of == so NaN is handled correctly
         }
 
@@ -344,7 +344,7 @@ namespace MongoDB.Bson
                 return _value == (Decimal128)rhsDouble.Value; // use == instead of Equals so NaN is handled correctly
             }
 
-            return this.Equals(rhs);
+            return Equals(rhs);
         }
     }
 }

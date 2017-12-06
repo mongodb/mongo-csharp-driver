@@ -27,7 +27,7 @@ namespace MongoDB.Bson.IO
     public class BsonBinaryWriterSettings : BsonWriterSettings
     {
         // private static fields
-        private static BsonBinaryWriterSettings __defaults = null; // delay creation to pick up the latest default values
+        private static BsonBinaryWriterSettings __defaults; // delay creation to pick up the latest default values
 
         // private fields
         private UTF8Encoding _encoding = Utf8Encodings.Strict;

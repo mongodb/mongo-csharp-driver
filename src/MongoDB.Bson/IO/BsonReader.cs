@@ -27,7 +27,7 @@ namespace MongoDB.Bson.IO
     public abstract class BsonReader : IBsonReader
     {
         // private fields
-        private bool _disposed = false;
+        private bool _disposed;
         private readonly BsonReaderSettings _settings;
         private BsonReaderState _state;
         private BsonType _currentBsonType;
@@ -403,7 +403,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         protected void ThrowObjectDisposedException()
         {
-            throw new ObjectDisposedException(this.GetType().Name);
+            throw new ObjectDisposedException(GetType().Name);
         }
 
         /// <summary>

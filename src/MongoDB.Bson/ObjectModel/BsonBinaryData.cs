@@ -209,7 +209,7 @@ namespace MongoDB.Bson
         /// <returns>True if the two BsonBinaryData values are equal according to ==.</returns>
         public static bool operator ==(BsonBinaryData lhs, BsonBinaryData rhs)
         {
-            if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
+            if (ReferenceEquals(lhs, null)) { return ReferenceEquals(rhs, null); }
             return lhs.Equals(rhs);
         }
 
@@ -271,9 +271,9 @@ namespace MongoDB.Bson
         /// <returns>True if the two BsonBinaryData values are equal.</returns>
         public bool Equals(BsonBinaryData rhs)
         {
-            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
+            if (ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             // note: guidRepresentation is not considered when testing for Equality
-            return object.ReferenceEquals(this, rhs) || _subType == rhs._subType && _bytes.SequenceEqual(rhs._bytes);
+            return ReferenceEquals(this, rhs) || _subType == rhs._subType && _bytes.SequenceEqual(rhs._bytes);
         }
 
         /// <summary>

@@ -171,7 +171,7 @@ namespace MongoDB.Bson
         /// <returns>True if the two BsonArray values are equal according to ==.</returns>
         public static bool operator ==(BsonArray lhs, BsonArray rhs)
         {
-            return object.Equals(lhs, rhs); // handles lhs == null correctly
+            return Equals(lhs, rhs); // handles lhs == null correctly
         }
 
         // public properties
@@ -595,7 +595,7 @@ namespace MongoDB.Bson
         /// <returns>True if the other object is a BsonArray and equal to this one.</returns>
         public override bool Equals(object obj)
         {
-            if (object.ReferenceEquals(obj, null) || !(obj is BsonArray)) { return false; }
+            if (ReferenceEquals(obj, null) || !(obj is BsonArray)) { return false; }
 
             // lhs and rhs might be subclasses of BsonArray
             var rhs = (BsonArray)obj;

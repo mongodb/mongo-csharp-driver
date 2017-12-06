@@ -162,7 +162,7 @@ namespace MongoDB.Bson
         /// <returns>True if the two BsonInt32 values are equal according to ==.</returns>
         public static bool operator ==(BsonInt32 lhs, BsonInt32 rhs)
         {
-            if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
+            if (ReferenceEquals(lhs, null)) { return ReferenceEquals(rhs, null); }
             return lhs.OperatorEqualsImplementation(rhs);
         }
 
@@ -237,7 +237,7 @@ namespace MongoDB.Bson
         /// <returns>True if the two BsonInt32 values are equal.</returns>
         public bool Equals(BsonInt32 rhs)
         {
-            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
+            if (ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             return _value == rhs._value;
         }
 
@@ -451,7 +451,7 @@ namespace MongoDB.Bson
                 return _value == (int)rhsDecimal128.Value; // use == instead of Equals so NaN is handled correctly
             }
 
-            return this.Equals(rhs);
+            return Equals(rhs);
         }
     }
 }
