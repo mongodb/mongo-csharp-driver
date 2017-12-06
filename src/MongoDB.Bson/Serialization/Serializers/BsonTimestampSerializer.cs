@@ -22,7 +22,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BsonTimestampSerializer : BsonValueSerializerBase<BsonTimestamp>
     {
         // private static fields
-        private static BsonTimestampSerializer __instance = new BsonTimestampSerializer();
+        private static readonly BsonTimestampSerializer __instance = new BsonTimestampSerializer();
 
         // constructors
         /// <summary>

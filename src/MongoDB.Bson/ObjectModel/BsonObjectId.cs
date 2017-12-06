@@ -26,7 +26,7 @@ namespace MongoDB.Bson
     public class BsonObjectId : BsonValue, IComparable<BsonObjectId>, IEquatable<BsonObjectId>
     {
         // private static fields
-        private static BsonObjectId __emptyInstance = new BsonObjectId(ObjectId.Empty);
+        private static readonly BsonObjectId __emptyInstance = new BsonObjectId(ObjectId.Empty);
 
         // private fields
         private readonly ObjectId _value;

@@ -27,7 +27,7 @@ namespace MongoDB.Bson
     public class BsonString : BsonValue, IComparable<BsonString>, IEquatable<BsonString>
     {
         // private static fields
-        private static BsonString __emptyInstance = new BsonString("");
+        private static readonly BsonString __emptyInstance = new BsonString("");
 
         // private fields
         private readonly string _value;

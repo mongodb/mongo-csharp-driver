@@ -23,7 +23,7 @@ namespace MongoDB.Bson.Serialization.IdGenerators
     public class GuidGenerator : IIdGenerator
     {
         // private static fields
-        private static GuidGenerator __instance = new GuidGenerator();
+        private static readonly GuidGenerator __instance = new GuidGenerator();
 
         // constructors
         /// <summary>

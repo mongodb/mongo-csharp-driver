@@ -27,8 +27,8 @@ namespace MongoDB.Bson
     public class BsonBoolean : BsonValue, IComparable<BsonBoolean>, IEquatable<BsonBoolean>
     {
         // private static fields
-        private static BsonBoolean __falseInstance = new BsonBoolean(false);
-        private static BsonBoolean __trueInstance = new BsonBoolean(true);
+        private static readonly BsonBoolean __falseInstance = new BsonBoolean(false);
+        private static readonly BsonBoolean __trueInstance = new BsonBoolean(true);
 
         // private fields
         private readonly bool _value;

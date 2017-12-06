@@ -30,9 +30,9 @@ namespace MongoDB.Bson.IO
         private Func<IElementNameValidator> _childElementNameValidatorFactory = () => NoOpElementNameValidator.Instance;
         private bool _disposed = false;
         private IElementNameValidator _elementNameValidator = NoOpElementNameValidator.Instance;
-        private Stack<IElementNameValidator> _elementNameValidatorStack = new Stack<IElementNameValidator>();
+        private readonly Stack<IElementNameValidator> _elementNameValidatorStack = new Stack<IElementNameValidator>();
         private BsonWriterSettings _settings;
-        private Stack<BsonWriterSettings> _settingsStack = new Stack<BsonWriterSettings>();
+        private readonly Stack<BsonWriterSettings> _settingsStack = new Stack<BsonWriterSettings>();
         private BsonWriterState _state;
         private string _name;
         private int _serializationDepth;

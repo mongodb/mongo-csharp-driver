@@ -24,8 +24,8 @@ namespace MongoDB.Bson.Serialization.Options
     public class RepresentationConverter
     {
         // private fields
-        private bool _allowOverflow;
-        private bool _allowTruncation;
+        private readonly bool _allowOverflow;
+        private readonly bool _allowTruncation;
 
         // constructors
         /// <summary>

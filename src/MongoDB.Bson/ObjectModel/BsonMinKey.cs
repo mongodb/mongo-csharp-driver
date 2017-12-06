@@ -26,7 +26,7 @@ namespace MongoDB.Bson
     public class BsonMinKey : BsonValue, IComparable<BsonMinKey>, IEquatable<BsonMinKey>
     {
         // private static fields
-        private static BsonMinKey __value = new BsonMinKey();
+        private static readonly BsonMinKey __value = new BsonMinKey();
 
         // constructors
         // private so only the singleton instance can be created

@@ -30,7 +30,7 @@ namespace MongoDB.Bson
     {
         // private static fields
         // table of from mappings used by MapToBsonValue
-        private static Dictionary<Type, Conversion> __fromMappings = new Dictionary<Type, Conversion>
+        private static readonly Dictionary<Type, Conversion> __fromMappings = new Dictionary<Type, Conversion>
         {
             { typeof(bool), Conversion.BoolToBsonBoolean },
             { typeof(byte), Conversion.ByteToBsonInt32 },
@@ -55,7 +55,7 @@ namespace MongoDB.Bson
         };
 
         // table of from/to mappings used by MapToBsonValue
-        private static Dictionary<Mapping, Conversion> __fromToMappings = new Dictionary<Mapping, Conversion>()
+        private static readonly Dictionary<Mapping, Conversion> __fromToMappings = new Dictionary<Mapping, Conversion>()
         {
             { Mapping.FromTo(typeof(bool), BsonType.Boolean), Conversion.BoolToBsonBoolean },
             { Mapping.FromTo(typeof(BsonArray), BsonType.Array), Conversion.None },
@@ -160,7 +160,7 @@ namespace MongoDB.Bson
             { Mapping.FromTo(typeof(ulong), BsonType.Timestamp), Conversion.UInt64ToBsonTimestamp }
         };
 
-        private static Dictionary<Type, ICustomBsonTypeMapper> __customTypeMappers = new Dictionary<Type, ICustomBsonTypeMapper>();
+        private static readonly Dictionary<Type, ICustomBsonTypeMapper> __customTypeMappers = new Dictionary<Type, ICustomBsonTypeMapper>();
 
         // public static methods
         /// <summary>
@@ -709,8 +709,8 @@ namespace MongoDB.Bson
 
         private struct Mapping
         {
-            private Type _netType;
-            private BsonType _bsonType;
+            private readonly Type _netType;
+            private readonly BsonType _bsonType;
 
             public Mapping(Type netType, BsonType bsonType)
             {

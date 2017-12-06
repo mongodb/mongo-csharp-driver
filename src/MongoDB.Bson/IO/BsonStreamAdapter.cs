@@ -29,7 +29,7 @@ namespace MongoDB.Bson.IO
     {
         // fields
         private bool _disposed;
-        private bool _ownsStream;
+        private readonly bool _ownsStream;
         private readonly Stream _stream;
         private readonly byte[] _temp = new byte[12];
         private readonly byte[] _tempUtf8 = new byte[128];

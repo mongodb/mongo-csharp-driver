@@ -28,7 +28,7 @@ namespace MongoDB.Bson.IO
     {
         // private fields
         private bool _disposed = false;
-        private BsonReaderSettings _settings;
+        private readonly BsonReaderSettings _settings;
         private BsonReaderState _state;
         private BsonType _currentBsonType;
         private string _currentName;

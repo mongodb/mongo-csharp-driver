@@ -35,14 +35,14 @@ namespace MongoDB.Bson.Serialization
     public static class BsonSerializer
     {
         // private static fields
-        private static ReaderWriterLockSlim __configLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-        private static Dictionary<Type, IIdGenerator> __idGenerators = new Dictionary<Type, IIdGenerator>();
-        private static Dictionary<Type, IDiscriminatorConvention> __discriminatorConventions = new Dictionary<Type, IDiscriminatorConvention>();
-        private static Dictionary<BsonValue, HashSet<Type>> __discriminators = new Dictionary<BsonValue, HashSet<Type>>();
-        private static HashSet<Type> __discriminatedTypes = new HashSet<Type>();
+        private static readonly ReaderWriterLockSlim __configLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+        private static readonly Dictionary<Type, IIdGenerator> __idGenerators = new Dictionary<Type, IIdGenerator>();
+        private static readonly Dictionary<Type, IDiscriminatorConvention> __discriminatorConventions = new Dictionary<Type, IDiscriminatorConvention>();
+        private static readonly Dictionary<BsonValue, HashSet<Type>> __discriminators = new Dictionary<BsonValue, HashSet<Type>>();
+        private static readonly HashSet<Type> __discriminatedTypes = new HashSet<Type>();
         private static BsonSerializerRegistry __serializerRegistry;
         private static TypeMappingSerializationProvider __typeMappingSerializationProvider;
-        private static HashSet<Type> __typesWithRegisteredKnownTypes = new HashSet<Type>();
+        private static readonly HashSet<Type> __typesWithRegisteredKnownTypes = new HashSet<Type>();
 
         private static bool __useNullIdChecker = false;
         private static bool __useZeroIdChecker = false;

@@ -28,7 +28,7 @@ namespace MongoDB.Bson
     public abstract class BsonValue : IComparable<BsonValue>, IConvertible, IEquatable<BsonValue>
     {
         // private static fields
-        private static Dictionary<BsonType, int> __bsonTypeSortOrder = new Dictionary<BsonType, int>
+        private static readonly Dictionary<BsonType, int> __bsonTypeSortOrder = new Dictionary<BsonType, int>
         {
             { BsonType.MinKey, 1 },
             { BsonType.Undefined, 2 },

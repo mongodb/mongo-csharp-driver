@@ -104,7 +104,7 @@ namespace MongoDB.Bson.Serialization
         {
             // private fields
             private Func<Type, bool> _isDynamicType;
-            private IBsonWriter _writer;
+            private readonly IBsonWriter _writer;
 
             // constructors
             internal Builder(BsonSerializationContext other, IBsonWriter writer)

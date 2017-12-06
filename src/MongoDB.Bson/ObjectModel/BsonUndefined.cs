@@ -26,7 +26,7 @@ namespace MongoDB.Bson
     public class BsonUndefined : BsonValue, IComparable<BsonUndefined>, IEquatable<BsonUndefined>
     {
         // private static fields
-        private static BsonUndefined __value = new BsonUndefined();
+        private static readonly BsonUndefined __value = new BsonUndefined();
 
         // constructors
         // private so only the singleton instance can be created

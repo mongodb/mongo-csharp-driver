@@ -18,9 +18,9 @@ namespace MongoDB.Bson.IO
     internal class BsonBinaryWriterContext
     {
         // private fields
-        private BsonBinaryWriterContext _parentContext;
-        private ContextType _contextType;
-        private long _startPosition;
+        private readonly BsonBinaryWriterContext _parentContext;
+        private readonly ContextType _contextType;
+        private readonly long _startPosition;
         private int _index; // used when contextType is Array
 
         // constructors

@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization.Attributes
     public class BsonIgnoreExtraElementsAttribute : Attribute, IBsonClassMapAttribute
     {
         // private fields
-        private bool _ignoreExtraElements;
+        private readonly bool _ignoreExtraElements;
         private bool _inherited;
 
         // constructors

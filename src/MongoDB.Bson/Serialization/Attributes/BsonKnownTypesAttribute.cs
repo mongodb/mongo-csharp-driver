@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization.Attributes
     public class BsonKnownTypesAttribute : Attribute, IBsonClassMapAttribute
     {
         // private fields
-        private Type[] _knownTypes;
+        private readonly Type[] _knownTypes;
 
         // constructors
         /// <summary>

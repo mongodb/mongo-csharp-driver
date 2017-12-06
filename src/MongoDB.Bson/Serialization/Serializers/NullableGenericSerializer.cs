@@ -29,7 +29,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             where T : struct
     {
         // private fields
-        private Lazy<IBsonSerializer<T>> _lazySerializer;
+        private readonly Lazy<IBsonSerializer<T>> _lazySerializer;
 
         // constructors
         /// <summary>

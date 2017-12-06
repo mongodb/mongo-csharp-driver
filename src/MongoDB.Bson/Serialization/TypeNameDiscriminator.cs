@@ -27,7 +27,7 @@ namespace MongoDB.Bson.Serialization
     public static class TypeNameDiscriminator
     {
         // private static fields
-        private static Assembly[] __wellKnownAssemblies;
+        private static readonly Assembly[] __wellKnownAssemblies;
 
         // static constructor
         static TypeNameDiscriminator()

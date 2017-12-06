@@ -70,7 +70,7 @@ namespace MongoDB.Bson.Serialization
         private bool _ignoreExtraElementsIsInherited;
         private BsonMemberMap _extraElementsMemberMap;
         private int _extraElementsMemberIndex = -1;
-        private List<Type> _knownTypes = new List<Type>();
+        private readonly List<Type> _knownTypes = new List<Type>();
 
         // constructors
         /// <summary>

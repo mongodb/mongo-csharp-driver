@@ -21,9 +21,9 @@ namespace MongoDB.Bson.IO
     public abstract class BsonReaderBookmark
     {
         // private fields
-        private BsonReaderState _state;
-        private BsonType _currentBsonType;
-        private string _currentName;
+        private readonly BsonReaderState _state;
+        private readonly BsonType _currentBsonType;
+        private readonly string _currentName;
 
         // constructors
         /// <summary>

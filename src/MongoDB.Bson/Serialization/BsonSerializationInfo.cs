@@ -25,9 +25,9 @@ namespace MongoDB.Bson.Serialization
     public class BsonSerializationInfo
     {
         // private fields
-        private string _elementName;
-        private IBsonSerializer _serializer;
-        private Type _nominalType;
+        private readonly string _elementName;
+        private readonly IBsonSerializer _serializer;
+        private readonly Type _nominalType;
 
         // constructors
         /// <summary>

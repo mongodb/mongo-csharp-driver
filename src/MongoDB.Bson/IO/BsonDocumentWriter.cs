@@ -23,7 +23,7 @@ namespace MongoDB.Bson.IO
     public class BsonDocumentWriter : BsonWriter
     {
         // private fields
-        private BsonDocument _document;
+        private readonly BsonDocument _document;
         private BsonDocumentWriterContext _context;
 
         // constructors

@@ -22,7 +22,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BsonNullSerializer : BsonValueSerializerBase<BsonNull>
     {
         // private static fields
-        private static BsonNullSerializer __instance = new BsonNullSerializer();
+        private static readonly BsonNullSerializer __instance = new BsonNullSerializer();
 
         // constructors
         /// <summary>

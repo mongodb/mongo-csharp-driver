@@ -137,7 +137,7 @@ namespace MongoDB.Bson.Serialization
             private bool _allowDuplicateElementNames;
             private IBsonSerializer _dynamicArraySerializer;
             private IBsonSerializer _dynamicDocumentSerializer;
-            private IBsonReader _reader;
+            private readonly IBsonReader _reader;
 
             // constructors
             internal Builder(BsonDeserializationContext other, IBsonReader reader)

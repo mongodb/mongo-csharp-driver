@@ -23,7 +23,7 @@ namespace MongoDB.Bson.Serialization.IdGenerators
     public class CombGuidGenerator : IIdGenerator
     {
         // private static fields
-        private static CombGuidGenerator __instance = new CombGuidGenerator();
+        private static readonly CombGuidGenerator __instance = new CombGuidGenerator();
 
         // constructors
         /// <summary>

@@ -28,7 +28,7 @@ namespace MongoDB.Bson.IO
     public class JsonWriter : BsonWriter
     {
         // private fields
-        private TextWriter _textWriter;
+        private readonly TextWriter _textWriter;
         private JsonWriterContext _context;
 
         // constructors

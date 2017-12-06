@@ -21,7 +21,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BsonDocumentWrapperSerializer : BsonValueSerializerBase<BsonDocumentWrapper>
     {
         // private static fields
-        private static BsonDocumentWrapperSerializer __instance = new BsonDocumentWrapperSerializer();
+        private static readonly BsonDocumentWrapperSerializer __instance = new BsonDocumentWrapperSerializer();
 
         // constructors
         /// <summary>

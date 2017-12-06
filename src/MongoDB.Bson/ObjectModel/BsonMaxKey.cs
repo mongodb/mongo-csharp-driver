@@ -26,7 +26,7 @@ namespace MongoDB.Bson
     public class BsonMaxKey : BsonValue, IComparable<BsonMaxKey>, IEquatable<BsonMaxKey>
     {
         // private static fields
-        private static BsonMaxKey __value = new BsonMaxKey();
+        private static readonly BsonMaxKey __value = new BsonMaxKey();
 
         // constructors
         // private so only the singleton instance can be created

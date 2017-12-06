@@ -22,7 +22,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BsonMinKeySerializer : BsonValueSerializerBase<BsonMinKey>
     {
         // private static fields
-        private static BsonMinKeySerializer __instance = new BsonMinKeySerializer();
+        private static readonly BsonMinKeySerializer __instance = new BsonMinKeySerializer();
 
         // constructors
         /// <summary>
