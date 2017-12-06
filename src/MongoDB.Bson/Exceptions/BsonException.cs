@@ -33,7 +33,6 @@ namespace MongoDB.Bson
         /// Initializes a new instance of the BsonException class.
         /// </summary>
         public BsonException()
-            : base()
         {
         }
 
