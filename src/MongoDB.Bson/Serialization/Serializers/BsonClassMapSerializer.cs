@@ -142,10 +142,7 @@ namespace MongoDB.Bson.Serialization
 
 #if NET45
                 supportsInitialization = document as ISupportInitialize;
-                if (supportsInitialization != null)
-                {
-                    supportsInitialization.BeginInit();
-                }
+                supportsInitialization?.BeginInit();
 #endif
             }
 
@@ -284,18 +281,12 @@ namespace MongoDB.Bson.Serialization
             if (document != null)
             {
 #if NET45
-                if (supportsInitialization != null)
-                {
-                    supportsInitialization.EndInit();
-                }
+                supportsInitialization?.EndInit();
 #endif
 
                 return document;
             }
-            else
-            {
-                return CreateInstanceUsingCreator(values);
-            }
+            return CreateInstanceUsingCreator(values);
         }
 
         /// <summary>
@@ -432,10 +423,7 @@ namespace MongoDB.Bson.Serialization
 
 #if NET45
             var supportsInitialization = document as ISupportInitialize;
-            if (supportsInitialization != null)
-            {
-                supportsInitialization.BeginInit();
-            }
+            supportsInitialization?.BeginInit();
 #endif
             // process any left over values that weren't passed to the creator
             foreach (var keyValuePair in values)
@@ -451,10 +439,7 @@ namespace MongoDB.Bson.Serialization
             }
 
 #if NET45
-            if (supportsInitialization != null)
-            {
-                supportsInitialization.EndInit();
-            }
+            supportsInitialization?.EndInit();
 #endif
 
             return (TClass)document;

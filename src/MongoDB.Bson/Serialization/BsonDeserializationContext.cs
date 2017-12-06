@@ -101,10 +101,7 @@ namespace MongoDB.Bson.Serialization
             Action<Builder> configurator = null)
         {
             var builder = new Builder(null, reader);
-            if (configurator != null)
-            {
-                configurator(builder);
-            }
+            configurator?.Invoke(builder);
             return builder.Build();
         }
 
@@ -120,10 +117,7 @@ namespace MongoDB.Bson.Serialization
             Action<Builder> configurator = null)
         {
             var builder = new Builder(this, _reader);
-            if (configurator != null)
-            {
-                configurator(builder);
-            }
+            configurator?.Invoke(builder);
             return builder.Build();
         }
 
