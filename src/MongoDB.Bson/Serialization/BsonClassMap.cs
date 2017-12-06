@@ -1241,9 +1241,9 @@ namespace MongoDB.Bson.Serialization
                 Expression body;
                 var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
                 var classTypeInfo = _classType.GetTypeInfo();
-                var defaultConstructor = classTypeInfo.GetConstructors(bindingFlags)
-                    .Where(c => c.GetParameters().Length == 0)
-                    .SingleOrDefault();
+                var defaultConstructor = classTypeInfo
+                    .GetConstructors(bindingFlags)
+                    .SingleOrDefault(c => c.GetParameters().Length == 0);
                 if (defaultConstructor != null)
                 {
                     // lambdaExpression = () => (object) new TClass()
