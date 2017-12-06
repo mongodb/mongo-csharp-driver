@@ -782,7 +782,7 @@ namespace MongoDB.Bson.IO
             if (guidRepresentation == GuidRepresentation.Unspecified)
             {
                 var s = BsonUtils.ToHexString(bytes);
-                var parts = new string[]
+                var parts = new[]
                 {
                     s.Substring(0, 8),
                     s.Substring(8, 4),

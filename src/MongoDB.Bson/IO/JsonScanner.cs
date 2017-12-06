@@ -250,7 +250,7 @@ namespace MongoDB.Bson.IO
                         break;
                     case NumberState.SawMinusI:
                         var sawMinusInfinity = true;
-                        var nfinity = new char[] { 'n', 'f', 'i', 'n', 'i', 't', 'y' };
+                        var nfinity = new[] { 'n', 'f', 'i', 'n', 'i', 't', 'y' };
                         for (var i = 0; i < nfinity.Length; i++)
                         {
                             if (c != nfinity[i])
@@ -399,7 +399,7 @@ namespace MongoDB.Bson.IO
                                 var u4 = buffer.Read();
                                 if (u4 != -1)
                                 {
-                                    var hex = new string(new char[] { (char)u1, (char)u2, (char)u3, (char)u4 });
+                                    var hex = new string(new[] { (char)u1, (char)u2, (char)u3, (char)u4 });
                                     var n = Convert.ToInt32(hex, 16);
                                     sb.Append((char)n);
                                 }

@@ -32,7 +32,7 @@ namespace MongoDB.Bson.Serialization
         // static constructor
         static TypeNameDiscriminator()
         {
-            __wellKnownAssemblies = new Assembly[]
+            __wellKnownAssemblies = new[]
             {
                 typeof(object).GetTypeInfo().Assembly, // mscorlib
                 typeof(Queue<>).GetTypeInfo().Assembly, // System

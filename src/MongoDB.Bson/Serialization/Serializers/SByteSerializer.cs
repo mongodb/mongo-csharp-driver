@@ -146,7 +146,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             switch (_representation)
             {
                 case BsonType.Binary:
-                    bsonWriter.WriteBytes(new byte[] { (byte)value });
+                    bsonWriter.WriteBytes(new[] { (byte)value });
                     break;
 
                 case BsonType.Int32:

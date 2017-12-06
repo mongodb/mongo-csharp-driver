@@ -80,7 +80,6 @@ namespace MongoDB.Bson.Serialization.Conventions
                         memberMap.SetSerializer(reconfiguredSerializer);
                     }
                 }
-                return;
             }
         }
 

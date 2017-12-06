@@ -27,7 +27,7 @@ namespace MongoDB.Bson.IO
     public class JsonReader : BsonReader
     {
         #region static
-        private static readonly string[] __variableLengthIso8601Formats = new string[]
+        private static readonly string[] __variableLengthIso8601Formats = new[]
         {
             "yyyy-MM-ddTHH:mm:ss.FFFFFFFK",
             "yyyy-MM-ddTHH:mm:ss.FFFFFFFzz",
@@ -35,7 +35,7 @@ namespace MongoDB.Bson.IO
             "yyyyMMddTHHmmss.FFFFFFFzz"
         };
 
-        private static readonly string[][] __fixedLengthIso8601Formats = new string[][]
+        private static readonly string[][] __fixedLengthIso8601Formats = new[]
         {
             null, // length = 0
             null, // length = 1

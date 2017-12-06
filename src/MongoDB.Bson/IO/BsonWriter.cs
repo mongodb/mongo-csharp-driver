@@ -451,7 +451,7 @@ namespace MongoDB.Bson.IO
                         typeName = typeName.Substring(5);
                     }
                     var article = "A";
-                    if (new char[] { 'A', 'E', 'I', 'O', 'U' }.Contains(typeName[0]))
+                    if (new[] { 'A', 'E', 'I', 'O', 'U' }.Contains(typeName[0]))
                     {
                         article = "An";
                     }

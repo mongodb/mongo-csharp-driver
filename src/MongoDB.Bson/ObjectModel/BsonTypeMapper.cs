@@ -588,7 +588,7 @@ namespace MongoDB.Bson
                 case Conversion.SingleToBsonDouble: return (BsonDouble)(double)(float)value;
                 case Conversion.StringToBsonBoolean: return (BsonBoolean)((string)value != "");
                 case Conversion.StringToBsonDateTime:
-                    var formats = new string[] { "yyyy-MM-ddK", "yyyy-MM-ddTHH:mm:ssK", "yyyy-MM-ddTHH:mm:ss.FFFFFFFK" };
+                    var formats = new[] { "yyyy-MM-ddK", "yyyy-MM-ddTHH:mm:ssK", "yyyy-MM-ddTHH:mm:ss.FFFFFFFK" };
                     var dt = DateTime.ParseExact((string)value, formats, null, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal);
                     return new BsonDateTime(dt);
                 case Conversion.StringToBsonDecimal128: return (BsonDecimal128)JsonConvert.ToDecimal128((string)value);

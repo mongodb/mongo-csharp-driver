@@ -42,7 +42,7 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// <param name="knownType">A known types.</param>
         public BsonKnownTypesAttribute(Type knownType)
         {
-            _knownTypes = new Type[] { knownType };
+            _knownTypes = new[] { knownType };
         }
 
         // public properties
