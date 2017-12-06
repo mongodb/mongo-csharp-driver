@@ -469,8 +469,6 @@ namespace MongoDB.Bson.Serialization
             string elementName,
             BsonMemberMap extraElementsMemberMap)
         {
-            var bsonReader = context.Reader;
-
             if (extraElementsMemberMap.MemberType == typeof(BsonDocument))
             {
                 var extraElements = (BsonDocument)extraElementsMemberMap.Getter(obj);
@@ -510,8 +508,6 @@ namespace MongoDB.Bson.Serialization
             string elementName,
             BsonMemberMap extraElementsMemberMap)
         {
-            var bsonReader = context.Reader;
-
             if (extraElementsMemberMap.MemberType == typeof(BsonDocument))
             {
                 BsonDocument extraElements;
@@ -557,8 +553,6 @@ namespace MongoDB.Bson.Serialization
 
         private object DeserializeMemberValue(BsonDeserializationContext context, BsonMemberMap memberMap)
         {
-            var bsonReader = context.Reader;
-
             try
             {
                 return memberMap.GetSerializer().Deserialize(context);

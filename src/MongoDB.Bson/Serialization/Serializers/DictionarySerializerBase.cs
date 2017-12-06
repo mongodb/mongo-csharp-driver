@@ -162,8 +162,6 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="value">The object.</param>
         protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, TDictionary value)
         {
-            var bsonWriter = context.Writer;
-
             switch (_dictionaryRepresentation)
             {
                 case DictionaryRepresentation.Document:
@@ -531,8 +529,6 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="value">The object.</param>
         protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, TDictionary value)
         {
-            var bsonWriter = context.Writer;
-
             switch (_dictionaryRepresentation)
             {
                 case DictionaryRepresentation.Document:
