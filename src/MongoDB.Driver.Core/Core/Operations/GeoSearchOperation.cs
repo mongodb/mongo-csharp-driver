@@ -170,7 +170,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "limit", () => _limit.Value, _limit.HasValue },
                 { "maxDistance", () => _maxDistance.Value, _maxDistance.HasValue },
                 { "search", _search, _search != null },
-                { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
+                { "maxTimeMS", () => (int)_maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
             };
 
             ReadConcernHelper.AppendReadConcern(command, _readConcern, connectionDescription, session);

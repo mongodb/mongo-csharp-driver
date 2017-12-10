@@ -1179,7 +1179,7 @@ namespace MongoDB.Driver
             {
                 { "collstats", _collectionNamespace.CollectionName },
                 { "scale", () => args.Scale.Value, args.Scale.HasValue }, // optional
-                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
+                { "maxTimeMS", () => (int)args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
             };
             return _database.RunCommandAs<CollectionStatsResult>(command, ReadPreference.Primary);
         }
@@ -2138,7 +2138,7 @@ namespace MongoDB.Driver
                 { "validate", _collectionNamespace.CollectionName },
                 { "full", () => args.Full.Value, args.Full.HasValue }, // optional
                 { "scandata", () => args.ScanData.Value, args.ScanData.HasValue }, // optional
-                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
+                { "maxTimeMS", () => (int)args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
             };
             return _database.RunCommandAs<ValidateCollectionResult>(command, ReadPreference.Primary);
         }

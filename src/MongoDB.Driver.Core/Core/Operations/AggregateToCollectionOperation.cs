@@ -220,7 +220,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "pipeline", new BsonArray(_pipeline) },
                 { "allowDiskUse", () => _allowDiskUse.Value, _allowDiskUse.HasValue },
                 { "bypassDocumentValidation", () => _bypassDocumentValidation.Value, _bypassDocumentValidation.HasValue && Feature.BypassDocumentValidation.IsSupported(serverVersion) },
-                { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
+                { "maxTimeMS", () => (int)_maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
                 { "collation", () => _collation.ToBsonDocument(), _collation != null },
                 { "writeConcern", () => _writeConcern.ToBsonDocument(), Feature.CommandsThatWriteAcceptWriteConcern.ShouldSendWriteConcern(serverVersion, _writeConcern) },
                 { "cursor", new BsonDocument(), serverVersion >= new SemanticVersion(3, 5, 0) },

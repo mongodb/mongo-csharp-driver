@@ -170,7 +170,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "sort", _sort, _sort != null },
                 { "fields", _projection, _projection != null },
                 { "upsert", true, _isUpsert },
-                { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
+                { "maxTimeMS", () => (int)_maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
                 { "writeConcern", () => WriteConcern.ToBsonDocument(), WriteConcern != null && !WriteConcern.IsServerDefault && Feature.FindAndModifyWriteConcern.IsSupported(serverVersion) },
                 { "bypassDocumentValidation", () => _bypassDocumentValidation.Value, _bypassDocumentValidation.HasValue && Feature.BypassDocumentValidation.IsSupported(serverVersion) },
                 { "collation", () => Collation.ToBsonDocument(), Collation != null }

@@ -191,7 +191,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "distinct", _collectionNamespace.CollectionName },
                 { "key", _fieldName },
                 { "query", _filter, _filter != null },
-                { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
+                { "maxTimeMS", () => (int)_maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
                 { "collation", () => _collation.ToBsonDocument(), _collation != null }
             };
 

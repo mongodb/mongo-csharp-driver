@@ -434,7 +434,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "singleBatch", () => _limit < 0 || _singleBatch.Value, _limit < 0 || _singleBatch.HasValue },
                 { "comment", _comment, _comment != null },
                 { "maxScan", () => _maxScan.Value, _maxScan.HasValue },
-                { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
+                { "maxTimeMS", () => (int)_maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
                 { "max", _max, _max != null },
                 { "min", _min, _min != null },
                 { "returnKey", () => _returnKey.Value, _returnKey.HasValue },
