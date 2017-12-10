@@ -408,7 +408,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "$readPreference", readPreferenceDocument, readPreferenceDocument != null },
                 { "$orderby", _sort, _sort != null },
                 { "$comment", _comment, _comment != null },
-                { "$maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
+                { "$maxTimeMS", () => (int)_maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
                 { "$hint", _hint, _hint != null },
                 { "$max", _max, _max != null },
                 { "$maxScan", () => _maxScan.Value, _maxScan.HasValue },

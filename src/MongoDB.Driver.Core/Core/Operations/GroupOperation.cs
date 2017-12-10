@@ -256,7 +256,7 @@ namespace MongoDB.Driver.Core.Operations
                         { "collation", () => _collation.ToBsonDocument(), _collation != null }
                     }
                 },
-                { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue }
+                { "maxTimeMS", () => (int)_maxTime.Value.TotalMilliseconds, _maxTime.HasValue }
            };
         }
 

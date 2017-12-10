@@ -245,7 +245,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "scope", _scope, _scope != null },
                 { "jsMode", () => _javaScriptMode.Value, _javaScriptMode.HasValue },
                 { "verbose", () => _verbose.Value, _verbose.HasValue },
-                { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
+                { "maxTimeMS", () => (int)_maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
                 { "collation", () => _collation.ToBsonDocument(), _collation != null }
             };
         }

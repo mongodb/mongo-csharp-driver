@@ -108,7 +108,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "remove", true },
                 { "sort", _sort, _sort != null },
                 { "fields", _projection, _projection != null },
-                { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
+                { "maxTimeMS", () => (int)_maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
                 { "writeConcern", () => WriteConcern.ToBsonDocument(), WriteConcern != null && !WriteConcern.IsServerDefault && Feature.FindAndModifyWriteConcern.IsSupported(serverVersion) },
                 { "collation", () => Collation.ToBsonDocument(), Collation != null },
                 { "txnNumber", () => transactionNumber, transactionNumber.HasValue }
