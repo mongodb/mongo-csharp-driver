@@ -28,6 +28,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents an insert command operation.
     /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
     public class RetryableInsertCommandOperation<TDocument> : RetryableWriteCommandOperationBase
     {
         // private fields
