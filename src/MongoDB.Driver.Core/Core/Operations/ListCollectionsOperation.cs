@@ -126,7 +126,7 @@ namespace MongoDB.Driver.Core.Operations
             }
             else
             {
-                return new ListCollectionsUsingQueryOperation(_databaseNamespace, _messageEncoderSettings) { Filter = _filter }; ;
+                return new ListCollectionsUsingQueryOperation(_databaseNamespace, _messageEncoderSettings) { Filter = _filter };
             }
         }
     }

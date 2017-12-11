@@ -289,6 +289,7 @@
     <Compile Include="Linq\Translators\QueryableTranslator.cs" />
     <Compile Include="Linq\Translators\PredicateTranslator.cs" />
     <Compile Include="ExpressionTranslationOptions.cs" />
+    <Compile Include="ListDatabasesOptions.cs" />
     <Compile Include="MongoX509Identity.cs" />
     <Compile Include="NoServerSession.cs" />
     <Compile Include="OfTypeSerializer.cs" />

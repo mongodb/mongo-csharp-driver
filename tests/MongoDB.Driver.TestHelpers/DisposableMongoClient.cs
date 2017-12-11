@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -59,24 +60,84 @@ namespace MongoDB.Driver.TestHelpers
             return wrapped.GetDatabase(name, settings);
         }
 
-        public IAsyncCursor<BsonDocument> ListDatabases(CancellationToken cancellationToken = default(CancellationToken))
+        public IAsyncCursor<string> ListDatabaseNames(
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return wrapped.ListDatabaseNames(cancellationToken);
+        }
+
+        public IAsyncCursor<string> ListDatabaseNames(
+            IClientSessionHandle session,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return wrapped.ListDatabaseNames(session, cancellationToken);
+        }
+
+        public Task<IAsyncCursor<string>> ListDatabaseNamesAsync(
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return wrapped.ListDatabaseNamesAsync(cancellationToken);
+        }
+
+        public Task<IAsyncCursor<string>> ListDatabaseNamesAsync(
+            IClientSessionHandle session,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return wrapped.ListDatabaseNamesAsync(session, cancellationToken);
+        }
+
+        public IAsyncCursor<BsonDocument> ListDatabases(
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             return wrapped.ListDatabases(cancellationToken);
         }
 
-        public IAsyncCursor<BsonDocument> ListDatabases(IClientSessionHandle session, CancellationToken cancellationToken = default(CancellationToken))
+        public IAsyncCursor<BsonDocument> ListDatabases(
+            ListDatabasesOptions options = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return wrapped.ListDatabases(options, cancellationToken);
+        }
+
+        public IAsyncCursor<BsonDocument> ListDatabases(
+            IClientSessionHandle session,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             return wrapped.ListDatabases(session, cancellationToken);
         }
+
+        public IAsyncCursor<BsonDocument> ListDatabases(
+            IClientSessionHandle session,
+            ListDatabasesOptions options,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return wrapped.ListDatabases(session, options, cancellationToken);
+        }
+        
 
         public Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             return wrapped.ListDatabasesAsync(cancellationToken);
         }
 
+        public Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(
+            ListDatabasesOptions options = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return wrapped.ListDatabasesAsync(options, cancellationToken);
+        }
+
         public Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(IClientSessionHandle session, CancellationToken cancellationToken = default(CancellationToken))
         {
             return wrapped.ListDatabasesAsync(session, cancellationToken);
+        }
+
+        public Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(
+            IClientSessionHandle session,
+            ListDatabasesOptions options,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return wrapped.ListDatabasesAsync(session, options, cancellationToken);
         }
 
         public IClientSessionHandle StartSession(ClientSessionOptions options = null, CancellationToken cancellationToken = default(CancellationToken))

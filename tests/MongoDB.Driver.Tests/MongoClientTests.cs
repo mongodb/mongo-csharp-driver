@@ -14,7 +14,11 @@
 */
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
@@ -112,6 +116,99 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
+        public void ListDatabaseNames_should_invoke_the_correct_operation(
+            [Values(false, true)] bool usingSession,
+            [Values(false, true)] bool async)
+        {
+            var operationExecutor = new MockOperationExecutor();
+            var subject = new MongoClient(operationExecutor, DriverTestConfiguration.GetClientSettings());
+            var session = CreateClientSession();
+            var cancellationToken = new CancellationTokenSource().Token;
+            var listDatabaseNamesResult = @"
+            {
+            	""databases"" : [
+            		{
+            			""name"" : ""admin"",
+            			""sizeOnDisk"" : 131072,
+            			""empty"" : false
+            		},
+            		{
+            			""name"" : ""blog"",
+            			""sizeOnDisk"" : 11669504,
+            			""empty"" : false
+            		},
+            		{
+            			""name"" : ""test-chambers"",
+            			""sizeOnDisk"" : 222883840,
+            			""empty"" : false
+            		},
+            		{
+            			""name"" : ""recipes"",
+            			""sizeOnDisk"" : 73728,
+            			""empty"" : false
+            		},
+            		{
+            			""name"" : ""employees"",
+            			""sizeOnDisk"" : 225280,
+            			""empty"" : false
+            		}
+            	],
+            	""totalSize"" : 252534784,
+            	""ok"" : 1
+            }";
+            var operationResult = BsonDocument.Parse(listDatabaseNamesResult);
+            operationExecutor.EnqueueResult(CreateListDatabasesOperationCursor(operationResult));
+            
+            IList<string> databaseNames;
+            if (async)
+            {
+                if (usingSession)
+                {
+                    databaseNames = subject.ListDatabaseNamesAsync(session, cancellationToken).GetAwaiter().GetResult().ToList();
+                }
+                else
+                {
+                    databaseNames = subject.ListDatabaseNamesAsync(cancellationToken).GetAwaiter().GetResult().ToList();
+                }
+            }
+            else
+            {
+                if (usingSession)
+                {
+                    databaseNames = subject.ListDatabaseNames(session, cancellationToken).ToList();
+                }
+                else
+                {
+                    databaseNames = subject.ListDatabaseNames(cancellationToken).ToList();
+                }
+            }
+
+            var call = operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
+
+            if (usingSession)
+            {
+                call.SessionId.Should().BeSameAs(session.ServerSession.Id);
+            }
+            else
+            {
+                call.UsedImplicitSession.Should().BeTrue();
+            }
+
+            call.CancellationToken.Should().Be(cancellationToken);
+
+            var operation = call.Operation.Should().BeOfType<ListDatabasesOperation>().Subject;
+            operation.NameOnly.Should().Be(true);
+            databaseNames.Should().Equal(operationResult["databases"].AsBsonArray.Select(record => record["name"].AsString));
+        }
+
+        private IAsyncCursor<BsonDocument> CreateListDatabasesOperationCursor(BsonDocument reply)
+        {
+            var databases = reply["databases"].AsBsonArray.OfType<BsonDocument>();
+            return new SingleBatchAsyncCursor<BsonDocument>(databases.ToList());
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void ListDatabases_should_invoke_the_correct_operation(
             [Values(false, true)] bool usingSession,
             [Values(false, true)] bool async)
@@ -120,27 +217,35 @@ namespace MongoDB.Driver.Tests
             var subject = new MongoClient(operationExecutor, DriverTestConfiguration.GetClientSettings());
             var session = CreateClientSession();
             var cancellationToken = new CancellationTokenSource().Token;
-
+            var filterDocument = BsonDocument.Parse("{ name : \"awesome\" }");
+            var filterDefinition = (FilterDefinition<BsonDocument>)filterDocument;
+            var nameOnly = true;
+            var options = new ListDatabasesOptions
+            {
+                Filter = filterDefinition,
+                NameOnly = nameOnly
+            };
+            
             if (usingSession)
             {
                 if (async)
                 {
-                    subject.ListDatabasesAsync(session, cancellationToken).GetAwaiter().GetResult();
+                    subject.ListDatabasesAsync(session, options, cancellationToken).GetAwaiter().GetResult();
                 }
                 else
                 {
-                    subject.ListDatabases(session, cancellationToken);
+                    subject.ListDatabases(session, options, cancellationToken);
                 }
             }
             else
             {
                 if (async)
                 {
-                    subject.ListDatabasesAsync(cancellationToken).GetAwaiter().GetResult();
+                    subject.ListDatabasesAsync(options, cancellationToken).GetAwaiter().GetResult();
                 }
                 else
                 {
-                    subject.ListDatabases(cancellationToken);
+                    subject.ListDatabases(options, cancellationToken);
                 }
             }
 
@@ -155,7 +260,9 @@ namespace MongoDB.Driver.Tests
             }
             call.CancellationToken.Should().Be(cancellationToken);
 
-            call.Operation.Should().BeOfType<ListDatabasesOperation>();
+            var operation = call.Operation.Should().BeOfType<ListDatabasesOperation>().Subject;
+            operation.Filter.Should().Be(filterDocument);
+            operation.NameOnly.Should().Be(nameOnly);
         }
 
         [Fact]
