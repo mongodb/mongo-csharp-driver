@@ -13,20 +13,15 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Core.Connections;
-using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Operations.ElementNameValidators;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    internal class BulkUpdateOperation : BulkUnmixedWriteOperationBase
+    internal class BulkUpdateOperation : BulkUnmixedWriteOperationBase<UpdateRequest>
     {
         // constructors
         public BulkUpdateOperation(
@@ -37,114 +32,34 @@ namespace MongoDB.Driver.Core.Operations
         {
         }
 
-        // properties
-        protected override string CommandName
-        {
-            get { return "update"; }
-        }
-
-        public new IEnumerable<UpdateRequest> Requests
-        {
-            get { return base.Requests.Cast<UpdateRequest>(); }
-        }
-
-        protected override string RequestsElementName
-        {
-            get { return "updates"; }
-        }
-
         // methods
-        protected override BatchSerializer CreateBatchSerializer(ConnectionDescription connectionDescription, int maxBatchCount, int maxBatchLength)
+        protected override IRetryableWriteOperation<BsonDocument> CreateBatchOperation(Batch batch)
         {
-            return new UpdateBatchSerializer(connectionDescription, maxBatchCount, maxBatchLength);
-        }
-
-        protected override BulkUnmixedWriteOperationEmulatorBase CreateEmulator()
-        {
-            return new BulkUpdateOperationEmulator(CollectionNamespace, Requests, MessageEncoderSettings)
+            Func<WriteConcern> writeConcernFunc = null;
+            if (!WriteConcern.IsServerDefault)
             {
-                MaxBatchCount = MaxBatchCount,
-                MaxBatchLength = MaxBatchLength,
+                writeConcernFunc = () => GetBatchWriteConcern(batch);
+            }
+
+            return new RetryableUpdateCommandOperation(CollectionNamespace, batch.Requests, MessageEncoderSettings)
+            {
+                BypassDocumentValidation = BypassDocumentValidation,
                 IsOrdered = IsOrdered,
-                WriteConcern = WriteConcern
+                MaxBatchCount = MaxBatchCount,
+                RetryRequested = RetryRequested,
+                WriteConcernFunc = writeConcernFunc
             };
         }
 
-        // nested types
-        private class UpdateBatchSerializer : BatchSerializer
+        protected override IExecutableInRetryableWriteContext<BulkWriteOperationResult> CreateEmulator()
         {
-            // constructors
-            public UpdateBatchSerializer(ConnectionDescription connectionDescription, int maxBatchCount, int maxBatchLength)
-                : base(connectionDescription, maxBatchCount, maxBatchLength)
+            return new BulkUpdateOperationEmulator(CollectionNamespace, Requests, MessageEncoderSettings)
             {
-            }
-
-            // methods
-            private void SerializeFilter(IBsonWriter binaryWriter, BsonDocument filter)
-            {
-                var context = BsonSerializationContext.CreateRoot(binaryWriter);
-                BsonDocumentSerializer.Instance.Serialize(context, filter);
-            }
-
-            protected override void SerializeRequest(BsonSerializationContext context, WriteRequest request)
-            {
-                var updateRequest = (UpdateRequest)request;
-                Feature.Collation.ThrowIfNotSupported(ConnectionDescription.ServerVersion, updateRequest.Collation);
-                Feature.ArrayFilters.ThrowIfNotSupported(ConnectionDescription.ServerVersion, updateRequest.ArrayFilters);
-
-                var writer = context.Writer;
-                writer.PushSettings(s => { var bs = s as BsonBinaryWriterSettings; if (bs != null) { bs.MaxDocumentSize = ConnectionDescription.MaxWireDocumentSize; } });
-                try
-                {
-                    writer.WriteStartDocument();
-                    writer.WriteName("q");
-                    SerializeFilter(writer, updateRequest.Filter);
-                    writer.WriteName("u");
-                    SerializeUpdate(writer, updateRequest.Update, updateRequest.UpdateType);
-                    if (updateRequest.IsMulti)
-                    {
-                        writer.WriteBoolean("multi", updateRequest.IsMulti);
-                    }
-                    if (updateRequest.IsUpsert)
-                    {
-                        writer.WriteBoolean("upsert", updateRequest.IsUpsert);
-                    }
-                    if (updateRequest.Collation != null)
-                    {
-                        writer.WriteName("collation");
-                        BsonDocumentSerializer.Instance.Serialize(context, updateRequest.Collation.ToBsonDocument());
-                    }
-                    if (updateRequest.ArrayFilters != null)
-                    {
-                        writer.WriteName("arrayFilters");
-                        BsonArraySerializer.Instance.Serialize(context, new BsonArray(updateRequest.ArrayFilters));
-                    }
-                    writer.WriteEndDocument();
-                }
-                finally
-                {
-                    writer.PopSettings();
-                }
-            }
-
-            private void SerializeUpdate(IBsonWriter writer, BsonDocument update, UpdateType updateType)
-            {
-                writer.PushElementNameValidator(ElementNameValidatorFactory.ForUpdateType(updateType));
-                try
-                {
-                    var position = writer.Position;
-                    var context = BsonSerializationContext.CreateRoot(writer);
-                    BsonDocumentSerializer.Instance.Serialize(context, update);
-                    if (updateType == UpdateType.Update && writer.Position == position + 8)
-                    {
-                        throw new BsonSerializationException("Update documents cannot be empty.");
-                    }
-                }
-                finally
-                {
-                    writer.PopElementNameValidator();
-                }
-            }
+                IsOrdered = IsOrdered,
+                MaxBatchCount = MaxBatchCount,
+                MaxBatchLength = MaxBatchLength,
+                WriteConcern = WriteConcern
+            };
         }
     }
 }

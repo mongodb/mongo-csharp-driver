@@ -1,4 +1,4 @@
-/* Copyright 2013-2016 MongoDB Inc.
+/* Copyright 2013-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -149,7 +149,7 @@ namespace MongoDB.Driver.Core.Helpers
                 requestId,
                 collectionNamespace ?? __defaultCollectionNamespace,
                 BsonSerializer.SerializerRegistry.GetSerializer<T>(),
-                new BatchableSource<T>(documents),
+                new BatchableSource<T>(documents.ToList()),
                 int.MaxValue,
                 int.MaxValue,
                 false);

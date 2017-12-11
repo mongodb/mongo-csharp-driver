@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2016 MongoDB Inc.
+﻿/* Copyright 2013-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -216,18 +216,21 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().BeSameAs(value);
         }
 
-        [Fact]
-        public void CreateCommand_should_return_expected_result()
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result(
+            [Values(null, 100L)]long? transactionNumber)
         {
             var subject = new FindOneAndUpdateOperation<BsonDocument>(_collectionNamespace, _filter, _update, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
-            var result = subject.CreateCommand(null);
+            var result = subject.CreateCommand(null, transactionNumber);
 
             var expectedResult = new BsonDocument
             {
                 { "findAndModify", _collectionNamespace.CollectionName },
                 { "query", _filter },
-                { "update", _update }
+                { "update", _update },
+                { "txnNumber", () => transactionNumber, transactionNumber != null }
             };
             result.Should().Be(expectedResult);
         }
@@ -246,7 +249,7 @@ namespace MongoDB.Driver.Core.Operations
             };
             var serverVersion = Feature.BypassDocumentValidation.SupportedOrNotSupportedVersion(useServerVersionSupportingBypassDocumentValidation);
 
-            var result = subject.CreateCommand(serverVersion);
+            var result = subject.CreateCommand(serverVersion, null);
 
             var expectedResult = new BsonDocument
             {
@@ -270,7 +273,7 @@ namespace MongoDB.Driver.Core.Operations
                 Collation = collation
             };
 
-            var result = subject.CreateCommand(Feature.Collation.FirstSupportedVersion);
+            var result = subject.CreateCommand(Feature.Collation.FirstSupportedVersion, null);
 
             var expectedResult = new BsonDocument
             {
@@ -293,7 +296,7 @@ namespace MongoDB.Driver.Core.Operations
                 IsUpsert = value
             };
 
-            var result = subject.CreateCommand(null);
+            var result = subject.CreateCommand(null, null);
 
             var expectedResult = new BsonDocument
             {
@@ -317,7 +320,7 @@ namespace MongoDB.Driver.Core.Operations
                 MaxTime = maxTime
             };
 
-            var result = subject.CreateCommand(null);
+            var result = subject.CreateCommand(null, null);
 
             var expectedResult = new BsonDocument
             {
@@ -341,7 +344,7 @@ namespace MongoDB.Driver.Core.Operations
                 Projection = projection
             };
 
-            var result = subject.CreateCommand(null);
+            var result = subject.CreateCommand(null, null);
 
             var expectedResult = new BsonDocument
             {
@@ -364,7 +367,7 @@ namespace MongoDB.Driver.Core.Operations
                 ReturnDocument = value
             };
 
-            var result = subject.CreateCommand(null);
+            var result = subject.CreateCommand(null, null);
 
             var expectedResult = new BsonDocument
             {
@@ -388,7 +391,7 @@ namespace MongoDB.Driver.Core.Operations
                 Sort = sort
             };
 
-            var result = subject.CreateCommand(null);
+            var result = subject.CreateCommand(null, null);
 
             var expectedResult = new BsonDocument
             {
@@ -415,7 +418,7 @@ namespace MongoDB.Driver.Core.Operations
             };
             var serverVersion = Feature.FindAndModifyWriteConcern.SupportedOrNotSupportedVersion(useServerVersionSupportingFindAndModifyWriteConcern);
 
-            var result = subject.CreateCommand(serverVersion);
+            var result = subject.CreateCommand(serverVersion, null);
 
             var expectedResult = new BsonDocument
             {
@@ -435,7 +438,7 @@ namespace MongoDB.Driver.Core.Operations
                 Collation = new Collation("en_US")
             };
 
-            var exception = Record.Exception(() => subject.CreateCommand(Feature.Collation.LastNotSupportedVersion));
+            var exception = Record.Exception(() => subject.CreateCommand(Feature.Collation.LastNotSupportedVersion, null));
 
             exception.Should().BeOfType<NotSupportedException>();
         }

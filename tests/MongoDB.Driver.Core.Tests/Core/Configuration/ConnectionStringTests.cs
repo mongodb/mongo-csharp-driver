@@ -199,6 +199,7 @@ namespace MongoDB.Driver.Core.Configuration
                 "readPreference=primary;" +
                 "readPreferenceTags=dc:1;" +
                 "replicaSet=funny;" +
+                "retryWrites=true;" +
                 "localThreshold=50ms;" +
                 "socketTimeout=40ms;" +
                 "ssl=false;" +
@@ -234,6 +235,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ReadPreference.Should().Be(ReadPreferenceMode.Primary);
             subject.ReadPreferenceTags.Single().Should().Be(new TagSet(new[] { new Tag("dc", "1") }));
             subject.ReplicaSet.Should().Be("funny");
+            subject.RetryWrites.Should().BeTrue();
             subject.LocalThreshold.Should().Be(TimeSpan.FromMilliseconds(50));
             subject.SocketTimeout.Should().Be(TimeSpan.FromMilliseconds(40));
             subject.Ssl.Should().BeFalse();
@@ -570,6 +572,16 @@ namespace MongoDB.Driver.Core.Configuration
             var subject = new ConnectionString(connectionString);
 
             subject.ReplicaSet.Should().Be(replicaSet);
+        }
+
+        [Theory]
+        [InlineData("mongodb://localhost?retryWrites=true", true)]
+        [InlineData("mongodb://localhost?retryWrites=false", false)]
+        public void When_retryWrites_is_specified(string connectionString, bool ssl)
+        {
+            var subject = new ConnectionString(connectionString);
+
+            subject.RetryWrites.Should().Be(ssl);
         }
 
         [Theory]

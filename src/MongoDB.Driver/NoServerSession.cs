@@ -45,6 +45,12 @@ namespace MongoDB.Driver
         public DateTime? LastUsedAt => null;
 
         /// <inheritdoc />
+        public long AdvanceTransactionNumber()
+        {
+            return -1;
+        }
+
+        /// <inheritdoc />
         public void Dispose()
         {
         }

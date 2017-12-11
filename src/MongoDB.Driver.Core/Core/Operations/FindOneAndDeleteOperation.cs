@@ -1,4 +1,4 @@
-/* Copyright 2013-2016 MongoDB Inc.
+/* Copyright 2013-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        internal override BsonDocument CreateCommand(SemanticVersion serverVersion)
+        internal override BsonDocument CreateCommand(SemanticVersion serverVersion, long? transactionNumber)
         {
             Feature.Collation.ThrowIfNotSupported(serverVersion, Collation);
 
@@ -110,7 +110,8 @@ namespace MongoDB.Driver.Core.Operations
                 { "fields", _projection, _projection != null },
                 { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
                 { "writeConcern", () => WriteConcern.ToBsonDocument(), WriteConcern != null && !WriteConcern.IsServerDefault && Feature.FindAndModifyWriteConcern.IsSupported(serverVersion) },
-                { "collation", () => Collation.ToBsonDocument(), Collation != null }
+                { "collation", () => Collation.ToBsonDocument(), Collation != null },
+                { "txnNumber", () => transactionNumber, transactionNumber.HasValue }
             };
         }
 

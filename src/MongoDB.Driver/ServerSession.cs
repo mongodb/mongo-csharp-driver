@@ -37,11 +37,13 @@ namespace MongoDB.Driver
         // private fields
         private readonly BsonDocument _id;
         private DateTime? _lastUsedAt;
+        private long _transactionNumber;
 
         // constructors
         internal ServerSession()
         {
             _id = GenerateSessionId();
+            _transactionNumber = 0;
         }
 
         // public properties
@@ -52,6 +54,12 @@ namespace MongoDB.Driver
         public DateTime? LastUsedAt => _lastUsedAt;
 
         // public methods
+        /// <inheritdoc />
+        public long AdvanceTransactionNumber()
+        {
+            return ++_transactionNumber;
+        }
+
         /// <inheritdoc />
         public void Dispose()
         {

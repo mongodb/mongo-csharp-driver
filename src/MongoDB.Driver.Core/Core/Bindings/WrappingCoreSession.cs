@@ -124,6 +124,12 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         /// <inheritdoc />
+        public long AdvanceTransactionNumber()
+        {
+            return _wrapped.AdvanceTransactionNumber();
+        }
+
+        /// <inheritdoc />
         public void Dispose()
         {
             Dispose(true);
@@ -138,7 +144,10 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         // protected methods
-        /// <inheritdoc />
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (!_disposed)

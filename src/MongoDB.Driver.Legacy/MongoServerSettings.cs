@@ -51,6 +51,7 @@ namespace MongoDB.Driver
         private UTF8Encoding _readEncoding;
         private ReadPreference _readPreference;
         private string _replicaSetName;
+        private bool _retryWrites;
         private List<MongoServerAddress> _servers;
         private TimeSpan _serverSelectionTimeout;
         private TimeSpan _socketTimeout;
@@ -91,6 +92,7 @@ namespace MongoDB.Driver
             _readEncoding = null;
             _readPreference = ReadPreference.Primary;
             _replicaSetName = null;
+            _retryWrites = false;
             _servers = new List<MongoServerAddress> { new MongoServerAddress("localhost") };
             _serverSelectionTimeout = MongoDefaults.ServerSelectionTimeout;
             _socketTimeout = MongoDefaults.SocketTimeout;
@@ -398,6 +400,19 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets whether to retry writes.
+        /// </summary>
+        public bool RetryWrites
+        {
+            get { return _retryWrites; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
+                _retryWrites = value;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the address of the server (see also Servers if using more than one address).
         /// </summary>
         public MongoServerAddress Server
@@ -608,6 +623,7 @@ namespace MongoDB.Driver
             serverSettings.ReadEncoding = clientSettings.ReadEncoding;
             serverSettings.ReadPreference = clientSettings.ReadPreference;
             serverSettings.ReplicaSetName = clientSettings.ReplicaSetName;
+            serverSettings.RetryWrites = clientSettings.RetryWrites;
             serverSettings.LocalThreshold = clientSettings.LocalThreshold;
             serverSettings.Servers = new List<MongoServerAddress>(clientSettings.Servers);
             serverSettings.ServerSelectionTimeout = clientSettings.ServerSelectionTimeout;
@@ -662,6 +678,7 @@ namespace MongoDB.Driver
             serverSettings.ReadEncoding = null; // ReadEncoding must be provided in code
             serverSettings.ReadPreference = (url.ReadPreference == null) ? ReadPreference.Primary : url.ReadPreference;
             serverSettings.ReplicaSetName = url.ReplicaSetName;
+            serverSettings.RetryWrites = url.RetryWrites ?? false;
             serverSettings.LocalThreshold = url.LocalThreshold;
             serverSettings.Servers = new List<MongoServerAddress>(url.Servers);
             serverSettings.ServerSelectionTimeout = url.ServerSelectionTimeout;
@@ -702,6 +719,7 @@ namespace MongoDB.Driver
             clone._readEncoding = _readEncoding;
             clone._readPreference = _readPreference;
             clone._replicaSetName = _replicaSetName;
+            clone._retryWrites = _retryWrites;
             clone._localThreshold = _localThreshold;
             clone._servers = new List<MongoServerAddress>(_servers);
             clone._serverSelectionTimeout = _serverSelectionTimeout;
@@ -758,6 +776,7 @@ namespace MongoDB.Driver
                object.Equals(_readEncoding, rhs._readEncoding) &&
                _readPreference.Equals(rhs._readPreference) &&
                _replicaSetName == rhs._replicaSetName &&
+               _retryWrites == rhs._retryWrites &&
                _localThreshold == rhs._localThreshold &&
                _servers.SequenceEqual(rhs._servers) &&
                _serverSelectionTimeout == rhs._serverSelectionTimeout &&
@@ -832,6 +851,7 @@ namespace MongoDB.Driver
                 .Hash(_readEncoding)
                 .Hash(_readPreference)
                 .Hash(_replicaSetName)
+                .Hash(_retryWrites)
                 .Hash(_localThreshold)
                 .HashElements(_servers)
                 .Hash(_serverSelectionTimeout)
@@ -881,6 +901,7 @@ namespace MongoDB.Driver
             }
             parts.Add(string.Format("ReadPreference={0}", _readPreference));
             parts.Add(string.Format("ReplicaSetName={0}", _replicaSetName));
+            parts.Add(string.Format("RetryWrites={0}", _retryWrites));
             parts.Add(string.Format("LocalThreshold={0}", _localThreshold));
             parts.Add(string.Format("Servers={0}", string.Join(",", _servers.Select(s => s.ToString()).ToArray())));
             parts.Add(string.Format("ServerSelectionTimeout={0}", _serverSelectionTimeout));

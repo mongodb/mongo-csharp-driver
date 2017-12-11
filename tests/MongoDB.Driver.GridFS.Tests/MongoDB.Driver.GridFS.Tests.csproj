@@ -98,6 +98,7 @@
     <Compile Include="Specifications\gridfs\GridFSTestRunner.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
     <EmbeddedResource Include="Specifications\gridfs\tests\download.json" />
     <EmbeddedResource Include="Specifications\gridfs\tests\delete.json" />

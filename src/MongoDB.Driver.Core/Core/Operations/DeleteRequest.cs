@@ -14,6 +14,7 @@
 */
 
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
@@ -71,6 +72,13 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _limit; }
             set { _limit = value; }
+        }
+
+        // public methods
+        /// <inheritdoc />
+        public override bool IsRetryable(ConnectionDescription connectionDescription)
+        {
+            return _limit != 0;
         }
     }
 }

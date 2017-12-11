@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2016 MongoDB Inc.
+﻿/* Copyright 2013-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 */
 
 using System;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
@@ -27,20 +27,20 @@ namespace MongoDB.Driver.Core.Operations
 {
     public class InsertOpcodeOperationTests : OperationTestBase
     {
-        private BatchableSource<BsonDocument> _documentSource;
+        private BsonDocument[] _documents;
 
         public InsertOpcodeOperationTests()
         {
-            _documentSource = new BatchableSource<BsonDocument>(new[] 
+            _documents = new[]
             { 
                 BsonDocument.Parse("{_id: 1, x: 1}")
-            });
+            };
         }
 
         [Fact]
         public void Constructor_should_throw_when_collection_namespace_is_null()
         {
-            Action act = () => new InsertOpcodeOperation<BsonDocument>(null, _documentSource, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            Action act = () => new InsertOpcodeOperation<BsonDocument>(null, _documents, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -48,15 +48,17 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void Constructor_should_throw_when_document_source_is_null()
         {
-            Action act = () => new InsertOpcodeOperation<BsonDocument>(_collectionNamespace, null, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+#pragma warning disable 618
+            Action act = () => new InsertOpcodeOperation<BsonDocument>(_collectionNamespace, (BatchableSource<BsonDocument>)null, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
             act.ShouldThrow<ArgumentNullException>();
+#pragma warning restore
         }
 
         [Fact]
         public void Constructor_should_throw_when_serializer_is_null()
         {
-            Action act = () => new InsertOpcodeOperation<BsonDocument>(_collectionNamespace, _documentSource, null, _messageEncoderSettings);
+            Action act = () => new InsertOpcodeOperation<BsonDocument>(_collectionNamespace, _documents, null, _messageEncoderSettings);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -64,7 +66,7 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void Constructor_should_throw_when_message_encoder_settings_is_null()
         {
-            Action act = () => new InsertOpcodeOperation<BsonDocument>(_collectionNamespace, _documentSource, BsonDocumentSerializer.Instance, null);
+            Action act = () => new InsertOpcodeOperation<BsonDocument>(_collectionNamespace, _documents, BsonDocumentSerializer.Instance, null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -72,10 +74,10 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void Constructor_should_initialize_object()
         {
-            var subject = new InsertOpcodeOperation<BsonDocument>(_collectionNamespace, _documentSource, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var subject = new InsertOpcodeOperation<BsonDocument>(_collectionNamespace, _documents, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
             subject.CollectionNamespace.FullName.Should().Be(_collectionNamespace.FullName);
-            subject.DocumentSource.Should().NotBeNull();
+            subject.Documents.Count.Should().Be(_documents.Length);
             subject.Serializer.Should().BeSameAs(BsonDocumentSerializer.Instance);
             subject.MessageEncoderSettings.Should().BeEquivalentTo(_messageEncoderSettings);
         }
@@ -83,7 +85,7 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void ContinueOnError_should_work()
         {
-            var subject = new InsertOpcodeOperation<BsonDocument>(_collectionNamespace, _documentSource, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var subject = new InsertOpcodeOperation<BsonDocument>(_collectionNamespace, _documents, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
             subject.ContinueOnError.Should().Be(false);
 
@@ -95,7 +97,7 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void MaxBatchCount_should_work()
         {
-            var subject = new InsertOpcodeOperation<BsonDocument>(_collectionNamespace, _documentSource, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var subject = new InsertOpcodeOperation<BsonDocument>(_collectionNamespace, _documents, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
             subject.MaxBatchCount.Should().Be(null);
 
@@ -107,7 +109,7 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void MaxDocumentSize_should_work()
         {
-            var subject = new InsertOpcodeOperation<BsonDocument>(_collectionNamespace, _documentSource, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var subject = new InsertOpcodeOperation<BsonDocument>(_collectionNamespace, _documents, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
             subject.MaxDocumentSize.Should().Be(null);
 
@@ -119,7 +121,7 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void MaxMessageSize_should_work()
         {
-            var subject = new InsertOpcodeOperation<BsonDocument>(_collectionNamespace, _documentSource, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var subject = new InsertOpcodeOperation<BsonDocument>(_collectionNamespace, _documents, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
             subject.MaxMessageSize.Should().Be(null);
 
@@ -131,7 +133,7 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void WriteConcern_should_work()
         {
-            var subject = new InsertOpcodeOperation<BsonDocument>(_collectionNamespace, _documentSource, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var subject = new InsertOpcodeOperation<BsonDocument>(_collectionNamespace, _documents, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
             subject.WriteConcern.Should().Be(WriteConcern.Acknowledged);
 
@@ -148,7 +150,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             RequireServer.Check();
             DropCollection();
-            var subject = new InsertOpcodeOperation<BsonDocument>(_collectionNamespace, _documentSource, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var subject = new InsertOpcodeOperation<BsonDocument>(_collectionNamespace, _documents, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
             var result = ExecuteOperation(subject, async);
             result.Should().HaveCount(1);
@@ -165,14 +167,14 @@ namespace MongoDB.Driver.Core.Operations
         {
             RequireServer.Check();
             DropCollection();
-            var documentSource = new BatchableSource<BsonDocument>(new[] 
+            var documents = new[] 
             {
                 BsonDocument.Parse("{_id: 1, x: 1}"),
                 BsonDocument.Parse("{_id: 2, x: 2}"),
                 BsonDocument.Parse("{_id: 3, x: 3}"),
                 BsonDocument.Parse("{_id: 4, x: 4}"),
-            });
-            var subject = new InsertOpcodeOperation<BsonDocument>(_collectionNamespace, documentSource, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            };
+            var subject = new InsertOpcodeOperation<BsonDocument>(_collectionNamespace, documents, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
             var result = ExecuteOperation(subject, async);
             result.Should().HaveCount(1);

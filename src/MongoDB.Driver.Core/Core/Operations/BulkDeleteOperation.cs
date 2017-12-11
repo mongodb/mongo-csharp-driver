@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2016 MongoDB Inc.
+﻿/* Copyright 2010-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,16 +16,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Core.Connections;
-using MongoDB.Driver.Core.Misc;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    internal class BulkDeleteOperation : BulkUnmixedWriteOperationBase
+    internal class BulkDeleteOperation : BulkUnmixedWriteOperationBase<DeleteRequest>
     {
         // constructors
         public BulkDeleteOperation(
@@ -36,74 +32,33 @@ namespace MongoDB.Driver.Core.Operations
         {
         }
 
-        // properties
-        protected override string CommandName
-        {
-            get { return "delete"; }
-        }
-
-        public new IEnumerable<DeleteRequest> Requests
-        {
-            get { return base.Requests.Cast<DeleteRequest>(); }
-        }
-
-        protected override string RequestsElementName
-        {
-            get { return "deletes"; }
-        }
-
         // methods
-        protected override BatchSerializer CreateBatchSerializer(ConnectionDescription connectionDescription, int maxBatchCount, int maxBatchLength)
+        protected override IRetryableWriteOperation<BsonDocument> CreateBatchOperation(Batch batch)
         {
-            return new DeleteBatchSerializer(connectionDescription, maxBatchCount, maxBatchLength);
-        }
-
-        protected override BulkUnmixedWriteOperationEmulatorBase CreateEmulator()
-        {
-            return new BulkDeleteOperationEmulator(CollectionNamespace, Requests, MessageEncoderSettings)
+            Func<WriteConcern> writeConcernFunc = null;
+            if (!WriteConcern.IsServerDefault)
             {
-                MaxBatchCount = MaxBatchCount,
-                MaxBatchLength = MaxBatchLength,
+                writeConcernFunc = () => GetBatchWriteConcern(batch);
+            }
+
+            return new RetryableDeleteCommandOperation(CollectionNamespace, batch.Requests, MessageEncoderSettings)
+            {
                 IsOrdered = IsOrdered,
-                WriteConcern = WriteConcern
+                MaxBatchCount = MaxBatchCount,
+                RetryRequested = RetryRequested,
+                WriteConcernFunc = writeConcernFunc
             };
         }
 
-        // nested types
-        private class DeleteBatchSerializer : BatchSerializer
+        protected override IExecutableInRetryableWriteContext<BulkWriteOperationResult> CreateEmulator()
         {
-            // constructors
-            public DeleteBatchSerializer(ConnectionDescription connectionDescription, int maxBatchCount, int maxBatchLength)
-                : base(connectionDescription, maxBatchCount, maxBatchLength)
+            return new BulkDeleteOperationEmulator(CollectionNamespace, Requests, MessageEncoderSettings)
             {
-            }
-
-            // methods
-            protected override void SerializeRequest(BsonSerializationContext context, WriteRequest request)
-            {
-                var deleteRequest = (DeleteRequest)request;
-                Feature.Collation.ThrowIfNotSupported(ConnectionDescription.ServerVersion, deleteRequest.Collation);
-
-                var writer = context.Writer;
-                writer.PushSettings(s => { var bs = s as BsonBinaryWriterSettings; if (bs != null) { bs.MaxDocumentSize = ConnectionDescription.MaxDocumentSize; } });
-                try
-                {
-                    writer.WriteStartDocument();
-                    writer.WriteName("q");
-                    BsonSerializer.Serialize(writer, deleteRequest.Filter);
-                    writer.WriteInt32("limit", deleteRequest.Limit);
-                    if (deleteRequest.Collation != null)
-                    {
-                        writer.WriteName("collation");
-                        BsonDocumentSerializer.Instance.Serialize(context, deleteRequest.Collation.ToBsonDocument());
-                    }
-                    writer.WriteEndDocument();
-                }
-                finally
-                {
-                    writer.PopSettings();
-                }
-            }
+                IsOrdered = IsOrdered,
+                MaxBatchCount = MaxBatchCount,
+                MaxBatchLength = MaxBatchLength,
+                WriteConcern = WriteConcern
+            };
         }
     }
 }

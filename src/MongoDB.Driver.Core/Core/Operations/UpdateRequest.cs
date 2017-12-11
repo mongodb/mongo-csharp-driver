@@ -17,6 +17,7 @@ using System;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 using System.Collections.Generic;
+using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -121,6 +122,13 @@ namespace MongoDB.Driver.Core.Operations
         public UpdateType UpdateType
         {
             get { return _updateType; }
+        }
+
+        // public methods
+        /// <inheritdoc />
+        public override bool IsRetryable(ConnectionDescription connectionDescription)
+        {
+            return !_isMulti;
         }
     }
 }

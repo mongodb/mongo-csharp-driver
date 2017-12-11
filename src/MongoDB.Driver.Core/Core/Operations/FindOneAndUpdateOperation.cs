@@ -174,7 +174,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        internal override BsonDocument CreateCommand(SemanticVersion serverVersion)
+        internal override BsonDocument CreateCommand(SemanticVersion serverVersion, long? transactionNumber)
         {
             Feature.Collation.ThrowIfNotSupported(serverVersion, Collation);
 
@@ -191,7 +191,8 @@ namespace MongoDB.Driver.Core.Operations
                 { "writeConcern", () => WriteConcern.ToBsonDocument(), WriteConcern != null && !WriteConcern.IsServerDefault && Feature.FindAndModifyWriteConcern.IsSupported(serverVersion) },
                 { "bypassDocumentValidation", () => _bypassDocumentValidation.Value, _bypassDocumentValidation.HasValue && Feature.BypassDocumentValidation.IsSupported(serverVersion) },
                 { "collation", () => Collation.ToBsonDocument(), Collation != null },
-                { "arrayFilters", () => new BsonArray(_arrayFilters), _arrayFilters != null }
+                { "arrayFilters", () => new BsonArray(_arrayFilters), _arrayFilters != null },
+                { "txnNumber", () => transactionNumber, transactionNumber.HasValue }
             };
         }
 

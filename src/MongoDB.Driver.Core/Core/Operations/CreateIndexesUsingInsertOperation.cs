@@ -132,10 +132,9 @@ namespace MongoDB.Driver.Core.Operations
             var systemIndexesCollection = _collectionNamespace.DatabaseNamespace.SystemIndexesCollection;
             var document = createIndexRequest.CreateIndexDocument(serverVersion);
             document.InsertAt(0, new BsonElement("ns", _collectionNamespace.FullName));
-            var documentSource = new BatchableSource<BsonDocument>(new[] { document });
             return new InsertOpcodeOperation<BsonDocument>(
                 systemIndexesCollection,
-                documentSource,
+                new[] { document },
                 BsonDocumentSerializer.Instance,
                 _messageEncoderSettings);
         }

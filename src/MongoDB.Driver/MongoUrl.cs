@@ -57,6 +57,7 @@ namespace MongoDB.Driver
         private readonly ReadConcernLevel? _readConcernLevel;
         private readonly ReadPreference _readPreference;
         private readonly string _replicaSetName;
+        private readonly bool? _retryWrites;
         private readonly TimeSpan _localThreshold;
         private readonly ConnectionStringScheme _scheme;
         private readonly IEnumerable<MongoServerAddress> _servers;
@@ -105,6 +106,7 @@ namespace MongoDB.Driver
             _readConcernLevel = builder.ReadConcernLevel;
             _readPreference = builder.ReadPreference;
             _replicaSetName = builder.ReplicaSetName;
+            _retryWrites = builder.RetryWrites;
             _scheme = builder.Scheme;
             _servers = builder.Servers;
             _serverSelectionTimeout = builder.ServerSelectionTimeout;
@@ -328,6 +330,14 @@ namespace MongoDB.Driver
         public string ReplicaSetName
         {
             get { return _replicaSetName; }
+        }
+
+        /// <summary>
+        /// Gets whether writes will be retried.
+        /// </summary>
+        public bool? RetryWrites
+        {
+            get { return _retryWrites; }
         }
 
         /// <summary>
@@ -596,6 +606,7 @@ namespace MongoDB.Driver
         /// Resolves a connection string. If the connection string indicates more information is available
         /// in the DNS system, it will acquire that information as well.
         /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A resolved MongoURL.</returns>
         public async Task<MongoUrl> ResolveAsync(CancellationToken cancellationToken = default(CancellationToken))
         {

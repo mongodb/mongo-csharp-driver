@@ -73,6 +73,14 @@ Task("BuildNet45")
                 CopyFile(outputFile, artifactFile);
             }
         }
+
+        foreach (var dnsClientFileName in new[] { "DnsClient.dll", "DnsClient.xml"})
+        {
+            var sourceDirectory = srcDirectory.Combine("MongoDB.Driver.Core").Combine("bin").Combine("Release");
+            var sourceFile = sourceDirectory.CombineWithFilePath(dnsClientFileName);
+            var destinationFile = artifactsBinNet45Directory.CombineWithFilePath(dnsClientFileName);
+            CopyFile(sourceFile, destinationFile);
+        }
     })
     .Finally(() =>
     {

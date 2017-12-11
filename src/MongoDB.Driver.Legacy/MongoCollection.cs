@@ -649,6 +649,7 @@ namespace MongoDB.Driver
                     IsUpsert = args.Upsert,
                     MaxTime = args.MaxTime,
                     Projection = projection,
+                    RetryRequested = _server.Settings.RetryWrites,
                     ReturnDocument = returnDocument,
                     Sort = sort,
                     WriteConcern = _settings.WriteConcern
@@ -714,6 +715,7 @@ namespace MongoDB.Driver
                 Collation = args.Collation,
                 MaxTime = args.MaxTime,
                 Projection = projection,
+                RetryRequested = _server.Settings.RetryWrites,
                 Sort = sort,
                 WriteConcern = _settings.WriteConcern
             };
@@ -1504,23 +1506,20 @@ namespace MongoDB.Driver
                 documents = documents.Select(d => { AssignId(d, null); return d; });
             }
 
-            using (var enumerator = documents.GetEnumerator())
+            var serializer = BsonSerializer.LookupSerializer<TNominalType>();
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            var continueOnError = (options.Flags & InsertFlags.ContinueOnError) == InsertFlags.ContinueOnError;
+            var writeConcern = options.WriteConcern ?? _settings.WriteConcern;
+
+            var operation = new InsertOpcodeOperation<TNominalType>(_collectionNamespace, documents, serializer, messageEncoderSettings)
             {
-                var documentSource = new BatchableSource<TNominalType>(enumerator);
-                var serializer = BsonSerializer.LookupSerializer<TNominalType>();
-                var messageEncoderSettings = GetMessageEncoderSettings();
-                var continueOnError = (options.Flags & InsertFlags.ContinueOnError) == InsertFlags.ContinueOnError;
-                var writeConcern = options.WriteConcern ?? _settings.WriteConcern;
+                BypassDocumentValidation = options.BypassDocumentValidation,
+                ContinueOnError = continueOnError,
+                RetryRequested = _server.Settings.RetryWrites,
+                WriteConcern = writeConcern
+            };
 
-                var operation = new InsertOpcodeOperation<TNominalType>(_collectionNamespace, documentSource, serializer, messageEncoderSettings)
-                {
-                    BypassDocumentValidation = options.BypassDocumentValidation,
-                    ContinueOnError = continueOnError,
-                    WriteConcern = writeConcern
-                };
-
-                return ExecuteWriteOperation(session, operation);
-            }
+            return ExecuteWriteOperation(session, operation);
         }
 
         /// <summary>
@@ -1835,6 +1834,7 @@ namespace MongoDB.Driver
             };
             var operation = new DeleteOpcodeOperation(_collectionNamespace, request, messageEncoderSettings)
             {
+                RetryRequested = _database.Server.Settings.RetryWrites,
                 WriteConcern = writeConcern
             };
 
@@ -2061,6 +2061,7 @@ namespace MongoDB.Driver
             var operation = new UpdateOpcodeOperation(_collectionNamespace, request, messageEncoderSettings)
             {
                 BypassDocumentValidation = options.BypassDocumentValidation,
+                RetryRequested = _server.Settings.RetryWrites,
                 WriteConcern = writeConcern
             };
 

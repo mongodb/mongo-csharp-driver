@@ -1,4 +1,4 @@
-/* Copyright 2013-2016 MongoDB Inc.
+/* Copyright 2013-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     {
         private readonly CollectionNamespace _collectionNamespace = new CollectionNamespace("database", "collection");
         private readonly bool _continueOnError = true;
-        private readonly BatchableSource<BsonDocument> _documentSource = new BatchableSource<BsonDocument>(Enumerable.Empty<BsonDocument>());
+        private readonly BatchableSource<BsonDocument> _documentSource = new BatchableSource<BsonDocument>(new BsonDocument[0]);
         private readonly int _maxBatchCount = 1;
         private readonly int _maxMessageSize = 2;
         private readonly int _requestId = 3;

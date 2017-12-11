@@ -21,6 +21,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// An output document from a $changeStream pipeline stage.
     /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
     public sealed class ChangeStreamDocument<TDocument>
     {
         // private fields

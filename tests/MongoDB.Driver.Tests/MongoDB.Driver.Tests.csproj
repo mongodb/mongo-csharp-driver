@@ -164,6 +164,7 @@
     <Compile Include="ReferenceCountedClientSessionTests.cs" />
     <Compile Include="ServerSessionPoolTests.cs" />
     <Compile Include="ServerSessionTests.cs" />
+    <Compile Include="RetryableWritesTests.cs" />
     <Compile Include="SortDefinitionBuilderTests.cs" />
     <Compile Include="Specifications\command-monitoring\CountTest.cs" />
     <Compile Include="Specifications\command-monitoring\BulkWriteTest.cs" />
@@ -179,6 +180,18 @@
     <Compile Include="Specifications\command-monitoring\UpdateOneTest.cs" />
     <Compile Include="Specifications\crud\BulkWriteTest.cs" />
     <Compile Include="Specifications\crud\CrudOperationTestBase.cs" />
+    <Compile Include="Specifications\retryable-writes\BulkWriteTest.cs" />
+    <Compile Include="Specifications\retryable-writes\DeleteOneTest.cs" />
+    <Compile Include="Specifications\retryable-writes\InsertManyTest.cs" />
+    <Compile Include="Specifications\retryable-writes\InsertOneTest.cs" />
+    <Compile Include="Specifications\retryable-writes\ReplaceOneTest.cs" />
+    <Compile Include="Specifications\retryable-writes\RetryableWriteTestBase.cs" />
+    <Compile Include="Specifications\retryable-writes\FindOneAndDeleteTest.cs" />
+    <Compile Include="Specifications\retryable-writes\FindOneAndReplaceTest.cs" />
+    <Compile Include="Specifications\retryable-writes\FindOneAndUpdateTest.cs" />
+    <Compile Include="Specifications\retryable-writes\IRetryableWriteTest.cs" />
+    <Compile Include="Specifications\retryable-writes\TestRunner.cs" />
+    <Compile Include="Specifications\retryable-writes\UpdateOneTest.cs" />
     <Compile Include="UpdateDefinitionBuilderTests.cs" />
     <Compile Include="FilterDefinitionBuilderTests.cs" />
     <Compile Include="IAggregateFluentExtensionsTests.cs" />
@@ -292,6 +305,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
     <EmbeddedResource Include="Specifications\crud\tests\read\aggregate.json" />
     <EmbeddedResource Include="Specifications\crud\tests\read\count.json" />
@@ -347,6 +361,25 @@
     <EmbeddedResource Include="Specifications\crud\tests\write\updateMany-arrayFilters.json" />
     <EmbeddedResource Include="Specifications\crud\tests\write\updateOne-arrayFilters.json" />
     <EmbeddedResource Include="Specifications\crud\tests\write\bulkWrite-arrayFilters.json" />
+    <EmbeddedResource Include="Specifications\retryable-writes\tests\bulkWrite.json" />
+    <None Include="Specifications\retryable-writes\tests\bulkWrite.yml" />
+    <EmbeddedResource Include="Specifications\retryable-writes\tests\deleteOne.json" />
+    <None Include="Specifications\retryable-writes\tests\deleteOne.yml" />
+    <EmbeddedResource Include="Specifications\retryable-writes\tests\findOneAndDelete.json" />
+    <None Include="Specifications\retryable-writes\tests\findOneAndDelete.yml" />
+    <EmbeddedResource Include="Specifications\retryable-writes\tests\findOneAndReplace.json" />
+    <None Include="Specifications\retryable-writes\tests\findOneAndReplace.yml" />
+    <EmbeddedResource Include="Specifications\retryable-writes\tests\findOneAndUpdate.json" />
+    <None Include="Specifications\retryable-writes\tests\findOneAndUpdate.yml" />
+    <EmbeddedResource Include="Specifications\retryable-writes\tests\insertMany.json" />
+    <None Include="Specifications\retryable-writes\tests\insertMany.yml" />
+    <EmbeddedResource Include="Specifications\retryable-writes\tests\insertOne.json" />
+    <None Include="Specifications\retryable-writes\tests\insertOne.yml" />
+    <None Include="Specifications\retryable-writes\tests\README.rst" />
+    <EmbeddedResource Include="Specifications\retryable-writes\tests\replaceOne.json" />
+    <None Include="Specifications\retryable-writes\tests\replaceOne.yml" />
+    <EmbeddedResource Include="Specifications\retryable-writes\tests\updateOne.json" />
+    <None Include="Specifications\retryable-writes\tests\updateOne.yml" />
     <None Include="testcert.pfx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

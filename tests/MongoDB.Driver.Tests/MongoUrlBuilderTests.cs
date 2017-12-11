@@ -62,6 +62,7 @@ namespace MongoDB.Driver.Tests
                 ReadConcernLevel = ReadConcernLevel.Majority,
                 ReadPreference = readPreference,
                 ReplicaSetName = "name",
+                RetryWrites = true,
                 LocalThreshold = TimeSpan.FromSeconds(6),
                 Server = new MongoServerAddress("host"),
                 ServerSelectionTimeout = TimeSpan.FromSeconds(10),
@@ -103,7 +104,8 @@ namespace MongoDB.Driver.Tests
                 "socketTimeout=7s",
                 "waitQueueSize=123",
                 "waitQueueTimeout=8s",
-                "uuidRepresentation=pythonLegacy"
+                "uuidRepresentation=pythonLegacy",
+                "retryWrites=true"
             });
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
@@ -130,6 +132,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(ReadConcernLevel.Majority, builder.ReadConcernLevel);
                 Assert.Equal(readPreference, builder.ReadPreference);
                 Assert.Equal("name", builder.ReplicaSetName);
+                Assert.Equal(true, builder.RetryWrites);
                 Assert.Equal(TimeSpan.FromSeconds(6), builder.LocalThreshold);
                 Assert.Equal(ConnectionStringScheme.MongoDB, builder.Scheme);
                 Assert.Equal(new MongoServerAddress("host", 27017), builder.Server);
@@ -346,6 +349,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(null, builder.Password);
                 Assert.Equal(null, builder.ReadPreference);
                 Assert.Equal(null, builder.ReplicaSetName);
+                Assert.Equal(null, builder.RetryWrites);
                 Assert.Equal(MongoDefaults.LocalThreshold, builder.LocalThreshold);
                 Assert.Equal(MongoDefaults.ServerSelectionTimeout, builder.ServerSelectionTimeout);
                 Assert.Equal(MongoDefaults.SocketTimeout, builder.SocketTimeout);
@@ -820,6 +824,16 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(name, builder.ReplicaSetName);
                 Assert.Equal(connectionString, builder.ToString());
             }
+        }
+
+        [Theory]
+        [InlineData("mongodb://localhost/", null)]
+        [InlineData("mongodb://localhost/?retryWrites=true", true)]
+        [InlineData("mongodb://localhost/?retryWrites=false", false)]
+        public void TestRetryWrites(string url, bool? retryWrites)
+        {
+            var builder = new MongoUrlBuilder(url);
+            Assert.Equal(retryWrites, builder.RetryWrites);
         }
 
         [Theory]

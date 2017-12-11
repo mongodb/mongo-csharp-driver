@@ -168,8 +168,7 @@ namespace MongoDB.Driver.TestConsoleApplication
 
         private void Insert(IWriteBinding binding, BsonDocument document)
         {
-            var documentSource = new BatchableSource<BsonDocument>(new[] { document });
-            var insertOp = new InsertOpcodeOperation<BsonDocument>(_collection, documentSource, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var insertOp = new InsertOpcodeOperation<BsonDocument>(_collection, new[] { document }, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
             using (var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
             using (var linked = CancellationTokenSource.CreateLinkedTokenSource(timeout.Token, _cancellationTokenSource.Token))

@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2016 MongoDB Inc.
+﻿/* Copyright 2013-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -121,7 +121,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 var message = subject.ReadMessage();
                 message.CollectionNamespace.Should().Be(__collectionNamespace);
                 message.ContinueOnError.Should().Be(__continueOnError);
-                message.DocumentSource.Batch.Should().Equal(__documentSource.Batch);
+                message.DocumentSource.Items.Should().Equal(__documentSource.GetProcessedItems());
                 message.MaxBatchCount.Should().Be(__maxBatchCount);
                 message.MaxMessageSize.Should().Be(__maxMessageSize);
                 message.RequestId.Should().Be(__requestId);

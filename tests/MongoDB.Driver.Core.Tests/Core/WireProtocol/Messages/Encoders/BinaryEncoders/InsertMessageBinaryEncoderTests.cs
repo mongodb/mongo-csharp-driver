@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-2016 MongoDB Inc.
+﻿/* Copyright 2013-2017 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -118,7 +118,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 var message = subject.ReadMessage();
                 message.CollectionNamespace.Should().Be(__collectionNamespace);
                 message.ContinueOnError.Should().Be(__continueOnError);
-                message.DocumentSource.Batch.Should().Equal(__documentSource.Batch);
+                message.DocumentSource.Items.Should().Equal(__documentSource.GetProcessedItems());
                 message.MaxBatchCount.Should().Be(int.MaxValue);
                 message.MaxMessageSize.Should().Be(int.MaxValue);
                 message.RequestId.Should().Be(__requestId);
@@ -160,36 +160,32 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 documents.Add(new BsonDocument("_id", i));
             }
 
-            using (var enumerator = documents.GetEnumerator())
+            var documentSource = new BatchableSource<BsonDocument>(documents, canBeSplit: true);
+            var message = new InsertMessage<BsonDocument>(__requestId, __collectionNamespace, __serializer, documentSource, maxBatchCount, __maxMessageSize, __continueOnError);
+
+            var numberOfBatches = 0;
+            var batchedDocuments = new List<BsonDocument>();
+
+            while (documentSource.Count > 0)
             {
-                var documentSource = new BatchableSource<BsonDocument>(enumerator);
-                var message = new InsertMessage<BsonDocument>(__requestId, __collectionNamespace, __serializer, documentSource, maxBatchCount, __maxMessageSize, __continueOnError);
-
-                var numberOfBatches = 0;
-                var batchedDocuments = new List<BsonDocument>();
-
-                while (documentSource.HasMore)
+                using (var stream = new MemoryStream())
                 {
-                    using (var stream = new MemoryStream())
-                    {
-                        var subject = new InsertMessageBinaryEncoder<BsonDocument>(stream, __messageEncoderSettings, __serializer);
-                        subject.WriteMessage(message);
-                    }
-
-                    numberOfBatches++;
-                    batchedDocuments.AddRange(documentSource.Batch);
-
-                    documentSource.ClearBatch();
+                    var subject = new InsertMessageBinaryEncoder<BsonDocument>(stream, __messageEncoderSettings, __serializer);
+                    subject.WriteMessage(message);
                 }
 
-                numberOfBatches.Should().Be(expectedNumberOfBatches);
-                batchedDocuments.Should().Equal(documents);
+                numberOfBatches++;
+                batchedDocuments.AddRange(documentSource.GetProcessedItems());
+
+                documentSource.AdvancePastProcessedItems();
             }
+
+            numberOfBatches.Should().Be(expectedNumberOfBatches);
+            batchedDocuments.Should().Equal(documents);
         }
 
         [Theory]
         [InlineData(1, 1, 0, 1)]
-        [InlineData(1, 1, -1, 1)]
         [InlineData(1, 1, 1, 1)]
         [InlineData(2, 1, 0, 2)]
         [InlineData(2, 2, 0, 1)]
@@ -207,31 +203,28 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var messageSizeWithZeroDocuments = __testMessageBytes.Length - 2 * documentSize;
             var maxMessageSize = messageSizeWithZeroDocuments + (maxMessageSizeMultiple * documentSize) + maxMessageSizeDelta;
 
-            using (var enumerator = documents.GetEnumerator())
+            var documentSource = new BatchableSource<BsonDocument>(documents, canBeSplit: true);
+            var message = new InsertMessage<BsonDocument>(__requestId, __collectionNamespace, __serializer, documentSource, __maxBatchCount, maxMessageSize, __continueOnError);
+
+            var numberOfBatches = 0;
+            var batchedDocuments = new List<BsonDocument>();
+
+            while (documentSource.Count > 0)
             {
-                var documentSource = new BatchableSource<BsonDocument>(enumerator);
-                var message = new InsertMessage<BsonDocument>(__requestId, __collectionNamespace, __serializer, documentSource, __maxBatchCount, maxMessageSize, __continueOnError);
-
-                var numberOfBatches = 0;
-                var batchedDocuments = new List<BsonDocument>();
-
-                while (documentSource.HasMore)
+                using (var stream = new MemoryStream())
                 {
-                    using (var stream = new MemoryStream())
-                    {
-                        var subject = new InsertMessageBinaryEncoder<BsonDocument>(stream, __messageEncoderSettings, __serializer);
-                        subject.WriteMessage(message);
-                    }
-
-                    numberOfBatches++;
-                    batchedDocuments.AddRange(documentSource.Batch);
-
-                    documentSource.ClearBatch();
+                    var subject = new InsertMessageBinaryEncoder<BsonDocument>(stream, __messageEncoderSettings, __serializer);
+                    subject.WriteMessage(message);
                 }
 
-                numberOfBatches.Should().Be(expectedNumberOfBatches);
-                batchedDocuments.Should().Equal(documents);
+                numberOfBatches++;
+                batchedDocuments.AddRange(documentSource.GetProcessedItems());
+
+                documentSource.AdvancePastProcessedItems();
             }
+
+            numberOfBatches.Should().Be(expectedNumberOfBatches);
+            batchedDocuments.Should().Equal(documents);
         }
 
         [Fact]

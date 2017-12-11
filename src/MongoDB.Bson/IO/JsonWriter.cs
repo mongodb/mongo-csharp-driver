@@ -74,7 +74,9 @@ namespace MongoDB.Bson.IO
         /// <inheritdoc />
         public override long Position => 0L;
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Gets the settings of the writer.
+        /// </summary>
         public new JsonWriterSettings Settings
         {
             get { return (JsonWriterSettings)base.Settings; }

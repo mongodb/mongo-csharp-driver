@@ -86,6 +86,7 @@ namespace MongoDB.Driver.Core.Configuration
         private ReadPreferenceMode? _readPreference;
         private IReadOnlyList<TagSet> _readPreferenceTags;
         private string _replicaSet;
+        private bool? _retryWrites;
         private ConnectionStringScheme _scheme;
         private TimeSpan? _serverSelectionTimeout;
         private TimeSpan? _socketTimeout;
@@ -327,6 +328,14 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
+        /// Gets a value indicating whether or not to retry writes.
+        /// </summary>
+        public bool? RetryWrites
+        {
+            get { return _retryWrites; }
+        }
+
+       /// <summary>
         /// Gets the scheme.
         /// </summary>
         public ConnectionStringScheme Scheme
@@ -464,6 +473,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// Resolves a connection string. If the connection string indicates more information is available
         /// in the DNS system, it will acquire that information as well.
         /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A resolved ConnectionString.</returns>
         public async Task<ConnectionString> ResolveAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -763,6 +773,9 @@ namespace MongoDB.Driver.Core.Configuration
                     break;
                 case "replicaset":
                     _replicaSet = value;
+                    break;
+                case "retrywrites":
+                    _retryWrites = ParseBoolean(name, value);
                     break;
                 case "safe":
                     var safe = ParseBoolean(name, value);

@@ -14,6 +14,7 @@
 */
 
 using System;
+using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -59,5 +60,15 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _requestType; }
         }
+
+        // public methods
+        /// <summary>
+        /// Determines whether the request is retryable on a given connection.
+        /// </summary>
+        /// <param name="connectionDescription">The connection description.</param>
+        /// <returns>
+        ///   <c>true</c> if the request is retryable; otherwise, <c>false</c>.
+        /// </returns>
+        public abstract bool IsRetryable(ConnectionDescription connectionDescription);
     }
 }

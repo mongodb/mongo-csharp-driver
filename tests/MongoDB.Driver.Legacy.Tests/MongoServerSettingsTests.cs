@@ -157,6 +157,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(MongoDefaults.OperationTimeout, settings.OperationTimeout);
             Assert.Equal(ReadPreference.Primary, settings.ReadPreference);
             Assert.Equal(null, settings.ReplicaSetName);
+            Assert.Equal(false, settings.RetryWrites);
             Assert.Equal(_localHost, settings.Server);
             Assert.Equal(_localHost, settings.Servers.First());
             Assert.Equal(1, settings.Servers.Count());
@@ -242,6 +243,10 @@ namespace MongoDB.Driver.Tests
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
+            clone.RetryWrites = true;
+            Assert.False(clone.Equals(settings));
+
+            clone = settings.Clone();
             clone.LocalThreshold = new TimeSpan(1, 2, 3);
             Assert.False(clone.Equals(settings));
 
@@ -305,7 +310,7 @@ namespace MongoDB.Driver.Tests
                 "mongodb://user1:password1@somehost/?authSource=db;authMechanismProperties=CANONICALIZE_HOST_NAME:true;" +
                 "appname=app;connect=direct;connectTimeout=123;uuidRepresentation=pythonLegacy;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;" +
                 "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;" +
-                "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;localThreshold=128;socketTimeout=129;" +
+                "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;retryWrites=true;localThreshold=128;socketTimeout=129;" +
                 "serverSelectionTimeout=20s;ssl=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
                 "w=1;fsync=true;journal=true;w=2;wtimeout=131;gssapiServiceName=other";
             var builder = new MongoUrlBuilder(connectionString);
@@ -335,6 +340,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(url.MinConnectionPoolSize, settings.MinConnectionPoolSize);
             Assert.Equal(url.ReadPreference, settings.ReadPreference);
             Assert.Equal(url.ReplicaSetName, settings.ReplicaSetName);
+            Assert.Equal(url.RetryWrites, settings.RetryWrites);
             Assert.Equal(url.LocalThreshold, settings.LocalThreshold);
             Assert.True(url.Servers.SequenceEqual(settings.Servers));
             Assert.Equal(url.ServerSelectionTimeout, settings.ServerSelectionTimeout);
@@ -355,7 +361,7 @@ namespace MongoDB.Driver.Tests
                 "mongodb://user1:password1@somehost/?authSource=db;appname=app;" +
                 "connect=direct;connectTimeout=123;uuidRepresentation=pythonLegacy;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;" +
                 "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;" +
-                "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;localThreshold=128;socketTimeout=129;" +
+                "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;retryWrites=true;localThreshold=128;socketTimeout=129;" +
                 "serverSelectionTimeout=20s;ssl=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
                 "w=1;fsync=true;journal=true;w=2;wtimeout=131";
             var builder = new MongoUrlBuilder(connectionString);
@@ -382,6 +388,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(url.MinConnectionPoolSize, settings.MinConnectionPoolSize);
             Assert.Equal(url.ReadPreference, settings.ReadPreference);
             Assert.Equal(url.ReplicaSetName, settings.ReplicaSetName);
+            Assert.Equal(url.RetryWrites, settings.RetryWrites);
             Assert.Equal(url.LocalThreshold, settings.LocalThreshold);
             Assert.True(url.Servers.SequenceEqual(settings.Servers));
             Assert.Equal(url.ServerSelectionTimeout, settings.ServerSelectionTimeout);
@@ -572,6 +579,21 @@ namespace MongoDB.Driver.Tests
             settings.Freeze();
             Assert.Same(replicaSetName, settings.ReplicaSetName);
             Assert.Throws<InvalidOperationException>(() => { settings.ReplicaSetName = replicaSetName; });
+        }
+
+        [Fact]
+        public void TestRetryWrites()
+        {
+            var settings = new MongoServerSettings();
+            Assert.Equal(false, settings.RetryWrites);
+
+            var retryWrites = true;
+            settings.RetryWrites = retryWrites;
+            Assert.Equal(retryWrites, settings.RetryWrites);
+
+            settings.Freeze();
+            Assert.Equal(retryWrites, settings.RetryWrites);
+            Assert.Throws<InvalidOperationException>(() => { settings.RetryWrites = false; });
         }
 
         [Fact]

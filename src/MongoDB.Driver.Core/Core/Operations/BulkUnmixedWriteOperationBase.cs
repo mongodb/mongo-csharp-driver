@@ -13,25 +13,20 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    internal abstract class BulkUnmixedWriteOperationBase : IWriteOperation<BulkWriteOperationResult>
+    internal abstract class BulkUnmixedWriteOperationBase<TWriteRequest> : IWriteOperation<BulkWriteOperationResult>, IExecutableInRetryableWriteContext<BulkWriteOperationResult>
+        where TWriteRequest : WriteRequest
     {
         // fields
         private bool? _bypassDocumentValidation;
@@ -40,13 +35,22 @@ namespace MongoDB.Driver.Core.Operations
         private int? _maxBatchCount;
         private int? _maxBatchLength;
         private MessageEncoderSettings _messageEncoderSettings;
-        private IEnumerable<WriteRequest> _requests;
+        private List<TWriteRequest> _requests;
+        private bool _retryRequested;
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
         // constructors
         protected BulkUnmixedWriteOperationBase(
             CollectionNamespace collectionNamespace,
-            IEnumerable<WriteRequest> requests,
+            IEnumerable<TWriteRequest> requests,
+            MessageEncoderSettings messageEncoderSettings)
+            : this(collectionNamespace, Ensure.IsNotNull(requests, nameof(requests)).ToList(), messageEncoderSettings)
+        {
+        }
+
+        protected BulkUnmixedWriteOperationBase(
+            CollectionNamespace collectionNamespace,
+            List<TWriteRequest> requests,
             MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
@@ -66,7 +70,11 @@ namespace MongoDB.Driver.Core.Operations
             get { return _collectionNamespace; }
         }
 
-        protected abstract string CommandName { get; }
+        public bool IsOrdered
+        {
+            get { return _isOrdered; }
+            set { _isOrdered = value; }
+        }
 
         public int? MaxBatchCount
         {
@@ -86,18 +94,16 @@ namespace MongoDB.Driver.Core.Operations
             set { _messageEncoderSettings = value; }
         }
 
-        public bool IsOrdered
-        {
-            get { return _isOrdered; }
-            set { _isOrdered = value; }
-        }
-
-        public IEnumerable<WriteRequest> Requests
+        public IEnumerable<TWriteRequest> Requests
         {
             get { return _requests; }
         }
 
-        protected abstract string RequestsElementName { get; }
+        public bool RetryRequested
+        {
+            get { return _retryRequested; }
+            set { _retryRequested = value; }
+        }
 
         public WriteConcern WriteConcern
         {
@@ -106,391 +112,166 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // public methods
-        public BulkWriteOperationResult Execute(IChannelHandle channel, ICoreSessionHandle session, CancellationToken cancellationToken)
+        public BulkWriteOperationResult Execute(RetryableWriteContext context, CancellationToken cancellationToken)
         {
-            using (EventContext.BeginOperation())
+            if (Feature.WriteCommands.IsSupported(context.Channel.ConnectionDescription.ServerVersion))
             {
-                if (Feature.WriteCommands.IsSupported(channel.ConnectionDescription.ServerVersion))
-                {
-                    return ExecuteBatches(channel, session, cancellationToken);
-                }
-                else
-                {
-                    var emulator = CreateEmulator();
-                    return emulator.Execute(channel, cancellationToken);
-                }
+                return ExecuteBatches(context, cancellationToken);
+            }
+            else
+            {
+                var emulator = CreateEmulator();
+                return emulator.Execute(context, cancellationToken);
             }
         }
 
         public BulkWriteOperationResult Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
-            using (var channelSource = binding.GetWriteChannelSource(cancellationToken))
-            using (var channel = channelSource.GetChannel(cancellationToken))
+            using (EventContext.BeginOperation())
+            using (var context = RetryableWriteContext.Create(binding, _retryRequested, cancellationToken))
             {
-                return Execute(channel, channelSource.Session, cancellationToken);
+                context.DisableRetriesIfAnyWriteRequestIsNotRetryable(_requests);
+                return Execute(context, cancellationToken);
             }
         }
 
-        public async Task<BulkWriteOperationResult> ExecuteAsync(IChannelHandle channel, ICoreSessionHandle session, CancellationToken cancellationToken)
+        public Task<BulkWriteOperationResult> ExecuteAsync(RetryableWriteContext context, CancellationToken cancellationToken)
         {
-            using (EventContext.BeginOperation())
+            if (Feature.WriteCommands.IsSupported(context.Channel.ConnectionDescription.ServerVersion))
             {
-                if (Feature.WriteCommands.IsSupported(channel.ConnectionDescription.ServerVersion))
-                {
-                    return await ExecuteBatchesAsync(channel, session, cancellationToken).ConfigureAwait(false);
-                }
-                else
-                {
-                    var emulator = CreateEmulator();
-                    return await emulator.ExecuteAsync(channel, cancellationToken).ConfigureAwait(false);
-                }
+                return ExecuteBatchesAsync(context, cancellationToken);
+            }
+            else
+            {
+                var emulator = CreateEmulator();
+                return emulator.ExecuteAsync(context, cancellationToken);
             }
         }
 
         public async Task<BulkWriteOperationResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
-            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
-            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
+            using (EventContext.BeginOperation())
+            using (var context = await RetryableWriteContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
             {
-                return await ExecuteAsync(channel, channelSource.Session, cancellationToken).ConfigureAwait(false);
+                context.DisableRetriesIfAnyWriteRequestIsNotRetryable(_requests);
+                return await ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
             }
         }
 
-        // private methods
-        private BsonDocument CreateBatchCommand(IChannelHandle channel, BatchableSource<WriteRequest> requestSource)
+        // protected methods
+        protected abstract IRetryableWriteOperation<BsonDocument> CreateBatchOperation(Batch batch);
+
+        protected abstract IExecutableInRetryableWriteContext<BulkWriteOperationResult> CreateEmulator();
+
+        protected WriteConcern GetBatchWriteConcern(Batch batch)
         {
-            var maxBatchCount = Math.Min(_maxBatchCount ?? int.MaxValue, channel.ConnectionDescription.MaxBatchCount);
-            var maxBatchLength = Math.Min(_maxBatchLength ?? int.MaxValue, channel.ConnectionDescription.MaxDocumentSize);
-            var batchSerializer = CreateBatchSerializer(channel.ConnectionDescription, maxBatchCount, maxBatchLength);
-            return CreateWriteCommand(batchSerializer, requestSource, channel.ConnectionDescription.ServerVersion);
+            var writeConcern = _writeConcern;
+            if (!writeConcern.IsAcknowledged && _isOrdered && !batch.Requests.AllItemsWereProcessed)
+            {
+                writeConcern = WriteConcern.W1;
+            }
+            return writeConcern;
         }
 
-        private BulkWriteBatchResult CreateBatchResult(BatchableSource<WriteRequest> requestSource, int originalIndex, BsonDocument writeCommandResult)
+        // private methods
+        private BulkWriteBatchResult CreateBatchResult(Batch batch, BsonDocument writeCommandResult)
         {
-            var indexMap = new IndexMap.RangeBased(0, originalIndex, requestSource.Batch.Count);
+            var requests = batch.Requests;
+            var requestsInBatch = requests.GetProcessedItems();
+            var indexMap = new IndexMap.RangeBased(0, requests.Offset, requests.Count);
             return BulkWriteBatchResult.Create(
                 _isOrdered,
-                requestSource.Batch,
+                requestsInBatch,
                 writeCommandResult,
                 indexMap);
         }
 
-        protected abstract BatchSerializer CreateBatchSerializer(ConnectionDescription connectionDescription, int maxBatchCount, int maxBatchLength);
-
-        protected abstract BulkUnmixedWriteOperationEmulatorBase CreateEmulator();
-
-        private BsonDocument CreateWriteCommand(BatchSerializer batchSerializer, BatchableSource<WriteRequest> requestSource, SemanticVersion serverVersion)
+        private BulkWriteBatchResult ExecuteBatch(RetryableWriteContext context, Batch batch, CancellationToken cancellationToken)
         {
-            var batchWrapper = new BsonDocumentWrapper(requestSource, batchSerializer);
+            var operation = CreateBatchOperation(batch);
+            var operationResult = RetryableWriteOperationExecutor.Execute(operation, context, cancellationToken);
+            return CreateBatchResult(batch, operationResult);
+        }
 
-            WriteConcern effectiveWriteConcern = _writeConcern;
-            if (!effectiveWriteConcern.IsAcknowledged && _isOrdered)
+        private async Task<BulkWriteBatchResult> ExecuteBatchAsync(RetryableWriteContext context, Batch batch, CancellationToken cancellationToken)
+        {
+            var operation = CreateBatchOperation(batch);
+            var operationResult = await RetryableWriteOperationExecutor.ExecuteAsync(operation, context, cancellationToken).ConfigureAwait(false);
+            return CreateBatchResult(batch, operationResult);
+        }
+
+        private BulkWriteOperationResult ExecuteBatches(RetryableWriteContext context, CancellationToken cancellationToken)
+        {
+            var helper = new BatchHelper(_requests, _writeConcern, _isOrdered);
+            foreach (var batch in helper.GetBatches())
             {
-                effectiveWriteConcern = WriteConcern.W1; // ignore the server's default, whatever it may be.
+                batch.Result = ExecuteBatch(context, batch, cancellationToken);
             }
+            return helper.CreateFinalResultOrThrow(context.Channel);
+        }
 
-            return new BsonDocument
+        private async Task<BulkWriteOperationResult> ExecuteBatchesAsync(RetryableWriteContext context, CancellationToken cancellationToken)
+        {
+            var helper = new BatchHelper(_requests, _writeConcern, _isOrdered);
+            foreach (var batch in helper.GetBatches())
             {
-                { CommandName, _collectionNamespace.CollectionName },
-                { "writeConcern", () => effectiveWriteConcern.ToBsonDocument(), !effectiveWriteConcern.IsServerDefault },
-                { "ordered", _isOrdered },
-                { "bypassDocumentValidation", () => _bypassDocumentValidation.Value, _bypassDocumentValidation.HasValue && Feature.BypassDocumentValidation.IsSupported(serverVersion) },
-                { RequestsElementName, new BsonArray { batchWrapper } } // should be last
-            };
-        }
-
-        protected virtual IEnumerable<WriteRequest> DecorateRequests(IEnumerable<WriteRequest> requests)
-        {
-            return requests;
-        }
-
-        private BulkWriteBatchResult ExecuteBatch(IChannelHandle channel, ICoreSessionHandle session, BatchableSource<WriteRequest> requestSource, int originalIndex, CancellationToken cancellationToken)
-        {
-            var writeCommand = CreateBatchCommand(channel, requestSource);
-            var writeCommandResult = ExecuteProtocol(channel, session, writeCommand, () => GetResponseHandling(requestSource), cancellationToken);
-            return CreateBatchResult(requestSource, originalIndex, writeCommandResult);
-        }
-
-        private async Task<BulkWriteBatchResult> ExecuteBatchAsync(IChannelHandle channel, ICoreSessionHandle session, BatchableSource<WriteRequest> requestSource, int originalIndex, CancellationToken cancellationToken)
-        {
-            var writeCommand = CreateBatchCommand(channel, requestSource);
-            var writeCommandResult = await ExecuteProtocolAsync(channel, session, writeCommand, () => GetResponseHandling(requestSource), cancellationToken).ConfigureAwait(false);
-            return CreateBatchResult(requestSource, originalIndex, writeCommandResult);
-        }
-
-        private BulkWriteOperationResult ExecuteBatches(IChannelHandle channel, ICoreSessionHandle session, CancellationToken cancellationToken)
-        {
-            var decoratedRequests = DecorateRequests(_requests);
-            var helper = new BatchHelper(decoratedRequests, _writeConcern, _isOrdered);
-            foreach (var batch in helper.Batches)
-            {
-                batch.Result = ExecuteBatch(channel, session, batch.RequestSource, batch.OriginalIndex, cancellationToken);
+                batch.Result = await ExecuteBatchAsync(context, batch, cancellationToken).ConfigureAwait(false);
             }
-            return helper.CreateFinalResultOrThrow(channel);
-        }
-
-        private async Task<BulkWriteOperationResult> ExecuteBatchesAsync(IChannelHandle channel, ICoreSessionHandle session, CancellationToken cancellationToken)
-        {
-            var decoratedRequests = DecorateRequests(_requests);
-            var helper = new BatchHelper(decoratedRequests, _writeConcern, _isOrdered);
-            foreach (var batch in helper.Batches)
-            {
-                batch.Result = await ExecuteBatchAsync(channel, session, batch.RequestSource, batch.OriginalIndex, cancellationToken).ConfigureAwait(false);
-            }
-            return helper.CreateFinalResultOrThrow(channel);
-        }
-
-        private BsonDocument ExecuteProtocol(IChannelHandle channel, ICoreSessionHandle session, BsonDocument command, Func<CommandResponseHandling> responseHandling, CancellationToken cancellationToken)
-        {
-            return channel.Command<BsonDocument>(
-                session,
-                null,
-                _collectionNamespace.DatabaseNamespace,
-                command,
-                NoOpElementNameValidator.Instance,
-                null,
-                responseHandling,
-                false, // slaveOk
-                BsonDocumentSerializer.Instance,
-                _messageEncoderSettings,
-                cancellationToken) ?? new BsonDocument("ok", 1);
-        }
-
-        private async Task<BsonDocument> ExecuteProtocolAsync(IChannelHandle channel, ICoreSessionHandle session, BsonDocument command, Func<CommandResponseHandling> responseHandling, CancellationToken cancellationToken)
-        {
-            return (await channel.CommandAsync<BsonDocument>(
-                session,
-                null, // readPreference
-                _collectionNamespace.DatabaseNamespace,
-                command,
-                NoOpElementNameValidator.Instance,
-                null, // additionalOptions
-                responseHandling,
-                false, // slaveOk
-                BsonDocumentSerializer.Instance,
-                _messageEncoderSettings,
-                cancellationToken).ConfigureAwait(false)) ?? new BsonDocument("ok", 1);
-        }
-
-        private CommandResponseHandling GetResponseHandling(BatchableSource<WriteRequest> source)
-        {
-            if (_writeConcern.IsAcknowledged || source.HasMore)
-            {
-                return CommandResponseHandling.Return;
-            }
-
-            return CommandResponseHandling.Ignore;
+            return helper.CreateFinalResultOrThrow(context.Channel);
         }
 
         // nested types
-        /// <summary>
-        /// 
-        /// </summary>
         private class BatchHelper
         {
             private readonly List<BulkWriteBatchResult> _batchResults = new List<BulkWriteBatchResult>();
             private bool _hasWriteErrors;
             private readonly bool _isOrdered;
-            private IEnumerable<WriteRequest> _remainingRequests = Enumerable.Empty<WriteRequest>();
-            private readonly IEnumerable<WriteRequest> _requests;
+            private readonly BatchableSource<TWriteRequest> _requests;
             private readonly WriteConcern _writeConcern;
 
-            public BatchHelper(IEnumerable<WriteRequest> requests, WriteConcern writeConcern, bool isOrdered)
+            public BatchHelper(IReadOnlyList<TWriteRequest> requests, WriteConcern writeConcern, bool isOrdered)
             {
-                _requests = requests;
+                _requests = new BatchableSource<TWriteRequest>(requests, 0, requests.Count, canBeSplit: true);
                 _writeConcern = writeConcern;
                 _isOrdered = isOrdered;
             }
 
-            public IEnumerable<Batch> Batches
+            public IEnumerable<Batch> GetBatches()
             {
-                get
+                while (_requests.Count > 0 && ShouldContinue())
                 {
-                    using (var enumerator = _requests.GetEnumerator())
+                    var batch = new Batch
                     {
-                        var originalIndex = 0;
+                        Requests = _requests                      
+                    };
 
-                        var requestSource = new BatchableSource<WriteRequest>(enumerator);
-                        while (requestSource.HasMore)
-                        {
-                            if (_hasWriteErrors && _isOrdered)
-                            {
-                                // note: we have to materialize the list of remaining items before the enumerator gets Disposed
-                                _remainingRequests = _remainingRequests.Concat(requestSource.GetRemainingItems()).ToList();
-                                break;
-                            }
+                    yield return batch;
 
-                            var batch = new Batch { RequestSource = requestSource, OriginalIndex = originalIndex };
-                            yield return batch;
-                            _batchResults.Add(batch.Result);
-                            _hasWriteErrors |= batch.Result.HasWriteErrors;
-                            originalIndex += batch.Result.BatchCount;
+                    _batchResults.Add(batch.Result);
+                    _hasWriteErrors |= batch.Result.HasWriteErrors;
 
-                            requestSource.ClearBatch();
-                        }
-                    }
+                    _requests.AdvancePastProcessedItems();
                 }
             }
 
             public BulkWriteOperationResult CreateFinalResultOrThrow(IChannelHandle channel)
             {
                 var combiner = new BulkWriteBatchResultCombiner(_batchResults, _writeConcern.IsAcknowledged);
-                return combiner.CreateResultOrThrowIfHasErrors(channel.ConnectionDescription.ConnectionId, _remainingRequests.ToList());
+                var remainingRequests = _requests.GetUnprocessedItems();
+                return combiner.CreateResultOrThrowIfHasErrors(channel.ConnectionDescription.ConnectionId, remainingRequests);
             }
 
-            public class Batch
+            // private methods
+            private bool ShouldContinue()
             {
-                public int OriginalIndex;
-                public BatchableSource<WriteRequest> RequestSource;
-                public BulkWriteBatchResult Result;
+                return !_hasWriteErrors || !_isOrdered;
             }
         }
 
-        protected abstract class BatchSerializer : SerializerBase<BatchableSource<WriteRequest>>
+        protected class Batch
         {
-            // fields
-            private int _batchCount;
-            private int _batchLength;
-            private int _batchStartPosition;
-            private int _lastRequestPosition;
-            private readonly ConnectionDescription _connectionDescription;
-            private readonly int _maxBatchCount;
-            private readonly int _maxBatchLength;
-
-            // constructors
-            public BatchSerializer(ConnectionDescription connectionDescription,  int maxBatchCount, int maxBatchLength)
-            {
-                _connectionDescription = connectionDescription;
-                _maxBatchCount = maxBatchCount;
-                _maxBatchLength = maxBatchLength;
-            }
-
-            // properties
-            protected ConnectionDescription ConnectionDescription
-            {
-                get { return _connectionDescription; }
-            }
-
-            protected int MaxBatchCount
-            {
-                get { return _maxBatchCount; }
-            }
-
-            protected int MaxBatchLength
-            {
-                get { return _maxBatchLength; }
-            }
-
-            // methods
-            private void AddRequest(BsonSerializationContext context, IByteBuffer overflow)
-            {
-                var writer = context.Writer;
-                _lastRequestPosition = (int)writer.Position;
-                writer.WriteRawBsonDocument(overflow);
-                _batchCount++;
-                _batchLength = (int)writer.Position - _batchStartPosition;
-            }
-
-            private void AddRequest(BsonSerializationContext context, WriteRequest request)
-            {
-                var writer = context.Writer;
-                _lastRequestPosition = (int)writer.Position;
-                SerializeRequest(context, request);
-                _batchCount++;
-                _batchLength = (int)writer.Position - _batchStartPosition;
-            }
-
-            private IByteBuffer RemoveLastRequest(BsonSerializationContext context)
-            {
-                var writer = context.Writer;
-                while (writer is WrappingBsonWriter)
-                {
-                    writer = ((WrappingBsonWriter)writer).Wrapped;
-                }
-
-                var binaryWriter = (BsonBinaryWriter)writer;
-                var stream = binaryWriter.BsonStream;
-                var lastRequestLength = (int)stream.Position - _lastRequestPosition;
-                stream.Position = _lastRequestPosition;
-                var lastRequest = new byte[lastRequestLength];
-                stream.ReadBytes(lastRequest, 0, lastRequestLength);
-                stream.Position = _lastRequestPosition;
-                stream.SetLength(_lastRequestPosition);
-                _batchCount--;
-                _batchLength = (int)stream.Position - _batchStartPosition;
-
-                if ((BsonType)lastRequest[0] != BsonType.Document)
-                {
-                    throw new MongoInternalException("Expected overflow item to be a BsonDocument.");
-                }
-                var sliceOffset = Array.IndexOf<byte>(lastRequest, 0) + 1; // skip over type and array index
-
-                var buffer = new ByteArrayBuffer(lastRequest, isReadOnly: true);
-                return new ByteBufferSlice(buffer, sliceOffset, lastRequest.Length - sliceOffset);
-            }
-
-            public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, BatchableSource<WriteRequest> requestSource)
-            {
-                if (requestSource.Batch == null)
-                {
-                    SerializeNextBatch(context, requestSource);
-                }
-                else
-                {
-                    SerializeSingleBatch(context, requestSource);
-                }
-            }
-
-            private void SerializeNextBatch(BsonSerializationContext context, BatchableSource<WriteRequest> requestSource)
-            {
-                var batch = new List<WriteRequest>();
-
-                _batchStartPosition = (int)context.Writer.Position;
-
-                var overflow = requestSource.StartBatch();
-                if (overflow != null)
-                {
-                    AddRequest(context, (IByteBuffer)overflow.State);
-                    batch.Add(overflow.Item);
-                }
-
-                // always go one document too far so that we can set IsDone as early as possible
-                while (requestSource.MoveNext())
-                {
-                    var request = requestSource.Current;
-                    AddRequest(context, request);
-
-                    if ((_batchCount > _maxBatchCount || _batchLength > _maxBatchLength) && _batchCount > 1)
-                    {
-                        var serializedRequest = RemoveLastRequest(context);
-                        overflow = new BatchableSource<WriteRequest>.Overflow { Item = request, State = serializedRequest };
-                        requestSource.EndBatch(batch, overflow);
-                        return;
-                    }
-
-                    batch.Add(request);
-                }
-
-                requestSource.EndBatch(batch);
-            }
-
-            private void SerializeSingleBatch(BsonSerializationContext context, BatchableSource<WriteRequest> requestSource)
-            {
-                _batchStartPosition = (int)context.Writer.Position;
-
-                // always go one document too far so that we can set IsDone as early as possible
-                foreach (var request in requestSource.Batch)
-                {
-                    AddRequest(context, request);
-
-                    if ((_batchCount > _maxBatchCount || _batchLength > _maxBatchLength) && _batchCount > 1)
-                    {
-                        throw new ArgumentException("The non-batchable requests do not fit in a single write command.");
-                    }
-                }
-            }
-
-            protected abstract void SerializeRequest(BsonSerializationContext context, WriteRequest request);
+            public BatchableSource<TWriteRequest> Requests;
+            public BulkWriteBatchResult Result;
         }
     }
 }

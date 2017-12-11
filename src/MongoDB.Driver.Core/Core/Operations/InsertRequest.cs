@@ -16,6 +16,7 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
@@ -49,6 +50,13 @@ namespace MongoDB.Driver.Core.Operations
         public BsonDocument Document
         {
             get { return _document; }
+        }
+
+        // public methods
+        /// <inheritdoc />
+        public override bool IsRetryable(ConnectionDescription connectionDescription)
+        {
+            return true;
         }
     }
 }

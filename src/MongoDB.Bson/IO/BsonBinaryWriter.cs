@@ -92,7 +92,9 @@ namespace MongoDB.Bson.IO
             get { return _baseStream.Position; }
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Gets the settings of the writer.
+        /// </summary>
         public new BsonBinaryWriterSettings Settings
         {
             get {  return (BsonBinaryWriterSettings)base.Settings; }
