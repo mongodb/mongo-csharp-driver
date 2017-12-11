@@ -6,7 +6,7 @@ The main new feature of 2.5.0 is support for the new features of the 3.6 version
 * Causal consistency
 * Retryable writes
 * Change streams via the collection Watch method to observe changes to a collection
-* ArrayFilters in filters
+* Array filters for update operations
 * Translating DateTime expressions in LINQ to $dateFromParts and $dateFromString operators
 * The new "mongodb+srv://" connection string scheme
 * Improved support for reading and writing UUIDs in BsonBinary subtype 4 format
