@@ -20,6 +20,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 #endif
 using FluentAssertions;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using Xunit;
 
@@ -36,7 +37,7 @@ namespace MongoDB.Driver
             var clusterType = ClusterType.Standalone;
             var endPoint = new DnsEndPoint("localhost", 27017);
             var serverId = new ServerId(clusterId, endPoint);
-            var server = new ServerDescription(serverId, endPoint);
+            var server = new ServerDescription(serverId, endPoint, wireVersionRange: new Range<int>(0, 0));
             var servers = new[] { server };
             _clusterDescription = new ClusterDescription(clusterId, connectionMode, clusterType, servers);
         }
@@ -46,8 +47,7 @@ namespace MongoDB.Driver
         {
             var subject = new MongoIncompatibleDriverException(_clusterDescription);
 
-            subject.Message.StartsWith("This version of the driver is not compatible");
-            subject.Message.EndsWith(":" + _clusterDescription.ToString() + ".");
+            subject.Message.Should().StartWith("Server at localhost:27017 reports wire version 0");
             subject.InnerException.Should().BeNull();
         }
 

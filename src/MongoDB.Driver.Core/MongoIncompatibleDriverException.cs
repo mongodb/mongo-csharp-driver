@@ -49,6 +49,11 @@ namespace MongoDB.Driver
             var incompatibleServer = description.Servers
                 .FirstOrDefault(sd => sd.WireVersionRange != null && !sd.WireVersionRange.Overlaps(Cluster.SupportedWireVersionRange));
 
+            if (incompatibleServer == null)
+            {
+                return $"This version of the driver requires wire version {Cluster.SupportedWireVersionRange}";
+            }
+
             if (incompatibleServer.WireVersionRange.Max < Cluster.SupportedWireVersionRange.Min)
             {
                 return $"Server at {EndPointHelper.ToString(incompatibleServer.EndPoint)} reports wire version {incompatibleServer.WireVersionRange.Max},"
