@@ -18,7 +18,7 @@
         <dependency id="MongoDB.Driver.Core" version="[@driverPackageVersion@, )" />
       </group>
       <group targetFramework=".NETStandard1.5">
-        <dependency id="NETStandard.Library" version="[1.6.0, )" />
+        <dependency id="NETStandard.Library" version="[1.6.1, )" />
         <dependency id="System.ComponentModel.TypeConverter" version="[4.1.0, )" />
         <dependency id="System.Linq.Queryable" version="[4.0.1, )" />
         <dependency id="MongoDB.Bson" version="[@driverPackageVersion@, )" />

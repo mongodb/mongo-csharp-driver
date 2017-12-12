@@ -15,7 +15,7 @@
     <dependencies>
       <group targetFramework=".NETFramework4.5" />
       <group targetFramework=".NETStandard1.5">
-        <dependency id="NETStandard.Library" version="[1.6.0, )" />
+        <dependency id="NETStandard.Library" version="[1.6.1, )" />
         <dependency id="System.Collections.NonGeneric" version="[4.0.1, )" />
         <dependency id="System.Diagnostics.Process" version="[4.1.0, )" />
         <dependency id="System.Dynamic.Runtime" version="[4.0.11, )" />
