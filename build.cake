@@ -274,6 +274,8 @@ Task("PackageReleaseZipFile")
 
         var stagingNet45Directory = stagingDirectory.Combine("net45");
         CopyDirectory(artifactsBinNet45Directory, stagingNet45Directory);
+        DeleteFile(stagingNet45Directory.CombineWithFilePath("DnsClient.dll"));
+        DeleteFile(stagingNet45Directory.CombineWithFilePath("DnsClient.xml"));
 
         var stagingNetStandard15Directory = stagingDirectory.Combine("netstandard1.5");
         CopyDirectory(artifactsBinNetStandard15Directory, stagingNetStandard15Directory);
