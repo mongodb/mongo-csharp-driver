@@ -22,3 +22,5 @@ https://jira.mongodb.org/issues/?jql=project%20%3D%20CSHARP%20AND%20fixVersion%2
 Upgrading
 
 We believe there are only minor breaking changes in classes that normally would not be directly used by applications.
+
+MongoDB server versions below version 2.6 are no longer supported.
