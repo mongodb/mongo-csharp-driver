@@ -14,12 +14,7 @@
 */
 
 using System;
-using System.IO;
-using System.Linq;
 using System.Reflection;
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -31,6 +26,8 @@ namespace MongoDB.Bson.Serialization.Serializers
     {
         // private fields
         private readonly BsonType _representation;
+
+        private readonly TypeCode _underlyingTypeCode;
 
         // constructors
         /// <summary>
@@ -69,6 +66,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
 
             _representation = representation;
+            _underlyingTypeCode = Type.GetTypeCode(Enum.GetUnderlyingType(typeof(TEnum)));
         }
 
         // public properties
@@ -119,8 +117,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             switch (_representation)
             {
                 case 0:
-                    var underlyingTypeCode = Type.GetTypeCode(Enum.GetUnderlyingType(typeof(TEnum)));
-                    if (underlyingTypeCode == TypeCode.Int64 || underlyingTypeCode == TypeCode.UInt64)
+                    if (_underlyingTypeCode == TypeCode.Int64 || _underlyingTypeCode == TypeCode.UInt64)
                     {
                         goto case BsonType.Int64;
                     }
