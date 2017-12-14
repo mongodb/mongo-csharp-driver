@@ -15,6 +15,7 @@
 
 using System;
 using System.Reflection;
+using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -22,11 +23,11 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// Represents a serializer for enums.
     /// </summary>
     /// <typeparam name="TEnum">The type of the enum.</typeparam>
-    public class EnumSerializer<TEnum> : StructSerializerBase<TEnum>, IRepresentationConfigurable<EnumSerializer<TEnum>> where TEnum : struct
+    public class EnumSerializer<TEnum> : StructSerializerBase<TEnum>, IRepresentationConverterConfigurable<EnumSerializer<TEnum>>, IRepresentationConfigurable<EnumSerializer<TEnum>> where TEnum : struct
     {
         // private fields
         private readonly BsonType _representation;
-
+        private readonly RepresentationConverter _converter;
         private readonly TypeCode _underlyingTypeCode;
 
         // constructors
@@ -43,6 +44,16 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="representation">The representation.</param>
         public EnumSerializer(BsonType representation)
+            : this(representation, new RepresentationConverter(false, false))
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EnumSerializer{TEnum}"/> class.
+        /// </summary>
+        /// <param name="representation">The representation.</param>
+        /// <param name="converter">The converter.</param>
+        public EnumSerializer(BsonType representation, RepresentationConverter converter)
         {
             switch (representation)
             {
@@ -66,10 +77,22 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
 
             _representation = representation;
+            _converter = converter;
             _underlyingTypeCode = Type.GetTypeCode(Enum.GetUnderlyingType(typeof(TEnum)));
         }
 
         // public properties
+        /// <summary>
+        /// Gets the converter.
+        /// </summary>
+        /// <value>
+        /// The converter.
+        /// </value>
+        public RepresentationConverter Converter
+        {
+            get { return _converter; }
+        }
+
         /// <summary>
         /// Gets the representation.
         /// </summary>
@@ -127,7 +150,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     }
 
                 case BsonType.Int32:
-                    bsonWriter.WriteInt32(Convert.ToInt32(value));
+                    bsonWriter.WriteInt32(_converter.ToInt32(Convert.ToInt64(value))); // we could be dealing with overflowing UInt32s here so we convert to Int64 first
                     break;
 
                 case BsonType.Int64:
@@ -140,6 +163,23 @@ namespace MongoDB.Bson.Serialization.Serializers
 
                 default:
                     throw new BsonInternalException("Unexpected EnumRepresentation.");
+            }
+        }
+
+        /// <summary>
+        /// Returns a serializer that has been reconfigured with the specified item serializer.
+        /// </summary>
+        /// <param name="converter">The converter.</param>
+        /// <returns>The reconfigured serializer.</returns>
+        public EnumSerializer<TEnum> WithConverter(RepresentationConverter converter)
+        {
+            if (converter == _converter)
+            {
+                return this;
+            }
+            else
+            {
+                return new EnumSerializer<TEnum>(_representation, converter);
             }
         }
 
@@ -161,6 +201,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         // explicit interface implementations
+        IBsonSerializer IRepresentationConverterConfigurable.WithConverter(RepresentationConverter converter)
+        {
+            return WithConverter(converter);
+        }
+
         IBsonSerializer IRepresentationConfigurable.WithRepresentation(BsonType representation)
         {
             return WithRepresentation(representation);
