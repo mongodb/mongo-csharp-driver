@@ -596,7 +596,7 @@ namespace MongoDB.Bson.Serialization
 
             if (ShouldSerializeDiscriminator(args.NominalType))
             {
-                SerializeDiscriminator(context, args.NominalType, document);
+                SerializeDiscriminator(context, args.NominalType, document, remainingMemberMaps);
             }
 
             foreach (var memberMap in remainingMemberMaps)
@@ -637,7 +637,7 @@ namespace MongoDB.Bson.Serialization
             }
         }
 
-        private void SerializeDiscriminator(BsonSerializationContext context, Type nominalType, object obj)
+        private void SerializeDiscriminator(BsonSerializationContext context, Type nominalType, object obj, List<BsonMemberMap> remainingMemberMaps)
         {
             var discriminatorConvention = _classMap.GetDiscriminatorConvention();
             if (discriminatorConvention != null)
@@ -648,6 +648,12 @@ namespace MongoDB.Bson.Serialization
                 {
                     context.Writer.WriteName(discriminatorConvention.ElementName);
                     BsonValueSerializer.Instance.Serialize(context, discriminator);
+
+                    var memberMap = remainingMemberMaps.FirstOrDefault(bsonMemberMap => bsonMemberMap.ElementName == discriminatorConvention.ElementName);
+                    if (memberMap != null)
+                    {
+                        remainingMemberMaps.Remove(memberMap);
+                    }
                 }
             }
         }
