@@ -8,7 +8,32 @@ title = "What's New"
   pre = "<i class='fa fa-star'></i>"
 +++
 
-## What's new in 2.4.0
+## What's New in 2.5.0
+
+The 2.5.0 driver adds support for many of the new features introduced by the 3.6.0 server.
+
+### Change streams
+
+The 2.5.0 driver adds support for [change streams](http://dochub.mongodb.org/core/changestreams).
+See the `Watch` and `WatchAsync` methods in [`IMongoCollection`]({{< apiref "T_MongoDB_Driver_IMongoCollection_1" >}}).
+
+### Retryable writes
+
+The 2.5.0 driver adds support for retryable writes using the `RetryWrites` setting in
+[`MongoClientSettings`]({{< apiref "T_MongoDB_Driver_MongoClientSettings" >}}).
+
+### Causal consistency
+
+The 2.5.0 driver adds support for [causal consistency](http://dochub.mongodb.org/core/causal-consistency) via the new
+[`IClientSession`]({{< apiref "T_MongoDB_Driver_IClientSession" >}}) API. To start a new causally consistent session
+set the `CausalConsistency` property to true in [`ClientSessionOptions`]({{< apiref "T_MongoDB_Driver_ClientSessionOptions" >}})
+when calling the `StartSession` or `StartSessionAsync` methods in [`IMongoClient`]({{< apiref "T_MongoDB_Driver_IMongoClient" >}}).
+
+### Servers older than 2.6.0 are no longer supported
+
+The 2.5.0 driver only supports versions 2.6.0 and newer of the server. Servers older than 2.6.0 are no longer supported.
+
+## What's New in 2.4.0
 
 The 2.4.0 driver is a minor release that adds support for new features introduced in server 3.4 and fixes bugs reported since 2.3.0 was released.
 
@@ -129,3 +154,126 @@ continue to hold a number of open connections that are no longer needed.
 
 If you find yourself needing to shut down a connection pool you can use the new UnregisterAndDisposeCluster
 method of the ClusterRegistry class.
+
+## What's New in 2.3.0
+
+The 2.3.0 driver is a minor release with few new features. The most notable is discussed below.
+
+### Support for .NET Core
+
+You can now use the .NET driver with .NET Core.
+
+The Nuget packages target two versions of the .NET frameworks: net45 and netstandard1.5. The net45 target allows the driver to be used with the full .NET Framework 
+version 4.5 and later, and the netstandard1.5 target allows the driver to be used with any framework that supports netstandard1.5, which includes .NET Core 1.0.
+
+## What's New in 2.2.0
+
+The 2.2 driver ships with a number of new features. The most notable are discussed below.
+
+### Sync API
+
+The 2.0 and 2.1 versions of the .NET driver featured a new async-only API. Version 2.2 introduces sync versions of every async method.
+
+### Support for server 3.2
+
+* Support for bypassing document validation for write operations on collections where document validation has been enabled
+* Support for write concern for FindAndModify methods
+* Support for read concern
+* Builder support for new aggregation stages and new accumulators in $group stage
+* Support for version 3 text indexes
+
+## What's New in 2.1.0
+
+The 2.1 driver ships with a number of new features. The most notable are discussed below.
+
+### GridFS
+
+[CSHARP-1191](https://jira.mongodb.org/browse/CSHARP-1191) - GridFS support has been implemented.
+
+### LINQ
+
+[CSHARP-935](https://jira.mongodb.org/browse/CSHARP-935) LINQ support has been rewritten and now targets the aggregation framework. It is a more natural translation and enables many features of LINQ that were previously not able to be translated.
+
+Simply use the new [`AsQueryable`]({{< apiref "M_MongoDB_Driver_IMongoCollectionExtensions_AsQueryable__1" >}}) method to work with LINQ.
+
+## What's New in 2.0.0
+
+The 2.0.0 driver ships with a host of new features. The most notable are discussed below.
+
+### Async
+
+As has been requested for a while now, the driver now offers a full async stack. Since it uses Tasks, it is fully usable
+with async and await. 
+
+While we offer a mostly backwards-compatible sync API, it is calling into the async stack underneath. Until you are ready
+to move to async, you should measure against the 1.x versions to ensure performance regressions don't enter your codebase.
+
+All new applications should utilize the New API.
+
+### New API
+
+Because of our async nature, we have rebuilt our entire API. The new API is accessible via MongoClient.GetDatabase. 
+
+- Interfaces are used ([`IMongoClient`]({{< apiref "T_MongoDB_Driver_IMongoClient" >}}), [`IMongoDatabase`]({{< apiref "T_MongoDB_Driver_IMongoDatabase" >}}), [`IMongoCollection<TDocument>`]({{< apiref "T_MongoDB_Driver_IMongoCollection_1" >}})) to support easier testing.
+- A fluent Find API is available with full support for expression trees including projections.
+
+	``` csharp
+	var names = await db.GetCollection<Person>("people")
+		.Find(x => x.FirstName == "Jack")
+		.SortBy(x => x.Age)
+		.Project(x => x.FirstName + " " + x.LastName)
+		.ToListAsync();
+	```
+
+- A fluent Aggregation API is available with mostly-full support for expression trees.
+
+	``` csharp
+	var totalAgeByLastName = await db.GetCollection<Person>("people")
+		.Aggregate()
+		.Match(x => x.FirstName == "Jack")
+		.GroupBy(x => x.LastName, g => new { _id = g.Key, TotalAge = g.Sum(x => x.Age)})
+		.ToListAsync();
+	```
+
+- Support for dynamic.
+
+	``` csharp
+	var person = new ExpandoObject();
+	person.FirstName = "Jane";
+	person.Age = 12;
+	person.PetNames = new List<dynamic> { "Sherlock", "Watson" }
+	await db.GetCollection<dynamic>("people").InsertOneAsync(person);
+	```
+
+### Experimental Features
+
+We've also include some experimental features which are subject to change. These are both based on the Listener API.
+
+#### Logging
+
+It is possible to see what is going on deep down in the driver by listening to core events. We've included a simple text logger as an example:
+	
+``` csharp
+var settings = new MongoClientSettings
+{
+	ClusterConfigurator = cb =>
+	{
+		var textWriter = TextWriter.Synchronized(new StreamWriter("mylogfile.txt"));
+		cb.AddListener(new LogListener(textWriter));
+	}
+};
+```
+
+#### Performance Counters
+
+Windows Performance Counters can be enabled to track statistics like average message size, number of connections in the pool, etc...
+
+``` csharp
+var settings = new MongoClientSettings
+{
+	ClusterConfigurator = cb =>
+	{
+		cb.UsePeformanceCounters("MyApplicationName");
+	}
+};
+```
