@@ -18,6 +18,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -129,7 +130,9 @@ namespace MongoDB.Driver.Core.Operations
         // privates static methods
         private static bool AreRetryableWritesSupported(ConnectionDescription connectionDescription)
         {
-            return connectionDescription.IsMasterResult.LogicalSessionTimeout != null;
+            return
+                connectionDescription.IsMasterResult.LogicalSessionTimeout != null &&
+                connectionDescription.IsMasterResult.ServerType != ServerType.Standalone;
         }
 
         private static bool IsRetryableException(Exception ex)

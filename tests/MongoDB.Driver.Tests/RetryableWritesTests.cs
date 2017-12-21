@@ -13,19 +13,36 @@
 * limitations under the License.
 */
 
+using System;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
+using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
     public class RetryableWritesTests
     {
+        [SkippableFact]
+        public void Insert_with_RetryWrites_true_should_work_whether_retryable_writes_are_supported_or_not()
+        {
+            RequireServer.Check();
+
+            using (var client = GetClient())
+            {
+                var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+                var collection = database.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+                var document = new BsonDocument("x", 1);
+                collection.InsertOne(document);
+            }
+        }
+
         [SkippableFact]
         public void TxnNumber_should_be_included_with_FindOneAndDelete()
         {
@@ -159,21 +176,31 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        private DisposableMongoClient GetClient(EventCapturer capturer)
+        private DisposableMongoClient GetClient()
+        {
+            return GetClient(cb => { });
+        }
+
+        private DisposableMongoClient GetClient(Action<ClusterBuilder> clusterConfigurator)
         {
             var connectionString = CoreTestConfiguration.ConnectionString.ToString();
             var clientSettings = MongoClientSettings.FromUrl(new MongoUrl(connectionString));
             clientSettings.RetryWrites = true;
-            clientSettings.ClusterConfigurator = cb => cb.Subscribe(capturer);
+            clientSettings.ClusterConfigurator = cb => cb.Subscribe(clusterConfigurator);
 
             return new DisposableMongoClient(new MongoClient(clientSettings));
+        }
+
+        private DisposableMongoClient GetClient(EventCapturer capturer)
+        {
+            return GetClient(cb => cb.Subscribe(capturer));
         }
 
         private void RequireSupportForRetryableWrites()
         {
             RequireServer.Check()
-                   .VersionGreaterThanOrEqualTo("3.6.0-rc0")
-                   .ClusterTypes(ClusterType.Sharded, ClusterType.ReplicaSet);
+                .VersionGreaterThanOrEqualTo("3.6.0-rc0")
+                .ClusterTypes(ClusterType.Sharded, ClusterType.ReplicaSet);
         }
     }
 }
