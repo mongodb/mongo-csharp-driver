@@ -186,7 +186,7 @@ namespace MongoDB.Driver.Tests
             var connectionString = CoreTestConfiguration.ConnectionString.ToString();
             var clientSettings = MongoClientSettings.FromUrl(new MongoUrl(connectionString));
             clientSettings.RetryWrites = true;
-            clientSettings.ClusterConfigurator = cb => cb.Subscribe(clusterConfigurator);
+            clientSettings.ClusterConfigurator = clusterConfigurator;
 
             return new DisposableMongoClient(new MongoClient(clientSettings));
         }
