@@ -15,33 +15,26 @@
 
 using System;
 using System.Collections.Generic;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
-    /// <summary>
-    /// A server session pool.
-    /// </summary>
-    /// <seealso cref="MongoDB.Driver.IServerSessionPool" />
-    internal class ServerSessionPool : IServerSessionPool
+    internal class CoreServerSessionPool : ICoreServerSessionPool
     {
         // private fields
-        private readonly IMongoClient _client;
+        private readonly ICluster _cluster;
         private readonly object _lock = new object();
-        private readonly List<IServerSession> _pool = new List<IServerSession>();
+        private readonly List<ICoreServerSession> _pool = new List<ICoreServerSession>();
 
         // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ServerSessionPool" /> class.
-        /// </summary>
-        /// <param name="client">The client.</param>
-        public ServerSessionPool(IMongoClient client)
+        public CoreServerSessionPool(ICluster cluster)
         {
-            _client = Ensure.IsNotNull(client, nameof(client));
+            _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
         }
 
         /// <inheritdoc />
-        public IServerSession AcquireSession()
+        public ICoreServerSession AcquireSession()
         {
             lock (_lock)
             {
@@ -56,18 +49,18 @@ namespace MongoDB.Driver
                     {
                         var removeCount = _pool.Count - i; // the one we're about to return and any about to expire ones we skipped over
                         _pool.RemoveRange(i, removeCount);
-                        return new ReleaseOnDisposeServerSession(pooledSession, this);
+                        return new ReleaseOnDisposeCoreServerSession(pooledSession, this);
                     }
                 }
 
                 _pool.Clear(); // they're all about to expire
             }
 
-            return new ReleaseOnDisposeServerSession(new ServerSession(), this);
+            return new ReleaseOnDisposeCoreServerSession(new CoreServerSession(), this);
         }
 
         /// <inheritdoc />
-        public void ReleaseSession(IServerSession session)
+        public void ReleaseSession(ICoreServerSession session)
         {
             lock (_lock)
             {
@@ -99,9 +92,9 @@ namespace MongoDB.Driver
         }
 
         // private methods
-        private bool IsAboutToExpire(IServerSession session)
+        private bool IsAboutToExpire(ICoreServerSession session)
         {
-            var logicalSessionTimeout = _client.Cluster.Description.LogicalSessionTimeout;
+            var logicalSessionTimeout = _cluster.Description.LogicalSessionTimeout;
             if (!session.LastUsedAt.HasValue || !logicalSessionTimeout.HasValue)
             {
                 return true;
@@ -115,13 +108,13 @@ namespace MongoDB.Driver
         }
 
         // nested types
-        internal sealed class ReleaseOnDisposeServerSession : WrappingServerSession
+        internal sealed class ReleaseOnDisposeCoreServerSession : WrappingCoreServerSession
         {
             // private fields
-            private readonly IServerSessionPool _pool;
+            private readonly ICoreServerSessionPool _pool;
 
             // constructors
-            public ReleaseOnDisposeServerSession(IServerSession wrapped, IServerSessionPool pool)
+            public ReleaseOnDisposeCoreServerSession(ICoreServerSession wrapped, ICoreServerSessionPool pool)
                 : base(wrapped, ownsWrapped: false)
             {
                 _pool = Ensure.IsNotNull(pool, nameof(pool));

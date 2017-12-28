@@ -30,6 +30,7 @@ using MongoDB.Driver.Core.Helpers;
 using Moq;
 using Xunit;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
+using System.Reflection;
 
 namespace MongoDB.Driver.Core.Clusters
 {
@@ -100,6 +101,22 @@ namespace MongoDB.Driver.Core.Clusters
             description.Servers.Should().BeEmpty();
             description.State.Should().Be(ClusterState.Disconnected);
             description.Type.Should().Be(ClusterType.Unknown);
+        }
+
+        [Fact]
+        public void AcquireServerSession_should_call_serverSessionPool_AcquireSession()
+        {
+            var subject = CreateSubject();
+            var mockServerSessionPool = new Mock<ICoreServerSessionPool>();
+            var serverSessionPoolInfo = typeof(Cluster).GetField("_serverSessionPool", BindingFlags.NonPublic | BindingFlags.Instance);
+            serverSessionPoolInfo.SetValue(subject, mockServerSessionPool.Object);
+            var expectedResult = new Mock<ICoreServerSession>().Object;
+            mockServerSessionPool.Setup(m => m.AcquireSession()).Returns(expectedResult);
+
+            var result = subject.AcquireServerSession();
+
+            result.Should().BeSameAs(expectedResult);
+            mockServerSessionPool.Verify(m => m.AcquireSession(), Times.Once);
         }
 
         [Theory]

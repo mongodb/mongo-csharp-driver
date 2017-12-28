@@ -91,10 +91,15 @@
     <Compile Include="Core\Bindings\ChannelReadBinding.cs" />
     <Compile Include="Core\Bindings\ChannelReadWriteBinding.cs" />
     <Compile Include="Core\Bindings\ChannelSourceReadWriteBinding.cs" />
+    <Compile Include="Core\Bindings\CoreServerSession.cs" />
+    <Compile Include="Core\Bindings\CoreServerSessionPool.cs" />
     <Compile Include="Core\Bindings\CoreSessionHandle.cs" />
+    <Compile Include="Core\Bindings\ICoreServerSessionPool.cs" />
+    <Compile Include="Core\Bindings\ICoreServerSesssion.cs" />
     <Compile Include="Core\Bindings\ICoreSession.cs" />
     <Compile Include="Core\Bindings\NoCoreSession.cs" />
     <Compile Include="Core\Bindings\ReferenceCountedCoreSession.cs" />
+    <Compile Include="Core\Bindings\WrappingCoreServerSession.cs" />
     <Compile Include="Core\Bindings\WrappingCoreSession.cs" />
     <Compile Include="Core\Connections\ClientDocumentHelper.cs" />
     <Compile Include="Core\Misc\ArrayFiltersFeature.cs" />

@@ -18,19 +18,19 @@ namespace MongoDB.Driver
     /// <summary>
     /// A server session pool.
     /// </summary>
-    internal interface IServerSessionPool
+    internal interface ICoreServerSessionPool
     {
         // methods
         /// <summary>
         /// Acquires a server session.
         /// </summary>
         /// <returns>A server session.</returns>
-        IServerSession AcquireSession();
+        ICoreServerSession AcquireSession();
 
         /// <summary>
         /// Releases a server session.
         /// </summary>
         /// <param name="serverSession">The server session.</param>
-        void ReleaseSession(IServerSession serverSession);
+        void ReleaseSession(ICoreServerSession serverSession);
     }
 }

@@ -21,16 +21,16 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    public class WrappingServerSessionTests
+    public class WrappingCoreServerSessionTests
     {
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public void constructor_should_initialize_instance(bool ownsWrapped)
         {
-            var wrapped = new Mock<IServerSession>().Object;
+            var wrapped = new Mock<ICoreServerSession>().Object;
 
-            var result = new MockWrappingServerSession(wrapped, ownsWrapped);
+            var result = new MockWrappingCoreServerSession(wrapped, ownsWrapped);
 
             result.Wrapped.Should().BeSameAs(wrapped);
             result._disposed().Should().BeFalse();
@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void constructor_should_throw_when_wrapped_is_null()
         {
-            var exception = Record.Exception(() => new MockWrappingServerSession(null, true));
+            var exception = Record.Exception(() => new MockWrappingCoreServerSession(null, true));
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("wrapped");
@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void Id_should_call_wrapped()
         {
-            Mock<IServerSession> mockWrapped;
+            Mock<ICoreServerSession> mockWrapped;
             var subject = CreateSubject(out mockWrapped);
 
             var result = subject.Id;
@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void LastUsedAt_should_call_wrapped()
         {
-            Mock<IServerSession> mockWrapped;
+            Mock<ICoreServerSession> mockWrapped;
             var subject = CreateSubject(out mockWrapped);
 
             var result = subject.LastUsedAt;
@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void Wrapped_should_return_expected_result()
         {
-            Mock<IServerSession> mockWrapped;
+            Mock<ICoreServerSession> mockWrapped;
             var subject = CreateSubject(out mockWrapped);
 
             var result = subject.Wrapped;
@@ -122,13 +122,13 @@ namespace MongoDB.Driver.Tests
 
             subject.Dispose();
 
-            ((MockWrappingServerSession)subject).DisposeTrueWasCalled.Should().BeTrue();
+            ((MockWrappingCoreServerSession)subject).DisposeTrueWasCalled.Should().BeTrue();
         }
 
         [Fact]
         public void Dispose_can_be_called_more_than_once()
         {
-            Mock<IServerSession> mockWrapped;
+            Mock<ICoreServerSession> mockWrapped;
             var subject = CreateSubject(out mockWrapped);
 
             subject.Dispose();
@@ -140,7 +140,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void WasUsed_should_call_wrapped()
         {
-            Mock<IServerSession> mockWrapped;
+            Mock<ICoreServerSession> mockWrapped;
             var subject = CreateSubject(out mockWrapped);
 
             subject.WasUsed();
@@ -179,8 +179,8 @@ namespace MongoDB.Driver.Tests
         [InlineData(true, true, true)]
         public void Dispose_with_disposing_should_dispose_wrapped_when_appropriate(bool ownsWrapped, bool disposing, bool shouldDispose)
         {
-            var mockWrapped = new Mock<IServerSession>();
-            var subject = new MockWrappingServerSession(mockWrapped.Object, ownsWrapped);
+            var mockWrapped = new Mock<ICoreServerSession>();
+            var subject = new MockWrappingCoreServerSession(mockWrapped.Object, ownsWrapped);
 
             subject.Dispose(disposing);
 
@@ -208,29 +208,29 @@ namespace MongoDB.Driver.Tests
         }
 
         // private methods
-        private WrappingServerSession CreateDisposedSubject()
+        private WrappingCoreServerSession CreateDisposedSubject()
         {
             var subject = CreateSubject();
             subject.Dispose();
             return subject;
         }
 
-        private WrappingServerSession CreateSubject()
+        private WrappingCoreServerSession CreateSubject()
         {
-            var wrapped = new Mock<IServerSession>().Object;
-            return new MockWrappingServerSession(wrapped, true);
+            var wrapped = new Mock<ICoreServerSession>().Object;
+            return new MockWrappingCoreServerSession(wrapped, true);
         }
 
-        private WrappingServerSession CreateSubject(out Mock<IServerSession> mockWrapped)
+        private WrappingCoreServerSession CreateSubject(out Mock<ICoreServerSession> mockWrapped)
         {
-            mockWrapped = new Mock<IServerSession>();
-            return new MockWrappingServerSession(mockWrapped.Object, true);
+            mockWrapped = new Mock<ICoreServerSession>();
+            return new MockWrappingCoreServerSession(mockWrapped.Object, true);
         }
 
         // nested types
-        private class MockWrappingServerSession : WrappingServerSession
+        private class MockWrappingCoreServerSession : WrappingCoreServerSession
         {
-            public MockWrappingServerSession(IServerSession wrapped, bool ownsWrapped)
+            public MockWrappingCoreServerSession(ICoreServerSession wrapped, bool ownsWrapped)
                 : base(wrapped, ownsWrapped)
             {
             }
@@ -248,31 +248,31 @@ namespace MongoDB.Driver.Tests
         }
     }
 
-    internal static class WrappingServerSessionReflector
+    internal static class WrappingCoreServerSessionReflector
     {
-        public static bool _disposed(this WrappingServerSession obj)
+        public static bool _disposed(this WrappingCoreServerSession obj)
         {
-            var fieldInfo = typeof(WrappingServerSession).GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
+            var fieldInfo = typeof(WrappingCoreServerSession).GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
             return (bool)fieldInfo.GetValue(obj);
         }
 
-        public static bool _ownsWrapped(this WrappingServerSession obj)
+        public static bool _ownsWrapped(this WrappingCoreServerSession obj)
         {
-            var fieldInfo = typeof(WrappingServerSession).GetField("_ownsWrapped", BindingFlags.NonPublic | BindingFlags.Instance);
+            var fieldInfo = typeof(WrappingCoreServerSession).GetField("_ownsWrapped", BindingFlags.NonPublic | BindingFlags.Instance);
             return (bool)fieldInfo.GetValue(obj);
         }
 
-        public static void Dispose(this WrappingServerSession obj, bool disposing)
+        public static void Dispose(this WrappingCoreServerSession obj, bool disposing)
         {
-            var methodInfo = typeof(WrappingServerSession).GetMethod("Dispose", BindingFlags.NonPublic | BindingFlags.Instance);
+            var methodInfo = typeof(WrappingCoreServerSession).GetMethod("Dispose", BindingFlags.NonPublic | BindingFlags.Instance);
             methodInfo.Invoke(obj, new object[] { disposing });
         }
 
-        public static void ThrowIfDisposed(this WrappingServerSession obj)
+        public static void ThrowIfDisposed(this WrappingCoreServerSession obj)
         {
             try
             {
-                var methodInfo = typeof(WrappingServerSession).GetMethod("ThrowIfDisposed", BindingFlags.NonPublic | BindingFlags.Instance);
+                var methodInfo = typeof(WrappingCoreServerSession).GetMethod("ThrowIfDisposed", BindingFlags.NonPublic | BindingFlags.Instance);
                 methodInfo.Invoke(obj, new object[] { });
             }
             catch (TargetInvocationException ex)

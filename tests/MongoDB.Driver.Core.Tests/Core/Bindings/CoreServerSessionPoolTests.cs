@@ -27,26 +27,26 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    public class ServerSessionPoolTests
+    public class CoreServerSessionPoolTests
     {
         [Fact]
         public void constructor_should_intialize_instance()
         {
-            var client = new Mock<IMongoClient>().Object;
+            var cluster = new Mock<ICluster>().Object;
 
-            var result = new ServerSessionPool(client);
+            var result = new CoreServerSessionPool(cluster);
 
-            result._client().Should().BeSameAs(client);
+            result._cluster().Should().BeSameAs(cluster);
             result._pool().Count.Should().Be(0);
         }
 
         [Fact]
-        public void constructor_should_throw_when_client_is_null()
+        public void constructor_should_throw_when_cluster_is_null()
         {
-            var exception = Record.Exception(() => new ServerSessionPool(null));
+            var exception = Record.Exception(() => new CoreServerSessionPool(null));
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            e.ParamName.Should().Be("client");
+            e.ParamName.Should().Be("cluster");
         }
 
         [Theory]
@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Tests
         public void AcquireSession_should_return_expected_result(int[] pooledSessionWasRecentlyUsed, int acquiredIndex)
         {
             var subject = CreateSubject();
-            var mockPooledSessions = new List<Mock<IServerSession>>();
+            var mockPooledSessions = new List<Mock<ICoreServerSession>>();
             foreach (var r in pooledSessionWasRecentlyUsed)
             {
                 mockPooledSessions.Add(CreateMockSession(r == 1));
@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.AcquireSession();
 
-            var wrapper = result.Should().BeOfType<ServerSessionPool.ReleaseOnDisposeServerSession>().Subject;
+            var wrapper = result.Should().BeOfType<CoreServerSessionPool.ReleaseOnDisposeCoreServerSession>().Subject;
             wrapper._disposed().Should().BeFalse();
             wrapper._pool().Should().BeSameAs(subject);
 
@@ -165,7 +165,7 @@ namespace MongoDB.Driver.Tests
         public void ReleaseSession_should_have_expected_result(int[] pooledSessionWasRecentlyUsed, int removeCount, int releasedSessionWasRecentlyUsed)
         {
             var subject = CreateSubject();
-            var mockPooledSessions = new List<Mock<IServerSession>>();
+            var mockPooledSessions = new List<Mock<ICoreServerSession>>();
             foreach (var r in pooledSessionWasRecentlyUsed)
             {
                 mockPooledSessions.Add(CreateMockSession(r == 1));
@@ -206,7 +206,7 @@ namespace MongoDB.Driver.Tests
         public void IsAboutToExpire_should_return_expected_result(int? lastUsedSecondsAgo, bool expectedResult)
         {
             var subject = CreateSubject();
-            var mockSession = new Mock<IServerSession>();
+            var mockSession = new Mock<ICoreServerSession>();
             var lastUsedAt = lastUsedSecondsAgo == null ? (DateTime?)null : DateTime.UtcNow.AddSeconds(-lastUsedSecondsAgo.Value);
             mockSession.SetupGet(m => m.LastUsedAt).Returns(lastUsedAt);
 
@@ -216,26 +216,26 @@ namespace MongoDB.Driver.Tests
         }
 
         // private methods
-        private Mock<IServerSession> CreateMockExpiredSession()
+        private Mock<ICoreServerSession> CreateMockExpiredSession()
         {
-            var mockSession = new Mock<IServerSession>();
+            var mockSession = new Mock<ICoreServerSession>();
             mockSession.SetupGet(m => m.LastUsedAt).Returns(DateTime.UtcNow.AddHours(-1));
             return mockSession;
         }
 
-        private Mock<IServerSession> CreateMockRecentlyUsedSession()
+        private Mock<ICoreServerSession> CreateMockRecentlyUsedSession()
         {
-            var mockSession = new Mock<IServerSession>();
+            var mockSession = new Mock<ICoreServerSession>();
             mockSession.SetupGet(m => m.LastUsedAt).Returns(DateTime.UtcNow);
             return mockSession;
         }
 
-        private Mock<IServerSession> CreateMockSession(bool recentlyUsed)
+        private Mock<ICoreServerSession> CreateMockSession(bool recentlyUsed)
         {
             return recentlyUsed ? CreateMockRecentlyUsedSession() : CreateMockExpiredSession();
         }
 
-        private ServerSessionPool CreateSubject()
+        private CoreServerSessionPool CreateSubject()
         {
             var clusterId = new ClusterId();
             var endPoint = new DnsEndPoint("localhost", 27017);
@@ -256,43 +256,40 @@ namespace MongoDB.Driver.Tests
             var mockCluster = new Mock<ICluster>();
             mockCluster.SetupGet(m => m.Description).Returns(clusterDescription);
 
-            var mockClient = new Mock<IMongoClient>();
-            mockClient.SetupGet(m => m.Cluster).Returns(mockCluster.Object);
-
-            return new ServerSessionPool(mockClient.Object);
+            return new CoreServerSessionPool(mockCluster.Object);
         }
     }
 
-    internal static class ServerSessionPoolReflector
+    internal static class CoreServerSessionPoolReflector
     {
-        public static IMongoClient _client(this ServerSessionPool obj)
+        public static ICluster _cluster(this CoreServerSessionPool obj)
         {
-            var fieldInfo = typeof(ServerSessionPool).GetField("_client", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (IMongoClient)fieldInfo.GetValue(obj);
+            var fieldInfo = typeof(CoreServerSessionPool).GetField("_cluster", BindingFlags.NonPublic | BindingFlags.Instance);
+            return (ICluster)fieldInfo.GetValue(obj);
         }
 
-        public static List<IServerSession> _pool(this ServerSessionPool obj)
+        public static List<ICoreServerSession> _pool(this CoreServerSessionPool obj)
         {
-            var fieldInfo = typeof(ServerSessionPool).GetField("_pool", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (List<IServerSession>)fieldInfo.GetValue(obj);
+            var fieldInfo = typeof(CoreServerSessionPool).GetField("_pool", BindingFlags.NonPublic | BindingFlags.Instance);
+            return (List<ICoreServerSession>)fieldInfo.GetValue(obj);
         }
 
-        public static bool IsAboutToExpire(this ServerSessionPool obj, IServerSession session)
+        public static bool IsAboutToExpire(this CoreServerSessionPool obj, ICoreServerSession session)
         {
-            var methodInfo = typeof(ServerSessionPool).GetMethod("IsAboutToExpire", BindingFlags.NonPublic | BindingFlags.Instance);
+            var methodInfo = typeof(CoreServerSessionPool).GetMethod("IsAboutToExpire", BindingFlags.NonPublic | BindingFlags.Instance);
             return (bool)methodInfo.Invoke(obj, new object[] { session });
         }
     }
 
-    public class ReleaseOnDisposeServerSessionTests
+    public class ReleaseOnDisposeCoreServerSessionTests
     {
         [Fact]
         public void constructor_should_initialize_instance()
         {
-            var pool = new Mock<IServerSessionPool>().Object;
-            var wrapped = new Mock<IServerSession>().Object;
+            var pool = new Mock<ICoreServerSessionPool>().Object;
+            var wrapped = new Mock<ICoreServerSession>().Object;
 
-            var result = new ServerSessionPool.ReleaseOnDisposeServerSession(wrapped, pool);
+            var result = new CoreServerSessionPool.ReleaseOnDisposeCoreServerSession(wrapped, pool);
 
             result.Wrapped.Should().BeSameAs(wrapped);
             result._pool().Should().BeSameAs(pool);
@@ -303,9 +300,9 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void constructor_should_throw_when_wrapped_is_null()
         {
-            var pool = new Mock<IServerSessionPool>().Object;
+            var pool = new Mock<ICoreServerSessionPool>().Object;
 
-            var exception = Record.Exception(() => new ServerSessionPool.ReleaseOnDisposeServerSession(null, pool));
+            var exception = Record.Exception(() => new CoreServerSessionPool.ReleaseOnDisposeCoreServerSession(null, pool));
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("wrapped");
@@ -314,9 +311,9 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void constructor_should_throw_when_pool_is_null()
         {
-            var wrapped = new Mock<IServerSession>().Object;
+            var wrapped = new Mock<ICoreServerSession>().Object;
 
-            var exception = Record.Exception(() => new ServerSessionPool.ReleaseOnDisposeServerSession(wrapped, null));
+            var exception = Record.Exception(() => new CoreServerSessionPool.ReleaseOnDisposeCoreServerSession(wrapped, null));
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("pool");
@@ -325,9 +322,9 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void Dispose_should_set_disposed_flag()
         {
-            var pool = new Mock<IServerSessionPool>().Object;
-            var mockWrapped = new Mock<IServerSession>();
-            var subject = new ServerSessionPool.ReleaseOnDisposeServerSession(mockWrapped.Object, pool);
+            var pool = new Mock<ICoreServerSessionPool>().Object;
+            var mockWrapped = new Mock<ICoreServerSession>();
+            var subject = new CoreServerSessionPool.ReleaseOnDisposeCoreServerSession(mockWrapped.Object, pool);
 
             subject.Dispose();
 
@@ -337,9 +334,9 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void Dispose_should_call_ReleaseSession()
         {
-            var mockPool = new Mock<IServerSessionPool>();
-            var mockWrapped = new Mock<IServerSession>();
-            var subject = new ServerSessionPool.ReleaseOnDisposeServerSession(mockWrapped.Object, mockPool.Object);
+            var mockPool = new Mock<ICoreServerSessionPool>();
+            var mockWrapped = new Mock<ICoreServerSession>();
+            var subject = new CoreServerSessionPool.ReleaseOnDisposeCoreServerSession(mockWrapped.Object, mockPool.Object);
 
             subject.Dispose();
 
@@ -350,9 +347,9 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void Dispose_can_be_called_more_than_once()
         {
-            var mockPool = new Mock<IServerSessionPool>();
-            var mockWrapped = new Mock<IServerSession>();
-            var subject = new ServerSessionPool.ReleaseOnDisposeServerSession(mockWrapped.Object, mockPool.Object);
+            var mockPool = new Mock<ICoreServerSessionPool>();
+            var mockWrapped = new Mock<ICoreServerSession>();
+            var subject = new CoreServerSessionPool.ReleaseOnDisposeCoreServerSession(mockWrapped.Object, mockPool.Object);
 
             subject.Dispose();
             subject.Dispose();
@@ -362,12 +359,12 @@ namespace MongoDB.Driver.Tests
         }
     }
 
-    internal static class ReleaseOnDisposeServerSessionReflector
+    internal static class ReleaseOnDisposeCoreServerSessionReflector
     {
-        public static IServerSessionPool _pool(this ServerSessionPool.ReleaseOnDisposeServerSession obj)
+        public static ICoreServerSessionPool _pool(this CoreServerSessionPool.ReleaseOnDisposeCoreServerSession obj)
         {
-            var fieldInfo = typeof(ServerSessionPool.ReleaseOnDisposeServerSession).GetField("_pool", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (IServerSessionPool)fieldInfo.GetValue(obj);
+            var fieldInfo = typeof(CoreServerSessionPool.ReleaseOnDisposeCoreServerSession).GetField("_pool", BindingFlags.NonPublic | BindingFlags.Instance);
+            return (ICoreServerSessionPool)fieldInfo.GetValue(obj);
         }
     }
 }

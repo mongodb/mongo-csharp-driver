@@ -178,7 +178,8 @@ namespace MongoDB.Driver.Tests
         public IClientSessionHandle StartImplicitSession(CancellationToken cancellationToken)
         {
             var options = new ClientSessionOptions();
-            var serverSession = new ServerSession();
+            var coreServerSession = new CoreServerSession();
+            var serverSession = new ServerSession(coreServerSession);
             var session = new ClientSession(_client, options, serverSession, isImplicit: true);
             var handle = new ClientSessionHandle(session);
             return handle;

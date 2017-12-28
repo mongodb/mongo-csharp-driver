@@ -114,7 +114,6 @@
     <Compile Include="IndexKeysDefinition.cs" />
     <Compile Include="IndexOptionDefaults.cs" />
     <Compile Include="InsertOneOptions.cs" />
-    <Compile Include="IServerSessionPool.cs" />
     <Compile Include="Linq\AggregateQueryableExecutionModel.cs" />
     <Compile Include="Linq\ExecutionPlanBuilder.cs" />
     <Compile Include="Linq\ExpressionHelper.cs" />
@@ -306,7 +305,6 @@
     <Compile Include="IServerSession.cs" />
     <Compile Include="ReferenceCountedClientSession.cs" />
     <Compile Include="ServerSession.cs" />
-    <Compile Include="ServerSessionPool.cs" />
     <Compile Include="SortDefinitionBuilder.cs" />
     <Compile Include="FilterDefinitionBuilder.cs" />
     <Compile Include="IAggregateFluentExtensions.cs" />
@@ -370,7 +368,6 @@
     <Compile Include="ReplaceOneResult.cs" />
     <Compile Include="UpdateResult.cs" />
     <Compile Include="WrappingClientSession.cs" />
-    <Compile Include="WrappingServerSession.cs" />
     <Compile Include="WriteConcernError.cs" />
     <Compile Include="BulkWriteResult.cs" />
     <Compile Include="BulkWriteUpsert.cs" />

@@ -2789,7 +2789,8 @@ namespace MongoDB.Driver
             {
                 var client = new Mock<IMongoClient>().Object;
                 var options = new ClientSessionOptions();
-                var serverSession = new ServerSession();
+                var coreServerSession = new CoreServerSession();
+                var serverSession = new ServerSession(coreServerSession);
                 var clientSession = new ClientSession(client, options, serverSession, isImplicit: false);
                 return new ClientSessionHandle(clientSession);
             }

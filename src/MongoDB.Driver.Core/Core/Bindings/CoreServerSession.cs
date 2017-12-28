@@ -15,49 +15,60 @@
 
 using System;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
     /// <summary>
     /// A server session.
     /// </summary>
-    /// <seealso cref="MongoDB.Driver.IServerSession" />
-    internal sealed class ServerSession : IServerSession
+    /// <seealso cref="MongoDB.Driver.ICoreServerSession" />
+    internal sealed class CoreServerSession : ICoreServerSession
     {
+        #region static
+        // private static methods
+        private static BsonDocument GenerateSessionId()
+        {
+            var guid = Guid.NewGuid();
+            var id = new BsonBinaryData(guid, GuidRepresentation.Standard);
+            return new BsonDocument("id", id);
+        }
+        #endregion
+
         // private fields
-        private readonly ICoreServerSession _coreServerSession;
+        private readonly BsonDocument _id;
+        private DateTime? _lastUsedAt;
+        private long _transactionNumber;
 
         // constructors
-        public ServerSession(ICoreServerSession coreServerSession)
+        public CoreServerSession()
         {
-            _coreServerSession = Ensure.IsNotNull(coreServerSession, nameof(coreServerSession));
+            _id = GenerateSessionId();
+            _transactionNumber = 0;
         }
 
         // public properties
         /// <inheritdoc />
-        public BsonDocument Id => _coreServerSession.Id;
+        public BsonDocument Id => _id;
 
         /// <inheritdoc />
-        public DateTime? LastUsedAt => _coreServerSession.LastUsedAt;
+        public DateTime? LastUsedAt => _lastUsedAt;
 
         // public methods
         /// <inheritdoc />
         public long AdvanceTransactionNumber()
         {
-            return _coreServerSession.AdvanceTransactionNumber();
+            return ++_transactionNumber;
         }
 
         /// <inheritdoc />
         public void Dispose()
         {
-            _coreServerSession.Dispose();
         }
 
         /// <inheritdoc />
         public void WasUsed()
         {
-            _coreServerSession.WasUsed();
+            _lastUsedAt = DateTime.UtcNow;
         }
     }
 }

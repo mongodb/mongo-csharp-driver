@@ -70,6 +70,7 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly object _serverSelectionWaitQueueLock = new object();
         private int _serverSelectionWaitQueueSize;
         private readonly IClusterableServerFactory _serverFactory;
+        private readonly ICoreServerSessionPool _serverSessionPool;
         private readonly ClusterSettings _settings;
         private readonly InterlockedInt32 _state;
 
@@ -96,6 +97,8 @@ namespace MongoDB.Driver.Core.Clusters
             eventSubscriber.TryGetEventHandler(out _selectingServerEventHandler);
             eventSubscriber.TryGetEventHandler(out _selectedServerEventHandler);
             eventSubscriber.TryGetEventHandler(out _selectingServerFailedEventHandler);
+
+            _serverSessionPool = new CoreServerSessionPool(this);
         }
 
         // events
@@ -124,6 +127,11 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         // methods
+        public ICoreServerSession AcquireServerSession()
+        {
+            return _serverSessionPool.AcquireSession();
+        }
+
         protected IClusterableServer CreateServer(EndPoint endPoint)
         {
             return _serverFactory.CreateServer(_clusterId, _clusterClock, endPoint);

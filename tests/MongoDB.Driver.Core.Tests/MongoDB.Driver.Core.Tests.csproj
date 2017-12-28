@@ -72,11 +72,14 @@
     <Compile Include="Core\Bindings\ChannelChannelSourceTests.cs" />
     <Compile Include="Core\Bindings\ChannelReadBindingTests.cs" />
     <Compile Include="Core\Bindings\ChannelReadWriteBindingTests.cs" />
+    <Compile Include="Core\Bindings\CoreServerSessionPoolTests.cs" />
+    <Compile Include="Core\Bindings\CoreServerSessionTests.cs" />
     <Compile Include="Core\Bindings\CoreSessionHandleTests.cs" />
     <Compile Include="Core\Bindings\NoCoreSessionTests.cs" />
     <Compile Include="Core\Bindings\ReferenceCountedCoreSessionTests.cs" />
     <Compile Include="Core\Bindings\SingleServerReadBindingTests.cs" />
     <Compile Include="Core\Bindings\SingleServerReadWriteBindingTests.cs" />
+    <Compile Include="Core\Bindings\WrappingCoreServerSessionTests.cs" />
     <Compile Include="Core\Bindings\WrappingCoreSessionTests.cs" />
     <Compile Include="Core\Clusters\ClusterClockTests.cs" />
     <Compile Include="Core\Clusters\ElectionIdTests.cs" />

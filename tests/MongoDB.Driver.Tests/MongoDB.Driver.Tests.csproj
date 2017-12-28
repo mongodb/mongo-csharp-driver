@@ -162,7 +162,6 @@
     <Compile Include="ProjectionDefinitionBuilderTests.cs" />
     <Compile Include="IndexKeysDefinitionBuilderTests.cs" />
     <Compile Include="ReferenceCountedClientSessionTests.cs" />
-    <Compile Include="ServerSessionPoolTests.cs" />
     <Compile Include="ServerSessionTests.cs" />
     <Compile Include="RetryableWritesTests.cs" />
     <Compile Include="SortDefinitionBuilderTests.cs" />
@@ -218,7 +217,6 @@
     <Compile Include="Specifications\crud\AggregateTest.cs" />
     <Compile Include="Specifications\crud\ICrudOperationTest.cs" />
     <Compile Include="WrappingClientSessionTests.cs" />
-    <Compile Include="WrappingServerSessionTests.cs" />
     <Compile Include="WriteModelTests.cs" />
     <Compile Include="BulkWriteResultTests.cs" />
     <Compile Include="ClusterKeyTests.cs" />

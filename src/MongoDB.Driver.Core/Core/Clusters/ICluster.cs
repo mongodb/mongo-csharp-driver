@@ -65,6 +65,12 @@ namespace MongoDB.Driver.Core.Clusters
 
         // methods
         /// <summary>
+        /// Acquires a core server session.
+        /// </summary>
+        /// <returns>A core server session.</returns>
+        ICoreServerSession AcquireServerSession();
+
+        /// <summary>
         /// Initializes the cluster.
         /// </summary>
         void Initialize();

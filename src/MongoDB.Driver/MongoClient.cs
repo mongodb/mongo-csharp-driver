@@ -36,7 +36,6 @@ namespace MongoDB.Driver
         // private fields
         private readonly ICluster _cluster;
         private readonly IOperationExecutor _operationExecutor;
-        private readonly IServerSessionPool _serverSessionPool;
         private readonly MongoClientSettings _settings;
 
         // constructors
@@ -57,7 +56,6 @@ namespace MongoDB.Driver
             _settings = Ensure.IsNotNull(settings, nameof(settings)).FrozenCopy();
             _cluster = ClusterRegistry.Instance.GetOrCreateCluster(_settings.ToClusterKey());
             _operationExecutor = new OperationExecutor(this);
-            _serverSessionPool = new ServerSessionPool(this);
         }
 
         /// <summary>
@@ -252,7 +250,8 @@ namespace MongoDB.Driver
         // private methods
         private IServerSession AcquireServerSession()
         {
-            return _serverSessionPool.AcquireSession();
+            var coreServerSession =  _cluster.AcquireServerSession();
+            return new ServerSession(coreServerSession);
         }
 
         private bool AreSessionsSupported(CancellationToken cancellationToken)

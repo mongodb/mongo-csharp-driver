@@ -19,15 +19,15 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
-    internal abstract class WrappingServerSession : IServerSession
+    internal abstract class WrappingCoreServerSession : ICoreServerSession
     {
         // private fields
         protected bool _disposed;
         private readonly bool _ownsWrapped;
-        private readonly IServerSession _wrapped;
+        private readonly ICoreServerSession _wrapped;
 
         // constructors
-        public WrappingServerSession(IServerSession wrapped, bool ownsWrapped)
+        public WrappingCoreServerSession(ICoreServerSession wrapped, bool ownsWrapped)
         {
             _wrapped = Ensure.IsNotNull(wrapped, nameof(wrapped));
             _ownsWrapped = ownsWrapped;
@@ -52,7 +52,7 @@ namespace MongoDB.Driver
             }
         }
 
-        public IServerSession Wrapped
+        public ICoreServerSession Wrapped
         {
             get
             {

@@ -17,6 +17,7 @@ using System;
 using System.Reflection;
 using FluentAssertions;
 using MongoDB.Bson;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -24,85 +25,102 @@ namespace MongoDB.Driver.Tests
     public class ServerSessionTests
     {
         [Fact]
-        public void GenerateSessionId_should_return_expected_result()
-        {
-            var result = ServerSessionReflector.GenerateSessionId();
-
-            result.ElementCount.Should().Be(1);
-            result.GetElement(0).Name.Should().Be("id");
-            result["id"].BsonType.Should().Be(BsonType.Binary);
-            var id = result["id"].AsBsonBinaryData;
-            id.SubType.Should().Be(BsonBinarySubType.UuidStandard);
-            id.Bytes.Length.Should().Be(16);
-        }
-
-        [Fact]
         public void constructor_should_initialize_instance()
         {
-            var result = new ServerSession();
+            var coreServerSession = new Mock<ICoreServerSession>().Object;
 
-            result.Id.Should().NotBeNull();
-            result.LastUsedAt.Should().NotHaveValue();
+            var result = new ServerSession(coreServerSession);
+
+            result._coreServerSession().Should().BeSameAs(coreServerSession);
         }
 
         [Fact]
-        public void Id_should_return_expected_result()
+        public void constructor_should_throw_when_coreServerSession_is_null()
         {
-            var subject = new ServerSession();
+            var exception = Record.Exception(() => new ServerSession(null));
+
+            var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            e.ParamName.Should().Be("coreServerSession");
+        }
+
+        [Fact]
+        public void Id_should_call_coreServerSession_Id()
+        {
+            Mock<ICoreServerSession> mockCoreServerSession;
+            var subject = CreateSubject(out mockCoreServerSession);
+            var id = new BsonDocument("id", 1);
+            mockCoreServerSession.SetupGet(m => m.Id).Returns(id);
 
             var result = subject.Id;
 
-            result.Should().NotBeNull();
+            result.Should().BeSameAs(id);
+            mockCoreServerSession.VerifyGet(m => m.Id, Times.Once);
         }
 
         [Fact]
-        public void LastUsedAt_should_return_expected_result_when_WasUsed_has_never_been_called()
+        public void LastUsedAt_should_call_coreServerSession_LastUsedAt()
         {
-            var subject = new ServerSession();
+            Mock<ICoreServerSession> mockCoreServerSession;
+            var subject = CreateSubject(out mockCoreServerSession);
+            var lastUsedAt = DateTime.UtcNow;
+            mockCoreServerSession.SetupGet(m => m.LastUsedAt).Returns(lastUsedAt);
 
             var result = subject.LastUsedAt;
 
-            result.Should().NotHaveValue();
+            result.Should().Be(lastUsedAt);
+            mockCoreServerSession.VerifyGet(m => m.LastUsedAt, Times.Once);
         }
 
         [Fact]
-        public void LastUsedAt_should_return_expected_result_when_WasUsed_has_been_called()
+        public void AdvanceTransactionNumber_should_call_coreServerSession_AdvanceTransactionNumber()
         {
-            var subject = new ServerSession();
-            subject.WasUsed();
+            Mock<ICoreServerSession> mockCoreServerSession;
+            var subject = CreateSubject(out mockCoreServerSession);
+            var transactionNumber = 123;
+            mockCoreServerSession.Setup(m => m.AdvanceTransactionNumber()).Returns(transactionNumber);
 
-            var result = subject.LastUsedAt;
+            var result = subject.AdvanceTransactionNumber();
 
-            result.Should().BeCloseTo(DateTime.UtcNow);
+            result.Should().Be(transactionNumber);
+            mockCoreServerSession.Verify(m => m.AdvanceTransactionNumber(), Times.Once);
         }
 
         [Fact]
-        public void Dispose_should_do_nothing()
+        public void Dispose_should_call_coreServerSession_Dispose()
         {
-            var subject = new ServerSession();
+            Mock<ICoreServerSession> mockCoreServerSession;
+            var subject = CreateSubject(out mockCoreServerSession);
 
             subject.Dispose();
 
-            subject.WasUsed(); // call some method to assert no ObjectDisposedException is thrown
+            mockCoreServerSession.Verify(m => m.Dispose(), Times.Once);
         }
 
         [Fact]
-        public void WasUsed_should_have_expected_result()
+        public void WasUsed_should_call_coreServerSession_WasUsed()
         {
-            var subject = new ServerSession();
+            Mock<ICoreServerSession> mockCoreServerSession;
+            var subject = CreateSubject(out mockCoreServerSession);
 
             subject.WasUsed();
 
-            subject.LastUsedAt.Should().BeCloseTo(DateTime.UtcNow);
+            mockCoreServerSession.Verify(m => m.WasUsed(), Times.Once);
+        }
+
+        // private methods
+        private ServerSession CreateSubject(out Mock<ICoreServerSession> mockCoreServerSession)
+        {
+            mockCoreServerSession = new Mock<ICoreServerSession>();
+            return new ServerSession(mockCoreServerSession.Object);
         }
     }
 
     internal static class ServerSessionReflector
     {
-        public static BsonDocument GenerateSessionId()
+        public static ICoreServerSession _coreServerSession(this ServerSession obj)
         {
-            var methodInfo = typeof(ServerSession).GetMethod("GenerateSessionId", BindingFlags.NonPublic | BindingFlags.Static);
-            return (BsonDocument)methodInfo.Invoke(null, new object[0]);
+            var fieldInfo = typeof(ServerSession).GetField("_coreServerSession", BindingFlags.NonPublic | BindingFlags.Instance);
+            return (ICoreServerSession)fieldInfo.GetValue(obj);
         }
     }
 }
