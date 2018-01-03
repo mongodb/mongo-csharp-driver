@@ -44,6 +44,7 @@ namespace MongoDB.Driver.Tests.Linq
         [Fact]
         public void TestExplainFromLinqQueryEqualsExplainFromCursor()
         {
+            EnsureCollectionExists();
             var linqExplain = _collection.AsQueryable<C>().Where(c => c.X == 2 && c.Y == 1).Take(1).Explain();
             var queryExplain = _collection.FindAs<C>(Query.And(Query.EQ("X", 2), Query.EQ("Y", 1))).SetLimit(1).Explain();
 
@@ -63,6 +64,7 @@ namespace MongoDB.Driver.Tests.Linq
         [Fact]
         public void TestVerboseExplainFromLinqQueryEqualsVerboseExplainFromCursor()
         {
+            EnsureCollectionExists();
             var linqExplain = _collection.AsQueryable<C>().Where(c => c.X == 2 && c.Y == 1).Take(1).Explain(true);
             var queryExplain = _collection.FindAs<C>(Query.And(Query.EQ("X", 2), Query.EQ("Y", 1))).SetLimit(1).Explain(true);
 
@@ -82,6 +84,7 @@ namespace MongoDB.Driver.Tests.Linq
         [Fact]
         public void TestDistinctQueryCannotBeExplained()
         {
+            EnsureCollectionExists();
             Assert.Throws<NotSupportedException>(()=> _collection.AsQueryable<C>().Select(c=>c.X).Distinct().Explain());
         }
 
@@ -89,6 +92,13 @@ namespace MongoDB.Driver.Tests.Linq
         public void TestTakeZeroQueriesCannotBeExplained()
         {
             Assert.Throws<NotSupportedException>(() => _collection.AsQueryable<C>().Take(0).Explain());
+        }
+
+        // private methods
+        private void EnsureCollectionExists()
+        {
+            var document = new BsonDocument("x", 1);
+            _collection.Insert(document);
         }
 
         private void RemoveMatchingElements(BsonValue value, Regex regex)
