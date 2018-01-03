@@ -1,4 +1,4 @@
-/* Copyright 2010-2017 MongoDB Inc.
+/* Copyright 2010-2018 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -213,6 +213,7 @@ namespace MongoDB.Driver.Core.Operations
             using (EventContext.BeginOperation())
             using (var context = RetryableWriteContext.Create(binding, _retryRequested, cancellationToken))
             {
+                EnsureCollationIsSupportedIfAnyRequestHasCollation(context);
                 context.DisableRetriesIfAnyWriteRequestIsNotRetryable(_requests);
                 var helper = new BatchHelper(_requests, _isOrdered, _writeConcern);
                 foreach (var batch in helper.GetBatches())
@@ -229,6 +230,7 @@ namespace MongoDB.Driver.Core.Operations
             using (EventContext.BeginOperation())
             using (var context = await RetryableWriteContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
             {
+                EnsureCollationIsSupportedIfAnyRequestHasCollation(context);
                 context.DisableRetriesIfAnyWriteRequestIsNotRetryable(_requests);
                 var helper = new BatchHelper(_requests, _isOrdered, _writeConcern);
                 foreach (var batch in helper.GetBatches())
@@ -292,6 +294,21 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
+        private void EnsureCollationIsSupportedIfAnyRequestHasCollation(RetryableWriteContext context)
+        {
+            var serverVersion = context.Channel.ConnectionDescription.ServerVersion;
+            if (!Feature.Collation.IsSupported(serverVersion))
+            {
+                foreach (var request in _requests)
+                {
+                    if (RequestHasCollation(request))
+                    {
+                        throw new NotSupportedException($"Server version {serverVersion} does not support collations.");
+                    }
+                }
+            }
+        }
+
         private BulkWriteBatchResult ExecuteBatch(RetryableWriteContext context, Batch batch, CancellationToken cancellationToken)
         {
             BulkWriteOperationResult result;
@@ -326,6 +343,23 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             return BulkWriteBatchResult.Create(result, exception, batch.IndexMap);
+        }
+
+        private bool RequestHasCollation(WriteRequest request)
+        {
+            DeleteRequest deleteRequest;
+            if ((deleteRequest = request as DeleteRequest) != null)
+            {
+                return deleteRequest.Collation != null;
+            }
+
+            UpdateRequest updateRequest;
+            if ((updateRequest = request as UpdateRequest) != null)
+            {
+                return updateRequest.Collation != null;
+            }
+
+            return false;
         }
 
         // nested types

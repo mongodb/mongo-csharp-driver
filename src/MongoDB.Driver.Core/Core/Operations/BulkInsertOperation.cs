@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2017 MongoDB Inc.
+﻿/* Copyright 2010-2018 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,11 +15,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
@@ -63,6 +61,11 @@ namespace MongoDB.Driver.Core.Operations
                 MaxBatchLength = MaxBatchLength,
                 WriteConcern = WriteConcern
             };
+        }
+
+        protected override bool RequestHasCollation(InsertRequest request)
+        {
+            return false;
         }
 
         // nested types

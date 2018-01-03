@@ -99,7 +99,9 @@
     <Compile Include="Core\Operations\AggregateExplainOperationTests.cs" />
     <Compile Include="Core\Operations\AsyncCursorEnumeratorTests.cs" />
     <Compile Include="Core\Operations\AsyncCursorTests.cs" />
+    <Compile Include="Core\Operations\BulkDeleteOperationTests.cs" />
     <Compile Include="Core\Operations\BulkMixedWriteOperationTests.cs" />
+    <Compile Include="Core\Operations\BulkUpdateOperationTests.cs" />
     <Compile Include="Core\Operations\BulkWriteOperationErrorTests.cs" />
     <Compile Include="Core\Operations\AsyncCursorSourceEnumerableAdapterTests.cs" />
     <Compile Include="Core\Operations\AsyncCursorEnumerableOneTimeAdapterTests.cs" />
