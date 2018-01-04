@@ -12,7 +12,7 @@ Imports System.Runtime.InteropServices
 <Assembly: AssemblyDescription("")> 
 <Assembly: AssemblyCompany("MongoDB Inc.")> 
 <Assembly: AssemblyProduct("DriverUnitTestsVB")> 
-<Assembly: AssemblyCopyright("Copyright © 2010-2014 MongoDB Inc.")> 
+<Assembly: AssemblyCopyright("Copyright © 2010-present MongoDB Inc.")> 
 <Assembly: AssemblyTrademark("")> 
 
 <Assembly: ComVisible(False)>

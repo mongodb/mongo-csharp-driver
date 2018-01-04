@@ -1,4 +1,4 @@
-/* Copyright 2016 MongoDB Inc.
+/* Copyright 2016-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ public class GlobalAssemblyInfo
             new AssemblyInfoSettings
             {
                 Company = "MongoDB Inc.",
-                Copyright = "Copyright © 2010-2017 MongoDB Inc.",
+                Copyright = "Copyright © 2010-present MongoDB Inc.",
                 Version = gitVersion.AssemblySemVer,
                 InformationalVersion = gitVersion.InformationalVersion,
                 FileVersion = gitVersion.AssemblySemVer,
