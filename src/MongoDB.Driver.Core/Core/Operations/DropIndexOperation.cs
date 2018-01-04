@@ -21,6 +21,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -32,6 +33,7 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private readonly CollectionNamespace _collectionNamespace;
         private readonly string _indexName;
+        private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private WriteConcern _writeConcern;
 
@@ -111,6 +113,16 @@ namespace MongoDB.Driver.Core.Operations
             get { return _writeConcern; }
             set { _writeConcern = value; }
         }
+        
+        /// <summary>
+        /// Gets or sets the maximum time.
+        /// </summary>
+        /// <value>The maximum time.</value>
+        public TimeSpan? MaxTime
+        {
+            get { return _maxTime; }
+            set { _maxTime = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(value, nameof(value)); }
+        }
 
         // methods
         internal BsonDocument CreateCommand(SemanticVersion serverVersion)
@@ -119,6 +131,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 { "dropIndexes", _collectionNamespace.CollectionName },
                 { "index", _indexName },
+                { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue },
                 { "writeConcern", () => _writeConcern.ToBsonDocument(), Feature.CommandsThatWriteAcceptWriteConcern.ShouldSendWriteConcern(serverVersion, _writeConcern) }
             };
         }

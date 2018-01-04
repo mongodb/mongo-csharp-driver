@@ -51,6 +51,7 @@ namespace MongoDB.Driver.Core.Operations
 
             subject.CollectionNamespace.Should().BeSameAs(_collectionNamespace);
             subject.IndexName.Should().Be(indexName);
+            subject.MaxTime.Should().NotHaveValue();
             subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
         }
 
@@ -92,6 +93,7 @@ namespace MongoDB.Driver.Core.Operations
 
             subject.CollectionNamespace.Should().BeSameAs(_collectionNamespace);
             subject.IndexName.Should().Be(expectedIndexName);
+            subject.MaxTime.Should().NotHaveValue();
             subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
         }
 
@@ -137,6 +139,33 @@ namespace MongoDB.Driver.Core.Operations
             var result = subject.CreateCommand(null);
 
             result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [InlineData(-10000, 0)]
+        [InlineData(0, 0)]
+        [InlineData(1, 1)]
+        [InlineData(9999, 1)]
+        [InlineData(10000, 1)]
+        [InlineData(10001, 2)]
+        public void CreateCommand_should_return_expected_result_when_MaxTime_is_Set(long maxTimeTicks, int expectedMaxTimeMS)
+        {
+            var indexName = "x_1";
+            var maxTime = TimeSpan.FromTicks(maxTimeTicks);
+            var subject = new DropIndexOperation(_collectionNamespace, indexName, _messageEncoderSettings);
+            subject.MaxTime= maxTime;
+            var expectedResult = new BsonDocument
+            {
+                { "dropIndexes", _collectionNamespace.CollectionName },
+                { "index", indexName },
+                {"maxTimeMS", expectedMaxTimeMS }
+            };
+
+            var result = subject.CreateCommand(null);
+
+            result.Should().Be(expectedResult);
+            result["maxTimeMS"].BsonType.Should().Be(BsonType.Int32);
+            
         }
 
         [Theory]
@@ -256,6 +285,36 @@ namespace MongoDB.Driver.Core.Operations
             var result = subject.IndexName;
 
             result.Should().BeSameAs(indexName);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void MaxTime_get_and_set_should_work(
+            [Values(null, -10000, 0, 1, 42, 9000, 10000, 10001)] int? maxTimeTicks)
+        {
+            var indexName = "x_1";
+            var subject = new DropIndexOperation(_collectionNamespace, indexName, _messageEncoderSettings);
+            var value = maxTimeTicks == null ? (TimeSpan?)null : TimeSpan.FromTicks(maxTimeTicks.Value);
+
+            subject.MaxTime = value;
+            var result = subject.MaxTime;
+
+            result.Should().Be(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void MaxTime_set_should_throw_when_value_is_invalid(
+            [Values(-10001, -9999, -42, -1)] long maxTimeTicks)
+        {
+            var indexName = "x_1";
+            var subject = new DropIndexOperation(_collectionNamespace, indexName, _messageEncoderSettings);
+            var value = TimeSpan.FromTicks(maxTimeTicks);
+
+            var exception = Record.Exception(() => subject.MaxTime = value);
+
+            var e = exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
+            e.ParamName.Should().Be("value");
         }
 
         [Fact]

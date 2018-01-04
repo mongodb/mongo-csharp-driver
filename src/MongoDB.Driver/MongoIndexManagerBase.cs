@@ -41,6 +41,7 @@ namespace MongoDB.Driver
 
         // public methods
         /// <inheritdoc />
+        [Obsolete("Use CreateOne with a CreateIndexModel instead.")]
         public virtual string CreateOne(IndexKeysDefinition<TDocument> keys, CreateIndexOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var model = new CreateIndexModel<TDocument>(keys, options);
@@ -48,15 +49,40 @@ namespace MongoDB.Driver
             return result.Single();
         }
 
+         /// <inheritdoc />
+        public virtual string CreateOne(
+            CreateIndexModel<TDocument> model,
+            CreateOneIndexOptions options = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var createManyIndexOptions = ToCreateManyIndexesOptions(options); 
+            var result = CreateMany(new[] { model }, createManyIndexOptions, cancellationToken);
+            return result.Single();
+        }
+
         /// <inheritdoc />
+        [Obsolete("Use CreateOne with a CreateIndexModel instead.")]
         public virtual string CreateOne(IClientSessionHandle session, IndexKeysDefinition<TDocument> keys, CreateIndexOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var model = new CreateIndexModel<TDocument>(keys, options);
             var result = CreateMany(session, new[] { model }, cancellationToken);
             return result.Single();
         }
+        
+        /// <inheritdoc />
+        public virtual string CreateOne(
+            IClientSessionHandle session,
+            CreateIndexModel<TDocument> model, 
+            CreateOneIndexOptions options = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var createManyIndexOptions = ToCreateManyIndexesOptions(options); 
+            var result = CreateMany(session, new[] { model }, createManyIndexOptions, cancellationToken);
+            return result.Single();
+        }
 
         /// <inheritdoc />
+        [Obsolete("Use CreateOneAsync with a CreateIndexModel instead.")]
         public virtual async Task<string> CreateOneAsync(IndexKeysDefinition<TDocument> keys, CreateIndexOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var model = new CreateIndexModel<TDocument>(keys, options);
@@ -65,6 +91,18 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
+        public virtual async Task<string> CreateOneAsync(
+            CreateIndexModel<TDocument> model,
+            CreateOneIndexOptions createOneIndexOptions = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+             var createManyIndexOptions = ToCreateManyIndexesOptions(createOneIndexOptions);
+             var result = await CreateManyAsync(new[] { model }, createManyIndexOptions, cancellationToken).ConfigureAwait(false);
+             return result.Single();
+        }
+
+        /// <inheritdoc />
+        [Obsolete("Use CreateOneAsync with a CreateIndexModel instead.")]
         public virtual async Task<string> CreateOneAsync(IClientSessionHandle session, IndexKeysDefinition<TDocument> keys, CreateIndexOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var model = new CreateIndexModel<TDocument>(keys, options);
@@ -73,7 +111,28 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
+        public virtual async Task<string> CreateOneAsync(
+            IClientSessionHandle session,
+            CreateIndexModel<TDocument> model,
+            CreateOneIndexOptions options = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var createManyIndexOptions = ToCreateManyIndexesOptions(options);
+            var result = await CreateManyAsync(session, new[] { model }, createManyIndexOptions, cancellationToken).ConfigureAwait(false);
+            return result.Single();
+        }
+
+        /// <inheritdoc />
         public virtual IEnumerable<string> CreateMany(IEnumerable<CreateIndexModel<TDocument>> models, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public virtual IEnumerable<string> CreateMany(
+            IEnumerable<CreateIndexModel<TDocument>> models,
+            CreateManyIndexesOptions options,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
@@ -85,13 +144,43 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
+        public virtual IEnumerable<string> CreateMany(IClientSessionHandle session, IEnumerable<CreateIndexModel<TDocument>> models, CreateManyIndexesOptions options,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
         public virtual Task<IEnumerable<string>> CreateManyAsync(IEnumerable<CreateIndexModel<TDocument>> models, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
+        public virtual Task<IEnumerable<string>> CreateManyAsync(IEnumerable<CreateIndexModel<TDocument>> models, CreateManyIndexesOptions options,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
         public virtual Task<IEnumerable<string>> CreateManyAsync(IClientSessionHandle session, IEnumerable<CreateIndexModel<TDocument>> models, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public virtual Task<IEnumerable<string>> CreateManyAsync(
+            IClientSessionHandle session,
+            IEnumerable<CreateIndexModel<TDocument>> models,
+            CreateManyIndexesOptions options,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public virtual void DropAll(DropIndexOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
@@ -109,10 +198,28 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
+        public virtual void DropAll(IClientSessionHandle session, DropIndexOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public virtual Task DropAllAsync(DropIndexOptions options, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
         public abstract Task DropAllAsync(CancellationToken cancellationToken = default(CancellationToken));
 
         /// <inheritdoc />
         public virtual Task DropAllAsync(IClientSessionHandle session, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public virtual Task DropAllAsync(IClientSessionHandle session, DropIndexOptions options, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
@@ -124,7 +231,19 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
+        public virtual void DropOne(string name, DropIndexOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
         public virtual void DropOne(IClientSessionHandle session, string name, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public virtual void DropOne(IClientSessionHandle session, string name, DropIndexOptions options, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
@@ -133,7 +252,19 @@ namespace MongoDB.Driver
         public abstract Task DropOneAsync(string name, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <inheritdoc />
+        public virtual Task DropOneAsync(string name, DropIndexOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
         public virtual Task DropOneAsync(IClientSessionHandle session, string name, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public virtual Task DropOneAsync(IClientSessionHandle session, string name, DropIndexOptions options, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
@@ -157,6 +288,11 @@ namespace MongoDB.Driver
         public virtual Task<IAsyncCursor<BsonDocument>> ListAsync(IClientSessionHandle session, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
+        }
+
+        private CreateManyIndexesOptions ToCreateManyIndexesOptions(CreateOneIndexOptions options)
+        {
+            return new CreateManyIndexesOptions { MaxTime = options.MaxTime };
         }
     }
 }

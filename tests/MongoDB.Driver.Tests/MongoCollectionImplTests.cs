@@ -1405,7 +1405,8 @@ namespace MongoDB.Driver
         [ParameterAttributeData]
         public void Indexes_CreateOne_should_execute_a_CreateIndexesOperation(
             [Values(false, true)] bool usingSession,
-            [Values(false, true)] bool async)
+            [Values(false, true)] bool async,
+            [Values(null, -1, 0, 42, 9000)] int? milliseconds)
         {
             var writeConcern = new WriteConcern(1);
             var subject = CreateSubject<BsonDocument>().WithWriteConcern(writeConcern);
@@ -1416,6 +1417,8 @@ namespace MongoDB.Driver
             var partialFilterDefinition = (FilterDefinition<BsonDocument>)partialFilterDocument;
             var weights = new BsonDocument("y", 1);
             var storageEngine = new BsonDocument("awesome", true);
+            var maxTime = milliseconds != null ? TimeSpan.FromMilliseconds(milliseconds.Value) : (TimeSpan?)null;
+            var createOneIndexOptions = new CreateOneIndexOptions { MaxTime = maxTime };
             var options = new CreateIndexOptions<BsonDocument>
             {
                 Background = true,
@@ -1438,27 +1441,28 @@ namespace MongoDB.Driver
                 Weights = weights
             };
             var cancellationToken = new CancellationTokenSource().Token;
+            var model = new CreateIndexModel<BsonDocument>(keysDefinition, options);
 
             if (usingSession)
             {
                 if (async)
                 {
-                    subject.Indexes.CreateOneAsync(session, keysDefinition, options, cancellationToken).GetAwaiter().GetResult();
+                    subject.Indexes.CreateOneAsync(session, model, createOneIndexOptions, cancellationToken).GetAwaiter().GetResult();
                 }
                 else
                 {
-                    subject.Indexes.CreateOne(session, keysDefinition, options, cancellationToken);
+                    subject.Indexes.CreateOne(session, model, createOneIndexOptions, cancellationToken);
                 }
             }
             else
             {
                 if (async)
                 {
-                    subject.Indexes.CreateOneAsync(keysDefinition, options, cancellationToken).GetAwaiter().GetResult();
+                    subject.Indexes.CreateOneAsync(model, createOneIndexOptions, cancellationToken).GetAwaiter().GetResult();
                 }
                 else
                 {
-                    subject.Indexes.CreateOne(keysDefinition, options, cancellationToken);
+                    subject.Indexes.CreateOne(model, createOneIndexOptions, cancellationToken);
                 }
             }
 
@@ -1467,6 +1471,7 @@ namespace MongoDB.Driver
 
             var operation = call.Operation.Should().BeOfType<CreateIndexesOperation>().Subject;
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
+            operation.MaxTime.Should().Be(createOneIndexOptions.MaxTime);
             operation.Requests.Count().Should().Be(1);
             operation.WriteConcern.Should().BeSameAs(writeConcern);
 
@@ -1498,7 +1503,8 @@ namespace MongoDB.Driver
         [ParameterAttributeData]
         public void Indexes_CreateMany_should_execute_a_CreateIndexesOperation(
             [Values(false, true)] bool usingSession,
-            [Values(false, true)] bool async)
+            [Values(false, true)] bool async,
+            [Values(null, -1, 0, 42, 9000)] int? milliseconds)
         {
             var writeConcern = new WriteConcern(1);
             var subject = CreateSubject<BsonDocument>().WithWriteConcern(writeConcern);
@@ -1511,6 +1517,9 @@ namespace MongoDB.Driver
             var partialFilterDefinition = (FilterDefinition<BsonDocument>)partialFilterDocument;
             var weights = new BsonDocument("y", 1);
             var storageEngine = new BsonDocument("awesome", true);
+            var maxTime = milliseconds != null ? TimeSpan.FromMilliseconds(milliseconds.Value) : (TimeSpan?)null;
+            var createManyIndexesOptions = new CreateManyIndexesOptions { MaxTime = maxTime };
+            
             var options = new CreateIndexOptions<BsonDocument>
             {
                 Background = true,
@@ -1540,22 +1549,22 @@ namespace MongoDB.Driver
             {
                 if (async)
                 {
-                    subject.Indexes.CreateManyAsync(session, new[] { model1, model2 }, cancellationToken).GetAwaiter().GetResult();
+                    subject.Indexes.CreateManyAsync(session, new[] { model1, model2 }, createManyIndexesOptions, cancellationToken).GetAwaiter().GetResult();
                 }
                 else
                 {
-                    subject.Indexes.CreateMany(session, new[] { model1, model2 }, cancellationToken);
+                    subject.Indexes.CreateMany(session, new[] { model1, model2 }, createManyIndexesOptions, cancellationToken);
                 }
             }
             else
             {
                 if (async)
                 {
-                    subject.Indexes.CreateManyAsync(new[] { model1, model2 }, cancellationToken).GetAwaiter().GetResult();
+                    subject.Indexes.CreateManyAsync(new[] { model1, model2 }, createManyIndexesOptions, cancellationToken).GetAwaiter().GetResult();
                 }
                 else
                 {
-                    subject.Indexes.CreateMany(new[] { model1, model2 }, cancellationToken);
+                    subject.Indexes.CreateMany(new[] { model1, model2 }, createManyIndexesOptions, cancellationToken);
                 }
             }
 
@@ -1564,6 +1573,7 @@ namespace MongoDB.Driver
 
             var operation = call.Operation.Should().BeOfType<CreateIndexesOperation>().Subject;
             operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
+            operation.MaxTime.Should().Be(createManyIndexesOptions.MaxTime);
             operation.Requests.Count().Should().Be(2);
             operation.WriteConcern.Should().BeSameAs(writeConcern);
 
@@ -1624,27 +1634,29 @@ namespace MongoDB.Driver
             var subject = CreateSubject<BsonDocument>().WithWriteConcern(writeConcern);
             var session = CreateSession(usingSession);
             var cancellationToken = new CancellationTokenSource().Token;
+            var maxTime = TimeSpan.FromMilliseconds(42);
+            var options = new DropIndexOptions { MaxTime = maxTime };
 
             if (usingSession)
             {
                 if (async)
                 {
-                    subject.Indexes.DropAllAsync(session, cancellationToken).GetAwaiter().GetResult();
+                    subject.Indexes.DropAllAsync(session, options, cancellationToken).GetAwaiter().GetResult();
                 }
                 else
                 {
-                    subject.Indexes.DropAll(session, cancellationToken);
+                    subject.Indexes.DropAll(session, options, cancellationToken);
                 }
             }
             else
             {
                 if (async)
                 {
-                    subject.Indexes.DropAllAsync(cancellationToken).GetAwaiter().GetResult();
+                    subject.Indexes.DropAllAsync(options, cancellationToken).GetAwaiter().GetResult();
                 }
                 else
                 {
-                    subject.Indexes.DropAll(cancellationToken);
+                    subject.Indexes.DropAll(options, cancellationToken);
                 }
             }
 
@@ -1654,6 +1666,7 @@ namespace MongoDB.Driver
             var operation = call.Operation.Should().BeOfType<DropIndexOperation>().Subject;
             operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
             operation.IndexName.Should().Be("*");
+            operation.MaxTime.Should().Be(options.MaxTime);
             operation.WriteConcern.Should().BeSameAs(writeConcern);
         }
 
@@ -1667,27 +1680,29 @@ namespace MongoDB.Driver
             var subject = CreateSubject<BsonDocument>().WithWriteConcern(writeConcern);
             var session = CreateSession(usingSession);
             var cancellationToken = new CancellationTokenSource().Token;
+            var maxTime = TimeSpan.FromMilliseconds(42);
+            var options = new DropIndexOptions { MaxTime = maxTime };
 
             if (usingSession)
             {
                 if (async)
                 {
-                    subject.Indexes.DropOneAsync(session, "name", cancellationToken).GetAwaiter().GetResult();
+                    subject.Indexes.DropOneAsync(session, "name", options, cancellationToken).GetAwaiter().GetResult();
                 }
                 else
                 {
-                    subject.Indexes.DropOne(session, "name", cancellationToken);
+                    subject.Indexes.DropOne(session, "name", options, cancellationToken);
                 }
             }
             else
             {
                 if (async)
                 {
-                    subject.Indexes.DropOneAsync("name", cancellationToken).GetAwaiter().GetResult();
+                    subject.Indexes.DropOneAsync("name", options, cancellationToken).GetAwaiter().GetResult();
                 }
                 else
                 {
-                    subject.Indexes.DropOne("name", cancellationToken);
+                    subject.Indexes.DropOne("name", options, cancellationToken);
                 }
             }
 
@@ -1698,6 +1713,7 @@ namespace MongoDB.Driver
             operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
             operation.IndexName.Should().Be("name");
             operation.WriteConcern.Should().BeSameAs(writeConcern);
+            operation.MaxTime.Should().Be(maxTime);
         }
 
         [Theory]

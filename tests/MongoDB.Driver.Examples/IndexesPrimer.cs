@@ -31,7 +31,8 @@ namespace MongoDB.Driver.Examples
             // @code: start
             var collection = __database.GetCollection<BsonDocument>("restaurants");
             var keys = Builders<BsonDocument>.IndexKeys.Ascending("cuisine");
-            await collection.Indexes.CreateOneAsync(keys);
+            var model = new CreateIndexModel<BsonDocument>(keys);
+            await collection.Indexes.CreateOneAsync(model);
             // @code: end
 
             // @results: start
@@ -54,7 +55,8 @@ namespace MongoDB.Driver.Examples
             // @code: start
             var collection = __database.GetCollection<BsonDocument>("restaurants");
             var keys = Builders<BsonDocument>.IndexKeys.Ascending("cuisine").Ascending("address.zipcode");
-            await collection.Indexes.CreateOneAsync(keys);
+            var model = new CreateIndexModel<BsonDocument>(keys);
+            await collection.Indexes.CreateOneAsync(model);
             // @code: end
 
             // @results: start

@@ -25,6 +25,7 @@ using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -35,6 +36,7 @@ namespace MongoDB.Driver.Core.Operations
     {
         // fields
         private readonly CollectionNamespace _collectionNamespace;
+        private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly IEnumerable<CreateIndexRequest> _requests;
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
@@ -101,6 +103,17 @@ namespace MongoDB.Driver.Core.Operations
             get { return _writeConcern; }
             set { _writeConcern = Ensure.IsNotNull(value, nameof(value)); }
         }
+        /// <summary>
+        /// Gets or sets the MaxTime
+        /// </summary>
+        /// <value> 
+        /// The maxtime.
+        /// </value>
+        public TimeSpan? MaxTime
+        {
+            get { return _maxTime; }
+            set { _maxTime = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(value, nameof(value)); }
+        }
 
         // public methods
         /// <inheritdoc/>
@@ -140,6 +153,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 { "createIndexes", _collectionNamespace.CollectionName },
                 { "indexes", new BsonArray(_requests.Select(request => request.CreateIndexDocument(serverVersion))) },
+                { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue },
                 { "writeConcern", () => _writeConcern.ToBsonDocument(), Feature.CommandsThatWriteAcceptWriteConcern.ShouldSendWriteConcern(serverVersion, _writeConcern) }
             };
         }

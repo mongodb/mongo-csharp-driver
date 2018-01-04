@@ -105,8 +105,11 @@
     <Compile Include="ClientSessionOptions.cs" />
     <Compile Include="ClientSessionWrappingCoreSession.cs" />
     <Compile Include="CreateIndexModel.cs" />
+    <Compile Include="CreateOneIndexOptions.cs" />
     <Compile Include="CreateViewOptions.cs" />
     <Compile Include="DeleteOptions.cs" />
+    <Compile Include="CreateManyIndexesOptions.cs" />
+    <Compile Include="DropIndexOptions.cs" />
     <Compile Include="FieldValueSerializerHelper.cs" />
     <Compile Include="FilteredMongoCollectionBase.cs" />
     <Compile Include="IClientSession.cs" />
