@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2014 MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyProduct("MongoDB.Bson.Tests")]
 [assembly: AssemblyCompany("MongoDB Inc.")]
-[assembly: AssemblyCopyright("Copyright © 2010-2016 MongoDB Inc.")]
+[assembly: AssemblyCopyright("Copyright © 2010-present MongoDB Inc.")]
 [assembly: AssemblyVersion("0.0.0.0")]
 [assembly: AssemblyInformationalVersion("unofficial")]
 [assembly: AssemblyFileVersion("0.0.0.0")]

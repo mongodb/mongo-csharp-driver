@@ -1,4 +1,4 @@
-﻿/* Copyright 2015-2017 MongoDB Inc.
+﻿/* Copyright 2015-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,5 +19,5 @@ using System.Reflection;
 [assembly: AssemblyVersion("0.0.0.*")]
 [assembly: AssemblyFileVersion("0.0.0.0")]
 [assembly: AssemblyInformationalVersion("0.0.0-unofficial")]
-[assembly: AssemblyCopyright("Copyright © 2010-2017 MongoDB Inc.")]
+[assembly: AssemblyCopyright("Copyright © 2010-present MongoDB Inc.")]
 [assembly: AssemblyConfiguration("Debug")]
