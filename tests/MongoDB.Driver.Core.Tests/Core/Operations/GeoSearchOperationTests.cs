@@ -64,6 +64,34 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
+        public void MaxTime_get_and_set_should_work(
+            [Values(-10000, 0, 1, 10000, 99999)] long maxTimeTicks)
+        {
+            var subject = new GeoSearchOperation<BsonDocument>(_collectionNamespace, 5, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var value = TimeSpan.FromTicks(maxTimeTicks);
+
+            subject.MaxTime = value;
+            var result = subject.MaxTime;
+
+            result.Should().Be(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void MaxTime_set_should_throw_when_value_is_invalid(
+            [Values(-10001, -9999, -1)] long maxTimeTicks)
+        {
+            var subject = new GeoSearchOperation<BsonDocument>(_collectionNamespace, 5, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var value = TimeSpan.FromTicks(maxTimeTicks);
+
+            var exception = Record.Exception(() => subject.MaxTime = value);
+
+            var e = exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
+            e.ParamName.Should().Be("value");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void CreateCommand_should_create_the_correct_command(
             [Values("3.0.0", "3.2.0")] string serverVersionString,
             [Values(null, ReadConcernLevel.Local, ReadConcernLevel.Majority)] ReadConcernLevel? readConcernLevel)
@@ -104,12 +132,42 @@ namespace MongoDB.Driver.Core.Operations
                     { "limit", limit },
                     { "maxDistance", maxDistance },
                     { "search", filter },
-                    { "maxTimeMS", maxTime.TotalMilliseconds },
+                    { "maxTimeMS", (int)maxTime.TotalMilliseconds },
                     { "readConcern", () => readConcern.ToBsonDocument(), !readConcern.IsServerDefault }
                 };
                 result.Should().Be(expectedResult);
-
+                result["maxTimeMS"].BsonType.Should().Be(BsonType.Int32);
             }
+        }
+
+        [Theory]
+        [InlineData(-10000, 0)]
+        [InlineData(0, 0)]
+        [InlineData(1, 1)]
+        [InlineData(9999, 1)]
+        [InlineData(10000, 1)]
+        [InlineData(10001, 2)]
+        public void CreateCommand_should_return_expected_result_when_MaxTime_is_set(long maxTimeTicks, int expectedMaxTimeMS)
+        {
+            var near = 5;
+            var subject = new GeoSearchOperation<BsonDocument>(_collectionNamespace, near, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            {
+                MaxTime = TimeSpan.FromTicks(maxTimeTicks)
+            };
+            var serverVersion = new SemanticVersion(3, 2, 0);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion);
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
+
+            var expectedResult = new BsonDocument
+            {
+                { "geoSearch", _collectionNamespace.CollectionName },
+                { "near", near },
+                { "maxTimeMS", expectedMaxTimeMS }
+            };
+            result.Should().Be(expectedResult);
+            result["maxTimeMS"].BsonType.Should().Be(BsonType.Int32);
         }
 
         [SkippableTheory]

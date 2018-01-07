@@ -588,7 +588,7 @@ namespace MongoDB.Driver
         public virtual MongoCursor SetMaxTime(TimeSpan maxTime)
         {
             if (_isFrozen) { ThrowFrozen(); }
-            SetOption("$maxTimeMS", (int)maxTime.TotalMilliseconds);
+            SetOption("$maxTimeMS", MaxTimeHelper.ToMaxTimeMS(maxTime));
             return this;
         }
 

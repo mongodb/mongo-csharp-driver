@@ -102,24 +102,26 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().Be(TimeSpan.FromSeconds(123));
         }
 
-        [Fact]
-        public void MaxTime_set_should_have_expected_result()
+        [Theory]
+        [ParameterAttributeData]
+        public void MaxTime_set_should_have_expected_result(
+            [Values(-10000, 0, 1, 9999, 10000, 10001)] long maxTimeTicks)
         {
             var subject = new GridFSFindOptions();
+            var value = TimeSpan.FromTicks(maxTimeTicks);
 
-            subject.MaxTime = TimeSpan.FromSeconds(123);
+            subject.MaxTime = value;
 
-            subject.MaxTime.Should().Be(TimeSpan.FromSeconds(123));
+            subject.MaxTime.Should().Be(value);
         }
 
         [Theory]
         [ParameterAttributeData]
         public void MaxTime_set_should_throw_when_value_is_invalid(
-            [Values(-1, 0)]
-            int seconds)
+            [Values(-10001, -9999, -1)] long maxTimeTicks)
         {
             var subject = new GridFSFindOptions();
-        var value = TimeSpan.FromSeconds(seconds);
+            var value = TimeSpan.FromTicks(maxTimeTicks);
 
             Action action = () => subject.MaxTime = value;
 

@@ -119,6 +119,7 @@
     <Compile Include="Core\Operations\CreateViewOperation.cs" />
     <Compile Include="Core\Clusters\IClusterClock.cs" />
     <Compile Include="Core\Operations\DelayedEvaluationWriteConcernSerializer.cs" />
+    <Compile Include="Core\Operations\MaxTimeHelper.cs" />
     <Compile Include="Core\Operations\RetryableDeleteCommandOperation.cs" />
     <Compile Include="Core\Operations\RetryableInsertCommandOperation.cs" />
     <Compile Include="Core\Operations\IOperationClock.cs" />

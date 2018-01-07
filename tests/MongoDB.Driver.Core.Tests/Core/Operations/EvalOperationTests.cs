@@ -115,21 +115,30 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Fact]
-        public void CreateCommand_should_return_expected_result_when_maxTime_is_provided()
+        [Theory]
+        [InlineData(-10000, 0)]
+        [InlineData(0, 0)]
+        [InlineData(1, 1)]
+        [InlineData(9999, 1)]
+        [InlineData(10000, 1)]
+        [InlineData(10001, 2)]
+        public void CreateCommand_should_return_expected_result_when_MaxTime_is_set(long maxTimeTicks, int expectedMaxTimeMS)
         {
             var function = new BsonJavaScript("return 1");
-            var subject = new EvalOperation(_adminDatabaseNamespace, function, _messageEncoderSettings);
-            subject.MaxTime = TimeSpan.FromSeconds(1);
+            var subject = new EvalOperation(_adminDatabaseNamespace, function, _messageEncoderSettings)
+            {
+                MaxTime = TimeSpan.FromTicks(maxTimeTicks)
+            };
             var expectedResult = new BsonDocument
             {
                 { "$eval", function },
-                { "maxTimeMS", 1000.0 }
+                { "maxTimeMS", expectedMaxTimeMS }
             };
 
             var result = subject.CreateCommand();
 
             result.Should().Be(expectedResult);
+            result["maxTimeMS"].BsonType.Should().Be(BsonType.Int32);
         }
 
         [Fact]
@@ -224,17 +233,32 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        public void MaxTime_should_work(
-            [Values(null, 0, 1)]
-            int? value)
+        public void MaxTime_get_and_set_should_work(
+            [Values(-10000, 0, 1, 10000, 99999)] long maxTimeTicks)
         {
             var function = new BsonJavaScript("return 1");
             var subject = new EvalOperation(_adminDatabaseNamespace, function, _messageEncoderSettings);
-            var maxTime = value.HasValue ? (TimeSpan?)TimeSpan.FromSeconds(value.Value) : null;
+            var value = TimeSpan.FromTicks(maxTimeTicks);
 
-            subject.MaxTime = maxTime;
+            subject.MaxTime = value;
+            var result = subject.MaxTime;
 
-            subject.MaxTime.Should().Be(maxTime);
+            result.Should().Be(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void MaxTime_set_should_throw_when_value_is_invalid(
+            [Values(-10001, -9999, -1)] long maxTimeTicks)
+        {
+            var function = new BsonJavaScript("return 1");
+            var subject = new EvalOperation(_adminDatabaseNamespace, function, _messageEncoderSettings);
+            var value = TimeSpan.FromTicks(maxTimeTicks);
+
+            var exception = Record.Exception(() => subject.MaxTime = value);
+
+            var e = exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
+            e.ParamName.Should().Be("value");
         }
 
         [Theory]

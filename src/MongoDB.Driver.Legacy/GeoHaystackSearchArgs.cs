@@ -16,6 +16,7 @@
 using System;
 using System.Linq.Expressions;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Utils;
 
 namespace MongoDB.Driver
@@ -76,7 +77,7 @@ namespace MongoDB.Driver
         public TimeSpan? MaxTime
         {
             get { return _maxTime; }
-            set { _maxTime = value; }
+            set { _maxTime = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(value, nameof(value)); }
         }
 
         /// <summary>

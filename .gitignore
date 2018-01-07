@@ -12,7 +12,7 @@ TestResults
 project.lock.json
 .vscode
 
-#JetBrains Rider artifcats
+# JetBrains Rider artifacts
 .idea
 
 # CodeReview

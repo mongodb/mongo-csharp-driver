@@ -109,6 +109,7 @@
     <Compile Include="Core\Operations\ChangeStreamOperationTests.cs" />
     <Compile Include="Core\Operations\CommandOperationBaseTests.cs" />
     <Compile Include="Core\Operations\CreateViewOperationTests.cs" />
+    <Compile Include="Core\Operations\MaxTimeHelperTests.cs" />
     <Compile Include="Core\Operations\OperationClockTests.cs" />
     <Compile Include="Core\Operations\OperationTestHelper.cs" />
     <Compile Include="Core\Operations\ReadConcernHelperTests.cs" />

@@ -157,7 +157,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "getMore", _cursorId },
                 { "collection", _collectionNamespace.CollectionName },
                 { "batchSize", () => _batchSize.Value, _batchSize > 0 },
-                { "maxTimeMS", () => (int)_maxTime.Value.TotalMilliseconds, _maxTime.HasValue }
+                { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue }
             };
 
             return command;
