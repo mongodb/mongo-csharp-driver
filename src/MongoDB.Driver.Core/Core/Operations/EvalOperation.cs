@@ -152,7 +152,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "$eval", _function },
                 { "args", () => new BsonArray(_args), _args != null },
                 { "nolock", () => _noLock.Value, _noLock.HasValue },
-                { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue }
+                { "maxTimeMS", () => (int)_maxTime.Value.TotalMilliseconds, _maxTime.HasValue }
             };
         }
 

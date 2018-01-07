@@ -12,6 +12,9 @@ TestResults
 project.lock.json
 .vscode
 
+#JetBrains Rider artifcats
+.idea
+
 # CodeReview
 codereview.rc
 

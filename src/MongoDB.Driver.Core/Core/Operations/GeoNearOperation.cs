@@ -225,7 +225,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "distanceMultiplier", () => _distanceMultiplier.Value, _distanceMultiplier.HasValue },
                 { "includeLocs", () => _includeLocs.Value, _includeLocs.HasValue },
                 { "uniqueDocs", () => _uniqueDocs.Value, _uniqueDocs.HasValue },
-                { "maxTimeMS", () => _maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
+                { "maxTimeMS", () => (int)_maxTime.Value.TotalMilliseconds, _maxTime.HasValue },
                 { "collation", () => _collation.ToBsonDocument(), _collation != null }
             };
 
