@@ -59,6 +59,9 @@
     <Compile Include="..\MongoDB.Shared\Hasher.cs">
       <Link>Core\Misc\Hasher.cs</Link>
     </Compile>
+    <Compile Include="..\MongoDB.Shared\MaxTimeHelper.cs">
+      <Link>Core\Operations\MaxTimeHelper.cs</Link>
+    </Compile>
     <Compile Include="ChangeStreamFullDocumentOptions.cs" />
     <Compile Include="ChangeStreamOperationType.cs" />
     <Compile Include="ChangeStreamOperationTypeSerializer.cs" />
@@ -119,7 +122,6 @@
     <Compile Include="Core\Operations\CreateViewOperation.cs" />
     <Compile Include="Core\Clusters\IClusterClock.cs" />
     <Compile Include="Core\Operations\DelayedEvaluationWriteConcernSerializer.cs" />
-    <Compile Include="Core\Operations\MaxTimeHelper.cs" />
     <Compile Include="Core\Operations\RetryableDeleteCommandOperation.cs" />
     <Compile Include="Core\Operations\RetryableInsertCommandOperation.cs" />
     <Compile Include="Core\Operations\IOperationClock.cs" />

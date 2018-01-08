@@ -51,6 +51,9 @@
     <Compile Include="..\MongoDB.Shared\IncrementalMD5.cs">
       <Link>IncrementalMD5.cs</Link>
     </Compile>
+    <Compile Include="..\MongoDB.Shared\MaxTimeHelper.cs">
+      <Link>MaxTimeHelper.cs</Link>
+    </Compile>
     <Compile Include="AggregateArgs.cs" />
     <Compile Include="AggregateEnumerable.cs" />
     <Compile Include="Builders\BuilderBase.cs" />

@@ -31,6 +31,7 @@ using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.Operations;
 using MongoDB.Driver.Wrappers;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver
 {

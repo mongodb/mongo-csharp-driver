@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\MongoDB.Driver.Legacy\**\*.cs;..\MongoDB.Shared\IncrementalMD5.cs" Exclude="bin\**;obj\**;**\*.xproj;packages\**" />
+    <Compile Include="..\MongoDB.Driver.Legacy\**\*.cs;..\MongoDB.Shared\IncrementalMD5.cs;..\MongoDB.Shared\MaxTimeHelper.cs" Exclude="bin\**;obj\**;**\*.xproj;packages\**" />
   </ItemGroup>
 
   <ItemGroup>

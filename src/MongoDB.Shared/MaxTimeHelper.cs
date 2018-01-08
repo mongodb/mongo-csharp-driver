@@ -16,18 +16,10 @@
 using System;
 using System.Threading;
 
-namespace MongoDB.Driver.Core.Operations
+namespace MongoDB.Shared
 {
-    /// <summary>
-    /// Helper methods for MaxTime.
-    /// </summary>
-    public static class MaxTimeHelper
+    internal static class MaxTimeHelper
     {
-        /// <summary>
-        /// Converts a TimeSpan to the appropriate integral number of milliseconds to send to the server as the maxTimeMS parameter.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>The integral milliseconds.</returns>
         public static int ToMaxTimeMS(TimeSpan value)
         {
             if (value == Timeout.InfiniteTimeSpan)
