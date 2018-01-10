@@ -129,6 +129,9 @@ namespace MongoDB.Bson.Serialization.Serializers
                 case BsonType.String:
                     return bsonReader.ReadString();
 
+                case BsonType.Timestamp:
+                    return bsonReader.ReadTimestamp();
+
                 default:
                     var message = string.Format("ObjectSerializer does not support BSON type '{0}'.", bsonType);
                     throw new FormatException(message);
