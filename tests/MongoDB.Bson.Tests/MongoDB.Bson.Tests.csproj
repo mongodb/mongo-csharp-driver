@@ -168,6 +168,7 @@
     <Compile Include="Serialization\IdGenerators\AscendingGuidGeneratorTests.cs" />
     <Compile Include="Serialization\IdGenerators\CombGuidGeneratorTests.cs" />
     <Compile Include="Serialization\Options\RepresentationConverterTests.cs" />
+    <Compile Include="Serialization\Serializers\DictionarySerializerBaseSubclassTests.cs" />
     <Compile Include="Serialization\Serializers\ElementAppendingSerializerTests.cs" />
     <Compile Include="Serialization\Serializers\EnumerableInterfaceImplementerSerializerTests.cs" />
     <Compile Include="Serialization\Serializers\ExpandoObjectSerializerTests.cs" />
@@ -180,6 +181,7 @@
     <Compile Include="Serialization\Serializers\PartiallyRawBsonDocumentSerializerTests.cs" />
     <Compile Include="Serialization\Serializers\RawBsonArraySerializerTests.cs" />
     <Compile Include="Serialization\Serializers\RawBsonDocumentSerializerTests.cs" />
+    <Compile Include="Serialization\Serializers\ReadOnlyDictionarySerializerTests.cs" />
     <Compile Include="Serialization\Serializers\SerializeFlagsTests.cs" />
     <Compile Include="Serialization\Serializers\AnimalHierarchyWithAttributesTests.cs" />
     <Compile Include="Serialization\Serializers\AnimalHierarchyWithoutAttributesTests.cs" />
