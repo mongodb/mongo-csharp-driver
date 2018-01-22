@@ -374,9 +374,20 @@ namespace MongoDB.Bson
         /// <returns>A BsonDocument.</returns>
         public static BsonDocument Parse(string json)
         {
+            return Parse(json, allowDuplicateElementNames: false);
+        }
+
+        /// <summary>
+        /// Parses a JSON string and returns a BsonDocument.
+        /// </summary>
+        /// <param name="json">The JSON string.</param>
+        /// <param name="allowDuplicateElementNames">A value indicating whether to allow duplicate element names.</param>
+        /// <returns>A BsonDocument.</returns>
+        public static BsonDocument Parse(string json, bool allowDuplicateElementNames)
+        {
             using (var jsonReader = new JsonReader(json))
             {
-                var context = BsonDeserializationContext.CreateRoot(jsonReader);
+                var context = BsonDeserializationContext.CreateRoot(jsonReader, b => b.AllowDuplicateElementNames = allowDuplicateElementNames);
                 var document = BsonDocumentSerializer.Instance.Deserialize(context);
                 if (!jsonReader.IsAtEndOfFile())
                 {
@@ -389,14 +400,26 @@ namespace MongoDB.Bson
         /// <summary>
         /// Tries to parse a JSON string and returns a value indicating whether it succeeded or failed.
         /// </summary>
-        /// <param name="s">The JSON string.</param>
+        /// <param name="json">The JSON string.</param>
         /// <param name="result">The result.</param>
         /// <returns>Whether it succeeded or failed.</returns>
-        public static bool TryParse(string s, out BsonDocument result)
+        public static bool TryParse(string json, out BsonDocument result)
+        {
+            return TryParse(json, false, out result);
+        }
+
+        /// <summary>
+        /// Tries to parse a JSON string and returns a value indicating whether it succeeded or failed.
+        /// </summary>
+        /// <param name="json">The JSON string.</param>
+        /// <param name="allowDuplicateElementNames">A value indicating whether to allow duplicate element names.</param>
+        /// <param name="result">The result.</param>
+        /// <returns>Whether it succeeded or failed.</returns>
+        public static bool TryParse(string json, bool allowDuplicateElementNames, out BsonDocument result)
         {
             try
             {
-                result = Parse(s);
+                result = Parse(json, allowDuplicateElementNames);
                 return true;
             }
             catch

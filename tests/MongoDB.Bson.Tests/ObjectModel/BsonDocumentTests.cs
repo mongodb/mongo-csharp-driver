@@ -821,6 +821,14 @@ namespace MongoDB.Bson.Tests
         }
 
         [Fact]
+        public void TestParseWithAllowDuplicateNames()
+        {
+            var json = "{ a : 1, a : 2 }";
+            var document = BsonDocument.Parse(json, allowDuplicateElementNames: true);
+            Assert.Equal(1, document["a"].AsInt32);
+        }
+
+        [Fact]
         public void TestRemove()
         {
             var document = new BsonDocument("x", 1);
@@ -1395,6 +1403,30 @@ namespace MongoDB.Bson.Tests
 
             success.Should().BeFalse();
             result.Should().BeNull();
+        }
+
+        [Fact]
+        public void TestTryParseWithAllowDuplicateNames_failure()
+        {
+            var s = "{ ...";
+            BsonDocument result;
+
+            var success = BsonDocument.TryParse(s, true, out result);
+
+            success.Should().BeFalse();
+            result.Should().BeNull();
+        }
+
+        [Fact]
+        public void TestTryParseWithAllowDuplicateNames_success()
+        {
+            var s = "{ x : 1, x : 2 }";
+            BsonDocument result;
+
+            var success = BsonDocument.TryParse(s, true, out result);
+
+            success.Should().BeTrue();
+            result.Should().Be(new BsonDocument(allowDuplicateNames: true) {{"x", 1}, {"x", 2}});
         }
 
         private void AssertAreEqual(string expected, byte[] actual)
