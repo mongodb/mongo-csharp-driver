@@ -13,10 +13,15 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq;
+using System.Reflection;
+using System.Threading;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Conventions;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization
@@ -438,6 +443,117 @@ namespace MongoDB.Bson.Tests.Serialization
             var bson = h.ToBson<H>();
             var rehydrated = BsonSerializer.Deserialize<H>(bson);
             Assert.True(bson.SequenceEqual(rehydrated.ToBson<H>()));
+        }
+
+        //special case where the discriminator value is a model property
+        [BsonDiscriminator("Class1")]
+        public class Class1WDiscriminatorProperty
+        {
+            public string Type { get; set; } = "Class1";
+        }
+        [BsonDiscriminator("Class2")]
+        public class Class2WDiscriminatorProperty : Class1WDiscriminatorProperty
+        {
+            public Class2WDiscriminatorProperty()
+            {
+                Type = "Class2";
+            }
+        }
+
+        private class ClassWithDiscriminatorPropertyConvention : IDiscriminatorConvention
+        {
+            public string ElementName { get; } = "Type";
+
+            public Type GetActualType(IBsonReader bsonReader, Type nominalType)
+            {
+                var bookmark = bsonReader.GetBookmark();
+
+                bsonReader.ReadStartDocument();
+                if (!bsonReader.FindElement(ElementName))
+                {
+                    throw new NotSupportedException($"Could not find element named: {ElementName}");
+                }
+
+                try
+                {
+                    var val = bsonReader.ReadString();
+
+                    switch (val ?? "")
+                    {
+                        case "Class1":
+                            return typeof(Class1WDiscriminatorProperty);
+                        case "Class2":
+                            return typeof(Class2WDiscriminatorProperty);
+                        default:
+                            throw new NotSupportedException($"Could not find a Type to match type of: {val}");
+                    }
+                }
+                finally
+                {
+                    bsonReader.ReturnToBookmark(bookmark);
+                }
+            }
+
+            public BsonValue GetDiscriminator(Type nominalType, Type actualType)
+            {
+                return actualType.GetCustomAttribute<BsonDiscriminatorAttribute>().Discriminator;
+            }
+        }
+
+        private static int classWithDiscriminatorPropertyConventionRegistered;
+
+        [Fact]
+        public void TestSerializeClass1WDiscriminatorProperty()
+        {
+            if (Interlocked.CompareExchange(ref classWithDiscriminatorPropertyConventionRegistered, 1, 0) == 0)
+            {
+                BsonSerializer.RegisterDiscriminatorConvention(typeof(Class1WDiscriminatorProperty), new ClassWithDiscriminatorPropertyConvention());
+            }
+
+            Class1WDiscriminatorProperty class1WDiscriminatorProperty = new Class1WDiscriminatorProperty();
+
+            var class1WDiscriminatorPropertyAsJson = class1WDiscriminatorProperty.ToJson();
+            Assert.Equal(class1WDiscriminatorPropertyAsJson, "{ \"Type\" : \"Class1\" }");
+
+            var class1WDiscriminatorPropertyAsBsonDocument = class1WDiscriminatorProperty.ToBsonDocument();
+            BsonElement typeElement;
+            Assert.True(class1WDiscriminatorPropertyAsBsonDocument != null &&
+                        class1WDiscriminatorPropertyAsBsonDocument.ElementCount == 1 &&
+                        class1WDiscriminatorPropertyAsBsonDocument.TryGetElement("Type", out typeElement) &&
+                        typeElement.Value.IsString &&
+                        typeElement.Value.AsString == "Class1");
+
+            var class1WDiscriminatorPropertyDeserialized = BsonSerializer.Deserialize<Class1WDiscriminatorProperty>(class1WDiscriminatorPropertyAsBsonDocument);
+            Assert.True(class1WDiscriminatorPropertyDeserialized != null &&
+                        class1WDiscriminatorPropertyDeserialized.GetType() == typeof(Class1WDiscriminatorProperty) &&
+                        class1WDiscriminatorPropertyDeserialized.Type == "Class1");
+        }
+
+        [Fact]
+        public void TestSerializeClass2WDiscriminatorProperty()
+        {
+            if (Interlocked.CompareExchange(ref classWithDiscriminatorPropertyConventionRegistered, 1, 0) == 0)
+            {
+                BsonSerializer.RegisterDiscriminatorConvention(typeof(Class1WDiscriminatorProperty), new ClassWithDiscriminatorPropertyConvention());
+            }
+
+            Class1WDiscriminatorProperty class2WDiscriminatorProperty = new Class2WDiscriminatorProperty();
+
+            var class2WDiscriminatorPropertyAsJson = class2WDiscriminatorProperty.ToJson();
+            Assert.Equal(class2WDiscriminatorPropertyAsJson, "{ \"Type\" : \"Class2\" }");
+
+            var class2WDiscriminatorPropertyAsBsonDocument = class2WDiscriminatorProperty.ToBsonDocument();
+            BsonElement typeElement;
+            Assert.True(class2WDiscriminatorPropertyAsBsonDocument != null &&
+                        class2WDiscriminatorPropertyAsBsonDocument.ElementCount == 1 &&
+                        class2WDiscriminatorPropertyAsBsonDocument.TryGetElement("Type", out typeElement) &&
+                        typeElement.Value.IsString &&
+                        typeElement.Value.AsString == "Class2");
+
+            var class2WDiscriminatorPropertyDeserialized = BsonSerializer.Deserialize<Class1WDiscriminatorProperty>(class2WDiscriminatorPropertyAsBsonDocument);
+            Assert.True(class2WDiscriminatorPropertyDeserialized != null &&
+                        class2WDiscriminatorPropertyDeserialized.GetType() == typeof(Class2WDiscriminatorProperty) &&
+                        class2WDiscriminatorPropertyDeserialized.Type == "Class2");
         }
     }
 }
