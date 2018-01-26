@@ -115,6 +115,19 @@ namespace MongoDB.Bson.Tests.Serialization
         }
 
         [Fact]
+        public void TestDecimal()
+        {
+            var c = new C { Obj = 1.5M };
+            var json = c.ToJson();
+            var expected = "{ 'Obj' : NumberDecimal('1.5') }".Replace("'", "\"");
+            Assert.Equal(expected, json);
+
+            var bson = c.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Fact]
         public void TestDouble()
         {
             var c = new C { Obj = 1.5 };
