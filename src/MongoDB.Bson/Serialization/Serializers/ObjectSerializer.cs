@@ -105,7 +105,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return bsonDateTime.ToUniversalTime();
 
                 case BsonType.Decimal128:
-                    return bsonReader.ReadDecimal128();
+                    return (decimal)bsonReader.ReadDecimal128();
 
                 case BsonType.Document:
                     return DeserializeDiscriminatedValue(context, args);
@@ -190,6 +190,10 @@ namespace MongoDB.Bson.Serialization.Serializers
 
                             case TypeCode.Int64:
                                 bsonWriter.WriteInt64((long)value);
+                                return;
+
+                            case TypeCode.Decimal:
+                                bsonWriter.WriteDecimal128((decimal)value);
                                 return;
 
                             case TypeCode.Object:
