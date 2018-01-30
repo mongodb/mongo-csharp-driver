@@ -113,10 +113,10 @@ namespace MongoDB.Driver
         /// <param name="processedRequests">The processed requests.</param>
         protected BulkWriteResult(
             int requestCount,
-            IEnumerable<WriteModel<TDocument>> processedRequests)
+            List<WriteModel<TDocument>> processedRequests)
             : base(requestCount)
         {
-            _processedRequests = processedRequests.ToList();
+            _processedRequests = processedRequests;
         }
 
         // public properties
@@ -148,7 +148,7 @@ namespace MongoDB.Driver
                 result.ProcessedRequests.Select(r => WriteModel<TDocument>.FromCore(r)));
         }
 
-        internal static BulkWriteResult<TDocument> FromCore(Core.Operations.BulkWriteOperationResult result, IEnumerable<WriteModel<TDocument>> requests)
+        internal static BulkWriteResult<TDocument> FromCore(Core.Operations.BulkWriteOperationResult result, List<WriteModel<TDocument>> requests)
         {
             if (result.IsAcknowledged)
             {
@@ -201,6 +201,23 @@ namespace MongoDB.Driver
                 long insertedCount,
                 long? modifiedCount,
                 IEnumerable<WriteModel<TDocument>> processedRequests,
+                IEnumerable<BulkWriteUpsert> upserts)
+                : base(requestCount, processedRequests.ToList())
+            {
+                _matchedCount = matchedCount;
+                _deletedCount = deletedCount;
+                _insertedCount = insertedCount;
+                _modifiedCount = modifiedCount;
+                _upserts = upserts.ToList();
+            }
+
+            internal Acknowledged(
+                int requestCount,
+                long matchedCount,
+                long deletedCount,
+                long insertedCount,
+                long? modifiedCount,
+                List<WriteModel<TDocument>> processedRequests,
                 IEnumerable<BulkWriteUpsert> upserts)
                 : base(requestCount, processedRequests)
             {
@@ -279,6 +296,13 @@ namespace MongoDB.Driver
             public Unacknowledged(
                 int requestCount,
                 IEnumerable<WriteModel<TDocument>> processedRequests)
+                : base(requestCount, processedRequests.ToList())
+            {
+            }
+
+            internal Unacknowledged(
+                int requestCount,
+                List<WriteModel<TDocument>> processedRequests)
                 : base(requestCount, processedRequests)
             {
             }
