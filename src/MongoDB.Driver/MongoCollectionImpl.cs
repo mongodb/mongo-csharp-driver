@@ -169,21 +169,24 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNull(requests, nameof(requests));
-            if (!requests.Any())
+
+            var requestList = requests.ToList();
+
+            if (requestList.Count==0)
             {
                 throw new ArgumentException("Must contain at least 1 request.", "requests");
             }
             options = options ?? new BulkWriteOptions();
 
-            var operation = CreateBulkWriteOperation(requests, options);
+            var operation = CreateBulkWriteOperation(requestList, options);
             try
             {
                 var result = ExecuteWriteOperation(session, operation, cancellationToken);
-                return BulkWriteResult<TDocument>.FromCore(result, requests);
+                return BulkWriteResult<TDocument>.FromCore(result, requestList);
             }
             catch (MongoBulkWriteOperationException ex)
             {
-                throw MongoBulkWriteException<TDocument>.FromCore(ex, requests.ToList());
+                throw MongoBulkWriteException<TDocument>.FromCore(ex, requestList);
             }
         }
 
@@ -196,21 +199,24 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNull(requests, nameof(requests));
-            if (!requests.Any())
+
+            var requestList = requests.ToList();
+
+            if (requestList.Count==0)
             {
                 throw new ArgumentException("Must contain at least 1 request.", "requests");
             }
             options = options ?? new BulkWriteOptions();
 
-            var operation = CreateBulkWriteOperation(requests, options);
+            var operation = CreateBulkWriteOperation(requestList, options);
             try
             {
                 var result = await ExecuteWriteOperationAsync(session, operation, cancellationToken).ConfigureAwait(false);
-                return BulkWriteResult<TDocument>.FromCore(result, requests);
+                return BulkWriteResult<TDocument>.FromCore(result, requestList);
             }
             catch (MongoBulkWriteOperationException ex)
             {
-                throw MongoBulkWriteException<TDocument>.FromCore(ex, requests.ToList());
+                throw MongoBulkWriteException<TDocument>.FromCore(ex, requestList);
             }
         }
 

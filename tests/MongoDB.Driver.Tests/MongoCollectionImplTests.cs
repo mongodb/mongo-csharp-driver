@@ -400,6 +400,39 @@ namespace MongoDB.Driver
 
         [Theory]
         [ParameterAttributeData]
+        public void BulkWrite_should_enum_once(
+            [Values(false, true)] bool async)
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var options = new BulkWriteOptions
+            {
+                BypassDocumentValidation = false,
+                IsOrdered = false
+            };
+            var cancellationToken = new CancellationTokenSource().Token;
+            var operationResult = new BulkWriteOperationResult.Unacknowledged(9, new[] { new InsertRequest(new BsonDocument("b", 1)) });
+            _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
+            var count = 0;
+            var requests = Enumerable.Range(0,4).Select(n => {
+                    ++count;
+                    return new ReplaceOneModel<BsonDocument>(new BsonDocument("_id",n),new BsonDocument("_id",n));
+                });
+            BulkWriteResult<BsonDocument> result;
+            if (async)
+            {
+                result = subject.BulkWriteAsync(requests, options, cancellationToken).GetAwaiter().GetResult();
+            }
+            else
+            {
+                result = subject.BulkWrite(requests, options, cancellationToken);
+            }
+            var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
+            VerifySessionAndCancellationToken(call, null, cancellationToken);
+            count.Should().Be(4);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void Count_should_execute_a_CountOperation(
             [Values(false, true)] bool usingSession,
             [Values(false, true)] bool async)
