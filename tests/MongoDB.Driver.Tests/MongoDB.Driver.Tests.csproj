@@ -112,6 +112,7 @@
     <Compile Include="ClientSessionHandleTests.cs" />
     <Compile Include="ClientSessionTests.cs" />
     <Compile Include="ClientSessionWrappingCoreSessionTests.cs" />
+    <Compile Include="DecryptedSecureStringTests.cs" />
     <Compile Include="CreateViewOptionsTests.cs" />
     <Compile Include="FieldDefinitionTests.cs" />
     <Compile Include="FilterDefinitionBuilderEnumComparedToEnumWithStringRepresentationTests.cs" />
@@ -156,6 +157,7 @@
     <Compile Include="Linq\MongoQueryableNullableEnumComparedToNullableEnumTests.cs" />
     <Compile Include="NoServerSessionTests.cs" />
     <Compile Include="OfTypeMongoCollectionTests.cs" />
+    <Compile Include="PasswordEvidenceTests.cs" />
     <Compile Include="PipelineDefinitionBuilderTests.cs" />
     <Compile Include="PipelineDefinitionTests.cs" />
     <Compile Include="PipelineStageDefinitionBuilderTests.cs" />
