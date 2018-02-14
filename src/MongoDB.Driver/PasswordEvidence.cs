@@ -18,10 +18,10 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Cryptography;
-using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver
 {
@@ -32,7 +32,6 @@ namespace MongoDB.Driver
     {
         // private fields
         private readonly SecureString _securePassword;
-        private readonly string _digest; // used to implement Equals without referring to the SecureString
 
         // constructors
         /// <summary>
@@ -41,9 +40,9 @@ namespace MongoDB.Driver
         /// <param name="password">The password.</param>
         public PasswordEvidence(SecureString password)
         {
+            Ensure.IsNotNull(password, nameof(password));
             _securePassword = password.Copy();
             _securePassword.MakeReadOnly();
-            _digest = GenerateDigest(password);
         }
 
         /// <summary>
@@ -51,8 +50,10 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="password">The password.</param>
         public PasswordEvidence(string password)
-            : this(CreateSecureString(password))
-        { }
+        {
+            Ensure.IsNotNull(password, nameof(password));
+            _securePassword = CreateSecureString(password);
+        }
 
         // public properties
         /// <summary>
@@ -74,18 +75,26 @@ namespace MongoDB.Driver
         public override bool Equals(object rhs)
         {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
-            return _digest == ((PasswordEvidence)rhs)._digest;
+
+            using (var lhsDecryptedPassword = new DecryptedSecureString(_securePassword))
+            using (var rhsDecryptedPassword = new DecryptedSecureString(((PasswordEvidence)rhs)._securePassword))
+            {
+                return lhsDecryptedPassword.GetChars().SequenceEqual(rhsDecryptedPassword.GetChars());
+            }
         }
 
         /// <summary>
         /// Returns a hash code for this instance.
         /// </summary>
         /// <returns>
-        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
         /// </returns>
         public override int GetHashCode()
         {
-            return _digest.GetHashCode();
+            using (var decryptedPassword = new DecryptedSecureString(_securePassword))
+            {
+                return new Hasher().HashStructElements(decryptedPassword.GetChars()).GetHashCode();
+            }
         }
 
         // internal methods
@@ -97,94 +106,25 @@ namespace MongoDB.Driver
         internal string ComputeMongoCRPasswordDigest(string username)
         {
             using (var md5 = MD5.Create())
+            using (var decryptedPassword = new DecryptedSecureString(_securePassword))
             {
                 var encoding = Utf8Encodings.Strict;
                 var prefixBytes = encoding.GetBytes(username + ":mongo:");
-                var hash = ComputeHash(md5, prefixBytes, _securePassword);
+                var hash = ComputeHash(md5, prefixBytes, decryptedPassword.GetUtf8Bytes());
                 return BsonUtils.ToHexString(hash);
             }
         }
 
         // private static methods
-        private static SecureString CreateSecureString(string str)
+        private static SecureString CreateSecureString(string value)
         {
-            if (str != null)
+            var secureString = new SecureString();
+            foreach (var c in value)
             {
-                var secureStr = new SecureString();
-                foreach (var c in str)
-                {
-                    secureStr.AppendChar(c);
-                }
-                secureStr.MakeReadOnly();
-                return secureStr;
+                secureString.AppendChar(c);
             }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Computes the hash value of the secured string 
-        /// </summary>
-        private static string GenerateDigest(SecureString password)
-        {
-            using (var sha256 = SHA256.Create())
-            {
-                var hash = ComputeHash(sha256, new byte[0], password);
-                return BsonUtils.ToHexString(hash);
-            }
-        }
-
-        private static byte[] ComputeHash(HashAlgorithm algorithm, byte[] prefixBytes, SecureString password)
-        {
-            if (password.Length == 0)
-            {
-                return ComputeHash(algorithm, prefixBytes, new byte[0]);
-            }
-            else
-            {
-#if NET45
-                var passwordIntPtr = Marshal.SecureStringToGlobalAllocUnicode(password);
-#else
-                var passwordIntPtr = SecureStringMarshal.SecureStringToGlobalAllocUnicode(password);
-#endif
-                try
-                {
-                    var passwordChars = new char[password.Length];
-                    var passwordCharsHandle = GCHandle.Alloc(passwordChars, GCHandleType.Pinned);
-                    try
-                    {
-                        Marshal.Copy(passwordIntPtr, passwordChars, 0, password.Length);
-
-                        return ComputeHash(algorithm, prefixBytes, passwordChars);
-                    }
-                    finally
-                    {
-                        Array.Clear(passwordChars, 0, passwordChars.Length);
-                        passwordCharsHandle.Free();
-                    }
-                }
-                finally
-                {
-                    Marshal.ZeroFreeGlobalAllocUnicode(passwordIntPtr);
-                }
-            }
-        }
-
-        private static byte[] ComputeHash(HashAlgorithm algorithm, byte[] prefixBytes, char[] passwordChars)
-        {
-            var passwordBytes = new byte[Utf8Encodings.Strict.GetByteCount(passwordChars)];
-            var passwordBytesHandle = GCHandle.Alloc(passwordBytes, GCHandleType.Pinned);
-            try
-            {
-                Utf8Encodings.Strict.GetBytes(passwordChars, 0, passwordChars.Length, passwordBytes, 0);
-
-                return ComputeHash(algorithm, prefixBytes, passwordBytes);
-            }
-            finally
-            {
-                Array.Clear(passwordBytes, 0, passwordBytes.Length);
-                passwordBytesHandle.Free();
-            }
+            secureString.MakeReadOnly();
+            return secureString;
         }
 
         private static byte[] ComputeHash(HashAlgorithm algorithm, byte[] prefixBytes, byte[] passwordBytes)

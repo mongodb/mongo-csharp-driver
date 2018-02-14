@@ -107,6 +107,7 @@
     <Compile Include="CreateIndexModel.cs" />
     <Compile Include="CreateOneIndexOptions.cs" />
     <Compile Include="CreateViewOptions.cs" />
+    <Compile Include="DecryptedSecureString.cs" />
     <Compile Include="DeleteOptions.cs" />
     <Compile Include="CreateManyIndexesOptions.cs" />
     <Compile Include="DropIndexOptions.cs" />
