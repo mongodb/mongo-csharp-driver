@@ -168,7 +168,14 @@ namespace MongoDB.Driver.Core.Connections
                 return;
             }
 
-            ProcessReplyMessage(state, message, buffer, connectionId, encoderSettings);
+            if (message is CommandResponseMessage)
+            {
+                ProcessCommandResponseMessage(state, (CommandResponseMessage)message, buffer, connectionId, encoderSettings);
+            }
+            else
+            {
+                ProcessReplyMessage(state, message, buffer, connectionId, encoderSettings);
+            }
         }
 
         public void ErrorReceiving(int responseTo, ConnectionId connectionId, Exception exception)
@@ -225,6 +232,9 @@ namespace MongoDB.Driver.Core.Connections
             var message = messageQueue.Dequeue();
             switch (message.MessageType)
             {
+                case MongoDBMessageType.Command:
+                    ProcessCommandRequestMessage((CommandRequestMessage)message, messageQueue, connectionId, new CommandMessageBinaryEncoder(stream, encoderSettings), stopwatch);
+                    break;
                 case MongoDBMessageType.Delete:
                     ProcessDeleteMessage((DeleteMessage)message, messageQueue, connectionId, new DeleteMessageBinaryEncoder(stream, encoderSettings), stopwatch);
                     break;
@@ -245,6 +255,103 @@ namespace MongoDB.Driver.Core.Connections
                     break;
                 default:
                     throw new MongoInternalException("Invalid message type.");
+            }
+        }
+
+        private void ProcessCommandRequestMessage(CommandRequestMessage originalMessage, Queue<RequestMessage> messageQueue, ConnectionId connectionId, CommandMessageBinaryEncoder encoder, Stopwatch stopwatch)
+        {
+            var requestId = originalMessage.RequestId;
+            var operationId = EventContext.OperationId;
+
+            var decodedMessage = encoder.ReadMessage();
+            using (new CommandMessageDisposer(decodedMessage))
+            {
+                var type0Section = decodedMessage.Sections.OfType<Type0CommandMessageSection>().Single();
+                var command = (BsonDocument)type0Section.Document;
+                var commandName = command.GetElement(0).Name;
+                var databaseName = command["$db"].AsString;
+                var databaseNamespace = new DatabaseNamespace(databaseName);
+                if (__securitySensitiveCommands.Contains(commandName))
+                {
+                    command = new BsonDocument();
+                }
+
+                if (_startedEvent != null)
+                {
+
+                    var @event = new CommandStartedEvent(
+                        commandName,
+                        command,
+                        databaseNamespace,
+                        operationId,
+                        requestId,
+                        connectionId);
+
+                    _startedEvent(@event);
+                }
+
+                if (_shouldTrackState)
+                {
+                    _state.TryAdd(requestId, new CommandState
+                    {
+                        CommandName = commandName,
+                        OperationId = operationId,
+                        Stopwatch = stopwatch,
+                        QueryNamespace = new CollectionNamespace(databaseNamespace, "$cmd"),
+                        ExpectedResponseType = ExpectedResponseType.Command
+                    });
+                }
+            }
+        }
+
+        private void ProcessCommandResponseMessage(CommandState state, CommandResponseMessage message, IByteBuffer buffer, ConnectionId connectionId, MessageEncoderSettings encoderSettings)
+        {
+            var wrappedMessage = message.WrappedMessage;
+            var type0Section = wrappedMessage.Sections.OfType<Type0CommandMessageSection<RawBsonDocument>>().Single();
+            var reply = (BsonDocument)type0Section.Document;
+
+            BsonValue ok;
+            if (!reply.TryGetValue("ok", out ok))
+            {
+                // this is a degenerate case with the server and 
+                // we don't really know what to do here...
+                return;
+            }
+
+            if (__securitySensitiveCommands.Contains(state.CommandName))
+            {
+                reply = new BsonDocument();
+            }
+
+            if (ok.ToBoolean())
+            {
+                if (_succeededEvent != null)
+                {
+                    _succeededEvent(new CommandSucceededEvent(
+                        state.CommandName,
+                        reply,
+                        state.OperationId,
+                        message.ResponseTo,
+                        connectionId,
+                        state.Stopwatch.Elapsed));
+                }
+            }
+            else
+            {
+                if (_failedEvent != null)
+                {
+                    _failedEvent(new CommandFailedEvent(
+                        state.CommandName,
+                        new MongoCommandException(
+                            connectionId,
+                            string.Format("{0} command failed", state.CommandName),
+                            null,
+                            reply),
+                        state.OperationId,
+                        message.ResponseTo,
+                        connectionId,
+                        state.Stopwatch.Elapsed));
+                }
             }
         }
 

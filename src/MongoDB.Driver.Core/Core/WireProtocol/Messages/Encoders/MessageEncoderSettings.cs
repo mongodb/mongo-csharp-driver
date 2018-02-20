@@ -54,6 +54,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
         public const string MaxDocumentSize = "MaxDocumentSize";
 
         /// <summary>
+        /// The name of the MaxMessageSize setting.
+        /// </summary>
+        public const string MaxMessageSize = "MaxMessageSize";
+
+        /// <summary>
         /// The name of the MaxSerializationDepth setting.
         /// </summary>
         public const string MaxSerializationDepth = "MaxSerializationDepth";

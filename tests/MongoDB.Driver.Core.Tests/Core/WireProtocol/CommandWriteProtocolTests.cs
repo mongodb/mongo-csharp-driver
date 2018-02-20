@@ -25,6 +25,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
@@ -41,11 +42,13 @@ namespace MongoDB.Driver.Core.WireProtocol
         {
             var messageEncoderSettings = new MessageEncoderSettings();
             var subject = new CommandWireProtocol<BsonDocument>(
+                NoCoreSession.Instance,
+                ReadPreference.Primary,
                 new DatabaseNamespace("test"),
                 new BsonDocument("cmd", 1),
                 NoOpElementNameValidator.Instance,
+                null, // additionalOptions
                 () => CommandResponseHandling.Return,
-                true,
                 BsonDocumentSerializer.Instance,
                 messageEncoderSettings);
 
@@ -65,11 +68,13 @@ namespace MongoDB.Driver.Core.WireProtocol
         {
             var messageEncoderSettings = new MessageEncoderSettings();
             var subject = new CommandWireProtocol<BsonDocument>(
+                NoCoreSession.Instance,
+                ReadPreference.Primary,
                 new DatabaseNamespace("test"),
                 new BsonDocument("cmd", 1),
                 NoOpElementNameValidator.Instance,
+                null, // additionalOptions
                 () => CommandResponseHandling.Ignore,
-                true,
                 BsonDocumentSerializer.Instance,
                 messageEncoderSettings);
 
@@ -88,11 +93,13 @@ namespace MongoDB.Driver.Core.WireProtocol
         {
             var messageEncoderSettings = new MessageEncoderSettings();
             var subject = new CommandWireProtocol<BsonDocument>(
+                NoCoreSession.Instance,
+                ReadPreference.Primary,
                 new DatabaseNamespace("test"),
                 new BsonDocument("cmd", 1),
                 NoOpElementNameValidator.Instance,
+                null, // additionalOptions
                 () => CommandResponseHandling.Return,
-                true,
                 BsonDocumentSerializer.Instance,
                 messageEncoderSettings);
 
@@ -112,11 +119,13 @@ namespace MongoDB.Driver.Core.WireProtocol
         {
             var messageEncoderSettings = new MessageEncoderSettings();
             var subject = new CommandWireProtocol<BsonDocument>(
+                NoCoreSession.Instance,
+                ReadPreference.Primary,
                 new DatabaseNamespace("test"),
                 new BsonDocument("cmd", 1),
                 NoOpElementNameValidator.Instance,
+                null, // additionalOptions
                 () => CommandResponseHandling.Ignore,
-                true,
                 BsonDocumentSerializer.Instance,
                 messageEncoderSettings);
 

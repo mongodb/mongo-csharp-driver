@@ -236,7 +236,6 @@ namespace MongoDB.Driver.Core.Operations
                         NoOpElementNameValidator.Instance,
                         null,
                         It.IsAny<Func<CommandResponseHandling>>(),
-                        false,
                         It.IsAny<IBsonSerializer<BsonDocument>>(),
                         It.IsAny<MessageEncoderSettings>(),
                         cancellationToken))
@@ -257,7 +256,6 @@ namespace MongoDB.Driver.Core.Operations
                         NoOpElementNameValidator.Instance,
                         null,
                         It.IsAny<Func<CommandResponseHandling>>(),
-                        false,
                         It.IsAny<IBsonSerializer<BsonDocument>>(),
                         It.IsAny<MessageEncoderSettings>(),
                         cancellationToken))

@@ -38,6 +38,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __bypassDocumentValidation = new Feature("BypassDocumentValidation", new SemanticVersion(3, 2, 0));
         private static readonly Feature __changeStreamStage = new Feature("ChangeStreamStage", new SemanticVersion(3, 5, 11));
         private static readonly CollationFeature __collation = new CollationFeature("Collation", new SemanticVersion(3, 3, 11));
+        private static readonly Feature __commandMessage = new Feature("CommandMessage", new SemanticVersion(3, 6, 0));
         private static readonly CommandsThatWriteAcceptWriteConcernFeature __commandsThatWriteAcceptWriteConcern = new CommandsThatWriteAcceptWriteConcernFeature("CommandsThatWriteAcceptWriteConcern", new SemanticVersion(3, 3, 11));
         private static readonly Feature __createIndexesCommand = new Feature("CreateIndexesCommand", new SemanticVersion(3, 0, 0));
         private static readonly Feature __currentOpCommand = new Feature("CurrentOpCommand", new SemanticVersion(3, 2, 0));
@@ -135,6 +136,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the collation feature.
         /// </summary>
         public static CollationFeature Collation => __collation;
+
+        /// <summary>
+        /// Gets the command message feature.
+        /// </summary>
+        public static Feature CommandMessage => __commandMessage;
 
         /// <summary>
         /// Gets the commands that write accept write concern feature.

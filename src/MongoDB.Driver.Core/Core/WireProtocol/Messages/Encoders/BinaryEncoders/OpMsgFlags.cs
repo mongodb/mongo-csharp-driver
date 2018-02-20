@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+﻿/* Copyright 2018-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,23 +14,13 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
-    internal enum Opcode
+    [Flags]
+    internal enum OpMsgFlags
     {
-        Reply = 1,
-        Message = 1000,
-        Update = 2001,
-        Insert = 2002,
-        Query = 2004,
-        GetMore = 2005,
-        Delete = 2006,
-        KillCursors = 2007,
-        OpMsg = 2013
+        MoreToCome = 1,
+        All = 1
     }
 }

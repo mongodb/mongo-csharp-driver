@@ -432,12 +432,12 @@ namespace MongoDB.Driver.Core.Operations
             // the count could be short temporarily until replication catches up
             List<BsonDocument> result = null;
             SpinWait.SpinUntil(() =>
-            {
-                var cursor = ExecuteOperation(subject, readPreference, async);
-                result = ReadCursorToEnd(cursor, async);
-                return result.Count >= 5;
-            },
-            TimeSpan.FromSeconds(10));
+                {
+                    var cursor = ExecuteOperation(subject, readPreference, async);
+                    result = ReadCursorToEnd(cursor, async);
+                    return result.Count >= 5;
+                },
+                TimeSpan.FromSeconds(10));
 
             result.Should().HaveCount(5);
         }

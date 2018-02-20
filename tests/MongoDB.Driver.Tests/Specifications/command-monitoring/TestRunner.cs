@@ -148,14 +148,15 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
                 // catch everything...
             }
 
-            long? operationId = null;
-            foreach (BsonDocument expected in (BsonArray)definition["expectations"])
+            var expectations = (BsonArray)definition["expectations"];
+            if (!SpinWait.SpinUntil(() => __capturedEvents.Count == expectations.Count, TimeSpan.FromSeconds(5)))
             {
-                if (!__capturedEvents.Any() && !SpinWait.SpinUntil(__capturedEvents.Any, TimeSpan.FromSeconds(5)))
-                {
-                    Assert.True(false, "Expected an event, but no events were captured.");
-                }
+                throw new Exception($"Expected {__capturedEvents.Count} events but only {expectations.Count} events were captured.");
+            }
 
+            long? operationId = null;
+            foreach (BsonDocument expected in expectations)
+            {
                 if (expected.Contains("command_started_event"))
                 {
                     var actual = (CommandStartedEvent)__capturedEvents.Next();
@@ -215,8 +216,13 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
         {
             actual.CommandName.Should().Be(expected["command_name"].ToString());
             actual.DatabaseNamespace.Should().Be(new DatabaseNamespace(databaseName));
-            var command = MassageCommand(actual.CommandName, actual.Command);
-            command.Should().BeEquivalentTo((BsonDocument)expected["command"]);
+            var actualCommand = MassageCommand(actual.CommandName, actual.Command);
+            var expectedCommand = (BsonDocument)expected["command"];
+            if (actualCommand.Contains("$db"))
+            {
+                expectedCommand["$db"] = databaseName;
+            }
+            actualCommand.Should().BeEquivalentTo(expectedCommand);
         }
 
         private void VerifyCommandSucceededEvent(CommandSucceededEvent actual, BsonDocument expected, string databaseName, string collectionName)

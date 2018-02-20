@@ -68,6 +68,20 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
+        /// <summary>
+        /// Gets the maximum size of the message.
+        /// </summary>
+        /// <value>
+        /// The maximum size of the message.
+        /// </value>
+        protected int? MaxMessageSize
+        {
+            get
+            {
+                return _encoderSettings.GetOrDefault<int?>(MessageEncoderSettingsName.MaxMessageSize, null);
+            }
+        }
+
         // methods
         /// <summary>
         /// Creates a binary reader for this encoder.

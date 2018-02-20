@@ -95,6 +95,39 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         }
 
         [Fact]
+        public void GetCommandMessageEncoder_should_return_a_CommandMessageJsonEncoder()
+        {
+            using (var textWriter = new StringWriter())
+            {
+                var encoderFactory = new JsonMessageEncoderFactory(null, textWriter, __messageEncoderSettings);
+                var encoder = encoderFactory.GetCommandMessageEncoder();
+                encoder.Should().BeOfType<CommandMessageJsonEncoder>();
+            }
+        }
+
+        [Fact]
+        public void GetCommandRequestMessageEncoder_should_return_a_CommandRequestMessageJsonEncoder()
+        {
+            using (var textWriter = new StringWriter())
+            {
+                var encoderFactory = new JsonMessageEncoderFactory(null, textWriter, __messageEncoderSettings);
+                var encoder = encoderFactory.GetCommandRequestMessageEncoder();
+                encoder.Should().BeOfType<CommandRequestMessageJsonEncoder>();
+            }
+        }
+
+        [Fact]
+        public void GetCommandResponseMessageEncoder_should_return_a_CommandResponseMessageJsonEncoder()
+        {
+            using (var textWriter = new StringWriter())
+            {
+                var encoderFactory = new JsonMessageEncoderFactory(null, textWriter, __messageEncoderSettings);
+                var encoder = encoderFactory.GetCommandResponseMessageEncoder();
+                encoder.Should().BeOfType<CommandResponseMessageJsonEncoder>();
+            }
+        }
+
+        [Fact]
         public void GetDeleteMessageEncoder_should_return_a_DeleteMessageJsonEncoder()
         {
             using (var textWriter = new StringWriter())

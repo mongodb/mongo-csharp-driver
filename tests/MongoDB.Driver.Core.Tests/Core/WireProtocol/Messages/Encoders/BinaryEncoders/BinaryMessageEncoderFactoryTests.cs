@@ -44,6 +44,39 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         }
 
         [Fact]
+        public void GetCommandMessageEncoder_should_return_a_CommandMessageBinaryEncoder()
+        {
+            using (var stream = new MemoryStream())
+            {
+                var encoderFactory = new BinaryMessageEncoderFactory(stream, null);
+                var encoder = encoderFactory.GetCommandMessageEncoder();
+                encoder.Should().BeOfType<CommandMessageBinaryEncoder>();
+            }
+        }
+
+        [Fact]
+        public void GetCommandRequestMessageEncoder_should_return_a_CommandRequestMessageBinaryEncoder()
+        {
+            using (var stream = new MemoryStream())
+            {
+                var encoderFactory = new BinaryMessageEncoderFactory(stream, null);
+                var encoder = encoderFactory.GetCommandRequestMessageEncoder();
+                encoder.Should().BeOfType<CommandRequestMessageBinaryEncoder>();
+            }
+        }
+
+        [Fact]
+        public void GetCommandResponseMessageEncoder_should_return_a_CommandResponseMessageBinaryEncoder()
+        {
+            using (var stream = new MemoryStream())
+            {
+                var encoderFactory = new BinaryMessageEncoderFactory(stream, null);
+                var encoder = encoderFactory.GetCommandResponseMessageEncoder();
+                encoder.Should().BeOfType<CommandResponseMessageBinaryEncoder>();
+            }
+        }
+
+        [Fact]
         public void GetDeleteMessageEncoder_should_return_a_DeleteMessageBinaryEncoder()
         {
             using (var stream = new MemoryStream())

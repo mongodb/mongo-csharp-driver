@@ -56,20 +56,19 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Theory]
-        [InlineData(ServerType.Standalone, ReadPreferenceMode.Primary, false, false)]
-        [InlineData(ServerType.Standalone, ReadPreferenceMode.Primary, false, true)]
-        [InlineData(ServerType.Standalone, ReadPreferenceMode.Secondary, true, false)]
-        [InlineData(ServerType.Standalone, ReadPreferenceMode.Secondary, true, true)]
-        [InlineData(ServerType.Standalone, ReadPreferenceMode.SecondaryPreferred, true, false)]
-        [InlineData(ServerType.Standalone, ReadPreferenceMode.SecondaryPreferred, true, true)]
-        [InlineData(ServerType.ShardRouter, ReadPreferenceMode.Primary, false, false)]
-        [InlineData(ServerType.ShardRouter, ReadPreferenceMode.Primary, false, true)]
-        [InlineData(ServerType.ShardRouter, ReadPreferenceMode.SecondaryPreferred, true, false)]
-        [InlineData(ServerType.ShardRouter, ReadPreferenceMode.SecondaryPreferred, true, true)]
+        [InlineData(ServerType.Standalone, ReadPreferenceMode.Primary, false)]
+        [InlineData(ServerType.Standalone, ReadPreferenceMode.Primary, true)]
+        [InlineData(ServerType.Standalone, ReadPreferenceMode.Secondary, false)]
+        [InlineData(ServerType.Standalone, ReadPreferenceMode.Secondary, true)]
+        [InlineData(ServerType.Standalone, ReadPreferenceMode.SecondaryPreferred, false)]
+        [InlineData(ServerType.Standalone, ReadPreferenceMode.SecondaryPreferred, true)]
+        [InlineData(ServerType.ShardRouter, ReadPreferenceMode.Primary, false)]
+        [InlineData(ServerType.ShardRouter, ReadPreferenceMode.Primary, true)]
+        [InlineData(ServerType.ShardRouter, ReadPreferenceMode.SecondaryPreferred, false)]
+        [InlineData(ServerType.ShardRouter, ReadPreferenceMode.SecondaryPreferred, true)]
         public void Execute_should_call_channel_Command_with_unwrapped_command_when_wrapping_is_not_necessary(
             ServerType serverType,
             ReadPreferenceMode readPreferenceMode,
-            bool slaveOk,
             bool async)
         {
             var subject = CreateSubject<BsonDocument>();
@@ -94,7 +93,6 @@ namespace MongoDB.Driver.Core.Operations
                         subject.CommandValidator,
                         null, // additionalOptions
                         It.Is<Func<CommandResponseHandling>>(f => f() == CommandResponseHandling.Return),
-                        slaveOk,
                         subject.ResultSerializer,
                         subject.MessageEncoderSettings,
                         cancellationToken),
@@ -113,7 +111,6 @@ namespace MongoDB.Driver.Core.Operations
                         subject.CommandValidator,
                         null, // additionalOptions
                         It.Is<Func<CommandResponseHandling>>(f => f() == CommandResponseHandling.Return),
-                        slaveOk,
                         subject.ResultSerializer,
                         subject.MessageEncoderSettings,
                         cancellationToken),
@@ -136,7 +133,6 @@ namespace MongoDB.Driver.Core.Operations
             var binding = CreateMockReadBinding(readPreference, channelSource).Object;
             var cancellationToken = new CancellationTokenSource().Token;
             var additionalOptions = BsonDocument.Parse("{ $comment : \"comment\", additional : 1 }");
-            var slaveOk = false;
 
             BsonDocument result;
             if (async)
@@ -152,7 +148,6 @@ namespace MongoDB.Driver.Core.Operations
                         subject.CommandValidator,
                         additionalOptions,
                         It.Is<Func<CommandResponseHandling>>(f => f() == CommandResponseHandling.Return),
-                        slaveOk,
                         subject.ResultSerializer,
                         subject.MessageEncoderSettings,
                         cancellationToken),
@@ -171,7 +166,6 @@ namespace MongoDB.Driver.Core.Operations
                         subject.CommandValidator,
                         additionalOptions,
                         It.Is<Func<CommandResponseHandling>>(f => f() == CommandResponseHandling.Return),
-                        slaveOk,
                         subject.ResultSerializer,
                         subject.MessageEncoderSettings,
                         cancellationToken),
@@ -193,7 +187,6 @@ namespace MongoDB.Driver.Core.Operations
             var binding = CreateMockReadBinding(readPreference, channelSource).Object;
             var cancellationToken = new CancellationTokenSource().Token;
             var additionalOptions = BsonDocument.Parse("{ $comment : \"comment\" }");
-            var slaveOk = false;
 
             BsonDocument result;
             if (async)
@@ -209,7 +202,6 @@ namespace MongoDB.Driver.Core.Operations
                         subject.CommandValidator,
                         additionalOptions,
                         It.Is<Func<CommandResponseHandling>>(f => f() == CommandResponseHandling.Return),
-                        slaveOk,
                         subject.ResultSerializer,
                         subject.MessageEncoderSettings,
                         cancellationToken),
@@ -228,7 +220,6 @@ namespace MongoDB.Driver.Core.Operations
                         subject.CommandValidator,
                         additionalOptions,
                         It.Is<Func<CommandResponseHandling>>(f => f() == CommandResponseHandling.Return),
-                        slaveOk,
                         subject.ResultSerializer,
                         subject.MessageEncoderSettings,
                         cancellationToken),
@@ -251,7 +242,6 @@ namespace MongoDB.Driver.Core.Operations
             var binding = CreateMockReadBinding(readPreference, channelSource).Object;
             var cancellationToken = new CancellationTokenSource().Token;
             var additionalOptions = BsonDocument.Parse("{ $comment : \"comment\", additional : 1 }");
-            var slaveOk = true;
 
             BsonDocument result;
             if (async)
@@ -267,7 +257,6 @@ namespace MongoDB.Driver.Core.Operations
                         subject.CommandValidator,
                         additionalOptions,
                         It.Is<Func<CommandResponseHandling>>(f => f() == CommandResponseHandling.Return),
-                        slaveOk,
                         subject.ResultSerializer,
                         subject.MessageEncoderSettings,
                         cancellationToken),
@@ -286,7 +275,6 @@ namespace MongoDB.Driver.Core.Operations
                         subject.CommandValidator,
                         additionalOptions,
                         It.Is<Func<CommandResponseHandling>>(f => f() == CommandResponseHandling.Return),
-                        slaveOk,
                         subject.ResultSerializer,
                         subject.MessageEncoderSettings,
                         cancellationToken),

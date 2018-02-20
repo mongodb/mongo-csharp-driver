@@ -454,7 +454,7 @@ namespace MongoDB.Driver.Core.Operations
             return command;
         }
 
-        private AsyncCursor<TDocument> CreateCursor(IChannelSourceHandle channelSource, BsonDocument commandResult, bool slaveOk)
+        private AsyncCursor<TDocument> CreateCursor(IChannelSourceHandle channelSource, BsonDocument commandResult)
         {
             var getMoreChannelSource = new ServerChannelSource(channelSource.Server, channelSource.Session.Fork());
             var firstBatch = CreateCursorBatch(commandResult);
@@ -496,13 +496,12 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
             {
                 var readPreference = binding.ReadPreference;
-                var slaveOk = readPreference != null && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
 
                 using (EventContext.BeginFind(_batchSize, _limit))
                 {
                     var operation = CreateOperation(channel, channelBinding);
                     var commandResult = operation.Execute(channelBinding, cancellationToken);
-                    return CreateCursor(channelSource, commandResult, slaveOk);
+                    return CreateCursor(channelSource, commandResult);
                 }
             }
         }
@@ -518,13 +517,12 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
             {
                 var readPreference = binding.ReadPreference;
-                var slaveOk = readPreference != null && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
 
                 using (EventContext.BeginFind(_batchSize, _limit))
                 {
                     var operation = CreateOperation(channel, channelBinding);
                     var commandResult = await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
-                    return CreateCursor(channelSource, commandResult, slaveOk);
+                    return CreateCursor(channelSource, commandResult);
                 }
             }
         }

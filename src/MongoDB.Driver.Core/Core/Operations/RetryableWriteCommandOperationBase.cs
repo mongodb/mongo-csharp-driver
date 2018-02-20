@@ -153,7 +153,6 @@ namespace MongoDB.Driver.Core.Operations
                 NoOpElementNameValidator.Instance,
                 null, // additionalOptions,
                 () => CommandResponseHandling.Return,
-                false, // slaveOk
                 BsonDocumentSerializer.Instance,
                 _messageEncoderSettings,
                 cancellationToken);
@@ -171,7 +170,6 @@ namespace MongoDB.Driver.Core.Operations
                 NoOpElementNameValidator.Instance,
                 null, // additionalOptions,
                 () => CommandResponseHandling.Return,
-                false, // slaveOk
                 BsonDocumentSerializer.Instance,
                 _messageEncoderSettings,
                 cancellationToken);

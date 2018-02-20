@@ -175,7 +175,6 @@ namespace MongoDB.Driver.Core.Operations
                 NoOpElementNameValidator.Instance,
                 null, // additionalOptions
                 () => CommandResponseHandling.Return,
-                false, // slaveOk
                 __getMoreCommandResultSerializer,
                 _messageEncoderSettings,
                 cancellationToken);
@@ -194,7 +193,6 @@ namespace MongoDB.Driver.Core.Operations
                 NoOpElementNameValidator.Instance,
                 null, // additionalOptions
                 () => CommandResponseHandling.Return,
-                false, // slaveOk
                 __getMoreCommandResultSerializer,
                 _messageEncoderSettings,
                 cancellationToken).ConfigureAwait(false);

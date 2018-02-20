@@ -22,6 +22,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     public enum MongoDBMessageType
     {
         /// <summary>
+        /// OP MSG
+        /// </summary>
+        Command,
+        /// <summary>
         /// OP_DELETE
         /// </summary>
         Delete,

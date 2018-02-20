@@ -32,6 +32,7 @@ using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
@@ -309,6 +310,7 @@ namespace MongoDB.Driver.Core.Servers
             }
 
             // methods
+            [Obsolete("Use the newest overload instead.")]
             public TResult Command<TResult>(
                 DatabaseNamespace databaseNamespace,
                 BsonDocument command,
@@ -319,20 +321,21 @@ namespace MongoDB.Driver.Core.Servers
                 MessageEncoderSettings messageEncoderSettings,
                 CancellationToken cancellationToken)
             {
+                var readPreference = GetEffectiveReadPreference(slaveOk, null);
                 return Command(
                     NoCoreSession.Instance,
-                    null, // readPreference
+                    readPreference,
                     databaseNamespace,
                     command,
                     commandValidator,
                     null, // additionalOptions
                     responseHandling,
-                    slaveOk,
                     resultSerializer,
                     messageEncoderSettings,
                     cancellationToken);
             }
 
+            [Obsolete("Use the newest overload instead.")]
             public TResult Command<TResult>(
                 ICoreSession session,
                 ReadPreference readPreference,
@@ -346,7 +349,32 @@ namespace MongoDB.Driver.Core.Servers
                 MessageEncoderSettings messageEncoderSettings,
                 CancellationToken cancellationToken)
             {
-                slaveOk = GetEffectiveSlaveOk(slaveOk);
+                readPreference = GetEffectiveReadPreference(slaveOk, readPreference);
+                return Command(
+                    session,
+                    readPreference,
+                    databaseNamespace,
+                    command,
+                    commandValidator,
+                    additionalOptions,
+                    responseHandling,
+                    resultSerializer,
+                    messageEncoderSettings,
+                    cancellationToken);
+            }
+
+            public TResult Command<TResult>(
+                ICoreSession session,
+                ReadPreference readPreference,
+                DatabaseNamespace databaseNamespace,
+                BsonDocument command,
+                IElementNameValidator commandValidator,
+                BsonDocument additionalOptions,
+                Func<CommandResponseHandling> responseHandling,
+                IBsonSerializer<TResult> resultSerializer,
+                MessageEncoderSettings messageEncoderSettings,
+                CancellationToken cancellationToken)
+            {
                 var protocol = new CommandWireProtocol<TResult>(
                     CreateClusterClockAdvancingCoreSession(session),
                     readPreference,
@@ -355,13 +383,13 @@ namespace MongoDB.Driver.Core.Servers
                     commandValidator,
                     additionalOptions,
                     responseHandling,
-                    slaveOk,
                     resultSerializer,
                     messageEncoderSettings);
 
                 return ExecuteProtocol(protocol, cancellationToken);
             }
 
+            [Obsolete("Use the newest overload instead.")]
             public Task<TResult> CommandAsync<TResult>(
                 DatabaseNamespace databaseNamespace,
                 BsonDocument command,
@@ -372,20 +400,21 @@ namespace MongoDB.Driver.Core.Servers
                 MessageEncoderSettings messageEncoderSettings,
                 CancellationToken cancellationToken)
             {
+                var readPreference = GetEffectiveReadPreference(slaveOk, null);
                 return CommandAsync(
                     NoCoreSession.Instance,
-                    null, // readPreference
+                    readPreference,
                     databaseNamespace,
                     command,
                     commandValidator,
                     null, // additionalOptions
                     responseHandling,
-                    slaveOk,
                     resultSerializer,
                     messageEncoderSettings,
                     cancellationToken);
             }
 
+            [Obsolete("Use the newest overload instead.")]
             public Task<TResult> CommandAsync<TResult>(
                 ICoreSession session,
                 ReadPreference readPreference,
@@ -399,7 +428,32 @@ namespace MongoDB.Driver.Core.Servers
                 MessageEncoderSettings messageEncoderSettings,
                 CancellationToken cancellationToken)
             {
-                slaveOk = GetEffectiveSlaveOk(slaveOk);
+                readPreference = GetEffectiveReadPreference(slaveOk, readPreference);
+                return CommandAsync(
+                    session,
+                    readPreference,
+                    databaseNamespace,
+                    command,
+                    commandValidator,
+                    additionalOptions,
+                    responseHandling,
+                    resultSerializer,
+                    messageEncoderSettings,
+                    cancellationToken);
+            }
+
+            public Task<TResult> CommandAsync<TResult>(
+                ICoreSession session,
+                ReadPreference readPreference,
+                DatabaseNamespace databaseNamespace,
+                BsonDocument command,
+                IElementNameValidator commandValidator,
+                BsonDocument additionalOptions,
+                Func<CommandResponseHandling> responseHandling,
+                IBsonSerializer<TResult> resultSerializer,
+                MessageEncoderSettings messageEncoderSettings,
+                CancellationToken cancellationToken)
+            {
                 var protocol = new CommandWireProtocol<TResult>(
                     CreateClusterClockAdvancingCoreSession(session),
                     readPreference,
@@ -408,7 +462,6 @@ namespace MongoDB.Driver.Core.Servers
                     commandValidator,
                     additionalOptions,
                     responseHandling,
-                    slaveOk,
                     resultSerializer,
                     messageEncoderSettings);
 
@@ -759,6 +812,27 @@ namespace MongoDB.Driver.Core.Servers
             {
                 ThrowIfDisposed();
                 return new ServerChannel(_server, _connection.Fork());
+            }
+
+            private ReadPreference GetEffectiveReadPreference(bool slaveOk, ReadPreference readPreference)
+            {
+                if (_server._clusterConnectionMode == ClusterConnectionMode.Direct && _server.Description.Type != ServerType.ShardRouter)
+                {
+                    return ReadPreference.PrimaryPreferred;
+                }
+
+                if (readPreference == null)
+                {
+                    return slaveOk ? ReadPreference.SecondaryPreferred : ReadPreference.Primary;
+                }
+
+                var impliedSlaveOk = readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
+                if (slaveOk != impliedSlaveOk)
+                {
+                    throw new ArgumentException($"slaveOk {slaveOk} is inconsistent with read preference mode: {readPreference.ReadPreferenceMode}.");
+                }
+
+                return readPreference;
             }
 
             private bool GetEffectiveSlaveOk(bool slaveOk)
