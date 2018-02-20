@@ -124,12 +124,10 @@ namespace MongoDB.Driver.Core.Connections
 
         private void Connect(Socket socket, EndPoint endPoint, CancellationToken cancellationToken)
         {
-            var connected = false;
-            var cancelled = false;
-            var timedOut = false;
+	        long state = (long)ConnectState.Initial;
 
-            using (var registration = cancellationToken.Register(() => { if (!connected) { cancelled = true; try { socket.Dispose(); } catch { } } }))
-            using (var timer = new Timer(_ => { if (!connected) { timedOut = true; try { socket.Dispose(); } catch { } } }, null, _settings.ConnectTimeout, Timeout.InfiniteTimeSpan))
+	        using (cancellationToken.Register(() => { if (CompareExchange(ref state, ConnectState.Cancelled, ConnectState.Initial)) SafeDispose(socket); }))
+	        using (new Timer(_ => { if (CompareExchange(ref state, ConnectState.TimedOut, ConnectState.Initial)) SafeDispose(socket); }, null, _settings.ConnectTimeout, Timeout.InfiniteTimeSpan))
             {
                 try
                 {
@@ -143,78 +141,99 @@ namespace MongoDB.Driver.Core.Connections
                     {
                         socket.Connect(endPoint);
                     }
-                    connected = true;
-                    return;
+
+	                if (CompareExchange(ref state, ConnectState.Connected, ConnectState.Initial))
+	                {
+		                return;
+	                }
                 }
                 catch
                 {
-                    if (!cancelled && !timedOut)
-                    {
-                        try { socket.Dispose(); } catch { }
-                        throw;
-                    }
+	                var currentState = (ConnectState)Interlocked.Read(ref state);
+	                if (currentState != ConnectState.Cancelled && currentState != ConnectState.TimedOut)
+	                {
+		                SafeDispose(socket);
+		                throw;
+	                }
                 }
             }
 
-            try { socket.Dispose(); } catch { }
+	        SafeDispose(socket);
+	        cancellationToken.ThrowIfCancellationRequested();
 
-            cancellationToken.ThrowIfCancellationRequested();
-            if (timedOut)
-            {
-                var message = string.Format("Timed out connecting to {0}. Timeout was {1}.", endPoint, _settings.ConnectTimeout);
-                throw new TimeoutException(message);
-            }
+	        if ((ConnectState) Interlocked.Read(ref state) == ConnectState.TimedOut)
+	        {
+		        var message = string.Format("Timed out connecting to {0}. Timeout was {1}.", endPoint, _settings.ConnectTimeout);
+		        throw new TimeoutException(message);
+	        }
         }
 
-        private async Task ConnectAsync(Socket socket, EndPoint endPoint, CancellationToken cancellationToken)
+		private async Task ConnectAsync(Socket socket, EndPoint endPoint, CancellationToken cancellationToken)
         {
-            var connected = false;
-            var cancelled = false;
-            var timedOut = false;
+	        long state = (long)ConnectState.Initial;
 
-            using (var registration = cancellationToken.Register(() => { if (!connected) { cancelled = true; try { socket.Dispose(); } catch { } } }))
-            using (var timer = new Timer(_ => { if (!connected) { timedOut = true; try { socket.Dispose(); } catch { } } }, null, _settings.ConnectTimeout, Timeout.InfiniteTimeSpan))
-            {
-                try
-                {
-                    var dnsEndPoint = endPoint as DnsEndPoint;
+	        using (cancellationToken.Register(() => { if (CompareExchange(ref state, ConnectState.Cancelled, ConnectState.Initial)) SafeDispose(socket); }))
+	        using (new Timer(_ => { if (CompareExchange(ref state, ConnectState.TimedOut, ConnectState.Initial)) SafeDispose(socket); }, null, _settings.ConnectTimeout, Timeout.InfiniteTimeSpan))
+	        {
+		        try
+		        {
+			        var dnsEndPoint = endPoint as DnsEndPoint;
 #if NETSTANDARD1_5 || NETSTANDARD1_6
                     await Task.Run(() => socket.Connect(endPoint)); // TODO: honor cancellationToken
 #else
-                    if (dnsEndPoint != null)
-                    {
-                        // mono doesn't support DnsEndPoint in its BeginConnect method.
-                        await Task.Factory.FromAsync(socket.BeginConnect(dnsEndPoint.Host, dnsEndPoint.Port, null, null), socket.EndConnect).ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        await Task.Factory.FromAsync(socket.BeginConnect(endPoint, null, null), socket.EndConnect).ConfigureAwait(false);
-                    }
+			        if (dnsEndPoint != null)
+			        {
+				        // mono doesn't support DnsEndPoint in its BeginConnect method.
+				        await Task.Factory.FromAsync(socket.BeginConnect(dnsEndPoint.Host, dnsEndPoint.Port, null, null), socket.EndConnect).ConfigureAwait(false);
+			        }
+			        else
+			        {
+				        await Task.Factory.FromAsync(socket.BeginConnect(endPoint, null, null), socket.EndConnect).ConfigureAwait(false);
+			        }
 #endif
-                    connected = true;
-                    return;
-                }
-                catch
-                {
-                    if (!cancelled && !timedOut)
-                    {
-                        try { socket.Dispose(); } catch { }
-                        throw;
-                    }
-                }
-            }
+			        if (CompareExchange(ref state, ConnectState.Connected, ConnectState.Initial))
+			        {
+				        return;
+			        }
+		        }
+		        catch
+		        {
+			        var currentState = (ConnectState)Interlocked.Read(ref state);
+			        if (currentState != ConnectState.Cancelled && currentState != ConnectState.TimedOut)
+			        {
+				        SafeDispose(socket);
+				        throw;
+			        }
+		        }
+	        }
 
-            try { socket.Dispose(); } catch { }
-
+	        SafeDispose(socket);
             cancellationToken.ThrowIfCancellationRequested();
-            if (timedOut)
+
+            if ((ConnectState) Interlocked.Read(ref state) == ConnectState.TimedOut)
             {
                 var message = string.Format("Timed out connecting to {0}. Timeout was {1}.", endPoint, _settings.ConnectTimeout);
                 throw new TimeoutException(message);
             }
         }
 
-        private NetworkStream CreateNetworkStream(Socket socket)
+	    private static bool CompareExchange(ref long state, ConnectState value, ConnectState comparand)
+	    {
+		    return Interlocked.CompareExchange(ref state, (long)value, (long)comparand) == (long)comparand;
+	    }
+
+	    private static void SafeDispose(Socket socket)
+	    {
+		    try
+		    {
+			    socket.Dispose();
+		    }
+		    catch
+		    {
+		    }
+	    }
+
+	    private NetworkStream CreateNetworkStream(Socket socket)
         {
             ConfigureConnectedSocket(socket);
 
@@ -293,17 +312,27 @@ namespace MongoDB.Driver.Core.Connections
                 {
                     return 0;
                 }
+
                 if (x.AddressFamily == _preferred)
                 {
                     return -1;
                 }
-                else if (y.AddressFamily == _preferred)
-                {
-                    return 1;
-                }
 
-                return 0;
+	            if (y.AddressFamily == _preferred)
+	            {
+		            return 1;
+	            }
+
+	            return 0;
             }
         }
+
+	    private enum ConnectState : long
+	    {
+		    Initial = 0,
+		    Connected = 1,
+		    Cancelled = 2,
+		    TimedOut = 3
+	    }
     }
 }
