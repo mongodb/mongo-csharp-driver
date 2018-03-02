@@ -78,7 +78,7 @@ namespace MongoDB.Bson.IO
             var actualSize = position - _startPosition;
             if (actualSize != _size)
             {
-                var message = string.Format("Expected size to be {0}, not {1}.", _size, actualSize);
+                var message = $"Expected size to be {_size}, not {actualSize}.";
                 throw new FormatException(message);
             }
             return _parentContext;

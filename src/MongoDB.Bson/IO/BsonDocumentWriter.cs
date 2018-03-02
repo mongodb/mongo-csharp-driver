@@ -23,7 +23,7 @@ namespace MongoDB.Bson.IO
     public class BsonDocumentWriter : BsonWriter
     {
         // private fields
-        private BsonDocument _document;
+        private readonly BsonDocument _document;
         private BsonDocumentWriterContext _context;
 
         // constructors
@@ -46,7 +46,7 @@ namespace MongoDB.Bson.IO
         {
             if (document == null)
             {
-                throw new ArgumentNullException("document");
+                throw new ArgumentNullException(nameof(document));
             }
 
             _document = document;
@@ -234,14 +234,7 @@ namespace MongoDB.Bson.IO
                 }
             }
 
-            if (_context == null)
-            {
-                State = BsonWriterState.Done;
-            }
-            else
-            {
-                State = GetNextState();
-            }
+            State = _context == null ? BsonWriterState.Done : GetNextState();
         }
 
         /// <summary>

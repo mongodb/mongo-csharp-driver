@@ -129,7 +129,7 @@ namespace MongoDB.Bson
         /// <returns>True if the two BsonDateTime values are equal according to ==.</returns>
         public static bool operator ==(BsonDateTime lhs, BsonDateTime rhs)
         {
-            if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
+            if (ReferenceEquals(lhs, null)) { return ReferenceEquals(rhs, null); }
             return lhs.Equals(rhs);
         }
 
@@ -143,7 +143,7 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
 
             return (BsonDateTime)BsonTypeMapper.MapToBsonValue(value, BsonType.DateTime);
@@ -189,7 +189,7 @@ namespace MongoDB.Bson
         /// <returns>True if the two BsonDateTime values are equal.</returns>
         public bool Equals(BsonDateTime rhs)
         {
-            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
+            if (ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             return _millisecondsSinceEpoch == rhs._millisecondsSinceEpoch;
         }
 

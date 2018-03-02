@@ -24,8 +24,8 @@ namespace MongoDB.Bson
     public static class BsonSymbolTable
     {
         // private static fields
-        private static object __staticLock = new object();
-        private static Dictionary<string, BsonSymbol> __symbolTable = new Dictionary<string, BsonSymbol>();
+        private static readonly object __staticLock = new object();
+        private static readonly Dictionary<string, BsonSymbol> __symbolTable = new Dictionary<string, BsonSymbol>();
 
         // public static methods
         /// <summary>
@@ -37,7 +37,7 @@ namespace MongoDB.Bson
         {
             if (name == null)
             {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
             lock (__staticLock)
             {

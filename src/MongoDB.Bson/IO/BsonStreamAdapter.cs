@@ -29,7 +29,7 @@ namespace MongoDB.Bson.IO
     {
         // fields
         private bool _disposed;
-        private bool _ownsStream;
+        private readonly bool _ownsStream;
         private readonly Stream _stream;
         private readonly byte[] _temp = new byte[12];
         private readonly byte[] _tempUtf8 = new byte[128];
@@ -45,7 +45,7 @@ namespace MongoDB.Bson.IO
         {
             if (stream == null)
             {
-                throw new ArgumentNullException("stream");
+                throw new ArgumentNullException(nameof(stream));
             }
 
             _stream = stream;
@@ -272,7 +272,7 @@ namespace MongoDB.Bson.IO
         {
             if (encoding == null)
             {
-                throw new ArgumentNullException("encoding");
+                throw new ArgumentNullException(nameof(encoding));
             }
             ThrowIfDisposed();
 
@@ -367,7 +367,7 @@ namespace MongoDB.Bson.IO
         {
             if (encoding == null)
             {
-                throw new ArgumentNullException("encoding");
+                throw new ArgumentNullException(nameof(encoding));
             }
             ThrowIfDisposed();
 
@@ -450,7 +450,7 @@ namespace MongoDB.Bson.IO
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
             ThrowIfDisposed();
 
@@ -467,7 +467,7 @@ namespace MongoDB.Bson.IO
                 bytes = Utf8Encodings.Strict.GetBytes(value);
                 if (Array.IndexOf<byte>(bytes, 0) != -1)
                 {
-                    throw new ArgumentException("A CString cannot contain null bytes.", "value");
+                    throw new ArgumentException("A CString cannot contain null bytes.", nameof(value));
                 }
                 length = bytes.Length;
             }
@@ -481,7 +481,7 @@ namespace MongoDB.Bson.IO
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
             ThrowIfDisposed();
 
@@ -537,11 +537,11 @@ namespace MongoDB.Bson.IO
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
             if (encoding == null)
             {
-                throw new ArgumentNullException("encoding");
+                throw new ArgumentNullException(nameof(encoding));
             }
             ThrowIfDisposed();
 

@@ -101,10 +101,7 @@ namespace MongoDB.Bson.Serialization
             Action<Builder> configurator = null)
         {
             var builder = new Builder(null, reader);
-            if (configurator != null)
-            {
-                configurator(builder);
-            }
+            configurator?.Invoke(builder);
             return builder.Build();
         }
 
@@ -120,10 +117,7 @@ namespace MongoDB.Bson.Serialization
             Action<Builder> configurator = null)
         {
             var builder = new Builder(this, _reader);
-            if (configurator != null)
-            {
-                configurator(builder);
-            }
+            configurator?.Invoke(builder);
             return builder.Build();
         }
 
@@ -137,14 +131,14 @@ namespace MongoDB.Bson.Serialization
             private bool _allowDuplicateElementNames;
             private IBsonSerializer _dynamicArraySerializer;
             private IBsonSerializer _dynamicDocumentSerializer;
-            private IBsonReader _reader;
+            private readonly IBsonReader _reader;
 
             // constructors
             internal Builder(BsonDeserializationContext other, IBsonReader reader)
             {
                 if (reader == null)
                 {
-                    throw new ArgumentNullException("reader");
+                    throw new ArgumentNullException(nameof(reader));
                 }
 
                 _reader = reader;

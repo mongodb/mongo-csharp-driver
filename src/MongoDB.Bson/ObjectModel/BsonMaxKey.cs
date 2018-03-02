@@ -26,7 +26,7 @@ namespace MongoDB.Bson
     public class BsonMaxKey : BsonValue, IComparable<BsonMaxKey>, IEquatable<BsonMaxKey>
     {
         // private static fields
-        private static BsonMaxKey __value = new BsonMaxKey();
+        private static readonly BsonMaxKey __value = new BsonMaxKey();
 
         // constructors
         // private so only the singleton instance can be created
@@ -54,7 +54,7 @@ namespace MongoDB.Bson
         /// <returns>True if the two BsonMaxKey values are equal according to ==.</returns>
         public static bool operator ==(BsonMaxKey lhs, BsonMaxKey rhs)
         {
-            if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
+            if (ReferenceEquals(lhs, null)) { return ReferenceEquals(rhs, null); }
             return lhs.Equals(rhs);
         }
 
@@ -104,7 +104,7 @@ namespace MongoDB.Bson
         /// <returns>True if the two BsonMaxKey values are equal.</returns>
         public bool Equals(BsonMaxKey rhs)
         {
-            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
+            if (ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             return true; // it's a singleton
         }
 

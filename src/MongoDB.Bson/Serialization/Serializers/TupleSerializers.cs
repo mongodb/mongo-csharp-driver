@@ -42,7 +42,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         public TupleSerializer(
             IBsonSerializer<T1> item1Serializer)
         {
-            if (item1Serializer == null) { throw new ArgumentNullException("item1Serializer"); }
+            if (item1Serializer == null) { throw new ArgumentNullException(nameof(item1Serializer)); }
 
             _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => item1Serializer);
         }
@@ -53,9 +53,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="serializerRegistry">The serializer registry.</param>
         public TupleSerializer(IBsonSerializerRegistry serializerRegistry)
         {
-            if (serializerRegistry == null) { throw new ArgumentNullException("serializerRegistry"); }
+            if (serializerRegistry == null) { throw new ArgumentNullException(nameof(serializerRegistry)); }
 
-            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => serializerRegistry.GetSerializer<T1>());
+            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(serializerRegistry.GetSerializer<T1>);
         }
 
         // public properties
@@ -126,8 +126,8 @@ namespace MongoDB.Bson.Serialization.Serializers
             IBsonSerializer<T1> item1Serializer,
             IBsonSerializer<T2> item2Serializer)
         {
-            if (item1Serializer == null) { throw new ArgumentNullException("item1Serializer"); }
-            if (item2Serializer == null) { throw new ArgumentNullException("item2Serializer"); }
+            if (item1Serializer == null) { throw new ArgumentNullException(nameof(item1Serializer)); }
+            if (item2Serializer == null) { throw new ArgumentNullException(nameof(item2Serializer)); }
 
             _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => item1Serializer);
             _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(() => item2Serializer);
@@ -139,10 +139,10 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="serializerRegistry">The serializer registry.</param>
         public TupleSerializer(IBsonSerializerRegistry serializerRegistry)
         {
-            if (serializerRegistry == null) { throw new ArgumentNullException("serializerRegistry"); }
+            if (serializerRegistry == null) { throw new ArgumentNullException(nameof(serializerRegistry)); }
 
-            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => serializerRegistry.GetSerializer<T1>());
-            _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(() => serializerRegistry.GetSerializer<T2>());
+            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(serializerRegistry.GetSerializer<T1>);
+            _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(serializerRegistry.GetSerializer<T2>);
         }
 
         // public properties
@@ -227,9 +227,9 @@ namespace MongoDB.Bson.Serialization.Serializers
             IBsonSerializer<T2> item2Serializer,
             IBsonSerializer<T3> item3Serializer)
         {
-            if (item1Serializer == null) { throw new ArgumentNullException("item1Serializer"); }
-            if (item2Serializer == null) { throw new ArgumentNullException("item2Serializer"); }
-            if (item3Serializer == null) { throw new ArgumentNullException("item3Serializer"); }
+            if (item1Serializer == null) { throw new ArgumentNullException(nameof(item1Serializer)); }
+            if (item2Serializer == null) { throw new ArgumentNullException(nameof(item2Serializer)); }
+            if (item3Serializer == null) { throw new ArgumentNullException(nameof(item3Serializer)); }
 
             _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => item1Serializer);
             _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(() => item2Serializer);
@@ -242,11 +242,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="serializerRegistry">The serializer registry.</param>
         public TupleSerializer(IBsonSerializerRegistry serializerRegistry)
         {
-            if (serializerRegistry == null) { throw new ArgumentNullException("serializerRegistry"); }
+            if (serializerRegistry == null) { throw new ArgumentNullException(nameof(serializerRegistry)); }
 
-            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => serializerRegistry.GetSerializer<T1>());
-            _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(() => serializerRegistry.GetSerializer<T2>());
-            _lazyItem3Serializer = new Lazy<IBsonSerializer<T3>>(() => serializerRegistry.GetSerializer<T3>());
+            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(serializerRegistry.GetSerializer<T1>);
+            _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(serializerRegistry.GetSerializer<T2>);
+            _lazyItem3Serializer = new Lazy<IBsonSerializer<T3>>(serializerRegistry.GetSerializer<T3>);
         }
 
         // public properties
@@ -345,10 +345,10 @@ namespace MongoDB.Bson.Serialization.Serializers
             IBsonSerializer<T3> item3Serializer,
             IBsonSerializer<T4> item4Serializer)
         {
-            if (item1Serializer == null) { throw new ArgumentNullException("item1Serializer"); }
-            if (item2Serializer == null) { throw new ArgumentNullException("item2Serializer"); }
-            if (item3Serializer == null) { throw new ArgumentNullException("item3Serializer"); }
-            if (item4Serializer == null) { throw new ArgumentNullException("item4Serializer"); }
+            if (item1Serializer == null) { throw new ArgumentNullException(nameof(item1Serializer)); }
+            if (item2Serializer == null) { throw new ArgumentNullException(nameof(item2Serializer)); }
+            if (item3Serializer == null) { throw new ArgumentNullException(nameof(item3Serializer)); }
+            if (item4Serializer == null) { throw new ArgumentNullException(nameof(item4Serializer)); }
 
             _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => item1Serializer);
             _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(() => item2Serializer);
@@ -362,12 +362,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="serializerRegistry">The serializer registry.</param>
         public TupleSerializer(IBsonSerializerRegistry serializerRegistry)
         {
-            if (serializerRegistry == null) { throw new ArgumentNullException("serializerRegistry"); }
+            if (serializerRegistry == null) { throw new ArgumentNullException(nameof(serializerRegistry)); }
 
-            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => serializerRegistry.GetSerializer<T1>());
-            _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(() => serializerRegistry.GetSerializer<T2>());
-            _lazyItem3Serializer = new Lazy<IBsonSerializer<T3>>(() => serializerRegistry.GetSerializer<T3>());
-            _lazyItem4Serializer = new Lazy<IBsonSerializer<T4>>(() => serializerRegistry.GetSerializer<T4>());
+            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(serializerRegistry.GetSerializer<T1>);
+            _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(serializerRegistry.GetSerializer<T2>);
+            _lazyItem3Serializer = new Lazy<IBsonSerializer<T3>>(serializerRegistry.GetSerializer<T3>);
+            _lazyItem4Serializer = new Lazy<IBsonSerializer<T4>>(serializerRegistry.GetSerializer<T4>);
         }
 
         // public properties
@@ -480,11 +480,11 @@ namespace MongoDB.Bson.Serialization.Serializers
             IBsonSerializer<T4> item4Serializer,
             IBsonSerializer<T5> item5Serializer)
         {
-            if (item1Serializer == null) { throw new ArgumentNullException("item1Serializer"); }
-            if (item2Serializer == null) { throw new ArgumentNullException("item2Serializer"); }
-            if (item3Serializer == null) { throw new ArgumentNullException("item3Serializer"); }
-            if (item4Serializer == null) { throw new ArgumentNullException("item4Serializer"); }
-            if (item5Serializer == null) { throw new ArgumentNullException("item5Serializer"); }
+            if (item1Serializer == null) { throw new ArgumentNullException(nameof(item1Serializer)); }
+            if (item2Serializer == null) { throw new ArgumentNullException(nameof(item2Serializer)); }
+            if (item3Serializer == null) { throw new ArgumentNullException(nameof(item3Serializer)); }
+            if (item4Serializer == null) { throw new ArgumentNullException(nameof(item4Serializer)); }
+            if (item5Serializer == null) { throw new ArgumentNullException(nameof(item5Serializer)); }
 
             _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => item1Serializer);
             _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(() => item2Serializer);
@@ -499,13 +499,13 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="serializerRegistry">The serializer registry.</param>
         public TupleSerializer(IBsonSerializerRegistry serializerRegistry)
         {
-            if (serializerRegistry == null) { throw new ArgumentNullException("serializerRegistry"); }
+            if (serializerRegistry == null) { throw new ArgumentNullException(nameof(serializerRegistry)); }
 
-            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => serializerRegistry.GetSerializer<T1>());
-            _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(() => serializerRegistry.GetSerializer<T2>());
-            _lazyItem3Serializer = new Lazy<IBsonSerializer<T3>>(() => serializerRegistry.GetSerializer<T3>());
-            _lazyItem4Serializer = new Lazy<IBsonSerializer<T4>>(() => serializerRegistry.GetSerializer<T4>());
-            _lazyItem5Serializer = new Lazy<IBsonSerializer<T5>>(() => serializerRegistry.GetSerializer<T5>());
+            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(serializerRegistry.GetSerializer<T1>);
+            _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(serializerRegistry.GetSerializer<T2>);
+            _lazyItem3Serializer = new Lazy<IBsonSerializer<T3>>(serializerRegistry.GetSerializer<T3>);
+            _lazyItem4Serializer = new Lazy<IBsonSerializer<T4>>(serializerRegistry.GetSerializer<T4>);
+            _lazyItem5Serializer = new Lazy<IBsonSerializer<T5>>(serializerRegistry.GetSerializer<T5>);
         }
 
         // public properties
@@ -632,12 +632,12 @@ namespace MongoDB.Bson.Serialization.Serializers
             IBsonSerializer<T5> item5Serializer,
             IBsonSerializer<T6> item6Serializer)
         {
-            if (item1Serializer == null) { throw new ArgumentNullException("item1Serializer"); }
-            if (item2Serializer == null) { throw new ArgumentNullException("item2Serializer"); }
-            if (item3Serializer == null) { throw new ArgumentNullException("item3Serializer"); }
-            if (item4Serializer == null) { throw new ArgumentNullException("item4Serializer"); }
-            if (item5Serializer == null) { throw new ArgumentNullException("item5Serializer"); }
-            if (item6Serializer == null) { throw new ArgumentNullException("item6Serializer"); }
+            if (item1Serializer == null) { throw new ArgumentNullException(nameof(item1Serializer)); }
+            if (item2Serializer == null) { throw new ArgumentNullException(nameof(item2Serializer)); }
+            if (item3Serializer == null) { throw new ArgumentNullException(nameof(item3Serializer)); }
+            if (item4Serializer == null) { throw new ArgumentNullException(nameof(item4Serializer)); }
+            if (item5Serializer == null) { throw new ArgumentNullException(nameof(item5Serializer)); }
+            if (item6Serializer == null) { throw new ArgumentNullException(nameof(item6Serializer)); }
 
             _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => item1Serializer);
             _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(() => item2Serializer);
@@ -653,14 +653,14 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="serializerRegistry">The serializer registry.</param>
         public TupleSerializer(IBsonSerializerRegistry serializerRegistry)
         {
-            if (serializerRegistry == null) { throw new ArgumentNullException("serializerRegistry"); }
+            if (serializerRegistry == null) { throw new ArgumentNullException(nameof(serializerRegistry)); }
 
-            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => serializerRegistry.GetSerializer<T1>());
-            _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(() => serializerRegistry.GetSerializer<T2>());
-            _lazyItem3Serializer = new Lazy<IBsonSerializer<T3>>(() => serializerRegistry.GetSerializer<T3>());
-            _lazyItem4Serializer = new Lazy<IBsonSerializer<T4>>(() => serializerRegistry.GetSerializer<T4>());
-            _lazyItem5Serializer = new Lazy<IBsonSerializer<T5>>(() => serializerRegistry.GetSerializer<T5>());
-            _lazyItem6Serializer = new Lazy<IBsonSerializer<T6>>(() => serializerRegistry.GetSerializer<T6>());
+            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(serializerRegistry.GetSerializer<T1>);
+            _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(serializerRegistry.GetSerializer<T2>);
+            _lazyItem3Serializer = new Lazy<IBsonSerializer<T3>>(serializerRegistry.GetSerializer<T3>);
+            _lazyItem4Serializer = new Lazy<IBsonSerializer<T4>>(serializerRegistry.GetSerializer<T4>);
+            _lazyItem5Serializer = new Lazy<IBsonSerializer<T5>>(serializerRegistry.GetSerializer<T5>);
+            _lazyItem6Serializer = new Lazy<IBsonSerializer<T6>>(serializerRegistry.GetSerializer<T6>);
         }
 
         // public properties
@@ -801,13 +801,13 @@ namespace MongoDB.Bson.Serialization.Serializers
             IBsonSerializer<T6> item6Serializer,
             IBsonSerializer<T7> item7Serializer)
         {
-            if (item1Serializer == null) { throw new ArgumentNullException("item1Serializer"); }
-            if (item2Serializer == null) { throw new ArgumentNullException("item2Serializer"); }
-            if (item3Serializer == null) { throw new ArgumentNullException("item3Serializer"); }
-            if (item4Serializer == null) { throw new ArgumentNullException("item4Serializer"); }
-            if (item5Serializer == null) { throw new ArgumentNullException("item5Serializer"); }
-            if (item6Serializer == null) { throw new ArgumentNullException("item6Serializer"); }
-            if (item7Serializer == null) { throw new ArgumentNullException("item7Serializer"); }
+            if (item1Serializer == null) { throw new ArgumentNullException(nameof(item1Serializer)); }
+            if (item2Serializer == null) { throw new ArgumentNullException(nameof(item2Serializer)); }
+            if (item3Serializer == null) { throw new ArgumentNullException(nameof(item3Serializer)); }
+            if (item4Serializer == null) { throw new ArgumentNullException(nameof(item4Serializer)); }
+            if (item5Serializer == null) { throw new ArgumentNullException(nameof(item5Serializer)); }
+            if (item6Serializer == null) { throw new ArgumentNullException(nameof(item6Serializer)); }
+            if (item7Serializer == null) { throw new ArgumentNullException(nameof(item7Serializer)); }
 
             _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => item1Serializer);
             _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(() => item2Serializer);
@@ -824,15 +824,15 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="serializerRegistry">The serializer registry.</param>
         public TupleSerializer(IBsonSerializerRegistry serializerRegistry)
         {
-            if (serializerRegistry == null) { throw new ArgumentNullException("serializerRegistry"); }
+            if (serializerRegistry == null) { throw new ArgumentNullException(nameof(serializerRegistry)); }
 
-            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => serializerRegistry.GetSerializer<T1>());
-            _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(() => serializerRegistry.GetSerializer<T2>());
-            _lazyItem3Serializer = new Lazy<IBsonSerializer<T3>>(() => serializerRegistry.GetSerializer<T3>());
-            _lazyItem4Serializer = new Lazy<IBsonSerializer<T4>>(() => serializerRegistry.GetSerializer<T4>());
-            _lazyItem5Serializer = new Lazy<IBsonSerializer<T5>>(() => serializerRegistry.GetSerializer<T5>());
-            _lazyItem6Serializer = new Lazy<IBsonSerializer<T6>>(() => serializerRegistry.GetSerializer<T6>());
-            _lazyItem7Serializer = new Lazy<IBsonSerializer<T7>>(() => serializerRegistry.GetSerializer<T7>());
+            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(serializerRegistry.GetSerializer<T1>);
+            _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(serializerRegistry.GetSerializer<T2>);
+            _lazyItem3Serializer = new Lazy<IBsonSerializer<T3>>(serializerRegistry.GetSerializer<T3>);
+            _lazyItem4Serializer = new Lazy<IBsonSerializer<T4>>(serializerRegistry.GetSerializer<T4>);
+            _lazyItem5Serializer = new Lazy<IBsonSerializer<T5>>(serializerRegistry.GetSerializer<T5>);
+            _lazyItem6Serializer = new Lazy<IBsonSerializer<T6>>(serializerRegistry.GetSerializer<T6>);
+            _lazyItem7Serializer = new Lazy<IBsonSerializer<T7>>(serializerRegistry.GetSerializer<T7>);
         }
 
         // public properties
@@ -987,14 +987,14 @@ namespace MongoDB.Bson.Serialization.Serializers
             IBsonSerializer<T7> item7Serializer,
             IBsonSerializer<TRest> restSerializer)
         {
-            if (item1Serializer == null) { throw new ArgumentNullException("item1Serializer"); }
-            if (item2Serializer == null) { throw new ArgumentNullException("item2Serializer"); }
-            if (item3Serializer == null) { throw new ArgumentNullException("item3Serializer"); }
-            if (item4Serializer == null) { throw new ArgumentNullException("item4Serializer"); }
-            if (item5Serializer == null) { throw new ArgumentNullException("item5Serializer"); }
-            if (item6Serializer == null) { throw new ArgumentNullException("item6Serializer"); }
-            if (item7Serializer == null) { throw new ArgumentNullException("item7Serializer"); }
-            if (restSerializer == null) { throw new ArgumentNullException("restSerializer"); }
+            if (item1Serializer == null) { throw new ArgumentNullException(nameof(item1Serializer)); }
+            if (item2Serializer == null) { throw new ArgumentNullException(nameof(item2Serializer)); }
+            if (item3Serializer == null) { throw new ArgumentNullException(nameof(item3Serializer)); }
+            if (item4Serializer == null) { throw new ArgumentNullException(nameof(item4Serializer)); }
+            if (item5Serializer == null) { throw new ArgumentNullException(nameof(item5Serializer)); }
+            if (item6Serializer == null) { throw new ArgumentNullException(nameof(item6Serializer)); }
+            if (item7Serializer == null) { throw new ArgumentNullException(nameof(item7Serializer)); }
+            if (restSerializer == null) { throw new ArgumentNullException(nameof(restSerializer)); }
 
             _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => item1Serializer);
             _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(() => item2Serializer);
@@ -1012,16 +1012,16 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="serializerRegistry">The serializer registry.</param>
         public TupleSerializer(IBsonSerializerRegistry serializerRegistry)
         {
-            if (serializerRegistry == null) { throw new ArgumentNullException("serializerRegistry"); }
+            if (serializerRegistry == null) { throw new ArgumentNullException(nameof(serializerRegistry)); }
 
-            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => serializerRegistry.GetSerializer<T1>());
-            _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(() => serializerRegistry.GetSerializer<T2>());
-            _lazyItem3Serializer = new Lazy<IBsonSerializer<T3>>(() => serializerRegistry.GetSerializer<T3>());
-            _lazyItem4Serializer = new Lazy<IBsonSerializer<T4>>(() => serializerRegistry.GetSerializer<T4>());
-            _lazyItem5Serializer = new Lazy<IBsonSerializer<T5>>(() => serializerRegistry.GetSerializer<T5>());
-            _lazyItem6Serializer = new Lazy<IBsonSerializer<T6>>(() => serializerRegistry.GetSerializer<T6>());
-            _lazyItem7Serializer = new Lazy<IBsonSerializer<T7>>(() => serializerRegistry.GetSerializer<T7>());
-            _lazyRestSerializer = new Lazy<IBsonSerializer<TRest>>(() => serializerRegistry.GetSerializer<TRest>());
+            _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(serializerRegistry.GetSerializer<T1>);
+            _lazyItem2Serializer = new Lazy<IBsonSerializer<T2>>(serializerRegistry.GetSerializer<T2>);
+            _lazyItem3Serializer = new Lazy<IBsonSerializer<T3>>(serializerRegistry.GetSerializer<T3>);
+            _lazyItem4Serializer = new Lazy<IBsonSerializer<T4>>(serializerRegistry.GetSerializer<T4>);
+            _lazyItem5Serializer = new Lazy<IBsonSerializer<T5>>(serializerRegistry.GetSerializer<T5>);
+            _lazyItem6Serializer = new Lazy<IBsonSerializer<T6>>(serializerRegistry.GetSerializer<T6>);
+            _lazyItem7Serializer = new Lazy<IBsonSerializer<T7>>(serializerRegistry.GetSerializer<T7>);
+            _lazyRestSerializer = new Lazy<IBsonSerializer<TRest>>(serializerRegistry.GetSerializer<TRest>);
         }
 
         // public properties

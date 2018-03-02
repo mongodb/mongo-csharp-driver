@@ -21,8 +21,8 @@ namespace MongoDB.Bson.IO
     public class BsonDocumentReaderBookmark : BsonReaderBookmark
     {
         // private fields
-        private BsonDocumentReaderContext _context;
-        private BsonValue _currentValue;
+        private readonly BsonDocumentReaderContext _context;
+        private readonly BsonValue _currentValue;
 
         // constructors
         internal BsonDocumentReaderBookmark(

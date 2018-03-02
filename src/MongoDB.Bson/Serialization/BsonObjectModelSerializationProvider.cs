@@ -61,13 +61,13 @@ namespace MongoDB.Bson.Serialization
         {
             if (type == null)
             {
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
             }
             var typeInfo = type.GetTypeInfo();
             if (typeInfo.IsGenericType && typeInfo.ContainsGenericParameters)
             {
-                var message = string.Format("Generic type {0} has unassigned type parameters.", BsonUtils.GetFriendlyTypeName(type));
-                throw new ArgumentException(message, "type");
+                var message = $"Generic type {BsonUtils.GetFriendlyTypeName(type)} has unassigned type parameters.";
+                throw new ArgumentException(message, nameof(type));
             }
 
             IBsonSerializer serializer;

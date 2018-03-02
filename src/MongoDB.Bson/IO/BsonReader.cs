@@ -27,8 +27,8 @@ namespace MongoDB.Bson.IO
     public abstract class BsonReader : IBsonReader
     {
         // private fields
-        private bool _disposed = false;
-        private BsonReaderSettings _settings;
+        private bool _disposed;
+        private readonly BsonReaderSettings _settings;
         private BsonReaderState _state;
         private BsonType _currentBsonType;
         private string _currentName;
@@ -42,7 +42,7 @@ namespace MongoDB.Bson.IO
         {
             if (settings == null)
             {
-                throw new ArgumentNullException("settings");
+                throw new ArgumentNullException(nameof(settings));
             }
 
             _settings = settings.FrozenCopy();
@@ -380,9 +380,8 @@ namespace MongoDB.Bson.IO
             params ContextType[] validContextTypes)
         {
             var validContextTypesString = string.Join(" or ", validContextTypes.Select(c => c.ToString()).ToArray());
-            var message = string.Format(
-                "{0} can only be called when ContextType is {1}, not when ContextType is {2}.",
-                methodName, validContextTypesString, actualContextType);
+            var message =
+                $"{methodName} can only be called when ContextType is {validContextTypesString}, not when ContextType is {actualContextType}.";
             throw new InvalidOperationException(message);
         }
 
@@ -394,9 +393,8 @@ namespace MongoDB.Bson.IO
         protected void ThrowInvalidState(string methodName, params BsonReaderState[] validStates)
         {
             var validStatesString = string.Join(" or ", validStates.Select(s => s.ToString()).ToArray());
-            var message = string.Format(
-                "{0} can only be called when State is {1}, not when State is {2}.",
-                methodName, validStatesString, _state);
+            var message =
+                $"{methodName} can only be called when State is {validStatesString}, not when State is {_state}.";
             throw new InvalidOperationException(message);
         }
 
@@ -405,7 +403,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         protected void ThrowObjectDisposedException()
         {
-            throw new ObjectDisposedException(this.GetType().Name);
+            throw new ObjectDisposedException(GetType().Name);
         }
 
         /// <summary>
@@ -430,9 +428,8 @@ namespace MongoDB.Bson.IO
             }
             if (_currentBsonType != requiredBsonType)
             {
-                var message = string.Format(
-                    "{0} can only be called when CurrentBsonType is {1}, not when CurrentBsonType is {2}.",
-                    methodName, requiredBsonType, _currentBsonType);
+                var message =
+                    $"{methodName} can only be called when CurrentBsonType is {requiredBsonType}, not when CurrentBsonType is {_currentBsonType}.";
                 throw new InvalidOperationException(message);
             }
         }

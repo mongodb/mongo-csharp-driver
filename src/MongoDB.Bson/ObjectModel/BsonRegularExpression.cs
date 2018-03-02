@@ -39,7 +39,7 @@ namespace MongoDB.Bson
         {
             if (pattern == null)
             {
-                throw new ArgumentNullException("pattern");
+                throw new ArgumentNullException(nameof(pattern));
             }
             if (pattern.Length > 0 && pattern[0] == '/')
             {
@@ -65,7 +65,7 @@ namespace MongoDB.Bson
         {
             if (pattern == null)
             {
-                throw new ArgumentNullException("pattern");
+                throw new ArgumentNullException(nameof(pattern));
             }
             _pattern = pattern;
             _options = options ?? "";
@@ -79,7 +79,7 @@ namespace MongoDB.Bson
         {
             if (regex == null)
             {
-                throw new ArgumentNullException("regex");
+                throw new ArgumentNullException(nameof(regex));
             }
             _pattern = regex.ToString();
             _options = "";
@@ -166,7 +166,7 @@ namespace MongoDB.Bson
         /// <returns>True if the two BsonRegularExpression values are equal according to ==.</returns>
         public static bool operator ==(BsonRegularExpression lhs, BsonRegularExpression rhs)
         {
-            if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
+            if (ReferenceEquals(lhs, null)) { return ReferenceEquals(rhs, null); }
             return lhs.Equals(rhs);
         }
 
@@ -180,7 +180,7 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
 
             return (BsonRegularExpression)BsonTypeMapper.MapToBsonValue(value, BsonType.RegularExpression);
@@ -223,7 +223,7 @@ namespace MongoDB.Bson
         /// <returns>True if the two BsonRegularExpression values are equal.</returns>
         public bool Equals(BsonRegularExpression rhs)
         {
-            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
+            if (ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             return _pattern == rhs._pattern && _options == rhs._options;
         }
 
@@ -284,7 +284,7 @@ namespace MongoDB.Bson
         public override string ToString()
         {
             var escaped = (_pattern == "") ? "(?:)" :_pattern.Replace("/", @"\/");
-            return string.Format("/{0}/{1}", escaped, _options);
+            return $"/{escaped}/{_options}";
         }
     }
 }

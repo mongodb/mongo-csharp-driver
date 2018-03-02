@@ -22,7 +22,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BsonDoubleSerializer : BsonValueSerializerBase<BsonDouble>
     {
         // private static fields
-        private static BsonDoubleSerializer __instance = new BsonDoubleSerializer();
+        private static readonly BsonDoubleSerializer __instance = new BsonDoubleSerializer();
 
         // constructors
         /// <summary>
@@ -52,7 +52,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         protected override BsonDouble DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
-            return (BsonDouble)bsonReader.ReadDouble();
+            return bsonReader.ReadDouble();
         }
 
         /// <summary>

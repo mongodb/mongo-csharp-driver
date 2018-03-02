@@ -39,7 +39,7 @@ namespace MongoDB.Bson
         {
             if (scope == null)
             {
-                throw new ArgumentNullException("scope");
+                throw new ArgumentNullException(nameof(scope));
             }
             _scope = scope;
         }
@@ -64,7 +64,7 @@ namespace MongoDB.Bson
         /// <returns>True if the two BsonJavaScriptWithScope values are equal according to ==.</returns>
         public static bool operator ==(BsonJavaScriptWithScope lhs, BsonJavaScriptWithScope rhs)
         {
-            if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
+            if (ReferenceEquals(lhs, null)) { return ReferenceEquals(rhs, null); }
             return lhs.Equals(rhs);
         }
 
@@ -95,7 +95,7 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
 
             return (BsonJavaScriptWithScope)BsonTypeMapper.MapToBsonValue(value, BsonType.JavaScriptWithScope);
@@ -161,7 +161,7 @@ namespace MongoDB.Bson
         /// <returns>True if the two BsonJavaScriptWithScope values are equal.</returns>
         public bool Equals(BsonJavaScriptWithScope rhs)
         {
-            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
+            if (ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             return Code == rhs.Code && _scope == rhs._scope;
         }
 
@@ -194,7 +194,7 @@ namespace MongoDB.Bson
         /// <returns>A string representation of the value.</returns>
         public override string ToString()
         {
-            return string.Format("new BsonJavaScript(\"{0}\", {1})", Code, _scope.ToJson());
+            return $"new BsonJavaScript(\"{Code}\", {_scope.ToJson()})";
         }
     }
 }

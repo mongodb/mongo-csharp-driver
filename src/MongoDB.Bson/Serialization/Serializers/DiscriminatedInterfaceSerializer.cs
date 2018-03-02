@@ -50,7 +50,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             var interfaceTypeInfo = typeof(TInterface).GetTypeInfo();
             if (!interfaceTypeInfo.IsInterface)
             {
-                var message = string.Format("{0} is not an interface.", typeof(TInterface).FullName);
+                var message = $"{typeof(TInterface).FullName} is not an interface.";
                 throw new ArgumentException(message, "<TInterface>");
             }
 
@@ -81,7 +81,8 @@ namespace MongoDB.Bson.Serialization.Serializers
                 var actualType = _discriminatorConvention.GetActualType(bsonReader, typeof(TInterface));
                 if (actualType == _interfaceType)
                 {
-                    var message = string.Format("Unable to determine actual type of object to deserialize for interface type {0}.", _interfaceType.FullName);
+                    var message =
+                        $"Unable to determine actual type of object to deserialize for interface type {_interfaceType.FullName}.";
                     throw new FormatException(message);
                 }
 

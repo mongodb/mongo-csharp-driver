@@ -44,7 +44,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         {
             if (type == null)
             {
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
             }
 
             lock (__lock)
@@ -88,15 +88,15 @@ namespace MongoDB.Bson.Serialization.Conventions
         {
             if (name == null)
             {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
             if (conventions == null)
             {
-                throw new ArgumentNullException("conventions");
+                throw new ArgumentNullException(nameof(conventions));
             }
             if (filter == null)
             {
-                throw new ArgumentNullException("filter");
+                throw new ArgumentNullException(nameof(filter));
             }
 
             lock (__lock)
@@ -123,7 +123,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         {
             if (name == null)
             {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
 
             lock (__lock)

@@ -171,7 +171,7 @@ namespace MongoDB.Bson
         /// <returns>True if the two BsonArray values are equal according to ==.</returns>
         public static bool operator ==(BsonArray lhs, BsonArray rhs)
         {
-            return object.Equals(lhs, rhs); // handles lhs == null correctly
+            return Equals(lhs, rhs); // handles lhs == null correctly
         }
 
         // public properties
@@ -238,7 +238,7 @@ namespace MongoDB.Bson
             {
                 if (value == null)
                 {
-                    throw new ArgumentNullException("value");
+                    throw new ArgumentNullException(nameof(value));
                 }
                 _values[index] = value;
             }
@@ -254,7 +254,7 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
 
             return (BsonArray)BsonTypeMapper.MapToBsonValue(value, BsonType.Array);
@@ -270,7 +270,7 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
 
             _values.Add(value);
@@ -287,7 +287,7 @@ namespace MongoDB.Bson
         {
             if (values == null)
             {
-                throw new ArgumentNullException("values");
+                throw new ArgumentNullException(nameof(values));
             }
 
             foreach (var value in values)
@@ -307,7 +307,7 @@ namespace MongoDB.Bson
         {
             if (values == null)
             {
-                throw new ArgumentNullException("values");
+                throw new ArgumentNullException(nameof(values));
             }
 
             foreach (var value in values)
@@ -327,7 +327,7 @@ namespace MongoDB.Bson
         {
             if (values == null)
             {
-                throw new ArgumentNullException("values");
+                throw new ArgumentNullException(nameof(values));
             }
 
             foreach (var value in values)
@@ -347,7 +347,7 @@ namespace MongoDB.Bson
         {
             if (values == null)
             {
-                throw new ArgumentNullException("values");
+                throw new ArgumentNullException(nameof(values));
             }
 
             foreach (var value in values)
@@ -367,7 +367,7 @@ namespace MongoDB.Bson
         {
             if (values == null)
             {
-                throw new ArgumentNullException("values");
+                throw new ArgumentNullException(nameof(values));
             }
 
             foreach (var value in values)
@@ -387,7 +387,7 @@ namespace MongoDB.Bson
         {
             if (values == null)
             {
-                throw new ArgumentNullException("values");
+                throw new ArgumentNullException(nameof(values));
             }
 
             foreach (var value in values)
@@ -407,7 +407,7 @@ namespace MongoDB.Bson
         {
             if (values == null)
             {
-                throw new ArgumentNullException("values");
+                throw new ArgumentNullException(nameof(values));
             }
 
             foreach (var value in values)
@@ -427,7 +427,7 @@ namespace MongoDB.Bson
         {
             if (values == null)
             {
-                throw new ArgumentNullException("values");
+                throw new ArgumentNullException(nameof(values));
             }
 
             foreach (var value in values)
@@ -447,7 +447,7 @@ namespace MongoDB.Bson
         {
             if (values == null)
             {
-                throw new ArgumentNullException("values");
+                throw new ArgumentNullException(nameof(values));
             }
 
             foreach (var value in values)
@@ -595,7 +595,7 @@ namespace MongoDB.Bson
         /// <returns>True if the other object is a BsonArray and equal to this one.</returns>
         public override bool Equals(object obj)
         {
-            if (object.ReferenceEquals(obj, null) || !(obj is BsonArray)) { return false; }
+            if (ReferenceEquals(obj, null) || !(obj is BsonArray)) { return false; }
 
             // lhs and rhs might be subclasses of BsonArray
             var rhs = (BsonArray)obj;
@@ -632,7 +632,7 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
             return _values.IndexOf(value);
         }
@@ -647,7 +647,7 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
             return _values.IndexOf(value, index);
         }
@@ -663,7 +663,7 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
             return _values.IndexOf(value, index, count);
         }
@@ -677,7 +677,7 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
             _values.Insert(index, value);
         }
@@ -691,7 +691,7 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
             return _values.Remove(value);
         }

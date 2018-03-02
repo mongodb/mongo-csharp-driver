@@ -63,15 +63,15 @@ namespace MongoDB.Shared
         }
 
         // this overload added to avoid boxing
-        public Hasher Hash<T>(Nullable<T> obj) where T : struct
+        public Hasher Hash<T>(T? obj) where T : struct
         {
-            _hashCode = 37 * _hashCode + ((obj == null) ? -1 : obj.Value.GetHashCode());
+            _hashCode = 37 * _hashCode + (obj?.GetHashCode() ?? -1);
             return this;
         }
 
         public Hasher Hash(object obj)
         {
-            _hashCode = 37 * _hashCode + ((obj == null) ? -1 : obj.GetHashCode());
+            _hashCode = 37 * _hashCode + (obj?.GetHashCode() ?? -1);
             return this;
         }
 
@@ -85,7 +85,7 @@ namespace MongoDB.Shared
             {
                 foreach (var value in sequence)
                 {
-                    _hashCode = 37 * _hashCode + ((value == null) ? -1 : value.GetHashCode());
+                    _hashCode = 37 * _hashCode + (value?.GetHashCode() ?? -1);
                 }
             }
             return this;

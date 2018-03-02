@@ -55,7 +55,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    var message = string.Format("{0} is not a valid representation for an SByteSerializer.", representation);
+                    var message = $"{representation} is not a valid representation for an SByteSerializer.";
                     throw new ArgumentException(message);
             }
 
@@ -102,13 +102,13 @@ namespace MongoDB.Bson.Serialization.Serializers
                 case BsonType.Int32:
                     var int32Value = bsonReader.ReadInt32();
                     value = (sbyte)int32Value;
-                    lostData = (int)value != int32Value;
+                    lostData = value != int32Value;
                     break;
 
                 case BsonType.Int64:
                     var int64Value = bsonReader.ReadInt64();
                     value = (sbyte)int64Value;
-                    lostData = (int)value != int64Value;
+                    lostData = value != int64Value;
                     break;
 
                 case BsonType.String:
@@ -126,7 +126,7 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             if (lostData)
             {
-                var message = string.Format("Data loss occurred when trying to convert from {0} to SByte.", bsonType);
+                var message = $"Data loss occurred when trying to convert from {bsonType} to SByte.";
                 throw new FormatException(message);
             }
 
@@ -146,7 +146,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             switch (_representation)
             {
                 case BsonType.Binary:
-                    bsonWriter.WriteBytes(new byte[] { (byte)value });
+                    bsonWriter.WriteBytes(new[] { (byte)value });
                     break;
 
                 case BsonType.Int32:
@@ -158,11 +158,11 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 case BsonType.String:
-                    bsonWriter.WriteString(string.Format("{0:x2}", (byte)value));
+                    bsonWriter.WriteString($"{(byte) value:x2}");
                     break;
 
                 default:
-                    var message = string.Format("'{0}' is not a valid SByte representation.", _representation);
+                    var message = $"'{_representation}' is not a valid SByte representation.";
                     throw new BsonSerializationException(message);
             }
         }

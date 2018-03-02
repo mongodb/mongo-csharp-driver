@@ -47,11 +47,11 @@ namespace MongoDB.Bson.Serialization
         {
             if (classMap == null)
             {
-                throw new ArgumentNullException("classMap");
+                throw new ArgumentNullException(nameof(classMap));
             }
             if (@delegate == null)
             {
-                throw new ArgumentNullException("delegate");
+                throw new ArgumentNullException(nameof(@delegate));
             }
 
             _classMap = classMap;
@@ -130,7 +130,7 @@ namespace MongoDB.Bson.Serialization
                         var memberMap = allMemberMaps.FirstOrDefault(m => IsSameMember(m.MemberInfo, argument));
                         if (memberMap == null)
                         {
-                            var message = string.Format("Member '{0}' is not mapped.", argument.Name);
+                            var message = $"Member '{argument.Name}' is not mapped.";
                             throw new BsonSerializationException(message);
                         }
                         elementNames.Add(memberMap.ElementName);
@@ -174,7 +174,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (arguments == null)
             {
-                throw new ArgumentNullException("arguments");
+                throw new ArgumentNullException(nameof(arguments));
             }
             if (_isFrozen) { ThrowFrozenException(); }
             var argumentsList = arguments.ToList(); // only enumerate once
@@ -198,7 +198,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (argumentNames == null)
             {
-                throw new ArgumentNullException("argumentNames");
+                throw new ArgumentNullException(nameof(argumentNames));
             }
             if (_isFrozen) { ThrowFrozenException(); }
 
@@ -212,12 +212,14 @@ namespace MongoDB.Bson.Serialization
                     .ToArray();
                 if (memberInfos.Length == 0)
                 {
-                    var message = string.Format("Class '{0}' does not have a member named '{1}'.", _classMap.ClassType.FullName, argumentName);
+                    var message =
+                        $"Class '{_classMap.ClassType.FullName}' does not have a member named '{argumentName}'.";
                     throw new BsonSerializationException(message);
                 }
                 else if (memberInfos.Length > 1)
                 {
-                    var message = string.Format("Class '{0}' has more than one member named '{1}'.", _classMap.ClassType.FullName, argumentName);
+                    var message =
+                        $"Class '{_classMap.ClassType.FullName}' has more than one member named '{argumentName}'.";
                     throw new BsonSerializationException(message);
                 }
                 arguments.Add(memberInfos[0]);

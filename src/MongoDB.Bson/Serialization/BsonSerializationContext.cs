@@ -71,10 +71,7 @@ namespace MongoDB.Bson.Serialization
             Action<Builder> configurator = null)
         {
             var builder = new Builder(null, writer);
-            if (configurator != null)
-            {
-                configurator(builder);
-            }
+            configurator?.Invoke(builder);
             return builder.Build();
         }
 
@@ -89,10 +86,7 @@ namespace MongoDB.Bson.Serialization
             Action<Builder> configurator = null)
         {
             var builder = new Builder(this, _writer);
-            if (configurator != null)
-            {
-                configurator(builder);
-            }
+            configurator?.Invoke(builder);
             return builder.Build();
         }
 
@@ -104,14 +98,14 @@ namespace MongoDB.Bson.Serialization
         {
             // private fields
             private Func<Type, bool> _isDynamicType;
-            private IBsonWriter _writer;
+            private readonly IBsonWriter _writer;
 
             // constructors
             internal Builder(BsonSerializationContext other, IBsonWriter writer)
             {
                 if (writer == null)
                 {
-                    throw new ArgumentNullException("writer");
+                    throw new ArgumentNullException(nameof(writer));
                 }
 
                 _writer = writer;

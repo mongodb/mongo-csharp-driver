@@ -27,7 +27,7 @@ namespace MongoDB.Bson.IO
     public class BsonBinaryReaderSettings : BsonReaderSettings
     {
         // private static fields
-        private static BsonBinaryReaderSettings __defaults = null; // delay creation to pick up the latest default values
+        private static BsonBinaryReaderSettings __defaults; // delay creation to pick up the latest default values
 
         // private fields
         private UTF8Encoding _encoding = Utf8Encodings.Strict;
@@ -49,14 +49,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public static BsonBinaryReaderSettings Defaults
         {
-            get
-            {
-                if (__defaults == null)
-                {
-                    __defaults = new BsonBinaryReaderSettings();
-                }
-                return __defaults;
-            }
+            get { return __defaults ?? (__defaults = new BsonBinaryReaderSettings()); }
             set { __defaults = value; }
         }
 
@@ -71,7 +64,7 @@ namespace MongoDB.Bson.IO
             {
                 if (value == null)
                 {
-                    throw new ArgumentNullException("value");
+                    throw new ArgumentNullException(nameof(value));
                 }
                 if (IsFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen."); }
                 _encoding = value;

@@ -28,7 +28,7 @@ namespace MongoDB.Bson.IO
     public class JsonWriter : BsonWriter
     {
         // private fields
-        private TextWriter _textWriter;
+        private readonly TextWriter _textWriter;
         private JsonWriterContext _context;
 
         // constructors
@@ -51,7 +51,7 @@ namespace MongoDB.Bson.IO
         {
             if (writer == null)
             {
-                throw new ArgumentNullException("writer");
+                throw new ArgumentNullException(nameof(writer));
             }
 
             _textWriter = writer;
@@ -316,14 +316,7 @@ namespace MongoDB.Bson.IO
                 _context = _context.ParentContext;
             }
 
-            if (_context == null)
-            {
-                State = BsonWriterState.Done;
-            }
-            else
-            {
-                State = GetNextState();
-            }
+            State = _context == null ? BsonWriterState.Done : GetNextState();
         }
 
         /// <summary>
@@ -774,7 +767,7 @@ namespace MongoDB.Bson.IO
         {
             if (bytes.Length != 16)
             {
-                var message = string.Format("Length of binary subtype {0} must be 16, not {1}.", subType, bytes.Length);
+                var message = $"Length of binary subtype {subType} must be 16, not {bytes.Length}.";
                 throw new ArgumentException(message);
             }
             if (subType == BsonBinarySubType.UuidLegacy && guidRepresentation == GuidRepresentation.Standard)
@@ -783,14 +776,15 @@ namespace MongoDB.Bson.IO
             }
             if (subType == BsonBinarySubType.UuidStandard && guidRepresentation != GuidRepresentation.Standard)
             {
-                var message = string.Format("GuidRepresentation for binary subtype UuidStandard must be Standard, not {0}.", guidRepresentation);
+                var message =
+                    $"GuidRepresentation for binary subtype UuidStandard must be Standard, not {guidRepresentation}.";
                 throw new ArgumentException(message);
             }
 
             if (guidRepresentation == GuidRepresentation.Unspecified)
             {
                 var s = BsonUtils.ToHexString(bytes);
-                var parts = new string[]
+                var parts = new[]
                 {
                     s.Substring(0, 8),
                     s.Substring(8, 4),
@@ -798,7 +792,7 @@ namespace MongoDB.Bson.IO
                     s.Substring(16, 4),
                     s.Substring(20, 12)
                 };
-                return string.Format("HexData({0}, \"{1}\")", (int)subType, string.Join("-", parts));
+                return $"HexData({(int) subType}, \"{string.Join("-", parts)}\")";
             }
             else
             {
@@ -812,7 +806,7 @@ namespace MongoDB.Bson.IO
                     default: throw new BsonInternalException("Unexpected GuidRepresentation");
                 }
                 var guid = GuidConverter.FromBytes(bytes, guidRepresentation);
-                return string.Format("{0}(\"{1}\")", uuidConstructorName, guid.ToString());
+                return $"{uuidConstructorName}(\"{guid.ToString()}\")";
             }
         }
 

@@ -76,11 +76,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (keySerializer == null)
             {
-                throw new ArgumentNullException("keySerializer");
+                throw new ArgumentNullException(nameof(keySerializer));
             }
             if (valueSerializer == null)
             {
-                throw new ArgumentNullException("valueSerializer");
+                throw new ArgumentNullException(nameof(valueSerializer));
             }
         }
 
@@ -92,12 +92,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         public KeyValuePairSerializer(BsonType representation, IBsonSerializerRegistry serializerRegistry)
             : this(
                 representation,
-                new Lazy<IBsonSerializer<TKey>>(() => serializerRegistry.GetSerializer<TKey>()),
-                new Lazy<IBsonSerializer<TValue>>(() => serializerRegistry.GetSerializer<TValue>()))
+                new Lazy<IBsonSerializer<TKey>>(serializerRegistry.GetSerializer<TKey>),
+                new Lazy<IBsonSerializer<TValue>>(serializerRegistry.GetSerializer<TValue>))
         {
             if (serializerRegistry == null)
             {
-                throw new ArgumentNullException("serializerRegistry");
+                throw new ArgumentNullException(nameof(serializerRegistry));
             }
         }
 
@@ -110,7 +110,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    var message = string.Format("{0} is not a valid representation for a KeyValuePairSerializer.", representation);
+                    var message = $"{representation} is not a valid representation for a KeyValuePairSerializer.";
                     throw new ArgumentException(message);
             }
 
@@ -200,10 +200,8 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    var message = string.Format(
-                        "'{0}' is not a valid {1} representation.",
-                        _representation,
-                        BsonUtils.GetFriendlyTypeName(typeof(KeyValuePair<TKey, TValue>)));
+                    var message =
+                        $"'{_representation}' is not a valid {BsonUtils.GetFriendlyTypeName(typeof(KeyValuePair<TKey, TValue>))} representation.";
                     throw new BsonSerializationException(message);
             }
         }

@@ -64,7 +64,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    var message = string.Format("{0} is not a valid representation for a TimeSpanSerializer.", representation);
+                    var message = $"{representation} is not a valid representation for a TimeSpanSerializer.";
                     throw new ArgumentException(message);
             }
 
@@ -155,7 +155,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    var message = string.Format("'{0}' is not a valid TimeSpan representation.", _representation);
+                    var message = $"'{_representation}' is not a valid TimeSpan representation.";
                     throw new BsonSerializationException(message);
             }
         }
@@ -246,7 +246,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 case TimeSpanUnits.Microseconds: return TimeSpan.TicksPerMillisecond / 1000;
                 case TimeSpanUnits.Ticks: return 1;
                 default:
-                    var message = string.Format("Invalid TimeSpanUnits value: {0}.", units);
+                    var message = $"Invalid TimeSpanUnits value: {units}.";
                     throw new ArgumentException(message);
             }
         }
@@ -255,11 +255,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (units == TimeSpanUnits.Nanoseconds)
             {
-                return (double)(timeSpan.Ticks) * 100.0;
+                return timeSpan.Ticks * 100.0;
             }
             else
             {
-                return (double)timeSpan.Ticks / (double)TicksPerUnit(units); // cast first then divide to preserve fractional part of result
+                return timeSpan.Ticks / (double)TicksPerUnit(units); // cast first then divide to preserve fractional part of result
             }
         }
 

@@ -21,8 +21,8 @@ namespace MongoDB.Bson.IO
     public class BsonBinaryReaderBookmark : BsonReaderBookmark
     {
         // private fields
-        private BsonBinaryReaderContext _context;
-        private long _position;
+        private readonly BsonBinaryReaderContext _context;
+        private readonly long _position;
 
         // constructors
         internal BsonBinaryReaderBookmark(

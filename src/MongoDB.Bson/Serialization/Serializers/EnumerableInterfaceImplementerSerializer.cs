@@ -159,14 +159,14 @@ namespace MongoDB.Bson.Serialization.Serializers
                 var parameterInfos = constructorInfo.GetParameters();
                 if (parameterInfos.Length == 1 && parameterInfos[0].ParameterType.GetTypeInfo().IsAssignableFrom(accumulatorType))
                 {
-                    return (TValue)constructorInfo.Invoke(new object[] { accumulator });
+                    return (TValue)constructorInfo.Invoke(new[] { accumulator });
                 }
             }
 
             // otherwise try to find a no-argument constructor and an Add method
             var valueTypeInfo = typeof(TValue).GetTypeInfo();
             var noArgumentConstructorInfo = valueTypeInfo.GetConstructor(new Type[] { });
-            var addMethodInfo = typeof(TValue).GetTypeInfo().GetMethod("Add", new Type[] { typeof(TItem) });
+            var addMethodInfo = typeof(TValue).GetTypeInfo().GetMethod("Add", new[] { typeof(TItem) });
             if (noArgumentConstructorInfo != null && addMethodInfo != null)
             {
                 var value = (TValue)noArgumentConstructorInfo.Invoke(new Type[] { });
@@ -177,7 +177,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 return value;
             }
 
-            var message = string.Format("Type '{0}' does not have a suitable constructor or Add method.", typeof(TValue).FullName);
+            var message = $"Type '{typeof(TValue).FullName}' does not have a suitable constructor or Add method.";
             throw new BsonSerializationException(message);
         }
 

@@ -27,7 +27,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BsonDocumentSerializer : BsonValueSerializerBase<BsonDocument>, IBsonDocumentSerializer, IBsonIdProvider
     {
         // private static fields
-        private static BsonDocumentSerializer __instance = new BsonDocumentSerializer();
+        private static readonly BsonDocumentSerializer __instance = new BsonDocumentSerializer();
 
         // constructors
         /// <summary>
@@ -177,19 +177,15 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (document == null)
             {
-                throw new ArgumentNullException("document");
+                throw new ArgumentNullException(nameof(document));
             }
             if (id == null)
             {
-                throw new ArgumentNullException("id");
+                throw new ArgumentNullException(nameof(id));
             }
 
             var bsonDocument = (BsonDocument)document;
-            var idBsonValue = id as BsonValue;
-            if (idBsonValue == null)
-            {
-                idBsonValue = BsonValue.Create(id); // be helpful and provide automatic conversion to BsonValue if necessary
-            }
+            var idBsonValue = id as BsonValue ?? BsonValue.Create(id);
 
             var idIndex = bsonDocument.IndexOfName("_id");
             if (idIndex != -1)

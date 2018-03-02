@@ -40,7 +40,7 @@ namespace MongoDB.Bson
         // use a list and a dictionary because we want to preserve the order in which the elements were added
         // if duplicate names are present only the first one will be in the dictionary (the others can only be accessed by index)
         private readonly List<BsonElement> _elements = new List<BsonElement>();
-        private Dictionary<string, int> _indexes = null; // maps names to indexes into elements list (not created until there are enough elements to justify it)
+        private Dictionary<string, int> _indexes; // maps names to indexes into elements list (not created until there are enough elements to justify it)
         private bool _allowDuplicateNames;
 
         // constructors
@@ -189,7 +189,7 @@ namespace MongoDB.Bson
         /// <returns>True if the two BsonDocument values are equal according to ==.</returns>
         public static bool operator ==(BsonDocument lhs, BsonDocument rhs)
         {
-            return object.Equals(lhs, rhs); // handles lhs == null correctly
+            return Equals(lhs, rhs); // handles lhs == null correctly
         }
 
         // public properties
@@ -287,7 +287,7 @@ namespace MongoDB.Bson
             {
                 if (value == null)
                 {
-                    throw new ArgumentNullException("value");
+                    throw new ArgumentNullException(nameof(value));
                 }
                 _elements[index] = new BsonElement(_elements[index].Name, value);
             }
@@ -316,7 +316,7 @@ namespace MongoDB.Bson
             {
                 if (name == null)
                 {
-                    throw new ArgumentNullException("name");
+                    throw new ArgumentNullException(nameof(name));
                 }
                 var index = IndexOfName(name);
                 if (index != -1)
@@ -325,7 +325,7 @@ namespace MongoDB.Bson
                 }
                 else
                 {
-                    string message = string.Format("Element '{0}' not found.", name);
+                    string message = $"Element '{name}' not found.";
                     throw new KeyNotFoundException(message);
                 }
             }
@@ -333,11 +333,11 @@ namespace MongoDB.Bson
             {
                 if (name == null)
                 {
-                    throw new ArgumentNullException("name");
+                    throw new ArgumentNullException(nameof(name));
                 }
                 if (value == null)
                 {
-                    throw new ArgumentNullException("value");
+                    throw new ArgumentNullException(nameof(value));
                 }
                 var index = IndexOfName(name);
                 if (index != -1)
@@ -361,7 +361,7 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
 
             return (BsonDocument)BsonTypeMapper.MapToBsonValue(value, BsonType.Document);
@@ -417,7 +417,7 @@ namespace MongoDB.Bson
             var isDuplicate = IndexOfName(element.Name) != -1;
             if (isDuplicate && !_allowDuplicateNames)
             {
-                var message = string.Format("Duplicate element name '{0}'.", element.Name);
+                var message = $"Duplicate element name '{element.Name}'.";
                 throw new InvalidOperationException(message);
             }
             else
@@ -484,11 +484,11 @@ namespace MongoDB.Bson
         {
             if (dictionary == null)
             {
-                throw new ArgumentNullException("dictionary");
+                throw new ArgumentNullException(nameof(dictionary));
             }
             if (keys == null)
             {
-                throw new ArgumentNullException("keys");
+                throw new ArgumentNullException(nameof(keys));
             }
 
             foreach (var key in keys)
@@ -521,11 +521,11 @@ namespace MongoDB.Bson
         {
             if (dictionary == null)
             {
-                throw new ArgumentNullException("dictionary");
+                throw new ArgumentNullException(nameof(dictionary));
             }
             if (keys == null)
             {
-                throw new ArgumentNullException("keys");
+                throw new ArgumentNullException(nameof(keys));
             }
 
             foreach (var key in keys)
@@ -536,7 +536,7 @@ namespace MongoDB.Bson
                 }
                 if (key.GetType() != typeof(string))
                 {
-                    throw new ArgumentOutOfRangeException("keys", "A key passed to BsonDocument.Add is not a string.");
+                    throw new ArgumentOutOfRangeException(nameof(keys), "A key passed to BsonDocument.Add is not a string.");
                 }
                 Add((string)key, BsonTypeMapper.MapToBsonValue(dictionary[key]));
             }
@@ -563,7 +563,7 @@ namespace MongoDB.Bson
         [Obsolete("Use AddRange(IEnumerable<BsonElement> elements) instead.")]
         public virtual BsonDocument Add(params BsonElement[] elements)
         {
-            return AddRange((IEnumerable<BsonElement>)elements);
+            return AddRange(elements);
         }
 
         /// <summary>
@@ -576,11 +576,11 @@ namespace MongoDB.Bson
         {
             if (name == null)
             {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
 
             Add(new BsonElement(name, value));
@@ -599,7 +599,7 @@ namespace MongoDB.Bson
         {
             if (name == null)
             {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
 
             if (condition)
@@ -607,7 +607,7 @@ namespace MongoDB.Bson
                 // don't check for null value unless condition is true
                 if (value == null)
                 {
-                    throw new ArgumentNullException("value");
+                    throw new ArgumentNullException(nameof(value));
                 }
 
                 Add(new BsonElement(name, value));
@@ -628,11 +628,11 @@ namespace MongoDB.Bson
         {
             if (name == null)
             {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
             if (valueFactory == null)
             {
-                throw new ArgumentNullException("valueFactory");
+                throw new ArgumentNullException(nameof(valueFactory));
             }
 
             if (condition)
@@ -662,7 +662,7 @@ namespace MongoDB.Bson
         {
             if (dictionary == null)
             {
-                throw new ArgumentNullException("dictionary");
+                throw new ArgumentNullException(nameof(dictionary));
             }
 
             foreach (DictionaryEntry entry in dictionary)
@@ -673,7 +673,7 @@ namespace MongoDB.Bson
                 }
                 if (entry.Key.GetType() != typeof(string))
                 {
-                    throw new ArgumentOutOfRangeException("dictionary", "One or more keys in the dictionary passed to BsonDocument.AddRange is not a string.");
+                    throw new ArgumentOutOfRangeException(nameof(dictionary), "One or more keys in the dictionary passed to BsonDocument.AddRange is not a string.");
                 }
                 Add((string)entry.Key, BsonTypeMapper.MapToBsonValue(entry.Value));
             }
@@ -690,7 +690,7 @@ namespace MongoDB.Bson
         {
             if (elements == null)
             {
-                throw new ArgumentNullException("elements");
+                throw new ArgumentNullException(nameof(elements));
             }
 
             foreach (var element in elements)
@@ -710,7 +710,7 @@ namespace MongoDB.Bson
         {
             if (dictionary == null)
             {
-                throw new ArgumentNullException("dictionary");
+                throw new ArgumentNullException(nameof(dictionary));
             }
 
             foreach (var entry in dictionary)
@@ -810,7 +810,7 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
             return _elements.Any(e => e.Value == value);
         }
@@ -846,7 +846,7 @@ namespace MongoDB.Bson
         /// <returns>True if the other object is a BsonDocument and equal to this one.</returns>
         public override bool Equals(object obj)
         {
-            if (object.ReferenceEquals(obj, null) || !(obj is BsonDocument)) { return false; }
+            if (ReferenceEquals(obj, null) || !(obj is BsonDocument)) { return false; }
 
             // lhs and rhs might be subclasses of BsonDocument
             var rhs = (BsonDocument)obj;
@@ -872,7 +872,7 @@ namespace MongoDB.Bson
         {
             if (name == null)
             {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
             var index = IndexOfName(name);
             if (index != -1)
@@ -881,7 +881,7 @@ namespace MongoDB.Bson
             }
             else
             {
-                string message = string.Format("Element '{0}' not found.", name);
+                string message = $"Element '{name}' not found.";
                 throw new KeyNotFoundException(message);
             }
         }
@@ -926,7 +926,7 @@ namespace MongoDB.Bson
         {
             if (name == null)
             {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
             return this[name];
         }
@@ -941,7 +941,7 @@ namespace MongoDB.Bson
         {
             if (name == null)
             {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
 
             var index = IndexOfName(name);
@@ -999,7 +999,7 @@ namespace MongoDB.Bson
             var isDuplicate = IndexOfName(element.Name) != -1;
             if (isDuplicate && !_allowDuplicateNames)
             {
-                var message = string.Format("Duplicate element name '{0}' not allowed.", element.Name);
+                var message = $"Duplicate element name '{element.Name}' not allowed.";
                 throw new InvalidOperationException(message);
             }
             else
@@ -1030,7 +1030,7 @@ namespace MongoDB.Bson
         {
             if (document == null)
             {
-                throw new ArgumentNullException("document");
+                throw new ArgumentNullException(nameof(document));
             }
 
             foreach (BsonElement element in document)
@@ -1053,7 +1053,7 @@ namespace MongoDB.Bson
         {
             if (name == null)
             {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
 
             if (_allowDuplicateNames)
@@ -1117,7 +1117,7 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
             this[index] = value;
             return this;
@@ -1133,11 +1133,11 @@ namespace MongoDB.Bson
         {
             if (name == null)
             {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
             this[name] = value;
             return this;
@@ -1232,7 +1232,7 @@ namespace MongoDB.Bson
         {
             if (name == null)
             {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
             var index = IndexOfName(name);
             if (index != -1)
@@ -1257,7 +1257,7 @@ namespace MongoDB.Bson
         {
             if (name == null)
             {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
             var index = IndexOfName(name);
             if (index != -1)

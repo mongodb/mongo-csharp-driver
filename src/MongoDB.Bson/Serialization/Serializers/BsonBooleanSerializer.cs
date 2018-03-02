@@ -22,7 +22,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BsonBooleanSerializer : BsonValueSerializerBase<BsonBoolean>
     {
         // private static fields
-        private static BsonBooleanSerializer __instance = new BsonBooleanSerializer();
+        private static readonly BsonBooleanSerializer __instance = new BsonBooleanSerializer();
 
         // constructors
         /// <summary>
@@ -52,7 +52,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         protected override BsonBoolean DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
-            return (BsonBoolean)bsonReader.ReadBoolean();
+            return bsonReader.ReadBoolean();
         }
 
         /// <summary>

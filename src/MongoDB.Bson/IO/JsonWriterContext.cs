@@ -18,10 +18,10 @@ namespace MongoDB.Bson.IO
     internal class JsonWriterContext
     {
         // private fields
-        private JsonWriterContext _parentContext;
-        private ContextType _contextType;
-        private string _indentation;
-        private bool _hasElements = false;
+        private readonly JsonWriterContext _parentContext;
+        private readonly ContextType _contextType;
+        private readonly string _indentation;
+        private bool _hasElements;
 
         // constructors
         internal JsonWriterContext(JsonWriterContext parentContext, ContextType contextType, string indentChars)

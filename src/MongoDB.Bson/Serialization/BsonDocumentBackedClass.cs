@@ -45,11 +45,11 @@ namespace MongoDB.Bson.Serialization
         {
             if (backingDocument == null)
             {
-                throw new ArgumentNullException("backingDocument");
+                throw new ArgumentNullException(nameof(backingDocument));
             }
             if (serializer == null)
             {
-                throw new ArgumentNullException("serializer");
+                throw new ArgumentNullException(nameof(serializer));
             }
 
             _backingDocument = backingDocument;
@@ -77,14 +77,14 @@ namespace MongoDB.Bson.Serialization
             BsonSerializationInfo info;
             if (!_serializer.TryGetMemberSerializationInfo(memberName, out info))
             {
-                var message = string.Format("The member {0} does not exist.", memberName);
-                throw new ArgumentException(message, "memberName");
+                var message = $"The member {memberName} does not exist.";
+                throw new ArgumentException(message, nameof(memberName));
             }
 
             BsonValue bsonValue;
             if (!_backingDocument.TryGetValue(info.ElementName, out bsonValue))
             {
-                var message = string.Format("The backing document does not contain an element named '{0}'.", info.ElementName);
+                var message = $"The backing document does not contain an element named '{info.ElementName}'.";
                 throw new KeyNotFoundException(message);
             }
 
@@ -103,8 +103,8 @@ namespace MongoDB.Bson.Serialization
             BsonSerializationInfo info;
             if (!_serializer.TryGetMemberSerializationInfo(memberName, out info))
             {
-                var message = string.Format("The member {0} does not exist.", memberName);
-                throw new ArgumentException(message, "memberName");
+                var message = $"The member {memberName} does not exist.";
+                throw new ArgumentException(message, nameof(memberName));
             }
 
             BsonValue bsonValue;
@@ -126,8 +126,8 @@ namespace MongoDB.Bson.Serialization
             BsonSerializationInfo info;
             if (!_serializer.TryGetMemberSerializationInfo(memberName, out info))
             {
-                var message = string.Format("The member {0} does not exist.", memberName);
-                throw new ArgumentException(message, "memberName");
+                var message = $"The member {memberName} does not exist.";
+                throw new ArgumentException(message, nameof(memberName));
             }
 
             var bsonValue = info.SerializeValue(value);

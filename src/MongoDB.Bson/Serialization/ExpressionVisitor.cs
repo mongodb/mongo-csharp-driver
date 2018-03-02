@@ -58,7 +58,7 @@ namespace MongoDB.Bson.Serialization
                 case ExpressionType.ArrayLength:
                 case ExpressionType.Quote:
                 case ExpressionType.TypeAs:
-                    return this.VisitUnary((UnaryExpression)node);
+                    return VisitUnary((UnaryExpression)node);
                 case ExpressionType.Add:
                 case ExpressionType.AddChecked:
                 case ExpressionType.Subtract:
@@ -82,34 +82,34 @@ namespace MongoDB.Bson.Serialization
                 case ExpressionType.RightShift:
                 case ExpressionType.LeftShift:
                 case ExpressionType.ExclusiveOr:
-                    return this.VisitBinary((BinaryExpression)node);
+                    return VisitBinary((BinaryExpression)node);
                 case ExpressionType.TypeIs:
-                    return this.VisitTypeBinary((TypeBinaryExpression)node);
+                    return VisitTypeBinary((TypeBinaryExpression)node);
                 case ExpressionType.Conditional:
-                    return this.VisitConditional((ConditionalExpression)node);
+                    return VisitConditional((ConditionalExpression)node);
                 case ExpressionType.Constant:
-                    return this.VisitConstant((ConstantExpression)node);
+                    return VisitConstant((ConstantExpression)node);
                 case ExpressionType.Parameter:
-                    return this.VisitParameter((ParameterExpression)node);
+                    return VisitParameter((ParameterExpression)node);
                 case ExpressionType.MemberAccess:
-                    return this.VisitMember((MemberExpression)node);
+                    return VisitMember((MemberExpression)node);
                 case ExpressionType.Call:
-                    return this.VisitMethodCall((MethodCallExpression)node);
+                    return VisitMethodCall((MethodCallExpression)node);
                 case ExpressionType.Lambda:
-                    return this.VisitLambda((LambdaExpression)node);
+                    return VisitLambda((LambdaExpression)node);
                 case ExpressionType.New:
-                    return this.VisitNew((NewExpression)node);
+                    return VisitNew((NewExpression)node);
                 case ExpressionType.NewArrayInit:
                 case ExpressionType.NewArrayBounds:
-                    return this.VisitNewArray((NewArrayExpression)node);
+                    return VisitNewArray((NewArrayExpression)node);
                 case ExpressionType.Invoke:
-                    return this.VisitInvocation((InvocationExpression)node);
+                    return VisitInvocation((InvocationExpression)node);
                 case ExpressionType.MemberInit:
-                    return this.VisitMemberInit((MemberInitExpression)node);
+                    return VisitMemberInit((MemberInitExpression)node);
                 case ExpressionType.ListInit:
-                    return this.VisitListInit((ListInitExpression)node);
+                    return VisitListInit((ListInitExpression)node);
                 default:
-                    throw new Exception(string.Format("Unhandled expression type: '{0}'", node.NodeType));
+                    throw new Exception($"Unhandled expression type: '{node.NodeType}'");
             }
         }
 
@@ -123,7 +123,7 @@ namespace MongoDB.Bson.Serialization
             List<Expression> list = null;
             for (int i = 0, n = nodes.Count; i < n; i++)
             {
-                Expression node = this.Visit(nodes[i]);
+                Expression node = Visit(nodes[i]);
                 if (list != null)
                 {
                     list.Add(node);
@@ -152,9 +152,9 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The BinaryExpression (possibly modified).</returns>
         protected virtual Expression VisitBinary(BinaryExpression node)
         {
-            Expression left = this.Visit(node.Left);
-            Expression right = this.Visit(node.Right);
-            Expression conversion = this.Visit(node.Conversion);
+            Expression left = Visit(node.Left);
+            Expression right = Visit(node.Right);
+            Expression conversion = Visit(node.Conversion);
             if (left != node.Left || right != node.Right || conversion != node.Conversion)
             {
                 if (node.NodeType == ExpressionType.Coalesce && node.Conversion != null)
@@ -176,9 +176,9 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The ConditionalExpression (possibly modified).</returns>
         protected virtual Expression VisitConditional(ConditionalExpression node)
         {
-            Expression test = this.Visit(node.Test);
-            Expression ifTrue = this.Visit(node.IfTrue);
-            Expression ifFalse = this.Visit(node.IfFalse);
+            Expression test = Visit(node.Test);
+            Expression ifTrue = Visit(node.IfTrue);
+            Expression ifFalse = Visit(node.IfFalse);
             if (test != node.Test || ifTrue != node.IfTrue || ifFalse != node.IfFalse)
             {
                 return Expression.Condition(test, ifTrue, ifFalse);
@@ -203,7 +203,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The ElementInit (possibly modified).</returns>
         protected virtual ElementInit VisitElementInit(ElementInit node)
         {
-            ReadOnlyCollection<Expression> arguments = this.Visit(node.Arguments);
+            ReadOnlyCollection<Expression> arguments = Visit(node.Arguments);
             if (arguments != node.Arguments)
             {
                 return Expression.ElementInit(node.AddMethod, arguments);
@@ -225,7 +225,7 @@ namespace MongoDB.Bson.Serialization
             List<ElementInit> list = null;
             for (int i = 0, n = nodes.Count; i < n; i++)
             {
-                ElementInit node = this.VisitElementInit(nodes[i]);
+                ElementInit node = VisitElementInit(nodes[i]);
                 if (list != null)
                 {
                     list.Add(node);
@@ -254,8 +254,8 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The InvocationExpression (possibly modified).</returns>
         protected virtual Expression VisitInvocation(InvocationExpression node)
         {
-            IEnumerable<Expression> args = this.Visit(node.Arguments);
-            Expression expr = this.Visit(node.Expression);
+            IEnumerable<Expression> args = Visit(node.Arguments);
+            Expression expr = Visit(node.Expression);
             if (args != node.Arguments || expr != node.Expression)
             {
                 return Expression.Invoke(expr, args);
@@ -273,7 +273,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The LambdaExpression (possibly modified).</returns>
         protected virtual Expression VisitLambda(LambdaExpression node)
         {
-            Expression body = this.Visit(node.Body);
+            Expression body = Visit(node.Body);
             if (body != node.Body)
             {
                 return Expression.Lambda(node.Type, body, node.Parameters);
@@ -288,8 +288,8 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The ListInitExpression (possibly modified).</returns>
         protected virtual Expression VisitListInit(ListInitExpression node)
         {
-            NewExpression n = this.VisitNew(node.NewExpression);
-            IEnumerable<ElementInit> initializers = this.VisitElementInitList(node.Initializers);
+            NewExpression n = VisitNew(node.NewExpression);
+            IEnumerable<ElementInit> initializers = VisitElementInitList(node.Initializers);
             if (n != node.NewExpression || initializers != node.Initializers)
             {
                 return Expression.ListInit(n, initializers);
@@ -304,7 +304,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The MemberExpression (possibly modified).</returns>
         protected virtual Expression VisitMember(MemberExpression node)
         {
-            Expression exp = this.Visit(node.Expression);
+            Expression exp = Visit(node.Expression);
             if (exp != node.Expression)
             {
                 return Expression.MakeMemberAccess(exp, node.Member);
@@ -319,7 +319,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The MemberAssignment (possibly modified).</returns>
         protected virtual MemberAssignment VisitMemberAssignment(MemberAssignment node)
         {
-            Expression e = this.Visit(node.Expression);
+            Expression e = Visit(node.Expression);
             if (e != node.Expression)
             {
                 return Expression.Bind(node.Member, e);
@@ -337,13 +337,13 @@ namespace MongoDB.Bson.Serialization
             switch (node.BindingType)
             {
                 case MemberBindingType.Assignment:
-                    return this.VisitMemberAssignment((MemberAssignment)node);
+                    return VisitMemberAssignment((MemberAssignment)node);
                 case MemberBindingType.MemberBinding:
-                    return this.VisitMemberMemberBinding((MemberMemberBinding)node);
+                    return VisitMemberMemberBinding((MemberMemberBinding)node);
                 case MemberBindingType.ListBinding:
-                    return this.VisitMemberListBinding((MemberListBinding)node);
+                    return VisitMemberListBinding((MemberListBinding)node);
                 default:
-                    throw new Exception(string.Format("Unhandled binding type '{0}'", node.BindingType));
+                    throw new Exception($"Unhandled binding type '{node.BindingType}'");
             }
         }
 
@@ -360,7 +360,7 @@ namespace MongoDB.Bson.Serialization
             List<MemberBinding> list = null;
             for (int i = 0, n = nodes.Count; i < n; i++)
             {
-                MemberBinding node = this.VisitMemberBinding(nodes[i]);
+                MemberBinding node = VisitMemberBinding(nodes[i]);
                 if (list != null)
                 {
                     list.Add(node);
@@ -389,8 +389,8 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The MemberInitExpression (possibly modified).</returns>
         protected virtual Expression VisitMemberInit(MemberInitExpression node)
         {
-            NewExpression n = this.VisitNew(node.NewExpression);
-            IEnumerable<MemberBinding> bindings = this.VisitMemberBindingList(node.Bindings);
+            NewExpression n = VisitNew(node.NewExpression);
+            IEnumerable<MemberBinding> bindings = VisitMemberBindingList(node.Bindings);
             if (n != node.NewExpression || bindings != node.Bindings)
             {
                 return Expression.MemberInit(n, bindings);
@@ -405,7 +405,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The MemberListBinding (possibly modified).</returns>
         protected virtual MemberListBinding VisitMemberListBinding(MemberListBinding node)
         {
-            IEnumerable<ElementInit> initializers = this.VisitElementInitList(node.Initializers);
+            IEnumerable<ElementInit> initializers = VisitElementInitList(node.Initializers);
             if (initializers != node.Initializers)
             {
                 return Expression.ListBind(node.Member, initializers);
@@ -420,7 +420,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The MemberMemberBinding (possibly modified).</returns>
         protected virtual MemberMemberBinding VisitMemberMemberBinding(MemberMemberBinding node)
         {
-            IEnumerable<MemberBinding> bindings = this.VisitMemberBindingList(node.Bindings);
+            IEnumerable<MemberBinding> bindings = VisitMemberBindingList(node.Bindings);
             if (bindings != node.Bindings)
             {
                 return Expression.MemberBind(node.Member, bindings);
@@ -435,8 +435,8 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The MethodCallExpression (possibly modified).</returns>
         protected virtual Expression VisitMethodCall(MethodCallExpression node)
         {
-            Expression obj = this.Visit(node.Object);
-            IEnumerable<Expression> args = this.Visit(node.Arguments);
+            Expression obj = Visit(node.Object);
+            IEnumerable<Expression> args = Visit(node.Arguments);
             if (obj != node.Object || args != node.Arguments)
             {
                 return Expression.Call(obj, node.Method, args);
@@ -451,7 +451,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The NewExpression (possibly modified).</returns>
         protected virtual NewExpression VisitNew(NewExpression node)
         {
-            IEnumerable<Expression> args = this.Visit(node.Arguments);
+            IEnumerable<Expression> args = Visit(node.Arguments);
             if (args != node.Arguments)
             {
                 if (node.Members != null)
@@ -473,7 +473,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The NewArrayExpression (possibly modified).</returns>
         protected virtual Expression VisitNewArray(NewArrayExpression node)
         {
-            IEnumerable<Expression> exprs = this.Visit(node.Expressions);
+            IEnumerable<Expression> exprs = Visit(node.Expressions);
             if (exprs != node.Expressions)
             {
                 if (node.NodeType == ExpressionType.NewArrayInit)
@@ -505,7 +505,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The TypeBinaryExpression (possibly modified).</returns>
         protected virtual Expression VisitTypeBinary(TypeBinaryExpression node)
         {
-            Expression expr = this.Visit(node.Expression);
+            Expression expr = Visit(node.Expression);
             if (expr != node.Expression)
             {
                 return Expression.TypeIs(expr, node.TypeOperand);
@@ -520,7 +520,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The UnaryExpression (possibly modified).</returns>
         protected virtual Expression VisitUnary(UnaryExpression node)
         {
-            Expression operand = this.Visit(node.Operand);
+            Expression operand = Visit(node.Operand);
             if (operand != node.Operand)
             {
                 return Expression.MakeUnary(node.NodeType, operand, node.Type, node.Method);

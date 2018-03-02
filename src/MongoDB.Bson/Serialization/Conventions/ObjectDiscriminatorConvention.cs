@@ -27,10 +27,10 @@ namespace MongoDB.Bson.Serialization.Conventions
     public class ObjectDiscriminatorConvention : IDiscriminatorConvention
     {
         // private static fields
-        private static ObjectDiscriminatorConvention __instance = new ObjectDiscriminatorConvention("_t");
+        private static readonly ObjectDiscriminatorConvention __instance = new ObjectDiscriminatorConvention("_t");
 
         // private fields
-        private string _elementName;
+        private readonly string _elementName;
 
         // constructors
         /// <summary>
@@ -41,11 +41,11 @@ namespace MongoDB.Bson.Serialization.Conventions
         {
             if (elementName == null)
             {
-                throw new ArgumentNullException("elementName");
+                throw new ArgumentNullException(nameof(elementName));
             }
             if (elementName.IndexOf('\0') != -1)
             {
-                throw new ArgumentException("Element names cannot contain nulls.", "elementName");
+                throw new ArgumentException("Element names cannot contain nulls.", nameof(elementName));
             }
             _elementName = elementName;
         }

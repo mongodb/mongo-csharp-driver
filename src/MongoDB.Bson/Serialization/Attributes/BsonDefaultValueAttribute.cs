@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization.Attributes
     public class BsonDefaultValueAttribute : Attribute, IBsonMemberMapAttribute
     {
         // private fields
-        private object _defaultValue;
+        private readonly object _defaultValue;
         private bool _serializeDefaultValue;
         private bool _serializeDefaultValueWasSet;
 

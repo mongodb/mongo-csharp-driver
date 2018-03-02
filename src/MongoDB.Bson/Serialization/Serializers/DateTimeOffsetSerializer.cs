@@ -63,7 +63,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    var message = string.Format("{0} is not a valid representation for a DateTimeOffsetSerializer.", representation);
+                    var message = $"{representation} is not a valid representation for a DateTimeOffsetSerializer.";
                     throw new ArgumentException(message);
             }
 
@@ -168,7 +168,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    var message = string.Format("'{0}' is not a valid DateTimeOffset representation.", _representation);
+                    var message = $"'{_representation}' is not a valid DateTimeOffset representation.";
                     throw new BsonSerializationException(message);
             }
         }

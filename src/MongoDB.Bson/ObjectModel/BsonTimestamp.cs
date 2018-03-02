@@ -46,7 +46,7 @@ namespace MongoDB.Bson
         /// <param name="increment">The increment.</param>
         public BsonTimestamp(int timestamp, int increment)
         {
-            _value = (long)(((ulong)(uint)timestamp << 32) | (ulong)(uint)increment);
+            _value = (long)(((ulong)(uint)timestamp << 32) | (uint)increment);
         }
 
         // public operators
@@ -69,7 +69,7 @@ namespace MongoDB.Bson
         /// <returns>True if the two BsonTimestamp values are equal according to ==.</returns>
         public static bool operator ==(BsonTimestamp lhs, BsonTimestamp rhs)
         {
-            if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
+            if (ReferenceEquals(lhs, null)) { return ReferenceEquals(rhs, null); }
             return lhs.Equals(rhs);
         }
 
@@ -116,7 +116,7 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
 
             return (BsonTimestamp)BsonTypeMapper.MapToBsonValue(value, BsonType.Timestamp);
@@ -164,7 +164,7 @@ namespace MongoDB.Bson
         /// <returns>True if the two BsonTimestamp values are equal.</returns>
         public bool Equals(BsonTimestamp rhs)
         {
-            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
+            if (ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             return _value == rhs._value;
         }
 

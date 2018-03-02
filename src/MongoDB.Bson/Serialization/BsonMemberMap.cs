@@ -125,14 +125,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         public Func<object, object> Getter
         {
-            get
-            {
-                if (_getter == null)
-                {
-                    _getter = GetGetter();
-                }
-                return _getter;
-            }
+            get { return _getter ?? (_getter = GetGetter()); }
         }
 
         /// <summary>
@@ -236,10 +229,7 @@ namespace MongoDB.Bson.Serialization
                 else
                 {
                     throw new NotSupportedException(
-                       string.Format("Only fields and properties are supported by BsonMemberMap. The member {0} of class {1} is a {2}.",
-                       _memberInfo.Name,
-                       _memberInfo.DeclaringType.Name,
-                       _memberInfo is FieldInfo ? "field" : "property"));
+                        $"Only fields and properties are supported by BsonMemberMap. The member {_memberInfo.Name} of class {_memberInfo.DeclaringType.Name} is a {(_memberInfo is FieldInfo ? "field" : "property")}.");
                 }
             }
         }
@@ -253,7 +243,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (_defaultValueSpecified)
             {
-                this.Setter(obj, DefaultValue);
+                Setter(obj, DefaultValue);
             }
         }
 
@@ -342,7 +332,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (defaultValueCreator == null)
             {
-                throw new ArgumentNullException("defaultValueCreator");
+                throw new ArgumentNullException(nameof(defaultValueCreator));
             }
             if (_frozen) { ThrowFrozenException(); }
             _defaultValue = defaultValueCreator(); // need an instance to compare against
@@ -374,11 +364,11 @@ namespace MongoDB.Bson.Serialization
         {
             if (elementName == null)
             {
-                throw new ArgumentNullException("elementName");
+                throw new ArgumentNullException(nameof(elementName));
             }
             if (elementName.IndexOf('\0') != -1)
             {
-                throw new ArgumentException("Element names cannot contain nulls.", "elementName");
+                throw new ArgumentException("Element names cannot contain nulls.", nameof(elementName));
             }
             if (_frozen) { ThrowFrozenException(); }
 
@@ -469,12 +459,13 @@ namespace MongoDB.Bson.Serialization
         {
             if (serializer == null)
             {
-                throw new ArgumentNullException("serializer");
+                throw new ArgumentNullException(nameof(serializer));
             }
             if (serializer.ValueType != _memberType)
             {
-                var message = string.Format("Value type of serializer is {0} and does not match member type {1}.", serializer.ValueType.FullName, _memberType.FullName);
-                throw new ArgumentException(message, "serializer");
+                var message =
+                    $"Value type of serializer is {serializer.ValueType.FullName} and does not match member type {_memberType.FullName}.";
+                throw new ArgumentException(message, nameof(serializer));
             }
 
             if (_frozen) { ThrowFrozenException(); }
@@ -512,7 +503,7 @@ namespace MongoDB.Bson.Serialization
 
             if (_ignoreIfDefault)
             {
-                if (object.Equals(_defaultValue, value))
+                if (Equals(_defaultValue, value))
                 {
                     return false; // don't serialize default value
                 }
@@ -574,9 +565,8 @@ namespace MongoDB.Bson.Serialization
 
             if (IsReadOnly)
             {
-                var message = string.Format(
-                    "The field '{0} {1}' of class '{2}' is readonly. To avoid this exception, call IsReadOnly to ensure that setting a value is allowed.",
-                    fieldInfo.FieldType.FullName, fieldInfo.Name, fieldInfo.DeclaringType.FullName);
+                var message =
+                    $"The field '{fieldInfo.FieldType.FullName} {fieldInfo.Name}' of class '{fieldInfo.DeclaringType.FullName}' is readonly. To avoid this exception, call IsReadOnly to ensure that setting a value is allowed.";
                 throw new BsonSerializationException(message);
             }
 
@@ -602,9 +592,8 @@ namespace MongoDB.Bson.Serialization
                 var getMethodInfo = propertyInfo.GetMethod;
                 if (getMethodInfo == null)
                 {
-                    var message = string.Format(
-                        "The property '{0} {1}' of class '{2}' has no 'get' accessor.",
-                        propertyInfo.PropertyType.FullName, propertyInfo.Name, propertyInfo.DeclaringType.FullName);
+                    var message =
+                        $"The property '{propertyInfo.PropertyType.FullName} {propertyInfo.Name}' of class '{propertyInfo.DeclaringType.FullName}' has no 'get' accessor.";
                     throw new BsonSerializationException(message);
                 }
             }
@@ -631,9 +620,8 @@ namespace MongoDB.Bson.Serialization
             var setMethodInfo = propertyInfo.SetMethod;
             if (IsReadOnly)
             {
-                var message = string.Format(
-                    "The property '{0} {1}' of class '{2}' has no 'set' accessor. To avoid this exception, call IsReadOnly to ensure that setting a value is allowed.",
-                    propertyInfo.PropertyType.FullName, propertyInfo.Name, propertyInfo.DeclaringType.FullName);
+                var message =
+                    $"The property '{propertyInfo.PropertyType.FullName} {propertyInfo.Name}' of class '{propertyInfo.DeclaringType.FullName}' has no 'set' accessor. To avoid this exception, call IsReadOnly to ensure that setting a value is allowed.";
                 throw new BsonSerializationException(message);
             }
 
@@ -655,7 +643,8 @@ namespace MongoDB.Bson.Serialization
 
         private void ThrowFrozenException()
         {
-            var message = string.Format("Member map for {0}.{1} has been frozen and no further changes are allowed.", _classMap.ClassType.FullName, _memberInfo.Name);
+            var message =
+                $"Member map for {_classMap.ClassType.FullName}.{_memberInfo.Name} has been frozen and no further changes are allowed.";
             throw new InvalidOperationException(message);
         }
     }

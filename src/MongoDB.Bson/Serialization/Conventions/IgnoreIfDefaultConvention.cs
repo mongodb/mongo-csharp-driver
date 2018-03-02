@@ -21,7 +21,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     public class IgnoreIfDefaultConvention : ConventionBase, IMemberMapConvention
     {
         // private fields
-        private bool _ignoreIfDefault;
+        private readonly bool _ignoreIfDefault;
 
         // constructors
         /// <summary>

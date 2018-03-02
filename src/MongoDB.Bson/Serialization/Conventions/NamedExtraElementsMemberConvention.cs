@@ -76,7 +76,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         {
             if (names == null)
             {
-                throw new ArgumentNullException("names");
+                throw new ArgumentNullException(nameof(names));
             }
 
             _names = names;

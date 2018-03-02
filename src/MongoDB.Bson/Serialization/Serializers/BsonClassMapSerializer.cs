@@ -30,7 +30,7 @@ namespace MongoDB.Bson.Serialization
     public class BsonClassMapSerializer<TClass> : SerializerBase<TClass>, IBsonIdProvider, IBsonDocumentSerializer, IBsonPolymorphicSerializer
     {
         // private fields
-        private BsonClassMap _classMap;
+        private readonly BsonClassMap _classMap;
 
         // constructors
         /// <summary>
@@ -41,12 +41,12 @@ namespace MongoDB.Bson.Serialization
         {
             if (classMap == null)
             {
-                throw new ArgumentNullException("classMap");
+                throw new ArgumentNullException(nameof(classMap));
             }
             if (classMap.ClassType != typeof(TClass))
             {
-                var message = string.Format("Must be a BsonClassMap for the type {0}.", typeof(TClass));
-                throw new ArgumentException(message, "classMap");
+                var message = $"Must be a BsonClassMap for the type {typeof(TClass)}.";
+                throw new ArgumentException(message, nameof(classMap));
             }
             if (!classMap.IsFrozen)
             {
@@ -81,11 +81,11 @@ namespace MongoDB.Bson.Serialization
 
             if (_classMap.ClassType.GetTypeInfo().IsValueType)
             {
-                var message = string.Format("Value class {0} cannot be deserialized.", _classMap.ClassType.FullName);
+                var message = $"Value class {_classMap.ClassType.FullName} cannot be deserialized.";
                 throw new BsonSerializationException(message);
             }
 
-            if (bsonReader.GetCurrentBsonType() == Bson.BsonType.Null)
+            if (bsonReader.GetCurrentBsonType() == BsonType.Null)
             {
                 bsonReader.ReadNull();
                 return default(TClass);
@@ -120,9 +120,8 @@ namespace MongoDB.Bson.Serialization
             var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType != BsonType.Document)
             {
-                var message = string.Format(
-                    "Expected a nested document representing the serialized form of a {0} value, but found a value of type {1} instead.",
-                    typeof(TClass).FullName, bsonType);
+                var message =
+                    $"Expected a nested document representing the serialized form of a {typeof(TClass).FullName} value, but found a value of type {bsonType} instead.";
                 throw new FormatException(message);
             }
 
@@ -143,10 +142,7 @@ namespace MongoDB.Bson.Serialization
 
 #if NET45
                 supportsInitialization = document as ISupportInitialize;
-                if (supportsInitialization != null)
-                {
-                    supportsInitialization.BeginInit();
-                }
+                supportsInitialization?.BeginInit();
 #endif
             }
 
@@ -226,9 +222,8 @@ namespace MongoDB.Bson.Serialization
                     }
                     else
                     {
-                        var message = string.Format(
-                            "Element '{0}' does not match any field or property of class {1}.",
-                            elementName, _classMap.ClassType.FullName);
+                        var message =
+                            $"Element '{elementName}' does not match any field or property of class {_classMap.ClassType.FullName}.";
                         throw new FormatException(message);
                     }
                 }
@@ -256,9 +251,8 @@ namespace MongoDB.Bson.Serialization
                         if (memberMap.IsRequired)
                         {
                             var fieldOrProperty = (memberMap.MemberInfo is FieldInfo) ? "field" : "property";
-                            var message = string.Format(
-                                "Required element '{0}' for {1} '{2}' of class {3} is missing.",
-                                memberMap.ElementName, fieldOrProperty, memberMap.MemberName, _classMap.ClassType.FullName);
+                            var message =
+                                $"Required element '{memberMap.ElementName}' for {fieldOrProperty} '{memberMap.MemberName}' of class {_classMap.ClassType.FullName} is missing.";
                             throw new FormatException(message);
                         }
 
@@ -287,18 +281,12 @@ namespace MongoDB.Bson.Serialization
             if (document != null)
             {
 #if NET45
-                if (supportsInitialization != null)
-                {
-                    supportsInitialization.EndInit();
-                }
+                supportsInitialization?.EndInit();
 #endif
 
                 return document;
             }
-            else
-            {
-                return CreateInstanceUsingCreator(values);
-            }
+            return CreateInstanceUsingCreator(values);
         }
 
         /// <summary>
@@ -397,7 +385,7 @@ namespace MongoDB.Bson.Serialization
             var documentTypeInfo = documentType.GetTypeInfo();
             if (documentTypeInfo.IsValueType)
             {
-                var message = string.Format("SetDocumentId cannot be used with value type {0}.", documentType.FullName);
+                var message = $"SetDocumentId cannot be used with value type {documentType.FullName}.";
                 throw new BsonSerializationException(message);
             }
 
@@ -408,7 +396,7 @@ namespace MongoDB.Bson.Serialization
             }
             else
             {
-                var message = string.Format("Class {0} has no Id member.", document.GetType().FullName);
+                var message = $"Class {document.GetType().FullName} has no Id member.";
                 throw new InvalidOperationException(message);
             }
         }
@@ -435,10 +423,7 @@ namespace MongoDB.Bson.Serialization
 
 #if NET45
             var supportsInitialization = document as ISupportInitialize;
-            if (supportsInitialization != null)
-            {
-                supportsInitialization.BeginInit();
-            }
+            supportsInitialization?.BeginInit();
 #endif
             // process any left over values that weren't passed to the creator
             foreach (var keyValuePair in values)
@@ -454,10 +439,7 @@ namespace MongoDB.Bson.Serialization
             }
 
 #if NET45
-            if (supportsInitialization != null)
-            {
-                supportsInitialization.EndInit();
-            }
+            supportsInitialization?.EndInit();
 #endif
 
             return (TClass)document;
@@ -469,8 +451,6 @@ namespace MongoDB.Bson.Serialization
             string elementName,
             BsonMemberMap extraElementsMemberMap)
         {
-            var bsonReader = context.Reader;
-
             if (extraElementsMemberMap.MemberType == typeof(BsonDocument))
             {
                 var extraElements = (BsonDocument)extraElementsMemberMap.Getter(obj);
@@ -510,8 +490,6 @@ namespace MongoDB.Bson.Serialization
             string elementName,
             BsonMemberMap extraElementsMemberMap)
         {
-            var bsonReader = context.Reader;
-
             if (extraElementsMemberMap.MemberType == typeof(BsonDocument))
             {
                 BsonDocument extraElements;
@@ -557,17 +535,14 @@ namespace MongoDB.Bson.Serialization
 
         private object DeserializeMemberValue(BsonDeserializationContext context, BsonMemberMap memberMap)
         {
-            var bsonReader = context.Reader;
-
             try
             {
                 return memberMap.GetSerializer().Deserialize(context);
             }
             catch (Exception ex)
             {
-                var message = string.Format(
-                    "An error occurred while deserializing the {0} {1} of class {2}: {3}", // terminating period provided by nested message
-                    memberMap.MemberName, (memberMap.MemberInfo is FieldInfo) ? "field" : "property", memberMap.ClassMap.ClassType.FullName, ex.Message);
+                var message =
+                    $"An error occurred while deserializing the {memberMap.MemberName} {((memberMap.MemberInfo is FieldInfo) ? "field" : "property")} of class {memberMap.ClassMap.ClassType.FullName}: {ex.Message}";
                 throw new FormatException(message, ex);
             }
         }

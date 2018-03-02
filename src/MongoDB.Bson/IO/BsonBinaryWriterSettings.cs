@@ -27,7 +27,7 @@ namespace MongoDB.Bson.IO
     public class BsonBinaryWriterSettings : BsonWriterSettings
     {
         // private static fields
-        private static BsonBinaryWriterSettings __defaults = null; // delay creation to pick up the latest default values
+        private static BsonBinaryWriterSettings __defaults; // delay creation to pick up the latest default values
 
         // private fields
         private UTF8Encoding _encoding = Utf8Encodings.Strict;
@@ -48,14 +48,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public static BsonBinaryWriterSettings Defaults
         {
-            get
-            {
-                if (__defaults == null)
-                {
-                    __defaults = new BsonBinaryWriterSettings();
-                }
-                return __defaults;
-            }
+            get { return __defaults ?? (__defaults = new BsonBinaryWriterSettings()); }
             set { __defaults = value; }
         }
 
@@ -70,7 +63,7 @@ namespace MongoDB.Bson.IO
             {
                 if (value == null)
                 {
-                    throw new ArgumentNullException("value");
+                    throw new ArgumentNullException(nameof(value));
                 }
                 if (IsFrozen) { throw new InvalidOperationException("BsonBinaryWriterSettings is frozen."); }
                 _encoding = value;

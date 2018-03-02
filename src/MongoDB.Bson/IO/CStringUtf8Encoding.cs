@@ -31,7 +31,7 @@ namespace MongoDB.Bson.IO
                 var c = (int)value[charIndex];
                 if (c == 0)
                 {
-                    throw new ArgumentException("A CString cannot contain null bytes.", "value");
+                    throw new ArgumentException("A CString cannot contain null bytes.", nameof(value));
                 }
                 else if (c <= 0x7f)
                 {
@@ -59,7 +59,7 @@ namespace MongoDB.Bson.IO
                     var bytesWritten = fallbackEncoding.GetBytes(value, 0, value.Length, bytes, byteIndex);
                     if (Array.IndexOf<byte>(bytes, 0, initialByteIndex, bytesWritten) != -1)
                     {
-                        throw new ArgumentException("A CString cannot contain null bytes.", "value");
+                        throw new ArgumentException("A CString cannot contain null bytes.", nameof(value));
                     }
                     return bytesWritten;
                 }

@@ -32,7 +32,7 @@ namespace MongoDB.Bson
         {
             if (name == null)
             {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
             _name = name;
         }
@@ -84,7 +84,7 @@ namespace MongoDB.Bson
         /// <returns>True if the two BsonSymbol values are equal according to ==.</returns>
         public static bool operator ==(BsonSymbol lhs, BsonSymbol rhs)
         {
-            if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
+            if (ReferenceEquals(lhs, null)) { return ReferenceEquals(rhs, null); }
             return lhs.Equals(rhs);
         }
 
@@ -98,7 +98,7 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
 
             return (BsonSymbol)BsonTypeMapper.MapToBsonValue(value, BsonType.Symbol);
@@ -147,8 +147,8 @@ namespace MongoDB.Bson
         /// <returns>True if the two BsonSymbol values are equal.</returns>
         public bool Equals(BsonSymbol rhs)
         {
-            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
-            return object.ReferenceEquals(this, rhs); // symbols are guaranteed to be unique
+            if (ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
+            return ReferenceEquals(this, rhs); // symbols are guaranteed to be unique
         }
 
         /// <summary>

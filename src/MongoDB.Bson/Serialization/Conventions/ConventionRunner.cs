@@ -36,7 +36,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         {
             if (conventions == null)
             {
-                throw new ArgumentNullException("conventions");
+                throw new ArgumentNullException(nameof(conventions));
             }
 
             _conventions = conventions.Conventions.ToList();

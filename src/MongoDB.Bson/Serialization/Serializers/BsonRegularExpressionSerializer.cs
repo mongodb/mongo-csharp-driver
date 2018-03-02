@@ -22,7 +22,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BsonRegularExpressionSerializer : BsonValueSerializerBase<BsonRegularExpression>
     {
         // private static fields
-        private static BsonRegularExpressionSerializer __instance = new BsonRegularExpressionSerializer();
+        private static readonly BsonRegularExpressionSerializer __instance = new BsonRegularExpressionSerializer();
 
         // constructors
         /// <summary>

@@ -40,11 +40,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (members == null)
             {
-                throw new ArgumentNullException("members");
+                throw new ArgumentNullException(nameof(members));
             }
             if (members.Length > 64)
             {
-                throw new ArgumentException("SerializerHelper supports a maximum of 64 members.", "members");
+                throw new ArgumentException("SerializerHelper supports a maximum of 64 members.", nameof(members));
             }
 
             _members = members;
@@ -96,8 +96,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 {
                     if (_extraMemberFlag == 0)
                     {
-                        throw new BsonSerializationException(string.Format(
-                            "Invalid element: '{0}'.", elementName));
+                        throw new BsonSerializationException($"Invalid element: '{elementName}'.");
                     }
                     else
                     {
@@ -114,8 +113,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             if (missingRequiredMemberFlags != 0)
             {
                 var missingRequiredMember = FindFirstMissingRequiredMember(missingRequiredMemberFlags);
-                throw new BsonSerializationException(string.Format(
-                   "Missing element: '{0}'.", missingRequiredMember.ElementName));
+                throw new BsonSerializationException($"Missing element: '{missingRequiredMember.ElementName}'.");
             }
 
             return foundMemberFlags;
@@ -162,11 +160,11 @@ namespace MongoDB.Bson.Serialization.Serializers
             {
                 if (string.IsNullOrEmpty(elementName))
                 {
-                    throw new ArgumentException(string.Format("Invalid element name: '{0}'.", elementName));
+                    throw new ArgumentException($"Invalid element name: '{elementName}'.");
                 }
                 if (!__validFlags.Contains(flag))
                 {
-                    throw new ArgumentException(string.Format("Invalid member flag: {0:x}.", flag));
+                    throw new ArgumentException($"Invalid member flag: {flag:x}.");
                 }
 
                 _elementName = elementName;

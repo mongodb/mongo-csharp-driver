@@ -51,7 +51,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 return address;
             }
 
-            var message = string.Format("Invalid IPAddress value '{0}'.", stringValue);
+            var message = $"Invalid IPAddress value '{stringValue}'.";
             throw new FormatException(message);
         }
 
@@ -65,15 +65,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             var bsonWriter = context.Writer;
 
-            string stringValue;
-            if (value.AddressFamily == AddressFamily.InterNetwork)
-            {
-                stringValue = value.ToString();
-            }
-            else
-            {
-                stringValue = string.Format("[{0}]", value);
-            }
+            var stringValue = value.AddressFamily == AddressFamily.InterNetwork ? value.ToString() : $"[{value}]";
             bsonWriter.WriteString(stringValue);
         }
     }

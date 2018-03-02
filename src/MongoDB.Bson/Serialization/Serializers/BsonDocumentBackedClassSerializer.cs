@@ -72,7 +72,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="value">The object.</param>
         protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, TClass value)
         {
-            var backingDocument = ((BsonDocumentBackedClass)value).BackingDocument;
+            var backingDocument = value.BackingDocument;
             BsonDocumentSerializer.Instance.Serialize(context, backingDocument);
         }
 
@@ -87,15 +87,15 @@ namespace MongoDB.Bson.Serialization
         {
             if (memberName == null)
             {
-                throw new ArgumentNullException("memberName");
+                throw new ArgumentNullException(nameof(memberName));
             }
             if (elementName == null)
             {
-                throw new ArgumentNullException("elementName");
+                throw new ArgumentNullException(nameof(elementName));
             }
             if (serializer == null)
             {
-                throw new ArgumentNullException("serializer");
+                throw new ArgumentNullException(nameof(serializer));
             }
 
             var info = new BsonSerializationInfo(elementName, serializer, serializer.ValueType);

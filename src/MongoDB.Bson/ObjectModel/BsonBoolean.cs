@@ -27,8 +27,8 @@ namespace MongoDB.Bson
     public class BsonBoolean : BsonValue, IComparable<BsonBoolean>, IEquatable<BsonBoolean>
     {
         // private static fields
-        private static BsonBoolean __falseInstance = new BsonBoolean(false);
-        private static BsonBoolean __trueInstance = new BsonBoolean(true);
+        private static readonly BsonBoolean __falseInstance = new BsonBoolean(false);
+        private static readonly BsonBoolean __trueInstance = new BsonBoolean(true);
 
         // private fields
         private readonly bool _value;
@@ -116,7 +116,7 @@ namespace MongoDB.Bson
         /// <returns>True if the two BsonBoolean values are equal according to ==.</returns>
         public static bool operator ==(BsonBoolean lhs, BsonBoolean rhs)
         {
-            if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
+            if (ReferenceEquals(lhs, null)) { return ReferenceEquals(rhs, null); }
             return lhs.Equals(rhs);
         }
 
@@ -130,7 +130,7 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
 
             return (BsonBoolean)BsonTypeMapper.MapToBsonValue(value, BsonType.Boolean);
@@ -171,7 +171,7 @@ namespace MongoDB.Bson
         /// <returns>True if the two BsonBoolean values are equal.</returns>
         public bool Equals(BsonBoolean rhs)
         {
-            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
+            if (ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             return _value == rhs._value;
         }
 

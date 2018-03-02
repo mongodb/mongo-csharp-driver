@@ -45,7 +45,7 @@ namespace MongoDB.Bson.Serialization
             .GetTypeInfo()
             ?.GetMethod("GetUninitializedObject", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
 
-        private static int __freezeNestingLevel = 0;
+        private static int __freezeNestingLevel;
 
         // private fields
         private readonly Type _classType;
@@ -70,7 +70,7 @@ namespace MongoDB.Bson.Serialization
         private bool _ignoreExtraElementsIsInherited;
         private BsonMemberMap _extraElementsMemberMap;
         private int _extraElementsMemberIndex = -1;
-        private List<Type> _knownTypes = new List<Type>();
+        private readonly List<Type> _knownTypes = new List<Type>();
 
         // constructors
         /// <summary>
@@ -274,7 +274,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (memberInfo == null)
             {
-                throw new ArgumentNullException("memberInfo");
+                throw new ArgumentNullException(nameof(memberInfo));
             }
 
             if (memberInfo is FieldInfo)
@@ -315,7 +315,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (type == null)
             {
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
             }
 
             BsonSerializer.ConfigLock.EnterReadLock();
@@ -338,7 +338,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (classType == null)
             {
-                throw new ArgumentNullException("classType");
+                throw new ArgumentNullException(nameof(classType));
             }
 
             BsonSerializer.ConfigLock.EnterReadLock();
@@ -410,7 +410,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (classMap == null)
             {
-                throw new ArgumentNullException("classMap");
+                throw new ArgumentNullException(nameof(classMap));
             }
 
             BsonSerializer.ConfigLock.EnterWriteLock();
@@ -536,19 +536,7 @@ namespace MongoDB.Bson.Serialization
                                 var conflictingFieldOrProperty = (conflictingMemberMap.MemberInfo is FieldInfo) ? "field" : "property";
                                 var conflictingType = conflictingMemberMap.MemberInfo.DeclaringType;
 
-                                string message;
-                                if (conflictingType == _classType)
-                                {
-                                    message = string.Format(
-                                        "The {0} '{1}' of type '{2}' cannot use element name '{3}' because it is already being used by {4} '{5}'.",
-                                        fieldOrProperty, memberMap.MemberName, _classType.FullName, memberMap.ElementName, conflictingFieldOrProperty, conflictingMemberMap.MemberName);
-                                }
-                                else
-                                {
-                                    message = string.Format(
-                                        "The {0} '{1}' of type '{2}' cannot use element name '{3}' because it is already being used by {4} '{5}' of type '{6}'.",
-                                        fieldOrProperty, memberMap.MemberName, _classType.FullName, memberMap.ElementName, conflictingFieldOrProperty, conflictingMemberMap.MemberName, conflictingType.FullName);
-                                }
+                                var message = conflictingType == _classType ? $"The {fieldOrProperty} '{memberMap.MemberName}' of type '{_classType.FullName}' cannot use element name '{memberMap.ElementName}' because it is already being used by {conflictingFieldOrProperty} '{conflictingMemberMap.MemberName}'." : $"The {fieldOrProperty} '{memberMap.MemberName}' of type '{_classType.FullName}' cannot use element name '{memberMap.ElementName}' because it is already being used by {conflictingFieldOrProperty} '{conflictingMemberMap.MemberName}' of type '{conflictingType.FullName}'.";
                                 throw new BsonSerializationException(message);
                             }
                             if (memberMap == _extraElementsMemberMap)
@@ -608,7 +596,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (memberName == null)
             {
-                throw new ArgumentNullException("memberName");
+                throw new ArgumentNullException(nameof(memberName));
             }
 
             // can be called whether frozen or not
@@ -624,7 +612,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (elementName == null)
             {
-                throw new ArgumentNullException("elementName");
+                throw new ArgumentNullException(nameof(elementName));
             }
 
             if (!_frozen) { ThrowNotFrozenException(); }
@@ -646,7 +634,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (constructorInfo == null)
             {
-                throw new ArgumentNullException("constructorInfo");
+                throw new ArgumentNullException(nameof(constructorInfo));
             }
             EnsureMemberInfoIsForThisClass(constructorInfo);
 
@@ -683,7 +671,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (@delegate == null)
             {
-                throw new ArgumentNullException("delegate");
+                throw new ArgumentNullException(nameof(@delegate));
             }
 
             if (_frozen) { ThrowFrozenException(); }
@@ -714,7 +702,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (fieldName == null)
             {
-                throw new ArgumentNullException("fieldName");
+                throw new ArgumentNullException(nameof(fieldName));
             }
 
             if (_frozen) { ThrowFrozenException(); }
@@ -732,7 +720,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (memberInfo == null)
             {
-                throw new ArgumentNullException("memberInfo");
+                throw new ArgumentNullException(nameof(memberInfo));
             }
 
             if (_frozen) { ThrowFrozenException(); }
@@ -750,7 +738,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (propertyName == null)
             {
-                throw new ArgumentNullException("propertyName");
+                throw new ArgumentNullException(nameof(propertyName));
             }
 
             if (_frozen) { ThrowFrozenException(); }
@@ -768,7 +756,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (methodInfo == null)
             {
-                throw new ArgumentNullException("methodInfo");
+                throw new ArgumentNullException(nameof(methodInfo));
             }
             EnsureMemberInfoIsForThisClass(methodInfo);
 
@@ -805,14 +793,14 @@ namespace MongoDB.Bson.Serialization
         {
             if (fieldName == null)
             {
-                throw new ArgumentNullException("fieldName");
+                throw new ArgumentNullException(nameof(fieldName));
             }
 
             if (_frozen) { ThrowFrozenException(); }
             var fieldInfo = _classType.GetTypeInfo().GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
             if (fieldInfo == null)
             {
-                var message = string.Format("The class '{0}' does not have a field named '{1}'.", _classType.FullName, fieldName);
+                var message = $"The class '{_classType.FullName}' does not have a field named '{fieldName}'.";
                 throw new BsonSerializationException(message);
             }
             return MapMember(fieldInfo);
@@ -827,7 +815,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (fieldName == null)
             {
-                throw new ArgumentNullException("fieldName");
+                throw new ArgumentNullException(nameof(fieldName));
             }
 
             if (_frozen) { ThrowFrozenException(); }
@@ -845,7 +833,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (memberInfo == null)
             {
-                throw new ArgumentNullException("memberInfo");
+                throw new ArgumentNullException(nameof(memberInfo));
             }
 
             if (_frozen) { ThrowFrozenException(); }
@@ -863,7 +851,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (propertyName == null)
             {
-                throw new ArgumentNullException("propertyName");
+                throw new ArgumentNullException(nameof(propertyName));
             }
 
             if (_frozen) { ThrowFrozenException(); }
@@ -881,11 +869,11 @@ namespace MongoDB.Bson.Serialization
         {
             if (memberInfo == null)
             {
-                throw new ArgumentNullException("memberInfo");
+                throw new ArgumentNullException(nameof(memberInfo));
             }
             if (!(memberInfo is FieldInfo) && !(memberInfo is PropertyInfo))
             {
-                throw new ArgumentException("MemberInfo must be either a FieldInfo or a PropertyInfo.", "memberInfo");
+                throw new ArgumentException("MemberInfo must be either a FieldInfo or a PropertyInfo.", nameof(memberInfo));
             }
             EnsureMemberInfoIsForThisClass(memberInfo);
 
@@ -908,14 +896,14 @@ namespace MongoDB.Bson.Serialization
         {
             if (propertyName == null)
             {
-                throw new ArgumentNullException("propertyName");
+                throw new ArgumentNullException(nameof(propertyName));
             }
 
             if (_frozen) { ThrowFrozenException(); }
             var propertyInfo = _classType.GetTypeInfo().GetProperty(propertyName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
             if (propertyInfo == null)
             {
-                var message = string.Format("The class '{0}' does not have a property named '{1}'.", _classType.FullName, propertyName);
+                var message = $"The class '{_classType.FullName}' does not have a property named '{propertyName}'.";
                 throw new BsonSerializationException(message);
             }
             return MapMember(propertyInfo);
@@ -960,7 +948,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (discriminator == null)
             {
-                throw new ArgumentNullException("discriminator");
+                throw new ArgumentNullException(nameof(discriminator));
             }
 
             if (_frozen) { ThrowFrozenException(); }
@@ -985,7 +973,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (memberMap == null)
             {
-                throw new ArgumentNullException("memberMap");
+                throw new ArgumentNullException(nameof(memberMap));
             }
             EnsureMemberMapIsForThisClass(memberMap);
 
@@ -1007,8 +995,9 @@ namespace MongoDB.Bson.Serialization
         {
             if (!_classType.GetTypeInfo().IsAssignableFrom(type))
             {
-                string message = string.Format("Class {0} cannot be assigned to Class {1}.  Ensure that known types are derived from the mapped class.", type.FullName, _classType.FullName);
-                throw new ArgumentNullException("type", message);
+                string message =
+                    $"Class {type.FullName} cannot be assigned to Class {_classType.FullName}.  Ensure that known types are derived from the mapped class.";
+                throw new ArgumentNullException(nameof(type), message);
             }
 
             if (_frozen) { ThrowFrozenException(); }
@@ -1069,7 +1058,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (constructorInfo == null)
             {
-                throw new ArgumentNullException("constructorInfo");
+                throw new ArgumentNullException(nameof(constructorInfo));
             }
             EnsureMemberInfoIsForThisClass(constructorInfo);
 
@@ -1089,7 +1078,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (methodInfo == null)
             {
-                throw new ArgumentNullException("methodInfo");
+                throw new ArgumentNullException(nameof(methodInfo));
             }
             EnsureMemberInfoIsForThisClass(methodInfo);
 
@@ -1109,14 +1098,14 @@ namespace MongoDB.Bson.Serialization
         {
             if (fieldName == null)
             {
-                throw new ArgumentNullException("fieldName");
+                throw new ArgumentNullException(nameof(fieldName));
             }
 
             if (_frozen) { ThrowFrozenException(); }
             var fieldInfo = _classType.GetTypeInfo().GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
             if (fieldInfo == null)
             {
-                var message = string.Format("The class '{0}' does not have a field named '{1}'.", _classType.FullName, fieldName);
+                var message = $"The class '{_classType.FullName}' does not have a field named '{fieldName}'.";
                 throw new BsonSerializationException(message);
             }
             UnmapMember(fieldInfo);
@@ -1130,7 +1119,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (memberInfo == null)
             {
-                throw new ArgumentNullException("memberInfo");
+                throw new ArgumentNullException(nameof(memberInfo));
             }
             EnsureMemberInfoIsForThisClass(memberInfo);
 
@@ -1158,14 +1147,14 @@ namespace MongoDB.Bson.Serialization
         {
             if (propertyName == null)
             {
-                throw new ArgumentNullException("propertyName");
+                throw new ArgumentNullException(nameof(propertyName));
             }
 
             if (_frozen) { ThrowFrozenException(); }
             var propertyInfo = _classType.GetTypeInfo().GetProperty(propertyName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
             if (propertyInfo == null)
             {
-                var message = string.Format("The class '{0}' does not have a property named '{1}'.", _classType.FullName, propertyName);
+                var message = $"The class '{_classType.FullName}' does not have a property named '{propertyName}'.";
                 throw new BsonSerializationException(message);
             }
             UnmapMember(propertyInfo);
@@ -1214,11 +1203,9 @@ namespace MongoDB.Bson.Serialization
         {
             if (memberInfo.DeclaringType != _classType)
             {
-                var message = string.Format(
-                    "The memberInfo argument must be for class {0}, but was for class {1}.",
-                    _classType.Name,
-                    memberInfo.DeclaringType.Name);
-                throw new ArgumentOutOfRangeException("memberInfo", message);
+                var message =
+                    $"The memberInfo argument must be for class {_classType.Name}, but was for class {memberInfo.DeclaringType.Name}.";
+                throw new ArgumentOutOfRangeException(nameof(memberInfo), message);
             }
         }
 
@@ -1226,11 +1213,9 @@ namespace MongoDB.Bson.Serialization
         {
             if (memberMap.ClassMap != this)
             {
-                var message = string.Format(
-                    "The memberMap argument must be for class {0}, but was for class {1}.",
-                    _classType.Name,
-                    memberMap.ClassMap.ClassType.Name);
-                throw new ArgumentOutOfRangeException("memberMap", message);
+                var message =
+                    $"The memberMap argument must be for class {_classType.Name}, but was for class {memberMap.ClassMap.ClassType.Name}.";
+                throw new ArgumentOutOfRangeException(nameof(memberMap), message);
             }
         }
 
@@ -1241,9 +1226,9 @@ namespace MongoDB.Bson.Serialization
                 Expression body;
                 var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
                 var classTypeInfo = _classType.GetTypeInfo();
-                var defaultConstructor = classTypeInfo.GetConstructors(bindingFlags)
-                    .Where(c => c.GetParameters().Length == 0)
-                    .SingleOrDefault();
+                var defaultConstructor = classTypeInfo
+                    .GetConstructors(bindingFlags)
+                    .SingleOrDefault(c => c.GetParameters().Length == 0);
                 if (defaultConstructor != null)
                 {
                     // lambdaExpression = () => (object) new TClass()
@@ -1297,13 +1282,13 @@ namespace MongoDB.Bson.Serialization
 
         private void ThrowFrozenException()
         {
-            var message = string.Format("Class map for {0} has been frozen and no further changes are allowed.", _classType.FullName);
+            var message = $"Class map for {_classType.FullName} has been frozen and no further changes are allowed.";
             throw new InvalidOperationException(message);
         }
 
         private void ThrowNotFrozenException()
         {
-            var message = string.Format("Class map for {0} has been not been frozen yet.", _classType.FullName);
+            var message = $"Class map for {_classType.FullName} has been not been frozen yet.";
             throw new InvalidOperationException(message);
         }
     }
@@ -1364,7 +1349,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (creatorLambda == null)
             {
-                throw new ArgumentNullException("creatorLambda");
+                throw new ArgumentNullException(nameof(creatorLambda));
             }
 
             IEnumerable<MemberInfo> arguments;
@@ -1596,7 +1581,7 @@ namespace MongoDB.Bson.Serialization
 
             var actualPropertyAccessors = interfacePropertyAccessors.Select(interfacePropertyAccessor =>
             {
-                var index = Array.IndexOf<MethodInfo>(interfaceMap.InterfaceMethods, interfacePropertyAccessor);
+                var index = Array.IndexOf(interfaceMap.InterfaceMethods, interfacePropertyAccessor);
 
                 return interfaceMap.TargetMethods[index];
             });

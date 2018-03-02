@@ -25,7 +25,7 @@ namespace MongoDB.Bson.Serialization.Attributes
     public class BsonDateTimeOptionsAttribute : BsonSerializationOptionsAttribute
     {
         // private fields
-        private bool _dateOnly = false;
+        private bool _dateOnly;
         private DateTimeKind _kind = DateTimeKind.Utc;
         private BsonType _representation = BsonType.DateTime;
 

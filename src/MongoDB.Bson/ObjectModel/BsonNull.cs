@@ -26,7 +26,7 @@ namespace MongoDB.Bson
     public class BsonNull : BsonValue, IComparable<BsonNull>, IEquatable<BsonNull>
     {
         // private static fields
-        private static BsonNull __value = new BsonNull();
+        private static readonly BsonNull __value = new BsonNull();
 
         // constructors
         // private so only the singleton instance can be created
@@ -54,7 +54,7 @@ namespace MongoDB.Bson
         /// <returns>True if the two BsonNull values are equal according to ==.</returns>
         public static bool operator ==(BsonNull lhs, BsonNull rhs)
         {
-            if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
+            if (ReferenceEquals(lhs, null)) { return ReferenceEquals(rhs, null); }
             return lhs.Equals(rhs);
         }
 
@@ -106,7 +106,7 @@ namespace MongoDB.Bson
         /// <returns>True if the two BsonNull values are equal.</returns>
         public bool Equals(BsonNull rhs)
         {
-            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
+            if (ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             return true; // it's a singleton
         }
 

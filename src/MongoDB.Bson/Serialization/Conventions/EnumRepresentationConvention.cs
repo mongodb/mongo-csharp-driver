@@ -80,7 +80,6 @@ namespace MongoDB.Bson.Serialization.Conventions
                         memberMap.SetSerializer(reconfiguredSerializer);
                     }
                 }
-                return;
             }
         }
 
@@ -103,7 +102,7 @@ namespace MongoDB.Bson.Serialization.Conventions
             {
                 return;
             }
-            throw new ArgumentException("Enums can only be represented as String, Int32, Int64 or the type of the enum", "representation");
+            throw new ArgumentException("Enums can only be represented as String, Int32, Int64 or the type of the enum", nameof(representation));
         }
     }
 }

@@ -38,7 +38,7 @@ namespace MongoDB.Bson.IO
         {
             if (json == null)
             {
-                throw new ArgumentNullException("json");
+                throw new ArgumentNullException(nameof(json));
             }
             _buffer = new StringBuilder(json);
         }
@@ -51,7 +51,7 @@ namespace MongoDB.Bson.IO
         {
             if (reader == null)
             {
-                throw new ArgumentNullException("reader");
+                throw new ArgumentNullException(nameof(reader));
             }
             _buffer = new StringBuilder(256); // start out with a reasonable initial capacity
             _reader = reader;
@@ -68,8 +68,8 @@ namespace MongoDB.Bson.IO
             {
                 if (value < 0 || value > _buffer.Length)
                 {
-                    var message = string.Format("Invalid position: {0}.", value);
-                    throw new ArgumentOutOfRangeException("value", message);
+                    var message = $"Invalid position: {value}.";
+                    throw new ArgumentOutOfRangeException(nameof(value), message);
                 }
                 _position = value;
             }
@@ -86,15 +86,15 @@ namespace MongoDB.Bson.IO
         {
             if (start < 0)
             {
-                throw new ArgumentOutOfRangeException("start", "Start cannot be negative.");
+                throw new ArgumentOutOfRangeException(nameof(start), "Start cannot be negative.");
             }
             if (maxLength < 0)
             {
-                throw new ArgumentOutOfRangeException("maxLength", "MaxLength cannot be negative.");
+                throw new ArgumentOutOfRangeException(nameof(maxLength), "MaxLength cannot be negative.");
             }
             if (start > _position)
             {
-                throw new ArgumentOutOfRangeException("start", "Start is beyond current position.");
+                throw new ArgumentOutOfRangeException(nameof(start), "Start is beyond current position.");
             }
             var availableCount = _position - start;
             var count = Math.Min(availableCount, maxLength);
@@ -111,19 +111,19 @@ namespace MongoDB.Bson.IO
         {
             if (start < 0)
             {
-                throw new ArgumentOutOfRangeException("start", "Start cannot be negative.");
+                throw new ArgumentOutOfRangeException(nameof(start), "Start cannot be negative.");
             }
             if (count < 0)
             {
-                throw new ArgumentOutOfRangeException("count", "Count cannot be negative.");
+                throw new ArgumentOutOfRangeException(nameof(count), "Count cannot be negative.");
             }
             if (start > _position)
             {
-                throw new ArgumentOutOfRangeException("start", "Start is beyond current position.");
+                throw new ArgumentOutOfRangeException(nameof(start), "Start is beyond current position.");
             }
             if (start + count > _position)
             {
-                throw new ArgumentOutOfRangeException("start", "End of substring is beyond current position.");
+                throw new ArgumentOutOfRangeException(nameof(start), "End of substring is beyond current position.");
             }
             return _buffer.ToString(start, count);
         }

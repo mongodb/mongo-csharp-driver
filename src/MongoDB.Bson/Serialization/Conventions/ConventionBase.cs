@@ -31,7 +31,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// </summary>
         protected ConventionBase()
         {
-            _name = GetName(this.GetType());
+            _name = GetName(GetType());
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         {
             if (name == null)
             {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
 
             _name = name;

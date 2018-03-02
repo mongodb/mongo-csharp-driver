@@ -47,7 +47,7 @@ namespace MongoDB.Bson.IO
         {
             if (document == null)
             {
-                throw new ArgumentNullException("document");
+                throw new ArgumentNullException(nameof(document));
             }
 
             _context = new BsonDocumentReaderContext(null, ContextType.TopLevel, document);
@@ -173,7 +173,7 @@ namespace MongoDB.Bson.IO
             var subType = binaryData.SubType;
             if (subType != BsonBinarySubType.Binary && subType != BsonBinarySubType.OldBinary)
             {
-                var message = string.Format("ReadBytes requires the binary sub type to be Binary, not {0}.", subType);
+                var message = $"ReadBytes requires the binary sub type to be Binary, not {subType}.";
                 throw new FormatException(message);
             }
 
@@ -352,7 +352,7 @@ namespace MongoDB.Bson.IO
         {
             if (nameDecoder == null)
             {
-                throw new ArgumentNullException("nameDecoder");
+                throw new ArgumentNullException(nameof(nameDecoder));
             }
 
             if (Disposed) { ThrowObjectDisposedException(); }
@@ -425,16 +425,8 @@ namespace MongoDB.Bson.IO
             if (Disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadStartDocument", BsonType.Document);
 
-            BsonDocument document;
             var script = _currentValue as BsonJavaScriptWithScope;
-            if (script != null)
-            {
-                document = script.Scope;
-            }
-            else
-            {
-                document = _currentValue.AsBsonDocument;
-            }
+            var document = script != null ? script.Scope : _currentValue.AsBsonDocument;
             _context = new BsonDocumentReaderContext(_context, ContextType.Document, document);
             State = BsonReaderState.Type;
         }

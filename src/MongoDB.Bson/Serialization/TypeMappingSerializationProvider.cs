@@ -42,13 +42,13 @@ namespace MongoDB.Bson.Serialization
         {
             if (type == null)
             {
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
             }
             var typeInfo = type.GetTypeInfo();
             if (typeInfo.IsGenericType && typeInfo.ContainsGenericParameters)
             {
-                var message = string.Format("Generic type {0} has unassigned type parameters.", BsonUtils.GetFriendlyTypeName(type));
-                throw new ArgumentException(message, "type");
+                var message = $"Generic type {BsonUtils.GetFriendlyTypeName(type)} has unassigned type parameters.";
+                throw new ArgumentException(message, nameof(type));
             }
 
             Type serializerType;
@@ -78,11 +78,11 @@ namespace MongoDB.Bson.Serialization
         {
             if (type == null)
             {
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
             }
             if (serializerType == null)
             {
-                throw new ArgumentNullException("serializerType");
+                throw new ArgumentNullException(nameof(serializerType));
             }
             var typeInfo = type.GetTypeInfo();
             var serializerTypeInfo = serializerType.GetTypeInfo();
@@ -104,7 +104,8 @@ namespace MongoDB.Bson.Serialization
 
             if (!_serializerTypes.TryAdd(type, serializerType))
             {
-                var message = string.Format("There is already a serializer mapping registered for type {0}.", BsonUtils.GetFriendlyTypeName(type));
+                var message =
+                    $"There is already a serializer mapping registered for type {BsonUtils.GetFriendlyTypeName(type)}.";
                 throw new BsonSerializationException(message);
             }
         }

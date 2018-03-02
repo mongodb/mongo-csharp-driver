@@ -113,7 +113,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    var message = string.Format("{0} is not a valid representation for a DateTimeSerializer.", representation);
+                    var message = $"{representation} is not a valid representation for a DateTimeSerializer.";
                     throw new ArgumentException(message);
             }
 
@@ -218,14 +218,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 case BsonType.String:
-                    if (_dateOnly)
-                    {
-                        value = DateTime.SpecifyKind(DateTime.ParseExact(bsonReader.ReadString(), "yyyy-MM-dd", null), DateTimeKind.Utc);
-                    }
-                    else
-                    {
-                        value = JsonConvert.ToDateTime(bsonReader.ReadString());
-                    }
+                    value = _dateOnly ? DateTime.SpecifyKind(DateTime.ParseExact(bsonReader.ReadString(), "yyyy-MM-dd", null), DateTimeKind.Utc) : JsonConvert.ToDateTime(bsonReader.ReadString());
                     break;
 
                 default:
@@ -321,7 +314,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    var message = string.Format("'{0}' is not a valid DateTime representation.", _representation);
+                    var message = $"'{_representation}' is not a valid DateTime representation.";
                     throw new BsonSerializationException(message);
             }
         }

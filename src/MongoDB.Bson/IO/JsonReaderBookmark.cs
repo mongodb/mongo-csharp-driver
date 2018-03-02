@@ -21,11 +21,11 @@ namespace MongoDB.Bson.IO
     public class JsonReaderBookmark : BsonReaderBookmark
     {
         // private fields
-        private JsonReaderContext _context;
-        private JsonToken _currentToken;
-        private BsonValue _currentValue;
-        private JsonToken _pushedToken;
-        private int _position;
+        private readonly JsonReaderContext _context;
+        private readonly JsonToken _currentToken;
+        private readonly BsonValue _currentValue;
+        private readonly JsonToken _pushedToken;
+        private readonly int _position;
 
         // constructors
         internal JsonReaderBookmark(

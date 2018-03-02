@@ -67,10 +67,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>An exception.</returns>
         protected Exception CreateCannotBeDeserializedException()
         {
-            var message = string.Format(
-                "Values of type '{0}' cannot be deserialized using a serializer of type '{1}'.",
-                BsonUtils.GetFriendlyTypeName(typeof(TValue)),
-                BsonUtils.GetFriendlyTypeName(GetType()));
+            var message =
+                $"Values of type '{BsonUtils.GetFriendlyTypeName(typeof(TValue))}' cannot be deserialized using a serializer of type '{BsonUtils.GetFriendlyTypeName(GetType())}'.";
             return new NotSupportedException(message);
         }
 
@@ -80,10 +78,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>An exception.</returns>
         protected Exception CreateCannotBeSerializedException()
         {
-            var message = string.Format(
-                "Values of type '{0}' cannot be serialized using a serializer of type '{1}'.",
-                BsonUtils.GetFriendlyTypeName(typeof(TValue)),
-                BsonUtils.GetFriendlyTypeName(GetType()));
+            var message =
+                $"Values of type '{BsonUtils.GetFriendlyTypeName(typeof(TValue))}' cannot be serialized using a serializer of type '{BsonUtils.GetFriendlyTypeName(GetType())}'.";
             return new NotSupportedException(message);
         }
 
@@ -94,9 +90,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>An exception.</returns>
         protected Exception CreateCannotDeserializeFromBsonTypeException(BsonType bsonType)
         {
-            var message = string.Format("Cannot deserialize a '{0}' from BsonType '{1}'.",
-                BsonUtils.GetFriendlyTypeName(ValueType),
-                bsonType);
+            var message =
+                $"Cannot deserialize a '{BsonUtils.GetFriendlyTypeName(ValueType)}' from BsonType '{bsonType}'.";
             return new FormatException(message);
         }
 

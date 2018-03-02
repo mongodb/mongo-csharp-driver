@@ -55,7 +55,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         {
             if (convention == null)
             {
-                throw new ArgumentNullException("convention");
+                throw new ArgumentNullException(nameof(convention));
             }
 
             _conventions.Add(convention);
@@ -70,7 +70,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         {
             if (name == null)
             {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
 
             Add(new DelegateClassMapConvention(name, action));
@@ -85,7 +85,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         {
             if (name == null)
             {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
 
             Add(new DelegateMemberMapConvention(name, action));
@@ -100,7 +100,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         {
             if (name == null)
             {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
 
             Add(new DelegatePostProcessingConvention(name, action));
@@ -115,7 +115,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         {
             if (conventions == null)
             {
-                throw new ArgumentNullException("conventions");
+                throw new ArgumentNullException(nameof(conventions));
             }
 
             _conventions.AddRange(conventions);
@@ -129,7 +129,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         {
             if (other == null)
             {
-                throw new ArgumentNullException("other");
+                throw new ArgumentNullException(nameof(other));
             }
 
             AddRange(other.Conventions);
@@ -153,18 +153,18 @@ namespace MongoDB.Bson.Serialization.Conventions
         {
             if (name == null)
             {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
             if (convention == null)
             {
-                throw new ArgumentNullException("convention");
+                throw new ArgumentNullException(nameof(convention));
             }
 
             var index = _conventions.FindIndex(x => x.Name == name);
             if (index == -1)
             {
-                var message = string.Format("Unable to find a convention by the name of '{0}'.", name);
-                throw new ArgumentOutOfRangeException("name", message);
+                var message = $"Unable to find a convention by the name of '{name}'.";
+                throw new ArgumentOutOfRangeException(nameof(name), message);
             }
 
             _conventions.Insert(index + 1, convention);
@@ -179,18 +179,18 @@ namespace MongoDB.Bson.Serialization.Conventions
         {
             if (name == null)
             {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
             if (convention == null)
             {
-                throw new ArgumentNullException("convention");
+                throw new ArgumentNullException(nameof(convention));
             }
 
             var index = _conventions.FindIndex(x => x.Name == name);
             if (index == -1)
             {
-                var message = string.Format("Unable to find a convention by the name of '{0}'.", name);
-                throw new ArgumentOutOfRangeException("name", message);
+                var message = $"Unable to find a convention by the name of '{name}'.";
+                throw new ArgumentOutOfRangeException(nameof(name), message);
             }
 
             _conventions.Insert(index, convention);
@@ -204,7 +204,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         {
             if (name == null)
             {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
 
             _conventions.RemoveAll(x => x.Name == name);

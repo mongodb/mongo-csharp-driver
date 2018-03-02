@@ -52,7 +52,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    var message = string.Format("{0} is not a valid representation for a CharSerializer.", representation);
+                    var message = $"{representation} is not a valid representation for a CharSerializer.";
                     throw new ArgumentException(message);
             }
 
@@ -92,7 +92,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return (char)bsonReader.ReadInt64();
 
                 case BsonType.String:
-                    return (char)bsonReader.ReadString()[0];
+                    return bsonReader.ReadString()[0];
 
                 default:
                     throw CreateCannotDeserializeFromBsonTypeException(bsonType);
@@ -112,11 +112,11 @@ namespace MongoDB.Bson.Serialization.Serializers
             switch (_representation)
             {
                 case BsonType.Int32:
-                    bsonWriter.WriteInt32((int)value);
+                    bsonWriter.WriteInt32(value);
                     break;
 
                 case BsonType.Int64:
-                    bsonWriter.WriteInt64((int)value);
+                    bsonWriter.WriteInt64(value);
                     break;
 
                 case BsonType.String:
@@ -124,7 +124,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    var message = string.Format("'{0}' is not a valid Char representation.", _representation);
+                    var message = $"'{_representation}' is not a valid Char representation.";
                     throw new BsonSerializationException(message);
             }
         }

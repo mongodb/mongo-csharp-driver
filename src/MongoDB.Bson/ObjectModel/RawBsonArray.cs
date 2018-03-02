@@ -34,7 +34,7 @@ namespace MongoDB.Bson
         private bool _disposed;
         private IByteBuffer _slice;
         private List<IDisposable> _disposableItems = new List<IDisposable>();
-        private BsonBinaryReaderSettings _readerSettings = BsonBinaryReaderSettings.Defaults;
+        private readonly BsonBinaryReaderSettings _readerSettings = BsonBinaryReaderSettings.Defaults;
 
         // constructors
         /// <summary>
@@ -47,7 +47,7 @@ namespace MongoDB.Bson
         {
             if (slice == null)
             {
-                throw new ArgumentNullException("slice");
+                throw new ArgumentNullException(nameof(slice));
             }
 
             _slice = slice;
@@ -177,7 +177,7 @@ namespace MongoDB.Bson
             {
                 if (index < 0)
                 {
-                    throw new ArgumentOutOfRangeException("index");
+                    throw new ArgumentOutOfRangeException(nameof(index));
                 }
                 ThrowIfDisposed();
 
@@ -200,7 +200,7 @@ namespace MongoDB.Bson
                     }
                     bsonReader.ReadEndDocument();
 
-                    throw new ArgumentOutOfRangeException("index");
+                    throw new ArgumentOutOfRangeException(nameof(index));
                 }
             }
             set
@@ -568,7 +568,7 @@ namespace MongoDB.Bson
         {
             ThrowIfDisposed();
             var parts = Values.Select(v => v.ToString()).ToArray();
-            return string.Format("[{0}]", string.Join(", ", parts));
+            return $"[{string.Join(", ", parts)}]";
         }
 
         // protected methods

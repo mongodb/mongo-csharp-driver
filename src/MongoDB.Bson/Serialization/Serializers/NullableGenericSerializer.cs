@@ -29,7 +29,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             where T : struct
     {
         // private fields
-        private Lazy<IBsonSerializer<T>> _lazySerializer;
+        private readonly Lazy<IBsonSerializer<T>> _lazySerializer;
 
         // constructors
         /// <summary>
@@ -48,7 +48,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (serializer == null)
             {
-                throw new ArgumentNullException("serializer");
+                throw new ArgumentNullException(nameof(serializer));
             }
 
             _lazySerializer = new Lazy<IBsonSerializer<T>>(() => serializer);
@@ -62,10 +62,10 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (serializerRegistry == null)
             {
-                throw new ArgumentNullException("serializerRegistry");
+                throw new ArgumentNullException(nameof(serializerRegistry));
             }
 
-            _lazySerializer = new Lazy<IBsonSerializer<T>>(() => serializerRegistry.GetSerializer<T>());
+            _lazySerializer = new Lazy<IBsonSerializer<T>>(serializerRegistry.GetSerializer<T>);
         }
 
         // public methods

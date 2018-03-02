@@ -64,7 +64,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    var message = string.Format("{0} is not a valid representation for a DecimalSerializer.", representation);
+                    var message = $"{representation} is not a valid representation for a DecimalSerializer.";
                     throw new ArgumentException(message);
             }
 
@@ -181,7 +181,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    var message = string.Format("'{0}' is not a valid Decimal representation.", _representation);
+                    var message = $"'{_representation}' is not a valid Decimal representation.";
                     throw new BsonSerializationException(message);
             }
         }

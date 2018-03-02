@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BsonValueSerializer : BsonValueSerializerBase<BsonValue>, IBsonArraySerializer, IBsonDocumentSerializer
     {
         // private static fields
-        private static BsonValueSerializer __instance = new BsonValueSerializer();
+        private static readonly BsonValueSerializer __instance = new BsonValueSerializer();
 
         // constructors
         /// <summary>
@@ -80,7 +80,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 case BsonType.Undefined: return BsonUndefinedSerializer.Instance.Deserialize(context);
 
                 default:
-                    var message = string.Format("Invalid BsonType {0}.", bsonType);
+                    var message = $"Invalid BsonType {bsonType}.";
                     throw new BsonInternalException(message);
             }
         }
@@ -97,7 +97,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             serializationInfo = new BsonSerializationInfo(
                 memberName,
-                BsonValueSerializer.Instance,
+                Instance,
                 typeof(BsonValue));
             return true;
         }
@@ -113,7 +113,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             serializationInfo = new BsonSerializationInfo(
                 null,
-                BsonValueSerializer.Instance,
+                Instance,
                 typeof(BsonValue));
             return true;
         }

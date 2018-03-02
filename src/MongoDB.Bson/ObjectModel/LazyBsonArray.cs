@@ -33,7 +33,7 @@ namespace MongoDB.Bson
         // private fields
         private IByteBuffer _slice;
         private List<IDisposable> _disposableItems = new List<IDisposable>();
-        private BsonBinaryReaderSettings _readerSettings = BsonBinaryReaderSettings.Defaults;
+        private readonly BsonBinaryReaderSettings _readerSettings = BsonBinaryReaderSettings.Defaults;
 
         // constructors
         /// <summary>
@@ -46,7 +46,7 @@ namespace MongoDB.Bson
         {
             if (slice == null)
             {
-                throw new ArgumentNullException("slice");
+                throw new ArgumentNullException(nameof(slice));
             }
 
             _slice = slice;

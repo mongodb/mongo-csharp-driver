@@ -30,7 +30,7 @@ namespace MongoDB.Bson
     {
         // private static fields
         // table of from mappings used by MapToBsonValue
-        private static Dictionary<Type, Conversion> __fromMappings = new Dictionary<Type, Conversion>
+        private static readonly Dictionary<Type, Conversion> __fromMappings = new Dictionary<Type, Conversion>
         {
             { typeof(bool), Conversion.BoolToBsonBoolean },
             { typeof(byte), Conversion.ByteToBsonInt32 },
@@ -55,7 +55,7 @@ namespace MongoDB.Bson
         };
 
         // table of from/to mappings used by MapToBsonValue
-        private static Dictionary<Mapping, Conversion> __fromToMappings = new Dictionary<Mapping, Conversion>()
+        private static readonly Dictionary<Mapping, Conversion> __fromToMappings = new Dictionary<Mapping, Conversion>()
         {
             { Mapping.FromTo(typeof(bool), BsonType.Boolean), Conversion.BoolToBsonBoolean },
             { Mapping.FromTo(typeof(BsonArray), BsonType.Array), Conversion.None },
@@ -160,7 +160,7 @@ namespace MongoDB.Bson
             { Mapping.FromTo(typeof(ulong), BsonType.Timestamp), Conversion.UInt64ToBsonTimestamp }
         };
 
-        private static Dictionary<Type, ICustomBsonTypeMapper> __customTypeMappers = new Dictionary<Type, ICustomBsonTypeMapper>();
+        private static readonly Dictionary<Type, ICustomBsonTypeMapper> __customTypeMappers = new Dictionary<Type, ICustomBsonTypeMapper>();
 
         // public static methods
         /// <summary>
@@ -176,7 +176,7 @@ namespace MongoDB.Bson
                 return bsonValue;
             }
 
-            var message = string.Format(".NET type {0} cannot be mapped to a BsonValue.", value.GetType().FullName);
+            var message = $".NET type {value.GetType().FullName} cannot be mapped to a BsonValue.";
             throw new ArgumentException(message);
         }
 
@@ -197,8 +197,8 @@ namespace MongoDB.Bson
                 }
                 else
                 {
-                    message = string.Format("C# null cannot be mapped to BsonType.{0}.", bsonType);
-                    throw new ArgumentException(message, "value");
+                    message = $"C# null cannot be mapped to BsonType.{bsonType}.";
+                    throw new ArgumentException(message, nameof(value));
                 }
             }
 
@@ -258,8 +258,8 @@ namespace MongoDB.Bson
                     break;
             }
 
-            message = string.Format(".NET type {0} cannot be mapped to BsonType.{1}.", value.GetType().FullName, bsonType);
-            throw new ArgumentException(message, "value");
+            message = $".NET type {value.GetType().FullName} cannot be mapped to BsonType.{bsonType}.";
+            throw new ArgumentException(message, nameof(value));
         }
 
         /// <summary>
@@ -317,7 +317,8 @@ namespace MongoDB.Bson
                     }
                     else
                     {
-                        var message = string.Format("A BsonArray can't be mapped to a {0}.", BsonUtils.GetFriendlyTypeName(options.MapBsonArrayTo));
+                        var message =
+                            $"A BsonArray can't be mapped to a {BsonUtils.GetFriendlyTypeName(options.MapBsonArrayTo)}.";
                         throw new NotSupportedException(message);
                     }
                 case BsonType.Binary:
@@ -366,8 +367,8 @@ namespace MongoDB.Bson
                                         dictionary[element.Name] = mappedValue;
                                         break;
                                     case DuplicateNameHandling.ThrowException:
-                                        var message = string.Format("Duplicate element name '{0}'.", element.Name);
-                                        throw new ArgumentOutOfRangeException("bsonValue", message);
+                                        var message = $"Duplicate element name '{element.Name}'.";
+                                        throw new ArgumentOutOfRangeException(nameof(bsonValue), message);
                                 }
                             }
                             else
@@ -394,8 +395,8 @@ namespace MongoDB.Bson
                                         dictionary[element.Name] = mappedValue;
                                         break;
                                     case DuplicateNameHandling.ThrowException:
-                                        var message = string.Format("Duplicate element name '{0}'.", element.Name);
-                                        throw new ArgumentOutOfRangeException("bsonValue", message);
+                                        var message = $"Duplicate element name '{element.Name}'.";
+                                        throw new ArgumentOutOfRangeException(nameof(bsonValue), message);
                                 }
                             }
                             else
@@ -407,7 +408,8 @@ namespace MongoDB.Bson
                     }
                     else
                     {
-                        var message = string.Format("A BsonDocument can't be mapped to a {0}.", BsonUtils.GetFriendlyTypeName(options.MapBsonArrayTo));
+                        var message =
+                            $"A BsonDocument can't be mapped to a {BsonUtils.GetFriendlyTypeName(options.MapBsonArrayTo)}.";
                         throw new NotSupportedException(message);
                     }
                 case BsonType.Double:
@@ -586,7 +588,7 @@ namespace MongoDB.Bson
                 case Conversion.SingleToBsonDouble: return (BsonDouble)(double)(float)value;
                 case Conversion.StringToBsonBoolean: return (BsonBoolean)((string)value != "");
                 case Conversion.StringToBsonDateTime:
-                    var formats = new string[] { "yyyy-MM-ddK", "yyyy-MM-ddTHH:mm:ssK", "yyyy-MM-ddTHH:mm:ss.FFFFFFFK" };
+                    var formats = new[] { "yyyy-MM-ddK", "yyyy-MM-ddTHH:mm:ssK", "yyyy-MM-ddTHH:mm:ss.FFFFFFFK" };
                     var dt = DateTime.ParseExact((string)value, formats, null, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal);
                     return new BsonDateTime(dt);
                 case Conversion.StringToBsonDecimal128: return (BsonDecimal128)JsonConvert.ToDecimal128((string)value);
@@ -600,7 +602,7 @@ namespace MongoDB.Bson
                 case Conversion.StringToBsonString: return (BsonString)(string)value;
                 case Conversion.StringToBsonSymbol: return BsonSymbolTable.Lookup((string)value);
                 case Conversion.StringToBsonTimestamp: return new BsonTimestamp(JsonConvert.ToInt64((string)value));
-                case Conversion.UInt16ToBsonBoolean: return (BsonValue)((ushort)value != 0);
+                case Conversion.UInt16ToBsonBoolean: return (ushort)value != 0;
                 case Conversion.UInt16ToBsonDecimal128: return (BsonDecimal128)(Decimal128)(ushort)value;
                 case Conversion.UInt16ToBsonDouble: return (BsonDouble)(double)(ushort)value;
                 case Conversion.UInt16ToBsonInt32: return (BsonInt32)(int)(ushort)value;
@@ -709,8 +711,8 @@ namespace MongoDB.Bson
 
         private struct Mapping
         {
-            private Type _netType;
-            private BsonType _bsonType;
+            private readonly Type _netType;
+            private readonly BsonType _bsonType;
 
             public Mapping(Type netType, BsonType bsonType)
             {

@@ -26,7 +26,7 @@ namespace MongoDB.Bson.IO
     public class BsonDocumentWriterSettings : BsonWriterSettings
     {
         // private static fields
-        private static BsonDocumentWriterSettings __defaults = null; // delay creation to pick up the latest default values
+        private static BsonDocumentWriterSettings __defaults; // delay creation to pick up the latest default values
 
         // constructors
         /// <summary>
@@ -52,14 +52,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public static BsonDocumentWriterSettings Defaults
         {
-            get
-            {
-                if (__defaults == null)
-                {
-                    __defaults = new BsonDocumentWriterSettings();
-                }
-                return __defaults;
-            }
+            get { return __defaults ?? (__defaults = new BsonDocumentWriterSettings()); }
             set { __defaults = value; }
         }
 

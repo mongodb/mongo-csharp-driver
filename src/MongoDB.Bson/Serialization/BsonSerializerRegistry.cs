@@ -50,13 +50,13 @@ namespace MongoDB.Bson.Serialization
         {
             if (type == null)
             {
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
             }
             var typeInfo = type.GetTypeInfo();
             if (typeInfo.IsGenericType && typeInfo.ContainsGenericParameters)
             {
-                var message = string.Format("Generic type {0} has unassigned type parameters.", BsonUtils.GetFriendlyTypeName(type));
-                throw new ArgumentException(message, "type");
+                var message = $"Generic type {BsonUtils.GetFriendlyTypeName(type)} has unassigned type parameters.";
+                throw new ArgumentException(message, nameof(type));
             }
 
             return _cache.GetOrAdd(type, CreateSerializer);
@@ -83,27 +83,29 @@ namespace MongoDB.Bson.Serialization
         {
             if (type == null)
             {
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
             }
             if (serializer == null)
             {
-                throw new ArgumentNullException("serializer");
+                throw new ArgumentNullException(nameof(serializer));
             }
             var typeInfo = type.GetTypeInfo();
             if (typeof(BsonValue).GetTypeInfo().IsAssignableFrom(type))
             {
-                var message = string.Format("A serializer cannot be registered for type {0} because it is a subclass of BsonValue.", BsonUtils.GetFriendlyTypeName(type));
+                var message =
+                    $"A serializer cannot be registered for type {BsonUtils.GetFriendlyTypeName(type)} because it is a subclass of BsonValue.";
                 throw new BsonSerializationException(message);
             }
             if (typeInfo.IsGenericType && typeInfo.ContainsGenericParameters)
             {
-                var message = string.Format("Generic type {0} has unassigned type parameters.", BsonUtils.GetFriendlyTypeName(type));
-                throw new ArgumentException(message, "type");
+                var message = $"Generic type {BsonUtils.GetFriendlyTypeName(type)} has unassigned type parameters.";
+                throw new ArgumentException(message, nameof(type));
             }
 
             if (!_cache.TryAdd(type, serializer))
             {
-                var message = string.Format("There is already a serializer registered for type {0}.", BsonUtils.GetFriendlyTypeName(type));
+                var message =
+                    $"There is already a serializer registered for type {BsonUtils.GetFriendlyTypeName(type)}.";
                 throw new BsonSerializationException(message);
             }
         }
@@ -117,7 +119,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (serializationProvider == null)
             {
-                throw new ArgumentNullException("serializationProvider");
+                throw new ArgumentNullException(nameof(serializationProvider));
             }
             
             _serializationProviders.Push(serializationProvider);
@@ -128,17 +130,8 @@ namespace MongoDB.Bson.Serialization
         {
             foreach (var serializationProvider in _serializationProviders)
             {
-                IBsonSerializer serializer;
-
                 var registryAwareSerializationProvider = serializationProvider as IRegistryAwareBsonSerializationProvider;
-                if (registryAwareSerializationProvider != null)
-                {
-                    serializer = registryAwareSerializationProvider.GetSerializer(type, this);
-                }
-                else
-                {
-                    serializer = serializationProvider.GetSerializer(type);
-                }
+                var serializer = registryAwareSerializationProvider != null ? registryAwareSerializationProvider.GetSerializer(type, this) : serializationProvider.GetSerializer(type);
 
                 if (serializer != null)
                 {
@@ -146,7 +139,7 @@ namespace MongoDB.Bson.Serialization
                 }
             }
 
-            var message = string.Format("No serializer found for type {0}.", type.FullName);
+            var message = $"No serializer found for type {type.FullName}.";
             throw new BsonSerializationException(message);
         }
     }

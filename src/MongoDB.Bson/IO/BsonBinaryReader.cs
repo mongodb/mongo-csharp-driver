@@ -50,11 +50,11 @@ namespace MongoDB.Bson.IO
         {
             if (stream == null)
             {
-                throw new ArgumentNullException("stream");
+                throw new ArgumentNullException(nameof(stream));
             }
             if (!stream.CanSeek)
             {
-                throw new ArgumentException("The stream must be capable of seeking.", "stream");
+                throw new ArgumentException("The stream must be capable of seeking.", nameof(stream));
             }
 
             _baseStream = stream;
@@ -227,7 +227,8 @@ namespace MongoDB.Bson.IO
                         State = BsonReaderState.EndOfDocument;
                         return BsonType.EndOfDocument;
                     default:
-                        var message = string.Format("BsonType EndOfDocument is not valid when ContextType is {0}.", _context.ContextType);
+                        var message =
+                            $"BsonType EndOfDocument is not valid when ContextType is {_context.ContextType}.";
                         throw new FormatException(message);
                 }
             }
@@ -266,7 +267,7 @@ namespace MongoDB.Bson.IO
             var subType = _bsonStream.ReadBinarySubType();
             if (subType != BsonBinarySubType.Binary && subType != BsonBinarySubType.OldBinary)
             {
-                var message = string.Format("ReadBytes requires the binary sub type to be Binary, not {0}.", subType);
+                var message = $"ReadBytes requires the binary sub type to be Binary, not {subType}.";
                 throw new FormatException(message);
             }
 
@@ -461,7 +462,7 @@ namespace MongoDB.Bson.IO
         {
             if (nameDecoder == null)
             {
-                throw new ArgumentNullException("nameDecoder");
+                throw new ArgumentNullException(nameof(nameDecoder));
             }
 
             if (Disposed) { ThrowObjectDisposedException(); }
@@ -811,12 +812,13 @@ namespace MongoDB.Bson.IO
             int size = _bsonStream.ReadInt32();
             if (size < 0)
             {
-                var message = string.Format("Size {0} is not valid because it is negative.", size);
+                var message = $"Size {size} is not valid because it is negative.";
                 throw new FormatException(message);
             }
             if (size > _settings.MaxDocumentSize)
             {
-                var message = string.Format("Size {0} is not valid because it is larger than MaxDocumentSize {1}.", size, _settings.MaxDocumentSize);
+                var message =
+                    $"Size {size} is not valid because it is larger than MaxDocumentSize {_settings.MaxDocumentSize}.";
                 throw new FormatException(message);
             }
             return size;

@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization.Attributes
     public class BsonDiscriminatorAttribute : Attribute, IBsonClassMapAttribute
     {
         // private fields
-        private string _discriminator;
+        private readonly string _discriminator;
         private bool _required;
         private bool _rootClass;
 

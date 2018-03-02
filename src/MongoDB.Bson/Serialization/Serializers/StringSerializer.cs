@@ -48,7 +48,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    var message = string.Format("{0} is not a valid representation for a StringSerializer.", representation);
+                    var message = $"{representation} is not a valid representation for a StringSerializer.";
                     throw new ArgumentException(message);
             }
 
@@ -127,7 +127,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    var message = string.Format("'{0}' is not a valid String representation.", _representation);
+                    var message = $"'{_representation}' is not a valid String representation.";
                     throw new BsonSerializationException(message);
             }
         }

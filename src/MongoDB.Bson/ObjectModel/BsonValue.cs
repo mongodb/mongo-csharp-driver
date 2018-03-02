@@ -28,7 +28,7 @@ namespace MongoDB.Bson
     public abstract class BsonValue : IComparable<BsonValue>, IConvertible, IEquatable<BsonValue>
     {
         // private static fields
-        private static Dictionary<BsonType, int> __bsonTypeSortOrder = new Dictionary<BsonType, int>
+        private static readonly Dictionary<BsonType, int> __bsonTypeSortOrder = new Dictionary<BsonType, int>
         {
             { BsonType.MinKey, 1 },
             { BsonType.Undefined, 2 },
@@ -589,7 +589,7 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
             return value.AsBoolean;
         }
@@ -631,7 +631,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(byte[] value)
         {
-            return (value != null) ? (BsonValue)new BsonBinaryData(value) : null;
+            return (value != null) ? new BsonBinaryData(value) : null;
         }
 
         /// <summary>
@@ -811,7 +811,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(Regex value)
         {
-            return (value != null) ? (BsonValue)new BsonRegularExpression(value) : null;
+            return (value != null) ? new BsonRegularExpression(value) : null;
         }
 
         /// <summary>
@@ -821,7 +821,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(string value)
         {
-            return (value != null) ? (BsonValue)(BsonString)value : null;
+            return (value != null) ? (BsonString)value : null;
         }
 
         /// <summary>
@@ -843,7 +843,7 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
             if (!(value is BsonDateTime))
             {
@@ -875,7 +875,7 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
             return value.AsDecimal;
         }
@@ -899,7 +899,7 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
             return value.AsDecimal128;
         }
@@ -923,7 +923,7 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
             return value.AsDouble;
         }
@@ -947,7 +947,7 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
             return value.AsGuid;
         }
@@ -971,7 +971,7 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
             return value.AsInt32;
         }
@@ -995,7 +995,7 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
             return value.AsInt64;
         }
@@ -1019,7 +1019,7 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
             return value.AsObjectId;
         }
@@ -1062,9 +1062,9 @@ namespace MongoDB.Bson
         /// <returns>True if the first BsonValue is less than the other one.</returns>
         public static bool operator <(BsonValue lhs, BsonValue rhs)
         {
-            if (object.ReferenceEquals(lhs, null) && object.ReferenceEquals(rhs, null)) { return false; }
-            if (object.ReferenceEquals(lhs, null)) { return true; }
-            if (object.ReferenceEquals(rhs, null)) { return false; }
+            if (ReferenceEquals(lhs, null) && ReferenceEquals(rhs, null)) { return false; }
+            if (ReferenceEquals(lhs, null)) { return true; }
+            if (ReferenceEquals(rhs, null)) { return false; }
             return lhs.CompareTo(rhs) < 0;
         }
 
@@ -1076,9 +1076,9 @@ namespace MongoDB.Bson
         /// <returns>True if the first BsonValue is less than or equal to the other one.</returns>
         public static bool operator <=(BsonValue lhs, BsonValue rhs)
         {
-            if (object.ReferenceEquals(lhs, null) && object.ReferenceEquals(rhs, null)) { return true; }
-            if (object.ReferenceEquals(lhs, null)) { return true; }
-            if (object.ReferenceEquals(rhs, null)) { return false; }
+            if (ReferenceEquals(lhs, null) && ReferenceEquals(rhs, null)) { return true; }
+            if (ReferenceEquals(lhs, null)) { return true; }
+            if (ReferenceEquals(rhs, null)) { return false; }
             return lhs.CompareTo(rhs) <= 0;
         }
 
@@ -1101,8 +1101,8 @@ namespace MongoDB.Bson
         /// <returns>True if the two BsonValues are equal according to ==.</returns>
         public static bool operator ==(BsonValue lhs, BsonValue rhs)
         {
-            if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
-            if (object.ReferenceEquals(rhs, null)) { return false; } // don't check type because sometimes different types can be ==
+            if (ReferenceEquals(lhs, null)) { return ReferenceEquals(rhs, null); }
+            if (ReferenceEquals(rhs, null)) { return false; } // don't check type because sometimes different types can be ==
             return lhs.OperatorEqualsImplementation(rhs); // some subclasses override OperatorEqualsImplementation
         }
 
@@ -1138,12 +1138,14 @@ namespace MongoDB.Bson
         {
             get
             {
-                var message = string.Format("{0} does not support indexing by position (only BsonDocument and BsonArray do).", this.GetType().Name);
+                var message =
+                    $"{GetType().Name} does not support indexing by position (only BsonDocument and BsonArray do).";
                 throw new NotSupportedException(message);
             }
             set
             {
-                var message = string.Format("{0} does not support indexing by position (only BsonDocument and BsonArray do).", this.GetType().Name);
+                var message =
+                    $"{GetType().Name} does not support indexing by position (only BsonDocument and BsonArray do).";
                 throw new NotSupportedException(message);
             }
         }
@@ -1157,12 +1159,12 @@ namespace MongoDB.Bson
         {
             get
             {
-                var message = string.Format("{0} does not support indexing by name (only BsonDocument does).", this.GetType().Name);
+                var message = $"{GetType().Name} does not support indexing by name (only BsonDocument does).";
                 throw new NotSupportedException(message);
             }
             set
             {
-                var message = string.Format("{0} does not support indexing by name (only BsonDocument does).", this.GetType().Name);
+                var message = $"{GetType().Name} does not support indexing by name (only BsonDocument does).";
                 throw new NotSupportedException(message);
             }
         }
@@ -1238,7 +1240,7 @@ namespace MongoDB.Bson
         /// <returns>A 32-bit signed integer that indicates whether the type of this BsonValue is less than, equal to, or greather than the type of the other BsonValue.</returns>
         public int CompareTypeTo(BsonValue other)
         {
-            if (object.ReferenceEquals(other, null)) { return 1; }
+            if (ReferenceEquals(other, null)) { return 1; }
             return __bsonTypeSortOrder[BsonType].CompareTo(__bsonTypeSortOrder[other.BsonType]);
         }
 
@@ -1290,7 +1292,7 @@ namespace MongoDB.Bson
         /// <returns>A Decimal.</returns>
         public virtual decimal ToDecimal()
         {
-            var message = string.Format("{0} does not support ToDecimal.", this.GetType().Name);
+            var message = $"{GetType().Name} does not support ToDecimal.";
             throw new NotSupportedException(message);
         }
 
@@ -1300,7 +1302,7 @@ namespace MongoDB.Bson
         /// <returns>A Decimal128.</returns>
         public virtual Decimal128 ToDecimal128()
         {
-            var message = string.Format("{0} does not support ToDecimal128.", this.GetType().Name);
+            var message = $"{GetType().Name} does not support ToDecimal128.";
             throw new NotSupportedException(message);
         }
 
@@ -1310,7 +1312,7 @@ namespace MongoDB.Bson
         /// <returns>A Double.</returns>
         public virtual double ToDouble()
         {
-            var message = string.Format("{0} does not support ToDouble.", this.GetType().Name);
+            var message = $"{GetType().Name} does not support ToDouble.";
             throw new NotSupportedException(message);
         }
 
@@ -1320,7 +1322,7 @@ namespace MongoDB.Bson
         /// <returns>An Int32.</returns>
         public virtual int ToInt32()
         {
-            var message = string.Format("{0} does not support ToInt32.", this.GetType().Name);
+            var message = $"{GetType().Name} does not support ToInt32.";
             throw new NotSupportedException(message);
         }
 
@@ -1330,7 +1332,7 @@ namespace MongoDB.Bson
         /// <returns>An Int64.</returns>
         public virtual long ToInt64()
         {
-            var message = string.Format("{0} does not support ToInt64.", this.GetType().Name);
+            var message = $"{GetType().Name} does not support ToInt64.";
             throw new NotSupportedException(message);
         }
 
@@ -1340,7 +1342,7 @@ namespace MongoDB.Bson
         /// <returns>A DateTime.</returns>
         public virtual DateTime ToLocalTime()
         {
-            var message = string.Format("{0} does not support ToLocalTime.", this.GetType().Name);
+            var message = $"{GetType().Name} does not support ToLocalTime.";
             throw new NotSupportedException(message);
         }
 
@@ -1350,7 +1352,7 @@ namespace MongoDB.Bson
         /// <returns>A DateTime?.</returns>
         public virtual DateTime? ToNullableLocalTime()
         {
-            var message = string.Format("{0} does not support ToNullableLocalTime.", this.GetType().Name);
+            var message = $"{GetType().Name} does not support ToNullableLocalTime.";
             throw new NotSupportedException(message);
         }
 
@@ -1360,7 +1362,7 @@ namespace MongoDB.Bson
         /// <returns>A DateTime?.</returns>
         public virtual DateTime? ToNullableUniversalTime()
         {
-            var message = string.Format("{0} does not support ToNullableUniversalTime.", this.GetType().Name);
+            var message = $"{GetType().Name} does not support ToNullableUniversalTime.";
             throw new NotSupportedException(message);
         }
 
@@ -1370,7 +1372,7 @@ namespace MongoDB.Bson
         /// <returns>A DateTime.</returns>
         public virtual DateTime ToUniversalTime()
         {
-            var message = string.Format("{0} does not support ToUniversalTime.", this.GetType().Name);
+            var message = $"{GetType().Name} does not support ToUniversalTime.";
             throw new NotSupportedException(message);
         }
 
@@ -1627,14 +1629,14 @@ namespace MongoDB.Bson
 
             switch (BsonType)
             {
-                case BsonType.Boolean: return Convert.ChangeType(this.AsBoolean, conversionType, provider);
-                case BsonType.DateTime: return Convert.ChangeType(this.ToUniversalTime(), conversionType, provider);
-                case BsonType.Decimal128: return Convert.ChangeType(this.AsDecimal128, conversionType, provider);
-                case BsonType.Double: return Convert.ChangeType(this.AsDouble, conversionType, provider);
-                case BsonType.Int32: return Convert.ChangeType(this.AsInt32, conversionType, provider);
-                case BsonType.Int64: return Convert.ChangeType(this.AsInt64, conversionType, provider);
-                case BsonType.ObjectId: return Convert.ChangeType(this.AsObjectId, conversionType, provider);
-                case BsonType.String: return Convert.ChangeType(this.AsString, conversionType, provider);
+                case BsonType.Boolean: return Convert.ChangeType(AsBoolean, conversionType, provider);
+                case BsonType.DateTime: return Convert.ChangeType(ToUniversalTime(), conversionType, provider);
+                case BsonType.Decimal128: return Convert.ChangeType(AsDecimal128, conversionType, provider);
+                case BsonType.Double: return Convert.ChangeType(AsDouble, conversionType, provider);
+                case BsonType.Int32: return Convert.ChangeType(AsInt32, conversionType, provider);
+                case BsonType.Int64: return Convert.ChangeType(AsInt64, conversionType, provider);
+                case BsonType.ObjectId: return Convert.ChangeType(AsObjectId, conversionType, provider);
+                case BsonType.String: return Convert.ChangeType(AsString, conversionType, provider);
                 default: throw new InvalidCastException();
             }
         }

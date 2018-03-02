@@ -27,12 +27,12 @@ namespace MongoDB.Bson.Serialization
     public static class TypeNameDiscriminator
     {
         // private static fields
-        private static Assembly[] __wellKnownAssemblies;
+        private static readonly Assembly[] __wellKnownAssemblies;
 
         // static constructor
         static TypeNameDiscriminator()
         {
-            __wellKnownAssemblies = new Assembly[]
+            __wellKnownAssemblies = new[]
             {
                 typeof(object).GetTypeInfo().Assembly, // mscorlib
                 typeof(Queue<>).GetTypeInfo().Assembly, // System
@@ -100,7 +100,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (type == null)
             {
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
             }
             var typeInfo = type.GetTypeInfo();
 

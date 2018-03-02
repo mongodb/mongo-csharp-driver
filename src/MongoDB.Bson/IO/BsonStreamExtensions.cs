@@ -45,17 +45,17 @@ namespace MongoDB.Bson.IO
         {
             if (stream == null)
             {
-                throw new ArgumentNullException("stream");
+                throw new ArgumentNullException(nameof(stream));
             }
             if (startPosition < 0 || startPosition > stream.Length)
             {
-                throw new ArgumentOutOfRangeException("startPosition");
+                throw new ArgumentOutOfRangeException(nameof(startPosition));
             }
 
             var size = stream.Position - startPosition;
             if (size > int.MaxValue)
             {
-                var message = string.Format("Size {0} is larger than {1} (Int32.MaxValue).", size, int.MaxValue);
+                var message = $"Size {size} is larger than {int.MaxValue} (Int32.MaxValue).";
                 throw new FormatException(message);
             }
 
@@ -74,7 +74,7 @@ namespace MongoDB.Bson.IO
         {
             if (stream == null)
             {
-                throw new ArgumentNullException("stream");
+                throw new ArgumentNullException(nameof(stream));
             }
             
             var b = stream.ReadByte();
@@ -94,7 +94,7 @@ namespace MongoDB.Bson.IO
         {
             if (stream == null)
             {
-                throw new ArgumentNullException("stream");
+                throw new ArgumentNullException(nameof(stream));
             }
             
             var b = stream.ReadByte();
@@ -114,7 +114,7 @@ namespace MongoDB.Bson.IO
         {
             if (stream == null)
             {
-                throw new ArgumentNullException("stream");
+                throw new ArgumentNullException(nameof(stream));
             }
 
             var b = stream.ReadByte();
@@ -124,7 +124,7 @@ namespace MongoDB.Bson.IO
             }
             if (!__validBsonTypes[b])
             {
-                var message = string.Format("Detected unknown BSON type \"\\x{0:x2}\". Are you using the latest driver version?", b);
+                var message = $"Detected unknown BSON type \"\\x{b:x2}\". Are you using the latest driver version?";
                 throw new FormatException(message);
             }
             return (BsonType)b;
@@ -141,19 +141,19 @@ namespace MongoDB.Bson.IO
         {
             if (stream == null)
             {
-                throw new ArgumentNullException("stream");
+                throw new ArgumentNullException(nameof(stream));
             }
             if (buffer == null)
             {
-                throw new ArgumentNullException("buffer");
+                throw new ArgumentNullException(nameof(buffer));
             }
             if (offset < 0 || offset > buffer.Length)
             {
-                throw new ArgumentOutOfRangeException("offset");
+                throw new ArgumentOutOfRangeException(nameof(offset));
             }
             if (count < 0 || offset + count > buffer.Length)
             {
-                throw new ArgumentOutOfRangeException("count");
+                throw new ArgumentOutOfRangeException(nameof(count));
             }
 
             if (count == 1)
@@ -190,11 +190,11 @@ namespace MongoDB.Bson.IO
         {
             if (stream == null)
             {
-                throw new ArgumentNullException("stream");
+                throw new ArgumentNullException(nameof(stream));
             }
             if (count < 0)
             {
-                throw new ArgumentOutOfRangeException("count");
+                throw new ArgumentOutOfRangeException(nameof(count));
             }
 
             var bytes = new byte[count];
@@ -211,7 +211,7 @@ namespace MongoDB.Bson.IO
         {
             if (stream == null)
             {
-                throw new ArgumentNullException("stream");
+                throw new ArgumentNullException(nameof(stream));
             }
             
             stream.WriteByte((byte)value);
@@ -226,7 +226,7 @@ namespace MongoDB.Bson.IO
         {
             if (stream == null)
             {
-                throw new ArgumentNullException("stream");
+                throw new ArgumentNullException(nameof(stream));
             }
             
             stream.WriteByte(value ? (byte)1 : (byte)0);
@@ -241,7 +241,7 @@ namespace MongoDB.Bson.IO
         {
             if (stream == null)
             {
-                throw new ArgumentNullException("stream");
+                throw new ArgumentNullException(nameof(stream));
             }
             
             stream.WriteByte((byte)value);
@@ -258,19 +258,19 @@ namespace MongoDB.Bson.IO
         {
             if (stream == null)
             {
-                throw new ArgumentNullException("stream");
+                throw new ArgumentNullException(nameof(stream));
             }
             if (buffer == null)
             {
-                throw new ArgumentNullException("buffer");
+                throw new ArgumentNullException(nameof(buffer));
             }
             if (offset < 0 || offset > buffer.Length)
             {
-                throw new ArgumentOutOfRangeException("offset");
+                throw new ArgumentOutOfRangeException(nameof(offset));
             }
             if (count < 0 || offset + count > buffer.Length)
             {
-                throw new ArgumentOutOfRangeException("count");
+                throw new ArgumentOutOfRangeException(nameof(count));
             }
 
             if (count == 1)
@@ -292,11 +292,11 @@ namespace MongoDB.Bson.IO
         {
             if (stream == null)
             {
-                throw new ArgumentNullException("stream");
+                throw new ArgumentNullException(nameof(stream));
             }
             if (slice == null)
             {
-                throw new ArgumentNullException("slice");
+                throw new ArgumentNullException(nameof(slice));
             }
 
             var position = 0;

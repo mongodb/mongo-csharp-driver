@@ -82,11 +82,10 @@ namespace MongoDB.Bson
             if (millisecondsSinceEpoch < BsonConstants.DateTimeMinValueMillisecondsSinceEpoch ||
                 millisecondsSinceEpoch > BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch)
             {
-                var message = string.Format(
-                    "The value {0} for the BsonDateTime MillisecondsSinceEpoch is outside the"+
-                    "range that can be converted to a .NET DateTime.",
-                    millisecondsSinceEpoch);
-                throw new ArgumentOutOfRangeException("millisecondsSinceEpoch", message);
+                var message =
+                    $"The value {millisecondsSinceEpoch} for the BsonDateTime MillisecondsSinceEpoch is outside the" +
+                    "range that can be converted to a .NET DateTime.";
+                throw new ArgumentOutOfRangeException(nameof(millisecondsSinceEpoch), message);
             }
 
             // MaxValue has to be handled specially to avoid rounding errors
@@ -119,7 +118,7 @@ namespace MongoDB.Bson
         {
             if (bytes == null)
             {
-                throw new ArgumentNullException("bytes");
+                throw new ArgumentNullException(nameof(bytes));
             }
 
             var length = bytes.Length;

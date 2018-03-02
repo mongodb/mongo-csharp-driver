@@ -115,7 +115,7 @@ namespace MongoDB.Bson
         /// <returns>True if the two BsonDouble values are equal according to ==.</returns>
         public static bool operator ==(BsonDouble lhs, BsonDouble rhs)
         {
-            if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
+            if (ReferenceEquals(lhs, null)) { return ReferenceEquals(rhs, null); }
             return lhs.OperatorEqualsImplementation(rhs);
         }
 
@@ -129,7 +129,7 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
 
             return (BsonDouble)BsonTypeMapper.MapToBsonValue(value, BsonType.Double);
@@ -161,13 +161,13 @@ namespace MongoDB.Bson
             var otherInt32 = other as BsonInt32;
             if (otherInt32 != null)
             {
-                return _value.CompareTo((double)otherInt32.Value);
+                return _value.CompareTo(otherInt32.Value);
             }
 
             var otherInt64 = other as BsonInt64;
             if (otherInt64 != null)
             {
-                return _value.CompareTo((double)otherInt64.Value);
+                return _value.CompareTo(otherInt64.Value);
             }
 
             var otherDecimal128 = other as BsonDecimal128;
@@ -186,7 +186,7 @@ namespace MongoDB.Bson
         /// <returns>True if the two BsonDouble values are equal.</returns>
         public bool Equals(BsonDouble rhs)
         {
-            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
+            if (ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             return _value.Equals(rhs._value); // use Equals instead of == so NaN is handled correctly
         }
 
@@ -353,13 +353,13 @@ namespace MongoDB.Bson
             var rhsInt32 = rhs as BsonInt32;
             if (rhsInt32 != null)
             {
-                return _value == (double)rhsInt32.Value;
+                return _value == rhsInt32.Value;
             }
 
             var rhsInt64 = rhs as BsonInt64;
             if (rhsInt64 != null)
             {
-                return _value == (double)rhsInt64.Value;
+                return _value == rhsInt64.Value;
             }
 
             var rhsDecimal128 = rhs as BsonDecimal128;
@@ -368,7 +368,7 @@ namespace MongoDB.Bson
                 return _value == (double)rhsDecimal128.Value; // use == instead of Equals so NaN is handled correctly
             }
 
-            return this.Equals(rhs);
+            return Equals(rhs);
         }
     }
 }

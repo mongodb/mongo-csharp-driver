@@ -66,7 +66,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    var message = string.Format("{0} is not a valid representation for a UInt16Serializer.", representation);
+                    var message = $"{representation} is not a valid representation for a UInt16Serializer.";
                     throw new ArgumentException(message);
             }
 
@@ -164,7 +164,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    var message = string.Format("'{0}' is not a valid representation for type 'UInt16'", _representation);
+                    var message = $"'{_representation}' is not a valid representation for type 'UInt16'";
                     throw new BsonSerializationException(message);
             }
         }

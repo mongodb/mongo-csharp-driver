@@ -28,11 +28,11 @@ namespace MongoDB.Bson.IO
     {
         // private fields
         private Func<IElementNameValidator> _childElementNameValidatorFactory = () => NoOpElementNameValidator.Instance;
-        private bool _disposed = false;
+        private bool _disposed;
         private IElementNameValidator _elementNameValidator = NoOpElementNameValidator.Instance;
-        private Stack<IElementNameValidator> _elementNameValidatorStack = new Stack<IElementNameValidator>();
+        private readonly Stack<IElementNameValidator> _elementNameValidatorStack = new Stack<IElementNameValidator>();
         private BsonWriterSettings _settings;
-        private Stack<BsonWriterSettings> _settingsStack = new Stack<BsonWriterSettings>();
+        private readonly Stack<BsonWriterSettings> _settingsStack = new Stack<BsonWriterSettings>();
         private BsonWriterState _state;
         private string _name;
         private int _serializationDepth;
@@ -46,7 +46,7 @@ namespace MongoDB.Bson.IO
         {
             if (settings == null)
             {
-                throw new ArgumentNullException("settings");
+                throw new ArgumentNullException(nameof(settings));
             }
 
             _settings = settings.FrozenCopy();
@@ -148,7 +148,7 @@ namespace MongoDB.Bson.IO
         {
             if (validator == null)
             {
-                throw new ArgumentNullException("validator");
+                throw new ArgumentNullException(nameof(validator));
             }
 
             _elementNameValidatorStack.Push(_elementNameValidator);
@@ -259,13 +259,13 @@ namespace MongoDB.Bson.IO
         {
             if (name == null)
             {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
             if (name.IndexOf('\0') != -1)
             {
                 throw new BsonSerializationException("Element names cannot contain nulls.");
             }
-            if (_disposed) { throw new ObjectDisposedException(this.GetType().Name); }
+            if (_disposed) { throw new ObjectDisposedException(GetType().Name); }
             if (_state != BsonWriterState.Name)
             {
                 ThrowInvalidState("WriteName", BsonWriterState.Name);
@@ -273,7 +273,7 @@ namespace MongoDB.Bson.IO
 
             if (!_elementNameValidator.IsValidElementName(name))
             {
-                var message = string.Format("Element name '{0}' is not valid'.", name);
+                var message = $"Element name '{name}' is not valid'.";
                 throw new BsonSerializationException(message);
             }
             _childElementNameValidatorFactory = () => _elementNameValidator.GetValidatorForChildContent(name);
@@ -428,9 +428,8 @@ namespace MongoDB.Bson.IO
             params ContextType[] validContextTypes)
         {
             var validContextTypesString = string.Join(" or ", validContextTypes.Select(c => c.ToString()).ToArray());
-            var message = string.Format(
-                "{0} can only be called when ContextType is {1}, not when ContextType is {2}.",
-                methodName, validContextTypesString, actualContextType);
+            var message =
+                $"{methodName} can only be called when ContextType is {validContextTypesString}, not when ContextType is {actualContextType}.";
             throw new InvalidOperationException(message);
         }
 
@@ -452,21 +451,17 @@ namespace MongoDB.Bson.IO
                         typeName = typeName.Substring(5);
                     }
                     var article = "A";
-                    if (new char[] { 'A', 'E', 'I', 'O', 'U' }.Contains(typeName[0]))
+                    if (new[] { 'A', 'E', 'I', 'O', 'U' }.Contains(typeName[0]))
                     {
                         article = "An";
                     }
-                    message = string.Format(
-                        "{0} {1} value cannot be written to the root level of a BSON document.",
-                        article, typeName);
+                    message = $"{article} {typeName} value cannot be written to the root level of a BSON document.";
                     throw new InvalidOperationException(message);
                 }
             }
 
             var validStatesString = string.Join(" or ", validStates.Select(s => s.ToString()).ToArray());
-            message = string.Format(
-                "{0} can only be called when State is {1}, not when State is {2}",
-                methodName, validStatesString, _state);
+            message = $"{methodName} can only be called when State is {validStatesString}, not when State is {_state}";
             throw new InvalidOperationException(message);
         }
     }

@@ -57,7 +57,7 @@ namespace MongoDB.Bson
         {
             if (serializer == null)
             {
-                throw new ArgumentNullException("serializer");
+                throw new ArgumentNullException(nameof(serializer));
             }
 
             _wrapped = value;
@@ -118,7 +118,7 @@ namespace MongoDB.Bson
         {
             if (values == null)
             {
-                throw new ArgumentNullException("values");
+                throw new ArgumentNullException(nameof(values));
             }
 
             var serializer = BsonSerializer.LookupSerializer(typeof(TNominalType));
@@ -135,11 +135,11 @@ namespace MongoDB.Bson
         {
             if (nominalType == null)
             {
-                throw new ArgumentNullException("nominalType");
+                throw new ArgumentNullException(nameof(nominalType));
             }
             if (values == null)
             {
-                throw new ArgumentNullException("values");
+                throw new ArgumentNullException(nameof(values));
             }
 
             var serializer = BsonSerializer.LookupSerializer(nominalType);

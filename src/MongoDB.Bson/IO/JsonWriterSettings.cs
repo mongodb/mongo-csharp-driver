@@ -27,11 +27,11 @@ namespace MongoDB.Bson.IO
     public class JsonWriterSettings : BsonWriterSettings
     {
         // private static fields
-        private static JsonWriterSettings __defaults = null; // delay creation to pick up the latest default values
+        private static JsonWriterSettings __defaults; // delay creation to pick up the latest default values
 
         // private fields
         private Encoding _encoding = Encoding.UTF8;
-        private bool _indent = false;
+        private bool _indent;
         private string _indentChars = "  ";
         private string _newLineChars = "\r\n";
         private JsonOutputMode _outputMode = JsonOutputMode.Shell;
@@ -51,14 +51,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public static JsonWriterSettings Defaults
         {
-            get
-            {
-                if (__defaults == null)
-                {
-                    __defaults = new JsonWriterSettings();
-                }
-                return __defaults;
-            }
+            get { return __defaults ?? (__defaults = new JsonWriterSettings()); }
             set { __defaults = value; }
         }
 

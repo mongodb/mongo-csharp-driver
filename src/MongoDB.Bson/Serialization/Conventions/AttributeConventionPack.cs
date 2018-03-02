@@ -168,7 +168,7 @@ namespace MongoDB.Bson.Serialization.Conventions
             {
                 foreach (var memberMap in classMap.DeclaredMemberMaps.ToList())
                 {
-                    var ignoreAttribute = (BsonIgnoreAttribute)memberMap.MemberInfo.GetCustomAttributes(inherit: false).OfType<BsonIgnoreAttribute>().FirstOrDefault();
+                    var ignoreAttribute = memberMap.MemberInfo.GetCustomAttributes(inherit: false).OfType<BsonIgnoreAttribute>().FirstOrDefault();
                     if (ignoreAttribute != null)
                     {
                         classMap.UnmapMember(memberMap.MemberInfo);
@@ -188,7 +188,7 @@ namespace MongoDB.Bson.Serialization.Conventions
                     {
                         if (nonDuplicatesAlreadySeen.Contains(attributeType))
                         {
-                            var message = string.Format("Attributes of type {0} can only be applied to a single member.", attributeType);
+                            var message = $"Attributes of type {attributeType} can only be applied to a single member.";
                             throw new DuplicateBsonMemberMapAttributeException(message);
                         }
 

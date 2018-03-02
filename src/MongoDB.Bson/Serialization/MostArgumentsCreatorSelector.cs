@@ -36,7 +36,7 @@ namespace MongoDB.Bson.Serialization
                 }
             }
 
-            return (bestMatch == null) ? null : bestMatch.CreatorMap;
+            return bestMatch?.CreatorMap;
         }
 
         // private methods

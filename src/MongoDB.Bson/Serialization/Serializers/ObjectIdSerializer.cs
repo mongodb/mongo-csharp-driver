@@ -51,7 +51,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    var message = string.Format("{0} is not a valid representation for an ObjectIdSerializer.", representation);
+                    var message = $"{representation} is not a valid representation for an ObjectIdSerializer.";
                     throw new ArgumentException(message);
             }
 
@@ -116,7 +116,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    var message = string.Format("'{0}' is not a valid ObjectId representation.", _representation);
+                    var message = $"'{_representation}' is not a valid ObjectId representation.";
                     throw new BsonSerializationException(message);
             }
         }

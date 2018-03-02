@@ -21,7 +21,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class BsonDecimal128Serializer : BsonValueSerializerBase<BsonDecimal128>
     {
         // private static fields
-        private static BsonDecimal128Serializer __instance = new BsonDecimal128Serializer();
+        private static readonly BsonDecimal128Serializer __instance = new BsonDecimal128Serializer();
 
         // constructors
         /// <summary>
@@ -51,7 +51,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         protected override BsonDecimal128 DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
-            return (BsonDecimal128)bsonReader.ReadDecimal128();
+            return bsonReader.ReadDecimal128();
         }
 
         /// <summary>

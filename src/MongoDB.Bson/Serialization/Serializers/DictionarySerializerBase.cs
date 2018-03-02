@@ -162,8 +162,6 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="value">The object.</param>
         protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, TDictionary value)
         {
-            var bsonWriter = context.Writer;
-
             switch (_dictionaryRepresentation)
             {
                 case DictionaryRepresentation.Document:
@@ -179,7 +177,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    var message = string.Format("'{0}' is not a valid IDictionary representation.", _dictionaryRepresentation);
+                    var message = $"'{_dictionaryRepresentation}' is not a valid IDictionary representation.";
                     throw new BsonSerializationException(message);
             }
         }
@@ -388,11 +386,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (keySerializer == null)
             {
-                throw new ArgumentNullException("keySerializer");
+                throw new ArgumentNullException(nameof(keySerializer));
             }
             if (valueSerializer == null)
             {
-                throw new ArgumentNullException("valueSerializer");
+                throw new ArgumentNullException(nameof(valueSerializer));
             }
         }
 
@@ -404,12 +402,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         public DictionarySerializerBase(DictionaryRepresentation dictionaryRepresentation, IBsonSerializerRegistry serializerRegistry)
             : this(
                 dictionaryRepresentation,
-                new Lazy<IBsonSerializer<TKey>>(() => serializerRegistry.GetSerializer<TKey>()),
-                new Lazy<IBsonSerializer<TValue>>(() => serializerRegistry.GetSerializer<TValue>()))
+                new Lazy<IBsonSerializer<TKey>>(serializerRegistry.GetSerializer<TKey>),
+                new Lazy<IBsonSerializer<TValue>>(serializerRegistry.GetSerializer<TValue>))
         {
             if (serializerRegistry == null)
             {
-                throw new ArgumentNullException("serializerRegistry");
+                throw new ArgumentNullException(nameof(serializerRegistry));
             }
         }
 
@@ -531,8 +529,6 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="value">The object.</param>
         protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, TDictionary value)
         {
-            var bsonWriter = context.Writer;
-
             switch (_dictionaryRepresentation)
             {
                 case DictionaryRepresentation.Document:
@@ -548,10 +544,8 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    var message = string.Format("'{0}' is not a valid IDictionary<{1}, {2}> representation.",
-                        _dictionaryRepresentation,
-                        BsonUtils.GetFriendlyTypeName(typeof(TKey)),
-                        BsonUtils.GetFriendlyTypeName(typeof(TValue)));
+                    var message =
+                        $"'{_dictionaryRepresentation}' is not a valid IDictionary<{BsonUtils.GetFriendlyTypeName(typeof(TKey))}, {BsonUtils.GetFriendlyTypeName(typeof(TValue))}> representation.";
                     throw new BsonSerializationException(message);
             }
         }
