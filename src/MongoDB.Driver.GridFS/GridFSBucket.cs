@@ -814,16 +814,19 @@ namespace MongoDB.Driver.GridFS
             {
                 if (!_ensureIndexesDone)
                 {
-                    var isFilesCollectionEmpty = IsFilesCollectionEmpty(binding, cancellationToken);
-                    if (isFilesCollectionEmpty)
+                    if (!_options.AssumeIndexesExist)
                     {
-                        if (!FilesCollectionIndexesExist(binding, cancellationToken))
+                        var isFilesCollectionEmpty = IsFilesCollectionEmpty(binding, cancellationToken);
+                        if (isFilesCollectionEmpty)
                         {
-                            CreateFilesCollectionIndexes(binding, cancellationToken);
-                        }
-                        if (!ChunksCollectionIndexesExist(binding, cancellationToken))
-                        {
-                            CreateChunksCollectionIndexes(binding, cancellationToken);
+                            if (!FilesCollectionIndexesExist(binding, cancellationToken))
+                            {
+                                CreateFilesCollectionIndexes(binding, cancellationToken);
+                            }
+                            if (!ChunksCollectionIndexesExist(binding, cancellationToken))
+                            {
+                                CreateChunksCollectionIndexes(binding, cancellationToken);
+                            }
                         }
                     }
 
@@ -843,16 +846,19 @@ namespace MongoDB.Driver.GridFS
             {
                 if (!_ensureIndexesDone)
                 {
-                    var isFilesCollectionEmpty = await IsFilesCollectionEmptyAsync(binding, cancellationToken).ConfigureAwait(false);
-                    if (isFilesCollectionEmpty)
+                    if (!_options.AssumeIndexesExist)
                     {
-                        if (!(await FilesCollectionIndexesExistAsync(binding, cancellationToken).ConfigureAwait(false)))
+                        var isFilesCollectionEmpty = await IsFilesCollectionEmptyAsync(binding, cancellationToken).ConfigureAwait(false);
+                        if (isFilesCollectionEmpty)
                         {
-                            await CreateFilesCollectionIndexesAsync(binding, cancellationToken).ConfigureAwait(false);
-                        }
-                        if (!(await ChunksCollectionIndexesExistAsync(binding, cancellationToken).ConfigureAwait(false)))
-                        {
-                            await CreateChunksCollectionIndexesAsync(binding, cancellationToken).ConfigureAwait(false);
+                            if (!(await FilesCollectionIndexesExistAsync(binding, cancellationToken).ConfigureAwait(false)))
+                            {
+                                await CreateFilesCollectionIndexesAsync(binding, cancellationToken).ConfigureAwait(false);
+                            }
+                            if (!(await ChunksCollectionIndexesExistAsync(binding, cancellationToken).ConfigureAwait(false)))
+                            {
+                                await CreateChunksCollectionIndexesAsync(binding, cancellationToken).ConfigureAwait(false);
+                            }
                         }
                     }
 

@@ -117,7 +117,7 @@ namespace MongoDB.Driver.GridFS.Tests
         [Fact]
         public void constructor_with_mutable_other_should_initialize_instance()
         {
-            var other = new GridFSBucketOptions { BucketName = "bucket", ChunkSizeBytes = 123, ReadConcern = ReadConcern.Majority, ReadPreference = ReadPreference.Secondary, WriteConcern = WriteConcern.WMajority };
+            var other = new GridFSBucketOptions { BucketName = "bucket", ChunkSizeBytes = 123, ReadConcern = ReadConcern.Majority, ReadPreference = ReadPreference.Secondary, WriteConcern = WriteConcern.WMajority, AssumeIndexesExist = true };
 
             var result = new GridFSBucketOptions(other);
 
@@ -126,6 +126,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.ReadConcern.Should().Be(other.ReadConcern);
             result.ReadPreference.Should().Be(other.ReadPreference);
             result.WriteConcern.Should().Be(other.WriteConcern);
+            result.AssumeIndexesExist.Should().Be(other.AssumeIndexesExist);
         }
 
         [Fact]
@@ -137,6 +138,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.ChunkSizeBytes.Should().Be(255 * 1024);
             result.ReadPreference.Should().BeNull();
             result.WriteConcern.Should().BeNull();
+            result.AssumeIndexesExist.Should().BeFalse();
         }
 
         [Fact]
@@ -198,6 +200,26 @@ namespace MongoDB.Driver.GridFS.Tests
 
             subject.WriteConcern.Should().Be(WriteConcern.WMajority);
         }
+
+        [Fact]
+        public void AssumeIndexesExist_get_should_return_expected_result()
+        {
+            var subject = new GridFSBucketOptions { AssumeIndexesExist = true };
+
+            var result = subject.AssumeIndexesExist;
+
+            result.Should().BeTrue();
+        }
+
+        [Fact]
+        public void AssumeIndexesExist_set_should_have_expected_result()
+        {
+            var subject = new GridFSBucketOptions();
+
+            subject.AssumeIndexesExist = true;
+
+            subject.AssumeIndexesExist.Should().BeTrue();
+        }
     }
 
     public class ImmutableGridFSBucketOptionsTests
@@ -225,7 +247,7 @@ namespace MongoDB.Driver.GridFS.Tests
         [Fact]
         public void constructor_with_arguments_should_initialize_instance()
         {
-            var mutable = new GridFSBucketOptions { BucketName = "bucket", ChunkSizeBytes = 123, ReadConcern = ReadConcern.Majority, ReadPreference = ReadPreference.Secondary, WriteConcern = WriteConcern.WMajority };
+            var mutable = new GridFSBucketOptions { BucketName = "bucket", ChunkSizeBytes = 123, ReadConcern = ReadConcern.Majority, ReadPreference = ReadPreference.Secondary, WriteConcern = WriteConcern.WMajority, AssumeIndexesExist = true };
 
             var result = new ImmutableGridFSBucketOptions(mutable);
 
@@ -234,6 +256,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.ReadConcern.Should().Be(ReadConcern.Majority);
             result.ReadPreference.Should().Be(ReadPreference.Secondary);
             result.WriteConcern.Should().Be(WriteConcern.WMajority);
+            result.AssumeIndexesExist.Should().BeTrue();
         }
 
         [Fact]
@@ -246,6 +269,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.ReadConcern.Should().BeNull();
             result.ReadPreference.Should().BeNull();
             result.WriteConcern.Should().BeNull();
+            result.AssumeIndexesExist.Should().BeFalse();
         }
 
         [Fact]
@@ -267,6 +291,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.ReadConcern.Should().BeNull();
             result.ReadPreference.Should().BeNull();
             result.WriteConcern.Should().BeNull();
+            result.AssumeIndexesExist.Should().BeFalse();
         }
 
         [Fact]
@@ -297,6 +322,16 @@ namespace MongoDB.Driver.GridFS.Tests
             var result = subject.WriteConcern;
 
             result.Should().Be(WriteConcern.WMajority);
+        }
+
+        [Fact]
+        public void AssumeIndexesExist_get_should_return_expected_result()
+        {
+            var subject = new ImmutableGridFSBucketOptions(new GridFSBucketOptions { AssumeIndexesExist = true });
+
+            var result = subject.AssumeIndexesExist;
+
+            result.Should().BeTrue();
         }
     }
 }
