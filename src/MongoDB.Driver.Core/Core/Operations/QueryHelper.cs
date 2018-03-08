@@ -22,15 +22,15 @@ namespace MongoDB.Driver.Core.Operations
 {
     internal static class QueryHelper
     {
-        public static int CalculateFirstBatchSize(int? limit, int? batchSize)
+        public static int CalculateFirstBatchSize(long? limit, int? batchSize)
         {
             int firstBatchSize;
 
-            int nonNullLimit = limit ?? 0;
+            long nonNullLimit = limit ?? 0;
             int nonNullBatchSize = batchSize ?? 0;
             if (nonNullLimit < 0)
             {
-                firstBatchSize = nonNullLimit;
+                firstBatchSize = (int)Math.Max(nonNullLimit, int.MinValue);
             }
             else if (nonNullLimit == 0)
             {
@@ -38,11 +38,11 @@ namespace MongoDB.Driver.Core.Operations
             }
             else if (nonNullBatchSize == 0)
             {
-                firstBatchSize = nonNullLimit;
+                firstBatchSize = (int)Math.Min(nonNullLimit, int.MaxValue);
             }
             else if (nonNullLimit < nonNullBatchSize)
             {
-                firstBatchSize = nonNullLimit;
+                firstBatchSize = (int)Math.Min(nonNullLimit, int.MaxValue);
             }
             else
             {

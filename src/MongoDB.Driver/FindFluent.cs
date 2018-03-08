@@ -71,7 +71,7 @@ namespace MongoDB.Driver
             return _collection.CountAsync(_filter, options, cancellationToken);
         }
 
-        public override IFindFluent<TDocument, TProjection> Limit(int? limit)
+        public override IFindFluent<TDocument, TProjection> Limit(long? limit)
         {
             _options.Limit = limit;
             return this;
@@ -99,7 +99,7 @@ namespace MongoDB.Driver
             return new FindFluent<TDocument, TNewProjection>(_session, _collection, _filter, newOptions);
         }
 
-        public override IFindFluent<TDocument, TProjection> Skip(int? skip)
+        public override IFindFluent<TDocument, TProjection> Skip(long? skip)
         {
             _options.Skip = skip;
             return this;

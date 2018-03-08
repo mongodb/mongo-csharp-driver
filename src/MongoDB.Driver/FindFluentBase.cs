@@ -46,13 +46,13 @@ namespace MongoDB.Driver
         public abstract Task<long> CountAsync(CancellationToken cancellationToken = default(CancellationToken));
 
         /// <inheritdoc />
-        public abstract IFindFluent<TDocument, TProjection> Limit(int? limit);
+        public abstract IFindFluent<TDocument, TProjection> Limit(long? limit);
 
         /// <inheritdoc />
         public abstract IFindFluent<TDocument, TNewProjection> Project<TNewProjection>(ProjectionDefinition<TDocument, TNewProjection> projection);
 
         /// <inheritdoc />
-        public abstract IFindFluent<TDocument, TProjection> Skip(int? skip);
+        public abstract IFindFluent<TDocument, TProjection> Skip(long? skip);
 
         /// <inheritdoc />
         public abstract IFindFluent<TDocument, TProjection> Sort(SortDefinition<TDocument> sort);

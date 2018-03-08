@@ -134,7 +134,7 @@ namespace MongoDB.Driver
             return WithPipeline(_pipeline.Group(group));
         }
 
-        public override IAggregateFluent<TResult> Limit(int limit)
+        public override IAggregateFluent<TResult> Limit(long limit)
         {
             return WithPipeline(_pipeline.Limit(limit));
         }
@@ -182,7 +182,7 @@ namespace MongoDB.Driver
             return WithPipeline(_pipeline.ReplaceRoot(newRoot));
         }
 
-        public override IAggregateFluent<TResult> Skip(int skip)
+        public override IAggregateFluent<TResult> Skip(long skip)
         {
             return WithPipeline(_pipeline.Skip(skip));
         }
