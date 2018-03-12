@@ -344,7 +344,7 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new FindOneAndDeleteOperation<BsonDocument>(_collectionNamespace, filter, _findAndModifyValueDeserializer, _messageEncoderSettings);
             subject.MaxTime = TimeSpan.FromSeconds(9001);
 
-            using (var failPoint = FailPoint.ConfigureAlwaysOn(CoreTestConfiguration.Cluster, _session, FailPointName.MaxTimeAlwaysTimeout))
+            using (var failPoint = FailPoint.ConfigureAlwaysOn(_cluster, _session, FailPointName.MaxTimeAlwaysTimeout))
             {
                 var exception = Record.Exception(() => ExecuteOperation(subject, failPoint.Binding, async));
 

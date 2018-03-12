@@ -241,24 +241,9 @@ namespace MongoDB.Driver
             return new DatabaseNamespace(databaseName);
         }
 
-        public static IReadBinding GetReadBinding(ICoreSessionHandle session)
-        {
-            return GetReadBinding(ReadPreference.Primary, session);
-        }
-
-        public static IReadBinding GetReadBinding(ReadPreference readPreference, ICoreSessionHandle session)
-        {
-            return new ReadPreferenceBinding(__cluster.Value, readPreference, session);
-        }
-
-        public static IReadWriteBinding GetReadWriteBinding(ICoreSessionHandle session)
-        {
-            return new WritableServerBinding(__cluster.Value, session);
-        }
-
         public static IEnumerable<string> GetModules()
         {
-            var session = CoreTestConfiguration.StartSession();
+            using (var session = StartSession())
             using (var binding = GetReadBinding(session))
             {
                 var command = new BsonDocument("buildinfo", 1);
@@ -278,7 +263,7 @@ namespace MongoDB.Driver
 
         public static string GetStorageEngine()
         {
-            var session = CoreTestConfiguration.StartSession();
+            using (var session = StartSession())
             using (var binding = GetReadWriteBinding(session))
             {
                 var command = new BsonDocument("serverStatus", 1);
@@ -305,7 +290,9 @@ namespace MongoDB.Driver
         {
             if (AreSessionsSupported(cluster))
             {
-                return TestCoreSession.NewHandle();
+                var serverSession = cluster.AcquireServerSession();
+                var session = new CoreSession(serverSession);
+                return new CoreSessionHandle(session);
             }
             else
             {
@@ -371,7 +358,7 @@ namespace MongoDB.Driver
         }
         #endregion
 
-        // methods
+        // private methods
         private static bool AreSessionsSupported(ICluster cluster)
         {
             SpinWait.SpinUntil(() => cluster.Description.Servers.Any(s => s.State == ServerState.Connected), TimeSpan.FromSeconds(30));
@@ -389,11 +376,26 @@ namespace MongoDB.Driver
         {
             var operation = new DropDatabaseOperation(__databaseNamespace, __messageEncoderSettings);
 
-            var session = CoreTestConfiguration.StartSession();
+            using (var session = StartSession())
             using (var binding = GetReadWriteBinding(session))
             {
                 operation.Execute(binding, CancellationToken.None);
             }
+        }
+
+        private static IReadBinding GetReadBinding(ICoreSessionHandle session)
+        {
+            return GetReadBinding(ReadPreference.Primary, session);
+        }
+
+        private static IReadBinding GetReadBinding(ReadPreference readPreference, ICoreSessionHandle session)
+        {
+            return new ReadPreferenceBinding(__cluster.Value, readPreference, session.Fork());
+        }
+
+        private static IReadWriteBinding GetReadWriteBinding(ICoreSessionHandle session)
+        {
+            return new WritableServerBinding(__cluster.Value, session.Fork());
         }
 
         public static void TearDown()

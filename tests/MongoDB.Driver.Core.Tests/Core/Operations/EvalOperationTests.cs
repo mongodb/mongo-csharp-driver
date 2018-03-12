@@ -242,7 +242,7 @@ namespace MongoDB.Driver.Core.Operations
             var function = "return 1";
             var subject = new EvalOperation(_adminDatabaseNamespace, function, _messageEncoderSettings) { MaxTime = TimeSpan.FromSeconds(9001) };
 
-            using (var failPoint = FailPoint.ConfigureAlwaysOn(CoreTestConfiguration.Cluster, _session, FailPointName.MaxTimeAlwaysTimeout))
+            using (var failPoint = FailPoint.ConfigureAlwaysOn(_cluster, _session, FailPointName.MaxTimeAlwaysTimeout))
             {
                 var exception = Record.Exception(() => ExecuteOperation(subject, failPoint.Binding, async));
 
@@ -297,7 +297,7 @@ namespace MongoDB.Driver.Core.Operations
         // private methods
         private BsonValue ExecuteOperation(EvalOperation operation, bool async)
         {
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding(_session.Fork()))
+            using (var binding = GetReadWriteBinding())
             {
                 return ExecuteOperation(operation, binding, async);
             }

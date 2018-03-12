@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Core.Operations
             RequireServer.Check();
             EnsureDatabaseExists();
 
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding(_session.Fork()))
+            using (var binding = GetReadWriteBinding())
             {
                 var subject = new DropDatabaseOperation(_databaseNamespace, _messageEncoderSettings);
 
@@ -130,7 +130,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var exception = Record.Exception(() =>
             {
-                using (var binding = CoreTestConfiguration.GetReadWriteBinding(_session.Fork()))
+                using (var binding = GetReadWriteBinding())
                 {
                     ExecuteOperation(subject, binding, async);
                 }

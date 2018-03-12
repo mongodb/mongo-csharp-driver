@@ -1117,7 +1117,7 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern = WriteConcern.Unacknowledged
             };
 
-            using (var readWriteBinding = CoreTestConfiguration.GetReadWriteBinding(_session.Fork()))
+            using (var readWriteBinding = GetReadWriteBinding())
             using (var channelSource = readWriteBinding.GetWriteChannelSource(CancellationToken.None))
             using (var channel = channelSource.GetChannel(CancellationToken.None))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, readWriteBinding.Session.Fork()))
@@ -1161,7 +1161,7 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern = WriteConcern.Unacknowledged
             };
 
-            using (var readWriteBinding = CoreTestConfiguration.GetReadWriteBinding(_session.Fork()))
+            using (var readWriteBinding = GetReadWriteBinding())
             using (var channelSource = readWriteBinding.GetWriteChannelSource(CancellationToken.None))
             using (var channel = channelSource.GetChannel(CancellationToken.None))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, readWriteBinding.Session.Fork()))
@@ -1199,7 +1199,7 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern = WriteConcern.Unacknowledged
             };
 
-            using (var readWriteBinding = CoreTestConfiguration.GetReadWriteBinding(_session.Fork()))
+            using (var readWriteBinding = GetReadWriteBinding())
             using (var channelSource = readWriteBinding.GetWriteChannelSource(CancellationToken.None))
             using (var channel = channelSource.GetChannel(CancellationToken.None))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, readWriteBinding.Session.Fork()))
@@ -1237,7 +1237,7 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern = WriteConcern.Unacknowledged
             };
 
-            using (var readWriteBinding = CoreTestConfiguration.GetReadWriteBinding(_session.Fork()))
+            using (var readWriteBinding = GetReadWriteBinding())
             using (var channelSource = readWriteBinding.GetWriteChannelSource(CancellationToken.None))
             using (var channel = channelSource.GetChannel(CancellationToken.None))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, readWriteBinding.Session.Fork()))

@@ -424,7 +424,7 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
 
             BsonDocument info;
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding(_session.Fork()))
+            using (var binding = GetReadWriteBinding())
             {
                 ExecuteOperation(subject, binding, async);
                 info = GetCollectionInfo(binding);
@@ -449,7 +449,7 @@ namespace MongoDB.Driver.Core.Operations
             };
 
             BsonDocument info;
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding(_session.Fork()))
+            using (var binding = GetReadWriteBinding())
             {
                 ExecuteOperation(subject, binding, async);
                 info = GetCollectionInfo(binding);
@@ -476,7 +476,7 @@ namespace MongoDB.Driver.Core.Operations
             };
 
             BsonDocument info;
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding(_session.Fork()))
+            using (var binding = GetReadWriteBinding())
             {
                 ExecuteOperation(subject, binding, async);
                 info = GetCollectionInfo(binding);
@@ -503,7 +503,7 @@ namespace MongoDB.Driver.Core.Operations
             };
 
             BsonDocument info;
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding(_session.Fork()))
+            using (var binding = GetReadWriteBinding())
             {
                 ExecuteOperation(subject, binding, async);
                 info = GetCollectionInfo(binding);
@@ -530,7 +530,7 @@ namespace MongoDB.Driver.Core.Operations
             };
 
             BsonDocument info;
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding(_session.Fork()))
+            using (var binding = GetReadWriteBinding())
             {
                 ExecuteOperation(subject, binding, async);
                 info = GetCollectionInfo(binding);
@@ -557,7 +557,7 @@ namespace MongoDB.Driver.Core.Operations
             };
 
             BsonDocument info;
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding(_session.Fork()))
+            using (var binding = GetReadWriteBinding())
             {
                 ExecuteOperation(subject, binding, async);
                 info = GetCollectionInfo(binding);
@@ -583,7 +583,7 @@ namespace MongoDB.Driver.Core.Operations
             };
 
             BsonDocument info;
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding(_session.Fork()))
+            using (var binding = GetReadWriteBinding())
             {
                 ExecuteOperation(subject, binding, async);
                 info = GetCollectionInfo(binding);
@@ -608,7 +608,7 @@ namespace MongoDB.Driver.Core.Operations
             };
 
             BsonDocument info;
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding(_session.Fork()))
+            using (var binding = GetReadWriteBinding())
             {
                 ExecuteOperation(subject, binding, async);
                 info = GetCollectionInfo(binding);
@@ -637,7 +637,7 @@ namespace MongoDB.Driver.Core.Operations
             };
 
             BsonDocument info;
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding(_session.Fork()))
+            using (var binding = GetReadWriteBinding())
             {
                 ExecuteOperation(subject, binding, async);
                 info = GetCollectionInfo(binding);
@@ -662,7 +662,7 @@ namespace MongoDB.Driver.Core.Operations
             };
 
             BsonDocument info;
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding(_session.Fork()))
+            using (var binding = GetReadWriteBinding())
             {
                 ExecuteOperation(subject, binding, async);
                 info = GetCollectionInfo(binding);
@@ -688,7 +688,7 @@ namespace MongoDB.Driver.Core.Operations
             };
 
             BsonDocument info;
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding(_session.Fork()))
+            using (var binding = GetReadWriteBinding())
             {
                 ExecuteOperation(subject, binding, async);
                 info = GetCollectionInfo(binding);
@@ -713,7 +713,7 @@ namespace MongoDB.Driver.Core.Operations
             };
 
             Exception exception;
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding(_session.Fork()))
+            using (var binding = GetReadWriteBinding())
             {
                 exception = Record.Exception(() => ExecuteOperation(subject, binding, async));
             }
@@ -736,7 +736,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var exception = Record.Exception(() =>
             {
-                using (var binding = CoreTestConfiguration.GetReadWriteBinding(_session.Fork()))
+                using (var binding = GetReadWriteBinding())
                 {
                     ExecuteOperation(subject, binding, false);
                 }

@@ -20,37 +20,37 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Configuration;
-using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
     public abstract class OperationTestBase : IDisposable
     {
+        protected ICluster _cluster;
+        protected Driver.CollectionNamespace _collectionNamespace;
         protected DatabaseNamespace _databaseNamespace;
-        protected CollectionNamespace _collectionNamespace;
-        protected MessageEncoderSettings _messageEncoderSettings;
         private bool _hasOncePerFixtureRun;
+        protected MessageEncoderSettings _messageEncoderSettings;
         protected readonly ICoreSessionHandle _session;
 
         public OperationTestBase()
         {
+            _cluster = CoreTestConfiguration.Cluster;
             _databaseNamespace = CoreTestConfiguration.DatabaseNamespace;
             _collectionNamespace = CoreTestConfiguration.GetCollectionNamespaceForTestClass(GetType());
             _messageEncoderSettings = CoreTestConfiguration.MessageEncoderSettings;
-            _session = CoreTestConfiguration.StartSession();
+            _session = CoreTestConfiguration.StartSession(_cluster);
         }
 
         public virtual void Dispose()
         {
             _session.ReferenceCount().Should().Be(1);
+            _session.Dispose();
 
             try
             {
@@ -126,7 +126,7 @@ namespace MongoDB.Driver.Core.Operations
 
         protected TResult ExecuteOperation<TResult>(IReadOperation<TResult> operation)
         {
-            using (var binding = CoreTestConfiguration.GetReadBinding(_session.Fork()))
+            using (var binding = GetReadBinding())
             using (var bindingHandle = new ReadBindingHandle(binding))
             {
                 return operation.Execute(bindingHandle, CancellationToken.None);
@@ -159,8 +159,7 @@ namespace MongoDB.Driver.Core.Operations
 
         protected TResult ExecuteOperation<TResult>(IReadOperation<TResult> operation, ReadPreference readPreference, bool async)
         {
-            var cluster = CoreTestConfiguration.Cluster;
-            using (var binding = new ReadPreferenceBinding(cluster, readPreference, NoCoreSession.NewHandle()))
+            using (var binding = GetReadBinding(readPreference))
             using (var bindingHandle = new ReadBindingHandle(binding))
             {
                 return ExecuteOperation(operation, bindingHandle, async);
@@ -169,7 +168,7 @@ namespace MongoDB.Driver.Core.Operations
 
         protected TResult ExecuteOperation<TResult>(IWriteOperation<TResult> operation)
         {
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding(_session.Fork()))
+            using (var binding = GetReadWriteBinding())
             using (var bindingHandle = new ReadWriteBindingHandle(binding))
             {
                 return operation.Execute(bindingHandle, CancellationToken.None);
@@ -202,7 +201,7 @@ namespace MongoDB.Driver.Core.Operations
 
         protected async Task<TResult> ExecuteOperationAsync<TResult>(IReadOperation<TResult> operation)
         {
-            using (var binding = CoreTestConfiguration.GetReadBinding(_session.Fork()))
+            using (var binding = GetReadBinding())
             using (var bindingHandle = new ReadBindingHandle(binding))
             {
                 return await ExecuteOperationAsync(operation, bindingHandle);
@@ -216,7 +215,7 @@ namespace MongoDB.Driver.Core.Operations
 
         protected async Task<TResult> ExecuteOperationAsync<TResult>(IWriteOperation<TResult> operation)
         {
-            using (var binding = CoreTestConfiguration.GetReadWriteBinding(_session.Fork()))
+            using (var binding = GetReadWriteBinding())
             using (var bindingHandle = new ReadWriteBindingHandle(binding))
             {
                 return await operation.ExecuteAsync(bindingHandle, CancellationToken.None);
@@ -236,6 +235,21 @@ namespace MongoDB.Driver.Core.Operations
                 _messageEncoderSettings);
 
             ExecuteOperation(operation);
+        }
+
+        protected IReadBinding GetReadBinding()
+        {
+            return GetReadBinding(ReadPreference.Primary);
+        }
+
+        protected IReadBinding GetReadBinding(ReadPreference readPreference)
+        {
+            return new ReadPreferenceBinding(_cluster, readPreference, _session.Fork());
+        }
+
+        protected IReadWriteBinding GetReadWriteBinding()
+        {
+            return new WritableServerBinding(_cluster, _session.Fork());
         }
 
         protected void Insert(params BsonDocument[] documents)
@@ -404,7 +418,7 @@ namespace MongoDB.Driver.Core.Operations
 
         protected void VerifySessionIdWasSentWhenSupported<TResult>(
             Func<WritableServerBinding, CancellationToken, Task<TResult>> executeAsync,
-            Func<WritableServerBinding, CancellationToken, TResult> execute, 
+            Func<WritableServerBinding, CancellationToken, TResult> execute,
             string commandName,
             bool async)
         {
@@ -412,7 +426,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var cluster = CoreTestConfiguration.CreateCluster(b => b.Subscribe(eventCapturer)))
             {
                 using (var session = CoreTestConfiguration.StartSession(cluster))
-                using (var binding = new WritableServerBinding(cluster, session))
+                using (var binding = new WritableServerBinding(cluster, session.Fork()))
                 {
                     var cancellationToken = new CancellationTokenSource().Token;
                     if (async)
@@ -434,7 +448,7 @@ namespace MongoDB.Driver.Core.Operations
                     {
                         command["lsid"].Should().Be(session.Id);
                     }
-                    session.ReferenceCount().Should().Be(1);
+                    session.ReferenceCount().Should().Be(2);
                 }
             }
         }

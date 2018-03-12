@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private readonly int? _batchSize;
         private readonly CollectionNamespace _collectionNamespace;
-        private readonly IChannelSource _channelSource;
+        private IChannelSource _channelSource;
         private int _count;
         private IReadOnlyList<TDocument> _currentBatch;
         private long _cursorId;
@@ -104,12 +104,7 @@ namespace MongoDB.Driver.Core.Operations
             }
             _count = _firstBatch.Count;
 
-            // if we aren't going to need the channel source we can go ahead and Dispose it now
-            if (_cursorId == 0 && _channelSource != null)
-            {
-                _channelSource.Dispose();
-                _channelSource = null;
-            }
+            DisposeChannelSourceIfNoLongerNeeded();
         }
 
         // properties
@@ -276,6 +271,15 @@ namespace MongoDB.Driver.Core.Operations
             _disposed = true;
         }
 
+        private void DisposeChannelSourceIfNoLongerNeeded()
+        {
+            if (_channelSource != null && _cursorId == 0)
+            {
+                _channelSource.Dispose();
+                _channelSource = null;
+            }
+        }
+
         private CursorBatch<TDocument> GetNextBatch(CancellationToken cancellationToken)
         {
             using (EventContext.BeginOperation(_operationId))
@@ -373,6 +377,8 @@ namespace MongoDB.Driver.Core.Operations
 
             _currentBatch = documents;
             _cursorId = batch.CursorId;
+
+            DisposeChannelSourceIfNoLongerNeeded();
         }
 
         private void ThrowIfDisposed()
