@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
@@ -61,6 +62,17 @@ namespace MongoDB.Driver.Core
             lock (_lock)
             {
                 _capturedEvents.Clear();
+            }
+        }
+
+        public List<object> Events
+        {
+            get
+            {
+                lock (_lock)
+                {
+                    return _capturedEvents.ToList();
+                }
             }
         }
 

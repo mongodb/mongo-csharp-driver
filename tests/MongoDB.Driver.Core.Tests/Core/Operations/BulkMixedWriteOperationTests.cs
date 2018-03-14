@@ -17,17 +17,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -1257,11 +1253,149 @@ namespace MongoDB.Driver.Core.Operations
             VerifySessionIdWasSentWhenSupported(subject, "update", async);
         }
 
-        private List<BsonDocument> ReadAllFromCollection(IReadBinding binding)
+        [SkippableTheory]
+        [InlineData(new[] { 1 }, new[] { 1 })]
+        [InlineData(new[] { 1, 1 }, new[] { 2 })]
+        [InlineData(new[] { 8388605, 8388605 }, new[] { 2 })]
+        [InlineData(new[] { 8388605, 8388606 }, new[] { 1, 1 })]
+        [InlineData(new[] { 16777216 }, new[] { 1 })]
+        [InlineData(new[] { 16777216, 1 }, new[] { 1, 1 })]
+        [InlineData(new[] { 16777216, 16777216 }, new[] { 1, 1 })]
+        public void Execute_with_multiple_deletes_should_split_batches_as_expected_when_using_write_commands_via_opquery(int[] requestSizes, int[] expectedBatchCounts)
         {
-            var operation = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-            var cursor = ExecuteOperation(operation, binding, false);
-            return ReadCursorToEnd(cursor);
+            RequireServer.Check().Supports(Feature.WriteCommands);
+            DropCollection();
+
+            using (EventContext.BeginOperation())
+            {
+                var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "delete" && e.OperationId == EventContext.OperationId);
+                using (var cluster = CoreTestConfiguration.CreateCluster(b => b.Subscribe(eventCapturer)))
+                using (var session = NoCoreSession.NewHandle())
+                using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, session.Fork())))
+                {
+                    var requests = requestSizes.Select(size => CreateDeleteRequest(size));
+                    var operation = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
+
+                    var result = ExecuteOperation(operation, binding, async: false);
+
+                    result.RequestCount.Should().Be(requestSizes.Length);
+                    var commandStartedEvents = eventCapturer.Events.OfType<CommandStartedEvent>().ToList();
+                    var actualBatchCounts = commandStartedEvents.Select(e => e.Command["deletes"].AsBsonArray.Count).ToList();
+                    actualBatchCounts.Should().Equal(expectedBatchCounts);
+                }
+            }
+        }
+
+        [SkippableTheory]
+        [InlineData(new[] { 1 }, new[] { 1 })]
+        [InlineData(new[] { 1, 1 }, new[] { 2 })]
+        [InlineData(new[] { 8388605, 8388605 }, new[] { 2 })]
+        [InlineData(new[] { 8388605, 8388606 }, new[] { 1, 1 })]
+        [InlineData(new[] { 16777216 }, new[] { 1 })]
+        [InlineData(new[] { 16777216, 1 }, new[] { 1, 1 })]
+        [InlineData(new[] { 16777216, 16777216 }, new[] { 1, 1 })]
+        public void Execute_with_multiple_inserts_should_split_batches_as_expected_when_using_write_commands_via_opquery(int[] documentSizes, int[] expectedBatchCounts)
+        {
+            RequireServer.Check().Supports(Feature.WriteCommands);
+            DropCollection();
+
+            using (EventContext.BeginOperation())
+            {
+                var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "insert" && e.OperationId == EventContext.OperationId);
+                using (var cluster = CoreTestConfiguration.CreateCluster(b => b.Subscribe(eventCapturer)))
+                using (var session = NoCoreSession.NewHandle())
+                using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, session.Fork())))
+                {
+                    var documents = documentSizes.Select((size, index) => CreateDocument(index + 1, size)).ToList();
+                    var requests = documents.Select(d => new InsertRequest(d)).ToList();
+                    var operation = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
+
+                    var result = ExecuteOperation(operation, binding, async: false);
+
+                    result.InsertedCount.Should().Be(documents.Count);
+                    var commandStartedEvents = eventCapturer.Events.OfType<CommandStartedEvent>().ToList();
+                    var actualBatchCounts = commandStartedEvents.Select(e => e.Command["documents"].AsBsonArray.Count).ToList();
+                    actualBatchCounts.Should().Equal(expectedBatchCounts);
+                }
+            }
+        }
+
+        [SkippableTheory]
+        [InlineData(new[] { 1 }, new[] { 1 })]
+        [InlineData(new[] { 1, 1 }, new[] { 2 })]
+        [InlineData(new[] { 8388605, 8388605 }, new[] { 2 })]
+        [InlineData(new[] { 8388605, 8388606 }, new[] { 1, 1 })]
+        [InlineData(new[] { 16777216 }, new[] { 1 })]
+        [InlineData(new[] { 16777216, 1 }, new[] { 1, 1 })]
+        [InlineData(new[] { 16777216, 16777216 }, new[] { 1, 1 })]
+        public void Execute_with_multiple_updates_should_split_batches_as_expected_when_using_write_commands_via_opquery(int[] requestSizes, int[] expectedBatchCounts)
+        {
+            RequireServer.Check().Supports(Feature.WriteCommands);
+            DropCollection();
+
+            using (EventContext.BeginOperation())
+            {
+                var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "update" && e.OperationId == EventContext.OperationId);
+                using (var cluster = CoreTestConfiguration.CreateCluster(b => b.Subscribe(eventCapturer)))
+                using (var session = NoCoreSession.NewHandle())
+                using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, session.Fork())))
+                {
+                    var requests = requestSizes.Select(size => CreateUpdateRequest(size));
+                    var operation = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
+
+                    var result = ExecuteOperation(operation, binding, async: false);
+
+                    result.RequestCount.Should().Be(requestSizes.Length);
+                    var commandStartedEvents = eventCapturer.Events.OfType<CommandStartedEvent>().ToList();
+                    var actualBatchCounts = commandStartedEvents.Select(e => e.Command["updates"].AsBsonArray.Count).ToList();
+                    actualBatchCounts.Should().Equal(expectedBatchCounts);
+                }
+            }
+        }
+
+        // private methods
+        private DeleteRequest CreateDeleteRequest(int size)
+        {
+            var filter = new BsonDocument("filler", "");
+            var requestDocument = new BsonDocument
+            {
+                { "q", filter },
+                { "limit", 1 }
+            };
+            var fillerSize = size - requestDocument.ToBson().Length;
+            if (fillerSize > 0)
+            {
+                filter["filler"] = new string('x', fillerSize);
+            }
+            return new DeleteRequest(filter);
+        }
+
+        private BsonDocument CreateDocument(int id, int size)
+        {
+            var document = new BsonDocument { { "_id", id }, { "filler", "" } };
+            var fillerSize = size - document.ToBson().Length;
+            if (fillerSize > 0)
+            {
+                document["filler"] = new string('x', fillerSize);
+            }
+            return document;
+        }
+
+        private UpdateRequest CreateUpdateRequest(int size)
+        {
+            var filter = new BsonDocument("filler", "");
+            var update = new BsonDocument("$set", new BsonDocument("x", 1));
+            var requestDocument = new BsonDocument
+            {
+                { "q", filter },
+                { "u", update }
+            };
+            var fillerSize = size - requestDocument.ToBson().Length;
+            if (fillerSize > 0)
+            {
+                filter["filler"] = new string('x', fillerSize);
+            }
+            return new UpdateRequest(UpdateType.Update, filter, update);
         }
 
         private void EnsureTestData()
@@ -1274,6 +1408,13 @@ namespace MongoDB.Driver.Core.Operations
                 BsonDocument.Parse("{_id: 4, x: 2 }"),
                 BsonDocument.Parse("{_id: 5, x: 2 }"),
                 BsonDocument.Parse("{_id: 6, x: 3 }"));
+        }
+        
+        private List<BsonDocument> ReadAllFromCollection(IReadBinding binding)
+        {
+            var operation = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var cursor = ExecuteOperation(operation, binding, false);
+            return ReadCursorToEnd(cursor);
         }
     }
 }
