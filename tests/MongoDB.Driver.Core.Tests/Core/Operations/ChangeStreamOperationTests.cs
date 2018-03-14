@@ -269,6 +269,7 @@ namespace MongoDB.Driver.Core.Operations
             var resultSerializer = new ChangeStreamDocumentSerializer<BsonDocument>(BsonDocumentSerializer.Instance);
             var messageEncoderSettings = new MessageEncoderSettings();
             var subject = new ChangeStreamOperation<ChangeStreamDocument<BsonDocument>>(_collectionNamespace, pipeline, resultSerializer, messageEncoderSettings);
+            EnsureDatabaseExists();
             DropCollection();
 
             using (var cursor = ExecuteOperation(subject, async))
@@ -298,6 +299,7 @@ namespace MongoDB.Driver.Core.Operations
             var resultSerializer = new ChangeStreamDocumentSerializer<BsonDocument>(BsonDocumentSerializer.Instance);
             var messageEncoderSettings = new MessageEncoderSettings();
             var subject = new ChangeStreamOperation<ChangeStreamDocument<BsonDocument>>(_collectionNamespace, pipeline, resultSerializer, messageEncoderSettings);
+            EnsureDatabaseExists();
             DropCollection();
 
             using (var cursor = ExecuteOperation(subject, async))
@@ -327,6 +329,7 @@ namespace MongoDB.Driver.Core.Operations
             var resultSerializer = new ChangeStreamDocumentSerializer<BsonDocument>(BsonDocumentSerializer.Instance);
             var messageEncoderSettings = new MessageEncoderSettings();
             var subject = new ChangeStreamOperation<ChangeStreamDocument<BsonDocument>>(_collectionNamespace, pipeline, resultSerializer, messageEncoderSettings);
+            EnsureDatabaseExists();
             DropCollection();
             Insert("{ _id : 1, x : 1 }");
 
@@ -361,6 +364,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 FullDocument = fullDocument
             };
+            EnsureDatabaseExists();
             DropCollection();
 
             using (var cursor = ExecuteOperation(subject, async))
