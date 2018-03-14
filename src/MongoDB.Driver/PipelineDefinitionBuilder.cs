@@ -639,7 +639,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static PipelineDefinition<TInput, TOutput> Limit<TInput, TOutput>(
             this PipelineDefinition<TInput, TOutput> pipeline,
-            int limit)
+            long limit)
         {
             Ensure.IsNotNull(pipeline, nameof(pipeline));
             return pipeline.AppendStage(PipelineStageDefinitionBuilder.Limit<TOutput>(limit));
@@ -888,7 +888,7 @@ namespace MongoDB.Driver
         /// </returns>
         public static PipelineDefinition<TInput, TOutput> Skip<TInput, TOutput>(
             this PipelineDefinition<TInput, TOutput> pipeline,
-            int skip)
+            long skip)
         {
             Ensure.IsNotNull(pipeline, nameof(pipeline));
             return pipeline.AppendStage(PipelineStageDefinitionBuilder.Skip<TOutput>(skip));

@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Core.Events
     internal static class EventContext
     {
         private static readonly AsyncLocal<int?> __findOperationBatchSize = new AsyncLocal<int?>();
-        private static readonly AsyncLocal<int?> __findOperationLimit = new AsyncLocal<int?>();
+        private static readonly AsyncLocal<long?> __findOperationLimit = new AsyncLocal<long?>();
         private static readonly AsyncLocal<CollectionNamespace> __killCursorsCollectionNamespace = new AsyncLocal<CollectionNamespace>();
         private static readonly AsyncLocal<long?> __operationId = new AsyncLocal<long?>();
 
@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Core.Events
             }
         }
 
-        public static int? FindOperationLimit
+        public static long? FindOperationLimit
         {
             get
             {
@@ -80,7 +80,7 @@ namespace MongoDB.Driver.Core.Events
             }
         }
 
-        public static IDisposable BeginFind(int? batchSize, int? limit)
+        public static IDisposable BeginFind(int? batchSize, long? limit)
         {
             return FindOperationBatchSize == null ?
                 (IDisposable)new FindOperationDisposer(batchSize, limit) :
@@ -118,7 +118,7 @@ namespace MongoDB.Driver.Core.Events
 
         private sealed class FindOperationDisposer : IDisposable
         {
-            public FindOperationDisposer(int? batchSize, int? limit)
+            public FindOperationDisposer(int? batchSize, long? limit)
             {
                 EventContext.FindOperationBatchSize = batchSize;
                 EventContext.FindOperationLimit = limit;

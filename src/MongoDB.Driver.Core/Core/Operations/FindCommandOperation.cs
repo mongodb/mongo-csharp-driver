@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Core.Operations
         private BsonDocument _filter;
         private int? _firstBatchSize;
         private BsonValue _hint;
-        private int? _limit;
+        private long? _limit;
         private BsonDocument _max;
         private TimeSpan? _maxAwaitTime;
         private int? _maxScan;
@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Core.Operations
         private bool? _returnKey;
         private bool? _showRecordId;
         private bool? _singleBatch;
-        private int? _skip;
+        private long? _skip;
         private bool? _snapshot;
         private BsonDocument _sort;
 
@@ -205,7 +205,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <value>
         /// The limit.
         /// </value>
-        public int? Limit
+        public long? Limit
         {
             get { return _limit; }
             set { _limit = value; }
@@ -383,7 +383,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <value>
         /// The number of documents skip.
         /// </value>
-        public int? Skip
+        public long? Skip
         {
             get { return _skip; }
             set { _skip = Ensure.IsNullOrGreaterThanOrEqualToZero(value, nameof(value)); }

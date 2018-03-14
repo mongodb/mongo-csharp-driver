@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         private readonly bool _partialOk;
         private readonly BsonDocument _query;
         private readonly IElementNameValidator _queryValidator;
-        private readonly int _skip;
+        private readonly long _skip;
         private readonly bool _slaveOk;
         private readonly bool _tailableCursor;
 
@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             BsonDocument query,
             BsonDocument fields,
             IElementNameValidator queryValidator,
-            int skip,
+            long skip,
             int batchSize,
             bool slaveOk,
             bool partialOk,
@@ -175,7 +175,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <summary>
         /// Gets the number of documents to skip.
         /// </summary>
-        public int Skip
+        public long Skip
         {
             get { return _skip; }
         }

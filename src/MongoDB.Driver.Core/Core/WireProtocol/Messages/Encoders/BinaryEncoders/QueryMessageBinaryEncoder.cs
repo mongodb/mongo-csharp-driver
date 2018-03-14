@@ -92,7 +92,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             stream.ReadInt32(); // opcode
             var flags = (QueryFlags)stream.ReadInt32();
             var fullCollectionName = stream.ReadCString(Encoding);
-            var skip = stream.ReadInt32();
+            var skip = stream.ReadInt64();
             var batchSize = stream.ReadInt32();
             var context = BsonDeserializationContext.CreateRoot(binaryReader);
             var query = serializer.Deserialize(context);
@@ -143,7 +143,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             stream.WriteInt32((int)Opcode.Query);
             stream.WriteInt32((int)BuildQueryFlags(message));
             stream.WriteCString(message.CollectionNamespace.FullName);
-            stream.WriteInt32(message.Skip);
+            stream.WriteInt64(message.Skip);
             stream.WriteInt32(message.BatchSize);
             WriteQuery(binaryWriter, message.Query, message.QueryValidator);
             WriteOptionalFields(binaryWriter, message.Fields);

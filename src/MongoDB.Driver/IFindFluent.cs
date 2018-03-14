@@ -67,7 +67,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="limit">The limit.</param>
         /// <returns>The fluent find interface.</returns>
-        IFindFluent<TDocument, TProjection> Limit(int? limit);
+        IFindFluent<TDocument, TProjection> Limit(long? limit);
 
         /// <summary>
         /// Projects the the result.
@@ -82,7 +82,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="skip">The skip.</param>
         /// <returns>The fluent find interface.</returns>
-        IFindFluent<TDocument, TProjection> Skip(int? skip);
+        IFindFluent<TDocument, TProjection> Skip(long? skip);
 
         /// <summary>
         /// Sorts the the documents.

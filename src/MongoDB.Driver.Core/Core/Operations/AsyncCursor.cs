@@ -48,12 +48,12 @@ namespace MongoDB.Driver.Core.Operations
         private readonly int? _batchSize;
         private readonly CollectionNamespace _collectionNamespace;
         private readonly IChannelSource _channelSource;
-        private int _count;
+        private long _count;
         private IReadOnlyList<TDocument> _currentBatch;
         private long _cursorId;
         private bool _disposed;
         private IReadOnlyList<TDocument> _firstBatch;
-        private readonly int? _limit;
+        private readonly long? _limit;
         private readonly TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly long? _operationId;
@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Core.Operations
             IReadOnlyList<TDocument> firstBatch,
             long cursorId,
             int? batchSize,
-            int? limit,
+            long? limit,
             IBsonSerializer<TDocument> serializer,
             MessageEncoderSettings messageEncoderSettings,
             TimeSpan? maxTime = null)
@@ -100,7 +100,7 @@ namespace MongoDB.Driver.Core.Operations
 
             if (_limit > 0 && _firstBatch.Count > _limit)
             {
-                _firstBatch = _firstBatch.Take(_limit.Value).ToList();
+                _firstBatch = _firstBatch.Take((int)_limit.Value).ToList();
             }
             _count = _firstBatch.Count;
 
@@ -126,13 +126,13 @@ namespace MongoDB.Driver.Core.Operations
         // methods
         private int CalculateGetMoreProtocolNumberToReturn()
         {
-            var numberToReturn = _batchSize ?? 0;
+            int numberToReturn = _batchSize ?? 0;
             if (_limit > 0)
             {
                 var remaining = _limit.Value - _count;
                 if (numberToReturn == 0 || numberToReturn > remaining)
                 {
-                    numberToReturn = remaining;
+                    numberToReturn = (int)remaining;
                 }
             }
             return numberToReturn;
@@ -366,8 +366,8 @@ namespace MongoDB.Driver.Core.Operations
             if (_limit > 0 && _count > _limit.Value)
             {
                 var remove = _count - _limit.Value;
-                var take = documents.Count - remove;
-                documents = documents.Take(take).ToList();
+                var take = documents.Count - remove; // cannot get greater than int.MaxValue
+                documents = documents.Take((int)take).ToList();
                 _count = _limit.Value;
             }
 

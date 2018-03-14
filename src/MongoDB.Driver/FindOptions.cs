@@ -151,16 +151,16 @@ namespace MongoDB.Driver
     public class FindOptions<TDocument, TProjection> : FindOptionsBase
     {
         // fields
-        private int? _limit;
+        private long? _limit;
         private ProjectionDefinition<TDocument, TProjection> _projection;
-        private int? _skip;
+        private long? _skip;
         private SortDefinition<TDocument> _sort;
 
         // properties
         /// <summary>
         /// Gets or sets how many documents to return.
         /// </summary>
-        public int? Limit
+        public long? Limit
         {
             get { return _limit; }
             set { _limit = value; }
@@ -178,7 +178,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets how many documents to skip before returning the rest.
         /// </summary>
-        public int? Skip
+        public long? Skip
         {
             get { return _skip; }
             set { _skip = value; }

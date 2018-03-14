@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         private readonly BsonDocument _query;
         private readonly IElementNameValidator _queryValidator;
         private readonly IBsonSerializer<TDocument> _serializer;
-        private readonly int _skip;
+        private readonly long _skip;
         private readonly bool _slaveOk;
         private readonly bool _tailableCursor;
 
@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             BsonDocument query,
             BsonDocument fields,
             IElementNameValidator queryValidator,
-            int skip,
+            long skip,
             int batchSize,
             bool slaveOk,
             bool partialOk,
