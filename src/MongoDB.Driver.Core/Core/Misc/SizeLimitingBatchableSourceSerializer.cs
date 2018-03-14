@@ -52,8 +52,8 @@ namespace MongoDB.Driver.Core.Misc
             _itemSerializer = Ensure.IsNotNull(itemSerializer, nameof(itemSerializer));
             _itemElementNameValidator = Ensure.IsNotNull(itemElementNameValidator, nameof(itemElementNameValidator));
             _maxBatchCount = Ensure.IsGreaterThanZero(maxBatchCount, nameof(maxBatchCount));
-            _maxItemSize = Ensure.IsBetween(maxItemSize, 1, int.MaxValue, nameof(maxItemSize));
-            _maxBatchSize = Ensure.IsBetween(maxBatchSize, maxItemSize, int.MaxValue, nameof(maxBatchSize));
+            _maxItemSize = Ensure.IsGreaterThanZero(maxItemSize, nameof(maxItemSize));
+            _maxBatchSize = Ensure.IsGreaterThanZero(maxBatchSize, nameof(maxBatchSize));
         }
 
         // public methods
@@ -88,19 +88,23 @@ namespace MongoDB.Driver.Core.Misc
                     var item = value.Items[value.Offset + i];
                     _itemSerializer.Serialize(context, args, item);
 
-                    var batchSize = binaryWriter?.Position - startPosition;
-                    if (batchSize > _maxBatchSize)
+                    // always process at least one item
+                    if (i > 0)
                     {
-                        if (i > 0 && value.CanBeSplit)
+                        var batchSize = binaryWriter?.Position - startPosition;
+                        if (batchSize > _maxBatchSize)
                         {
-                            binaryWriter.BaseStream.Position = itemPosition.Value; // remove the last item
-                            binaryWriter.BaseStream.SetLength(itemPosition.Value);
-                            value.SetProcessedCount(i);
-                            return;
-                        }
-                        else
-                        {
-                            throw new ArgumentException("Batch is too large.");
+                            if (value.CanBeSplit)
+                            {
+                                binaryWriter.BaseStream.Position = itemPosition.Value; // remove the last item
+                                binaryWriter.BaseStream.SetLength(itemPosition.Value);
+                                value.SetProcessedCount(i);
+                                return;
+                            }
+                            else
+                            {
+                                throw new ArgumentException("Batch is too large.");
+                            }
                         }
                     }
                 }
