@@ -185,12 +185,5 @@ namespace MongoDB.Driver.Core.Operations
 
             result.Should().BeSameAs(value);
         }
-
-        // helper methods
-        private void EnsureDatabaseExists()
-        {
-            var document = new BsonDocument();
-            Insert(document);
-        }
     }
 }

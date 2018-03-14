@@ -64,6 +64,12 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
+        protected void CreateCollection(CollectionNamespace collectionNamespace)
+        {
+            var operation = new CreateCollectionOperation(collectionNamespace, _messageEncoderSettings);
+            ExecuteOperation(operation);
+        }
+
         protected void Delete(BsonDocument filter)
         {
             var requests = new[] { new DeleteRequest(filter) };
@@ -90,7 +96,12 @@ namespace MongoDB.Driver.Core.Operations
 
         protected void DropCollection()
         {
-            var dropCollectionOperation = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings);
+            DropCollection(_collectionNamespace);
+        }
+
+        protected void DropCollection(CollectionNamespace collectionNamespace)
+        {
+            var dropCollectionOperation = new DropCollectionOperation(collectionNamespace, _messageEncoderSettings);
             ExecuteOperation(dropCollectionOperation);
         }
 
@@ -98,6 +109,19 @@ namespace MongoDB.Driver.Core.Operations
         {
             var dropCollectionOperation = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings);
             return ExecuteOperationAsync(dropCollectionOperation);
+        }
+
+        protected void EnsureDatabaseExists()
+        {
+            var collectionName = $"EnsureDatabaseExists-{_databaseNamespace.DatabaseName}";
+            var collectionNamespace = new CollectionNamespace(_databaseNamespace, collectionName);
+            var filter = new BsonDocument("_id", 1);
+            var update = new BsonDocument("$set", new BsonDocument("x", 1));
+            var operation = new FindOneAndUpdateOperation<BsonDocument>(collectionNamespace, filter, update, BsonDocumentSerializer.Instance, new MessageEncoderSettings())
+            {
+                IsUpsert = true
+            };
+            ExecuteOperation(operation);
         }
 
         protected TResult ExecuteOperation<TResult>(IReadOperation<TResult> operation)
