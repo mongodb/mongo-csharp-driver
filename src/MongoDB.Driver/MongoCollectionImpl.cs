@@ -41,6 +41,7 @@ namespace MongoDB.Driver
         private readonly IOperationExecutor _operationExecutor;
         private readonly IBsonSerializer<TDocument> _documentSerializer;
         private readonly MongoCollectionSettings _settings;
+        private readonly SemaphoreSlim _semaphoreSlim;
 
         // constructors
         public MongoCollectionImpl(IMongoDatabase database, CollectionNamespace collectionNamespace, MongoCollectionSettings settings, ICluster cluster, IOperationExecutor operationExecutor)
@@ -56,6 +57,8 @@ namespace MongoDB.Driver
             _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
             _operationExecutor = Ensure.IsNotNull(operationExecutor, nameof(operationExecutor));
             _documentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
+
+            _semaphoreSlim = new SemaphoreSlim(_cluster.Settings.MaxServerSelectionWaitQueueSize);
 
             _messageEncoderSettings = new MessageEncoderSettings
             {
@@ -1038,33 +1041,65 @@ namespace MongoDB.Driver
 
         private void UsingImplicitSession(Action<IClientSessionHandle> func, CancellationToken cancellationToken = default(CancellationToken))
         {
-            using (var session = _operationExecutor.StartImplicitSession(cancellationToken))
+            _semaphoreSlim.Wait(cancellationToken);
+            try
             {
-                func(session);
+                using (var session = _operationExecutor.StartImplicitSession(cancellationToken))
+                {
+                    func(session);
+                }
+            }
+            finally
+            {
+                _semaphoreSlim.Release();
             }
         }
 
         private TResult UsingImplicitSession<TResult>(Func<IClientSessionHandle, TResult> func, CancellationToken cancellationToken = default(CancellationToken))
         {
-            using (var session = _operationExecutor.StartImplicitSession(cancellationToken))
+            _semaphoreSlim.Wait(cancellationToken);
+            try
             {
-                return func(session);
+                using (var session = _operationExecutor.StartImplicitSession(cancellationToken))
+                {
+                    return func(session);
+                }
+            }
+            finally
+            {
+                _semaphoreSlim.Release();
             }
         }
 
         private async Task UsingImplicitSessionAsync(Func<IClientSessionHandle, Task> funcAsync, CancellationToken cancellationToken = default(CancellationToken))
         {
-            using (var session = await _operationExecutor.StartImplicitSessionAsync(cancellationToken).ConfigureAwait(false))
+            await _semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
+            try
             {
-                await funcAsync(session).ConfigureAwait(false);
+                using (var session = await _operationExecutor.StartImplicitSessionAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    await funcAsync(session).ConfigureAwait(false);
+                }
+            }
+            finally
+            {
+                _semaphoreSlim.Release();
             }
         }
 
         private async Task<TResult> UsingImplicitSessionAsync<TResult>(Func<IClientSessionHandle, Task<TResult>> funcAsync, CancellationToken cancellationToken = default(CancellationToken))
         {
-            using (var session = await _operationExecutor.StartImplicitSessionAsync(cancellationToken).ConfigureAwait(false))
+            await _semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
+            try
             {
-                return await funcAsync(session).ConfigureAwait(false);
+                using (var session = await _operationExecutor.StartImplicitSessionAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    return await funcAsync(session).ConfigureAwait(false);
+                }
+            }
+            finally
+            {
+                _semaphoreSlim.Release();
             }
         }
 
