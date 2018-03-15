@@ -131,6 +131,16 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $project: { '__fld0': '$__agg0', '_id': 0 } }");
         }
 
+
+        [Fact]
+        public void SequenceEqual()
+        {
+            var query = CreateQuery()
+                .Where(x => x.M.SequenceEqual(new List<int> { 42, 1337, 420 }));
+
+            Assert(query, 0, "{ $match: { 'M': { '$eq': [42, 1337, 420] } } }");
+        }
+
         [Fact]
         public void Count()
         {
