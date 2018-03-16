@@ -17,6 +17,7 @@ using System;
 using System.Reflection;
 using System.Threading;
 using FluentAssertions;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
@@ -155,10 +156,8 @@ namespace MongoDB.Driver.Core.Bindings
 
     internal static class ChannelSourceHandleReflector
     {
-        public static ReferenceCounted<IChannelSource> _reference(this ChannelSourceHandle obj)
-        {
-            var fieldInfo = typeof(ChannelSourceHandle).GetField("_reference", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (ReferenceCounted<IChannelSource>)fieldInfo.GetValue(obj);
-        }
+        // private fields
+        public static bool _disposed(this ChannelSourceHandle obj) => (bool)Reflector.GetFieldValue(obj, nameof(_disposed));
+        public static ReferenceCounted<IChannelSource> _reference(this ChannelSourceHandle obj) => (ReferenceCounted<IChannelSource>)Reflector.GetFieldValue(obj, nameof(_reference));
     }
 }

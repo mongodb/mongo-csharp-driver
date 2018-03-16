@@ -87,6 +87,7 @@
     <Compile Include="EqualityComparers\ReferenceEqualsEqualityComparer.cs" />
     <Compile Include="IO\NullBsonStream.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Reflector.cs" />
     <Compile Include="UnicodeHelper.cs" />
     <Compile Include="XunitExtensions\AssertionException.cs" />
     <Compile Include="XunitExtensions\RequireEnvironment.cs" />

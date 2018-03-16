@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Threading;
@@ -24,11 +25,14 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using Moq;
@@ -76,20 +80,19 @@ namespace MongoDB.Driver.Core.Operations
                 messageEncoderSettings,
                 maxTime);
 
-            var reflector = new Reflector(result);
-            reflector.BatchSize.Should().Be(batchSize);
-            reflector.ChannelSource.Should().Be(channelSource);
-            reflector.CollectionNamespace.Should().Be(collectionNamespace);
-            reflector.Count.Should().Be(firstBatch.Length);
-            reflector.CurrentBatch.Should().BeNull();
-            reflector.CursorId.Should().Be(cursorId);
-            reflector.Disposed.Should().BeFalse();
-            reflector.FirstBatch.Should().Equal(firstBatch);
-            reflector.Limit.Should().Be(limit);
-            reflector.MaxTime.Should().Be(maxTime);
-            reflector.MessageEncoderSettings.Should().BeEquivalentTo(messageEncoderSettings);
-            reflector.Query.Should().Be(query);
-            reflector.Serializer.Should().Be(serializer);
+            result._batchSize().Should().Be(batchSize);
+            result._channelSource().Should().Be(channelSource);
+            result._collectionNamespace().Should().Be(collectionNamespace);
+            result._count().Should().Be(firstBatch.Length);
+            result._currentBatch().Should().BeNull();
+            result._cursorId().Should().Be(cursorId);
+            result._disposed().Should().BeFalse();
+            result._firstBatch().Should().Equal(firstBatch);
+            result._limit().Should().Be(limit);
+            result._maxTime().Should().Be(maxTime);
+            result._messageEncoderSettings().Should().BeEquivalentTo(messageEncoderSettings);
+            result._query().Should().Be(query);
+            result._serializer().Should().Be(serializer);
         }
 
         [Theory]
@@ -150,9 +153,8 @@ namespace MongoDB.Driver.Core.Operations
         public void CreateGetMoreCommand_should_return_expected_result()
         {
             var subject = CreateSubject();
-            var reflector = new Reflector(subject);
 
-            var result = reflector.CreateGetMoreCommand();
+            var result = subject.CreateGetMoreCommand();
 
             result.Should().Be("{ getMore : 0, collection : \"test\" }");
         }
@@ -161,9 +163,8 @@ namespace MongoDB.Driver.Core.Operations
         public void CreateGetMoreCommand_should_return_expected_result_when_batchSize_is_provided()
         {
             var subject = CreateSubject(batchSize: 2);
-            var reflector = new Reflector(subject);
 
-            var result = reflector.CreateGetMoreCommand();
+            var result = subject.CreateGetMoreCommand();
 
             result.Should().Be("{ getMore : 0, collection : \"test\", batchSize : 2 }");
         }
@@ -172,9 +173,8 @@ namespace MongoDB.Driver.Core.Operations
         public void CreateGetMoreCommand_should_return_expected_result_when_maxTime_is_provided()
         {
             var subject = CreateSubject(maxTime: TimeSpan.FromSeconds(2));
-            var reflector = new Reflector(subject);
 
-            var result = reflector.CreateGetMoreCommand();
+            var result = subject.CreateGetMoreCommand();
 
             result.Should().Be("{ getMore : 0, collection : \"test\", maxTimeMS : 2000 }");
         }
@@ -313,143 +313,132 @@ namespace MongoDB.Driver.Core.Operations
                 new MessageEncoderSettings(),
                 maxTime.WithDefault(null));
         }
+    }
 
-        // nested types
-        private class Reflector
+    public class AsyncCursorIntegrationTests : OperationTestBase
+    {
+        [Theory]
+        [InlineData(0, 1000)]
+        [InlineData(2, 2)]
+        [InlineData(2, 1000)]
+        [InlineData(4, 2)]
+        [InlineData(4, 4)]
+        [InlineData(4, 1000)]
+        public void Session_reference_count_should_be_decremented_as_soon_as_possible(int collectionSize, int batchSize)
         {
-            // private fields
-            private AsyncCursor<BsonDocument> _instance;
+            RequireServer.Check();
+            DropCollection();
+            var documents = Enumerable.Range(1, collectionSize).Select(n => new BsonDocument("_id", n));
+            Insert(documents);
 
-            // constructors
-            public Reflector(AsyncCursor<BsonDocument> instance)
+            var cancellationToken = CancellationToken.None;
+            using (var binding = new ReadPreferenceBinding(CoreTestConfiguration.Cluster, ReadPreference.Primary, _session.Fork()))
+            using (var channelSource = (ChannelSourceHandle)binding.GetReadChannelSource(cancellationToken))
+            using (var channel = channelSource.GetChannel(cancellationToken))
             {
-                _instance = instance;
-            }
+                var query = new BsonDocument();
+                long cursorId;
+                var firstBatch = GetFirstBatch(channel, query, batchSize, cancellationToken, out cursorId);
 
-            // public properties
-            public int? BatchSize
-            {
-                get
+                using (var cursor = new AsyncCursor<BsonDocument>(channelSource, _collectionNamespace, query, firstBatch, cursorId, batchSize, null, BsonDocumentSerializer.Instance, new MessageEncoderSettings()))
                 {
-                    var fieldInfo = _instance.GetType().GetField("_batchSize", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (int?)fieldInfo.GetValue(_instance);
+                    AssertExpectedChannelSourceDisposedValue(channelSource, cursor);
+                    while (cursor.MoveNext(cancellationToken))
+                    {
+                        AssertExpectedChannelSourceDisposedValue(channelSource, cursor);
+                    }
+                    AssertExpectedChannelSourceDisposedValue(channelSource, cursor);
                 }
-            }
-
-            public IChannelSource ChannelSource
-            {
-                get
-                {
-                    var fieldInfo = _instance.GetType().GetField("_channelSource", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (IChannelSource)fieldInfo.GetValue(_instance);
-                }
-            }
-
-            public CollectionNamespace CollectionNamespace
-            {
-                get
-                {
-                    var fieldInfo = _instance.GetType().GetField("_collectionNamespace", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (CollectionNamespace)fieldInfo.GetValue(_instance);
-                }
-            }
-
-            public int Count
-            {
-                get
-                {
-                    var fieldInfo = _instance.GetType().GetField("_count", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (int)fieldInfo.GetValue(_instance);
-                }
-            }
-
-            public IReadOnlyList<BsonDocument> CurrentBatch
-            {
-                get
-                {
-                    var fieldInfo = _instance.GetType().GetField("_currentBatch", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (IReadOnlyList<BsonDocument>)fieldInfo.GetValue(_instance);
-                }
-            }
-
-            public long CursorId
-            {
-                get
-                {
-                    var fieldInfo = _instance.GetType().GetField("_cursorId", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (long)fieldInfo.GetValue(_instance);
-                }
-            }
-
-            public bool Disposed
-            {
-                get
-                {
-                    var fieldInfo = _instance.GetType().GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (bool)fieldInfo.GetValue(_instance);
-                }
-            }
-
-            public IReadOnlyList<BsonDocument> FirstBatch
-            {
-                get
-                {
-                    var fieldInfo = _instance.GetType().GetField("_firstBatch", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (IReadOnlyList<BsonDocument>)fieldInfo.GetValue(_instance);
-                }
-            }
-
-            public int Limit
-            {
-                get
-                {
-                    var fieldInfo = _instance.GetType().GetField("_limit", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (int)fieldInfo.GetValue(_instance);
-                }
-            }
-
-            public TimeSpan? MaxTime
-            {
-                get
-                {
-                    var fieldInfo = _instance.GetType().GetField("_maxTime", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (TimeSpan?)fieldInfo.GetValue(_instance);
-                }
-            }
-
-            public MessageEncoderSettings MessageEncoderSettings
-            {
-                get
-                {
-                    var fieldInfo = _instance.GetType().GetField("_messageEncoderSettings", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (MessageEncoderSettings)fieldInfo.GetValue(_instance);
-                }
-            }
-
-            public BsonDocument Query
-            {
-                get
-                {
-                    var fieldInfo = _instance.GetType().GetField("_query", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (BsonDocument)fieldInfo.GetValue(_instance);
-                }
-            }
-
-            public IBsonSerializer<BsonDocument> Serializer
-            {
-                get
-                {
-                    var fieldInfo = _instance.GetType().GetField("_serializer", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (IBsonSerializer<BsonDocument>)fieldInfo.GetValue(_instance);
-                }
-            }
-
-            // public methods
-            public BsonDocument CreateGetMoreCommand()
-            {
-                var methodInfo = _instance.GetType().GetMethod("CreateGetMoreCommand", BindingFlags.NonPublic | BindingFlags.Instance);
-                return (BsonDocument)methodInfo.Invoke(_instance, new object[0]);
             }
         }
+
+        // private methods
+        private void AssertExpectedChannelSourceDisposedValue(ChannelSourceHandle channelSource, AsyncCursor<BsonDocument> cursor)
+        {
+            var expectedDisposed = cursor._cursorId() == 0;
+            channelSource._disposed().Should().Be(expectedDisposed);
+        }
+
+        private IReadOnlyList<BsonDocument> GetFirstBatch(IChannelHandle channel, BsonDocument query, int batchSize, CancellationToken cancellationToken, out long cursorId)
+        {
+            if (Feature.FindCommand.IsSupported(channel.ConnectionDescription.ServerVersion))
+            {
+                return GetFirstBatchUsingFindCommand(channel, query, batchSize, cancellationToken, out cursorId);
+            }
+            else
+            {
+                return GetFirstBatchUsingQueryMessage(channel, query, batchSize, cancellationToken, out cursorId);
+            }
+        }
+
+        private IReadOnlyList<BsonDocument> GetFirstBatchUsingFindCommand(IChannelHandle channel, BsonDocument query, int batchSize, CancellationToken cancellationToken, out long cursorId)
+        {
+            var command = new BsonDocument
+            {
+                { "find", _collectionNamespace.CollectionName },
+                { "filter", query },
+                { "batchSize", batchSize }
+            };
+            var result = channel.Command<BsonDocument>(
+                _session,
+                ReadPreference.Primary,
+                _databaseNamespace,
+                command,
+                NoOpElementNameValidator.Instance,
+                null, // additionalOptions
+                () => CommandResponseHandling.Return,
+                false, // slaveOk
+                BsonDocumentSerializer.Instance,
+                _messageEncoderSettings,
+                cancellationToken);
+            var cursor = result["cursor"].AsBsonDocument;
+            var firstBatch = cursor["firstBatch"].AsBsonArray.Select(i => i.AsBsonDocument).ToList();
+            cursorId = cursor["id"].ToInt64();
+            return firstBatch;
+        }
+
+        private IReadOnlyList<BsonDocument> GetFirstBatchUsingQueryMessage(IChannelHandle channel, BsonDocument query, int batchSize, CancellationToken cancellationToken, out long cursorId)
+        {
+            var result = channel.Query(
+                _collectionNamespace,
+                query,
+                null, // fields
+                NoOpElementNameValidator.Instance,
+                0, // skip
+                batchSize,
+                false, // slaveOk
+                false, // partialOk
+                false, // noCursorTimeout
+                false, // oplogReplay
+                false, // tailableCursor
+                false, // awaitData
+                BsonDocumentSerializer.Instance,
+                _messageEncoderSettings,
+                cancellationToken);
+
+            cursorId = result.CursorId;
+            return result.Documents;
+        }
+    }
+
+    public static class AsyncCursorReflector
+    {
+        // private fields
+        public static int? _batchSize(this AsyncCursor<BsonDocument> obj) => (int?)Reflector.GetFieldValue(obj, nameof(_batchSize));
+        public static IChannelSource _channelSource(this AsyncCursor<BsonDocument> obj) => (IChannelSource)Reflector.GetFieldValue(obj, nameof(_channelSource));
+        public static CollectionNamespace _collectionNamespace(this AsyncCursor<BsonDocument> obj) => (CollectionNamespace)Reflector.GetFieldValue(obj, nameof(_collectionNamespace));
+        public static int _count(this AsyncCursor<BsonDocument> obj) => (int)Reflector.GetFieldValue(obj, nameof(_count));
+        public static IReadOnlyList<BsonDocument> _currentBatch(this AsyncCursor<BsonDocument> obj) => (IReadOnlyList < BsonDocument > )Reflector.GetFieldValue(obj, nameof(_currentBatch));
+        public static long _cursorId(this AsyncCursor<BsonDocument> obj) => (long)Reflector.GetFieldValue(obj, nameof(_cursorId));
+        public static bool _disposed(this AsyncCursor<BsonDocument> obj) => (bool)Reflector.GetFieldValue(obj, nameof(_disposed));
+        public static IReadOnlyList<BsonDocument> _firstBatch(this AsyncCursor<BsonDocument> obj) => (IReadOnlyList < BsonDocument > )Reflector.GetFieldValue(obj, nameof(_firstBatch));
+        public static int _limit(this AsyncCursor<BsonDocument> obj) => (int)Reflector.GetFieldValue(obj, nameof(_limit));
+        public static TimeSpan? _maxTime(this AsyncCursor<BsonDocument> obj) => (TimeSpan?)Reflector.GetFieldValue(obj, nameof(_maxTime));
+        public static MessageEncoderSettings _messageEncoderSettings(this AsyncCursor<BsonDocument> obj) => (MessageEncoderSettings)Reflector.GetFieldValue(obj, nameof(_messageEncoderSettings));
+        public static BsonDocument _query(this AsyncCursor<BsonDocument> obj) => (BsonDocument)Reflector.GetFieldValue(obj, nameof(_query));
+        public static IBsonSerializer<BsonDocument> _serializer(this AsyncCursor<BsonDocument> obj) => (IBsonSerializer < BsonDocument > )Reflector.GetFieldValue(obj, nameof(_serializer));
+
+        // private methods
+        public static BsonDocument CreateGetMoreCommand(this AsyncCursor<BsonDocument> obj) => (BsonDocument)Reflector.Invoke(obj, nameof(CreateGetMoreCommand));
     }
 }
