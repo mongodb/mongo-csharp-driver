@@ -1,6 +1,6 @@
 #addin "nuget:?package=Cake.FileHelpers"
 #addin "nuget:?package=Cake.Git"
-#addin "nuget:?package=Cake.Incubator"
+#addin "nuget:?package=Cake.Incubator&version=2.0.0"
 #tool "nuget:?package=GitVersion.CommandLine"
 #tool "nuget:?package=xunit.runner.console"
 #load buildhelpers.cake
