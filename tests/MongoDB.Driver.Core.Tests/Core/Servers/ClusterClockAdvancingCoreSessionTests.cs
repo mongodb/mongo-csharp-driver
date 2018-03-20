@@ -62,6 +62,25 @@ namespace MongoDB.Driver.Core.Servers
             e.ParamName.Should().Be("clusterClock");
         }
 
+        [Theory]
+        [InlineData(1, 2, 2)]
+        [InlineData(2, 1, 2)]
+        public void ClusterTime_should_return_the_greater_of_the_session_and_cluster_cluster_times(long sessionTimestamp, long clusterTimestamp, long expectedTimestamp)
+        {
+            var sessionClusterTime = new BsonDocument("clusterTime", new BsonTimestamp(sessionTimestamp));
+            var clusterClusterTime = new BsonDocument("clusterTime", new BsonTimestamp(clusterTimestamp));
+            var expectedResult = new BsonDocument("clusterTime", new BsonTimestamp(expectedTimestamp));
+            var mockSession = new Mock<ICoreSession>();
+            mockSession.SetupGet(m => m.ClusterTime).Returns(sessionClusterTime);
+            var mockClusterClock = new Mock<IClusterClock>();
+            mockClusterClock.SetupGet(m => m.ClusterTime).Returns(clusterClusterTime);
+            var subject = new ClusterClockAdvancingCoreSession(mockSession.Object, mockClusterClock.Object);
+
+            var result = subject.ClusterTime;
+
+            result.Should().Be(expectedResult);
+        }
+
         [Fact]
         public void AdvanceClusterTime_should_advance_both_cluster_clocks()
         {

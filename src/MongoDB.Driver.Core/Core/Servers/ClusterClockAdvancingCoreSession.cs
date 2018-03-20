@@ -30,6 +30,8 @@ namespace MongoDB.Driver.Core.Servers
             _clusterClock = Ensure.IsNotNull(clusterClock, nameof(clusterClock));
         }
 
+        public override BsonDocument ClusterTime => ClusterClock.GreaterClusterTime(base.ClusterTime, _clusterClock.ClusterTime);
+
         public override void AdvanceClusterTime(BsonDocument newClusterTime)
         {
             base.AdvanceClusterTime(newClusterTime);

@@ -18,13 +18,20 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using MongoDB.Bson;
+using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.WireProtocol;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using Moq;
 using Xunit;
 
@@ -244,6 +251,95 @@ namespace MongoDB.Driver.Core.Servers
             _mockServerMonitor.Raise(m => m.DescriptionChanged += null, new ServerDescriptionChangedEventArgs(description, description));
 
             _mockConnectionPool.Verify(p => p.Clear(), Times.Once);
+        }
+    }
+
+    public class ServerChannelTests
+    {
+        [SkippableTheory]
+        [InlineData(1, 2, 2)]
+        [InlineData(2, 1, 2)]
+        public void Command_should_send_the_greater_of_the_session_and_cluster_cluster_times(long sessionTimestamp, long clusterTimestamp, long expectedTimestamp)
+        {
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.6").ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded);
+            var sessionClusterTime = new BsonDocument("clusterTime", new BsonTimestamp(sessionTimestamp));
+            var clusterClusterTime = new BsonDocument("clusterTime", new BsonTimestamp(clusterTimestamp));
+            var expectedClusterTime = new BsonDocument("clusterTime", new BsonTimestamp(expectedTimestamp));
+
+            var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "ping");
+            using (var cluster = CoreTestConfiguration.CreateCluster(b => b.Subscribe(eventCapturer)))
+            using (var session = cluster.StartSession())
+            {
+                var cancellationToken = CancellationToken.None;
+                var server = (Server)cluster.SelectServer(WritableServerSelector.Instance, cancellationToken);
+                using (var channel = server.GetChannel(cancellationToken))
+                {
+                    session.AdvanceClusterTime(sessionClusterTime);
+                    server.ClusterClock.AdvanceClusterTime(clusterClusterTime);
+
+                    var command = BsonDocument.Parse("{ ping : 1 }");
+                    try
+                    {
+                        channel.Command<BsonDocument>(
+                            session,
+                            ReadPreference.Primary,
+                            DatabaseNamespace.Admin,
+                            command,
+                            NoOpElementNameValidator.Instance,
+                            null, // additionalOptions
+                            () => CommandResponseHandling.Return,
+                            BsonDocumentSerializer.Instance,
+                            new MessageEncoderSettings(),
+                            cancellationToken);
+                    }
+                    catch (MongoCommandException ex)
+                    {
+                        // we're expecting the command to fail because the $clusterTime we sent is not properly signed
+                        // the point of this test is just to assert that the driver sent the higher of the session and cluster clusterTimes
+                        ex.Message.Should().Contain("Missing expected field \"signature\"");
+                    }
+                }
+            }
+
+            var commandStartedEvent = eventCapturer.Next().Should().BeOfType<CommandStartedEvent>().Subject;
+            var actualCommand = commandStartedEvent.Command;
+            var actualClusterTime = actualCommand["$clusterTime"].AsBsonDocument;
+            actualClusterTime.Should().Be(expectedClusterTime);
+        }
+
+        [SkippableFact]
+        public void Command_should_update_the_session_and_cluster_cluster_times()
+        {
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.6").ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded);
+
+            var eventCapturer = new EventCapturer().Capture<CommandSucceededEvent>(e => e.CommandName == "ping");
+            using (var cluster = CoreTestConfiguration.CreateCluster(b => b.Subscribe(eventCapturer)))
+            using (var session = cluster.StartSession())
+            {
+                var cancellationToken = CancellationToken.None;
+                var server = (Server)cluster.SelectServer(WritableServerSelector.Instance, cancellationToken);
+                using (var channel = server.GetChannel(cancellationToken))
+                {
+                    var command = BsonDocument.Parse("{ ping : 1 }");
+                    channel.Command<BsonDocument>(
+                        session,
+                        ReadPreference.Primary,
+                        DatabaseNamespace.Admin,
+                        command,
+                        NoOpElementNameValidator.Instance,
+                        null, // additionalOptions
+                        () => CommandResponseHandling.Return,
+                        BsonDocumentSerializer.Instance,
+                        new MessageEncoderSettings(),
+                        cancellationToken);
+                }
+
+                var commandSucceededEvent = eventCapturer.Next().Should().BeOfType<CommandSucceededEvent>().Subject;
+                var actualReply = commandSucceededEvent.Reply;
+                var actualClusterTime = actualReply["$clusterTime"].AsBsonDocument;
+                session.ClusterTime.Should().Be(actualClusterTime);
+                server.ClusterClock.ClusterTime.Should().Be(actualClusterTime);
+            }
         }
     }
 }
