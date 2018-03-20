@@ -13,60 +13,89 @@
 * limitations under the License.
 */
 
-using MongoDB.Driver.Core.Misc;
+using MongoDB.Bson;
+using MongoDB.Driver.Core.Bindings;
 
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// A client session handle
+    /// A client session handle.
     /// </summary>
     /// <seealso cref="MongoDB.Driver.IClientSessionHandle" />
-    internal sealed class ClientSessionHandle : WrappingClientSession, IClientSessionHandle
+    internal sealed class ClientSessionHandle : IClientSessionHandle
     {
         // private fields
-        private readonly ReferenceCountedClientSession _wrapped;
+        private readonly IMongoClient _client;
+        private readonly ICoreSessionHandle _coreSession;
+        private bool _disposed;
+        private readonly ClientSessionOptions _options;
+        private readonly IServerSession _serverSession;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="ClientSessionHandle"/> class.
+        /// Initializes a new instance of the <see cref="ClientSessionHandle" /> class.
         /// </summary>
-        /// <param name="wrapped">The wrapped session.</param>
-        public ClientSessionHandle(IClientSession wrapped)
-            : this(new ReferenceCountedClientSession(Ensure.IsNotNull(wrapped, nameof(wrapped))))
+        /// <param name="client">The client.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="coreSession">The wrapped session.</param>
+        public ClientSessionHandle(IMongoClient client, ClientSessionOptions options, ICoreSessionHandle coreSession)
         {
+            _client = client;
+            _options = options;
+            _coreSession = coreSession;
+            _serverSession = new ServerSession(coreSession.ServerSession);
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ClientSessionHandle"/> class.
-        /// </summary>
-        /// <param name="wrapped">The wrapped session.</param>
-        public ClientSessionHandle(ReferenceCountedClientSession wrapped)
-            : base(Ensure.IsNotNull(wrapped, nameof(wrapped)), ownsWrapped: false)
-        {
-            _wrapped = wrapped;
-        }
+        // public properties
+        /// <inheritdoc />
+        public IMongoClient Client => _client;
+
+        /// <inheritdoc />
+        public BsonDocument ClusterTime => _coreSession.ClusterTime;
+
+        /// <inheritdoc />
+        public bool IsImplicit => _coreSession.IsImplicit;
+
+        /// <inheritdoc />
+        public BsonTimestamp OperationTime => _coreSession.OperationTime;
+
+        /// <inheritdoc />
+        public ClientSessionOptions Options => _options;
+
+        /// <inheritdoc />
+        public IServerSession ServerSession => _serverSession;
+
+        /// <inheritdoc />
+        public ICoreSessionHandle WrappedCoreSession => _coreSession;
 
         // public methods
         /// <inheritdoc />
-        public IClientSessionHandle Fork()
+        public void AdvanceClusterTime(BsonDocument newClusterTime)
         {
-            ThrowIfDisposed();
-            _wrapped.IncrementReferenceCount();
-            return new ClientSessionHandle(_wrapped);
+            _coreSession.AdvanceClusterTime(newClusterTime);
         }
 
-        // protected methods
         /// <inheritdoc />
-        protected override void Dispose(bool disposing)
+        public void AdvanceOperationTime(BsonTimestamp newOperationTime)
         {
-            if (disposing)
+            _coreSession.AdvanceOperationTime(newOperationTime);
+        }
+
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            if (!_disposed)
             {
-                if (!IsDisposed())
-                {
-                    _wrapped.DecrementReferenceCount();
-                }               
+                _coreSession.Dispose();
+                _serverSession.Dispose();
+                _disposed = true;
             }
-            base.Dispose(disposing);
+        }
+
+        /// <inheritdoc />
+        public IClientSessionHandle Fork()
+        {
+            return new ClientSessionHandle(_client, _options, _coreSession.Fork());
         }
     }
 }

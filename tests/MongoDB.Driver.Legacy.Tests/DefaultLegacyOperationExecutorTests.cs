@@ -16,6 +16,7 @@
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Operations;
 using Moq;
@@ -77,30 +78,31 @@ namespace MongoDB.Driver.Legacy.Tests
             mockOperation.Verify(m => m.ExecuteAsync(binding, cancellationToken), Times.Once);
         }
 
-        [Fact]
-        public void StartImplicitSession_should_return_expected_result()
+        [Theory]
+        [ParameterAttributeData]
+        public void StartImplicitSession_should_return_expected_result(
+            [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
             var cancellationToken = new CancellationTokenSource().Token;
 
-            var result = subject.StartImplicitSession(cancellationToken);
+            IClientSessionHandle result;
+            if (async)
+            {
+                result = subject.StartImplicitSession(cancellationToken);
+            }
+            else
+            {
+                result = subject.StartImplicitSessionAsync(cancellationToken).GetAwaiter().GetResult();
+            }
 
-            var handle = result.Should().BeOfType<ClientSessionHandle>().Subject;
-            var referenceCounted = handle.Wrapped.Should().BeOfType<ReferenceCountedClientSession>().Subject;
-            referenceCounted.Wrapped.Should().BeOfType<NoClientSession>();
-        }
+            result.Client.Should().BeNull();
+            result.Options.Should().BeNull();
+            result.WrappedCoreSession.Should().NotBeNull();
 
-        [Fact]
-        public void StartImplicitSessionAsync_should_return_expected_result()
-        {
-            var subject = CreateSubject();
-            var cancellationToken = new CancellationTokenSource().Token;
-
-            var result = subject.StartImplicitSessionAsync(cancellationToken).Result;
-
-            var handle = result.Should().BeOfType<ClientSessionHandle>().Subject;
-            var referenceCounted = handle.Wrapped.Should().BeOfType<ReferenceCountedClientSession>().Subject;
-            referenceCounted.Wrapped.Should().BeOfType<NoClientSession>();
+            var coreSessionHandle = result.WrappedCoreSession.Should().BeOfType<CoreSessionHandle>().Subject;
+            var referenceCountedCoreSession = coreSessionHandle.Wrapped.Should().BeOfType<ReferenceCountedCoreSession>().Subject;
+            referenceCountedCoreSession.Wrapped.Should().BeOfType<NoCoreSession>();
         }
 
         // private methods
@@ -110,4 +112,3 @@ namespace MongoDB.Driver.Legacy.Tests
         }
     }
 }
-

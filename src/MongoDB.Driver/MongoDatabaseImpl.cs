@@ -401,6 +401,18 @@ namespace MongoDB.Driver
             };
         }
 
+        private IReadBinding CreateReadBinding(IClientSessionHandle session, ReadPreference readPreference)
+        {
+            var binding = new ReadPreferenceBinding(_cluster, readPreference, session.WrappedCoreSession.Fork());
+            return new ReadBindingHandle(binding);
+        }
+
+        private IWriteBindingHandle CreateReadWriteBinding(IClientSessionHandle session)
+        {
+            var binding = new WritableServerBinding(_cluster, session.WrappedCoreSession.Fork());
+            return new ReadWriteBindingHandle(binding);
+        }
+
         private RenameCollectionOperation CreateRenameCollectionOperation(string oldName, string newName, RenameCollectionOptions options)
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
@@ -423,7 +435,7 @@ namespace MongoDB.Driver
 
         private T ExecuteReadOperation<T>(IClientSessionHandle session, IReadOperation<T> operation, ReadPreference readPreference, CancellationToken cancellationToken)
         {
-            using (var binding = new ReadPreferenceBinding(_cluster, readPreference, session.ToCoreSession()))
+            using (var binding = CreateReadBinding(session, readPreference))
             {
                 return _operationExecutor.ExecuteReadOperation(binding, operation, cancellationToken);
             }
@@ -431,7 +443,7 @@ namespace MongoDB.Driver
 
         private async Task<T> ExecuteReadOperationAsync<T>(IClientSessionHandle session, IReadOperation<T> operation, ReadPreference readPreference, CancellationToken cancellationToken)
         {
-            using (var binding = new ReadPreferenceBinding(_cluster, readPreference, session.ToCoreSession()))
+            using (var binding = CreateReadBinding(session, readPreference))
             {
                 return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, cancellationToken).ConfigureAwait(false);
             }
@@ -439,7 +451,7 @@ namespace MongoDB.Driver
 
         private T ExecuteWriteOperation<T>(IClientSessionHandle session, IWriteOperation<T> operation, CancellationToken cancellationToken)
         {
-            using (var binding = new WritableServerBinding(_cluster, session.ToCoreSession()))
+            using (var binding = CreateReadWriteBinding(session))
             {
                 return _operationExecutor.ExecuteWriteOperation(binding, operation, cancellationToken);
             }
@@ -447,7 +459,7 @@ namespace MongoDB.Driver
 
         private async Task<T> ExecuteWriteOperationAsync<T>(IClientSessionHandle session, IWriteOperation<T> operation, CancellationToken cancellationToken)
         {
-            using (var binding = new WritableServerBinding(_cluster, session.ToCoreSession()))
+            using (var binding = CreateReadWriteBinding(session))
             {
                 return await _operationExecutor.ExecuteWriteOperationAsync(binding, operation, cancellationToken).ConfigureAwait(false);
             }

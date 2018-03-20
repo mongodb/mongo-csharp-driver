@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
@@ -45,12 +46,13 @@ namespace MongoDB.Driver
 
         public IClientSessionHandle StartImplicitSession(CancellationToken cancellationToken)
         {
-            return new ClientSessionHandle(new NoClientSession());
+            var coreSession = NoCoreSession.NewHandle();
+            return new ClientSessionHandle(null, null, coreSession);
         }
 
         public Task<IClientSessionHandle> StartImplicitSessionAsync(CancellationToken cancellationToken)
         {
-            return Task.FromResult<IClientSessionHandle>(new ClientSessionHandle(new NoClientSession()));
+            return Task.FromResult(StartImplicitSession(cancellationToken));
         }
     }
 }

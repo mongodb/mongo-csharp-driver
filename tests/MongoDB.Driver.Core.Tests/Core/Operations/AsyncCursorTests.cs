@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -25,10 +24,12 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -328,21 +329,25 @@ namespace MongoDB.Driver.Core.Operations
             var documents = Enumerable.Range(1, collectionSize).Select(n => new BsonDocument("_id", n));
             Insert(documents);
 
-            var findOperation = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
-            {
-                BatchSize = batchSize
-            };
-
             _session.ReferenceCount().Should().Be(1);
-            using (var binding = new WritableServerBinding(_cluster, _session.Fork()))
-            using (var cursor = findOperation.Execute(binding, CancellationToken.None))
+            var cancellationToken = CancellationToken.None;
+            using (var binding = new ReadPreferenceBinding(CoreTestConfiguration.Cluster, ReadPreference.Primary, _session.Fork()))
+            using (var channelSource = (ChannelSourceHandle)binding.GetReadChannelSource(cancellationToken))
+            using (var channel = channelSource.GetChannel(cancellationToken))
             {
-                AssertExpectedSessionReferenceCount(_session, cursor);
-                while (cursor.MoveNext())
+                var query = new BsonDocument();
+                long cursorId;
+                var firstBatch = GetFirstBatch(channel, query, batchSize, cancellationToken, out cursorId);
+
+                using (var cursor = new AsyncCursor<BsonDocument>(channelSource, _collectionNamespace, query, firstBatch, cursorId, batchSize, null, BsonDocumentSerializer.Instance, new MessageEncoderSettings()))
                 {
                     AssertExpectedSessionReferenceCount(_session, cursor);
+                    while (cursor.MoveNext(cancellationToken))
+                    {
+                        AssertExpectedSessionReferenceCount(_session, cursor);
+                    }
+                    AssertExpectedSessionReferenceCount(_session, cursor);
                 }
-                AssertExpectedSessionReferenceCount(_session, cursor);
             }
             _session.ReferenceCount().Should().Be(1);
         }
@@ -355,92 +360,86 @@ namespace MongoDB.Driver.Core.Operations
             var expectedReferenceCount = cursorId == 0 ? 2 : 3; // one from the session, one from the binding, and maybe one from the cursor
             session.ReferenceCount().Should().Be(expectedReferenceCount);
         }
+
+        private IReadOnlyList<BsonDocument> GetFirstBatch(IChannelHandle channel, BsonDocument query, int batchSize, CancellationToken cancellationToken, out long cursorId)
+        {
+            if (Feature.FindCommand.IsSupported(channel.ConnectionDescription.ServerVersion))
+            {
+                return GetFirstBatchUsingFindCommand(channel, query, batchSize, cancellationToken, out cursorId);
+            }
+            else
+            {
+                return GetFirstBatchUsingQueryMessage(channel, query, batchSize, cancellationToken, out cursorId);
+            }
+        }
+
+        private IReadOnlyList<BsonDocument> GetFirstBatchUsingFindCommand(IChannelHandle channel, BsonDocument query, int batchSize, CancellationToken cancellationToken, out long cursorId)
+        {
+            var command = new BsonDocument
+            {
+                { "find", _collectionNamespace.CollectionName },
+                { "filter", query },
+                { "batchSize", batchSize }
+            };
+            var result = channel.Command<BsonDocument>(
+                _session,
+                ReadPreference.Primary,
+                _databaseNamespace,
+                command,
+                NoOpElementNameValidator.Instance,
+                null, // additionalOptions
+                () => CommandResponseHandling.Return,
+                BsonDocumentSerializer.Instance,
+                _messageEncoderSettings,
+                cancellationToken);
+            var cursor = result["cursor"].AsBsonDocument;
+            var firstBatch = cursor["firstBatch"].AsBsonArray.Select(i => i.AsBsonDocument).ToList();
+            cursorId = cursor["id"].ToInt64();
+            return firstBatch;
+        }
+
+        private IReadOnlyList<BsonDocument> GetFirstBatchUsingQueryMessage(IChannelHandle channel, BsonDocument query, int batchSize, CancellationToken cancellationToken, out long cursorId)
+        {
+            var result = channel.Query(
+                _collectionNamespace,
+                query,
+                null, // fields
+                NoOpElementNameValidator.Instance,
+                0, // skip
+                batchSize,
+                false, // slaveOk
+                false, // partialOk
+                false, // noCursorTimeout
+                false, // oplogReplay
+                false, // tailableCursor
+                false, // awaitData
+                BsonDocumentSerializer.Instance,
+                _messageEncoderSettings,
+                cancellationToken);
+
+            cursorId = result.CursorId;
+            return result.Documents;
+        }
     }
 
     public static class AsyncCursorReflector
     {
-        public static int? _batchSize(this AsyncCursor<BsonDocument> obj)
-        {
-            var fieldInfo = obj.GetType().GetField("_batchSize", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (int?)fieldInfo.GetValue(obj);
-        }
+        // private fields
+        public static int? _batchSize(this AsyncCursor<BsonDocument> obj) => (int?)Reflector.GetFieldValue(obj, nameof(_batchSize));
+        public static IChannelSource _channelSource(this AsyncCursor<BsonDocument> obj) => (IChannelSource)Reflector.GetFieldValue(obj, nameof(_channelSource));
+        public static CollectionNamespace _collectionNamespace(this AsyncCursor<BsonDocument> obj) => (CollectionNamespace)Reflector.GetFieldValue(obj, nameof(_collectionNamespace));
+        public static int _count(this AsyncCursor<BsonDocument> obj) => (int)Reflector.GetFieldValue(obj, nameof(_count));
+        public static IReadOnlyList<BsonDocument> _currentBatch(this AsyncCursor<BsonDocument> obj) => (IReadOnlyList<BsonDocument>)Reflector.GetFieldValue(obj, nameof(_currentBatch));
+        public static long _cursorId(this AsyncCursor<BsonDocument> obj) => (long)Reflector.GetFieldValue(obj, nameof(_cursorId));
+        public static bool _disposed(this AsyncCursor<BsonDocument> obj) => (bool)Reflector.GetFieldValue(obj, nameof(_disposed));
+        public static IReadOnlyList<BsonDocument> _firstBatch(this AsyncCursor<BsonDocument> obj) => (IReadOnlyList<BsonDocument>)Reflector.GetFieldValue(obj, nameof(_firstBatch));
+        public static int _limit(this AsyncCursor<BsonDocument> obj) => (int)Reflector.GetFieldValue(obj, nameof(_limit));
+        public static TimeSpan? _maxTime(this AsyncCursor<BsonDocument> obj) => (TimeSpan?)Reflector.GetFieldValue(obj, nameof(_maxTime));
+        public static MessageEncoderSettings _messageEncoderSettings(this AsyncCursor<BsonDocument> obj) => (MessageEncoderSettings)Reflector.GetFieldValue(obj, nameof(_messageEncoderSettings));
+        public static BsonDocument _query(this AsyncCursor<BsonDocument> obj) => (BsonDocument)Reflector.GetFieldValue(obj, nameof(_query));
+        public static IBsonSerializer<BsonDocument> _serializer(this AsyncCursor<BsonDocument> obj) => (IBsonSerializer<BsonDocument>)Reflector.GetFieldValue(obj, nameof(_serializer));
 
-        public static IChannelSource _channelSource(this AsyncCursor<BsonDocument> obj)
-        {
-            var fieldInfo = obj.GetType().GetField("_channelSource", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (IChannelSource)fieldInfo.GetValue(obj);
-        }
-
-        public static CollectionNamespace _collectionNamespace(this AsyncCursor<BsonDocument> obj)
-        {
-            var fieldInfo = obj.GetType().GetField("_collectionNamespace", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (CollectionNamespace)fieldInfo.GetValue(obj);
-        }
-
-        public static int _count(this AsyncCursor<BsonDocument> obj)
-        {
-            var fieldInfo = obj.GetType().GetField("_count", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (int)fieldInfo.GetValue(obj);
-        }
-
-        public static IReadOnlyList<BsonDocument> _currentBatch(this AsyncCursor<BsonDocument> obj)
-        {
-            var fieldInfo = obj.GetType().GetField("_currentBatch", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (IReadOnlyList<BsonDocument>)fieldInfo.GetValue(obj);
-        }
-
-        public static long _cursorId(this AsyncCursor<BsonDocument> obj)
-        {
-            var fieldInfo = obj.GetType().GetField("_cursorId", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (long)fieldInfo.GetValue(obj);
-        }
-
-        public static bool _disposed(this AsyncCursor<BsonDocument> obj)
-        {
-            var fieldInfo = obj.GetType().GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (bool)fieldInfo.GetValue(obj);
-        }
-
-        public static IReadOnlyList<BsonDocument> _firstBatch(this AsyncCursor<BsonDocument> obj)
-        {
-            var fieldInfo = obj.GetType().GetField("_firstBatch", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (IReadOnlyList<BsonDocument>)fieldInfo.GetValue(obj);
-        }
-
-        public static int _limit(this AsyncCursor<BsonDocument> obj)
-        {
-            var fieldInfo = obj.GetType().GetField("_limit", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (int)fieldInfo.GetValue(obj);
-        }
-
-        public static TimeSpan? _maxTime(this AsyncCursor<BsonDocument> obj)
-        {
-            var fieldInfo = obj.GetType().GetField("_maxTime", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (TimeSpan?)fieldInfo.GetValue(obj);
-        }
-
-        public static MessageEncoderSettings _messageEncoderSettings(this AsyncCursor<BsonDocument> obj)
-        {
-            var fieldInfo = obj.GetType().GetField("_messageEncoderSettings", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (MessageEncoderSettings)fieldInfo.GetValue(obj);
-        }
-
-        public static BsonDocument _query(this AsyncCursor<BsonDocument> obj)
-        {
-            var fieldInfo = obj.GetType().GetField("_query", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (BsonDocument)fieldInfo.GetValue(obj);
-        }
-
-        public static IBsonSerializer<BsonDocument> _serializer(this AsyncCursor<BsonDocument> obj)
-        {
-            var fieldInfo = obj.GetType().GetField("_serializer", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (IBsonSerializer<BsonDocument>)fieldInfo.GetValue(obj);
-        }
-
-        public static BsonDocument CreateGetMoreCommand(this AsyncCursor<BsonDocument> obj)
-        {
-            var methodInfo = obj.GetType().GetMethod("CreateGetMoreCommand", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (BsonDocument)methodInfo.Invoke(obj, new object[0]);
-        }
+        // private methods
+        public static BsonDocument CreateGetMoreCommand(this AsyncCursor<BsonDocument> obj) => (BsonDocument)Reflector.Invoke(obj, nameof(CreateGetMoreCommand));
     }
 }

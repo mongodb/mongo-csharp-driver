@@ -179,10 +179,9 @@ namespace MongoDB.Driver.Tests
         {
             var options = new ClientSessionOptions();
             var coreServerSession = new CoreServerSession();
-            var serverSession = new ServerSession(coreServerSession);
-            var session = new ClientSession(_client, options, serverSession, isImplicit: true);
-            var handle = new ClientSessionHandle(session);
-            return handle;
+            var coreSession = new CoreSession(coreServerSession, options.ToCore(isImplicit: true));
+            var coreSessionHandle = new CoreSessionHandle(coreSession);
+            return new ClientSessionHandle(_client, options, coreSessionHandle);
         }
 
         public Task<IClientSessionHandle> StartImplicitSessionAsync(CancellationToken cancellationToken)

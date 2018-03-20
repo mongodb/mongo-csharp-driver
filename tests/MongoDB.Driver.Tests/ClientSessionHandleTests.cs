@@ -13,8 +13,13 @@
 * limitations under the License.
 */
 
-using System;
+using System.Reflection;
 using FluentAssertions;
+using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.TestHelpers;
 using Moq;
 using Xunit;
 
@@ -23,166 +28,208 @@ namespace MongoDB.Driver.Tests
     public class ClientSessionHandleTests
     {
         [Fact]
-        public void constructor_with_client_session_should_initialize_instance()
+        public void constructor_should_initialize_instance()
         {
-            var session = new Mock<IClientSession>().Object;
+            var client = Mock.Of<IMongoClient>();
+            var options = new ClientSessionOptions();
+            var coreSession = CreateCoreSession();
 
-            var subject = new ClientSessionHandle(session);
+            var result = new ClientSessionHandle(client, options, coreSession);
 
-            subject.IsDisposed().Should().BeFalse();
-            subject._ownsWrapped().Should().BeFalse();
-            var referenceCounted = subject.Wrapped.Should().BeOfType<ReferenceCountedClientSession>().Subject;
-            referenceCounted.Wrapped.Should().BeSameAs(session);
-            referenceCounted._referenceCount().Should().Be(1);
-            referenceCounted._ownsWrapped().Should().BeFalse();
+            result.Client.Should().BeSameAs(client);
+            result.Options.Should().BeSameAs(options);
+            result.WrappedCoreSession.Should().BeSameAs(coreSession);
+            result._disposed().Should().BeFalse();
+
+            var serverSession = result.ServerSession.Should().BeOfType<ServerSession>().Subject;
+            serverSession._coreServerSession().Should().BeSameAs(coreSession.ServerSession);
         }
 
         [Fact]
-        public void constructor_with_client_session_should_throw_when_session_is_null()
+        public void Client_returns_expected_result()
         {
-            var exception = Record.Exception(() => new ClientSessionHandle((IClientSessionHandle)null));
+            var client = Mock.Of<IMongoClient>();
+            var subject = CreateSubject(client: client);
 
-            var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            e.ParamName.Should().Be("wrapped");
+            var result = subject.Client;
+
+            result.Should().BeSameAs(client);
         }
 
         [Fact]
-        public void constructor_with_reference_counted_session_should_initialize_instance()
+        public void ClusterTime_should_return_expected_result()
         {
-            var session = new Mock<IClientSession>().Object;
-            var referenceCounted = new ReferenceCountedClientSession(session);
+            var subject = CreateSubject();
+            var value = new BsonDocument();
+            var mockCoreSession = Mock.Get(subject.WrappedCoreSession);
+            mockCoreSession.SetupGet(m => m.ClusterTime).Returns(value);
 
-            var subject = new ClientSessionHandle(referenceCounted);
+            var result = subject.ClusterTime;
 
-            subject.Wrapped.Should().BeSameAs(referenceCounted);                                                        
+            result.Should().BeSameAs(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void IsImplicit_should_call_coreSession(
+            [Values(false, true)] bool value)
+        {
+            var subject = CreateSubject();
+            var mockCoreSession = Mock.Get(subject.WrappedCoreSession);
+            mockCoreSession.SetupGet(m => m.IsImplicit).Returns(value);
+
+            var result = subject.IsImplicit;
+
+            result.Should().Be(value);
         }
 
         [Fact]
-        public void constructor_with_reference_counted_client_session_should_throw_when_session_is_null()
+        public void OperationTime_should_call_coreSession()
         {
-            var exception = Record.Exception(() => new ClientSessionHandle((ReferenceCountedClientSession)null));
+            var subject = CreateSubject();
+            var value = new BsonTimestamp(0);
+            var mockCoreSession = Mock.Get(subject.WrappedCoreSession);
+            mockCoreSession.SetupGet(m => m.OperationTime).Returns(value);
 
-            var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            e.ParamName.Should().Be("wrapped");
+            var result = subject.OperationTime;
+
+            result.Should().BeSameAs(value);
         }
 
         [Fact]
-        public void Fork_should_return_new_handle_to_same_reference_counted_session()
+        public void Options_returns_expected_result()
         {
-            ReferenceCountedClientSession referenceCounted;
-            var subject = CreateSubject(out referenceCounted);
+            var options = new ClientSessionOptions();
+            var subject = CreateSubject(options: options);
+
+            var result = subject.Options;
+
+            result.Should().BeSameAs(options);
+        }
+
+        [Fact]
+        public void ServerSession_returns_expected_result()
+        {
+            var subject = CreateSubject();
+
+            var result = subject.ServerSession;
+
+            result.Should().BeSameAs(subject._serverSession());
+        }
+
+        [Fact]
+        public void WrappedCoreSession_returns_expected_result()
+        {
+            var coreSession = CreateCoreSession();
+            var subject = CreateSubject(coreSession: coreSession);
+
+            var result = subject.WrappedCoreSession;
+
+            result.Should().BeSameAs(coreSession);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void AdvanceClusterTime_should_call_coreSession(
+           [Values(false, true)] bool value)
+        {
+            var subject = CreateSubject();
+            var newClusterTime = new BsonDocument();
+
+            subject.AdvanceClusterTime(newClusterTime);
+
+            Mock.Get(subject.WrappedCoreSession).Verify(m => m.AdvanceClusterTime(newClusterTime), Times.Once);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void AdvanceOperationTime_should_call_coreSession(
+           [Values(false, true)] bool value)
+        {
+            var subject = CreateSubject();
+            var newOperationTime = new BsonTimestamp(0);
+
+            subject.AdvanceOperationTime(newOperationTime);
+
+            Mock.Get(subject.WrappedCoreSession).Verify(m => m.AdvanceOperationTime(newOperationTime), Times.Once);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Dispose_should_have_expected_result(
+            [Values(1, 2)] int timesCalled)
+        {
+            var subject = CreateSubject();
+
+            for (var i = 0; i < timesCalled; i++)
+            {
+                subject.Dispose();
+            }
+
+            subject._disposed().Should().BeTrue();
+            Mock.Get(subject.WrappedCoreSession).Verify(m => m.Dispose(), Times.Once);
+        }
+
+        [Fact]
+        public void Fork_should_return_expected_result()
+        {
+            var coreServerSession = new CoreServerSession();
+            var options = new ClientSessionOptions();
+            var coreSession = new CoreSession(coreServerSession, options.ToCore());
+            var coreSessionHandle = new CoreSessionHandle(coreSession);
+            var subject = CreateSubject(coreSession: coreSessionHandle);
+            coreSessionHandle.ReferenceCount().Should().Be(1);
 
             var result = subject.Fork();
 
-            var newHandle = result.Should().BeOfType<ClientSessionHandle>().Subject;
-            newHandle.Wrapped.Should().BeSameAs(referenceCounted);
-        }
-
-        [Fact]
-        public void Fork_should_increment_reference_count()
-        {
-            ReferenceCountedClientSession referenceCounted;
-            var subject = CreateSubject(out referenceCounted);
-            var originalReferenceCount = referenceCounted._referenceCount();
-
-            subject.Fork();
-
-            referenceCounted._referenceCount().Should().Be(originalReferenceCount + 1);
-        }
-
-        [Fact]
-        public void Fork_should_throw_when_disposed()
-        {
-            var subject = CreateDisposedSubject();
-
-            var exception = Record.Exception(() => subject.Fork());
-
-            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
-            e.ObjectName.Should().Be(subject.GetType().FullName);
-        }
-
-        [Fact]
-        public void Dispose_should_set_disposed_flag()
-        {
-            var subject = CreateSubject();
-
-            subject.Dispose();
-
-            subject.IsDisposed().Should().BeTrue();
-        }
-
-        [Fact]
-        public void Dispose_should_decrement_reference_count()
-        {
-            ReferenceCountedClientSession referenceCounted;
-            var subject = CreateSubject(out referenceCounted);
-            var fork = subject.Fork();
-            var originalReferenceCount = referenceCounted._referenceCount();
-
-            subject.Dispose();
-
-            referenceCounted._referenceCount().Should().Be(originalReferenceCount - 1);
-        }
-
-        [Fact]
-        public void Dispose_should_dispose_wrapped_session_when_reference_count_reaches_zero()
-        {
-            Mock<IClientSession> mockSession;
-            var subject = CreateSubject(out mockSession);
-
-            subject.Dispose();
-
-            mockSession.Verify(m => m.Dispose(), Times.Once);
-        }
-
-        [Fact]
-        public void Dispose_can_be_called_more_than_once()
-        {
-            ReferenceCountedClientSession referenceCounted;
-            Mock<IClientSession> mockSession;
-            var subject = CreateSubject(out referenceCounted, out mockSession);
-            var originalReferenceCount = referenceCounted._referenceCount();
-
-            subject.Dispose();
-            subject.Dispose();
-
-            referenceCounted._referenceCount().Should().Be(originalReferenceCount - 1);
-            mockSession.Verify(m => m.Dispose(), Times.Once);
+            result.Client.Should().BeSameAs(subject.Client);
+            result.Options.Should().BeSameAs(subject.Options);
+            result.WrappedCoreSession.Should().NotBeSameAs(subject.WrappedCoreSession);
+            var coreSessionHandle1 = (CoreSessionHandle)subject.WrappedCoreSession;
+            var coreSessionHandle2 = (CoreSessionHandle)result.WrappedCoreSession;
+            coreSessionHandle2.Wrapped.Should().BeSameAs(coreSessionHandle1.Wrapped);
+            coreSessionHandle.ReferenceCount().Should().Be(2);
         }
 
         // private methods
-        private ClientSessionHandle CreateDisposedSubject()
+        private ICoreSessionHandle CreateCoreSession(
+            ICoreServerSession serverSession = null,
+            CoreSessionOptions options = null)
         {
-            var subject = CreateSubject();
-            subject.Dispose();
-            return subject;
+            serverSession = serverSession ?? new CoreServerSession();
+            options = options ?? new CoreSessionOptions();
+
+            var mockCoreSession = new Mock<ICoreSessionHandle>();
+            mockCoreSession.SetupGet(m => m.Options).Returns(options);
+            mockCoreSession.SetupGet(m => m.ServerSession).Returns(serverSession);
+            mockCoreSession.Setup(m => m.Fork()).Returns(() => CreateCoreSession(serverSession: serverSession, options: options));
+            return mockCoreSession.Object;
         }
 
-        private ClientSessionHandle CreateSubject()
+        private ClientSessionHandle CreateSubject(
+            IMongoClient client = null,
+            ClientSessionOptions options = null,
+            ICoreSessionHandle coreSession = null)
         {
-            var session = new Mock<IClientSession>().Object;
-            return new ClientSessionHandle(session);
+            client = client ?? Mock.Of<IMongoClient>();
+            options = options ?? new ClientSessionOptions();
+            coreSession = coreSession ?? CreateCoreSession(options: options.ToCore());
+            return new ClientSessionHandle(client, options, coreSession);
+        }
+    }
+
+    internal static class ClientSessionHandleReflector
+    {
+        public static bool _disposed(this ClientSessionHandle obj)
+        {
+            var fieldInfo = typeof(ClientSessionHandle).GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
+            return (bool)fieldInfo.GetValue(obj);
         }
 
-        private ClientSessionHandle CreateSubject(out Mock<IClientSession> mockSession)
+        public static IServerSession _serverSession(this ClientSessionHandle obj)
         {
-            mockSession = new Mock<IClientSession>();
-            var referenceCounted = new ReferenceCountedClientSession(mockSession.Object);
-            return new ClientSessionHandle(referenceCounted);
-        }
-
-        private ClientSessionHandle CreateSubject(out ReferenceCountedClientSession referenceCounted)
-        {
-            var session = new Mock<IClientSession>().Object;
-            referenceCounted = new ReferenceCountedClientSession(session);
-            return new ClientSessionHandle(referenceCounted);
-        }
-
-        private ClientSessionHandle CreateSubject(out ReferenceCountedClientSession referenceCounted, out Mock<IClientSession> mockSession)
-        {
-            mockSession = new Mock<IClientSession>();
-            referenceCounted = new ReferenceCountedClientSession(mockSession.Object);
-            return new ClientSessionHandle(referenceCounted);
+            var fieldInfo = typeof(ClientSessionHandle).GetField("_serverSession", BindingFlags.NonPublic | BindingFlags.Instance);
+            return (IServerSession)fieldInfo.GetValue(obj);
         }
     }
 }

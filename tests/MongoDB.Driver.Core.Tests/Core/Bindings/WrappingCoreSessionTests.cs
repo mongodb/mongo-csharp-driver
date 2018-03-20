@@ -136,6 +136,50 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         [Fact]
+        public void Options_should_call_wrapped()
+        {
+            Mock<ICoreSession> mockWrapped;
+            var subject = CreateSubject(out mockWrapped);
+
+            var result = subject.Options;
+
+            mockWrapped.Verify(m => m.Options, Times.Once);
+        }
+
+        [Fact]
+        public void Options_should_throw_when_disposed()
+        {
+            var subject = CreateDisposedSubject();
+
+            var exception = Record.Exception(() => subject.Options);
+
+            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
+            e.ObjectName.Should().Be(subject.GetType().FullName);
+        }
+
+        [Fact]
+        public void ServerSession_should_call_wrapped()
+        {
+            Mock<ICoreSession> mockWrapped;
+            var subject = CreateSubject(out mockWrapped);
+
+            var result = subject.ServerSession;
+
+            mockWrapped.Verify(m => m.ServerSession, Times.Once);
+        }
+
+        [Fact]
+        public void ServerSession_should_throw_when_disposed()
+        {
+            var subject = CreateDisposedSubject();
+
+            var exception = Record.Exception(() => subject.ServerSession);
+
+            var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
+            e.ObjectName.Should().Be(subject.GetType().FullName);
+        }
+
+        [Fact]
         public void Wrapped_should_return_expected_result()
         {
             Mock<ICoreSession> mockWrapped;

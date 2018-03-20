@@ -15,6 +15,7 @@
 
 using System;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Bindings
@@ -90,6 +91,26 @@ namespace MongoDB.Driver.Core.Bindings
             {
                 ThrowIfDisposed();
                 return _wrapped.OperationTime;
+            }
+        }
+
+        /// <inheritdoc />
+        public virtual CoreSessionOptions Options
+        {
+            get
+            {
+                ThrowIfDisposed();
+                return _wrapped.Options;
+            }
+        }
+
+        /// <inheritdoc />
+        public virtual ICoreServerSession ServerSession
+        {
+            get
+            {
+                ThrowIfDisposed();
+                return _wrapped.ServerSession;
             }
         }
 

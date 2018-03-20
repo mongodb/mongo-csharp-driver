@@ -152,7 +152,6 @@
     <Compile Include="MongoServerState.cs" />
     <Compile Include="MongoUpdateOptions.cs" />
     <Compile Include="MongoUser.cs" />
-    <Compile Include="NoClientSession.cs" />
     <Compile Include="Operations\AddUserOperation.cs" />
     <Compile Include="Operations\AddUserUsingSystemUsersCollectionOperation.cs" />
     <Compile Include="Operations\AddUserUsingUserManagementCommandsOperation.cs" />

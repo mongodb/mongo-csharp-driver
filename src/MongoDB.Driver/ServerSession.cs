@@ -43,21 +43,24 @@ namespace MongoDB.Driver
 
         // public methods
         /// <inheritdoc />
+        [Obsolete("Let the driver handle when to advance the transaction number.")]
         public long AdvanceTransactionNumber()
         {
-            return _coreServerSession.AdvanceTransactionNumber();
+            // do nothing
+            return -1;
         }
 
         /// <inheritdoc />
         public void Dispose()
         {
-            _coreServerSession.Dispose();
+            // do nothing (the ServerSession does NOT own the wrapped core server session)
         }
 
         /// <inheritdoc />
+        [Obsolete("Let the driver handle tracking when the session was last used.")]
         public void WasUsed()
         {
-            _coreServerSession.WasUsed();
+            // do nothing
         }
     }
 }

@@ -22,7 +22,7 @@ namespace MongoDB.Driver.Core.Operations
     /// An operation clock.
     /// </summary>
     /// <seealso cref="MongoDB.Driver.Core.Operations.IOperationClock" />
-    public class OperationClock : IOperationClock
+    internal class OperationClock : IOperationClock
     {
         #region static
         // public static methods

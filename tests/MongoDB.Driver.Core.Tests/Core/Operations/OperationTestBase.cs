@@ -126,7 +126,7 @@ namespace MongoDB.Driver.Core.Operations
 
         protected TResult ExecuteOperation<TResult>(IReadOperation<TResult> operation)
         {
-            using (var binding = GetReadBinding())
+            using (var binding = CreateReadBinding())
             using (var bindingHandle = new ReadBindingHandle(binding))
             {
                 return operation.Execute(bindingHandle, CancellationToken.None);
@@ -159,7 +159,7 @@ namespace MongoDB.Driver.Core.Operations
 
         protected TResult ExecuteOperation<TResult>(IReadOperation<TResult> operation, ReadPreference readPreference, bool async)
         {
-            using (var binding = GetReadBinding(readPreference))
+            using (var binding = CreateReadBinding(readPreference))
             using (var bindingHandle = new ReadBindingHandle(binding))
             {
                 return ExecuteOperation(operation, bindingHandle, async);
@@ -168,7 +168,7 @@ namespace MongoDB.Driver.Core.Operations
 
         protected TResult ExecuteOperation<TResult>(IWriteOperation<TResult> operation)
         {
-            using (var binding = GetReadWriteBinding())
+            using (var binding = CreateReadWriteBinding())
             using (var bindingHandle = new ReadWriteBindingHandle(binding))
             {
                 return operation.Execute(bindingHandle, CancellationToken.None);
@@ -201,7 +201,7 @@ namespace MongoDB.Driver.Core.Operations
 
         protected async Task<TResult> ExecuteOperationAsync<TResult>(IReadOperation<TResult> operation)
         {
-            using (var binding = GetReadBinding())
+            using (var binding = CreateReadBinding())
             using (var bindingHandle = new ReadBindingHandle(binding))
             {
                 return await ExecuteOperationAsync(operation, bindingHandle);
@@ -215,7 +215,7 @@ namespace MongoDB.Driver.Core.Operations
 
         protected async Task<TResult> ExecuteOperationAsync<TResult>(IWriteOperation<TResult> operation)
         {
-            using (var binding = GetReadWriteBinding())
+            using (var binding = CreateReadWriteBinding())
             using (var bindingHandle = new ReadWriteBindingHandle(binding))
             {
                 return await operation.ExecuteAsync(bindingHandle, CancellationToken.None);
@@ -237,17 +237,17 @@ namespace MongoDB.Driver.Core.Operations
             ExecuteOperation(operation);
         }
 
-        protected IReadBinding GetReadBinding()
+        protected IReadBinding CreateReadBinding()
         {
-            return GetReadBinding(ReadPreference.Primary);
+            return CreateReadBinding(ReadPreference.Primary);
         }
 
-        protected IReadBinding GetReadBinding(ReadPreference readPreference)
+        protected IReadBinding CreateReadBinding(ReadPreference readPreference)
         {
             return new ReadPreferenceBinding(_cluster, readPreference, _session.Fork());
         }
 
-        protected IReadWriteBinding GetReadWriteBinding()
+        protected IReadWriteBinding CreateReadWriteBinding()
         {
             return new WritableServerBinding(_cluster, _session.Fork());
         }

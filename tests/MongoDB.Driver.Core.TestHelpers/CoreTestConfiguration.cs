@@ -244,7 +244,7 @@ namespace MongoDB.Driver
         public static IEnumerable<string> GetModules()
         {
             using (var session = StartSession())
-            using (var binding = GetReadBinding(session))
+            using (var binding = CreateReadBinding(session))
             {
                 var command = new BsonDocument("buildinfo", 1);
                 var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
@@ -264,7 +264,7 @@ namespace MongoDB.Driver
         public static string GetStorageEngine()
         {
             using (var session = StartSession())
-            using (var binding = GetReadWriteBinding(session))
+            using (var binding = CreateReadWriteBinding(session))
             {
                 var command = new BsonDocument("serverStatus", 1);
                 var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
@@ -290,9 +290,7 @@ namespace MongoDB.Driver
         {
             if (AreSessionsSupported(cluster))
             {
-                var serverSession = cluster.AcquireServerSession();
-                var session = new CoreSession(serverSession);
-                return new CoreSessionHandle(session);
+                return cluster.StartSession();
             }
             else
             {
@@ -372,30 +370,32 @@ namespace MongoDB.Driver
                 clusterDescription.LogicalSessionTimeout.HasValue;
         }
 
+        private static IReadBindingHandle CreateReadBinding(ICoreSessionHandle session)
+        {
+            return CreateReadBinding(ReadPreference.Primary, session);
+        }
+
+        private static IReadBindingHandle CreateReadBinding(ReadPreference readPreference, ICoreSessionHandle session)
+        {
+            var binding = new ReadPreferenceBinding(__cluster.Value, readPreference, session.Fork());
+            return new ReadBindingHandle(binding);
+        }
+
+        private static IReadWriteBindingHandle CreateReadWriteBinding(ICoreSessionHandle session)
+        {
+            var binding = new WritableServerBinding(__cluster.Value, session.Fork());
+            return new ReadWriteBindingHandle(binding);
+        }
+
         private static void DropDatabase()
         {
             var operation = new DropDatabaseOperation(__databaseNamespace, __messageEncoderSettings);
 
             using (var session = StartSession())
-            using (var binding = GetReadWriteBinding(session))
+            using (var binding = CreateReadWriteBinding(session))
             {
                 operation.Execute(binding, CancellationToken.None);
             }
-        }
-
-        private static IReadBinding GetReadBinding(ICoreSessionHandle session)
-        {
-            return GetReadBinding(ReadPreference.Primary, session);
-        }
-
-        private static IReadBinding GetReadBinding(ReadPreference readPreference, ICoreSessionHandle session)
-        {
-            return new ReadPreferenceBinding(__cluster.Value, readPreference, session.Fork());
-        }
-
-        private static IReadWriteBinding GetReadWriteBinding(ICoreSessionHandle session)
-        {
-            return new WritableServerBinding(__cluster.Value, session.Fork());
         }
 
         public static void TearDown()

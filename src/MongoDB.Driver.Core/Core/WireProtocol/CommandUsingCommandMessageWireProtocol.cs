@@ -161,6 +161,8 @@ namespace MongoDB.Driver.Core.WireProtocol
                 BsonValue clusterTime;
                 if (rawDocument.TryGetValue("$clusterTime", out clusterTime))
                 {
+                    // note: we are assuming that _session is an instance of ClusterClockAdvancingClusterTime
+                    // and that calling _session.AdvanceClusterTime will have the side effect of advancing the cluster's ClusterTime also
                     var materializedClusterTime = ((RawBsonDocument)clusterTime).Materialize(binaryReaderSettings);
                     _session.AdvanceClusterTime(materializedClusterTime);
                 }

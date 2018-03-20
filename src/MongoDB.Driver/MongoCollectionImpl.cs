@@ -932,6 +932,18 @@ namespace MongoDB.Driver
             };
         }
 
+        private IReadBindingHandle CreateReadBinding(IClientSessionHandle session, ReadPreference readPreference)
+        {
+            var binding = new ReadPreferenceBinding(_cluster, readPreference, session.WrappedCoreSession.Fork());
+            return new ReadBindingHandle(binding);
+        }
+
+        private IWriteBindingHandle CreateReadWriteBinding(IClientSessionHandle session)
+        {
+            var binding = new WritableServerBinding(_cluster, session.WrappedCoreSession.Fork());
+            return new ReadWriteBindingHandle(binding);
+        }
+
         private IBsonSerializer<TField> GetValueSerializerForDistinct<TField>(RenderedFieldDefinition<TField> renderedField, IBsonSerializerRegistry serializerRegistry)
         {
             if (renderedField.UnderlyingSerializer != null)
@@ -965,10 +977,9 @@ namespace MongoDB.Driver
 
         private TResult ExecuteReadOperation<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, ReadPreference readPreference, CancellationToken cancellationToken = default(CancellationToken))
         {
-            using (var binding = new ReadPreferenceBinding(_cluster, readPreference, session.ToCoreSession()))
-            using (var bindingHandle = new ReadBindingHandle(binding))
+            using (var binding = CreateReadBinding(session, readPreference))
             {
-                return _operationExecutor.ExecuteReadOperation(bindingHandle, operation, cancellationToken);
+                return _operationExecutor.ExecuteReadOperation(binding, operation, cancellationToken);
             }
         }
 
@@ -979,28 +990,25 @@ namespace MongoDB.Driver
 
         private async Task<TResult> ExecuteReadOperationAsync<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, ReadPreference readPreference, CancellationToken cancellationToken = default(CancellationToken))
         {
-            using (var binding = new ReadPreferenceBinding(_cluster, readPreference, session.ToCoreSession()))
-            using (var bindingHandle = new ReadBindingHandle(binding))
+            using (var binding = CreateReadBinding(session, readPreference))
             {
-                return await _operationExecutor.ExecuteReadOperationAsync(bindingHandle, operation, cancellationToken).ConfigureAwait(false);
+                return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, cancellationToken).ConfigureAwait(false);
             }
         }
 
         private TResult ExecuteWriteOperation<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, CancellationToken cancellationToken = default(CancellationToken))
         {
-            using (var binding = new WritableServerBinding(_cluster, session.ToCoreSession()))
-            using (var bindingHandle = new ReadWriteBindingHandle(binding))
+            using (var binding = CreateReadWriteBinding(session))
             {
-                return _operationExecutor.ExecuteWriteOperation(bindingHandle, operation, cancellationToken);
+                return _operationExecutor.ExecuteWriteOperation(binding, operation, cancellationToken);
             }
         }
 
         private async Task<TResult> ExecuteWriteOperationAsync<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, CancellationToken cancellationToken = default(CancellationToken))
         {
-            using (var binding = new WritableServerBinding(_cluster, session.ToCoreSession()))
-            using (var bindingHandle = new ReadWriteBindingHandle(binding))
+            using (var binding = CreateReadWriteBinding(session))
             {
-                return await _operationExecutor.ExecuteWriteOperationAsync(bindingHandle, operation, cancellationToken).ConfigureAwait(false);
+                return await _operationExecutor.ExecuteWriteOperationAsync(binding, operation, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -1107,7 +1115,7 @@ namespace MongoDB.Driver
                 CreateManyIndexesOptions options,
                 CancellationToken cancellationToken = default(CancellationToken))
             {
-                return _collection.UsingImplicitSession(session => CreateMany(session, models, options, cancellationToken), cancellationToken);   
+                return _collection.UsingImplicitSession(session => CreateMany(session, models, options, cancellationToken), cancellationToken);
             }
 
             public override IEnumerable<string> CreateMany(IClientSessionHandle session, IEnumerable<CreateIndexModel<TDocument>> models, CancellationToken cancellationToken = default(CancellationToken))
@@ -1225,8 +1233,8 @@ namespace MongoDB.Driver
             }
 
             public override void DropOne(
-                IClientSessionHandle session, 
-                string name, 
+                IClientSessionHandle session,
+                string name,
                 DropIndexOptions options,
                 CancellationToken cancellationToken)
             {
@@ -1257,8 +1265,8 @@ namespace MongoDB.Driver
             }
 
             public override Task DropOneAsync(
-                IClientSessionHandle session, 
-                string name, 
+                IClientSessionHandle session,
+                string name,
                 DropIndexOptions options,
                 CancellationToken cancellationToken)
             {

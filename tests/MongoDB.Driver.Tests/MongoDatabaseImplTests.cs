@@ -608,7 +608,7 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetReadCall<BsonDocument>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            var binding = call.Binding.Should().BeOfType<ReadPreferenceBinding>().Subject;
+            var binding = call.Binding.Should().BeOfType<ReadBindingHandle>().Subject;
             binding.ReadPreference.Should().Be(ReadPreference.Primary);
 
             var op = call.Operation.Should().BeOfType<ReadCommandOperation<BsonDocument>>().Subject;
@@ -654,7 +654,7 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetReadCall<BsonDocument>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            var binding = call.Binding.Should().BeOfType<ReadPreferenceBinding>().Subject;
+            var binding = call.Binding.Should().BeOfType<ReadBindingHandle>().Subject;
             binding.ReadPreference.Should().Be(readPreference);
 
             var op = call.Operation.Should().BeOfType<ReadCommandOperation<BsonDocument>>().Subject;
@@ -699,7 +699,7 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetReadCall<BsonDocument>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            var binding = call.Binding.Should().BeOfType<ReadPreferenceBinding>().Subject;
+            var binding = call.Binding.Should().BeOfType<ReadBindingHandle>().Subject;
             binding.ReadPreference.Should().Be(ReadPreference.Primary);
 
             var op = call.Operation.Should().BeOfType<ReadCommandOperation<BsonDocument>>().Subject;
@@ -744,7 +744,7 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetReadCall<BsonDocument>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            var binding = call.Binding.Should().BeOfType<ReadPreferenceBinding>().Subject;
+            var binding = call.Binding.Should().BeOfType<ReadBindingHandle>().Subject;
             binding.ReadPreference.Should().Be(ReadPreference.Primary);
 
             var op = call.Operation.Should().BeOfType<ReadCommandOperation<BsonDocument>>().Subject;
@@ -789,7 +789,7 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetReadCall<BsonDocument>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            var binding = call.Binding.Should().BeOfType<ReadPreferenceBinding>().Subject;
+            var binding = call.Binding.Should().BeOfType<ReadBindingHandle>().Subject;
             binding.ReadPreference.Should().Be(ReadPreference.Primary);
 
             var op = call.Operation.Should().BeOfType<ReadCommandOperation<BsonDocument>>().Subject;
@@ -847,9 +847,9 @@ namespace MongoDB.Driver
                 var client = new Mock<IMongoClient>().Object;
                 var options = new ClientSessionOptions();
                 var coreServerSession = new CoreServerSession();
-                var serverSession = new ServerSession(coreServerSession);
-                var clientSession = new ClientSession(client, options, serverSession, isImplicit: false);
-                return new ClientSessionHandle(clientSession);
+                var coreSession = new CoreSession(coreServerSession, options.ToCore());
+                var coreSessionHandle = new CoreSessionHandle(coreSession);
+                return new ClientSessionHandle(client, options, coreSessionHandle);
             }
             else
             {
@@ -860,6 +860,8 @@ namespace MongoDB.Driver
         private MongoDatabaseImpl CreateSubject(IOperationExecutor operationExecutor)
         {
             var mockClient = new Mock<IMongoClient>();
+            var mockCluster = new Mock<ICluster>();
+            mockClient.SetupGet(m => m.Cluster).Returns(mockCluster.Object);
             var settings = new MongoDatabaseSettings();
             settings.ApplyDefaultValues(new MongoClientSettings());
             return new MongoDatabaseImpl(

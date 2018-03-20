@@ -24,14 +24,13 @@ namespace MongoDB.Driver.Core.Bindings
     /// Represents a session.
     /// </summary>
     /// <seealso cref="MongoDB.Driver.Core.Bindings.ICoreSession" />
-    internal sealed class CoreSession : ICoreSession
+    public sealed class CoreSession : ICoreSession
     {
         // private fields
         private readonly IClusterClock _clusterClock = new ClusterClock();
         private bool _disposed;
-        private readonly bool _isCausallyConsistent;
-        private readonly bool _isImplicit;
         private readonly IOperationClock _operationClock = new OperationClock();
+        private readonly CoreSessionOptions _options;
         private readonly ICoreServerSession _serverSession;
 
         // constructors
@@ -39,16 +38,13 @@ namespace MongoDB.Driver.Core.Bindings
         /// Initializes a new instance of the <see cref="CoreSession" /> class.
         /// </summary>
         /// <param name="serverSession">The server session.</param>
-        /// <param name="isCausallyConsistent">if set to <c>true</c> [is causally consistent].</param>
-        /// <param name="isImplicit">if set to <c>true</c> [is implicit].</param>
+        /// <param name="options">The options.</param>
         public CoreSession(
             ICoreServerSession serverSession,
-            bool isCausallyConsistent = false,
-            bool isImplicit = false)
+            CoreSessionOptions options)
         {
             _serverSession = Ensure.IsNotNull(serverSession, nameof(serverSession));
-            _isCausallyConsistent = isCausallyConsistent;
-            _isImplicit = isImplicit;
+            _options = Ensure.IsNotNull(options, nameof(options));
         }
 
         // public properties
@@ -59,13 +55,19 @@ namespace MongoDB.Driver.Core.Bindings
         public BsonDocument Id => _serverSession.Id;
 
         /// <inheritdoc />
-        public bool IsCausallyConsistent => _isCausallyConsistent;
+        public bool IsCausallyConsistent => _options.IsCausallyConsistent;
 
         /// <inheritdoc />
-        public bool IsImplicit => _isImplicit;
+        public bool IsImplicit => _options.IsImplicit;
 
         /// <inheritdoc />
         public BsonTimestamp OperationTime => _operationClock.OperationTime;
+
+        /// <inheritdoc />
+        public CoreSessionOptions Options => _options;
+
+        /// <inheritdoc />
+        public ICoreServerSession ServerSession => _serverSession;
 
         // public methods
         /// <inheritdoc />

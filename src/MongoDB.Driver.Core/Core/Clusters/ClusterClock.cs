@@ -22,7 +22,7 @@ namespace MongoDB.Driver.Core.Clusters
     /// A cluster clock.
     /// </summary>
     /// <seealso cref="MongoDB.Driver.Core.Clusters.IClusterClock" />
-    public class ClusterClock : IClusterClock
+    internal class ClusterClock : IClusterClock
     {
         #region static
         // public static methods

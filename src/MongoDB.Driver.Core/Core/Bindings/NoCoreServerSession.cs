@@ -1,4 +1,4 @@
-﻿/* Copyright 2017-present MongoDB Inc.
+﻿/* Copyright 2018-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,46 +16,31 @@
 using System;
 using MongoDB.Bson;
 
-namespace MongoDB.Driver
+namespace MongoDB.Driver.Core.Bindings
 {
-    /// <summary>
-    /// A class that represents no server session.
-    /// </summary>
-    /// <seealso cref="MongoDB.Driver.IServerSession" />
-    internal sealed class NoServerSession : IServerSession
+    internal class NoCoreServerSession : ICoreServerSession
     {
         #region static
         // private static fields
-        private static readonly IServerSession __instance = new NoServerSession();
+        private static readonly ICoreServerSession __instance = new NoCoreServerSession();
 
-        // public static fields
-        /// <summary>
-        /// Gets the pre-created instance.
-        /// </summary>
-        /// <value>
-        /// The instance.
-        /// </value>
-        public static IServerSession Instance => __instance;
+        // public static properties
+        public static ICoreServerSession Instance => __instance;
         #endregion
 
-        /// <inheritdoc />
         public BsonDocument Id => null;
 
-        /// <inheritdoc />
         public DateTime? LastUsedAt => null;
 
-        /// <inheritdoc />
         public long AdvanceTransactionNumber()
         {
             return -1;
         }
 
-        /// <inheritdoc />
         public void Dispose()
         {
         }
 
-        /// <inheritdoc />
         public void WasUsed()
         {
         }

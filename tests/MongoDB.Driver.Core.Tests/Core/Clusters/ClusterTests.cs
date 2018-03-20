@@ -31,6 +31,7 @@ using Moq;
 using Xunit;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using System.Reflection;
+using MongoDB.Driver.Core.Bindings;
 
 namespace MongoDB.Driver.Core.Clusters
 {
@@ -399,6 +400,18 @@ namespace MongoDB.Driver.Core.Clusters
             _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
             _capturedEvents.Next().Should().BeOfType<ClusterSelectedServerEvent>();
             _capturedEvents.Any().Should().BeFalse();
+        }
+
+        [Fact]
+        public void StartSession_should_return_expected_result()
+        {
+            var subject = CreateSubject();
+            var options = new CoreSessionOptions();
+
+            var result = subject.StartSession(options);
+
+            result.Options.Should().BeSameAs(options);
+            result.ServerSession.Should().NotBeNull();
         }
 
         [Fact]

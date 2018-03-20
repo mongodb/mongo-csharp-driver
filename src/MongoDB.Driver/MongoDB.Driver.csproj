@@ -100,10 +100,8 @@
     <Compile Include="Builders.cs" />
     <Compile Include="ChangeStreamOptions.cs" />
     <Compile Include="ChangeStreamStageOptions.cs" />
-    <Compile Include="ClientSession.cs" />
     <Compile Include="ClientSessionHandle.cs" />
     <Compile Include="ClientSessionOptions.cs" />
-    <Compile Include="ClientSessionWrappingCoreSession.cs" />
     <Compile Include="CreateIndexModel.cs" />
     <Compile Include="CreateOneIndexOptions.cs" />
     <Compile Include="CreateViewOptions.cs" />
@@ -114,7 +112,6 @@
     <Compile Include="FieldValueSerializerHelper.cs" />
     <Compile Include="FilteredMongoCollectionBase.cs" />
     <Compile Include="IClientSession.cs" />
-    <Compile Include="IClientSessionExtensions.cs" />
     <Compile Include="IndexKeysDefinition.cs" />
     <Compile Include="IndexOptionDefaults.cs" />
     <Compile Include="InsertOneOptions.cs" />
@@ -295,7 +292,6 @@
     <Compile Include="ExpressionTranslationOptions.cs" />
     <Compile Include="ListDatabasesOptions.cs" />
     <Compile Include="MongoX509Identity.cs" />
-    <Compile Include="NoServerSession.cs" />
     <Compile Include="OfTypeSerializer.cs" />
     <Compile Include="PipelineDefinitionBuilder.cs" />
     <Compile Include="PipelineStageDefinition.cs" />
@@ -308,7 +304,6 @@
     <Compile Include="ProjectionDefinitionBuilder.cs" />
     <Compile Include="IndexKeysDefinitionBuilder.cs" />
     <Compile Include="IServerSession.cs" />
-    <Compile Include="ReferenceCountedClientSession.cs" />
     <Compile Include="ServerSession.cs" />
     <Compile Include="SortDefinitionBuilder.cs" />
     <Compile Include="FilterDefinitionBuilder.cs" />
@@ -372,7 +367,6 @@
     <Compile Include="OperationExecutor.cs" />
     <Compile Include="ReplaceOneResult.cs" />
     <Compile Include="UpdateResult.cs" />
-    <Compile Include="WrappingClientSession.cs" />
     <Compile Include="WriteConcernError.cs" />
     <Compile Include="BulkWriteResult.cs" />
     <Compile Include="BulkWriteUpsert.cs" />

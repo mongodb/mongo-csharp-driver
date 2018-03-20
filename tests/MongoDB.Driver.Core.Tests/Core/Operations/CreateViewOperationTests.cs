@@ -141,7 +141,7 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new CreateViewOperation(_databaseNamespace, viewName, _collectionNamespace.CollectionName, _pipeline, _messageEncoderSettings);
 
             BsonDocument info;
-            using (var binding = GetReadWriteBinding())
+            using (var binding = CreateReadWriteBinding())
             {
                 ExecuteOperation(subject, binding, async);
                 info = GetViewInfo(binding, viewName);
@@ -169,7 +169,7 @@ namespace MongoDB.Driver.Core.Operations
             };
 
             BsonDocument info;
-            using (var binding = GetReadWriteBinding())
+            using (var binding = CreateReadWriteBinding())
             {
                 ExecuteOperation(subject, binding, async);
                 info = GetViewInfo(binding, _viewName);
@@ -204,7 +204,7 @@ namespace MongoDB.Driver.Core.Operations
             };
 
             BsonDocument info;
-            using (var binding = GetReadWriteBinding())
+            using (var binding = CreateReadWriteBinding())
             {
                 ExecuteOperation(subject, binding, async);
                 info = GetViewInfo(binding, viewName);

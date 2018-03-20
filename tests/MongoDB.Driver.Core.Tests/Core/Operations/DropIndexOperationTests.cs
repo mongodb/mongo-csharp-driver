@@ -205,7 +205,7 @@ namespace MongoDB.Driver.Core.Operations
             RequireServer.Check();
             DropCollection();
 
-            using (var binding = GetReadWriteBinding())
+            using (var binding = CreateReadWriteBinding())
             {
                 var indexName = "x_1";
                 var subject = new DropIndexOperation(_collectionNamespace, indexName, _messageEncoderSettings);

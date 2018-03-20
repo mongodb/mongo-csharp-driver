@@ -110,8 +110,7 @@
     <Compile Include="BulkWriteErrorTests.cs" />
     <Compile Include="CausalConsistencyTests.cs" />
     <Compile Include="ClientSessionHandleTests.cs" />
-    <Compile Include="ClientSessionTests.cs" />
-    <Compile Include="ClientSessionWrappingCoreSessionTests.cs" />
+    <Compile Include="ClientSessionOptionsTests.cs" />
     <Compile Include="CreateManyIndexOptionsTest.cs" />
     <Compile Include="CreateOneIndexOptionsTest.cs" />
     <Compile Include="DecryptedSecureStringTests.cs" />
@@ -158,7 +157,6 @@
     <Compile Include="Linq\Translators\PredicateValueConversionTests.cs" />
     <Compile Include="Linq\Translators\PredicateTranslatorTests.cs" />
     <Compile Include="Linq\MongoQueryableNullableEnumComparedToNullableEnumTests.cs" />
-    <Compile Include="NoServerSessionTests.cs" />
     <Compile Include="OfTypeMongoCollectionTests.cs" />
     <Compile Include="PasswordEvidenceTests.cs" />
     <Compile Include="PipelineDefinitionBuilderTests.cs" />
@@ -166,7 +164,6 @@
     <Compile Include="PipelineStageDefinitionBuilderTests.cs" />
     <Compile Include="ProjectionDefinitionBuilderTests.cs" />
     <Compile Include="IndexKeysDefinitionBuilderTests.cs" />
-    <Compile Include="ReferenceCountedClientSessionTests.cs" />
     <Compile Include="ServerSessionTests.cs" />
     <Compile Include="RetryableWritesTests.cs" />
     <Compile Include="SortDefinitionBuilderTests.cs" />
@@ -221,7 +218,6 @@
     <Compile Include="Specifications\crud\CountTest.cs" />
     <Compile Include="Specifications\crud\AggregateTest.cs" />
     <Compile Include="Specifications\crud\ICrudOperationTest.cs" />
-    <Compile Include="WrappingClientSessionTests.cs" />
     <Compile Include="WriteModelTests.cs" />
     <Compile Include="BulkWriteResultTests.cs" />
     <Compile Include="ClusterKeyTests.cs" />

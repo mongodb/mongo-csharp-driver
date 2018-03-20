@@ -14,6 +14,7 @@
 */
 
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Clusters;
 
 namespace MongoDB.Driver.Core.Bindings
 {
@@ -62,6 +63,12 @@ namespace MongoDB.Driver.Core.Bindings
 
         /// <inheritdoc />
         public BsonTimestamp OperationTime => null;
+
+        /// <inheritdoc />
+        public CoreSessionOptions Options => null;
+
+        /// <inheritdoc />
+        public ICoreServerSession ServerSession => NoCoreServerSession.Instance;
 
         /// <inheritdoc />
         public void AdvanceClusterTime(BsonDocument newClusterTime)

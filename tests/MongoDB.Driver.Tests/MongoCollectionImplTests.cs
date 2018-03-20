@@ -25,6 +25,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Operations;
@@ -44,6 +45,8 @@ namespace MongoDB.Driver
         public MongoCollectionImplTests()
         {
             var mockClient = new Mock<IMongoClient>();
+            var mockCluster = new Mock<ICluster>();
+            mockClient.SetupGet(m => m.Cluster).Returns(mockCluster.Object);
             _operationExecutor = new MockOperationExecutor();
             _operationExecutor.Client = mockClient.Object;
         }
@@ -2806,9 +2809,9 @@ namespace MongoDB.Driver
                 var client = new Mock<IMongoClient>().Object;
                 var options = new ClientSessionOptions();
                 var coreServerSession = new CoreServerSession();
-                var serverSession = new ServerSession(coreServerSession);
-                var clientSession = new ClientSession(client, options, serverSession, isImplicit: false);
-                return new ClientSessionHandle(clientSession);
+                var coreSession = new CoreSession(coreServerSession, options.ToCore());
+                var coreSessionHandle = new CoreSessionHandle(coreSession);
+                return new ClientSessionHandle(client, options, coreSessionHandle);
             }
             else
             {

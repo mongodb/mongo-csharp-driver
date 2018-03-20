@@ -15,6 +15,7 @@
 
 using System;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Clusters;
 
 namespace MongoDB.Driver.Core.Bindings
 {
@@ -63,6 +64,22 @@ namespace MongoDB.Driver.Core.Bindings
         /// The operation time.
         /// </value>
         BsonTimestamp OperationTime { get; }
+
+        /// <summary>
+        /// Gets the session options.
+        /// </summary>
+        /// <value>
+        /// The session options.
+        /// </value>
+        CoreSessionOptions Options { get; }
+
+        /// <summary>
+        /// Gets the server session.
+        /// </summary>
+        /// <value>
+        /// The server session.
+        /// </value>
+        ICoreServerSession ServerSession { get; }
 
         // methods
         /// <summary>

@@ -21,7 +21,9 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Async;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
@@ -279,6 +281,14 @@ namespace MongoDB.Driver.Core.Clusters
                     throw;
                 }
             }
+        }
+
+        public ICoreSessionHandle StartSession(CoreSessionOptions options)
+        {
+            options = options ?? new CoreSessionOptions();
+            var serverSession = AcquireServerSession();
+            var session = new CoreSession(serverSession, options);
+            return new CoreSessionHandle(session);
         }
 
         protected abstract bool TryGetServer(EndPoint endPoint, out IClusterableServer server);

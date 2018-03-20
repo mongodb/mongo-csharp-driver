@@ -75,6 +75,9 @@
     <Compile Include="Core\Bindings\CoreServerSessionPoolTests.cs" />
     <Compile Include="Core\Bindings\CoreServerSessionTests.cs" />
     <Compile Include="Core\Bindings\CoreSessionHandleTests.cs" />
+    <Compile Include="Core\Bindings\CoreSessionOptionsTests.cs" />
+    <Compile Include="Core\Bindings\CoreSessionTests.cs" />
+    <Compile Include="Core\Bindings\NoCoreServerSessionTests.cs" />
     <Compile Include="Core\Bindings\NoCoreSessionTests.cs" />
     <Compile Include="Core\Bindings\ReferenceCountedCoreSessionTests.cs" />
     <Compile Include="Core\Bindings\SingleServerReadBindingTests.cs" />

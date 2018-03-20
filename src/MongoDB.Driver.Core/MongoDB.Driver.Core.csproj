@@ -98,9 +98,11 @@
     <Compile Include="Core\Bindings\CoreServerSessionPool.cs" />
     <Compile Include="Core\Bindings\CoreSession.cs" />
     <Compile Include="Core\Bindings\CoreSessionHandle.cs" />
+    <Compile Include="Core\Bindings\CoreSessionOptions.cs" />
     <Compile Include="Core\Bindings\ICoreServerSessionPool.cs" />
     <Compile Include="Core\Bindings\ICoreServerSesssion.cs" />
     <Compile Include="Core\Bindings\ICoreSession.cs" />
+    <Compile Include="Core\Bindings\NoCoreServerSession.cs" />
     <Compile Include="Core\Bindings\NoCoreSession.cs" />
     <Compile Include="Core\Bindings\ReferenceCountedCoreSession.cs" />
     <Compile Include="Core\Bindings\WrappingCoreServerSession.cs" />

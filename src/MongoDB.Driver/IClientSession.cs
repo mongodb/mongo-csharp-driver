@@ -15,6 +15,7 @@
 
 using System;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Bindings;
 
 namespace MongoDB.Driver
 {
@@ -71,6 +72,14 @@ namespace MongoDB.Driver
         /// The server session.
         /// </value>
         IServerSession ServerSession { get; }
+
+        /// <summary>
+        /// Gets the wrapped core session (intended for internal use only).
+        /// </summary>
+        /// <value>
+        /// The wrapped core session.
+        /// </value>
+        ICoreSessionHandle WrappedCoreSession { get; }
 
         // methods
         /// <summary>

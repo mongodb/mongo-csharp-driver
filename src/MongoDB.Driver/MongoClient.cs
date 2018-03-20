@@ -193,12 +193,12 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc/>
-        public sealed override IAsyncCursor<BsonDocument> ListDatabases(        
+        public sealed override IAsyncCursor<BsonDocument> ListDatabases(
             CancellationToken cancellationToken = default(CancellationToken))
         {
             return UsingImplicitSession(session => ListDatabases(session, cancellationToken), cancellationToken);
         }
-        
+
         /// <inheritdoc/>
         public sealed override IAsyncCursor<BsonDocument> ListDatabases(
             ListDatabasesOptions options,
@@ -209,7 +209,7 @@ namespace MongoDB.Driver
 
         /// <inheritdoc/>
         public sealed override IAsyncCursor<BsonDocument> ListDatabases(
-            IClientSessionHandle session,        
+            IClientSessionHandle session,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             return ListDatabases(session, null, cancellationToken);
@@ -229,12 +229,12 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc/>
-        public sealed override Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(        
+        public sealed override Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(
             CancellationToken cancellationToken = default(CancellationToken))
         {
             return UsingImplicitSessionAsync(session => ListDatabasesAsync(session, null, cancellationToken), cancellationToken);
         }
-        
+
         /// <inheritdoc/>
         public sealed override Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(
             ListDatabasesOptions options,
@@ -250,7 +250,7 @@ namespace MongoDB.Driver
         {
             return ListDatabasesAsync(session, null, cancellationToken);
         }
-        
+
         /// <inheritdoc/>
         public sealed override Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(
             IClientSessionHandle session,
@@ -258,7 +258,7 @@ namespace MongoDB.Driver
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(session, nameof(session));
-            options = options ?? new ListDatabasesOptions();            
+            options = options ?? new ListDatabasesOptions();
             var messageEncoderSettings = GetMessageEncoderSettings();
             var operation = CreateListDatabaseOperation(options, messageEncoderSettings);
             return ExecuteReadOperationAsync(session, operation, cancellationToken);
@@ -326,12 +326,6 @@ namespace MongoDB.Driver
         }
 
         // private methods
-        private IServerSession AcquireServerSession()
-        {
-            var coreServerSession =  _cluster.AcquireServerSession();
-            return new ServerSession(coreServerSession);
-        }
-
         private bool AreSessionsSupported(CancellationToken cancellationToken)
         {
             return AreSessionsSupported(_cluster.Description) ?? AreSessionsSupportedAfterServerSelection(cancellationToken);
@@ -371,7 +365,7 @@ namespace MongoDB.Driver
         private IAsyncCursor<string> CreateDatabaseNamesCursor(IAsyncCursor<BsonDocument> cursor)
         {
             return new BatchTransformingAsyncCursor<BsonDocument, string>(
-                cursor, 
+                cursor,
                 databases => databases.Select(database => database["name"].AsString));
         }
 
@@ -386,9 +380,21 @@ namespace MongoDB.Driver
             };
         }
 
+        private IReadBindingHandle CreateReadBinding(IClientSessionHandle session)
+        {
+            var binding = new ReadPreferenceBinding(_cluster, _settings.ReadPreference, session.WrappedCoreSession.Fork());
+            return new ReadBindingHandle(binding);
+        }
+
+        private IReadWriteBindingHandle CreateReadWriteBinding(IClientSessionHandle session)
+        {
+            var binding = new WritableServerBinding(_cluster, session.WrappedCoreSession.Fork());
+            return new ReadWriteBindingHandle(binding);
+        }
+
         private TResult ExecuteReadOperation<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, CancellationToken cancellationToken = default(CancellationToken))
         {
-            using (var binding = new ReadPreferenceBinding(_cluster, _settings.ReadPreference, session.ToCoreSession()))
+            using (var binding = CreateReadBinding(session))
             {
                 return _operationExecutor.ExecuteReadOperation(binding, operation, cancellationToken);
             }
@@ -396,7 +402,7 @@ namespace MongoDB.Driver
 
         private async Task<TResult> ExecuteReadOperationAsync<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, CancellationToken cancellationToken = default(CancellationToken))
         {
-            using (var binding = new ReadPreferenceBinding(_cluster, _settings.ReadPreference, session.ToCoreSession()))
+            using (var binding = CreateReadBinding(session))
             {
                 return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, cancellationToken).ConfigureAwait(false);
             }
@@ -404,7 +410,7 @@ namespace MongoDB.Driver
 
         private TResult ExecuteWriteOperation<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, CancellationToken cancellationToken = default(CancellationToken))
         {
-            using (var binding = new WritableServerBinding(_cluster, session.ToCoreSession()))
+            using (var binding = CreateReadWriteBinding(session))
             {
                 return _operationExecutor.ExecuteWriteOperation(binding, operation, cancellationToken);
             }
@@ -412,7 +418,7 @@ namespace MongoDB.Driver
 
         private async Task<TResult> ExecuteWriteOperationAsync<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, CancellationToken cancellationToken = default(CancellationToken))
         {
-            using (var binding = new WritableServerBinding(_cluster, session.ToCoreSession()))
+            using (var binding = CreateReadWriteBinding(session))
             {
                 return await _operationExecutor.ExecuteWriteOperationAsync(binding, operation, cancellationToken).ConfigureAwait(false);
             }
@@ -432,34 +438,37 @@ namespace MongoDB.Driver
         {
             var options = new ClientSessionOptions();
 
-            IServerSession serverSession;
+            ICoreSessionHandle coreSession;
 #pragma warning disable 618
             var areMultipleUsersAuthenticated = _settings.Credentials.Count() > 1;
 #pragma warning restore
             if (areSessionsSupported && !areMultipleUsersAuthenticated)
             {
-                serverSession = AcquireServerSession();
+                coreSession = _cluster.StartSession(options.ToCore(isImplicit: true));
             }
             else
             {
-                serverSession = NoServerSession.Instance;
+                coreSession = NoCoreSession.NewHandle();
             }
 
-            var session = new ClientSession(this, options, serverSession, isImplicit: true);
-            return new ClientSessionHandle(session);
+            return new ClientSessionHandle(this, options, coreSession);
         }
 
         private IClientSessionHandle StartSession(ClientSessionOptions options, bool areSessionsSupported)
         {
-            if (!areSessionsSupported)
+            options = options ?? new ClientSessionOptions();
+
+            ICoreSessionHandle coreSession;
+            if (areSessionsSupported)
+            {
+                coreSession = _cluster.StartSession(options.ToCore());
+            }
+            else
             {
                 throw new NotSupportedException("Sessions are not supported by this version of the server.");
             }
-            options = options ?? new ClientSessionOptions();
-            var serverSession = AcquireServerSession();
-            var session = new ClientSession(this, options, serverSession, isImplicit: false);
-            var handle = new ClientSessionHandle(session);
-            return handle;
+
+            return new ClientSessionHandle(this, options, coreSession);
         }
 
         private void UsingImplicitSession(Action<IClientSessionHandle> func, CancellationToken cancellationToken)
