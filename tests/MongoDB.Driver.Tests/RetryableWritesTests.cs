@@ -183,12 +183,11 @@ namespace MongoDB.Driver.Tests
 
         private DisposableMongoClient GetClient(Action<ClusterBuilder> clusterConfigurator)
         {
-            var connectionString = CoreTestConfiguration.ConnectionString.ToString();
-            var clientSettings = MongoClientSettings.FromUrl(new MongoUrl(connectionString));
-            clientSettings.RetryWrites = true;
-            clientSettings.ClusterConfigurator = clusterConfigurator;
-
-            return new DisposableMongoClient(new MongoClient(clientSettings));
+            return DriverTestConfiguration.CreateDisposableClient((MongoClientSettings clientSettings) =>
+            {
+                clientSettings.ClusterConfigurator = clusterConfigurator;
+                clientSettings.RetryWrites = true;
+            });
         }
 
         private DisposableMongoClient GetClient(EventCapturer capturer)

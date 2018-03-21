@@ -34,6 +34,8 @@ namespace MongoDB.Driver.TestHelpers
 
         public MongoClientSettings Settings => wrapped.Settings;
 
+        public IMongoClient Wrapped => wrapped;
+
         public void DropDatabase(string name, CancellationToken cancellationToken = default(CancellationToken))
         {
             wrapped.DropDatabase(name, cancellationToken);

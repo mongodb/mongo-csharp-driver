@@ -85,6 +85,7 @@
     <Compile Include="CommandResults\DatabaseStatsResultTests.cs" />
     <Compile Include="CommandResults\ValidateCollectionResultTests.cs" />
     <Compile Include="DefaultLegacyOperationExecutorTests.cs" />
+    <Compile Include="DisposableMongoClientExtensions.cs" />
     <Compile Include="FailPoint.cs" />
     <Compile Include="Jira\CSharp100Tests.cs" />
     <Compile Include="Jira\CSharp101Tests.cs" />

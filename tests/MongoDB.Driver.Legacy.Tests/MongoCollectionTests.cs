@@ -31,6 +31,10 @@ using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.TestHelpers;
+using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Legacy.Tests;
+using MongoDB.Bson.TestHelpers;
 
 namespace MongoDB.Driver.Tests
 {
@@ -421,6 +425,26 @@ namespace MongoDB.Driver.Tests
             _collection.Drop();
             var count = _collection.Count();
             Assert.Equal(0, count);
+        }
+
+        [SkippableFact]
+        public void TestCountUsesImplicitSession()
+        {
+            RequireServer.Check();
+
+            var events = new EventCapturer().Capture<CommandStartedEvent>(x => x.CommandName == "count");
+            using (var client = DriverTestConfiguration.CreateDisposableClient(events))
+            {
+                var server = client.GetServer();
+                var database = server.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+                var collection = database.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+                collection.Count();
+
+                var commandStartedEvent = events.Next().Should().BeOfType<CommandStartedEvent>().Subject;
+                var command = commandStartedEvent.Command;
+                var areSessionsSupported = AreSessionsSupported(client);
+                command.Contains("lsid").Should().Be(areSessionsSupported);
+            }
         }
 
         [Fact]
@@ -1227,7 +1251,7 @@ namespace MongoDB.Driver.Tests
             var collection = _database.GetCollection(_collection.Name, collectionSettings);
             var args = new FindAndRemoveArgs
             {
-                Query = Query.EQ("x", 1)              
+                Query = Query.EQ("x", 1)
             };
 
             BsonDocument modifiedDocument;
@@ -3504,6 +3528,12 @@ namespace MongoDB.Driver.Tests
         }
 
         // private methods
+        private bool AreSessionsSupported(IMongoClient client)
+        {
+            var description = client.Cluster.Description;
+            return description.LogicalSessionTimeout.HasValue;
+        }
+
         private void CheckExpectedResult(ExpectedWriteConcernResult expectedResult, WriteConcernResult result)
         {
             Assert.Equal(expectedResult.DocumentsAffected ?? 0, result.DocumentsAffected);

@@ -17,6 +17,7 @@ using System;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Clusters;
@@ -178,6 +179,7 @@ namespace MongoDB.Driver.Tests
             var database = __server.GetDatabase("test", settings);
             Assert.Equal("test", database.Name);
             Assert.Equal(ReadPreference.Primary, database.Settings.ReadPreference);
+            Assert.Equal(database._operationExecutor(), __server._operationExecutor());
         }
 
         [Fact]
@@ -345,5 +347,10 @@ namespace MongoDB.Driver.Tests
             result.Settings.WriteConcern.Should().BeSameAs(newWriteConcern);
             result.WithWriteConcern(originalWriteConcern).Settings.Should().Be(subject.Settings);
         }
+    }
+
+    internal static class MongoServerReflector
+    {
+        public static IOperationExecutor _operationExecutor(this MongoServer obj) => (IOperationExecutor)Reflector.GetFieldValue(obj, nameof(_operationExecutor));
     }
 }

@@ -559,7 +559,7 @@ namespace MongoDB.Driver
         public virtual MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
             string collectionName, MongoCollectionSettings collectionSettings)
         {
-            return new MongoCollection<TDefaultDocument>(this, collectionName, collectionSettings);
+            return new MongoCollection<TDefaultDocument>(this, collectionName, collectionSettings, _operationExecutor);
         }
 
         /// <summary>
@@ -638,8 +638,12 @@ namespace MongoDB.Driver
         {
             var collectionDefinition = typeof(MongoCollection<>);
             var collectionType = collectionDefinition.MakeGenericType(defaultDocumentType);
-            var constructorInfo = collectionType.GetTypeInfo().GetConstructor(new Type[] { typeof(MongoDatabase), typeof(string), typeof(MongoCollectionSettings) });
-            return (MongoCollection)constructorInfo.Invoke(new object[] { this, collectionName, collectionSettings });
+            var constructorParameterTypes = new Type[] { typeof(MongoDatabase), typeof(string), typeof(MongoCollectionSettings), typeof(IOperationExecutor) };
+            var constructorInfo = collectionType.GetTypeInfo()
+                .GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)
+                .Where(c => c.GetParameters().Select(p => p.ParameterType).SequenceEqual(constructorParameterTypes))
+                .Single();
+            return (MongoCollection)constructorInfo.Invoke(new object[] { this, collectionName, collectionSettings, _operationExecutor });
         }
 
         /// <summary>
