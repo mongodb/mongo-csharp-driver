@@ -14,6 +14,9 @@
 */
 
 using System;
+using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.TestHelpers;
 
 namespace MongoDB.Driver.Tests
 {
@@ -67,6 +70,30 @@ namespace MongoDB.Driver.Tests
         }
 
         // public static methods
+        public static DisposableMongoClient CreateDisposableClient()
+        {
+            return CreateDisposableClient((MongoClientSettings s) => { });
+        }
+
+        public static DisposableMongoClient CreateDisposableClient(Action<ClusterBuilder> clusterConfigurator)
+        {
+            return CreateDisposableClient((MongoClientSettings s) => s.ClusterConfigurator = clusterConfigurator);
+        }
+
+        public static DisposableMongoClient CreateDisposableClient(Action<MongoClientSettings> clientSettingsConfigurator)
+        {
+            var connectionString = CoreTestConfiguration.ConnectionString.ToString();
+            var clientSettings = MongoClientSettings.FromUrl(new MongoUrl(connectionString));
+            clientSettingsConfigurator(clientSettings);
+            var client = new MongoClient(clientSettings);
+            return new DisposableMongoClient(client);
+        }
+
+        public static DisposableMongoClient CreateDisposableClient(EventCapturer capturer)
+        {
+            return CreateDisposableClient((ClusterBuilder c) => c.Subscribe(capturer));
+        }
+
         public static MongoClientSettings GetClientSettings()
         {
             var connectionString = CoreTestConfiguration.ConnectionString.ToString();

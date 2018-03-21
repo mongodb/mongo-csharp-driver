@@ -209,11 +209,7 @@ namespace MongoDB.Driver.Tests
 
         private DisposableMongoClient GetClient(EventCapturer capturer)
         {
-            var connectionString = CoreTestConfiguration.ConnectionString.ToString();
-            var clientSettings = MongoClientSettings.FromUrl(new MongoUrl(connectionString));
-            clientSettings.ClusterConfigurator = cb => cb.Subscribe(capturer);
-
-            return new DisposableMongoClient(new MongoClient(clientSettings));
+            return DriverTestConfiguration.CreateDisposableClient(capturer);
         }
     }
 }

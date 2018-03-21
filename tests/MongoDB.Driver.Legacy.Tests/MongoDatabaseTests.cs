@@ -17,6 +17,7 @@ using System;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
@@ -322,6 +323,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(_database.Name + "." + collectionName, collection.FullName);
             Assert.Equal(collectionName, collection.Name);
             Assert.Equal(_database.Settings.WriteConcern, collection.Settings.WriteConcern);
+            Assert.Equal(_database._operationExecutor(), collection.OperationExecutor);
         }
 
         [Fact]
@@ -333,6 +335,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(_database.Name + "." + collectionName, collection.FullName);
             Assert.Equal(collectionName, collection.Name);
             Assert.Equal(_database.Settings.WriteConcern, collection.Settings.WriteConcern);
+            Assert.Equal(_database._operationExecutor(), collection.OperationExecutor);
         }
 
         [Fact]
@@ -588,5 +591,10 @@ namespace MongoDB.Driver.Tests
             _database.DropCollection(collectionName);
             _database.CreateCollection(collectionName);
         }
+    }
+
+    internal static class MongoDatabaseReflector
+    {
+        public static IOperationExecutor _operationExecutor(this MongoDatabase obj) => (IOperationExecutor)Reflector.GetFieldValue(obj, nameof(_operationExecutor));
     }
 }
