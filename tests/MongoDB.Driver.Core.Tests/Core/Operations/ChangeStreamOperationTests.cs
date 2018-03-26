@@ -352,6 +352,49 @@ namespace MongoDB.Driver.Core.Operations
 
         [SkippableTheory]
         [ParameterAttributeData]
+        public void Execute_should_return_expected_results_for_large_batch(
+            [Values(1, 2, 3)] int numberOfChunks,
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.ChangeStreamStage).ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded);
+            EnsureDatabaseExists();
+            DropCollection();
+
+            var pipeline = new[] { BsonDocument.Parse("{ $match : { operationType : \"insert\" } }") };
+            var resultSerializer = new ChangeStreamDocumentSerializer<BsonDocument>(BsonDocumentSerializer.Instance);
+            var messageEncoderSettings = new MessageEncoderSettings();
+            var subject = new ChangeStreamOperation<ChangeStreamDocument<BsonDocument>>(_collectionNamespace, pipeline, resultSerializer, messageEncoderSettings)
+            {
+                FullDocument = ChangeStreamFullDocumentOption.UpdateLookup
+            };
+            using (var cursor = ExecuteOperation(subject, async))
+            {
+                var filler = new string('x', (numberOfChunks - 1) * 65536);
+                var document = new BsonDocument { { "_id", 1 }, { "filler", filler } };
+                Insert(document);
+
+                ChangeStreamDocument<BsonDocument> changeStreamDocument;
+                do
+                {
+                    if (async)
+                    {
+                        cursor.MoveNextAsync().GetAwaiter().GetResult();
+                    }
+                    else
+                    {
+                        cursor.MoveNext();
+                    }
+
+                    changeStreamDocument = cursor.Current.FirstOrDefault();
+                }
+                while (changeStreamDocument == null);
+
+                changeStreamDocument.FullDocument.Should().Be(document);
+            }
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_return_expected_results_for_updates(
             [Values(ChangeStreamFullDocumentOption.Default, ChangeStreamFullDocumentOption.UpdateLookup)] ChangeStreamFullDocumentOption fullDocument,
             [Values(false, true)] bool async)

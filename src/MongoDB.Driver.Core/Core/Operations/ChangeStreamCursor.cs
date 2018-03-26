@@ -137,10 +137,8 @@ namespace MongoDB.Driver.Core.Operations
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
         private TDocument DeserializeDocument(RawBsonDocument rawDocument)
         {
-            var slice = rawDocument.Slice;
-            var bytes = slice.AccessBackingBytes(0);
-            using (var memoryStream = new MemoryStream(bytes.Array, bytes.Offset, bytes.Count))
-            using (var reader = new BsonBinaryReader(memoryStream))
+            using (var stream = new ByteBufferStream(rawDocument.Slice, ownsBuffer: false))
+            using (var reader = new BsonBinaryReader(stream))
             {
                 var context = BsonDeserializationContext.CreateRoot(reader);
                 return _documentSerializer.Deserialize(context);
