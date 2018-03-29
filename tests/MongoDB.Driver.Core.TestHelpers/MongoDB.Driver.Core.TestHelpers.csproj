@@ -59,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClusterDescriptionParser.cs" />
+    <Compile Include="CoreExceptionHelper.cs" />
     <Compile Include="CoreTestConfiguration.cs" />
     <Compile Include="EventCapturer.cs" />
     <Compile Include="FailPoint.cs" />

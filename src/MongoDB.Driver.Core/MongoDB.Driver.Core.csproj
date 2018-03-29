@@ -353,6 +353,7 @@
     <Compile Include="Core\Clusters\ServerSelectors\RandomServerSelector.cs" />
     <Compile Include="Core\Clusters\ServerSelectors\ReadPreferenceServerSelector.cs" />
     <Compile Include="Core\Clusters\SingleServerCluster.cs" />
+    <Compile Include="ServerErrorCode.cs" />
     <Compile Include="SingleBatchAsyncCursor.cs" />
     <Compile Include="Tag.cs" />
     <Compile Include="TagSet.cs" />

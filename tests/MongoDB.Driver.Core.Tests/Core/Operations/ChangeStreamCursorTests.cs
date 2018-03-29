@@ -13,25 +13,23 @@
 * limitations under the License.
 */
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Connections;
-using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
@@ -189,7 +187,7 @@ namespace MongoDB.Driver.Core.Operations
         [Theory]
         [ParameterAttributeData]
         public void MoveNext_should_call_Resume_after_resumable_exception(
-            [Values("IOException", "MongoNotPrimaryException", "MongoCursorNotFoundException")] string resumableExceptionTypeName,
+            [Values(typeof(MongoConnectionException), typeof(MongoNotPrimaryException), typeof(MongoCursorNotFoundException))] Type resumableExceptionType,
             [Values(false, true)] bool expectedResult,
             [Values(false, true)] bool async)
         {
@@ -198,7 +196,7 @@ namespace MongoDB.Driver.Core.Operations
             var mockOperation = new Mock<IChangeStreamOperation<BsonDocument>>();
             var subject = CreateSubject(cursor: mockCursor.Object, binding: mockBinding.Object, changeStreamOperation: mockOperation.Object);
             var cancellationToken = new CancellationTokenSource().Token;
-            var resumableException = CreateException(resumableExceptionTypeName);
+            var resumableException = CoreExceptionHelper.CreateException(resumableExceptionType);
             var mockResumedCursor = new Mock<IAsyncCursor<RawBsonDocument>>();
 
             // process the first batch so that we have a resume token
@@ -371,6 +369,43 @@ namespace MongoDB.Driver.Core.Operations
             exception.Message.Should().Be("Cannot provide resume functionality when the resume token is missing.");
         }
 
+        [Theory]
+        [InlineData(1, false)]
+        [InlineData(ServerErrorCode.HostNotFound, true)]
+        [InlineData(ServerErrorCode.HostUnreachable, true)]
+        [InlineData(ServerErrorCode.InterruptedAtShutdown, true)]
+        [InlineData(ServerErrorCode.InterruptedDueToReplStateChange, true)]
+        [InlineData(ServerErrorCode.NetworkTimeout, true)]
+        [InlineData(ServerErrorCode.NotMaster, true)]
+        [InlineData(ServerErrorCode.NotMasterNoSlaveOk, true)]
+        [InlineData(ServerErrorCode.NotMasterOrSecondary, true)]
+        [InlineData(ServerErrorCode.PrimarySteppedDown, true)]
+        [InlineData(ServerErrorCode.ShutdownInProgress, true)]
+        [InlineData(ServerErrorCode.SocketException, true)]
+        [InlineData(ServerErrorCode.WriteConcernFailed, true)]
+        public void CanResumeAfter_should_return_expected_result_for_MongoCommandExceptions(int code, bool expectedResult)
+        {
+            var subject = CreateSubject();
+            var exception = CoreExceptionHelper.CreateMongoCommandException(code);
+            var result = subject.CanResumeAfter(exception);
+
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [InlineData(typeof(IOException), false)]
+        [InlineData(typeof(MongoConnectionException), true)]
+        [InlineData(typeof(MongoCursorNotFoundException), true)]
+        [InlineData(typeof(MongoNotPrimaryException), true)]
+        public void CanResumeAfter_should_return_expected_result_for_other_exceptions(Type exceptionType, bool expectedResult)
+        {
+            var subject = CreateSubject();
+            var exception = CoreExceptionHelper.CreateException(exceptionType);
+            var result = subject.CanResumeAfter(exception);
+
+            result.Should().Be(expectedResult);
+        }
+
         // private methods
         private ChangeStreamOperation<BsonDocument> CreateChangeStreamOperation()
         {
@@ -379,32 +414,6 @@ namespace MongoDB.Driver.Core.Operations
             var resultSerializer = BsonDocumentSerializer.Instance;
             var messageEncoderSettings = new MessageEncoderSettings();
             return new ChangeStreamOperation<BsonDocument>(collectionNamespace, pipeline, resultSerializer, messageEncoderSettings);
-        }
-
-        private Exception CreateException(string exceptionTypeName)
-        {
-            switch (exceptionTypeName)
-            {
-                case "IOException": return new IOException("Mock IOException.");
-                case "MongoCursorNotFoundException":
-                    {
-                        var clusterId = new ClusterId(1);
-                        var serverId = new ServerId(clusterId, new DnsEndPoint("localhost", 27017));
-                        var connectionId = new ConnectionId(serverId, 1);
-                        var cursorId = 1L;
-                        var query = new BsonDocument();
-                        return new MongoCursorNotFoundException(connectionId, cursorId, query);
-                    }
-                case "MongoNotPrimaryException":
-                    {
-                        var clusterId = new ClusterId(1);
-                        var serverId = new ServerId(clusterId, new DnsEndPoint("localhost", 27017));
-                        var connectionId = new ConnectionId(serverId, 1);
-                        var result = new BsonDocument();
-                        return new MongoNotPrimaryException(connectionId, result);
-                    }
-                default: throw new ArgumentException($"Unexpected type name: {exceptionTypeName}.", nameof(exceptionTypeName));
-            }
         }
 
         private Task<TResult> CreateFaultedTask<TResult>(Exception exception)
@@ -439,46 +448,14 @@ namespace MongoDB.Driver.Core.Operations
 
     internal static class ChangeStreamCursorReflector
     {
-        public static IReadBinding _binding(this ChangeStreamCursor<BsonDocument> cursor)
-        {
-            var fieldInfo = typeof(ChangeStreamCursor<BsonDocument>).GetField("_binding", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (IReadBinding)fieldInfo.GetValue(cursor);
-        }
+        public static IReadBinding _binding(this ChangeStreamCursor<BsonDocument> cursor) => (IReadBinding)Reflector.GetFieldValue(cursor, nameof(_binding));
+        public static ChangeStreamOperation<BsonDocument> _changeStreamOperation(this ChangeStreamCursor<BsonDocument> cursor) => (ChangeStreamOperation<BsonDocument>)Reflector.GetFieldValue(cursor, nameof(_changeStreamOperation));
+        public static IEnumerable<BsonDocument> _current(this ChangeStreamCursor<BsonDocument> cursor) => (IEnumerable<BsonDocument>)Reflector.GetFieldValue(cursor, nameof(_current));
+        public static IAsyncCursor<RawBsonDocument> _cursor(this ChangeStreamCursor<BsonDocument> cursor) => (IAsyncCursor<RawBsonDocument>)Reflector.GetFieldValue(cursor, nameof(_cursor));
+        public static bool _disposed(this ChangeStreamCursor<BsonDocument> cursor) => (bool)Reflector.GetFieldValue(cursor, nameof(_disposed));
+        public static IBsonSerializer<BsonDocument> _documentSerializer(this ChangeStreamCursor<BsonDocument> cursor) => (IBsonSerializer<BsonDocument>)Reflector.GetFieldValue(cursor, nameof(_documentSerializer));
+        public static BsonDocument _resumeToken(this ChangeStreamCursor<BsonDocument> cursor) => (BsonDocument)Reflector.GetFieldValue(cursor, nameof(_resumeToken));
 
-        public static ChangeStreamOperation<BsonDocument> _changeStreamOperation(this ChangeStreamCursor<BsonDocument> cursor)
-        {
-            var fieldInfo = typeof(ChangeStreamCursor<BsonDocument>).GetField("_changeStreamOperation", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (ChangeStreamOperation<BsonDocument>)fieldInfo.GetValue(cursor);
-        }
-
-        public static IEnumerable<BsonDocument> _current(this ChangeStreamCursor<BsonDocument> cursor)
-        {
-            var fieldInfo = typeof(ChangeStreamCursor<BsonDocument>).GetField("_current", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (IEnumerable<BsonDocument>)fieldInfo.GetValue(cursor);
-        }
-
-        public static IAsyncCursor<RawBsonDocument> _cursor(this ChangeStreamCursor<BsonDocument> cursor)
-        {
-            var fieldInfo = typeof(ChangeStreamCursor<BsonDocument>).GetField("_cursor", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (IAsyncCursor<RawBsonDocument>)fieldInfo.GetValue(cursor);
-        }
-
-        public static bool _disposed(this ChangeStreamCursor<BsonDocument> cursor)
-        {
-            var fieldInfo = typeof(ChangeStreamCursor<BsonDocument>).GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (bool)fieldInfo.GetValue(cursor);
-        }
-
-        public static IBsonSerializer<BsonDocument> _documentSerializer(this ChangeStreamCursor<BsonDocument> cursor)
-        {
-            var fieldInfo = typeof(ChangeStreamCursor<BsonDocument>).GetField("_documentSerializer", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (IBsonSerializer<BsonDocument>)fieldInfo.GetValue(cursor);
-        }
-
-        public static BsonDocument _resumeToken(this ChangeStreamCursor<BsonDocument> cursor)
-        {
-            var fieldInfo = typeof(ChangeStreamCursor<BsonDocument>).GetField("_resumeToken", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (BsonDocument)fieldInfo.GetValue(cursor);
-        }
+        public static bool CanResumeAfter(this ChangeStreamCursor<BsonDocument> cursor, Exception exception) => (bool)Reflector.Invoke(cursor, nameof(CanResumeAfter), exception);
     }
 }
