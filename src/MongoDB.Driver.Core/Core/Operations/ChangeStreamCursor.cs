@@ -131,7 +131,32 @@ namespace MongoDB.Driver.Core.Operations
         // private methods
         private bool CanResumeAfter(Exception exception)
         {
-            return exception is IOException || exception is MongoCursorNotFoundException || exception is MongoNotPrimaryException;
+            var commandException = exception as MongoCommandException;
+            if (commandException != null)
+            {
+                var code = (ServerErrorCode)commandException.Code;
+                switch (code)
+                {
+                    case ServerErrorCode.HostNotFound:
+                    case ServerErrorCode.HostUnreachable:
+                    case ServerErrorCode.InterruptedAtShutdown:
+                    case ServerErrorCode.InterruptedDueToReplStateChange:
+                    case ServerErrorCode.NetworkTimeout:
+                    case ServerErrorCode.NotMaster:
+                    case ServerErrorCode.NotMasterNoSlaveOk:
+                    case ServerErrorCode.NotMasterOrSecondary:
+                    case ServerErrorCode.PrimarySteppedDown:
+                    case ServerErrorCode.ShutdownInProgress:
+                    case ServerErrorCode.SocketException:
+                    case ServerErrorCode.WriteConcernFailed:
+                        return true;
+
+                    default:
+                        return false;
+                }
+            }
+
+            return exception is MongoConnectionException || exception is MongoCursorNotFoundException || exception is MongoNotPrimaryException;
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]

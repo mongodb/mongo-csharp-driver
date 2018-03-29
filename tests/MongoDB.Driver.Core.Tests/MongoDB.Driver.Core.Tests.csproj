@@ -108,6 +108,7 @@
     <Compile Include="Core\Operations\OperationTestHelper.cs" />
     <Compile Include="Core\Operations\ReadConcernHelperTests.cs" />
     <Compile Include="Core\Operations\ReIndexOperationTests.cs" />
+    <Compile Include="Core\Operations\RetryableWriteOperationExecutorTests.cs" />
     <Compile Include="Core\Operations\UpdateRequestTests.cs" />
     <Compile Include="Core\Operations\GeoSearchOperationTests.cs" />
     <Compile Include="Core\Operations\GeoNearOperationTests.cs" />
