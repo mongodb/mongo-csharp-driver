@@ -33,6 +33,22 @@ namespace MongoDB.Driver
     /// <inheritdoc/>
     public class MongoClient : MongoClientBase
     {
+        #region static
+        // private static methods
+        private static IEnumerable<ServerDescription> SelectServersThatDetermineWhetherSessionsAreSupported(ClusterConnectionMode connectionMode, IEnumerable<ServerDescription> servers)
+        {
+            var connectedServers = servers.Where(s => s.State == ServerState.Connected);
+            if (connectionMode == ClusterConnectionMode.Direct)
+            {
+                return connectedServers;
+            }
+            else
+            {
+                return connectedServers.Where(s => s.IsDataBearing);
+            }
+        }
+        #endregion
+
         // private fields
         private readonly ICluster _cluster;
         private readonly IOperationExecutor _operationExecutor;
@@ -267,13 +283,21 @@ namespace MongoDB.Driver
 
         private bool? AreSessionsSupported(ClusterDescription clusterDescription)
         {
-            if (clusterDescription.Servers.Any(s => s.IsDataBearing))
+            if (clusterDescription.LogicalSessionTimeout.HasValue)
             {
-                return clusterDescription.LogicalSessionTimeout.HasValue;
+                return true;
             }
             else
             {
-                return null;
+                var selectedServers = SelectServersThatDetermineWhetherSessionsAreSupported(clusterDescription.ConnectionMode, clusterDescription.Servers).ToList();
+                if (selectedServers.Count == 0)
+                {
+                    return null;
+                }
+                else
+                {
+                    return false;
+                }
             }
         }
 
@@ -407,7 +431,7 @@ namespace MongoDB.Driver
             public IEnumerable<ServerDescription> SelectServers(ClusterDescription cluster, IEnumerable<ServerDescription> servers)
             {
                 ClusterDescription = cluster;
-                return servers.Where(s => s.IsDataBearing);
+                return SelectServersThatDetermineWhetherSessionsAreSupported(cluster.ConnectionMode, servers);
             }
         }
     }

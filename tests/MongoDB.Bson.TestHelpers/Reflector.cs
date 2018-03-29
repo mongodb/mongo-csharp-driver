@@ -20,9 +20,9 @@ namespace MongoDB.Bson.TestHelpers
 {
     public static class Reflector
     {
-        public static object GetFieldValue(object obj, string name)
+        public static object GetFieldValue(object obj, string name, BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance)
         {
-            var fieldInfo = obj.GetType().GetField(name, BindingFlags.NonPublic | BindingFlags.Instance);
+            var fieldInfo = obj.GetType().GetField(name, flags);
             return fieldInfo.GetValue(obj);
         }
 
@@ -32,6 +32,15 @@ namespace MongoDB.Bson.TestHelpers
                 .Where(m => m.Name == name && m.GetParameters().Length == 0)
                 .Single();
             return methodInfo.Invoke(obj, new object[] { });
+        }
+
+        public static object Invoke<T1>(object obj, string name, T1 arg1)
+        {
+            var parameterTypes = new[] { typeof(T1) };
+            var methodInfo = obj.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                .Where(m => m.Name == name && m.GetParameters().Select(p => p.ParameterType).SequenceEqual(parameterTypes))
+                .Single();
+            return methodInfo.Invoke(obj, new object[] { arg1 });
         }
     }
 }
