@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Clusters
     public sealed class ClusterDescription : IEquatable<ClusterDescription>
     {
         #region static
-        // static methods
+        // internal static methods
         internal static ClusterDescription CreateInitial(ClusterId clusterId, ClusterConnectionMode connectionMode)
         {
             return new ClusterDescription(
@@ -37,6 +37,40 @@ namespace MongoDB.Driver.Core.Clusters
                 connectionMode,
                 ClusterType.Unknown,
                 Enumerable.Empty<ServerDescription>());
+        }
+
+        // private static methods
+        private static TimeSpan? CalculateLogicalSessionTimeout(ClusterConnectionMode connectionMode, IEnumerable<ServerDescription> servers)
+        {
+            TimeSpan? logicalSessionTimeout = null;
+
+            foreach (var server in SelectServersThatDetermineWhetherSessionsAreSupported(connectionMode, servers))
+            {
+                if (server.LogicalSessionTimeout == null)
+                {
+                    return null;
+                }
+
+                if (logicalSessionTimeout == null || server.LogicalSessionTimeout.Value < logicalSessionTimeout.Value)
+                {
+                    logicalSessionTimeout = server.LogicalSessionTimeout;
+                }
+            }
+
+            return logicalSessionTimeout;
+        }
+
+        private static IEnumerable<ServerDescription> SelectServersThatDetermineWhetherSessionsAreSupported(ClusterConnectionMode connectionMode, IEnumerable<ServerDescription> servers)
+        {
+            var connectedServers = servers.Where(s => s.State == ServerState.Connected);
+            if (connectionMode == ClusterConnectionMode.Direct)
+            {
+                return connectedServers;
+            }
+            else
+            {
+                return connectedServers.Where(s => s.IsDataBearing);
+            }
         }
         #endregion
 
@@ -65,7 +99,7 @@ namespace MongoDB.Driver.Core.Clusters
             _connectionMode = connectionMode;
             _type = type;
             _servers = (servers ?? new ServerDescription[0]).OrderBy(n => n.EndPoint, new ToStringComparer<EndPoint>()).ToList();
-            _logicalSessionTimeout = CalculateLogicalSessionTimeout(_servers);
+            _logicalSessionTimeout = CalculateLogicalSessionTimeout(_connectionMode, _servers);
         }
 
         // properties
@@ -239,30 +273,6 @@ namespace MongoDB.Driver.Core.Clusters
         public ClusterDescription WithType(ClusterType value)
         {
             return _type == value ? this : new ClusterDescription(_clusterId, _connectionMode, value, _servers);
-        }
-
-        // private methods
-        private TimeSpan? CalculateLogicalSessionTimeout(IEnumerable<ServerDescription> servers)
-        {
-            TimeSpan? logicalSessionTimeout = null;
-
-            foreach (var server in servers)
-            {
-                if (server.IsDataBearing)
-                {
-                    if (server.LogicalSessionTimeout == null)
-                    {
-                        return null;
-                    }
-
-                    if (logicalSessionTimeout == null || server.LogicalSessionTimeout.Value < logicalSessionTimeout.Value)
-                    {
-                        logicalSessionTimeout = server.LogicalSessionTimeout;
-                    }
-                }
-            }
-
-            return logicalSessionTimeout;
         }
     }
 }

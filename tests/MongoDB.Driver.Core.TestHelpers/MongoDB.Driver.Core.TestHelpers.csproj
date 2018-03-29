@@ -58,11 +58,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ClusterDescriptionParser.cs" />
     <Compile Include="CoreTestConfiguration.cs" />
     <Compile Include="EventCapturer.cs" />
     <Compile Include="FailPoint.cs" />
     <Compile Include="ICoreSessionHandleExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServerDescriptionParser.cs" />
     <Compile Include="XunitExtensions\RequireServer.cs" />
   </ItemGroup>
   <ItemGroup>

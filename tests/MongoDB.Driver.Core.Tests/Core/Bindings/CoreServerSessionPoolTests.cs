@@ -244,6 +244,7 @@ namespace MongoDB.Driver.Tests
                 serverId,
                 endPoint,
                 logicalSessionTimeout: TimeSpan.FromMinutes(30),
+                state: ServerState.Connected,
                 type: ServerType.ShardRouter,
                 version: new SemanticVersion(3, 6, 0),
                 wireVersionRange: new Range<int>(2, 6));
