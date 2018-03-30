@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 return operation.ExecuteAttempt(context, 1, transactionNumber, cancellationToken);
             }
-            catch (Exception ex) when (IsRetryableException(ex))
+            catch (Exception ex) when (RetryabilityHelper.IsRetryableWriteException(ex))
             {
                 originalException = ex;
             }
@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 return await operation.ExecuteAttemptAsync(context, 1, transactionNumber, cancellationToken).ConfigureAwait(false);
             }
-            catch (Exception ex) when (IsRetryableException(ex))
+            catch (Exception ex) when (RetryabilityHelper.IsRetryableWriteException(ex))
             {
                 originalException = ex;
             }
@@ -133,39 +133,6 @@ namespace MongoDB.Driver.Core.Operations
             return
                 connectionDescription.IsMasterResult.LogicalSessionTimeout != null &&
                 connectionDescription.IsMasterResult.ServerType != ServerType.Standalone;
-        }
-
-        private static bool IsRetryableException(Exception ex)
-        {
-            var commandException = ex as MongoCommandException;
-            if (commandException != null)
-            {
-                var code = (ServerErrorCode)commandException.Code;
-                switch (code)
-                {
-                    case ServerErrorCode.HostNotFound:
-                    case ServerErrorCode.HostUnreachable:
-                    case ServerErrorCode.InterruptedAtShutdown:
-                    case ServerErrorCode.InterruptedDueToReplStateChange:
-                    case ServerErrorCode.NetworkTimeout:
-                    case ServerErrorCode.NotMaster:
-                    case ServerErrorCode.NotMasterNoSlaveOk:
-                    case ServerErrorCode.NotMasterOrSecondary:
-                    case ServerErrorCode.PrimarySteppedDown:
-                    case ServerErrorCode.ShutdownInProgress:
-                    case ServerErrorCode.SocketException:
-                    case ServerErrorCode.WriteConcernFailed:
-                        return true;
-
-                    default:
-                        return false;
-                }
-            }
-
-            return
-                ex is MongoConnectionException ||
-                ex is MongoNotPrimaryException ||
-                ex is MongoNodeIsRecoveringException;
         }
 
         private static bool ShouldThrowOriginalException(Exception retryException)

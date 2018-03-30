@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Core.Operations
             }
             catch (Exception ex)
             {
-                if (CanResumeAfter(ex))
+                if (RetryabilityHelper.IsResumableChangeStreamException(ex))
                 {
                     _cursor = _changeStreamOperation.Resume(_binding, _resumeToken, cancellationToken);
                     hasMore = _cursor.MoveNext(cancellationToken);
@@ -113,7 +113,7 @@ namespace MongoDB.Driver.Core.Operations
             }
             catch (Exception ex)
             {
-                if (CanResumeAfter(ex))
+                if (RetryabilityHelper.IsResumableChangeStreamException(ex))
                 {
                     _cursor = await _changeStreamOperation.ResumeAsync(_binding, _resumeToken, cancellationToken).ConfigureAwait(false);
                     hasMore = await _cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false);
@@ -129,36 +129,6 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // private methods
-        private bool CanResumeAfter(Exception exception)
-        {
-            var commandException = exception as MongoCommandException;
-            if (commandException != null)
-            {
-                var code = (ServerErrorCode)commandException.Code;
-                switch (code)
-                {
-                    case ServerErrorCode.HostNotFound:
-                    case ServerErrorCode.HostUnreachable:
-                    case ServerErrorCode.InterruptedAtShutdown:
-                    case ServerErrorCode.InterruptedDueToReplStateChange:
-                    case ServerErrorCode.NetworkTimeout:
-                    case ServerErrorCode.NotMaster:
-                    case ServerErrorCode.NotMasterNoSlaveOk:
-                    case ServerErrorCode.NotMasterOrSecondary:
-                    case ServerErrorCode.PrimarySteppedDown:
-                    case ServerErrorCode.ShutdownInProgress:
-                    case ServerErrorCode.SocketException:
-                    case ServerErrorCode.WriteConcernFailed:
-                        return true;
-
-                    default:
-                        return false;
-                }
-            }
-
-            return exception is MongoConnectionException || exception is MongoCursorNotFoundException || exception is MongoNotPrimaryException;
-        }
-
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
         private TDocument DeserializeDocument(RawBsonDocument rawDocument)
         {
