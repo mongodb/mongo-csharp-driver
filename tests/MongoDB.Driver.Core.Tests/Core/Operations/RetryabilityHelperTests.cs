@@ -15,20 +15,51 @@
 
 using System;
 using System.IO;
-using System.Net;
 using FluentAssertions;
-using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers;
-using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Connections;
-using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class RetryableWriteOperationExecutorTests
+    public class RetryabilityHelperTests
     {
+        [Theory]
+        [InlineData(1, false)]
+        [InlineData(ServerErrorCode.HostNotFound, true)]
+        [InlineData(ServerErrorCode.HostUnreachable, true)]
+        [InlineData(ServerErrorCode.InterruptedAtShutdown, true)]
+        [InlineData(ServerErrorCode.InterruptedDueToReplStateChange, true)]
+        [InlineData(ServerErrorCode.NetworkTimeout, true)]
+        [InlineData(ServerErrorCode.NotMaster, true)]
+        [InlineData(ServerErrorCode.NotMasterNoSlaveOk, true)]
+        [InlineData(ServerErrorCode.NotMasterOrSecondary, true)]
+        [InlineData(ServerErrorCode.PrimarySteppedDown, true)]
+        [InlineData(ServerErrorCode.ShutdownInProgress, true)]
+        [InlineData(ServerErrorCode.SocketException, true)]
+        [InlineData(ServerErrorCode.WriteConcernFailed, false)]
+        public void IsResumableChangeStreamException_should_return_expected_result_for_MongoCommandExceptions(int code, bool expectedResult)
+        {
+            var exception = CoreExceptionHelper.CreateMongoCommandException(code);
+
+            var result = RetryabilityHelper.IsResumableChangeStreamException(exception);
+
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [InlineData(typeof(IOException), false)]
+        [InlineData(typeof(MongoConnectionException), true)]
+        [InlineData(typeof(MongoCursorNotFoundException), true)]
+        [InlineData(typeof(MongoNotPrimaryException), true)]
+        public void IsResumableChangeStreamException_should_return_expected_result_for_other_exceptions(Type exceptionType, bool expectedResult)
+        {
+            var exception = CoreExceptionHelper.CreateException(exceptionType);
+
+            var result = RetryabilityHelper.IsResumableChangeStreamException(exception);
+
+            result.Should().Be(expectedResult);
+        }
+
         [Theory]
         [InlineData(1, false)]
         [InlineData(ServerErrorCode.HostNotFound, true)]
@@ -47,7 +78,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var exception = CoreExceptionHelper.CreateMongoCommandException(code);
 
-            var result = RetryableWriteOperationExecutorReflector.IsRetryableException(exception);
+            var result = RetryabilityHelper.IsRetryableWriteException(exception);
 
             result.Should().Be(expectedResult);
         }
@@ -62,14 +93,9 @@ namespace MongoDB.Driver.Core.Operations
         {
             var exception = CoreExceptionHelper.CreateException(exceptionType);
 
-            var result = RetryableWriteOperationExecutorReflector.IsRetryableException(exception);
+            var result = RetryabilityHelper.IsRetryableWriteException(exception);
 
             result.Should().Be(expectedResult);
         }
-    }
-
-    public static class RetryableWriteOperationExecutorReflector
-    {
-        public static bool IsRetryableException(Exception ex) => (bool)Reflector.InvokeStatic(typeof(RetryableWriteOperationExecutor), nameof(IsRetryableException), ex);
     }
 }

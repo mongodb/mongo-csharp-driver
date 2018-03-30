@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Linq;
 using System.Reflection;
 
@@ -42,15 +41,6 @@ namespace MongoDB.Bson.TestHelpers
                 .Where(m => m.Name == name && m.GetParameters().Select(p => p.ParameterType).SequenceEqual(parameterTypes))
                 .Single();
             return methodInfo.Invoke(obj, new object[] { arg1 });
-        }
-
-        public static object InvokeStatic<T1>(Type type, string name, T1 arg1)
-        {
-            var parameterTypes = new[] { typeof(T1) };
-            var methodInfo = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Static)
-                .Where(m => m.Name == name && m.GetParameters().Select(p => p.ParameterType).SequenceEqual(parameterTypes))
-                .Single();
-            return methodInfo.Invoke(null, new object[] { arg1 });
         }
     }
 }
