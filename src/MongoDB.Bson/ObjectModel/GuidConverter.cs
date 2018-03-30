@@ -77,12 +77,12 @@ namespace MongoDB.Bson
         /// Converts a Guid to a byte array.
         /// </summary>
         /// <param name="guid">The Guid.</param>
-        /// <param name="representation">The representation of the Guid in the byte array.</param>
+        /// <param name="guidRepresentation">The representation of the Guid in the byte array.</param>
         /// <returns>A byte array.</returns>
-        public static byte[] ToBytes(Guid guid, GuidRepresentation representation)
+        public static byte[] ToBytes(Guid guid, GuidRepresentation guidRepresentation)
         {
             var bytes = (byte[])guid.ToByteArray().Clone();
-            switch (representation)
+            switch (guidRepresentation)
             {
                 case GuidRepresentation.CSharpLegacy:
                     if (!BitConverter.IsLittleEndian)
@@ -114,7 +114,7 @@ namespace MongoDB.Bson
                 case GuidRepresentation.Unspecified:
                     throw new InvalidOperationException("Unable to convert Guid to byte array because GuidRepresentation is Unspecified.");
                 default:
-                    throw new BsonInternalException("Unexpected GuidRepresentation.");
+                    throw new ArgumentException($"Invalid guidRepresentation: {guidRepresentation}.", nameof(guidRepresentation));
             }
             return bytes;
         }

@@ -15,13 +15,108 @@
 
 using System;
 using System.Linq;
-using MongoDB.Bson;
+using FluentAssertions;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Bson.Tests
 {
     public class BsonBinaryDataTests
     {
+        [Theory]
+        [ParameterAttributeData]
+        public void constructor_should_throw_when_bytes_is_null(
+            [Range(1, 3)] int overload)
+        {
+            var bytes = (byte[])null;
+
+            Exception exception = null;
+            switch (overload)
+            {
+                case 1: exception = Record.Exception(() => new BsonBinaryData(bytes)); break;
+                case 2: exception = Record.Exception(() => new BsonBinaryData(bytes, BsonBinarySubType.Binary)); break;
+                case 3: exception = Record.Exception(() => new BsonBinaryData(bytes, BsonBinarySubType.Binary, GuidRepresentation.Unspecified)); break;
+            }
+
+            var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            e.ParamName.Should().Be("bytes");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void constructor_should_throw_when_bytes_length_is_not_16_and_sub_type_is_uuid(
+            [Values(BsonBinarySubType.UuidLegacy, BsonBinarySubType.UuidStandard)] BsonBinarySubType subType, 
+            [Values(0, 15, 17)] int length, 
+            [Range(1, 2)] int overload)
+        {
+            var bytes = new byte[length];
+            var guidRepresentation = subType == BsonBinarySubType.UuidLegacy ? GuidRepresentation.CSharpLegacy : GuidRepresentation.Standard;
+
+            Exception exception = null;
+            switch (overload)
+            {
+                case 1: exception = Record.Exception(() => new BsonBinaryData(bytes, subType)); break;
+                case 2: exception = Record.Exception(() => new BsonBinaryData(bytes, subType, guidRepresentation)); break;
+            }
+
+            var e = exception.Should().BeOfType<ArgumentException>().Subject;
+            e.Message.Should().StartWith($"Length must be 16, not {length}, when subType is {subType}.");
+            e.ParamName.Should().Be("bytes");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void constructor_should_throw_when_sub_type_is_uuid_and_guid_representation_is_invalid(
+            [Values(5)] GuidRepresentation guidRepresentation,
+            [Range(1, 2)] int overload)
+        {
+            var bytes = new byte[16];
+            var guid = Guid.Empty;
+
+            Exception exception = null;
+            switch (overload)
+            {
+                case 1: exception = Record.Exception(() => new BsonBinaryData(bytes, BsonBinarySubType.UuidLegacy, guidRepresentation)); break;
+                case 2: exception = Record.Exception(() => new BsonBinaryData(guid, guidRepresentation)); break;
+            }
+
+            var e = exception.Should().BeOfType<ArgumentException>().Subject;
+            e.Message.Should().StartWith($"Invalid guidRepresentation: 5.");
+            e.ParamName.Should().Be("guidRepresentation");
+        }
+
+        [Theory]
+        [InlineData(BsonBinarySubType.UuidLegacy, GuidRepresentation.Standard, "GuidRepresentation Standard is only valid with subType UuidStandard, not with subType UuidLegacy.")]
+        [InlineData(BsonBinarySubType.UuidStandard, GuidRepresentation.CSharpLegacy, "GuidRepresentation CSharpLegacy is only valid with subType UuidLegacy, not with subType UuidStandard.")]
+        [InlineData(BsonBinarySubType.UuidStandard, GuidRepresentation.JavaLegacy, "GuidRepresentation JavaLegacy is only valid with subType UuidLegacy, not with subType UuidStandard.")]
+        [InlineData(BsonBinarySubType.UuidStandard, GuidRepresentation.PythonLegacy, "GuidRepresentation PythonLegacy is only valid with subType UuidLegacy, not with subType UuidStandard.")]
+        [InlineData(BsonBinarySubType.UuidStandard, GuidRepresentation.Unspecified, "GuidRepresentation Unspecified is only valid with subType UuidLegacy, not with subType UuidStandard.")]
+        public void constructor_should_throw_when_sub_type_is_uuid_and_guid_representation_is_invalid_with_sub_type(BsonBinarySubType subType, GuidRepresentation guidRepresentation, string expectedMessage)
+        {
+            var bytes = new byte[16];
+
+            var exception = Record.Exception(() => new BsonBinaryData(bytes, subType, guidRepresentation));
+
+            var e = exception.Should().BeOfType<ArgumentException>().Subject;
+            e.Message.Should().StartWith(expectedMessage);
+            e.ParamName.Should().Be("guidRepresentation");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void constructor_should_throw_when_sub_type_is_not_uuid_and_guid_representation_is_not_unspecified(
+            [Values(BsonBinarySubType.Binary)] BsonBinarySubType subType,
+            [Values(GuidRepresentation.CSharpLegacy, GuidRepresentation.Standard)] GuidRepresentation guidRepresentation)
+        {
+            var bytes = new byte[0];
+
+            var exception = Record.Exception(() => new BsonBinaryData(bytes, subType, guidRepresentation));
+
+            var e = exception.Should().BeOfType<ArgumentException>().Subject;
+            e.Message.Should().StartWith($"GuidRepresentation must be Unspecified, not {guidRepresentation}, when subType is not UuidStandard or UuidLegacy.");
+            e.ParamName.Should().Be("guidRepresentation");
+        }
+
         [Fact]
         public void TestCreateNull()
         {
