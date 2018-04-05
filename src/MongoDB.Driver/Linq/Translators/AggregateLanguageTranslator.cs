@@ -117,6 +117,8 @@ namespace MongoDB.Driver.Linq.Translators
                                 return TranslateArrayIndex((ArrayIndexExpression)node);
                             case ExtensionExpressionType.Concat:
                                 return TranslateConcat((ConcatExpression)node);
+                            case ExtensionExpressionType.Document:
+                                return TranslateDocument((DocumentExpression)node);
                             case ExtensionExpressionType.Except:
                                 return TranslateExcept((ExceptExpression)node);
                             case ExtensionExpressionType.FieldAsDocument:
@@ -249,6 +251,11 @@ namespace MongoDB.Driver.Linq.Translators
             // NOTE: there may be other instances where we should use a literal...
             // but I can't think of any yet.
             return value;
+        }
+
+        private BsonValue TranslateDocument(DocumentExpression node)
+        {
+            return "$$ROOT";
         }
 
         private BsonValue TranslateDocumentWrappedField(FieldAsDocumentExpression expression)

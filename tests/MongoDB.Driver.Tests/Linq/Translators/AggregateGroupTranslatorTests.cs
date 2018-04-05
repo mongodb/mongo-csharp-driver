@@ -263,6 +263,14 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Result.Should().Equal(111);
         }
 
+        [Fact]
+        public void Should_translate_push_with_root()
+        {
+            var result = Group(x => x.A, g => new { Result = g.Select(x => x) });
+
+            result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$push\": \"$$ROOT\" } }");
+        }
+
         [SkippableFact]
         public void Should_translate_stdDevPop_with_embedded_projector()
         {
