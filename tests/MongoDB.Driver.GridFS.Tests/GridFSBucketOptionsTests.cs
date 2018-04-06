@@ -270,6 +270,16 @@ namespace MongoDB.Driver.GridFS.Tests
         }
 
         [Fact]
+        public void DisableMD5_get_and_set_should_return_expected_result()
+        {
+            var subject = new ImmutableGridFSBucketOptions(new GridFSBucketOptions { DisableMD5= true });
+
+            var result = subject.DisableMD5;
+
+            result.Should().Be(true);    
+        }
+
+        [Fact]
         public void ReadConcern_get_should_return_expected_result()
         {
             var subject = new ImmutableGridFSBucketOptions(new GridFSBucketOptions { ReadConcern = ReadConcern.Majority });
