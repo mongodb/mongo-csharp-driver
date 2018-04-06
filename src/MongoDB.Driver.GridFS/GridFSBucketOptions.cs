@@ -26,6 +26,7 @@ namespace MongoDB.Driver.GridFS
         // fields
         private string _bucketName;
         private int _chunkSizeBytes;
+        private bool _disableMD5 = false;
         private ReadConcern _readConcern;
         private ReadPreference _readPreference;
         private WriteConcern _writeConcern;
@@ -48,6 +49,7 @@ namespace MongoDB.Driver.GridFS
             Ensure.IsNotNull(other, nameof(other));
             _bucketName = other.BucketName;
             _chunkSizeBytes = other.ChunkSizeBytes;
+            _disableMD5 = other.DisableMD5;
             _readConcern = other.ReadConcern;
             _readPreference = other.ReadPreference;
             _writeConcern = other.WriteConcern;
@@ -62,6 +64,7 @@ namespace MongoDB.Driver.GridFS
             Ensure.IsNotNull(other, nameof(other));
             _bucketName = other.BucketName;
             _chunkSizeBytes = other.ChunkSizeBytes;
+            _disableMD5 = other.DisableMD5;
             _readConcern = other.ReadConcern;
             _readPreference = other.ReadPreference;
             _writeConcern = other.WriteConcern;
@@ -98,6 +101,18 @@ namespace MongoDB.Driver.GridFS
                 Ensure.IsGreaterThanZero(value, nameof(value));
                 _chunkSizeBytes = value;
             }
+        }
+        
+        /// <summary>
+        /// Gets or sets whether to disable MD5 checksum computation when uploading a GridFS file.
+        /// </summary>
+        /// <value>
+        /// Whether MD5 checksum computation is disabled when uploading a GridFS file.
+        /// </value>
+        public bool DisableMD5
+        {
+            get { return _disableMD5; }
+            set { _disableMD5 = value; }
         }
 
         /// <summary>
@@ -162,6 +177,7 @@ namespace MongoDB.Driver.GridFS
         // fields
         private readonly string _bucketName;
         private readonly int _chunkSizeBytes;
+        private readonly bool _disableMD5 = false;
         private readonly ReadConcern _readConcern;
         private readonly ReadPreference _readPreference;
         private readonly WriteConcern _writeConcern;
@@ -185,6 +201,7 @@ namespace MongoDB.Driver.GridFS
             Ensure.IsNotNull(other, nameof(other));
             _bucketName = other.BucketName;
             _chunkSizeBytes = other.ChunkSizeBytes;
+            _disableMD5 = other.DisableMD5;
             _readConcern = other.ReadConcern;
             _readPreference = other.ReadPreference;
             _writeConcern = other.WriteConcern;
@@ -212,6 +229,18 @@ namespace MongoDB.Driver.GridFS
         {
             get { return _chunkSizeBytes; }
         }
+        
+        /// <summary>
+        /// Gets or sets whether to disable MD5 checksum computation when uploading a GridFS file.
+        /// </summary>
+        /// <value>
+        /// Whether MD5 checksum computation is disabled when uploading a GridFS file.
+        /// </value>
+        public bool DisableMD5
+        {
+            get { return _disableMD5; }
+        }
+
 
         /// <summary>
         /// Gets the read concern.

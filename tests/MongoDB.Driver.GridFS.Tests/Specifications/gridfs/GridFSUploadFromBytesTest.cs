@@ -99,6 +99,10 @@ namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
                         _options.ContentType = option.Value.AsString;
 #pragma warning restore
                         break;
+                    
+                    case "disableMD5":
+                        _options.DisableMD5 = option.Value.AsBoolean;
+                        break;
 
                     case "metadata":
                         _options.Metadata = option.Value.AsBsonDocument;

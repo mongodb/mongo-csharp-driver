@@ -1,11 +1,7 @@
 {
   "data": {
-    "files": [
-
-    ],
-    "chunks": [
-
-    ]
+    "files": [],
+    "chunks": []
   },
   "tests": [
     {
@@ -368,6 +364,85 @@
                 "metadata": {
                   "x": 1
                 }
+              }
+            ]
+          },
+          {
+            "insert": "expected.chunks",
+            "documents": [
+              {
+                "_id": "*actual",
+                "files_id": "*result",
+                "n": 0,
+                "data": {
+                  "$hex": "11"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "description": "Upload when length is 0 sans MD5",
+      "act": {
+        "operation": "upload",
+        "arguments": {
+          "filename": "filename",
+          "source": {
+            "$hex": ""
+          },
+          "options": {
+            "chunkSizeBytes": 4,
+            "disableMD5": true
+          }
+        }
+      },
+      "assert": {
+        "result": "&result",
+        "data": [
+          {
+            "insert": "expected.files",
+            "documents": [
+              {
+                "_id": "*result",
+                "length": 0,
+                "chunkSize": 4,
+                "uploadDate": "*actual",
+                "filename": "filename"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "description": "Upload when length is 1 sans MD5",
+      "act": {
+        "operation": "upload",
+        "arguments": {
+          "filename": "filename",
+          "source": {
+            "$hex": "11"
+          },
+          "options": {
+            "chunkSizeBytes": 4,
+            "disableMD5": true
+          }
+        }
+      },
+      "assert": {
+        "result": "&result",
+        "data": [
+          {
+            "insert": "expected.files",
+            "documents": [
+              {
+                "_id": "*result",
+                "length": 1,
+                "chunkSize": 4,
+                "uploadDate": "*actual",
+                "filename": "filename"
               }
             ]
           },
