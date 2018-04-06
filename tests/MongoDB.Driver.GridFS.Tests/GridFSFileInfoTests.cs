@@ -269,8 +269,10 @@ namespace MongoDB.Driver.GridFS.Tests
             var value = "md5";
             var subject = CreateSubject(md5: value);
 
+#pragma warning disable 
             var result = subject.MD5;
-
+#pragma warning restore
+            
             result.Should().Be(value);
         }
 
@@ -280,8 +282,10 @@ namespace MongoDB.Driver.GridFS.Tests
             var document = CreateFilesCollectionDocument();
 
             var subject = DeserializeFilesCollectionDocument(document);
-
+            
+#pragma warning disable 618
             subject.MD5.Should().Be(document["md5"].AsString);
+#pragma warning restore            
         }
 
         [Fact]

@@ -732,7 +732,8 @@ namespace MongoDB.Driver.GridFS
                 options.Aliases,
                 options.ContentType,
                 chunkSizeBytes,
-                batchSize);
+                batchSize,
+                options.DisableMD5);
 #pragma warning restore
         }
 
