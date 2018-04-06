@@ -18,8 +18,7 @@ using System.IO;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
-using MongoDB.Driver.Core.WireProtocol.Messages;
-using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
@@ -176,6 +175,37 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 var bytes = stream.ToArray();
                 bytes.Should().Equal(__testMessageBytes);
             }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void WriteMessage_should_invoke_encoding_post_processor(
+            [Values(false, true)] bool wrapped)
+        {
+            var stream = new MemoryStream();
+            var subject = new QueryMessageBinaryEncoder(stream, new MessageEncoderSettings());
+            var collectionNamespace = new CollectionNamespace(new DatabaseNamespace("databaseName"), "collectionName");
+            var command = BsonDocument.Parse("{ command : \"x\", writeConcern : { w : 0 } }");
+            var query = wrapped ? new BsonDocument("$query", command) : command;
+            var message = new QueryMessage(0, collectionNamespace, query, null, NoOpElementNameValidator.Instance, 0, 0, false, false, false, false, false, false, null)
+            {
+                PostWriteAction = encoder => encoder.ChangeWriteConcernFromW0ToW1(),
+                ResponseHandling = CommandResponseHandling.Ignore
+            };
+
+            subject.WriteMessage(message);
+
+            stream.Position = 0;
+            var rehydratedMessage = subject.ReadMessage();
+            var rehydratedQuery = rehydratedMessage.Query;
+            var rehydratedCommand = wrapped ? rehydratedQuery["$query"].AsBsonDocument : rehydratedQuery;
+            rehydratedCommand["writeConcern"]["w"].Should().Be(1);
+
+            // assert that the original message was altered only as expected
+            message.ResponseHandling.Should().Be(CommandResponseHandling.Return); // was Ignore before PostWriteAction
+            var originalQuery = message.Query;
+            var originalCommand = wrapped ? originalQuery["$query"].AsBsonDocument : originalQuery;
+            originalCommand["writeConcern"]["w"].Should().Be(0); // unchanged
         }
     }
 }

@@ -14,13 +14,16 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
@@ -32,7 +35,6 @@ namespace MongoDB.Driver.Core.Operations
     {
         // private fields
         private readonly CollectionNamespace _collectionNamespace;
-        private bool _isOrdered = true;
         private readonly BatchableSource<DeleteRequest> _deletes;
 
         // constructors
@@ -75,16 +77,6 @@ namespace MongoDB.Driver.Core.Operations
             get { return _deletes; }
         }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether the server should process the deletes in order.
-        /// </summary>
-        /// <value>A value indicating whether the server should process the deletes in order.</value>
-        public bool IsOrdered
-        {
-            get { return _isOrdered; }
-            set { _isOrdered = value; }
-        }
-
         // protected methods
         /// <inheritdoc />
         protected override BsonDocument CreateCommand(ConnectionDescription connectionDescription, int attempt, long? transactionNumber)
@@ -97,41 +89,31 @@ namespace MongoDB.Driver.Core.Operations
                 }
             }
 
-            var batchSerializer = CreateBatchSerializer(connectionDescription, attempt);
-            var batchWrapper = new BsonDocumentWrapper(_deletes, batchSerializer);
-
-            BsonDocument writeConcernWrapper = null;
-            if (WriteConcernFunc != null)
-            {
-                var writeConcernSerializer = new DelayedEvaluationWriteConcernSerializer();
-                writeConcernWrapper = new BsonDocumentWrapper(WriteConcernFunc, writeConcernSerializer);
-            }
-
             return new BsonDocument
             {
                 { "delete", _collectionNamespace.CollectionName },
-                { "ordered", _isOrdered },
-                { "txnNumber", () => transactionNumber.Value, transactionNumber.HasValue },
-                { "deletes", new BsonArray { batchWrapper } },
-                { "writeConcern", writeConcernWrapper, writeConcernWrapper != null }
+                { "ordered", IsOrdered },
+                { "writeConcern", () => WriteConcern.ToBsonDocument(), WriteConcern != null && !WriteConcern.IsServerDefault },
+                { "txnNumber", () => transactionNumber.Value, transactionNumber.HasValue }
             };
         }
 
-        // private methods
-        private IBsonSerializer<BatchableSource<DeleteRequest>> CreateBatchSerializer(ConnectionDescription connectionDescription, int attempt)
+        /// <inheritdoc />
+        protected override IEnumerable<Type1CommandMessageSection> CreateCommandPayloads(IChannelHandle channel, int attempt)
         {
+            BatchableSource<DeleteRequest> deletes;
             if (attempt == 1)
             {
-                var maxBatchCount = Math.Min(MaxBatchCount ?? int.MaxValue, connectionDescription.MaxBatchCount);
-                var maxItemSize = connectionDescription.MaxWireDocumentSize;
-                var maxBatchSize = connectionDescription.MaxDocumentSize;
-                return new SizeLimitingBatchableSourceSerializer<DeleteRequest>(DeleteRequestSerializer.Instance, NoOpElementNameValidator.Instance, maxBatchCount, maxItemSize, maxBatchSize);
+                deletes = _deletes;
             }
             else
             {
-                var count = _deletes.ProcessedCount; // as set by the first attempt
-                return new FixedCountBatchableSourceSerializer<DeleteRequest>(DeleteRequestSerializer.Instance, NoOpElementNameValidator.Instance, count);
+                deletes = new BatchableSource<DeleteRequest>(_deletes.Items, _deletes.Offset, _deletes.ProcessedCount, canBeSplit: false);
             }
+            var maxBatchCount = Math.Min(MaxBatchCount ?? int.MaxValue, channel.ConnectionDescription.MaxBatchCount);
+            var maxDocumentSize = channel.ConnectionDescription.MaxWireDocumentSize;
+            var payload = new Type1CommandMessageSection<DeleteRequest>("deletes", deletes, DeleteRequestSerializer.Instance, NoOpElementNameValidator.Instance, maxBatchCount, maxDocumentSize);
+            return new Type1CommandMessageSection[] { payload };
         }
 
         // nested types

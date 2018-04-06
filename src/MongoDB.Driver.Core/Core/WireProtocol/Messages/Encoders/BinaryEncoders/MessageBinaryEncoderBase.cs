@@ -69,6 +69,20 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         }
 
         /// <summary>
+        /// Gets the maximum size of the document.
+        /// </summary>
+        /// <value>
+        /// The maximum size of the document.
+        /// </value>
+        protected int? MaxDocumentSize
+        {
+            get
+            {
+                return _encoderSettings?.GetOrDefault<int?>(MessageEncoderSettingsName.MaxDocumentSize, null);
+            }
+        }
+
+        /// <summary>
         /// Gets the maximum size of the message.
         /// </summary>
         /// <value>
@@ -78,7 +92,21 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         {
             get
             {
-                return _encoderSettings.GetOrDefault<int?>(MessageEncoderSettingsName.MaxMessageSize, null);
+                return _encoderSettings?.GetOrDefault<int?>(MessageEncoderSettingsName.MaxMessageSize, null);
+            }
+        }
+
+        /// <summary>
+        /// Gets the maximum size of the wire document.
+        /// </summary>
+        /// <value>
+        /// The maximum size of the wire document.
+        /// </value>
+        protected int? MaxWireDocumentSize
+        {
+            get
+            {
+                return _encoderSettings?.GetOrDefault<int?>(MessageEncoderSettingsName.MaxWireDocumentSize, null);
             }
         }
 

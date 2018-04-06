@@ -14,6 +14,8 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -22,6 +24,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.WireProtocol
@@ -31,11 +34,13 @@ namespace MongoDB.Driver.Core.WireProtocol
         // private fields
         private readonly BsonDocument _additionalOptions;
         private readonly BsonDocument _command;
-        private readonly Func<CommandResponseHandling> _responseHandling;
+        private readonly List<Type1CommandMessageSection> _commandPayloads;
         private readonly IElementNameValidator _commandValidator;
         private readonly DatabaseNamespace _databaseNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
+        private readonly Action<IMessageEncoderPostProcessor> _postWriteAction;
         private readonly ReadPreference _readPreference;
+        private readonly CommandResponseHandling _responseHandling;
         private readonly IBsonSerializer<TCommandResult> _resultSerializer;
         private readonly ICoreSession _session;
 
@@ -51,9 +56,11 @@ namespace MongoDB.Driver.Core.WireProtocol
                 slaveOk ? ReadPreference.PrimaryPreferred : ReadPreference.Primary,
                 databaseNamespace,
                 command,
+                null, // commandPayloads
                 NoOpElementNameValidator.Instance,
                 null, // additionalOptions
-                () => CommandResponseHandling.Return,
+                null, // postWriteAction
+                CommandResponseHandling.Return,
                 resultSerializer,
                 messageEncoderSettings)
         {
@@ -64,21 +71,30 @@ namespace MongoDB.Driver.Core.WireProtocol
             ReadPreference readPreference,
             DatabaseNamespace databaseNamespace,
             BsonDocument command,
+            IEnumerable<Type1CommandMessageSection> commandPayloads,
             IElementNameValidator commandValidator,
             BsonDocument additionalOptions,
-            Func<CommandResponseHandling> responseHandling,
+            Action<IMessageEncoderPostProcessor> postWriteAction,
+            CommandResponseHandling responseHandling,
             IBsonSerializer<TCommandResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings)
         {
+            if (responseHandling != CommandResponseHandling.Return && responseHandling != CommandResponseHandling.NoResponseExpected)
+            {
+                throw new ArgumentException("CommandResponseHandling must be Return or NoneExpected.", nameof(responseHandling));
+            }
+
             _session = Ensure.IsNotNull(session, nameof(session));
             _readPreference = readPreference;
             _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));
             _command = Ensure.IsNotNull(command, nameof(command));
+            _commandPayloads = commandPayloads?.ToList(); // can be null
             _commandValidator = Ensure.IsNotNull(commandValidator, nameof(commandValidator));
             _additionalOptions = additionalOptions; // can be null
             _responseHandling = responseHandling;
             _resultSerializer = Ensure.IsNotNull(resultSerializer, nameof(resultSerializer));
             _messageEncoderSettings = messageEncoderSettings;
+            _postWriteAction = postWriteAction; // can be null
         }
 
         // public methods
@@ -102,25 +118,31 @@ namespace MongoDB.Driver.Core.WireProtocol
                 _readPreference,
                 _databaseNamespace,
                 _command,
+                _commandPayloads,
                 _commandValidator,
                 _additionalOptions,
                 _responseHandling,
                 _resultSerializer,
-                _messageEncoderSettings);
+                _messageEncoderSettings,
+                _postWriteAction);
         }
 
         private IWireProtocol<TCommandResult> CreateCommandUsingQueryMessageWireProtocol()
         {
+            var responseHandling = _responseHandling == CommandResponseHandling.NoResponseExpected ? CommandResponseHandling.Ignore : _responseHandling;
+
             return new CommandUsingQueryMessageWireProtocol<TCommandResult>(
                 _session,
                 _readPreference,
                 _databaseNamespace,
                 _command,
+                _commandPayloads,
                 _commandValidator,
                 _additionalOptions,
-                _responseHandling,
+                responseHandling,
                 _resultSerializer,
-                _messageEncoderSettings);
+                _messageEncoderSettings,
+                _postWriteAction);
         }
 
         private IWireProtocol<TCommandResult> CreateSupportedWireProtocol(IConnection connection)

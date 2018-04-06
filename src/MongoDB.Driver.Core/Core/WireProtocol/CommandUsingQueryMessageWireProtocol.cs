@@ -15,6 +15,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,11 +39,13 @@ namespace MongoDB.Driver.Core.WireProtocol
         // fields
         private readonly BsonDocument _additionalOptions;
         private readonly BsonDocument _command;
-        private readonly Func<CommandResponseHandling> _responseHandling;
+        private readonly List<Type1CommandMessageSection> _commandPayloads;
         private readonly IElementNameValidator _commandValidator;
         private readonly DatabaseNamespace _databaseNamespace;
+        private readonly Action<IMessageEncoderPostProcessor> _postWriteAction;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly ReadPreference _readPreference;
+        private readonly CommandResponseHandling _responseHandling;
         private readonly IBsonSerializer<TCommandResult> _resultSerializer;
         private readonly ICoreSession _session;
 
@@ -51,27 +55,37 @@ namespace MongoDB.Driver.Core.WireProtocol
             ReadPreference readPreference,
             DatabaseNamespace databaseNamespace,
             BsonDocument command,
+            IEnumerable<Type1CommandMessageSection> commandPayloads,
             IElementNameValidator commandValidator,
             BsonDocument additionalOptions,
-            Func<CommandResponseHandling> responseHandling,
+            CommandResponseHandling responseHandling,
             IBsonSerializer<TCommandResult> resultSerializer,
-            MessageEncoderSettings messageEncoderSettings)
+            MessageEncoderSettings messageEncoderSettings,
+            Action<IMessageEncoderPostProcessor> postWriteAction)
         {
+            if (responseHandling != CommandResponseHandling.Return && responseHandling != CommandResponseHandling.Ignore)
+            {
+                throw new ArgumentException("CommandResponseHandling must be Return or Ignore.", nameof(responseHandling));
+            }
+
             _session = Ensure.IsNotNull(session, nameof(session));
             _readPreference = readPreference;
             _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));
             _command = Ensure.IsNotNull(command, nameof(command));
+            _commandPayloads = commandPayloads?.ToList(); // can be null
             _commandValidator = Ensure.IsNotNull(commandValidator, nameof(commandValidator));
             _additionalOptions = additionalOptions; // can be null
             _responseHandling = responseHandling;
             _resultSerializer = Ensure.IsNotNull(resultSerializer, nameof(resultSerializer));
             _messageEncoderSettings = messageEncoderSettings;
+            _postWriteAction = postWriteAction; // can be null
         }
 
         // methods
         private QueryMessage CreateMessage(ConnectionDescription connectionDescription, out bool messageContainsSessionId)
         {
-            var wrappedCommand = WrapCommandForQueryMessage(connectionDescription, out messageContainsSessionId);
+            var commandWithPayloads = CombineCommandWithPayloads(connectionDescription);
+            var wrappedCommand = WrapCommandForQueryMessage(commandWithPayloads, connectionDescription, out messageContainsSessionId);
             var slaveOk = _readPreference != null && _readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
 
             return new QueryMessage(
@@ -87,7 +101,11 @@ namespace MongoDB.Driver.Core.WireProtocol
                 false,
                 false,
                 false,
-                false);
+                false)
+            {
+                PostWriteAction = _postWriteAction,
+                ResponseHandling = _responseHandling
+            };
         }
 
         public TCommandResult Execute(IConnection connection, CancellationToken cancellationToken)
@@ -100,7 +118,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 _session.WasUsed();
             }
 
-            switch (_responseHandling())
+            switch (message.ResponseHandling)
             {
                 case CommandResponseHandling.Ignore:
                     IgnoreResponse(connection, message, cancellationToken);
@@ -122,7 +140,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 _session.WasUsed();
             }
 
-            switch (_responseHandling())
+            switch (message.ResponseHandling)
             {
                 case CommandResponseHandling.Ignore:
                     IgnoreResponse(connection, message, cancellationToken);
@@ -132,6 +150,71 @@ namespace MongoDB.Driver.Core.WireProtocol
                     var reply = await connection.ReceiveMessageAsync(message.RequestId, encoderSelector, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
                     return ProcessReply(connection.ConnectionId, (ReplyMessage<RawBsonDocument>)reply);
             }
+        }
+
+        // private methods
+        private BsonDocument CombineCommandWithPayloads(ConnectionDescription connectionDescription)
+        {
+            if (_commandPayloads == null || _commandPayloads.Count == 0)
+            {
+                return _command;
+            }
+
+            var extraElements = new List<BsonElement>();
+            foreach (var type1Section in _commandPayloads)
+            {
+                var name = type1Section.Identifier;
+                var value = CreatePayloadArray(type1Section, connectionDescription);
+                var element = new BsonElement(name, value);
+                extraElements.Add(element);
+            }
+
+            var payloadAppendingSerializer = new ElementAppendingSerializer<BsonDocument>(BsonDocumentSerializer.Instance, extraElements);
+            return new BsonDocumentWrapper(_command, payloadAppendingSerializer);
+        }
+
+        private BsonArray CreatePayloadArray(Type1CommandMessageSection payload, ConnectionDescription connectionDescription)
+        {
+            IBsonSerializer payloadSerializer;
+            if (payload.Documents.CanBeSplit)
+            {
+                payloadSerializer = CreateSizeLimitingPayloadSerializer(payload, connectionDescription);
+            }
+            else
+            {
+                payloadSerializer = CreateFixedCountPayloadSerializer(payload);
+            }
+
+            var documents = new BsonDocumentWrapper(payload.Documents, payloadSerializer);
+            return new BsonArray { documents };
+        }
+
+        private IBsonSerializer CreateFixedCountPayloadSerializer(Type1CommandMessageSection payload)
+        {
+            var documentType = payload.DocumentType;
+            var serializerType = typeof(FixedCountBatchableSourceSerializer<>).MakeGenericType(documentType);
+            var itemSerializerType = typeof(IBsonSerializer<>).MakeGenericType(documentType);
+            var constructorParameterTypes = new[] { itemSerializerType, typeof(IElementNameValidator), typeof(int) };
+            var constructorInfo = serializerType.GetTypeInfo().GetConstructor(constructorParameterTypes);
+            var itemSerializer = payload.DocumentSerializer;
+            var itemElementNameValidator = payload.ElementNameValidator;
+            var count = payload.Documents.Count;
+            return (IBsonSerializer)constructorInfo.Invoke(new object[] { itemSerializer, itemElementNameValidator, count });
+        }
+
+        private IBsonSerializer CreateSizeLimitingPayloadSerializer(Type1CommandMessageSection payload, ConnectionDescription connectionDescription)
+        {
+            var documentType = payload.DocumentType;
+            var serializerType = typeof(SizeLimitingBatchableSourceSerializer<>).MakeGenericType(documentType);
+            var itemSerializerType = typeof(IBsonSerializer<>).MakeGenericType(documentType);
+            var constructorParameterTypes = new[] { itemSerializerType, typeof(IElementNameValidator), typeof(int), typeof(int), typeof(int) };
+            var constructorInfo = serializerType.GetTypeInfo().GetConstructor(constructorParameterTypes);
+            var itemSerializer = payload.DocumentSerializer;
+            var itemElementNameValidator = payload.ElementNameValidator;
+            var maxBatchCount = Math.Min(payload.MaxBatchCount ?? int.MaxValue, connectionDescription.MaxBatchCount);
+            var maxItemSize = payload.MaxDocumentSize ?? connectionDescription.MaxDocumentSize;
+            var maxBatchSize = connectionDescription.MaxDocumentSize;
+            return (IBsonSerializer)constructorInfo.Invoke(new object[] { itemSerializer, itemElementNameValidator, maxBatchCount, maxItemSize, maxBatchSize });
         }
 
         private void IgnoreResponse(IConnection connection, QueryMessage message, CancellationToken cancellationToken)
@@ -230,7 +313,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
         }
 
-        private BsonDocument WrapCommandForQueryMessage(ConnectionDescription connectionDescription, out bool messageContainsSessionId)
+        private BsonDocument WrapCommandForQueryMessage(BsonDocument command, ConnectionDescription connectionDescription, out bool messageContainsSessionId)
         {
             messageContainsSessionId = false;
             var extraElements = new List<BsonElement>();
@@ -256,8 +339,9 @@ namespace MongoDB.Driver.Core.WireProtocol
                 var clusterTime = new BsonElement("$clusterTime", _session.ClusterTime);
                 extraElements.Add(clusterTime);
             }
-            var appendExtraElementsSerializer = new ElementAppendingSerializer<BsonDocument>(BsonDocumentSerializer.Instance, extraElements);
-            var commandWithExtraElements = new BsonDocumentWrapper(_command, appendExtraElementsSerializer);
+            Action<BsonWriterSettings> writerSettingsConfigurator = s => s.GuidRepresentation = GuidRepresentation.Unspecified;
+            var appendExtraElementsSerializer = new ElementAppendingSerializer<BsonDocument>(BsonDocumentSerializer.Instance, extraElements, writerSettingsConfigurator);
+            var commandWithExtraElements = new BsonDocumentWrapper(command, appendExtraElementsSerializer);
 
             BsonDocument readPreferenceDocument = null;
             if (connectionDescription != null)

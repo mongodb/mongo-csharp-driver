@@ -167,9 +167,11 @@ namespace MongoDB.Driver.Core.Operations
                 null, // readPreference
                 _collectionNamespace.DatabaseNamespace,
                 command,
+                null, // commandPayloads
                 NoOpElementNameValidator.Instance,
                 null, // additionalOptions
-                () => CommandResponseHandling.Return,
+                null, // postWriteAction
+                CommandResponseHandling.Return,
                 __getMoreCommandResultSerializer,
                 _messageEncoderSettings,
                 cancellationToken);
@@ -185,9 +187,11 @@ namespace MongoDB.Driver.Core.Operations
                 null, // readPreference
                 _collectionNamespace.DatabaseNamespace,
                 command,
+                null, // commandPayloads
                 NoOpElementNameValidator.Instance,
                 null, // additionalOptions
-                () => CommandResponseHandling.Return,
+                null, // postWriteAction
+                CommandResponseHandling.Return,
                 __getMoreCommandResultSerializer,
                 _messageEncoderSettings,
                 cancellationToken).ConfigureAwait(false);

@@ -136,16 +136,17 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         [Theory]
         [ParameterAttributeData]
         public void ReadMessage_should_throw_when_flags_is_invalid(
-           [Values(-1, 2, 4)] int flags)
+           [Values(-1, 1, 4)] int flags)
         {
             var bytes = CreateMessageBytes();
             BitConverter.GetBytes(flags).CopyTo(bytes, 16);
             var subject = CreateSubject(bytes);
+            var expectedMessage = flags == 1 ? "Command message CheckSumPresent flag not supported." : "Command message has invalid flags";
 
             var exception = Record.Exception(() => subject.ReadMessage());
 
             exception.Should().BeOfType<FormatException>();
-            exception.Message.Should().Contain("Command message has invalid flags");
+            exception.Message.Should().Contain(expectedMessage);
         }
 
         [Theory]
@@ -331,7 +332,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var result = stream.ToArray();
 
             var flags = BitConverter.ToInt32(result, 16);
-            flags.Should().Be(moreToCome ? 1 : 0);
+            flags.Should().Be(moreToCome ? 2 : 0);
         }
 
         [Theory]
@@ -350,6 +351,35 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var result = stream.ToArray();
 
             result.Should().Equal(expectedMessageBytes);
+        }
+
+        [Fact]
+        public void WriteMessage_should_invoke_encoding_post_processor()
+        {
+            var stream = new MemoryStream();
+            var subject = CreateSubject(stream);
+            var command = BsonDocument.Parse("{ command : \"x\", writeConcern : { w : 0 } }");
+            var section = new Type0CommandMessageSection<BsonDocument>(command, BsonDocumentSerializer.Instance);
+            var sections = new CommandMessageSection[] { section };
+            var message = CreateMessage(sections: sections, moreToCome: true);
+            message.PostWriteAction = encoder =>
+            {
+                encoder.ChangeWriteConcernFromW0ToW1();
+            };
+
+            subject.WriteMessage(message);
+
+            stream.Position = 0;
+            var rehydratedMessage = subject.ReadMessage();
+            rehydratedMessage.MoreToCome.Should().BeFalse();
+            var rehydratedType0Section = rehydratedMessage.Sections.OfType<Type0CommandMessageSection<RawBsonDocument>>().Single();
+            var rehyrdatedCommand = rehydratedType0Section.Document;
+            rehyrdatedCommand["writeConcern"]["w"].Should().Be(1);
+
+            // assert that the original message was altered only as expected
+            message.MoreToCome.Should().BeFalse(); // was true before PostWriteAction
+            var originalCommand = message.Sections.OfType<Type0CommandMessageSection<BsonDocument>>().Single().Document;
+            originalCommand["writeConcern"]["w"].Should().Be(0); // unchanged
         }
 
         [Fact]
@@ -527,7 +557,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             identifier = identifier ?? "id";
             documents = documents ?? new BsonDocument[0];
             var batch = new BatchableSource<BsonDocument>(documents, canBeSplit: canBeSplit);
-            return new Type1CommandMessageSection<BsonDocument>(identifier, batch, BsonDocumentSerializer.Instance);
+            return new Type1CommandMessageSection<BsonDocument>(identifier, batch, BsonDocumentSerializer.Instance, NoOpElementNameValidator.Instance, null, null);
         }
 
         private byte[] CreateType1SectionBytes(Type1CommandMessageSection<BsonDocument> section)

@@ -28,7 +28,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     public sealed class CommandMessage : MongoDBMessage
     {
         // fields
-        private readonly bool _moreToCome;
+        private bool _moreToCome;
+        private Action<IMessageEncoderPostProcessor> _postWriteAction;
         private readonly int _requestId;
         private readonly int _responseTo;
         private readonly List<CommandMessageSection> _sections;
@@ -42,8 +43,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <param name="sections">The sections.</param>
         /// <param name="moreToCome">if set to <c>true</c> [more to come].</param>
         public CommandMessage(
-            int requestId, 
-            int responseTo, 
+            int requestId,
+            int responseTo,
             IEnumerable<CommandMessageSection> sections,
             bool moreToCome)
         {
@@ -63,12 +64,28 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         public override MongoDBMessageType MessageType => MongoDBMessageType.Command;
 
         /// <summary>
-        /// Gets a value indicating whether another message immediately follows this one.
+        /// Gets or sets a value indicating whether another message immediately follows this one with no response expected.
         /// </summary>
         /// <value>
         ///   <c>true</c> if another message immediately follows this one; otherwise, <c>false</c>.
         /// </value>
-        public bool MoreToCome => _moreToCome;
+        public bool MoreToCome
+        {
+            get { return _moreToCome; }
+            set { _moreToCome = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the delegate called to after the message has been written by the encoder.
+        /// </summary>
+        /// <value>
+        /// The post write delegate.
+        /// </value>
+        public Action<IMessageEncoderPostProcessor> PostWriteAction
+        {
+            get { return _postWriteAction; }
+            set { _postWriteAction = value; }
+        }
 
         /// <summary>
         /// Gets the request identifier.
@@ -77,6 +94,14 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// The request identifier.
         /// </value>
         public int RequestId => _requestId;
+
+        /// <summary>
+        /// Gets a value indicating whether a response is expected.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if a response is expected; otherwise, <c>false</c>.
+        /// </value>
+        public bool ResponseExpected => !_moreToCome;
 
         /// <summary>
         /// Gets the response to.

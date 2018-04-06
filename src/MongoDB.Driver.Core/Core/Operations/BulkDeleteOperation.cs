@@ -34,18 +34,12 @@ namespace MongoDB.Driver.Core.Operations
         // methods
         protected override IRetryableWriteOperation<BsonDocument> CreateBatchOperation(Batch batch)
         {
-            Func<WriteConcern> writeConcernFunc = null;
-            if (!WriteConcern.IsServerDefault)
-            {
-                writeConcernFunc = () => GetBatchWriteConcern(batch);
-            }
-
             return new RetryableDeleteCommandOperation(CollectionNamespace, batch.Requests, MessageEncoderSettings)
             {
                 IsOrdered = IsOrdered,
                 MaxBatchCount = MaxBatchCount,
                 RetryRequested = RetryRequested,
-                WriteConcernFunc = writeConcernFunc
+                WriteConcern = WriteConcern
             };
         }
 

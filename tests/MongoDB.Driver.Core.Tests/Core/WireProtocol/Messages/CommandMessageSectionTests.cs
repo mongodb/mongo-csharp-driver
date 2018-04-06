@@ -16,9 +16,12 @@
 using System.Collections.Generic;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages
@@ -131,18 +134,25 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
 
     public class Type1CommandMessageSectionTests
     {
-        [Fact]
-        public void constructor_should_initialize_instance()
+        [Theory]
+        [ParameterAttributeData]
+        public void constructor_should_initialize_instance(
+            [Values(null, 1, 2)] int? maxBatchCount,
+            [Values(null, 3, 4)] int? maxDocumentSize)
         {
             var identifier = "xyz";
             var documents = new BatchableSource<BsonDocument>(new List<BsonDocument>(), canBeSplit: false);
             var documentSerializer = new BsonDocumentSerializer();
+            var elementNameValidator = Mock.Of<IElementNameValidator>();
 
-            var result = (Type1CommandMessageSection)new Type1CommandMessageSection<BsonDocument>(identifier, documents, documentSerializer);
+            var result = (Type1CommandMessageSection)new Type1CommandMessageSection<BsonDocument>(identifier, documents, documentSerializer, elementNameValidator, maxBatchCount, maxDocumentSize);
 
             result.Documents.Should().BeSameAs(documents);
             result.DocumentSerializer.Should().BeSameAs(documentSerializer);
+            result.ElementNameValidator.Should().BeSameAs(elementNameValidator);
             result.Identifier.Should().BeSameAs(identifier);
+            result.MaxBatchCount.Should().Be(maxBatchCount);
+            result.MaxDocumentSize.Should().Be(maxDocumentSize);
             result.PayloadType.Should().Be(PayloadType.Type1);
         }
 
@@ -180,6 +190,41 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         }
 
         [Fact]
+        public void ElementNameValidator_should_return_expected_result()
+        {
+            var elementNameValidator = Mock.Of<IElementNameValidator>();
+            var subject = CreateSubject(elementNameValidator: elementNameValidator);
+
+            var result = subject.ElementNameValidator;
+
+            result.Should().BeSameAs(elementNameValidator);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void MaxBatchCount_should_return_expected_result(
+            [Values(null, 1, 2)] int? maxBatchCount)
+        {
+            var subject = CreateSubject(maxBatchCount: maxBatchCount);
+
+            var result = subject.MaxBatchCount;
+
+            result.Should().Be(maxBatchCount);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void MaxDocumentSizeshould_return_expected_result(
+            [Values(null, 1, 2)] int? maxDocumentSize)
+        {
+            var subject = CreateSubject(maxDocumentSize: maxDocumentSize);
+
+            var result = subject.MaxDocumentSize;
+
+            result.Should().Be(maxDocumentSize);
+        }
+
+        [Fact]
         public void PayloadType_should_return_expected_result()
         {
             var subject = CreateSubject();
@@ -193,30 +238,41 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         private Type1CommandMessageSection CreateSubject(
             string identifier = null,
             IBatchableSource<BsonDocument> documents = null,
-            IBsonSerializer<BsonDocument> documentSerializer = null)
+            IBsonSerializer<BsonDocument> documentSerializer = null,
+            IElementNameValidator elementNameValidator = null,
+            int? maxBatchCount = null,
+            int? maxDocumentSize = null)
         {
             identifier = identifier ?? "identifier";
             documents = documents ?? new BatchableSource<BsonDocument>(new List<BsonDocument>(), canBeSplit: false);
             documentSerializer = documentSerializer ?? new BsonDocumentSerializer();
-            return new Type1CommandMessageSection<BsonDocument>(identifier, documents, documentSerializer);
+            elementNameValidator = elementNameValidator ?? NoOpElementNameValidator.Instance;
+            return new Type1CommandMessageSection<BsonDocument>(identifier, documents, documentSerializer, elementNameValidator, maxBatchCount, maxDocumentSize);
         }
     }
 
     public class Type1CommandMessageSectionTDocumentTests
     {
-        [Fact]
-        public void constructor_should_initialize_instance()
+        [Theory]
+        [ParameterAttributeData]
+        public void constructor_should_initialize_instance(
+            [Values(null, 1, 2)] int? maxBatchCount,
+            [Values(null, 3, 4)] int? maxDocumentSize)
         {
             var identifier = "xyz";
             var documents = new BatchableSource<BsonDocument>(new List<BsonDocument>(), canBeSplit: false);
             var documentSerializer = new BsonDocumentSerializer();
+            var elementNameValidator = Mock.Of<IElementNameValidator>();
 
-            var result = new Type1CommandMessageSection<BsonDocument>(identifier, documents, documentSerializer);
+            var result = new Type1CommandMessageSection<BsonDocument>(identifier, documents, documentSerializer, elementNameValidator, maxBatchCount, maxDocumentSize);
 
             result.Documents.Should().BeSameAs(documents);
             result.DocumentSerializer.Should().BeSameAs(documentSerializer);
+            result.ElementNameValidator.Should().BeSameAs(elementNameValidator);
             result.Identifier.Should().BeSameAs(identifier);
             result.PayloadType.Should().Be(PayloadType.Type1);
+            result.MaxBatchCount.Should().Be(maxBatchCount);
+            result.MaxDocumentSize.Should().Be(maxDocumentSize);
         }
 
         [Fact]
@@ -261,7 +317,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             identifier = identifier ?? "identifier";
             documents = documents ?? new BatchableSource<BsonDocument>(new List<BsonDocument>(), canBeSplit: false);
             documentSerializer = documentSerializer ?? new BsonDocumentSerializer();
-            return new Type1CommandMessageSection<BsonDocument>(identifier, documents, documentSerializer);
+            return new Type1CommandMessageSection<BsonDocument>(identifier, documents, documentSerializer, NoOpElementNameValidator.Instance, null, null);
         }
     }
 }

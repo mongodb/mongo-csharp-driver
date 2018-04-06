@@ -226,6 +226,7 @@
     <Compile Include="Core\WireProtocol\Messages\Encoders\BinaryEncoders\CommandRequestMessageBinaryEncoder.cs" />
     <Compile Include="Core\WireProtocol\Messages\Encoders\BinaryEncoders\CommandResponseMessageBinaryEncoder.cs" />
     <Compile Include="Core\WireProtocol\Messages\Encoders\CommandResponseMessageEncoderSelector.cs" />
+    <Compile Include="Core\WireProtocol\Messages\Encoders\IMessageEncoderPostProcessor.cs" />
     <Compile Include="Core\WireProtocol\Messages\Encoders\JsonEncoders\CommandMessageJsonEncoder.cs" />
     <Compile Include="Core\WireProtocol\Messages\Encoders\JsonEncoders\CommandRequestMessageJsonEncoder.cs" />
     <Compile Include="Core\WireProtocol\Messages\Encoders\JsonEncoders\CommandResponseMessageJsonEncoder.cs" />

@@ -285,9 +285,11 @@ namespace MongoDB.Driver.Core.Servers
                             ReadPreference.Primary,
                             DatabaseNamespace.Admin,
                             command,
+                            null, // payloads
                             NoOpElementNameValidator.Instance,
                             null, // additionalOptions
-                            () => CommandResponseHandling.Return,
+                            null, // postWriteAction
+                            CommandResponseHandling.Return,
                             BsonDocumentSerializer.Instance,
                             new MessageEncoderSettings(),
                             cancellationToken);
@@ -326,9 +328,11 @@ namespace MongoDB.Driver.Core.Servers
                         ReadPreference.Primary,
                         DatabaseNamespace.Admin,
                         command,
+                        null, // payloads
                         NoOpElementNameValidator.Instance,
                         null, // additionalOptions
-                        () => CommandResponseHandling.Return,
+                        null, // postWriteAction
+                        CommandResponseHandling.Return,
                         BsonDocumentSerializer.Instance,
                         new MessageEncoderSettings(),
                         cancellationToken);

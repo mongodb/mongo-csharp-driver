@@ -166,16 +166,6 @@ namespace MongoDB.Driver.Core.Operations
 
         protected abstract IExecutableInRetryableWriteContext<BulkWriteOperationResult> CreateEmulator();
 
-        protected WriteConcern GetBatchWriteConcern(Batch batch)
-        {
-            var writeConcern = _writeConcern;
-            if (!writeConcern.IsAcknowledged && _isOrdered && !batch.Requests.AllItemsWereProcessed)
-            {
-                writeConcern = WriteConcern.W1;
-            }
-            return writeConcern;
-        }
-
         protected abstract bool RequestHasCollation(TWriteRequest request);
 
         // private methods

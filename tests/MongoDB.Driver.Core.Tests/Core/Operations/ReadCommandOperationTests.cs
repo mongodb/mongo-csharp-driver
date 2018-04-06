@@ -90,9 +90,11 @@ namespace MongoDB.Driver.Core.Operations
                         readPreference,
                         subject.DatabaseNamespace,
                         subject.Command,
+                        null, // commandPayloads
                         subject.CommandValidator,
                         null, // additionalOptions
-                        It.Is<Func<CommandResponseHandling>>(f => f() == CommandResponseHandling.Return),
+                        null, // postWriteAction
+                        CommandResponseHandling.Return,
                         subject.ResultSerializer,
                         subject.MessageEncoderSettings,
                         cancellationToken),
@@ -108,9 +110,11 @@ namespace MongoDB.Driver.Core.Operations
                         readPreference,
                         subject.DatabaseNamespace,
                         subject.Command,
+                        null, // commandPayloads
                         subject.CommandValidator,
                         null, // additionalOptions
-                        It.Is<Func<CommandResponseHandling>>(f => f() == CommandResponseHandling.Return),
+                        null, // postWriteAction
+                        CommandResponseHandling.Return,
                         subject.ResultSerializer,
                         subject.MessageEncoderSettings,
                         cancellationToken),
@@ -145,9 +149,11 @@ namespace MongoDB.Driver.Core.Operations
                         readPreference,
                         subject.DatabaseNamespace,
                         subject.Command,
+                        null, // commandPayloads
                         subject.CommandValidator,
                         additionalOptions,
-                        It.Is<Func<CommandResponseHandling>>(f => f() == CommandResponseHandling.Return),
+                        null, // postWriteAction
+                        CommandResponseHandling.Return,
                         subject.ResultSerializer,
                         subject.MessageEncoderSettings,
                         cancellationToken),
@@ -163,9 +169,11 @@ namespace MongoDB.Driver.Core.Operations
                         readPreference,
                         subject.DatabaseNamespace,
                         subject.Command,
+                        null, // commandPayloads
                         subject.CommandValidator,
                         additionalOptions,
-                        It.Is<Func<CommandResponseHandling>>(f => f() == CommandResponseHandling.Return),
+                        null, // postWriteAction
+                        CommandResponseHandling.Return,
                         subject.ResultSerializer,
                         subject.MessageEncoderSettings,
                         cancellationToken),
@@ -199,9 +207,11 @@ namespace MongoDB.Driver.Core.Operations
                         readPreference,
                         subject.DatabaseNamespace,
                         subject.Command,
+                        null, // commandPayloads
                         subject.CommandValidator,
                         additionalOptions,
-                        It.Is<Func<CommandResponseHandling>>(f => f() == CommandResponseHandling.Return),
+                        null, // postWriteAction
+                        CommandResponseHandling.Return,
                         subject.ResultSerializer,
                         subject.MessageEncoderSettings,
                         cancellationToken),
@@ -217,9 +227,11 @@ namespace MongoDB.Driver.Core.Operations
                         readPreference,
                         subject.DatabaseNamespace,
                         subject.Command,
+                        null, // commandPayloads
                         subject.CommandValidator,
                         additionalOptions,
-                        It.Is<Func<CommandResponseHandling>>(f => f() == CommandResponseHandling.Return),
+                        null, // postWriteAction
+                        CommandResponseHandling.Return,
                         subject.ResultSerializer,
                         subject.MessageEncoderSettings,
                         cancellationToken),
@@ -254,9 +266,11 @@ namespace MongoDB.Driver.Core.Operations
                         readPreference,
                         subject.DatabaseNamespace,
                         subject.Command,
+                        null, // commandPayloads
                         subject.CommandValidator,
                         additionalOptions,
-                        It.Is<Func<CommandResponseHandling>>(f => f() == CommandResponseHandling.Return),
+                        null, // postWriteAction
+                        CommandResponseHandling.Return,
                         subject.ResultSerializer,
                         subject.MessageEncoderSettings,
                         cancellationToken),
@@ -272,9 +286,11 @@ namespace MongoDB.Driver.Core.Operations
                         readPreference,
                         subject.DatabaseNamespace,
                         subject.Command,
+                        null, // commandPayloads
                         subject.CommandValidator,
                         additionalOptions,
-                        It.Is<Func<CommandResponseHandling>>(f => f() == CommandResponseHandling.Return),
+                        null, // postWriteAction
+                        CommandResponseHandling.Return,
                         subject.ResultSerializer,
                         subject.MessageEncoderSettings,
                         cancellationToken),

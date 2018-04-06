@@ -268,6 +268,17 @@ namespace MongoDB.Driver.Core.Connections
             {
                 var type0Section = decodedMessage.Sections.OfType<Type0CommandMessageSection>().Single();
                 var command = (BsonDocument)type0Section.Document;
+                var type1Sections = decodedMessage.Sections.OfType<Type1CommandMessageSection>().ToList();
+                if (type1Sections.Count > 0)
+                {
+                    command = new BsonDocument(command); // materialize the RawBsonDocument
+                    foreach (var type1Section in type1Sections)
+                    {
+                        var name = type1Section.Identifier;
+                        var items = new BsonArray(type1Section.Documents.GetBatchItems().Cast<RawBsonDocument>());
+                        command[name] = items;
+                    }
+                }
                 var commandName = command.GetElement(0).Name;
                 var databaseName = command["$db"].AsString;
                 var databaseNamespace = new DatabaseNamespace(databaseName);
@@ -298,7 +309,7 @@ namespace MongoDB.Driver.Core.Connections
                         OperationId = operationId,
                         Stopwatch = stopwatch,
                         QueryNamespace = new CollectionNamespace(databaseNamespace, "$cmd"),
-                        ExpectedResponseType = ExpectedResponseType.Command
+                        ExpectedResponseType = decodedMessage.MoreToCome ? ExpectedResponseType.None : ExpectedResponseType.Command
                     });
                 }
             }
@@ -313,7 +324,7 @@ namespace MongoDB.Driver.Core.Connections
             BsonValue ok;
             if (!reply.TryGetValue("ok", out ok))
             {
-                // this is a degenerate case with the server and 
+                // this is a degenerate case with the server and
                 // we don't really know what to do here...
                 return;
             }
@@ -480,7 +491,7 @@ namespace MongoDB.Driver.Core.Connections
 
             if (_startedEvent != null)
             {
-                // InsertMessage is generic, and we don't know the generic type... 
+                // InsertMessage is generic, and we don't know the generic type...
                 // Plus, for this we really want BsonDocuments, not whatever the generic type is.
                 var decodedMessage = encoder.ReadMessage();
 
@@ -725,7 +736,7 @@ namespace MongoDB.Driver.Core.Connections
             BsonValue ok;
             if (!reply.TryGetValue("ok", out ok))
             {
-                // this is a degenerate case with the server and 
+                // this is a degenerate case with the server and
                 // we don't really know what to do here...
                 return;
             }
@@ -770,7 +781,7 @@ namespace MongoDB.Driver.Core.Connections
             BsonValue ok;
             if (!reply.TryGetValue("ok", out ok))
             {
-                // this is a degenerate case with the server and 
+                // this is a degenerate case with the server and
                 // we don't really know what to do here...
             }
             else if (!ok.ToBoolean())
@@ -1073,7 +1084,7 @@ namespace MongoDB.Driver.Core.Connections
                 return false;
             }
 
-            messageQueue.Dequeue(); // consume it so that we don't process it later... 
+            messageQueue.Dequeue(); // consume it so that we don't process it later...
             requestId = queryMessage.RequestId;
 
             writeConcern = WriteConcern.FromBsonDocument(query);

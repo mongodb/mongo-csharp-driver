@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Core.Operations
             var unprocessedRequests = CreateUnprocessedRequests(requests, writeErrors, isOrdered);
             var upserts = CreateUpserts(writeCommandResponse);
 
-            var n = writeCommandResponse.GetValue("n", 0).ToInt64();
+            var n = writeCommandResponse == null ? 0 : writeCommandResponse.GetValue("n", 0).ToInt64();
             var matchedCount = 0L;
             var deletedCount = 0L;
             var insertedCount = 0L;
@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Core.Operations
                     case WriteRequestType.Update:
                         matchedCount = n - upserts.Count();
                         BsonValue nModified;
-                        if (writeCommandResponse.TryGetValue("nModified", out nModified))
+                        if (writeCommandResponse != null && writeCommandResponse.TryGetValue("nModified", out nModified))
                         {
                             modifiedCount = nModified.ToInt64();
                         }
@@ -248,7 +248,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var upserts = new List<BulkWriteOperationUpsert>();
 
-            if (writeCommandResponse.Contains("upserted"))
+            if (writeCommandResponse != null && writeCommandResponse.Contains("upserted"))
             {
                 foreach (BsonDocument value in writeCommandResponse["upserted"].AsBsonArray)
                 {
@@ -264,7 +264,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private static BulkWriteConcernError CreateWriteConcernError(BsonDocument writeCommandResponse)
         {
-            if (writeCommandResponse.Contains("writeConcernError"))
+            if (writeCommandResponse != null && writeCommandResponse.Contains("writeConcernError"))
             {
                 var value = (BsonDocument)writeCommandResponse["writeConcernError"];
                 var code = value["code"].ToInt32();
@@ -311,7 +311,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var writeErrors = new List<BulkWriteOperationError>();
 
-            if (writeCommandResponse.Contains("writeErrors"))
+            if (writeCommandResponse != null && writeCommandResponse.Contains("writeErrors"))
             {
                 foreach (BsonDocument value in writeCommandResponse["writeErrors"].AsBsonArray)
                 {

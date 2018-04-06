@@ -64,6 +64,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
         public const string MaxSerializationDepth = "MaxSerializationDepth";
 
         /// <summary>
+        /// The maximum wire document size.
+        /// </summary>
+        public const string MaxWireDocumentSize = nameof(MaxWireDocumentSize);
+
+        /// <summary>
         /// The name of the ReadEncoding setting.
         /// </summary>
         public const string ReadEncoding = "ReadEncoding";
@@ -122,6 +127,20 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
         {
             _settings.Add(name, value);
             return this;
+        }
+
+        /// <summary>
+        /// Clones this instance.
+        /// </summary>
+        /// <returns>The clone.</returns>
+        public MessageEncoderSettings Clone()
+        {
+            var clone = new MessageEncoderSettings();
+            foreach (var key in _settings.Keys)
+            {
+                clone.Add(key, _settings[key]);
+            }
+            return clone;
         }
 
         /// <inheritdoc/>

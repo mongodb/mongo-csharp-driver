@@ -14,13 +14,16 @@
 */
 
 using System;
+using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations.ElementNameValidators;
+using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
@@ -29,14 +32,13 @@ namespace MongoDB.Driver.Core.Operations
     /// Represents an insert command operation.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public class RetryableInsertCommandOperation<TDocument> : RetryableWriteCommandOperationBase
+    public class RetryableInsertCommandOperation<TDocument> : RetryableWriteCommandOperationBase where TDocument : class
     {
         // private fields
         private bool? _bypassDocumentValidation;
         private readonly CollectionNamespace _collectionNamespace;
         private readonly BatchableSource<TDocument> _documents;
         private readonly IBsonSerializer<TDocument> _documentSerializer;
-        private bool _isOrdered = true;
 
         // constructors
         /// <summary>
@@ -104,60 +106,38 @@ namespace MongoDB.Driver.Core.Operations
             get { return _documentSerializer; }
         }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether the server should process the inserts in order.
-        /// </summary>
-        /// <value>A value indicating whether the server should process the inserts in order.</value>
-        public bool IsOrdered
-        {
-            get { return _isOrdered; }
-            set { _isOrdered = value; }
-        }
-
         // protected methods
         /// <inheritdoc />
         protected override BsonDocument CreateCommand(ConnectionDescription connectionDescription, int attempt, long? transactionNumber)
         {
-            var batchSerializer = CreateBatchSerializer(connectionDescription, attempt);
-            var batchWrapper = new BsonDocumentWrapper(_documents, batchSerializer);
-
-            BsonDocument writeConcernWrapper = null;
-            if (WriteConcernFunc != null)
-            {
-                var writeConcernSerializer = new DelayedEvaluationWriteConcernSerializer();
-                writeConcernWrapper = new BsonDocumentWrapper(WriteConcernFunc, writeConcernSerializer);
-            }
-
             return new BsonDocument
             {
                 { "insert", _collectionNamespace.CollectionName },
-                { "ordered", _isOrdered },
+                { "ordered", IsOrdered },
                 { "bypassDocumentValidation", () => _bypassDocumentValidation, _bypassDocumentValidation.HasValue },
-                { "txnNumber", () => transactionNumber.Value, transactionNumber.HasValue },
-                { "documents", new BsonArray { batchWrapper } },
-                { "writeConcern", writeConcernWrapper, writeConcernWrapper != null }
+                { "writeConcern", () => WriteConcern.ToBsonDocument(), WriteConcern != null && !WriteConcern.IsServerDefault },
+                { "txnNumber", () => transactionNumber.Value, transactionNumber.HasValue }
             };
         }
 
-        // private methods
-        private IBsonSerializer<BatchableSource<TDocument>> CreateBatchSerializer(ConnectionDescription connectionDescription, int attempt)
+        /// <inheritdoc />
+        protected override IEnumerable<Type1CommandMessageSection> CreateCommandPayloads(IChannelHandle channel, int attempt)
         {
-            var itemSerializer = new InsertSerializer(_documentSerializer);
-            var isSystemIndexesCollection = _collectionNamespace.Equals(CollectionNamespace.DatabaseNamespace.SystemIndexesCollection);
-            var elementNameValidator = isSystemIndexesCollection ? (IElementNameValidator)NoOpElementNameValidator.Instance : CollectionElementNameValidator.Instance;
-
+            BatchableSource<TDocument> documents;
             if (attempt == 1)
             {
-                var maxBatchCount = Math.Min(MaxBatchCount ?? int.MaxValue, connectionDescription.MaxBatchCount);
-                var maxItemSize = connectionDescription.MaxDocumentSize;
-                var maxBatchSize = connectionDescription.MaxDocumentSize;
-                return new SizeLimitingBatchableSourceSerializer<TDocument>(itemSerializer, elementNameValidator, maxBatchCount, maxItemSize, maxBatchSize);
+                documents = _documents;
             }
             else
             {
-                var count = _documents.ProcessedCount; // as set by the first attempt
-                return new FixedCountBatchableSourceSerializer<TDocument>(itemSerializer, elementNameValidator, count);
+                documents = new BatchableSource<TDocument>(_documents.Items, _documents.Offset, _documents.ProcessedCount, canBeSplit: false);
             }
+            var isSystemIndexesCollection = _collectionNamespace.Equals(CollectionNamespace.DatabaseNamespace.SystemIndexesCollection);
+            var elementNameValidator = isSystemIndexesCollection ? (IElementNameValidator)NoOpElementNameValidator.Instance : CollectionElementNameValidator.Instance;
+            var maxBatchCount = Math.Min(MaxBatchCount ?? int.MaxValue, channel.ConnectionDescription.MaxBatchCount);
+            var maxDocumentSize = channel.ConnectionDescription.MaxDocumentSize;
+            var payload = new Type1CommandMessageSection<TDocument>("documents", documents, _documentSerializer, elementNameValidator, maxBatchCount, maxDocumentSize);
+            return new Type1CommandMessageSection[] { payload };
         }
 
         // nested types

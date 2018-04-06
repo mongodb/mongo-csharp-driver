@@ -34,6 +34,7 @@ using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol;
+using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Servers
@@ -322,17 +323,26 @@ namespace MongoDB.Driver.Core.Servers
                 CancellationToken cancellationToken)
             {
                 var readPreference = GetEffectiveReadPreference(slaveOk, null);
-                return Command(
+                var result = Command(
                     NoCoreSession.Instance,
                     readPreference,
                     databaseNamespace,
                     command,
+                    null, // commandPayloads
                     commandValidator,
                     null, // additionalOptions
-                    responseHandling,
+                    null, // postWriteAction
+                    CommandResponseHandling.Return,
                     resultSerializer,
                     messageEncoderSettings,
                     cancellationToken);
+
+                if (responseHandling != null && responseHandling() != CommandResponseHandling.Return)
+                {
+                    throw new NotSupportedException("This overload requires responseHandling to be: Return.");
+                }
+
+                return result;
             }
 
             [Obsolete("Use the newest overload instead.")]
@@ -350,17 +360,26 @@ namespace MongoDB.Driver.Core.Servers
                 CancellationToken cancellationToken)
             {
                 readPreference = GetEffectiveReadPreference(slaveOk, readPreference);
-                return Command(
+                var result = Command(
                     session,
                     readPreference,
                     databaseNamespace,
                     command,
+                    null, // commandPayloads
                     commandValidator,
                     additionalOptions,
-                    responseHandling,
+                    null, // postWriteActions
+                    CommandResponseHandling.Return,
                     resultSerializer,
                     messageEncoderSettings,
                     cancellationToken);
+
+                if (responseHandling != null && responseHandling() != CommandResponseHandling.Return)
+                {
+                    throw new NotSupportedException("This overload requires responseHandling to be: Return.");
+                }
+
+                return result;
             }
 
             public TResult Command<TResult>(
@@ -368,9 +387,11 @@ namespace MongoDB.Driver.Core.Servers
                 ReadPreference readPreference,
                 DatabaseNamespace databaseNamespace,
                 BsonDocument command,
+                IEnumerable<Type1CommandMessageSection> commandPayloads,
                 IElementNameValidator commandValidator,
                 BsonDocument additionalOptions,
-                Func<CommandResponseHandling> responseHandling,
+                Action<IMessageEncoderPostProcessor> postWriteAction,
+                CommandResponseHandling responseHandling,
                 IBsonSerializer<TResult> resultSerializer,
                 MessageEncoderSettings messageEncoderSettings,
                 CancellationToken cancellationToken)
@@ -380,8 +401,10 @@ namespace MongoDB.Driver.Core.Servers
                     readPreference,
                     databaseNamespace,
                     command,
+                    commandPayloads,
                     commandValidator,
                     additionalOptions,
+                    postWriteAction,
                     responseHandling,
                     resultSerializer,
                     messageEncoderSettings);
@@ -401,17 +424,26 @@ namespace MongoDB.Driver.Core.Servers
                 CancellationToken cancellationToken)
             {
                 var readPreference = GetEffectiveReadPreference(slaveOk, null);
-                return CommandAsync(
+                var result = CommandAsync(
                     NoCoreSession.Instance,
                     readPreference,
                     databaseNamespace,
                     command,
+                    null, // commandPayloads
                     commandValidator,
                     null, // additionalOptions
-                    responseHandling,
+                    null, // postWriteAction
+                    CommandResponseHandling.Return,
                     resultSerializer,
                     messageEncoderSettings,
                     cancellationToken);
+
+                if (responseHandling != null && responseHandling() != CommandResponseHandling.Return)
+                {
+                    throw new NotSupportedException("This overload requires responseHandling to be 'Return'.");
+                }
+
+                return result;
             }
 
             [Obsolete("Use the newest overload instead.")]
@@ -429,17 +461,26 @@ namespace MongoDB.Driver.Core.Servers
                 CancellationToken cancellationToken)
             {
                 readPreference = GetEffectiveReadPreference(slaveOk, readPreference);
-                return CommandAsync(
+                var result = CommandAsync(
                     session,
                     readPreference,
                     databaseNamespace,
                     command,
+                    null, // commandPayloads
                     commandValidator,
                     additionalOptions,
-                    responseHandling,
+                    null, // postWriteAction
+                    CommandResponseHandling.Return,
                     resultSerializer,
                     messageEncoderSettings,
                     cancellationToken);
+
+                if (responseHandling != null && responseHandling() != CommandResponseHandling.Return)
+                {
+                    throw new NotSupportedException("This overload requires responseHandling to be 'Return'.");
+                }
+
+                return result;
             }
 
             public Task<TResult> CommandAsync<TResult>(
@@ -447,9 +488,11 @@ namespace MongoDB.Driver.Core.Servers
                 ReadPreference readPreference,
                 DatabaseNamespace databaseNamespace,
                 BsonDocument command,
+                IEnumerable<Type1CommandMessageSection> commandPayloads,
                 IElementNameValidator commandValidator,
                 BsonDocument additionalOptions,
-                Func<CommandResponseHandling> responseHandling,
+                Action<IMessageEncoderPostProcessor> postWriteAction,
+                CommandResponseHandling responseHandling,
                 IBsonSerializer<TResult> resultSerializer,
                 MessageEncoderSettings messageEncoderSettings,
                 CancellationToken cancellationToken)
@@ -459,8 +502,10 @@ namespace MongoDB.Driver.Core.Servers
                     readPreference,
                     databaseNamespace,
                     command,
+                    commandPayloads,
                     commandValidator,
                     additionalOptions,
+                    postWriteAction,
                     responseHandling,
                     resultSerializer,
                     messageEncoderSettings);

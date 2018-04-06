@@ -37,11 +37,13 @@ namespace MongoDB.Driver.Core.WireProtocol
         // private fields
         private readonly BsonDocument _additionalOptions; // TODO: can these be supported when using CommandMessage?
         private readonly BsonDocument _command;
-        private readonly Func<CommandResponseHandling> _responseHandling; // TODO: does this make any sense when using CommandMessage?
+        private readonly List<Type1CommandMessageSection> _commandPayloads;
         private readonly IElementNameValidator _commandValidator; // TODO: how can this be supported when using CommandMessage?
         private readonly DatabaseNamespace _databaseNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
+        private readonly Action<IMessageEncoderPostProcessor> _postWriteAction;
         private readonly ReadPreference _readPreference;
+        private readonly CommandResponseHandling _responseHandling;
         private readonly IBsonSerializer<TCommandResult> _resultSerializer;
         private readonly ICoreSession _session;
 
@@ -51,21 +53,30 @@ namespace MongoDB.Driver.Core.WireProtocol
             ReadPreference readPreference,
             DatabaseNamespace databaseNamespace,
             BsonDocument command,
+            IEnumerable<Type1CommandMessageSection> commandPayloads,
             IElementNameValidator commandValidator,
             BsonDocument additionalOptions,
-            Func<CommandResponseHandling> responseHandling,
+            CommandResponseHandling responseHandling,
             IBsonSerializer<TCommandResult> resultSerializer,
-            MessageEncoderSettings messageEncoderSettings)
+            MessageEncoderSettings messageEncoderSettings,
+            Action<IMessageEncoderPostProcessor> postWriteAction)
         {
+            if (responseHandling != CommandResponseHandling.Return && responseHandling != CommandResponseHandling.NoResponseExpected)
+            {
+                throw new ArgumentException("CommandResponseHandling must be Return or NoneExpected.", nameof(responseHandling));
+            }
+
             _session = Ensure.IsNotNull(session, nameof(session));
             _readPreference = readPreference;
             _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));
             _command = Ensure.IsNotNull(command, nameof(command));
+            _commandPayloads = commandPayloads?.ToList(); // can be null
             _commandValidator = Ensure.IsNotNull(commandValidator, nameof(commandValidator));
             _additionalOptions = additionalOptions; // can be null
             _responseHandling = responseHandling;
             _resultSerializer = Ensure.IsNotNull(resultSerializer, nameof(resultSerializer));
             _messageEncoderSettings = messageEncoderSettings;
+            _postWriteAction = postWriteAction; // can be null
         }
 
         // public methods
@@ -75,9 +86,17 @@ namespace MongoDB.Driver.Core.WireProtocol
             connection.SendMessage(message, _messageEncoderSettings, cancellationToken);
             MessageWasSent();
 
-            var encoderSelector = new CommandResponseMessageEncoderSelector();
-            var response = (CommandResponseMessage)connection.ReceiveMessage(message.RequestId, encoderSelector, _messageEncoderSettings, cancellationToken);
-            return ProcessResponse(connection.ConnectionId, response.WrappedMessage);
+            var wrappedMessage = message.WrappedMessage;
+            if (wrappedMessage.ResponseExpected)
+            {
+                var encoderSelector = new CommandResponseMessageEncoderSelector();
+                var response = (CommandResponseMessage)connection.ReceiveMessage(message.RequestId, encoderSelector, _messageEncoderSettings, cancellationToken);
+                return ProcessResponse(connection.ConnectionId, response.WrappedMessage);
+            }
+            else
+            {
+                return default(TCommandResult);
+            }
         }
 
         public async Task<TCommandResult> ExecuteAsync(IConnection connection, CancellationToken cancellationToken)
@@ -86,9 +105,17 @@ namespace MongoDB.Driver.Core.WireProtocol
             await connection.SendMessageAsync(message, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
             MessageWasSent();
 
-            var encoderSelector = new CommandResponseMessageEncoderSelector();
-            var response = (CommandResponseMessage)await connection.ReceiveMessageAsync(message.RequestId, encoderSelector, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
-            return ProcessResponse(connection.ConnectionId, response.WrappedMessage);
+            var wrappedMessage = message.WrappedMessage;
+            if (wrappedMessage.ResponseExpected)
+            {
+                var encoderSelector = new CommandResponseMessageEncoderSelector();
+                var response = (CommandResponseMessage)await connection.ReceiveMessageAsync(message.RequestId, encoderSelector, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
+                return ProcessResponse(connection.ConnectionId, response.WrappedMessage);
+            }
+            else
+            {
+                return default(TCommandResult);
+            }
         }
 
         // private methods
@@ -97,8 +124,11 @@ namespace MongoDB.Driver.Core.WireProtocol
             var requestId = RequestMessage.GetNextRequestId();
             var responseTo = 0;
             var sections = CreateSections(connectionDescription);
-            var moreToCome = false;
-            var wrappedMessage = new CommandMessage(requestId, responseTo, sections, moreToCome);
+            var moreToCome = _responseHandling == CommandResponseHandling.NoResponseExpected;
+            var wrappedMessage = new CommandMessage(requestId, responseTo, sections, moreToCome)
+            {
+                PostWriteAction = _postWriteAction
+            };
             var shouldBeSent = (Func<bool>)(() => true);
 
             return new CommandRequestMessage(wrappedMessage, shouldBeSent);
@@ -107,7 +137,14 @@ namespace MongoDB.Driver.Core.WireProtocol
         private IEnumerable<CommandMessageSection> CreateSections(ConnectionDescription connectionDescription)
         {
             var type0Section = CreateType0Section(connectionDescription);
-            return new[] { type0Section };
+            if (_commandPayloads == null)
+            {
+                return new[] { type0Section };
+            }
+            else
+            {
+                return new CommandMessageSection[] { type0Section }.Concat(_commandPayloads);
+            }
         }
 
         private Type0CommandMessageSection<BsonDocument> CreateType0Section(ConnectionDescription connectionDescription)
@@ -131,8 +168,9 @@ namespace MongoDB.Driver.Core.WireProtocol
                 var clusterTimeElement = new BsonElement("$clusterTime", _session.ClusterTime);
                 extraElements.Add(clusterTimeElement);
             }
+            Action<BsonWriterSettings> writerSettingsConfigurator = s => s.GuidRepresentation = GuidRepresentation.Unspecified;
 
-            var elementAppendingSerializer = new ElementAppendingSerializer<BsonDocument>(BsonDocumentSerializer.Instance, extraElements);
+            var elementAppendingSerializer = new ElementAppendingSerializer<BsonDocument>(BsonDocumentSerializer.Instance, extraElements, writerSettingsConfigurator);
             return new Type0CommandMessageSection<BsonDocument>(_command, elementAppendingSerializer);
         }
 

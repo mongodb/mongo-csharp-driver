@@ -14,6 +14,8 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -23,6 +25,7 @@ using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
+using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
@@ -34,10 +37,11 @@ namespace MongoDB.Driver.Core.Operations
     {
         // private fields
         private readonly DatabaseNamespace _databaseNamespace;
+        private bool _isOrdered = true;
         private int? _maxBatchCount;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private bool _retryRequested;
-        private Func<WriteConcern> _writeConcernFunc = () => WriteConcern.Acknowledged;
+        private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
         // constructors
         /// <summary>
@@ -63,6 +67,16 @@ namespace MongoDB.Driver.Core.Operations
         public DatabaseNamespace DatabaseNamespace
         {
             get { return _databaseNamespace; }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the server should process the requests in order.
+        /// </summary>
+        /// <value>A value indicating whether the server should process the requests in order.</value>
+        public bool IsOrdered
+        {
+            get { return _isOrdered; }
+            set { _isOrdered = value; }
         }
 
         /// <summary>
@@ -104,10 +118,10 @@ namespace MongoDB.Driver.Core.Operations
         /// <value>
         /// The write concern.
         /// </value>
-        public Func<WriteConcern> WriteConcernFunc
+        public WriteConcern WriteConcern
         {
-            get { return _writeConcernFunc; }
-            set { _writeConcernFunc = value; }
+            get { return _writeConcern; }
+            set { _writeConcern = value; }
         }
 
         // public methods
@@ -144,34 +158,40 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc />
         public BsonDocument ExecuteAttempt(RetryableWriteContext context, int attempt, long? transactionNumber, CancellationToken cancellationToken)
         {
-            var command = CreateCommand(context.Channel.ConnectionDescription, attempt, transactionNumber);
+            var args = GetCommandArgs(context, attempt, transactionNumber);
+
             return context.Channel.Command<BsonDocument>(
                 context.ChannelSource.Session,
                 ReadPreference.Primary,
                 _databaseNamespace,
-                command,
+                args.Command,
+                args.CommandPayloads,
                 NoOpElementNameValidator.Instance,
                 null, // additionalOptions,
-                () => CommandResponseHandling.Return,
+                args.PostWriteAction,
+                args.ResponseHandling,
                 BsonDocumentSerializer.Instance,
-                _messageEncoderSettings,
+                args.MessageEncoderSettings,
                 cancellationToken);
         }
 
         /// <inheritdoc />
         public Task<BsonDocument> ExecuteAttemptAsync(RetryableWriteContext context, int attempt, long? transactionNumber, CancellationToken cancellationToken)
         {
-            var command = CreateCommand(context.Channel.ConnectionDescription, attempt, transactionNumber);
+            var args = GetCommandArgs(context, attempt, transactionNumber);
+
             return context.Channel.CommandAsync<BsonDocument>(
                 context.ChannelSource.Session,
                 ReadPreference.Primary,
                 _databaseNamespace,
-                command,
+                args.Command,
+                args.CommandPayloads,
                 NoOpElementNameValidator.Instance,
                 null, // additionalOptions,
-                () => CommandResponseHandling.Return,
+                args.PostWriteAction,
+                args.ResponseHandling,
                 BsonDocumentSerializer.Instance,
-                _messageEncoderSettings,
+                args.MessageEncoderSettings,
                 cancellationToken);
         }
 
@@ -184,5 +204,66 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="transactionNumber">The transaction number.</param>
         /// <returns>A command.</returns>
         protected abstract BsonDocument CreateCommand(ConnectionDescription connectionDescription, int attempt, long? transactionNumber);
+
+        /// <summary>
+        /// Creates the command payloads.
+        /// </summary>
+        /// <returns>The command payloads.</returns>
+        protected abstract IEnumerable<Type1CommandMessageSection> CreateCommandPayloads(IChannelHandle channel, int attempt);
+
+        // private methods
+        private MessageEncoderSettings CreateMessageEncoderSettings(IChannelHandle channel)
+        {
+            var clone = _messageEncoderSettings.Clone();
+            clone.Add(MessageEncoderSettingsName.MaxDocumentSize, channel.ConnectionDescription.MaxDocumentSize);
+            clone.Add(MessageEncoderSettingsName.MaxMessageSize, channel.ConnectionDescription.MaxMessageSize);
+            clone.Add(MessageEncoderSettingsName.MaxWireDocumentSize, channel.ConnectionDescription.MaxWireDocumentSize);
+            return clone;
+        }
+
+        private CommandArgs GetCommandArgs(RetryableWriteContext context, int attempt, long? transactionNumber)
+        {
+            var args = new CommandArgs();
+            args.Command = CreateCommand(context.Channel.ConnectionDescription, attempt, transactionNumber);
+            args.CommandPayloads = CreateCommandPayloads(context.Channel, attempt).ToList();
+            args.PostWriteAction = GetPostWriteAction(args.CommandPayloads);
+            args.ResponseHandling = GetResponseHandling();
+            args.MessageEncoderSettings = CreateMessageEncoderSettings(context.Channel);
+            return args;
+        }
+
+        private Action<IMessageEncoderPostProcessor> GetPostWriteAction(List<Type1CommandMessageSection> commandPayloads)
+        {
+            if (!_writeConcern.IsAcknowledged && _isOrdered)
+            {
+                return encoder =>
+                {
+                    var requestsPayload = commandPayloads.Single();
+                    if (!requestsPayload.Documents.AllItemsWereProcessed)
+                    {
+                        encoder.ChangeWriteConcernFromW0ToW1();
+                    }
+                };
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private CommandResponseHandling GetResponseHandling()
+        {
+            return _writeConcern.IsAcknowledged ? CommandResponseHandling.Return : CommandResponseHandling.NoResponseExpected;
+        }
+
+        // nested types
+        private class CommandArgs
+        {
+            public BsonDocument Command { get; set; }
+            public List<Type1CommandMessageSection> CommandPayloads { get; set; }
+            public Action<IMessageEncoderPostProcessor> PostWriteAction { get; set; }
+            public CommandResponseHandling ResponseHandling { get; set; }
+            public MessageEncoderSettings MessageEncoderSettings { get; set; }
+        }
     }
 }

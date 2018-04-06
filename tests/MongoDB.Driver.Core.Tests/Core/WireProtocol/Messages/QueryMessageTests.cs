@@ -17,7 +17,7 @@ using System;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
-using MongoDB.Driver.Core.WireProtocol.Messages;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using Moq;
 using Xunit;
@@ -52,8 +52,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             subject.NoCursorTimeout.Should().Be(noCursorTimeout);
             subject.OplogReplay.Should().Be(oplogReplay);
             subject.PartialOk.Should().Be(partialOk);
+            subject.PostWriteAction.Should().BeNull();
             subject.Query.Should().Be(_query);
             subject.RequestId.Should().Be(_requestId);
+            subject.ResponseHandling.Should().Be(CommandResponseHandling.Return);
             subject.SlaveOk.Should().Be(slaveOk);
             subject.TailableCursor.Should().Be(tailableCursor);
         }
@@ -90,6 +92,75 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             var result = subject.GetEncoder(mockEncoderFactory.Object);
 
             result.Should().BeSameAs(encoder);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void PostWriteAction_get_should_return_expected_result(
+            [Values(false, true)] bool isNull)
+        {
+            var value = isNull ? null : (Action<IMessageEncoderPostProcessor>)(encoder => { });
+            var subject = new QueryMessage(_requestId, _collectionNamespace, _query, _fields, _queryValidator, _skip, _batchSize, false, false, false, false, false, false)
+            {
+                PostWriteAction = value
+            };
+
+            var result = subject.PostWriteAction;
+
+            result.Should().BeSameAs(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void PostWriteAction_set_should_have_expected_result(
+            [Values(false, true)] bool isNull)
+        {
+            var subject = new QueryMessage(_requestId, _collectionNamespace, _query, _fields, _queryValidator, _skip, _batchSize, false, false, false, false, false, false);
+            var value = isNull ? null : (Action<IMessageEncoderPostProcessor>)(encoder => { });
+
+            subject.PostWriteAction = value;
+
+            subject.PostWriteAction.Should().BeSameAs(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void ResponseHandling_get_should_return_expected_result(
+            [Values(CommandResponseHandling.Return, CommandResponseHandling.Ignore)] CommandResponseHandling value)
+        {
+            var subject = new QueryMessage(_requestId, _collectionNamespace, _query, _fields, _queryValidator, _skip, _batchSize, false, false, false, false, false, false)
+            {
+                ResponseHandling = value
+            };
+
+            var result = subject.ResponseHandling;
+
+            result.Should().Be(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void ResponseHandling_set_should_have_expected_result(
+            [Values(CommandResponseHandling.Return, CommandResponseHandling.Ignore)] CommandResponseHandling value)
+        {
+            var subject = new QueryMessage(_requestId, _collectionNamespace, _query, _fields, _queryValidator, _skip, _batchSize, false, false, false, false, false, false);
+
+            subject.ResponseHandling = value;
+
+            subject.ResponseHandling.Should().Be(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void ResponseHandling_set_should_throw_when_value_is_invalid(
+            [Values(-1, CommandResponseHandling.NoResponseExpected)] CommandResponseHandling value)
+        {
+            var subject = new QueryMessage(_requestId, _collectionNamespace, _query, _fields, _queryValidator, _skip, _batchSize, false, false, false, false, false, false);
+
+            var exception = Record.Exception(() => subject.ResponseHandling = value);
+
+            var e = exception.Should().BeOfType<ArgumentException>().Subject;
+            e.ParamName.Should().Be("value");
         }
     }
 }

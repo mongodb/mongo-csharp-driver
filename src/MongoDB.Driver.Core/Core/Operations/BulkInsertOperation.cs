@@ -36,19 +36,13 @@ namespace MongoDB.Driver.Core.Operations
         // methods
         protected override IRetryableWriteOperation<BsonDocument> CreateBatchOperation(Batch batch)
         {
-            Func<WriteConcern> writeConcernFunc = null;
-            if (!WriteConcern.IsServerDefault)
-            {
-                writeConcernFunc = () => GetBatchWriteConcern(batch);
-            }
-
             return new RetryableInsertCommandOperation<InsertRequest>(CollectionNamespace, batch.Requests, InsertRequestSerializer.Instance, MessageEncoderSettings)
             {
                 BypassDocumentValidation = BypassDocumentValidation,
                 IsOrdered = IsOrdered,
                 MaxBatchCount = MaxBatchCount,
                 RetryRequested = RetryRequested,
-                WriteConcernFunc = writeConcernFunc
+                WriteConcern = WriteConcern
             };
         }
 

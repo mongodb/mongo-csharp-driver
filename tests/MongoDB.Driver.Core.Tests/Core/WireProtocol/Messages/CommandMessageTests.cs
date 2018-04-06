@@ -13,16 +13,19 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages
@@ -42,7 +45,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             var result = new CommandMessage(requestId, responseTo, sections, moreToCome);
 
             result.MoreToCome.Should().Be(moreToCome);
+            result.PostWriteAction.Should().BeNull();
             result.RequestId.Should().Be(requestId);
+            result.ResponseExpected.Should().Be(!moreToCome);
             result.ResponseTo.Should().Be(responseTo);
             result.Sections.Should().Equal(sections, CommandMessageSectionEqualityComparer.Instance.Equals);
         }
@@ -59,14 +64,52 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
 
         [Theory]
         [ParameterAttributeData]
-        public void MoreToCome_should_return_expected_result(
-            [Values(false, true)] bool moreToCome)
+        public void MoreToCome_get_should_return_expected_result(
+            [Values(false, true)] bool value)
         {
-            var subject = CreateSubject(moreToCome: moreToCome);
+            var subject = CreateSubject(moreToCome: value);
 
             var result = subject.MoreToCome;
 
-            result.Should().Be(moreToCome);
+            result.Should().Be(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void MoreToCome_set_should_have_expected_result(
+            [Values(false, true)] bool value)
+        {
+            var subject = CreateSubject();
+
+            subject.MoreToCome = value;
+
+            subject.MoreToCome.Should().Be(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void PostWriteAction_get_should_return_expected_result(
+            [Values(false, true)] bool isNull)
+        {
+            var value = isNull ? null : (Action<IMessageEncoderPostProcessor>)(operations => { });
+            var subject = CreateSubject(postWriteAction: value);
+
+            var result = subject.PostWriteAction;
+
+            result.Should().BeSameAs(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void PostWriteAction_set_should_have_expected_result(
+            [Values(false, true)] bool isNull)
+        {
+            var subject = CreateSubject();
+            var value = isNull ? null : (Action<IMessageEncoderPostProcessor>)(operations => { });
+
+            subject.PostWriteAction = value;
+
+            subject.PostWriteAction.Should().BeSameAs(value);
         }
 
         [Theory]
@@ -79,6 +122,18 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             var result = subject.RequestId;
 
             result.Should().Be(requestId);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void ResponseExpected_get_should_return_expected_result(
+            [Values(false, true)] bool value)
+        {
+            var subject = CreateSubject(moreToCome: !value);
+
+            var result = subject.ResponseExpected;
+
+            result.Should().Be(value);
         }
 
         [Theory]
@@ -132,10 +187,14 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             int requestId = 1,
             int responseTo = 2,
             IEnumerable<CommandMessageSection> sections = null,
-            bool moreToCome = false)
+            bool moreToCome = false,
+            Action<IMessageEncoderPostProcessor> postWriteAction = null)
         {
             sections = sections ?? new[] { CreateType0Section() };
-            return new CommandMessage(requestId, responseTo, sections, moreToCome);
+            return new CommandMessage(requestId, responseTo, sections, moreToCome)
+            {
+                PostWriteAction = postWriteAction
+            };
         }
 
         private Type0CommandMessageSection<BsonDocument> CreateType0Section()
@@ -149,7 +208,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             var identifier = $"id-{n}";
             var items = Enumerable.Range(0, n + 1).Select(x => new BsonDocument("x", x)).ToList();
             var documents = new BatchableSource<BsonDocument>(items, canBeSplit: false);
-            return new Type1CommandMessageSection<BsonDocument>(identifier, documents, BsonDocumentSerializer.Instance);
+            return new Type1CommandMessageSection<BsonDocument>(identifier, documents, BsonDocumentSerializer.Instance, NoOpElementNameValidator.Instance, null, null);
         }
     }
 }

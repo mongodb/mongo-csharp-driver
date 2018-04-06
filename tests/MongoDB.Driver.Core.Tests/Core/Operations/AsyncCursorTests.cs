@@ -233,9 +233,11 @@ namespace MongoDB.Driver.Core.Operations
                         null,
                         databaseNamespace,
                         It.IsAny<BsonDocument>(),
+                        null,
                         NoOpElementNameValidator.Instance,
                         null,
-                        It.IsAny<Func<CommandResponseHandling>>(),
+                        null,
+                        CommandResponseHandling.Return,
                         It.IsAny<IBsonSerializer<BsonDocument>>(),
                         It.IsAny<MessageEncoderSettings>(),
                         cancellationToken))
@@ -253,9 +255,11 @@ namespace MongoDB.Driver.Core.Operations
                         null,
                         databaseNamespace,
                         It.IsAny<BsonDocument>(),
+                        null,
                         NoOpElementNameValidator.Instance,
                         null,
-                        It.IsAny<Func<CommandResponseHandling>>(),
+                        null,
+                        CommandResponseHandling.Return,
                         It.IsAny<IBsonSerializer<BsonDocument>>(),
                         It.IsAny<MessageEncoderSettings>(),
                         cancellationToken))
@@ -386,9 +390,11 @@ namespace MongoDB.Driver.Core.Operations
                 ReadPreference.Primary,
                 _databaseNamespace,
                 command,
+                null, // payloads
                 NoOpElementNameValidator.Instance,
                 null, // additionalOptions
-                () => CommandResponseHandling.Return,
+                null, // postWriteAction
+                CommandResponseHandling.Return,
                 BsonDocumentSerializer.Instance,
                 _messageEncoderSettings,
                 cancellationToken);

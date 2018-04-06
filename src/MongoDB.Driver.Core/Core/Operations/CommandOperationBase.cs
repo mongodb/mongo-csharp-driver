@@ -153,9 +153,11 @@ namespace MongoDB.Driver.Core.Operations
                 readPreference,
                 _databaseNamespace,
                 _command,
+                null, // commandPayloads
                 _commandValidator,
                 additionalOptions,
-                () => CommandResponseHandling.Return,
+                null, // postWriteAction,
+                CommandResponseHandling.Return,
                 _resultSerializer,
                 _messageEncoderSettings,
                 cancellationToken);
@@ -192,9 +194,11 @@ namespace MongoDB.Driver.Core.Operations
                 readPreference,
                 _databaseNamespace,
                 _command,
+                null, // TODO: support commandPayloads
                 _commandValidator,
                 additionalOptions,
-                () => CommandResponseHandling.Return,
+                null, // postWriteAction,
+                CommandResponseHandling.Return,
                 _resultSerializer,
                 _messageEncoderSettings,
                 cancellationToken);

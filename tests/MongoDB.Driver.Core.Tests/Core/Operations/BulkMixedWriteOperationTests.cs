@@ -1291,11 +1291,9 @@ namespace MongoDB.Driver.Core.Operations
         [SkippableTheory]
         [InlineData(new[] { 1 }, new[] { 1 })]
         [InlineData(new[] { 1, 1 }, new[] { 2 })]
-        [InlineData(new[] { 8388605, 8388605 }, new[] { 2 })]
-        [InlineData(new[] { 8388605, 8388606 }, new[] { 1, 1 })]
-        [InlineData(new[] { 16777216 }, new[] { 1 })]
-        [InlineData(new[] { 16777216, 1 }, new[] { 1, 1 })]
-        [InlineData(new[] { 16777216, 16777216 }, new[] { 1, 1 })]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000 }, new[] { 4 })]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999887 }, new[] { 5 })]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999888 }, new[] { 4, 1 })]
         public void Execute_with_multiple_deletes_should_split_batches_as_expected_when_using_write_commands_via_opmessage(int[] requestSizes, int[] expectedBatchCounts)
         {
             RequireServer.Check().Supports(Feature.WriteCommands, Feature.CommandMessage);
@@ -1356,11 +1354,9 @@ namespace MongoDB.Driver.Core.Operations
         [SkippableTheory]
         [InlineData(new[] { 1 }, new[] { 1 })]
         [InlineData(new[] { 1, 1 }, new[] { 2 })]
-        [InlineData(new[] { 8388605, 8388605 }, new[] { 2 })]
-        [InlineData(new[] { 8388605, 8388606 }, new[] { 1, 1 })]
-        [InlineData(new[] { 16777216 }, new[] { 1 })]
-        [InlineData(new[] { 16777216, 1 }, new[] { 1, 1 })]
-        [InlineData(new[] { 16777216, 16777216 }, new[] { 1, 1 })]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000 }, new[] { 4 })]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999885 }, new[] { 5 })]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999886 }, new[] { 4, 1 })]
         public void Execute_with_multiple_inserts_should_split_batches_as_expected_when_using_write_commands_via_opmessage(int[] documentSizes, int[] expectedBatchCounts)
         {
             RequireServer.Check().Supports(Feature.WriteCommands, Feature.CommandMessage);
@@ -1424,11 +1420,9 @@ namespace MongoDB.Driver.Core.Operations
         [SkippableTheory]
         [InlineData(new[] { 1 }, new[] { 1 })]
         [InlineData(new[] { 1, 1 }, new[] { 2 })]
-        [InlineData(new[] { 8388605, 8388605 }, new[] { 2 })]
-        [InlineData(new[] { 8388605, 8388606 }, new[] { 1, 1 })]
-        [InlineData(new[] { 16777216 }, new[] { 1 })]
-        [InlineData(new[] { 16777216, 1 }, new[] { 1, 1 })]
-        [InlineData(new[] { 16777216, 16777216 }, new[] { 1, 1 })]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000 }, new[] { 4 })]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999887 }, new[] { 5 })]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999888 }, new[] { 4, 1 })]
         public void Execute_with_multiple_updates_should_split_batches_as_expected_when_using_write_commands_via_opmessage(int[] requestSizes, int[] expectedBatchCounts)
         {
             RequireServer.Check().Supports(Feature.WriteCommands, Feature.CommandMessage);
@@ -1542,7 +1536,7 @@ namespace MongoDB.Driver.Core.Operations
                 BsonDocument.Parse("{_id: 5, x: 2 }"),
                 BsonDocument.Parse("{_id: 6, x: 3 }"));
         }
-        
+
         private List<BsonDocument> ReadAllFromCollection(IReadBinding binding)
         {
             var operation = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);

@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+using System;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
@@ -137,12 +139,15 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     /// <summary>
     /// Represents a Type 1 CommandMessage section.
     /// </summary>
-    public class Type1CommandMessageSection : CommandMessageSection
+    public abstract class Type1CommandMessageSection : CommandMessageSection
     {
         // private fields
         private readonly IBatchableSource<object> _documents;
         private readonly IBsonSerializer _documentSerializer;
+        private readonly IElementNameValidator _elementNameValidator;
         private readonly string _identifier;
+        private readonly int? _maxBatchCount;
+        private readonly int? _maxDocumentSize;
 
         // constructors
         /// <summary>
@@ -151,11 +156,23 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <param name="identifier">The identifier.</param>
         /// <param name="documents">The documents.</param>
         /// <param name="documentSerializer">The document serializer.</param>
-        public Type1CommandMessageSection(string identifier, IBatchableSource<object> documents, IBsonSerializer documentSerializer)
+        /// <param name="elementNameValidator">The element name validator.</param>
+        /// <param name="maxBatchCount">The maximum batch count.</param>
+        /// <param name="maxDocumentSize">Maximum size of the document.</param>
+        public Type1CommandMessageSection(
+            string identifier,
+            IBatchableSource<object> documents,
+            IBsonSerializer documentSerializer,
+            IElementNameValidator elementNameValidator,
+            int? maxBatchCount,
+            int? maxDocumentSize)
         {
             _identifier = Ensure.IsNotNull(identifier, nameof(identifier));
             _documents = Ensure.IsNotNull(documents, nameof(documents));
             _documentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
+            _elementNameValidator = Ensure.IsNotNull(elementNameValidator, nameof(elementNameValidator));
+            _maxBatchCount = Ensure.IsNullOrGreaterThanZero(maxBatchCount, nameof(maxBatchCount));
+            _maxDocumentSize = Ensure.IsNullOrGreaterThanZero(maxDocumentSize, nameof(maxDocumentSize));
         }
 
         // public properties
@@ -176,12 +193,44 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         public IBsonSerializer DocumentSerializer => _documentSerializer;
 
         /// <summary>
+        /// Gets the type of the document.
+        /// </summary>
+        /// <value>
+        /// The type of the document.
+        /// </value>
+        public abstract Type DocumentType { get; }
+
+        /// <summary>
+        /// Gets the element name validator.
+        /// </summary>
+        /// <value>
+        /// The element name validator.
+        /// </value>
+        public IElementNameValidator ElementNameValidator => _elementNameValidator;
+
+        /// <summary>
         /// Gets the identifier.
         /// </summary>
         /// <value>
         /// The identifier.
         /// </value>
         public string Identifier => _identifier;
+
+        /// <summary>
+        /// Gets the maximum batch count.
+        /// </summary>
+        /// <value>
+        /// The maximum batch count.
+        /// </value>
+        public int? MaxBatchCount => _maxBatchCount;
+
+        /// <summary>
+        /// Gets the maximum size of the document.
+        /// </summary>
+        /// <value>
+        /// The maximum size of the document.
+        /// </value>
+        public int? MaxDocumentSize => _maxDocumentSize;
 
         /// <inheritdoc />
         public override PayloadType PayloadType => PayloadType.Type1;
@@ -203,8 +252,17 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <param name="identifier">The identifier.</param>
         /// <param name="documents">The documents.</param>
         /// <param name="documentSerializer">The document serializer.</param>
-        public Type1CommandMessageSection(string identifier, IBatchableSource<TDocument> documents, IBsonSerializer<TDocument> documentSerializer)
-            : base(identifier, documents, documentSerializer)
+        /// <param name="elementNameValidator">The element name validator.</param>
+        /// <param name="maxBatchCount">The maximum batch count.</param>
+        /// <param name="maxDocumentSize">Maximum size of the document.</param>
+        public Type1CommandMessageSection(
+            string identifier,
+            IBatchableSource<TDocument> documents,
+            IBsonSerializer<TDocument> documentSerializer,
+            IElementNameValidator elementNameValidator,
+            int? maxBatchCount,
+            int? maxDocumentSize)
+            : base(identifier, documents, documentSerializer, elementNameValidator, maxBatchCount, maxDocumentSize)
         {
             _documents = Ensure.IsNotNull(documents, nameof(documents));
             _documentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
@@ -226,5 +284,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// The document serializer.
         /// </value>
         public new IBsonSerializer<TDocument> DocumentSerializer => _documentSerializer;
+
+        /// <inheritdoc />
+        public override Type DocumentType => typeof(TDocument);
     }
 }

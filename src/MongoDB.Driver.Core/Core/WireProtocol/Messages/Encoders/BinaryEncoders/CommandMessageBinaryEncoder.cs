@@ -92,6 +92,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             stream.WriteInt32((int)CreateFlags(message));
             WriteSections(writer, message.Sections, messageStartPosition);
             stream.BackpatchSize(messageStartPosition);
+
+            message.PostWriteAction?.Invoke(new PostProcessor(message, stream, messageStartPosition));
         }
 
         // explicit interface implementations
@@ -138,6 +140,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             if ((flags & invalidFlags) != 0)
             {
                 throw new FormatException("Command message has invalid flags.");
+            }
+            if ((flags & OpMsgFlags.ChecksumPresent) != 0)
+            {
+                throw new FormatException("Command message CheckSumPresent flag not supported.");
             }
         }
 
@@ -241,7 +247,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             EnsurePayloadEndedAtEndPosition(stream, payloadEndPosition);
             var batch = new BatchableSource<RawBsonDocument>(documents, canBeSplit: false);
 
-            return new Type1CommandMessageSection<RawBsonDocument>(identifier, batch, serializer);
+            return new Type1CommandMessageSection<RawBsonDocument>(identifier, batch, serializer, NoOpElementNameValidator.Instance, null, null);
         }
 
         private void WriteSection(BsonBinaryWriter writer, CommandMessageSection section, long messageStartPosition)
@@ -288,25 +294,157 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var payloadStartPosition = stream.Position;
             stream.WriteInt32(0); // size
             stream.WriteCString(section.Identifier);
-            var batch = section.Documents;
-            var processedCount = batch.Count;
-            for (var i = 0; i < batch.Count; i++)
-            {
-                var documentStartPosition = stream.Position;
-                var document = batch.Items[batch.Offset + i];
-                serializer.Serialize(context, document);
 
-                var messageSize = stream.Position - messageStartPosition;
-                if (messageSize > maxMessageSize)
+            var batch = section.Documents;
+            var maxDocumentSize = section.MaxDocumentSize ?? writer.Settings.MaxDocumentSize;
+            writer.PushSettings(s => ((BsonBinaryWriterSettings)s).MaxDocumentSize = maxDocumentSize);
+            writer.PushElementNameValidator(section.ElementNameValidator);
+            try
+            {
+                var maxBatchCount = Math.Min(batch.Count, section.MaxBatchCount ?? int.MaxValue);
+                var processedCount = maxBatchCount;
+                for (var i = 0; i < maxBatchCount; i++)
                 {
-                    stream.Position = documentStartPosition;
-                    stream.SetLength(documentStartPosition);
-                    processedCount = i;
-                    break;
+                    var documentStartPosition = stream.Position;
+                    var document = batch.Items[batch.Offset + i];
+                    serializer.Serialize(context, document);
+
+                    var messageSize = stream.Position - messageStartPosition;
+                    if (messageSize > maxMessageSize && batch.CanBeSplit)
+                    {
+                        stream.Position = documentStartPosition;
+                        stream.SetLength(documentStartPosition);
+                        processedCount = i;
+                        break;
+                    }
                 }
+                batch.SetProcessedCount(processedCount);
             }
-            batch.SetProcessedCount(processedCount);
+            finally
+            {
+                writer.PopElementNameValidator();
+                writer.PopSettings();
+            }
             stream.BackpatchSize(payloadStartPosition);
+        }
+
+        // nested types
+        private class PostProcessor : IMessageEncoderPostProcessor
+        {
+            // private fields
+            private readonly CommandMessage _message;
+            private readonly long _messageStartPosition;
+            private readonly BsonStream _stream;
+
+            // constructors
+            public PostProcessor(CommandMessage message, BsonStream stream, long messageStartPosition)
+            {
+                _message = message;
+                _stream = stream;
+                _messageStartPosition = messageStartPosition;
+            }
+
+            // public methods
+            public void ChangeWriteConcernFromW0ToW1()
+            {
+                ChangeMoreToComeFromTrueToFalse();
+                ChangeWFrom0To1();
+                _message.MoreToCome = false;
+            }
+
+            // private methods
+            private void ChangeMoreToComeFromTrueToFalse()
+            {
+                var flagsPosition = _messageStartPosition + 16;
+                _stream.Position = flagsPosition;
+                var flags = (OpMsgFlags)_stream.ReadInt32();
+                if ((flags & OpMsgFlags.MoreToCome) == 0)
+                {
+                    throw new InvalidOperationException("MoreToCome was not true.");
+                }
+                flags = flags & ~OpMsgFlags.MoreToCome;
+                _stream.Position = flagsPosition;
+                _stream.WriteInt32((int)flags);
+            }
+
+            private void ChangeWFrom0To1()
+            {
+                var wPosition = FindWPosition();
+                _stream.Position = wPosition;
+                var w = _stream.ReadInt32();
+                if (w != 0)
+                {
+                    throw new InvalidOperationException("w was not 0.");
+                }
+                _stream.Position = wPosition;
+                _stream.WriteInt32(1);
+            }
+
+            private long FindType0SectionPosition()
+            {
+                _stream.Position = _messageStartPosition;
+                var messageLength = _stream.ReadInt32();
+
+                _stream.Position = _messageStartPosition + 20;
+                var messageEndPosition = _messageStartPosition + messageLength;
+                while (_stream.Position < messageEndPosition)
+                {
+                    var sectionPosition = _stream.Position;
+
+                    var payloadType = (PayloadType)_stream.ReadByte();
+                    if (payloadType == PayloadType.Type0)
+                    {
+                        return sectionPosition;
+                    }
+                    else if (payloadType != PayloadType.Type1)
+                    {
+                        throw new FormatException($"Invalid payload type: {payloadType}.");
+                    }
+
+                    var sectionSize = _stream.ReadInt32();
+                    _stream.Position = sectionPosition + 1 + sectionSize;
+                }
+
+                throw new InvalidOperationException("No type 0 section found.");
+            }
+
+            private long FindWPosition()
+            {
+                var type0SectionPosition = FindType0SectionPosition();
+
+                _stream.Position = type0SectionPosition + 1;
+                using (var reader = new BsonBinaryReader(_stream))
+                {
+                    reader.ReadStartDocument();
+                    while (reader.ReadBsonType() != 0)
+                    {
+                        if (reader.ReadName() == "writeConcern")
+                        {
+                            reader.ReadStartDocument();
+                            while (reader.ReadBsonType() != 0)
+                            {
+                                if (reader.ReadName() == "w")
+                                {
+                                    if (reader.CurrentBsonType == BsonType.Int32)
+                                    {
+                                        return _stream.Position;
+                                    }
+                                    goto notFound;
+                                }
+
+                                reader.SkipValue();
+                            }
+                            goto notFound;
+                        }
+
+                        reader.SkipValue();
+                    }
+                }
+
+                notFound:
+                throw new InvalidOperationException("{ w : <Int32> } not found.");
+            }
+
         }
     }
 }

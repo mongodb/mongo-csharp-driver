@@ -30,6 +30,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         // private fields
         private readonly IBsonSerializer<TDocument> _documentSerializer;
         private readonly List<BsonElement> _elements;
+        private readonly Action<BsonWriterSettings> _writerSettingsConfigurator;
 
         // constructors
         /// <summary>
@@ -37,12 +38,17 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="documentSerializer">The document serializer.</param>
         /// <param name="elements">The elements to append.</param>
-        public ElementAppendingSerializer(IBsonSerializer<TDocument> documentSerializer, IEnumerable<BsonElement> elements)
+        /// <param name="writerSettingsConfigurator">The writer settings configurator.</param>
+        public ElementAppendingSerializer(
+            IBsonSerializer<TDocument> documentSerializer, 
+            IEnumerable<BsonElement> elements, 
+            Action<BsonWriterSettings> writerSettingsConfigurator = null)
         {
             if (documentSerializer == null) { throw new ArgumentNullException(nameof(documentSerializer)); }
             if (elements == null) { throw new ArgumentNullException(nameof(elements)); }
             _documentSerializer = documentSerializer;
             _elements = elements.ToList();
+            _writerSettingsConfigurator = writerSettingsConfigurator; // can be null
         }
 
         // public properties
@@ -65,8 +71,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         public void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TDocument value)
         {
             var writer = context.Writer;
-            Action<BsonWriterSettings> settingsConfigurator = s => s.GuidRepresentation = GuidRepresentation.Unspecified;
-            var elementAppendingWriter = new ElementAppendingBsonWriter(writer, _elements, settingsConfigurator);
+            var elementAppendingWriter = new ElementAppendingBsonWriter(writer, _elements, _writerSettingsConfigurator);
             var elementAppendingContext = BsonSerializationContext.CreateRoot(elementAppendingWriter, builder => ConfigureElementAppendingContext(builder, context));
             _documentSerializer.Serialize(elementAppendingContext, args, value);
         }

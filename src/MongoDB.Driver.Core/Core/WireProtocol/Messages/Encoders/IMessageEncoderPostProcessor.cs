@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-present MongoDB Inc.
+﻿/* Copyright 2018-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,31 +13,16 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MongoDB.Driver.Core.Misc;
-
-namespace MongoDB.Driver.Core.WireProtocol
+namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
 {
     /// <summary>
-    /// Instructions for handling the response from a command.
+    /// Represents the changes that can be made to a message after it has been encoded.
     /// </summary>
-    public enum CommandResponseHandling
+    public interface IMessageEncoderPostProcessor
     {
         /// <summary>
-        /// Return the response from the server.
+        /// Changes the write concern from w0 to w1.
         /// </summary>
-        Return,
-        /// <summary>
-        /// Ignore the response from the server.
-        /// </summary>
-        Ignore,
-        /// <summary>
-        /// No response is expected from the server.
-        /// </summary>
-        NoResponseExpected
+        void ChangeWriteConcernFromW0ToW1();
     }
 }

@@ -140,7 +140,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             var identifier = sectionDocument["identifier"].AsString;
             var documents = sectionDocument["documents"].AsBsonArray.Cast<BsonDocument>().ToList();
             var batch = new BatchableSource<BsonDocument>(documents, canBeSplit: false);
-            return new Type1CommandMessageSection<BsonDocument>(identifier, batch, BsonDocumentSerializer.Instance);
+            return new Type1CommandMessageSection<BsonDocument>(identifier, batch, BsonDocumentSerializer.Instance, NoOpElementNameValidator.Instance, null, null);
         }
 
         private void WriteSection(IBsonWriter writer, CommandMessageSection section)

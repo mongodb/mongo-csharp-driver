@@ -189,7 +189,8 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         public void Serialize_should_configure_GuidRepresentation(bool useGenericInterface)
         {
             var mockDocumentSerializer = new Mock<IBsonSerializer<BsonDocument>>();
-            var subject = new ElementAppendingSerializer<BsonDocument>(mockDocumentSerializer.Object, new BsonElement[0]);
+            var writerSettingsConfigurator = (Action<BsonWriterSettings>)(s => s.GuidRepresentation = GuidRepresentation.Unspecified);
+            var subject = new ElementAppendingSerializer<BsonDocument>(mockDocumentSerializer.Object, new BsonElement[0], writerSettingsConfigurator);
             var stream = new MemoryStream();
             var settings = new BsonBinaryWriterSettings { GuidRepresentation = GuidRepresentation.CSharpLegacy };
             var writer = new BsonBinaryWriter(stream, settings);
@@ -255,11 +256,14 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
 
         // private methods
-        private ElementAppendingSerializer<BsonDocument> CreateSubject(IEnumerable<BsonElement> elements = null)
+        private ElementAppendingSerializer<BsonDocument> CreateSubject(
+            IEnumerable<BsonElement> elements = null,
+            Action<BsonWriterSettings> writerSettingsConfigurator = null)
         {
             var documentSerializer = BsonDocumentSerializer.Instance;
             elements = elements ?? new BsonElement[0];
-            return new ElementAppendingSerializer<BsonDocument>(documentSerializer, elements);
+            writerSettingsConfigurator = writerSettingsConfigurator ?? (s => s.GuidRepresentation = GuidRepresentation.Unspecified);
+            return new ElementAppendingSerializer<BsonDocument>(documentSerializer, elements, writerSettingsConfigurator);
         }
     }
 

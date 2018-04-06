@@ -20,6 +20,7 @@ using System.IO;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
@@ -443,7 +444,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             identifier = identifier ?? "id";
             documents = documents ?? new BsonDocument[0];
             var batch = new BatchableSource<BsonDocument>(documents, canBeSplit: false);
-            return new Type1CommandMessageSection<BsonDocument>(identifier, batch, BsonDocumentSerializer.Instance);
+            return new Type1CommandMessageSection<BsonDocument>(identifier, batch, BsonDocumentSerializer.Instance, NoOpElementNameValidator.Instance, null, null);
         }
 
         private BsonDocument CreateType1SectionDocument(Type1CommandMessageSection<BsonDocument> section)
