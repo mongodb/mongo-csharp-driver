@@ -21,6 +21,7 @@ namespace MongoDB.Driver.Core.Operations
     internal static class RetryabilityHelper
     {
         // private static fields
+        private static readonly HashSet<ServerErrorCode> __notResumableChangeStreamErrorCodes;
         private static readonly HashSet<Type> __resumableChangeStreamExceptions;
         private static readonly HashSet<ServerErrorCode> __resumableChangeStreamErrorCodes;
         private static readonly HashSet<Type> __retryableWriteExceptions;
@@ -32,7 +33,8 @@ namespace MongoDB.Driver.Core.Operations
             var resumableAndRetryableExceptions = new HashSet<Type>()
             {
                 typeof(MongoConnectionException),
-                typeof(MongoNotPrimaryException)
+                typeof(MongoNotPrimaryException),
+                typeof(MongoNodeIsRecoveringException)
             };
 
             __resumableChangeStreamExceptions = new HashSet<Type>(resumableAndRetryableExceptions)
@@ -42,56 +44,62 @@ namespace MongoDB.Driver.Core.Operations
 
             __retryableWriteExceptions = new HashSet<Type>(resumableAndRetryableExceptions)
             {
-                typeof(MongoNodeIsRecoveringException)
             };
 
             var resumableAndRetryableErrorCodes = new HashSet<ServerErrorCode>
             {
                 ServerErrorCode.HostNotFound,
                 ServerErrorCode.HostUnreachable,
-                ServerErrorCode.InterruptedAtShutdown,
-                ServerErrorCode.InterruptedDueToReplStateChange,
                 ServerErrorCode.NetworkTimeout,
-                ServerErrorCode.NotMaster,
-                ServerErrorCode.NotMasterNoSlaveOk,
-                ServerErrorCode.NotMasterOrSecondary,
-                ServerErrorCode.PrimarySteppedDown,
-                ServerErrorCode.ShutdownInProgress,
                 ServerErrorCode.SocketException
             };
 
             __resumableChangeStreamErrorCodes = new HashSet<ServerErrorCode>(resumableAndRetryableErrorCodes)
             {
+                ServerErrorCode.ElectionInProgress,
+                ServerErrorCode.ExceededTimeLimit,
+                ServerErrorCode.RetryChangeStream,
             };
 
             __retryableWriteErrorCodes = new HashSet<ServerErrorCode>(resumableAndRetryableErrorCodes)
             {
                 ServerErrorCode.WriteConcernFailed
             };
+
+            __notResumableChangeStreamErrorCodes = new HashSet<ServerErrorCode>()
+            {
+                ServerErrorCode.CappedPositionLost,
+                ServerErrorCode.CursorKilled,
+                ServerErrorCode.Interrupted
+            };
         }
 
         // public static methods
         public static bool IsResumableChangeStreamException(Exception exception)
         {
-            return IsMatch(exception, __resumableChangeStreamExceptions, __resumableChangeStreamErrorCodes);
+            var commandException = exception as MongoCommandException;
+            if (commandException != null)
+            {
+                var code = (ServerErrorCode)commandException.Code;
+                return __resumableChangeStreamErrorCodes.Contains(code) || !__notResumableChangeStreamErrorCodes.Contains(code);
+            }
+            else
+            {
+                return __resumableChangeStreamExceptions.Contains(exception.GetType());
+            }
         }
 
         public static bool IsRetryableWriteException(Exception exception)
         {
-            return IsMatch(exception, __retryableWriteExceptions, __retryableWriteErrorCodes);
-        }
-
-        // private static methods
-        private static bool IsMatch(Exception exception, HashSet<Type> matchingExceptions, HashSet<ServerErrorCode> matchingErrorCodes)
-        {
             var commandException = exception as MongoCommandException;
             if (commandException != null)
             {
-                return matchingErrorCodes.Contains((ServerErrorCode)commandException.Code);
+                var code = (ServerErrorCode)commandException.Code;
+                return __retryableWriteErrorCodes.Contains(code);
             }
             else
             {
-                return matchingExceptions.Contains(exception.GetType());
+                return __retryableWriteExceptions.Contains(exception.GetType());
             }
         }
     }

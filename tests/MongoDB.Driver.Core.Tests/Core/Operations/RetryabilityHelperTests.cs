@@ -24,20 +24,19 @@ namespace MongoDB.Driver.Core.Operations
     public class RetryabilityHelperTests
     {
         [Theory]
-        [InlineData(1, false)]
+        [InlineData(1, true)]
         [InlineData(ServerErrorCode.HostNotFound, true)]
         [InlineData(ServerErrorCode.HostUnreachable, true)]
-        [InlineData(ServerErrorCode.InterruptedAtShutdown, true)]
-        [InlineData(ServerErrorCode.InterruptedDueToReplStateChange, true)]
         [InlineData(ServerErrorCode.NetworkTimeout, true)]
-        [InlineData(ServerErrorCode.NotMaster, true)]
-        [InlineData(ServerErrorCode.NotMasterNoSlaveOk, true)]
-        [InlineData(ServerErrorCode.NotMasterOrSecondary, true)]
-        [InlineData(ServerErrorCode.PrimarySteppedDown, true)]
-        [InlineData(ServerErrorCode.ShutdownInProgress, true)]
         [InlineData(ServerErrorCode.SocketException, true)]
-        [InlineData(ServerErrorCode.WriteConcernFailed, false)]
-        public void IsResumableChangeStreamException_should_return_expected_result_for_MongoCommandExceptions(int code, bool expectedResult)
+        [InlineData(ServerErrorCode.ElectionInProgress, true)]
+        [InlineData(ServerErrorCode.ExceededTimeLimit, true)]
+        [InlineData(ServerErrorCode.RetryChangeStream, true)]
+        [InlineData(ServerErrorCode.WriteConcernFailed, true)]
+        [InlineData(ServerErrorCode.CappedPositionLost, false)]
+        [InlineData(ServerErrorCode.CursorKilled, false)]
+        [InlineData(ServerErrorCode.Interrupted, false)]
+        public void IsResumableChangeStreamException_should_return_expected_result_using_code(int code, bool expectedResult)
         {
             var exception = CoreExceptionHelper.CreateMongoCommandException(code);
 
@@ -50,8 +49,9 @@ namespace MongoDB.Driver.Core.Operations
         [InlineData(typeof(IOException), false)]
         [InlineData(typeof(MongoConnectionException), true)]
         [InlineData(typeof(MongoCursorNotFoundException), true)]
+        [InlineData(typeof(MongoNodeIsRecoveringException), true)]
         [InlineData(typeof(MongoNotPrimaryException), true)]
-        public void IsResumableChangeStreamException_should_return_expected_result_for_other_exceptions(Type exceptionType, bool expectedResult)
+        public void IsResumableChangeStreamException_should_return_expected_result_using_exception_type(Type exceptionType, bool expectedResult)
         {
             var exception = CoreExceptionHelper.CreateException(exceptionType);
 
@@ -64,17 +64,10 @@ namespace MongoDB.Driver.Core.Operations
         [InlineData(1, false)]
         [InlineData(ServerErrorCode.HostNotFound, true)]
         [InlineData(ServerErrorCode.HostUnreachable, true)]
-        [InlineData(ServerErrorCode.InterruptedAtShutdown, true)]
-        [InlineData(ServerErrorCode.InterruptedDueToReplStateChange, true)]
         [InlineData(ServerErrorCode.NetworkTimeout, true)]
-        [InlineData(ServerErrorCode.NotMaster, true)]
-        [InlineData(ServerErrorCode.NotMasterNoSlaveOk, true)]
-        [InlineData(ServerErrorCode.NotMasterOrSecondary, true)]
-        [InlineData(ServerErrorCode.PrimarySteppedDown, true)]
-        [InlineData(ServerErrorCode.ShutdownInProgress, true)]
         [InlineData(ServerErrorCode.SocketException, true)]
         [InlineData(ServerErrorCode.WriteConcernFailed, true)]
-        public void IsRetryableException_should_return_false(int code, bool expectedResult)
+        public void IsRetryableException_should_return_expected_result_using_code(int code, bool expectedResult)
         {
             var exception = CoreExceptionHelper.CreateMongoCommandException(code);
 
@@ -89,7 +82,7 @@ namespace MongoDB.Driver.Core.Operations
         [InlineData(typeof(MongoConnectionException), true)]
         [InlineData(typeof(MongoNodeIsRecoveringException), true)]
         [InlineData(typeof(MongoNotPrimaryException), true)]
-        public void IsRetryableException_should_return_expected_result(Type exceptionType, bool expectedResult)
+        public void IsRetryableException_should_return_expected_result_using_exception_type(Type exceptionType, bool expectedResult)
         {
             var exception = CoreExceptionHelper.CreateException(exceptionType);
 

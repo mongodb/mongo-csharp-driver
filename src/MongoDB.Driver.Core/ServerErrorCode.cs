@@ -18,8 +18,13 @@ namespace MongoDB.Driver
     internal enum ServerErrorCode
     {
         // this is not a complete list, more will be added as needed
+        CappedPositionLost = 136,
+        CursorKilled = 237,
+        ElectionInProgress = 216,
+        ExceededTimeLimit = 50,
         HostNotFound = 7,
         HostUnreachable = 6,
+        Interrupted = 11601,
         InterruptedAtShutdown = 11600,
         InterruptedDueToReplStateChange = 11602,
         NetworkTimeout = 89,
@@ -27,6 +32,7 @@ namespace MongoDB.Driver
         NotMasterNoSlaveOk = 13435,
         NotMasterOrSecondary = 13436,
         PrimarySteppedDown = 189,
+        RetryChangeStream = 234,
         ShutdownInProgress = 91,
         SocketException = 9001,
         WriteConcernFailed = 64

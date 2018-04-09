@@ -13,7 +13,9 @@
 * limitations under the License.
 */
 
+using System;
 using System.Net;
+using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
@@ -179,6 +181,55 @@ namespace MongoDB.Driver.Core.Misc
 
             Assert.NotNull(ex);
             Assert.IsType<MongoExecutionTimeoutException>(ex);
+        }
+
+
+        [Theory]
+        [InlineData(ServerErrorCode.NotMaster, typeof(MongoNotPrimaryException))]
+        [InlineData(ServerErrorCode.NotMasterNoSlaveOk, typeof(MongoNotPrimaryException))]
+        [InlineData(ServerErrorCode.InterruptedAtShutdown, typeof(MongoNodeIsRecoveringException))]
+        [InlineData(ServerErrorCode.InterruptedDueToReplStateChange, typeof(MongoNodeIsRecoveringException))]
+        [InlineData(ServerErrorCode.NotMasterOrSecondary, typeof(MongoNodeIsRecoveringException))]
+        [InlineData(ServerErrorCode.PrimarySteppedDown, typeof(MongoNodeIsRecoveringException))]
+        [InlineData(ServerErrorCode.ShutdownInProgress, typeof(MongoNodeIsRecoveringException))]
+        [InlineData(-1, null)]
+        public void MapNotPrimaryOrNodeIsRecovering_should_return_expected_result_using_code(int code, Type expectedExceptionType)
+        {
+            var connectionId = CreateConnectionId();
+            var response = BsonDocument.Parse("{ ok : 0, code : 0 }");
+            response["code"] = code;
+
+            var result = ExceptionMapper.MapNotPrimaryOrNodeIsRecovering(connectionId, response, "errmsg");
+
+            result?.GetType().Should().Be(expectedExceptionType);
+        }
+
+        [Theory]
+        [InlineData("...not master...", typeof(MongoNotPrimaryException))]
+        [InlineData("...NOT MASTER...", typeof(MongoNotPrimaryException))]
+        [InlineData("...node is recovering...", typeof(MongoNodeIsRecoveringException))]
+        [InlineData("...NODE IS RECOVERING...", typeof(MongoNodeIsRecoveringException))]
+        [InlineData("...not master or secondary...", typeof(MongoNodeIsRecoveringException))]
+        [InlineData("...NOT MASTER OR SECONDARY...", typeof(MongoNodeIsRecoveringException))]
+        [InlineData("", null)]
+        public void MapNotPrimaryOrNodeIsRecovering_should_return_expected_result_using_errmsg(string errmsg, Type expectedExceptionType)
+        {
+            var connectionId = CreateConnectionId();
+            var response = BsonDocument.Parse("{ ok : 0, errmsg : '' }");
+            response["errmsg"] = errmsg;
+
+            var result = ExceptionMapper.MapNotPrimaryOrNodeIsRecovering(connectionId, response, "errmsg");
+
+            result?.GetType().Should().Be(expectedExceptionType);
+        }
+
+        // private methods
+        private ConnectionId CreateConnectionId()
+        {
+            var clusterId = new ClusterId(1);
+            var endPoint = new DnsEndPoint("localhost", 27017);
+            var serverId = new ServerId(clusterId, endPoint);
+            return new ConnectionId(serverId);
         }
     }
 }
