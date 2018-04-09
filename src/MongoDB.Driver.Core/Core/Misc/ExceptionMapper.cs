@@ -118,17 +118,37 @@ namespace MongoDB.Driver.Core.Misc
         /// <returns>The exception, or null if no exception necessary.</returns>
         public static Exception MapNotPrimaryOrNodeIsRecovering(ConnectionId connectionId, BsonDocument response, string errorMessageFieldName)
         {
+            BsonValue codeBsonValue;
+            if (response.TryGetValue("code", out codeBsonValue) && codeBsonValue.IsNumeric)
+            {
+                var code = (ServerErrorCode)codeBsonValue.ToInt32();
+                switch (code)
+                {
+                    case ServerErrorCode.NotMaster:
+                    case ServerErrorCode.NotMasterNoSlaveOk:
+                        return new MongoNotPrimaryException(connectionId, response);
+
+                    case ServerErrorCode.InterruptedAtShutdown:
+                    case ServerErrorCode.InterruptedDueToReplStateChange:
+                    case ServerErrorCode.NotMasterOrSecondary:
+                    case ServerErrorCode.PrimarySteppedDown:
+                    case ServerErrorCode.ShutdownInProgress:
+                        return new MongoNodeIsRecoveringException(connectionId, response);
+                }
+            }
+
             BsonValue errorMessageBsonValue;
             if (response.TryGetValue(errorMessageFieldName, out errorMessageBsonValue) && errorMessageBsonValue.IsString)
             {
                 var errorMessage = errorMessageBsonValue.ToString();
-                if (errorMessage.StartsWith("not master", StringComparison.OrdinalIgnoreCase))
-                {
-                    return new MongoNotPrimaryException(connectionId, response);
-                }
-                if (errorMessage.StartsWith("node is recovering", StringComparison.OrdinalIgnoreCase))
+                if (errorMessage.IndexOf("node is recovering", StringComparison.OrdinalIgnoreCase) != -1 ||
+                    errorMessage.IndexOf("not master or secondary", StringComparison.OrdinalIgnoreCase) != -1)
                 {
                     return new MongoNodeIsRecoveringException(connectionId, response);
+                }
+                else if (errorMessage.IndexOf("not master", StringComparison.OrdinalIgnoreCase) != -1)
+                {
+                    return new MongoNotPrimaryException(connectionId, response);
                 }
             }
 
