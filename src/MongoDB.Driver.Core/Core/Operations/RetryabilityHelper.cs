@@ -23,7 +23,6 @@ namespace MongoDB.Driver.Core.Operations
         // private static fields
         private static readonly HashSet<ServerErrorCode> __notResumableChangeStreamErrorCodes;
         private static readonly HashSet<Type> __resumableChangeStreamExceptions;
-        private static readonly HashSet<ServerErrorCode> __resumableChangeStreamErrorCodes;
         private static readonly HashSet<Type> __retryableWriteExceptions;
         private static readonly HashSet<ServerErrorCode> __retryableWriteErrorCodes;
 
@@ -54,13 +53,6 @@ namespace MongoDB.Driver.Core.Operations
                 ServerErrorCode.SocketException
             };
 
-            __resumableChangeStreamErrorCodes = new HashSet<ServerErrorCode>(resumableAndRetryableErrorCodes)
-            {
-                ServerErrorCode.ElectionInProgress,
-                ServerErrorCode.ExceededTimeLimit,
-                ServerErrorCode.RetryChangeStream,
-            };
-
             __retryableWriteErrorCodes = new HashSet<ServerErrorCode>(resumableAndRetryableErrorCodes)
             {
                 ServerErrorCode.WriteConcernFailed
@@ -81,7 +73,7 @@ namespace MongoDB.Driver.Core.Operations
             if (commandException != null)
             {
                 var code = (ServerErrorCode)commandException.Code;
-                return __resumableChangeStreamErrorCodes.Contains(code) || !__notResumableChangeStreamErrorCodes.Contains(code);
+                return !__notResumableChangeStreamErrorCodes.Contains(code);
             }
             else
             {
