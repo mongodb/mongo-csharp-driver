@@ -100,6 +100,11 @@ namespace MongoDB.Driver
                         updateDescription = __updateDescriptionSerializer.Deserialize(context);
                         break;
 
+                    case "clusterTime":
+                        // TODO: decide what to do about clusterTime
+                        reader.SkipValue();
+                        break;
+
                     default:
                         throw new FormatException($"Invalid field name: \"{fieldName}\".");
                 }

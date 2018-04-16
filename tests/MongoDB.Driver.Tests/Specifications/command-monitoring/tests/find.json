@@ -102,7 +102,6 @@
             },
             "$returnKey": false,
             "$showDiskLoc": false,
-            "$snapshot": false
           }
         }
       },
@@ -134,7 +133,6 @@
               },
               "returnKey": false,
               "showRecordId": false,
-              "snapshot": false
             },
             "command_name": "find",
             "database_name": "command-monitoring-tests"
