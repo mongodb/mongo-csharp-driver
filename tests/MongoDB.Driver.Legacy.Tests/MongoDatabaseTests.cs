@@ -484,11 +484,13 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData("user1", "pass1", true)]
         [InlineData("user2", "pass2", false)]
         public void TestUserMethods(string username, string password, bool isReadOnly)
         {
+            RequireServer.Check().VersionLessThan("3.7.0");
+
 #pragma warning disable 618
             bool usesCommands = _primary.Supports(FeatureId.UserManagementCommands);
             if (usesCommands)

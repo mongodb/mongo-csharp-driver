@@ -114,7 +114,7 @@ namespace MongoDB.Driver.Tests
             var result = subject.Facet(facet1).Single();
 
             result.Facets.Select(f => f.Name).Should().Equal("categorizedByTags");
-            result.Facets[0].Output<BsonDocument>().Should().Equal(
+            result.Facets[0].Output<BsonDocument>().Should().BeEquivalentTo(
                 BsonDocument.Parse("{ _id: 'Expressionism', count: 2 }"),
                 BsonDocument.Parse("{ _id: 'painting', count: 2 }"),
                 BsonDocument.Parse("{ _id: 'ukiyo-e', count: 1 }"),
@@ -182,7 +182,7 @@ namespace MongoDB.Driver.Tests
             var result = subject.Facet(facet1, facet2).Single();
 
             result.Facets.Select(f => f.Name).Should().Equal("categorizedByTags", "categorizedByYears");
-            result.Facets[0].Output<BsonDocument>().Should().Equal(
+            result.Facets[0].Output<BsonDocument>().Should().BeEquivalentTo(
                 BsonDocument.Parse("{ _id: 'Expressionism', count: 2 }"),
                 BsonDocument.Parse("{ _id: 'painting', count: 2 }"),
                 BsonDocument.Parse("{ _id: 'ukiyo-e', count: 1 }"),
@@ -192,7 +192,7 @@ namespace MongoDB.Driver.Tests
                 BsonDocument.Parse("{ _id: 'oil', count: 1 }"),
                 BsonDocument.Parse("{ _id: 'satire', count: 1 }"),
                 BsonDocument.Parse("{ _id: 'caricature', count: 1 }"));
-            result.Facets[1].Output<BsonDocument>().Should().Equal(
+            result.Facets[1].Output<BsonDocument>().Should().BeEquivalentTo(
                 BsonDocument.Parse("{ _id: 1900, count: 1 }"),
                 BsonDocument.Parse("{ _id: 1920, count: 2 }"));
         }
@@ -264,7 +264,7 @@ namespace MongoDB.Driver.Tests
             var result = subject.Facet(facet1, facet2, facet3).Single();
 
             result.Facets.Select(f => f.Name).Should().Equal("categorizedByTags", "categorizedByYears", "categorizedByYears(Auto)");
-            result.Facets[0].Output<BsonDocument>().Should().Equal(
+            result.Facets[0].Output<BsonDocument>().Should().BeEquivalentTo(
                 BsonDocument.Parse("{ _id: 'Expressionism', count: 2 }"),
                 BsonDocument.Parse("{ _id: 'painting', count: 2 }"),
                 BsonDocument.Parse("{ _id: 'ukiyo-e', count: 1 }"),
@@ -274,10 +274,10 @@ namespace MongoDB.Driver.Tests
                 BsonDocument.Parse("{ _id: 'oil', count: 1 }"),
                 BsonDocument.Parse("{ _id: 'satire', count: 1 }"),
                 BsonDocument.Parse("{ _id: 'caricature', count: 1 }"));
-            result.Facets[1].Output<BsonDocument>().Should().Equal(
+            result.Facets[1].Output<BsonDocument>().Should().BeEquivalentTo(
                 BsonDocument.Parse("{ _id: 1900, count: 1 }"),
                 BsonDocument.Parse("{ _id: 1920, count: 2 }"));
-            result.Facets[2].Output<BsonDocument>().Should().Equal(
+            result.Facets[2].Output<BsonDocument>().Should().BeEquivalentTo(
                 BsonDocument.Parse("{ _id: { min: null, max: 1902 }, count: 1 }"),
                 BsonDocument.Parse("{ _id: { min: 1902, max: 1925 }, count: 1 }"),
                 BsonDocument.Parse("{ _id: { min: 1925, max: 1926 }, count: 1 }"),
@@ -327,7 +327,7 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.Facet<Exhibit, CategorizedByTagsResults>(facet1).Single();
 
-            result.CategorizedByTags.WithComparer(new CategorizedByTagComparer()).Should().Equal(
+            result.CategorizedByTags.WithComparer(new CategorizedByTagComparer()).Should().BeEquivalentTo(
                 new CategorizedByTag { Id = "Expressionism", Count = 2 },
                 new CategorizedByTag { Id = "painting", Count = 2 },
                 new CategorizedByTag { Id = "ukiyo-e", Count = 1 },
@@ -396,7 +396,7 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.Facet<Exhibit, CategorizedByTagsAndYearsResults>(facet1, facet2).Single();
 
-            result.CategorizedByTags.WithComparer(new CategorizedByTagComparer()).Should().Equal(
+            result.CategorizedByTags.WithComparer(new CategorizedByTagComparer()).Should().BeEquivalentTo(
                 new CategorizedByTag { Id = "Expressionism", Count = 2 },
                 new CategorizedByTag { Id = "painting", Count = 2 },
                 new CategorizedByTag { Id = "ukiyo-e", Count = 1 },
@@ -406,7 +406,7 @@ namespace MongoDB.Driver.Tests
                 new CategorizedByTag { Id = "oil", Count = 1 },
                 new CategorizedByTag { Id = "satire", Count = 1 },
                 new CategorizedByTag { Id = "caricature", Count = 1 });
-            result.CategorizedByYears.WithComparer(new CategorizedByYearComparer()).Should().Equal(
+            result.CategorizedByYears.WithComparer(new CategorizedByYearComparer()).Should().BeEquivalentTo(
                 new CategorizedByYear { Id = 1900, Count = 1 },
                 new CategorizedByYear { Id = 1920, Count = 2 });
        }
@@ -479,7 +479,7 @@ namespace MongoDB.Driver.Tests
 
             var result = subject.Facet<Exhibit, CategorizedByTagsAndYearsAndYearsAutoResults>(facet1, facet2, facet3).Single();
 
-            result.CategorizedByTags.WithComparer(new CategorizedByTagComparer()).Should().Equal(
+            result.CategorizedByTags.WithComparer(new CategorizedByTagComparer()).Should().BeEquivalentTo(
                 new CategorizedByTag { Id = "Expressionism", Count = 2 },
                 new CategorizedByTag { Id = "painting", Count = 2 },
                 new CategorizedByTag { Id = "ukiyo-e", Count = 1 },
@@ -489,10 +489,10 @@ namespace MongoDB.Driver.Tests
                 new CategorizedByTag { Id = "oil", Count = 1 },
                 new CategorizedByTag { Id = "satire", Count = 1 },
                 new CategorizedByTag { Id = "caricature", Count = 1 });
-            result.CategorizedByYears.WithComparer(new CategorizedByYearComparer()).Should().Equal(
+            result.CategorizedByYears.WithComparer(new CategorizedByYearComparer()).Should().BeEquivalentTo(
                 new CategorizedByYear { Id = 1900, Count = 1 },
                 new CategorizedByYear { Id = 1920, Count = 2 });
-            result.CategorizedByYearsAuto.WithComparer(new CategorizedByYearAutoComparer()).Should().Equal(
+            result.CategorizedByYearsAuto.WithComparer(new CategorizedByYearAutoComparer()).Should().BeEquivalentTo(
                 new CategorizedByYearAuto { Id = new MinMax { Min = null, Max = 1902 }, Count = 1 },
                 new CategorizedByYearAuto { Id = new MinMax { Min = 1902, Max = 1925 }, Count = 1 },
                 new CategorizedByYearAuto { Id = new MinMax { Min = 1925, Max = 1926 }, Count = 1 },
