@@ -45,6 +45,7 @@ namespace MongoDB.Driver.GridFS
         private readonly int _chunkSizeBytes;
         private bool _closed;
         private readonly string _contentType;
+        private readonly bool _disableMD5;
         private bool _disposed;
         private readonly string _filename;
         private readonly TFileId _id;
@@ -63,7 +64,8 @@ namespace MongoDB.Driver.GridFS
             IEnumerable<string> aliases,
             string contentType,
             int chunkSizeBytes,
-            int batchSize)
+            int batchSize,
+            bool disableMD5)
         {
             _bucket = bucket;
             _binding = binding;
@@ -76,7 +78,8 @@ namespace MongoDB.Driver.GridFS
             _batchSize = batchSize;
 
             _batch = new List<byte[]>();
-            _md5 = IncrementalMD5.Create();
+            _md5 = disableMD5 ? null : IncrementalMD5.Create();
+            _disableMD5 = disableMD5;
 
             var idSerializer = bucket.Options.SerializerRegistry.GetSerializer<TFileId>();
             var idSerializationInfo = new BsonSerializationInfo("_id", idSerializer, typeof(TFileId));
@@ -272,7 +275,7 @@ namespace MongoDB.Driver.GridFS
                 { "length", _length },
                 { "chunkSize", _chunkSizeBytes },
                 { "uploadDate", uploadDateTime },
-                { "md5", BsonUtils.ToHexString(_md5.GetHashAndReset()) },
+                { "md5", () => BsonUtils.ToHexString(_md5.GetHashAndReset()), !_disableMD5 },
                 { "filename", _filename },
                 { "contentType", _contentType, _contentType != null },
                 { "aliases", () => new BsonArray(_aliases.Select(a => new BsonString(a))), _aliases != null },

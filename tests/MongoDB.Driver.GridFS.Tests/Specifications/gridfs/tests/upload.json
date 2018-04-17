@@ -1,11 +1,7 @@
 {
   "data": {
-    "files": [
-
-    ],
-    "chunks": [
-
-    ]
+    "files": [],
+    "chunks": []
   },
   "tests": [
     {
@@ -381,6 +377,39 @@
                 "data": {
                   "$hex": "11"
                 }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "description": "Upload when length is 0 sans MD5",
+      "act": {
+        "operation": "upload",
+        "arguments": {
+          "filename": "filename",
+          "source": {
+            "$hex": ""
+          },
+          "options": {
+            "chunkSizeBytes": 4,
+            "disableMD5": true
+          }
+        }
+      },
+      "assert": {
+        "result": "&result",
+        "data": [
+          {
+            "insert": "expected.files",
+            "documents": [
+              {
+                "_id": "*result",
+                "length": 0,
+                "chunkSize": 4,
+                "uploadDate": "*actual",
+                "filename": "filename"
               }
             ]
           }
