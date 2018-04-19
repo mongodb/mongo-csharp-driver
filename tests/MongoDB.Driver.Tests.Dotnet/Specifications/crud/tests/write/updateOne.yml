@@ -2,6 +2,7 @@ data:
     - {_id: 1, x: 11}
     - {_id: 2, x: 22}
     - {_id: 3, x: 33}
+minServerVersion: '2.6'
 
 tests:
     -
@@ -18,8 +19,9 @@ tests:
             result:
                 matchedCount: 1
                 modifiedCount: 1
-            # can't verify collection because we don't have a way
-            # of knowing which document gets updated.
+                upsertedCount: 0
+            # Can't verify collection data because we don't have a way of
+            # knowing which document gets updated.
     -
         description: "UpdateOne when one document matches"
         operation:
@@ -33,6 +35,7 @@ tests:
             result:
                 matchedCount: 1
                 modifiedCount: 1
+                upsertedCount: 0
             collection:
                 data:
                     - {_id: 1, x: 12}
@@ -51,6 +54,7 @@ tests:
             result:
                 matchedCount: 0
                 modifiedCount: 0
+                upsertedCount: 0
             collection:
                 data:
                     - {_id: 1, x: 11}
@@ -70,6 +74,7 @@ tests:
             result:
                 matchedCount: 0
                 modifiedCount: 0
+                upsertedCount: 1
                 upsertedId: 4
             collection:
                 data:
