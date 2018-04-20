@@ -14,6 +14,8 @@
 */
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
 
@@ -50,6 +52,14 @@ namespace MongoDB.Driver
         bool IsImplicit { get; }
 
         /// <summary>
+        /// Gets a value indicating whether this instance is in a transaction.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is in a transaction; otherwise, <c>false</c>.
+        /// </value>
+        bool IsInTransaction { get; }
+
+        /// <summary>
         /// Gets the operation time.
         /// </summary>
         /// <value>
@@ -83,6 +93,19 @@ namespace MongoDB.Driver
 
         // methods
         /// <summary>
+        /// Aborts the transaction.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        void AbortTransaction(CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Aborts the transaction.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task.</returns>
+        Task AbortTransactionAsync(CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
         /// Advances the cluster time.
         /// </summary>
         /// <param name="newClusterTime">The new cluster time.</param>
@@ -93,6 +116,25 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="newOperationTime">The new operation time.</param>
         void AdvanceOperationTime(BsonTimestamp newOperationTime);
+
+        /// <summary>
+        /// Commits the transaction.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        void CommitTransaction(CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Commits the transaction.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task.</returns>
+        Task CommitTransactionAsync(CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Starts a transaction.
+        /// </summary>
+        /// <param name="transactionOptions">The transaction options.</param>
+        void StartTransaction(TransactionOptions transactionOptions = null);
     }
 
     /// <summary>

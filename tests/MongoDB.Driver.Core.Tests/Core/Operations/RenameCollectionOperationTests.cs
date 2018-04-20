@@ -89,8 +89,10 @@ namespace MongoDB.Driver.Core.Operations
                 { "renameCollection", _collectionNamespace.FullName },
                 { "to", _newCollectionNamespace.FullName }
             };
+            var session = OperationTestHelper.CreateSession();
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(null);
+            var result = subject.CreateCommand(session, connectionDescription);
 
             result.Should().Be(expectedResult);
         }
@@ -111,8 +113,10 @@ namespace MongoDB.Driver.Core.Operations
                 { "to", _newCollectionNamespace.FullName },
                 { "dropTarget", dropTarget }
             };
+            var session = OperationTestHelper.CreateSession();
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(null);
+            var result = subject.CreateCommand(session, connectionDescription);
 
             result.Should().Be(expectedResult);
         }
@@ -130,9 +134,10 @@ namespace MongoDB.Driver.Core.Operations
             {
                 WriteConcern = writeConcern
             };
-            var serverVersion = Feature.CommandsThatWriteAcceptWriteConcern.SupportedOrNotSupportedVersion(isWriteConcernSupported);
+            var session = OperationTestHelper.CreateSession();
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: Feature.CommandsThatWriteAcceptWriteConcern.SupportedOrNotSupportedVersion(isWriteConcernSupported));
 
-            var result = subject.CreateCommand(serverVersion);
+            var result = subject.CreateCommand(session, connectionDescription);
 
             var expectedResult = new BsonDocument
             {

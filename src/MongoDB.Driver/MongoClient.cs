@@ -406,7 +406,13 @@ namespace MongoDB.Driver
 
         private IReadBindingHandle CreateReadBinding(IClientSessionHandle session)
         {
-            var binding = new ReadPreferenceBinding(_cluster, _settings.ReadPreference, session.WrappedCoreSession.Fork());
+            var readPreference = _settings.ReadPreference;
+            if (session.IsInTransaction && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary)
+            {
+                throw new InvalidOperationException("Read preference in a transaction must be primary.");
+            }
+
+            var binding = new ReadPreferenceBinding(_cluster, readPreference, session.WrappedCoreSession.Fork());
             return new ReadBindingHandle(binding);
         }
 
@@ -448,6 +454,22 @@ namespace MongoDB.Driver
             }
         }
 
+        private ClientSessionOptions GetEffectiveClientSessionOptions(ClientSessionOptions options)
+        {
+            var autoStartTransaction = options?.AutoStartTransaction ?? false;
+            var causalConsistency = options?.CausalConsistency;
+            var readConcern = options?.DefaultTransactionOptions?.ReadConcern ?? _settings.ReadConcern;
+            var writeConcern = options?.DefaultTransactionOptions?.WriteConcern ?? _settings.WriteConcern;
+            var defaultTransactionOptions = new TransactionOptions(readConcern, writeConcern);
+
+            return new ClientSessionOptions
+            {
+                AutoStartTransaction = autoStartTransaction,
+                CausalConsistency = causalConsistency,
+                DefaultTransactionOptions = defaultTransactionOptions
+            };
+        }
+
         private MessageEncoderSettings GetMessageEncoderSettings()
         {
             return new MessageEncoderSettings
@@ -480,7 +502,7 @@ namespace MongoDB.Driver
 
         private IClientSessionHandle StartSession(ClientSessionOptions options, bool areSessionsSupported)
         {
-            options = options ?? new ClientSessionOptions();
+            options = GetEffectiveClientSessionOptions(options);
 
             ICoreSessionHandle coreSession;
             if (areSessionsSupported)

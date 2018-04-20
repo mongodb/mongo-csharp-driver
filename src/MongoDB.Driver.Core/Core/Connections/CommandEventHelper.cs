@@ -271,7 +271,7 @@ namespace MongoDB.Driver.Core.Connections
                 var type1Sections = decodedMessage.Sections.OfType<Type1CommandMessageSection>().ToList();
                 if (type1Sections.Count > 0)
                 {
-                    command = new BsonDocument(command); // materialize the RawBsonDocument
+                    command = new BsonDocument(command); // materialize the top level of the command RawBsonDocument
                     foreach (var type1Section in type1Sections)
                     {
                         var name = type1Section.Identifier;

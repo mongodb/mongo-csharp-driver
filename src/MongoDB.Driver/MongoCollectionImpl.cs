@@ -934,6 +934,11 @@ namespace MongoDB.Driver
 
         private IReadBindingHandle CreateReadBinding(IClientSessionHandle session, ReadPreference readPreference)
         {
+            if (session.IsInTransaction && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary)
+            {
+                throw new InvalidOperationException("Read preference in a transaction must be primary.");
+            }
+
             var binding = new ReadPreferenceBinding(_cluster, readPreference, session.WrappedCoreSession.Fork());
             return new ReadBindingHandle(binding);
         }

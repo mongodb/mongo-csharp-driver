@@ -49,6 +49,10 @@
       <Project>{0e9a3a2a-49cd-4f6c-847c-dc79b4b65ce6}</Project>
       <Name>MongoDB.Bson</Name>
     </ProjectReference>
+    <ProjectReference Include="..\MongoDB.Bson.TestHelpers\MongoDB.Bson.TestHelpers.csproj">
+      <Project>{6AC4638E-EC69-46AA-B6AA-C5CF227D14AE}</Project>
+      <Name>MongoDB.Bson.TestHelpers</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MongoDB.Driver.Core.TestHelpers\MongoDB.Driver.Core.TestHelpers.csproj">
       <Project>{f7b7d81a-ca16-4cd7-8b6c-444280ea37c1}</Project>
       <Name>MongoDB.Driver.Core.TestHelpers</Name>

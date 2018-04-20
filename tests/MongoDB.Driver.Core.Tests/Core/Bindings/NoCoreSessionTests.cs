@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+using System;
+using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
@@ -66,6 +68,16 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         [Fact]
+        public void CurrentTransaction_should_return_expected_result()
+        {
+            var subject = CreateSubject();
+
+            var result = subject.CurrentTransaction;
+
+            result.Should().BeNull();
+        }
+
+        [Fact]
         public void Id_should_return_expected_result()
         {
             var subject = CreateSubject();
@@ -96,6 +108,16 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         [Fact]
+        public void IsInTransaction_should_return_expected_result()
+        {
+            var subject = CreateSubject();
+
+            var result = subject.IsInTransaction;
+
+            result.Should().BeFalse();
+        }
+
+        [Fact]
         public void Options_should_return_expected_result()
         {
             var subject = CreateSubject();
@@ -113,6 +135,26 @@ namespace MongoDB.Driver.Core.Bindings
             var result = subject.ServerSession;
 
             result.Should().BeSameAs(NoCoreServerSession.Instance);
+        }
+
+        [Fact]
+        public void AbortTransaction_should_throw()
+        {
+            var subject = CreateSubject();
+
+            var exception = Record.Exception(() => subject.AbortTransaction(CancellationToken.None));
+
+            exception.Should().BeOfType<NotSupportedException>();
+        }
+
+        [Fact]
+        public void AbortTransactionAsync_should_throw()
+        {
+            var subject = CreateSubject();
+
+            var exception = Record.ExceptionAsync(() => subject.AbortTransactionAsync(CancellationToken.None)).GetAwaiter().GetResult();
+
+            exception.Should().BeOfType<NotSupportedException>();
         }
 
         [Fact]
@@ -143,6 +185,26 @@ namespace MongoDB.Driver.Core.Bindings
             result.Should().Be(-1);
         }
 
+        [Fact]
+        public void CommitTransaction_should_throw()
+        {
+            var subject = CreateSubject();
+
+            var exception = Record.Exception(() => subject.CommitTransaction(CancellationToken.None));
+
+            exception.Should().BeOfType<NotSupportedException>();
+        }
+
+        [Fact]
+        public void CommitTransactionAsync_should_throw()
+        {
+            var subject = CreateSubject();
+
+            var exception = Record.ExceptionAsync(() => subject.CommitTransactionAsync(CancellationToken.None)).GetAwaiter().GetResult();
+
+            exception.Should().BeOfType<NotSupportedException>();
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void Dispose_should_do_nothing(
@@ -154,6 +216,16 @@ namespace MongoDB.Driver.Core.Bindings
             {
                 subject.Dispose();
             }
+        }
+
+        [Fact]
+        public void StartTransaction_should_throw()
+        {
+            var subject = CreateSubject();
+
+            var exception = Record.Exception(() => subject.StartTransaction());
+
+            exception.Should().BeOfType<NotSupportedException>();
         }
 
         [Fact]

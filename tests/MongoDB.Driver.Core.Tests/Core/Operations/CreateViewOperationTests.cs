@@ -253,8 +253,10 @@ namespace MongoDB.Driver.Core.Operations
             string viewName)
         {
             var subject = new CreateViewOperation(_databaseNamespace, viewName, _collectionNamespace.CollectionName, _pipeline, _messageEncoderSettings);
+            var session = OperationTestHelper.CreateSession();
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: Feature.Views.FirstSupportedVersion);
 
-            var result = subject.CreateCommand(Feature.Views.FirstSupportedVersion);
+            var result = subject.CreateCommand(session, connectionDescription);
 
             var expectedResult = new BsonDocument
             {
@@ -276,8 +278,10 @@ namespace MongoDB.Driver.Core.Operations
             {
                 Collation = collation
             };
+            var session = OperationTestHelper.CreateSession();
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: Feature.Views.FirstSupportedVersion);
 
-            var result = subject.CreateCommand(Feature.Views.FirstSupportedVersion);
+            var result = subject.CreateCommand(session, connectionDescription);
 
             var expectedResult = new BsonDocument
             {
@@ -299,9 +303,10 @@ namespace MongoDB.Driver.Core.Operations
             {
                 WriteConcern = writeConcern
             };
+            var session = OperationTestHelper.CreateSession();
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: Feature.Views.FirstSupportedVersion);
 
-            var result = subject.CreateCommand(Feature.Views.FirstSupportedVersion);
-
+            var result = subject.CreateCommand(session, connectionDescription);
             var expectedResult = new BsonDocument
             {
                 { "create", _viewName },

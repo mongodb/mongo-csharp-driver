@@ -195,7 +195,7 @@ namespace MongoDB.Driver.Core.Operations
             var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion);
             var session = OperationTestHelper.CreateSession();
 
-            var result = subjectReflector.CreateCommand(connectionDescription, session);
+            var result = subjectReflector.CreateCommand(session, connectionDescription);
 
             var expectedResult = new BsonDocument
             {
@@ -227,7 +227,7 @@ namespace MongoDB.Driver.Core.Operations
             var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion);
             var session = OperationTestHelper.CreateSession();
 
-            var result = subjectReflector.CreateCommand(connectionDescription, session);
+            var result = subjectReflector.CreateCommand(session, connectionDescription);
 
             var expectedResult = new BsonDocument
             {
@@ -601,10 +601,10 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             // methods
-            public BsonDocument CreateCommand(ConnectionDescription connectionDescription, ICoreSession session)
+            public BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription)
             {
                 var method = typeof(MapReduceOutputToCollectionOperation).GetMethod("CreateCommand", BindingFlags.NonPublic | BindingFlags.Instance);
-                return (BsonDocument)method.Invoke(_instance, new object[] { connectionDescription, session });
+                return (BsonDocument)method.Invoke(_instance, new object[] { session, connectionDescription });
             }
 
             public BsonDocument CreateOutputOptions()

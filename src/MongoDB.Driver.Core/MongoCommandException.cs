@@ -93,6 +93,17 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets the name of the code.
+        /// </summary>
+        /// <value>
+        /// The name of the code.
+        /// </value>
+        public string CodeName
+        {
+            get { return _result.GetValue("codeName", "").AsString; }
+        }
+
+        /// <summary>
         /// Gets the command.
         /// </summary>
         /// <value>

@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+using System.Threading;
+using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
 
@@ -57,6 +59,9 @@ namespace MongoDB.Driver
         public bool IsImplicit => _coreSession.IsImplicit;
 
         /// <inheritdoc />
+        public bool IsInTransaction => _coreSession.IsInTransaction;
+
+        /// <inheritdoc />
         public BsonTimestamp OperationTime => _coreSession.OperationTime;
 
         /// <inheritdoc />
@@ -70,6 +75,18 @@ namespace MongoDB.Driver
 
         // public methods
         /// <inheritdoc />
+        public void AbortTransaction(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            _coreSession.AbortTransaction(cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task AbortTransactionAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _coreSession.AbortTransactionAsync(cancellationToken);
+        }
+
+        /// <inheritdoc />
         public void AdvanceClusterTime(BsonDocument newClusterTime)
         {
             _coreSession.AdvanceClusterTime(newClusterTime);
@@ -79,6 +96,18 @@ namespace MongoDB.Driver
         public void AdvanceOperationTime(BsonTimestamp newOperationTime)
         {
             _coreSession.AdvanceOperationTime(newOperationTime);
+        }
+
+        /// <inheritdoc />
+        public void CommitTransaction(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            _coreSession.CommitTransaction(cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task CommitTransactionAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _coreSession.CommitTransactionAsync(cancellationToken);
         }
 
         /// <inheritdoc />
@@ -96,6 +125,12 @@ namespace MongoDB.Driver
         public IClientSessionHandle Fork()
         {
             return new ClientSessionHandle(_client, _options, _coreSession.Fork());
+        }
+
+        /// <inheritdoc />
+        public void StartTransaction(TransactionOptions transactionOptions = null)
+        {
+            _coreSession.StartTransaction(transactionOptions);
         }
     }
 }

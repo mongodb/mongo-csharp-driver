@@ -21,21 +21,35 @@ namespace MongoDB.Driver.Core.Operations
 {
     internal static class ReadConcernHelper
     {
-        public static void AppendReadConcern(BsonDocument document, ReadConcern readConcern, ConnectionDescription connectionDescription, ICoreSession session)
+        public static BsonDocument GetReadConcernForCommand(ICoreSession session, ConnectionDescription connectionDescription, ReadConcern readConcern)
+        {
+            return session.IsInTransaction ? null : ToBsonDocument(session, connectionDescription, readConcern);
+        }
+
+        public static BsonDocument GetReadConcernForFirstCommandInTransaction(ICoreSession session, ConnectionDescription connectionDescription)
+        {
+            var readConcern = session.CurrentTransaction.TransactionOptions.ReadConcern;
+            return ToBsonDocument(session, connectionDescription, readConcern);
+        }
+
+        // private static methods
+        private static BsonDocument ToBsonDocument(ICoreSession session, ConnectionDescription connectionDescription, ReadConcern readConcern)
         {
             var sessionsAreSupported = connectionDescription.IsMasterResult.LogicalSessionTimeout != null;
-            var shouldAppendAfterClusterTime = session.IsCausallyConsistent && session.OperationTime != null && sessionsAreSupported;
-            var shouldAppendReadConcern = !readConcern.IsServerDefault || shouldAppendAfterClusterTime;
+            var shouldSendAfterClusterTime = sessionsAreSupported && session.IsCausallyConsistent && session.OperationTime != null;
+            var shouldSendReadConcern = !readConcern.IsServerDefault || shouldSendAfterClusterTime;
 
-            if (shouldAppendReadConcern)
+            if (shouldSendReadConcern)
             {
                 var readConcernDocument = readConcern.ToBsonDocument();
-                if (shouldAppendAfterClusterTime)
+                if (shouldSendAfterClusterTime)
                 {
                     readConcernDocument.Add("afterClusterTime", session.OperationTime);
                 }
-                document.Add("readConcern", readConcernDocument);
+                return readConcernDocument;
             }
+
+            return null;
         }
     }
 }

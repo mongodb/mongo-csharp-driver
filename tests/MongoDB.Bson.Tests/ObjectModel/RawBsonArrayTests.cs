@@ -15,8 +15,11 @@
 
 using System;
 using System.Linq;
+using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Bson.Tests
@@ -186,6 +189,24 @@ namespace MongoDB.Bson.Tests
                 var rawBsonArray = rawBsonDocument["a"].AsBsonArray;
                 Assert.True(rawBsonArray.IsReadOnly);
             }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void TestMaterialize(
+            [Values(0, 1, 2)] int count)
+        {
+            var array = new BsonArray(Enumerable.Range(0, count));
+            var document = new BsonDocument("array", array);
+            var bytes = document.ToBson();
+            var rawDocument = new RawBsonDocument(bytes);
+            var subject = (RawBsonArray)rawDocument["array"];
+            var binaryReaderSettings = new BsonBinaryReaderSettings();
+
+            var result = subject.Materialize(binaryReaderSettings);
+
+            result.Should().BeOfType<BsonArray>();
+            result.Should().Be(array);
         }
 
         [Fact]

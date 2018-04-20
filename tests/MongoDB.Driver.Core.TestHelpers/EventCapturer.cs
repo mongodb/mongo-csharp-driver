@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 
@@ -146,7 +147,7 @@ namespace MongoDB.Driver.Core
             {
                 @event = new CommandStartedEvent(
                     @event.CommandName,
-                    (BsonDocument)@event.Command.DeepClone(),
+                    RecursivelyMaterialize(@event.Command),
                     @event.DatabaseNamespace,
                     @event.OperationId,
                     @event.RequestId,
@@ -158,7 +159,7 @@ namespace MongoDB.Driver.Core
             {
                 @event = new CommandSucceededEvent(
                     @event.CommandName,
-                    @event.Reply == null ? null : (BsonDocument)@event.Reply.DeepClone(),
+                    RecursivelyMaterialize(@event.Reply),
                     @event.OperationId,
                     @event.RequestId,
                     @event.ConnectionId,
@@ -168,7 +169,79 @@ namespace MongoDB.Driver.Core
 
             public void Handle(CommandFailedEvent @event)
             {
+                var exception = @event.Failure;
+
+                var mongoCommandException = exception as MongoCommandException;
+                if (mongoCommandException != null)
+                {
+                    exception = new MongoCommandException(
+                        mongoCommandException.ConnectionId,
+                        mongoCommandException.Message,
+                        RecursivelyMaterialize(mongoCommandException.Command),
+                        RecursivelyMaterialize(mongoCommandException.Result));
+                }
+
+                @event = new CommandFailedEvent(
+                    @event.CommandName,
+                    exception,
+                    @event.OperationId,
+                    @event.RequestId,
+                    @event.ConnectionId,
+                    @event.Duration);
                 _parent.Capture(@event);
+            }
+
+            private BsonDocument RecursivelyMaterialize(BsonDocument document)
+            {
+                if (document == null)
+                {
+                    return null;
+                }
+
+                var rawDocument = document as RawBsonDocument;
+                if (rawDocument != null)
+                {
+                    return rawDocument.Materialize(new BsonBinaryReaderSettings());
+                }
+
+                for (var i = 0; i < document.ElementCount; i++)
+                {
+                    document[i] = RecursivelyMaterialize(document[i]);
+                }
+
+                return document;
+            }
+
+            private BsonArray RecursivelyMaterialize(BsonArray array)
+            {
+                var rawArray = array as RawBsonArray;
+                if (rawArray != null)
+                {
+                    return rawArray.Materialize(new BsonBinaryReaderSettings());
+                }
+
+                for (var i = 0; i < array.Count; i++)
+                {
+                    array[i] = RecursivelyMaterialize(array[i]);
+                }
+
+                return array;
+            }
+
+            private BsonValue RecursivelyMaterialize(BsonValue value)
+            {
+                switch (value.BsonType)
+                {
+                    case BsonType.Array: return RecursivelyMaterialize(value.AsBsonArray);
+                    case BsonType.Document: return RecursivelyMaterialize(value.AsBsonDocument);
+                    case BsonType.JavaScriptWithScope: return RecursivelyMaterialize(value.AsBsonJavaScriptWithScope);
+                    default: return value;
+                }
+            }
+
+            private BsonJavaScriptWithScope RecursivelyMaterialize(BsonJavaScriptWithScope value)
+            {
+                return new BsonJavaScriptWithScope(value.Code, RecursivelyMaterialize(value.Scope));
             }
         }
     }

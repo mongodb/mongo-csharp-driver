@@ -58,6 +58,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly ReadConcernFeature __readConcern = new ReadConcernFeature("ReadConcern", new SemanticVersion(3, 2, 0));
         private static readonly Feature __scramSha1Authentication = new Feature("ScramSha1Authentication", new SemanticVersion(3, 0, 0));
         private static readonly Feature __serverExtractsUsernameFromX509Certificate = new Feature("ServerExtractsUsernameFromX509Certificate", new SemanticVersion(3, 3, 12));
+        private static readonly Feature __transactions = new Feature("Transactions", new SemanticVersion(3, 7, 0));
         private static readonly Feature __userManagementCommands = new Feature("UserManagementCommands", new SemanticVersion(2, 6, 0));
         private static readonly Feature __views = new Feature("Views", new SemanticVersion(3, 3, 11));
         private static readonly Feature __writeCommands = new Feature("WriteCommands", new SemanticVersion(2, 6, 0));
@@ -236,6 +237,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the server extracts username from X509 certificate feature.
         /// </summary>
         public static Feature ServerExtractsUsernameFromX509Certificate => __serverExtractsUsernameFromX509Certificate;
+
+        /// <summary>
+        /// Gets the transactions feature.
+        /// </summary>
+        public static Feature Transactions => __transactions;
 
         /// <summary>
         /// Gets the user management commands feature.

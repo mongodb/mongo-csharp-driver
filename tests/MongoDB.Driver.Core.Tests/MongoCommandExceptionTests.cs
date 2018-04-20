@@ -32,7 +32,7 @@ namespace MongoDB.Driver
     public class MongoCommandExceptionTests
     {
         private readonly BsonDocument _command = new BsonDocument("command", 1);
-        private readonly BsonDocument _commandResult = new BsonDocument { { "code", 123 }, { "errmsg", "error message" }, { "ok", 0 } };
+        private readonly BsonDocument _commandResult = new BsonDocument { { "code", 123 }, { "codeName", "abc" }, { "errmsg", "error message" }, { "ok", 0 } };
         private readonly ConnectionId _connectionId = new ConnectionId(new ServerId(new ClusterId(1), new DnsEndPoint("localhost", 27017)), 2).WithServerValue(3);
         private readonly string _message = "message";
 
@@ -44,6 +44,16 @@ namespace MongoDB.Driver
             var result = subject.Code;
 
             result.Should().Be(123);
+        }
+
+        [Fact]
+        public void CodeName_get_returns_expected_result()
+        {
+            var subject = new MongoCommandException(_connectionId, _message, _command, _commandResult);
+
+            var result = subject.CodeName;
+
+            result.Should().Be("abc");
         }
 
         [Fact]

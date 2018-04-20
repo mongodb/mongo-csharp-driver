@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Core.Operations
 
         public static TResult Execute<TResult>(IRetryableWriteOperation<TResult> operation, RetryableWriteContext context, CancellationToken cancellationToken)
         {
-            if (!context.RetryRequested || !AreRetryableWritesSupported(context.Channel.ConnectionDescription))
+            if (!context.RetryRequested || !AreRetryableWritesSupported(context.Channel.ConnectionDescription) || context.Binding.Session.IsInTransaction)
             {
                 return operation.ExecuteAttempt(context, 1, null, cancellationToken);
             }

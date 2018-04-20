@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Core.Operations
 
         // protected methods
         /// <inheritdoc />
-        protected override BsonDocument CreateCommand(ConnectionDescription connectionDescription, int attempt, long? transactionNumber)
+        protected override BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription, int attempt, long? transactionNumber)
         {
             if (!Feature.Collation.IsSupported(connectionDescription.ServerVersion))
             {
@@ -89,11 +89,12 @@ namespace MongoDB.Driver.Core.Operations
                 }
             }
 
+            var writeConcern = WriteConcernHelper.GetWriteConcernForWriteCommand(session, WriteConcern);
             return new BsonDocument
             {
                 { "delete", _collectionNamespace.CollectionName },
                 { "ordered", IsOrdered },
-                { "writeConcern", () => WriteConcern.ToBsonDocument(), WriteConcern != null && !WriteConcern.IsServerDefault },
+                { "writeConcern", writeConcern, writeConcern != null },
                 { "txnNumber", () => transactionNumber.Value, transactionNumber.HasValue }
             };
         }

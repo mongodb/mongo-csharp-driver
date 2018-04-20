@@ -236,8 +236,10 @@ namespace MongoDB.Driver.Core.Operations
             [Values(null, 100L)]long? transactionNumber)
         {
             var subject = new FindOneAndUpdateOperation<BsonDocument>(_collectionNamespace, _filter, _update, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var session = OperationTestHelper.CreateSession();
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(null, transactionNumber);
+            var result = subject.CreateCommand(session, connectionDescription, transactionNumber);
 
             var expectedResult = new BsonDocument
             {
@@ -262,8 +264,10 @@ namespace MongoDB.Driver.Core.Operations
                 BypassDocumentValidation = bypassDocumentValidation
             };
             var serverVersion = Feature.BypassDocumentValidation.SupportedOrNotSupportedVersion(useServerVersionSupportingBypassDocumentValidation);
+            var session = OperationTestHelper.CreateSession();
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: serverVersion);
 
-            var result = subject.CreateCommand(serverVersion, null);
+            var result = subject.CreateCommand(session, connectionDescription, null);
 
             var expectedResult = new BsonDocument
             {
@@ -286,8 +290,10 @@ namespace MongoDB.Driver.Core.Operations
             {
                 Collation = collation
             };
+            var session = OperationTestHelper.CreateSession();
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: Feature.Collation.FirstSupportedVersion);
 
-            var result = subject.CreateCommand(Feature.Collation.FirstSupportedVersion, null);
+            var result = subject.CreateCommand(session, connectionDescription, null);
 
             var expectedResult = new BsonDocument
             {
@@ -309,8 +315,10 @@ namespace MongoDB.Driver.Core.Operations
             {
                 IsUpsert = value
             };
+            var session = OperationTestHelper.CreateSession();
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(null, null);
+            var result = subject.CreateCommand(session, connectionDescription, null);
 
             var expectedResult = new BsonDocument
             {
@@ -335,8 +343,10 @@ namespace MongoDB.Driver.Core.Operations
             {
                 MaxTime = TimeSpan.FromTicks(maxTimeTicks)
             };
+            var session = OperationTestHelper.CreateSession();
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(null, null);
+            var result = subject.CreateCommand(session, connectionDescription, null);
 
             var expectedResult = new BsonDocument
             {
@@ -360,8 +370,10 @@ namespace MongoDB.Driver.Core.Operations
             {
                 Projection = projection
             };
+            var session = OperationTestHelper.CreateSession();
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(null, null);
+            var result = subject.CreateCommand(session, connectionDescription, null);
 
             var expectedResult = new BsonDocument
             {
@@ -383,8 +395,10 @@ namespace MongoDB.Driver.Core.Operations
             {
                 ReturnDocument = value
             };
+            var session = OperationTestHelper.CreateSession();
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(null, null);
+            var result = subject.CreateCommand(session, connectionDescription, null);
 
             var expectedResult = new BsonDocument
             {
@@ -407,8 +421,10 @@ namespace MongoDB.Driver.Core.Operations
             {
                 Sort = sort
             };
+            var session = OperationTestHelper.CreateSession();
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(null, null);
+            var result = subject.CreateCommand(session, connectionDescription, null);
 
             var expectedResult = new BsonDocument
             {
@@ -434,8 +450,10 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern = writeConcern
             };
             var serverVersion = Feature.FindAndModifyWriteConcern.SupportedOrNotSupportedVersion(useServerVersionSupportingFindAndModifyWriteConcern);
+            var session = OperationTestHelper.CreateSession();
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: serverVersion);
 
-            var result = subject.CreateCommand(serverVersion, null);
+            var result = subject.CreateCommand(session, connectionDescription, null);
 
             var expectedResult = new BsonDocument
             {
@@ -454,8 +472,10 @@ namespace MongoDB.Driver.Core.Operations
             {
                 Collation = new Collation("en_US")
             };
+            var session = OperationTestHelper.CreateSession();
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: Feature.Collation.LastNotSupportedVersion);
 
-            var exception = Record.Exception(() => subject.CreateCommand(Feature.Collation.LastNotSupportedVersion, null));
+            var exception = Record.Exception(() => subject.CreateCommand(session, connectionDescription, null));
 
             exception.Should().BeOfType<NotSupportedException>();
         }
@@ -638,7 +658,7 @@ namespace MongoDB.Driver.Core.Operations
 
             exception.Should().BeOfType<NotSupportedException>();
         }
-        
+
         [SkippableTheory]
         [ParameterAttributeData]
         public void Execute_should_throw_when_maxTime_is_exceeded(

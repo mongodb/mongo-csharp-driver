@@ -31,6 +31,30 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
+        public void AutoStartTransaction_get_should_return_expected_result(
+            [Values(false, true)] bool value)
+        {
+            var subject = CreateSubject(autoStartTransaction: value);
+
+            var result = subject.AutoStartTransaction;
+
+            result.Should().Be(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void AutoStartTransaction_set_should_have_expected_result(
+            [Values(false, true)] bool value)
+        {
+            var subject = CreateSubject();
+
+            subject.AutoStartTransaction = value;
+
+            subject.AutoStartTransaction.Should().Be(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void CausalConsistency_get_should_return_expected_result(
             [Values(null, false, true)] bool? value)
         {
@@ -53,27 +77,65 @@ namespace MongoDB.Driver.Tests
             subject.CausalConsistency.Should().Be(value);
         }
 
+        [Theory]
+        [ParameterAttributeData]
+        public void DefaultTransactionOptions_get_should_return_expected_result(
+            [Values(false, true)] bool nullValue)
+        {
+            var value = nullValue ? null : new TransactionOptions();
+            var subject = CreateSubject(defaultTransactionOptions: value);
+
+            var result = subject.DefaultTransactionOptions;
+
+            result.Should().BeSameAs(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void DefaultTransactionOptions_set_should_have_expected_result(
+            [Values(false, true)] bool nullValue)
+        {
+            var subject = CreateSubject();
+            var value = nullValue ? null : new TransactionOptions();
+
+            subject.DefaultTransactionOptions = value;
+
+            subject.DefaultTransactionOptions.Should().BeSameAs(value);
+        }
 
         [Theory]
         [ParameterAttributeData]
         public void ToCore_should_return_expected_result(
+            [Values(false, true)] bool autoStartTransaction,
             [Values(null, false, true)] bool? causalConsistency,
-            [Values(false, true)] bool isImplicit)
+            [Values(false, true)] bool isImplicit,
+            [Values(false, true)] bool nullDefaultTransactionOptions)
         {
-            var subject = CreateSubject(causalConsistency: causalConsistency);
+            var defaultTransactionOptions = nullDefaultTransactionOptions ? null : new TransactionOptions();
+            var subject = CreateSubject(
+                autoStartTransaction: autoStartTransaction,
+                causalConsistency: causalConsistency,
+                defaultTransactionOptions: defaultTransactionOptions);
 
             var result = subject.ToCore(isImplicit: isImplicit);
 
+            result.AutoStartTransaction.Should().Be(autoStartTransaction);
+            result.DefaultTransactionOptions.Should().BeSameAs(defaultTransactionOptions);
             result.IsCausallyConsistent.Should().Be(causalConsistency ?? true);
             result.IsImplicit.Should().Be(isImplicit);
         }
     
         // private methods
-        private ClientSessionOptions CreateSubject(bool? causalConsistency = null)
+        private ClientSessionOptions CreateSubject(
+            bool autoStartTransaction = false,
+            bool? causalConsistency = null,
+            TransactionOptions defaultTransactionOptions = null)
         {
             return new ClientSessionOptions
             {
-                CausalConsistency = causalConsistency
+                AutoStartTransaction = autoStartTransaction,
+                CausalConsistency = causalConsistency,
+                DefaultTransactionOptions = defaultTransactionOptions
             };
         }
     }

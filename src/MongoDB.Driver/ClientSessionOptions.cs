@@ -22,17 +22,37 @@ namespace MongoDB.Driver
     /// </summary>
     public class ClientSessionOptions
     {
+        // public properties
+        /// <summary>
+        /// Gets or sets a value indicating whether to auto start a transaction.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if the driver should auto start a transaction; otherwise, <c>false</c>.
+        /// </value>
+        public bool AutoStartTransaction { get; set; }
+
         /// <summary>
         /// When true or unspecified, an application will read its own writes and subsequent
         /// reads will never observe an earlier version of the data.
         /// </summary>
         public bool? CausalConsistency { get; set; }
 
+        /// <summary>
+        /// Gets or sets the default transaction options.
+        /// </summary>
+        /// <value>
+        /// The default transaction options.
+        /// </value>
+        public TransactionOptions DefaultTransactionOptions { get; set; }
+
+        // internal methods
         internal CoreSessionOptions ToCore(bool isImplicit = false)
         {
             return new CoreSessionOptions(
                 isCausallyConsistent: CausalConsistency ?? true,
-                isImplicit: isImplicit);
+                isImplicit: isImplicit,
+                autoStartTransaction: AutoStartTransaction,
+                defaultTransactionOptions: DefaultTransactionOptions);
         }
     }
 }

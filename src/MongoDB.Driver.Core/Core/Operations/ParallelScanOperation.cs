@@ -138,14 +138,13 @@ namespace MongoDB.Driver.Core.Operations
         {
             Feature.ReadConcern.ThrowIfNotSupported(connectionDescription.ServerVersion, _readConcern);
 
-            var command = new BsonDocument
+            var readConcern = ReadConcernHelper.GetReadConcernForCommand(session, connectionDescription, _readConcern);
+            return new BsonDocument
             {
                 { "parallelCollectionScan", _collectionNamespace.CollectionName },
                 { "numCursors", _numberOfCursors },
+                { "readConcern", readConcern, readConcern != null }
             };
-
-            ReadConcernHelper.AppendReadConcern(command, _readConcern, connectionDescription, session);
-            return command;
         }
 
         private ReadCommandOperation<BsonDocument> CreateOperation(IChannel channel, IBinding binding)

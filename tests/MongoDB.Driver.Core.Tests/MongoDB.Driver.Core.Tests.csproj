@@ -77,8 +77,10 @@
     <Compile Include="Core\Bindings\CoreSessionHandleTests.cs" />
     <Compile Include="Core\Bindings\CoreSessionOptionsTests.cs" />
     <Compile Include="Core\Bindings\CoreSessionTests.cs" />
+    <Compile Include="Core\Bindings\CoreTransactionTests.cs" />
     <Compile Include="Core\Bindings\NoCoreServerSessionTests.cs" />
     <Compile Include="Core\Bindings\NoCoreSessionTests.cs" />
+    <Compile Include="Core\Bindings\NonDisposingCoreSessionHandleTests.cs" />
     <Compile Include="Core\Bindings\ReferenceCountedCoreSessionTests.cs" />
     <Compile Include="Core\Bindings\SingleServerReadBindingTests.cs" />
     <Compile Include="Core\Bindings\SingleServerReadWriteBindingTests.cs" />
@@ -112,6 +114,7 @@
     <Compile Include="Core\Operations\ChangeStreamOperationTests.cs" />
     <Compile Include="Core\Operations\CommandOperationBaseTests.cs" />
     <Compile Include="Core\Operations\CreateViewOperationTests.cs" />
+    <Compile Include="Core\Operations\EndTransactionOperationTests.cs" />
     <Compile Include="Core\Operations\MaxTimeHelperTests.cs" />
     <Compile Include="Core\Operations\OperationClockTests.cs" />
     <Compile Include="Core\Operations\OperationTestHelper.cs" />
@@ -158,6 +161,7 @@
     <Compile Include="Core\Operations\QueryHelperTests.cs" />
     <Compile Include="Core\Operations\WriteCommandOperationTests.cs" />
     <Compile Include="Core\Operations\WriteConcernErrorHelperTests.cs" />
+    <Compile Include="Core\Operations\WriteConcernHelperTests.cs" />
     <Compile Include="Core\Servers\ClusterClockAdvancingCoreSessionTests.cs" />
     <Compile Include="Core\Servers\ServerDescriptionWithSimilarLastUpdateTimestampEqualityComparer.cs" />
     <Compile Include="Core\Servers\ServerMonitorTests.cs" />
@@ -272,6 +276,7 @@
     <Compile Include="Core\Misc\InterlockedInt32Tests.cs" />
     <Compile Include="Core\Misc\TimeSpanParserTests.cs" />
     <Compile Include="ReadConcernTests.cs" />
+    <Compile Include="TransactionOptionsTests.cs" />
     <Compile Include="WriteConcernTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Core\Servers\ServerDescriptionTests.cs" />

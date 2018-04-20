@@ -226,12 +226,15 @@ namespace MongoDB.Driver.Core.Operations
         /// <summary>
         /// Creates the command.
         /// </summary>
-        /// <param name="connectionDescription">The connection description.</param>
         /// <param name="session">The session.</param>
-        /// <returns>The command.</returns>
-        protected internal virtual BsonDocument CreateCommand(ConnectionDescription connectionDescription, ICoreSession session)
+        /// <param name="connectionDescription">The connection description.</param>
+        /// <returns>
+        /// The command.
+        /// </returns>
+        protected internal virtual BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription)
         {
-            Feature.Collation.ThrowIfNotSupported(connectionDescription.ServerVersion, _collation);
+            var serverVersion = connectionDescription.ServerVersion;
+            Feature.Collation.ThrowIfNotSupported(serverVersion, _collation);
 
             return new BsonDocument
             {

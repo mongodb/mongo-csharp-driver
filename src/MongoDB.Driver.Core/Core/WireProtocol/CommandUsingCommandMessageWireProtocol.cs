@@ -83,11 +83,17 @@ namespace MongoDB.Driver.Core.WireProtocol
         public TCommandResult Execute(IConnection connection, CancellationToken cancellationToken)
         {
             var message = CreateCommandMessage(connection.Description);
-            connection.SendMessage(message, _messageEncoderSettings, cancellationToken);
-            MessageWasSent();
 
-            var wrappedMessage = message.WrappedMessage;
-            if (wrappedMessage.ResponseExpected)
+            try
+            {
+                connection.SendMessage(message, _messageEncoderSettings, cancellationToken);
+            }
+            finally
+            {
+                MessageWasProbablySent(message);
+            }
+
+            if (message.WrappedMessage.ResponseExpected)
             {
                 var encoderSelector = new CommandResponseMessageEncoderSelector();
                 var response = (CommandResponseMessage)connection.ReceiveMessage(message.RequestId, encoderSelector, _messageEncoderSettings, cancellationToken);
@@ -102,11 +108,17 @@ namespace MongoDB.Driver.Core.WireProtocol
         public async Task<TCommandResult> ExecuteAsync(IConnection connection, CancellationToken cancellationToken)
         {
             var message = CreateCommandMessage(connection.Description);
-            await connection.SendMessageAsync(message, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
-            MessageWasSent();
 
-            var wrappedMessage = message.WrappedMessage;
-            if (wrappedMessage.ResponseExpected)
+            try
+            {
+                await connection.SendMessageAsync(message, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
+            }
+            finally
+            {
+                MessageWasProbablySent(message);
+            }
+
+            if (message.WrappedMessage.ResponseExpected)
             {
                 var encoderSelector = new CommandResponseMessageEncoderSelector();
                 var response = (CommandResponseMessage)await connection.ReceiveMessageAsync(message.RequestId, encoderSelector, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
@@ -150,19 +162,23 @@ namespace MongoDB.Driver.Core.WireProtocol
         private Type0CommandMessageSection<BsonDocument> CreateType0Section(ConnectionDescription connectionDescription)
         {
             var extraElements = new List<BsonElement>();
+
             var dbElement = new BsonElement("$db", _databaseNamespace.DatabaseName);
             extraElements.Add(dbElement);
+
             if (_readPreference != null && _readPreference != ReadPreference.Primary)
             {
                 var readPreferenceDocument = QueryHelper.CreateReadPreferenceDocument(_readPreference);
                 var readPreferenceElement = new BsonElement("$readPreference", readPreferenceDocument);
                 extraElements.Add(readPreferenceElement);
             }
+
             if (_session.Id != null)
             {
                 var lsidElement = new BsonElement("lsid", _session.Id);
                 extraElements.Add(lsidElement);
             }
+
             if (_session.ClusterTime != null)
             {
                 var clusterTimeElement = new BsonElement("$clusterTime", _session.ClusterTime);
@@ -170,15 +186,41 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
             Action<BsonWriterSettings> writerSettingsConfigurator = s => s.GuidRepresentation = GuidRepresentation.Unspecified;
 
+            _session.AutoStartTransactionIfApplicable();
+            if (_session.IsInTransaction)
+            {
+                var transaction = _session.CurrentTransaction;
+                extraElements.Add(new BsonElement("txnNumber", transaction.TransactionNumber));
+                extraElements.Add(new BsonElement("stmtId", transaction.StatementId));
+                if (transaction.StatementId == 0)
+                {
+                    extraElements.Add(new BsonElement("startTransaction", true));
+                    var readConcern = ReadConcernHelper.GetReadConcernForFirstCommandInTransaction(_session, connectionDescription);
+                    if (readConcern != null)
+                    {
+                        extraElements.Add(new BsonElement("readConcern", readConcern));
+                    }
+                }
+                extraElements.Add(new BsonElement("autocommit", false));
+            }
+
             var elementAppendingSerializer = new ElementAppendingSerializer<BsonDocument>(BsonDocumentSerializer.Instance, extraElements, writerSettingsConfigurator);
             return new Type0CommandMessageSection<BsonDocument>(_command, elementAppendingSerializer);
         }
 
-        private void MessageWasSent()
+        private void MessageWasProbablySent(CommandRequestMessage message)
         {
             if (_session.Id != null)
             {
                 _session.WasUsed();
+            }
+
+            if (_session.IsInTransaction)
+            {
+                var wrappedMessage = message.WrappedMessage;
+                var type1Section = wrappedMessage.Sections.OfType<Type1CommandMessageSection>().SingleOrDefault();
+                var numberOfStatements = type1Section == null ? 1 : type1Section.Documents.ProcessedCount;
+                _session.CurrentTransaction.AdvanceStatementId(numberOfStatements);
             }
         }
 

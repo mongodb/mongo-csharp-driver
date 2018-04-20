@@ -26,9 +26,15 @@ namespace MongoDB.Bson.TestHelpers
             return fieldInfo.GetValue(obj);
         }
 
-        public static object Invoke(object obj, string name)
+        public static object GetPropertyValue(object obj, string name, BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance)
         {
-            var methodInfo = obj.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+            var propertyInfo = obj.GetType().GetProperty(name, flags);
+            return propertyInfo.GetValue(obj);
+        }
+
+        public static object Invoke(object obj, string name, BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance)
+        {
+            var methodInfo = obj.GetType().GetMethods(flags)
                 .Where(m => m.Name == name && m.GetParameters().Length == 0)
                 .Single();
             return methodInfo.Invoke(obj, new object[] { });

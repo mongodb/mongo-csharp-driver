@@ -104,7 +104,9 @@
     <Compile Include="Core\Bindings\ICoreSession.cs" />
     <Compile Include="Core\Bindings\NoCoreServerSession.cs" />
     <Compile Include="Core\Bindings\NoCoreSession.cs" />
+    <Compile Include="Core\Bindings\NonDisposingCoreSessionHandle.cs" />
     <Compile Include="Core\Bindings\ReferenceCountedCoreSession.cs" />
+    <Compile Include="Core\Bindings\CoreTransaction.cs" />
     <Compile Include="Core\Bindings\WrappingCoreServerSession.cs" />
     <Compile Include="Core\Bindings\WrappingCoreSession.cs" />
     <Compile Include="Core\Connections\ClientDocumentHelper.cs" />
@@ -126,6 +128,7 @@
     <Compile Include="Core\Operations\CreateViewOperation.cs" />
     <Compile Include="Core\Clusters\IClusterClock.cs" />
     <Compile Include="Core\Operations\DelayedEvaluationWriteConcernSerializer.cs" />
+    <Compile Include="Core\Operations\EndTransactionOperation.cs" />
     <Compile Include="Core\Operations\RetryableDeleteCommandOperation.cs" />
     <Compile Include="Core\Operations\RetryabilityHelper.cs" />
     <Compile Include="Core\Operations\RetryableInsertCommandOperation.cs" />
@@ -139,6 +142,7 @@
     <Compile Include="Core\Operations\RetryableWriteContext.cs" />
     <Compile Include="Core\Operations\RetryableUpdateCommandOperation.cs" />
     <Compile Include="Core\Operations\WriteConcernErrorHelper.cs" />
+    <Compile Include="Core\Operations\WriteConcernHelper.cs" />
     <Compile Include="Core\Servers\ClusterClockAdvancingCoreSession.cs" />
     <Compile Include="Core\Servers\IServerMonitor.cs" />
     <Compile Include="Core\Servers\IServerMonitorFactory.cs" />
@@ -396,6 +400,7 @@
     <Compile Include="Core\Operations\BulkWriteOperationUpsert.cs" />
     <Compile Include="Core\Operations\InsertRequest.cs" />
     <Compile Include="Core\Operations\BulkWriteConcernError.cs" />
+    <Compile Include="TransactionOptions.cs" />
     <Compile Include="WriteConcernResult.cs" />
     <Compile Include="Core\Operations\WriteRequest.cs" />
     <Compile Include="MongoAuthenticationException.cs" />

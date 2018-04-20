@@ -32,6 +32,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FluentAssertions, Version=4.5.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\FluentAssertions.4.5.0\lib\net45\FluentAssertions.dll</HintPath>
+    </Reference>
+    <Reference Include="FluentAssertions.Core, Version=4.5.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\FluentAssertions.4.5.0\lib\net45\FluentAssertions.Core.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -61,6 +67,9 @@
     <Compile Include="ClusterDescriptionParser.cs" />
     <Compile Include="CoreExceptionHelper.cs" />
     <Compile Include="CoreTestConfiguration.cs" />
+    <Compile Include="JsonDrivenTests\CommandStartedEventAsserter.cs" />
+    <Compile Include="JsonDrivenTests\EventAsserterFactory.cs" />
+    <Compile Include="JsonDrivenTests\RecursiveFieldSetter.cs" />
     <Compile Include="EventCapturer.cs" />
     <Compile Include="FailPoint.cs" />
     <Compile Include="ICoreSessionHandleExtensions.cs" />

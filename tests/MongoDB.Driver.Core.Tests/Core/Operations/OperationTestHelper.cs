@@ -26,31 +26,57 @@ namespace MongoDB.Driver.Core.Operations
 {
     public static class OperationTestHelper
     {
-        public static ConnectionDescription CreateConnectionDescription(SemanticVersion version = null, ServerType serverType = ServerType.Standalone, bool supportsSessions = true)
+        public static IChannelHandle CreateChannel(
+            ConnectionDescription connectionDescription = null,
+            SemanticVersion serverVersion = null,
+            bool supportsSessions = true)
         {
-            if (version == null)
+            if (connectionDescription == null)
             {
-                version = new SemanticVersion(3, 6, 0);
+                connectionDescription = CreateConnectionDescription(
+                    serverVersion: serverVersion,
+                    supportsSessions: supportsSessions);
+            }
+
+            var mock = new Mock<IChannelHandle>();
+            mock.SetupGet(m => m.ConnectionDescription).Returns(connectionDescription);
+            return mock.Object;
+        }
+
+        public static ConnectionDescription CreateConnectionDescription(
+            SemanticVersion serverVersion = null, 
+            ServerType serverType = ServerType.Standalone, 
+            bool supportsSessions = true)
+        {
+            if (serverVersion == null)
+            {
+                serverVersion = new SemanticVersion(3, 6, 0);
             }
 
             var clusterId = new ClusterId();
             var serverId = new ServerId(clusterId, new DnsEndPoint("localhost", 27017));
             var connectionId = new ConnectionId(serverId);
-            var buildInfoResult = new BuildInfoResult(new BsonDocument("ok", 1).Add("version", version.ToString()));
-            var isMasterResult = CreateIsMasterResult(version, serverType, supportsSessions);
+            var buildInfoResult = new BuildInfoResult(new BsonDocument("ok", 1).Add("version", serverVersion.ToString()));
+            var isMasterResult = CreateIsMasterResult(serverVersion, serverType, supportsSessions);
 
             return new ConnectionDescription(connectionId, isMasterResult, buildInfoResult);
         }
 
-        public static ICoreSession CreateSession(bool isCausallyConsistent = false, BsonTimestamp operationTime = null)
+        public static ICoreSessionHandle CreateSession(
+            bool isCausallyConsistent = false, 
+            BsonTimestamp operationTime = null,
+            bool supportsSession = true)
         {
-            var mock = new Mock<ICoreSession>();
+            var mock = new Mock<ICoreSessionHandle>();
             mock.SetupGet(x => x.IsCausallyConsistent).Returns(isCausallyConsistent);
             mock.SetupGet(x => x.OperationTime).Returns(operationTime);
             return mock.Object;
         }
 
-        public static IsMasterResult CreateIsMasterResult(SemanticVersion version = null, ServerType serverType = ServerType.Standalone, bool supportsSessions = true)
+        public static IsMasterResult CreateIsMasterResult(
+            SemanticVersion version = null,
+            ServerType serverType = ServerType.Standalone,
+            bool supportsSessions = true)
         {
             var isMasterDocument = BsonDocument.Parse("{ ok: 1 }");
             if (supportsSessions)

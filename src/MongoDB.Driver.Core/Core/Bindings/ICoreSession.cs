@@ -14,6 +14,8 @@
 */
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 
@@ -32,6 +34,14 @@ namespace MongoDB.Driver.Core.Bindings
         /// The cluster time.
         /// </value>
         BsonDocument ClusterTime { get; }
+
+        /// <summary>
+        /// Gets the current transaction.
+        /// </summary>
+        /// <value>
+        /// The current transaction.
+        /// </value>
+        CoreTransaction CurrentTransaction { get; }
 
         /// <summary>
         /// Gets the session Id.
@@ -56,6 +66,14 @@ namespace MongoDB.Driver.Core.Bindings
         ///   <c>true</c> if this instance is implicit session; otherwise, <c>false</c>.
         /// </value>
         bool IsImplicit { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether this instance is in a transaction.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is in a transaction; otherwise, <c>false</c>.
+        /// </value>
+        bool IsInTransaction { get; }
 
         /// <summary>
         /// Gets the operation time.
@@ -83,6 +101,19 @@ namespace MongoDB.Driver.Core.Bindings
 
         // methods
         /// <summary>
+        /// Aborts the transaction.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        void AbortTransaction(CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Aborts the transaction.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task.</returns>
+        Task AbortTransactionAsync(CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
         /// Advances the cluster time.
         /// </summary>
         /// <param name="newClusterTime">The new cluster time.</param>
@@ -101,6 +132,25 @@ namespace MongoDB.Driver.Core.Bindings
         long AdvanceTransactionNumber();
 
         /// <summary>
+        /// Commits the transaction.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        void CommitTransaction(CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Commits the transaction.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task.</returns>
+        Task CommitTransactionAsync(CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Starts a transaction.
+        /// </summary>
+        /// <param name="transactionOptions">The transaction options.</param>
+        void StartTransaction(TransactionOptions transactionOptions = null);
+
+        /// <summary>
         /// Called by the driver when the session is used (i.e. sent to the server).
         /// </summary>
         void WasUsed();
@@ -117,5 +167,16 @@ namespace MongoDB.Driver.Core.Bindings
         /// </summary>
         /// <returns>A new handle.</returns>
         ICoreSessionHandle Fork();
+    }
+
+    internal static class ICoreSessionHandleExtensions
+    {
+        public static void AutoStartTransactionIfApplicable(this ICoreSession session)
+        {
+            if (!session.IsInTransaction && session.Options != null && session.Options.AutoStartTransaction)
+            {
+                session.StartTransaction();
+            }
+        }
     }
 }

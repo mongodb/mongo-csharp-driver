@@ -273,6 +273,7 @@ namespace MongoDB.Driver.Core.Operations
             Feature.ReadConcern.ThrowIfNotSupported(connectionDescription.ServerVersion, _readConcern);
             Feature.Collation.ThrowIfNotSupported(connectionDescription.ServerVersion, _collation);
 
+            var readConcern = ReadConcernHelper.GetReadConcernForCommand(session, connectionDescription, _readConcern);
             var command = new BsonDocument
             {
                 { "aggregate", _collectionNamespace.CollectionName },
@@ -281,10 +282,9 @@ namespace MongoDB.Driver.Core.Operations
                 { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue },
                 { "collation", () => _collation.ToBsonDocument(), _collation != null },
                 { "hint", () => _hint, _hint != null },
-                { "comment", () => _comment, _comment != null }
+                { "comment", () => _comment, _comment != null },
+                { "readConcern", readConcern, readConcern != null }
             };
-
-            ReadConcernHelper.AppendReadConcern(command, _readConcern, connectionDescription, session);
 
             if (Feature.AggregateCursorResult.IsSupported(connectionDescription.ServerVersion))
             {

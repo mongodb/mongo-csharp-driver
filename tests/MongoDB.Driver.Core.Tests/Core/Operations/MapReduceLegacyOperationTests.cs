@@ -116,11 +116,10 @@ namespace MongoDB.Driver.Core.Operations
             {
                 ReadConcern = readConcern
             };
-
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.ReadConcern.FirstSupportedVersion);
             var session = OperationTestHelper.CreateSession();
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: Feature.ReadConcern.FirstSupportedVersion);
 
-            var result = subject.CreateCommand(connectionDescription, session);
+            var result = subject.CreateCommand(session, connectionDescription);
 
             if (readConcern.IsServerDefault)
             {
@@ -142,10 +141,10 @@ namespace MongoDB.Driver.Core.Operations
                 ReadConcern = ReadConcern.Majority
             };
 
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.ReadConcern.LastNotSupportedVersion);
             var session = OperationTestHelper.CreateSession();
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: Feature.ReadConcern.LastNotSupportedVersion);
 
-            Action act = () => subject.CreateCommand(connectionDescription, session);
+            Action act = () => subject.CreateCommand(session, connectionDescription);
             act.ShouldThrow<MongoClientException>();
         }
 
@@ -162,10 +161,10 @@ namespace MongoDB.Driver.Core.Operations
                 ReadConcern = readConcern
             };
 
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.ReadConcern.FirstSupportedVersion, supportsSessions: true);
-            var session = OperationTestHelper.CreateSession(true, new BsonTimestamp(100));
+            var session = OperationTestHelper.CreateSession(isCausallyConsistent: true, operationTime: new BsonTimestamp(100));
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: Feature.ReadConcern.FirstSupportedVersion);
 
-            var result = subject.CreateCommand(connectionDescription, session);
+            var result = subject.CreateCommand(session, connectionDescription);
 
             var expectedReadConcernDocument = readConcern.ToBsonDocument();
             expectedReadConcernDocument["afterClusterTime"] = new BsonTimestamp(100);

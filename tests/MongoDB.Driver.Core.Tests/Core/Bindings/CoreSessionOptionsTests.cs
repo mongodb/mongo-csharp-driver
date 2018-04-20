@@ -24,13 +24,21 @@ namespace MongoDB.Driver.Core.Bindings
         [Theory]
         [ParameterAttributeData]
         public void constructor_should_initialize_instance(
+            [Values(false, true)] bool autoStartTransaction,
+            [Values(false, true)] bool nullDefaultTransactionOptions,
             [Values(false, true)] bool isCausallyConsistent,
             [Values(false, true)] bool isImplicit)
         {
+            var defaultTransactionOptions = nullDefaultTransactionOptions ? null : new TransactionOptions();
+
             var result = new CoreSessionOptions(
+                autoStartTransaction: autoStartTransaction,
+                defaultTransactionOptions: defaultTransactionOptions,
                 isCausallyConsistent: isCausallyConsistent,
                 isImplicit: isImplicit);
 
+            result.AutoStartTransaction.Should().Be(autoStartTransaction);
+            result.DefaultTransactionOptions.Should().BeSameAs(defaultTransactionOptions);
             result.IsCausallyConsistent.Should().Be(isCausallyConsistent);
             result.IsImplicit.Should().Be(isImplicit);
         }
@@ -40,8 +48,35 @@ namespace MongoDB.Driver.Core.Bindings
         {
             var result = new CoreSessionOptions();
 
+            result.AutoStartTransaction.Should().BeFalse();
+            result.DefaultTransactionOptions.Should().BeNull();
             result.IsCausallyConsistent.Should().BeFalse();
             result.IsImplicit.Should().BeFalse();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void AutoStartTransaction_should_return_expected_result(
+            [Values(false, true)] bool value)
+        {
+            var subject = new CoreSessionOptions(autoStartTransaction: value);
+
+            var result = subject.AutoStartTransaction;
+
+            result.Should().Be(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void DefaultTransactionOptions_should_return_expected_result(
+            [Values(false, true)] bool nullDefaultTransactionOptions)
+        {
+            var defaultTransactionOptions = nullDefaultTransactionOptions ? null : new TransactionOptions();
+            var subject = new CoreSessionOptions(defaultTransactionOptions: defaultTransactionOptions);
+
+            var result = subject.DefaultTransactionOptions;
+
+            result.Should().BeSameAs(defaultTransactionOptions);
         }
 
         [Theory]

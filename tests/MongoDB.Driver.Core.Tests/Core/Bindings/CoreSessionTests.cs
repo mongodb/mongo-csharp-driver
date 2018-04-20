@@ -28,14 +28,29 @@ namespace MongoDB.Driver.Core.Bindings
         [Fact]
         public void constructor_should_initialize_instance()
         {
+            var cluster = Mock.Of<ICluster>();
             var serverSession = Mock.Of<ICoreServerSession>();
             var options = new CoreSessionOptions();
 
-            var result = new CoreSession(serverSession, options);
+            var result = new CoreSession(cluster, serverSession, options);
 
+            result.Cluster.Should().BeSameAs(cluster);
+            result.CurrentTransaction.Should().BeNull();
+            result.IsInTransaction.Should().BeFalse();
             result.Options.Should().BeSameAs(options);
             result.ServerSession.Should().BeSameAs(serverSession);
             result._disposed().Should().BeFalse();
+        }
+
+        [Fact]
+        public void Cluster_should_return_expected_result()
+        {
+            var cluster = Mock.Of<ICluster>();
+            var subject = CreateSubject(cluster: cluster);
+
+            var result = subject.Cluster;
+
+            result.Should().BeSameAs(cluster);
         }
 
         [Fact]
@@ -165,9 +180,10 @@ namespace MongoDB.Driver.Core.Bindings
             ICoreServerSession serverSession = null,
             CoreSessionOptions options = null)
         {
+            cluster = cluster ?? Mock.Of<ICluster>();
             serverSession = serverSession ?? Mock.Of<ICoreServerSession>();
             options = options ?? new CoreSessionOptions();
-            return new CoreSession(serverSession, options);
+            return new CoreSession(cluster, serverSession, options);
         }
     }
 

@@ -14,6 +14,8 @@
 */
 
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
@@ -83,6 +85,20 @@ namespace MongoDB.Driver.Tests
             result.Should().Be(value);
         }
 
+        [Theory]
+        [ParameterAttributeData]
+        public void IsInTransaction_should_call_coreSession(
+            [Values(false, true)] bool value)
+        {
+            var subject = CreateSubject();
+            var mockCoreSession = Mock.Get(subject.WrappedCoreSession);
+            mockCoreSession.SetupGet(m => m.IsInTransaction).Returns(value);
+
+            var result = subject.IsInTransaction;
+
+            result.Should().Be(value);
+        }
+
         [Fact]
         public void OperationTime_should_call_coreSession()
         {
@@ -128,6 +144,20 @@ namespace MongoDB.Driver.Tests
             result.Should().BeSameAs(coreSession);
         }
 
+        [Fact]
+        public void AbortTransactionAsync_should_call_coreSession()
+        {
+            var subject = CreateSubject();
+            var cancellationToken = new CancellationToken();
+            var task = Task.FromResult(true);
+            Mock.Get(subject.WrappedCoreSession).Setup(m => m.AbortTransactionAsync(cancellationToken)).Returns(task);
+
+            var result = subject.AbortTransactionAsync(cancellationToken);
+
+            result.Should().BeSameAs(task);
+            Mock.Get(subject.WrappedCoreSession).Verify(m => m.AbortTransactionAsync(cancellationToken), Times.Once);
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void AdvanceClusterTime_should_call_coreSession(
@@ -154,6 +184,31 @@ namespace MongoDB.Driver.Tests
             Mock.Get(subject.WrappedCoreSession).Verify(m => m.AdvanceOperationTime(newOperationTime), Times.Once);
         }
 
+        [Fact]
+        public void CommitTransaction_should_call_coreSession()
+        {
+            var subject = CreateSubject();
+            var cancellationToken = new CancellationToken();
+
+            subject.CommitTransaction(cancellationToken);
+
+            Mock.Get(subject.WrappedCoreSession).Verify(m => m.CommitTransaction(cancellationToken), Times.Once);
+        }
+
+        [Fact]
+        public void CommitTransactionAsync_should_call_coreSession()
+        {
+            var subject = CreateSubject();
+            var cancellationToken = new CancellationToken();
+            var task = Task.FromResult(true);
+            Mock.Get(subject.WrappedCoreSession).Setup(m => m.CommitTransactionAsync(cancellationToken)).Returns(task);
+
+            var result = subject.CommitTransactionAsync(cancellationToken);
+
+            result.Should().BeSameAs(task);
+            Mock.Get(subject.WrappedCoreSession).Verify(m => m.CommitTransactionAsync(cancellationToken), Times.Once);
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void Dispose_should_have_expected_result(
@@ -173,9 +228,10 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void Fork_should_return_expected_result()
         {
+            var cluster = Mock.Of<ICluster>();
             var coreServerSession = new CoreServerSession();
             var options = new ClientSessionOptions();
-            var coreSession = new CoreSession(coreServerSession, options.ToCore());
+            var coreSession = new CoreSession(cluster, coreServerSession, options.ToCore());
             var coreSessionHandle = new CoreSessionHandle(coreSession);
             var subject = CreateSubject(coreSession: coreSessionHandle);
             coreSessionHandle.ReferenceCount().Should().Be(1);
@@ -189,6 +245,17 @@ namespace MongoDB.Driver.Tests
             var coreSessionHandle2 = (CoreSessionHandle)result.WrappedCoreSession;
             coreSessionHandle2.Wrapped.Should().BeSameAs(coreSessionHandle1.Wrapped);
             coreSessionHandle.ReferenceCount().Should().Be(2);
+        }
+
+        [Fact]
+        public void StartTransaction_should_call_coreSession()
+        {
+            var subject = CreateSubject();
+            var transactionOptions = new TransactionOptions();
+
+            subject.StartTransaction(transactionOptions);
+
+            Mock.Get(subject.WrappedCoreSession).Verify(m => m.StartTransaction(transactionOptions), Times.Once);
         }
 
         // private methods
