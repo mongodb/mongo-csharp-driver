@@ -289,7 +289,7 @@ Task("PackageReleaseZipFile")
         var stagingLicenseFile = stagingDirectory.CombineWithFilePath("license.txt");
         CopyFile(licenseFile, stagingLicenseFile);
 
-        var releaseNotesFileName = "Release Notes v" + majorMinorBuild + ".md";
+        var releaseNotesFileName = "Release Notes v" + gitVersion.LegacySemVer + ".md";
         var releaseNotesDirectory = solutionDirectory.Combine("Release Notes");
         var releaseNotesFile =  releaseNotesDirectory.CombineWithFilePath(releaseNotesFileName);
         var stagingDirectoryReleaseNotesFile = stagingDirectory.CombineWithFilePath(releaseNotesFileName);
