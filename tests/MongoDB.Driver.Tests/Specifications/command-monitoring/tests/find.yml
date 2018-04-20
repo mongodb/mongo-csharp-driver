@@ -52,7 +52,6 @@ tests:
           $min: { _id: 0 }
           $returnKey: false
           $showDiskLoc: false
-          $snapshot: false
     expectations:
       -
         command_started_event:
@@ -69,7 +68,6 @@ tests:
             min: { _id: 0 }
             returnKey: false
             showRecordId: false
-            snapshot: false
           command_name: "find"
           database_name: *database_name
       -
