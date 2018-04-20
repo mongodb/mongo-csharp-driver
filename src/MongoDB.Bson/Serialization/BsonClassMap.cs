@@ -1515,10 +1515,10 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
-        /// Creates a member map for the Id property and adds it to the class map.
+        /// Creates a member map for the property and adds it to the class map.
         /// </summary>
         /// <typeparam name="TMember">The member type.</typeparam>
-        /// <param name="propertyLambda">A lambda expression specifying the Id property.</param>
+        /// <param name="propertyLambda">A lambda expression specifying the property.</param>
         /// <returns>The member map.</returns>
         public BsonMemberMap MapProperty<TMember>(Expression<Func<TClass, TMember>> propertyLambda)
         {
