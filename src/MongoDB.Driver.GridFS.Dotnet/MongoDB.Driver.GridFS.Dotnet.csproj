@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <VersionPrefix>2.7.0</VersionPrefix>
+    <VersionSuffix>beta1</VersionSuffix>
     <TargetFramework>netstandard1.5</TargetFramework>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

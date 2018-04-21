@@ -19,8 +19,8 @@ var artifactsBinDirectory = artifactsDirectory.Combine("bin");
 var artifactsBinNet45Directory = artifactsBinDirectory.Combine("net45");
 var artifactsBinNetStandard15Directory = artifactsBinDirectory.Combine("netstandard1.5");
 var artifactsDocsDirectory = artifactsDirectory.Combine("docs");
-var artifactsDocsApiDocsDirectory = artifactsDocsDirectory.Combine("ApiDocs-" + gitVersion.SemVer);
-var artifactsDocsRefDocsDirectory = artifactsDocsDirectory.Combine("RefDocs-" + gitVersion.SemVer);
+var artifactsDocsApiDocsDirectory = artifactsDocsDirectory.Combine("ApiDocs-" + gitVersion.LegacySemVer);
+var artifactsDocsRefDocsDirectory = artifactsDocsDirectory.Combine("RefDocs-" + gitVersion.LegacySemVer);
 var artifactsPackagesDirectory = artifactsDirectory.Combine("packages");
 var docsDirectory = solutionDirectory.Combine("Docs");
 var docsApiDirectory = docsDirectory.Combine("Api");
@@ -192,7 +192,7 @@ Task("ApiDocs")
             .WithProperty("OutputPath", artifactsDocsApiDocsDirectory.ToString())
             .WithProperty("CleanIntermediate", "True")
             .WithProperty("Preliminary", preliminary ? "True" : "False")
-            .WithProperty("HelpFileVersion", gitVersion.MajorMinorPatch)
+            .WithProperty("HelpFileVersion", gitVersion.LegacySemVer)
         );
 
         var lowerCaseIndexFile = artifactsDocsApiDocsDirectory.CombineWithFilePath("index.html");
@@ -265,9 +265,8 @@ Task("PackageReleaseZipFile")
     .Does(() =>
     {
         var assemblySemVer = gitVersion.AssemblySemVer; // e.g. 2.4.4.0
-        var majorMinorBuild = Regex.Replace(assemblySemVer, @"\.\d+$", ""); // e.g. 2.4.4
 
-        var stagingDirectoryName = "CSharpDriver-" + majorMinorBuild;
+        var stagingDirectoryName = "CSharpDriver-" + gitVersion.LegacySemVer;
         var stagingDirectory = artifactsDirectory.Combine(stagingDirectoryName);
         EnsureDirectoryExists(stagingDirectory);
         CleanDirectory(stagingDirectory);
@@ -310,7 +309,7 @@ Task("PackageNugetPackages")
         EnsureDirectoryExists(artifactsPackagesDirectory);
         CleanDirectory(artifactsPackagesDirectory);
 
-        var packageVersion = gitVersion.MajorMinorPatch;
+        var packageVersion = gitVersion.NuGetVersion;
 
         var nuspecFiles = GetFiles("./Build/*.nuspec");
         foreach (var nuspecFile in nuspecFiles)
