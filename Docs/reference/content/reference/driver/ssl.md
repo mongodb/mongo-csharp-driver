@@ -1,5 +1,5 @@
 +++
-date = "2015-03-17T15:36:56Z"
+date = "2018-04-23T07:36:42Z"
 draft = false
 title = "SSL"
 [menu.main]
@@ -41,3 +41,38 @@ var settings = new MongoClientSettings
 ```
 
 {{% note class="important" %}}It is imperative that when loading a certificate with a password, the [PrivateKey]({{< msdnref "system.security.cryptography.x509certificates.x509certificate2.privatekey" >}}) property not be null. If the property is null, it means that your certificate does not contain the private key and will not be passed to the server.{{% /note %}}
+
+## TLS support
+### Overview
+
+| OS      | .NET Version          | TLS1.1 | TLS1.2 | SNI | CRLs without OCSP |
+|---------|-----------------------|--------|--------|-----|-------------------|
+| Windows |                       |        |        |     |                   |
+|         | .NET Framework 4.5    | Yes    | Yes    | Yes | Yes               |
+|         | .NET Framework 4.6    | Yes    | Yes    | Yes | Yes               |
+|         | .NET Framework 4.7    | Yes    | Yes    | Yes | Yes               |
+|         | .NET Core 1.0         | Yes    | Yes    | Yes | Yes               |
+|         | .NET Core 1.1         | Yes    | Yes    | Yes | Yes               |
+|         | .NET Core 2.0         | Yes    | Yes    | Yes | Yes               |
+|         | .NET Core 2.1-preview | Yes    | Yes    | Yes | Yes               |
+| Linux   |                       |        |        |     |                   |
+|         | .NET Core 1.0         | Yes    | Yes    | No  | Yes               |
+|         | .NET Core 1.1         | Yes    | Yes    | No  | Yes               |
+|         | .NET Core 2.0         | Yes    | Yes    | No  | Yes               |
+|         | .NET Core 2.1-preview | Yes    | Yes    | Yes | Yes               |
+| OSX     |                       |        |        |     |                   |
+|         | .NET Core 1.0         | Yes    | Yes    | No  | Yes               |
+|         | .NET Core 1.1         | Yes    | Yes    | No  | Yes               |
+|         | .NET Core 2.0         | Yes    | Yes    | Yes | No                |
+|         | .NET Core 2.1-preview | Yes    | Yes    | Yes | No                |
+
+
+#### Notes:
+ - SNI (Server Name Indication) required for Atlas free tier.
+ - If a server's certificate includes Certificate Revocation List (CRL) Distribution Points but does not include an Online Certificate Status Protocol (OCSP) extension, .NET Core on OSX will fail to connect due to a limitation of the Apple Security Framework (see https://github.com/dotnet/corefx/issues/29064). Prior to version 2.0, .NET Core on OSX used OpenSSL, which does support CRLs without OCSP.
+
+
+### Support for TLS v1.1 and newer
+
+Industry best practices recommend, and some regulations require, the use of TLS 1.1 or newer. No application changes are required
+for the driver to make use of the newest TLS protocols.
