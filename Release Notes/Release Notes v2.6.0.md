@@ -7,7 +7,7 @@ The main new feature of 2.6.0 is better support for running when FIPS mode is en
 
 An online version of these release notes is available at:
 
-https://github.com/mongodb/mongo-csharp-driver/blob/master/Release%20Notes/Release%20Notes%20v2.6.0.md
+https://github.com/mongodb/mongo-csharp-driver/blob/v2.6.x/Release%20Notes/Release%20Notes%20v2.6.0.md
 
 The JIRA tickets resolved in this release is available at:
 
