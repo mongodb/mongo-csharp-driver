@@ -23,7 +23,7 @@ Connection pooling is provided for every server that is discovered. There are a 
 
 ### Server Monitoring
 
-Each server that is discovered is monitored. By default, this monitoring happens every 10 seconds and consists of an `{ ismaster: 1 }` call followed by a `{ buildinfo: 1 }` call. When servers go down, the frequency of these calls will be increased to 500 milliseconds. See the [Server Discovery and Monitory Specification](https://github.com/mongodb/specifications/blob/master/source/server-discovery-and-monitoring/server-discovery-and-monitoring-summary.rst) for more information.
+Each server that is discovered is monitored. By default, this monitoring happens every 10 seconds and consists of an `{ ismaster: 1 }` call followed by a `{ buildinfo: 1 }` call. When servers go down, the frequency of these calls will be increased to 500 milliseconds. See the [Server Discovery and Monitoring Specification](https://github.com/mongodb/specifications/blob/master/source/server-discovery-and-monitoring/server-discovery-and-monitoring-summary.rst) for more information.
 
 ### Server Selection
 
