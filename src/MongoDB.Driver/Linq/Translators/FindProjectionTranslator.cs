@@ -192,7 +192,8 @@ namespace MongoDB.Driver.Linq.Translators
                 var referenceGroup = referenceGroups.Dequeue();
                 if (!skippedFields.Contains(referenceGroup.Key))
                 {
-                    var hierarchicalReferenceGroups = referenceGroups.Where(x => x.Key.StartsWith(referenceGroup.Key));
+                    var prefix = referenceGroup.Key + ".";
+                    var hierarchicalReferenceGroups = referenceGroups.Where(x => x.Key.StartsWith(prefix));
                     uniqueFields.AddRange(referenceGroup);
                     skippedFields.AddRange(hierarchicalReferenceGroups.Select(x => x.Key));
                 }
