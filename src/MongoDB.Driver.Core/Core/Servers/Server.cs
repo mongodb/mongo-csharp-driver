@@ -49,6 +49,7 @@ namespace MongoDB.Driver.Core.Servers
         private static readonly List<Type> __invalidatingExceptions = new List<Type>
         {
             typeof(MongoNotPrimaryException),
+            typeof(MongoNodeIsRecoveringException),
             typeof(MongoConnectionException),
             typeof(SocketException),
             typeof(EndOfStreamException),
