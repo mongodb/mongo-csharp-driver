@@ -36,12 +36,38 @@ namespace MongoDB.Driver
         [Fact]
         public void constructor_should_initialize_subject()
         {
-            var subject = new MongoNodeIsRecoveringException(_connectionId, _serverResult);
+            var result = new MongoNodeIsRecoveringException(_connectionId, _serverResult);
 
-            subject.ConnectionId.Should().BeSameAs(_connectionId);
-            subject.InnerException.Should().BeNull();
-            subject.Message.Should().Be("Server returned node is recovering error.");
-            subject.Result.Should().Be(_serverResult);
+            result.ConnectionId.Should().BeSameAs(_connectionId);
+            result.InnerException.Should().BeNull();
+            result.Message.Should().Be("Server returned node is recovering error (code = -1).");
+            result.Result.Should().BeSameAs(_serverResult);
+        }
+
+        [Fact]
+        public void constructor_should_initialize_subject_when_result_contains_code()
+        {
+            var serverResult = BsonDocument.Parse("{ ok : 0, code : 1234 }");
+
+            var result = new MongoNodeIsRecoveringException(_connectionId, serverResult);
+
+            result.ConnectionId.Should().BeSameAs(_connectionId);
+            result.InnerException.Should().BeNull();
+            result.Message.Should().Be("Server returned node is recovering error (code = 1234).");
+            result.Result.Should().BeSameAs(serverResult);
+        }
+
+        [Fact]
+        public void constructor_should_initialize_subject_when_result_contains_code_and_codeName()
+        {
+            var serverResult = BsonDocument.Parse("{ ok : 0, code : 1234, codeName : 'some name' }");
+
+            var result = new MongoNodeIsRecoveringException(_connectionId, serverResult);
+
+            result.ConnectionId.Should().BeSameAs(_connectionId);
+            result.InnerException.Should().BeNull();
+            result.Message.Should().Be("Server returned node is recovering error (code = 1234, codeName = \"some name\").");
+            result.Result.Should().BeSameAs(serverResult);
         }
 
 #if NET45

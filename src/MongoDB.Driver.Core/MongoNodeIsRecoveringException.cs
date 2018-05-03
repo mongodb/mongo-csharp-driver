@@ -32,6 +32,24 @@ namespace MongoDB.Driver
 #endif
     public class MongoNodeIsRecoveringException : MongoServerException
     {
+        #region static
+        // private static methods
+        private static string CreateMessage(BsonDocument result)
+        {
+            var code = result.GetValue("code", -1).ToInt32();
+            var codeName = result.GetValue("codeName", null)?.AsString;
+
+            if (codeName == null)
+            {
+                return $"Server returned node is recovering error (code = {code}).";
+            }
+            else
+            {
+                return $"Server returned node is recovering error (code = {code}, codeName = \"{codeName}\").";
+            }
+        }
+        #endregion
+
         // fields
         private readonly BsonDocument _result;
 
@@ -42,7 +60,7 @@ namespace MongoDB.Driver
         /// <param name="connectionId">The connection identifier.</param>
         /// <param name="result">The result.</param>
         public MongoNodeIsRecoveringException(ConnectionId connectionId, BsonDocument result)
-            : base(connectionId, "Server returned node is recovering error.")
+            : base(connectionId, CreateMessage(result))
         {
             _result = Ensure.IsNotNull(result, nameof(result));
         }
