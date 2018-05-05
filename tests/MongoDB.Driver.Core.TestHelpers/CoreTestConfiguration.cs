@@ -42,8 +42,8 @@ namespace MongoDB.Driver
         #region static
         // static fields
         private static Lazy<ICluster> __cluster = new Lazy<ICluster>(CreateCluster, isThreadSafe: true);
-        private static ConnectionString __connectionString = GetConnectionString();
-        private static DatabaseNamespace __databaseNamespace = GetDatabaseNamespace();
+        private static Lazy<ConnectionString> __connectionString = new Lazy<ConnectionString>(GetConnectionString, isThreadSafe: true);
+        private static Lazy<DatabaseNamespace> __databaseNamespace = new Lazy<DatabaseNamespace>(GetDatabaseNamespace, isThreadSafe: true);
         private static MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
         private static TraceSource __traceSource;
 
@@ -55,12 +55,12 @@ namespace MongoDB.Driver
 
         public static ConnectionString ConnectionString
         {
-            get { return __connectionString; }
+            get { return __connectionString.Value; }
         }
 
         public static DatabaseNamespace DatabaseNamespace
         {
-            get { return __databaseNamespace; }
+            get { return __databaseNamespace.Value; }
         }
 
         public static MessageEncoderSettings MessageEncoderSettings
@@ -97,10 +97,10 @@ namespace MongoDB.Driver
             }
 
             builder = builder
-                .ConfigureWithConnectionString(__connectionString)
+                .ConfigureWithConnectionString(__connectionString.Value)
                 .ConfigureCluster(c => c.With(serverSelectionTimeout: TimeSpan.FromMilliseconds(int.Parse(serverSelectionTimeoutString))));
 
-            if (__connectionString.Ssl.HasValue && __connectionString.Ssl.Value)
+            if (__connectionString.Value.Ssl.HasValue && __connectionString.Value.Ssl.Value)
             {
                 var certificateFilename = Environment.GetEnvironmentVariable("MONGO_SSL_CERT_FILE");
                 if (certificateFilename != null)
@@ -203,28 +203,37 @@ namespace MongoDB.Driver
 
         public static CollectionNamespace GetCollectionNamespaceForTestClass(Type testClassType)
         {
-            var collectionName = TruncateCollectionNameIfTooLong(__databaseNamespace, testClassType.Name);
-            return new CollectionNamespace(__databaseNamespace, collectionName);
+            var collectionName = TruncateCollectionNameIfTooLong(__databaseNamespace.Value, testClassType.Name);
+            return new CollectionNamespace(__databaseNamespace.Value, collectionName);
         }
 
         public static CollectionNamespace GetCollectionNamespaceForTestMethod()
         {
             var testMethodInfo = GetTestMethodInfoFromCallStack();
-            var collectionName = TruncateCollectionNameIfTooLong(__databaseNamespace, testMethodInfo.DeclaringType.Name + "-" + testMethodInfo.Name);
-            return new CollectionNamespace(__databaseNamespace, collectionName);
+            var collectionName = TruncateCollectionNameIfTooLong(__databaseNamespace.Value, testMethodInfo.DeclaringType.Name + "-" + testMethodInfo.Name);
+            return new CollectionNamespace(__databaseNamespace.Value, collectionName);
         }
 
         private static ConnectionString GetConnectionString()
         {
-            var uri = Environment.GetEnvironmentVariable("MONGODB_URI") ?? Environment.GetEnvironmentVariable("MONGO_URI") ?? "mongodb://localhost";
+            var uri = Environment.GetEnvironmentVariable("MONGODB_URI") ?? Environment.GetEnvironmentVariable("MONGO_URI");
+            if (uri == null)
+            {
+                uri = "mongodb://localhost";
+                if (IsReplicaSet(uri))
+                {
+                    uri += "/?connect=replicaSet";
+                }
+            }
+
             return new ConnectionString(uri);
         }
 
         private static DatabaseNamespace GetDatabaseNamespace()
         {
-            if (!string.IsNullOrEmpty(__connectionString.DatabaseName))
+            if (!string.IsNullOrEmpty(__connectionString.Value.DatabaseName))
             {
-                return new DatabaseNamespace(__connectionString.DatabaseName);
+                return new DatabaseNamespace(__connectionString.Value.DatabaseName);
             }
 
             var timestamp = DateTime.Now.ToString("MMddHHmm");
@@ -233,7 +242,7 @@ namespace MongoDB.Driver
 
         public static DatabaseNamespace GetDatabaseNamespaceForTestClass(Type testClassType)
         {
-            var databaseName = TruncateDatabaseNameIfTooLong(__databaseNamespace.DatabaseName + "-" + testClassType.Name);
+            var databaseName = TruncateDatabaseNameIfTooLong(__databaseNamespace.Value.DatabaseName + "-" + testClassType.Name);
             if (databaseName.Length >= 64)
             {
                 databaseName = databaseName.Substring(0, 63);
@@ -329,6 +338,21 @@ namespace MongoDB.Driver
             throw new Exception("No [FactAttribute] found on the call stack.");
         }
 
+        private static bool IsReplicaSet(string uri)
+        {
+            var clusterBuilder = new ClusterBuilder();
+            clusterBuilder.ConfigureWithConnectionString(uri);
+
+            using (var cluster = clusterBuilder.BuildCluster())
+            {
+                cluster.Initialize();
+
+                var serverSelector = new ReadPreferenceServerSelector(ReadPreference.PrimaryPreferred);
+                var server = cluster.SelectServer(serverSelector, CancellationToken.None);
+                return server.Description.Type.IsReplicaSetMember();
+            }
+        }
+
         private static string TruncateCollectionNameIfTooLong(DatabaseNamespace databaseNamespace, string collectionName)
         {
             var fullNameLength = databaseNamespace.DatabaseName.Length + 1 + collectionName.Length;
@@ -389,7 +413,7 @@ namespace MongoDB.Driver
 
         private static void DropDatabase()
         {
-            var operation = new DropDatabaseOperation(__databaseNamespace, __messageEncoderSettings);
+            var operation = new DropDatabaseOperation(__databaseNamespace.Value, __messageEncoderSettings);
 
             using (var session = StartSession())
             using (var binding = CreateReadWriteBinding(session))

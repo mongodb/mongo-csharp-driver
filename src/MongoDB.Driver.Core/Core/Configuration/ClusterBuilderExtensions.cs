@@ -148,6 +148,7 @@ namespace MongoDB.Driver.Core.Configuration
             // Server
 
             // Cluster
+            builder = builder.ConfigureCluster(s => s.With(connectionMode: connectionString.Connect));
             if (connectionString.Hosts.Count > 0)
             {
                 builder = builder.ConfigureCluster(s => s.With(endPoints: Optional.Enumerable(connectionString.Hosts)));
@@ -155,6 +156,7 @@ namespace MongoDB.Driver.Core.Configuration
             if (connectionString.ReplicaSet != null)
             {
                 builder = builder.ConfigureCluster(s => s.With(
+                    connectionMode: ClusterConnectionMode.ReplicaSet,
                     replicaSetName: connectionString.ReplicaSet));
             }
             if (connectionString.ServerSelectionTimeout != null)
