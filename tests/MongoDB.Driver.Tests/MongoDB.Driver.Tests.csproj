@@ -364,24 +364,15 @@
     <EmbeddedResource Include="Specifications\crud\tests\write\updateOne-arrayFilters.json" />
     <EmbeddedResource Include="Specifications\crud\tests\write\bulkWrite-arrayFilters.json" />
     <EmbeddedResource Include="Specifications\retryable-writes\tests\bulkWrite.json" />
-    <None Include="Specifications\retryable-writes\tests\bulkWrite.yml" />
     <EmbeddedResource Include="Specifications\retryable-writes\tests\deleteOne.json" />
-    <None Include="Specifications\retryable-writes\tests\deleteOne.yml" />
     <EmbeddedResource Include="Specifications\retryable-writes\tests\findOneAndDelete.json" />
-    <None Include="Specifications\retryable-writes\tests\findOneAndDelete.yml" />
     <EmbeddedResource Include="Specifications\retryable-writes\tests\findOneAndReplace.json" />
-    <None Include="Specifications\retryable-writes\tests\findOneAndReplace.yml" />
     <EmbeddedResource Include="Specifications\retryable-writes\tests\findOneAndUpdate.json" />
-    <None Include="Specifications\retryable-writes\tests\findOneAndUpdate.yml" />
     <EmbeddedResource Include="Specifications\retryable-writes\tests\insertMany.json" />
-    <None Include="Specifications\retryable-writes\tests\insertMany.yml" />
     <EmbeddedResource Include="Specifications\retryable-writes\tests\insertOne.json" />
-    <None Include="Specifications\retryable-writes\tests\insertOne.yml" />
-    <None Include="Specifications\retryable-writes\tests\README.rst" />
     <EmbeddedResource Include="Specifications\retryable-writes\tests\replaceOne.json" />
-    <None Include="Specifications\retryable-writes\tests\replaceOne.yml" />
     <EmbeddedResource Include="Specifications\retryable-writes\tests\updateOne.json" />
-    <None Include="Specifications\retryable-writes\tests\updateOne.yml" />
+    <EmbeddedResource Include="Specifications\retryable-writes\tests\retryableErrors.json" />
     <None Include="testcert.pfx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

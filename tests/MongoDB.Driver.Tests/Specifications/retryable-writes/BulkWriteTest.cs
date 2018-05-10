@@ -90,6 +90,9 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
 
             switch (name)
             {
+                case "deleteMany":
+                    return ParseDeleteMany(arguments);
+
                 case "deleteOne":
                     return ParseDeleteOne(arguments);
 
@@ -99,12 +102,22 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
                 case "replaceOne":
                     return ParseReplaceOne(arguments);
 
+                case "updateMany":
+                    return ParseUpdateMany(arguments);
+
                 case "updateOne":
                     return ParseUpdateOne(arguments);
 
                 default:
                     throw new ArgumentException($"Unexpected request: {name}.");
             }
+        }
+
+        private DeleteManyModel<BsonDocument> ParseDeleteMany(BsonDocument arguments)
+        {
+            VerifyFields(arguments, "filter");
+            var filter = arguments["filter"].AsBsonDocument;
+            return new DeleteManyModel<BsonDocument>(filter);
         }
 
         private DeleteOneModel<BsonDocument> ParseDeleteOne(BsonDocument arguments)
@@ -127,6 +140,15 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
             var filter = arguments["filter"].AsBsonDocument;
             var replacement = arguments["replacement"].AsBsonDocument;
             return new ReplaceOneModel<BsonDocument>(filter, replacement);
+        }
+
+        private UpdateManyModel<BsonDocument> ParseUpdateMany(BsonDocument arguments)
+        {
+            VerifyFields(arguments, "filter", "update", "upsert");
+            var filter = arguments["filter"].AsBsonDocument;
+            var update = arguments["update"].AsBsonDocument;
+            var isUpsert = arguments.GetValue("upsert", false).ToBoolean();
+            return new UpdateManyModel<BsonDocument>(filter, update) { IsUpsert = isUpsert };
         }
 
         private UpdateOneModel<BsonDocument> ParseUpdateOne(BsonDocument arguments)

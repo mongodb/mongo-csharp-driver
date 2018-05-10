@@ -15,10 +15,11 @@ that drivers can use to prove their conformance to the Retryable Writes spec.
 Several prose tests, which are not easily expressed in YAML, are also presented
 in this file. Those tests will need to be manually implemented by each driver.
 
-Tests will require a MongoClient with ``retryWrites`` enabled. Integration tests
-will require a running MongoDB cluster with server versions 3.6.0 or later. The
-``{setFeatureCompatibilityVersion: 3.6}`` admin command will also need to have
-been executed to enable support for retryable writes on the cluster.
+Tests will require a MongoClient created with options defined in the tests.
+Integration tests will require a running MongoDB cluster with server versions
+3.6.0 or later. The ``{setFeatureCompatibilityVersion: 3.6}`` admin command
+will also need to have been executed to enable support for retryable writes on
+the cluster.
 
 Server Fail Point
 =================
@@ -27,7 +28,9 @@ The tests depend on a server fail point, ``onPrimaryTransactionalWrite``, which
 allows us to force a network error before the server would return a write result
 to the client. The fail point also allows control whether the server will
 successfully commit the write via its ``failBeforeCommitExceptionCode`` option.
-The fail point is described in `SERVER-29606`_.
+Keep in mind that the fail point only triggers for transaction writes (i.e. write
+commands including ``txnNumber`` and ``lsid`` fields). See `SERVER-29606`_ for
+more information.
 
 .. _SERVER-29606: https://jira.mongodb.org/browse/SERVER-29606
 
@@ -135,15 +138,16 @@ Each YAML file has the following keys:
 
   - ``description``: The name of the test.
 
-  - ``failPoint``: Document describing options for configuring the
-    ``onPrimaryTransactionalWrite`` fail point on the primary server. This
-    document should be merged with the
-    ``{ configureFailPoint: "onPrimaryTransactionalWrite" }`` command document.
+  - ``clientOptions``: Parameters to pass to MongoClient().
+
+  - ``failPoint``: The ``configureFailPoint`` command document to run to
+    configure a fail point on the primary server. Drivers must ensure that
+    ``configureFailPoint`` is the first field in the command.
 
   - ``operation``: Document describing the operation to be executed. The
     operation should be executed through a collection object derived from a
-    driver session that has been created with the ``retryWrites=true`` option.
-    This will have some or all of the following fields:
+    client that has been created with ``clientOptions``. The operation will have
+    some or all of the following fields:
 
     - ``name``: The name of the operation as defined in the CRUD specification.
 
