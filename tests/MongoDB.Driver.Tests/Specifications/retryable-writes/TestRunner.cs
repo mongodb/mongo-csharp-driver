@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
@@ -30,6 +31,9 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
 {
     public class TestRunner
     {
+        private readonly string _databaseName = DriverTestConfiguration.DatabaseNamespace.DatabaseName;
+        private readonly string _collectionName = DriverTestConfiguration.CollectionNamespace.CollectionName;
+
         // public methods
         [SkippableTheory]
         [ClassData(typeof(TestCaseFactory))]
@@ -42,8 +46,8 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
             VerifyServerRequirements(definition);
             VerifyFields(definition, "path", "data", "minServerVersion", "maxServerVersion", "tests");
 
-            var collection = InitializeCollection(definition);
-            RunTest(collection, test, async);
+            InitializeCollection(definition);
+            RunTest(test, async);
         }
 
         // private methods
@@ -75,34 +79,71 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
             }
         }
 
-        private IMongoCollection<BsonDocument> InitializeCollection(BsonDocument definition)
+        private void InitializeCollection(BsonDocument definition)
         {
-            var connectionString = CoreTestConfiguration.ConnectionString.ToString();
-            var clientSettings = MongoClientSettings.FromUrl(new MongoUrl(connectionString));
-            clientSettings.RetryWrites = true;
-            var client = new MongoClient(clientSettings);
-            var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
-            var collection = database.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+            var client = DriverTestConfiguration.Client;
+            var database = client.GetDatabase(_databaseName);
+            var collection = database.GetCollection<BsonDocument>(_collectionName);
 
             database.DropCollection(collection.CollectionNamespace.CollectionName);
             collection.InsertMany(definition["data"].AsBsonArray.Cast<BsonDocument>());
-
-            return collection;
         }
 
-        private void RunTest(IMongoCollection<BsonDocument> collection, BsonDocument test, bool async)
+        private void RunTest(BsonDocument test, bool async)
         {
-            VerifyFields(test, "description", "failPoint", "operation", "outcome");
+            VerifyFields(test, "description", "clientOptions", "failPoint", "operation", "outcome");
+            var clientOptions = (BsonDocument)test.GetValue("clientOptions", null);
             var failPoint = (BsonDocument)test.GetValue("failPoint", null);
             var operation = test["operation"].AsBsonDocument;
             var outcome = test["outcome"].AsBsonDocument;
 
+            var client = CreateClient(clientOptions);
+            var database = client.GetDatabase(_databaseName);
+            var collection = database.GetCollection<BsonDocument>(_collectionName);
             var executableTest = CreateExecutableTest(operation);
-            using (ConfigureFailPoint(failPoint))
+
+            using (ConfigureFailPoint(client, failPoint))
             {
                 executableTest.Execute(collection, async);
-                executableTest.VerifyOutcome(collection, outcome);
             }
+
+            executableTest.VerifyOutcome(collection, outcome);
+        }
+
+        private IMongoClient CreateClient(BsonDocument clientOptions)
+        {
+            var clientSettings = ParseClientOptions(clientOptions);
+            return new MongoClient(clientSettings);
+        }
+
+        private MongoClientSettings ParseClientOptions(BsonDocument clientOptions)
+        {
+            var settings = DriverTestConfiguration.Client.Settings.Clone();
+
+            if (clientOptions == null)
+            {
+                settings.RetryWrites = true;
+            }
+            else
+            {
+                foreach (var element in clientOptions)
+                {
+                    var name = element.Name;
+                    var value = element.Value;
+
+                    switch (name)
+                    {
+                        case "retryWrites":
+                            settings.RetryWrites = value.ToBoolean();
+                            break;
+
+                        default:
+                            throw new FormatException($"Invalid clientOptions field: {name}.");
+                    }
+                }
+            }
+
+            return settings;
         }
 
         private IRetryableWriteTest CreateExecutableTest(BsonDocument operation)
@@ -128,7 +169,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
             return executableTest;
         }
 
-        private IDisposable ConfigureFailPoint(BsonDocument failPoint)
+        private IDisposable ConfigureFailPoint(IMongoClient client, BsonDocument failPoint)
         {
             if (failPoint == null)
             {
@@ -136,17 +177,13 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
             }
             else
             {
-                var adminDatabase = DriverTestConfiguration.Client.GetDatabase("admin");
-                var enableFailPointCommand = new BsonDocument
-                {
-                    { "configureFailPoint", "onPrimaryTransactionalWrite" }
-                }
-                .AddRange(failPoint);
-                adminDatabase.RunCommand<BsonDocument>(enableFailPointCommand);
+                var adminDatabase = client.GetDatabase("admin");
+                adminDatabase.RunCommand<BsonDocument>(failPoint);
 
+                var failPointName = failPoint["configureFailPoint"].AsString;
                 var disableFailPointCommand = new BsonDocument
                 {
-                    { "configureFailPoint", "onPrimaryTransactionalWrite" },
+                    { "configureFailPoint", failPointName },
                     { "mode", "off" }
                 };
                 return new ActionDisposer(() => adminDatabase.RunCommand<BsonDocument>(disableFailPointCommand));
