@@ -29,6 +29,7 @@ namespace MongoDB.Driver
     {
         // private fields
         private readonly ReadConcern _readConcern;
+        private readonly ReadPreference _readPreference;
         private readonly WriteConcern _writeConcern;
 
         // public constructors
@@ -36,12 +37,15 @@ namespace MongoDB.Driver
         /// Initializes a new instance of the <see cref="TransactionOptions" /> class.
         /// </summary>
         /// <param name="readConcern">The read concern.</param>
+        /// <param name="readPreference">The read preference.</param>
         /// <param name="writeConcern">The write concern.</param>
         public TransactionOptions(
             Optional<ReadConcern> readConcern = default(Optional<ReadConcern>),
+            Optional<ReadPreference> readPreference = default(Optional<ReadPreference>),
             Optional<WriteConcern> writeConcern = default(Optional<WriteConcern>))
         {
             _readConcern = readConcern.WithDefault(null);
+            _readPreference = readPreference.WithDefault(null);
             _writeConcern = writeConcern.WithDefault(null);
         }
 
@@ -53,6 +57,14 @@ namespace MongoDB.Driver
         /// The read concern.
         /// </value>
         public ReadConcern ReadConcern => _readConcern;
+
+        /// <summary>
+        /// Gets the read preference.
+        /// </summary>
+        /// <value>
+        /// The read preference.
+        /// </value>
+        public ReadPreference ReadPreference => _readPreference;
 
         /// <summary>
         /// Gets the write concern.
@@ -67,14 +79,19 @@ namespace MongoDB.Driver
         /// Returns a new TransactionOptions with some values changed.
         /// </summary>
         /// <param name="readConcern">The new read concern.</param>
+        /// <param name="readPreference">The read preference.</param>
         /// <param name="writeConcern">The new write concern.</param>
-        /// <returns>The new TransactionOptions.</returns>
+        /// <returns>
+        /// The new TransactionOptions.
+        /// </returns>
         public TransactionOptions With(
             Optional<ReadConcern> readConcern = default(Optional<ReadConcern>),
+            Optional<ReadPreference> readPreference = default(Optional<ReadPreference>),
             Optional<WriteConcern> writeConcern = default(Optional<WriteConcern>))
         {
             return new TransactionOptions(
                 readConcern: readConcern.WithDefault(_readConcern),
+                readPreference: readPreference.WithDefault(_readPreference),
                 writeConcern: writeConcern.WithDefault(_writeConcern));
         }
     }

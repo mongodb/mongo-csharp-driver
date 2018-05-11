@@ -33,7 +33,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Specifications.transactions
 {
-    public sealed class TestRunner
+    public sealed class TransactionTestRunner
     {
         #region static
         private static readonly HashSet<string> __commandsToNotCapture = new HashSet<string>
@@ -48,9 +48,9 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
         };
         #endregion
 
-        // constants
-        private const string __databaseName = "transaction-tests";
-        private const string __collectionName = "test";
+        // private fields
+        private string _databaseName = "transaction-tests";
+        private string _collectionName = "test";
 
         // public methods
         [SkippableTheory]
@@ -68,13 +68,17 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
             {
                 throw new SkipTestException(test["skipReason"].AsString);
             }
-            //if (test["description"].AsString != "startTransaction options override defaults")
+            //if (test["description"].AsString != "transaction options inherited from client")
             //{
-            //    throw new SkipTestException("testing");
+            //    return;
             //}
 
-            JsonDrivenHelper.EnsureAllFieldsAreValid(shared, "_path", "data", "tests");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(shared, "_path", "database_name", "collection_name", "data", "tests");
             JsonDrivenHelper.EnsureAllFieldsAreValid(test, "description", "clientOptions", "sessionOptions", "operations", "expectations", "outcome");
+
+            _databaseName = shared["database_name"].AsString;
+            _collectionName = shared["collection_name"].AsString;
+
             DropCollection();
             CreateCollection();
             InsertData(shared);
@@ -84,7 +88,7 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
 
             Dictionary<string, BsonValue> sessionIdMap;
 
-            using (var client = CreateClient(test, eventCapturer))
+            using (var client = CreateDisposableClient(test, eventCapturer))
             using (var session0 = StartSession(client, test, "session0"))
             using (var session1 = StartSession(client, test, "session1"))
             {
@@ -109,15 +113,15 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
         private void DropCollection()
         {
             var client = DriverTestConfiguration.Client;
-            var database = client.GetDatabase(__databaseName).WithWriteConcern(WriteConcern.WMajority);
-            database.DropCollection(__collectionName);
+            var database = client.GetDatabase(_databaseName).WithWriteConcern(WriteConcern.WMajority);
+            database.DropCollection(_collectionName);
         }
 
         private void CreateCollection()
         {
             var client = DriverTestConfiguration.Client;
-            var database = client.GetDatabase(__databaseName).WithWriteConcern(WriteConcern.WMajority);
-            database.CreateCollection(__collectionName);
+            var database = client.GetDatabase(_databaseName).WithWriteConcern(WriteConcern.WMajority);
+            database.CreateCollection(_collectionName);
         }
 
         private void InsertData(BsonDocument shared)
@@ -128,14 +132,14 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
                 if (documents.Count > 0)
                 {
                     var client = DriverTestConfiguration.Client;
-                    var database = client.GetDatabase(__databaseName);
-                    var collection = database.GetCollection<BsonDocument>(__collectionName).WithWriteConcern(WriteConcern.WMajority);
+                    var database = client.GetDatabase(_databaseName);
+                    var collection = database.GetCollection<BsonDocument>(_collectionName).WithWriteConcern(WriteConcern.WMajority);
                     collection.InsertMany(documents);
                 }
             }
         }
 
-        private DisposableMongoClient CreateClient(BsonDocument test, EventCapturer eventCapturer)
+        private DisposableMongoClient CreateDisposableClient(BsonDocument test, EventCapturer eventCapturer)
         {
             return DriverTestConfiguration.CreateDisposableClient((MongoClientSettings settings) =>
             {
@@ -155,6 +159,10 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
                         case "readConcernLevel":
                             var level = (ReadConcernLevel)Enum.Parse(typeof(ReadConcernLevel), option.Value.AsString, ignoreCase: true);
                             settings.ReadConcern = new ReadConcern(level);
+                            break;
+
+                        case "readPreference":
+                            settings.ReadPreference = ReadPreference.FromBsonDocument(option.Value.AsBsonDocument);
                             break;
 
                         case "retryWrites":
@@ -232,8 +240,8 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
 
         private JsonDrivenTestFactory CreateTestFactory(IMongoClient client, Dictionary<string, IClientSessionHandle> sessionMap)
         {
-            var database = client.GetDatabase(__databaseName);
-            var collection = database.GetCollection<BsonDocument>(__collectionName);
+            var database = client.GetDatabase(_databaseName);
+            var collection = database.GetCollection<BsonDocument>(_collectionName);
             return new JsonDrivenTestFactory(client, database, collection, sessionMap);
         }
 
@@ -284,6 +292,7 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
         public TransactionOptions ParseTransactionOptions(BsonDocument document)
         {
             ReadConcern readConcern = null;
+            ReadPreference readPreference = null;
             WriteConcern writeConcern = null;
 
             foreach (var element in document)
@@ -292,6 +301,10 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
                 {
                     case "readConcern":
                         readConcern = ReadConcern.FromBsonDocument(element.Value.AsBsonDocument);
+                        break;
+
+                    case "readPreference":
+                        readPreference = ReadPreference.FromBsonDocument(element.Value.AsBsonDocument);
                         break;
 
                     case "writeConcern":
@@ -303,7 +316,7 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
                 }
             }
 
-            return new TransactionOptions(readConcern, writeConcern);
+            return new TransactionOptions(readConcern, readPreference, writeConcern);
         }
 
         private void VerifyCollectionOutcome(BsonDocument outcome)
@@ -324,8 +337,8 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
 
         private void VerifyCollectionData(IEnumerable<BsonDocument> expectedDocuments)
         {
-            var database = DriverTestConfiguration.Client.GetDatabase(__databaseName);
-            var collection = database.GetCollection<BsonDocument>(__collectionName);
+            var database = DriverTestConfiguration.Client.GetDatabase(_databaseName);
+            var collection = database.GetCollection<BsonDocument>(_collectionName);
             var actualDocuments = collection.Find("{}").ToList();
             actualDocuments.Should().BeEquivalentTo(expectedDocuments);
         }

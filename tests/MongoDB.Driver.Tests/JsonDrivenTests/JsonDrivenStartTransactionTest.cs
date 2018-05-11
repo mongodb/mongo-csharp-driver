@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
     public sealed class JsonDrivenStartTransactionTest : JsonDrivenClientTest
     {
         // private fields
-        private TransactionOptions _options = new TransactionOptions();
+        private TransactionOptions _options = null;
 
         // public constructors
         public JsonDrivenStartTransactionTest(IMongoClient client, Dictionary<string, IClientSessionHandle> sessionMap)
@@ -59,17 +59,25 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         // private methods
         private void SetOptions(BsonDocument document)
         {
-            JsonDrivenHelper.EnsureAllFieldsAreValid(document, "readConcern", "writeConcern");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(document, "readConcern", "readPreference", "writeConcern");
 
+            var options = new TransactionOptions();
             if (document.Contains("readConcern"))
             {
-                _options = _options.With(readConcern: ReadConcern.FromBsonDocument(document["readConcern"].AsBsonDocument));
+                options = options.With(readConcern: ReadConcern.FromBsonDocument(document["readConcern"].AsBsonDocument));
+            }
+
+            if (document.Contains("readPreference"))
+            {
+                options = options.With(readPreference: ReadPreference.FromBsonDocument(document["readPreference"].AsBsonDocument));
             }
 
             if (document.Contains("writeConcern"))
             {
-                _options = _options.With(writeConcern: WriteConcern.FromBsonDocument(document["writeConcern"].AsBsonDocument));
+                options = options.With(writeConcern: WriteConcern.FromBsonDocument(document["writeConcern"].AsBsonDocument));
             }
+
+            _options = options;
         }
     }
 }

@@ -95,7 +95,6 @@ namespace MongoDB.Driver.Core.TestHelpers.JsonDrivenTests
                     case "autocommit":
                     case "readConcern":
                     case "startTransaction":
-                    case "stmtId":
                     case "txnNumber":
                     case "writeConcern":
                         if (actualCommand.Contains(name))

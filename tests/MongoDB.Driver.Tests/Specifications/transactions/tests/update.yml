@@ -1,3 +1,6 @@
+database_name: &database_name "transaction-tests"
+collection_name: &collection_name "test"
+
 data:
   - _id: 1
   - _id: 2
@@ -49,7 +52,7 @@ tests:
     expectations:
       - command_started_event:
           command:
-            update: test
+            update: *collection_name
             updates:
               - q: {_id: 4}
                 u: {$inc: {x: 1}}
@@ -60,15 +63,14 @@ tests:
             lsid: session0
             txnNumber:
               $numberLong: "1"
-            stmtId: 0
             startTransaction: true
             autocommit: false
             writeConcern:
           command_name: update
-          database_name: transaction-tests
+          database_name: *database_name
       - command_started_event:
           command:
-            update: test
+            update: *collection_name
             updates:
               - q: {x: 1}
                 u: {y: 1}
@@ -78,15 +80,14 @@ tests:
             lsid: session0
             txnNumber:
               $numberLong: "1"
-            stmtId: 1
             startTransaction:
             autocommit: false
             writeConcern:
           command_name: update
-          database_name: transaction-tests
+          database_name: *database_name
       - command_started_event:
           command:
-            update: test
+            update: *collection_name
             updates:
               - q: {_id: {$gte: 3}}
                 u: {$set: {z: 1}}
@@ -96,19 +97,17 @@ tests:
             lsid: session0
             txnNumber:
               $numberLong: "1"
-            stmtId: 2
             startTransaction:
             autocommit: false
             writeConcern:
           command_name: update
-          database_name: transaction-tests
+          database_name: *database_name
       - command_started_event:
           command:
             commitTransaction: 1
             lsid: session0
             txnNumber:
               $numberLong: "1"
-            stmtId: 3
             startTransaction:
             autocommit: false
             writeConcern:
@@ -177,7 +176,7 @@ tests:
     expectations:
       - command_started_event:
           command:
-            update: test
+            update: *collection_name
             updates:
               - q: {_id: 4}
                 u: {$inc: {x: 1}}
@@ -188,15 +187,14 @@ tests:
             lsid: session0
             txnNumber:
               $numberLong: "1"
-            stmtId: 0
             startTransaction: true
             autocommit: false
             writeConcern:
           command_name: update
-          database_name: transaction-tests
+          database_name: *database_name
       - command_started_event:
           command:
-            update: test
+            update: *collection_name
             updates:
               - q: {x: 1}
                 u: {y: 1}
@@ -206,15 +204,14 @@ tests:
             lsid: session0
             txnNumber:
               $numberLong: "1"
-            stmtId: 1
             startTransaction:
             autocommit: false
             writeConcern:
           command_name: update
-          database_name: transaction-tests
+          database_name: *database_name
       - command_started_event:
           command:
-            update: test
+            update: *collection_name
             updates:
               - q: {_id: {$gte: 3}}
                 u: {$set: {z: 1}}
@@ -224,19 +221,17 @@ tests:
             lsid: session0
             txnNumber:
               $numberLong: "1"
-            stmtId: 2
             startTransaction:
             autocommit: false
             writeConcern:
           command_name: update
-          database_name: transaction-tests
+          database_name: *database_name
       - command_started_event:
           command:
             commitTransaction: 1
             lsid: session0
             txnNumber:
               $numberLong: "1"
-            stmtId: 3
             startTransaction:
             autocommit: false
             writeConcern:

@@ -255,7 +255,7 @@ namespace MongoDB.Driver.Tests
 
             subject.StartTransaction(transactionOptions);
 
-            Mock.Get(subject.WrappedCoreSession).Verify(m => m.StartTransaction(transactionOptions), Times.Once);
+            Mock.Get(subject.WrappedCoreSession).Verify(m => m.StartTransaction(It.IsAny<TransactionOptions>()), Times.Once);
         }
 
         // private methods

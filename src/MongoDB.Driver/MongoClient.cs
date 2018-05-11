@@ -454,22 +454,6 @@ namespace MongoDB.Driver
             }
         }
 
-        private ClientSessionOptions GetEffectiveClientSessionOptions(ClientSessionOptions options)
-        {
-            var autoStartTransaction = options?.AutoStartTransaction ?? false;
-            var causalConsistency = options?.CausalConsistency;
-            var readConcern = options?.DefaultTransactionOptions?.ReadConcern ?? _settings.ReadConcern;
-            var writeConcern = options?.DefaultTransactionOptions?.WriteConcern ?? _settings.WriteConcern;
-            var defaultTransactionOptions = new TransactionOptions(readConcern, writeConcern);
-
-            return new ClientSessionOptions
-            {
-                AutoStartTransaction = autoStartTransaction,
-                CausalConsistency = causalConsistency,
-                DefaultTransactionOptions = defaultTransactionOptions
-            };
-        }
-
         private MessageEncoderSettings GetMessageEncoderSettings()
         {
             return new MessageEncoderSettings
@@ -502,17 +486,13 @@ namespace MongoDB.Driver
 
         private IClientSessionHandle StartSession(ClientSessionOptions options, bool areSessionsSupported)
         {
-            options = GetEffectiveClientSessionOptions(options);
-
-            ICoreSessionHandle coreSession;
-            if (areSessionsSupported)
-            {
-                coreSession = _cluster.StartSession(options.ToCore());
-            }
-            else
+            if (!areSessionsSupported)
             {
                 throw new NotSupportedException("Sessions are not supported by this version of the server.");
             }
+
+            options = options ?? new ClientSessionOptions();
+            var coreSession = _cluster.StartSession(options.ToCore());
 
             return new ClientSessionHandle(this, options, coreSession);
         }

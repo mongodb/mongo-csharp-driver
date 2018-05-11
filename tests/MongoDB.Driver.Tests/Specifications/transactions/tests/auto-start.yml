@@ -1,4 +1,8 @@
+database_name: &database_name "transaction-tests"
+collection_name: &collection_name "test"
+
 data: []
+
 tests:
   - description: commit
 
@@ -38,7 +42,7 @@ tests:
     expectations:
       - command_started_event:
           command:
-            insert: test
+            insert: *collection_name
             documents:
               - _id: 1
             ordered: true
@@ -46,19 +50,17 @@ tests:
             lsid: session0
             txnNumber:
               $numberLong: "1"
-            stmtId: 0
             startTransaction: true
             autocommit: false
             writeConcern:
           command_name: insert
-          database_name: transaction-tests
+          database_name: *database_name
       - command_started_event:
           command:
             commitTransaction: 1
             lsid: session0
             txnNumber:
               $numberLong: "1"
-            stmtId: 1
             startTransaction:
             autocommit: false
             writeConcern:
@@ -66,7 +68,7 @@ tests:
           database_name: admin
       - command_started_event:
           command:
-            insert: test
+            insert: *collection_name
             documents:
               - _id: 2
             ordered: true
@@ -75,34 +77,31 @@ tests:
             lsid: session0
             txnNumber:
               $numberLong: "2"
-            stmtId: 0
             startTransaction: true
             autocommit: false
             writeConcern:
           command_name: insert
-          database_name: transaction-tests
+          database_name: *database_name
       - command_started_event:
           command:
-            insert: test
+            insert: *collection_name
             documents:
               - _id: 3
             ordered: true
             lsid: session0
             txnNumber:
               $numberLong: "2"
-            stmtId: 1
             startTransaction:
             autocommit: false
             writeConcern:
           command_name: insert
-          database_name: transaction-tests
+          database_name: *database_name
       - command_started_event:
           command:
             commitTransaction: 1
             lsid: session0
             txnNumber:
               $numberLong: "2"
-            stmtId: 2
             startTransaction:
             autocommit: false
             writeConcern:
@@ -152,7 +151,7 @@ tests:
     expectations:
       - command_started_event:
           command:
-            insert: test
+            insert: *collection_name
             documents:
               - _id: 1
             ordered: true
@@ -160,19 +159,17 @@ tests:
             lsid: session0
             txnNumber:
               $numberLong: "3"
-            stmtId: 0
             startTransaction: true
             autocommit: false
             writeConcern:
           command_name: insert
-          database_name: transaction-tests
+          database_name: *database_name
       - command_started_event:
           command:
             commitTransaction: 1
             lsid: session0
             txnNumber:
               $numberLong: "3"
-            stmtId: 1
             startTransaction:
             autocommit: false
             writeConcern:
@@ -212,7 +209,7 @@ tests:
     expectations:
       - command_started_event:
           command:
-            insert: test
+            insert: *collection_name
             documents:
               - _id: 1
             ordered: true
@@ -220,19 +217,17 @@ tests:
             lsid: session0
             txnNumber:
               $numberLong: "1"
-            stmtId: 0
             startTransaction: true
             autocommit: false
             writeConcern:
           command_name: insert
-          database_name: transaction-tests
+          database_name: *database_name
       - command_started_event:
           command:
             commitTransaction: 1
             lsid: session0
             txnNumber:
               $numberLong: "1"
-            stmtId: 1
             startTransaction:
             autocommit: false
             writeConcern:
@@ -275,7 +270,7 @@ tests:
     expectations:
       - command_started_event:
           command:
-            insert: test
+            insert: *collection_name
             documents:
               - _id: 1
             ordered: true
@@ -283,19 +278,17 @@ tests:
             lsid: session0
             txnNumber:
               $numberLong: "1"
-            stmtId: 0
             startTransaction: true
             autocommit: false
             writeConcern:
           command_name: insert
-          database_name: transaction-tests
+          database_name: *database_name
       - command_started_event:
           command:
             abortTransaction: 1
             lsid: session0
             txnNumber:
               $numberLong: "1"
-            stmtId: 1
             startTransaction:
             autocommit: false
             writeConcern:
@@ -303,7 +296,7 @@ tests:
           database_name: admin
       - command_started_event:
           command:
-            insert: test
+            insert: *collection_name
             documents:
               - _id: 2
             ordered: true
@@ -312,19 +305,17 @@ tests:
             lsid: session0
             txnNumber:
               $numberLong: "2"
-            stmtId: 0
             startTransaction: true
             autocommit: false
             writeConcern:
           command_name: insert
-          database_name: transaction-tests
+          database_name: *database_name
       - command_started_event:
           command:
             commitTransaction: 1
             lsid: session0
             txnNumber:
               $numberLong: "2"
-            stmtId: 1
             startTransaction:
             autocommit: false
             writeConcern:
@@ -365,7 +356,7 @@ tests:
     expectations:
       - command_started_event:
           command:
-            insert: test
+            insert: *collection_name
             documents:
               - _id: 1
             ordered: true
@@ -373,19 +364,17 @@ tests:
             lsid: session0
             txnNumber:
               $numberLong: "2"
-            stmtId: 0
             startTransaction: true
             autocommit: false
             writeConcern:
           command_name: insert
-          database_name: transaction-tests
+          database_name: *database_name
       - command_started_event:
           command:
             commitTransaction: 1
             lsid: session0
             txnNumber:
               $numberLong: "2"
-            stmtId: 1
             startTransaction:
             autocommit: false
             writeConcern:
@@ -432,7 +421,7 @@ tests:
     expectations:
       - command_started_event:
           command:
-            insert: test
+            insert: *collection_name
             documents:
               - _id: 1
             ordered: true
@@ -440,31 +429,28 @@ tests:
             lsid: session0
             txnNumber:
               $numberLong: "1"
-            stmtId: 0
             startTransaction: true
             autocommit: false
             writeConcern:
           command_name: insert
-          database_name: transaction-tests
+          database_name: *database_name
       - command_started_event:
           command:
-            find: test
+            find: *collection_name
             filter:
               _id: 1
             lsid: session1
             txnNumber:
-            stmtId:
             startTransaction:
             autocommit:
           command_name: find
-          database_name: transaction-tests
+          database_name: *database_name
       - command_started_event:
           command:
             commitTransaction: 1
             lsid: session0
             txnNumber:
               $numberLong: "1"
-            stmtId: 1
             startTransaction:
             autocommit: false
             writeConcern:
@@ -472,18 +458,17 @@ tests:
           database_name: admin
       - command_started_event:
           command:
-            find: test
+            find: *collection_name
             filter:
               _id: 1
             readConcern:
               afterClusterTime: 42
             lsid: session1
             txnNumber:
-            stmtId:
             startTransaction:
             autocommit:
           command_name: find
-          database_name: transaction-tests
+          database_name: *database_name
 
     outcome:
       collection:

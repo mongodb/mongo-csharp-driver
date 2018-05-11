@@ -130,7 +130,19 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         public void StartTransaction(TransactionOptions transactionOptions = null)
         {
-            _coreSession.StartTransaction(transactionOptions);
+            var effectiveTransactionOptions = GetEffectiveTransactionOptions(transactionOptions);
+            _coreSession.StartTransaction(effectiveTransactionOptions);
+        }
+
+        // private methods
+        private TransactionOptions GetEffectiveTransactionOptions(TransactionOptions transactionOptions)
+        {
+            var defaultTransactionOptions = _options?.DefaultTransactionOptions;
+            var readConcern = transactionOptions?.ReadConcern ?? defaultTransactionOptions?.ReadConcern ?? _client.Settings?.ReadConcern ?? ReadConcern.Default;
+            var readPreference = transactionOptions?.ReadPreference ?? defaultTransactionOptions?.ReadPreference ?? _client.Settings?.ReadPreference ?? ReadPreference.Primary;
+            var writeConcern = transactionOptions?.WriteConcern ?? defaultTransactionOptions?.WriteConcern ?? _client.Settings?.WriteConcern ?? new WriteConcern();
+
+            return new TransactionOptions(readConcern, readPreference, writeConcern);
         }
     }
 }

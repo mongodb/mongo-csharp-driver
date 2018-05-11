@@ -1,3 +1,6 @@
+database_name: &database_name "transaction-tests"
+collection_name: &collection_name "test"
+
 data: []
 tests:
   - description: commit
@@ -34,7 +37,7 @@ tests:
     expectations:
       - command_started_event:
           command:
-            insert: test
+            insert: *collection_name
             documents:
               - _id: 1
             ordered: true
@@ -42,19 +45,17 @@ tests:
             lsid: session0
             txnNumber:
               $numberLong: "1"
-            stmtId: 0
             startTransaction: true
             autocommit: false
             writeConcern:
           command_name: insert
-          database_name: transaction-tests
+          database_name: *database_name
       - command_started_event:
           command:
             commitTransaction: 1
             lsid: session0
             txnNumber:
               $numberLong: "1"
-            stmtId: 1
             startTransaction:
             autocommit: false
             writeConcern:
@@ -62,7 +63,7 @@ tests:
           database_name: admin
       - command_started_event:
           command:
-            insert: test
+            insert: *collection_name
             documents:
               - _id: 2
             ordered: true
@@ -71,19 +72,17 @@ tests:
             lsid: session0
             txnNumber:
               $numberLong: "2"
-            stmtId: 0
             startTransaction: true
             autocommit: false
             writeConcern:
           command_name: insert
-          database_name: transaction-tests
+          database_name: *database_name
       - command_started_event:
           command:
             commitTransaction: 1
             lsid: session0
             txnNumber:
               $numberLong: "2"
-            stmtId: 1
             startTransaction:
             autocommit: false
             writeConcern:
@@ -122,7 +121,7 @@ tests:
     expectations:
       - command_started_event:
           command:
-            insert: test
+            insert: *collection_name
             documents:
               - _id: 1
             ordered: true
@@ -130,24 +129,57 @@ tests:
             lsid: session0
             txnNumber:
               $numberLong: "1"
-            stmtId: 0
             startTransaction: true
             autocommit: false
             writeConcern:
           command_name: insert
-          database_name: transaction-tests
+          database_name: *database_name
       - command_started_event:
           command:
             commitTransaction: 1
             lsid: session0
             txnNumber:
               $numberLong: "1"
-            stmtId: 1
             startTransaction:
             autocommit: false
             writeConcern:
           command_name: commitTransaction
           database_name: admin
+
+    outcome:
+      collection:
+        data:
+          - _id: 1
+
+  - description: write concern error on commit
+
+    operations:
+      - name: startTransaction
+        arguments:
+          session: session0
+          options:
+            writeConcern:
+              w: 10
+      - name: insertOne
+        arguments:
+          document:
+            _id: 1
+          session: session0
+        result:
+          insertedId: 1
+      - name: commitTransaction
+        arguments:
+          session: session0
+        result:
+          # {
+          #   'ok': 1.0,
+          #   'writeConcernError': {
+          #     'code': 100,
+          #     'codeName': 'CannotSatisfyWriteConcern',
+          #     'errmsg': 'Not enough data-bearing nodes'
+          #   }
+          # }
+          errorCodeName: CannotSatisfyWriteConcern
 
     outcome:
       collection:

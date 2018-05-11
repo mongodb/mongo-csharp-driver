@@ -294,9 +294,7 @@ namespace MongoDB.Driver.Core.Bindings
             }
 
             var transactionNumber = AdvanceTransactionNumber();
-            var readConcern = transactionOptions?.ReadConcern ?? _options.DefaultTransactionOptions?.ReadConcern ?? ReadConcern.Default;
-            var writeConcern = transactionOptions?.WriteConcern ?? _options.DefaultTransactionOptions?.WriteConcern ?? new WriteConcern();
-            var effectiveTransactionOptions = new TransactionOptions(readConcern, writeConcern);
+            var effectiveTransactionOptions = GetEffectiveTransactionOptions(transactionOptions);
             var transaction = new CoreTransaction(transactionNumber, effectiveTransactionOptions);
 
             _currentTransaction = transaction;
@@ -344,6 +342,14 @@ namespace MongoDB.Driver.Core.Bindings
             {
                 return await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
             }
+        }
+
+        private TransactionOptions GetEffectiveTransactionOptions(TransactionOptions transactionOptions)
+        {
+            var readConcern = transactionOptions?.ReadConcern ?? _options.DefaultTransactionOptions?.ReadConcern ?? ReadConcern.Default;
+            var readPreference = transactionOptions?.ReadPreference ?? _options.DefaultTransactionOptions?.ReadPreference ?? ReadPreference.Primary;
+            var writeConcern = transactionOptions?.WriteConcern ?? _options.DefaultTransactionOptions?.WriteConcern ?? new WriteConcern();
+            return new TransactionOptions(readConcern, readPreference, writeConcern);
         }
 
         private WriteConcern GetTransactionWriteConcern()

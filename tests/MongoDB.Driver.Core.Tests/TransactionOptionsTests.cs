@@ -100,7 +100,7 @@ namespace MongoDB.Driver
         public void With_with_readConcern_should_return_expected_result(
             [Values(false, true)] bool nullReadConcern)
         {
-            var subject = new TransactionOptions(new ReadConcern(), new WriteConcern());
+            var subject = new TransactionOptions(new ReadConcern(), new ReadPreference(ReadPreferenceMode.Primary), new WriteConcern());
             var readConcern = nullReadConcern ? null : new ReadConcern();
 
             var result = subject.With(readConcern: readConcern);
@@ -113,7 +113,7 @@ namespace MongoDB.Driver
         public void With_with_writeConcern_should_return_expected_result(
             [Values(false, true)] bool nullWriteConcern)
         {
-            var subject = new TransactionOptions(new ReadConcern(), new WriteConcern());
+            var subject = new TransactionOptions(new ReadConcern(), new ReadPreference(ReadPreferenceMode.Primary), new WriteConcern());
             var writeConcern = nullWriteConcern ? null : new WriteConcern();
 
             var result = subject.With(writeConcern: writeConcern);
@@ -127,7 +127,7 @@ namespace MongoDB.Driver
             [Values(false, true)] bool nullReadConcern,
             [Values(false, true)] bool nullWriteConcern)
         {
-            var subject = new TransactionOptions(new ReadConcern(), new WriteConcern());
+            var subject = new TransactionOptions(new ReadConcern(), new ReadPreference(ReadPreferenceMode.Primary), new WriteConcern());
             var readConcern = nullReadConcern ? null : new ReadConcern();
             var writeConcern = nullWriteConcern ? null : new WriteConcern();
 

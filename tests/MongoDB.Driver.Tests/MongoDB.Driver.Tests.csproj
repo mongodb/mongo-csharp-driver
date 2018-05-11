@@ -215,7 +215,7 @@
     <Compile Include="Specifications\retryable-writes\IRetryableWriteTest.cs" />
     <Compile Include="Specifications\retryable-writes\TestRunner.cs" />
     <Compile Include="Specifications\retryable-writes\UpdateOneTest.cs" />
-    <Compile Include="Specifications\transactions\TestRunner.cs" />
+    <Compile Include="Specifications\transactions\TransactionTestRunner.cs" />
     <Compile Include="UpdateDefinitionBuilderTests.cs" />
     <Compile Include="FilterDefinitionBuilderTests.cs" />
     <Compile Include="IAggregateFluentExtensionsTests.cs" />

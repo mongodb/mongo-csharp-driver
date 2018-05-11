@@ -191,7 +191,6 @@ namespace MongoDB.Driver.Core.WireProtocol
             {
                 var transaction = _session.CurrentTransaction;
                 extraElements.Add(new BsonElement("txnNumber", transaction.TransactionNumber));
-                extraElements.Add(new BsonElement("stmtId", transaction.StatementId));
                 if (transaction.StatementId == 0)
                 {
                     extraElements.Add(new BsonElement("startTransaction", true));
