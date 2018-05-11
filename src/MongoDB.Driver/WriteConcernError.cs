@@ -28,13 +28,15 @@ namespace MongoDB.Driver
     {
         // private fields
         private readonly int _code;
+        private readonly string _codeName;
         private readonly BsonDocument _details;
         private readonly string _message;
 
         // constructors
-        internal WriteConcernError(int code, string message, BsonDocument details)
+        internal WriteConcernError(int code, string codeName, string message, BsonDocument details)
         {
             _code = code;
+            _codeName = codeName;
             _details = details;
             _message = message;
         }
@@ -46,6 +48,17 @@ namespace MongoDB.Driver
         public int Code
         {
             get { return _code; }
+        }
+
+        /// <summary>
+        /// Gets the name of the error code.
+        /// </summary>
+        /// <value>
+        /// The name of the error code.
+        /// </value>
+        public string CodeName
+        {
+            get { return _codeName; }
         }
 
         /// <summary>
@@ -67,7 +80,7 @@ namespace MongoDB.Driver
         // internal static methods
         internal static WriteConcernError FromCore(Core.Operations.BulkWriteConcernError error)
         {
-            return error == null ? null : new WriteConcernError(error.Code, error.Message, error.Details);
+            return error == null ? null : new WriteConcernError(error.Code, error.CodeName, error.Message, error.Details);
         }
     }
 }

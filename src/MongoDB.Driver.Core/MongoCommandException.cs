@@ -93,14 +93,14 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets the name of the code.
+        /// Gets the name of the error code.
         /// </summary>
         /// <value>
-        /// The name of the code.
+        /// The name of the error code.
         /// </value>
         public string CodeName
         {
-            get { return _result.GetValue("codeName", "").AsString; }
+            get { return _result.GetValue("codeName", null).AsString; }
         }
 
         /// <summary>

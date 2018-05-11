@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Tests
         {
             __connectionId = new ConnectionId(new ServerId(new ClusterId(1), new DnsEndPoint("localhost", 27017)), 2);
             __innerException = new Exception("inner");
-            __writeConcernError = new WriteConcernError(1, "writeConcernError", new BsonDocument("details", "writeConcernError"));
+            __writeConcernError = new WriteConcernError(1, null, "writeConcernError", new BsonDocument("details", "writeConcernError"));
             __writeError = new WriteError(ServerErrorCategory.Uncategorized, 1, "writeError", new BsonDocument("details", "writeError"));
             return true;
         }
@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Tests
             var upserts = new List<BulkWriteUpsert>();
             var bulkWriteResult = new BulkWriteResult<BsonDocument>.Acknowledged(1, 1, 0, 0, 0, processedRequests, upserts);
             var writeErrors = new[] { new BulkWriteError(1, ServerErrorCategory.Uncategorized, 2, "message", new BsonDocument("details", 1)) };
-            var writeConcernError = new WriteConcernError(1, "message", new BsonDocument("details", 1));
+            var writeConcernError = new WriteConcernError(1, null, "message", new BsonDocument("details", 1));
             var unprocessedRequests = new List<WriteModel<BsonDocument>>();
             var bulkWriteException = new MongoBulkWriteException<BsonDocument>(__connectionId, bulkWriteResult, writeErrors, writeConcernError, unprocessedRequests);
 

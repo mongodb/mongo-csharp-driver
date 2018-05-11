@@ -268,9 +268,10 @@ namespace MongoDB.Driver.Core.Operations
             {
                 var value = (BsonDocument)writeCommandResponse["writeConcernError"];
                 var code = value["code"].ToInt32();
+                var codeName = (string)value.GetValue("codeName", null);
                 var message = value["errmsg"].AsString;
                 var details = (BsonDocument)value.GetValue("errInfo", null);
-                return new BulkWriteConcernError(code, message, details);
+                return new BulkWriteConcernError(code, codeName, message, details);
             }
 
             return null;
@@ -279,6 +280,7 @@ namespace MongoDB.Driver.Core.Operations
         private static BulkWriteConcernError CreateWriteConcernErrorFromGetLastErrorResponse(BsonDocument getLastErrorResponse)
         {
             var code = getLastErrorResponse.GetValue("code", 64).ToInt32(); // default = WriteConcernFailed
+            var codeName = (string)getLastErrorResponse.GetValue("codeName", null);
 
             string message = null;
             BsonValue value;
@@ -297,7 +299,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var details = new BsonDocument(getLastErrorResponse.Where(e => !new[] { "ok", "code", "err" }.Contains(e.Name)));
 
-            return new BulkWriteConcernError(code, message, details);
+            return new BulkWriteConcernError(code, codeName, message, details);
         }
 
         private static BulkWriteOperationError CreateWriteErrorFromGetLastErrorResponse(BsonDocument getLastErrorResponse)
