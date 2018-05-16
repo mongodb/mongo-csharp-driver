@@ -568,12 +568,13 @@ namespace MongoDB.Driver.Tests
             Assert.True(collection.Exists());
         }
 
-        [Theory]
+        [SkippableTheory]
         [ParameterAttributeData]
         public void TestCreateCollectionSetAutoIndexId(
             [Values(false, true)]
             bool autoIndexId)
         {
+            RequireServer.Check().VersionLessThan("3.7.0");
             var collection = _database.GetCollection("cappedcollection");
             collection.Drop();
             var options = CollectionOptions.SetAutoIndexId(autoIndexId);
