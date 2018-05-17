@@ -1,4 +1,4 @@
-baseurl = "/mongo-csharp-driver/2.5"
+baseurl = "/mongo-csharp-driver/2.6"
 languageCode = "en-us"
 title = "MongoDB .NET Driver"
 theme = "mongodb"

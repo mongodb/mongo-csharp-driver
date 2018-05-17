@@ -9,12 +9,11 @@ type = "index"
 
 The [Getting Started]({{< relref "getting_started\index.md" >}}) guide contains information about system requirements, installation, and a simple tutorial to get up and running quickly.
 
-
-## What's new in 2.5
+## What's new in 2.6
 
 The [What's New]({{< relref "what_is_new.md" >}}) section contains the major new features of the driver.
 
-The main new feature is support for version 3.6 of the server.
+The 2.6.0 driver improves support for running with FIPS mode enabled in the operating system.
 
 
 ## Upgrading
