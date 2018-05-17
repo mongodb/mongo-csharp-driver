@@ -8,6 +8,10 @@ title = "What's New"
   pre = "<i class='fa fa-star'></i>"
 +++
 
+## What's New in 2.6.0
+
+The 2.6.0 driver improves support for running with FIPS mode enabled in the operating system.
+
 ## What's New in 2.5.0
 
 The 2.5.0 driver adds support for many of the new features introduced by the 3.6.0 server.
