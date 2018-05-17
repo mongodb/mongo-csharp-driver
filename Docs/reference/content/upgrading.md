@@ -11,4 +11,4 @@ title = "Upgrading"
 
 ## Breaking Changes
 
-There should be no breaking changes in version 2.5.0 of the driver.
+There should be no breaking changes in version 2.6.0 of the driver.
