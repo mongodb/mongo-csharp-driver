@@ -128,6 +128,11 @@ namespace MongoDB.Bson.IO
             {
                 ReadBsonType();
             }
+            if (_state == BsonReaderState.Name)
+            {
+                // ignore name
+                SkipName();
+            }
             if (_state != BsonReaderState.Value)
             {
                 ThrowInvalidState("GetCurrentBsonType", BsonReaderState.Value);
