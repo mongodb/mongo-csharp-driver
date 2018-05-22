@@ -197,7 +197,7 @@ Task("ApiDocs")
 
         var lowerCaseIndexFile = artifactsDocsApiDocsDirectory.CombineWithFilePath("index.html");
         var upperCaseIndexFile = artifactsDocsApiDocsDirectory.CombineWithFilePath("Index.html");
-        MoveFile(lowerCaseIndexFile, upperCaseIndexFile);
+        MoveFile(upperCaseIndexFile, lowerCaseIndexFile);
 
         var apiDocsZipFileName = artifactsDocsApiDocsDirectory.GetDirectoryName() + "-html.zip";
         var apiDocsZipFile = artifactsDocsDirectory.CombineWithFilePath(apiDocsZipFileName);
