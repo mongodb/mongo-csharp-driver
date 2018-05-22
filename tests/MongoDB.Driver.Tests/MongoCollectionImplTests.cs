@@ -1408,6 +1408,7 @@ namespace MongoDB.Driver
         [ParameterAttributeData]
         public void Indexes_CreateOne_should_execute_a_CreateIndexesOperation(
             [Values(false, true)] bool usingSession,
+            [Values(false, true)] bool usingCreateOneIndexOptions,
             [Values(false, true)] bool async,
             [Values(null, -1, 0, 42, 9000)] int? milliseconds)
         {
@@ -1421,7 +1422,7 @@ namespace MongoDB.Driver
             var weights = new BsonDocument("y", 1);
             var storageEngine = new BsonDocument("awesome", true);
             var maxTime = milliseconds != null ? TimeSpan.FromMilliseconds(milliseconds.Value) : (TimeSpan?)null;
-            var createOneIndexOptions = new CreateOneIndexOptions { MaxTime = maxTime };
+            var createOneIndexOptions = usingCreateOneIndexOptions ? new CreateOneIndexOptions { MaxTime = maxTime } : null;
             var options = new CreateIndexOptions<BsonDocument>
             {
                 Background = true,
@@ -1474,7 +1475,7 @@ namespace MongoDB.Driver
 
             var operation = call.Operation.Should().BeOfType<CreateIndexesOperation>().Subject;
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
-            operation.MaxTime.Should().Be(createOneIndexOptions.MaxTime);
+            operation.MaxTime.Should().Be(createOneIndexOptions?.MaxTime);
             operation.Requests.Count().Should().Be(1);
             operation.WriteConcern.Should().BeSameAs(writeConcern);
 
@@ -1506,6 +1507,7 @@ namespace MongoDB.Driver
         [ParameterAttributeData]
         public void Indexes_CreateMany_should_execute_a_CreateIndexesOperation(
             [Values(false, true)] bool usingSession,
+            [Values(false, true)] bool usingCreateManyIndexesOptions,
             [Values(false, true)] bool async,
             [Values(null, -1, 0, 42, 9000)] int? milliseconds)
         {
@@ -1521,7 +1523,7 @@ namespace MongoDB.Driver
             var weights = new BsonDocument("y", 1);
             var storageEngine = new BsonDocument("awesome", true);
             var maxTime = milliseconds != null ? TimeSpan.FromMilliseconds(milliseconds.Value) : (TimeSpan?)null;
-            var createManyIndexesOptions = new CreateManyIndexesOptions { MaxTime = maxTime };
+            var createManyIndexesOptions = usingCreateManyIndexesOptions ? new CreateManyIndexesOptions { MaxTime = maxTime } : null;
             
             var options = new CreateIndexOptions<BsonDocument>
             {
@@ -1576,7 +1578,7 @@ namespace MongoDB.Driver
 
             var operation = call.Operation.Should().BeOfType<CreateIndexesOperation>().Subject;
             operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
-            operation.MaxTime.Should().Be(createManyIndexesOptions.MaxTime);
+            operation.MaxTime.Should().Be(createManyIndexesOptions?.MaxTime);
             operation.Requests.Count().Should().Be(2);
             operation.WriteConcern.Should().BeSameAs(writeConcern);
 
