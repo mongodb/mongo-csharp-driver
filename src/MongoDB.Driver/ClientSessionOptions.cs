@@ -24,14 +24,6 @@ namespace MongoDB.Driver
     {
         // public properties
         /// <summary>
-        /// Gets or sets a value indicating whether to auto start a transaction.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if the driver should auto start a transaction; otherwise, <c>false</c>.
-        /// </value>
-        public bool AutoStartTransaction { get; set; }
-
-        /// <summary>
         /// When true or unspecified, an application will read its own writes and subsequent
         /// reads will never observe an earlier version of the data.
         /// </summary>
@@ -51,7 +43,6 @@ namespace MongoDB.Driver
             return new CoreSessionOptions(
                 isCausallyConsistent: CausalConsistency ?? true,
                 isImplicit: isImplicit,
-                autoStartTransaction: AutoStartTransaction,
                 defaultTransactionOptions: DefaultTransactionOptions);
         }
     }

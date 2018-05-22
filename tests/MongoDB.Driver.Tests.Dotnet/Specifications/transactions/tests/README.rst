@@ -22,8 +22,11 @@ Test Format
 
 Each YAML file has the following keys:
 
+- ``database_name`` and ``collection_name``: The database and collection to use
+  for testing.
+
 - ``data``: The data that should exist in the collection under test before each
-  test run. (TODO: not used yet.)
+  test run.
 
 - ``tests``: An array of tests that are to be run independently of each other.
   Each test will have some or all of the following fields:
@@ -73,6 +76,8 @@ For each YAML file, for each element in ``tests``:
    transactions from previous test failures. The command will fail with message
    "operation was interrupted", because it kills its own implicit session. Catch
    the exception and continue.
+#. Create a collection object from the MongoClient, using the ``database_name``
+   and ``collection_name`` fields of the YAML file.
 #. Drop the test collection, using writeConcern "majority".
 #. Execute the "create" command to recreate the collection, using writeConcern
    "majority". (Creating the collection inside a transaction is prohibited, so
@@ -121,7 +126,9 @@ For each YAML file, for each element in ``tests``:
 #. For each element in ``outcome``:
 
    - If ``name`` is "collection", verify that the test collection contains
-     exactly the documents in the ``data`` array.
+     exactly the documents in the ``data`` array. Ensure this find uses
+     Primary read preference even when the MongoClient is configured with
+     another read preference.
 
 TODO:
 
@@ -131,6 +138,9 @@ TODO:
 
 Command-Started Events
 ``````````````````````
+
+The event listener used for these tests MUST ignore the security commands
+listed in the Command Monitoring Spec.
 
 Logical Session Id
 ~~~~~~~~~~~~~~~~~~
@@ -144,7 +154,7 @@ Null Values
 ~~~~~~~~~~~
 
 Some command-started events in ``expectations`` include ``null`` values for
-fields such as ``txnNumber``, ``autocommit``, ``writeConcern``, and ``stmtId``.
+fields such as ``txnNumber``, ``autocommit``, and ``writeConcern``.
 Tests MUST assert that the actual command **omits** any field that has a
 ``null`` value in the expected command.
 

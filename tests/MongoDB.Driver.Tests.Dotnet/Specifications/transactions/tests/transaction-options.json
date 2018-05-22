@@ -1,4 +1,6 @@
 {
+  "database_name": "transaction-tests",
+  "collection_name": "test",
   "data": [],
   "tests": [
     {
@@ -68,7 +70,6 @@
               "txnNumber": {
                 "$numberLong": "1"
               },
-              "stmtId": 0,
               "startTransaction": true,
               "autocommit": false,
               "readConcern": null,
@@ -86,7 +87,6 @@
               "txnNumber": {
                 "$numberLong": "1"
               },
-              "stmtId": 1,
               "startTransaction": null,
               "autocommit": false,
               "readConcern": null,
@@ -110,7 +110,6 @@
               "txnNumber": {
                 "$numberLong": "2"
               },
-              "stmtId": 0,
               "startTransaction": true,
               "autocommit": false,
               "readConcern": {
@@ -130,7 +129,6 @@
               "txnNumber": {
                 "$numberLong": "2"
               },
-              "stmtId": 1,
               "startTransaction": null,
               "autocommit": false,
               "readConcern": null,
@@ -222,7 +220,6 @@
               "txnNumber": {
                 "$numberLong": "1"
               },
-              "stmtId": 0,
               "startTransaction": true,
               "autocommit": false,
               "readConcern": {
@@ -242,7 +239,6 @@
               "txnNumber": {
                 "$numberLong": "1"
               },
-              "stmtId": 1,
               "startTransaction": null,
               "autocommit": false,
               "readConcern": null,
@@ -268,7 +264,6 @@
               "txnNumber": {
                 "$numberLong": "2"
               },
-              "stmtId": 0,
               "startTransaction": true,
               "autocommit": false,
               "readConcern": {
@@ -289,7 +284,6 @@
               "txnNumber": {
                 "$numberLong": "2"
               },
-              "stmtId": 1,
               "startTransaction": null,
               "autocommit": false,
               "readConcern": null,
@@ -391,7 +385,6 @@
               "txnNumber": {
                 "$numberLong": "1"
               },
-              "stmtId": 0,
               "startTransaction": true,
               "autocommit": false,
               "readConcern": {
@@ -411,7 +404,6 @@
               "txnNumber": {
                 "$numberLong": "1"
               },
-              "stmtId": 1,
               "startTransaction": null,
               "autocommit": false,
               "readConcern": null,
@@ -437,7 +429,6 @@
               "txnNumber": {
                 "$numberLong": "2"
               },
-              "stmtId": 0,
               "startTransaction": true,
               "autocommit": false,
               "readConcern": {
@@ -458,7 +449,6 @@
               "txnNumber": {
                 "$numberLong": "2"
               },
-              "stmtId": 1,
               "startTransaction": null,
               "autocommit": false,
               "readConcern": null,
@@ -580,7 +570,6 @@
               "txnNumber": {
                 "$numberLong": "1"
               },
-              "stmtId": 0,
               "startTransaction": true,
               "autocommit": false,
               "readConcern": {
@@ -600,7 +589,6 @@
               "txnNumber": {
                 "$numberLong": "1"
               },
-              "stmtId": 1,
               "startTransaction": null,
               "autocommit": false,
               "readConcern": null,
@@ -626,7 +614,6 @@
               "txnNumber": {
                 "$numberLong": "2"
               },
-              "stmtId": 0,
               "startTransaction": true,
               "autocommit": false,
               "readConcern": {
@@ -647,7 +634,6 @@
               "txnNumber": {
                 "$numberLong": "2"
               },
-              "stmtId": 1,
               "startTransaction": null,
               "autocommit": false,
               "readConcern": null,
@@ -753,7 +739,6 @@
               "txnNumber": {
                 "$numberLong": "1"
               },
-              "stmtId": 0,
               "startTransaction": true,
               "autocommit": false,
               "readConcern": {
@@ -773,7 +758,6 @@
               "txnNumber": {
                 "$numberLong": "1"
               },
-              "stmtId": 1,
               "startTransaction": null,
               "autocommit": false,
               "readConcern": null,
@@ -799,7 +783,6 @@
               "txnNumber": {
                 "$numberLong": "2"
               },
-              "stmtId": 0,
               "startTransaction": true,
               "autocommit": false,
               "readConcern": {
@@ -820,7 +803,6 @@
               "txnNumber": {
                 "$numberLong": "2"
               },
-              "stmtId": 1,
               "startTransaction": null,
               "autocommit": false,
               "readConcern": null,
@@ -922,7 +904,6 @@
               "txnNumber": {
                 "$numberLong": "1"
               },
-              "stmtId": 0,
               "startTransaction": true,
               "autocommit": false,
               "readConcern": {
@@ -942,7 +923,6 @@
               "txnNumber": {
                 "$numberLong": "1"
               },
-              "stmtId": 1,
               "startTransaction": null,
               "autocommit": false,
               "readConcern": null,
@@ -968,7 +948,6 @@
               "txnNumber": {
                 "$numberLong": "2"
               },
-              "stmtId": 0,
               "startTransaction": true,
               "autocommit": false,
               "readConcern": {
@@ -989,7 +968,6 @@
               "txnNumber": {
                 "$numberLong": "2"
               },
-              "stmtId": 1,
               "startTransaction": null,
               "autocommit": false,
               "readConcern": null,
@@ -1098,7 +1076,6 @@
               "txnNumber": {
                 "$numberLong": "1"
               },
-              "stmtId": 0,
               "startTransaction": true,
               "autocommit": false,
               "readConcern": {
@@ -1118,7 +1095,6 @@
               "txnNumber": {
                 "$numberLong": "1"
               },
-              "stmtId": 1,
               "startTransaction": null,
               "autocommit": false,
               "readConcern": null,
@@ -1142,7 +1118,6 @@
               "txnNumber": {
                 "$numberLong": "2"
               },
-              "stmtId": 0,
               "startTransaction": true,
               "autocommit": false,
               "readConcern": {
@@ -1163,7 +1138,6 @@
               "txnNumber": {
                 "$numberLong": "2"
               },
-              "stmtId": 1,
               "startTransaction": null,
               "autocommit": false,
               "readConcern": null,
@@ -1250,7 +1224,6 @@
               "txnNumber": {
                 "$numberLong": "1"
               },
-              "stmtId": 0,
               "startTransaction": true,
               "autocommit": false,
               "writeConcern": null
@@ -1267,12 +1240,319 @@
               "txnNumber": {
                 "$numberLong": "1"
               },
-              "stmtId": 1,
               "startTransaction": null,
               "autocommit": false,
               "writeConcern": {
                 "w": 1
               }
+            },
+            "command_name": "commitTransaction",
+            "database_name": "admin"
+          }
+        }
+      ],
+      "outcome": {
+        "collection": {
+          "data": [
+            {
+              "_id": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "description": "readPreference inherited from client",
+      "clientOptions": {
+        "readPreference": { "mode" : "secondary" }
+      },
+      "operations": [
+        {
+          "name": "startTransaction",
+          "arguments": {
+            "session": "session0"
+          }
+        },
+        {
+          "name": "insertOne",
+          "arguments": {
+            "document": {
+              "_id": 1
+            },
+            "session": "session0"
+          },
+          "result": {
+            "insertedId": 1
+          }
+        },
+        {
+          "name": "count",
+          "arguments": {
+            "filter": {
+              "_id": 1
+            },
+            "session": "session0"
+          },
+          "result": {
+            "errorContains": "read preference in a transaction must be primary"
+          }
+        },
+        {
+          "name": "commitTransaction",
+          "arguments": {
+            "session": "session0"
+          }
+        }
+      ],
+      "expectations": [
+        {
+          "command_started_event": {
+            "command": {
+              "insert": "test",
+              "documents": [
+                {
+                  "_id": 1
+                }
+              ],
+              "ordered": true,
+              "lsid": "session0",
+              "txnNumber": {
+                "$numberLong": "1"
+              },
+              "startTransaction": true,
+              "autocommit": false,
+              "readConcern": null,
+              "writeConcern": null
+            },
+            "command_name": "insert",
+            "database_name": "transaction-tests"
+          }
+        },
+        {
+          "command_started_event": {
+            "command": {
+              "commitTransaction": 1,
+              "lsid": "session0",
+              "txnNumber": {
+                "$numberLong": "1"
+              },
+              "startTransaction": null,
+              "autocommit": false,
+              "readConcern": null,
+              "writeConcern": null
+            },
+            "command_name": "commitTransaction",
+            "database_name": "admin"
+          }
+        }
+      ],
+      "outcome": {
+        "collection": {
+          "data": [
+            {
+              "_id": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "description": "readPreference inherited from defaultTransactionOptions",
+      "clientOptions": {
+        "readPreference": { "mode" : "primary" }
+      },
+      "sessionOptions": {
+        "session0": {
+          "defaultTransactionOptions": {
+            "readPreference": {
+              "mode": "Secondary"
+            }
+          }
+        }
+      },
+      "operations": [
+        {
+          "name": "startTransaction",
+          "arguments": {
+            "session": "session0"
+          }
+        },
+        {
+          "name": "insertOne",
+          "arguments": {
+            "document": {
+              "_id": 1
+            },
+            "session": "session0"
+          },
+          "result": {
+            "insertedId": 1
+          }
+        },
+        {
+          "name": "count",
+          "arguments": {
+            "filter": {
+              "_id": 1
+            },
+            "session": "session0"
+          },
+          "result": {
+            "errorContains": "read preference in a transaction must be primary"
+          }
+        },
+        {
+          "name": "commitTransaction",
+          "arguments": {
+            "session": "session0"
+          }
+        }
+      ],
+      "expectations": [
+        {
+          "command_started_event": {
+            "command": {
+              "insert": "test",
+              "documents": [
+                {
+                  "_id": 1
+                }
+              ],
+              "ordered": true,
+              "lsid": "session0",
+              "txnNumber": {
+                "$numberLong": "1"
+              },
+              "startTransaction": true,
+              "autocommit": false,
+              "readConcern": null,
+              "writeConcern": null
+            },
+            "command_name": "insert",
+            "database_name": "transaction-tests"
+          }
+        },
+        {
+          "command_started_event": {
+            "command": {
+              "commitTransaction": 1,
+              "lsid": "session0",
+              "txnNumber": {
+                "$numberLong": "1"
+              },
+              "startTransaction": null,
+              "autocommit": false,
+              "readConcern": null,
+              "writeConcern": null
+            },
+            "command_name": "commitTransaction",
+            "database_name": "admin"
+          }
+        }
+      ],
+      "outcome": {
+        "collection": {
+          "data": [
+            {
+              "_id": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "description": "startTransaction overrides readPreference",
+      "clientOptions": {
+        "readPreference": { "mode" : "primary" }
+      },
+      "sessionOptions": {
+        "session0": {
+          "defaultTransactionOptions": {
+            "readPreference": {
+              "mode": "Primary"
+            }
+          }
+        }
+      },
+      "operations": [
+        {
+          "name": "startTransaction",
+          "arguments": {
+            "session": "session0",
+            "options": {
+              "readPreference": {
+                "mode": "Secondary"
+              }
+            }
+          }
+        },
+        {
+          "name": "insertOne",
+          "arguments": {
+            "document": {
+              "_id": 1
+            },
+            "session": "session0"
+          },
+          "result": {
+            "insertedId": 1
+          }
+        },
+        {
+          "name": "count",
+          "arguments": {
+            "filter": {
+              "_id": 1
+            },
+            "session": "session0"
+          },
+          "result": {
+            "errorContains": "read preference in a transaction must be primary"
+          }
+        },
+        {
+          "name": "commitTransaction",
+          "arguments": {
+            "session": "session0"
+          }
+        }
+      ],
+      "expectations": [
+        {
+          "command_started_event": {
+            "command": {
+              "insert": "test",
+              "documents": [
+                {
+                  "_id": 1
+                }
+              ],
+              "ordered": true,
+              "lsid": "session0",
+              "txnNumber": {
+                "$numberLong": "1"
+              },
+              "startTransaction": true,
+              "autocommit": false,
+              "readConcern": null,
+              "writeConcern": null
+            },
+            "command_name": "insert",
+            "database_name": "transaction-tests"
+          }
+        },
+        {
+          "command_started_event": {
+            "command": {
+              "commitTransaction": 1,
+              "lsid": "session0",
+              "txnNumber": {
+                "$numberLong": "1"
+              },
+              "startTransaction": null,
+              "autocommit": false,
+              "readConcern": null,
+              "writeConcern": null
             },
             "command_name": "commitTransaction",
             "database_name": "admin"

@@ -1,3 +1,6 @@
+database_name: &database_name "transaction-tests"
+collection_name: &collection_name "test"
+
 data: []
 
 tests:
@@ -7,7 +10,6 @@ tests:
       - name: startTransaction
         arguments:
           session: session0
-      # A couple of commands to check that bulkWrite uses stmtId 2.
       - name: insertOne
         arguments:
           document:
@@ -28,7 +30,6 @@ tests:
             - name: insertOne
               arguments:
                 document: {_id: 1}
-            # A series of updates allows the driver to skip stmtIds.
             - name: updateOne
               arguments:
                 filter: {_id: 1}
@@ -91,7 +92,7 @@ tests:
     expectations:
       - command_started_event:
           command:
-            insert: test
+            insert: *collection_name
             documents:
               - _id: 1
             ordered: true
@@ -99,15 +100,14 @@ tests:
             lsid: session0
             txnNumber:
               $numberLong: "1"
-            stmtId: 0
             startTransaction: true
             autocommit: false
             writeConcern:
           command_name: insert
-          database_name: transaction-tests
+          database_name: *database_name
       - command_started_event:
           command:
-            delete: test
+            delete: *collection_name
             deletes:
               - q: {_id: 1}
                 limit: 1
@@ -115,31 +115,29 @@ tests:
             lsid: session0
             txnNumber:
               $numberLong: "1"
-            stmtId: 1
             startTransaction:
             autocommit: false
             writeConcern:
           command_name: delete
-          database_name: transaction-tests
+          database_name: *database_name
       # Commands in the bulkWrite.
       - command_started_event:
           command:
-            insert: test
+            insert: *collection_name
             documents:
               - _id: 1
             ordered: true
             lsid: session0
             txnNumber:
               $numberLong: "1"
-            stmtId: 2
             startTransaction:
             autocommit: false
             writeConcern:
           command_name: insert
-          database_name: transaction-tests
+          database_name: *database_name
       - command_started_event:
           command:
-            update: test
+            update: *collection_name
             updates:
               - q: {_id: 1}
                 u: {$set: {x: 1}}
@@ -153,15 +151,14 @@ tests:
             lsid: session0
             txnNumber:
               $numberLong: "1"
-            stmtId: 3
             startTransaction:
             autocommit: false
             writeConcern:
           command_name: update
-          database_name: transaction-tests
+          database_name: *database_name
       - command_started_event:
           command:
-            insert: test
+            insert: *collection_name
             documents:
               - _id: 3
               - _id: 4
@@ -172,15 +169,14 @@ tests:
             lsid: session0
             txnNumber:
               $numberLong: "1"
-            stmtId: 5
             startTransaction:
             autocommit: false
             writeConcern:
           command_name: insert
-          database_name: transaction-tests
+          database_name: *database_name
       - command_started_event:
           command:
-            update: test
+            update: *collection_name
             updates:
               - q: {_id: 1}
                 u: {y: 1}
@@ -194,15 +190,14 @@ tests:
             lsid: session0
             txnNumber:
               $numberLong: "1"
-            stmtId: 10
             startTransaction:
             autocommit: false
             writeConcern:
           command_name: update
-          database_name: transaction-tests
+          database_name: *database_name
       - command_started_event:
           command:
-            delete: test
+            delete: *collection_name
             deletes:
               - q: {_id: 3}
                 limit: 1
@@ -214,15 +209,14 @@ tests:
             lsid: session0
             txnNumber:
               $numberLong: "1"
-            stmtId: 12
             startTransaction:
             autocommit: false
             writeConcern:
           command_name: delete
-          database_name: transaction-tests
+          database_name: *database_name
       - command_started_event:
           command:
-            update: test
+            update: *collection_name
             updates:
               - q: {_id: {$gte: 2}}
                 u: {$set: {z: 1}}
@@ -232,19 +226,17 @@ tests:
             lsid: session0
             txnNumber:
               $numberLong: "1"
-            stmtId: 15
             startTransaction:
             autocommit: false
             writeConcern:
           command_name: update
-          database_name: transaction-tests
+          database_name: *database_name
       - command_started_event:
           command:
             commitTransaction: 1
             lsid: session0
             txnNumber:
               $numberLong: "1"
-            stmtId: 16
             startTransaction:
             autocommit: false
             writeConcern:

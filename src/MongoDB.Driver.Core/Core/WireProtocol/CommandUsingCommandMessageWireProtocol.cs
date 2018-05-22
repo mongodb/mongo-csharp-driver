@@ -186,7 +186,6 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
             Action<BsonWriterSettings> writerSettingsConfigurator = s => s.GuidRepresentation = GuidRepresentation.Unspecified;
 
-            _session.AutoStartTransactionIfApplicable();
             if (_session.IsInTransaction)
             {
                 var transaction = _session.CurrentTransaction;

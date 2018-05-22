@@ -319,7 +319,6 @@ namespace MongoDB.Driver.Core.Bindings
 
         private void EnsureIsInTransaction(string methodName)
         {
-            this.AutoStartTransactionIfApplicable();
             if (_currentTransaction == null)
             {
                 throw new InvalidOperationException("No transaction started.");

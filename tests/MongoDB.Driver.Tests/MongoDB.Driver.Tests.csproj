@@ -393,7 +393,6 @@
     <EmbeddedResource Include="Specifications\retryable-writes\tests\replaceOne.json" />
     <EmbeddedResource Include="Specifications\retryable-writes\tests\updateOne.json" />
     <EmbeddedResource Include="Specifications\transactions\tests\abort.json" />
-    <EmbeddedResource Include="Specifications\transactions\tests\auto-start.json" />
     <EmbeddedResource Include="Specifications\transactions\tests\bulk.json" />
     <EmbeddedResource Include="Specifications\transactions\tests\causal-consistency.json" />
     <EmbeddedResource Include="Specifications\transactions\tests\commit.json" />

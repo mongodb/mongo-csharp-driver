@@ -1,3 +1,6 @@
+database_name: &database_name "transaction-tests"
+collection_name: &collection_name "test"
+
 data:
   - _id: 1
   - _id: 2
@@ -32,23 +35,22 @@ tests:
     expectations:
       - command_started_event:
           command:
-            findAndModify: test
+            findAndModify: *collection_name
             query: {_id: 3}
             update: {x: 1}
             new: false
             lsid: session0
             txnNumber:
               $numberLong: "1"
-            stmtId: 0
             startTransaction: true
             autocommit: false
             readConcern:
             writeConcern:
           command_name: findAndModify
-          database_name: transaction-tests
+          database_name: *database_name
       - command_started_event:
           command:
-            findAndModify: test
+            findAndModify: *collection_name
             query: {_id: 4}
             update: {x: 1}
             new: true
@@ -56,20 +58,18 @@ tests:
             lsid: session0
             txnNumber:
               $numberLong: "1"
-            stmtId: 1
             startTransaction:
             autocommit: false
             readConcern:
             writeConcern:
           command_name: findAndModify
-          database_name: transaction-tests
+          database_name: *database_name
       - command_started_event:
           command:
             commitTransaction: 1
             lsid: session0
             txnNumber:
               $numberLong: "1"
-            stmtId: 2
             startTransaction:
             autocommit: false
             readConcern:
@@ -110,27 +110,25 @@ tests:
     expectations:
       - command_started_event:
           command:
-            findAndModify: test
+            findAndModify: *collection_name
             query: {_id: 3}
             update: {x: 1}
             new: false
             lsid: session0
             txnNumber:
               $numberLong: "1"
-            stmtId: 0
             startTransaction: true
             autocommit: false
             readConcern:
             writeConcern:
           command_name: findAndModify
-          database_name: transaction-tests
+          database_name: *database_name
       - command_started_event:
           command:
             commitTransaction: 1
             lsid: session0
             txnNumber:
               $numberLong: "1"
-            stmtId: 1
             startTransaction:
             autocommit: false
             readConcern:

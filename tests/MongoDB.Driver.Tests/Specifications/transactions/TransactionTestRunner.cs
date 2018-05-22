@@ -205,10 +205,6 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
                     {
                         switch (option.Name)
                         {
-                            case "autoStartTransaction":
-                                options.AutoStartTransaction = option.Value.ToBoolean();
-                                break;
-
                             case "causalConsistency":
                                 options.CausalConsistency = option.Value.ToBoolean();
                                 break;

@@ -21,7 +21,6 @@ namespace MongoDB.Driver.Core.Bindings
     public class CoreSessionOptions
     {
         // private fields
-        private readonly bool _autoStartTransaction;
         private readonly TransactionOptions _defaultTransactionOptions;
         private readonly bool _isCausallyConsistent;
         private readonly bool _isImplicit;
@@ -32,29 +31,18 @@ namespace MongoDB.Driver.Core.Bindings
         /// </summary>
         /// <param name="isCausallyConsistent">if set to <c>true</c> this session is causally consistent]</param>
         /// <param name="isImplicit">if set to <c>true</c> this session is an implicit session.</param>
-        /// <param name="autoStartTransaction">if set to <c>true</c> [automatic start transaction].</param>
         /// <param name="defaultTransactionOptions">The default transaction options.</param>
         public CoreSessionOptions(
             bool isCausallyConsistent = false,
             bool isImplicit = false,
-            bool autoStartTransaction = false,
             TransactionOptions defaultTransactionOptions = null)
         {
             _isCausallyConsistent = isCausallyConsistent;
             _isImplicit = isImplicit;
-            _autoStartTransaction = autoStartTransaction;
             _defaultTransactionOptions = defaultTransactionOptions;
         }
 
         // public properties
-        /// <summary>
-        /// Gets a value indicating whether to auto start a transaction.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if driver should auto start a transaction; otherwise, <c>false</c>.
-        /// </value>
-        public bool AutoStartTransaction => _autoStartTransaction;
-
         /// <summary>
         /// Gets the default transaction options.
         /// </summary>
