@@ -304,6 +304,7 @@
     <Compile Include="ProjectionDefinitionBuilder.cs" />
     <Compile Include="IndexKeysDefinitionBuilder.cs" />
     <Compile Include="IServerSession.cs" />
+    <Compile Include="ReadPreferenceResolver.cs" />
     <Compile Include="ServerSession.cs" />
     <Compile Include="SortDefinitionBuilder.cs" />
     <Compile Include="FilterDefinitionBuilder.cs" />

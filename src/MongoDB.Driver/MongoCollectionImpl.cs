@@ -27,7 +27,6 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.Linq;
-using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Driver
 {
@@ -977,8 +976,8 @@ namespace MongoDB.Driver
 
         private TResult ExecuteReadOperation<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var readPreference = GetReadPreference(session);
-            return ExecuteReadOperation(session, operation, readPreference, cancellationToken);
+            var effectiveReadPreference = ReadPreferenceResolver.GetEffectiveReadPreference(session, null, _settings.ReadPreference);
+            return ExecuteReadOperation(session, operation, effectiveReadPreference, cancellationToken);
         }
 
         private TResult ExecuteReadOperation<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, ReadPreference readPreference, CancellationToken cancellationToken = default(CancellationToken))
@@ -991,8 +990,8 @@ namespace MongoDB.Driver
 
         private Task<TResult> ExecuteReadOperationAsync<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var readPreference = GetReadPreference(session);
-            return ExecuteReadOperationAsync(session, operation, readPreference, cancellationToken);
+            var effectiveReadPreference = ReadPreferenceResolver.GetEffectiveReadPreference(session, null, _settings.ReadPreference);
+            return ExecuteReadOperationAsync(session, operation, effectiveReadPreference, cancellationToken);
         }
 
         private async Task<TResult> ExecuteReadOperationAsync<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, ReadPreference readPreference, CancellationToken cancellationToken = default(CancellationToken))
@@ -1017,22 +1016,6 @@ namespace MongoDB.Driver
             {
                 return await _operationExecutor.ExecuteWriteOperationAsync(binding, operation, cancellationToken).ConfigureAwait(false);
             }
-        }
-
-        private ReadPreference GetReadPreference(IClientSession session)
-        {
-            var readPreference = _settings.ReadPreference;
-
-            if (session.IsInTransaction)
-            {
-                var transactionReadPreference = session.WrappedCoreSession.CurrentTransaction.TransactionOptions.ReadPreference;
-                if (transactionReadPreference != null)
-                {
-                    readPreference = transactionReadPreference;
-                }
-            }
-
-            return readPreference;
         }
 
         private IEnumerable<BsonDocument> RenderArrayFilters(IEnumerable<ArrayFilterDefinition> arrayFilters)

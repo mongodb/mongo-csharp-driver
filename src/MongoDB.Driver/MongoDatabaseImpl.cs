@@ -14,8 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -203,7 +201,8 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(session, nameof(session));
             options = options ?? new ListCollectionsOptions();
             var operation = CreateListCollectionsOperation(options);
-            return ExecuteReadOperation(session, operation, ReadPreference.Primary, cancellationToken);
+            var effectiveReadPreference = ReadPreferenceResolver.GetEffectiveReadPreference(session, null, ReadPreference.Primary);
+            return ExecuteReadOperation(session, operation, effectiveReadPreference, cancellationToken);
         }
 
         public override Task<IAsyncCursor<BsonDocument>> ListCollectionsAsync(ListCollectionsOptions options, CancellationToken cancellationToken)
@@ -216,7 +215,8 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(session, nameof(session));
             options = options ?? new ListCollectionsOptions();
             var operation = CreateListCollectionsOperation(options);
-            return ExecuteReadOperationAsync(session, operation, ReadPreference.Primary, cancellationToken);
+            var effectiveReadPreference = ReadPreferenceResolver.GetEffectiveReadPreference(session, null, ReadPreference.Primary);
+            return ExecuteReadOperationAsync(session, operation, effectiveReadPreference, cancellationToken);
         }
 
         public override void RenameCollection(string oldName, string newName, RenameCollectionOptions options, CancellationToken cancellationToken)
@@ -260,10 +260,10 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNull(command, nameof(command));
-            readPreference = readPreference ?? ReadPreference.Primary;
 
             var operation = CreateRunCommandOperation(command);
-            return ExecuteReadOperation(session, operation, readPreference, cancellationToken);
+            var effectiveReadPreference = ReadPreferenceResolver.GetEffectiveReadPreference(session, readPreference, ReadPreference.Primary);
+            return ExecuteReadOperation(session, operation, effectiveReadPreference, cancellationToken);
         }
 
         public override Task<TResult> RunCommandAsync<TResult>(Command<TResult> command, ReadPreference readPreference = null, CancellationToken cancellationToken = default(CancellationToken))
@@ -275,10 +275,10 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNull(command, nameof(command));
-            readPreference = readPreference ?? ReadPreference.Primary;
 
             var operation = CreateRunCommandOperation(command);
-            return ExecuteReadOperationAsync(session, operation, readPreference, cancellationToken);
+            var effectiveReadPreference = ReadPreferenceResolver.GetEffectiveReadPreference(session, readPreference, ReadPreference.Primary);
+            return ExecuteReadOperationAsync(session, operation, effectiveReadPreference, cancellationToken);
         }
 
         public override IMongoDatabase WithReadConcern(ReadConcern readConcern)
