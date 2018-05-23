@@ -14,11 +14,9 @@
 */
 
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
-using System;
 
 namespace MongoDB.Driver
 {
@@ -27,14 +25,8 @@ namespace MongoDB.Driver
     /// A serializer for ChangeStreamDocument instances.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public class ChangeStreamDocumentSerializer<TDocument> : SealedClassSerializerBase<ChangeStreamDocument<TDocument>>
+    public class ChangeStreamDocumentSerializer<TDocument> : BsonDocumentBackedClassSerializer<ChangeStreamDocument<TDocument>>
     {
-        #region static
-        // private static fields
-        private static readonly IBsonSerializer<ChangeStreamOperationType> __operationTypeSerializer = new ChangeStreamOperationTypeSerializer();
-        private readonly ChangeStreamUpdateDescriptionSerializer __updateDescriptionSerializer = new ChangeStreamUpdateDescriptionSerializer();
-        #endregion
-
         // private fields
         private readonly IBsonSerializer<TDocument> _documentSerializer;
 
@@ -47,149 +39,21 @@ namespace MongoDB.Driver
             IBsonSerializer<TDocument> documentSerializer)
         {
             _documentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
+
+            RegisterMember("ClusterTime", "clusterTime", BsonDocumentSerializer.Instance);
+            RegisterMember("CollectionNamespace", "ns", ChangeStreamDocumentCollectionNamespaceSerializer.Instance);
+            RegisterMember("DocumentKey", "documentKey", BsonDocumentSerializer.Instance);
+            RegisterMember("FullDocument", "fullDocument", _documentSerializer);
+            RegisterMember("OperationType", "operationType", ChangeStreamOperationTypeSerializer.Instance);
+            RegisterMember("ResumeToken", "_id", BsonDocumentSerializer.Instance);
+            RegisterMember("UpdateDescription", "updateDescription", ChangeStreamUpdateDescriptionSerializer.Instance);
         }
 
-        // public methods
+        // protected methods
         /// <inheritdoc />
-        protected override ChangeStreamDocument<TDocument> DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
+        protected override ChangeStreamDocument<TDocument> CreateInstance(BsonDocument backingDocument)
         {
-            var reader = context.Reader;
-
-            CollectionNamespace collectionNamespace = null;
-            BsonDocument documentKey = null;
-            TDocument fullDocument = default(TDocument);
-            BsonDocument resumeToken = null;
-            ChangeStreamOperationType? operationType = null;
-            ChangeStreamUpdateDescription updateDescription = null;
-
-            reader.ReadStartDocument();
-            while (reader.ReadBsonType() != 0)
-            {
-                var fieldName = reader.ReadName();
-                switch (fieldName)
-                {
-                    case "_id":
-                        resumeToken = BsonDocumentSerializer.Instance.Deserialize(context);
-                        break;
-
-                    case "ns":
-                        collectionNamespace = DeserializeCollectionNamespace(reader);
-                        break;
-
-                    case "documentKey":
-                        documentKey = BsonDocumentSerializer.Instance.Deserialize(context);
-                        break;
-
-                    case "fullDocument":
-                        if (reader.CurrentBsonType == BsonType.Null)
-                        {
-                            reader.ReadNull();
-                            fullDocument = default(TDocument);
-                        }
-                        else
-                        {
-                            fullDocument = _documentSerializer.Deserialize(context);
-                        }
-                        break;
-
-                    case "operationType":
-                        operationType = __operationTypeSerializer.Deserialize(context);
-                        break;
-
-                    case "updateDescription":
-                        updateDescription = __updateDescriptionSerializer.Deserialize(context);
-                        break;
-
-                    case "clusterTime":
-                        // TODO: decide what to do about clusterTime
-                        reader.SkipValue();
-                        break;
-
-                    default:
-                        throw new FormatException($"Invalid field name: \"{fieldName}\".");
-                }
-            }
-            reader.ReadEndDocument();
-
-            return new ChangeStreamDocument<TDocument>(
-                resumeToken,
-                operationType.Value,
-                collectionNamespace,
-                documentKey,
-                updateDescription,
-                fullDocument);
-        }
-
-        /// <inheritdoc />
-        protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, ChangeStreamDocument<TDocument> value)
-        {
-            var writer = context.Writer;
-            writer.WriteStartDocument();
-            writer.WriteName("_id");
-            BsonDocumentSerializer.Instance.Serialize(context, value.ResumeToken);
-            writer.WriteName("operationType");
-            __operationTypeSerializer.Serialize(context, value.OperationType);
-            if (value.CollectionNamespace != null)
-            {
-                writer.WriteName("ns");
-                SerializeCollectionNamespace(writer, value.CollectionNamespace);
-            }
-            if (value.DocumentKey != null)
-            {
-                writer.WriteName("documentKey");
-                BsonDocumentSerializer.Instance.Serialize(context, value.DocumentKey);
-            }
-            if (value.UpdateDescription != null)
-            {
-                writer.WriteName("updateDescription");
-                __updateDescriptionSerializer.Serialize(context, value.UpdateDescription);
-            }
-            if (value.FullDocument != null)
-            {
-                writer.WriteName("fullDocument");
-                _documentSerializer.Serialize(context, value.FullDocument);
-            }
-            writer.WriteEndDocument();
-        }
-
-        // private methods
-        private CollectionNamespace DeserializeCollectionNamespace(IBsonReader reader)
-        {
-            string collectionName = null;
-            string databaseName = null;
-
-            reader.ReadStartDocument();
-            while (reader.ReadBsonType() != 0)
-            {
-                var fieldName = reader.ReadName();
-                switch (fieldName)
-                {
-                    case "db":
-                        databaseName = reader.ReadString();
-                        break;
-
-                    case "coll":
-                        collectionName = reader.ReadString();
-                        break;
-
-                    default:
-                        throw new FormatException($"Invalid field name: \"{fieldName}\".");
-                }
-            }
-            reader.ReadEndDocument();
-
-            var databaseNamespace = new DatabaseNamespace(databaseName);
-            return new CollectionNamespace(databaseNamespace, collectionName);
-        }
-
-        private void SerializeCollectionNamespace(IBsonWriter writer, CollectionNamespace value)
-        {
-            writer.WriteStartDocument();
-            writer.WriteName("db");
-            writer.WriteString(value.DatabaseNamespace.DatabaseName);
-            writer.WriteName("coll");
-            writer.WriteString(value.CollectionName);
-            writer.WriteEndDocument();
+            return new ChangeStreamDocument<TDocument>(backingDocument, _documentSerializer);
         }
     }
 }

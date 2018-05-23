@@ -13,8 +13,10 @@
 * limitations under the License.
 */
 
+using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver
 {
@@ -57,5 +59,29 @@ namespace MongoDB.Driver
         /// The updated fields.
         /// </value>
         public BsonDocument UpdatedFields => _updatedFields;
+
+        // public methods
+        /// <inheritdoc />
+        public override bool Equals(object obj)
+        {
+            if (obj == null || obj.GetType() != typeof(ChangeStreamUpdateDescription))
+            {
+                return false;
+            }
+
+            var other = (ChangeStreamUpdateDescription)obj;
+            return
+                _removedFields.SequenceEqual(other._removedFields) &&
+                _updatedFields.Equals(other._updatedFields);
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return new Hasher()
+                .HashElements(_removedFields)
+                .Hash(_updatedFields)
+                .GetHashCode();
+        }
     }
 }

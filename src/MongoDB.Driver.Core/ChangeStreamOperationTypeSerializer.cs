@@ -24,6 +24,20 @@ namespace MongoDB.Driver
     /// </summary>
     public class ChangeStreamOperationTypeSerializer : StructSerializerBase<ChangeStreamOperationType>
     {
+        #region static
+        // private static fields
+        private static readonly ChangeStreamOperationTypeSerializer __instance = new ChangeStreamOperationTypeSerializer();
+
+        // public static properties
+        /// <summary>
+        /// Gets a ChangeStreamOperationTypeSerializer.
+        /// </summary>
+        /// <value>
+        /// A ChangeStreamOperationTypeSerializer.
+        /// </value>
+        public static ChangeStreamOperationTypeSerializer Instance => __instance;
+        #endregion
+
         /// <inheritdoc />
         public override ChangeStreamOperationType Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {

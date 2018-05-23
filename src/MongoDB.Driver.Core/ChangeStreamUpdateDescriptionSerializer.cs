@@ -28,7 +28,18 @@ namespace MongoDB.Driver
     public class ChangeStreamUpdateDescriptionSerializer : SealedClassSerializerBase<ChangeStreamUpdateDescription>
     {
         #region static
+        // private static fields
+        private static readonly ChangeStreamUpdateDescriptionSerializer __instance = new ChangeStreamUpdateDescriptionSerializer();
         private static readonly IBsonSerializer<string[]> __stringArraySerializer = new ArraySerializer<string>();
+
+        // public static properties
+        /// <summary>
+        /// Gets a ChangeStreamUpdateDescriptionSerializer.
+        /// </summary>
+        /// <value>
+        /// A ChangeStreamUpdateDescriptionSerializer.
+        /// </value>
+        public static ChangeStreamUpdateDescriptionSerializer Instance => __instance;
         #endregion
 
         /// <inheritdoc />

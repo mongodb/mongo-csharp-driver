@@ -62,6 +62,7 @@
     <Compile Include="..\MongoDB.Shared\MaxTimeHelper.cs">
       <Link>Core\Operations\MaxTimeHelper.cs</Link>
     </Compile>
+    <Compile Include="ChangeStreamDocumentCollectionNamespaceSerializer.cs" />
     <Compile Include="ChangeStreamFullDocumentOptions.cs" />
     <Compile Include="ChangeStreamOperationType.cs" />
     <Compile Include="ChangeStreamOperationTypeSerializer.cs" />

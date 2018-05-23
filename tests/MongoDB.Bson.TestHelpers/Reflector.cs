@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq;
 using System.Reflection;
 
@@ -22,7 +23,7 @@ namespace MongoDB.Bson.TestHelpers
     {
         public static object GetFieldValue(object obj, string name, BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance)
         {
-            var fieldInfo = obj.GetType().GetField(name, flags);
+            var fieldInfo = GetDeclaredOrInheritedField(obj.GetType(), name, flags);
             return fieldInfo.GetValue(obj);
         }
 
@@ -47,6 +48,15 @@ namespace MongoDB.Bson.TestHelpers
                 .Where(m => m.Name == name && m.GetParameters().Select(p => p.ParameterType).SequenceEqual(parameterTypes))
                 .Single();
             return methodInfo.Invoke(obj, new object[] { arg1 });
+        }
+
+        // private methods
+        private static FieldInfo GetDeclaredOrInheritedField(Type type, string name, BindingFlags bindingFlags)
+        {
+            return
+                type == null ?
+                    null :
+                    type.GetField(name, bindingFlags) ?? GetDeclaredOrInheritedField(type.GetTypeInfo().BaseType, name, bindingFlags);
         }
     }
 }

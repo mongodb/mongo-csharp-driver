@@ -14,7 +14,8 @@
 */
 
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Misc;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDB.Driver
 {
@@ -22,50 +23,43 @@ namespace MongoDB.Driver
     /// An output document from a $changeStream pipeline stage.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public sealed class ChangeStreamDocument<TDocument>
+    [BsonSerializer(typeof(ChangeStreamDocumentSerializer<>))]
+    public sealed class ChangeStreamDocument<TDocument> : BsonDocumentBackedClass
     {
-        // private fields
-        private readonly CollectionNamespace _collectionNamespace;
-        private readonly BsonDocument _documentKey;
-        private readonly TDocument _fullDocument;
-        private readonly ChangeStreamOperationType _operationType;
-        private readonly BsonDocument _resumeToken;
-        private readonly ChangeStreamUpdateDescription _updateDescription;
-
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="ChangeStreamDocument{TDocument}" /> class.
+        /// Initializes a new instance of the <see cref="ChangeStreamDocument{TDocument}"/> class.
         /// </summary>
-        /// <param name="resumeToken">The resume token.</param>
-        /// <param name="operationType">Type of the operation.</param>
-        /// <param name="collectionNamespace">Namespace of the collection.</param>
-        /// <param name="documentKey">The document key.</param>
-        /// <param name="updateDescription">The update description.</param>
-        /// <param name="fullDocument">The full document.</param>
+        /// <param name="backingDocument">The backing document.</param>
+        /// <param name="documentSerializer">The document serializer.</param>
         public ChangeStreamDocument(
-            BsonDocument resumeToken,
-            ChangeStreamOperationType operationType,
-            CollectionNamespace collectionNamespace,
-            BsonDocument documentKey,
-            ChangeStreamUpdateDescription updateDescription,
-            TDocument fullDocument)
+            BsonDocument backingDocument,
+            IBsonSerializer<TDocument> documentSerializer)
+            : base(backingDocument, new ChangeStreamDocumentSerializer<TDocument>(documentSerializer))
         {
-            _resumeToken = Ensure.IsNotNull(resumeToken, nameof(resumeToken));
-            _operationType = operationType;
-            _collectionNamespace = collectionNamespace; // can be null when operationType is Invalidate
-            _documentKey = documentKey; // can be null
-            _updateDescription = updateDescription; // can be null
-            _fullDocument = fullDocument; // can be null
         }
 
         // public properties
+        /// <summary>
+        /// Gets the backing document.
+        /// </summary>
+        new public BsonDocument BackingDocument => base.BackingDocument;
+
+        /// <summary>
+        /// Gets the cluster time.
+        /// </summary>
+        /// <value>
+        /// The cluster time.
+        /// </value>
+        public BsonDocument ClusterTime => GetValue<BsonDocument>(nameof(ClusterTime), null);
+
         /// <summary>
         /// Gets the namespace of the collection.
         /// </summary>
         /// <value>
         /// The namespace of the collection.
         /// </value>
-        public CollectionNamespace CollectionNamespace => _collectionNamespace;
+        public CollectionNamespace CollectionNamespace => GetValue<CollectionNamespace>(nameof(CollectionNamespace), null);
 
         /// <summary>
         /// Gets the document key.
@@ -73,7 +67,7 @@ namespace MongoDB.Driver
         /// <value>
         /// The document key.
         /// </value>
-        public BsonDocument DocumentKey => _documentKey;
+        public BsonDocument DocumentKey => GetValue<BsonDocument>(nameof(DocumentKey), null);
 
         /// <summary>
         /// Gets the full document.
@@ -81,7 +75,7 @@ namespace MongoDB.Driver
         /// <value>
         /// The full document.
         /// </value>
-        public TDocument FullDocument => _fullDocument;
+        public TDocument FullDocument => GetValue<TDocument>(nameof(FullDocument), default(TDocument));
 
         /// <summary>
         /// Gets the type of the operation.
@@ -89,7 +83,7 @@ namespace MongoDB.Driver
         /// <value>
         /// The type of the operation.
         /// </value>
-        public ChangeStreamOperationType OperationType => _operationType;
+        public ChangeStreamOperationType OperationType => GetValue<ChangeStreamOperationType>(nameof(OperationType), (ChangeStreamOperationType)(-1));
 
         /// <summary>
         /// Gets the resume token.
@@ -97,7 +91,7 @@ namespace MongoDB.Driver
         /// <value>
         /// The resume token.
         /// </value>
-        public BsonDocument ResumeToken => _resumeToken;
+        public BsonDocument ResumeToken => GetValue<BsonDocument>(nameof(ResumeToken), null);
 
         /// <summary>
         /// Gets the update description.
@@ -105,6 +99,6 @@ namespace MongoDB.Driver
         /// <value>
         /// The update description.
         /// </value>
-        public ChangeStreamUpdateDescription UpdateDescription => _updateDescription;
+        public ChangeStreamUpdateDescription UpdateDescription => GetValue<ChangeStreamUpdateDescription>(nameof(UpdateDescription), null);
     }
 }

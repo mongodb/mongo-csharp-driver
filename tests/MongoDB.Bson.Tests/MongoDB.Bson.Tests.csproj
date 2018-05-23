@@ -139,6 +139,7 @@
     <Compile Include="Serialization\BsonClassMapAutoMappingTests.cs" />
     <Compile Include="Serialization\BsonClassMapSetOrderTests.cs" />
     <Compile Include="Serialization\BsonClassMapTests.cs" />
+    <Compile Include="Serialization\BsonDocumentBackedClassTests.cs" />
     <Compile Include="Serialization\BsonMemberMapDefaultValueCreatorTests.cs" />
     <Compile Include="Serialization\BsonMemberMapTests.cs" />
     <Compile Include="Serialization\Conventions\AttributeConventionPackTests.cs" />
@@ -168,6 +169,7 @@
     <Compile Include="Serialization\IdGenerators\AscendingGuidGeneratorTests.cs" />
     <Compile Include="Serialization\IdGenerators\CombGuidGeneratorTests.cs" />
     <Compile Include="Serialization\Options\RepresentationConverterTests.cs" />
+    <Compile Include="Serialization\Serializers\BsonDocumentBackedClassSerializerTests.cs" />
     <Compile Include="Serialization\Serializers\DictionarySerializerBaseSubclassTests.cs" />
     <Compile Include="Serialization\Serializers\ElementAppendingSerializerTests.cs" />
     <Compile Include="Serialization\Serializers\EnumerableInterfaceImplementerSerializerTests.cs" />
