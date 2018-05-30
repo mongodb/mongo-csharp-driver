@@ -186,11 +186,12 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
             Action<BsonWriterSettings> writerSettingsConfigurator = s => s.GuidRepresentation = GuidRepresentation.Unspecified;
 
+            _session.AboutToSendCommand();
             if (_session.IsInTransaction)
             {
                 var transaction = _session.CurrentTransaction;
                 extraElements.Add(new BsonElement("txnNumber", transaction.TransactionNumber));
-                if (transaction.StatementId == 0)
+                if (transaction.State == CoreTransactionState.Starting)
                 {
                     extraElements.Add(new BsonElement("startTransaction", true));
                     var readConcern = ReadConcernHelper.GetReadConcernForFirstCommandInTransaction(_session, connectionDescription);
@@ -213,12 +214,10 @@ namespace MongoDB.Driver.Core.WireProtocol
                 _session.WasUsed();
             }
 
-            if (_session.IsInTransaction)
+            var transaction = _session.CurrentTransaction;
+            if (transaction != null && transaction.State == CoreTransactionState.Starting)
             {
-                var wrappedMessage = message.WrappedMessage;
-                var type1Section = wrappedMessage.Sections.OfType<Type1CommandMessageSection>().SingleOrDefault();
-                var numberOfStatements = type1Section == null ? 1 : type1Section.Documents.ProcessedCount;
-                _session.CurrentTransaction.AdvanceStatementId(numberOfStatements);
+                transaction.SetState(CoreTransactionState.InProgress);
             }
         }
 

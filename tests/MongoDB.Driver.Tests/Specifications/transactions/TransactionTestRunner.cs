@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
             {
                 throw new SkipTestException(test["skipReason"].AsString);
             }
-            //if (test["description"].AsString != "transaction options inherited from client")
+            //if (test["description"].AsString != "rerun commit after empty transaction")
             //{
             //    return;
             //}
@@ -162,7 +162,7 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
                             break;
 
                         case "readPreference":
-                            settings.ReadPreference = ReadPreference.FromBsonDocument(option.Value.AsBsonDocument);
+                            settings.ReadPreference = ReadPreferenceFromBsonValue(option.Value);
                             break;
 
                         case "retryWrites":
@@ -185,6 +185,17 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
                     }
                 }
             }
+        }
+
+        private ReadPreference ReadPreferenceFromBsonValue(BsonValue value)
+        {
+            if (value.BsonType == BsonType.String)
+            {
+                var mode = (ReadPreferenceMode)Enum.Parse(typeof(ReadPreferenceMode), value.AsString, ignoreCase: true);
+                return new ReadPreference(mode);
+            }
+
+            return ReadPreference.FromBsonDocument(value.AsBsonDocument);
         }
 
         private IClientSessionHandle StartSession(IMongoClient client, BsonDocument test, string sessionKey)
@@ -357,7 +368,7 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
 
             protected override bool ShouldReadJsonDocument(string path)
             {
-                return base.ShouldReadJsonDocument(path); // && path.EndsWith("transaction-options.json");
+                return base.ShouldReadJsonDocument(path); // && path.EndsWith("commit.json");
             }
         }
     }

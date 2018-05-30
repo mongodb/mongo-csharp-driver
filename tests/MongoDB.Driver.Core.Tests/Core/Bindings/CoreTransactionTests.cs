@@ -36,19 +36,47 @@ namespace MongoDB.Driver.Core.Bindings
 
             var result = new CoreTransaction(transactionNumber, transactionOptions);
 
-            result.StatementId.Should().Be(0);
+            result.IsEmpty.Should().BeTrue();
+            result.State.Should().Be(CoreTransactionState.Starting);
             result.TransactionNumber.Should().Be(transactionNumber);
             result.TransactionOptions.Should().BeSameAs(transactionOptions);
         }
 
         [Theory]
-        [ParameterAttributeData]
-        public void StatementId_should_return_expected_result(
-            [Values(1, 2)] int value)
+        [InlineData(-1, -1, true)]
+        [InlineData(CoreTransactionState.Aborted, -1, true)]
+        [InlineData(CoreTransactionState.Committed, -1, true)]
+        [InlineData(CoreTransactionState.InProgress, -1, false)]
+        [InlineData(CoreTransactionState.InProgress, CoreTransactionState.Aborted, false)]
+        [InlineData(CoreTransactionState.InProgress, CoreTransactionState.Committed, false)]
+        [InlineData(CoreTransactionState.InProgress, CoreTransactionState.InProgress, false)]
+        public void IsEmpty_should_return_expected_result(CoreTransactionState transactionState1, CoreTransactionState transactionState2, bool expectedResult)
         {
-            var subject = CreateSubject(statementId: value);
+            var subject = CreateSubject();
+            if (transactionState1 != (CoreTransactionState)(-1))
+            {
+                subject.SetState(transactionState1);
+            }
+            if (transactionState2 != (CoreTransactionState)(-1))
+            {
+                subject.SetState(transactionState2);
+            }
 
-            var result = subject.StatementId;
+            var result = subject.IsEmpty;
+
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [InlineData(CoreTransactionState.Aborted)]
+        [InlineData(CoreTransactionState.Committed)]
+        [InlineData(CoreTransactionState.InProgress)]
+        public void State_should_return_expected_result(CoreTransactionState value)
+        {
+            var subject = CreateSubject();
+            subject.SetState(value);
+
+            var result = subject.State;
 
             result.Should().Be(value);
         }
@@ -79,28 +107,25 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         [Theory]
-        [ParameterAttributeData]
-        public void AdvanceStatementId_should_have_expected_result(
-            [Values(1, 2)] int statementId,
-            [Values(1, 2)] int numberOfStatements)
+        [InlineData(CoreTransactionState.Aborted, true)]
+        [InlineData(CoreTransactionState.Committed, true)]
+        [InlineData(CoreTransactionState.InProgress, false)]
+        public void SetState_should_have_expected_result(CoreTransactionState value, bool expectedIsEmpty)
         {
-            var subject = CreateSubject(statementId: statementId);
-            var expectedStatementId = statementId + numberOfStatements;
+            var subject = CreateSubject();
 
-            subject.AdvanceStatementId(numberOfStatements);
+            subject.SetState(value);
 
-            subject.StatementId.Should().Be(expectedStatementId);
+            subject.State.Should().Be(value);
+            subject.IsEmpty.Should().Be(expectedIsEmpty);
         }
 
         // private methods
         private CoreTransaction CreateSubject(
-            int statementId = 0,
             long transactionNumber = 0,
             TransactionOptions transactionOptions = null)
         {
-            var subject = new CoreTransaction(transactionNumber, transactionOptions);
-            subject.AdvanceStatementId(statementId);
-            return subject;
+            return new CoreTransaction(transactionNumber, transactionOptions);
         }
     }
 }

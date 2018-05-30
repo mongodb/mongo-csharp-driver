@@ -1264,7 +1264,7 @@
     {
       "description": "readPreference inherited from client",
       "clientOptions": {
-        "readPreference": { "mode" : "secondary" }
+        "readPreference": "secondary"
       },
       "operations": [
         {
@@ -1359,7 +1359,7 @@
     {
       "description": "readPreference inherited from defaultTransactionOptions",
       "clientOptions": {
-        "readPreference": { "mode" : "primary" }
+        "readPreference": "primary"
       },
       "sessionOptions": {
         "session0": {
@@ -1463,7 +1463,7 @@
     {
       "description": "startTransaction overrides readPreference",
       "clientOptions": {
-        "readPreference": { "mode" : "primary" }
+        "readPreference": "primary"
       },
       "sessionOptions": {
         "session0": {

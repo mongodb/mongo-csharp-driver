@@ -167,6 +167,13 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         /// <inheritdoc />
+        public virtual void AboutToSendCommand()
+        {
+            ThrowIfDisposed();
+            _wrapped.AboutToSendCommand();
+        }
+
+        /// <inheritdoc />
         public virtual void AdvanceClusterTime(BsonDocument newClusterTime)
         {
             ThrowIfDisposed();

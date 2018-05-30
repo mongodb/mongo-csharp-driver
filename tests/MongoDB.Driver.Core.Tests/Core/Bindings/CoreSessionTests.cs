@@ -16,6 +16,7 @@
 using System.Reflection;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using Moq;
@@ -40,6 +41,7 @@ namespace MongoDB.Driver.Core.Bindings
             result.Options.Should().BeSameAs(options);
             result.ServerSession.Should().BeSameAs(serverSession);
             result._disposed().Should().BeFalse();
+            result._isCommitTransactionInProgress().Should().BeFalse();
         }
 
         [Fact]
@@ -103,6 +105,28 @@ namespace MongoDB.Driver.Core.Bindings
             result.Should().Be(value);
         }
 
+        [Theory]
+        [InlineData(false, -1, false, false)]
+        [InlineData(true, CoreTransactionState.Aborted, false, false)]
+        [InlineData(true, CoreTransactionState.Committed, false, false)]
+        [InlineData(true, CoreTransactionState.Committed, true, true)]
+        [InlineData(true, CoreTransactionState.InProgress, false, true)]
+        [InlineData(true, CoreTransactionState.Starting, false, true)]
+        public void IsInTransaction_should_return_expected_result(bool hasCurrentTransaction, CoreTransactionState transactionState, bool isCommitTransactionInProgress, bool expectedResult)
+        {
+            var subject = CreateSubject();
+            if (hasCurrentTransaction)
+            {
+                subject.StartTransaction();
+                subject.CurrentTransaction.SetState(transactionState);
+                subject._isCommitTransactionInProgress(isCommitTransactionInProgress);
+            }
+
+            var result = subject.IsInTransaction;
+
+            result.Should().Be(expectedResult);
+        }
+
         [Fact]
         public void OperationTime_should_return_expected_result()
         {
@@ -124,6 +148,35 @@ namespace MongoDB.Driver.Core.Bindings
             var result = subject.ServerSession;
 
             result.Should().BeSameAs(serverSession);
+        }
+
+        [Theory]
+        [InlineData(false, -1, false, false)]
+        [InlineData(true, CoreTransactionState.Aborted, false, false)]
+        [InlineData(true, CoreTransactionState.Committed, false, false)]
+        [InlineData(true, CoreTransactionState.Committed, true, true)]
+        [InlineData(true, CoreTransactionState.InProgress, false, true)]
+        [InlineData(true, CoreTransactionState.Starting, false, true)]
+        public void AboutToSendCommand_should_have_expected_result(bool hasCurrentTransaction, CoreTransactionState transactionState, bool isCommitTransactionInProgress, bool expectedHasCurrentTransaction)
+        {
+            var subject = CreateSubject();
+            if (hasCurrentTransaction)
+            {
+                subject.StartTransaction();
+                subject.CurrentTransaction.SetState(transactionState);
+                subject._isCommitTransactionInProgress(isCommitTransactionInProgress);
+            }
+
+            subject.AboutToSendCommand();
+
+            if (expectedHasCurrentTransaction)
+            {
+                subject.CurrentTransaction.Should().NotBeNull();
+            }
+            else
+            {
+                subject.CurrentTransaction.Should().BeNull();
+            }
         }
 
         [Fact]
@@ -189,10 +242,11 @@ namespace MongoDB.Driver.Core.Bindings
 
     public static class CoreSessionReflector
     {
-        public static bool _disposed(this CoreSession obj)
+        public static bool _disposed(this CoreSession obj) => (bool)Reflector.GetFieldValue(obj, nameof(_disposed));
+        public static bool _isCommitTransactionInProgress(this CoreSession obj) => (bool)Reflector.GetFieldValue(obj, nameof(_isCommitTransactionInProgress));
+        public static void _isCommitTransactionInProgress(this CoreSession obj, bool value)
         {
-            var fieldInfo = typeof(CoreSession).GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (bool)fieldInfo.GetValue(obj);
+            Reflector.SetFieldValue(obj, nameof(_isCommitTransactionInProgress), value);
         }
     }
 }

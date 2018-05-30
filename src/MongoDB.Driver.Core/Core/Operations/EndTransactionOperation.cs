@@ -77,7 +77,6 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc />
         public BsonDocument Execute(IReadBinding binding, CancellationToken cancellationToken)
         {
-            EnsureInTransaction(binding);
             var operation = CreateOperation();
             return operation.Execute(binding, cancellationToken);
         }
@@ -85,7 +84,6 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc />
         public Task<BsonDocument> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
-            EnsureInTransaction(binding);
             var operation = CreateOperation();
             return operation.ExecuteAsync(binding, cancellationToken);
         }
@@ -104,15 +102,6 @@ namespace MongoDB.Driver.Core.Operations
         {
             var command = CreateCommand();
             return new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-        }
-
-        private void EnsureInTransaction(IReadBinding binding)
-        {
-            var session = binding.Session;
-            if (!session.IsInTransaction)
-            {
-                throw new InvalidOperationException($"A {CommandName} operation can only be executed when the session is in a transaction.");
-            }
         }
     }
 

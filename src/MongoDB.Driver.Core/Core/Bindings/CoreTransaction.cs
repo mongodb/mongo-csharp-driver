@@ -21,7 +21,8 @@ namespace MongoDB.Driver.Core.Bindings
     public class CoreTransaction
     {
         // private fields
-        private int _statementId;
+        private bool _isEmpty;
+        private CoreTransactionState _state;
         private readonly long _transactionNumber;
         private readonly TransactionOptions _transactionOptions;
 
@@ -35,17 +36,26 @@ namespace MongoDB.Driver.Core.Bindings
         {
             _transactionNumber = transactionNumber;
             _transactionOptions = transactionOptions;
-            _statementId = 0;
+            _state = CoreTransactionState.Starting;
+            _isEmpty = true;
         }
 
         // public properties
         /// <summary>
-        /// Gets the statement identifier.
+        /// Gets a value indicating whether the transaction is empty.
         /// </summary>
         /// <value>
-        /// The statement identifier.
+        ///   <c>true</c> if the transaction is empty; otherwise, <c>false</c>.
         /// </value>
-        public int StatementId => _statementId;
+        public bool IsEmpty => _isEmpty;
+
+        /// <summary>
+        /// Gets the transaction state.
+        /// </summary>
+        /// <value>
+        /// The transaction state.
+        /// </value>
+        public CoreTransactionState State => _state;
 
         /// <summary>
         /// Gets the transaction number.
@@ -63,14 +73,14 @@ namespace MongoDB.Driver.Core.Bindings
         /// </value>
         public TransactionOptions TransactionOptions => _transactionOptions;
 
-        // public methods
-        /// <summary>
-        /// Advances the statement identifier.
-        /// </summary>
-        /// <param name="numberOfStatements">The number of statements to advance by.</param>
-        public void AdvanceStatementId(int numberOfStatements)
+        // internal methods
+        internal void SetState(CoreTransactionState state)
         {
-            _statementId += numberOfStatements;
+            _state = state;
+            if (state == CoreTransactionState.InProgress)
+            {
+                _isEmpty = false;
+            }
         }
     }
 }

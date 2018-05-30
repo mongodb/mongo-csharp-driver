@@ -161,7 +161,7 @@ tests:
         arguments:
           session: session0
         result:
-          errorContains: no transaction started
+          errorContains: cannot call abortTransaction twice
 
     expectations:
       - command_started_event:
@@ -210,7 +210,28 @@ tests:
       collection:
         data: []
 
-  - description: commit after abort
+  - description: abort directly after no-op commit
+
+    operations:
+      - name: startTransaction
+        arguments:
+          session: session0
+      - name: commitTransaction
+        arguments:
+          session: session0
+      - name: abortTransaction  # Error calling abort after no-op commit.
+        arguments:
+          session: session0
+        result:
+          errorContains: Cannot call abortTransaction after calling commitTransaction
+
+    expectations: []
+
+    outcome:
+      collection:
+        data: []
+
+  - description: abort directly after commit
 
     operations:
       - name: startTransaction
@@ -223,14 +244,14 @@ tests:
           session: session0
         result:
           insertedId: 1
-      - name: abortTransaction
-        arguments:
-          session: session0
       - name: commitTransaction
         arguments:
           session: session0
+      - name: abortTransaction  # Error calling abort after commit.
+        arguments:
+          session: session0
         result:
-          errorContains: no transaction started
+          errorContains: Cannot call abortTransaction after calling commitTransaction
 
     expectations:
       - command_started_event:
@@ -242,7 +263,7 @@ tests:
             readConcern:
             lsid: session0
             txnNumber:
-               $numberLong: "1"
+              $numberLong: "1"
             startTransaction: true
             autocommit: false
             writeConcern:
@@ -250,15 +271,20 @@ tests:
           database_name: *database_name
       - command_started_event:
           command:
-            abortTransaction: 1
+            commitTransaction: 1
             lsid: session0
             txnNumber:
               $numberLong: "1"
             startTransaction:
             autocommit: false
             writeConcern:
-          command_name: abortTransaction
+          command_name: commitTransaction
           database_name: admin
+
+    outcome:
+      collection:
+        data:
+          - _id: 1
 
   - description: abort ignores TransactionAborted
 

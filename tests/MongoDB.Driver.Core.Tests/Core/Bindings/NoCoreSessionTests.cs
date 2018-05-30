@@ -118,6 +118,16 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         [Fact]
+        public void OperationTime_should_return_expected_result()
+        {
+            var subject = CreateSubject();
+
+            var result = subject.OperationTime;
+
+            result.Should().BeNull();
+        }
+
+        [Fact]
         public void Options_should_return_expected_result()
         {
             var subject = CreateSubject();
@@ -155,6 +165,14 @@ namespace MongoDB.Driver.Core.Bindings
             var exception = Record.ExceptionAsync(() => subject.AbortTransactionAsync(CancellationToken.None)).GetAwaiter().GetResult();
 
             exception.Should().BeOfType<NotSupportedException>();
+        }
+
+        [Fact]
+        public void AboutToSendCommand_should_do_nothing()
+        {
+            var subject = CreateSubject();
+
+            subject.AboutToSendCommand();
         }
 
         [Fact]

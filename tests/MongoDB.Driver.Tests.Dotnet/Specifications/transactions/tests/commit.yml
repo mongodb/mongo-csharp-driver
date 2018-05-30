@@ -95,7 +95,67 @@ tests:
           - _id: 1
           - _id: 2
 
-  - description: two commits in a row
+  - description: rerun commit after empty transaction
+
+    operations:
+      - name: startTransaction
+        arguments:
+          session: session0
+      - name: commitTransaction
+        arguments:
+          session: session0
+      # Rerun the commit (which does not increment the txnNumber).
+      - name: commitTransaction
+        arguments:
+          session: session0
+      - name: startTransaction
+        arguments:
+          session: session0
+      - name: insertOne
+        arguments:
+          document:
+            _id: 1
+          session: session0
+        result:
+          insertedId: 1
+      - name: commitTransaction
+        arguments:
+          session: session0
+
+    expectations:
+      - command_started_event:
+          command:
+            insert: test
+            documents:
+              - _id: 1
+            ordered: true
+            readConcern:
+            lsid: session0
+            txnNumber:
+              $numberLong: "2"
+            startTransaction: true
+            autocommit: false
+            writeConcern:
+          command_name: insert
+          database_name: transaction-tests
+      - command_started_event:
+          command:
+            commitTransaction: 1
+            lsid: session0
+            txnNumber:
+              $numberLong: "2"
+            startTransaction:
+            autocommit: false
+            writeConcern:
+          command_name: commitTransaction
+          database_name: admin
+
+    outcome:
+      collection:
+        data:
+          - _id: 1
+
+  - description: multiple commits in a row
 
     operations:
       - name: startTransaction
@@ -114,9 +174,9 @@ tests:
       - name: commitTransaction
         arguments:
           session: session0
-        result:
-          # Client-side error.
-          errorContains: no transaction started
+      - name: commitTransaction
+        arguments:
+          session: session0
 
     expectations:
       - command_started_event:
@@ -134,6 +194,28 @@ tests:
             writeConcern:
           command_name: insert
           database_name: *database_name
+      - command_started_event:
+          command:
+            commitTransaction: 1
+            lsid: session0
+            txnNumber:
+              $numberLong: "1"
+            startTransaction:
+            autocommit: false
+            writeConcern:
+          command_name: commitTransaction
+          database_name: admin
+      - command_started_event:
+          command:
+            commitTransaction: 1
+            lsid: session0
+            txnNumber:
+              $numberLong: "1"
+            startTransaction:
+            autocommit: false
+            writeConcern:
+          command_name: commitTransaction
+          database_name: admin
       - command_started_event:
           command:
             commitTransaction: 1
@@ -185,3 +267,349 @@ tests:
       collection:
         data:
           - _id: 1
+
+  - description: commit without start
+
+    operations:
+      - name: commitTransaction
+        arguments:
+          session: session0
+        result:
+          errorContains: no transaction started
+
+    expectations: []
+
+    outcome:
+      collection:
+        data: []
+
+  - description: commit after no-op abort
+
+    operations:
+      - name: startTransaction
+        arguments:
+          session: session0
+      - name: abortTransaction
+        arguments:
+          session: session0
+      - name: commitTransaction
+        arguments:
+          session: session0
+        result:
+          errorContains: Cannot call commitTransaction after calling abortTransaction
+
+    expectations: []
+
+    outcome:
+      collection:
+        data: []
+
+  - description: commit after abort
+
+    operations:
+      - name: startTransaction
+        arguments:
+          session: session0
+      - name: insertOne
+        arguments:
+          document:
+            _id: 1
+          session: session0
+        result:
+          insertedId: 1
+      - name: abortTransaction
+        arguments:
+          session: session0
+      - name: commitTransaction
+        arguments:
+          session: session0
+        result:
+          errorContains: Cannot call commitTransaction after calling abortTransaction
+
+    expectations:
+      - command_started_event:
+          command:
+            insert: test
+            documents:
+              - _id: 1
+            ordered: true
+            readConcern:
+            lsid: session0
+            txnNumber:
+              $numberLong: "1"
+            startTransaction: true
+            autocommit: false
+            writeConcern:
+          command_name: insert
+          database_name: transaction-tests
+      - command_started_event:
+          command:
+            abortTransaction: 1
+            lsid: session0
+            txnNumber:
+              $numberLong: "1"
+            startTransaction:
+            autocommit: false
+            writeConcern:
+          command_name: abortTransaction
+          database_name: admin
+
+  - description: multiple commits after empty transaction
+
+    operations:
+      - name: startTransaction
+        arguments:
+          session: session0
+      - name: insertOne
+        arguments:
+          document:
+            _id: 1
+          session: session0
+        result:
+          insertedId: 1
+      - name: abortTransaction
+        arguments:
+          session: session0
+      # Increments txnNumber.
+      - name: startTransaction
+        arguments:
+          session: session0
+      # These commits aren't sent to server, transaction is empty.
+      - name: commitTransaction
+        arguments:
+          session: session0
+      - name: commitTransaction
+        arguments:
+          session: session0
+      # Verify that previous, empty transaction incremented txnNumber.
+      - name: startTransaction
+        arguments:
+          session: session0
+      - name: insertOne
+        arguments:
+          document:
+            _id: 1
+          session: session0
+        result:
+          insertedId: 1
+      - name: abortTransaction
+        arguments:
+          session: session0
+
+    expectations:
+      - command_started_event:
+          command:
+            insert: test
+            documents:
+              - _id: 1
+            ordered: true
+            readConcern:
+            lsid: session0
+            txnNumber:
+              $numberLong: "1"
+            startTransaction: true
+            autocommit: false
+            writeConcern:
+          command_name: insert
+          database_name: transaction-tests
+      - command_started_event:
+          command:
+            abortTransaction: 1
+            lsid: session0
+            txnNumber:
+              $numberLong: "1"
+            startTransaction:
+            autocommit: false
+            writeConcern:
+          command_name: abortTransaction
+          database_name: admin
+      - command_started_event:
+          command:
+            insert: test
+            documents:
+              - _id: 1
+            ordered: true
+            readConcern:
+              afterClusterTime: 42
+            lsid: session0
+            # txnNumber 2 was skipped.
+            txnNumber:
+              $numberLong: "3"
+            startTransaction: true
+            autocommit: false
+            writeConcern:
+          command_name: insert
+          database_name: transaction-tests
+      - command_started_event:
+          command:
+            abortTransaction: 1
+            lsid: session0
+            txnNumber:
+              $numberLong: "3"
+            startTransaction:
+            autocommit: false
+            writeConcern:
+          command_name: abortTransaction
+          database_name: admin
+
+    outcome:
+      collection:
+        data: []
+
+  - description: reset session state commit
+
+    operations:
+      - name: startTransaction
+        arguments:
+          session: session0
+      - name: insertOne
+        arguments:
+          document:
+            _id: 1
+          session: session0
+        result:
+          insertedId: 1
+      - name: commitTransaction
+        arguments:
+          session: session0
+      # Running any operation after an ended transaction resets the session
+      # state to "no transaction".
+      - name: insertOne
+        arguments:
+          document:
+            _id: 2
+          session: session0
+        result:
+          insertedId: 2
+      # Calling commit again should error instead of re-running the commit.
+      - name: commitTransaction
+        arguments:
+          session: session0
+        result:
+          errorContains: no transaction started
+
+    expectations:
+      - command_started_event:
+          command:
+            insert: *collection_name
+            documents:
+              - _id: 1
+            ordered: true
+            readConcern:
+            lsid: session0
+            txnNumber:
+              $numberLong: "1"
+            startTransaction: true
+            autocommit: false
+            writeConcern:
+          command_name: insert
+          database_name: *database_name
+      - command_started_event:
+          command:
+            commitTransaction: 1
+            lsid: session0
+            txnNumber:
+              $numberLong: "1"
+            startTransaction:
+            autocommit: false
+            writeConcern:
+          command_name: commitTransaction
+          database_name: admin
+      - command_started_event:
+          command:
+            insert: *collection_name
+            documents:
+              - _id: 2
+            ordered: true
+            readConcern:
+            lsid: session0
+            txnNumber:
+            startTransaction:
+            autocommit:
+          command_name: insert
+          database_name: *database_name
+
+    outcome:
+      collection:
+        data:
+          - _id: 1
+          - _id: 2
+
+  - description: reset session state abort
+
+    operations:
+      - name: startTransaction
+        arguments:
+          session: session0
+      - name: insertOne
+        arguments:
+          document:
+            _id: 1
+          session: session0
+        result:
+          insertedId: 1
+      - name: abortTransaction
+        arguments:
+          session: session0
+      # Running any operation after an ended transaction resets the session
+      # state to "no transaction".
+      - name: insertOne
+        arguments:
+          document:
+            _id: 2
+          session: session0
+        result:
+          insertedId: 2
+      # Calling abort should error with "no transaction started" instead of
+      # "cannot call abortTransaction twice".
+      - name: abortTransaction
+        arguments:
+          session: session0
+        result:
+          errorContains: no transaction started
+
+    expectations:
+      - command_started_event:
+          command:
+            insert: *collection_name
+            documents:
+              - _id: 1
+            ordered: true
+            readConcern:
+            lsid: session0
+            txnNumber:
+              $numberLong: "1"
+            startTransaction: true
+            autocommit: false
+            writeConcern:
+          command_name: insert
+          database_name: *database_name
+      - command_started_event:
+          command:
+            abortTransaction: 1
+            lsid: session0
+            txnNumber:
+              $numberLong: "1"
+            startTransaction:
+            autocommit: false
+            writeConcern:
+          command_name: abortTransaction
+          database_name: admin
+      - command_started_event:
+          command:
+            insert: *collection_name
+            documents:
+              - _id: 2
+            ordered: true
+            readConcern:
+            lsid: session0
+            txnNumber:
+            startTransaction:
+            autocommit:
+          command_name: insert
+          database_name: *database_name
+
+    outcome:
+      collection:
+        data:
+          - _id: 2

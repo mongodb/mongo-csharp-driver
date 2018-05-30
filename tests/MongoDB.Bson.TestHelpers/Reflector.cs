@@ -50,6 +50,12 @@ namespace MongoDB.Bson.TestHelpers
             return methodInfo.Invoke(obj, new object[] { arg1 });
         }
 
+        public static void SetFieldValue(object obj, string name, object value, BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance)
+        {
+            var fieldInfo = GetDeclaredOrInheritedField(obj.GetType(), name, flags);
+            fieldInfo.SetValue(obj, value);
+        }
+
         // private methods
         private static FieldInfo GetDeclaredOrInheritedField(Type type, string name, BindingFlags bindingFlags)
         {
