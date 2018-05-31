@@ -47,6 +47,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __failPoints = new Feature("FailPoints", new SemanticVersion(2, 4, 0));
         private static readonly Feature __findAndModifyWriteConcern = new Feature("FindAndModifyWriteConcern", new SemanticVersion(3, 2, 0));
         private static readonly Feature __findCommand = new Feature("FindCommand", new SemanticVersion(3, 2, 0));
+        private static readonly Feature __groupCommand = new Feature("GroupCommand", new SemanticVersion(1, 0, 0), new SemanticVersion(4, 0, 0, "rc1"));
         private static readonly Feature __listCollectionsCommand = new Feature("ListCollectionsCommand", new SemanticVersion(3, 0, 0));
         private static readonly Feature __listDatabasesFilter = new Feature("ListDatabasesFilter", new SemanticVersion(3, 4, 2));
         private static readonly Feature __listDatabasesNameOnlyOption = new Feature("ListDatabasesNameOnlyOption", new SemanticVersion(3, 4, 3));
@@ -182,6 +183,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the find command feature.
         /// </summary>
         public static Feature FindCommand => __findCommand;
+        
+        /// <summary>
+        /// Gets the grouop command feature.
+        /// </summary>
+        public static Feature GroupCommand => __groupCommand;
 
         /// <summary>
         /// Gets the index options defaults feature.
@@ -261,16 +267,20 @@ namespace MongoDB.Driver.Core.Misc
 
         private readonly string _name;
         private readonly SemanticVersion _firstSupportedVersion;
+        private readonly SemanticVersion _supportRemovedVersion;
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Feature"/> class.
         /// </summary>
         /// <param name="name">The name of the feature.</param>
         /// <param name="firstSupportedVersion">The first server version that supports the feature.</param>
-        public Feature(string name, SemanticVersion firstSupportedVersion)
+        /// /// <param name="supportRemovedVersion">The server version that stops support the feature.</param>
+        public Feature(string name, SemanticVersion firstSupportedVersion, SemanticVersion supportRemovedVersion = null)
         {
             _name = name;
             _firstSupportedVersion = firstSupportedVersion;
+            _supportRemovedVersion = supportRemovedVersion;
         }
 
         /// <summary>
@@ -295,7 +305,9 @@ namespace MongoDB.Driver.Core.Misc
         /// <returns>Whether a feature is supported by a version of the server.</returns>
         public bool IsSupported(SemanticVersion serverVersion)
         {
-            return serverVersion >= _firstSupportedVersion;
+            return _supportRemovedVersion != null 
+                   ? serverVersion >= _firstSupportedVersion && serverVersion < _supportRemovedVersion
+                   : serverVersion >= _firstSupportedVersion;
         }
 
         /// <summary>

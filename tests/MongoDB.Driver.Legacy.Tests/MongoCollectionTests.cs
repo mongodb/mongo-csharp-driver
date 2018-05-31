@@ -2045,9 +2045,10 @@ namespace MongoDB.Driver.Tests
             _collection.FindAll().ToList();
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestGroupWithFinalizeFunction()
         {
+            RequireServer.Check().Supports(Feature.GroupCommand);
             _collection.Drop();
             _collection.Insert(new BsonDocument("x", 1));
             _collection.Insert(new BsonDocument("x", 1));
@@ -2073,9 +2074,10 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(-3, results[2]["count"].ToInt32());
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestGroupWithKeyFields()
         {
+            RequireServer.Check().Supports(Feature.GroupCommand);
             _collection.Drop();
             _collection.Insert(new BsonDocument("x", 1));
             _collection.Insert(new BsonDocument("x", 1));
@@ -2100,9 +2102,10 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(3, results[2]["count"].ToInt32());
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestGroupWithKeyFunction()
         {
+            RequireServer.Check().Supports(Feature.GroupCommand);
             _collection.Drop();
             _collection.Insert(new BsonDocument("x", 1));
             _collection.Insert(new BsonDocument("x", 1));
@@ -2127,9 +2130,10 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(3, results[2]["count"].ToInt32());
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestGroupWithMaxTime()
         {
+            RequireServer.Check().Supports(Feature.GroupCommand);
             if (_primary.Supports(FeatureId.MaxTime))
             {
                 using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
@@ -2153,9 +2157,10 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestGroupWithQuery()
         {
+            RequireServer.Check().Supports(Feature.GroupCommand);
             _collection.Drop();
             _collection.Insert(new BsonDocument("x", 1));
             _collection.Insert(new BsonDocument("x", 1));

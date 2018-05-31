@@ -361,13 +361,13 @@ namespace MongoDB.Driver.Core.Operations
             result["maxTimeMS"].BsonType.Should().Be(BsonType.Int32);
         }
 
-        [Theory]
+        [SkippableTheory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_key_is_used(
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check();
+            RequireServer.Check().Supports(Feature.GroupCommand);
             EnsureTestData();
             var subject = new GroupOperation<BsonDocument>(_collectionNamespace, _key, _initial, _reduceFunction, null, _messageEncoderSettings);
 
@@ -379,13 +379,13 @@ namespace MongoDB.Driver.Core.Operations
                 BsonDocument.Parse("{ x : 3, count : 3 }"));
         }
 
-        [Theory]
+        [SkippableTheory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_keyFunction_is_used(
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check();
+            RequireServer.Check().Supports(Feature.GroupCommand);
             EnsureTestData();
             var subject = new GroupOperation<BsonDocument>(_collectionNamespace, _keyFunction, _initial, _reduceFunction, null, _messageEncoderSettings);
 
@@ -405,7 +405,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.Collation);
+            RequireServer.Check().Supports(Feature.GroupCommand, Feature.Collation);
             EnsureTestData();
             var collation = new Collation("en_US", caseLevel: caseSensitive, strength: CollationStrength.Primary);
             var filter = BsonDocument.Parse("{ y : 'a' }");
@@ -437,13 +437,13 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Equal(expectedResult);
         }
 
-        [Theory]
+        [SkippableTheory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_FinalizeFunction_is_set(
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check();
+            RequireServer.Check().Supports(Feature.GroupCommand);
             EnsureTestData();
             var subject = new GroupOperation<BsonDocument>(_collectionNamespace, _key, _initial, _reduceFunction, null, _messageEncoderSettings)
             {
@@ -458,7 +458,7 @@ namespace MongoDB.Driver.Core.Operations
                 BsonDocument.Parse("{ x : 3, count : -3 }"));
         }
 
-        [Theory]
+        [SkippableTheory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_MaxTime_is_used(
             [Values(null, 1000)]
@@ -466,7 +466,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check();
+            RequireServer.Check().Supports(Feature.GroupCommand);
             EnsureTestData();
             var maxTime = seconds.HasValue ? TimeSpan.FromSeconds(seconds.Value) : (TimeSpan?)null;
             var subject = new GroupOperation<BsonDocument>(_collectionNamespace, _key, _initial, _reduceFunction, null, _messageEncoderSettings)
@@ -483,13 +483,13 @@ namespace MongoDB.Driver.Core.Operations
                 BsonDocument.Parse("{ x : 3, count : 3 }"));
         }
 
-        [Theory]
+        [SkippableTheory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_ResultSerializer_is_used(
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check();
+            RequireServer.Check().Supports(Feature.GroupCommand);
             EnsureTestData();
             var resultSerializer = new ElementDeserializer<int>("x", new Int32Serializer());
             var subject = new GroupOperation<int>(_collectionNamespace, _key, _initial, _reduceFunction, null, _messageEncoderSettings)
@@ -502,7 +502,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Equal(1, 2, 3);
         }
 
-        [Theory]
+        [SkippableTheory]
         [ParameterAttributeData]
         public void Execute_should_throw_when_binding_is_null(
             [Values(false, true)]
@@ -532,7 +532,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().DoesNotSupport(Feature.Collation);
+            RequireServer.Check().Supports(Feature.GroupCommand).DoesNotSupport(Feature.Collation);
             EnsureTestData();
             var subject = new GroupOperation<BsonDocument>(_collectionNamespace, _key, _initial, _reduceFunction, null, _messageEncoderSettings)
             {
@@ -549,7 +549,7 @@ namespace MongoDB.Driver.Core.Operations
         public void Execute_should_send_session_id_when_supported(
             [Values(false, true)] bool async)
         {
-            RequireServer.Check();
+            RequireServer.Check().Supports(Feature.GroupCommand);
             EnsureTestData();
             var subject = new GroupOperation<BsonDocument>(_collectionNamespace, _key, _initial, _reduceFunction, null, _messageEncoderSettings);
 
@@ -561,7 +561,7 @@ namespace MongoDB.Driver.Core.Operations
         public void Execute_should_throw_when_maxTime_is_exceeded(
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.FailPoints).ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
+            RequireServer.Check().Supports(Feature.GroupCommand, Feature.FailPoints).ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
             var subject = new GroupOperation<BsonDocument>(_collectionNamespace, _key, _initial, _reduceFunction, null, _messageEncoderSettings);
             subject.MaxTime = TimeSpan.FromSeconds(9001);
 
