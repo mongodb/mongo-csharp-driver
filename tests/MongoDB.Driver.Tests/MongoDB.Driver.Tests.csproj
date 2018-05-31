@@ -138,6 +138,7 @@
     <Compile Include="FilterDefinitionBuilderNullableIntComparedToNullableIntTests.cs" />
     <Compile Include="FilterDefinitionBuilderNullableIntComparedToNullableIntWithStringRepresentationTests.cs" />
     <Compile Include="FindFluentTests.cs" />
+    <Compile Include="JsonDrivenTests\JsonDrivenRunCommandTest.cs" />
     <Compile Include="Linq\MongoQueryableEnumComparedToEnumTests.cs" />
     <Compile Include="Linq\MongoQueryableEnumComparedToEnumWithStringRepresentationTests.cs" />
     <Compile Include="Linq\MongoQueryableIntArrayComparedToEnumerableIntTests.cs" />
@@ -410,6 +411,7 @@
     <EmbeddedResource Include="Specifications\transactions\tests\write-concern.json" />
     <EmbeddedResource Include="Specifications\transactions\tests\transaction-options.json" />
     <EmbeddedResource Include="Specifications\retryable-writes\tests\retryableErrors.json" />
+    <EmbeddedResource Include="Specifications\transactions\tests\run-command.json" />
     <None Include="testcert.pfx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

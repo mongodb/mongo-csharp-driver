@@ -57,6 +57,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                 case "insertOne": return new JsonDrivenInsertOneTest(_client, _database, _collection, _sessionMap);
                 case "replaceOne": return new JsonDrivenReplaceOneTest(_client, _database, _collection, _sessionMap);
                 case "startTransaction": return new JsonDrivenStartTransactionTest(_client, _sessionMap);
+                case "runCommand": return new JsonDrivenRunCommandTest(_client, _database, _sessionMap);
                 case "updateMany": return new JsonDrivenUpdateManyTest(_client, _database, _collection, _sessionMap);
                 case "updateOne": return new JsonDrivenUpdateOneTest(_client, _database, _collection, _sessionMap);
                 default: throw new FormatException($"Invalid method name: \"{name}\".");

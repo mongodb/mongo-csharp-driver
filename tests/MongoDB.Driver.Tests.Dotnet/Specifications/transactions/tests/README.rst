@@ -98,7 +98,14 @@ For each YAML file, for each element in ``tests``:
    - Enter a "try" block or your programming language's closest equivalent.
    - If ``name`` is "startTransaction", "commitTransaction", or
      "abortTransaction", call the named method on ``session0`` or
-     ``session1``, depending on the "session" argument.
+     ``session1``, depending on the "session" argument. 
+   - If ``name`` is "runCommand", call the runCommand method on the database
+     specified in the test. Pass the argument named "command" to the runCommand 
+     method. Pass ``session0`` or ``session1`` to the runCommand method, depending 
+     on which session's name is in the arguments list. If ``arguments`` 
+     contains no "session", pass no explicit session to the method. If ``arguments`` 
+     includes "readPreference", also pass the read preference to the runCommand 
+     method.    
    - Otherwise, ``name`` refers to a CRUD method, such as ``insertOne``.
      Execute the named method on the "transactions-tests" database on the "test"
      collection, passing the arguments listed. Pass ``session0`` or ``session1``
