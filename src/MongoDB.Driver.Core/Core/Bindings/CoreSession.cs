@@ -347,9 +347,12 @@ namespace MongoDB.Driver.Core.Bindings
 
             var transactionNumber = AdvanceTransactionNumber();
             var effectiveTransactionOptions = GetEffectiveTransactionOptions(transactionOptions);
-            var transaction = new CoreTransaction(transactionNumber, effectiveTransactionOptions);
+            if (!effectiveTransactionOptions.WriteConcern.IsAcknowledged)
+            {
+                throw new InvalidOperationException("Transactions do not support unacknowledged write concerns.");
+            }
 
-            _currentTransaction = transaction;
+            _currentTransaction = new CoreTransaction(transactionNumber, effectiveTransactionOptions);
         }
 
         /// <inheritdoc />

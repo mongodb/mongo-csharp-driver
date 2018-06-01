@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Reflection;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -215,6 +216,19 @@ namespace MongoDB.Driver.Core.Bindings
 
             subject._disposed().Should().BeTrue();
             Mock.Get(subject.ServerSession).Verify(m => m.Dispose(), Times.Once);
+        }
+
+        [Fact]
+        public void StartTransaction_should_throw_when_write_concern_is_unacknowledged()
+        {
+            var cluster = CoreTestConfiguration.Cluster;
+            var session = cluster.StartSession();
+            var transactionOptions = new TransactionOptions(writeConcern: WriteConcern.Unacknowledged);
+
+            var exception = Record.Exception(() => session.StartTransaction(transactionOptions));
+
+            var e = exception.Should().BeOfType<InvalidOperationException>().Subject;
+            e.Message.ToLower().Should().Contain("transactions do not support unacknowledged write concerns");
         }
 
         [Fact]
