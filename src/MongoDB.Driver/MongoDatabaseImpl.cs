@@ -327,6 +327,7 @@ namespace MongoDB.Driver
             options = options ?? new CreateCollectionOptions();
             var messageEncoderSettings = GetMessageEncoderSettings();
 
+#pragma warning disable 618
             return new CreateCollectionOperation(new CollectionNamespace(_databaseNamespace, name), messageEncoderSettings)
             {
                 AutoIndexId = options.AutoIndexId,
@@ -339,6 +340,7 @@ namespace MongoDB.Driver
                 UsePowerOf2Sizes = options.UsePowerOf2Sizes,
                 WriteConcern = _settings.WriteConcern
             };
+#pragma warning restore
         }
 
         private CreateCollectionOperation CreateCreateCollectionOperation<TDocument>(string name, CreateCollectionOptions<TDocument> options)
@@ -352,6 +354,7 @@ namespace MongoDB.Driver
                 validator = options.Validator.Render(documentSerializer, serializerRegistry);
             }
 
+#pragma warning disable 618
             return new CreateCollectionOperation(new CollectionNamespace(_databaseNamespace, name), messageEncoderSettings)
             {
                 AutoIndexId = options.AutoIndexId,
@@ -368,6 +371,7 @@ namespace MongoDB.Driver
                 Validator = validator,
                 WriteConcern = _settings.WriteConcern
             };
+#pragma warning restore
         }
 
         private CreateViewOperation CreateCreateViewOperation<TDocument, TResult>(string viewName, string viewOn, PipelineDefinition<TDocument, TResult> pipeline, CreateViewOptions<TDocument> options)

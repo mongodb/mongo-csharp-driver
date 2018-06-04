@@ -299,6 +299,7 @@ namespace MongoDB.Driver
                 }
             }
 
+#pragma warning disable 618
             var operation = new CreateCollectionOperation(collectionNamespace, messageEncoderSettings)
             {
                 AutoIndexId = autoIndexId,
@@ -315,6 +316,7 @@ namespace MongoDB.Driver
                 Validator = validator,
                 WriteConcern = _settings.WriteConcern
             };
+#pragma warning restore
 
             var response = ExecuteWriteOperation(session, operation);
             return new CommandResult(response);

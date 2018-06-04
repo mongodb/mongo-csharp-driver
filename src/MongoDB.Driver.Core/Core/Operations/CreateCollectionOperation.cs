@@ -69,6 +69,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <value>
         /// A value indicating whether an index on _id should be created automatically.
         /// </value>
+        [Obsolete("AutoIndexId has been deprecated since server version 3.2.")]
         public bool? AutoIndexId
         {
             get { return _autoIndexId; }

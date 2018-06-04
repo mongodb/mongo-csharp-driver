@@ -73,6 +73,7 @@ namespace MongoDB.Driver
             var storageEngine = new BsonDocument("awesome", true);
             var validatorDocument = BsonDocument.Parse("{ x : 1 }");
             var validatorDefinition = (FilterDefinition<BsonDocument>)validatorDocument;
+#pragma warning disable 618
             var options = new CreateCollectionOptions<BsonDocument>
             {
                 AutoIndexId = false,
@@ -88,6 +89,7 @@ namespace MongoDB.Driver
                 ValidationLevel = DocumentValidationLevel.Off,
                 Validator = validatorDefinition
             };
+#pragma warning restore
             var cancellationToken = new CancellationTokenSource().Token;
 
             if (usingSession)
@@ -118,7 +120,9 @@ namespace MongoDB.Driver
 
             var op = call.Operation.Should().BeOfType<CreateCollectionOperation>().Subject;
             op.CollectionNamespace.Should().Be(new CollectionNamespace(_subject.DatabaseNamespace, name));
+#pragma warning disable 618
             op.AutoIndexId.Should().Be(options.AutoIndexId);
+#pragma warning restore
             op.Capped.Should().Be(options.Capped);
             op.Collation.Should().BeSameAs(options.Collation);
             op.IndexOptionDefaults.ToBsonDocument().Should().Be(options.IndexOptionDefaults.ToBsonDocument());
@@ -144,6 +148,7 @@ namespace MongoDB.Driver
             var session = CreateSession(usingSession);
             var name = "bar";
             var storageEngine = new BsonDocument("awesome", true);
+#pragma warning disable 618
             var options = new CreateCollectionOptions
             {
                 AutoIndexId = false,
@@ -158,6 +163,7 @@ namespace MongoDB.Driver
                 ValidationAction = DocumentValidationAction.Warn,
                 ValidationLevel = DocumentValidationLevel.Off
             };
+#pragma warning restore
             var cancellationToken = new CancellationTokenSource().Token;
 
             if (usingSession)
@@ -188,7 +194,9 @@ namespace MongoDB.Driver
 
             var op = call.Operation.Should().BeOfType<CreateCollectionOperation>().Subject;
             op.CollectionNamespace.Should().Be(new CollectionNamespace(_subject.DatabaseNamespace, name));
+#pragma warning disable 618
             op.AutoIndexId.Should().Be(options.AutoIndexId);
+#pragma warning restore
             op.Capped.Should().Be(options.Capped);
             op.Collation.Should().BeSameAs(options.Collation);
             op.IndexOptionDefaults.ToBsonDocument().Should().Be(options.IndexOptionDefaults.ToBsonDocument());
@@ -242,7 +250,9 @@ namespace MongoDB.Driver
 
             var op = call.Operation.Should().BeOfType<CreateCollectionOperation>().Subject;
             op.CollectionNamespace.Should().Be(new CollectionNamespace(_subject.DatabaseNamespace, name));
+#pragma warning disable 618
             op.AutoIndexId.Should().NotHaveValue();
+#pragma warning restore
             op.Capped.Should().NotHaveValue();
             op.IndexOptionDefaults.Should().BeNull();
             op.MaxDocuments.Should().NotHaveValue();
