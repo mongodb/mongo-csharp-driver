@@ -15,35 +15,57 @@
 
 using System.Collections.Generic;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {
-    public abstract class JsonDrivenCollectionTest : JsonDrivenDatabaseTest
+    public abstract class JsonDrivenCollectionTest : JsonDrivenCommandTest
     {
         // protected fields
         protected IMongoCollection<BsonDocument> _collection;
 
-        // protected constructors
-        protected JsonDrivenCollectionTest(IMongoClient client, IMongoDatabase database, IMongoCollection<BsonDocument> collection, Dictionary<string, IClientSessionHandle> sessionMap)
-            : base(client, database, sessionMap)
+        // constructors
+        protected JsonDrivenCollectionTest(IMongoCollection<BsonDocument> collection, Dictionary<string, object> objectMap)
+            : base(objectMap)
         {
             _collection = collection;
         }
 
-        // public properties
-        public IMongoCollection<BsonDocument> Collection => _collection;
-
-        // protected methods
-        protected override void SetReadPreference(ReadPreference value)
+        // public methods
+        public override void Arrange(BsonDocument document)
         {
-            base.SetReadPreference(value);
-            _collection = _collection.WithReadPreference(value);
+            JsonDrivenHelper.EnsureFieldEquals(document, "object", "collection");
+
+            if (document.Contains("collectionOptions"))
+            {
+                ParseCollectionOptions(document["collectionOptions"].AsBsonDocument);
+            }
+
+            base.Arrange(document);
         }
 
-        protected override void SetWriteConcern(WriteConcern value)
+        // private methods
+        private void ParseCollectionOptions(BsonDocument document)
         {
-            base.SetWriteConcern(value);
-            _collection = _collection.WithWriteConcern(value);
+            JsonDrivenHelper.EnsureAllFieldsAreValid(document, "readConcern", "readPreference", "writeConcern");
+
+            if (document.Contains("readConcern"))
+            {
+                var readConcern = ReadConcern.FromBsonDocument(document["readConcern"].AsBsonDocument);
+                _collection = _collection.WithReadConcern(readConcern);
+            }
+
+            if (document.Contains("readPreference"))
+            {
+                var readPreference = ReadPreference.FromBsonDocument(document["readPreference"].AsBsonDocument);
+                _collection = _collection.WithReadPreference(readPreference);
+            }
+
+            if (document.Contains("writeConcern"))
+            {
+                var writeConcern = WriteConcern.FromBsonDocument(document["writeConcern"].AsBsonDocument);
+                _collection = _collection.WithWriteConcern(writeConcern);
+            }
         }
     }
 }

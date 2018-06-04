@@ -29,17 +29,18 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         private FilterDefinition<BsonDocument> _filter;
         private DeleteOptions _options = new DeleteOptions();
         private DeleteResult _result;
+        private IClientSessionHandle _session;
 
         // public constructors
-        public JsonDrivenDeleteOneTest(IMongoClient client, IMongoDatabase database, IMongoCollection<BsonDocument> collection, Dictionary<string, IClientSessionHandle> sessionMap)
-            : base(client, database, collection, sessionMap)
+        public JsonDrivenDeleteOneTest(IMongoCollection<BsonDocument> collection, Dictionary<string, object> objectMap)
+            : base(collection, objectMap)
         {
         }
 
         // public methods
         public override void Arrange(BsonDocument document)
         {
-            JsonDrivenHelper.EnsureAllFieldsAreValid(document, "name", "arguments", "result");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(document, "name", "object", "collectionOptions", "arguments", "result");
             base.Arrange(document);
         }
 
@@ -54,22 +55,26 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
 
         protected override void CallMethod(CancellationToken cancellationToken)
         {
-            _result = _collection.DeleteOne(_filter, _options, cancellationToken);
-        }
-
-        protected override void CallMethod(IClientSessionHandle session, CancellationToken cancellationToken)
-        {
-            _result = _collection.DeleteOne(session, _filter, _options, cancellationToken);
+            if (_session == null)
+            {
+                _result = _collection.DeleteOne(_filter, _options, cancellationToken);
+            }
+            else
+            {
+                _result = _collection.DeleteOne(_session, _filter, _options, cancellationToken);
+            }
         }
 
         protected override async Task CallMethodAsync(CancellationToken cancellationToken)
         {
-            _result = await _collection.DeleteOneAsync(_filter, _options, cancellationToken).ConfigureAwait(false);
-        }
-
-        protected override async Task CallMethodAsync(IClientSessionHandle session, CancellationToken cancellationToken)
-        {
-            _result = await _collection.DeleteOneAsync(session, _filter, _options, cancellationToken).ConfigureAwait(false);
+            if (_session == null)
+            {
+                _result = await _collection.DeleteOneAsync(_filter, _options, cancellationToken).ConfigureAwait(false);
+            }
+            else
+            {
+                _result = await _collection.DeleteOneAsync(_session, _filter, _options, cancellationToken).ConfigureAwait(false);
+            }
         }
 
         protected override void SetArgument(string name, BsonValue value)
@@ -78,6 +83,10 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
             {
                 case "filter":
                     _filter = new BsonDocumentFilterDefinition<BsonDocument>(value.AsBsonDocument);
+                    return;
+
+                case "session":
+                    _session = (IClientSessionHandle)_objectMap[value.AsString];
                     return;
             }
 

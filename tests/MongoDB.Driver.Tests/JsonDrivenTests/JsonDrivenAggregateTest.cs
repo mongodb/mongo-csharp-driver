@@ -29,17 +29,18 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         private AggregateOptions _options = new AggregateOptions();
         private PipelineDefinition<BsonDocument, BsonDocument> _pipeline;
         private List<BsonDocument> _result;
+        private IClientSessionHandle _session;
 
         // public constructors
-        public JsonDrivenAggregateTest(IMongoClient client, IMongoDatabase database, IMongoCollection<BsonDocument> collection, Dictionary<string, IClientSessionHandle> sessionMap)
-            : base(client, database, collection, sessionMap)
+        public JsonDrivenAggregateTest(IMongoCollection<BsonDocument> collection, Dictionary<string, object> objectMap)
+            : base(collection, objectMap)
         {
         }
 
         // public methods
         public override void Arrange(BsonDocument document)
         {
-            JsonDrivenHelper.EnsureAllFieldsAreValid(document, "name", "arguments", "result");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(document, "name", "object", "collectionOptions", "arguments", "result");
             base.Arrange(document);
         }
 
@@ -51,25 +52,29 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
 
         protected override void CallMethod(CancellationToken cancellationToken)
         {
-            var cursor = _collection.Aggregate(_pipeline, _options, cancellationToken);
-            _result = cursor.ToList();
-        }
-
-        protected override void CallMethod(IClientSessionHandle session, CancellationToken cancellationToken)
-        {
-            var cursor = _collection.Aggregate(session, _pipeline, _options, cancellationToken);
+            IAsyncCursor<BsonDocument> cursor;
+            if (_session == null)
+            {
+                cursor = _collection.Aggregate(_pipeline, _options, cancellationToken);
+            }
+            else
+            { 
+                cursor = _collection.Aggregate(_session, _pipeline, _options, cancellationToken);
+            }
             _result = cursor.ToList();
         }
 
         protected override async Task CallMethodAsync(CancellationToken cancellationToken)
         {
-            var cursor = await _collection.AggregateAsync(_pipeline, _options, cancellationToken).ConfigureAwait(false);
-            _result = await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
-        }
-
-        protected override async Task CallMethodAsync(IClientSessionHandle session, CancellationToken cancellationToken)
-        {
-            var cursor = await _collection.AggregateAsync(session, _pipeline, _options, cancellationToken).ConfigureAwait(false);
+            IAsyncCursor<BsonDocument> cursor;
+            if (_session == null)
+            {
+                cursor = await _collection.AggregateAsync(_pipeline, _options, cancellationToken).ConfigureAwait(false);
+            }
+            else
+            {
+                cursor = await _collection.AggregateAsync(_session, _pipeline, _options, cancellationToken).ConfigureAwait(false);
+            }
             _result = await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
         }
 
@@ -83,6 +88,10 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
 
                 case "pipeline":
                     _pipeline = new BsonDocumentStagePipelineDefinition<BsonDocument, BsonDocument>(value.AsBsonArray.Cast<BsonDocument>());
+                    return;
+
+                case "session":
+                    _session = (IClientSessionHandle)_objectMap[value.AsString];
                     return;
             }
 

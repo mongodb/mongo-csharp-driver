@@ -77,15 +77,33 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc />
         public BsonDocument Execute(IReadBinding binding, CancellationToken cancellationToken)
         {
-            var operation = CreateOperation();
-            return operation.Execute(binding, cancellationToken);
+            Ensure.IsNotNull(binding, nameof(binding));
+
+            using (var channelSource = binding.GetReadChannelSource(cancellationToken))
+            using (var channel = channelSource.GetChannel(cancellationToken))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
+            {
+                var operation = CreateOperation();
+                var result = operation.Execute(channelBinding, cancellationToken);
+                WriteConcernErrorHelper.ThrowIfHasWriteConcernError(channel.ConnectionDescription.ConnectionId, result);
+                return result;
+            }
         }
 
         /// <inheritdoc />
-        public Task<BsonDocument> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        public async Task<BsonDocument> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
-            var operation = CreateOperation();
-            return operation.ExecuteAsync(binding, cancellationToken);
+            Ensure.IsNotNull(binding, nameof(binding));
+
+            using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
+            {
+                var operation = CreateOperation();
+                var result = await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
+                WriteConcernErrorHelper.ThrowIfHasWriteConcernError(channel.ConnectionDescription.ConnectionId, result);
+                return result;
+            }
         }
 
         // private methods

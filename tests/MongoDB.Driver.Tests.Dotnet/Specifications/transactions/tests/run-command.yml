@@ -8,26 +8,26 @@ tests:
 
     operations:
       - name: startTransaction
+        object: session0
+      - name: runCommand
+        object: database
+        command_name: insert
         arguments:
           session: session0
-      - name: runCommand
-        arguments:
-          command: 
+          command:
             insert: *collection_name
             documents:
               - _id : 1
-          session: session0
         result:
           n: 1
       - name: commitTransaction
-        arguments:
-          session: session0
+        object: session0
 
     expectations:
       - command_started_event:
           command:
             insert: *collection_name
-            documents: 
+            documents:
               - _id : 1
             readConcern:
             lsid: session0
@@ -57,23 +57,24 @@ tests:
 
     operations:
       - name: startTransaction
+        object: session0
         arguments:
-          session: session0
           options:
             readPreference:
               mode: Primary
       - name: runCommand
+        object: database
+        command_name: insert
         arguments:
-          command: 
+          session: session0
+          command:
             insert: *collection_name
             documents:
               - _id : 1
-          session: session0
         result:
           n: 1
       - name: commitTransaction
-        arguments:
-          session: session0
+        object: session0
 
     expectations:
       - command_started_event:
@@ -100,28 +101,28 @@ tests:
             autocommit: false
             writeConcern:
           command_name: commitTransaction
-          database_name: admin 
+          database_name: admin
 
   - description: run command with explicit primary read preference
 
     operations:
       - name: startTransaction
+        object: session0
+      - name: runCommand
+        object: database
+        command_name: insert
         arguments:
           session: session0
-      - name: runCommand
-        arguments:
-          command: 
+          command:
             insert: *collection_name
             documents:
               - _id : 1
-          session: session0
           readPreference:
             mode: Primary
         result:
           n: 1
       - name: commitTransaction
-        arguments:
-          session: session0
+        object: session0
 
     expectations:
       - command_started_event:
@@ -154,13 +155,14 @@ tests:
 
     operations:
       - name: startTransaction
-        arguments:
-          session: session0
+        object: session0
       - name: runCommand
+        object: database
+        command_name: find
         arguments:
-          command: 
-            count: *collection_name
           session: session0
+          command:
+            find: *collection_name
           readPreference:
             mode: Secondary
         result:
@@ -170,16 +172,18 @@ tests:
 
     operations:
       - name: startTransaction
+        object: session0
         arguments:
-          session: session0
           options:
             readPreference:
               mode: secondary
       - name: runCommand
+        object: database
+        command_name: find
         arguments:
-          command: 
-            count: *collection_name
           session: session0
+          command:
+            find: *collection_name
         result:
           errorContains: read preference in a transaction must be primary
 

@@ -15,7 +15,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {
@@ -23,45 +25,68 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
     {
         // private fields
         private readonly IMongoClient _client;
-        private readonly IMongoDatabase _database;
-        private readonly IMongoCollection<BsonDocument> _collection;
-        private readonly Dictionary<string, IClientSessionHandle> _sessionMap;
+        private readonly string _databaseName;
+        private readonly string _collectionName;
+        private readonly Dictionary<string, object> _objectMap;
 
         // public constructors
-        public JsonDrivenTestFactory(IMongoClient client, IMongoDatabase database, IMongoCollection<BsonDocument> collection, Dictionary<string, IClientSessionHandle> sessionMap)
+        public JsonDrivenTestFactory(IMongoClient client, string databaseName, string collectionName, Dictionary<string, object> objectMap)
         {
             _client = client;
-            _database = database;
-            _collection = collection;
-            _sessionMap = sessionMap;
+            _databaseName = databaseName;
+            _collectionName = collectionName;
+            _objectMap = objectMap;
         }
 
         // public methods
-        public JsonDrivenClientTest CreateTest(string name)
+        public JsonDrivenTest CreateTest(string receiver, string name)
         {
-            switch (name)
+            if (receiver.StartsWith("session"))
             {
-                case "abortTransaction": return new JsonDrivenAbortTransactionTest(_client, _sessionMap);
-                case "aggregate": return new JsonDrivenAggregateTest(_client, _database, _collection, _sessionMap);
-                case "bulkWrite": return new JsonDrivenBulkWriteTest(_client, _database, _collection, _sessionMap);
-                case "commitTransaction": return new JsonDrivenCommitTransactionTest(_client, _sessionMap);
-                case "count": return new JsonDrivenCountTest(_client, _database, _collection, _sessionMap);
-                case "deleteMany": return new JsonDrivenDeleteManyTest(_client, _database, _collection, _sessionMap);
-                case "deleteOne": return new JsonDrivenDeleteOneTest(_client, _database, _collection, _sessionMap);
-                case "distinct": return new JsonDrivenDistinctTest(_client, _database, _collection, _sessionMap);
-                case "find": return new JsonDrivenFindTest(_client, _database, _collection, _sessionMap);
-                case "findOneAndDelete": return new JsonDrivenFindOneAndDeleteTest(_client, _database, _collection, _sessionMap);
-                case "findOneAndReplace": return new JsonDrivenFindOneAndReplaceTest(_client, _database, _collection, _sessionMap);
-                case "findOneAndUpdate": return new JsonDrivenFindOneAndUpdateTest(_client, _database, _collection, _sessionMap);
-                case "insertMany": return new JsonDrivenInsertManyTest(_client, _database, _collection, _sessionMap);
-                case "insertOne": return new JsonDrivenInsertOneTest(_client, _database, _collection, _sessionMap);
-                case "replaceOne": return new JsonDrivenReplaceOneTest(_client, _database, _collection, _sessionMap);
-                case "startTransaction": return new JsonDrivenStartTransactionTest(_client, _sessionMap);
-                case "runCommand": return new JsonDrivenRunCommandTest(_client, _database, _sessionMap);
-                case "updateMany": return new JsonDrivenUpdateManyTest(_client, _database, _collection, _sessionMap);
-                case "updateOne": return new JsonDrivenUpdateOneTest(_client, _database, _collection, _sessionMap);
-                default: throw new FormatException($"Invalid method name: \"{name}\".");
+                switch (name)
+                {
+                    case "abortTransaction": return new JsonDrivenAbortTransactionTest(_objectMap);
+                    case "commitTransaction": return new JsonDrivenCommitTransactionTest(_objectMap);
+                    case "startTransaction": return new JsonDrivenStartTransactionTest(_objectMap);
+                    default: throw new FormatException($"Invalid method name: \"{name}\".");
+                }
             }
+
+            var database = _client.GetDatabase(_databaseName);
+            if (receiver == "database")
+            {
+                switch (name)
+                {
+                    case "runCommand": return new JsonDrivenRunCommandTest(database, _objectMap);
+                    default: throw new FormatException($"Invalid method name: \"{name}\".");
+                }
+            }
+
+            var collection = database.GetCollection<BsonDocument>(_collectionName);
+            if (receiver == "collection")
+            {
+                switch (name)
+                {
+                    case "aggregate": return new JsonDrivenAggregateTest(collection, _objectMap);
+                    case "bulkWrite": return new JsonDrivenBulkWriteTest(collection, _objectMap);
+                    case "count": return new JsonDrivenCountTest(collection, _objectMap);
+                    case "deleteMany": return new JsonDrivenDeleteManyTest(collection, _objectMap);
+                    case "deleteOne": return new JsonDrivenDeleteOneTest(collection, _objectMap);
+                    case "distinct": return new JsonDrivenDistinctTest(collection, _objectMap);
+                    case "find": return new JsonDrivenFindTest(collection, _objectMap);
+                    case "findOneAndDelete": return new JsonDrivenFindOneAndDeleteTest(collection, _objectMap);
+                    case "findOneAndReplace": return new JsonDrivenFindOneAndReplaceTest(collection, _objectMap);
+                    case "findOneAndUpdate": return new JsonDrivenFindOneAndUpdateTest(collection, _objectMap);
+                    case "insertMany": return new JsonDrivenInsertManyTest(collection, _objectMap);
+                    case "insertOne": return new JsonDrivenInsertOneTest(collection, _objectMap);
+                    case "replaceOne": return new JsonDrivenReplaceOneTest(collection, _objectMap);
+                    case "updateMany": return new JsonDrivenUpdateManyTest(collection, _objectMap);
+                    case "updateOne": return new JsonDrivenUpdateOneTest(collection, _objectMap);
+                    default: throw new FormatException($"Invalid method name: \"{name}\".");
+                }
+            }
+
+            throw new FormatException($"Invalid receiver: \"{receiver}\".");
         }
     }
 }

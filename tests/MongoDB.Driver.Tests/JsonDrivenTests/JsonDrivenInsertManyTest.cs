@@ -27,17 +27,18 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         // private fields
         private List<BsonDocument> _documents;
         private InsertManyOptions _options = new InsertManyOptions();
+        private IClientSessionHandle _session;
 
         // public constructors
-        public JsonDrivenInsertManyTest(IMongoClient client, IMongoDatabase database, IMongoCollection<BsonDocument> collection, Dictionary<string, IClientSessionHandle> sessionMap)
-            : base(client, database, collection, sessionMap)
+        public JsonDrivenInsertManyTest(IMongoCollection<BsonDocument> collection, Dictionary<string, object> objectMap)
+            : base(collection, objectMap)
         {
         }
 
         // public methods
         public override void Arrange(BsonDocument document)
         {
-            JsonDrivenHelper.EnsureAllFieldsAreValid(document, "name", "arguments", "result");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(document, "name", "object", "collectionOptions", "arguments", "result");
             base.Arrange(document);
         }
 
@@ -49,22 +50,26 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
 
         protected override void CallMethod(CancellationToken cancellationToken)
         {
-            _collection.InsertMany(_documents, _options, cancellationToken);
-        }
-
-        protected override void CallMethod(IClientSessionHandle session, CancellationToken cancellationToken)
-        {
-            _collection.InsertMany(session, _documents, _options, cancellationToken);
+            if (_session == null)
+            {
+                _collection.InsertMany(_documents, _options, cancellationToken);
+            }
+            else
+            {
+                _collection.InsertMany(_session, _documents, _options, cancellationToken);
+            }
         }
 
         protected override Task CallMethodAsync(CancellationToken cancellationToken)
         {
-            return _collection.InsertManyAsync(_documents, _options, cancellationToken);
-        }
-
-        protected override Task CallMethodAsync(IClientSessionHandle session, CancellationToken cancellationToken)
-        {
-            return _collection.InsertManyAsync(session, _documents, _options, cancellationToken);
+            if (_session == null)
+            {
+                return _collection.InsertManyAsync(_documents, _options, cancellationToken);
+            }
+            else
+            {
+                return _collection.InsertManyAsync(_session, _documents, _options, cancellationToken);
+            }
         }
 
         protected override void SetArgument(string name, BsonValue value)
@@ -73,6 +78,10 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
             {
                 case "documents":
                     _documents = value.AsBsonArray.Cast<BsonDocument>().ToList();
+                    return;
+
+                case "session":
+                    _session = (IClientSessionHandle)_objectMap[value.AsString];
                     return;
             }
 

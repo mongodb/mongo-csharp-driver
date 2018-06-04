@@ -29,17 +29,18 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         private FilterDefinition<BsonDocument> _filter = new BsonDocument();
         private DistinctOptions _options = new DistinctOptions();
         private List<BsonValue> _result;
+        private IClientSessionHandle _session;
 
         // public constructors
-        public JsonDrivenDistinctTest(IMongoClient client, IMongoDatabase database, IMongoCollection<BsonDocument> collection, Dictionary<string, IClientSessionHandle> sessionMap)
-            : base(client, database, collection, sessionMap)
+        public JsonDrivenDistinctTest(IMongoCollection<BsonDocument> collection, Dictionary<string, object> objectMap)
+            : base(collection, objectMap)
         {
         }
 
         // public methods
         public override void Arrange(BsonDocument document)
         {
-            JsonDrivenHelper.EnsureAllFieldsAreValid(document, "name", "arguments", "result");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(document, "name", "object", "collectionOptions", "arguments", "result");
             base.Arrange(document);
         }
 
@@ -51,25 +52,29 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
 
         protected override void CallMethod(CancellationToken cancellationToken)
         {
-            var cursor = _collection.Distinct(_field, _filter, _options, cancellationToken);
-            _result = cursor.ToList(cancellationToken);
-        }
-
-        protected override void CallMethod(IClientSessionHandle session, CancellationToken cancellationToken)
-        {
-            var cursor = _collection.Distinct(session, _field, _filter, _options, cancellationToken);
+            IAsyncCursor<BsonValue> cursor;
+            if (_session == null)
+            {
+                cursor = _collection.Distinct(_field, _filter, _options, cancellationToken);
+            }
+            else
+            {
+                cursor = _collection.Distinct(_session, _field, _filter, _options, cancellationToken);
+            }
             _result = cursor.ToList(cancellationToken);
         }
 
         protected override async Task CallMethodAsync(CancellationToken cancellationToken)
         {
-            var cursor = await _collection.DistinctAsync(_field, _filter, _options, cancellationToken).ConfigureAwait(false);
-            _result = await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
-        }
-
-        protected override async Task CallMethodAsync(IClientSessionHandle session, CancellationToken cancellationToken)
-        {
-            var cursor = await _collection.DistinctAsync(session, _field, _filter, _options, cancellationToken).ConfigureAwait(false);
+            IAsyncCursor<BsonValue> cursor;
+            if (_session == null)
+            {
+                cursor = await _collection.DistinctAsync(_field, _filter, _options, cancellationToken).ConfigureAwait(false);
+            }
+            else
+            {
+                cursor = await _collection.DistinctAsync(_session, _field, _filter, _options, cancellationToken).ConfigureAwait(false);
+            }
             _result = await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
         }
 
@@ -83,6 +88,10 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
 
                 case "filter":
                     _filter = new BsonDocumentFilterDefinition<BsonDocument>(value.AsBsonDocument);
+                    return;
+
+                case "session":
+                    _session = (IClientSessionHandle)_objectMap[value.AsString];
                     return;
             }
 

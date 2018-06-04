@@ -30,17 +30,18 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         private BulkWriteOptions _options = new BulkWriteOptions();
         private List<WriteModel<BsonDocument>> _requests;
         private BulkWriteResult<BsonDocument> _result;
+        private IClientSessionHandle _session;
 
         // public constructors
-        public JsonDrivenBulkWriteTest(IMongoClient client, IMongoDatabase database, IMongoCollection<BsonDocument> collection, Dictionary<string, IClientSessionHandle> sessionMap)
-            : base(client, database, collection, sessionMap)
+        public JsonDrivenBulkWriteTest(IMongoCollection<BsonDocument> collection, Dictionary<string, object> objectMap)
+            : base(collection, objectMap)
         {
         }
 
         // public methods
         public override void Arrange(BsonDocument document)
         {
-            JsonDrivenHelper.EnsureAllFieldsAreValid(document, "name", "arguments", "result");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(document, "name", "object", "collectionOptions", "arguments", "result");
             base.Arrange(document);
         }
 
@@ -55,22 +56,26 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
 
         protected override void CallMethod(CancellationToken cancellationToken)
         {
-            _result = _collection.BulkWrite(_requests, _options);
-        }
-
-        protected override void CallMethod(IClientSessionHandle session, CancellationToken cancellationToken)
-        {
-            _result = _collection.BulkWrite(session, _requests, _options);
+            if (_session == null)
+            {
+                _result = _collection.BulkWrite(_requests, _options);
+            }
+            else
+            {
+                _result = _collection.BulkWrite(_session, _requests, _options);
+            }
         }
 
         protected override async Task CallMethodAsync(CancellationToken cancellationToken)
         {
-            _result = await _collection.BulkWriteAsync(_requests, _options).ConfigureAwait(false);
-        }
-
-        protected override async Task CallMethodAsync(IClientSessionHandle session, CancellationToken cancellationToken)
-        {
-            _result = await _collection.BulkWriteAsync(session, _requests, _options).ConfigureAwait(false);
+            if (_session == null)
+            {
+                _result = await _collection.BulkWriteAsync(_requests, _options).ConfigureAwait(false);
+            }
+            else
+            {
+                _result = await _collection.BulkWriteAsync(_session, _requests, _options).ConfigureAwait(false);
+            }
         }
 
         protected override void SetArgument(string name, BsonValue value)
@@ -79,6 +84,10 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
             {
                 case "requests":
                     _requests = ParseWriteModels(value.AsBsonArray.Cast<BsonDocument>());
+                    return;
+
+                case "session":
+                    _session = (IClientSessionHandle)_objectMap[value.AsString];
                     return;
             }
 

@@ -30,17 +30,18 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         private FindOneAndReplaceOptions<BsonDocument> _options = new FindOneAndReplaceOptions<BsonDocument>();
         private BsonDocument _replacement;
         private BsonDocument _result;
+        private IClientSessionHandle _session;
 
         // public constructors
-        public JsonDrivenFindOneAndReplaceTest(IMongoClient client, IMongoDatabase database, IMongoCollection<BsonDocument> collection, Dictionary<string, IClientSessionHandle> sessionMap)
-            : base(client, database, collection, sessionMap)
+        public JsonDrivenFindOneAndReplaceTest(IMongoCollection<BsonDocument> collection, Dictionary<string, object> objectMap)
+            : base(collection, objectMap)
         {
         }
 
         // public methods
         public override void Arrange(BsonDocument document)
         {
-            JsonDrivenHelper.EnsureAllFieldsAreValid(document, "name", "arguments", "result");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(document, "name", "object", "collectionOptions", "arguments", "result");
             base.Arrange(document);
         }
 
@@ -52,22 +53,26 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
 
         protected override void CallMethod(CancellationToken cancellationToken)
         {
-            _result = _collection.FindOneAndReplace(_filter, _replacement, _options, cancellationToken);
-        }
-
-        protected override void CallMethod(IClientSessionHandle session, CancellationToken cancellationToken)
-        {
-            _result = _collection.FindOneAndReplace(session, _filter, _replacement, _options, cancellationToken);
+            if (_session == null)
+            {
+                _result = _collection.FindOneAndReplace(_filter, _replacement, _options, cancellationToken);
+            }
+            else
+            {
+                _result = _collection.FindOneAndReplace(_session, _filter, _replacement, _options, cancellationToken);
+            }
         }
 
         protected override async Task CallMethodAsync(CancellationToken cancellationToken)
         {
-            _result = await _collection.FindOneAndReplaceAsync(_filter, _replacement, _options, cancellationToken).ConfigureAwait(false);
-        }
-
-        protected override async Task CallMethodAsync(IClientSessionHandle session, CancellationToken cancellationToken)
-        {
-            _result = await _collection.FindOneAndReplaceAsync(session, _filter, _replacement, _options, cancellationToken).ConfigureAwait(false);
+            if (_session == null)
+            {
+                _result = await _collection.FindOneAndReplaceAsync(_filter, _replacement, _options, cancellationToken).ConfigureAwait(false);
+            }
+            else
+            {
+                _result = await _collection.FindOneAndReplaceAsync(_session, _filter, _replacement, _options, cancellationToken).ConfigureAwait(false);
+            }
         }
 
         protected override void SetArgument(string name, BsonValue value)
@@ -84,6 +89,10 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
 
                 case "returnDocument":
                     _options.ReturnDocument = (ReturnDocument)Enum.Parse(typeof(ReturnDocument), value.AsString);
+                    return;
+
+                case "session":
+                    _session = (IClientSessionHandle)_objectMap[value.AsString];
                     return;
 
                 case "upsert":

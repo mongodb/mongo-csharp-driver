@@ -20,28 +20,32 @@ using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {
-    public sealed class JsonDrivenStartTransactionTest : JsonDrivenClientTest
+    public sealed class JsonDrivenStartTransactionTest : JsonDrivenSessionTest
     {
         // private fields
         private TransactionOptions _options = null;
 
         // public constructors
-        public JsonDrivenStartTransactionTest(IMongoClient client, Dictionary<string, IClientSessionHandle> sessionMap)
-            : base(client, sessionMap)
+        public JsonDrivenStartTransactionTest(Dictionary<string, object> objectMap)
+            : base(objectMap)
         {
         }
 
         // public methods
         public override void Arrange(BsonDocument document)
         {
-            JsonDrivenHelper.EnsureAllFieldsAreValid(document, "name", "arguments", "result");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(document, "name", "object", "arguments", "result");
             base.Arrange(document);
         }
 
         // protected methods
-        protected override void CallMethod(IClientSessionHandle session, CancellationToken cancellationToken)
+        protected override void AssertResult()
         {
-            session.StartTransaction(_options);
+        }
+
+        protected override void CallMethod(CancellationToken cancellationToken)
+        {
+            _session.StartTransaction(_options);
         }
 
         protected override void SetArgument(string name, BsonValue value)
@@ -49,7 +53,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
             switch (name)
             {
                 case "options":
-                    SetOptions(value.AsBsonDocument);
+                    _options = ParseOptions(value.AsBsonDocument);
                     return;
             }
 
@@ -57,7 +61,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         }
 
         // private methods
-        private void SetOptions(BsonDocument document)
+        private TransactionOptions ParseOptions(BsonDocument document)
         {
             JsonDrivenHelper.EnsureAllFieldsAreValid(document, "readConcern", "readPreference", "writeConcern");
 
@@ -77,7 +81,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                 options = options.With(writeConcern: WriteConcern.FromBsonDocument(document["writeConcern"].AsBsonDocument));
             }
 
-            _options = options;
+            return options;
         }
     }
 }

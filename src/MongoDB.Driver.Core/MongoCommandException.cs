@@ -100,7 +100,7 @@ namespace MongoDB.Driver
         /// </value>
         public string CodeName
         {
-            get { return _result.GetValue("codeName", null).AsString; }
+            get { return _result.GetValue("codeName", null)?.AsString; }
         }
 
         /// <summary>

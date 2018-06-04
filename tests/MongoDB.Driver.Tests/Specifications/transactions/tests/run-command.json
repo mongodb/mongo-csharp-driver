@@ -8,13 +8,14 @@
       "operations": [
         {
           "name": "startTransaction",
-          "arguments": {
-            "session": "session0"
-          }
+          "object": "session0"
         },
         {
           "name": "runCommand",
+          "object": "database",
+          "command_name": "insert",
           "arguments": {
+            "session": "session0",
             "command": {
               "insert": "test",
               "documents": [
@@ -22,8 +23,7 @@
                   "_id": 1
                 }
               ]
-            },
-            "session": "session0"
+            }
           },
           "result": {
             "n": 1
@@ -31,9 +31,7 @@
         },
         {
           "name": "commitTransaction",
-          "arguments": {
-            "session": "session0"
-          }
+          "object": "session0"
         }
       ],
       "expectations": [
@@ -85,8 +83,8 @@
       "operations": [
         {
           "name": "startTransaction",
+          "object": "session0",
           "arguments": {
-            "session": "session0",
             "options": {
               "readPreference": {
                 "mode": "Primary"
@@ -96,7 +94,10 @@
         },
         {
           "name": "runCommand",
+          "object": "database",
+          "command_name": "insert",
           "arguments": {
+            "session": "session0",
             "command": {
               "insert": "test",
               "documents": [
@@ -104,8 +105,7 @@
                   "_id": 1
                 }
               ]
-            },
-            "session": "session0"
+            }
           },
           "result": {
             "n": 1
@@ -113,9 +113,7 @@
         },
         {
           "name": "commitTransaction",
-          "arguments": {
-            "session": "session0"
-          }
+          "object": "session0"
         }
       ],
       "expectations": [
@@ -164,13 +162,14 @@
       "operations": [
         {
           "name": "startTransaction",
-          "arguments": {
-            "session": "session0"
-          }
+          "object": "session0"
         },
         {
           "name": "runCommand",
+          "object": "database",
+          "command_name": "insert",
           "arguments": {
+            "session": "session0",
             "command": {
               "insert": "test",
               "documents": [
@@ -179,7 +178,6 @@
                 }
               ]
             },
-            "session": "session0",
             "readPreference": {
               "mode": "Primary"
             }
@@ -190,9 +188,7 @@
         },
         {
           "name": "commitTransaction",
-          "arguments": {
-            "session": "session0"
-          }
+          "object": "session0"
         }
       ],
       "expectations": [
@@ -241,17 +237,17 @@
       "operations": [
         {
           "name": "startTransaction",
-          "arguments": {
-            "session": "session0"
-          }
+          "object": "session0"
         },
         {
           "name": "runCommand",
+          "object": "database",
+          "command_name": "find",
           "arguments": {
-            "command": {
-              "count": "test"
-            },
             "session": "session0",
+            "command": {
+              "find": "test"
+            },
             "readPreference": {
               "mode": "Secondary"
             }
@@ -267,22 +263,24 @@
       "operations": [
         {
           "name": "startTransaction",
+          "object": "session0",
           "arguments": {
-            "session": "session0",
             "options": {
               "readPreference": {
-                "mode": "Secondary"
+                "mode": "secondary"
               }
             }
           }
         },
         {
           "name": "runCommand",
+          "object": "database",
+          "command_name": "find",
           "arguments": {
+            "session": "session0",
             "command": {
-              "count": "test"
-            },
-            "session": "session0"
+              "find": "test"
+            }
           },
           "result": {
             "errorContains": "read preference in a transaction must be primary"

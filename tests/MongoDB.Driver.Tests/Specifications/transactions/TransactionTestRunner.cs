@@ -92,7 +92,7 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
             using (var session0 = StartSession(client, test, "session0"))
             using (var session1 = StartSession(client, test, "session1"))
             {
-                var sessionMap = new Dictionary<string, IClientSessionHandle>
+                var objectMap = new Dictionary<string, object>
                 {
                     { "session0", session0 },
                     { "session1", session1 }
@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
                     { "session1", session1.ServerSession.Id }
                 };
 
-                ExecuteOperations(client, sessionMap, test);
+                ExecuteOperations(client, objectMap, test);
             }
 
             AssertEvents(eventCapturer, test, sessionIdMap);
@@ -233,23 +233,20 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
             return options;
         }
 
-        private void ExecuteOperations(IMongoClient client, Dictionary<string, IClientSessionHandle> sessionMap, BsonDocument test)
+        private void ExecuteOperations(IMongoClient client, Dictionary<string, object> objectMap, BsonDocument test)
         {
-            var factory = CreateTestFactory(client, sessionMap);
+            var factory = new JsonDrivenTestFactory(client, _databaseName, _collectionName, objectMap);
+
             foreach (var operation in test["operations"].AsBsonArray.Cast<BsonDocument>())
             {
-                var jsonDrivenTest = factory.CreateTest(operation["name"].AsString);
+                var receiver = operation["object"].AsString;
+                var name = operation["name"].AsString;
+                var jsonDrivenTest = factory.CreateTest(receiver, name);
+
                 jsonDrivenTest.Arrange(operation);
                 jsonDrivenTest.Act(CancellationToken.None);
                 jsonDrivenTest.Assert();
             }
-        }
-
-        private JsonDrivenTestFactory CreateTestFactory(IMongoClient client, Dictionary<string, IClientSessionHandle> sessionMap)
-        {
-            var database = client.GetDatabase(_databaseName);
-            var collection = database.GetCollection<BsonDocument>(_collectionName);
-            return new JsonDrivenTestFactory(client, database, collection, sessionMap);
         }
 
         private void AssertEvents(EventCapturer actualEvents, BsonDocument test, Dictionary<string, BsonValue> sessionIdMap)
@@ -296,7 +293,7 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
             }
         }
 
-        public TransactionOptions ParseTransactionOptions(BsonDocument document)
+        private TransactionOptions ParseTransactionOptions(BsonDocument document)
         {
             ReadConcern readConcern = null;
             ReadPreference readPreference = null;

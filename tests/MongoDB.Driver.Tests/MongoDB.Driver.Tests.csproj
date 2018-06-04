@@ -138,7 +138,9 @@
     <Compile Include="FilterDefinitionBuilderNullableIntComparedToNullableIntTests.cs" />
     <Compile Include="FilterDefinitionBuilderNullableIntComparedToNullableIntWithStringRepresentationTests.cs" />
     <Compile Include="FindFluentTests.cs" />
+    <Compile Include="JsonDrivenTests\JsonDrivenCommandTest.cs" />
     <Compile Include="JsonDrivenTests\JsonDrivenRunCommandTest.cs" />
+    <Compile Include="JsonDrivenTests\JsonDrivenSessionTest.cs" />
     <Compile Include="Linq\MongoQueryableEnumComparedToEnumTests.cs" />
     <Compile Include="Linq\MongoQueryableEnumComparedToEnumWithStringRepresentationTests.cs" />
     <Compile Include="Linq\MongoQueryableIntArrayComparedToEnumerableIntTests.cs" />
@@ -185,7 +187,6 @@
     <Compile Include="JsonDrivenTests\JsonDrivenAbortTransactionTest.cs" />
     <Compile Include="JsonDrivenTests\JsonDrivenAggregateTest.cs" />
     <Compile Include="JsonDrivenTests\JsonDrivenBulkWriteTest.cs" />
-    <Compile Include="JsonDrivenTests\JsonDrivenClientTest.cs" />
     <Compile Include="JsonDrivenTests\JsonDrivenCollectionTest.cs" />
     <Compile Include="JsonDrivenTests\JsonDrivenCommitTransactionTest.cs" />
     <Compile Include="JsonDrivenTests\JsonDrivenCountTest.cs" />

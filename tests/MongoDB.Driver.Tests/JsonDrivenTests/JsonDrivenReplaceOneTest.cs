@@ -30,17 +30,18 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         private UpdateOptions _options = new UpdateOptions();
         private BsonDocument _replacement;
         private ReplaceOneResult _result;
+        private IClientSessionHandle _session;
 
         // public constructors
-        public JsonDrivenReplaceOneTest(IMongoClient client, IMongoDatabase database, IMongoCollection<BsonDocument> collection, Dictionary<string, IClientSessionHandle> sessionMap)
-            : base(client, database, collection, sessionMap)
+        public JsonDrivenReplaceOneTest(IMongoCollection<BsonDocument> collection, Dictionary<string, object> objectMap)
+            : base(collection, objectMap)
         {
         }
 
         // public methods
         public override void Arrange(BsonDocument document)
         {
-            JsonDrivenHelper.EnsureAllFieldsAreValid(document, "name", "arguments", "result");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(document, "name", "object", "collectionOptions", "arguments", "result");
             base.Arrange(document);
         }
 
@@ -55,22 +56,26 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
 
         protected override void CallMethod(CancellationToken cancellationToken)
         {
-            _result = _collection.ReplaceOne(_filter, _replacement, _options, cancellationToken);
-        }
-
-        protected override void CallMethod(IClientSessionHandle session, CancellationToken cancellationToken)
-        {
-            _result = _collection.ReplaceOne(session, _filter, _replacement, _options, cancellationToken);
+            if (_session == null)
+            {
+                _result = _collection.ReplaceOne(_filter, _replacement, _options, cancellationToken);
+            }
+            else
+            {
+                _result = _collection.ReplaceOne(_session, _filter, _replacement, _options, cancellationToken);
+            }
         }
 
         protected override async Task CallMethodAsync(CancellationToken cancellationToken)
         {
-            _result = await _collection.ReplaceOneAsync(_filter, _replacement, _options, cancellationToken).ConfigureAwait(false);
-        }
-
-        protected override async Task CallMethodAsync(IClientSessionHandle session, CancellationToken cancellationToken)
-        {
-            _result = await _collection.ReplaceOneAsync(session, _filter, _replacement, _options, cancellationToken).ConfigureAwait(false);
+            if (_session == null)
+            {
+                _result = await _collection.ReplaceOneAsync(_filter, _replacement, _options, cancellationToken).ConfigureAwait(false);
+            }
+            else
+            {
+                _result = await _collection.ReplaceOneAsync(_session, _filter, _replacement, _options, cancellationToken).ConfigureAwait(false);
+            }
         }
 
         protected override void SetArgument(string name, BsonValue value)
@@ -83,6 +88,10 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
 
                 case "replacement":
                     _replacement = value.AsBsonDocument;
+                    return;
+
+                case "session":
+                    _session = (IClientSessionHandle)_objectMap[value.AsString];
                     return;
 
                 case "upsert":

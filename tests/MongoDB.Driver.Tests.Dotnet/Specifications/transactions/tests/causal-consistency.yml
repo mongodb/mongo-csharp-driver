@@ -12,12 +12,13 @@ tests:
       # Update a document without a transaction.
       - &updateOne
         name: updateOne
+        object: collection
         arguments:
+          session: session0
           filter: {_id: 1}
           update:
             $inc: {count: 1}
           upsert: false
-          session: session0
         result:
           matchedCount: 1
           modifiedCount: 1
@@ -26,12 +27,10 @@ tests:
       # Casual consistency ensures that the transaction snapshot is causally
       # after the first updateOne.
       - name: startTransaction
-        arguments:
-          session: session0
+        object: session0
       - *updateOne
       - name: commitTransaction
-        arguments:
-          session: session0
+        object: session0
 
     expectations:
       - command_started_event:
@@ -97,29 +96,29 @@ tests:
     operations:
       # Insert a document without a transaction.
       - name: insertOne
+        object: collection
         arguments:
+          session: session0
           document:
             _id: 2
-          session: session0
         result:
           insertedId: 2
       - name: startTransaction
+        object: session0
+      - name: updateOne
+        object: collection
         arguments:
           session: session0
-      - name: updateOne
-        arguments:
           filter: {_id: 1}
           update:
             $inc: {count: 1}
           upsert: false
-          session: session0
         result:
           matchedCount: 1
           modifiedCount: 1
           upsertedCount: 0
       - name: commitTransaction
-        arguments:
-          session: session0
+        object: session0
 
     expectations:
       - command_started_event:

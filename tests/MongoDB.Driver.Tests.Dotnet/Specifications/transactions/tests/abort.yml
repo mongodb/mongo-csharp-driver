@@ -8,31 +8,29 @@ tests:
 
     operations:
       - name: startTransaction
+        object: session0
+      - name: insertOne
+        object: collection
         arguments:
           session: session0
-      - name: insertOne
-        arguments:
           document:
             _id: 1
-          session: session0
         result:
           insertedId: 1
       - name: abortTransaction
-        arguments:
-          session: session0
+        object: session0
       - name: startTransaction
+        object: session0
+      - name: insertOne
+        object: collection
         arguments:
           session: session0
-      - name: insertOne
-        arguments:
           document:
             _id: 1
-          session: session0
         result:
           insertedId: 1
       - name: abortTransaction
-        arguments:
-          session: session0
+        object: session0
 
     expectations:
       - command_started_event:
@@ -99,13 +97,13 @@ tests:
       # Start a transaction but don't commit - the driver calls abortTransaction
       # from ClientSession.endSession().
       - name: startTransaction
+        object: session0
+      - name: insertOne
+        object: collection
         arguments:
           session: session0
-      - name: insertOne
-        arguments:
           document:
             _id: 1
-          session: session0
         result:
           insertedId: 1
 
@@ -145,21 +143,19 @@ tests:
 
     operations:
       - name: startTransaction
+        object: session0
+      - name: insertOne
+        object: collection
         arguments:
           session: session0
-      - name: insertOne
-        arguments:
           document:
             _id: 1
-          session: session0
         result:
           insertedId: 1
       - name: abortTransaction
-        arguments:
-          session: session0
+        object: session0
       - name: abortTransaction
-        arguments:
-          session: session0
+        object: session0
         result:
           errorContains: cannot call abortTransaction twice
 
@@ -199,8 +195,7 @@ tests:
 
     operations:
       - name: abortTransaction
-        arguments:
-          session: session0
+        object: session0
         result:
           errorContains: no transaction started
 
@@ -214,14 +209,11 @@ tests:
 
     operations:
       - name: startTransaction
-        arguments:
-          session: session0
+        object: session0
       - name: commitTransaction
-        arguments:
-          session: session0
+        object: session0
       - name: abortTransaction  # Error calling abort after no-op commit.
-        arguments:
-          session: session0
+        object: session0
         result:
           errorContains: Cannot call abortTransaction after calling commitTransaction
 
@@ -235,21 +227,19 @@ tests:
 
     operations:
       - name: startTransaction
+        object: session0
+      - name: insertOne
+        object: collection
         arguments:
           session: session0
-      - name: insertOne
-        arguments:
           document:
             _id: 1
-          session: session0
         result:
           insertedId: 1
       - name: commitTransaction
-        arguments:
-          session: session0
+        object: session0
       - name: abortTransaction  # Error calling abort after commit.
-        arguments:
-          session: session0
+        object: session0
         result:
           errorContains: Cannot call abortTransaction after calling commitTransaction
 
@@ -290,35 +280,36 @@ tests:
 
     operations:
       - name: startTransaction
+        object: session0
+      - name: insertOne
+        object: collection
         arguments:
           session: session0
-      - name: insertOne
-        arguments:
           document:
             _id: 1
-          session: session0
         result:
           insertedId: 1
       # Abort the server transaction with a duplicate key error.
       - name: insertOne
+        object: collection
         arguments:
+          session: session0
           document:
             _id: 1
-          session: session0
         result:
           errorCodeName: DuplicateKey
       # Make sure the server aborted the transaction.
       - name: insertOne
+        object: collection
         arguments:
+          session: session0
           document:
             _id: 1
-          session: session0
         result:
           errorCodeName: NoSuchTransaction
       # abortTransaction must ignore the TransactionAborted and succeed.
       - name: abortTransaction
-        arguments:
-          session: session0
+        object: session0
 
     expectations:
       - command_started_event:
@@ -387,21 +378,21 @@ tests:
 
     operations:
       - name: startTransaction
+        object: session0
         arguments:
-          session: session0
           options:
             writeConcern:
               w: 10
       - name: insertOne
+        object: collection
         arguments:
+          session: session0
           document:
             _id: 1
-          session: session0
         result:
           insertedId: 1
       - name: abortTransaction
-        arguments:
-          session: session0
+        object: session0
         # No CannotSatisfyWriteConcern error.
 
     outcome:

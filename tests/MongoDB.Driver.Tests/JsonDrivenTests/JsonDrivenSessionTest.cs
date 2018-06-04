@@ -19,22 +19,29 @@ using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {
-    public abstract class JsonDrivenDatabaseTest : JsonDrivenCommandTest
+    public abstract class JsonDrivenSessionTest : JsonDrivenCommandTest
     {
         // protected fields
-        protected IMongoDatabase _database;
+        protected IClientSessionHandle _session;
 
-        // constructors
-        protected JsonDrivenDatabaseTest(IMongoDatabase database, Dictionary<string, object> objectMap)
+        // protected constructors
+        protected JsonDrivenSessionTest(Dictionary<string, object> objectMap)
             : base(objectMap)
         {
-            _database = database;
         }
 
         // public methods
         public override void Arrange(BsonDocument document)
         {
-            JsonDrivenHelper.EnsureFieldEquals(document, "object", "database");
+            var receiver = document["object"].AsString;
+            switch (receiver)
+            {
+                case "session0":
+                case "session1":
+                    _session = (IClientSessionHandle)_objectMap[receiver];
+                    break;
+            }
+
             base.Arrange(document);
         }
     }

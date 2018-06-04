@@ -89,6 +89,7 @@
     <Compile Include="JsonDrivenTests\AspectAsserter.cs" />
     <Compile Include="JsonDrivenTests\BsonDocumentAspectAsserter.cs" />
     <Compile Include="JsonDrivenTests\JsonDrivenHelper.cs" />
+    <Compile Include="JsonDrivenTests\JsonDrivenTest.cs" />
     <Compile Include="JsonDrivenTests\JsonDrivenTestCase.cs" />
     <Compile Include="JsonDrivenTests\JsonDrivenTestCaseFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -30,17 +30,18 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         private UpdateOptions _options = new UpdateOptions();
         private UpdateResult _result;
         private UpdateDefinition<BsonDocument> _update;
+        private IClientSessionHandle _session;
 
         // public constructors
-        public JsonDrivenUpdateManyTest(IMongoClient client, IMongoDatabase database, IMongoCollection<BsonDocument> collection, Dictionary<string, IClientSessionHandle> sessionMap)
-            : base(client, database, collection, sessionMap)
+        public JsonDrivenUpdateManyTest(IMongoCollection<BsonDocument> collection, Dictionary<string, object> objectMap)
+            : base(collection, objectMap)
         {
         }
 
         // public methods
         public override void Arrange(BsonDocument document)
         {
-            JsonDrivenHelper.EnsureAllFieldsAreValid(document, "name", "arguments", "result");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(document, "name", "object", "collectionOptions", "arguments", "result");
             base.Arrange(document);
         }
 
@@ -55,22 +56,26 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
 
         protected override void CallMethod(CancellationToken cancellationToken)
         {
-            _result = _collection.UpdateMany(_filter, _update, _options, cancellationToken);
-        }
-
-        protected override void CallMethod(IClientSessionHandle session, CancellationToken cancellationToken)
-        {
-            _result = _collection.UpdateMany(session, _filter, _update, _options, cancellationToken);
+            if (_session == null)
+            {
+                _result = _collection.UpdateMany(_filter, _update, _options, cancellationToken);
+            }
+            else
+            {
+                _result = _collection.UpdateMany(_session, _filter, _update, _options, cancellationToken);
+            }
         }
 
         protected override async Task CallMethodAsync(CancellationToken cancellationToken)
         {
-            _result = await _collection.UpdateManyAsync(_filter, _update, _options, cancellationToken).ConfigureAwait(false);
-        }
-
-        protected override async Task CallMethodAsync(IClientSessionHandle session, CancellationToken cancellationToken)
-        {
-            _result = await _collection.UpdateManyAsync(session, _filter, _update, _options, cancellationToken).ConfigureAwait(false);
+            if (_session == null)
+            {
+                _result = await _collection.UpdateManyAsync(_filter, _update, _options, cancellationToken).ConfigureAwait(false);
+            }
+            else
+            {
+                _result = await _collection.UpdateManyAsync(_session, _filter, _update, _options, cancellationToken).ConfigureAwait(false);
+            }
         }
 
         protected override void SetArgument(string name, BsonValue value)
@@ -79,6 +84,10 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
             {
                 case "filter":
                     _filter = new BsonDocumentFilterDefinition<BsonDocument>(value.AsBsonDocument);
+                    return;
+
+                case "session":
+                    _session = (IClientSessionHandle)_objectMap[value.AsString];
                     return;
 
                 case "update":
