@@ -36,6 +36,7 @@ namespace MongoDB.Driver.Core.Operations
         private BsonDocument _filter;
         private readonly DatabaseNamespace _databaseNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
+        private bool? _nameOnly;
 
         // constructors
         /// <summary>
@@ -86,6 +87,18 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
+        /// <summary>
+        /// Gets or sets the name only option.
+        /// </summary>
+        /// <value>
+        /// The name only option.
+        /// </value>
+        public bool? NameOnly
+        {
+            get { return _nameOnly; }
+            set { _nameOnly = value; }
+        }
+
         // public methods
         /// <inheritdoc/>
         public IAsyncCursor<BsonDocument> Execute(IReadBinding binding, CancellationToken cancellationToken)
@@ -121,7 +134,8 @@ namespace MongoDB.Driver.Core.Operations
             var command = new BsonDocument
             {
                 { "listCollections", 1 },
-                { "filter", _filter, _filter != null }
+                { "filter", _filter, _filter != null },
+                { "nameOnly", () => _nameOnly.Value, _nameOnly.HasValue }
             };
             return new ReadCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
         }

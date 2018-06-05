@@ -18,9 +18,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
@@ -70,6 +74,19 @@ namespace MongoDB.Driver.Core.Operations
             var result = subject.Filter;
 
             result.Should().BeSameAs(filter);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void NameOnly_get_and_set_should_work(
+            [Values(null, false, true)] bool? nameOnly)
+        {
+            var subject = new ListCollectionsOperation(_databaseNamespace, _messageEncoderSettings);
+
+            subject.NameOnly = nameOnly;
+            var result = subject.NameOnly;
+
+            result.Should().Be(nameOnly);
         }
 
         [SkippableTheory]
@@ -159,6 +176,55 @@ namespace MongoDB.Driver.Core.Operations
             VerifySessionIdWasSentWhenSupported(subject, "listCollections", async);
         }
 
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateOperation_should_return_expected_result_when_list_collections_command_is_not_supported(
+            [Values(null, false, true)] bool? nameOnly)
+        {
+            var filter = new BsonDocument();
+            var subject = new ListCollectionsOperation(_databaseNamespace, _messageEncoderSettings)
+            {
+                Filter = filter,
+                NameOnly = nameOnly
+            };
+            var serverVersion = Feature.ListCollectionsCommand.LastNotSupportedVersion;
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: serverVersion);
+            var mockChannel = new Mock<IChannel>();
+            mockChannel.SetupGet(m => m.ConnectionDescription).Returns(connectionDescription);
+
+            var result = subject.CreateOperation(mockChannel.Object);
+
+            var operation = result.Should().BeOfType<ListCollectionsUsingQueryOperation>().Subject;
+            operation.Filter.Should().BeSameAs(subject.Filter);
+            operation.DatabaseNamespace.Should().BeSameAs(subject.DatabaseNamespace);
+            operation.MessageEncoderSettings.Should().BeSameAs(subject.MessageEncoderSettings);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateOperation_should_return_expected_result_when_list_collections_command_is_supported(
+            [Values(null, false, true)] bool? nameOnly)
+        {
+            var filter = new BsonDocument();
+            var subject = new ListCollectionsOperation(_databaseNamespace, _messageEncoderSettings)
+            {
+                Filter = filter,
+                NameOnly = nameOnly
+            };
+            var serverVersion = Feature.ListCollectionsCommand.FirstSupportedVersion;
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: serverVersion);
+            var mockChannel = new Mock<IChannel>();
+            mockChannel.SetupGet(m => m.ConnectionDescription).Returns(connectionDescription);
+
+            var result = subject.CreateOperation(mockChannel.Object);
+
+            var operation = result.Should().BeOfType<ListCollectionsUsingCommandOperation>().Subject;
+            operation.Filter.Should().BeSameAs(subject.Filter);
+            operation.DatabaseNamespace.Should().BeSameAs(subject.DatabaseNamespace);
+            operation.MessageEncoderSettings.Should().BeSameAs(subject.MessageEncoderSettings);
+            operation.NameOnly.Should().Be(subject.NameOnly);
+        }
+
         // helper methods
         private void CreateCappedCollection()
         {
@@ -202,5 +268,10 @@ namespace MongoDB.Driver.Core.Operations
                 CreateCappedCollection();
             });
         }
+    }
+
+    public static class ListCollectionsOperationReflector
+    {
+        public static IReadOperation<IAsyncCursor<BsonDocument>> CreateOperation(this ListCollectionsOperation obj, IChannel channel) => (IReadOperation<IAsyncCursor<BsonDocument>>)Reflector.Invoke(obj, nameof(CreateOperation), channel);
     }
 }

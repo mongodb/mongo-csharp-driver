@@ -14,6 +14,8 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -191,6 +193,34 @@ namespace MongoDB.Driver
             return new MongoCollectionImpl<TDocument>(this, new CollectionNamespace(_databaseNamespace, name), settings, _cluster, _operationExecutor);
         }
 
+        public override IAsyncCursor<string> ListCollectionNames(ListCollectionNamesOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return UsingImplicitSession(session => ListCollectionNames(session, options, cancellationToken), cancellationToken);
+        }
+
+        public override IAsyncCursor<string> ListCollectionNames(IClientSessionHandle session, ListCollectionNamesOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(session, nameof(session));
+            var operation = CreateListCollectionNamesOperation(options);
+            var effectiveReadPreference = ReadPreferenceResolver.GetEffectiveReadPreference(session, null, ReadPreference.Primary);
+            var cursor = ExecuteReadOperation(session, operation, effectiveReadPreference, cancellationToken);
+            return new BatchTransformingAsyncCursor<BsonDocument, string>(cursor, ExtractCollectionNames);
+        }
+
+        public override Task<IAsyncCursor<string>> ListCollectionNamesAsync(ListCollectionNamesOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return UsingImplicitSessionAsync(session => ListCollectionNamesAsync(session, options, cancellationToken), cancellationToken);
+        }
+
+        public override async Task<IAsyncCursor<string>> ListCollectionNamesAsync(IClientSessionHandle session, ListCollectionNamesOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(session, nameof(session));
+            var operation = CreateListCollectionNamesOperation(options);
+            var effectiveReadPreference = ReadPreferenceResolver.GetEffectiveReadPreference(session, null, ReadPreference.Primary);
+            var cursor = await ExecuteReadOperationAsync(session, operation, effectiveReadPreference, cancellationToken).ConfigureAwait(false);
+            return new BatchTransformingAsyncCursor<BsonDocument, string>(cursor, ExtractCollectionNames);
+        }
+
         public override IAsyncCursor<BsonDocument> ListCollections(ListCollectionsOptions options, CancellationToken cancellationToken)
         {
             return UsingImplicitSession(session => ListCollections(session, options, cancellationToken), cancellationToken);
@@ -199,7 +229,6 @@ namespace MongoDB.Driver
         public override IAsyncCursor<BsonDocument> ListCollections(IClientSessionHandle session, ListCollectionsOptions options, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(session, nameof(session));
-            options = options ?? new ListCollectionsOptions();
             var operation = CreateListCollectionsOperation(options);
             var effectiveReadPreference = ReadPreferenceResolver.GetEffectiveReadPreference(session, null, ReadPreference.Primary);
             return ExecuteReadOperation(session, operation, effectiveReadPreference, cancellationToken);
@@ -213,7 +242,6 @@ namespace MongoDB.Driver
         public override Task<IAsyncCursor<BsonDocument>> ListCollectionsAsync(IClientSessionHandle session, ListCollectionsOptions options, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(session, nameof(session));
-            options = options ?? new ListCollectionsOptions();
             var operation = CreateListCollectionsOperation(options);
             var effectiveReadPreference = ReadPreferenceResolver.GetEffectiveReadPreference(session, null, ReadPreference.Primary);
             return ExecuteReadOperationAsync(session, operation, effectiveReadPreference, cancellationToken);
@@ -396,12 +424,22 @@ namespace MongoDB.Driver
             };
         }
 
+        private ListCollectionsOperation CreateListCollectionNamesOperation(ListCollectionNamesOptions options)
+        {
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            return new ListCollectionsOperation(_databaseNamespace, messageEncoderSettings)
+            {
+                Filter = options?.Filter?.Render(_settings.SerializerRegistry.GetSerializer<BsonDocument>(), _settings.SerializerRegistry),
+                NameOnly = true
+            };
+        }
+
         private ListCollectionsOperation CreateListCollectionsOperation(ListCollectionsOptions options)
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
             return new ListCollectionsOperation(_databaseNamespace, messageEncoderSettings)
             {
-                Filter = options.Filter?.Render(_settings.SerializerRegistry.GetSerializer<BsonDocument>(), _settings.SerializerRegistry)
+                Filter = options?.Filter?.Render(_settings.SerializerRegistry.GetSerializer<BsonDocument>(), _settings.SerializerRegistry)
             };
         }
 
@@ -440,6 +478,11 @@ namespace MongoDB.Driver
             var renderedCommand = command.Render(_settings.SerializerRegistry);
             var messageEncoderSettings = GetMessageEncoderSettings();
             return new ReadCommandOperation<TResult>(_databaseNamespace, renderedCommand.Document, renderedCommand.ResultSerializer, messageEncoderSettings);
+        }
+
+        private IEnumerable<string> ExtractCollectionNames(IEnumerable<BsonDocument> collections)
+        {
+            return collections.Select(collection => collection["name"].AsString);
         }
 
         private T ExecuteReadOperation<T>(IClientSessionHandle session, IReadOperation<T> operation, ReadPreference readPreference, CancellationToken cancellationToken)

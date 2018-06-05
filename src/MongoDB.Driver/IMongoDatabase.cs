@@ -181,7 +181,41 @@ namespace MongoDB.Driver
         IMongoCollection<TDocument> GetCollection<TDocument>(string name, MongoCollectionSettings settings = null);
 
         /// <summary>
-        /// Lists all the collections on the server.
+        /// Lists the names of all the collections in the database.
+        /// </summary>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A cursor.</returns>
+        IAsyncCursor<string> ListCollectionNames(ListCollectionNamesOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Lists the names of all the collections in the database.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A cursor.</returns>
+        IAsyncCursor<string> ListCollectionNames(IClientSessionHandle session, ListCollectionNamesOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Lists the names of all the collections in the database.
+        /// </summary>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task whose result is a cursor.</returns>
+        Task<IAsyncCursor<string>> ListCollectionNamesAsync(ListCollectionNamesOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Lists the names of all the collections in the database.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task whose result is a cursor.</returns>
+        Task<IAsyncCursor<string>> ListCollectionNamesAsync(IClientSessionHandle session, ListCollectionNamesOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Lists all the collections in the database.
         /// </summary>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
@@ -189,7 +223,7 @@ namespace MongoDB.Driver
         IAsyncCursor<BsonDocument> ListCollections(ListCollectionsOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Lists all the collections on the server.
+        /// Lists all the collections in the database.
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="options">The options.</param>
@@ -200,7 +234,7 @@ namespace MongoDB.Driver
         IAsyncCursor<BsonDocument> ListCollections(IClientSessionHandle session, ListCollectionsOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Lists all the collections on the server.
+        /// Lists all the collections in the database.
         /// </summary>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
@@ -208,7 +242,7 @@ namespace MongoDB.Driver
         Task<IAsyncCursor<BsonDocument>> ListCollectionsAsync(ListCollectionsOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Lists all the collections on the server.
+        /// Lists all the collections in the database.
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="options">The options.</param>

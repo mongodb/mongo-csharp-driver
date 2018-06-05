@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Linq;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -24,6 +25,7 @@ using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Tests;
 using Moq;
 using Xunit;
@@ -484,6 +486,106 @@ namespace MongoDB.Driver
 
         [Theory]
         [ParameterAttributeData]
+        public void ListCollectionNames_should_execute_a_ListCollectionsOperation(
+            [Values(false, true)] bool usingSession,
+            [Values(false, true)] bool async)
+        {
+            var session = CreateSession(usingSession);
+            var filterDocument = BsonDocument.Parse("{ name : \"awesome\" }");
+            var filterDefinition = (FilterDefinition<BsonDocument>)filterDocument;
+            var options = new ListCollectionNamesOptions
+            {
+                Filter = filterDefinition
+            };
+            var cancellationToken = new CancellationTokenSource().Token;
+
+            var mockCursor = new Mock<IAsyncCursor<BsonDocument>>();
+            _operationExecutor.EnqueueResult<IAsyncCursor<BsonDocument>>(mockCursor.Object);
+
+            if (usingSession)
+            {
+                if (async)
+                {
+                    _subject.ListCollectionNamesAsync(session, options, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    _subject.ListCollectionNames(session, options, cancellationToken);
+                }
+            }
+            else
+            {
+                if (async)
+                {
+                    _subject.ListCollectionNamesAsync(options, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    _subject.ListCollectionNames(options, cancellationToken);
+                }
+            }
+
+            var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
+            VerifySessionAndCancellationToken(call, session, cancellationToken);
+
+            var op = call.Operation.Should().BeOfType<ListCollectionsOperation>().Subject;
+            op.DatabaseNamespace.Should().Be(_subject.DatabaseNamespace);
+            op.Filter.Should().Be(filterDocument);
+            op.NameOnly.Should().BeTrue();
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void ListCollectionNames_should_return_expected_result(
+            [Values(0, 1, 2, 10)] int numberOfCollections,
+            [Values(false, true)] bool usingSession,
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check();
+
+            var collectionNames = Enumerable.Range(1, numberOfCollections).Select(n => $"c{n}").ToArray();
+
+            var client = DriverTestConfiguration.Client;
+            var database = client.GetDatabase("ListCollectionNames-test");
+            client.DropDatabase(database.DatabaseNamespace.DatabaseName);
+            foreach (var collectionName in collectionNames)
+            {
+                database.CreateCollection(collectionName);
+            }
+
+            using (var session = usingSession ? client.StartSession() : null)
+            {
+                IAsyncCursor<string> cursor;
+                if (usingSession)
+                {
+                    if (async)
+                    {
+                        cursor = database.ListCollectionNamesAsync(session).GetAwaiter().GetResult();
+                    }
+                    else
+                    {
+                        cursor = database.ListCollectionNames(session);
+                    }
+                }
+                else
+                {
+                    if (async)
+                    {
+                        cursor = database.ListCollectionNamesAsync().GetAwaiter().GetResult();
+                    }
+                    else
+                    {
+                        cursor = database.ListCollectionNames();
+                    }
+                }
+
+                var actualCollectionNames = cursor.ToList();
+                actualCollectionNames.Should().BeEquivalentTo(collectionNames);
+            }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void ListCollections_should_execute_a_ListCollectionsOperation(
             [Values(false, true)] bool usingSession,
             [Values(false, true)] bool async)
@@ -529,6 +631,7 @@ namespace MongoDB.Driver
             var op = call.Operation.Should().BeOfType<ListCollectionsOperation>().Subject;
             op.DatabaseNamespace.Should().Be(_subject.DatabaseNamespace);
             op.Filter.Should().Be(filterDocument);
+            op.NameOnly.Should().NotHaveValue();
         }
 
         [Theory]
