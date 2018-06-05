@@ -407,17 +407,17 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(0, _collection.Count());
         }
 
-#pragma warning disable 618
         [Fact]
         public void TestConstructorArgumentChecking()
         {
             var settings = new MongoCollectionSettings();
+#pragma warning disable 618
             Assert.Throws<ArgumentNullException>(() => { new MongoCollection<BsonDocument>(null, "name", settings); });
             Assert.Throws<ArgumentNullException>(() => { new MongoCollection<BsonDocument>(_database, null, settings); });
             Assert.Throws<ArgumentNullException>(() => { new MongoCollection<BsonDocument>(_database, "name", null); });
             Assert.Throws<ArgumentOutOfRangeException>(() => { new MongoCollection<BsonDocument>(_database, "", settings); });
+#pragma warning restore
         }
-#pragma warning disable
 
         [Fact]
         public void TestCountZero()
@@ -577,7 +577,9 @@ namespace MongoDB.Driver.Tests
             RequireServer.Check().VersionLessThan("3.7.0");
             var collection = _database.GetCollection("cappedcollection");
             collection.Drop();
+#pragma warning disable 618
             var options = CollectionOptions.SetAutoIndexId(autoIndexId);
+#pragma warning restore
             var expectedIndexCount = autoIndexId ? 1 : 0;
 
             _database.CreateCollection(collection.Name, options);
@@ -1568,7 +1570,9 @@ namespace MongoDB.Driver.Tests
             var docs = Enumerable.Range(0, 10).Select(x => new BsonDocument("_id", x));
             _collection.InsertBatch(docs);
 
+#pragma warning disable 618
             var results = _collection.FindAll().SetMaxScan(4).ToList();
+#pragma warning restore
             Assert.Equal(4, results.Count);
         }
 

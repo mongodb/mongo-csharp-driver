@@ -123,7 +123,9 @@ namespace MongoDB.Driver.Core.Operations
             subject.Limit.Should().NotHaveValue();
             subject.Max.Should().BeNull();
             subject.MaxAwaitTime.Should().NotHaveValue();
+#pragma warning disable 618
             subject.MaxScan.Should().NotHaveValue();
+#pragma warning restore
             subject.MaxTime.Should().NotHaveValue();
             subject.Min.Should().BeNull();
             subject.NoCursorTimeout.Should().NotHaveValue();
@@ -417,10 +419,12 @@ namespace MongoDB.Driver.Core.Operations
             [Values(null, 1, 2)]
             int? maxScan)
         {
+#pragma warning disable 618
             var subject = new FindCommandOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
                 MaxScan = maxScan
             };
+#pragma warning restore
 
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             var session = OperationTestHelper.CreateSession();
@@ -1020,8 +1024,10 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new FindCommandOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
+#pragma warning disable 618
             subject.MaxScan = value;
             var result = subject.MaxScan;
+#pragma warning restore
 
             result.Should().Be(value);
         }
@@ -1034,7 +1040,9 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new FindCommandOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
+#pragma warning disable 618
             var exception = Record.Exception(() => { subject.MaxScan = value; });
+#pragma warning restore
 
             var argumentOutOfRangeException = exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
             argumentOutOfRangeException.ParamName.Should().Be("value");

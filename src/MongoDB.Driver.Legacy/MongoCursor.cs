@@ -574,6 +574,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="maxScan">The maximum number of documents to scan.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
+        [Obsolete("MaxScan was deprecated in server version 4.0.")]
         public virtual MongoCursor SetMaxScan(int maxScan)
         {
             if (_isFrozen) { ThrowFrozen(); }
@@ -985,6 +986,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="maxScan">The maximum number of documents to scan.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
+        [Obsolete("MaxScan was deprecated in server version 4.0.")]
         public new virtual MongoCursor<TDocument> SetMaxScan(int maxScan)
         {
             return (MongoCursor<TDocument>)base.SetMaxScan(maxScan);
