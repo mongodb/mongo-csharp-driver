@@ -130,7 +130,9 @@ namespace MongoDB.Driver.Core.Operations
             subject.Projection.Should().BeNull();
             subject.ShowRecordId.Should().NotHaveValue();
             subject.Skip.Should().NotHaveValue();
+#pragma warning disable 618
             subject.Snapshot.Should().NotHaveValue();
+#pragma warning restore
             subject.Sort.Should().BeNull();
         }
 
@@ -624,9 +626,11 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new FindOpcodeOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
+#pragma warning disable 618
             subject.Snapshot = value;
             var result = subject.Snapshot;
-
+#pragma warning restore
+        
             result.Should().Be(value);
         }
 

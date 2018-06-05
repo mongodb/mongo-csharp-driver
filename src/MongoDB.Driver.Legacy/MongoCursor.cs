@@ -688,6 +688,7 @@ namespace MongoDB.Driver
         /// Sets the $snapshot option.
         /// </summary>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
+        [Obsolete("Snapshot was deprecated in server version 3.7.4.")]
         public virtual MongoCursor SetSnapshot()
         {
             if (_isFrozen) { ThrowFrozen(); }
@@ -1074,6 +1075,7 @@ namespace MongoDB.Driver
         /// Sets the $snapshot option.
         /// </summary>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
+        [Obsolete("Snapshot was deprecated in server version 3.7.4.")]
         public new virtual MongoCursor<TDocument> SetSnapshot()
         {
             return (MongoCursor<TDocument>)base.SetSnapshot();

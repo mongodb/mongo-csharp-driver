@@ -134,7 +134,9 @@ namespace MongoDB.Driver.Core.Operations
             subject.ShowRecordId.Should().NotHaveValue();
             subject.SingleBatch.Should().NotHaveValue();
             subject.Skip.Should().NotHaveValue();
+#pragma warning disable 618
             subject.Snapshot.Should().NotHaveValue();
+#pragma warning restore
             subject.Sort.Should().BeNull();
         }
 
@@ -661,10 +663,12 @@ namespace MongoDB.Driver.Core.Operations
             [Values(null, false, true)]
             bool? snapshot)
         {
+#pragma warning disable 618
             var subject = new FindCommandOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
                 Snapshot = snapshot
             };
+#pragma warning restore
 
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             var session = OperationTestHelper.CreateSession();
@@ -1241,8 +1245,10 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new FindCommandOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
+#pragma warning disable 618
             subject.Snapshot = value;
             var result = subject.Snapshot;
+#pragma warning restore
 
             result.Should().Be(value);
         }

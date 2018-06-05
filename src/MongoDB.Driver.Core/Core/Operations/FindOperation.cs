@@ -394,6 +394,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <value>
         /// Whether to use snapshot behavior.
         /// </value>
+        [Obsolete("Snapshot was deprecated in server version 3.7.4.")]
         public bool? Snapshot
         {
             get { return _snapshot; }
@@ -477,6 +478,7 @@ namespace MongoDB.Driver.Core.Operations
                 }
             }
 
+#pragma warning disable 618
             var operation = new FindCommandOperation<TDocument>(
                 _collectionNamespace,
                 _resultSerializer,
@@ -507,6 +509,7 @@ namespace MongoDB.Driver.Core.Operations
                 Snapshot = snapshot,
                 Sort = sort
             };
+#pragma warning restore
 
             return operation;
         }
@@ -522,6 +525,7 @@ namespace MongoDB.Driver.Core.Operations
                 throw new NotSupportedException($"OP_QUERY does not support collations.");
             }
 
+#pragma warning disable 618
             var operation = new FindOpcodeOperation<TDocument>(
                 _collectionNamespace,
                 _resultSerializer,
@@ -551,6 +555,7 @@ namespace MongoDB.Driver.Core.Operations
 
             return operation;
         }
+#pragma warning restore
 
         private IReadOperation<IAsyncCursor<TDocument>> CreateOperation(SemanticVersion serverVersion)
         {

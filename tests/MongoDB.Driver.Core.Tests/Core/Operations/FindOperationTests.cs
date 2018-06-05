@@ -150,7 +150,9 @@ namespace MongoDB.Driver.Core.Operations
             subject.ShowRecordId.Should().NotHaveValue();
             subject.SingleBatch.Should().NotHaveValue();
             subject.Skip.Should().NotHaveValue();
+#pragma warning disable 618
             subject.Snapshot.Should().NotHaveValue();
+#pragma warning restore
             subject.Sort.Should().BeNull();
         }
 
@@ -184,6 +186,7 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void CreateFindCommandOperation_should_return_expected_result()
         {
+#pragma warning disable 618
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
                 AllowPartialResults = true,
@@ -211,6 +214,7 @@ namespace MongoDB.Driver.Core.Operations
                 Snapshot = true,
                 Sort = new BsonDocument("sort", 1)
             };
+#pragma warning restore
 
             var result = subject.CreateFindCommandOperation();
 
@@ -239,7 +243,9 @@ namespace MongoDB.Driver.Core.Operations
             result.ShowRecordId.Should().Be(subject.ShowRecordId);
             result.SingleBatch.Should().Be(subject.SingleBatch);
             result.Skip.Should().Be(subject.Skip);
+#pragma warning disable 618
             result.Snapshot.Should().Be(subject.Snapshot);
+#pragma warning restore
             result.Sort.Should().BeSameAs(subject.Sort);
         }
 
@@ -273,13 +279,16 @@ namespace MongoDB.Driver.Core.Operations
             result.Min.Should().Be(subject.Modifiers["$min"].AsBsonDocument);
             result.ReturnKey.Should().Be(subject.Modifiers["$returnKey"].ToBoolean());
             result.ShowRecordId.Should().Be(subject.Modifiers["$showDiskLoc"].AsBoolean);
+#pragma warning disable 618
             result.Snapshot.Should().Be(subject.Modifiers["$snapshot"].AsBoolean);
+#pragma warning restore
             result.Sort.Should().Be(subject.Modifiers["$orderby"].AsBsonDocument);
         }
 
         [Fact]
         public void CreateFindOpcodeOperation_should_return_expected_result()
         {
+#pragma warning disable 618
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
                 AllowPartialResults = true,
@@ -305,6 +314,7 @@ namespace MongoDB.Driver.Core.Operations
                 Snapshot = true,
                 Sort = new BsonDocument("sort", 1)
             };
+#pragma warning restore
 
             var result = subject.CreateFindOpcodeOperation();
 
@@ -329,7 +339,9 @@ namespace MongoDB.Driver.Core.Operations
             result.ResultSerializer.Should().Be(subject.ResultSerializer);
             result.ShowRecordId.Should().Be(subject.ShowRecordId);
             result.Skip.Should().Be(subject.Skip);
+#pragma warning disable 618
             result.Snapshot.Should().Be(subject.Snapshot);
+#pragma warning restore
             result.Sort.Should().Be(subject.Sort);
         }
 
@@ -933,8 +945,10 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
+#pragma warning disable 618
             subject.Snapshot = value;
             var result = subject.Snapshot;
+#pragma warning restore
 
             result.Should().Be(value);
         }
