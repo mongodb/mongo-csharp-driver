@@ -488,15 +488,20 @@ namespace MongoDB.Driver
         [ParameterAttributeData]
         public void ListCollectionNames_should_execute_a_ListCollectionsOperation(
             [Values(false, true)] bool usingSession,
+            [Values(false, true)] bool usingOptions,
             [Values(false, true)] bool async)
         {
             var session = CreateSession(usingSession);
             var filterDocument = BsonDocument.Parse("{ name : \"awesome\" }");
             var filterDefinition = (FilterDefinition<BsonDocument>)filterDocument;
-            var options = new ListCollectionNamesOptions
+            ListCollectionNamesOptions options = null;
+            if (usingOptions)
             {
-                Filter = filterDefinition
-            };
+                options = new ListCollectionNamesOptions
+                {
+                    Filter = filterDefinition
+                };
+            }
             var cancellationToken = new CancellationTokenSource().Token;
 
             var mockCursor = new Mock<IAsyncCursor<BsonDocument>>();
@@ -530,8 +535,15 @@ namespace MongoDB.Driver
 
             var op = call.Operation.Should().BeOfType<ListCollectionsOperation>().Subject;
             op.DatabaseNamespace.Should().Be(_subject.DatabaseNamespace);
-            op.Filter.Should().Be(filterDocument);
             op.NameOnly.Should().BeTrue();
+            if (usingOptions)
+            {
+                op.Filter.Should().Be(filterDocument);
+            }
+            else
+            {
+                op.Filter.Should().BeNull();
+            }
         }
 
         [SkippableTheory]
@@ -588,15 +600,20 @@ namespace MongoDB.Driver
         [ParameterAttributeData]
         public void ListCollections_should_execute_a_ListCollectionsOperation(
             [Values(false, true)] bool usingSession,
+            [Values(false, true)] bool usingOptions,
             [Values(false, true)] bool async)
         {
             var session = CreateSession(usingSession);
             var filterDocument = BsonDocument.Parse("{ name : \"awesome\" }");
             var filterDefinition = (FilterDefinition<BsonDocument>)filterDocument;
-            var options = new ListCollectionsOptions
+            ListCollectionsOptions options = null;
+            if (usingOptions)
             {
-                Filter = filterDefinition
-            };
+                options = new ListCollectionsOptions
+                {
+                    Filter = filterDefinition
+                };
+            }
             var cancellationToken = new CancellationTokenSource().Token;
 
             var mockCursor = new Mock<IAsyncCursor<BsonDocument>>();
@@ -630,8 +647,15 @@ namespace MongoDB.Driver
 
             var op = call.Operation.Should().BeOfType<ListCollectionsOperation>().Subject;
             op.DatabaseNamespace.Should().Be(_subject.DatabaseNamespace);
-            op.Filter.Should().Be(filterDocument);
             op.NameOnly.Should().NotHaveValue();
+            if (usingOptions)
+            {
+                op.Filter.Should().Be(filterDocument);
+            }
+            else
+            {
+                op.Filter.Should().BeNull();
+            }
         }
 
         [Theory]
