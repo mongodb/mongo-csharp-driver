@@ -99,6 +99,7 @@ namespace MongoDB.Driver.Core.Configuration
         private TimeSpan? _waitQueueTimeout;
         private WriteConcern.WValue _w;
         private TimeSpan? _wTimeout;
+        private IEnumerable<string> _compressors;
 
         // constructors
         /// <summary>
@@ -431,6 +432,14 @@ namespace MongoDB.Driver.Core.Configuration
             get { return _wTimeout; }
         }
 
+        /// <summary>
+        /// Gets the compressors that should be requested.
+        /// </summary>
+        public IEnumerable<string> Compressors
+        {
+            get { return _compressors; }
+        }
+
         // public methods
         /// <summary>
         /// Gets the option.
@@ -702,6 +711,9 @@ namespace MongoDB.Driver.Core.Configuration
                 case "authsource":
                     _authSource = value;
                     break;
+                case "compressors":
+                    _compressors = ParseCompressors(value);
+                    break;
                 case "connect":
                     _connect = ParseClusterConnectionMode(name, value);
                     break;
@@ -858,6 +870,11 @@ namespace MongoDB.Driver.Core.Configuration
                     _unknownOptions.Add(name, value);
                     break;
             }
+        }
+
+        private static IEnumerable<string> ParseCompressors(string value)
+        {
+            return value.Split(',');
         }
 
         // private static methods

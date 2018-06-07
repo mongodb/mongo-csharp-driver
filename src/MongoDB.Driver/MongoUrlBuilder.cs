@@ -73,6 +73,7 @@ namespace MongoDB.Driver
         private int _waitQueueSize;
         private TimeSpan _waitQueueTimeout;
         private TimeSpan? _wTimeout;
+        private IEnumerable<string> _compressors;
 
         // constructors
         /// <summary>
@@ -114,6 +115,7 @@ namespace MongoDB.Driver
             _waitQueueSize = MongoDefaults.WaitQueueSize;
             _waitQueueTimeout = MongoDefaults.WaitQueueTimeout;
             _wTimeout = null;
+            Compressors = Enumerable.Empty<string>();
         }
 
         /// <summary>
@@ -596,6 +598,15 @@ namespace MongoDB.Driver
             }
         }
 
+        /// <summary>
+        /// Gets or sets the compressors that should be requested.
+        /// </summary>
+        public IEnumerable<string> Compressors
+        {
+            get { return _compressors; }
+            set { _compressors = value; }
+        }
+
         // public methods
         /// <summary>
         /// Returns a WriteConcern value based on this instance's settings and a default enabled value.
@@ -707,6 +718,7 @@ namespace MongoDB.Driver
             }
             _waitQueueTimeout = connectionString.WaitQueueTimeout.GetValueOrDefault(MongoDefaults.WaitQueueTimeout);
             _wTimeout = connectionString.WTimeout;
+            _compressors = connectionString.Compressors;
         }
 
         /// <summary>

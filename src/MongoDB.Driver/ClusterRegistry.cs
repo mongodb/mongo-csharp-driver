@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -112,6 +113,7 @@ namespace MongoDB.Driver
             var authenticators = clusterKey.Credentials.Select(c => c.ToAuthenticator());
             return settings.With(
                 authenticators: Optional.Enumerable(authenticators),
+                compressors: Optional.Enumerable(clusterKey.Compressors),
                 maxIdleTime: clusterKey.MaxConnectionIdleTime,
                 maxLifeTime: clusterKey.MaxConnectionLifeTime,
                 applicationName: clusterKey.ApplicationName);

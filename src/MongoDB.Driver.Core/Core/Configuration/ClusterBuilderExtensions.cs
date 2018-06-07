@@ -120,6 +120,10 @@ namespace MongoDB.Driver.Core.Configuration
             {
                 builder = builder.ConfigureConnection(s => s.With(maxLifeTime: connectionString.MaxLifeTime.Value));
             }
+            if (connectionString.Compressors != null)
+            {
+                builder = builder.ConfigureConnection(s => s.With(compressors: Optional.Enumerable(connectionString.Compressors)));
+            }
 
             // Connection Pool
             if (connectionString.MaxPoolSize != null)

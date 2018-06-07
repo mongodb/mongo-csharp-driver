@@ -73,6 +73,7 @@ namespace MongoDB.Driver
         private readonly TimeSpan? _wTimeout;
         private readonly string _url;
         private readonly string _originalUrl;
+        private IEnumerable<string> _compressors;
 
         // constructors
         /// <summary>
@@ -90,6 +91,7 @@ namespace MongoDB.Driver
             _authenticationSource = builder.AuthenticationSource;
             _connectionMode = builder.ConnectionMode;
             _connectTimeout = builder.ConnectTimeout;
+            _compressors = builder.Compressors;
             _databaseName = builder.DatabaseName;
             _fsync = builder.FSync;
             _guidRepresentation = builder.GuidRepresentation;
@@ -450,6 +452,14 @@ namespace MongoDB.Driver
         public TimeSpan? WTimeout
         {
             get { return _wTimeout; }
+        }
+
+        /// <summary>
+        /// Gets the compressors that should be requested.
+        /// </summary>
+        public IEnumerable<string> Compressors
+        {
+            get { return _compressors; }
         }
 
         // public operators

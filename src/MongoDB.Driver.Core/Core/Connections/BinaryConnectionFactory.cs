@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Core.Connections
             _settings = Ensure.IsNotNull(settings, nameof(settings));
             _streamFactory = Ensure.IsNotNull(streamFactory, nameof(streamFactory));
             _eventSubscriber = Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
-            _connectionInitializer = new ConnectionInitializer(settings.ApplicationName);
+            _connectionInitializer = new ConnectionInitializer(settings.ApplicationName, settings.Compressors);
         }
 
         // methods
