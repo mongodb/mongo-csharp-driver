@@ -40,7 +40,6 @@ namespace MongoDB.Driver.Core.Connections
         public IsMasterResult(BsonDocument wrapped)
         {
             _wrapped = Ensure.IsNotNull(wrapped, nameof(wrapped));
-            Console.WriteLine(_wrapped);
         }
 
         // properties
