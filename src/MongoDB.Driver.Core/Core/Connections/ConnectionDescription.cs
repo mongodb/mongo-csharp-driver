@@ -33,6 +33,7 @@ namespace MongoDB.Driver.Core.Connections
         private readonly int _maxDocumentSize;
         private readonly int _maxMessageSize;
         private readonly IEnumerable<string> _compression;
+        private readonly IEnumerable<string> _compressors;
         private readonly SemanticVersion _serverVersion;
 
         // constructors
@@ -142,6 +143,14 @@ namespace MongoDB.Driver.Core.Connections
         public SemanticVersion ServerVersion
         {
             get { return _serverVersion; }
+        }
+
+        /// <summary>
+        /// Gets the compressors.
+        /// </summary>
+        public IEnumerable<string> Compressors
+        {
+            get { return _compressors; }
         }
 
         /// <summary>
