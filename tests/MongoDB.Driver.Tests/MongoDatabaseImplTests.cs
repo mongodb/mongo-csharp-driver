@@ -24,6 +24,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Tests;
@@ -554,6 +555,10 @@ namespace MongoDB.Driver
             [Values(false, true)] bool async)
         {
             RequireServer.Check();
+            if (usingSession)
+            {
+                RequireServer.Check().VersionGreaterThanOrEqualTo("3.6.0");
+            }
 
             var collectionNames = Enumerable.Range(1, numberOfCollections).Select(n => $"c{n}").ToArray();
 
@@ -592,7 +597,7 @@ namespace MongoDB.Driver
                 }
 
                 var actualCollectionNames = cursor.ToList();
-                actualCollectionNames.Should().BeEquivalentTo(collectionNames);
+                actualCollectionNames.Where(n => n != "system.indexes").Should().BeEquivalentTo(collectionNames);
             }
         }
 
