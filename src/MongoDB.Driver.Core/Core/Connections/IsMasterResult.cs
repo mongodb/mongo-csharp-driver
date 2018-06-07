@@ -41,6 +41,7 @@ namespace MongoDB.Driver.Core.Connections
         public IsMasterResult(BsonDocument wrapped)
         {
             _wrapped = Ensure.IsNotNull(wrapped, nameof(wrapped));
+            Console.WriteLine(_wrapped);
         }
 
         // properties
@@ -295,6 +296,19 @@ namespace MongoDB.Driver.Core.Connections
                 }
 
                 return Enumerable.Empty<string>();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public IEnumerable<string> Compressors
+        {
+            get
+            {
+                var arr = _wrapped.GetValue("compression").AsBsonArray;
+
+                return arr.Select(x => x.AsString);
             }
         }
         

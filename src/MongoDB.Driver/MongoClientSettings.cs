@@ -627,6 +627,8 @@ namespace MongoDB.Driver
             }
 
             var credential = url.GetCredential();
+            
+            Console.WriteLine("Test: " + string.Join(",", url.Compressors));
 
             var clientSettings = new MongoClientSettings();
             clientSettings.ApplicationName = url.ApplicationName;

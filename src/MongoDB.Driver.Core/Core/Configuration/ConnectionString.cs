@@ -712,9 +712,7 @@ namespace MongoDB.Driver.Core.Configuration
                     _authSource = value;
                     break;
                 case "compressors":
-                {
                     _compressors = value.Split(',');
-                }
                     break;
                 case "connect":
                     _connect = ParseClusterConnectionMode(name, value);
@@ -872,6 +870,11 @@ namespace MongoDB.Driver.Core.Configuration
                     _unknownOptions.Add(name, value);
                     break;
             }
+        }
+
+        private static IEnumerable<string> ParseCompressors(string value)
+        {
+            return value.Split(',');
         }
 
         // private static methods

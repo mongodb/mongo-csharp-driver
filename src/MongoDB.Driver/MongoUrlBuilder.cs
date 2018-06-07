@@ -116,6 +116,7 @@ namespace MongoDB.Driver
             _waitQueueSize = MongoDefaults.WaitQueueSize;
             _waitQueueTimeout = MongoDefaults.WaitQueueTimeout;
             _wTimeout = null;
+            Compressors = Enumerable.Empty<string>();
         }
 
         /// <summary>
@@ -719,6 +720,7 @@ namespace MongoDB.Driver
             }
             _waitQueueTimeout = connectionString.WaitQueueTimeout.GetValueOrDefault(MongoDefaults.WaitQueueTimeout);
             _wTimeout = connectionString.WTimeout;
+            _compressors = connectionString.Compressors;
         }
 
         /// <summary>
