@@ -73,7 +73,7 @@ namespace MongoDB.Driver
         private readonly TimeSpan? _wTimeout;
         private readonly string _url;
         private readonly string _originalUrl;
-        private IEnumerable<string> _compressors;
+        private readonly IEnumerable<string> _compressors;
 
         // constructors
         /// <summary>

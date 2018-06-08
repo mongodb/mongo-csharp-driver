@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.Connections
 
         public ConnectionInitializerTests()
         {
-            _subject = new ConnectionInitializer("test");
+            _subject = new ConnectionInitializer("test", new string[] {"zlib"});
         }
 
         [Theory]

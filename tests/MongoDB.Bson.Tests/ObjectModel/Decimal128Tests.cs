@@ -46,7 +46,7 @@ namespace MongoDB.Bson.Tests
         [InlineData("-79228162514264337593543950335", "-79228162514264337593543950335")]
         public void Decimal(string valueString, string s)
         {
-            var value = decimal.Parse(valueString);
+            var value = decimal.Parse(valueString, CultureInfo.InvariantCulture);
             var subject = new Decimal128(value);
 
             subject.ToString().Should().Be(s);
@@ -80,7 +80,7 @@ namespace MongoDB.Bson.Tests
         public void ToDecimal_should_return_expected_result(string valueString, string expectedResultString)
         {
             var subject = Decimal128.Parse(valueString);
-            var expectedResult = decimal.Parse(expectedResultString);
+            var expectedResult = decimal.Parse(expectedResultString, CultureInfo.InvariantCulture);
 
             var result = Decimal128.ToDecimal(subject);
 

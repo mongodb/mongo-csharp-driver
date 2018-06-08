@@ -85,6 +85,7 @@ namespace MongoDB.Driver
             _authenticationMechanism = MongoDefaults.AuthenticationMechanism;
             _authenticationMechanismProperties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             _authenticationSource = null;
+            _compressors = Enumerable.Empty<string>();
             _connectionMode = ConnectionMode.Automatic;
             _connectTimeout = MongoDefaults.ConnectTimeout;
             _databaseName = null;
@@ -115,7 +116,6 @@ namespace MongoDB.Driver
             _waitQueueSize = MongoDefaults.WaitQueueSize;
             _waitQueueTimeout = MongoDefaults.WaitQueueTimeout;
             _wTimeout = null;
-            Compressors = Enumerable.Empty<string>();
         }
 
         /// <summary>
@@ -634,6 +634,7 @@ namespace MongoDB.Driver
             _authenticationMechanism = connectionString.AuthMechanism;
             _authenticationMechanismProperties = connectionString.AuthMechanismProperties.ToDictionary(x => x.Key, x => x.Value, StringComparer.OrdinalIgnoreCase);
             _authenticationSource = connectionString.AuthSource;
+            _compressors = connectionString.Compressors ?? Enumerable.Empty<string>();
             switch (connectionString.Connect)
             {
                 case ClusterConnectionMode.Direct:
@@ -718,7 +719,6 @@ namespace MongoDB.Driver
             }
             _waitQueueTimeout = connectionString.WaitQueueTimeout.GetValueOrDefault(MongoDefaults.WaitQueueTimeout);
             _wTimeout = connectionString.WTimeout;
-            _compressors = connectionString.Compressors;
         }
 
         /// <summary>
