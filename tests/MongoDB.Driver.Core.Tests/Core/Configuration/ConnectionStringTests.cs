@@ -146,6 +146,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ApplicationName.Should().BeNull();
             subject.AuthMechanism.Should().BeNull();
             subject.AuthSource.Should().BeNull();
+            subject.Compressors.Should().BeNull();
             subject.Connect.Should().Be(ClusterConnectionMode.Automatic);
             subject.ConnectTimeout.Should().Be(null);
             subject.DatabaseName.Should().BeNull();
@@ -184,6 +185,7 @@ namespace MongoDB.Driver.Core.Configuration
                 "authMechanism=GSSAPI;" +
                 "authMechanismProperties=CANONICALIZE_HOST_NAME:true;" +
                 "authSource=admin;" +
+                "compressors=zlib,snappy;" +
                 "connect=replicaSet;" +
                 "connectTimeout=15ms;" +
                 "fsync=true;" +
@@ -218,6 +220,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.AuthMechanismProperties.Count.Should().Be(1);
             subject.AuthMechanismProperties["canonicalize_host_name"].Should().Be("true");
             subject.AuthSource.Should().Be("admin");
+            subject.Compressors.Should().Contain("zlib").And.Contain("snappy");
             subject.Connect.Should().Be(ClusterConnectionMode.ReplicaSet);
             subject.ConnectTimeout.Should().Be(TimeSpan.FromMilliseconds(15));
             subject.DatabaseName.Should().Be("test");
@@ -300,6 +303,16 @@ namespace MongoDB.Driver.Core.Configuration
             var subject = new ConnectionString(connectionString);
 
             subject.AuthSource.Should().Be(authSource);
+        }
+
+        [Theory]
+        [InlineData("mongodb://localhost?compressors=zlib", "zlib")]
+        [InlineData("mongodb://localhost?compressors=snappy", "snappy")]
+        public void When_compressors_are_specified(string connectionString, string compressor)
+        {
+            var subject = new ConnectionString(connectionString);
+
+            subject.Compressors.Should().Contain(compressor);
         }
 
         [Theory]
