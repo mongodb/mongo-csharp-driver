@@ -305,9 +305,13 @@ namespace MongoDB.Driver.Core.Connections
         {
             get
             {
-                var arr = _wrapped.GetValue("compression").AsBsonArray;
+                BsonValue value;
+                if (_wrapped.TryGetValue("compression", out value))
+                {
+                    return value.AsBsonArray.Select(x => x.AsString);
+                }
 
-                return arr.Select(x => x.AsString);
+                return Enumerable.Empty<string>();
             }
         }
         
