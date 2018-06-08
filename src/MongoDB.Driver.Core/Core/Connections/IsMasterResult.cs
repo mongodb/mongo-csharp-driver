@@ -297,23 +297,6 @@ namespace MongoDB.Driver.Core.Connections
                 return Enumerable.Empty<string>();
             }
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public IEnumerable<string> Compressors
-        {
-            get
-            {
-                BsonValue value;
-                if (_wrapped.TryGetValue("compression", out value))
-                {
-                    return value.AsBsonArray.Select(x => x.AsString);
-                }
-
-                return Enumerable.Empty<string>();
-            }
-        }
         
         /// <summary>
         /// Gets the replica set tags.
