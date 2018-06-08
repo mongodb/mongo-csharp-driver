@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core.Connections
         private readonly int _maxBatchCount;
         private readonly int _maxDocumentSize;
         private readonly int _maxMessageSize;
-        private readonly IEnumerable<string> _compressors;
+        private readonly IEnumerable<string> _compression;
         private readonly SemanticVersion _serverVersion;
 
         // constructors
@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Core.Connections
             _maxBatchCount = isMasterResult.MaxBatchCount;
             _maxDocumentSize = isMasterResult.MaxDocumentSize;
             _maxMessageSize = isMasterResult.MaxMessageSize;
-            _compressors = isMasterResult.Compressors;
+            _compression = isMasterResult.Compression;
             _serverVersion = buildInfoResult.ServerVersion;
         }
 
@@ -147,9 +147,9 @@ namespace MongoDB.Driver.Core.Connections
         /// <summary>
         /// Gets the compressors.
         /// </summary>
-        public IEnumerable<string> Compressors
+        public IEnumerable<string> Compression
         {
-            get { return _compressors; }
+            get { return _compression; }
         }
 
         // methods

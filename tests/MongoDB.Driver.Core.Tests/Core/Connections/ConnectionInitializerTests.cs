@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.Connections
 
         public ConnectionInitializerTests()
         {
-            _subject = new ConnectionInitializer("test", new string[] {"zlib"});
+            _subject = new ConnectionInitializer("test", new [] {"zlib"});
         }
 
         [Theory]
@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Core.Connections
             bool async)
         {
             var isMasterReply = MessageHelper.BuildReply<RawBsonDocument>(
-                RawBsonDocumentHelper.FromJson("{ ok: 1 }"));
+                RawBsonDocumentHelper.FromJson("{ ok: 1, compression: ['zlib'] }"));
             var buildInfoReply = MessageHelper.BuildReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{ ok: 1, version: \"2.6.3\" }"));
             var gleReply = MessageHelper.BuildReply<RawBsonDocument>(
@@ -95,6 +95,7 @@ namespace MongoDB.Driver.Core.Connections
 
             result.ServerVersion.Should().Be(new SemanticVersion(2, 6, 3));
             result.ConnectionId.ServerValue.Should().Be(10);
+            result.Compression.Should().Contain("zlib");
         }
     }
 }

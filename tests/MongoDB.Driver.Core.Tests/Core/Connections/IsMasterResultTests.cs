@@ -15,11 +15,9 @@
 
 using System;
 using System.Net;
-using System.Net.Sockets;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using Xunit;
@@ -61,6 +59,20 @@ namespace MongoDB.Driver.Core.Connections
             var subject2 = new IsMasterResult(new BsonDocument("x", 2));
 
             subject1.Equals(subject2).Should().BeFalse();
+        }
+
+        [Theory]
+        [InlineData("{ compression : ['zlib'] }", new []{"zlib"})]
+        [InlineData("{ compression : ['zlib', 'snappy'] }", new []{"zlib", "snappy"})]
+        [InlineData("{ compression : [] }", new string[0])]
+        [InlineData("{ }", new string[0])]
+        public void Compression_should_parse_document_correctly(string json, string[] expectedCompression)
+        {
+            var subject = new IsMasterResult(BsonDocument.Parse(json));
+
+            var result = subject.Compression;
+
+            result.Should().Equal(expectedCompression);
         }
 
         [Theory]

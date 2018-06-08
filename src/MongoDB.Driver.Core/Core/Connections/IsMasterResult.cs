@@ -284,7 +284,7 @@ namespace MongoDB.Driver.Core.Connections
         /// <summary>
         /// 
         /// </summary>
-        public IEnumerable<string> Compressors
+        public IEnumerable<string> Compression
         {
             get
             {
