@@ -14,11 +14,14 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 #if NET45
 using System.Runtime.Serialization.Formatters.Binary;
 #endif
 using FluentAssertions;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver
@@ -35,6 +38,7 @@ namespace MongoDB.Driver
 
             subject.Message.Should().BeSameAs(_message);
             subject.InnerException.Should().BeNull();
+            subject.ErrorLabels.Should().HaveCount(0);
         }
 
         [Fact]
@@ -44,6 +48,44 @@ namespace MongoDB.Driver
 
             subject.Message.Should().BeSameAs(_message);
             subject.InnerException.Should().BeSameAs(_innerException);
+            subject.ErrorLabels.Should().HaveCount(0);
+        }
+
+        [Theory]
+        [InlineData(new object[] { new string[0] })]
+        [InlineData(new object[] { new[] { "one" } })]
+        [InlineData(new object[] { new[] { "one", "two" } })]
+        [InlineData(new object[] { new[] { "one", "two", "three" } })]
+        public void ErrorLabels_should_return_expected_result(string[] errorLabels)
+        {
+            var subject = new MongoException(_message);
+            foreach (var errorLabel in errorLabels)
+            {
+                subject.AddErrorLabel(errorLabel);
+            }
+
+            var result = subject.ErrorLabels;
+
+            result.Should().Equal(errorLabels);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void AddErrorLabels_should_have_expected_result(
+            [Values(0, 1, 2, 3)] int existingCount)
+        {
+            var subject = new MongoException(_message);
+            for (var i = 0; i < existingCount; i++)
+            {
+                var errorLabel = $"label{i}";
+                subject.AddErrorLabel(errorLabel);
+            }
+            var existingErrorLabels = new List<string>(subject.ErrorLabels);
+            var newErrorLabel = "x";
+
+            subject.AddErrorLabel(newErrorLabel);
+
+            subject.ErrorLabels.Should().Equal(existingErrorLabels.Concat(new[] { newErrorLabel }));
         }
 
 #if NET45
@@ -51,6 +93,7 @@ namespace MongoDB.Driver
         public void Serialization_should_work()
         {
             var subject = new MongoException(_message, _innerException);
+            subject.AddErrorLabel("one");
 
             var formatter = new BinaryFormatter();
             using (var stream = new MemoryStream())
@@ -61,6 +104,7 @@ namespace MongoDB.Driver
 
                 rehydrated.Message.Should().Be(subject.Message);
                 rehydrated.InnerException.Message.Should().Be(subject.InnerException.Message); // Exception does not override Equals
+                rehydrated.ErrorLabels.Should().Equal(subject.ErrorLabels);
             }
         }
 #endif

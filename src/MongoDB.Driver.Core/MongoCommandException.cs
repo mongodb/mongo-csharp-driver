@@ -14,17 +14,11 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 #if NET45
 using System.Runtime.Serialization;
 #endif
-using System.Text;
-using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Connections;
-using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
@@ -36,6 +30,27 @@ namespace MongoDB.Driver
 #endif
     public class MongoCommandException : MongoServerException
     {
+        #region static
+        private static void AddErrorLabelsFromCommandResult(MongoCommandException exception, BsonDocument result)
+        {
+            // note: make a best effort to extract the error labels from the result, but never throw an exception
+            if (result != null)
+            {
+                BsonValue errorLabels;
+                if (result.TryGetValue("errorLabels", out errorLabels) && errorLabels.IsBsonArray)
+                {
+                    foreach (var errorLabel in errorLabels.AsBsonArray)
+                    {
+                        if (errorLabel.IsString)
+                        {
+                            exception.AddErrorLabel(errorLabel.AsString);
+                        }
+                    }
+                }
+            }
+        }
+        #endregion
+
         // fields
         private readonly BsonDocument _command;
         private readonly BsonDocument _result;
@@ -64,6 +79,8 @@ namespace MongoDB.Driver
         {
             _command = command; // can be null
             _result = result; // can be null
+
+            AddErrorLabelsFromCommandResult(this, result);
         }
 
 #if NET45

@@ -14,8 +14,10 @@
 */
 
 using System;
+using System.Collections.Generic;
 #if NET45
 using System.Runtime.Serialization;
+using MongoDB.Driver.Core.Misc;
 #endif
 
 namespace MongoDB.Driver
@@ -28,6 +30,9 @@ namespace MongoDB.Driver
 #endif
     public class MongoException : Exception
     {
+        // private fields
+        private readonly List<string> _errorLabels = new List<string>();
+
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoException"/> class.
@@ -57,6 +62,36 @@ namespace MongoDB.Driver
         public MongoException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            _errorLabels = (List<string>)info.GetValue(nameof(_errorLabels), typeof(List<String>));
+        }
+#endif
+
+        // public properties
+        /// <summary>
+        /// Gets the error labels.
+        /// </summary>
+        /// <value>
+        /// The error labels.
+        /// </value>
+        public IReadOnlyList<string> ErrorLabels => _errorLabels;
+
+        // public methods
+        /// <summary>
+        /// Adds an error label.
+        /// </summary>
+        /// <param name="errorLabel">The error label.</param>
+        public void AddErrorLabel(string errorLabel)
+        {
+            Ensure.IsNotNull(errorLabel, nameof(errorLabel));
+            _errorLabels.Add(errorLabel);
+        }
+
+#if NET45
+        /// <inheritdoc/>
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue(nameof(_errorLabels), _errorLabels);
         }
 #endif
     }

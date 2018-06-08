@@ -80,6 +80,27 @@ namespace MongoDB.Driver
             subject.Result.Should().BeSameAs(_commandResult);
         }
 
+        [Theory]
+        [InlineData(null, new string[0])]
+        [InlineData("{ }", new string[0])]
+        [InlineData("{ }", new string[0])]
+        [InlineData("{ errorLabels : \"not an array\" }", new string[0])]
+        [InlineData("{ errorLabels : [ ] }", new string[0])]
+        [InlineData("{ errorLabels : [ 1 ] }", new string[0])]
+        [InlineData("{ errorLabels : [ null ] }", new string[0])]
+        [InlineData("{ errorLabels : [ \"one\" ] }", new[] { "one" })]
+        [InlineData("{ errorLabels : [ 1, \"one\" ] }", new[] { "one" })]
+        [InlineData("{ errorLabels : [ \"one\", 1 ] }", new[] { "one" })]
+        [InlineData("{ errorLabels : [ \"one\", null, \"two\" ] }", new[] { "one", "two" })]
+        public void constructor_should_add_error_labels(string jsonResult, string[] expectedErrorLabels)
+        {
+            var result = jsonResult == null ? null : BsonDocument.Parse(jsonResult);
+
+            var subject = new MongoCommandException(_connectionId, _message, _command, result);
+
+            subject.ErrorLabels.Should().Equal(expectedErrorLabels);
+        }
+
         [Fact]
         public void ErrorMessage_get_returns_expected_result()
         {
@@ -95,6 +116,7 @@ namespace MongoDB.Driver
         public void Serialization_should_work()
         {
             var subject = new MongoCommandException(_connectionId, _message, _command, _commandResult);
+            subject.AddErrorLabel("one");
 
             var formatter = new BinaryFormatter();
             using (var stream = new MemoryStream())
@@ -103,6 +125,7 @@ namespace MongoDB.Driver
                 stream.Position = 0;
                 var rehydrated = (MongoCommandException)formatter.Deserialize(stream);
 
+                rehydrated.ErrorLabels.Should().Equal(subject.ErrorLabels);
                 rehydrated.ConnectionId.Should().Be(subject.ConnectionId);
                 rehydrated.Message.Should().Be(_message);
                 rehydrated.InnerException.Should().BeNull();
