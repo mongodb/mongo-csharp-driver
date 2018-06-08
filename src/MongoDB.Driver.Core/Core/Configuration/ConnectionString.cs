@@ -872,11 +872,6 @@ namespace MongoDB.Driver.Core.Configuration
             }
         }
 
-        private static IEnumerable<string> ParseCompressors(string value)
-        {
-            return value.Split(',');
-        }
-
         // private static methods
         private static IEnumerable<KeyValuePair<string, string>> GetAuthMechanismProperties(string name, string value)
         {
