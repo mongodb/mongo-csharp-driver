@@ -813,6 +813,10 @@ namespace MongoDB.Driver
             {
                 query.AppendFormat("sslVerifyCertificate=false;");
             }
+            if (_compressors.Any())
+            {
+                query.AppendFormat("compressors={0};", string.Join(",", _compressors));
+            }
             if (_connectionMode != ConnectionMode.Automatic)
             {
                 query.AppendFormat("connect={0};", MongoUtils.ToCamelCase(_connectionMode.ToString()));

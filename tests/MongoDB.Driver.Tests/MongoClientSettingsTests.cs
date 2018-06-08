@@ -130,6 +130,7 @@ namespace MongoDB.Driver.Tests
             var settings = new MongoClientSettings();
             Assert.Equal(null, settings.ApplicationName);
             Assert.Equal(ConnectionMode.Automatic, settings.ConnectionMode);
+            Assert.Equal(Enumerable.Empty<string>(), settings.Compressors);
             Assert.Equal(MongoDefaults.ConnectTimeout, settings.ConnectTimeout);
 #pragma warning disable 618
             Assert.Equal(0, settings.Credentials.Count());
@@ -169,6 +170,10 @@ namespace MongoDB.Driver.Tests
 
             clone = settings.Clone();
             clone.ApplicationName = "app2";
+            Assert.False(clone.Equals(settings));
+
+            clone = settings.Clone();
+            clone.Compressors = new []{"zlib"};
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
@@ -305,7 +310,7 @@ namespace MongoDB.Driver.Tests
             // set everything to non default values to test that all settings are converted
             var connectionString =
                 "mongodb://user1:password1@somehost/?appname=app1;authSource=db;authMechanismProperties=CANONICALIZE_HOST_NAME:true;" +
-                "connect=direct;connectTimeout=123;uuidRepresentation=pythonLegacy;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;" +
+                "compressors=zlib;connect=direct;connectTimeout=123;uuidRepresentation=pythonLegacy;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;" +
                 "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;readConcernLevel=majority;" +
                 "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;retryWrites=true;localThreshold=128;socketTimeout=129;" +
                 "serverSelectionTimeout=20s;ssl=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
@@ -315,6 +320,7 @@ namespace MongoDB.Driver.Tests
 
             var settings = MongoClientSettings.FromUrl(url);
             Assert.Equal(url.ApplicationName, settings.ApplicationName);
+            Assert.Equal(url.Compressors, settings.Compressors);
             Assert.Equal(url.ConnectionMode, settings.ConnectionMode);
             Assert.Equal(url.ConnectTimeout, settings.ConnectTimeout);
 #pragma warning disable 618
@@ -389,6 +395,21 @@ namespace MongoDB.Driver.Tests
             Assert.Same(frozenCopy, secondFrozenCopy);
         }
 
+        [Fact]
+        public void TestCompressors()
+        {
+            var settings = new MongoClientSettings();
+            Assert.Equal(Enumerable.Empty<string>(), settings.Compressors);
+
+            var compressors = new []{"zlib"};
+            settings.Compressors = compressors;
+            Assert.Equal(compressors, settings.Compressors);
+
+            settings.Freeze();
+            Assert.Equal(compressors, settings.Compressors);
+            Assert.Throws<InvalidOperationException>(() => { settings.Compressors = compressors; });
+        }
+        
         [Fact]
         public void TestGuidRepresentation()
         {
@@ -811,6 +832,7 @@ namespace MongoDB.Driver.Tests
             var subject = new MongoClientSettings
             {
                 ApplicationName = "app",
+                Compressors = new []{"zlib"},
                 ConnectionMode = ConnectionMode.Direct,
                 ConnectTimeout = TimeSpan.FromSeconds(1),
                 Credential = credential,
@@ -838,6 +860,7 @@ namespace MongoDB.Driver.Tests
             var result = subject.ToClusterKey();
 
             result.ApplicationName.Should().Be(subject.ApplicationName);
+            result.Compressors.Should().Equal(subject.Compressors);
             result.ConnectionMode.Should().Be(subject.ConnectionMode);
             result.ConnectTimeout.Should().Be(subject.ConnectTimeout);
 #pragma warning disable 618

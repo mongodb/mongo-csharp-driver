@@ -57,6 +57,7 @@ namespace MongoDB.Driver.Tests
             var clientSettings = new MongoClientSettings
             {
                 ApplicationName = "app1",
+                Compressors = new []{"zlib"},
                 ConnectionMode = ConnectionMode.ReplicaSet,
                 ConnectTimeout = TimeSpan.FromSeconds(1),
                 Credential = credential,

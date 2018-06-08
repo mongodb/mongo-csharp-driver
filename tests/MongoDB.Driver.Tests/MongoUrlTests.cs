@@ -43,6 +43,7 @@ namespace MongoDB.Driver.Tests
                 AuthenticationMechanism = "GSSAPI",
                 AuthenticationMechanismProperties = authMechanismProperties,
                 AuthenticationSource = "db",
+                Compressors = new []{"zlib"},
                 ConnectionMode = ConnectionMode.ReplicaSet,
                 ConnectTimeout = TimeSpan.FromSeconds(1),
                 DatabaseName = "database",
@@ -82,6 +83,7 @@ namespace MongoDB.Driver.Tests
                 "ipv6=true",
                 "ssl=true", // UseSsl
                 "sslVerifyCertificate=false", // VerifySslCertificate
+                "compressors=zlib",
                 "connect=replicaSet",
                 "replicaSet=name",
                 "readConcernLevel=majority",
@@ -113,6 +115,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(authMechanismProperties, url.AuthenticationMechanismProperties);
                 Assert.Equal("db", url.AuthenticationSource);
                 Assert.Equal(123, url.ComputedWaitQueueSize);
+                Assert.Equal(new [] {"zlib"}, url.Compressors);
                 Assert.Equal(ConnectionMode.ReplicaSet, url.ConnectionMode);
                 Assert.Equal(TimeSpan.FromSeconds(1), url.ConnectTimeout);
                 Assert.Equal("database", url.DatabaseName);
