@@ -83,7 +83,31 @@ namespace MongoDB.Driver
         public void AddErrorLabel(string errorLabel)
         {
             Ensure.IsNotNull(errorLabel, nameof(errorLabel));
-            _errorLabels.Add(errorLabel);
+            if (!_errorLabels.Contains(errorLabel))
+            {
+                _errorLabels.Add(errorLabel);
+            }
+        }
+
+        /// <summary>
+        /// Determines whether the exception has some error label.
+        /// </summary>
+        /// <param name="errorLabel">The error label.</param>
+        /// <returns>
+        ///   <c>true</c> if the exception has some error label; otherwise, <c>false</c>.
+        /// </returns>
+        public bool HasErrorLabel(string errorLabel)
+        {
+            return _errorLabels.Contains(errorLabel);
+        }
+
+        /// <summary>
+        /// Removes the error label.
+        /// </summary>
+        /// <param name="errorLabel">The error label.</param>
+        public void RemoveErrorLabel(string errorLabel)
+        {
+            _errorLabels.Remove(errorLabel);
         }
 
 #if NET45

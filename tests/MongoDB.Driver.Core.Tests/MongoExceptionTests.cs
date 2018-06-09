@@ -88,6 +88,60 @@ namespace MongoDB.Driver
             subject.ErrorLabels.Should().Equal(existingErrorLabels.Concat(new[] { newErrorLabel }));
         }
 
+        [Fact]
+        public void AddErrorLabels_should_not_add_duplicates()
+        {
+            var subject = new MongoException(_message);
+
+            subject.AddErrorLabel("one");
+            subject.AddErrorLabel("one");
+
+            subject.ErrorLabels.Should().HaveCount(1);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void HasErrorLabel_should_have_expected_result(
+            [Values(0, 1, 2, 3)] int existingCount)
+        {
+            var subject = new MongoException(_message);
+            for (var i = 0; i < existingCount; i++)
+            {
+                var errorLabel = $"label{i}";
+                subject.AddErrorLabel(errorLabel);
+            }
+
+            foreach (var errorLabel in subject.ErrorLabels)
+            {
+                subject.HasErrorLabel(errorLabel).Should().BeTrue();
+            }
+            subject.HasErrorLabel("x").Should().BeFalse();
+        }
+
+        [Theory]
+        [InlineData(new string[0], "x")]
+        [InlineData(new[] { "one" }, "one")]
+        [InlineData(new[] { "one" }, "x")]
+        [InlineData(new[] { "one", "two" }, "one")]
+        [InlineData(new[] { "one", "two" }, "two")]
+        [InlineData(new[] { "one", "two" }, "x")]
+        [InlineData(new[] { "one", "two", "three" }, "one")]
+        [InlineData(new[] { "one", "two", "three" }, "two")]
+        [InlineData(new[] { "one", "two", "three" }, "three")]
+        [InlineData(new[] { "one", "two", "three" }, "x")]
+        public void RemoveErrorLabels_should_have_expected_result(string[] errorLabels, string removeErrorLabel)
+        {
+            var subject = new MongoException(_message);
+            foreach (var errorLabel in errorLabels)
+            {
+                subject.AddErrorLabel(errorLabel);
+            }
+
+            subject.RemoveErrorLabel(removeErrorLabel);
+
+            subject.ErrorLabels.Should().Equal(errorLabels.Where(x => x != removeErrorLabel));
+        }
+
 #if NET45
         [Fact]
         public void Serialization_should_work()
