@@ -39,6 +39,10 @@
     <Reference Include="DnsClient, Version=1.0.7.0, Culture=neutral, PublicKeyToken=4574bb5573c51424, processorArchitecture=MSIL">
       <HintPath>..\..\packages\DnsClient.1.0.7\lib\net45\DnsClient.dll</HintPath>
     </Reference>
+    <Reference Include="DotNetZip, Version=1.11.0.0, Culture=neutral, PublicKeyToken=6583c7c814667745">
+      <HintPath>..\..\Packages\DotNetZip.1.11.0\lib\net20\DotNetZip.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\..\packages\System.Buffers.4.3.0\lib\netstandard1.1\System.Buffers.dll</HintPath>
@@ -119,6 +123,9 @@
     <Compile Include="Core\Bindings\CoreTransaction.cs" />
     <Compile Include="Core\Bindings\WrappingCoreServerSession.cs" />
     <Compile Include="Core\Bindings\WrappingCoreSession.cs" />
+    <Compile Include="Core\Compression\CompressorId.cs" />
+    <Compile Include="Core\Compression\ICompressor.cs" />
+    <Compile Include="Core\Compression\ZlibCompressor.cs" />
     <Compile Include="Core\Configuration\SdamLoggingSettings.cs" />
     <Compile Include="Core\Connections\ClientDocumentHelper.cs" />
     <Compile Include="Core\Connections\IsMasterHelper.cs" />
@@ -240,6 +247,8 @@
     <Compile Include="Core\WireProtocol\CommandUsingCommandMessageWireProtocol.cs" />
     <Compile Include="Core\WireProtocol\CommandUsingQueryMessageWireProtocol.cs" />
     <Compile Include="Core\WireProtocol\Messages\CommandMessageDisposer.cs" />
+    <Compile Include="Core\WireProtocol\Messages\CompressedMessage.cs" />
+    <Compile Include="Core\WireProtocol\Messages\Encoders\BinaryEncoders\CompressedMessageBinaryEncoder.cs" />
     <Compile Include="Core\WireProtocol\Messages\Encoders\BinaryEncoders\OpMsgFlags.cs" />
     <Compile Include="Core\WireProtocol\Messages\Encoders\BinaryEncoders\CommandMessageBinaryEncoder.cs" />
     <Compile Include="Core\WireProtocol\Messages\Encoders\BinaryEncoders\CommandRequestMessageBinaryEncoder.cs" />

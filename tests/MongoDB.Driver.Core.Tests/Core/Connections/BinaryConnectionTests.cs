@@ -72,7 +72,8 @@ namespace MongoDB.Driver.Core.Connections
                 settings: new ConnectionSettings(),
                 streamFactory: _mockStreamFactory.Object,
                 connectionInitializer: _mockConnectionInitializer.Object,
-                eventSubscriber: _capturedEvents);
+                eventSubscriber: _capturedEvents,
+                compressors: null);
         }
 
         [Fact]

@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Examples
         {
             // @begin: query-all
             // @code: start
+            
             var collection = __database.GetCollection<BsonDocument>("restaurants");
             var filter = new BsonDocument();
             var count = 0;
