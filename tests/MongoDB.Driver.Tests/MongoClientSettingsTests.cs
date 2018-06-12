@@ -130,7 +130,7 @@ namespace MongoDB.Driver.Tests
             var settings = new MongoClientSettings();
             Assert.Equal(null, settings.ApplicationName);
             Assert.Equal(ConnectionMode.Automatic, settings.ConnectionMode);
-            Assert.Equal(Enumerable.Empty<string>(), settings.Compressors);
+            Assert.Equal(Enumerable.Empty<MongoCompressor>(), settings.Compressors);
             Assert.Equal(MongoDefaults.ConnectTimeout, settings.ConnectTimeout);
 #pragma warning disable 618
             Assert.Equal(0, settings.Credentials.Count());
@@ -173,7 +173,7 @@ namespace MongoDB.Driver.Tests
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
-            clone.Compressors = new []{"zlib"};
+            clone.Compressors = new []{ new MongoCompressor{Name = "zlib"}};
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
@@ -399,9 +399,9 @@ namespace MongoDB.Driver.Tests
         public void TestCompressors()
         {
             var settings = new MongoClientSettings();
-            Assert.Equal(Enumerable.Empty<string>(), settings.Compressors);
+            Assert.Equal(Enumerable.Empty<MongoCompressor>(), settings.Compressors);
 
-            var compressors = new []{"zlib"};
+            var compressors = new []{ new MongoCompressor{ Name = "zlib"}};
             settings.Compressors = compressors;
             Assert.Equal(compressors, settings.Compressors);
 
@@ -832,7 +832,7 @@ namespace MongoDB.Driver.Tests
             var subject = new MongoClientSettings
             {
                 ApplicationName = "app",
-                Compressors = new []{"zlib"},
+                Compressors = new []{ new MongoCompressor { Name = "zlib"}},
                 ConnectionMode = ConnectionMode.Direct,
                 ConnectTimeout = TimeSpan.FromSeconds(1),
                 Credential = credential,

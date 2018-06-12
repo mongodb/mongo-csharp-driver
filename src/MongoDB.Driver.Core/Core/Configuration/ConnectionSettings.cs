@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Core.Configuration
         private readonly IReadOnlyList<IAuthenticator> _authenticators;
         private readonly TimeSpan _maxIdleTime;
         private readonly TimeSpan _maxLifeTime;
-        private readonly IEnumerable<string> _compressors;
+        private readonly IEnumerable<MongoCompressor> _compressors;
 
         // constructors
         /// <summary>
@@ -50,13 +50,13 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="applicationName">The application name.</param>
         public ConnectionSettings(
             Optional<IEnumerable<IAuthenticator>> authenticators = default(Optional<IEnumerable<IAuthenticator>>),
-            Optional<IEnumerable<string>> compressors = default(Optional<IEnumerable<string>>),
+            Optional<IEnumerable<MongoCompressor>> compressors = default(Optional<IEnumerable<MongoCompressor>>),
             Optional<TimeSpan> maxIdleTime = default(Optional<TimeSpan>),
             Optional<TimeSpan> maxLifeTime = default(Optional<TimeSpan>),
             Optional<string> applicationName = default(Optional<string>))
         {
             _authenticators = Ensure.IsNotNull(authenticators.WithDefault(__noAuthenticators), "authenticators").ToList();
-            _compressors = Ensure.IsNotNull(compressors.WithDefault(Enumerable.Empty<string>()), nameof(compressors)).ToList();
+            _compressors = Ensure.IsNotNull(compressors.WithDefault(Enumerable.Empty<MongoCompressor>()), nameof(compressors)).ToList();
             _maxIdleTime = Ensure.IsGreaterThanZero(maxIdleTime.WithDefault(TimeSpan.FromMinutes(10)), "maxIdleTime");
             _maxLifeTime = Ensure.IsGreaterThanZero(maxLifeTime.WithDefault(TimeSpan.FromMinutes(30)), "maxLifeTime");
             _applicationName = ApplicationNameHelper.EnsureApplicationNameIsValid(applicationName.WithDefault(null), nameof(applicationName));
@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <summary>
         /// The compressors
         /// </summary>
-        public IEnumerable<string> Compressors
+        public IEnumerable<MongoCompressor> Compressors
         {
             get { return _compressors; }
         }
@@ -127,7 +127,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <returns>A new ConnectionSettings instance.</returns>
         public ConnectionSettings With(
             Optional<IEnumerable<IAuthenticator>> authenticators = default(Optional<IEnumerable<IAuthenticator>>),
-            Optional<IEnumerable<string>> compressors = default(Optional<IEnumerable<string>>),
+            Optional<IEnumerable<MongoCompressor>> compressors = default(Optional<IEnumerable<MongoCompressor>>),
             Optional<TimeSpan> maxIdleTime = default(Optional<TimeSpan>),
             Optional<TimeSpan> maxLifeTime = default(Optional<TimeSpan>),
             Optional<string> applicationName = default(Optional<string>))

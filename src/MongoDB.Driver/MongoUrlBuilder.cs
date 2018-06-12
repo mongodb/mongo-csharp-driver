@@ -42,6 +42,7 @@ namespace MongoDB.Driver
         private string _authenticationMechanism;
         private Dictionary<string, string> _authenticationMechanismProperties;
         private string _authenticationSource;
+        private IEnumerable<MongoCompressor> _compressors;
         private ConnectionMode _connectionMode;
         private TimeSpan _connectTimeout;
         private string _databaseName;
@@ -73,7 +74,6 @@ namespace MongoDB.Driver
         private int _waitQueueSize;
         private TimeSpan _waitQueueTimeout;
         private TimeSpan? _wTimeout;
-        private IEnumerable<string> _compressors;
 
         // constructors
         /// <summary>
@@ -85,7 +85,7 @@ namespace MongoDB.Driver
             _authenticationMechanism = MongoDefaults.AuthenticationMechanism;
             _authenticationMechanismProperties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             _authenticationSource = null;
-            _compressors = Enumerable.Empty<string>();
+            _compressors = Enumerable.Empty<MongoCompressor>();
             _connectionMode = ConnectionMode.Automatic;
             _connectTimeout = MongoDefaults.ConnectTimeout;
             _databaseName = null;
@@ -601,7 +601,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the compressors that should be requested.
         /// </summary>
-        public IEnumerable<string> Compressors
+        public IEnumerable<MongoCompressor> Compressors
         {
             get { return _compressors; }
             set { _compressors = value; }
@@ -634,7 +634,7 @@ namespace MongoDB.Driver
             _authenticationMechanism = connectionString.AuthMechanism;
             _authenticationMechanismProperties = connectionString.AuthMechanismProperties.ToDictionary(x => x.Key, x => x.Value, StringComparer.OrdinalIgnoreCase);
             _authenticationSource = connectionString.AuthSource;
-            _compressors = connectionString.Compressors ?? Enumerable.Empty<string>();
+            _compressors = connectionString.Compressors ?? Enumerable.Empty<MongoCompressor>();
             switch (connectionString.Connect)
             {
                 case ClusterConnectionMode.Direct:

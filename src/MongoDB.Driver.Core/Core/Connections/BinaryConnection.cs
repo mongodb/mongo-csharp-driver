@@ -83,7 +83,7 @@ namespace MongoDB.Driver.Core.Connections
         private ICompressor _sendCompressor;
         
         // constructors
-        public BinaryConnection(ServerId serverId, EndPoint endPoint, ConnectionSettings settings, IStreamFactory streamFactory, IConnectionInitializer connectionInitializer, IEventSubscriber eventSubscriber, IEnumerable<string> compressors)
+        public BinaryConnection(ServerId serverId, EndPoint endPoint, ConnectionSettings settings, IStreamFactory streamFactory, IConnectionInitializer connectionInitializer, IEventSubscriber eventSubscriber, IEnumerable<MongoCompressor> compressors)
         {
             Ensure.IsNotNull(serverId, nameof(serverId));
             _endPoint = Ensure.IsNotNull(endPoint, nameof(endPoint));
@@ -227,24 +227,29 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private IDictionary<CompressorId, ICompressor> CreateCompressorDictionary(IEnumerable<string> compressors)
+        private static IDictionary<CompressorId, ICompressor> CreateCompressorDictionary(IEnumerable<MongoCompressor> compressors)
         {
             var dictionary = new Dictionary<CompressorId, ICompressor>();
-            foreach (string compressor in compressors)
+            foreach (var mongoCompressor in compressors)
             {
-                // TODO: Add compressionlevel
-                if (compressor == CompressorId.zlib.ToString())
-                {
-                    dictionary.Add(CompressorId.zlib, new ZlibCompressor());
-                }
-                
-
-                // TODO: throw exception when unsupported compressor
+                var compressor = CreateCompressor(mongoCompressor);
+                dictionary.Add(compressor.Id, compressor);
             }
 
             return dictionary;
         }
-        
+
+        private static ICompressor CreateCompressor(MongoCompressor compressor)
+        {
+            if (compressor.Name == CompressorId.zlib.ToString())
+            {
+                var zlibCompressionLevel = (int) compressor.Properties[MongoCompressor.Level];
+                return new ZlibCompressor(zlibCompressionLevel);
+            }
+            
+            throw new MongoInternalException($"Unsupported compressor: {compressor.Name}");
+        }
+
         private ICompressor FindCompressor(IEnumerable<string> compression)
         {
             var firstCompressorName = compression.First();

@@ -34,6 +34,7 @@ namespace MongoDB.Driver
         // private fields
         private string _applicationName;
         private Action<ClusterBuilder> _clusterConfigurator;
+        private IEnumerable<MongoCompressor> _compressors;
         private ConnectionMode _connectionMode;
         private TimeSpan _connectTimeout;
         private MongoCredentialStore _credentials;
@@ -67,7 +68,6 @@ namespace MongoDB.Driver
         private bool _isFrozen;
         private int _frozenHashCode;
         private string _frozenStringRepresentation;
-        private IEnumerable<string> _compressors;
 
         // constructors
         /// <summary>
@@ -79,7 +79,7 @@ namespace MongoDB.Driver
             _connectionMode = ConnectionMode.Automatic;
             _connectTimeout = MongoDefaults.ConnectTimeout;
             _credentials = new MongoCredentialStore(new MongoCredential[0]);
-            _compressors = Enumerable.Empty<string>();
+            _compressors = Enumerable.Empty<MongoCompressor>();
             _guidRepresentation = MongoDefaults.GuidRepresentation;
             _heartbeatInterval = ServerSettings.DefaultHeartbeatInterval;
             _heartbeatTimeout = ServerSettings.DefaultHeartbeatTimeout;
@@ -565,7 +565,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the compressors.
         /// </summary>
-        public IEnumerable<string> Compressors
+        public IEnumerable<MongoCompressor> Compressors
         {
             get { return _compressors; }
             set 
@@ -866,6 +866,8 @@ namespace MongoDB.Driver
             {
                 sb.AppendFormat("ApplicationName={0};", _applicationName);
             }
+
+            sb.AppendFormat("Compressors={0};", _compressors);
             sb.AppendFormat("ConnectionMode={0};", _connectionMode);
             sb.AppendFormat("ConnectTimeout={0};", _connectTimeout);
             sb.AppendFormat("Credentials={{{0}}};", _credentials);

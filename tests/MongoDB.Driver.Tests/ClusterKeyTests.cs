@@ -20,6 +20,7 @@ using System.Security.Cryptography.X509Certificates;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Core.Configuration;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -72,7 +73,7 @@ namespace MongoDB.Driver.Tests
         private ClusterKey CreateSubject(string notEqualFieldName = null)
         {
             var applicationName = "app1";
-            var compressors = Enumerable.Empty<string>();
+            var compressors = Enumerable.Empty<MongoCompressor>();
             var connectionMode = ConnectionMode.Direct;
             var connectTimeout = TimeSpan.FromSeconds(1);
 #pragma warning disable 618
@@ -105,7 +106,7 @@ namespace MongoDB.Driver.Tests
             switch (notEqualFieldName)
             {
                 case "ApplicationName": applicationName = "app2"; break;
-                case "Compressors": compressors = new[] {"zlib"}; break;
+                case "Compressors": compressors = new[] {new MongoCompressor{Name = "zlib"}}; break;
                 case "ConnectionMode": connectionMode = ConnectionMode.ReplicaSet; break;
                 case "ConnectTimeout": connectTimeout = TimeSpan.FromSeconds(99); break;
 #pragma warning disable 618

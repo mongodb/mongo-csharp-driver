@@ -8,14 +8,14 @@
 		/// <summary>
 		/// No compression.
 		/// </summary>
-		noop,
-		/// <summary>
-		/// Compression using snappy algorithm.
-		/// </summary>
-		snappy,
+		noop = 0,
+		///// <summary>
+		///// Compression using snappy algorithm. NOT SUPPORTED YET.
+		///// </summary>
+		//snappy = 1, 
 		/// <summary>
 		/// Compression using zlib algorithm. 
 		/// </summary>
-		zlib
+		zlib = 2
 	}
 }

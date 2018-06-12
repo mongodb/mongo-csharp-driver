@@ -37,6 +37,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.WireProtocol;
 
 namespace MongoDB.Driver.Core.Connections
@@ -46,13 +47,13 @@ namespace MongoDB.Driver.Core.Connections
     /// </summary>
     internal class ConnectionInitializer : IConnectionInitializer
     {
-        private readonly BsonArray _compressors;
+        private readonly IEnumerable<MongoCompressor> _compressors;
         private readonly BsonDocument _clientDocument;
 
-        public ConnectionInitializer(string applicationName, IEnumerable<string> compressors)
+        public ConnectionInitializer(string applicationName, IEnumerable<MongoCompressor> compressors)
         {
             _clientDocument = ClientDocumentHelper.CreateClientDocument(applicationName);
-            _compressors = new BsonArray(compressors);
+            _compressors = compressors;
         }
 
         public ConnectionDescription InitializeConnection(IConnection connection, CancellationToken cancellationToken)
@@ -145,7 +146,7 @@ namespace MongoDB.Driver.Core.Connections
             return IsMasterHelper.CustomizeCommand(command, authenticators);
         }
 
-        private ConnectionDescription UpdateConnectionIdWithServerValue(ConnectionDescription description, BsonDocument getLastErrorResult)
+        private static ConnectionDescription UpdateConnectionIdWithServerValue(ConnectionDescription description, BsonDocument getLastErrorResult)
         {
             BsonValue connectionIdBsonValue;
             if (getLastErrorResult.TryGetValue("connectionId", out connectionIdBsonValue))

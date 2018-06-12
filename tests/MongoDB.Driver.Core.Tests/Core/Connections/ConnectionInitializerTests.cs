@@ -39,11 +39,11 @@ namespace MongoDB.Driver.Core.Connections
     public class ConnectionInitializerTests
     {
         private static readonly ServerId __serverId = new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017));
-        private ConnectionInitializer _subject;
+        private readonly ConnectionInitializer _subject;
 
         public ConnectionInitializerTests()
         {
-            _subject = new ConnectionInitializer("test", new [] {"zlib"});
+            _subject = new ConnectionInitializer("test", new [] {new MongoCompressor{Name = "zlib"}});
         }
 
         [Theory]

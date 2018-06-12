@@ -34,7 +34,7 @@ namespace MongoDB.Driver
         // private fields
         private string _applicationName;
         private Action<ClusterBuilder> _clusterConfigurator;
-        private IEnumerable<string> _compressors;
+        private IEnumerable<MongoCompressor> _compressors;
         private ConnectionMode _connectionMode;
         private TimeSpan _connectTimeout;
         private MongoCredentialStore _credentials;
@@ -77,7 +77,7 @@ namespace MongoDB.Driver
         public MongoServerSettings()
         {
             _applicationName = null;
-            _compressors = Enumerable.Empty<string>();
+            _compressors = Enumerable.Empty<MongoCompressor>();
             _connectionMode = ConnectionMode.Automatic;
             _connectTimeout = MongoDefaults.ConnectTimeout;
             _credentials = new MongoCredentialStore(new MongoCredential[0]);
@@ -587,7 +587,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the compressors.
         /// </summary>
-        public IEnumerable<string> Compressors
+        public IEnumerable<MongoCompressor> Compressors
         {
             get { return _compressors; }
             set

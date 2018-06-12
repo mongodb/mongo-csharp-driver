@@ -40,7 +40,7 @@ namespace MongoDB.Driver
         // fields
         private readonly string _applicationName;
         private readonly Action<ClusterBuilder> _clusterConfigurator;
-        private readonly IEnumerable<string> _compressors;
+        private readonly IEnumerable<MongoCompressor> _compressors;
         private readonly ConnectionMode _connectionMode;
         private readonly TimeSpan _connectTimeout;
         private readonly IReadOnlyList<MongoCredential> _credentials;
@@ -70,7 +70,7 @@ namespace MongoDB.Driver
         public ClusterKey(
             string applicationName,
             Action<ClusterBuilder> clusterConfigurator,
-            IEnumerable<string> compressors,
+            IEnumerable<MongoCompressor> compressors,
             ConnectionMode connectionMode,
             TimeSpan connectTimeout,
             IReadOnlyList<MongoCredential> credentials,
@@ -126,7 +126,7 @@ namespace MongoDB.Driver
         // properties
         public string ApplicationName { get { return _applicationName; } }
         public Action<ClusterBuilder> ClusterConfigurator { get { return _clusterConfigurator; } }
-        public IEnumerable<string> Compressors { get { return _compressors; } }
+        public IEnumerable<MongoCompressor> Compressors { get { return _compressors; } }
         public ConnectionMode ConnectionMode { get { return _connectionMode; } }
         public TimeSpan ConnectTimeout { get { return _connectTimeout; } }
         public IReadOnlyList<MongoCredential> Credentials { get { return _credentials; } }

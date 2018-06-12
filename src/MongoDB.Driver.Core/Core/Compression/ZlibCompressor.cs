@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Core.Compression
 		/// Initializes a new instance of the <see cref="ZlibCompressor" /> class.
 		/// </summary>
 		/// <param name="compressionLevel">The compression level.</param>
-		public ZlibCompressor(int compressionLevel = -1)
+		public ZlibCompressor(int compressionLevel)
 		{
 			_compressionLevel = compressionLevel;
 		}

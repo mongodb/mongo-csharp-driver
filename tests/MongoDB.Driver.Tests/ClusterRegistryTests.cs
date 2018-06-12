@@ -25,6 +25,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 using Xunit;
 
@@ -57,7 +58,7 @@ namespace MongoDB.Driver.Tests
             var clientSettings = new MongoClientSettings
             {
                 ApplicationName = "app1",
-                Compressors = new []{"zlib"},
+                Compressors = new []{ new MongoCompressor{Name = "zlib"} },
                 ConnectionMode = ConnectionMode.ReplicaSet,
                 ConnectTimeout = TimeSpan.FromSeconds(1),
                 Credential = credential,
