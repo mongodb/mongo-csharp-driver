@@ -106,7 +106,7 @@ namespace MongoDB.Driver.Tests
             switch (notEqualFieldName)
             {
                 case "ApplicationName": applicationName = "app2"; break;
-                case "Compressors": compressors = new[] {new MongoCompressor{Name = "zlib"}}; break;
+                case "Compressors": compressors = new[] {new MongoCompressor("zlib")}; break;
                 case "ConnectionMode": connectionMode = ConnectionMode.ReplicaSet; break;
                 case "ConnectTimeout": connectTimeout = TimeSpan.FromSeconds(99); break;
 #pragma warning disable 618

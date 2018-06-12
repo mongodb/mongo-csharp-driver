@@ -102,7 +102,7 @@ namespace MongoDB.Driver.Core.Connections
 
             _compressorDictionary = CreateCompressorDictionary(compressors);
             
-            _commandEventHelper = new CommandEventHelper(eventSubscriber);
+            _commandEventHelper = new CommandEventHelper(eventSubscriber, _compressorDictionary);
             eventSubscriber.TryGetEventHandler(out _failedEventHandler);
             eventSubscriber.TryGetEventHandler(out _closingEventHandler);
             eventSubscriber.TryGetEventHandler(out _closedEventHandler);
@@ -243,8 +243,11 @@ namespace MongoDB.Driver.Core.Connections
         {
             if (compressor.Name == CompressorId.zlib.ToString())
             {
-                var zlibCompressionLevel = (int) compressor.Properties[MongoCompressor.Level];
-                return new ZlibCompressor(zlibCompressionLevel);
+                int? zlibCompressionLevel = null;
+                if (compressor.Properties.ContainsKey(MongoCompressor.Level))
+                    zlibCompressionLevel = (int) compressor.Properties[MongoCompressor.Level];
+                
+                return new ZlibCompressor(zlibCompressionLevel ?? -1);
             }
             
             throw new MongoInternalException($"Unsupported compressor: {compressor.Name}");
@@ -252,7 +255,12 @@ namespace MongoDB.Driver.Core.Connections
 
         private ICompressor FindCompressor(IEnumerable<string> compression)
         {
-            var firstCompressorName = compression.First();
+            if (!compression.Any())
+            {
+                return null;
+            }
+            
+            var firstCompressorName = compression.FirstOrDefault();
 
             foreach (var compressor in _compressorDictionary.Values)
             {
@@ -816,17 +824,19 @@ namespace MongoDB.Driver.Core.Connections
                 _stopwatch.Stop();
                 _networkDuration = _stopwatch.Elapsed;
 
+                var messageCompressionHelpler = new MessageCompressionHelper(_compressorDictionary, _messageEncoderSettings);
+                
                 ResponseMessage message;
                 _stopwatch.Restart();
                 using (var stream = new ByteBufferStream(buffer, ownsBuffer: false))
                 {
-                    if (IsCompressedResponse(stream))
+                    if (messageCompressionHelpler.IsCompressedMessage(stream))
                     {
-                        message = ReadCompressedResponseMessage(encoderSelector, stream);
+                        message = messageCompressionHelpler.ReadCompressedResponseMessage(stream, encoderSelector);
                     }
                     else
                     {
-                        message = ReadResponseMessage(encoderSelector, stream);
+                        message = ReadResponseMessage(stream, encoderSelector);
                     }
                 }
                 _stopwatch.Stop();
@@ -835,65 +845,7 @@ namespace MongoDB.Driver.Core.Connections
                 return message;
             }
 
-            private ResponseMessage ReadCompressedResponseMessage(IMessageEncoderSelector encoderSelector, ByteBufferStream stream)
-            {
-                var compressedMessageLength = stream.ReadInt32();
-                var requestId = stream.ReadInt32();
-                var responseTo = stream.ReadInt32();
-                stream.ReadInt32(); //OP_COMPRESSED
-
-                var originalOpCode = (Opcode) stream.ReadInt32();
-                var originalMessageSize = stream.ReadInt32();
-                var compressorId = (CompressorId) stream.ReadByte();
-
-                var compressor = GetCompressor(compressorId);
-                
-                var compressedBytes = stream.ReadBytes(compressedMessageLength - (int) stream.Position);
-
-                var uncompressedBytes = compressor.Decompress(compressedBytes);
-
-                using (var memStream = new MemoryStream())
-                {
-                    using (var writer = new BinaryWriter(memStream, Encoding.Default, true))
-                    {
-                        writer.Write(originalMessageSize + 16);
-                        writer.Write(requestId);
-                        writer.Write(responseTo);
-                        writer.Write((int)originalOpCode);
-                        
-                        writer.Write(uncompressedBytes);
-                    }
-
-                    var buffer = new ByteArrayBuffer(memStream.ToArray());
-                    buffer.MakeReadOnly();
-                    return ReadResponseMessage(encoderSelector, new ByteBufferStream(buffer));
-                }
-            }
-
-            private ICompressor GetCompressor(CompressorId compressorId)
-            {
-                ICompressor compressor;
-
-                if (_compressorDictionary.TryGetValue(compressorId, out compressor))
-                    return compressor;
-                
-                throw new MongoClientException($"Unsupported compressor with identifier {(int)compressorId}");
-            }
-
-            private bool IsCompressedResponse(BsonStream stream)
-            {
-                // Skip header to opcode
-                stream.ReadInt32();
-                stream.ReadInt32();
-                stream.ReadInt32();
-                var isCompressed = stream.ReadInt32() == (int)Opcode.Compressed;
-
-                stream.Position = 0;
-                
-                return isCompressed;
-            }
-
-            private ResponseMessage ReadResponseMessage(IMessageEncoderSelector encoderSelector, ByteBufferStream stream)
+            private ResponseMessage ReadResponseMessage(ByteBufferStream stream, IMessageEncoderSelector encoderSelector)
             {
                 var encoderFactory = new BinaryMessageEncoderFactory(stream, _messageEncoderSettings);
                 var encoder = encoderSelector.GetEncoder(encoderFactory);
@@ -942,7 +894,7 @@ namespace MongoDB.Driver.Core.Connections
 
         private class SendMessagesHelper
         {
-            private static readonly HashSet<string> SecuritySensitiveCommands = new HashSet<string>
+            private static readonly HashSet<string> CommandsNotToBeCompressed = new HashSet<string>
             {
                 "isMaster",
                 "saslStart",
@@ -1048,7 +1000,7 @@ namespace MongoDB.Driver.Core.Connections
 
                 var firstKey = section.Document.First().Name;
 
-                if (SecuritySensitiveCommands.Contains(firstKey))
+                if (CommandsNotToBeCompressed.Contains(firstKey))
                 {
                     return true;
                 }

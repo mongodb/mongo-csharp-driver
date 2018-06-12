@@ -867,7 +867,7 @@ namespace MongoDB.Driver
                 sb.AppendFormat("ApplicationName={0};", _applicationName);
             }
 
-            sb.AppendFormat("Compressors={0};", _compressors);
+            sb.AppendFormat("Compressors=[{0}];", string.Join(",", _compressors));
             sb.AppendFormat("ConnectionMode={0};", _connectionMode);
             sb.AppendFormat("ConnectTimeout={0};", _connectTimeout);
             sb.AppendFormat("Credentials={{{0}}};", _credentials);

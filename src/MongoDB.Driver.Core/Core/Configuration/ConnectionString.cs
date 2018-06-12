@@ -639,7 +639,7 @@ namespace MongoDB.Driver.Core.Configuration
                 return;
             }
 
-            _compressors = new List<MongoCompressor>();
+            var compressors = new List<MongoCompressor>();
             
             foreach (var compressor in _compressorNames)
             {
@@ -650,13 +650,17 @@ namespace MongoDB.Driver.Core.Configuration
                     throw new MongoConfigurationException($"Unsupported compressor '{compressor}'.");
                 }
 
-                var mongoCompressor = new MongoCompressor { Name = compressor.ToLowerInvariant() };
+                var mongoCompressor = new MongoCompressor(compressor.ToLowerInvariant());
                 
-                if (id == CompressorId.zlib)
+                if (id == CompressorId.zlib && _zlibCompressionLevel.HasValue)
                 {
-                    mongoCompressor.Properties.Add(MongoCompressor.Level, _zlibCompressionLevel.GetValueOrDefault(-1));
+                    mongoCompressor.Properties.Add(MongoCompressor.Level, _zlibCompressionLevel.Value);
                 }
+
+                compressors.Add(mongoCompressor);
             }
+
+            _compressors = compressors;
         }
 
         private void ExtractUsernameAndPassword(Match match)

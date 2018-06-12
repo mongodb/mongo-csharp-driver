@@ -45,6 +45,7 @@ namespace MongoDB.Driver.Core.Compression
 		}
 
 		/// <inheritdoc />
+		[SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
 		public byte[] Decompress(byte[] bytesToDecompress)
 		{
 			using (var memoryStream = new MemoryStream())

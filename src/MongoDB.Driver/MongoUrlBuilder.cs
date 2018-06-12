@@ -815,7 +815,13 @@ namespace MongoDB.Driver
             }
             if (_compressors.Any())
             {
-                query.AppendFormat("compressors={0};", string.Join(",", _compressors));
+                query.AppendFormat("compressors={0};", string.Join(",", _compressors.Select(x => x.Name)));
+
+                var zlibCompressor = _compressors.FirstOrDefault(x => x.Name == "zlib");
+                object zlibcompressionLevel;
+
+                if (zlibCompressor != null && zlibCompressor.Properties.TryGetValue(MongoCompressor.Level, out zlibcompressionLevel))
+                    query.AppendFormat("zlibCompressionLevel={0};", zlibcompressionLevel);
             }
             if (_connectionMode != ConnectionMode.Automatic)
             {

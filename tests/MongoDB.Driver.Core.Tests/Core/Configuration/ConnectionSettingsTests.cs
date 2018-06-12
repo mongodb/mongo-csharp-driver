@@ -118,7 +118,7 @@ namespace MongoDB.Driver.Core.Configuration
         [Fact]
         public void constructor_with_compressors_should_initialize_instance()
         {
-            var compressors = new[] {new MongoCompressor{Name = "zlib"}};
+            var compressors = new[] {new MongoCompressor("zlib")};
 
             var subject = new ConnectionSettings(compressors: compressors);
 
@@ -194,8 +194,8 @@ namespace MongoDB.Driver.Core.Configuration
         [Fact]
         public void With_compressors_should_return_expected_result()
         {
-            var oldCompressors = new[] {new MongoCompressor{Name = "zlib"}};
-            var newCompressors = new[] {new MongoCompressor{Name = "snappy"}};
+            var oldCompressors = new[] {new MongoCompressor("zlib")};
+            var newCompressors = new[] {new MongoCompressor("snappy")};
             var subject = new ConnectionSettings(compressors: oldCompressors);
 
             var result = subject.With(compressors: newCompressors);
