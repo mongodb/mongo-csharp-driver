@@ -11,6 +11,7 @@ namespace MongoDB.Driver.Core.Compression
 {
 	internal sealed class MessageCompressionHelper
 	{
+		private const int MessageHeaderLength = 16;
 		private readonly IDictionary<CompressorId, ICompressor> _compressorDictionary;
 		private readonly MessageEncoderSettings _messageEncoderSettings;
 
@@ -78,7 +79,7 @@ namespace MongoDB.Driver.Core.Compression
 			{
 				using (var writer = new BinaryWriter(memStream, Encoding.Default, true))
 				{
-					writer.Write(originalMessageSize + 16);
+					writer.Write(originalMessageSize + MessageHeaderLength);
 					writer.Write(requestId);
 					writer.Write(responseTo);
 					writer.Write((int)originalOpCode);

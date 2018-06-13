@@ -1,7 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.IO.Compression;
-using System.Net.Configuration;
 using CompressionLevel = Ionic.Zlib.CompressionLevel;
 using CompressionMode = Ionic.Zlib.CompressionMode;
 
@@ -12,7 +10,7 @@ namespace MongoDB.Driver.Core.Compression
 	/// </summary>
 	public sealed class ZlibCompressor : ICompressor
 	{
-		private readonly int _compressionLevel;
+		private readonly CompressionLevel _compressionLevel;
 
 		/// <inheritdoc />
 		public string Name => "zlib";
@@ -26,7 +24,7 @@ namespace MongoDB.Driver.Core.Compression
 		/// <param name="compressionLevel">The compression level.</param>
 		public ZlibCompressor(int compressionLevel)
 		{
-			_compressionLevel = compressionLevel;
+			_compressionLevel = GetCompressionLevel(compressionLevel);
 		}
 
 		/// <inheritdoc />
@@ -35,7 +33,7 @@ namespace MongoDB.Driver.Core.Compression
 		{
 			using (var memoryStream = new MemoryStream())
 			{
-				using (var zlibStream = new Ionic.Zlib.ZlibStream(memoryStream, CompressionMode.Compress, GetCompressionLevel()))
+				using (var zlibStream = new Ionic.Zlib.ZlibStream(memoryStream, CompressionMode.Compress, _compressionLevel))
 				{
 					zlibStream.Write(bytesToCompress, offset, bytesToCompress.Length - offset);
 				}
@@ -59,15 +57,15 @@ namespace MongoDB.Driver.Core.Compression
 			}
 		}
 
-		private CompressionLevel GetCompressionLevel()
+		private static CompressionLevel GetCompressionLevel(int compressionLevel)
 		{
-			if (_compressionLevel < 0)
+			if (compressionLevel < 0)
 				return CompressionLevel.Default;
 
-			if (_compressionLevel > 9)
+			if (compressionLevel > 9)
 				return CompressionLevel.BestCompression;
 
-			return (CompressionLevel) _compressionLevel;
+			return (CompressionLevel) compressionLevel;
 		}
 	}
 }

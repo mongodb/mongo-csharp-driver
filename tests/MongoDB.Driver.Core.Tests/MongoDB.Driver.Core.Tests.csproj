@@ -92,6 +92,7 @@
     <Compile Include="Core\Clusters\ClusterClockTests.cs" />
     <Compile Include="Core\Clusters\ElectionIdTests.cs" />
     <Compile Include="Core\Clusters\ReplicaSetConfigTests.cs" />
+    <Compile Include="Core\Compression\MessageCompressionHelperTests.cs" />
     <Compile Include="Core\Configuration\ClusterBuilderTests.cs" />
     <Compile Include="Core\Configuration\ClusterSettingsTests.cs" />
     <Compile Include="Core\Configuration\ConnectionPoolSettingsTests.cs" />
@@ -102,6 +103,7 @@
     <Compile Include="Core\Connections\KeepAliveValuesTests.cs" />
     <Compile Include="Core\Events\EventAggregatorTests.cs" />
     <Compile Include="Core\Events\ReflectionEventSubscriberTests.cs" />
+    <Compile Include="Core\Helpers\CommandMessageHelper.cs" />
     <Compile Include="Core\Events\TraceSourceSdamEventSubscriberTests.cs" />
     <Compile Include="Core\Misc\ReadAheadEnumerableTests.cs" />
     <Compile Include="Core\Misc\SemaphoreSlimRequestTests.cs" />
