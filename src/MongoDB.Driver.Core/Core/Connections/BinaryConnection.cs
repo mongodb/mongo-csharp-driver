@@ -250,7 +250,7 @@ namespace MongoDB.Driver.Core.Connections
                 return new ZlibCompressor(zlibCompressionLevel ?? -1);
             }
             
-            throw new MongoInternalException($"Unsupported compressor: {compressor.Name}");
+            throw new MongoInternalException($"Unsupported compressor: {compressor.Name}.");
         }
 
         private ICompressor FindCompressor(IEnumerable<string> compression)
@@ -268,7 +268,7 @@ namespace MongoDB.Driver.Core.Connections
                     return compressor;
             }
 
-            throw new MongoInternalException($"Unexpected compressor negotiated: {firstCompressorName}");
+            throw new MongoInternalException($"Unexpected compressor negotiated: {firstCompressorName}.");
         }
         
         public void Open(CancellationToken cancellationToken)

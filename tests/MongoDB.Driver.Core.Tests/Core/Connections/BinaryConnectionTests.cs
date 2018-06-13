@@ -22,6 +22,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using FluentAssertions.Specialized;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
@@ -45,6 +46,7 @@ namespace MongoDB.Driver.Core.Connections
         private MessageEncoderSettings _messageEncoderSettings = new MessageEncoderSettings();
         private Mock<IStreamFactory> _mockStreamFactory;
         private BinaryConnection _subject;
+        private ServerId _serverId;
 
         public BinaryConnectionTests()
         {
@@ -52,22 +54,22 @@ namespace MongoDB.Driver.Core.Connections
             _mockStreamFactory = new Mock<IStreamFactory>();
 
             _endPoint = new DnsEndPoint("localhost", 27017);
-            var serverId = new ServerId(new ClusterId(), _endPoint);
+            _serverId = new ServerId(new ClusterId(), _endPoint);
 
             _mockConnectionInitializer = new Mock<IConnectionInitializer>();
             _mockConnectionInitializer.Setup(i => i.InitializeConnection(It.IsAny<IConnection>(), CancellationToken.None))
                 .Returns(() => new ConnectionDescription(
-                    new ConnectionId(serverId),
+                    new ConnectionId(_serverId),
                     new IsMasterResult(new BsonDocument()),
                     new BuildInfoResult(new BsonDocument("version", "2.6.3"))));
             _mockConnectionInitializer.Setup(i => i.InitializeConnectionAsync(It.IsAny<IConnection>(), CancellationToken.None))
                 .Returns(() => Task.FromResult(new ConnectionDescription(
-                    new ConnectionId(serverId),
+                    new ConnectionId(_serverId),
                     new IsMasterResult(new BsonDocument()),
                     new BuildInfoResult(new BsonDocument("version", "2.6.3")))));
 
             _subject = new BinaryConnection(
-                serverId: serverId,
+                serverId: _serverId,
                 endPoint: _endPoint,
                 settings: new ConnectionSettings(),
                 streamFactory: _mockStreamFactory.Object,
@@ -75,6 +77,22 @@ namespace MongoDB.Driver.Core.Connections
                 eventSubscriber: _capturedEvents);
         }
 
+        [Fact]
+        public void Constructor_should_throw_if_unsupported_compressor()
+        {
+            var settings = new ConnectionSettings(compressors: new[] {new MongoCompressor("test")});
+            
+            Action action = () => new BinaryConnection(
+                _serverId,
+                _endPoint,
+                settings,
+                _mockStreamFactory.Object,
+                _mockConnectionInitializer.Object,
+                _capturedEvents);
+
+            action.ShouldThrow<MongoInternalException>().WithMessage("*test.");
+        }
+        
         [Fact]
         public void Dispose_should_raise_the_correct_events()
         {
@@ -104,6 +122,46 @@ namespace MongoDB.Driver.Core.Connections
             }
 
             act.ShouldThrow<ObjectDisposedException>();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Open_should_throw_if_unexpected_compressor(
+            [Values(false, true)] bool async)
+        {
+            Action action;
+            var compressorName = "unexpected";
+
+            if (async)
+            {
+                _mockConnectionInitializer.Setup(
+                        i => i.InitializeConnectionAsync(It.IsAny<IConnection>(), CancellationToken.None))
+                    .Returns(
+                        () => Task.FromResult(
+                            new ConnectionDescription(
+                                new ConnectionId(_serverId),
+                                new IsMasterResult(
+                                    new BsonDocument("compression", new BsonArray(new[] {compressorName}))),
+                                new BuildInfoResult(new BsonDocument("version", "2.6.3")))));
+
+                action = () => _subject.OpenAsync(CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                _mockConnectionInitializer.Setup(
+                        i => i.InitializeConnection(It.IsAny<IConnection>(), CancellationToken.None))
+                    .Returns(
+                        () => new ConnectionDescription(
+                            new ConnectionId(_serverId),
+                            new IsMasterResult(new BsonDocument("compression", new BsonArray(new[] {compressorName}))),
+                            new BuildInfoResult(new BsonDocument("version", "2.6.3"))));
+
+                action = () => _subject.Open(CancellationToken.None);
+            }
+
+            action.ShouldThrow<MongoConnectionException>()
+                .WithInnerException<MongoInternalException>()
+                .WithInnerMessage($"Unexpected compressor*{compressorName}.");
         }
 
         [Theory]
