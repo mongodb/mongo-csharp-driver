@@ -185,7 +185,8 @@ namespace MongoDB.Driver.Core.Configuration
                 "authMechanism=GSSAPI;" +
                 "authMechanismProperties=CANONICALIZE_HOST_NAME:true;" +
                 "authSource=admin;" +
-                "compressors=zlib,snappy;" +
+                "compressors=zlib;" +
+                "zlibCompressionLevel=4;" +
                 "connect=replicaSet;" +
                 "connectTimeout=15ms;" +
                 "fsync=true;" +
@@ -220,7 +221,8 @@ namespace MongoDB.Driver.Core.Configuration
             subject.AuthMechanismProperties.Count.Should().Be(1);
             subject.AuthMechanismProperties["canonicalize_host_name"].Should().Be("true");
             subject.AuthSource.Should().Be("admin");
-            subject.Compressors.Should().Contain("zlib").And.Contain("snappy");
+            subject.Compressors.Should().Contain(x => x.Name == "zlib")
+                                        .And.Contain(x => x.Properties.ContainsKey(MongoCompressor.Level));
             subject.Connect.Should().Be(ClusterConnectionMode.ReplicaSet);
             subject.ConnectTimeout.Should().Be(TimeSpan.FromMilliseconds(15));
             subject.DatabaseName.Should().Be("test");
@@ -307,14 +309,22 @@ namespace MongoDB.Driver.Core.Configuration
 
         [Theory]
         [InlineData("mongodb://localhost?compressors=zlib", "zlib")]
-        [InlineData("mongodb://localhost?compressors=snappy", "snappy")]
         public void When_compressors_are_specified(string connectionString, string compressor)
         {
             var subject = new ConnectionString(connectionString);
 
-            subject.Compressors.Should().Contain(compressor);
+            subject.Compressors.Should().Contain(x => x.Name == compressor);
         }
 
+        [Theory]
+        [InlineData("mongodb://localhost?compressors=snappy", "snappy")]
+        public void Throw_if_compressor_unsupported(string connectionString, string compressor)
+        {
+           Action action = () => new ConnectionString(connectionString);
+
+            action.ShouldThrow<MongoConfigurationException>().WithMessage($"*{compressor}*");
+        }
+        
         [Theory]
         [InlineData("mongodb://localhost?connect=automatic", ClusterConnectionMode.Automatic)]
         [InlineData("mongodb://localhost?connect=direct", ClusterConnectionMode.Direct)]

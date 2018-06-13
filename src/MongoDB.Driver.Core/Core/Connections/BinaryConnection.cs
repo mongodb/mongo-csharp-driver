@@ -78,12 +78,12 @@ namespace MongoDB.Driver.Core.Connections
         private readonly Action<ConnectionSentMessagesEvent> _sentMessagesEventHandler;
         private readonly Action<ConnectionSendingMessagesFailedEvent> _failedSendingMessagesEvent;
 
-        protected IDictionary<CompressorId, ICompressor> _compressorDictionary;
+        private readonly IDictionary<CompressorId, ICompressor> _compressorDictionary;
         
         private ICompressor _sendCompressor;
         
         // constructors
-        public BinaryConnection(ServerId serverId, EndPoint endPoint, ConnectionSettings settings, IStreamFactory streamFactory, IConnectionInitializer connectionInitializer, IEventSubscriber eventSubscriber, IEnumerable<MongoCompressor> compressors)
+        public BinaryConnection(ServerId serverId, EndPoint endPoint, ConnectionSettings settings, IStreamFactory streamFactory, IConnectionInitializer connectionInitializer, IEventSubscriber eventSubscriber)
         {
             Ensure.IsNotNull(serverId, nameof(serverId));
             _endPoint = Ensure.IsNotNull(endPoint, nameof(endPoint));
@@ -100,7 +100,7 @@ namespace MongoDB.Driver.Core.Connections
             _sendLock = new SemaphoreSlim(1);
             _state = new InterlockedInt32(State.Initial);
 
-            _compressorDictionary = CreateCompressorDictionary(compressors);
+            _compressorDictionary = CreateCompressorDictionary(settings.Compressors);
             
             _commandEventHelper = new CommandEventHelper(eventSubscriber, _compressorDictionary);
             eventSubscriber.TryGetEventHandler(out _failedEventHandler);

@@ -22,9 +22,12 @@ namespace MongoDB.Driver.Examples
 {
     public class InsertPrimer : PrimerTestFixture
     {
-        [Fact]
-        public async Task InsertADocument()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task InsertADocument(bool compressionEnabled)
         {
+            WithCompression(compressionEnabled);
             AltersCollection();
 
             // @begin: insert-a-document

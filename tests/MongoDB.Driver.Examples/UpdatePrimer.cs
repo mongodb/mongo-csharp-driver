@@ -25,10 +25,13 @@ namespace MongoDB.Driver.Examples
 {
     public class UpdatePrimer : PrimerTestFixture
     {
-        [SkippableFact]
-        public async Task UpdateTopLevelFields()
+        [SkippableTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task UpdateTopLevelFields(bool compressionEnabled)
         {
             RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            WithCompression(compressionEnabled);
             AltersCollection();
 
             // @begin: update-top-level-fields
@@ -52,9 +55,12 @@ namespace MongoDB.Driver.Examples
             // @end: update-top-level-fields
         }
 
-        [Fact]
-        public async Task UpdateEmbeddedField()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task UpdateEmbeddedField(bool compressionEnabled)
         {
+            WithCompression(compressionEnabled);
             AltersCollection();
 
             // @begin: update-embedded-field
@@ -76,10 +82,13 @@ namespace MongoDB.Driver.Examples
             // @end: update-embedded-field
         }
 
-        [SkippableFact]
-        public async Task UpdateMultipleDocuments()
+        [SkippableTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task UpdateMultipleDocuments(bool compressionEnabled)
         {
             RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            WithCompression(compressionEnabled);
             AltersCollection();
 
             // @begin: update-multiple-documents
