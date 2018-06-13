@@ -182,6 +182,7 @@
     <Compile Include="Core\WireProtocol\Messages\CommandMessageTests.cs" />
     <Compile Include="Core\WireProtocol\Messages\CommandRequestMessageTests.cs" />
     <Compile Include="Core\WireProtocol\Messages\CommandResponseMessageTests.cs" />
+    <Compile Include="Core\WireProtocol\Messages\CompressedMessageTests.cs" />
     <Compile Include="Core\WireProtocol\Messages\Encoders\BinaryEncoders\CommandMessageBinaryEncoderTests.cs" />
     <Compile Include="Core\WireProtocol\Messages\Encoders\BinaryEncoders\CommandRequestMessageBinaryEncoderTests.cs" />
     <Compile Include="Core\WireProtocol\Messages\Encoders\BinaryEncoders\CommandResponseMessageBinaryEncoderTests.cs" />

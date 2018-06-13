@@ -7,7 +7,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
 	/// Represents a compressed message.
 	/// </summary>
 	/// <seealso cref="MongoDB.Driver.Core.WireProtocol.Messages.MongoDBMessage" />
-	public sealed class CompressedMessage : MongoDBMessage
+	public class CompressedMessage : MongoDBMessage
 	{
 		private readonly MongoDBMessage _messageToBeCompressed;
 		private readonly ICompressor _compressor;
