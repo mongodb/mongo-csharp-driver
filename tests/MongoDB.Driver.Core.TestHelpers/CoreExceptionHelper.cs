@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Core.TestHelpers
                         var serverId = new ServerId(clusterId, new DnsEndPoint("localhost", 27017));
                         var connectionId = new ConnectionId(serverId, 1);
                         var result = new BsonDocument();
-                        return new MongoNodeIsRecoveringException(connectionId, result);
+                        return new MongoNodeIsRecoveringException(connectionId, null, result);
                     }
 
                 case "MongoNotPrimaryException":
@@ -67,7 +67,7 @@ namespace MongoDB.Driver.Core.TestHelpers
                         var serverId = new ServerId(clusterId, new DnsEndPoint("localhost", 27017));
                         var connectionId = new ConnectionId(serverId, 1);
                         var result = new BsonDocument();
-                        return new MongoNotPrimaryException(connectionId, result);
+                        return new MongoNotPrimaryException(connectionId, null, result);
                     }
 
                 default:

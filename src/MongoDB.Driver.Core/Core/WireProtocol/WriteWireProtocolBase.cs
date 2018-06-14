@@ -160,7 +160,7 @@ namespace MongoDB.Driver.Core.WireProtocol
 
             var response = reply.Documents.Single();
 
-            var notPrimaryOrNodeIsRecoveringException = ExceptionMapper.MapNotPrimaryOrNodeIsRecovering(connectionId, response, "err");
+            var notPrimaryOrNodeIsRecoveringException = ExceptionMapper.MapNotPrimaryOrNodeIsRecovering(connectionId, getLastErrorCommand, response, "err");
             if (notPrimaryOrNodeIsRecoveringException != null)
             {
                 throw notPrimaryOrNodeIsRecoveringException;

@@ -260,7 +260,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                         commandName = _command["$query"].AsBsonDocument.GetElement(0).Name;
                     }
 
-                    var notPrimaryOrNodeIsRecoveringException = ExceptionMapper.MapNotPrimaryOrNodeIsRecovering(connectionId, materializedDocument, "errmsg");
+                    var notPrimaryOrNodeIsRecoveringException = ExceptionMapper.MapNotPrimaryOrNodeIsRecovering(connectionId, _command, materializedDocument, "errmsg");
                     if (notPrimaryOrNodeIsRecoveringException != null)
                     {
                         throw notPrimaryOrNodeIsRecoveringException;

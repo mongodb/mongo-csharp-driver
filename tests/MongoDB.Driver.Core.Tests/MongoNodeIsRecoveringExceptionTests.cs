@@ -31,16 +31,18 @@ namespace MongoDB.Driver
     public class MongoNodeIsRecoveringExceptionTests
     {
         private readonly ConnectionId _connectionId = new ConnectionId(new ServerId(new ClusterId(1), new DnsEndPoint("localhost", 27017)), 2).WithServerValue(3);
+        private readonly BsonDocument _command = new BsonDocument("command", 1);
         private readonly BsonDocument _serverResult = new BsonDocument("result", 1);
 
         [Fact]
         public void constructor_should_initialize_subject()
         {
-            var result = new MongoNodeIsRecoveringException(_connectionId, _serverResult);
+            var result = new MongoNodeIsRecoveringException(_connectionId, _command, _serverResult);
 
             result.ConnectionId.Should().BeSameAs(_connectionId);
             result.InnerException.Should().BeNull();
             result.Message.Should().Be("Server returned node is recovering error (code = -1).");
+            result.Command.Should().BeSameAs(_command);
             result.Result.Should().BeSameAs(_serverResult);
         }
 
@@ -49,11 +51,12 @@ namespace MongoDB.Driver
         {
             var serverResult = BsonDocument.Parse("{ ok : 0, code : 1234 }");
 
-            var result = new MongoNodeIsRecoveringException(_connectionId, serverResult);
+            var result = new MongoNodeIsRecoveringException(_connectionId, _command, serverResult);
 
             result.ConnectionId.Should().BeSameAs(_connectionId);
             result.InnerException.Should().BeNull();
             result.Message.Should().Be("Server returned node is recovering error (code = 1234).");
+            result.Command.Should().BeSameAs(_command);
             result.Result.Should().BeSameAs(serverResult);
         }
 
@@ -62,11 +65,12 @@ namespace MongoDB.Driver
         {
             var serverResult = BsonDocument.Parse("{ ok : 0, code : 1234, codeName : 'some name' }");
 
-            var result = new MongoNodeIsRecoveringException(_connectionId, serverResult);
+            var result = new MongoNodeIsRecoveringException(_connectionId, _command, serverResult);
 
             result.ConnectionId.Should().BeSameAs(_connectionId);
             result.InnerException.Should().BeNull();
             result.Message.Should().Be("Server returned node is recovering error (code = 1234, codeName = \"some name\").");
+            result.Command.Should().BeSameAs(_command);
             result.Result.Should().BeSameAs(serverResult);
         }
 
@@ -74,7 +78,7 @@ namespace MongoDB.Driver
         [Fact]
         public void Serialization_should_work()
         {
-            var subject = new MongoNodeIsRecoveringException(_connectionId, _serverResult);
+            var subject = new MongoNodeIsRecoveringException(_connectionId, _command, _serverResult);
 
             var formatter = new BinaryFormatter();
             using (var stream = new MemoryStream())
@@ -86,6 +90,7 @@ namespace MongoDB.Driver
                 rehydrated.ConnectionId.Should().Be(subject.ConnectionId);
                 rehydrated.InnerException.Should().BeNull();
                 rehydrated.Message.Should().Be(subject.Message);
+                rehydrated.Command.Should().Be(subject.Command);
                 rehydrated.Result.Should().Be(subject.Result);
             }
         }

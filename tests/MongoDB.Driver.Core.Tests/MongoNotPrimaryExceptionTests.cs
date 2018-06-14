@@ -31,16 +31,18 @@ namespace MongoDB.Driver
     public class MongoNotPrimaryExceptionTests
     {
         private readonly ConnectionId _connectionId = new ConnectionId(new ServerId(new ClusterId(1), new DnsEndPoint("localhost", 27017)), 2).WithServerValue(3);
+        private readonly BsonDocument _command = new BsonDocument("command", 1);
         private readonly BsonDocument _serverResult = new BsonDocument("result", 1);
 
         [Fact]
         public void constructor_should_initialize_subject()
         {
-            var subject = new MongoNotPrimaryException(_connectionId, _serverResult);
+            var subject = new MongoNotPrimaryException(_connectionId, _command, _serverResult);
 
             subject.ConnectionId.Should().BeSameAs(_connectionId);
             subject.InnerException.Should().BeNull();
             subject.Message.Should().Be("Server returned not master error.");
+            subject.Command.Should().BeSameAs(_command);
             subject.Result.Should().Be(_serverResult);
         }
 
@@ -48,7 +50,7 @@ namespace MongoDB.Driver
         [Fact]
         public void Serialization_should_work()
         {
-            var subject = new MongoNotPrimaryException(_connectionId, _serverResult);
+            var subject = new MongoNotPrimaryException(_connectionId, _command, _serverResult);
 
             var formatter = new BinaryFormatter();
             using (var stream = new MemoryStream())
@@ -60,6 +62,7 @@ namespace MongoDB.Driver
                 rehydrated.ConnectionId.Should().Be(subject.ConnectionId);
                 rehydrated.InnerException.Should().BeNull();
                 rehydrated.Message.Should().Be(subject.Message);
+                rehydrated.Command.Should().Be(subject.Command);
                 rehydrated.Result.Should().Be(subject.Result);
             }
         }

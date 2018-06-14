@@ -199,7 +199,7 @@ namespace MongoDB.Driver.Core.Misc
             var response = BsonDocument.Parse("{ ok : 0, code : 0 }");
             response["code"] = code;
 
-            var result = ExceptionMapper.MapNotPrimaryOrNodeIsRecovering(connectionId, response, "errmsg");
+            var result = ExceptionMapper.MapNotPrimaryOrNodeIsRecovering(connectionId, null, response, "errmsg");
 
             result?.GetType().Should().Be(expectedExceptionType);
         }
@@ -218,7 +218,7 @@ namespace MongoDB.Driver.Core.Misc
             var response = BsonDocument.Parse("{ ok : 0, errmsg : '' }");
             response["errmsg"] = errmsg;
 
-            var result = ExceptionMapper.MapNotPrimaryOrNodeIsRecovering(connectionId, response, "errmsg");
+            var result = ExceptionMapper.MapNotPrimaryOrNodeIsRecovering(connectionId, null, response, "errmsg");
 
             result?.GetType().Should().Be(expectedExceptionType);
         }
