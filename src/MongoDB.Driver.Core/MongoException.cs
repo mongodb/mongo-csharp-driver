@@ -15,9 +15,9 @@
 
 using System;
 using System.Collections.Generic;
+using MongoDB.Driver.Core.Misc;
 #if NET45
 using System.Runtime.Serialization;
-using MongoDB.Driver.Core.Misc;
 #endif
 
 namespace MongoDB.Driver

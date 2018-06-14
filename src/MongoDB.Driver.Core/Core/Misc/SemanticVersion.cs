@@ -203,7 +203,7 @@ namespace MongoDB.Driver.Core.Misc
         {
             if (!string.IsNullOrEmpty(value))
             {
-                var pattern = @"(?<major>\d+)\.(?<minor>\d+)(\.(?<patch>\d+)(-(?<preRelease>.+))?)?";
+                var pattern = @"(?<major>\d+)\.(?<minor>\d+)(\.(?<patch>\d+)(-(?<preRelease>.*))?)?";
                 var match = Regex.Match((string)value, pattern);
                 if (match.Success)
                 {
