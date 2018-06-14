@@ -22,7 +22,7 @@ namespace MongoDB.Driver.Core.Compression
 {
 	/// <summary>
 	/// Compressors using zlib algorithm
-	/// </summary>
+	/// </summary> 
 	public sealed class ZlibCompressor : ICompressor
 	{
 		private readonly CompressionLevel _compressionLevel;
