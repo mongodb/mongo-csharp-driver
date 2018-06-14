@@ -13,24 +13,13 @@
 * limitations under the License.
 */
 
-namespace MongoDB.Driver.Core.Compression
+namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
-	/// <summary>
-	/// Represents the compressor id.
-	/// </summary>
-	public enum CompressorId
+	public class CompressedMessageBinaryEncoderTests
 	{
-		/// <summary>
-		/// No compression.
-		/// </summary>
-		noop = 0,
-		///// <summary>
-		///// Compression using snappy algorithm. NOT SUPPORTED YET.
-		///// </summary>
-		//snappy = 1, 
-		/// <summary>
-		/// Compression using zlib algorithm. 
-		/// </summary>
-		zlib = 2
+		public void Constructor_should_initialize_instance()
+		{
+			
+		}
 	}
 }

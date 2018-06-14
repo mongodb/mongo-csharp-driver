@@ -1,4 +1,19 @@
-﻿using System;
+﻿/* Copyright 2013-present MongoDB Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -36,7 +51,7 @@ namespace MongoDB.Driver.Core.Compression
 			var stream = SetupStreamHeaderWith(Opcode.Compressed);
 
 			stream.Position = stream.Length;
-			using (var writer = new BinaryWriter(stream, Encoding.Default, true))
+			using (var writer = new BinaryWriter(stream, Encoding.UTF8, true))
 			{
 				writer.Write(1);
 				writer.Write(1);
@@ -68,7 +83,10 @@ namespace MongoDB.Driver.Core.Compression
 		{
 			byte compressorId = 3;
 			var commandMessageBytes = CommandMessageHelper.CreateMessageBytes();
-			var compressedMessageBytes = CreateCompressedMessageBytes(commandMessageBytes, compressorId);
+			var compressedMessageBytes = CompressedMessageHelper.CreateCompressedMessageBytes(
+				commandMessageBytes,
+				_compressor,
+				compressorId);
 
 			using (var memoryStream = new MemoryStream(compressedMessageBytes))
 			{
@@ -82,7 +100,8 @@ namespace MongoDB.Driver.Core.Compression
 		public void UncompressMessage_returns_uncompressed_message_stream()
 		{
 			var commandMessageBytes = CommandMessageHelper.CreateMessageBytes();
-			var compressedMessageBytes = CreateCompressedMessageBytes(commandMessageBytes);
+			var compressedMessageBytes =
+				CompressedMessageHelper.CreateCompressedMessageBytes(commandMessageBytes, _compressor);
 
 			Stream uncompressedStream;
 			using (var memoryStream = new MemoryStream(compressedMessageBytes))
@@ -106,7 +125,8 @@ namespace MongoDB.Driver.Core.Compression
 		public void ReadCompressedResponseMessage_returns_uncompressed_message()
 		{
 			var commandMessageBytes = CommandMessageHelper.CreateMessageBytes();
-			var compressedMessageBytes = CreateCompressedMessageBytes(commandMessageBytes);
+			var compressedMessageBytes =
+				CompressedMessageHelper.CreateCompressedMessageBytes(commandMessageBytes, _compressor);
 
 			var encoderSelector = new CommandResponseMessageEncoderSelector();
 			
@@ -124,7 +144,10 @@ namespace MongoDB.Driver.Core.Compression
 		{
 			byte compressorId = 3;
 			var commandMessageBytes = CommandMessageHelper.CreateMessageBytes();
-			var compressedMessageBytes = CreateCompressedMessageBytes(commandMessageBytes, compressorId);
+			var compressedMessageBytes = CompressedMessageHelper.CreateCompressedMessageBytes(
+				commandMessageBytes,
+				_compressor,
+				compressorId);
 
 			var encoderSelector = new CommandResponseMessageEncoderSelector();
 			
@@ -140,7 +163,7 @@ namespace MongoDB.Driver.Core.Compression
 		{
 			var stream = new MemoryStream();
 
-			using (var writer = new BinaryWriter(stream, Encoding.Default, true))
+			using (var writer = new BinaryWriter(stream, Encoding.UTF8, true))
 			{
 				writer.Write(1);
 				writer.Write(1);
@@ -151,31 +174,6 @@ namespace MongoDB.Driver.Core.Compression
 			stream.Position = 0;
 			
 			return stream;
-		}
-
-		private byte[] CreateCompressedMessageBytes(byte[] commandMessageBytes, byte compressorId = (byte)CompressorId.zlib)
-		{
-			var compressedCommandMessage = _compressor.Compress(commandMessageBytes, 16);
-
-			return CreateCompressedMessageBytes(commandMessageBytes, compressedCommandMessage, compressorId);
-		}
-
-		private static byte[] CreateCompressedMessageBytes(byte[] commandMesage, byte[] compressedCommandMessage, byte compressorId)
-		{
-			using (var memStream = new MemoryStream())
-			using (var writer = new BinaryWriter(memStream))
-			{
-				writer.Write(25 + compressedCommandMessage.Length);
-				writer.Write(0);
-				writer.Write(0);
-				writer.Write((int)Opcode.Compressed);
-				writer.Write((int)Opcode.OpMsg);
-				writer.Write(commandMesage.Length - 16);
-				writer.Write(compressorId);
-				writer.Write(compressedCommandMessage);
-				
-				return memStream.ToArray();
-			}
 		}
 	}
 }

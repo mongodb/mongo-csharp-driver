@@ -104,6 +104,7 @@
     <Compile Include="Core\Events\EventAggregatorTests.cs" />
     <Compile Include="Core\Events\ReflectionEventSubscriberTests.cs" />
     <Compile Include="Core\Helpers\CommandMessageHelper.cs" />
+    <Compile Include="Core\Helpers\CompressedMessageHelper.cs" />
     <Compile Include="Core\Events\TraceSourceSdamEventSubscriberTests.cs" />
     <Compile Include="Core\Misc\ReadAheadEnumerableTests.cs" />
     <Compile Include="Core\Misc\SemaphoreSlimRequestTests.cs" />
@@ -186,6 +187,7 @@
     <Compile Include="Core\WireProtocol\Messages\Encoders\BinaryEncoders\CommandMessageBinaryEncoderTests.cs" />
     <Compile Include="Core\WireProtocol\Messages\Encoders\BinaryEncoders\CommandRequestMessageBinaryEncoderTests.cs" />
     <Compile Include="Core\WireProtocol\Messages\Encoders\BinaryEncoders\CommandResponseMessageBinaryEncoderTests.cs" />
+    <Compile Include="Core\WireProtocol\Messages\Encoders\BinaryEncoders\CompressedMessageBinaryEncoderTests.cs" />
     <Compile Include="Core\WireProtocol\Messages\Encoders\BinaryEncoders\MessageBinaryEncoderBaseTests.cs" />
     <Compile Include="Core\WireProtocol\Messages\Encoders\JsonEncoders\CommandMessageJsonEncoderTests.cs" />
     <Compile Include="Core\WireProtocol\Messages\Encoders\JsonEncoders\CommandRequestMessageJsonEncoderTests.cs" />

@@ -1,5 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <VersionPrefix>2.7.0</VersionPrefix>
     <VersionSuffix>beta1</VersionSuffix>
@@ -13,11 +12,9 @@
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Include="..\MongoDB.Driver.Core\**\*.cs;..\MongoDB.Shared\ApplicationNameHelper.cs;..\MongoDB.Shared\Hasher.cs;..\MongoDB.Shared\MaxTimeHelper.cs" Exclude="bin\**;obj\**;**\*.xproj;packages\**" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="System.Diagnostics.TextWriterTraceListener" Version="4.0.0" />
   </ItemGroup>
@@ -25,7 +22,6 @@
   <ItemGroup>
     <ProjectReference Include="..\MongoDB.Bson.Dotnet\MongoDB.Bson.Dotnet.csproj" />
   </ItemGroup>
-
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.5' ">
     <PackageReference Include="System.Collections.Specialized" Version="4.0.1" />
     <PackageReference Include="System.Diagnostics.TraceSource" Version="4.0.0" />
@@ -34,5 +30,7 @@
     <PackageReference Include="System.Security.SecureString" Version="4.0.0" />
     <PackageReference Include="DnsClient" Version="1.0.7" />
   </ItemGroup>
-
+  <ItemGroup>
+    <PackageReference Include="SharpCompress" Version="0.21.1" />
+  </ItemGroup>
 </Project>
