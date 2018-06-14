@@ -95,7 +95,6 @@
             "$max": {
               "_id": 6
             },
-            "$maxScan": 5000,
             "$maxTimeMS": 6000,
             "$min": {
               "_id": 0
@@ -126,7 +125,6 @@
               "max": {
                 "_id": 6
               },
-              "maxScan": 5000,
               "maxTimeMS": 6000,
               "min": {
                 "_id": 0
