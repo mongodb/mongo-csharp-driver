@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
 
 			var result = subject.GetEncoder(encoderFactory);
 
-			result.Should().BeOfType<CompressedMessageBinaryEncoderTests>();
+			result.Should().BeOfType<CompressedMessageBinaryEncoder>();
 		}
 		
 		private CompressedMessage CreateSubject()
