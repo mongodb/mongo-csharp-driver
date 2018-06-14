@@ -83,16 +83,19 @@ namespace MongoDB.Driver.Core.Operations
 
         public static bool IsRetryableWriteException(Exception exception)
         {
+            if (__retryableWriteExceptions.Contains(exception.GetType()))
+            {
+                return true;
+            }
+
             var commandException = exception as MongoCommandException;
             if (commandException != null)
             {
                 var code = (ServerErrorCode)commandException.Code;
                 return __retryableWriteErrorCodes.Contains(code);
             }
-            else
-            {
-                return __retryableWriteExceptions.Contains(exception.GetType());
-            }
+
+            return false;
         }
     }
 }
