@@ -248,11 +248,11 @@ tests:
           #   'ok': 1.0,
           #   'writeConcernError': {
           #     'code': 100,
-          #     'codeName': 'CannotSatisfyWriteConcern',
+          #     'codeName': 'UnsatisfiableWriteConcern',
           #     'errmsg': 'Not enough data-bearing nodes'
           #   }
           # }
-          errorCodeName: CannotSatisfyWriteConcern
+          errorLabelsOmit: ["TransientTransactionError", "UnknownTransactionCommitResult"]
 
     outcome:
       collection:

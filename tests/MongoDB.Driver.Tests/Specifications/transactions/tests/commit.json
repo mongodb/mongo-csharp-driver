@@ -379,7 +379,10 @@
           "name": "commitTransaction",
           "object": "session0",
           "result": {
-            "errorCodeName": "CannotSatisfyWriteConcern"
+            "errorLabelsOmit": [
+              "TransientTransactionError",
+              "UnknownTransactionCommitResult"
+            ]
           }
         }
       ],

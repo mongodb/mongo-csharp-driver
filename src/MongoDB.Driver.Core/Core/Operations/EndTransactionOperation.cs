@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Core.Operations
 
         // public methods
         /// <inheritdoc />
-        public BsonDocument Execute(IReadBinding binding, CancellationToken cancellationToken)
+        public virtual BsonDocument Execute(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
@@ -91,7 +91,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <inheritdoc />
-        public async Task<BsonDocument> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        public virtual async Task<BsonDocument> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
@@ -161,5 +161,75 @@ namespace MongoDB.Driver.Core.Operations
         // protected properties
         /// <inheritdoc />
         protected override string CommandName => "commitTransaction";
+
+        // public methods
+        /// <inheritdoc />
+        public override BsonDocument Execute(IReadBinding binding, CancellationToken cancellationToken)
+        {
+            try
+            {
+                return base.Execute(binding, cancellationToken);
+            }
+            catch (MongoException exception) when (ShouldReplaceTransientTransactionErrorWithUnknownTransactionCommitResult(exception))
+            {
+                ReplaceTransientTransactionErrorWithUnknownTransactionCommitResult(exception);
+                throw;
+            }
+        }
+
+        /// <inheritdoc />
+        public override async Task<BsonDocument> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        {
+            try
+            {
+                return await base.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+            }
+            catch (MongoException exception) when (ShouldReplaceTransientTransactionErrorWithUnknownTransactionCommitResult(exception))
+            {
+                ReplaceTransientTransactionErrorWithUnknownTransactionCommitResult(exception);
+                throw;
+            }
+        }
+
+        // private methods
+        private void ReplaceTransientTransactionErrorWithUnknownTransactionCommitResult(MongoException exception)
+        {
+            exception.RemoveErrorLabel("TransientTransactionError");
+            exception.AddErrorLabel("UnknownTransactionCommitResult");
+        }
+
+        private bool ShouldReplaceTransientTransactionErrorWithUnknownTransactionCommitResult(MongoException exception)
+        {
+            if (exception is MongoConnectionException)
+            {
+                return true;
+            }
+
+            if (exception is MongoNotPrimaryException || exception is MongoNodeIsRecoveringException)
+            {
+                return true;
+            }
+
+            var writeConcernException = exception as MongoWriteConcernException;
+            if (writeConcernException != null)
+            {
+                var writeConcernError = writeConcernException.WriteConcernResult.Response?.GetValue("writeConcernError", null)?.AsBsonDocument;
+                if (writeConcernError != null)
+                {
+                    var code = (ServerErrorCode)writeConcernError.GetValue("code", -1).ToInt32();
+                    switch (code)
+                    {
+                        case ServerErrorCode.UnsatisfiableWriteConcern:
+                        case ServerErrorCode.UnknownReplWriteConcern:
+                            return false;
+
+                        default:
+                            return true;
+                    }
+                }
+            }
+
+            return false;
+        }
     }
 }

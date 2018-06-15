@@ -82,51 +82,67 @@ namespace MongoDB.Driver.Core.WireProtocol
         // public methods
         public TCommandResult Execute(IConnection connection, CancellationToken cancellationToken)
         {
-            var message = CreateCommandMessage(connection.Description);
-
             try
             {
-                connection.SendMessage(message, _messageEncoderSettings, cancellationToken);
-            }
-            finally
-            {
-                MessageWasProbablySent(message);
-            }
+                var message = CreateCommandMessage(connection.Description);
 
-            if (message.WrappedMessage.ResponseExpected)
-            {
-                var encoderSelector = new CommandResponseMessageEncoderSelector();
-                var response = (CommandResponseMessage)connection.ReceiveMessage(message.RequestId, encoderSelector, _messageEncoderSettings, cancellationToken);
-                return ProcessResponse(connection.ConnectionId, response.WrappedMessage);
+                try
+                {
+                    connection.SendMessage(message, _messageEncoderSettings, cancellationToken);
+                }
+                finally
+                {
+                    MessageWasProbablySent(message);
+                }
+
+                if (message.WrappedMessage.ResponseExpected)
+                {
+                    var encoderSelector = new CommandResponseMessageEncoderSelector();
+                    var response = (CommandResponseMessage)connection.ReceiveMessage(message.RequestId, encoderSelector, _messageEncoderSettings, cancellationToken);
+                    return ProcessResponse(connection.ConnectionId, response.WrappedMessage);
+                }
+                else
+                {
+                    return default(TCommandResult);
+                }
             }
-            else
+            catch (MongoException exception) when (ShouldAddTransientTransactionError(exception))
             {
-                return default(TCommandResult);
+                exception.AddErrorLabel("TransientTransactionError");
+                throw;
             }
         }
 
         public async Task<TCommandResult> ExecuteAsync(IConnection connection, CancellationToken cancellationToken)
         {
-            var message = CreateCommandMessage(connection.Description);
-
             try
             {
-                await connection.SendMessageAsync(message, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
-            }
-            finally
-            {
-                MessageWasProbablySent(message);
-            }
+                var message = CreateCommandMessage(connection.Description);
 
-            if (message.WrappedMessage.ResponseExpected)
-            {
-                var encoderSelector = new CommandResponseMessageEncoderSelector();
-                var response = (CommandResponseMessage)await connection.ReceiveMessageAsync(message.RequestId, encoderSelector, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
-                return ProcessResponse(connection.ConnectionId, response.WrappedMessage);
+                try
+                {
+                    await connection.SendMessageAsync(message, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
+                }
+                finally
+                {
+                    MessageWasProbablySent(message);
+                }
+
+                if (message.WrappedMessage.ResponseExpected)
+                {
+                    var encoderSelector = new CommandResponseMessageEncoderSelector();
+                    var response = (CommandResponseMessage)await connection.ReceiveMessageAsync(message.RequestId, encoderSelector, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
+                    return ProcessResponse(connection.ConnectionId, response.WrappedMessage);
+                }
+                else
+                {
+                    return default(TCommandResult);
+                }
             }
-            else
+            catch (MongoException exception) when (ShouldAddTransientTransactionError(exception))
             {
-                return default(TCommandResult);
+                exception.AddErrorLabel("TransientTransactionError");
+                throw;
             }
         }
 
@@ -296,6 +312,19 @@ namespace MongoDB.Driver.Core.WireProtocol
                     }
                 }
             }
+        }
+
+        private bool ShouldAddTransientTransactionError(MongoException exception)
+        {
+            if (_session.IsInTransaction)
+            {
+                if (exception is MongoConnectionException)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

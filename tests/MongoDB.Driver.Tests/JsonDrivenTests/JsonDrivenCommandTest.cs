@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 
@@ -50,21 +51,61 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                     }
                 }
 
-                if (actualErrorCodeName == expectedErrorCodeName)
+                if (actualErrorCodeName == null)
                 {
-                    return;
+                    throw new Exception("Exception was missing \"errorCodeName\".");
+                }
+
+                if (actualErrorCodeName != expectedErrorCodeName)
+                {
+                    throw new Exception($"Exception errorCodeName was \"{actualErrorCodeName}\", expected \"{expectedErrorCodeName}\".");
                 }
             }
 
             if (_expectedException.Contains("errorContains"))
             {
-                if (_actualException.Message.IndexOf(_expectedException["errorContains"].AsString, StringComparison.OrdinalIgnoreCase) != -1)
+                var actualMessage = _actualException.Message;
+                var expectedContains = _expectedException["errorContains"].AsString;
+
+                if (actualMessage.IndexOf(expectedContains, StringComparison.OrdinalIgnoreCase) == -1)
                 {
-                    return;
+                    throw new Exception($"Exception message \"{actualMessage}\" does not contain \"{expectedContains}\".");
                 }
             }
 
-            throw new Exception("Unexpected exception was thrown.", _actualException);
+            if (_expectedException.Contains("errorLabelsContain"))
+            {
+                var mongoException = _actualException as MongoException;
+                if (mongoException == null)
+                {
+                    throw new Exception($"Exception was of type {_actualException.GetType().FullName}, expected a MongoException.");
+                }
+
+                foreach (var expectedLabel in _expectedException["errorLabelsContain"].AsBsonArray.OfType<BsonString>().Select(x => x.AsString))
+                {
+                    if (!mongoException.HasErrorLabel(expectedLabel))
+                    {
+                        throw new Exception($"Exception should contain ErrorLabel: \"{expectedLabel}\".");
+                    }
+                }
+            }
+
+            if (_expectedException.Contains("errorLabelsOmit"))
+            {
+                var mongoException = _actualException as MongoException;
+                if (mongoException == null)
+                {
+                    throw new Exception($"Exception was of type {_actualException.GetType().FullName}, expected a MongoException.");
+                }
+
+                foreach (var omittedLabel in _expectedException["errorLabelsOmit"].AsBsonArray.OfType<BsonString>().Select(x => x.AsString))
+                {
+                    if (mongoException.HasErrorLabel(omittedLabel))
+                    {
+                        throw new Exception($"Exception should not contain ErrorLabel: \"{omittedLabel}\".");
+                    }
+                }
+            }
         }
 
         protected override void ParseExpectedResult(BsonValue value)
@@ -72,7 +113,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
             var document = value as BsonDocument;
             if (document != null)
             {
-                if (document.Contains("errorCodeName") || document.Contains("errorContains"))
+                if (LooksLikeAnExpectedException(document))
                 {
                     _expectedException = document;
                     return;
@@ -80,6 +121,13 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
             }
 
             base.ParseExpectedResult(value);
+        }
+
+        // private methods
+        private bool LooksLikeAnExpectedException(BsonDocument document)
+        {
+            var errorFieldNames = new[] { "errorCodeName", "errorContains", "errorLabelsContain", "errorLabelsOmit" };
+            return document.Names.Any(x => errorFieldNames.Contains(x));
         }
     }
 }

@@ -127,10 +127,6 @@ namespace MongoDB.Driver.Core.Bindings
                     ExecuteEndTransactionOnPrimary(firstAttempt, cancellationToken);
                     return;
                 }
-                catch (Exception exception) when (ShouldIgnoreAbortTransactionException(exception))
-                {
-                    return; // ignore exception and return
-                }
                 catch (Exception exception) when (ShouldRetryEndTransactionException(exception))
                 {
                     // ignore exception and retry
@@ -173,10 +169,6 @@ namespace MongoDB.Driver.Core.Bindings
                     var firstAttempt = CreateAbortTransactionOperation();
                     await ExecuteEndTransactionOnPrimaryAsync(firstAttempt, cancellationToken).ConfigureAwait(false);
                     return;
-                }
-                catch (Exception exception) when (ShouldIgnoreAbortTransactionException(exception))
-                {
-                    return; // ignore exception and return
                 }
                 catch (Exception exception) when (ShouldRetryEndTransactionException(exception))
                 {
@@ -468,17 +460,6 @@ namespace MongoDB.Driver.Core.Bindings
                 _currentTransaction.TransactionOptions?.WriteConcern ??
                 _options.DefaultTransactionOptions?.WriteConcern ??
                 WriteConcern.WMajority;
-        }
-
-        private bool ShouldIgnoreAbortTransactionException(Exception exception)
-        {
-            var commandException = exception as MongoCommandException;
-            if (commandException != null)
-            {
-                return true;
-            }
-
-            return false;
         }
 
         private bool ShouldRetryEndTransactionException(Exception exception)

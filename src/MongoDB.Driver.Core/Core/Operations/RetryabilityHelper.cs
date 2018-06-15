@@ -92,7 +92,42 @@ namespace MongoDB.Driver.Core.Operations
             if (commandException != null)
             {
                 var code = (ServerErrorCode)commandException.Code;
-                return __retryableWriteErrorCodes.Contains(code);
+                if (__retryableWriteErrorCodes.Contains(code))
+                {
+                    return true;
+                }
+            }
+
+            var writeConcernException = exception as MongoWriteConcernException;
+            if (writeConcernException != null)
+            {
+                var writeConcernError = writeConcernException.WriteConcernResult.Response.GetValue("writeConcernError", null)?.AsBsonDocument;
+                if (writeConcernError != null)
+                {
+                    var code = (ServerErrorCode)writeConcernError.GetValue("code", -1).AsInt32;
+                    switch (code)
+                    {
+                        case ServerErrorCode.InterruptedAtShutdown:
+                        case ServerErrorCode.InterruptedDueToReplStateChange:
+                        case ServerErrorCode.NotMaster:
+                        case ServerErrorCode.NotMasterNoSlaveOk:
+                        case ServerErrorCode.NotMasterOrSecondary:
+                        case ServerErrorCode.PrimarySteppedDown:
+                        case ServerErrorCode.ShutdownInProgress:
+                        case ServerErrorCode.HostNotFound:
+                        case ServerErrorCode.HostUnreachable:
+                        case ServerErrorCode.NetworkTimeout:
+                        case ServerErrorCode.SocketException:
+                            return true;
+                    }
+
+                    var message = writeConcernError.GetValue("errmsg", null)?.AsString;
+                    if (message.IndexOf("not master", StringComparison.OrdinalIgnoreCase) != -1 ||
+                        message.IndexOf("node is recovering", StringComparison.OrdinalIgnoreCase) != -1)
+                    {
+                        return true;
+                    }
+                }
             }
 
             return false;

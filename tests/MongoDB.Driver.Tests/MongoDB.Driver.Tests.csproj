@@ -413,6 +413,9 @@
     <EmbeddedResource Include="Specifications\transactions\tests\transaction-options.json" />
     <EmbeddedResource Include="Specifications\retryable-writes\tests\retryableErrors.json" />
     <EmbeddedResource Include="Specifications\transactions\tests\run-command.json" />
+    <EmbeddedResource Include="Specifications\transactions\tests\error-labels.json" />
+    <EmbeddedResource Include="Specifications\transactions\tests\retryable-abort.json" />
+    <EmbeddedResource Include="Specifications\transactions\tests\retryable-commit.json" />
     <None Include="testcert.pfx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

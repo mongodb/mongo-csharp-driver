@@ -22,9 +22,12 @@ using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
@@ -74,40 +77,59 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
             //}
 
             JsonDrivenHelper.EnsureAllFieldsAreValid(shared, "_path", "database_name", "collection_name", "data", "tests");
-            JsonDrivenHelper.EnsureAllFieldsAreValid(test, "description", "clientOptions", "sessionOptions", "operations", "expectations", "outcome");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(test, "description", "clientOptions", "failPoint", "sessionOptions", "operations", "expectations", "outcome");
 
             _databaseName = shared["database_name"].AsString;
             _collectionName = shared["collection_name"].AsString;
 
+            KillAllSessions();
             DropCollection();
             CreateCollection();
             InsertData(shared);
 
-            var eventCapturer = new EventCapturer()
-                .Capture<CommandStartedEvent>(e => !__commandsToNotCapture.Contains(e.CommandName));
-
-            Dictionary<string, BsonValue> sessionIdMap;
-
-            using (var client = CreateDisposableClient(test, eventCapturer))
-            using (var session0 = StartSession(client, test, "session0"))
-            using (var session1 = StartSession(client, test, "session1"))
+            using (ConfigureFailPoint(test))
             {
-                var objectMap = new Dictionary<string, object>
-                {
-                    { "session0", session0 },
-                    { "session1", session1 }
-                };
-                sessionIdMap = new Dictionary<string, BsonValue>
-                {
-                    { "session0", session0.ServerSession.Id },
-                    { "session1", session1.ServerSession.Id }
-                };
+                var eventCapturer = new EventCapturer()
+                    .Capture<CommandStartedEvent>(e => !__commandsToNotCapture.Contains(e.CommandName));
 
-                ExecuteOperations(client, objectMap, test);
+                Dictionary<string, BsonValue> sessionIdMap;
+
+                using (var client = CreateDisposableClient(test, eventCapturer))
+                using (var session0 = StartSession(client, test, "session0"))
+                using (var session1 = StartSession(client, test, "session1"))
+                {
+                    var objectMap = new Dictionary<string, object>
+                    {
+                        { "session0", session0 },
+                        { "session1", session1 }
+                    };
+                    sessionIdMap = new Dictionary<string, BsonValue>
+                    {
+                        { "session0", session0.ServerSession.Id },
+                        { "session1", session1.ServerSession.Id }
+                    };
+
+                    ExecuteOperations(client, objectMap, test);
+                }
+
+                AssertEvents(eventCapturer, test, sessionIdMap);
+                AssertOutcome(test);
             }
+        }
 
-            AssertEvents(eventCapturer, test, sessionIdMap);
-            AssertOutcome(test);
+        private void KillAllSessions()
+        {
+            var client = DriverTestConfiguration.Client;
+            var adminDatabase = client.GetDatabase("admin");
+            var command = BsonDocument.Parse("{ killAllSessions : [] }");
+            try
+            {
+                adminDatabase.RunCommand<BsonDocument>(command);
+            }
+            catch (MongoCommandException)
+            {
+                // ignore MongoCommandExceptions
+            }
         }
 
         private void DropCollection()
@@ -233,6 +255,21 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
             return options;
         }
 
+        private FailPoint ConfigureFailPoint(BsonDocument test)
+        {
+            BsonValue failPoint;
+            if (test.TryGetValue("failPoint", out failPoint))
+            {
+                var cluster = DriverTestConfiguration.Client.Cluster;
+                var server = cluster.SelectServer(WritableServerSelector.Instance, CancellationToken.None);
+                var session = NoCoreSession.NewHandle();
+                var command = failPoint.AsBsonDocument;
+                return FailPoint.Configure(cluster, session, command);
+            }
+
+            return null;
+        }
+
         private void ExecuteOperations(IMongoClient client, Dictionary<string, object> objectMap, BsonDocument test)
         {
             var factory = new JsonDrivenTestFactory(client, _databaseName, _collectionName, objectMap);
@@ -253,11 +290,26 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
         {
             if (test.Contains("expectations"))
             {
-                foreach (var expectedEvent in test["expectations"].AsBsonArray.Cast<BsonDocument>())
+                var expectedEvents = test["expectations"].AsBsonArray.Cast<BsonDocument>().GetEnumerator();
+
+                while (actualEvents.Any())
                 {
-                    RecursiveFieldSetter.SetAll(expectedEvent, "lsid", value => sessionIdMap[value.AsString]);
                     var actualEvent = actualEvents.Next();
+
+                    if (!expectedEvents.MoveNext())
+                    {
+                        throw new Exception($"Unexpected event of type: {actualEvent.GetType().Name}.");
+                    }
+                    var expectedEvent = expectedEvents.Current;
+                    RecursiveFieldSetter.SetAll(expectedEvent, "lsid", value => sessionIdMap[value.AsString]);
+
                     AssertEvent(actualEvent, expectedEvent);
+                }
+
+                if (expectedEvents.MoveNext())
+                {
+                    var expectedEvent = expectedEvents.Current;
+                    throw new Exception($"Missing event: {expectedEvent}.");
                 }
             }
         }
