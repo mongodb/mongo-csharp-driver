@@ -16,6 +16,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.Core.Authentication
@@ -49,5 +50,12 @@ namespace MongoDB.Driver.Core.Authentication
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task.</returns>
         Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken);
+        
+        /// <summary>
+        /// Optionally customizes isMaster command.
+        /// </summary>
+        /// <param name="isMasterCommand">Initial isMaster command.</param>
+        /// <returns>Optionally mutated isMaster command.</returns>
+        BsonDocument CustomizeInitialIsMasterCommand(BsonDocument isMasterCommand);
     }
 }

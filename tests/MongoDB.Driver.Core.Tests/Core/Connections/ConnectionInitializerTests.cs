@@ -96,40 +96,5 @@ namespace MongoDB.Driver.Core.Connections
             result.ServerVersion.Should().Be(new SemanticVersion(2, 6, 3));
             result.ConnectionId.ServerValue.Should().Be(10);
         }
-
-        [Fact]
-        public void CreateIsMasterCommand_should_return_expected_result()
-        {
-            var result = _subject.CreateIsMasterCommand();
-
-            var names = result.Names.ToList();
-            names.Count.Should().Be(2);
-            names[0].Should().Be("isMaster");
-            names[1].Should().Be("client");
-            result[0].Should().Be(1);
-            var clientDocument = result[1].AsBsonDocument;
-            var clientDocumentNames = clientDocument.Names.ToList();
-            clientDocumentNames.Count.Should().Be(4);
-            clientDocumentNames[0].Should().Be("application");
-            clientDocumentNames[1].Should().Be("driver");
-            clientDocumentNames[2].Should().Be("os");
-            clientDocumentNames[3].Should().Be("platform");
-            clientDocument["application"]["name"].AsString.Should().Be("test");
-            clientDocument["driver"]["name"].AsString.Should().Be("mongo-csharp-driver");
-            clientDocument["driver"]["version"].BsonType.Should().Be(BsonType.String);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void CreateIsMasterCommand_with_args_should_return_expected_result(
-            [Values("{ client : { driver : 'dotnet', version : '2.4.0' }, os : { type : 'Windows' } }")]
-            string clientDocumentString)
-        {
-            var clientDocument = BsonDocument.Parse(clientDocumentString);
-
-            var result = _subject.CreateIsMasterCommand(clientDocument);
-
-            result.Should().Be($"{{ isMaster : 1, client : {clientDocumentString} }}");
-        }
     }
 }

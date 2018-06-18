@@ -90,7 +90,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="connectionString">The connection string.</param>
         public MongoClient(string connectionString)
-            : this(ParseConnectionString(connectionString))
+            : this(MongoClientSettings.FromConnectionString(connectionString))
         {
         }
 
@@ -119,11 +119,6 @@ namespace MongoDB.Driver
         internal IOperationExecutor OperationExecutor => _operationExecutor;
 
         // private static methods
-        private static MongoClientSettings ParseConnectionString(string connectionString)
-        {
-            var url = new MongoUrl(connectionString);
-            return MongoClientSettings.FromUrl(url);
-        }
 
         // public methods
         /// <inheritdoc/>

@@ -129,6 +129,12 @@ namespace MongoDB.Driver.Core.Authentication
             }
         }
 
+        /// <inheritdoc/>
+        public BsonDocument CustomizeInitialIsMasterCommand(BsonDocument isMasterCommand)
+        {
+            return isMasterCommand; 
+        }
+
         private CommandWireProtocol<BsonDocument> CreateCommandProtocol(BsonDocument command)
         {
             return new CommandWireProtocol<BsonDocument>(

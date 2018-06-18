@@ -59,6 +59,17 @@ namespace MongoDB.Driver.Core.Connections
                 return null;
             }
         }
+        
+        /// <summary>
+        /// Get whether SaslSupportedMechs was part of the isMaster response.
+        /// </summary>
+        /// <value>
+        /// Whether SaslSupportedMechs was part of the isMaster response.
+        /// </value>
+        public bool HasSaslSupportedMechs
+        {
+            get { return _wrapped.Contains("saslSupportedMechs"); }   
+        }
 
         /// <summary>
         /// Gets a value indicating whether this instance is an arbiter.
@@ -204,6 +215,18 @@ namespace MongoDB.Driver.Core.Connections
 
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Get the SaslSupportedMechs.
+        /// </summary>
+        /// <value>
+        /// The SaslSupportedMechs. Empty if saslSupportedMechs was an empty list or if saslSupportedMechs was not
+        /// included in the isMaster response.
+        /// </value>
+        public IEnumerable<string> SaslSupportedMechs
+        {
+            get { return _wrapped.GetValue("saslSupportedMechs", new BsonArray()).AsBsonArray.Select(s => s.ToString()); }
         }
 
         /// <summary>

@@ -573,6 +573,17 @@ namespace MongoDB.Driver
         }
 
         // public static methods
+        
+        /// <summary>
+        /// Gets a MongoClientSettings object intialized with values from a connection string.
+        /// </summary>
+        /// <param name="connectionString">The connection string.</param>
+        /// <returns></returns>
+        public static MongoClientSettings FromConnectionString(string connectionString)
+        {
+            return FromUrl(new MongoUrl(connectionString));
+        }
+        
         /// <summary>
         /// Gets a MongoClientSettings object intialized with values from a MongoURL.
         /// </summary>

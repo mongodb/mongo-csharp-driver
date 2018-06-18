@@ -70,6 +70,7 @@
     <Compile Include="ChangeStreamDocumentSerializerTests.cs" />
     <Compile Include="ChangeStreamUpdateDescriptionSerializerTests.cs" />
     <Compile Include="CollationTests.cs" />
+    <Compile Include="Core\Authentication\ScramSha256AuthenticatorTests.cs" />
     <Compile Include="Core\Bindings\ChannelChannelSourceTests.cs" />
     <Compile Include="Core\Bindings\ChannelReadBindingTests.cs" />
     <Compile Include="Core\Bindings\ChannelReadWriteBindingTests.cs" />
@@ -95,6 +96,7 @@
     <Compile Include="Core\Configuration\ConnectionSettingsTests.cs" />
     <Compile Include="Core\Connections\BinaryConnection_CommandEventTests.cs" />
     <Compile Include="Core\Connections\ClientDocumentHelperTests.cs" />
+    <Compile Include="Core\Connections\IsMasterHelperTests.cs" />
     <Compile Include="Core\Events\EventAggregatorTests.cs" />
     <Compile Include="Core\Events\ReflectionEventSubscriberTests.cs" />
     <Compile Include="Core\Misc\ReadAheadEnumerableTests.cs" />

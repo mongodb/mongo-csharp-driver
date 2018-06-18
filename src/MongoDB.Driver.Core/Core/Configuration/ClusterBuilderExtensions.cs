@@ -200,6 +200,10 @@ namespace MongoDB.Driver.Core.Configuration
                 {
                     return new ScramSha1Authenticator(credential);
                 }
+                else if (connectionString.AuthMechanism == ScramSha256Authenticator.MechanismName)
+                {
+                    return new ScramSha256Authenticator(credential);
+                }
                 else if (connectionString.AuthMechanism == PlainAuthenticator.MechanismName)
                 {
                     return new PlainAuthenticator(credential);

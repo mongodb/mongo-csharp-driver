@@ -396,6 +396,10 @@ namespace MongoDB.Driver
                 {
                     return new ScramSha1Authenticator(credential);
                 }
+                else if (_mechanism == ScramSha256Authenticator.MechanismName)
+                {
+                    return new ScramSha256Authenticator(credential);
+                }
                 else if (_mechanism == PlainAuthenticator.MechanismName)
                 {
                     return new PlainAuthenticator(credential);
@@ -453,6 +457,7 @@ namespace MongoDB.Driver
                 case "DEFAULT":
                 case "MONGODB-CR":
                 case "SCRAM-SHA-1":
+                case "SCRAM-SHA-256":
                     // it is allowed for a password to be an empty string, but not a username
                     source = source ?? "admin";
                     if (evidence == null || !(evidence is PasswordEvidence))

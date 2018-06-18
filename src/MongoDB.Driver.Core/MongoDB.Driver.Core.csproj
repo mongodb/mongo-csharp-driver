@@ -71,8 +71,12 @@
     <Compile Include="ChangeStreamUpdateDescription.cs" />
     <Compile Include="ChangeStreamUpdateDescriptionSerializer.cs" />
     <Compile Include="Collation.cs" />
+    <Compile Include="Core\Authentication\AuthenticationHelper.cs" />
     <Compile Include="Core\Authentication\DefaultAuthenticator.cs" />
     <Compile Include="Core\Authentication\GssapiAuthenticator.cs" />
+    <Compile Include="Core\Authentication\SaslMapParser.cs" />
+    <Compile Include="Core\Authentication\ScramSha256Authenticator.cs" />
+    <Compile Include="Core\Authentication\ScramShaAuthenticator.cs" />
     <Compile Include="Core\Authentication\Sspi\AuthIdentity.cs" />
     <Compile Include="Core\Authentication\Sspi\AuthIdentityFlag.cs" />
     <Compile Include="Core\Authentication\Sspi\DataRepresentation.cs" />
@@ -91,6 +95,9 @@
     <Compile Include="Core\Authentication\Sspi\SspiHandle.cs" />
     <Compile Include="Core\Authentication\Sspi\SspiPackage.cs" />
     <Compile Include="Core\Authentication\Sspi\Win32Exception.cs" />
+    <Compile Include="Core\Authentication\Vendored\CryptographyHelpers.cs" />
+    <Compile Include="Core\Authentication\Vendored\HashAlgorithmName.cs" />
+    <Compile Include="Core\Authentication\Vendored\Rfc2898DeriveBytes.cs" />
     <Compile Include="Core\Bindings\ChannelChannelSource.cs" />
     <Compile Include="Core\Bindings\ChannelReadBinding.cs" />
     <Compile Include="Core\Bindings\ChannelReadWriteBinding.cs" />
@@ -112,6 +119,7 @@
     <Compile Include="Core\Bindings\WrappingCoreServerSession.cs" />
     <Compile Include="Core\Bindings\WrappingCoreSession.cs" />
     <Compile Include="Core\Connections\ClientDocumentHelper.cs" />
+    <Compile Include="Core\Connections\IsMasterHelper.cs" />
     <Compile Include="Core\Misc\ArrayFiltersFeature.cs" />
     <Compile Include="Core\Misc\CachedEnumerable.cs" />
     <Compile Include="Core\Misc\CollationFeature.cs" />
@@ -305,7 +313,6 @@
     <Compile Include="Core\Misc\IndexMap.cs" />
     <Compile Include="Core\Misc\Metronome.cs" />
     <Compile Include="Core\Async\AsyncQueue.cs" />
-    <Compile Include="Core\Authentication\AuthenticationHelper.cs" />
     <Compile Include="Core\Authentication\MongoDBX509Authenticator.cs" />
     <Compile Include="Core\Authentication\PlainAuthenticator.cs" />
     <Compile Include="Core\Authentication\SaslAuthenticator.cs" />
