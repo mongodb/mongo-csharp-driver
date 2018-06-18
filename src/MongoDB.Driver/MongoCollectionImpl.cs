@@ -711,27 +711,7 @@ namespace MongoDB.Driver
             PipelineDefinition<ChangeStreamDocument<TDocument>, TResult> pipeline,
             ChangeStreamOptions options)
         {
-            options = options ?? new ChangeStreamOptions();
-
-            var changeStreamDocumentSerializer = new ChangeStreamDocumentSerializer<TDocument>(_documentSerializer);
-            var serializerRegistry = BsonSerializer.SerializerRegistry;
-            var renderedPipeline = pipeline.Render(changeStreamDocumentSerializer, serializerRegistry);
-
-            var changeStreamOperation = new ChangeStreamOperation<TResult>(
-                _collectionNamespace,
-                renderedPipeline.Documents,
-                renderedPipeline.OutputSerializer,
-                _messageEncoderSettings)
-            {
-                BatchSize = options.BatchSize,
-                Collation = options.Collation,
-                FullDocument = options.FullDocument,
-                MaxAwaitTime = options.MaxAwaitTime,
-                ReadConcern = _settings.ReadConcern,
-                ResumeAfter = options.ResumeAfter
-            };
-
-            return changeStreamOperation;
+            return ChangeStreamHelper.CreateChangeStreamOperation(this, pipeline, _documentSerializer, options, _settings.ReadConcern, _messageEncoderSettings);
         }
 
         private CountOperation CreateCountOperation(FilterDefinition<TDocument> filter, CountOptions options)

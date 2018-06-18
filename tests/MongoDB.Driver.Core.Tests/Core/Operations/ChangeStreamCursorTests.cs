@@ -55,7 +55,6 @@ namespace MongoDB.Driver.Core.Operations
             subject._cursor().Should().BeSameAs(cursor);
             subject._disposed().Should().BeFalse();
             subject._documentSerializer().Should().BeSameAs(documentSerializer);
-            subject._resumeToken().Should().BeNull();
         }
 
         [Fact]
@@ -214,25 +213,25 @@ namespace MongoDB.Driver.Core.Operations
             if (async)
             {
                 mockCursor.Setup(c => c.MoveNextAsync(cancellationToken)).Returns(CreateFaultedTask<bool>(resumableException));
-                mockOperation.Setup(o => o.ResumeAsync(mockBinding.Object, resumeToken, cancellationToken)).Returns(Task.FromResult(mockResumedCursor.Object));
+                mockOperation.Setup(o => o.ResumeAsync(mockBinding.Object, cancellationToken)).Returns(Task.FromResult(mockResumedCursor.Object));
                 mockResumedCursor.Setup(c => c.MoveNextAsync(cancellationToken)).Returns(Task.FromResult(expectedResult));
 
                 result = subject.MoveNextAsync(cancellationToken).GetAwaiter().GetResult();
 
                 mockCursor.Verify(c => c.MoveNextAsync(cancellationToken), Times.Once);
-                mockOperation.Verify(o => o.ResumeAsync(mockBinding.Object, resumeToken, cancellationToken), Times.Once);
+                mockOperation.Verify(o => o.ResumeAsync(mockBinding.Object, cancellationToken), Times.Once);
                 mockResumedCursor.Verify(c => c.MoveNextAsync(cancellationToken), Times.Once);
             }
             else
             {
                 mockCursor.Setup(c => c.MoveNext(cancellationToken)).Throws(resumableException);
-                mockOperation.Setup(o => o.Resume(mockBinding.Object, resumeToken, cancellationToken)).Returns(mockResumedCursor.Object);
+                mockOperation.Setup(o => o.Resume(mockBinding.Object, cancellationToken)).Returns(mockResumedCursor.Object);
                 mockResumedCursor.Setup(c => c.MoveNext(cancellationToken)).Returns(expectedResult);
 
                 result = subject.MoveNext(cancellationToken);
 
                 mockCursor.Verify(c => c.MoveNext(cancellationToken), Times.Exactly(2));
-                mockOperation.Verify(o => o.Resume(mockBinding.Object, resumeToken, cancellationToken), Times.Once);
+                mockOperation.Verify(o => o.Resume(mockBinding.Object, cancellationToken), Times.Once);
                 mockResumedCursor.Verify(c => c.MoveNext(cancellationToken), Times.Once);
             }
 
@@ -336,9 +335,7 @@ namespace MongoDB.Driver.Core.Operations
                 result = subject.MoveNext(cancellationToken);
             }
 
-            var resumeTokenInfo = typeof(ChangeStreamCursor<BsonDocument>).GetField("_resumeToken", BindingFlags.NonPublic | BindingFlags.Instance);
-            var resumeToken = (BsonDocument)resumeTokenInfo.GetValue(subject);
-            resumeToken.Should().Be("{ resumeAfter : 1 }");
+            subject._changeStreamOperation().ResumeAfter.Should().Be("{ resumeAfter : 1 }");
         }
 
         [Theory]
@@ -398,7 +395,7 @@ namespace MongoDB.Driver.Core.Operations
             cursor = cursor ?? new Mock<IAsyncCursor<RawBsonDocument>>().Object;
             documentSerializer = documentSerializer ?? new Mock<IBsonSerializer<BsonDocument>>().Object;
             binding = binding ?? new Mock<IReadBinding>().Object;
-            changeStreamOperation = changeStreamOperation ?? new Mock<IChangeStreamOperation<BsonDocument>>().Object;
+            changeStreamOperation = changeStreamOperation ?? Mock.Of<IChangeStreamOperation<BsonDocument>>();
             return new ChangeStreamCursor<BsonDocument>(cursor, documentSerializer, binding, changeStreamOperation);
         }
 
@@ -420,10 +417,10 @@ namespace MongoDB.Driver.Core.Operations
             return (IReadBinding)fieldInfo.GetValue(cursor);
         }
 
-        public static ChangeStreamOperation<BsonDocument> _changeStreamOperation(this ChangeStreamCursor<BsonDocument> cursor)
+        public static IChangeStreamOperation<BsonDocument> _changeStreamOperation(this ChangeStreamCursor<BsonDocument> cursor)
         {
             var fieldInfo = typeof(ChangeStreamCursor<BsonDocument>).GetField("_changeStreamOperation", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (ChangeStreamOperation<BsonDocument>)fieldInfo.GetValue(cursor);
+            return (IChangeStreamOperation<BsonDocument>)fieldInfo.GetValue(cursor);
         }
 
         public static IEnumerable<BsonDocument> _current(this ChangeStreamCursor<BsonDocument> cursor)
@@ -448,12 +445,6 @@ namespace MongoDB.Driver.Core.Operations
         {
             var fieldInfo = typeof(ChangeStreamCursor<BsonDocument>).GetField("_documentSerializer", BindingFlags.NonPublic | BindingFlags.Instance);
             return (IBsonSerializer<BsonDocument>)fieldInfo.GetValue(cursor);
-        }
-
-        public static BsonDocument _resumeToken(this ChangeStreamCursor<BsonDocument> cursor)
-        {
-            var fieldInfo = typeof(ChangeStreamCursor<BsonDocument>).GetField("_resumeToken", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (BsonDocument)fieldInfo.GetValue(cursor);
         }
     }
 }

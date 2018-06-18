@@ -152,6 +152,44 @@ namespace MongoDB.Driver.TestHelpers
             return wrapped.StartSessionAsync(options, cancellationToken);
         }
 
+        /// <inheritdoc />
+        public virtual IAsyncCursor<TResult> Watch<TResult>(
+            PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline,
+            ChangeStreamOptions options = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return wrapped.Watch(pipeline, options, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public virtual IAsyncCursor<TResult> Watch<TResult>(
+            IClientSessionHandle session,
+            PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline,
+            ChangeStreamOptions options = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return wrapped.Watch(session, pipeline, options, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public virtual Task<IAsyncCursor<TResult>> WatchAsync<TResult>(
+            PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline,
+            ChangeStreamOptions options = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return wrapped.WatchAsync(pipeline, options, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public virtual Task<IAsyncCursor<TResult>> WatchAsync<TResult>(
+            IClientSessionHandle session,
+            PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline,
+            ChangeStreamOptions options = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return wrapped.WatchAsync(session, pipeline, options, cancellationToken);
+        }
+
         public IMongoClient WithReadConcern(ReadConcern readConcern)
         {
             return wrapped.WithReadConcern(readConcern);

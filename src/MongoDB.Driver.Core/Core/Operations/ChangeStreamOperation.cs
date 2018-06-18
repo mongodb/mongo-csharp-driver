@@ -33,23 +33,39 @@ namespace MongoDB.Driver.Core.Operations
     /// <typeparam name="TResult">The type of the result.</typeparam>
     public interface IChangeStreamOperation<TResult> : IReadOperation<IAsyncCursor<TResult>>
     {
+        // properties
+        /// <summary>
+        /// Gets or sets the resume after value.
+        /// </summary>
+        /// <value>
+        /// The resume after value.
+        /// </value>
+        BsonDocument ResumeAfter { get; set; }
+
+        /// <summary>
+        /// Gets or sets the start at operation time.
+        /// </summary>
+        /// <value>
+        /// The start at operation time.
+        /// </value>
+        BsonTimestamp StartAtOperationTime { get; set; }
+
+        // methods
         /// <summary>
         /// Resumes the operation after a resume token.
         /// </summary>
         /// <param name="binding">The binding.</param>
-        /// <param name="resumeAfter">The resume token.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A cursor.</returns>
-        IAsyncCursor<RawBsonDocument> Resume(IReadBinding binding, BsonDocument resumeAfter, CancellationToken cancellationToken);
+        IAsyncCursor<RawBsonDocument> Resume(IReadBinding binding, CancellationToken cancellationToken);
 
         /// <summary>
         /// Resumes the operation after a resume token.
         /// </summary>
         /// <param name="binding">The binding.</param>
-        /// <param name="resumeAfter">The resume token.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result is a cursor.</returns>
-        Task<IAsyncCursor<RawBsonDocument>> ResumeAsync(IReadBinding binding, BsonDocument resumeAfter, CancellationToken cancellationToken);
+        Task<IAsyncCursor<RawBsonDocument>> ResumeAsync(IReadBinding binding, CancellationToken cancellationToken);
     }
 
     /// <summary>
@@ -62,6 +78,7 @@ namespace MongoDB.Driver.Core.Operations
         private int? _batchSize;
         private Collation _collation;
         private readonly CollectionNamespace _collectionNamespace;
+        private readonly DatabaseNamespace _databaseNamespace;
         private ChangeStreamFullDocumentOption _fullDocument = ChangeStreamFullDocumentOption.Default;
         private TimeSpan? _maxAwaitTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
@@ -69,8 +86,42 @@ namespace MongoDB.Driver.Core.Operations
         private ReadConcern _readConcern = ReadConcern.Default;
         private readonly IBsonSerializer<TResult> _resultSerializer;
         private BsonDocument _resumeAfter;
+        private BsonTimestamp _startAtOperationTime;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ChangeStreamOperation{TResult}"/> class.
+        /// </summary>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="resultSerializer">The result value serializer.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
+        public ChangeStreamOperation(
+            IEnumerable<BsonDocument> pipeline, 
+            IBsonSerializer<TResult> resultSerializer, 
+            MessageEncoderSettings messageEncoderSettings)
+        {
+            _pipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).ToList();
+            _resultSerializer = Ensure.IsNotNull(resultSerializer, nameof(resultSerializer));
+            _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ChangeStreamOperation{TResult}"/> class.
+        /// </summary>
+        /// <param name="databaseNamespace">The database namespace.</param>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="resultSerializer">The result value serializer.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
+        public ChangeStreamOperation(
+            DatabaseNamespace databaseNamespace,
+            IEnumerable<BsonDocument> pipeline,
+            IBsonSerializer<TResult> resultSerializer,
+            MessageEncoderSettings messageEncoderSettings)
+            : this(pipeline, resultSerializer, messageEncoderSettings)
+        {
+            _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ChangeStreamOperation{TResult}"/> class.
         /// </summary>
@@ -79,15 +130,13 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="resultSerializer">The result value serializer.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public ChangeStreamOperation(
-            CollectionNamespace collectionNamespace, 
-            IEnumerable<BsonDocument> pipeline, 
-            IBsonSerializer<TResult> resultSerializer, 
+            CollectionNamespace collectionNamespace,
+            IEnumerable<BsonDocument> pipeline,
+            IBsonSerializer<TResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings)
+            : this(pipeline, resultSerializer, messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
-            _pipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).ToList();
-            _resultSerializer = Ensure.IsNotNull(resultSerializer, nameof(resultSerializer));
-            _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
         }
 
         // public properties
@@ -122,6 +171,14 @@ namespace MongoDB.Driver.Core.Operations
         /// The collection namespace.
         /// </value>
         public CollectionNamespace CollectionNamespace => _collectionNamespace;
+
+        /// <summary>
+        /// Gets the database namespace.
+        /// </summary>
+        /// <value>
+        /// The database namespace.
+        /// </value>
+        public DatabaseNamespace DatabaseNamespace => _databaseNamespace;
 
         /// <summary>
         /// Gets or sets the full document option.
@@ -183,16 +240,18 @@ namespace MongoDB.Driver.Core.Operations
         /// </value>
         public IBsonSerializer<TResult> ResultSerializer => _resultSerializer;
 
-        /// <summary>
-        /// Gets or sets the resume after value.
-        /// </summary>
-        /// <value>
-        /// The resume after value.
-        /// </value>
+        /// <inheritdoc />
         public BsonDocument ResumeAfter
         {
             get { return _resumeAfter; }
             set { _resumeAfter = value; }
+        }
+
+        /// <inheritdoc />
+        public BsonTimestamp StartAtOperationTime
+        {
+            get { return _startAtOperationTime; }
+            set { _startAtOperationTime = value; }
         }
 
         // public methods        
@@ -205,7 +264,11 @@ namespace MongoDB.Driver.Core.Operations
                 throw new ArgumentException("The binding value passed to ChangeStreamOperation.Execute must implement IReadBindingHandle.", nameof(binding));
             }
 
-            var cursor = Resume(bindingHandle, _resumeAfter, cancellationToken);
+            var cursor = Resume(bindingHandle, cancellationToken);
+            if (_startAtOperationTime == null && _resumeAfter == null)
+            {
+                _startAtOperationTime = binding.Session.OperationTime;
+            }
             return new ChangeStreamCursor<TResult>(cursor, _resultSerializer, bindingHandle.Fork(), this);
         }
 
@@ -218,45 +281,71 @@ namespace MongoDB.Driver.Core.Operations
                 throw new ArgumentException("The binding value passed to ChangeStreamOperation.ExecuteAsync must implement IReadBindingHandle.", nameof(binding));
             }
 
-            var cursor = await ResumeAsync(bindingHandle, _resumeAfter, cancellationToken).ConfigureAwait(false);
+            var cursor = await ResumeAsync(bindingHandle, cancellationToken).ConfigureAwait(false);
+            if (_startAtOperationTime == null && _resumeAfter == null)
+            {
+                _startAtOperationTime = binding.Session.OperationTime;
+            }
             return new ChangeStreamCursor<TResult>(cursor, _resultSerializer, bindingHandle.Fork(), this);
         }
 
         /// <inheritdoc />
-        public IAsyncCursor<RawBsonDocument> Resume(IReadBinding binding, BsonDocument resumeAfter, CancellationToken cancellationToken)
+        public IAsyncCursor<RawBsonDocument> Resume(IReadBinding binding, CancellationToken cancellationToken)
         {
-            var aggregateOperation = CreateAggregateOperation(resumeAfter);
+            var aggregateOperation = CreateAggregateOperation();
             return aggregateOperation.Execute(binding, cancellationToken);
         }
 
         /// <inheritdoc />
-        public Task<IAsyncCursor<RawBsonDocument>> ResumeAsync(IReadBinding binding, BsonDocument resumeAfter, CancellationToken cancellationToken)
+        public Task<IAsyncCursor<RawBsonDocument>> ResumeAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
-            var aggregateOperation = CreateAggregateOperation(resumeAfter);
+            var aggregateOperation = CreateAggregateOperation();
             return aggregateOperation.ExecuteAsync(binding, cancellationToken);
         }
 
         // private methods
-        private AggregateOperation<RawBsonDocument> CreateAggregateOperation(BsonDocument resumeAfter)
+        private AggregateOperation<RawBsonDocument> CreateAggregateOperation()
+        {
+            var changeStreamStage = CreateChangeStreamStage();
+            var combinedPipeline = CreateCombinedPipeline(changeStreamStage);
+
+            AggregateOperation<RawBsonDocument> operation;
+            if (_collectionNamespace != null)
+            {
+                operation = new AggregateOperation<RawBsonDocument>(_collectionNamespace, combinedPipeline, RawBsonDocumentSerializer.Instance, _messageEncoderSettings);
+            }
+            else
+            {
+                var databaseNamespace = _databaseNamespace ?? DatabaseNamespace.Admin;
+                operation = new AggregateOperation<RawBsonDocument>(databaseNamespace, combinedPipeline, RawBsonDocumentSerializer.Instance, _messageEncoderSettings);
+            }
+
+            operation.BatchSize = _batchSize;
+            operation.Collation = _collation;
+            operation.MaxAwaitTime = _maxAwaitTime;
+            operation.ReadConcern = _readConcern;
+
+            return operation;
+        }
+
+        private BsonDocument CreateChangeStreamStage()
         {
             var changeStreamOptions = new BsonDocument
             {
+                { "allChangesForCluster", true, _collectionNamespace == null && _databaseNamespace == null },
                 { "fullDocument", ToString(_fullDocument) },
-                { "resumeAfter", resumeAfter, resumeAfter != null }
+                { "startAtOperationTime", _startAtOperationTime, _startAtOperationTime != null },
+                { "resumeAfter", _resumeAfter, _resumeAfter != null }
             };
-            var changeStreamStage = new BsonDocument("$changeStream", changeStreamOptions);
+            return new BsonDocument("$changeStream", changeStreamOptions);
+        }
 
+        private List<BsonDocument> CreateCombinedPipeline(BsonDocument changeStreamStage)
+        {
             var combinedPipeline = new List<BsonDocument>();
             combinedPipeline.Add(changeStreamStage);
             combinedPipeline.AddRange(_pipeline);
-
-            return new AggregateOperation<RawBsonDocument>(_collectionNamespace, combinedPipeline, RawBsonDocumentSerializer.Instance, _messageEncoderSettings)
-            {
-                BatchSize = _batchSize,
-                Collation = _collation,
-                MaxAwaitTime = _maxAwaitTime,
-                ReadConcern = _readConcern
-            };
+            return combinedPipeline;
         }
 
         private string ToString(ChangeStreamFullDocumentOption fullDocument)

@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void Constructor_should_throw_when_collectionNamespace_is_null()
         {
-            var exception = Record.Exception(() => new AggregateOperation<BsonDocument>(null, __pipeline, __resultSerializer, _messageEncoderSettings));
+            var exception = Record.Exception(() => new AggregateOperation<BsonDocument>((CollectionNamespace)null, __pipeline, __resultSerializer, _messageEncoderSettings));
 
             var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
             argumentNullException.ParamName.Should().Be("collectionNamespace");

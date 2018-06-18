@@ -340,7 +340,15 @@ namespace MongoDB.Driver
                 (s, sr) =>
                 {
                     var renderedOptions = new BsonDocument();
+                    if (options.AllChangesForCluster ?? false)
+                    {
+                        renderedOptions.Add("allChangesForCluster", true);
+                    }
                     renderedOptions.Add("fullDocument", MongoUtils.ToCamelCase(options.FullDocument.ToString()));
+                    if (options.StartAtOperationTime != null)
+                    {
+                        renderedOptions.Add("startAtOperationTime", options.StartAtOperationTime);
+                    }
                     if (options.ResumeAfter != null)
                     {
                         renderedOptions.Add("resumeAfter", options.ResumeAfter);

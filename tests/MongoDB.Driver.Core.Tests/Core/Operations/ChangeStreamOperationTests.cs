@@ -492,7 +492,7 @@ namespace MongoDB.Driver.Core.Operations
                 pipeline[0]
             };
 
-            var result = subject.CreateAggregateOperation(resumeAfter);
+            var result = subject.CreateAggregateOperation();
 
             result.AllowDiskUse.Should().NotHaveValue();
             result.BatchSize.Should().Be(batchSize);
@@ -523,12 +523,10 @@ namespace MongoDB.Driver.Core.Operations
 
     internal static class ChangeStreamOperationReflector
     {
-        public static AggregateOperation<RawBsonDocument> CreateAggregateOperation(
-            this ChangeStreamOperation<BsonDocument> subject,
-            BsonDocument resumeAfter)
+        public static AggregateOperation<RawBsonDocument> CreateAggregateOperation(this ChangeStreamOperation<BsonDocument> subject)
         {
             var methodInfo = typeof(ChangeStreamOperation<BsonDocument>).GetMethod("CreateAggregateOperation", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (AggregateOperation<RawBsonDocument>)methodInfo.Invoke(subject, new object[] { resumeAfter });
+            return (AggregateOperation<RawBsonDocument>)methodInfo.Invoke(subject, new object[] { });
         }
     }
 }

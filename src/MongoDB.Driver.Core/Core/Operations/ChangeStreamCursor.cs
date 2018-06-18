@@ -40,7 +40,6 @@ namespace MongoDB.Driver.Core.Operations
         private IAsyncCursor<RawBsonDocument> _cursor;
         private bool _disposed;
         private IBsonSerializer<TDocument> _documentSerializer;
-        private BsonDocument _resumeToken;
 
         // public properties
         /// <inheritdoc />
@@ -90,7 +89,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 if (RetryabilityHelper.IsResumableChangeStreamException(ex))
                 {
-                    _cursor = _changeStreamOperation.Resume(_binding, _resumeToken, cancellationToken);
+                    _cursor = _changeStreamOperation.Resume(_binding, cancellationToken);
                     hasMore = _cursor.MoveNext(cancellationToken);
                 }
                 else
@@ -115,7 +114,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 if (RetryabilityHelper.IsResumableChangeStreamException(ex))
                 {
-                    _cursor = await _changeStreamOperation.ResumeAsync(_binding, _resumeToken, cancellationToken).ConfigureAwait(false);
+                    _cursor = await _changeStreamOperation.ResumeAsync(_binding, cancellationToken).ConfigureAwait(false);
                     hasMore = await _cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false);
                 }
                 else
@@ -160,7 +159,8 @@ namespace MongoDB.Driver.Core.Operations
 
             if (lastRawDocument != null)
             {
-                _resumeToken = lastRawDocument["_id"].DeepClone().AsBsonDocument;
+                _changeStreamOperation.ResumeAfter = lastRawDocument["_id"].DeepClone().AsBsonDocument;
+                _changeStreamOperation.StartAtOperationTime = null;
             }
 
             return documents;

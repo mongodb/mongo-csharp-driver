@@ -43,6 +43,7 @@ namespace MongoDB.Driver.Core.Operations
         private Collation _collation;
         private readonly CollectionNamespace _collectionNamespace;
         private string _comment;
+        private readonly DatabaseNamespace _databaseNamespace;
         private BsonValue _hint;
         private TimeSpan? _maxAwaitTime;
         private TimeSpan? _maxTime;
@@ -56,13 +57,31 @@ namespace MongoDB.Driver.Core.Operations
         /// <summary>
         /// Initializes a new instance of the <see cref="AggregateOperation{TResult}"/> class.
         /// </summary>
+        /// <param name="databaseNamespace">The database namespace.</param>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="resultSerializer">The result value serializer.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
+        public AggregateOperation(DatabaseNamespace databaseNamespace, IEnumerable<BsonDocument> pipeline, IBsonSerializer<TResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
+            : this(pipeline, resultSerializer, messageEncoderSettings)
+        {
+            _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AggregateOperation{TResult}"/> class.
+        /// </summary>
         /// <param name="collectionNamespace">The collection namespace.</param>
         /// <param name="pipeline">The pipeline.</param>
         /// <param name="resultSerializer">The result value serializer.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public AggregateOperation(CollectionNamespace collectionNamespace, IEnumerable<BsonDocument> pipeline, IBsonSerializer<TResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
+            : this(pipeline, resultSerializer, messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
+        }
+
+        private AggregateOperation(IEnumerable<BsonDocument> pipeline, IBsonSerializer<TResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
+        {
             _pipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).ToList();
             _resultSerializer = Ensure.IsNotNull(resultSerializer, nameof(resultSerializer));
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
@@ -123,6 +142,17 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _comment; }
             set { _comment = value; }
+        }
+
+        /// <summary>
+        /// Gets the database namespace.
+        /// </summary>
+        /// <value>
+        /// The database namespace.
+        /// </value>
+        public DatabaseNamespace DatabaseNamespace
+        {
+            get { return _databaseNamespace; }
         }
 
         /// <summary>
@@ -276,7 +306,7 @@ namespace MongoDB.Driver.Core.Operations
             var readConcern = ReadConcernHelper.GetReadConcernForCommand(session, connectionDescription, _readConcern);
             var command = new BsonDocument
             {
-                { "aggregate", _collectionNamespace.CollectionName },
+                { "aggregate", _collectionNamespace == null ? (BsonValue)1 : _collectionNamespace.CollectionName },
                 { "pipeline", new BsonArray(_pipeline) },
                 { "allowDiskUse", () => _allowDiskUse.Value, _allowDiskUse.HasValue },
                 { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue },
@@ -325,7 +355,7 @@ namespace MongoDB.Driver.Core.Operations
             var getMoreChannelSource = new ServerChannelSource(channelSource.Server, channelSource.Session.Fork());
             return new AsyncCursor<TResult>(
                 getMoreChannelSource,
-                CollectionNamespace,
+                result.CollectionNamespace,
                 command,
                 result.Results,
                 result.CursorId.GetValueOrDefault(0),
@@ -362,6 +392,7 @@ namespace MongoDB.Driver.Core.Operations
         private class AggregateResult
         {
             public long? CursorId;
+            public CollectionNamespace CollectionNamespace;
             public TResult[] Results;
         }
 
@@ -420,18 +451,28 @@ namespace MongoDB.Driver.Core.Operations
                 while (reader.ReadBsonType() != 0)
                 {
                     var elementName = reader.ReadName();
-                    if (elementName == "id")
+                    switch (elementName)
                     {
-                        result.CursorId = new Int64Serializer().Deserialize(context);
-                    }
-                    else if (elementName == "firstBatch")
-                    {
-                        var arraySerializer = new ArraySerializer<TResult>(_resultSerializer);
-                        result.Results = arraySerializer.Deserialize(context);
-                    }
-                    else
-                    {
-                        reader.SkipValue();
+                        case "id":
+                            result.CursorId = new Int64Serializer().Deserialize(context);
+                            break;
+
+                        case "ns":
+                            var ns = reader.ReadString();
+                            var separatorIndex = ns.IndexOf('.');
+                            var databaseName = ns.Substring(0, separatorIndex);
+                            var collectionName = ns.Substring(separatorIndex + 1);
+                            result.CollectionNamespace = new CollectionNamespace(new DatabaseNamespace(databaseName), collectionName);
+                            break;
+
+                        case "firstBatch":
+                            var arraySerializer = new ArraySerializer<TResult>(_resultSerializer);
+                            result.Results = arraySerializer.Deserialize(context);
+                            break;
+
+                        default:
+                            reader.SkipValue();
+                            break;
                     }
                 }
                 reader.ReadEndDocument();

@@ -98,6 +98,7 @@
     <Compile Include="ArrayFilterDefinition.cs" />
     <Compile Include="AsyncCursorHelper.cs" />
     <Compile Include="Builders.cs" />
+    <Compile Include="ChangeStreamHelper.cs" />
     <Compile Include="ChangeStreamOptions.cs" />
     <Compile Include="ChangeStreamStageOptions.cs" />
     <Compile Include="ClientSessionHandle.cs" />
@@ -112,6 +113,8 @@
     <Compile Include="FieldValueSerializerHelper.cs" />
     <Compile Include="FilteredMongoCollectionBase.cs" />
     <Compile Include="IClientSession.cs" />
+    <Compile Include="IMongoClientExtensions.cs" />
+    <Compile Include="IMongoDatabaseExtensions.cs" />
     <Compile Include="IndexKeysDefinition.cs" />
     <Compile Include="IndexOptionDefaults.cs" />
     <Compile Include="InsertOneOptions.cs" />
