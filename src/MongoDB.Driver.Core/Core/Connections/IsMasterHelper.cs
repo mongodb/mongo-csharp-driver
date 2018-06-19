@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Authentication;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.WireProtocol;
 
 namespace MongoDB.Driver.Core.Connections
@@ -31,12 +32,19 @@ namespace MongoDB.Driver.Core.Connections
         {
             return command.Add("client", clientDocument, clientDocument != null); 
         }
-        
+
+        internal static BsonDocument AddCompressorsToCommand(BsonDocument command, IEnumerable<MongoCompressor> compressors)
+        {
+            var compressorsArray = new BsonArray(compressors.Select(x => x.Name));
+
+            return command.Add("compression", compressorsArray);
+        }
+
         internal static BsonDocument CreateCommand()
         {
             return new BsonDocument { { "isMaster", 1 } };
         }
-        
+
         internal static BsonDocument CustomizeCommand(BsonDocument command, IReadOnlyList<IAuthenticator> authenticators)
         {
             return authenticators.Count == 1 ? authenticators[0].CustomizeInitialIsMasterCommand(command) : command;
@@ -51,7 +59,7 @@ namespace MongoDB.Driver.Core.Connections
                 resultSerializer: BsonDocumentSerializer.Instance,
                 messageEncoderSettings: null);
         }
-        
+
         internal static IsMasterResult GetResult(
             IConnection connection,
             CommandWireProtocol<BsonDocument> isMasterProtocol,
@@ -69,7 +77,7 @@ namespace MongoDB.Driver.Core.Connections
                 throw new MongoAuthenticationException(connection.ConnectionId, "User not found.", ex);
             }
         }
-        
+
         internal static async Task<IsMasterResult> GetResultAsync(
             IConnection connection,
             CommandWireProtocol<BsonDocument> isMasterProtocol,

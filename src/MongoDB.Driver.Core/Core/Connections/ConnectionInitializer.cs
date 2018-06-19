@@ -143,6 +143,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             var command = IsMasterHelper.CreateCommand();
             IsMasterHelper.AddClientDocumentToCommand(command, _clientDocument);
+            IsMasterHelper.AddCompressorsToCommand(command, _compressors);
             return IsMasterHelper.CustomizeCommand(command, authenticators);
         }
 
