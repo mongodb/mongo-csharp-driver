@@ -1218,6 +1218,7 @@ namespace MongoDB.Bson.IO
                     case "$maxkey": case "$maxKey": _currentValue = ParseMaxKeyExtendedJson(); return BsonType.MaxKey;
                     case "$minkey": case "$minKey": _currentValue = ParseMinKeyExtendedJson(); return BsonType.MinKey;
                     case "$numberDecimal": _currentValue = ParseNumberDecimalExtendedJson(); return BsonType.Decimal128;
+                    case "$numberInt": _currentValue = ParseNumberIntExtendedJson(); return BsonType.Int32;
                     case "$numberLong": _currentValue = ParseNumberLongExtendedJson(); return BsonType.Int64;
                     case "$oid": _currentValue = ParseObjectIdExtendedJson(); return BsonType.ObjectId;
                     case "$regex": _currentValue = ParseRegularExpressionExtendedJson(); return BsonType.RegularExpression;
@@ -1546,6 +1547,26 @@ namespace MongoDB.Bson.IO
 
             VerifyToken("}");
             return (BsonDecimal128)value;
+        }
+
+        private BsonValue ParseNumberIntExtendedJson()
+        {
+            VerifyToken(":");
+
+            int value;
+            var valueToken = PopToken();
+            if (valueToken.Type == JsonTokenType.Int32)
+            {
+                value = valueToken.Int32Value;
+            }
+            else
+            {
+                var message = string.Format("JSON reader expected an integer but found '{0}'.", valueToken.Lexeme);
+                throw new FormatException(message);
+            }
+
+            VerifyToken("}");
+            return (BsonInt32)value;
         }
 
         private BsonValue ParseNumberLongExtendedJson()

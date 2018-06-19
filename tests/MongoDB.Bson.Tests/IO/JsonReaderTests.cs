@@ -526,6 +526,21 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Theory]
+        [InlineData("{ $numberInt: 1 }", 1)]
+        [InlineData("{ $numberInt: -2147483648 }", -2147483648)]
+        [InlineData("{ $numberInt: 2147483647 }", 2147483647)]
+        public void TestInt32ExtendedJson(string json, int expectedResult)
+        {
+            using (var reader = new JsonReader(json))
+            {
+                var result = reader.ReadInt32();
+
+                result.Should().Be(expectedResult);
+                reader.IsAtEndOfFile().Should().BeTrue();
+            }
+        }
+
+        [Theory]
         [InlineData("Number(123)")]
         [InlineData("NumberInt(123)")]
         public void TestInt32Constructor(string json)
