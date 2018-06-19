@@ -1717,36 +1717,71 @@ namespace MongoDB.Bson.IO
 
         private BsonValue ParseTimestampExtendedJsonNewRepresentation()
         {
-            VerifyString("t");
-            VerifyToken(":");
-            var secondsSinceEpochToken = PopToken();
-            int secondsSinceEpoch;
-            if (secondsSinceEpochToken.IsNumber)
+            int? timestamp = null;
+            int? increment = null;
+
+            while (true)
             {
-                secondsSinceEpoch = secondsSinceEpochToken.Int32Value;
-            }
-            else
-            {
-                var message = string.Format("JSON reader expected an integer but found '{0}'.", secondsSinceEpochToken.Lexeme);
-                throw new FormatException(message);
-            }
-            VerifyToken(",");
-            VerifyString("i");
-            VerifyToken(":");
-            var incrementToken = PopToken();
-            int increment;
-            if (incrementToken.IsNumber)
-            {
-                increment = incrementToken.Int32Value;
-            }
-            else
-            {
-                var message = string.Format("JSON reader expected an integer but found '{0}'.", incrementToken.Lexeme);
-                throw new FormatException(message);
+                var token = PopToken();
+                if (token.Type != JsonTokenType.String && token.Type != JsonTokenType.UnquotedString)
+                {
+                    throw new FormatException($"JSON reader expected an element name but found '{token.Lexeme}'.");
+                }
+                var name = token.StringValue;
+
+                token = PopToken();
+                if (token.Type != JsonTokenType.Colon)
+                {
+                    throw new FormatException($"JSON reader expected ':' but found '{name}'.");
+                }
+
+                token = PopToken();
+                if (token.Type != JsonTokenType.Int32)
+                {
+                    throw new FormatException($"JSON reader expected an integer but found '{token.Lexeme}'.");
+                }
+                var value = token.Int32Value;
+
+                switch (name)
+                {
+                    case "t":
+                        timestamp = value;
+                        break;
+
+                    case "i":
+                        increment = value;
+                        break;
+
+                    default:
+                        throw new FormatException($"JSON reader expected 't' or 'i' element names but found '{name}'.");
+                }
+
+                token = PopToken();
+                if (token.Type == JsonTokenType.Comma)
+                {
+                    continue;
+                }
+                else if (token.Type == JsonTokenType.EndObject)
+                {
+                    break;
+                }
+                else
+                {
+                    throw new FormatException($"JSON reader expected ',' or '}}'  but found '{token.Lexeme}'.");
+                }
             }
             VerifyToken("}");
-            VerifyToken("}");
-            return new BsonTimestamp(secondsSinceEpoch, increment);
+
+            if (!timestamp.HasValue)
+            {
+                throw new FormatException("JSON reader did not find the required \"t\" element.");
+            }
+            if (!increment.HasValue)
+            {
+                throw new FormatException("JSON reader did not find the required \"i\" element.");
+            }
+
+            return new BsonTimestamp(timestamp.Value, increment.Value);
         }
 
         private BsonValue ParseTimestampExtendedJsonOldRepresentation(JsonToken valueToken)

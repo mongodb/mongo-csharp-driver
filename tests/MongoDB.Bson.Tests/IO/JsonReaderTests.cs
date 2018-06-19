@@ -996,10 +996,11 @@ namespace MongoDB.Bson.Tests.IO
             Assert.Equal(json, BsonSerializer.Deserialize<BsonTimestamp>(new StringReader(json)).ToJson());
         }
 
-        [Fact]
-        public void TestTimestampExtendedJsonNewRepresentation()
+        [Theory]
+        [InlineData("{ \"$timestamp\" : { \"t\" : 1, \"i\" : 2 } }")]
+        [InlineData("{ \"$timestamp\" : { \"i\" : 2, \"t\" : 1 } }")]
+        public void TestTimestampExtendedJsonNewRepresentation(string json)
         {
-            var json = "{ \"$timestamp\" : { \"t\" : 1, \"i\" : 2 } }";
             using (_bsonReader = new JsonReader(json))
             {
                 Assert.Equal(BsonType.Timestamp, _bsonReader.ReadBsonType());
@@ -1008,6 +1009,35 @@ namespace MongoDB.Bson.Tests.IO
             }
             var canonicalJson = "Timestamp(1, 2)";
             Assert.Equal(canonicalJson, BsonSerializer.Deserialize<BsonTimestamp>(new StringReader(json)).ToJson());
+        }
+
+        [Theory]
+        // truncated input
+        [InlineData("{ \"$timestamp\" : {")]
+        [InlineData("{ \"$timestamp\" : { \"t\"")]
+        [InlineData("{ \"$timestamp\" : { \"t\" :")]
+        [InlineData("{ \"$timestamp\" : { \"t\" : 1")]
+        [InlineData("{ \"$timestamp\" : { \"t\" : 1,")]
+        [InlineData("{ \"$timestamp\" : { \"t\" : 1, \"i\"")]
+        [InlineData("{ \"$timestamp\" : { \"t\" : 1, \"i\" :")]
+        [InlineData("{ \"$timestamp\" : { \"t\" : 1, \"i\" : 2")]
+        [InlineData("{ \"$timestamp\" : { \"t\" : 1, \"i\" : 2 }")]
+        // valid JSON but not a valid extended JSON BsonTimestamp
+        [InlineData("{ \"$timestamp\" : { }")]
+        [InlineData("{ \"$timestamp\" : { \"t\" : 1 } }")]
+        [InlineData("{ \"$timestamp\" : { \"i\" : 2 } }")]
+        [InlineData("{ \"$timestamp\" : { \"t\" : 1, \"i\" : 2.0 } }")]
+        [InlineData("{ \"$timestamp\" : { \"t\" : 1.0, \"x\" : 2 } }")]
+        [InlineData("{ \"$timestamp\" : { \"t\" : 1, \"x\" : 2 } }")]
+        [InlineData("{ \"$timestamp\" : { \"i\" : 2, \"x\" : 1 } }")]
+        public void TestTimestampExtendedJsonNewRepresentationWhenInvalid(string json)
+        {
+            using (_bsonReader = new JsonReader(json))
+            {
+                var exception = Record.Exception(() => _bsonReader.ReadBsonType());
+
+                exception.Should().BeOfType<FormatException>();
+            }
         }
 
         [Fact]
