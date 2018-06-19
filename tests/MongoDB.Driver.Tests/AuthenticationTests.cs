@@ -204,7 +204,101 @@ namespace MongoDB.Driver.Tests
 
             AssertAuthenticationSucceeds(settings);
         }
-
+        
+        [SkippableTheory]
+        [ParameterAttributeData]
+        [InlineData("IX", "IX", "\u2168", "\u2163")] // "IX", "IX", Roman numeral nine, Roman numeral four
+        public void Authentication_succeeds_with_Ascii_username_and_Ascii_password_when_SaslPrep_equivalent_username_exists(
+            string asciiUsername, 
+            string asciiPassword, 
+            string unicodeUsername, 
+            string unicodePassword)
+        {
+            RequireServer.Check().Supports(Feature.ScramSha256Authentication).Authentication(true);
+            var client = DriverTestConfiguration.Client;
+            var uniqueAsciiUserName = $"{asciiUsername}{Guid.NewGuid()}";
+            var uniqueUnicodeUserName = $"{unicodeUsername}{Guid.NewGuid()}";
+            CreateAdminDatabaseUser(client, uniqueAsciiUserName, asciiPassword, "root", "SCRAM-SHA-256");
+            CreateAdminDatabaseUser(client, uniqueUnicodeUserName, unicodePassword, "root", "SCRAM-SHA-256");
+            var settings = client.Settings.Clone();
+            settings.Credential = MongoCredential.FromComponents(
+                mechanism: "SCRAM-SHA-256", source: null, username: uniqueAsciiUserName, password: asciiPassword);
+            
+            AssertAuthenticationSucceeds(settings);
+        }
+        
+        // Currently, we only support SaslPrep in .NET Framework due to a lack of a string normalization function in
+        // .NET Standard
+#if NET45
+        [SkippableTheory]
+        [ParameterAttributeData]
+        [InlineData("IX", "IX", "I\u00ADX", "\u2168", "\u2163")] // "IX", "IX", "I-X", Roman numeral nine, Roman numeral four
+        public void Authentication_succeeds_with_Ascii_username_and_nonSaslPrepped_password_when_SaslPrep_equivalent_username_exists(
+            string asciiUsername, 
+            string asciiPassword,
+            string nonSaslPreppedPassword,
+            string unicodeUsername, 
+            string unicodePassword)
+        {
+            RequireServer.Check().Supports(Feature.ScramSha256Authentication).Authentication(true);
+            var client = DriverTestConfiguration.Client;
+            var uniqueAsciiUserName = $"{asciiUsername}{Guid.NewGuid()}";
+            var uniqueUnicodeUserName = $"{unicodeUsername}{Guid.NewGuid()}";
+            CreateAdminDatabaseUser(client, uniqueAsciiUserName, asciiPassword, "root", "SCRAM-SHA-256");
+            CreateAdminDatabaseUser(client, uniqueUnicodeUserName, unicodePassword, "root", "SCRAM-SHA-256");
+            var settings = client.Settings.Clone();
+            settings.Credential = MongoCredential.FromComponents(
+                mechanism: "SCRAM-SHA-256", source: null, username: uniqueAsciiUserName, password: nonSaslPreppedPassword);
+            
+            AssertAuthenticationSucceeds(settings);
+        }
+        
+        [SkippableTheory]
+        [ParameterAttributeData]
+        [InlineData("IX", "IX", "\u2168", "\u2163", "I\u00ADV")] // "IX", "IX", Roman numeral nine, Roman numeral four, I-V
+        public void Authentication_succeeds_with_Unicode_username_and_nonSaslPrepped_password_when_SaslPrep_equivalent_username_exists(
+            string asciiUsername, 
+            string asciiPassword,
+            string unicodeUsername, 
+            string unicodePassword,
+            string nonSaslPreppedPassword)
+        {
+            RequireServer.Check().Supports(Feature.ScramSha256Authentication).Authentication(true);
+            var client = DriverTestConfiguration.Client;
+            var uniqueAsciiUserName = $"{asciiUsername}{Guid.NewGuid()}";
+            var uniqueUnicodeUserName = $"{unicodeUsername}{Guid.NewGuid()}";
+            CreateAdminDatabaseUser(client, uniqueAsciiUserName, asciiPassword, "root", "SCRAM-SHA-256");
+            CreateAdminDatabaseUser(client, uniqueUnicodeUserName, unicodePassword, "root", "SCRAM-SHA-256");
+            var settings = client.Settings.Clone();
+            settings.Credential = MongoCredential.FromComponents(
+                mechanism: "SCRAM-SHA-256", source: null, username: uniqueUnicodeUserName, password: nonSaslPreppedPassword);
+            
+            AssertAuthenticationSucceeds(settings);
+        }
+        
+        [SkippableTheory]
+        [ParameterAttributeData]
+        [InlineData("IX", "IX", "\u2168", "\u2163")] // "IX", "IX", Roman numeral nine, Roman numeral four
+        public void Authentication_succeeds_with_Unicode_username_and_Unicode_password_when_SaslPrep_equivalent_username_exists(
+            string asciiUsername, 
+            string asciiPassword, 
+            string unicodeUsername, 
+            string unicodePassword)
+        {
+            RequireServer.Check().Supports(Feature.ScramSha256Authentication).Authentication(true);
+            var client = DriverTestConfiguration.Client;
+            var uniqueAsciiUserName = $"{asciiUsername}{Guid.NewGuid()}";
+            var uniqueUnicodeUserName = $"{unicodeUsername}{Guid.NewGuid()}";
+            CreateAdminDatabaseUser(client, uniqueAsciiUserName, asciiPassword, "root", "SCRAM-SHA-256");
+            CreateAdminDatabaseUser(client, uniqueUnicodeUserName, unicodePassword, "root", "SCRAM-SHA-256");
+            var settings = client.Settings.Clone();
+            settings.Credential = MongoCredential.FromComponents(
+                mechanism: "SCRAM-SHA-256", source: null, username: uniqueUnicodeUserName, password: unicodePassword);
+            
+            AssertAuthenticationSucceeds(settings);
+        }
+#endif
+        
         private void AssertAuthenticationSucceeds(MongoClientSettings settings)
         {
              new MongoClient(settings).ListDatabaseNames().ToEnumerable().ToList();

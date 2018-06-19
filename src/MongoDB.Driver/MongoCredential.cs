@@ -41,7 +41,11 @@ namespace MongoDB.Driver
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoCredential" /> class.
         /// </summary>
-        /// <param name="mechanism">Mechanism to authenticate with.</param>
+        /// <param name="mechanism">Mechanism to authenticate with.
+        /// In .NET Standard, authenticating via SCRAM-SHA-256 may not work with non-ASCII passwords because SaslPrep is
+        /// not fully implemented due to the lack of a string normalization function in .NET Standard 1.6.
+        /// Normalizing the password into Unicode Normalization Form KC beforehand MAY help.
+        /// SCRAM-SHA-1 is the recommended alternative for now.</param>
         /// <param name="identity">The identity.</param>
         /// <param name="evidence">The evidence.</param>
         public MongoCredential(string mechanism, MongoIdentity identity, MongoIdentityEvidence evidence)
@@ -80,6 +84,10 @@ namespace MongoDB.Driver
 
         /// <summary>
         /// Gets the mechanism to authenticate with.
+        /// In .NET Standard, authenticating via SCRAM-SHA-256 may not work with non-ASCII passwords because SaslPrep is
+        /// not fully implemented due to the lack of a string normalization function in .NET Standard 1.6.
+        /// Normalizing the password into Unicode Normalization Form KC beforehand MAY help.
+        /// SCRAM-SHA-1 is the recommended alternative for now.
         /// </summary>
         public string Mechanism
         {

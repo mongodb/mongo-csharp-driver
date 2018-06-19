@@ -70,6 +70,7 @@
     <Compile Include="ChangeStreamDocumentSerializerTests.cs" />
     <Compile Include="ChangeStreamUpdateDescriptionSerializerTests.cs" />
     <Compile Include="CollationTests.cs" />
+    <Compile Include="Core\Authentication\SaslPrepHelperTests.cs" />
     <Compile Include="Core\Authentication\ScramSha256AuthenticatorTests.cs" />
     <Compile Include="Core\Bindings\ChannelChannelSourceTests.cs" />
     <Compile Include="Core\Bindings\ChannelReadBindingTests.cs" />

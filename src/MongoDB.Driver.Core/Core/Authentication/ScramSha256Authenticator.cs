@@ -33,6 +33,8 @@ namespace MongoDB.Driver.Core.Authentication
 {
     /// <summary>
     /// A SCRAM-SHA256 SASL authenticator.
+    /// In .NET Standard, this class does not normalize the password in the credentials, so non-ASCII
+    /// passwords may not work unless they are normalized into Unicode Normalization Form KC beforehand.
     /// </summary>
     public sealed class ScramSha256Authenticator : ScramShaAuthenticator
     {
@@ -48,6 +50,8 @@ namespace MongoDB.Driver.Core.Authentication
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="ScramSha256Authenticator"/> class.
+        /// In .NET Standard, this class does not normalize the password in <paramref name="credential"/>, so non-ASCII
+        /// passwords may not work unless they are normalized into Unicode Normalization Form KC beforehand.
         /// </summary>
         /// <param name="credential">The credential.</param>
         public ScramSha256Authenticator(UsernamePasswordCredential credential)
@@ -71,17 +75,17 @@ namespace MongoDB.Driver.Core.Authentication
         private static byte[] Hi256(UsernamePasswordCredential credential, byte[] salt, int iterations)
         {
 #if NET45
-            var passwordIntPtr = Marshal.SecureStringToGlobalAllocUnicode(credential.Password);
+            var passwordIntPtr = Marshal.SecureStringToGlobalAllocUnicode(credential.SaslPreppedPassword);
 #else
-            var passwordIntPtr = SecureStringMarshal.SecureStringToGlobalAllocUnicode(credential.Password);
+            var passwordIntPtr = SecureStringMarshal.SecureStringToGlobalAllocUnicode(credential.SaslPreppedPassword);
 #endif
             try
             {
-                var passwordChars = new char[credential.Password.Length];
+                var passwordChars = new char[credential.SaslPreppedPassword.Length];
                 var passwordCharsHandle = GCHandle.Alloc(passwordChars, GCHandleType.Pinned);
                 try
                 {
-                    Marshal.Copy(passwordIntPtr, passwordChars, 0, credential.Password.Length);
+                    Marshal.Copy(passwordIntPtr, passwordChars, 0, credential.SaslPreppedPassword.Length);
                     return Hi256(passwordChars, salt, iterations);
                 }
                 finally
