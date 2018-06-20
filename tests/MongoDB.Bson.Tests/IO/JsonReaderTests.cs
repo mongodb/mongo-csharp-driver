@@ -526,9 +526,9 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Theory]
-        [InlineData("{ $numberInt: 1 }", 1)]
-        [InlineData("{ $numberInt: -2147483648 }", -2147483648)]
-        [InlineData("{ $numberInt: 2147483647 }", 2147483647)]
+        [InlineData("{ $numberInt : 1 }", 1)]
+        [InlineData("{ $numberInt : -2147483648 }", -2147483648)]
+        [InlineData("{ $numberInt : 2147483647 }", 2147483647)]
         public void TestInt32ExtendedJson(string json, int expectedResult)
         {
             using (var reader = new JsonReader(json))
@@ -537,6 +537,25 @@ namespace MongoDB.Bson.Tests.IO
 
                 result.Should().Be(expectedResult);
                 reader.IsAtEndOfFile().Should().BeTrue();
+            }
+        }
+
+        [Theory]
+        // truncated input
+        [InlineData("{ $numberInt")]
+        [InlineData("{ $numberInt :")]
+        [InlineData("{ $numberInt : 1")]
+        // invalid extended json
+        [InlineData("{ $numberInt ,")]
+        [InlineData("{ $numberInt : \"abc\"")]
+        [InlineData("{ $numberInt : 1,")]
+        public void TestInt32ExtendedJsonInvalid(string json)
+        {
+            using (var reader = new JsonReader(json))
+            {
+                var execption = Record.Exception(() => reader.ReadInt32());
+
+                execption.Should().BeOfType<FormatException>();
             }
         }
 
