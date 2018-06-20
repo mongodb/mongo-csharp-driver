@@ -1559,6 +1559,10 @@ namespace MongoDB.Bson.IO
             {
                 value = valueToken.Int32Value;
             }
+            else if (valueToken.Type == JsonTokenType.String)
+            {
+                value = JsonConvert.ToInt32(valueToken.StringValue);
+            }
             else
             {
                 var message = string.Format("JSON reader expected an integer but found '{0}'.", valueToken.Lexeme);
