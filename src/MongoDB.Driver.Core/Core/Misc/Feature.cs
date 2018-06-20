@@ -47,6 +47,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __failPoints = new Feature("FailPoints", new SemanticVersion(2, 4, 0));
         private static readonly Feature __findAndModifyWriteConcern = new Feature("FindAndModifyWriteConcern", new SemanticVersion(3, 2, 0));
         private static readonly Feature __findCommand = new Feature("FindCommand", new SemanticVersion(3, 2, 0));
+        private static readonly Feature __geoNearCommand = new Feature("GeoNearCommand", new SemanticVersion(1, 0, 0), new SemanticVersion(4, 1, 0, ""));
         private static readonly Feature __groupCommand = new Feature("GroupCommand", new SemanticVersion(1, 0, 0), new SemanticVersion(4, 0, 0, "rc1"));
         private static readonly Feature __listCollectionsCommand = new Feature("ListCollectionsCommand", new SemanticVersion(3, 0, 0));
         private static readonly Feature __listDatabasesFilter = new Feature("ListDatabasesFilter", new SemanticVersion(3, 4, 2));
@@ -184,9 +185,14 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the find command feature.
         /// </summary>
         public static Feature FindCommand => __findCommand;
-        
+
         /// <summary>
-        /// Gets the grouop command feature.
+        /// Gets the geoNear command feature.
+        /// </summary>
+        public static Feature GeoNearCommand => __geoNearCommand;
+
+        /// <summary>
+        /// Gets the group command feature.
         /// </summary>
         public static Feature GroupCommand => __groupCommand;
 

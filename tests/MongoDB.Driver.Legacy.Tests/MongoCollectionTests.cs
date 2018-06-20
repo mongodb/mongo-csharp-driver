@@ -1708,9 +1708,10 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestGeoNear()
         {
+            RequireServer.Check().Supports(Feature.GeoNearCommand);
             _collection.Drop();
             _collection.Insert(new Place { Location = new[] { 1.0, 1.0 }, Name = "One", Type = "Museum" });
             _collection.Insert(new Place { Location = new[] { 1.0, 2.0 }, Name = "Two", Type = "Coffee" });
@@ -1754,9 +1755,10 @@ namespace MongoDB.Driver.Tests
             Assert.Equal("Coffee", place.Type);
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestGeoNearGeneric()
         {
+            RequireServer.Check().Supports(Feature.GeoNearCommand);
             _collection.Drop();
             _collection.Insert(new Place { Location = new[] { 1.0, 1.0 }, Name = "One", Type = "Museum" });
             _collection.Insert(new Place { Location = new[] { 1.0, 2.0 }, Name = "Two", Type = "Coffee" });
@@ -1800,9 +1802,10 @@ namespace MongoDB.Driver.Tests
             Assert.Equal("Coffee", place.Type);
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestGeoNearSphericalFalse()
         {
+            RequireServer.Check().Supports(Feature.GeoNearCommand);
             _collection.Drop();
             _collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
             _collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
@@ -1855,9 +1858,10 @@ namespace MongoDB.Driver.Tests
             Assert.Equal("Coffee", hit2.RawDocument["Type"].AsString);
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestGeoNearSphericalTrue()
         {
+            RequireServer.Check().Supports(Feature.GeoNearCommand);
             if (_server.BuildInfo.Version >= new Version(1, 8, 0))
             {
                 _collection.Drop();
@@ -1913,9 +1917,10 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestGeoNearWithGeoJsonPoints()
         {
+            RequireServer.Check().Supports(Feature.GeoNearCommand);
             if (_server.BuildInfo.Version >= new Version(2, 4, 0))
             {
                 _collection.Drop();
@@ -1953,9 +1958,10 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestGeoNearWithMaxTime()
         {
+            RequireServer.Check().Supports(Feature.GeoNearCommand);
             if (_primary.Supports(FeatureId.MaxTime))
             {
                 using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))

@@ -601,7 +601,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check();
+            RequireServer.Check().Supports(Feature.GeoNearCommand);
             EnsureTestData();
             var subject = new GeoNearOperation<BsonDocument>(_collectionNamespace, _near, _resultSerializer, _messageEncoderSettings);
 
@@ -619,7 +619,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.Collation);
+            RequireServer.Check().Supports(Feature.Collation, Feature.GeoNearCommand);
             EnsureTestData();
             var collation = new Collation("en_US", caseLevel: caseSensitive, strength: CollationStrength.Primary);
             var filter = BsonDocument.Parse("{ x : 'x' }");
@@ -640,7 +640,7 @@ namespace MongoDB.Driver.Core.Operations
         public void Execute_should_send_session_id_when_supported(
             [Values(false, true)] bool async)
         {
-            RequireServer.Check();
+            RequireServer.Check().Supports(Feature.GeoNearCommand);
             EnsureTestData();
             var subject = new GeoNearOperation<BsonDocument>(_collectionNamespace, _near, _resultSerializer, _messageEncoderSettings);
 
@@ -652,7 +652,7 @@ namespace MongoDB.Driver.Core.Operations
         public void Execute_should_throw_when_maxTime_is_exceeded(
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.FailPoints).ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
+            RequireServer.Check().Supports(Feature.FailPoints, Feature.GeoNearCommand).ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
             var subject = new GeoNearOperation<BsonDocument>(_collectionNamespace, _near, _resultSerializer, _messageEncoderSettings);
             subject.MaxTime = TimeSpan.FromSeconds(9001);
 
