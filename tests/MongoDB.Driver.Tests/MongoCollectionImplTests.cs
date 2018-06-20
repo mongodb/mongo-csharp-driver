@@ -2640,6 +2640,7 @@ namespace MongoDB.Driver
             var maxAwaitTime = maxAwaitTimeMS == null ? (TimeSpan?)null : TimeSpan.FromMilliseconds(maxAwaitTimeMS.Value);
             var readConcern = readConcernLevel == null ? null : new ReadConcern(readConcernLevel);
             var resumeAfter = resumeAferString == null ? null : BsonDocument.Parse(resumeAferString);
+            var startAtOperationTime = new BsonTimestamp(1, 2);
             var subject = CreateSubject<BsonDocument>();
             if (readConcern != null)
             {
@@ -2654,7 +2655,8 @@ namespace MongoDB.Driver
                 Collation = collation,
                 FullDocument = fullDocument,
                 MaxAwaitTime = maxAwaitTime,
-                ResumeAfter = resumeAfter
+                ResumeAfter = resumeAfter,
+                StartAtOperationTime = startAtOperationTime
             };
             var cancellationToken = new CancellationTokenSource().Token;
 
@@ -2688,6 +2690,7 @@ namespace MongoDB.Driver
             operation.BatchSize.Should().Be(options.BatchSize);
             operation.Collation.Should().Be(options.Collation);
             operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
+            operation.DatabaseNamespace.Should().BeNull();
             operation.FullDocument.Should().Be(options.FullDocument);
             operation.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
             operation.MessageEncoderSettings.Should().NotBeNull();
@@ -2696,6 +2699,7 @@ namespace MongoDB.Driver
             operation.ReadConcern.Should().Be(subject.Settings.ReadConcern);
             operation.ResultSerializer.ValueType.Should().Be(typeof(ChangeStreamDocument<BsonDocument>));
             operation.ResumeAfter.Should().Be(options.ResumeAfter);
+            operation.StartAtOperationTime.Should().Be(options.StartAtOperationTime);
         }
 
         [Theory]

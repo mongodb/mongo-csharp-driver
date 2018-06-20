@@ -333,9 +333,10 @@ namespace MongoDB.Driver.Core.Operations
 
         private ReadCommandOperation<AggregateResult> CreateOperation(IChannel channel, IBinding binding)
         {
+            var databaseNamespace = _collectionNamespace == null ? _databaseNamespace : _collectionNamespace.DatabaseNamespace;
             var command = CreateCommand(channel.ConnectionDescription, binding.Session);
             var serializer = new AggregateResultDeserializer(_resultSerializer);
-            return new ReadCommandOperation<AggregateResult>(CollectionNamespace.DatabaseNamespace, command, serializer, MessageEncoderSettings);
+            return new ReadCommandOperation<AggregateResult>(databaseNamespace, command, serializer, MessageEncoderSettings);
         }
 
         private AsyncCursor<TResult> CreateCursor(IChannelSourceHandle channelSource, IChannelHandle channel, BsonDocument command, AggregateResult result)

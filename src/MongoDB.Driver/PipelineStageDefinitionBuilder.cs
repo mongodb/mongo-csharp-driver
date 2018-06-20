@@ -339,20 +339,13 @@ namespace MongoDB.Driver
                 operatorName,
                 (s, sr) =>
                 {
-                    var renderedOptions = new BsonDocument();
-                    if (options.AllChangesForCluster ?? false)
+                    var renderedOptions = new BsonDocument
                     {
-                        renderedOptions.Add("allChangesForCluster", true);
-                    }
-                    renderedOptions.Add("fullDocument", MongoUtils.ToCamelCase(options.FullDocument.ToString()));
-                    if (options.StartAtOperationTime != null)
-                    {
-                        renderedOptions.Add("startAtOperationTime", options.StartAtOperationTime);
-                    }
-                    if (options.ResumeAfter != null)
-                    {
-                        renderedOptions.Add("resumeAfter", options.ResumeAfter);
-                    }
+                        { "fullDocument", MongoUtils.ToCamelCase(options.FullDocument.ToString()) },
+                        { "allChangesForCluster", true, options.AllChangesForCluster ?? false },
+                        { "resumeAfter", options.ResumeAfter, options.ResumeAfter != null },
+                        { "startAtOperationTime", options.StartAtOperationTime, options.StartAtOperationTime != null }
+                    };
                     var document = new BsonDocument(operatorName, renderedOptions);
                     var outputSerializer = new ChangeStreamDocumentSerializer<TInput>(s);
                     return new RenderedPipelineStageDefinition<ChangeStreamDocument<TInput>>(

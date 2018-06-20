@@ -332,8 +332,8 @@ namespace MongoDB.Driver.Core.Operations
         {
             var changeStreamOptions = new BsonDocument
             {
-                { "allChangesForCluster", true, _collectionNamespace == null && _databaseNamespace == null },
                 { "fullDocument", ToString(_fullDocument) },
+                { "allChangesForCluster", true, _collectionNamespace == null && _databaseNamespace == null },
                 { "startAtOperationTime", _startAtOperationTime, _startAtOperationTime != null },
                 { "resumeAfter", _resumeAfter, _resumeAfter != null }
             };

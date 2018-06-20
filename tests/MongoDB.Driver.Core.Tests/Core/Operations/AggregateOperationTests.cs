@@ -35,11 +35,12 @@ namespace MongoDB.Driver.Core.Operations
         private static IBsonSerializer<BsonDocument> __resultSerializer = BsonDocumentSerializer.Instance;
 
         [Fact]
-        public void Constructor_should_create_a_valid_instance()
+        public void Constructor_with_database_should_create_a_valid_instance()
         {
-            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings);
+            var subject = new AggregateOperation<BsonDocument>(_databaseNamespace, __pipeline, __resultSerializer, _messageEncoderSettings);
 
-            subject.CollectionNamespace.Should().Be(_collectionNamespace);
+            subject.CollectionNamespace.Should().BeNull();
+            subject.DatabaseNamespace.Should().BeSameAs(_databaseNamespace);
             subject.Pipeline.Should().Equal(__pipeline);
             subject.ResultSerializer.Should().BeSameAs(__resultSerializer);
             subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
@@ -54,7 +55,63 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Fact]
-        public void Constructor_should_throw_when_collectionNamespace_is_null()
+        public void Constructor_with_database_should_throw_when_databaseNamespace_is_null()
+        {
+            var exception = Record.Exception(() => new AggregateOperation<BsonDocument>((DatabaseNamespace)null, __pipeline, __resultSerializer, _messageEncoderSettings));
+
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("databaseNamespace");
+        }
+
+        [Fact]
+        public void Constructor_with_database_should_throw_when_pipeline_is_null()
+        {
+            var exception = Record.Exception(() => new AggregateOperation<BsonDocument>(_databaseNamespace, null, __resultSerializer, _messageEncoderSettings));
+
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("pipeline");
+        }
+
+        [Fact]
+        public void Constructor_with_database_should_throw_when_resultSerializer_is_null()
+        {
+            var exception = Record.Exception(() => new AggregateOperation<BsonDocument>(_databaseNamespace, __pipeline, null, _messageEncoderSettings));
+
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("resultSerializer");
+        }
+
+        [Fact]
+        public void Constructor_with_database_should_throw_when_messageEncoderSettings_is_null()
+        {
+            var exception = Record.Exception(() => new AggregateOperation<BsonDocument>(_databaseNamespace, __pipeline, __resultSerializer, null));
+
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("messageEncoderSettings");
+        }
+
+        [Fact]
+        public void Constructor_with_collection_should_create_a_valid_instance()
+        {
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings);
+
+            subject.CollectionNamespace.Should().Be(_collectionNamespace);
+            subject.DatabaseNamespace.Should().BeNull();
+            subject.Pipeline.Should().Equal(__pipeline);
+            subject.ResultSerializer.Should().BeSameAs(__resultSerializer);
+            subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
+
+            subject.AllowDiskUse.Should().NotHaveValue();
+            subject.BatchSize.Should().NotHaveValue();
+            subject.Collation.Should().BeNull();
+            subject.MaxAwaitTime.Should().NotHaveValue();
+            subject.MaxTime.Should().NotHaveValue();
+            subject.ReadConcern.IsServerDefault.Should().BeTrue();
+            subject.UseCursor.Should().NotHaveValue();
+        }
+
+        [Fact]
+        public void Constructor_with_collection_should_throw_when_collectionNamespace_is_null()
         {
             var exception = Record.Exception(() => new AggregateOperation<BsonDocument>((CollectionNamespace)null, __pipeline, __resultSerializer, _messageEncoderSettings));
 
@@ -63,7 +120,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Fact]
-        public void Constructor_should_throw_when_pipeline_is_null()
+        public void Constructor_with_collection_should_throw_when_pipeline_is_null()
         {
             var exception = Record.Exception(() => new AggregateOperation<BsonDocument>(_collectionNamespace, null, __resultSerializer, _messageEncoderSettings));
 
@@ -72,7 +129,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Fact]
-        public void Constructor_should_throw_when_resultSerializer_is_null()
+        public void Constructor_with_collection_should_throw_when_resultSerializer_is_null()
         {
             var exception = Record.Exception(() => new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, null, _messageEncoderSettings));
 
@@ -81,7 +138,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Fact]
-        public void Constructor_should_throw_when_messageEncoderSettings_is_null()
+        public void Constructor_with_collection_should_throw_when_messageEncoderSettings_is_null()
         {
             var exception = Record.Exception(() => new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, null));
 

@@ -110,6 +110,7 @@
     <Compile Include="AuthenticationTests.cs" />
     <Compile Include="BulkWriteErrorTests.cs" />
     <Compile Include="CausalConsistencyTests.cs" />
+    <Compile Include="ChangeStreamHelperTests.cs" />
     <Compile Include="ClientSessionHandleTests.cs" />
     <Compile Include="ClientSessionOptionsTests.cs" />
     <Compile Include="CreateManyIndexOptionsTest.cs" />
@@ -139,6 +140,8 @@
     <Compile Include="FilterDefinitionBuilderNullableIntComparedToNullableIntTests.cs" />
     <Compile Include="FilterDefinitionBuilderNullableIntComparedToNullableIntWithStringRepresentationTests.cs" />
     <Compile Include="FindFluentTests.cs" />
+    <Compile Include="IMongoClientExtensionsTests.cs" />
+    <Compile Include="IMongoDatabaseExtensionsTests.cs" />
     <Compile Include="JsonDrivenTests\JsonDrivenCommandTest.cs" />
     <Compile Include="JsonDrivenTests\JsonDrivenRunCommandTest.cs" />
     <Compile Include="JsonDrivenTests\JsonDrivenSessionTest.cs" />
@@ -172,6 +175,7 @@
     <Compile Include="RetryableWritesTests.cs" />
     <Compile Include="SortDefinitionBuilderTests.cs" />
     <Compile Include="Specifications\auth\TestRunner.cs" />
+    <Compile Include="Specifications\change-streams\ChangeStreamTestRunner.cs" />
     <Compile Include="Specifications\command-monitoring\CountTest.cs" />
     <Compile Include="Specifications\command-monitoring\BulkWriteTest.cs" />
     <Compile Include="Specifications\command-monitoring\CrudOperationTestBase.cs" />
@@ -207,6 +211,7 @@
     <Compile Include="JsonDrivenTests\JsonDrivenStartTransactionTest.cs" />
     <Compile Include="JsonDrivenTests\JsonDrivenUpdateManyTest.cs" />
     <Compile Include="JsonDrivenTests\JsonDrivenUpdateOneTest.cs" />
+    <Compile Include="Specifications\crud\CrudOperationTestFactory.cs" />
     <Compile Include="Specifications\retryable-writes\BulkWriteTest.cs" />
     <Compile Include="Specifications\retryable-writes\DeleteOneTest.cs" />
     <Compile Include="Specifications\retryable-writes\InsertManyTest.cs" />
@@ -285,7 +290,7 @@
     <Compile Include="Support\IndexMapTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MongoBulkWriteExceptionTests.cs" />
-    <Compile Include="Specifications\crud\TestRunner.cs" />
+    <Compile Include="Specifications\crud\CrudTestRunner.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MongoDB.Bson.TestHelpers\MongoDB.Bson.TestHelpers.csproj">
@@ -418,6 +423,8 @@
     <EmbeddedResource Include="Specifications\transactions\tests\error-labels.json" />
     <EmbeddedResource Include="Specifications\transactions\tests\retryable-abort.json" />
     <EmbeddedResource Include="Specifications\transactions\tests\retryable-commit.json" />
+    <EmbeddedResource Include="Specifications\change-streams\tests\change-streams-errors.json" />
+    <EmbeddedResource Include="Specifications\change-streams\tests\change-streams.json" />
     <None Include="testcert.pfx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

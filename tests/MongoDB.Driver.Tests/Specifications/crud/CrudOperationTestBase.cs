@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
 
             Execute(collection, outcome, async);
 
-            if (outcome.Contains("collection"))
+            if (outcome != null && outcome.Contains("collection"))
             {
                 var collectionToVerify = collection;
                 if (outcome["collection"].AsBsonDocument.Contains("name"))
@@ -73,8 +73,11 @@ namespace MongoDB.Driver.Tests.Specifications.crud
         protected sealed override void Execute(IMongoCollection<BsonDocument> collection, BsonDocument outcome, bool async)
         {
             var actualResult = ExecuteAndGetResult(collection, async);
-            var expectedResult = ConvertExpectedResult(outcome["result"]);
-            VerifyResult(actualResult, expectedResult);
+            if (outcome != null)
+            {
+                var expectedResult = ConvertExpectedResult(outcome["result"]);
+                VerifyResult(actualResult, expectedResult);
+            }
         }
 
         protected abstract TResult ConvertExpectedResult(BsonValue expectedResult);

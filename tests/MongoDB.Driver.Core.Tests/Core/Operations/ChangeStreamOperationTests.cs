@@ -38,7 +38,91 @@ namespace MongoDB.Driver.Core.Operations
     public class ChangeStreamOperationTests : OperationTestBase
     {
         [Fact]
-        public void constructor_should_initialize_instance()
+        public void constructor_with_database_should_initialize_instance()
+        {
+            var databaseNamespace = new DatabaseNamespace("foo");
+            var pipeline = new List<BsonDocument> { BsonDocument.Parse("{ $match : { operationType : \"insert\" } }") };
+            var resultSerializer = BsonDocumentSerializer.Instance;
+            var messageEncoderSettings = new MessageEncoderSettings();
+
+            var subject = new ChangeStreamOperation<BsonDocument>(databaseNamespace, pipeline, resultSerializer, messageEncoderSettings);
+
+            subject.BatchSize.Should().NotHaveValue();
+            subject.Collation.Should().BeNull();
+            subject.CollectionNamespace.Should().BeNull();
+            subject.DatabaseNamespace.Should().Be(databaseNamespace);
+            subject.FullDocument.Should().Be(ChangeStreamFullDocumentOption.Default);
+            subject.MaxAwaitTime.Should().NotHaveValue();
+            subject.MessageEncoderSettings.Should().BeSameAs(messageEncoderSettings);
+            subject.Pipeline.Should().Equal(pipeline);
+            subject.ReadConcern.Should().Be(ReadConcern.Default);
+            subject.ResultSerializer.Should().BeSameAs(resultSerializer);
+            subject.ResumeAfter.Should().BeNull();
+            subject.StartAtOperationTime.Should().BeNull();
+        }
+
+        [Fact]
+        public void constructor_with_database_should_throw_when_databaseNamespace_is_null()
+        {
+            DatabaseNamespace databaseNamespace = null;
+            var pipeline = new List<BsonDocument> { BsonDocument.Parse("{ $match : { operationType : \"insert\" } }") };
+            var resultSerializer = BsonDocumentSerializer.Instance;
+            var messageEncoderSettings = new MessageEncoderSettings();
+
+
+            var exception = Record.Exception(() => new ChangeStreamOperation<BsonDocument>(databaseNamespace, pipeline, resultSerializer, messageEncoderSettings));
+
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("databaseNamespace");
+        }
+
+        [Fact]
+        public void constructor_with_database_should_throw_when_pipeline_is_null()
+        {
+            var databaseNamespace = new DatabaseNamespace("foo");
+            var pipeline = new List<BsonDocument> { BsonDocument.Parse("{ $match : { operationType : \"insert\" } }") };
+            IBsonSerializer<BsonDocument> resultSerializer = null;
+            var messageEncoderSettings = new MessageEncoderSettings();
+
+
+            var exception = Record.Exception(() => new ChangeStreamOperation<BsonDocument>(databaseNamespace, pipeline, resultSerializer, messageEncoderSettings));
+
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("resultSerializer");
+        }
+
+        [Fact]
+        public void constructor_with_database_should_throw_when_messageEncoderSettings_is_null()
+        {
+            var databaseNamespace = new DatabaseNamespace("foo");
+            var pipeline = new List<BsonDocument> { BsonDocument.Parse("{ $match : { operationType : \"insert\" } }") };
+            var resultSerializer = BsonDocumentSerializer.Instance;
+            MessageEncoderSettings messageEncoderSettings = null;
+
+
+            var exception = Record.Exception(() => new ChangeStreamOperation<BsonDocument>(databaseNamespace, pipeline, resultSerializer, messageEncoderSettings));
+
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("messageEncoderSettings");
+        }
+
+        [Fact]
+        public void constructor_with_database_should_throw_when_resultSerializer_is_null()
+        {
+            var databaseNamespace = new DatabaseNamespace("foo");
+            List<BsonDocument> pipeline = null;
+            var resultSerializer = BsonDocumentSerializer.Instance;
+            var messageEncoderSettings = new MessageEncoderSettings();
+
+
+            var exception = Record.Exception(() => new ChangeStreamOperation<BsonDocument>(databaseNamespace, pipeline, resultSerializer, messageEncoderSettings));
+
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("pipeline");
+        }
+
+        [Fact]
+        public void constructor_with_collection_should_initialize_instance()
         {
             var collectionNamespace = new CollectionNamespace(new DatabaseNamespace("foo"), "bar");
             var pipeline = new List<BsonDocument> { BsonDocument.Parse("{ $match : { operationType : \"insert\" } }") };
@@ -50,6 +134,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.BatchSize.Should().NotHaveValue();
             subject.Collation.Should().BeNull();
             subject.CollectionNamespace.Should().BeSameAs(collectionNamespace);
+            subject.DatabaseNamespace.Should().BeNull();
             subject.FullDocument.Should().Be(ChangeStreamFullDocumentOption.Default);
             subject.MaxAwaitTime.Should().NotHaveValue();
             subject.MessageEncoderSettings.Should().BeSameAs(messageEncoderSettings);
@@ -57,10 +142,11 @@ namespace MongoDB.Driver.Core.Operations
             subject.ReadConcern.Should().Be(ReadConcern.Default);
             subject.ResultSerializer.Should().BeSameAs(resultSerializer);
             subject.ResumeAfter.Should().BeNull();
+            subject.StartAtOperationTime.Should().BeNull();
         }
 
         [Fact]
-        public void constructor_should_throw_when_collectionNamespace_is_null()
+        public void constructor_with_collection_should_throw_when_collectionNamespace_is_null()
         {
             CollectionNamespace collectionNamespace = null;
             var pipeline = new List<BsonDocument> { BsonDocument.Parse("{ $match : { operationType : \"insert\" } }") };
@@ -75,7 +161,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Fact]
-        public void constructor_should_throw_when_pipeline_is_null()
+        public void constructor_with_collection_should_throw_when_pipeline_is_null()
         {
             var collectionNamespace = new CollectionNamespace(new DatabaseNamespace("foo"), "bar");
             var pipeline = new List<BsonDocument> { BsonDocument.Parse("{ $match : { operationType : \"insert\" } }") };
@@ -90,7 +176,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Fact]
-        public void constructor_should_throw_when_messageEncoderSettings_is_null()
+        public void constructor_with_collection_should_throw_when_messageEncoderSettings_is_null()
         {
             var collectionNamespace = new CollectionNamespace(new DatabaseNamespace("foo"), "bar");
             var pipeline = new List<BsonDocument> { BsonDocument.Parse("{ $match : { operationType : \"insert\" } }") };
@@ -105,7 +191,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Fact]
-        public void constructor_should_throw_when_resultSerializer_is_null()
+        public void constructor_with_collection_should_throw_when_resultSerializer_is_null()
         {
             var collectionNamespace = new CollectionNamespace(new DatabaseNamespace("foo"), "bar");
             List<BsonDocument> pipeline = null;
@@ -255,6 +341,20 @@ namespace MongoDB.Driver.Core.Operations
 
             subject.ResumeAfter = value;
             var result = subject.ResumeAfter;
+
+            result.Should().Be(value);
+        }
+
+        [Theory]
+        [InlineData(null, null)]
+        [InlineData(1, 2)]
+        public void StartAtOperationTime_get_and_set_should_work(int? t, int? i)
+        {
+            var subject = CreateSubject();
+            var value = t.HasValue ? new BsonTimestamp(t.Value, i.Value) : null;
+
+            subject.StartAtOperationTime = value;
+            var result = subject.StartAtOperationTime;
 
             result.Should().Be(value);
         }

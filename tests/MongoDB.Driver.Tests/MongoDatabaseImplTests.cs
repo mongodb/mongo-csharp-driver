@@ -939,6 +939,75 @@ namespace MongoDB.Driver
             op.Command.Should().Be("{ count : \"foo\" }");
         }
 
+        [Theory]
+        [ParameterAttributeData]
+        public void Watch_should_invoke_the_correct_operation(
+           [Values(false, true)] bool usingSession,
+           [Values(false, true)] bool async)
+        {
+            var session = CreateSession(usingSession);
+            var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<BsonDocument>>().Limit(1);
+            var options = new ChangeStreamOptions
+            {
+                BatchSize = 123,
+                Collation = new Collation("en-us"),
+                FullDocument = ChangeStreamFullDocumentOption.UpdateLookup,
+                MaxAwaitTime = TimeSpan.FromSeconds(123),
+                ResumeAfter = new BsonDocument(),
+                StartAtOperationTime = new BsonTimestamp(1, 2)
+            };
+            var cancellationToken = new CancellationTokenSource().Token;
+            var renderedPipeline = new[] { BsonDocument.Parse("{ $limit : 1 }") };
+
+            if (usingSession)
+            {
+                if (async)
+                {
+                    _subject.WatchAsync(session, pipeline, options, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    _subject.Watch(session, pipeline, options, cancellationToken);
+                }
+            }
+            else
+            {
+                if (async)
+                {
+                    _subject.WatchAsync(pipeline, options, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    _subject.Watch(pipeline, options, cancellationToken);
+                }
+            }
+
+            var call = _operationExecutor.GetReadCall<IAsyncCursor<ChangeStreamDocument<BsonDocument>>>();
+            if (usingSession)
+            {
+                call.SessionId.Should().BeSameAs(session.ServerSession.Id);
+            }
+            else
+            {
+                call.UsedImplicitSession.Should().BeTrue();
+            }
+            call.CancellationToken.Should().Be(cancellationToken);
+
+            var changeStreamOperation = call.Operation.Should().BeOfType<ChangeStreamOperation<ChangeStreamDocument<BsonDocument>>>().Subject;
+            changeStreamOperation.BatchSize.Should().Be(options.BatchSize);
+            changeStreamOperation.Collation.Should().BeSameAs(options.Collation);
+            changeStreamOperation.CollectionNamespace.Should().BeNull();
+            changeStreamOperation.DatabaseNamespace.Should().Be(_subject.DatabaseNamespace);
+            changeStreamOperation.FullDocument.Should().Be(options.FullDocument);
+            changeStreamOperation.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
+            changeStreamOperation.MessageEncoderSettings.Should().NotBeNull();
+            changeStreamOperation.Pipeline.Should().Equal(renderedPipeline);
+            changeStreamOperation.ReadConcern.Should().Be(_subject.Settings.ReadConcern);
+            changeStreamOperation.ResultSerializer.Should().BeOfType<ChangeStreamDocumentSerializer<BsonDocument>>();
+            changeStreamOperation.ResumeAfter.Should().Be(options.ResumeAfter);
+            changeStreamOperation.StartAtOperationTime.Should().Be(options.StartAtOperationTime);
+        }
+
         [Fact]
         public void WithReadConcern_should_return_expected_result()
         {
@@ -1012,7 +1081,7 @@ namespace MongoDB.Driver
                 new DatabaseNamespace("foo"),
                 settings,
                 new Mock<ICluster>().Object,
-                _operationExecutor);
+                operationExecutor ?? _operationExecutor);
         }
 
         private static void VerifySessionAndCancellationToken<TDocument>(MockOperationExecutor.ReadCall<TDocument> call, IClientSessionHandle session, CancellationToken cancellationToken)

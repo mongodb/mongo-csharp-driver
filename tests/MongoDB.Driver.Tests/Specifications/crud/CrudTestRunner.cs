@@ -14,58 +14,20 @@
 */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using MongoDB.Bson;
-using Xunit;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
-using System.Collections;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.Misc;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Specifications.crud
 {
-    public class TestRunner
+    public class CrudTestRunner
     {
-        private static Dictionary<string, Func<ICrudOperationTest>> _tests;
-        private static bool __oneTimeSetupHasRun = false;
-        private static object __oneTimeSetupLock = new object();
-
-        public TestRunner()
-        {
-            lock (__oneTimeSetupLock)
-            {
-                __oneTimeSetupHasRun = __oneTimeSetupHasRun || OneTimeSetup();
-            }
-        }
-
-        public bool OneTimeSetup()
-        {
-            _tests = new Dictionary<string, Func<ICrudOperationTest>>
-            {
-                { "aggregate", () => new AggregateTest() },
-                { "bulkWrite", () => new BulkWriteTest() },
-                { "count", () => new CountTest() },
-                { "deleteMany", () => new DeleteManyTest() },
-                { "deleteOne", () => new DeleteOneTest() },
-                { "distinct", () => new DistinctTest() },
-                { "find", () => new FindTest() },
-                { "findOneAndDelete", () => new FindOneAndDeleteTest() },
-                { "findOneAndReplace", () => new FindOneAndReplaceTest() },
-                { "findOneAndUpdate", () => new FindOneAndUpdateTest() },
-                { "insertMany", () => new InsertManyTest() },
-                { "insertOne", () => new InsertOneTest() },
-                { "replaceOne", () => new ReplaceOneTest() },
-                { "updateOne", () => new UpdateOneTest() },
-                { "updateMany", () => new UpdateManyTest() }
-            };
-
-            return true;
-        }
-
         [SkippableTheory]
         [ClassData(typeof(TestCaseFactory))]
         public void RunTestDefinition(BsonDocument definition, BsonDocument test, bool async)
@@ -96,14 +58,9 @@ namespace MongoDB.Driver.Tests.Specifications.crud
         private void ExecuteOperation(IMongoDatabase database, IMongoCollection<BsonDocument> collection, BsonDocument operation, BsonDocument outcome, bool async)
         {
             var name = (string)operation["name"];
-            Func<ICrudOperationTest> factory;
-            if (!_tests.TryGetValue(name, out factory))
-            {
-                throw new NotImplementedException("The operation " + name + " has not been implemented.");
-            }
+            var test = CrudOperationTestFactory.CreateTest(name);
 
             var arguments = (BsonDocument)operation.GetValue("arguments", new BsonDocument());
-            var test = factory();
             string reason;
             if (!test.CanExecute(DriverTestConfiguration.Client.Cluster.Description, arguments, out reason))
             {
