@@ -460,10 +460,7 @@ namespace MongoDB.Driver.Core.Operations
 
                         case "ns":
                             var ns = reader.ReadString();
-                            var separatorIndex = ns.IndexOf('.');
-                            var databaseName = ns.Substring(0, separatorIndex);
-                            var collectionName = ns.Substring(separatorIndex + 1);
-                            result.CollectionNamespace = new CollectionNamespace(new DatabaseNamespace(databaseName), collectionName);
+                            result.CollectionNamespace = CollectionNamespace.FromFullName(ns);
                             break;
 
                         case "firstBatch":
