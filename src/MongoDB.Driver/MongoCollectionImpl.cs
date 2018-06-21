@@ -213,11 +213,13 @@ namespace MongoDB.Driver
             }
         }
 
+        [Obsolete("Use CountDocuments or EstimatedDocumentCount instead.")]
         public override long Count(FilterDefinition<TDocument> filter, CountOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             return UsingImplicitSession(session => Count(session, filter, options, cancellationToken), cancellationToken);
         }
 
+        [Obsolete("Use CountDocuments or EstimatedDocumentCount instead.")]
         public override long Count(IClientSessionHandle session, FilterDefinition<TDocument> filter, CountOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(session, nameof(session));
@@ -228,11 +230,13 @@ namespace MongoDB.Driver
             return ExecuteReadOperation(session, operation, cancellationToken);
         }
 
+        [Obsolete("Use CountDocumentsAsync or EstimatedDocumentCountAsync instead.")]
         public override Task<long> CountAsync(FilterDefinition<TDocument> filter, CountOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             return UsingImplicitSessionAsync(session => CountAsync(session, filter, options, cancellationToken), cancellationToken);
         }
 
+        [Obsolete("Use CountDocumentsAsync or EstimatedDocumentCountAsync instead.")]
         public override Task<long> CountAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, CountOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(session, nameof(session));
@@ -240,6 +244,36 @@ namespace MongoDB.Driver
             options = options ?? new CountOptions();
 
             var operation = CreateCountOperation(filter, options);
+            return ExecuteReadOperationAsync(session, operation, cancellationToken);
+        }
+
+        public override long CountDocuments(FilterDefinition<TDocument> filter, CountOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return UsingImplicitSession(session => CountDocuments(session, filter, options, cancellationToken), cancellationToken);
+        }
+
+        public override long CountDocuments(IClientSessionHandle session, FilterDefinition<TDocument> filter, CountOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(filter, nameof(filter));
+            options = options ?? new CountOptions();
+
+            var operation = CreateCountDocumentsOperation(filter, options);
+            return ExecuteReadOperation(session, operation, cancellationToken);
+        }
+
+        public override Task<long> CountDocumentsAsync(FilterDefinition<TDocument> filter, CountOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return UsingImplicitSessionAsync(session => CountDocumentsAsync(session, filter, options, cancellationToken), cancellationToken);
+        }
+
+        public override Task<long> CountDocumentsAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, CountOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(filter, nameof(filter));
+            options = options ?? new CountOptions();
+
+            var operation = CreateCountDocumentsOperation(filter, options);
             return ExecuteReadOperationAsync(session, operation, cancellationToken);
         }
 
@@ -273,6 +307,24 @@ namespace MongoDB.Driver
 
             var operation = CreateDistinctOperation(field, filter, options);
             return ExecuteReadOperationAsync(session, operation, cancellationToken);
+        }
+
+        public override long EstimatedDocumentCount(EstimatedDocumentCountOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return UsingImplicitSession(session =>
+            {
+                var operation = CreateEstimatedDocumentCountOperation(options);
+                return ExecuteReadOperation(session, operation, cancellationToken);
+            });
+        }
+
+        public override Task<long> EstimatedDocumentCountAsync(EstimatedDocumentCountOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return UsingImplicitSessionAsync(session =>
+            {
+                var operation = CreateEstimatedDocumentCountOperation(options);
+                return ExecuteReadOperationAsync(session, operation, cancellationToken);
+            });
         }
 
         public override IAsyncCursor<TProjection> FindSync<TProjection>(FilterDefinition<TDocument> filter, FindOptions<TDocument, TProjection> options, CancellationToken cancellationToken = default(CancellationToken))
@@ -714,6 +766,20 @@ namespace MongoDB.Driver
             return ChangeStreamHelper.CreateChangeStreamOperation(this, pipeline, _documentSerializer, options, _settings.ReadConcern, _messageEncoderSettings);
         }
 
+        private CountDocumentsOperation CreateCountDocumentsOperation(FilterDefinition<TDocument> filter, CountOptions options)
+        {
+            return new CountDocumentsOperation(_collectionNamespace, _messageEncoderSettings)
+            {
+                Collation = options.Collation,
+                Filter = filter.Render(_documentSerializer, _settings.SerializerRegistry),
+                Hint = options.Hint,
+                Limit = options.Limit,
+                MaxTime = options.MaxTime,
+                ReadConcern = _settings.ReadConcern,
+                Skip = options.Skip
+            };
+        }
+
         private CountOperation CreateCountOperation(FilterDefinition<TDocument> filter, CountOptions options)
         {
             return new CountOperation(_collectionNamespace, _messageEncoderSettings)
@@ -743,6 +809,14 @@ namespace MongoDB.Driver
                 Filter = filter.Render(_documentSerializer, _settings.SerializerRegistry),
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern
+            };
+        }
+
+        private CountOperation CreateEstimatedDocumentCountOperation(EstimatedDocumentCountOptions options)
+        {
+            return new CountOperation(_collectionNamespace, _messageEncoderSettings)
+            {
+                MaxTime = options?.MaxTime
             };
         }
 

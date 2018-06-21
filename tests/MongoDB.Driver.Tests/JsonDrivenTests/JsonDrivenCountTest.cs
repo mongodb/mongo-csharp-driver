@@ -53,11 +53,15 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         {
             if (_session == null)
             {
+#pragma warning disable 618
                 _result = _collection.Count(_filter, _options, cancellationToken);
+#pragma warning restore
             }
             else
             {
+#pragma warning disable 618
                 _result = _collection.Count(_session, _filter, _options, cancellationToken);
+#pragma warning restore
             }
         }
 
@@ -65,11 +69,15 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         {
             if (_session == null)
             {
+#pragma warning disable 618
                 _result = await _collection.CountAsync(_filter, _options, cancellationToken).ConfigureAwait(false);
+#pragma warning restore
             }
             else
             {
+#pragma warning disable 618
                 _result = await _collection.CountAsync(_session, _filter, _options, cancellationToken).ConfigureAwait(false);
+#pragma warning restore
             }
         }
 

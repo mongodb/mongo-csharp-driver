@@ -110,6 +110,7 @@
     <Compile Include="DeleteOptions.cs" />
     <Compile Include="CreateManyIndexesOptions.cs" />
     <Compile Include="DropIndexOptions.cs" />
+    <Compile Include="EstimatedDocumentCountOptions.cs" />
     <Compile Include="FieldValueSerializerHelper.cs" />
     <Compile Include="FilteredMongoCollectionBase.cs" />
     <Compile Include="IClientSession.cs" />

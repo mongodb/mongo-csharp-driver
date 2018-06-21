@@ -26,6 +26,7 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver;
+using MongoDB.Driver.Core.Bindings;
 using Moq;
 using Xunit;
 
@@ -327,6 +328,7 @@ namespace MongoDB.Driver.Tests
 
             if (async)
             {
+#pragma warning disable 618
                 subject.CountAsync(_providedFilter, options, CancellationToken.None);
 
                 _mockDerivedCollection.Verify(
@@ -335,9 +337,11 @@ namespace MongoDB.Driver.Tests
                         options,
                         CancellationToken.None),
                     Times.Once);
+#pragma warning restore
             }
             else
             {
+#pragma warning disable 618
                 subject.Count(_providedFilter, options, CancellationToken.None);
 
                 _mockDerivedCollection.Verify(
@@ -346,6 +350,71 @@ namespace MongoDB.Driver.Tests
                         options,
                         CancellationToken.None),
                     Times.Once);
+#pragma warning restore
+            }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CountDocuments_should_include_the_filter(
+            [Values(false, true)] bool usingSession,
+            [Values(false, true)] bool async)
+        {
+            var subject = CreateSubject();
+            var session = CreateSession(usingSession);
+            var options = new CountOptions();
+
+            if (async)
+            {
+                if (usingSession)
+                {
+                    subject.CountDocumentsAsync(session, _providedFilter, options, CancellationToken.None);
+
+                    _mockDerivedCollection.Verify(
+                        c => c.CountDocumentsAsync(
+                            session,
+                            It.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
+                            options,
+                            CancellationToken.None),
+                        Times.Once);
+                }
+                else
+                {
+                    subject.CountDocumentsAsync(_providedFilter, options, CancellationToken.None);
+
+                    _mockDerivedCollection.Verify(
+                        c => c.CountDocumentsAsync(
+                            It.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
+                            options,
+                            CancellationToken.None),
+                        Times.Once);
+                }
+            }
+            else
+            {
+                if (usingSession)
+                {
+                    subject.CountDocuments(session, _providedFilter, options, CancellationToken.None);
+
+                    _mockDerivedCollection.Verify(
+                        c => c.CountDocuments(
+                            session,
+                            It.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
+                            options,
+                            CancellationToken.None),
+                        Times.Once);
+                }
+                else
+                {
+                    subject.CountDocuments(_providedFilter, options, CancellationToken.None);
+
+                    _mockDerivedCollection.Verify(
+                        c => c.CountDocuments(
+                            It.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
+                            options,
+                            CancellationToken.None),
+                        Times.Once);
+                }
             }
         }
 
@@ -381,6 +450,30 @@ namespace MongoDB.Driver.Tests
                         CancellationToken.None),
                     Times.Once);
             }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void EstimatedDocumentCount_should_throw(
+            [Values(false, true)] bool async)
+        {
+            var subject = CreateSubject();
+            var cancellationToken = new CancellationTokenSource().Token;
+            
+            var exception = Record.Exception(() =>
+            {
+                if (async)
+                {
+                    subject.EstimatedDocumentCountAsync(null, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    subject.EstimatedDocumentCount(null, cancellationToken);
+                }
+
+            });
+
+            exception.Should().BeOfType<NotSupportedException>();
         }
 
         [Theory]
@@ -598,6 +691,25 @@ namespace MongoDB.Driver.Tests
             _mockDerivedCollection.Verify(c => c.OfType<C>(), Times.Never);
         }
 
+        // private methods
+        private IClientSessionHandle CreateSession(bool usingSession)
+        {
+            if (usingSession)
+            {
+                var client = Mock.Of<IMongoClient>();
+                var options = new ClientSessionOptions();
+                var coreSession = Mock.Of<ICoreSession>();
+                var coreServerSession = Mock.Of<ICoreServerSession>();
+                Mock.Get(coreSession).SetupGet(m => m.ServerSession).Returns(coreServerSession);
+                var coreSessionHandle = new CoreSessionHandle(coreSession);
+                return new ClientSessionHandle(client, options, coreSessionHandle);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         private OfTypeMongoCollection<A, B> CreateSubject()
         {
             return new OfTypeMongoCollection<A, B>(_rootCollection, _derivedCollection, _ofTypeFilter);
@@ -682,13 +794,17 @@ namespace MongoDB.Driver.Tests
             long result1, result2;
             if (async)
             {
+#pragma warning disable 618
                 result1 = subject.CountAsync("{}").GetAwaiter().GetResult();
                 result2 = subject.OfType<C>().CountAsync("{}").GetAwaiter().GetResult();
+#pragma warning restore
             }
             else
             {
+#pragma warning disable 618
                 result1 = subject.Count("{}");
                 result2 = subject.OfType<C>().Count("{}");
+#pragma warning restore
             }
 
             result1.Should().Be(6);
@@ -705,11 +821,15 @@ namespace MongoDB.Driver.Tests
             long result;
             if (async)
             {
+#pragma warning disable 618
                 result = subject.CountAsync(x => x.PropB > 2).GetAwaiter().GetResult();
+#pragma warning restore
             }
             else
             {
+#pragma warning disable 618
                 result = subject.Count(x => x.PropB > 2);
+#pragma warning restore
             }
 
             result.Should().Be(4);

@@ -135,6 +135,7 @@
     <Compile Include="Core\Operations\ChangeStreamCursor.cs" />
     <Compile Include="Core\Operations\ChangeStreamOperation.cs" />
     <Compile Include="Core\Clusters\ClusterClock.cs" />
+    <Compile Include="Core\Operations\CountDocumentsOperation.cs" />
     <Compile Include="Core\Operations\CreateViewOperation.cs" />
     <Compile Include="Core\Clusters\IClusterClock.cs" />
     <Compile Include="Core\Operations\DelayedEvaluationWriteConcernSerializer.cs" />

@@ -74,49 +74,162 @@ namespace MongoDB.Driver.Tests
         [Theory]
         [ParameterAttributeData]
         public void Count_should_call_collection_Count(
+            [Values(false, true)] bool usingSession,
             [Values(false, true)] bool async)
         {
-            var findOptions = new FindOptions<Person, Person>
+            var session = CreateSession(usingSession);
+            var filter = new BsonDocumentFilterDefinition<Person>(new BsonDocument("filter", 1));
+            var hint = new BsonDocument("hint", 1);
+            var findOptions = new FindOptions<Person>
             {
-                Collation = new Collation("en_US"),
+                Collation = new Collation("en-us"),
                 Limit = 1,
-                MaxTime = TimeSpan.FromSeconds(1),
-                Modifiers = new BsonDocument("$hint", "hint"),
-                Skip = 2
+                MaxTime = TimeSpan.FromSeconds(2),
+                Modifiers = new BsonDocument("$hint", hint),
+                Skip = 3
             };
-            var subject = CreateSubject(options: findOptions);
+            var subject = CreateSubject(session: session, filter: filter, options: findOptions);
+            var cancellationToken = new CancellationTokenSource().Token;
 
-            Predicate<CountOptions> countOptionsPredicate = countOptions =>
-            {
-                return
-                    countOptions.Collation == findOptions.Collation &&
-                    countOptions.Hint == findOptions.Modifiers["$hint"].AsString &&
-                    countOptions.Limit == findOptions.Limit &&
-                    countOptions.MaxTime == findOptions.MaxTime &&
-                    countOptions.Skip == findOptions.Skip;
-            };
+            Predicate<CountOptions> matchesExpectedOptions = countOptions =>
+                countOptions.Collation.Equals(findOptions.Collation) &&
+                countOptions.Hint.Equals(hint) &&
+                countOptions.Limit.Equals((long?)findOptions.Limit) &&
+                countOptions.MaxTime.Equals(findOptions.MaxTime) &&
+                countOptions.Skip.Equals((long?)findOptions.Skip);
 
             if (async)
             {
-                subject.CountAsync().GetAwaiter().GetResult();
-
-                _mockCollection.Verify(
-                    c => c.CountAsync(
-                        subject.Filter,
-                        It.Is<CountOptions>(o => countOptionsPredicate(o)),
-                        It.IsAny<CancellationToken>()),
-                    Times.Once);
+                if (usingSession)
+                {
+#pragma warning disable 618
+                    subject.CountAsync(cancellationToken).GetAwaiter().GetResult();
+                    _mockCollection.Verify(
+                        m => m.CountAsync(
+                            session,
+                            filter,
+                            It.Is<CountOptions>(o => matchesExpectedOptions(o)),
+                            cancellationToken),
+                        Times.Once);
+#pragma warning restore
+                }
+                else
+                {
+#pragma warning disable 618
+                    subject.CountAsync(cancellationToken).GetAwaiter().GetResult();
+                    _mockCollection.Verify(
+                        m => m.CountAsync(
+                            filter,
+                            It.Is<CountOptions>(o => matchesExpectedOptions(o)),
+                            cancellationToken),
+                        Times.Once);
+                }
+#pragma warning restore
             }
             else
             {
-                subject.Count();
+                if (usingSession)
+                {
+#pragma warning disable 618
+                    subject.Count(cancellationToken);
+                    _mockCollection.Verify(
+                        m => m.Count(
+                            session,
+                            filter,
+                            It.Is<CountOptions>(o => matchesExpectedOptions(o)),
+                            cancellationToken),
+                        Times.Once);
+#pragma warning restore
+                }
+                else
+                {
+#pragma warning disable 618
+                    subject.Count(cancellationToken);
+                    _mockCollection.Verify(
+                        m => m.Count(
+                            filter,
+                            It.Is<CountOptions>(o => matchesExpectedOptions(o)),
+                            cancellationToken),
+                        Times.Once);
+#pragma warning restore
+                }
+            }
+        }
 
-                _mockCollection.Verify(
-                    c => c.Count(
-                        subject.Filter,
-                        It.Is<CountOptions>(o => countOptionsPredicate(o)),
-                        It.IsAny<CancellationToken>()),
-                    Times.Once);
+        [Theory]
+        [ParameterAttributeData]
+        public void CountDocuments_should_call_collection_CountDocuments(
+            [Values(false, true)] bool usingSession,
+            [Values(false, true)] bool async)
+        {
+            var session = CreateSession(usingSession);
+            var filter = new BsonDocumentFilterDefinition<Person>(new BsonDocument("filter", 1));
+            var hint = new BsonDocument("hint", 1);
+            var findOptions = new FindOptions<Person>
+            {
+                Collation = new Collation("en-us"),
+                Limit = 1,
+                MaxTime = TimeSpan.FromSeconds(2),
+                Modifiers = new BsonDocument("$hint", hint),
+                Skip = 3
+            };
+            var subject = CreateSubject(session: session, filter: filter, options: findOptions);
+            var cancellationToken = new CancellationTokenSource().Token;
+
+            Predicate<CountOptions> matchesExpectedOptions = countOptions =>
+                countOptions.Collation.Equals(findOptions.Collation) &&
+                countOptions.Hint.Equals(hint) &&
+                countOptions.Limit.Equals((long?)findOptions.Limit) &&
+                countOptions.MaxTime.Equals(findOptions.MaxTime) &&
+                countOptions.Skip.Equals((long?)findOptions.Skip);
+
+            if (async)
+            {
+                if (usingSession)
+                {
+                    subject.CountDocumentsAsync(cancellationToken).GetAwaiter().GetResult();
+                    _mockCollection.Verify(
+                        m => m.CountDocumentsAsync(
+                            session,
+                            filter,
+                            It.Is<CountOptions>(o => matchesExpectedOptions(o)),
+                            cancellationToken),
+                        Times.Once);
+                }
+                else
+                {
+                    subject.CountDocumentsAsync(cancellationToken).GetAwaiter().GetResult();
+                    _mockCollection.Verify(
+                        m => m.CountDocumentsAsync(
+                            filter,
+                            It.Is<CountOptions>(o => matchesExpectedOptions(o)),
+                            cancellationToken),
+                        Times.Once);
+                }
+            }
+            else
+            {
+                if (usingSession)
+                {
+                    subject.CountDocuments(cancellationToken);
+                    _mockCollection.Verify(
+                        m => m.CountDocuments(
+                            session,
+                            filter,
+                            It.Is<CountOptions>(o => matchesExpectedOptions(o)),
+                            cancellationToken),
+                        Times.Once);
+                }
+                else
+                {
+                    subject.CountDocuments(cancellationToken);
+                    _mockCollection.Verify(
+                        m => m.CountDocuments(
+                            filter,
+                            It.Is<CountOptions>(o => matchesExpectedOptions(o)),
+                            cancellationToken),
+                        Times.Once);
+                }
             }
         }
 
@@ -215,6 +328,12 @@ namespace MongoDB.Driver.Tests
                 "._addSpecial(\"$comment\", \"awesome\")" +
                 "._addSpecial(\"$explain\", true)" +
                 "._addSpecial(\"$hint\", \"ix_1\")");
+        }
+
+        // private methods
+        private IClientSessionHandle CreateSession(bool usingSession)
+        {
+            return usingSession ? Mock.Of<IClientSessionHandle>() : null;
         }
 
         private IFindFluent<Person, Person> CreateSubject(IClientSessionHandle session = null, FilterDefinition<Person> filter = null, FindOptions<Person, Person> options = null)

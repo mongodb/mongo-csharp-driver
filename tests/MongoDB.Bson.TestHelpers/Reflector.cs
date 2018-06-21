@@ -35,19 +35,33 @@ namespace MongoDB.Bson.TestHelpers
 
         public static object Invoke(object obj, string name, BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance)
         {
-            var methodInfo = obj.GetType().GetMethods(flags)
-                .Where(m => m.Name == name && m.GetParameters().Length == 0)
-                .Single();
-            return methodInfo.Invoke(obj, new object[] { });
+            try
+            {
+                var methodInfo = obj.GetType().GetMethods(flags)
+                    .Where(m => m.Name == name && m.GetParameters().Length == 0)
+                    .Single();
+                return methodInfo.Invoke(obj, new object[] { });
+            }
+            catch (TargetInvocationException exception)
+            {
+                throw exception.InnerException;
+            }
         }
 
         public static object Invoke<T1>(object obj, string name, T1 arg1)
         {
-            var parameterTypes = new[] { typeof(T1) };
-            var methodInfo = obj.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(m => m.Name == name && m.GetParameters().Select(p => p.ParameterType).SequenceEqual(parameterTypes))
-                .Single();
-            return methodInfo.Invoke(obj, new object[] { arg1 });
+            try
+            {
+                var parameterTypes = new[] { typeof(T1) };
+                var methodInfo = obj.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                    .Where(m => m.Name == name && m.GetParameters().Select(p => p.ParameterType).SequenceEqual(parameterTypes))
+                    .Single();
+                return methodInfo.Invoke(obj, new object[] { arg1 });
+            }
+            catch (TargetInvocationException exception)
+            {
+                throw exception.InnerException;
+            }
         }
 
         public static void SetFieldValue(object obj, string name, object value, BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance)

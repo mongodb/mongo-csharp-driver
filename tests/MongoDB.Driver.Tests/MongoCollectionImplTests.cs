@@ -424,22 +424,30 @@ namespace MongoDB.Driver
             {
                 if (async)
                 {
+#pragma warning disable 618
                     subject.CountAsync(session, filter, options, cancellationToken).GetAwaiter().GetResult();
+#pragma warning restore
                 }
                 else
                 {
+#pragma warning disable 618
                     subject.Count(session, filter, options, cancellationToken);
+#pragma warning restore
                 }
             }
             else
             {
                 if (async)
                 {
+#pragma warning disable 618
                     subject.CountAsync(filter, options, cancellationToken).GetAwaiter().GetResult();
+#pragma warning restore
                 }
                 else
                 {
+#pragma warning disable 618
                     subject.Count(filter, options, cancellationToken);
+#pragma warning restore
                 }
             }
 
@@ -447,6 +455,62 @@ namespace MongoDB.Driver
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
             var operation = call.Operation.Should().BeOfType<CountOperation>().Subject;
+            operation.Collation.Should().BeSameAs(options.Collation);
+            operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
+            operation.Filter.Should().Be(filter);
+            operation.Hint.Should().Be(options.Hint);
+            operation.Limit.Should().Be(options.Limit);
+            operation.MaxTime.Should().Be(options.MaxTime);
+            operation.ReadConcern.Should().Be(_readConcern);
+            operation.Skip.Should().Be(options.Skip);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CountDocuments_should_execute_a_CountDocumentsOperation(
+            [Values(false, true)] bool usingSession,
+            [Values(false, true)] bool async)
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var session = CreateSession(usingSession);
+            var filter = new BsonDocument("x", 1);
+            var options = new CountOptions
+            {
+                Collation = new Collation("en_US"),
+                Hint = "funny",
+                Limit = 10,
+                MaxTime = TimeSpan.FromSeconds(20),
+                Skip = 30
+            };
+            var cancellationToken = new CancellationTokenSource().Token;
+
+            if (usingSession)
+            {
+                if (async)
+                {
+                    subject.CountDocumentsAsync(session, filter, options, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    subject.CountDocuments(session, filter, options, cancellationToken);
+                }
+            }
+            else
+            {
+                if (async)
+                {
+                    subject.CountDocumentsAsync(filter, options, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    subject.CountDocuments(filter, options, cancellationToken);
+                }
+            }
+
+            var call = _operationExecutor.GetReadCall<long>();
+            VerifySessionAndCancellationToken(call, session, cancellationToken);
+
+            var operation = call.Operation.Should().BeOfType<CountDocumentsOperation>().Subject;
             operation.Collation.Should().BeSameAs(options.Collation);
             operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
             operation.Filter.Should().Be(filter);
@@ -844,6 +908,41 @@ namespace MongoDB.Driver
 
             var stringSerializer = BsonSerializer.SerializerRegistry.GetSerializer<string>();
             operation.ValueSerializer.Should().BeSameAs(stringSerializer);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void EstimatedDocumentCount_should_execute_a_CountOperation(
+            [Values(false, true)] bool async)
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var options = new EstimatedDocumentCountOptions
+            {
+                MaxTime = TimeSpan.FromSeconds(20)
+            };
+            var cancellationToken = new CancellationTokenSource().Token;
+
+            if (async)
+            {
+                subject.EstimatedDocumentCountAsync(options, cancellationToken).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.EstimatedDocumentCount(options, cancellationToken);
+            }
+
+            var call = _operationExecutor.GetReadCall<long>();
+            VerifySessionAndCancellationToken(call, null, cancellationToken);
+
+            var operation = call.Operation.Should().BeOfType<CountOperation>().Subject;
+            operation.Collation.Should().BeNull();
+            operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
+            operation.Filter.Should().BeNull();
+            operation.Hint.Should().BeNull();
+            operation.Limit.Should().NotHaveValue();
+            operation.MaxTime.Should().Be(options.MaxTime);
+            operation.ReadConcern.Should().Be(ReadConcern.Default);
+            operation.Skip.Should().NotHaveValue();
         }
 
         [Theory]

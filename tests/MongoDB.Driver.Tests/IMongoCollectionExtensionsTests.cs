@@ -85,26 +85,75 @@ namespace MongoDB.Driver.Tests
             {
                 if (async)
                 {
+#pragma warning disable 618
                     IMongoCollectionExtensions.CountAsync(collection, session, filterExpression, options, cancellationToken);
                     mockCollection.Verify(s => s.CountAsync(session, It.IsAny<ExpressionFilterDefinition<Person>>(), options, cancellationToken), Times.Once);
+#pragma warning restore
                 }
                 else
                 {
+#pragma warning disable 618
                     IMongoCollectionExtensions.Count(collection, session, filterExpression, options, cancellationToken);
                     mockCollection.Verify(s => s.Count(session, It.IsAny<ExpressionFilterDefinition<Person>>(), options, cancellationToken), Times.Once);
+#pragma warning restore
                 }
             }
             else
             {
                 if (async)
                 {
+#pragma warning disable 618
                     IMongoCollectionExtensions.CountAsync(collection, filterExpression, options, cancellationToken);
                     mockCollection.Verify(s => s.CountAsync(It.IsAny<ExpressionFilterDefinition<Person>>(), options, cancellationToken), Times.Once);
+#pragma warning restore
                 }
                 else
                 {
+#pragma warning disable 618
                     IMongoCollectionExtensions.Count(collection, filterExpression, options, cancellationToken);
                     mockCollection.Verify(s => s.Count(It.IsAny<ExpressionFilterDefinition<Person>>(), options, cancellationToken), Times.Once);
+#pragma warning restore
+                }
+            }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CountDocuments_should_call_collection_with_expected_arguments(
+            [Values(false, true)] bool usingSession,
+            [Values(false, true)] bool async)
+        {
+            var mockCollection = CreateMockCollection();
+            var collection = mockCollection.Object;
+            var session = new Mock<IClientSessionHandle>().Object;
+            var filterExpression = (Expression<Func<Person, bool>>)(x => x.FirstName == "Jack");
+            var options = new CountOptions();
+            var cancellationToken = new CancellationTokenSource().Token;
+
+            if (usingSession)
+            {
+                if (async)
+                {
+                    IMongoCollectionExtensions.CountDocumentsAsync(collection, session, filterExpression, options, cancellationToken);
+                    mockCollection.Verify(s => s.CountDocumentsAsync(session, It.IsAny<ExpressionFilterDefinition<Person>>(), options, cancellationToken), Times.Once);
+                }
+                else
+                {
+                    IMongoCollectionExtensions.CountDocuments(collection, session, filterExpression, options, cancellationToken);
+                    mockCollection.Verify(s => s.CountDocuments(session, It.IsAny<ExpressionFilterDefinition<Person>>(), options, cancellationToken), Times.Once);
+                }
+            }
+            else
+            {
+                if (async)
+                {
+                    IMongoCollectionExtensions.CountDocumentsAsync(collection, filterExpression, options, cancellationToken);
+                    mockCollection.Verify(s => s.CountDocumentsAsync(It.IsAny<ExpressionFilterDefinition<Person>>(), options, cancellationToken), Times.Once);
+                }
+                else
+                {
+                    IMongoCollectionExtensions.CountDocuments(collection, filterExpression, options, cancellationToken);
+                    mockCollection.Verify(s => s.CountDocuments(It.IsAny<ExpressionFilterDefinition<Person>>(), options, cancellationToken), Times.Once);
                 }
             }
         }

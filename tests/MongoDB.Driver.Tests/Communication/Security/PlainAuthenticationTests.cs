@@ -44,10 +44,12 @@ namespace MongoDB.Driver.Tests.Communication.Security
 
             Assert.Throws<MongoCommandException>(() =>
             {
+#pragma warning disable 618
                 client
                     .GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName)
                     .GetCollection<BsonDocument>(__collectionName)
                     .Count(new BsonDocument());
+#pragma warning restore
             });
         }
 

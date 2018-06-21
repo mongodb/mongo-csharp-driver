@@ -59,16 +59,58 @@ namespace MongoDB.Driver
             return Project(projection);
         }
 
+        [Obsolete("Use CountDocuments instead.")]
         public override long Count(CancellationToken cancellationToken)
         {
             var options = CreateCountOptions();
-            return _collection.Count(_filter, options, cancellationToken);
+            if (_session == null)
+            {
+                return _collection.Count(_filter, options, cancellationToken);
+            }
+            else
+            {
+                return _collection.Count(_session, _filter, options, cancellationToken);
+            }
         }
 
+        [Obsolete("Use CountDocumentsAsync instead.")]
         public override Task<long> CountAsync(CancellationToken cancellationToken)
         {
             var options = CreateCountOptions();
-            return _collection.CountAsync(_filter, options, cancellationToken);
+            if (_session == null)
+            {
+                return _collection.CountAsync(_filter, options, cancellationToken);
+            }
+            else
+            {
+                return _collection.CountAsync(_session, _filter, options, cancellationToken);
+            }
+        }
+
+        public override long CountDocuments(CancellationToken cancellationToken)
+        {
+            var options = CreateCountOptions();
+            if (_session == null)
+            {
+                return _collection.CountDocuments(_filter, options, cancellationToken);
+            }
+            else
+            {
+                return _collection.CountDocuments(_session, _filter, options, cancellationToken);
+            }
+        }
+
+        public override Task<long> CountDocumentsAsync(CancellationToken cancellationToken)
+        {
+            var options = CreateCountOptions();
+            if (_session == null)
+            {
+                return _collection.CountDocumentsAsync(_filter, options, cancellationToken);
+            }
+            else
+            {
+                return _collection.CountDocumentsAsync(_session, _filter, options, cancellationToken);
+            }
         }
 
         public override IFindFluent<TDocument, TProjection> Limit(int? limit)
@@ -205,15 +247,10 @@ namespace MongoDB.Driver
         // private methods
         private CountOptions CreateCountOptions()
         {
-            BsonValue hint = null;
-            if (_options.Modifiers != null)
-            {
-                _options.Modifiers.TryGetValue("$hint", out hint);
-            }
             return new CountOptions
             {
                 Collation = _options.Collation,
-                Hint = hint,
+                Hint = _options.Modifiers?.GetValue("$hint", null),
                 Limit = _options.Limit,
                 MaxTime = _options.MaxTime,
                 Skip = _options.Skip

@@ -29,11 +29,15 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
         {
             if (async)
             {
+#pragma warning disable 618
                 collection.CountAsync(_filter, _options).GetAwaiter().GetResult();
+#pragma warning restore
             }
             else
             {
+#pragma warning disable 618
                 collection.Count(_filter, _options);
+#pragma warning restore
             }
         }
 
