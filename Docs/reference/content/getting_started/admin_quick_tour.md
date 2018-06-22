@@ -176,12 +176,12 @@ collection.InsertMany(new []
 
 // find them using the text index
 var filter = Builders<BsonDocument>.Filter.Text("textual content -irrelevant");
-var matchCount = collection.Count(filter);
+var matchCount = collection.CountDocuments(filter);
 Console.WriteLine("Text search matches: {0}", matchCount);
 
 // find them using the text index with the $language operator
 var englishFilter = Builders<BsonDocument>.Filter.Text("textual content -irrelevant", "english");
-var matchCount = collection.Count(filter);
+var matchCount = collection.CountDocuments(filter);
 Console.WriteLine("Text search matches (english): {0}", matchCount);
 
 // find the highest scoring match
@@ -200,12 +200,12 @@ await collection.InsertManyAsync(new []
 
 // find them using the text index
 var filter = Builders<BsonDocument>.Filter.Text("textual content -irrelevant");
-var matchCount = await collection.CountAsync(filter);
+var matchCount = await collection.CountDocumentsAsync(filter);
 Console.WriteLine("Text search matches: {0}", matchCount);
 
 // find them using the text index with the $language operator
 var englishFilter = Builders<BsonDocument>.Filter.Text("textual content -irrelevant", "english");
-var matchCount = await collection.CountAsync(filter);
+var matchCount = await collection.CountDocumentsAsync(filter);
 Console.WriteLine("Text search matches (english): {0}", matchCount);
 
 // find the highest scoring match

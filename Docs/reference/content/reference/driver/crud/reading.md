@@ -10,30 +10,30 @@ title = "Reading"
 
 ## Counting Documents
 
-The [`Count`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_Count" >}}) and [`CountAsync`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_CountAsync" >}}) methods can be used to count all the documents matching a particular filter.
+The [`CountDocuments`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_CountDocuments" >}}) and [`CountDocumentsAsync`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_CountDocumentsAsync" >}}) methods can be used to count all the documents matching a particular filter.
 
 ```csharp
-var count = collection.Count(new BsonDocument("x", 10));
+var count = collection.CountDocuments(new BsonDocument("x", 10));
 
 // or
 
-var count = collection.Count(x => x.Age > 20);
+var count = collection.CountDocuments(x => x.Age > 20);
 ```
 ```csharp
-var count = await collection.CountAsync(new BsonDocument("x", 10));
+var count = await collection.CountDocumentsAsync(new BsonDocument("x", 10));
 
 // or
 
-var count = await collection.CountAsync(x => x.Age > 20);
+var count = await collection.CountDocumentsAsync(x => x.Age > 20);
 ```
 
 Counting all the documents in a collection requires an empty filter:
 
 ```csharp
-var count = collection.Count(new BsonDocument());
+var count = collection.CountDocuments(new BsonDocument());
 ```
 ```csharp
-var count = await collection.CountAsync(new BsonDocument());
+var count = await collection.CountDocumentsAsync(new BsonDocument());
 ```
 
 

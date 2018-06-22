@@ -14,10 +14,10 @@ title = "Reading and Writing"
 All the create, read, update, and delete (CRUD) operations take a similar form and are defined on the [`IMongoCollection<TDocument>`]({{< apiref "T_MongoDB_Driver_IMongoCollection_1" >}}) interface. All the required fields take the form of a positional parameter and, if any options exists, they are passed in as an instance of an options class. All methods are available in both synchronous and asynchronous versions. For example, the following method signatures exists:
 
 ```csharp
-long Count(FilterDefinition<TDocument> filter, CountOptions options = null);
+long CountDocuments(FilterDefinition<TDocument> filter, CountOptions options = null);
 ```
 ```csharp
-Task<long> CountAsync(FilterDefinition<TDocument> filter, CountOptions options = null);
+Task<long> CountDocumentsAsync(FilterDefinition<TDocument> filter, CountOptions options = null);
 ```
 
 As described, the `filter` is required and the `options` can be omitted.

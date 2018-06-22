@@ -129,16 +129,16 @@ await collection.InsertManyAsync(documents);
 
 ## Counting Documents
 
-Now that we’ve inserted 101 documents (the 100 we did in the loop, plus the first one), we can check to see if we have them all using the [`Count`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_Count" >}}) or [`CountAsync`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_CountAsync" >}}) methods. The following code should set the value of count to 101.
+Now that we’ve inserted 101 documents (the 100 we did in the loop, plus the first one), we can check to see if we have them all using the [`CountDocuments`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_CountDocuments" >}}) or [`CountDocumentsAsync`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_CountDocumentsAsync" >}}) methods. The following code should set the value of count to 101.
 
 ```csharp
-var count = collection.Count(new BsonDocument());
+var count = collection.CountDocuments(new BsonDocument());
 ```
 ```csharp
-var count = await collection.CountAsync(new BsonDocument());
+var count = await collection.CountDocumentsAsync(new BsonDocument());
 ```
 
-{{% note %}}The empty [`BsonDocument`]({{< apiref "T_MongoDB_Bson_BsonDocument" >}}) parameter to the [`CountAsync`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_CountAsync" >}}) method is a filter. In this case, it is an empty filter indicating to count all the documents.{{% /note %}}
+{{% note %}}The empty [`BsonDocument`]({{< apiref "T_MongoDB_Bson_BsonDocument" >}}) parameter to the [`CountDocumentsAsync`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_CountDocumentsAsync" >}}) method is a filter. In this case, it is an empty filter indicating to count all the documents.{{% /note %}}
 
 ## Query the Collection
 
