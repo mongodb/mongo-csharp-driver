@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Core.Operations
 
         public static async Task<TResult> ExecuteAsync<TResult>(IRetryableWriteOperation<TResult> operation, RetryableWriteContext context, CancellationToken cancellationToken)
         {
-            if (!context.RetryRequested || !AreRetryableWritesSupported(context.Channel.ConnectionDescription))
+            if (!context.RetryRequested || !AreRetryableWritesSupported(context.Channel.ConnectionDescription) || context.Binding.Session.IsInTransaction)
             {
                 return await operation.ExecuteAttemptAsync(context, 1, null, cancellationToken).ConfigureAwait(false);
             }
