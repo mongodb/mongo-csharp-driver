@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
             //}
 
             JsonDrivenHelper.EnsureAllFieldsAreValid(shared, "_path", "database_name", "collection_name", "data", "tests");
-            JsonDrivenHelper.EnsureAllFieldsAreValid(test, "description", "clientOptions", "failPoint", "sessionOptions", "operations", "expectations", "outcome");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(test, "description", "clientOptions", "failPoint", "sessionOptions", "operations", "expectations", "outcome", "async");
 
             _databaseName = shared["database_name"].AsString;
             _collectionName = shared["collection_name"].AsString;
@@ -281,7 +281,14 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
                 var jsonDrivenTest = factory.CreateTest(receiver, name);
 
                 jsonDrivenTest.Arrange(operation);
-                jsonDrivenTest.Act(CancellationToken.None);
+                if (test["async"].AsBoolean)
+                {
+                    jsonDrivenTest.ActAsync(CancellationToken.None).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    jsonDrivenTest.Act(CancellationToken.None);
+                }
                 jsonDrivenTest.Assert();
             }
         }
@@ -412,6 +419,20 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
 #else
                     return "MongoDB.Driver.Tests.Dotnet.Specifications.transactions.tests.";
 #endif
+                }
+            }
+
+            // protected methods
+            protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)
+            {
+                foreach (var testCase in base.CreateTestCases(document))
+                {
+                    foreach (var async in new[] { false, true })
+                    {
+                        var name = $"{testCase.Name}:async={async}";
+                        var test = testCase.Test.DeepClone().AsBsonDocument.Add("async", async);
+                        yield return new JsonDrivenTestCase(name, testCase.Shared, test);
+                    }
                 }
             }
 

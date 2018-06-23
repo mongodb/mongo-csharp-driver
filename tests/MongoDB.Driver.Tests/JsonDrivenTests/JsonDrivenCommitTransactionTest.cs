@@ -15,6 +15,7 @@
 
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 
@@ -43,6 +44,11 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         protected override void CallMethod(CancellationToken cancellationToken)
         {
             _session.CommitTransaction(cancellationToken);
+        }
+
+        protected override Task CallMethodAsync(CancellationToken cancellationToken)
+        {
+            return _session.CommitTransactionAsync(cancellationToken);
         }
     }
 }
