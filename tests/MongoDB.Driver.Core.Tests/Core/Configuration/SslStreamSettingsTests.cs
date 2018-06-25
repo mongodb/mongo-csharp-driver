@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Core.Configuration
         {
             var subject = new SslStreamSettings();
 
-            subject.CheckCertificateRevocation.Should().BeTrue();
+            subject.CheckCertificateRevocation.Should().BeFalse();
             subject.ClientCertificates.Should().BeEmpty();
             subject.ClientCertificateSelectionCallback.Should().BeNull();
             subject.EnabledSslProtocols.Should().Be(SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls);

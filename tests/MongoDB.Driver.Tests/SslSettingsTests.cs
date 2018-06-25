@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Tests
         public void TestCheckCertificateRevocation()
         {
             var settings = new SslSettings();
-            Assert.Equal(true, settings.CheckCertificateRevocation);
+            Assert.Equal(false, settings.CheckCertificateRevocation);
 
             var checkCertificateRevocation = !settings.CheckCertificateRevocation;
             settings.CheckCertificateRevocation = checkCertificateRevocation;
@@ -115,7 +115,7 @@ namespace MongoDB.Driver.Tests
         public void TestDefaults()
         {
             var settings = new SslSettings();
-            Assert.Equal(true, settings.CheckCertificateRevocation);
+            Assert.Equal(false, settings.CheckCertificateRevocation);
             Assert.Equal(null, settings.ClientCertificates);
             Assert.Equal(null, settings.ClientCertificateSelectionCallback);
             Assert.Equal(SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls, settings.EnabledSslProtocols);
