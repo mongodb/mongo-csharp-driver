@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
         private void Run(BsonDocument shared, BsonDocument test)
         {
             JsonDrivenHelper.EnsureAllFieldsAreValid(shared, "_path", "database_name", "database2_name", "collection_name", "collection2_name", "tests");
-            JsonDrivenHelper.EnsureAllFieldsAreValid(test, "description", "minServerVersion", "topology", "target", "changeStreamPipeline", "changeStreamOptions", "operations", "expectations", "result");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(test, "description", "minServerVersion", "topology", "target", "changeStreamPipeline", "changeStreamOptions", "operations", "expectations", "result", "async");
 
             if (test.Contains("minServerVersion"))
             {
@@ -81,12 +81,13 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
             {
                 try
                 {
-                    using (var cursor = Watch(client, test))
+                    var async = test["async"].AsBoolean;
+                    using (var cursor = Watch(client, test, async))
                     {
                         var globalClient = DriverTestConfiguration.Client;
                         ExecuteOperations(globalClient, test["operations"].AsBsonArray);
 
-                        actualResult = ReadChangeStreamDocuments(cursor, test);
+                        actualResult = ReadChangeStreamDocuments(cursor, test, async);
                         actualEvents = GetEvents(eventCapturer);
                     }
                 }
@@ -173,7 +174,7 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
             });
         }
 
-        private IAsyncCursor<ChangeStreamDocument<BsonDocument>> Watch(IMongoClient client, BsonDocument test)
+        private IAsyncCursor<ChangeStreamDocument<BsonDocument>> Watch(IMongoClient client, BsonDocument test, bool async)
         {
             var target = test["target"].AsString;
             var stages = test["changeStreamPipeline"].AsBsonArray.Cast<BsonDocument>();
@@ -182,19 +183,40 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
 
             if (target == "client")
             {
-                return client.Watch(pipeline, options);
+                if (async)
+                {
+                    return client.WatchAsync(pipeline, options).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    return client.Watch(pipeline, options);
+                }
             }
 
             var database = client.GetDatabase(_databaseName);
             if (target == "database")
             {
-                return database.Watch(pipeline, options);
+                if (async)
+                {
+                    return database.WatchAsync(pipeline, options).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    return database.Watch(pipeline, options);
+                }
             }
 
             var collection = database.GetCollection<BsonDocument>(_collectionName);
             if (target == "collection")
             {
-                return collection.Watch(pipeline, options);
+                if (async)
+                {
+                    return collection.WatchAsync(pipeline, options).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    return collection.Watch(pipeline, options);
+                }
             }
 
             throw new FormatException($"Invalid target: \"{target}\".");
@@ -237,12 +259,12 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
             return events;
         }
 
-        private List<ChangeStreamDocument<BsonDocument>> ReadChangeStreamDocuments(IAsyncCursor<ChangeStreamDocument<BsonDocument>> cursor, BsonDocument test)
+        private List<ChangeStreamDocument<BsonDocument>> ReadChangeStreamDocuments(IAsyncCursor<ChangeStreamDocument<BsonDocument>> cursor, BsonDocument test, bool async)
         {
             var result = new List<ChangeStreamDocument<BsonDocument>>();
             var expectedNumberOfDocuments = test["result"]["success"].AsBsonArray.Count;
 
-            while (cursor.MoveNext())
+            while (async ? cursor.MoveNextAsync().GetAwaiter().GetResult() : cursor.MoveNext())
             {
                 result.AddRange(cursor.Current);
 
@@ -402,6 +424,20 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
 #else
                     return "MongoDB.Driver.Tests.Dotnet.Specifications.change_streams.tests.";
 #endif
+                }
+            }
+
+            // protected methods
+            protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)
+            {
+                foreach (var testCase in base.CreateTestCases(document))
+                {
+                    foreach (var async in new[] { false, true })
+                    {
+                        var name = $"{testCase.Name}:async={async}";
+                        var test = testCase.Test.DeepClone().AsBsonDocument.Add("async", async);
+                        yield return new JsonDrivenTestCase(name, testCase.Shared, test);
+                    }
                 }
             }
 
