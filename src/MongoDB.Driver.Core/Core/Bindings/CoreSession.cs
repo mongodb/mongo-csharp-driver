@@ -57,7 +57,12 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         // public properties
-        /// <inheritdoc />
+        /// <summary>
+        /// Gets the cluster.
+        /// </summary>
+        /// <value>
+        /// The cluster.
+        /// </value>
         public ICluster Cluster => _cluster;
 
         /// <inheritdoc />

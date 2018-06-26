@@ -142,13 +142,27 @@ namespace MongoDB.Driver.Core.Authentication.Vendored
             return _name == null ? 0 : _name.GetHashCode();
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Implements the operator ==.
+        /// </summary>
+        /// <param name="left">The left operand.</param>
+        /// <param name="right">The right operand.</param>
+        /// <returns>
+        /// The result of the == operator.
+        /// </returns>
         public static bool operator ==(HashAlgorithmName left, HashAlgorithmName right)
         {
             return left.Equals(right);
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Implements the operator !=.
+        /// </summary>
+        /// <param name="left">The left operand.</param>
+        /// <param name="right">The right operand.</param>
+        /// <returns>
+        /// The result of the != operator.
+        /// </returns>
         public static bool operator !=(HashAlgorithmName left, HashAlgorithmName right)
         {
             return !(left == right);

@@ -578,7 +578,7 @@ namespace MongoDB.Driver
         /// Gets a MongoClientSettings object intialized with values from a connection string.
         /// </summary>
         /// <param name="connectionString">The connection string.</param>
-        /// <returns></returns>
+        /// <returns>A MongoClientSettings.</returns>
         public static MongoClientSettings FromConnectionString(string connectionString)
         {
             return FromUrl(new MongoUrl(connectionString));

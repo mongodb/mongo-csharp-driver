@@ -239,6 +239,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     /// <summary>
     /// Represents a Type 1 CommandMessage section.
     /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
+    /// <seealso cref="MongoDB.Driver.Core.WireProtocol.Messages.CommandMessageSection" />
     public class Type1CommandMessageSection<TDocument> : Type1CommandMessageSection where TDocument : class
     {
         // private fields

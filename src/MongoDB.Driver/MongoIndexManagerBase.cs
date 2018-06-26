@@ -93,10 +93,10 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         public virtual async Task<string> CreateOneAsync(
             CreateIndexModel<TDocument> model,
-            CreateOneIndexOptions createOneIndexOptions = null,
+            CreateOneIndexOptions options = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-             var createManyIndexOptions = ToCreateManyIndexesOptions(createOneIndexOptions);
+             var createManyIndexOptions = ToCreateManyIndexesOptions(options);
              var result = await CreateManyAsync(new[] { model }, createManyIndexOptions, cancellationToken).ConfigureAwait(false);
              return result.Single();
         }
