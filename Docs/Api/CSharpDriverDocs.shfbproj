@@ -53,7 +53,7 @@
       <NamespaceSummaryItem name="MongoDB.Driver.GeoJsonObjectModel.Serializers" isDocumented="True">GeoJson object model serializers.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="MongoDB.Driver.Core.Authentication" isDocumented="True">The MongoDB.Driver.Core.Authentication namespace contains classes related to authentication.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="MongoDB.Driver.Core.Authentication.Sspi" isDocumented="False" />
-      <NamespaceSummaryItem name="MongoDB.Driver.Core.Authentication.Vendored" isDocumented="True">The MongoDB.Driver.Core.Authentication.Vendored contains types and classes vendored in to support authentication.</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="MongoDB.Driver.Core.Authentication.Vendored" isDocumented="True">The MongoDB.Driver.Core.Authentication.Vendored namespace contains types and classes vendored in to support authentication.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="MongoDB.Driver.Core.Bindings" isDocumented="True">The MongoDB.Driver.Core.Bindings namespace contains classes related to bindings.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="MongoDB.Driver.Core.Clusters" isDocumented="True">The MongoDB.Driver.Core.Clusters namespace contains classes related to clusters.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="MongoDB.Driver.Core.Clusters.ServerSelectors" isDocumented="True">The MongoDB.Driver.Core.Clusters.ServerSelectors namespace contains classes related to server selectors.</NamespaceSummaryItem>
