@@ -198,6 +198,21 @@ namespace MongoDB.Driver
         /// <summary>
         /// Counts the number of documents in the collection.
         /// </summary>
+        /// <remarks>
+        /// Note: when migrating from Count to CountDocuments the following query operations must be replaced:
+        /// 
+        /// <code>
+        /// +-------------+--------------------------------+
+        /// | Operator    | Replacement                    |
+        /// +=============+================================+
+        /// | $where      |  $expr                         |
+        /// +-------------+--------------------------------+
+        /// | $near       |  $geoWithin with $center       |
+        /// +-------------+--------------------------------+
+        /// | $nearSphere |  $geoWithin with $centerSphere |
+        /// +-------------+--------------------------------+
+        /// </code>
+        /// </remarks>
         /// <param name="filter">The filter.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
@@ -209,6 +224,21 @@ namespace MongoDB.Driver
         /// <summary>
         /// Counts the number of documents in the collection.
         /// </summary>
+        /// <remarks>
+        /// Note: when migrating from Count to CountDocuments the following query operations must be replaced:
+        /// 
+        /// <code>
+        /// +-------------+--------------------------------+
+        /// | Operator    | Replacement                    |
+        /// +=============+================================+
+        /// | $where      |  $expr                         |
+        /// +-------------+--------------------------------+
+        /// | $near       |  $geoWithin with $center       |
+        /// +-------------+--------------------------------+
+        /// | $nearSphere |  $geoWithin with $centerSphere |
+        /// +-------------+--------------------------------+
+        /// </code>
+        /// </remarks>
         /// <param name="session">The session.</param>
         /// <param name="filter">The filter.</param>
         /// <param name="options">The options.</param>
@@ -221,6 +251,21 @@ namespace MongoDB.Driver
         /// <summary>
         /// Counts the number of documents in the collection.
         /// </summary>
+        /// <remarks>
+        /// Note: when migrating from CountAsync to CountDocumentsAsync the following query operations must be replaced:
+        /// 
+        /// <code>
+        /// +-------------+--------------------------------+
+        /// | Operator    | Replacement                    |
+        /// +=============+================================+
+        /// | $where      |  $expr                         |
+        /// +-------------+--------------------------------+
+        /// | $near       |  $geoWithin with $center       |
+        /// +-------------+--------------------------------+
+        /// | $nearSphere |  $geoWithin with $centerSphere |
+        /// +-------------+--------------------------------+
+        /// </code>
+        /// </remarks>
         /// <param name="filter">The filter.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
@@ -232,6 +277,21 @@ namespace MongoDB.Driver
         /// <summary>
         /// Counts the number of documents in the collection.
         /// </summary>
+        /// <remarks>
+        /// Note: when migrating from CountAsync to CountDocumentsAsync the following query operations must be replaced:
+        /// 
+        /// <code>
+        /// +-------------+--------------------------------+
+        /// | Operator    | Replacement                    |
+        /// +=============+================================+
+        /// | $where      |  $expr                         |
+        /// +-------------+--------------------------------+
+        /// | $near       |  $geoWithin with $center       |
+        /// +-------------+--------------------------------+
+        /// | $nearSphere |  $geoWithin with $centerSphere |
+        /// +-------------+--------------------------------+
+        /// </code>
+        /// </remarks>
         /// <param name="session">The session.</param>
         /// <param name="filter">The filter.</param>
         /// <param name="options">The options.</param>

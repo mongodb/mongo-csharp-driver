@@ -68,6 +68,21 @@ namespace MongoDB.Driver
         /// <summary>
         /// Counts the number of documents.
         /// </summary>
+        /// <remarks>
+        /// Note: when migrating from Count to CountDocuments the following query operations must be replaced:
+        /// 
+        /// <code>
+        /// +-------------+--------------------------------+
+        /// | Operator    | Replacement                    |
+        /// +=============+================================+
+        /// | $where      |  $expr                         |
+        /// +-------------+--------------------------------+
+        /// | $near       |  $geoWithin with $center       |
+        /// +-------------+--------------------------------+
+        /// | $nearSphere |  $geoWithin with $centerSphere |
+        /// +-------------+--------------------------------+
+        /// </code>
+        /// </remarks>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The count.</returns>
         long CountDocuments(CancellationToken cancellationToken = default(CancellationToken));
@@ -75,6 +90,21 @@ namespace MongoDB.Driver
         /// <summary>
         /// Counts the number of documents.
         /// </summary>
+        /// <remarks>
+        /// Note: when migrating from CountAsync to CountDocumentsAsync the following query operations must be replaced:
+        /// 
+        /// <code>
+        /// +-------------+--------------------------------+
+        /// | Operator    | Replacement                    |
+        /// +=============+================================+
+        /// | $where      |  $expr                         |
+        /// +-------------+--------------------------------+
+        /// | $near       |  $geoWithin with $center       |
+        /// +-------------+--------------------------------+
+        /// | $nearSphere |  $geoWithin with $centerSphere |
+        /// +-------------+--------------------------------+
+        /// </code>
+        /// </remarks>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result is the count.</returns>
         Task<long> CountDocumentsAsync(CancellationToken cancellationToken = default(CancellationToken));
