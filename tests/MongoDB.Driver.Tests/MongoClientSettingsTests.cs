@@ -75,7 +75,9 @@ namespace MongoDB.Driver.Tests
             var settings = MongoClientSettings.FromUrl(url);
 
             // a few settings can only be made in code
+#pragma warning disable 618
             settings.Credential = MongoCredential.CreateMongoCRCredential("database", "username", "password").WithMechanismProperty("SERVICE_NAME", "other");
+#pragma warning restore 618
             settings.SslSettings = new SslSettings { CheckCertificateRevocation = false };
 
             var clone = settings.Clone();
@@ -176,11 +178,15 @@ namespace MongoDB.Driver.Tests
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
+#pragma warning disable 618
             clone.Credential = MongoCredential.CreateMongoCRCredential("db2", "user2", "password2");
+#pragma warning restore 618
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
+#pragma warning disable 618
             clone.Credential = MongoCredential.CreateMongoCRCredential("db", "user2", "password2");
+#pragma warning restore 618
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
@@ -771,7 +777,9 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void ToClusterKey_should_copy_relevant_values()
         {
+#pragma warning disable 618
             var credential = MongoCredential.CreateMongoCRCredential("source", "username", "password");
+#pragma warning restore 618
             var servers = new[] { new MongoServerAddress("localhost") };
             var sslSettings = new SslSettings
             {

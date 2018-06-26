@@ -137,9 +137,11 @@ namespace MongoDB.Driver.Core.Authentication
             }
              // If saslSupportedMechs is not present in the isMaster results for mechanism negotiation, then SCRAM-SHA-1
              // MUST be used when talking to servers >= 3.0. Prior to server 3.0, MONGODB-CR MUST be used.
+#pragma warning disable 618
             return Feature.ScramSha1Authentication.IsSupported(description.ServerVersion)
                     ? (IAuthenticator) new ScramSha1Authenticator(_credential, _randomStringGenerator)
                     : new MongoDBCRAuthenticator(_credential);
+#pragma warning restore 618
         }
     }
 }

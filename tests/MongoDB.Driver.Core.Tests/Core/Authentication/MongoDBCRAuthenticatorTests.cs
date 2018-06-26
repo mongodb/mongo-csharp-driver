@@ -43,7 +43,9 @@ namespace MongoDB.Driver.Core.Authentication
         [Fact]
         public void Constructor_should_throw_an_ArgumentNullException_when_credential_is_null()
         {
+#pragma warning disable 618
             Action act = () => new MongoDBCRAuthenticator(null);
+#pragma warning restore 618
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -54,7 +56,9 @@ namespace MongoDB.Driver.Core.Authentication
             [Values(false, true)]
             bool async)
         {
+#pragma warning disable 618
             var subject = new MongoDBCRAuthenticator(__credential);
+#pragma warning restore 618
 
             var reply = MessageHelper.BuildNoDocumentsReturnedReply<RawBsonDocument>();
             var connection = new MockConnection(__serverId);
@@ -79,7 +83,9 @@ namespace MongoDB.Driver.Core.Authentication
             [Values(false, true)]
             bool async)
         {
+#pragma warning disable 618
             var subject = new MongoDBCRAuthenticator(__credential);
+#pragma warning restore 618
 
             var getNonceReply = MessageHelper.BuildReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{nonce: \"2375531c32080ae8\", ok: 1}"));

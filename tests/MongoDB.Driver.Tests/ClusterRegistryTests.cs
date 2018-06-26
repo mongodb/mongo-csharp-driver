@@ -43,7 +43,9 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void GetOrCreateCluster_should_return_a_cluster_with_the_correct_settings()
         {
+#pragma warning disable 618
             var credential = MongoCredential.CreateMongoCRCredential("source", "username", "password");
+#pragma warning restore 618
             var servers = new[] { new MongoServerAddress("localhost"), new MongoServerAddress("127.0.0.1", 30000), new MongoServerAddress("[::1]", 27018) };
 
             var sslSettings = new SslSettings

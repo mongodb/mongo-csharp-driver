@@ -106,7 +106,8 @@ namespace MongoDB.Driver
         /// Computes the MONGODB-CR password digest.
         /// </summary>
         /// <param name="username">The username.</param>
-        /// <returns></returns>
+        /// <returns>The MONGODB-CR password digest.</returns>
+        [Obsolete("MONGODB-CR was replaced by SCRAM-SHA-1 in MongoDB 3.0, and is now deprecated.")]
         internal string ComputeMongoCRPasswordDigest(string username)
         {
             using (var md5 = MD5.Create())

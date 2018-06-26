@@ -231,6 +231,7 @@ namespace MongoDB.Driver
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
         /// <returns>A credential for MONGODB-CR.</returns>
+        [Obsolete("MONGODB-CR was replaced by SCRAM-SHA-1 in MongoDB 3.0, and is now deprecated.")]
         public static MongoCredential CreateMongoCRCredential(string databaseName, string username, string password)
         {
             return FromComponents("MONGODB-CR",
@@ -246,6 +247,7 @@ namespace MongoDB.Driver
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
         /// <returns>A credential for MONGODB-CR.</returns>
+        [Obsolete("MONGODB-CR was replaced by SCRAM-SHA-1 in MongoDB 3.0, and is now deprecated.")]
         public static MongoCredential CreateMongoCRCredential(string databaseName, string username, SecureString password)
         {
             return FromComponents("MONGODB-CR",
@@ -255,7 +257,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates a credential used with MONGODB-CR.
+        /// Creates a credential used with MONGODB-X509.
         /// </summary>
         /// <param name="username">The username.</param>
         /// <returns>A credential for MONGODB-X509.</returns>
@@ -396,9 +398,11 @@ namespace MongoDB.Driver
                 {
                     return new DefaultAuthenticator(credential);
                 }
+#pragma warning disable 618
                 else if (_mechanism == MongoDBCRAuthenticator.MechanismName)
                 {
                     return new MongoDBCRAuthenticator(credential);
+#pragma warning restore 618
                 }
                 else if (_mechanism == ScramSha1Authenticator.MechanismName)
                 {

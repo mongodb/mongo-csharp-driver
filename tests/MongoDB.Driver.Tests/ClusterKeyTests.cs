@@ -72,7 +72,9 @@ namespace MongoDB.Driver.Tests
             var applicationName = "app1";
             var connectionMode = ConnectionMode.Direct;
             var connectTimeout = TimeSpan.FromSeconds(1);
+#pragma warning disable 618
             var credential = MongoCredential.CreateMongoCRCredential("source", "username", "password");
+#pragma warning restore 618
             var guidRepresentation = GuidRepresentation.Standard;
             var heartbeatInterval = TimeSpan.FromSeconds(7);
             var heartbeatTimeout = TimeSpan.FromSeconds(8);
@@ -101,7 +103,9 @@ namespace MongoDB.Driver.Tests
                 case "ApplicationName": applicationName = "app2"; break;
                 case "ConnectionMode": connectionMode = ConnectionMode.ReplicaSet; break;
                 case "ConnectTimeout": connectTimeout = TimeSpan.FromSeconds(99); break;
+#pragma warning disable 618
                 case "Credentials": credential = MongoCredential.CreateMongoCRCredential("different", "different", "different"); break;
+#pragma warning restore 618
                 case "HeartbeatInterval": heartbeatInterval = TimeSpan.FromSeconds(99); break;
                 case "HeartbeatTimeout": heartbeatTimeout = TimeSpan.FromSeconds(99); break;
                 case "IPv6": ipv6 = !ipv6; break;

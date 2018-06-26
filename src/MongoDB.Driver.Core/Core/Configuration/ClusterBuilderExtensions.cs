@@ -192,9 +192,11 @@ namespace MongoDB.Driver.Core.Configuration
                 {
                     return new DefaultAuthenticator(credential);
                 }
+#pragma warning disable 618
                 else if (connectionString.AuthMechanism == MongoDBCRAuthenticator.MechanismName)
                 {
                     return new MongoDBCRAuthenticator(credential);
+#pragma warning restore 618
                 }
                 else if (connectionString.AuthMechanism == ScramSha1Authenticator.MechanismName)
                 {

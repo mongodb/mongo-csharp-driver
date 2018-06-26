@@ -91,7 +91,9 @@ namespace MongoDB.Driver.Core.Configuration
         [Fact]
         public void constructor_with_authenticators_should_initialize_instance()
         {
+#pragma warning disable 618
             var authenticators = new[] { new MongoDBCRAuthenticator(new UsernamePasswordCredential("source", "username", "password")) };
+#pragma warning restore 618
 
             var subject = new ConnectionSettings(authenticators: authenticators);
 
@@ -145,8 +147,10 @@ namespace MongoDB.Driver.Core.Configuration
         [Fact]
         public void With_authenticators_should_return_expected_result()
         {
+#pragma warning disable 618
             var oldAuthenticators = new[] { new MongoDBCRAuthenticator(new UsernamePasswordCredential("source", "username1", "password1")) };
             var newAuthenticators = new[] { new MongoDBCRAuthenticator(new UsernamePasswordCredential("source", "username2", "password2")) };
+#pragma warning restore 618
             var subject = new ConnectionSettings(authenticators: oldAuthenticators);
 
             var result = subject.With(authenticators: newAuthenticators);
