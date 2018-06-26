@@ -73,6 +73,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryPrimer.cs" />
     <Compile Include="RemovePrimer.cs" />
+    <Compile Include="TransactionExamplesForDocs\IntroExample1.cs" />
+    <Compile Include="TransactionExamplesForDocs\RetryExample1.cs" />
+    <Compile Include="TransactionExamplesForDocs\RetryExample2.cs" />
+    <Compile Include="TransactionExamplesForDocs\RetryExample3.cs" />
     <Compile Include="UpdatePrimer.cs" />
   </ItemGroup>
   <ItemGroup>
