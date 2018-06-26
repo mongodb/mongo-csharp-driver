@@ -264,11 +264,22 @@ namespace MongoDB.Driver.Core.Operations
                 throw new ArgumentException("The binding value passed to ChangeStreamOperation.Execute must implement IReadBindingHandle.", nameof(binding));
             }
 
-            var cursor = Resume(bindingHandle, cancellationToken);
-            if (_startAtOperationTime == null && _resumeAfter == null)
+            IAsyncCursor<RawBsonDocument> cursor;
+            using (var channelSource = binding.GetReadChannelSource(cancellationToken))
+            using (var channel = channelSource.GetChannel(cancellationToken))
+            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
             {
-                _startAtOperationTime = binding.Session.OperationTime;
+                cursor = Resume(channelBinding, cancellationToken);
+                if (_startAtOperationTime == null && _resumeAfter == null)
+                {
+                    var maxWireVersion = channel.ConnectionDescription.IsMasterResult.MaxWireVersion;
+                    if (maxWireVersion >= 7)
+                    {
+                        _startAtOperationTime = binding.Session.OperationTime;
+                    }
+                }
             }
+
             return new ChangeStreamCursor<TResult>(cursor, _resultSerializer, bindingHandle.Fork(), this);
         }
 
@@ -281,11 +292,22 @@ namespace MongoDB.Driver.Core.Operations
                 throw new ArgumentException("The binding value passed to ChangeStreamOperation.ExecuteAsync must implement IReadBindingHandle.", nameof(binding));
             }
 
-            var cursor = await ResumeAsync(bindingHandle, cancellationToken).ConfigureAwait(false);
-            if (_startAtOperationTime == null && _resumeAfter == null)
+            IAsyncCursor<RawBsonDocument> cursor;
+            using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
             {
-                _startAtOperationTime = binding.Session.OperationTime;
+                cursor = await ResumeAsync(channelBinding, cancellationToken).ConfigureAwait(false);
+                if (_startAtOperationTime == null && _resumeAfter == null)
+                {
+                    var maxWireVersion = channel.ConnectionDescription.IsMasterResult.MaxWireVersion;
+                    if (maxWireVersion >= 7)
+                    {
+                        _startAtOperationTime = binding.Session.OperationTime;
+                    }
+                }
             }
+
             return new ChangeStreamCursor<TResult>(cursor, _resultSerializer, bindingHandle.Fork(), this);
         }
 
