@@ -8,6 +8,15 @@ title = "What's New"
   pre = "<i class='fa fa-star'></i>"
 +++
 
+## What's New in 2.7.0
+
+The major new feature in 2.7.0 is support for new server 4.0 features including:
+
+* Transactions
+* ReadConcern Snapshot
+* Change streams support extended to include all changes for an entire database or cluster
+* SCRAM-SHA-256 authentication
+
 ## What's New in 2.6.0
 
 The 2.6.0 driver improves support for running with FIPS mode enabled in the operating system.
