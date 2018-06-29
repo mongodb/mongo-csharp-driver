@@ -154,6 +154,10 @@ namespace MongoDB.Driver
         // public static methods
         /// <summary>
         /// Creates a default credential.
+        /// In .NET Standard, authenticating via SCRAM-SHA-256 may not work with non-ASCII passwords because SaslPrep is
+        /// not fully implemented due to the lack of a string normalization function in .NET Standard 1.5.
+        /// Normalizing the password into Unicode Normalization Form KC beforehand MAY help.
+        /// SCRAM-SHA-1 is the recommended alternative for now.
         /// </summary>
         /// <param name="databaseName">Name of the database.</param>
         /// <param name="username">The username.</param>
@@ -169,6 +173,12 @@ namespace MongoDB.Driver
 
         /// <summary>
         /// Creates a default credential.
+        /// Less secure when used in conjunction with SCRAM-SHA-256, due to the need to store the password in a managed
+        /// string in order to SaslPrep it.
+        /// In .NET Standard, authenticating via SCRAM-SHA-256 may not work with non-ASCII passwords because SaslPrep is
+        /// not fully implemented due to the lack of a string normalization function in .NET Standard 1.5.
+        /// Normalizing the password into Unicode Normalization Form KC beforehand MAY help.
+        /// SCRAM-SHA-1 is the recommended alternative for now.
         /// </summary>
         /// <param name="databaseName">Name of the database.</param>
         /// <param name="username">The username.</param>
