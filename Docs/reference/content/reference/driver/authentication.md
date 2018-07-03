@@ -1,5 +1,5 @@
 +++
-date = "2015-03-17T15:36:56Z"
+date = "2018-07-02T16:49:42Z"
 draft = false
 title = "Authentication"
 [menu.main]
@@ -18,7 +18,7 @@ Authentication credentials are created by the application as instances of [`Mong
 
 ### Default
 
-MongoDB 3.0 changed the default authentication mechanism from [MONGODB-CR](http://docs.mongodb.org/manual/core/authentication/#mongodb-cr-authentication) to [SCRAM-SHA-1](http://docs.mongodb.org/manual/core/authentication/#scram-sha-1-authentication). To create a credential that will authenticate properly regardless of server version, create a credential using the following static factory method.
+MongoDB 4.0 now uses [SCRAM](https://docs.mongodb.com/manual/core/security-scram/#authentication-scram) (Salted Challenge Response Authentication Mechanism) as the default mechanism and no longer supports [MONGODB-CR](http://docs.mongodb.org/manual/core/authentication/#mongodb-cr-authentication). To create a credential that will authenticate properly regardless of server version, create a credential using the following static factory method.
 
 ```csharp
 var credential = MongoCredential.CreateCredential(databaseName, username, password);
@@ -30,10 +30,25 @@ Or via the connection string:
 mongodb://username:password@myserver/databaseName
 ```
 
-This is the recommended approach as it will make upgrading from MongoDB 2.6 to MongoDB 3.0 seamless, even after [upgrading the authentication schema](http://docs.mongodb.org/manual/release-notes/3.0-scram/#upgrade-mongodb-cr-to-scram).
+These are the recommended approaches as it will make upgrading from MongoDB 2.6 to MongoDB 3.0 seamless, before and after [upgrading the authentication schema](http://docs.mongodb.org/manual/release-notes/3.0-scram/#upgrade-mongodb-cr-to-scram). For MongoDB 4.0, the above approaches will automatically determine which version of SCRAM should be used (SCRAM-SHA-1 or SCRAM-SHA-256).
 
 {{% note %}}The databaseName part of the connection string indicates which database the credentials are located in. See the [connection string section]({{< relref "connecting.md#connection-string" >}}) for more information on connection strings.{{% /note %}}
 
+### SCRAM
+
+When connecting to a MongoDB 4.0 server without specifying an authentication mechanism, the driver will negotiate with the server to determine whether SCRAM-SHA-1 or SCRAM-SHA-256 is the appropriate mechanism.
+
+#### SCRAM-SHA-256
+
+SCRAM-SHA-256 is the default authentication mechanism chosen as long as the user's authentication mechanism supports it. (See the [mechanism parameter of createUser()](https://docs.mongodb.com/manual/reference/method/db.createUser/#db.createUser) and the ["Supported Authentication Methods: Defaults" section of the Driver Authentication Specification](https://github.com/mongodb/specifications/blob/master/source/auth/auth.rst#defaults) for additional information.
+
+##### SecureStrings
+
+SecureStrings are slightly less secure when used in conjunction with SCRAM-SHA-256, due to the need to temporarily store the cleartext password in a managed memory string in order to SASLPrep it. This behavior is no different from other drivers in languages with managed memory. (SCRAM-SHA-1 is *not* affected.) 
+
+##### .NET Standard support
+
+In .NET Standard, authenticating via SCRAM-SHA-256 may not work with non-ASCII passwords because SASLPrep is not fully implemented due to the lack of a string normalization function in .NET Standard 1.5. Normalizing the password into Unicode Normalization Form KC beforehand MAY help. SCRAM-SHA-1 is the recommended alternative for now. See [RFC5802] (https://tools.ietf.org/html/rfc5802) and the [SCRAM-SHA-256 section of the Driver Authentication specification](https://github.com/mongodb/specifications/blob/master/source/auth/auth.rst#scram-sha-256) for additional information. 
 
 ### x.509 Authentication
 
