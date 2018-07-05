@@ -1500,6 +1500,35 @@
 
         
         
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.7/reference/driver/crud/sessions-and-transactions/">
+        <i class='fa'></i>
+        Sessions and Transactions
+    </a>
+  </li>
+
+
+        
+        
     </ul>
   </li>
 
@@ -2130,7 +2159,7 @@
 
 <h3 id="default">Default</h3>
 
-<p>MongoDB 3.0 changed the default authentication mechanism from <a href="http://docs.mongodb.org/manual/core/authentication/#mongodb-cr-authentication">MONGODB-CR</a> to <a href="http://docs.mongodb.org/manual/core/authentication/#scram-sha-1-authentication">SCRAM-SHA-1</a>. To create a credential that will authenticate properly regardless of server version, create a credential using the following static factory method.</p>
+<p>MongoDB 4.0 now uses <a href="https://docs.mongodb.com/manual/core/security-scram/#authentication-scram">SCRAM</a> (Salted Challenge Response Authentication Mechanism) as the default mechanism and no longer supports <a href="http://docs.mongodb.org/manual/core/authentication/#mongodb-cr-authentication">MONGODB-CR</a>. To create a credential that will authenticate properly regardless of server version, create a credential using the following static factory method.</p>
 
 <pre><code class="language-csharp">var credential = MongoCredential.CreateCredential(databaseName, username, password);
 </code></pre>
@@ -2140,13 +2169,29 @@
 <pre><code>mongodb://username:password@myserver/databaseName
 </code></pre>
 
-<p>This is the recommended approach as it will make upgrading from MongoDB 2.6 to MongoDB 3.0 seamless, even after <a href="http://docs.mongodb.org/manual/release-notes/3.0-scram/#upgrade-mongodb-cr-to-scram">upgrading the authentication schema</a>.</p>
+<p>These are the recommended approaches as it will make upgrading from MongoDB 2.6 to MongoDB 3.0 seamless, before and after <a href="http://docs.mongodb.org/manual/release-notes/3.0-scram/#upgrade-mongodb-cr-to-scram">upgrading the authentication schema</a>. For MongoDB 4.0, the above approaches will automatically determine which version of SCRAM should be used (SCRAM-SHA-1 or SCRAM-SHA-256).</p>
 
 <p><div class="admonition note">
 <h5 class="admonition-title">Note</h5>
 The databaseName part of the connection string indicates which database the credentials are located in. See the <a href="/mongo-csharp-driver/2.7/reference/driver/connecting/#connection-string">connection string section</a> for more information on connection strings.
 </div>
 </p>
+
+<h3 id="scram">SCRAM</h3>
+
+<p>When connecting to a MongoDB 4.0 server without specifying an authentication mechanism, the driver will negotiate with the server to determine whether SCRAM-SHA-1 or SCRAM-SHA-256 is the appropriate mechanism.</p>
+
+<h4 id="scram-sha-256">SCRAM-SHA-256</h4>
+
+<p>SCRAM-SHA-256 is the default authentication mechanism chosen as long as the user&rsquo;s authentication mechanism supports it. (See the <a href="https://docs.mongodb.com/manual/reference/method/db.createUser/#db.createUser">mechanism parameter of createUser()</a> and the <a href="https://github.com/mongodb/specifications/blob/master/source/auth/auth.rst#defaults">&ldquo;Supported Authentication Methods: Defaults&rdquo; section of the Driver Authentication Specification</a> for additional information.</p>
+
+<h5 id="securestrings">SecureStrings</h5>
+
+<p>SecureStrings are slightly less secure when used in conjunction with SCRAM-SHA-256, due to the need to temporarily store the cleartext password in a managed memory string in order to SASLPrep it. This behavior is no different from other drivers in languages with managed memory. (SCRAM-SHA-1 is <em>not</em> affected.)</p>
+
+<h5 id="net-standard-support">.NET Standard support</h5>
+
+<p>In .NET Standard, authenticating via SCRAM-SHA-256 may not work with non-ASCII passwords because SASLPrep is not fully implemented due to the lack of a string normalization function in .NET Standard 1.5. Normalizing the password into Unicode Normalization Form KC beforehand MAY help. SCRAM-SHA-1 is the recommended alternative for now. See <a href="https://tools.ietf.org/html/rfc5802">RFC5802</a> and the <a href="https://github.com/mongodb/specifications/blob/master/source/auth/auth.rst#scram-sha-256">SCRAM-SHA-256 section of the Driver Authentication specification</a> for additional information.</p>
 
 <h3 id="x-509-authentication">x.509 Authentication</h3>
 
@@ -2305,6 +2350,14 @@ Note that the method refers to the plain authentication mechanism instead of LDA
 <li><a href="#authentication">Authentication</a>
 <ul>
 <li><a href="#default">Default</a></li>
+<li><a href="#scram">SCRAM</a>
+<ul>
+<li><a href="#scram-sha-256">SCRAM-SHA-256</a>
+<ul>
+<li><a href="#securestrings">SecureStrings</a></li>
+<li><a href="#net-standard-support">.NET Standard support</a></li>
+</ul></li>
+</ul></li>
 <li><a href="#x-509-authentication">x.509 Authentication</a></li>
 <li><a href="#gssapi-kerberos">GSSAPI/Kerberos</a></li>
 <li><a href="#ldap-plain">LDAP (PLAIN)</a></li>

@@ -6,13 +6,191 @@
     <description>Recent content in References on MongoDB .NET Driver</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 23 Apr 2018 07:36:42 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 02 Jul 2018 16:49:42 +0000</lastBuildDate>
     <atom:link href="/mongo-csharp-driver/2.7/reference/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Authentication</title>
+      <link>/mongo-csharp-driver/2.7/reference/driver/authentication/</link>
+      <pubDate>Mon, 02 Jul 2018 16:49:42 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.7/reference/driver/authentication/</guid>
+      <description>
+
+&lt;h2 id=&#34;authentication&#34;&gt;Authentication&lt;/h2&gt;
+
+&lt;p&gt;The .NET driver supports all &lt;a href=&#34;http://docs.mongodb.org/manual/core/authentication/
+&#34;&gt;MongoDB authentication mechanisms&lt;/a&gt; including those in the &lt;a href=&#34;http://docs.mongodb.org/manual/administration/install-enterprise/
+&#34;&gt;Enterprise Edition&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Authentication credentials are created by the application as instances of &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_MongoCredential.htm
+&#34;&gt;&lt;code&gt;MongoCredential&lt;/code&gt;&lt;/a&gt; which includes static factory methods for each of the supported authentication mechanisms. A list of these instances must be passed to the driver using the &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/M_MongoDB_Driver_MongoClient__ctor_1.htm
+&#34;&gt;&lt;code&gt;MongoClient constructor&lt;/code&gt;&lt;/a&gt; that takes a &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_MongoClientSettings.htm
+&#34;&gt;&lt;code&gt;MongoClientSettings&lt;/code&gt;&lt;/a&gt;. When only one credential is necessary, it is possible to specify via the &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/reference/driver/connecting/#connection-string&#34;&gt;connection string&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;default&#34;&gt;Default&lt;/h3&gt;
+
+&lt;p&gt;MongoDB 4.0 now uses &lt;a href=&#34;https://docs.mongodb.com/manual/core/security-scram/#authentication-scram&#34;&gt;SCRAM&lt;/a&gt; (Salted Challenge Response Authentication Mechanism) as the default mechanism and no longer supports &lt;a href=&#34;http://docs.mongodb.org/manual/core/authentication/#mongodb-cr-authentication&#34;&gt;MONGODB-CR&lt;/a&gt;. To create a credential that will authenticate properly regardless of server version, create a credential using the following static factory method.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var credential = MongoCredential.CreateCredential(databaseName, username, password);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Or via the connection string:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mongodb://username:password@myserver/databaseName
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;These are the recommended approaches as it will make upgrading from MongoDB 2.6 to MongoDB 3.0 seamless, before and after &lt;a href=&#34;http://docs.mongodb.org/manual/release-notes/3.0-scram/#upgrade-mongodb-cr-to-scram&#34;&gt;upgrading the authentication schema&lt;/a&gt;. For MongoDB 4.0, the above approaches will automatically determine which version of SCRAM should be used (SCRAM-SHA-1 or SCRAM-SHA-256).&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+The databaseName part of the connection string indicates which database the credentials are located in. See the &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/reference/driver/connecting/#connection-string&#34;&gt;connection string section&lt;/a&gt; for more information on connection strings.
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;h3 id=&#34;scram&#34;&gt;SCRAM&lt;/h3&gt;
+
+&lt;p&gt;When connecting to a MongoDB 4.0 server without specifying an authentication mechanism, the driver will negotiate with the server to determine whether SCRAM-SHA-1 or SCRAM-SHA-256 is the appropriate mechanism.&lt;/p&gt;
+
+&lt;h4 id=&#34;scram-sha-256&#34;&gt;SCRAM-SHA-256&lt;/h4&gt;
+
+&lt;p&gt;SCRAM-SHA-256 is the default authentication mechanism chosen as long as the user&amp;rsquo;s authentication mechanism supports it. (See the &lt;a href=&#34;https://docs.mongodb.com/manual/reference/method/db.createUser/#db.createUser&#34;&gt;mechanism parameter of createUser()&lt;/a&gt; and the &lt;a href=&#34;https://github.com/mongodb/specifications/blob/master/source/auth/auth.rst#defaults&#34;&gt;&amp;ldquo;Supported Authentication Methods: Defaults&amp;rdquo; section of the Driver Authentication Specification&lt;/a&gt; for additional information.&lt;/p&gt;
+
+&lt;h5 id=&#34;securestrings&#34;&gt;SecureStrings&lt;/h5&gt;
+
+&lt;p&gt;SecureStrings are slightly less secure when used in conjunction with SCRAM-SHA-256, due to the need to temporarily store the cleartext password in a managed memory string in order to SASLPrep it. This behavior is no different from other drivers in languages with managed memory. (SCRAM-SHA-1 is &lt;em&gt;not&lt;/em&gt; affected.)&lt;/p&gt;
+
+&lt;h5 id=&#34;net-standard-support&#34;&gt;.NET Standard support&lt;/h5&gt;
+
+&lt;p&gt;In .NET Standard, authenticating via SCRAM-SHA-256 may not work with non-ASCII passwords because SASLPrep is not fully implemented due to the lack of a string normalization function in .NET Standard 1.5. Normalizing the password into Unicode Normalization Form KC beforehand MAY help. SCRAM-SHA-1 is the recommended alternative for now. See &lt;a href=&#34;https://tools.ietf.org/html/rfc5802&#34;&gt;RFC5802&lt;/a&gt; and the &lt;a href=&#34;https://github.com/mongodb/specifications/blob/master/source/auth/auth.rst#scram-sha-256&#34;&gt;SCRAM-SHA-256 section of the Driver Authentication specification&lt;/a&gt; for additional information.&lt;/p&gt;
+
+&lt;h3 id=&#34;x-509-authentication&#34;&gt;x.509 Authentication&lt;/h3&gt;
+
+&lt;p&gt;The &lt;a href=&#34;http://docs.mongodb.org/manual/core/authentication/#x-509-certificate-authentication&#34;&gt;x.509&lt;/a&gt; mechanism authenticates a user whose name is derived from the distinguished subject name of the x.509 certificate presented by the driver during SSL negotiation. This authentication method requires the use of &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/reference/driver/ssl/&#34;&gt;SSL connections&lt;/a&gt; with certificate validation and is available in MongoDB 2.6 and newer. To create a credential of this type, use the following static factory method:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var credential = MongoCredential.CreateX509Credential(username);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Or via the connection string:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mongodb://username@myserver/?authMechanism=MONGODB-X509
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Even when using the connection string to provide the credential, the certificate must still be provided via code. This certificate can be pulled out of the trust stores on the box, or from a file. However, to be used with client authentication, the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.security.cryptography.x509certificates.x509certificate.aspx&#34;&gt;&lt;code&gt;X509Certificate&lt;/code&gt;&lt;/a&gt; provided to the driver must contain the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.security.cryptography.x509certificates.x509certificate2.privatekey.aspx&#34;&gt;&lt;code&gt;PrivateKey&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var cert = new X509Certificate2(&amp;quot;client.pfx&amp;quot;, &amp;quot;mySuperSecretPassword&amp;quot;);
+
+var settings = new MongoClientSettings
+{
+    Credentials = new[] 
+    {
+        MongoCredential.CreateMongoX509Credential(&amp;quot;CN=client,OU=user,O=organization,L=Some City,ST=Some State,C=Some Country&amp;quot;)
+    },
+    SslSettings = new SslSettings
+    {
+        ClientCertificates = new[] { cert },
+    },
+    UseSsl = true
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;gssapi-kerberos&#34;&gt;GSSAPI/Kerberos&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://www.mongodb.com/products/mongodb-enterprise&#34;&gt;MongoDB Enterprise&lt;/a&gt; supports authentication using &lt;a href=&#34;http://docs.mongodb.org/manual/core/authentication/#kerberos-authentication&#34;&gt;Kerberos/GSSAPI&lt;/a&gt;. To create a Kerberos/GSSAPI credential, use the following method:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var credential = MongoCredential.CreateGssapiCredential(username, password);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Or via the connection string:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mongodb://username%40REALM.com:password@myserver/?authMechanism=GSSAPI
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+Note that the username will need to have a REALM associated with it. When used in a connection string, &lt;code&gt;%40&lt;/code&gt; is the escape character for the &lt;code&gt;@&lt;/code&gt; symbol.
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;If the process owner running your application is the same as the user needing authentication, you can omit the password:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var credential = MongoCredential.CreateGssapiCredential(username);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Or via the connection string:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mongodb://username%40REALM.com@myserver/?authMechanism=GSSAPI
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Depending on the kerberos setup, it may be required to specify some additional properties. These may be specified in the connection string or via code.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;CANONICALIZE_HOST_NAME&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Uses the DNS server to retrieve the fully qualified domain name (FQDN) of the host.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;credential = credential.WithMechanismProperty(&amp;quot;CANONICALIZE_HOST_NAME&amp;quot;, &amp;quot;true&amp;quot;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Or via the connection string:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mongodb://username@myserver/?authMechanism=GSSAPI&amp;amp;authMechanismProperties=CANONICALIZE_HOSTNAME:true
+&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;REALM&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;This is used when the user&amp;rsquo;s realm is different from the service&amp;rsquo;s realm.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;credential = credential.WithMechanismProperty(&amp;quot;REALM&amp;quot;, &amp;quot;otherrealm&amp;quot;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Or via the connection string:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mongodb://username%40REALM.com@myserver/?authMechanism=GSSAPI&amp;amp;authMechanismProperties=REALM:otherrealm
+&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;SERVICE_NAME&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;This is used when the service&amp;rsquo;s name is different that the default &lt;code&gt;mongodb&lt;/code&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;credential = credential.WithMechanismProperty(&amp;quot;SERVICE_NAME&amp;quot;, &amp;quot;othername&amp;quot;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Or via the connection string:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mongodb://username%40REALM.com@myserver/?authMechanism=GSSAPI&amp;amp;authMechanismProperties=SERVICE_NAME:othername
+&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;In addition, it is possible to use multiple authentication mechanism properties either via code or in the connection string. In code, call &lt;code&gt;WithMechanismProperty&lt;/code&gt; multiple times. In the connection string, separate the entries with a &lt;code&gt;,&lt;/code&gt; (comma).&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mongodb://username%40REALM.com@myserver/?authMechanism=GSSAPI&amp;amp;authMechanismProperties=SERVICE_NAME:othername,REALM:otherrealm
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;ldap-plain&#34;&gt;LDAP (PLAIN)&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://www.mongodb.com/products/mongodb-enterprise&#34;&gt;MongoDB Enterprise&lt;/a&gt; supports proxy authentication through a Lightweight Directory Access Protocol (LDAP) service. To create a credential of type LDAP use the following static factory method:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var credential = MongoCredential.CreatePlainCredential(&amp;quot;$external&amp;quot;, username, password);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Or via the connection string:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mongodb://username:password@myserver/?authSource=$external&amp;amp;authMechanism=PLAIN
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+Note that the method refers to the plain authentication mechanism instead of LDAP because technically the driver is authenticating via the PLAIN SASL mechanism. This means that your credentials are in plain text on the wire. Therefore, PLAIN should only be used in conjunction with SSL.
+&lt;/div&gt;
+&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>SSL</title>
       <link>/mongo-csharp-driver/2.7/reference/driver/ssl/</link>
-      <pubDate>Mon, 23 Apr 2018 07:36:42 +0000</pubDate>
+      <pubDate>Mon, 02 Jul 2018 12:50:42 +0000</pubDate>
       
       <guid>/mongo-csharp-driver/2.7/reference/driver/ssl/</guid>
       <description>
@@ -61,6 +239,16 @@ var settings = new MongoClientSettings
 It is imperative that when loading a certificate with a password, the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.security.cryptography.x509certificates.x509certificate2.privatekey.aspx&#34;&gt;PrivateKey&lt;/a&gt; property not be null. If the property is null, it means that your certificate does not contain the private key and will not be passed to the server.
 &lt;/div&gt;
 &lt;/p&gt;
+
+&lt;h3 id=&#34;certificate-revocation-checking&#34;&gt;Certificate Revocation Checking&lt;/h3&gt;
+
+&lt;p&gt;The .NET Driver now &lt;strong&gt;disables&lt;/strong&gt; certificate revocation checking by default, setting &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/P_MongoDB_Driver_SslSettings_CheckCertificateRevocation.htm
+&#34;&gt;&lt;code&gt;CheckCertificateRevocation&lt;/code&gt;&lt;/a&gt; in &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_SslSettings.htm
+&#34;&gt;&lt;code&gt;SslSettings&lt;/code&gt;&lt;/a&gt; to &lt;code&gt;false&lt;/code&gt; by default. Any applications relying on the older default of &lt;code&gt;true&lt;/code&gt; now must explicitly set &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/P_MongoDB_Driver_SslSettings_CheckCertificateRevocation.htm
+&#34;&gt;&lt;code&gt;CheckCertificateRevocation&lt;/code&gt;&lt;/a&gt; to &lt;code&gt;true&lt;/code&gt; in &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_SslSettings.htm
+&#34;&gt;&lt;code&gt;SslSettings&lt;/code&gt;&lt;/a&gt; to re-enable certificate revocation checking.&lt;/p&gt;
+
+&lt;p&gt;Prior to v2.7.0, the driver enabled certificate revocation checking by default, in contrast to the &lt;code&gt;mongo&lt;/code&gt; shell and other MongoDB drivers. This was also in contrast to .NET&amp;rsquo;s defaults for &lt;code&gt;SslStream&lt;/code&gt; (see .NET Framework documentation &lt;a href=&#34;https://docs.microsoft.com/en-us/dotnet/api/system.net.security.sslstream.authenticateasclient?view=netframework-4.7.2#System_Net_Security_SslStream_AuthenticateAsClient_System_String_&#34;&gt;here&lt;/a&gt; and .NET Standard documentation &lt;a href=&#34;https://docs.microsoft.com/en-us/dotnet/api/system.net.security.sslstream.authenticateasclient?view=netstandard-2.0#System_Net_Security_SslStream_AuthenticateAsClient_System_String_&#34;&gt;here&lt;/a&gt;).&lt;/p&gt;
 
 &lt;h2 id=&#34;tls-support&#34;&gt;TLS support&lt;/h2&gt;
 
@@ -144,7 +332,7 @@ It is imperative that when loading a certificate with a password, the &lt;a href
 
 &lt;tr&gt;
 &lt;td&gt;&lt;/td&gt;
-&lt;td&gt;.NET Core 2.1-preview&lt;/td&gt;
+&lt;td&gt;.NET Core 2.1&lt;/td&gt;
 &lt;td&gt;Yes&lt;/td&gt;
 &lt;td&gt;Yes&lt;/td&gt;
 &lt;td&gt;Yes&lt;/td&gt;
@@ -189,7 +377,7 @@ It is imperative that when loading a certificate with a password, the &lt;a href
 
 &lt;tr&gt;
 &lt;td&gt;&lt;/td&gt;
-&lt;td&gt;.NET Core 2.1-preview&lt;/td&gt;
+&lt;td&gt;.NET Core 2.1&lt;/td&gt;
 &lt;td&gt;Yes&lt;/td&gt;
 &lt;td&gt;Yes&lt;/td&gt;
 &lt;td&gt;Yes&lt;/td&gt;
@@ -234,7 +422,7 @@ It is imperative that when loading a certificate with a password, the &lt;a href
 
 &lt;tr&gt;
 &lt;td&gt;&lt;/td&gt;
-&lt;td&gt;.NET Core 2.1-preview&lt;/td&gt;
+&lt;td&gt;.NET Core 2.1&lt;/td&gt;
 &lt;td&gt;Yes&lt;/td&gt;
 &lt;td&gt;Yes&lt;/td&gt;
 &lt;td&gt;Yes&lt;/td&gt;
@@ -243,17 +431,243 @@ It is imperative that when loading a certificate with a password, the &lt;a href
 &lt;/tbody&gt;
 &lt;/table&gt;
 
-&lt;h4 id=&#34;notes&#34;&gt;Notes:&lt;/h4&gt;
+&lt;h4 id=&#34;notes&#34;&gt;Notes&lt;/h4&gt;
 
 &lt;ul&gt;
-&lt;li&gt;SNI (Server Name Indication) required for Atlas free tier.&lt;/li&gt;
-&lt;li&gt;If a server&amp;rsquo;s certificate includes Certificate Revocation List (CRL) Distribution Points but does not include an Online Certificate Status Protocol (OCSP) extension, .NET Core on OSX will fail to connect due to a limitation of the Apple Security Framework (see &lt;a href=&#34;https://github.com/dotnet/corefx/issues/29064&#34;&gt;https://github.com/dotnet/corefx/issues/29064&lt;/a&gt;). Prior to version 2.0, .NET Core on OSX used OpenSSL, which does support CRLs without OCSP.&lt;/li&gt;
+&lt;li&gt;SNI (Server Name Indication) is required for Atlas free tier.&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;.NET Core on OSX will fail to connect if &lt;strong&gt;both&lt;/strong&gt; of the following conditions are met: (1) &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/reference/driver/ssl/#certificate-revocation-checking&#34;&gt;certificate revocation checking&lt;/a&gt; is enabled, and (2) a server&amp;rsquo;s certificate includes Certificate Revocation List (CRL) Distribution Points but does not include an Online Certificate Status Protocol (OCSP) extension.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;This is due to a limitation of the Apple Security Framework (see &lt;a href=&#34;https://github.com/dotnet/corefx/issues/29064&#34;&gt;https://github.com/dotnet/corefx/issues/29064&lt;/a&gt;). Prior to version 2.0, .NET Core on OSX used OpenSSL, which does support CRLs without OCSP.&lt;/li&gt;
+&lt;li&gt;Connecting to Atlas on OSX with certificate revocation checking enabled will succeed since Atlas certificates include CRL Distribution Points as well as an OCSP extension.&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h3 id=&#34;support-for-tls-v1-1-and-newer&#34;&gt;Support for TLS v1.1 and newer&lt;/h3&gt;
 
 &lt;p&gt;Industry best practices recommend, and some regulations require, the use of TLS 1.1 or newer. No application changes are required
 for the driver to make use of the newest TLS protocols.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Sessions and Transactions</title>
+      <link>/mongo-csharp-driver/2.7/reference/driver/crud/sessions-and-transactions/</link>
+      <pubDate>Fri, 29 Jun 2018 13:45:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.7/reference/driver/crud/sessions-and-transactions/</guid>
+      <description>
+
+&lt;h2 id=&#34;sessions&#34;&gt;Sessions&lt;/h2&gt;
+
+&lt;p&gt;A session is used to group together a series of operations that are related to each other and should be executed with the same session options. Sessions are also used for transactions.&lt;/p&gt;
+
+&lt;p&gt;New overloaded methods that take a session parameter have been added for all operation methods in the driver. You execute multiple operations in the same session by passing the same session value to each operation.&lt;/p&gt;
+
+&lt;p&gt;When you call an older operation method that does not take a session parameter, the driver will start an implicit session to execute that one operation and then immediately end the implicit session.&lt;/p&gt;
+
+&lt;h3 id=&#34;startsession-and-startsessionasync&#34;&gt;StartSession and StartSessionAsync&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IClientSessionHandle StartSession(ClientSessionOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+Task&amp;lt;IClientSessionHandle&amp;gt; StartSessionAsync(ClientSessionOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;A session is started by calling the StartSession or StartSessionAsync methods of IMongoClient:&lt;/p&gt;
+
+&lt;p&gt;You must end a session when you no longer need it. You end a session by calling Dispose, which will happen automatically if you put the session inside a using statement.&lt;/p&gt;
+
+&lt;p&gt;The recommended way of using a session is:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var sessionOptions = new ClientSessionOptions { ... };
+using (var session = client.StartSession(sessionOptions, cancellationToken))
+{
+    // execute some operations passing the session as an argument to each operation
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;or&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var sessionOptions = new ClientSessionOptions { ... };
+using (var session = await client.StartSessionAsync(sessionOptions, cancellationToken))
+{
+    // execute some operations passing the session as an argument to each operation
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;A session is typically short lived. You start a session, execute some operations, and end the session.&lt;/p&gt;
+
+&lt;h3 id=&#34;clientsessionoptions&#34;&gt;ClientSessionOptions&lt;/h3&gt;
+
+&lt;p&gt;The ClientSessionOptions class is used to specify any desired options when calling StartSession.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public class ClientSessionOptions
+{
+    public bool? CausalConsistency { get; set; }
+    public TransactionOptions DefaultTransactionOptions { get; set; }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;causalconsistency&#34;&gt;CausalConsistency&lt;/h4&gt;
+
+&lt;p&gt;Set to true if you want all operations in a session to be causally consistent.&lt;/p&gt;
+
+&lt;h4 id=&#34;defaulttransactionoptions&#34;&gt;DefaultTransactionOptions&lt;/h4&gt;
+
+&lt;p&gt;You can provide default transaction options to be used for any options that are not provided when StartTransaction is called.&lt;/p&gt;
+
+&lt;h3 id=&#34;iclientsession-properties-and-methods&#34;&gt;IClientSession properties and methods&lt;/h3&gt;
+
+&lt;p&gt;The IClientSession interface defines the properties and methods available on a session.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public interface IClientSession : IDisposable
+{
+    IMongoClient Client { get; }
+    BsonDocument ClusterTime { get; }
+    bool IsInTransaction { get; }
+    BsonTimestamp OperationTime { get; }
+    ClientSessionOptions Options { get; }
+
+    void AdvanceClusterTime(BsonDocument newClusterTime);
+    void AdvanceOperationTime(BsonTimestamp newOperationTime);
+
+    // see also transaction related methods documented below
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Note: a few members of IClientSession have been deliberately omitted from this documentation, either because they are rarely used or because they are for internal use only.&lt;/p&gt;
+
+&lt;h4 id=&#34;client&#34;&gt;Client&lt;/h4&gt;
+
+&lt;p&gt;The Client property returns a reference to the IMongoClient instance that was used to start this session.&lt;/p&gt;
+
+&lt;h4 id=&#34;clustertime&#34;&gt;ClusterTime&lt;/h4&gt;
+
+&lt;p&gt;The ClusterTime property returns the highest cluster time that has been seen by this client. The value is an opaque BsonDocument containing a cluster time that has been returned by the server. While an application might never inspect the actual value, it might set this value (by calling AdvanceClusterTime) when initializing a causally consistent session.&lt;/p&gt;
+
+&lt;h3 id=&#34;isintransaction&#34;&gt;IsInTransaction&lt;/h3&gt;
+
+&lt;p&gt;Specifies whether the session is currently in a transaction. A session is in a transaction after StartTransaction has been called and until either AbortTransaction or CommitTransaction has been called.&lt;/p&gt;
+
+&lt;h3 id=&#34;operationtime&#34;&gt;OperationTime&lt;/h3&gt;
+
+&lt;p&gt;The operation time returned by the server for the most recent operation in this session. Operation times are used by the driver to ensure causal consistency when the ClientSessionOptions specify that causal consistency is desired. While an application might never use the actual value, it might set this value (by calling AdvanceOperationTime) when initializing a causally consistent session.&lt;/p&gt;
+
+&lt;h3 id=&#34;options&#34;&gt;Options&lt;/h3&gt;
+
+&lt;p&gt;Returns the options that were passed to StartSession.&lt;/p&gt;
+
+&lt;h3 id=&#34;advanceclustertime-and-advanceoperationtime&#34;&gt;AdvanceClusterTime and AdvanceOperationTime&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;void AdvanceClusterTime(BsonDocument newClusterTime);
+void AdvanceOperationTime(BsonTimestamp newOperationTime);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Call these methods to advance the cluster and operation times when you want subsequent operations in this session to be causally consistent with operations that have executed outside of this session. Typically the values you pass to AdvanceClusterTime and AdvanceOperation time will come from the ClusterTime and OperationTime properties of some other session.&lt;/p&gt;
+
+&lt;h3 id=&#34;transaction-methods&#34;&gt;Transaction methods&lt;/h3&gt;
+
+&lt;p&gt;The methods to start, abort or commit a transaction are documented in the next section.&lt;/p&gt;
+
+&lt;h2 id=&#34;transactions&#34;&gt;Transactions&lt;/h2&gt;
+
+&lt;p&gt;Transactions are started, committed or aborted using methods of IClientSession. A session can only execute one transaction at a time, but a session can execute more than one transaction as long as each transaction is committed or aborted before the next one is started.&lt;/p&gt;
+
+&lt;h3 id=&#34;starttransaction&#34;&gt;StartTransaction&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;void StartTransaction(TransactionOptions transactionOptions = null);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Start a transaction by calling StartTransaction, optionally specifying options for the transaction.&lt;/p&gt;
+
+&lt;p&gt;Each transaction option can be specified at any of the following levels:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;StartTransaction in the options parameter&lt;/li&gt;
+&lt;li&gt;StartSession in the defaultTransactionOptions parameter&lt;/li&gt;
+&lt;li&gt;Defaulted&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;You can specify different options at different levels. An option specified in StartTransaction overrides the same option specified in the defaultTransactionOptions passed to StartSession, which in turn overrides the default value.&lt;/p&gt;
+
+&lt;h4 id=&#34;transactionoptions&#34;&gt;TransactionOptions&lt;/h4&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public class TransactionOptions
+{
+    public ReadConcern ReadConcern { get; };
+    public ReadPreference ReadPreference { get; };
+    public WriteConcern WriteConcern { get; };
+
+    public TransactionOptions(
+        Optional&amp;lt;ReadConcern&amp;gt; readConcern = default(Optional&amp;lt;ReadConcern&amp;gt;),
+        Optional&amp;lt;ReadPreference&amp;gt; readPreference = default(Optional&amp;lt;ReadPreference&amp;gt;),
+        Optional&amp;lt;WriteConcern&amp;gt; writeConcern = default(Optional&amp;lt;WriteConcern&amp;gt;));
+
+    public TransactionOptions With(
+        Optional&amp;lt;ReadConcern&amp;gt; readConcern = default(Optional&amp;lt;ReadConcern&amp;gt;),
+        Optional&amp;lt;ReadPreference&amp;gt; readPreference = default(Optional&amp;lt;ReadPreference&amp;gt;),
+        Optional&amp;lt;WriteConcern&amp;gt; writeConcern = default(Optional&amp;lt;WriteConcern&amp;gt;))
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Create an instance of TransactionOptions either by calling the constructor with any desired optional arguments, or by calling the With method on an existing instance of TransactionOptions to create a new instance with some values changed.&lt;/p&gt;
+
+&lt;h5 id=&#34;readconcern&#34;&gt;ReadConcern&lt;/h5&gt;
+
+&lt;p&gt;The ReadConcern used while in the transaction. All operations in the transaction use the ReadConcern specified when StartTransaction is called.&lt;/p&gt;
+
+&lt;h5 id=&#34;readpreference&#34;&gt;ReadPreference&lt;/h5&gt;
+
+&lt;p&gt;The ReadPreference used while in the transaction. Currently, the ReadPreference for a transaction must be Primary.&lt;/p&gt;
+
+&lt;h5 id=&#34;writeconcern&#34;&gt;WriteConcern&lt;/h5&gt;
+
+&lt;p&gt;The WriteConcern used for this transaction. The WriteConcern only applies when committing the transaction, not to the individual operations executed while in the transaction.&lt;/p&gt;
+
+&lt;h3 id=&#34;committransaction-and-committransactionasync&#34;&gt;CommitTransaction and CommitTransactionAsync&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;void CommitTransaction(CancellationToken cancellationToken = default(CancellationToken));
+Task CommitTransactionAsync(CancellationToken cancellationToken = default(CancellationToken));
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You must call CommitTransaction or CommitTransactionAsync in order for a transaction to be committed. If a session is ended while a transaction is in progress the transaction will be automatically aborted.&lt;/p&gt;
+
+&lt;p&gt;The commit is executed with the WriteConcern specified by the transaction options.&lt;/p&gt;
+
+&lt;h3 id=&#34;aborttransaction-and-aborttransactionasync&#34;&gt;AbortTransaction and AbortTransactionAsync&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;void AbortTransaction(CancellationToken cancellationToken = default(CancellationToken));
+Task AbortTransactionAsync(CancellationToken cancellationToken = default(CancellationToken));
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Call AbortTransaction or AbortTransactionAsync to abort a transaction. Since any transaction in progress is automatically aborted when a session is ended, you can also implicitly abort an uncommitted transaction by simply ending the session.&lt;/p&gt;
+
+&lt;p&gt;In this example we rely on the implied transaction abort:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var session = client.StartSession())
+{
+    session.StartTransaction();
+    // execute operations using the session
+    session.CommitTransaction(); // if an exception is thrown before reaching here the transaction will be implicitly aborted
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;When writing an async program you may want to avoid using the implied abort transaction that occurs when Dispose is called on a session with a transaction in progress, because Dispose is a blocking operation. To be fully async, even in the case where the transaction needs to be aborted, you might instead write:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var session = await client.StartSessionAsync())
+{
+    try
+    {
+        // execute async operations using the session
+    }
+    catch
+    {
+        await session.AbortTransactionAsync(); // now Dispose on the session has nothing to do and won&#39;t block
+        throw;
+    }
+    await session.CommitTransactionAsync();
+}
+&lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>
     
@@ -1935,168 +2349,6 @@ await collection.Indexes.DropAllAsync();
     </item>
     
     <item>
-      <title>Authentication</title>
-      <link>/mongo-csharp-driver/2.7/reference/driver/authentication/</link>
-      <pubDate>Tue, 17 Mar 2015 15:36:56 +0000</pubDate>
-      
-      <guid>/mongo-csharp-driver/2.7/reference/driver/authentication/</guid>
-      <description>
-
-&lt;h2 id=&#34;authentication&#34;&gt;Authentication&lt;/h2&gt;
-
-&lt;p&gt;The .NET driver supports all &lt;a href=&#34;http://docs.mongodb.org/manual/core/authentication/
-&#34;&gt;MongoDB authentication mechanisms&lt;/a&gt; including those in the &lt;a href=&#34;http://docs.mongodb.org/manual/administration/install-enterprise/
-&#34;&gt;Enterprise Edition&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;Authentication credentials are created by the application as instances of &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_MongoCredential.htm
-&#34;&gt;&lt;code&gt;MongoCredential&lt;/code&gt;&lt;/a&gt; which includes static factory methods for each of the supported authentication mechanisms. A list of these instances must be passed to the driver using the &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/M_MongoDB_Driver_MongoClient__ctor_1.htm
-&#34;&gt;&lt;code&gt;MongoClient constructor&lt;/code&gt;&lt;/a&gt; that takes a &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_MongoClientSettings.htm
-&#34;&gt;&lt;code&gt;MongoClientSettings&lt;/code&gt;&lt;/a&gt;. When only one credential is necessary, it is possible to specify via the &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/reference/driver/connecting/#connection-string&#34;&gt;connection string&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h3 id=&#34;default&#34;&gt;Default&lt;/h3&gt;
-
-&lt;p&gt;MongoDB 3.0 changed the default authentication mechanism from &lt;a href=&#34;http://docs.mongodb.org/manual/core/authentication/#mongodb-cr-authentication&#34;&gt;MONGODB-CR&lt;/a&gt; to &lt;a href=&#34;http://docs.mongodb.org/manual/core/authentication/#scram-sha-1-authentication&#34;&gt;SCRAM-SHA-1&lt;/a&gt;. To create a credential that will authenticate properly regardless of server version, create a credential using the following static factory method.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var credential = MongoCredential.CreateCredential(databaseName, username, password);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Or via the connection string:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;mongodb://username:password@myserver/databaseName
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;This is the recommended approach as it will make upgrading from MongoDB 2.6 to MongoDB 3.0 seamless, even after &lt;a href=&#34;http://docs.mongodb.org/manual/release-notes/3.0-scram/#upgrade-mongodb-cr-to-scram&#34;&gt;upgrading the authentication schema&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
-&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-The databaseName part of the connection string indicates which database the credentials are located in. See the &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/reference/driver/connecting/#connection-string&#34;&gt;connection string section&lt;/a&gt; for more information on connection strings.
-&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;h3 id=&#34;x-509-authentication&#34;&gt;x.509 Authentication&lt;/h3&gt;
-
-&lt;p&gt;The &lt;a href=&#34;http://docs.mongodb.org/manual/core/authentication/#x-509-certificate-authentication&#34;&gt;x.509&lt;/a&gt; mechanism authenticates a user whose name is derived from the distinguished subject name of the x.509 certificate presented by the driver during SSL negotiation. This authentication method requires the use of &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/reference/driver/ssl/&#34;&gt;SSL connections&lt;/a&gt; with certificate validation and is available in MongoDB 2.6 and newer. To create a credential of this type, use the following static factory method:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var credential = MongoCredential.CreateX509Credential(username);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Or via the connection string:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;mongodb://username@myserver/?authMechanism=MONGODB-X509
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Even when using the connection string to provide the credential, the certificate must still be provided via code. This certificate can be pulled out of the trust stores on the box, or from a file. However, to be used with client authentication, the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.security.cryptography.x509certificates.x509certificate.aspx&#34;&gt;&lt;code&gt;X509Certificate&lt;/code&gt;&lt;/a&gt; provided to the driver must contain the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.security.cryptography.x509certificates.x509certificate2.privatekey.aspx&#34;&gt;&lt;code&gt;PrivateKey&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var cert = new X509Certificate2(&amp;quot;client.pfx&amp;quot;, &amp;quot;mySuperSecretPassword&amp;quot;);
-
-var settings = new MongoClientSettings
-{
-    Credentials = new[] 
-    {
-        MongoCredential.CreateMongoX509Credential(&amp;quot;CN=client,OU=user,O=organization,L=Some City,ST=Some State,C=Some Country&amp;quot;)
-    },
-    SslSettings = new SslSettings
-    {
-        ClientCertificates = new[] { cert },
-    },
-    UseSsl = true
-};
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;gssapi-kerberos&#34;&gt;GSSAPI/Kerberos&lt;/h3&gt;
-
-&lt;p&gt;&lt;a href=&#34;http://www.mongodb.com/products/mongodb-enterprise&#34;&gt;MongoDB Enterprise&lt;/a&gt; supports authentication using &lt;a href=&#34;http://docs.mongodb.org/manual/core/authentication/#kerberos-authentication&#34;&gt;Kerberos/GSSAPI&lt;/a&gt;. To create a Kerberos/GSSAPI credential, use the following method:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var credential = MongoCredential.CreateGssapiCredential(username, password);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Or via the connection string:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;mongodb://username%40REALM.com:password@myserver/?authMechanism=GSSAPI
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
-&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-Note that the username will need to have a REALM associated with it. When used in a connection string, &lt;code&gt;%40&lt;/code&gt; is the escape character for the &lt;code&gt;@&lt;/code&gt; symbol.
-&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;p&gt;If the process owner running your application is the same as the user needing authentication, you can omit the password:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var credential = MongoCredential.CreateGssapiCredential(username);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Or via the connection string:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;mongodb://username%40REALM.com@myserver/?authMechanism=GSSAPI
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Depending on the kerberos setup, it may be required to specify some additional properties. These may be specified in the connection string or via code.&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;&lt;strong&gt;CANONICALIZE_HOST_NAME&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;Uses the DNS server to retrieve the fully qualified domain name (FQDN) of the host.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;credential = credential.WithMechanismProperty(&amp;quot;CANONICALIZE_HOST_NAME&amp;quot;, &amp;quot;true&amp;quot;);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Or via the connection string:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;mongodb://username@myserver/?authMechanism=GSSAPI&amp;amp;authMechanismProperties=CANONICALIZE_HOSTNAME:true
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;strong&gt;REALM&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;This is used when the user&amp;rsquo;s realm is different from the service&amp;rsquo;s realm.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;credential = credential.WithMechanismProperty(&amp;quot;REALM&amp;quot;, &amp;quot;otherrealm&amp;quot;);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Or via the connection string:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;mongodb://username%40REALM.com@myserver/?authMechanism=GSSAPI&amp;amp;authMechanismProperties=REALM:otherrealm
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;strong&gt;SERVICE_NAME&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;This is used when the service&amp;rsquo;s name is different that the default &lt;code&gt;mongodb&lt;/code&gt;.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;credential = credential.WithMechanismProperty(&amp;quot;SERVICE_NAME&amp;quot;, &amp;quot;othername&amp;quot;);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Or via the connection string:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;mongodb://username%40REALM.com@myserver/?authMechanism=GSSAPI&amp;amp;authMechanismProperties=SERVICE_NAME:othername
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;In addition, it is possible to use multiple authentication mechanism properties either via code or in the connection string. In code, call &lt;code&gt;WithMechanismProperty&lt;/code&gt; multiple times. In the connection string, separate the entries with a &lt;code&gt;,&lt;/code&gt; (comma).&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;mongodb://username%40REALM.com@myserver/?authMechanism=GSSAPI&amp;amp;authMechanismProperties=SERVICE_NAME:othername,REALM:otherrealm
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;ldap-plain&#34;&gt;LDAP (PLAIN)&lt;/h3&gt;
-
-&lt;p&gt;&lt;a href=&#34;http://www.mongodb.com/products/mongodb-enterprise&#34;&gt;MongoDB Enterprise&lt;/a&gt; supports proxy authentication through a Lightweight Directory Access Protocol (LDAP) service. To create a credential of type LDAP use the following static factory method:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var credential = MongoCredential.CreatePlainCredential(&amp;quot;$external&amp;quot;, username, password);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Or via the connection string:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;mongodb://username:password@myserver/?authSource=$external&amp;amp;authMechanism=PLAIN
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
-&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-Note that the method refers to the plain authentication mechanism instead of LDAP because technically the driver is authenticating via the PLAIN SASL mechanism. This means that your credentials are in plain text on the wire. Therefore, PLAIN should only be used in conjunction with SSL.
-&lt;/div&gt;
-&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
       <title>BSON</title>
       <link>/mongo-csharp-driver/2.7/reference/bson/</link>
       <pubDate>Tue, 17 Mar 2015 15:36:56 +0000</pubDate>
@@ -2253,167 +2505,6 @@ using (var writer = new JsonWriter(output))
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var doc = BsonDocument.Parse(&amp;quot;{ a: 1, b: [{ c: 1 }] }&amp;quot;);
 &lt;/code&gt;&lt;/pre&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Connecting</title>
-      <link>/mongo-csharp-driver/2.7/reference/driver/connecting/</link>
-      <pubDate>Tue, 17 Mar 2015 15:36:56 +0000</pubDate>
-      
-      <guid>/mongo-csharp-driver/2.7/reference/driver/connecting/</guid>
-      <description>
-
-&lt;h2 id=&#34;connection-string&#34;&gt;Connection String&lt;/h2&gt;
-
-&lt;p&gt;The &lt;a href=&#34;http://docs.mongodb.org/manual/reference/connection-string/&#34;&gt;connection string&lt;/a&gt; is the simplest way to connect to one or more MongoDB servers. A connection string mostly follows &lt;a href=&#34;http://tools.ietf.org/html/rfc3986&#34;&gt;RFC 3986&lt;/a&gt; with the exception of the domain name. For MongoDB, it is possible to list multiple domain names separated by a comma. Below are some example connection strings&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;For a standalone mongod, mongos, or a direct connection to a member of a replica set:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;mongodb://host:27017
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;To connect to multiple mongos or a replica set:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;mongodb://host1:27017,host2:27017
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/reference/driver/authentication/&#34;&gt;authentication guide&lt;/a&gt; contains information on how to provide credentials.&lt;/p&gt;
-
-&lt;p&gt;&lt;div class=&#34;admonition important&#34;&gt;
-&lt;h5 class=&#34;admonition-title&#34;&gt;important&lt;/h5&gt;
-When connecting to a replica set, it is highly suggested that you include the replica set name as a connection string option. This will allow the driver to skip the cluster discovery step and ensure that all hosts on the seedlist are connecting to the intended replica set.
-&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;h3 id=&#34;the-database-component&#34;&gt;The Database Component&lt;/h3&gt;
-
-&lt;p&gt;The database component is optional and is used to indicate which database to authenticate against. When the database component is not provided, the &amp;ldquo;admin&amp;rdquo; database is used.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;mongodb://host:27017/mydb
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Above, the database by the name of &amp;ldquo;mydb&amp;rdquo; is where the credentials are stored for the application.&lt;/p&gt;
-
-&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
-&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-Some drivers utilize the database component to indicate which database to work with by default. The .NET driver, while it parses the database component, does not use the database component for anything other than authentication.
-&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;h3 id=&#34;options&#34;&gt;Options&lt;/h3&gt;
-
-&lt;p&gt;Many options can be provided via the connection string. The ones that cannot may be provided in a &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_MongoClientSettings.htm
-&#34;&gt;&lt;code&gt;MongoClientSettings&lt;/code&gt;&lt;/a&gt; object. To provide an option on the connection string, append a &lt;code&gt;?&lt;/code&gt; and separate multiple options by an &lt;code&gt;&amp;amp;&lt;/code&gt;.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;mongodb://host:27017/?replicaSet=rs0&amp;amp;uuidRepresentation=standard
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;The above connection string sets the &lt;code&gt;replicaSet&lt;/code&gt; value to &lt;code&gt;rs0&lt;/code&gt; and the &lt;code&gt;uuidRepresentation&lt;/code&gt; to &lt;code&gt;standard&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;For a comprehensive list of the available options, see the MongoDB &lt;a href=&#34;http://docs.mongodb.org/manual/reference/connection-string/&#34;&gt;connection string&lt;/a&gt; documentation.&lt;/p&gt;
-
-&lt;h2 id=&#34;mongo-client&#34;&gt;Mongo Client&lt;/h2&gt;
-
-&lt;p&gt;A &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_MongoClient.htm
-&#34;&gt;&lt;code&gt;MongoClient&lt;/code&gt;&lt;/a&gt; object will be the root object. It is thread-safe and is all that is needed to handle connecting to servers, monitoring servers, and performing operations against those servers. Without any arguments, constructing a &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_MongoClient.htm
-&#34;&gt;&lt;code&gt;MongoClient&lt;/code&gt;&lt;/a&gt; instance will connect to &amp;ldquo;localhost&amp;rdquo; port 27017.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;var client = new MongoClient();
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Alternatively, a connection string may be provided:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;var client = new MongoClient(&amp;quot;mongodb://host:27017,host2:27017/?replicaSet=rs0&amp;quot;);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Finally, &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_MongoClientSettings.htm
-&#34;&gt;&lt;code&gt;MongoClientSettings&lt;/code&gt;&lt;/a&gt; provides an in code way to set the same options.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;var settings = new MongoClientSettings { ReplicaSetName = &amp;quot;rs0&amp;quot; };
-var client = new MongoClient(settings);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;low-level-customization&#34;&gt;Low-Level Customization&lt;/h3&gt;
-
-&lt;p&gt;There are a number of settings that are not configurable directly from &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_MongoClientSettings.htm
-&#34;&gt;&lt;code&gt;MongoClientSettings&lt;/code&gt;&lt;/a&gt;. These settings are able to be configured through the &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/P_MongoDB_Driver_MongoClientSettings_ClusterConfigurator.htm
-&#34;&gt;&lt;code&gt;ClusterConfigurator&lt;/code&gt;&lt;/a&gt; property which provides a &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_Core_Configuration_ClusterBuilder.htm
-&#34;&gt;&lt;code&gt;ClusterBuilder&lt;/code&gt;&lt;/a&gt; to manipulate. An example of these is adding a logger using the &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/reference/driver_core/events/&#34;&gt;eventing infrastructure&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h3 id=&#34;re-use&#34;&gt;Re-use&lt;/h3&gt;
-
-&lt;p&gt;It is recommended to store a &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_MongoClient.htm
-&#34;&gt;&lt;code&gt;MongoClient&lt;/code&gt;&lt;/a&gt; instance in a global place, either as a static variable or in an IoC container with a singleton lifetime.&lt;/p&gt;
-
-&lt;p&gt;However, multiple &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_MongoClient.htm
-&#34;&gt;&lt;code&gt;MongoClient&lt;/code&gt;&lt;/a&gt; instances created with the same settings will utilize the same connection pools underneath. Unfortunately, certain types of settings are not able to be compared for equality. For instance, the &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/P_MongoDB_Driver_MongoClientSettings_ClusterConfigurator.htm
-&#34;&gt;&lt;code&gt;ClusterConfigurator&lt;/code&gt;&lt;/a&gt; property is a delegate and only its address is known for comparison. If you wish to construct multiple &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_MongoClient.htm
-&#34;&gt;&lt;code&gt;MongoClients&lt;/code&gt;&lt;/a&gt;, ensure that your delegates are all using the same address if the intent is to share connection pools.&lt;/p&gt;
-
-&lt;h3 id=&#34;monitoring&#34;&gt;Monitoring&lt;/h3&gt;
-
-&lt;p&gt;&lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_MongoClient.htm
-&#34;&gt;&lt;code&gt;MongoClient&lt;/code&gt;&lt;/a&gt; utilizes an &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_Core_Clusters_ICluster.htm
-&#34;&gt;&lt;code&gt;ICluster&lt;/code&gt;&lt;/a&gt; from &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/reference/driver_core/&#34;&gt;MongoDB.Driver.Core&lt;/a&gt; which handles monitoring the cluster.&lt;/p&gt;
-
-&lt;h2 id=&#34;mongo-database&#34;&gt;Mongo Database&lt;/h2&gt;
-
-&lt;p&gt;An &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_IMongoDatabase.htm
-&#34;&gt;&lt;code&gt;IMongoDatabase&lt;/code&gt;&lt;/a&gt; represents a database in a MongoDB server. Databases are retrieved from an &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_IMongoClient.htm
-&#34;&gt;&lt;code&gt;IMongoClient&lt;/code&gt;&lt;/a&gt; instance using the &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/M_MongoDB_Driver_IMongoClient_GetDatabase.htm
-&#34;&gt;&lt;code&gt;GetDatabase&lt;/code&gt;&lt;/a&gt; method:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var db = client.GetDatabase(&amp;quot;hr&amp;quot;);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Above, we have gotten the &amp;ldquo;hr&amp;rdquo; database. If the database does not exist on the server, it will be created automatically upon first use. If you want to use more than one database, call &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/M_MongoDB_Driver_IMongoClient_GetDatabase.htm
-&#34;&gt;&lt;code&gt;GetDatabase&lt;/code&gt;&lt;/a&gt; once for each database you&amp;rsquo;d like to work with.&lt;/p&gt;
-
-&lt;h3 id=&#34;re-use-1&#34;&gt;Re-use&lt;/h3&gt;
-
-&lt;p&gt;The implementation of &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_IMongoDatabase.htm
-&#34;&gt;&lt;code&gt;IMongoDatabase&lt;/code&gt;&lt;/a&gt; provided by a &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_MongoClient.htm
-&#34;&gt;&lt;code&gt;MongoClient&lt;/code&gt;&lt;/a&gt; is thread-safe and is safe to be stored globally or in an IoC container.&lt;/p&gt;
-
-&lt;h3 id=&#34;mongo-collection&#34;&gt;Mongo Collection&lt;/h3&gt;
-
-&lt;p&gt;An &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_IMongoCollection_1.htm
-&#34;&gt;&lt;code&gt;IMongoCollection&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; represents a collection in a MongoDB database. Collections are retrieved from an &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_IMongoDatabase.htm
-&#34;&gt;&lt;code&gt;IMongoDatabase&lt;/code&gt;&lt;/a&gt; with the &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/M_MongoDB_Driver_IMongoDatabase_GetCollection__1.htm
-&#34;&gt;&lt;code&gt;GetCollection&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; method:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var collection = db.GetCollection&amp;lt;BsonDocument&amp;gt;(&amp;quot;people&amp;quot;);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Above, we have gotten the &amp;ldquo;people&amp;rdquo; collection. IF the collection does not exist on the server, it will be created automatically upon first use. If you want to use more than one database, call &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/M_MongoDB_Driver_IMongoDatabase_GetCollection__1.htm
-&#34;&gt;&lt;code&gt;GetCollection&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; once for each database you&amp;rsquo;d like to work with.&lt;/p&gt;
-
-&lt;p&gt;The generic parameter &lt;code&gt;TDocument&lt;/code&gt; is the type of document that is stored in your collection. It can, effectively, be any type that can be mapped to and from BSON. The driver utilizes the &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/reference/bson/&#34;&gt;BSON library&lt;/a&gt; to handle this mapping. The most common types you will use are:&lt;/p&gt;
-
-&lt;ol&gt;
-&lt;li&gt;Custom Class - useful for representing known schemas. See the &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/reference/bson/mapping/&#34;&gt;mapping section&lt;/a&gt; for more information. The majority of applications will not work with dynamic schemas, but rather with something more rigid. In addition, if you work in a static language, it is nice to work with static types that provide compile time type checking.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
-&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt; - useful for representing dynamic schemas.&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
-&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-&lt;p&gt;It is possible to mix both these models by utilizing a &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Bson_BsonDocument.htm&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt; inside your custom class.&lt;/p&gt;
-
-&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;p&gt;A majority of the methods and extension methods for an &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_IMongoCollection_1.htm
-&#34;&gt;&lt;code&gt;IMongoCollection&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; utilize the &lt;code&gt;TDocument&lt;/code&gt; generic parameter in some fashion.&lt;/p&gt;
-
-&lt;h3 id=&#34;re-use-2&#34;&gt;Re-use&lt;/h3&gt;
-
-&lt;p&gt;The implementation of &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_IMongoCollection_1.htm
-&#34;&gt;&lt;code&gt;IMongoCollection&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; ultimately provided by a &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_MongoClient.htm
-&#34;&gt;&lt;code&gt;MongoClient&lt;/code&gt;&lt;/a&gt; is thread-safe and is safe to be stored globally or in an IoC container.&lt;/p&gt;
 </description>
     </item>
     

@@ -3,22 +3,27 @@
   
   <url>
     <loc>/mongo-csharp-driver/2.7/</loc>
-    <lastmod>2018-04-23T07:36:42+00:00</lastmod>
+    <lastmod>2018-07-02T16:49:42+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
+    <loc>/mongo-csharp-driver/2.7/reference/driver/authentication/</loc>
+    <lastmod>2018-07-02T16:49:42+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/mongo-csharp-driver/2.7/reference/driver/ssl/</loc>
-    <lastmod>2018-04-23T07:36:42+00:00</lastmod>
+    <lastmod>2018-07-02T12:50:42+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/mongo-csharp-driver/2.7/reference/driver/crud/sessions-and-transactions/</loc>
+    <lastmod>2018-06-29T13:45:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>/mongo-csharp-driver/2.7/reference/gridfs/deletingandrenamingfiles/</loc>
-    <lastmod>2015-09-14T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/mongo-csharp-driver/2.7/reference/gridfs/downloadingfiles/</loc>
     <lastmod>2015-09-14T00:00:00+00:00</lastmod>
   </url>
   
@@ -28,12 +33,17 @@
   </url>
   
   <url>
-    <loc>/mongo-csharp-driver/2.7/reference/gridfs/uploadingfiles/</loc>
+    <loc>/mongo-csharp-driver/2.7/reference/gridfs/downloadingfiles/</loc>
     <lastmod>2015-09-14T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>/mongo-csharp-driver/2.7/reference/gridfs/gettingstarted/</loc>
+    <lastmod>2015-09-14T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/mongo-csharp-driver/2.7/reference/gridfs/uploadingfiles/</loc>
     <lastmod>2015-09-14T00:00:00+00:00</lastmod>
   </url>
   
@@ -78,11 +88,6 @@
   </url>
   
   <url>
-    <loc>/mongo-csharp-driver/2.7/examples/</loc>
-    <lastmod>2015-03-17T15:36:56+00:00</lastmod>
-  </url>
-  
-  <url>
     <loc>/mongo-csharp-driver/2.7/examples/exporting_json/</loc>
     <lastmod>2015-03-17T15:36:56+00:00</lastmod>
   </url>
@@ -93,7 +98,7 @@
   </url>
   
   <url>
-    <loc>/mongo-csharp-driver/2.7/getting_started/</loc>
+    <loc>/mongo-csharp-driver/2.7/examples/</loc>
     <lastmod>2015-03-17T15:36:56+00:00</lastmod>
   </url>
   
@@ -103,12 +108,12 @@
   </url>
   
   <url>
-    <loc>/mongo-csharp-driver/2.7/getting_started/installation/</loc>
+    <loc>/mongo-csharp-driver/2.7/getting_started/</loc>
     <lastmod>2015-03-17T15:36:56+00:00</lastmod>
   </url>
   
   <url>
-    <loc>/mongo-csharp-driver/2.7/</loc>
+    <loc>/mongo-csharp-driver/2.7/getting_started/installation/</loc>
     <lastmod>2015-03-17T15:36:56+00:00</lastmod>
   </url>
   
@@ -118,12 +123,17 @@
   </url>
   
   <url>
-    <loc>/mongo-csharp-driver/2.7/reference/bson/bson_document/</loc>
+    <loc>/mongo-csharp-driver/2.7/</loc>
     <lastmod>2015-03-17T15:36:56+00:00</lastmod>
   </url>
   
   <url>
     <loc>/mongo-csharp-driver/2.7/reference/bson/bson/</loc>
+    <lastmod>2015-03-17T15:36:56+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/mongo-csharp-driver/2.7/reference/bson/bson_document/</loc>
     <lastmod>2015-03-17T15:36:56+00:00</lastmod>
   </url>
   
@@ -143,11 +153,6 @@
   </url>
   
   <url>
-    <loc>/mongo-csharp-driver/2.7/reference/bson/mapping/schema_changes/</loc>
-    <lastmod>2015-03-17T15:36:56+00:00</lastmod>
-  </url>
-  
-  <url>
     <loc>/mongo-csharp-driver/2.7/reference/bson/mapping/</loc>
     <lastmod>2015-03-17T15:36:56+00:00</lastmod>
   </url>
@@ -158,17 +163,17 @@
   </url>
   
   <url>
-    <loc>/mongo-csharp-driver/2.7/reference/driver/authentication/</loc>
-    <lastmod>2015-03-17T15:36:56+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/mongo-csharp-driver/2.7/reference/driver/connecting/</loc>
+    <loc>/mongo-csharp-driver/2.7/reference/bson/mapping/schema_changes/</loc>
     <lastmod>2015-03-17T15:36:56+00:00</lastmod>
   </url>
   
   <url>
     <loc>/mongo-csharp-driver/2.7/reference/driver/crud/</loc>
+    <lastmod>2015-03-17T15:36:56+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/mongo-csharp-driver/2.7/reference/driver/connecting/</loc>
     <lastmod>2015-03-17T15:36:56+00:00</lastmod>
   </url>
   
@@ -188,17 +193,17 @@
   </url>
   
   <url>
+    <loc>/mongo-csharp-driver/2.7/reference/driver/expressions/</loc>
+    <lastmod>2015-03-17T15:36:56+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/mongo-csharp-driver/2.7/reference/driver/error_handling/</loc>
     <lastmod>2015-03-17T15:36:56+00:00</lastmod>
   </url>
   
   <url>
     <loc>/mongo-csharp-driver/2.7/reference/driver/</loc>
-    <lastmod>2015-03-17T15:36:56+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/mongo-csharp-driver/2.7/reference/driver/expressions/</loc>
     <lastmod>2015-03-17T15:36:56+00:00</lastmod>
   </url>
   
