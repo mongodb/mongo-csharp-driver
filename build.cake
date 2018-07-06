@@ -224,6 +224,9 @@ Task("RefDocs")
         var hugoExe = toolsHugoDirectory.CombineWithFilePath("hugo_0.13_windows_amd64.exe");
 
         var landingDirectory = docsDirectory.Combine("landing");
+        var landingPublicDirectory = landingDirectory.Combine("public");
+        CleanDirectory(landingPublicDirectory);
+
         var processSettings = new ProcessSettings
         {
             WorkingDirectory = landingDirectory
@@ -231,6 +234,9 @@ Task("RefDocs")
         StartProcess(hugoExe, processSettings);
 
         var referenceDirectory = docsDirectory.Combine("reference");
+        var referencePublicDirectory = referenceDirectory.Combine("public");
+        CleanDirectory(referencePublicDirectory);
+
         processSettings = new ProcessSettings
         {
             WorkingDirectory = referenceDirectory
@@ -240,10 +246,8 @@ Task("RefDocs")
         EnsureDirectoryExists(artifactsDocsRefDocsDirectory);
         CleanDirectory(artifactsDocsRefDocsDirectory);
 
-        var landingPublicDirectory = landingDirectory.Combine("public");
         CopyDirectory(landingPublicDirectory, artifactsDocsRefDocsDirectory);
 
-        var referencePublicDirectory = referenceDirectory.Combine("public");
         var artifactsReferencePublicDirectory = artifactsDocsRefDocsDirectory.Combine(gitVersion.Major + "." + gitVersion.Minor);
         CopyDirectory(referencePublicDirectory, artifactsReferencePublicDirectory);
 
