@@ -6,8 +6,200 @@
     <description>Recent content on MongoDB .NET Driver</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 02 Jul 2018 16:49:42 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 02 Jul 2018 20:36:00 +0000</lastBuildDate>
     <atom:link href="/mongo-csharp-driver/2.7/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Change Streams</title>
+      <link>/mongo-csharp-driver/2.7/reference/driver/change_streams/</link>
+      <pubDate>Mon, 02 Jul 2018 20:36:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.7/reference/driver/change_streams/</guid>
+      <description>
+
+&lt;h2 id=&#34;change-streams&#34;&gt;Change Streams&lt;/h2&gt;
+
+&lt;p&gt;Change streams allow an application to receive a stream of events representing changes to documents in:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;A single collection&lt;/li&gt;
+&lt;li&gt;All collections in a single database&lt;/li&gt;
+&lt;li&gt;All collections in all databases&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;An application starts watching a change stream by calling one of the Watch methods.&lt;/p&gt;
+
+&lt;h3 id=&#34;watching-changes-in-a-single-collection&#34;&gt;Watching changes in a single collection&lt;/h3&gt;
+
+&lt;p&gt;To watch changes in a single collection call the Watch or WatchAsync method of IMongoCollection.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = collection.Watch())
+{
+    foreach (var change in cursor.ToEnumerable())
+    {
+        // process change event
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;or&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = await collection.WatchAsync())
+{
+    await cursor.ForEachAsync(change =&amp;gt;
+    {
+        // process change event
+    });
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;watching-changes-in-all-collections-in-a-single-database&#34;&gt;Watching changes in all collections in a single database&lt;/h3&gt;
+
+&lt;p&gt;To watch changes in all collections in a single database call the Watch or WatchAsync method of IMongoDatabase.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = database.Watch())
+{
+    foreach (var change in cursor.ToEnumerable())
+    {
+        // process change event
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;or&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = await database.WatchAsync())
+{
+    await cursor.ForEachAsync(change =&amp;gt;
+    {
+        // process change event
+    });
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;watching-changes-in-all-collections-in-all-databases&#34;&gt;Watching changes in all collections in all databases&lt;/h3&gt;
+
+&lt;p&gt;To watch changes in all collections in all databases call the Watch or WatchAsync method of IMongoClient.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = client.Watch())
+{
+    foreach (var change in cursor.ToEnumerable())
+    {
+        // process change event
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;or&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = await client.WatchAsync())
+{
+    await cursor.ForEachAsync(change =&amp;gt;
+    {
+        // process change event
+    });
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;strongly-typed-changestreamdocument-lt-tdocument-gt-class&#34;&gt;Strongly typed ChangeStreamDocument&amp;lt;TDocument&amp;gt; class&lt;/h3&gt;
+
+&lt;p&gt;The cursor returned from the Watch methods returns the change stream events wrapped in a strongly typed C# class called ChangeStreamDocument&amp;lt;TDocument&amp;gt; (unless you used a pipeline that changed the shape of the results). The underlying change stream events are documented in the server documentation &lt;a href=&#34;https://docs.mongodb.com/manual/reference/change-events/&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public class ChangeStreamDocument&amp;lt;TDocument&amp;gt;
+{
+    public BsonDocument ClusterTime { get; }
+    public CollectionNamespace CollectionNamespace { get; }
+    public BsonDocument DocumentKey { get; }
+    public TDocument FullDocument { get; }
+    public ChangeStreamOperationType OperationType { get; }
+    public BsonDocument ResumeToken { get; }
+    public ChangeStreamUpdateDescription UpdateDescription { get; }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;ClusterTime is the timestamp from the oplog entry associated with the event.&lt;/p&gt;
+
+&lt;p&gt;CollectionNamespace is the full namespace of the collection containing the changed document.&lt;/p&gt;
+
+&lt;p&gt;DocumentKey contains the _id of the document created or modified by the operation. For sharded collections it also contains the shard key of the document.&lt;/p&gt;
+
+&lt;p&gt;For Insert and Replace operations,  FullDocument is the new document created by the operation. For Delete operations FullDocument is null as the document no longer exists. For Update operations FullDocument is only present if you set the FullDocument option in the options passed to Watch to ChangeStreamFullDocumentOption.UpdateLookup, in which case it contains the most current majority-committed version of the document modified by the Update operation (see the server documentation for fullDocument &lt;a href=&#34;https://docs.mongodb.com/manual/reference/change-events/&#34;&gt;here&lt;/a&gt; for details).&lt;/p&gt;
+
+&lt;p&gt;OperationType is one of: Insert, Update, Replace, Delete or Invalidate.&lt;/p&gt;
+
+&lt;p&gt;ResumeToken is metadata identifying the change stream event. It can be passed to Watch in the ResumeAfter option to start a new change stream that will resume with the next change event after this one. This is useful when your application needs to restart a change stream after a network outage.&lt;/p&gt;
+
+&lt;p&gt;UpdateDescription is only present when the OperationType is Update. It describes the fields that were updated or removed by the Update operation.&lt;/p&gt;
+
+&lt;h3 id=&#34;using-an-optional-pipeline&#34;&gt;Using an optional pipeline&lt;/h3&gt;
+
+&lt;p&gt;All the Watch and WatchAsync methods have overloads that take a pipeline argument. An application can pass in a pipeline to filter or modify the change stream in some way.&lt;/p&gt;
+
+&lt;p&gt;Only certain modifications are valid in a change stream pipeline. See the server documentation &lt;a href=&#34;https://docs.mongodb.com/manual/changeStreams/#modify-change-stream-output&#34;&gt;here&lt;/a&gt; for details.&lt;/p&gt;
+
+&lt;p&gt;For example, if you are only interested in monitoring inserted documents, you could use a pipeline to filter the change stream to only include insert operations.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var pipeline = 
+    new EmptyPipelineDefinition&amp;lt;ChangeStreamDocument&amp;lt;BsonDocument&amp;gt;&amp;gt;()
+    .Match(x =&amp;gt; x.OperationType == ChangeStreamOperationType.Insert);
+using (var cursor = collection.Watch(pipeline))
+{
+    foreach (var change in cursor.ToEnumerable())
+    {
+        // process insert change event
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+&lt;p&gt;The implementation of Watch depends on the presence of a &amp;ldquo;resume token&amp;rdquo; in the change stream. The resume token is the value of the &amp;ldquo;_id&amp;rdquo; field in the change stream documents (represented as the ResumeToken property of the ChangeStreamDocument class). If you use a pipeline and the pipeline changes the shape of the change stream documents, the pipeline MUST preserve the presence of the &amp;ldquo;_id&amp;rdquo; field, and it MUST NOT change its value.&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;h3 id=&#34;passing-options-to-the-watch-and-watchasync-methods&#34;&gt;Passing options to the Watch and WatchAsync methods&lt;/h3&gt;
+
+&lt;p&gt;You can pass options to the Watch and WatchAsync methods in the optional options argument, which is of type ChangeStreamOptions.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public class ChangeStreamOptions
+{
+    public int? BatchSize { get; set; }
+    public Collation Collation { get; set; }
+    public ChangeStreamFullDocumentOption FullDocument { get; set; }
+    public TimeSpan? MaxAwaitTime { get; set; }
+    public BsonDocument ResumeAfter { get; set; }
+    public BsonTimestamp StartAtOperationTime { get; set; }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;BatchSize determines the maximum number of change events the server will return at one time. The server might return fewer.&lt;/p&gt;
+
+&lt;p&gt;FullDocument can be set to ChangeStreamFullDocumentOption.UpdateLookup if you want the change stream event for Update operations to include a copy of the full document (the full document might include additional changes that are the result of subsequent change events, see the server documentation &lt;a href=&#34;https://docs.mongodb.com/manual/reference/change-events/#update-event&#34;&gt;here&lt;/a&gt;).&lt;/p&gt;
+
+&lt;p&gt;ResumeAfter and StartAtOperationTime are useful when you want to resume or start a change stream from some point in time.&lt;/p&gt;
+
+&lt;p&gt;For example, if you want to monitor only updates, and you want each change event to include the full document, you would write:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var pipeline = 
+    new EmptyPipelineDefinition&amp;lt;ChangeStreamDocument&amp;lt;BsonDocument&amp;gt;&amp;gt;()
+    .Match(x =&amp;gt; x.OperationType == ChangeStreamOperationType.Update);
+
+var changeStreamOptions = new ChangeStreamOptions
+{
+    FullDocument = ChangeStreamFullDocumentOption.UpdateLookup
+};
+
+using (var cursor = collection.Watch(pipeline, changeStreamOptions))
+{
+    foreach (var change in cursor.ToEnumerable())
+    {
+        // process updated document in change.FullDocument
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     
     <item>
       <title>Authentication</title>
@@ -453,10 +645,10 @@ for the driver to make use of the newest TLS protocols.&lt;/p&gt;
     
     <item>
       <title>Sessions and Transactions</title>
-      <link>/mongo-csharp-driver/2.7/reference/driver/crud/sessions-and-transactions/</link>
+      <link>/mongo-csharp-driver/2.7/reference/driver/crud/sessions_and_transactions/</link>
       <pubDate>Fri, 29 Jun 2018 13:45:00 +0000</pubDate>
       
-      <guid>/mongo-csharp-driver/2.7/reference/driver/crud/sessions-and-transactions/</guid>
+      <guid>/mongo-csharp-driver/2.7/reference/driver/crud/sessions_and_transactions/</guid>
       <description>
 
 &lt;h2 id=&#34;sessions&#34;&gt;Sessions&lt;/h2&gt;
@@ -772,68 +964,6 @@ foreach (var file in files)
     </item>
     
     <item>
-      <title>Finding Files</title>
-      <link>/mongo-csharp-driver/2.7/reference/gridfs/findingfiles/</link>
-      <pubDate>Mon, 14 Sep 2015 00:00:00 +0000</pubDate>
-      
-      <guid>/mongo-csharp-driver/2.7/reference/gridfs/findingfiles/</guid>
-      <description>
-
-&lt;h2 id=&#34;finding-files&#34;&gt;Finding Files&lt;/h2&gt;
-
-&lt;p&gt;Each file stored in GridFS has a unique Id assigned to it, and that is the primary way of accessing the stored files.&lt;/p&gt;
-
-&lt;h3 id=&#34;find-and-findasync-methods&#34;&gt;Find and FindAsync methods&lt;/h3&gt;
-
-&lt;p&gt;If you don&amp;rsquo;t know the Id, you can use the &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_Find.htm
-&#34;&gt;&lt;code&gt;Find&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_FindAsync.htm
-&#34;&gt;&lt;code&gt;FindAsync&lt;/code&gt;&lt;/a&gt; method to find matching files using a filter. The filter must be of type &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_FilterDefinition_1.htm
-&#34;&gt;&lt;code&gt;FilterDefinition&amp;lt;GridFSFileInfo&amp;gt;&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;For example, to find the newest revision of the file named &amp;ldquo;securityvideo&amp;rdquo; uploaded in January 2015:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
-var filter = Builders&amp;lt;GridFSFileInfo&amp;gt;.Filter.And( 
-    Builders&amp;lt;GridFSFileInfo&amp;gt;.Filter.EQ(x =&amp;gt; x.Filename, &amp;quot;securityvideo&amp;quot;),
-    Builders&amp;lt;GridFSFileInfo&amp;gt;.Filter.GTE(x =&amp;gt; x.UploadDateTime, new DateTime(2015, 1, 1, 0, 0, 0, DateTimeKind.Utc)),
-    Builders&amp;lt;GridFSFileInfo&amp;gt;.Filter.LT(x =&amp;gt; x.UploadDateTime, new DateTime(2015, 2, 1, 0, 0, 0, DateTimeKind.Utc)));
-var sort = Builders&amp;lt;GridFSFileInfo&amp;gt;.Sort.Descending(x =&amp;gt; x.UploadDateTime);
-var options = new GridFSFindOptions
-{
-    Limit = 1,
-    Sort = sort
-};
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = bucket.Find(filter, options))
-{
-   var fileInfo = cursor.ToList().FirstOrDefault();
-   // fileInfo either has the matching file information or is null
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = await bucket.FindAsync(filter, options))
-{
-   var fileInfo = (await cursor.ToListAsync()).FirstOrDefault();
-   // fileInfo either has the matching file information or is null
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;gridfsfileinfo-class&#34;&gt;GridFSFileInfo class&lt;/h3&gt;
-
-&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_GridFS_GridFSFileInfo.htm
-&#34;&gt;&lt;code&gt;GridFSFileInfo&lt;/code&gt;&lt;/a&gt; is a strongly typed class that represents the information about a GridFS file stored in the &amp;ldquo;fs.files&amp;rdquo; collection.&lt;/p&gt;
-
-&lt;p&gt;This class is a strongly typed wrapper around a backing &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
-&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt;. It makes it easier to extract the information available in a files collection documents.&lt;/p&gt;
-
-&lt;p&gt;In older drivers it was possible to store arbitrary information at the root level of a files collection document. If you need to access that information you can use the &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/P_MongoDB_Driver_GridFS_GridFSFileInfo_BackingDocument.htm
-&#34;&gt;&lt;code&gt;BackingDocument&lt;/code&gt;&lt;/a&gt; property to get access to the complete backing document. When uploading new GridFS files you should store any additional information you want to associate with the uploaded file inside the &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/P_MongoDB_Driver_GridFS_GridFSFileInfo_Metadata.htm
-&#34;&gt;&lt;code&gt;Metadata&lt;/code&gt;&lt;/a&gt; document.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
       <title>Downloading Files</title>
       <link>/mongo-csharp-driver/2.7/reference/gridfs/downloadingfiles/</link>
       <pubDate>Mon, 14 Sep 2015 00:00:00 +0000</pubDate>
@@ -1058,6 +1188,68 @@ using (var stream = await bucket.OpenDownloadStreamByNameAsync(filename, options
     await stream.CloseAsync(); 
 }
 &lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Finding Files</title>
+      <link>/mongo-csharp-driver/2.7/reference/gridfs/findingfiles/</link>
+      <pubDate>Mon, 14 Sep 2015 00:00:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.7/reference/gridfs/findingfiles/</guid>
+      <description>
+
+&lt;h2 id=&#34;finding-files&#34;&gt;Finding Files&lt;/h2&gt;
+
+&lt;p&gt;Each file stored in GridFS has a unique Id assigned to it, and that is the primary way of accessing the stored files.&lt;/p&gt;
+
+&lt;h3 id=&#34;find-and-findasync-methods&#34;&gt;Find and FindAsync methods&lt;/h3&gt;
+
+&lt;p&gt;If you don&amp;rsquo;t know the Id, you can use the &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_Find.htm
+&#34;&gt;&lt;code&gt;Find&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_FindAsync.htm
+&#34;&gt;&lt;code&gt;FindAsync&lt;/code&gt;&lt;/a&gt; method to find matching files using a filter. The filter must be of type &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_FilterDefinition_1.htm
+&#34;&gt;&lt;code&gt;FilterDefinition&amp;lt;GridFSFileInfo&amp;gt;&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;For example, to find the newest revision of the file named &amp;ldquo;securityvideo&amp;rdquo; uploaded in January 2015:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
+var filter = Builders&amp;lt;GridFSFileInfo&amp;gt;.Filter.And( 
+    Builders&amp;lt;GridFSFileInfo&amp;gt;.Filter.EQ(x =&amp;gt; x.Filename, &amp;quot;securityvideo&amp;quot;),
+    Builders&amp;lt;GridFSFileInfo&amp;gt;.Filter.GTE(x =&amp;gt; x.UploadDateTime, new DateTime(2015, 1, 1, 0, 0, 0, DateTimeKind.Utc)),
+    Builders&amp;lt;GridFSFileInfo&amp;gt;.Filter.LT(x =&amp;gt; x.UploadDateTime, new DateTime(2015, 2, 1, 0, 0, 0, DateTimeKind.Utc)));
+var sort = Builders&amp;lt;GridFSFileInfo&amp;gt;.Sort.Descending(x =&amp;gt; x.UploadDateTime);
+var options = new GridFSFindOptions
+{
+    Limit = 1,
+    Sort = sort
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = bucket.Find(filter, options))
+{
+   var fileInfo = cursor.ToList().FirstOrDefault();
+   // fileInfo either has the matching file information or is null
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = await bucket.FindAsync(filter, options))
+{
+   var fileInfo = (await cursor.ToListAsync()).FirstOrDefault();
+   // fileInfo either has the matching file information or is null
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;gridfsfileinfo-class&#34;&gt;GridFSFileInfo class&lt;/h3&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_GridFS_GridFSFileInfo.htm
+&#34;&gt;&lt;code&gt;GridFSFileInfo&lt;/code&gt;&lt;/a&gt; is a strongly typed class that represents the information about a GridFS file stored in the &amp;ldquo;fs.files&amp;rdquo; collection.&lt;/p&gt;
+
+&lt;p&gt;This class is a strongly typed wrapper around a backing &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
+&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt;. It makes it easier to extract the information available in a files collection documents.&lt;/p&gt;
+
+&lt;p&gt;In older drivers it was possible to store arbitrary information at the root level of a files collection document. If you need to access that information you can use the &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/P_MongoDB_Driver_GridFS_GridFSFileInfo_BackingDocument.htm
+&#34;&gt;&lt;code&gt;BackingDocument&lt;/code&gt;&lt;/a&gt; property to get access to the complete backing document. When uploading new GridFS files you should store any additional information you want to associate with the uploaded file inside the &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/P_MongoDB_Driver_GridFS_GridFSFileInfo_Metadata.htm
+&#34;&gt;&lt;code&gt;Metadata&lt;/code&gt;&lt;/a&gt; document.&lt;/p&gt;
 </description>
     </item>
     
@@ -2481,262 +2673,6 @@ you could track all the documents you&amp;rsquo;ve seen by their identifiers for
 
 &lt;/div&gt;
 .&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Administration</title>
-      <link>/mongo-csharp-driver/2.7/reference/driver/admin/</link>
-      <pubDate>Thu, 07 May 2015 15:36:56 +0000</pubDate>
-      
-      <guid>/mongo-csharp-driver/2.7/reference/driver/admin/</guid>
-      <description>
-
-&lt;h2 id=&#34;adminstration&#34;&gt;Adminstration&lt;/h2&gt;
-
-&lt;p&gt;The administration operations exist in multiple places in the driver&amp;rsquo;s API. Database-related operations exist on the database object and collection-related operations exist on the collection object. If there isn&amp;rsquo;t a method for the admin operation you want to use, you can run a command directly using the &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/M_MongoDB_Driver_IMongoDatabase_RunCommand__1.htm
-&#34;&gt;&lt;code&gt;RunCommand&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/M_MongoDB_Driver_IMongoDatabase_RunCommandAsync__1.htm
-&#34;&gt;&lt;code&gt;RunCommandAsync&lt;/code&gt;&lt;/a&gt; methods on &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_IMongoDatabase.htm
-&#34;&gt;&lt;code&gt;IMongoDatabase&lt;/code&gt;&lt;/a&gt; is available.&lt;/p&gt;
-
-&lt;h2 id=&#34;databases&#34;&gt;Databases&lt;/h2&gt;
-
-&lt;p&gt;These operations exist on the &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_IMongoClient.htm
-&#34;&gt;&lt;code&gt;IMongoClient&lt;/code&gt;&lt;/a&gt; interface.&lt;/p&gt;
-
-&lt;h3 id=&#34;getting-a-database&#34;&gt;Getting a database&lt;/h3&gt;
-
-&lt;p&gt;To get a database, use the &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/M_MongoDB_Driver_IMongoClient_GetDatabase.htm
-&#34;&gt;&lt;code&gt;GetDatabase&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
-&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-&lt;p&gt;There is no command for creating a database. The database will be created the first time it is used.&lt;/p&gt;
-
-&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// get the test database
-var db = client.GetDatabase(&amp;quot;test&amp;quot;);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;dropping-a-database&#34;&gt;Dropping a database&lt;/h3&gt;
-
-&lt;p&gt;Use the &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/M_MongoDB_Driver_IMongoClient_DropDatabase.htm
-&#34;&gt;&lt;code&gt;DropDatabase&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/M_MongoDB_Driver_IMongoClient_DropDatabaseAsync.htm
-&#34;&gt;&lt;code&gt;DropDatabaseAsync&lt;/code&gt;&lt;/a&gt; methods.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// drops the test database
-client.DropDatabase(&amp;quot;test&amp;quot;);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// drops the test database
-await client.DropDatabaseAsync(&amp;quot;test&amp;quot;);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;listing-the-databases&#34;&gt;Listing the databases&lt;/h3&gt;
-
-&lt;p&gt;Use the &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/M_MongoDB_Driver_IMongoClient_ListDatabases.htm
-&#34;&gt;&lt;code&gt;ListDatabases&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/M_MongoDB_Driver_IMongoClient_ListDatabasesAsync.htm
-&#34;&gt;&lt;code&gt;ListDatabasesAsync&lt;/code&gt;&lt;/a&gt; methods.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = client.ListDatabase())
-{
-    var list = cursor.ToList();
-    // do something with the list
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = await client.ListDatabaseAsync())
-{
-    var list = await cursor.ToListAsync();
-    // do something with the list
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;collections&#34;&gt;Collections&lt;/h2&gt;
-
-&lt;p&gt;These operations exists on the &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_IMongoDatabase.htm
-&#34;&gt;&lt;code&gt;IMongoDatabase&lt;/code&gt;&lt;/a&gt; interface.&lt;/p&gt;
-
-&lt;h3 id=&#34;getting-a-collection&#34;&gt;Getting a collection&lt;/h3&gt;
-
-&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/M_MongoDB_Driver_IMongoDatabase_GetCollection__1.htm
-&#34;&gt;&lt;code&gt;GetCollection&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; method returns an &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_IMongoCollection_1.htm
-&#34;&gt;&lt;code&gt;IMongoCollection&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;The generic parameter on the method defines the schema your application will use when working with the collection. Generally, this type will either be a &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/reference/bson/bson_document/&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt; which provides no schema enforcement or a &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/reference/bson/mapping/&#34;&gt;mapped class (POCO)&lt;/a&gt;.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// gets a collection named &amp;quot;foo&amp;quot; using a BsonDocument
-var collection = db.GetCollection&amp;lt;BsonDocument&amp;gt;(&amp;quot;foo&amp;quot;);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;For more information on working with collections, see the &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/reference/driver/crud/&#34;&gt;CRUD Operations section&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h3 id=&#34;creating-a-collection&#34;&gt;Creating a collection&lt;/h3&gt;
-
-&lt;p&gt;Just like databases, there is no need to create a collection before working with it. It will be created upon first use. However, certain features of collections require explicit creation. The &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/M_MongoDB_Driver_IMongoDatabase_CreateCollection.htm
-&#34;&gt;&lt;code&gt;CreateCollection&lt;/code&gt;&lt;/a&gt; and &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/M_MongoDB_Driver_IMongoDatabase_CreateCollectionAsync.htm
-&#34;&gt;&lt;code&gt;CreateCollectionAsync&lt;/code&gt;&lt;/a&gt; methods allows you to specify not only a name, but also &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_CreateCollectionOptions.htm
-&#34;&gt;&lt;code&gt;CreateCollectionOptions&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var options = new CreateCollectionOptions
-{
-    Capped = true,
-    MaxSize = 10000
-});
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// creates a capped collection named &amp;quot;foo&amp;quot; with a maximum size of 10,000 bytes
-db.CreateCollection(&amp;quot;foo&amp;quot;, options); 
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// creates a capped collection named &amp;quot;foo&amp;quot; with a maximum size of 10,000 bytes
-await db.CreateCollectionAsync(&amp;quot;foo&amp;quot;, options); 
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;dropping-a-collection&#34;&gt;Dropping a collection&lt;/h3&gt;
-
-&lt;p&gt;Use the &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/M_MongoDB_Driver_IMongoDatabase_DropCollection.htm
-&#34;&gt;&lt;code&gt;DropCollection&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/M_MongoDB_Driver_IMongoDatabase_DropCollectionAsync.htm
-&#34;&gt;&lt;code&gt;DropCollectionAsync&lt;/code&gt;&lt;/a&gt; methods.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// drops the &amp;quot;foo&amp;quot; collection
-db.DropCollection(&amp;quot;test&amp;quot;);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// drops the &amp;quot;foo&amp;quot; collection
-await db.DropCollectionAsync(&amp;quot;test&amp;quot;);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;listing-the-collections&#34;&gt;Listing the collections&lt;/h3&gt;
-
-&lt;p&gt;Use the &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/M_MongoDB_Driver_IMongoDatabase_ListCollections.htm
-&#34;&gt;&lt;code&gt;ListCollections&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/M_MongoDB_Driver_IMongoDatabase_ListCollectionsAsync.htm
-&#34;&gt;&lt;code&gt;ListCollectionsAsync&lt;/code&gt;&lt;/a&gt; methods.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = db.ListCollections())
-{
-    var list = cursor.ToList();
-    // do something with the list
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = await db.ListCollectionsAsync())
-{
-    var list = await cursor.ToListAsync();
-    // do something with the list
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;renaming-a-collection&#34;&gt;Renaming a collection&lt;/h3&gt;
-
-&lt;p&gt;Use the &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/M_MongoDB_Driver_IMongoDatabase_RenameCollection.htm
-&#34;&gt;&lt;code&gt;RenameCollection&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/M_MongoDB_Driver_IMongoDatabase_RenameCollectionAsync.htm
-&#34;&gt;&lt;code&gt;RenameCollectionAsync&lt;/code&gt;&lt;/a&gt; methods.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// rename the &amp;quot;foo&amp;quot; collection to &amp;quot;bar&amp;quot;
-db.RenameCollection(&amp;quot;foo&amp;quot;, &amp;quot;bar&amp;quot;);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// rename the &amp;quot;foo&amp;quot; collection to &amp;quot;bar&amp;quot;
-await db.RenameCollectionAsync(&amp;quot;foo&amp;quot;, &amp;quot;bar&amp;quot;);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;indexes&#34;&gt;Indexes&lt;/h2&gt;
-
-&lt;p&gt;&lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_IMongoCollection_1.htm
-&#34;&gt;&lt;code&gt;IMongoCollection&amp;lt;T&amp;gt;&lt;/code&gt;&lt;/a&gt; contains an &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/P_MongoDB_Driver_IMongoCollection_1_Indexes.htm
-&#34;&gt;&lt;code&gt;Indexes&lt;/code&gt;&lt;/a&gt; property which gives access to all the index-related operations for a collection.&lt;/p&gt;
-
-&lt;p&gt;A number of the methods take an &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_IndexKeysDefinition_1.htm
-&#34;&gt;&lt;code&gt;IndexKeysDefinition&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt;. See the documentation on the &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/reference/driver/definitions/#index-keys &#34;&gt;index keys builder&lt;/a&gt; for more information.&lt;/p&gt;
-
-&lt;h3 id=&#34;creating-an-index&#34;&gt;Creating an index&lt;/h3&gt;
-
-&lt;p&gt;Use the &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/M_MongoDB_Driver_IMongoIndexManager_1_CreateOne.htm
-&#34;&gt;&lt;code&gt;CreateOne&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/M_MongoDB_Driver_IMongoIndexManager_1_CreateOneAsync.htm
-&#34;&gt;&lt;code&gt;CreateOneAsync&lt;/code&gt;&lt;/a&gt;  methods to create a single index. For instance, to create an ascending index on the &amp;ldquo;x&amp;rdquo; and &amp;ldquo;y&amp;rdquo; fields,&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;collection.Indexes.CreateOne(&amp;quot;{ x : 1, y : 1 }&amp;quot;);
-
-// or
-
-collection.Indexes.CreateOne(new BsonDocument(&amp;quot;x&amp;quot;, 1).Add(&amp;quot;y&amp;quot;, 1));
-
-// or
-
-collection.Indexes.CreateOne(Builders&amp;lt;BsonDocument&amp;gt;.IndexKeys.Ascending(&amp;quot;x&amp;quot;).Ascending(&amp;quot;y&amp;quot;));
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;await collection.Indexes.CreateOneAsync(&amp;quot;{ x : 1, y : 1 }&amp;quot;);
-
-// or
-
-await collection.Indexes.CreateOneAsync(new BsonDocument(&amp;quot;x&amp;quot;, 1).Add(&amp;quot;y&amp;quot;, 1));
-
-// or
-
-await collection.Indexes.CreateOneAsync(Builders&amp;lt;BsonDocument&amp;gt;.IndexKeys.Ascending(&amp;quot;x&amp;quot;).Ascending(&amp;quot;y&amp;quot;));
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;In addition, there are a number of options available when creating index. These are present on the optional &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Driver_CreateIndexOptions.htm
-&#34;&gt;&lt;code&gt;CreateIndexOptions&lt;/code&gt;&lt;/a&gt; parameter. For instance, to create a unique ascending index on &amp;ldquo;x&amp;rdquo;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var options = new CreateIndexOptions { Unique = true };
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;collection.Indexes.CreateOne(&amp;quot;{ x : 1 }&amp;quot;, options);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;await collection.Indexes.CreateOneAsync(&amp;quot;{ x : 1 }&amp;quot;, options);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;dropping-an-index&#34;&gt;Dropping an index&lt;/h3&gt;
-
-&lt;p&gt;To drop a single index use the &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/M_MongoDB_Driver_IMongoIndexManager_1_DropOne.htm
-&#34;&gt;&lt;code&gt;DropOne&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/M_MongoDB_Driver_IMongoIndexManager_1_DropOneAsync.htm
-&#34;&gt;&lt;code&gt;DropOneAsync&lt;/code&gt;&lt;/a&gt; methods.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// drop the index named &amp;quot;x_1&amp;quot;;
-collection.Indexes.DropOne(&amp;quot;x_1&amp;quot;);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// drop the index named &amp;quot;x_1&amp;quot;;
-await collection.Indexes.DropOneAsync(&amp;quot;x_1&amp;quot;);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;To drop all indexes use the &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/M_MongoDB_Driver_IMongoIndexManager_1_DropAll.htm
-&#34;&gt;&lt;code&gt;DropAll&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/M_MongoDB_Driver_IMongoIndexManager_1_DropAllAsync.htm
-&#34;&gt;&lt;code&gt;DropAllAsync&lt;/code&gt;&lt;/a&gt; methods&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// drop all indexes
-collection.Indexes.DropAll();
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// drop all indexes
-await collection.Indexes.DropAllAsync();
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;listing-indexes&#34;&gt;Listing indexes&lt;/h3&gt;
-
-&lt;p&gt;To list all the indexes in a collection, use the &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/M_MongoDB_Driver_IMongoIndexManager_1_List.htm
-&#34;&gt;&lt;code&gt;List&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.7/mongo-csharp-driver/2.7/apidocs/html/M_MongoDB_Driver_IMongoIndexManager_1_ListAsync.htm
-&#34;&gt;&lt;code&gt;ListAsync&lt;/code&gt;&lt;/a&gt; methods.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = collection.Indexes.List())
-{
-    var list = cursor.ToList();
-    // do something with the list...
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = await collection.Indexes.ListAsync())
-{
-    var list = await cursor.ToListAsync();
-    // do something with the list...
-}
-&lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>
     

@@ -9,7 +9,7 @@
 
     <link rel="shortcut icon" href="/mongo-csharp-driver/2.7/img/favicon.png">
 
-    <title>Sessions and Transactions</title>
+    <title>Change Streams</title>
 
     <link rel="stylesheet" href="/mongo-csharp-driver/2.7/lib/bootstrap.css" type="text/css" />
 <link rel="stylesheet" href="/mongo-csharp-driver/2.7/lib/font-awesome/css/font-awesome.min.css" type="text/css" />
@@ -800,38 +800,64 @@
 
 
   
-  
-  
-  
-  
-  
-  
-  
 
-  
-    
-    
-    
-      
-      
-      
-        
-        
+
         
           
         
       
+    
+    
       
     
-    
-  
   
 
 
         
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+    
+    
+    
+      
+      
+      
+        
       
     
     
+  
   
 
 
@@ -1617,18 +1643,16 @@
 
 
 
-  
 
 
 
-
-<li class="toctree-l3  current">
+<li class="toctree-l3 ">
   <a href="/mongo-csharp-driver/2.7/reference/driver/crud/" class="">
       <i class='fa'></i>
       <span>Reading and Writing</span>
       
   </a>
-    <ul  class="current">
+    <ul >
         
         
         
@@ -1733,13 +1757,11 @@
 
 
 
-  
-
 
 
 
     <li class="toctree-l4">
-    <a href="/mongo-csharp-driver/2.7/reference/driver/crud/sessions-and-transactions/">
+    <a href="/mongo-csharp-driver/2.7/reference/driver/crud/sessions_and_transactions/">
         <i class='fa'></i>
         Sessions and Transactions
     </a>
@@ -1749,6 +1771,37 @@
         
         
     </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.7/reference/driver/change_streams/">
+        <i class='fa'></i>
+        Change Streams
+    </a>
   </li>
 
 
@@ -2339,7 +2392,7 @@
 
 
    
-<a class="edit-link" href="https://github.com/mongodb/mongo-csharp-driver/blob/master/docs/reference/content/reference%5cdriver%5ccrud%5csessions-and-transactions.md" target="_blank" title="Edit reference\driver\crud\sessions-and-transactions.md on GitHub"><i class="fa fa-pencil-square-o"></i></a>
+<a class="edit-link" href="https://github.com/mongodb/mongo-csharp-driver/blob/master/docs/reference/content/reference%5cdriver%5cchange_streams.md" target="_blank" title="Edit reference\driver\change_streams.md on GitHub"><i class="fa fa-pencil-square-o"></i></a>
 
 
 
@@ -2355,223 +2408,195 @@
   
   
   
+  
   <li><a href="/mongo-csharp-driver/2.7/reference/">Reference</a> <i class="fa fa-angle-right"></i></li>
   <li><a href="/mongo-csharp-driver/2.7/reference/driver/">Driver</a> <i class="fa fa-angle-right"></i></li>
-  <li><a href="/mongo-csharp-driver/2.7/reference/driver/crud/">Reading and Writing</a> <i class="fa fa-angle-right"></i></li>
-  <li>Sessions and Transactions</li>
+  <li>Change Streams</li>
 </ul>
 </div>
 
 
 
 
-<h2 id="sessions">Sessions</h2>
+<h2 id="change-streams">Change Streams</h2>
 
-<p>A session is used to group together a series of operations that are related to each other and should be executed with the same session options. Sessions are also used for transactions.</p>
+<p>Change streams allow an application to receive a stream of events representing changes to documents in:</p>
 
-<p>New overloaded methods that take a session parameter have been added for all operation methods in the driver. You execute multiple operations in the same session by passing the same session value to each operation.</p>
+<ol>
+<li>A single collection</li>
+<li>All collections in a single database</li>
+<li>All collections in all databases</li>
+</ol>
 
-<p>When you call an older operation method that does not take a session parameter, the driver will start an implicit session to execute that one operation and then immediately end the implicit session.</p>
+<p>An application starts watching a change stream by calling one of the Watch methods.</p>
 
-<h3 id="startsession-and-startsessionasync">StartSession and StartSessionAsync</h3>
+<h3 id="watching-changes-in-a-single-collection">Watching changes in a single collection</h3>
 
-<pre><code class="language-csharp">IClientSessionHandle StartSession(ClientSessionOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
-Task&lt;IClientSessionHandle&gt; StartSessionAsync(ClientSessionOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
-</code></pre>
+<p>To watch changes in a single collection call the Watch or WatchAsync method of IMongoCollection.</p>
 
-<p>A session is started by calling the StartSession or StartSessionAsync methods of IMongoClient:</p>
-
-<p>You must end a session when you no longer need it. You end a session by calling Dispose, which will happen automatically if you put the session inside a using statement.</p>
-
-<p>The recommended way of using a session is:</p>
-
-<pre><code class="language-csharp">var sessionOptions = new ClientSessionOptions { ... };
-using (var session = client.StartSession(sessionOptions, cancellationToken))
+<pre><code class="language-csharp">using (var cursor = collection.Watch())
 {
-    // execute some operations passing the session as an argument to each operation
+    foreach (var change in cursor.ToEnumerable())
+    {
+        // process change event
+    }
 }
 </code></pre>
 
 <p>or</p>
 
-<pre><code class="language-csharp">var sessionOptions = new ClientSessionOptions { ... };
-using (var session = await client.StartSessionAsync(sessionOptions, cancellationToken))
+<pre><code class="language-csharp">using (var cursor = await collection.WatchAsync())
 {
-    // execute some operations passing the session as an argument to each operation
-}
-</code></pre>
-
-<p>A session is typically short lived. You start a session, execute some operations, and end the session.</p>
-
-<h3 id="clientsessionoptions">ClientSessionOptions</h3>
-
-<p>The ClientSessionOptions class is used to specify any desired options when calling StartSession.</p>
-
-<pre><code class="language-csharp">public class ClientSessionOptions
-{
-    public bool? CausalConsistency { get; set; }
-    public TransactionOptions DefaultTransactionOptions { get; set; }
-}
-</code></pre>
-
-<h4 id="causalconsistency">CausalConsistency</h4>
-
-<p>Set to true if you want all operations in a session to be causally consistent.</p>
-
-<h4 id="defaulttransactionoptions">DefaultTransactionOptions</h4>
-
-<p>You can provide default transaction options to be used for any options that are not provided when StartTransaction is called.</p>
-
-<h3 id="iclientsession-properties-and-methods">IClientSession properties and methods</h3>
-
-<p>The IClientSession interface defines the properties and methods available on a session.</p>
-
-<pre><code class="language-csharp">public interface IClientSession : IDisposable
-{
-    IMongoClient Client { get; }
-    BsonDocument ClusterTime { get; }
-    bool IsInTransaction { get; }
-    BsonTimestamp OperationTime { get; }
-    ClientSessionOptions Options { get; }
-
-    void AdvanceClusterTime(BsonDocument newClusterTime);
-    void AdvanceOperationTime(BsonTimestamp newOperationTime);
-
-    // see also transaction related methods documented below
-}
-</code></pre>
-
-<p>Note: a few members of IClientSession have been deliberately omitted from this documentation, either because they are rarely used or because they are for internal use only.</p>
-
-<h4 id="client">Client</h4>
-
-<p>The Client property returns a reference to the IMongoClient instance that was used to start this session.</p>
-
-<h4 id="clustertime">ClusterTime</h4>
-
-<p>The ClusterTime property returns the highest cluster time that has been seen by this client. The value is an opaque BsonDocument containing a cluster time that has been returned by the server. While an application might never inspect the actual value, it might set this value (by calling AdvanceClusterTime) when initializing a causally consistent session.</p>
-
-<h3 id="isintransaction">IsInTransaction</h3>
-
-<p>Specifies whether the session is currently in a transaction. A session is in a transaction after StartTransaction has been called and until either AbortTransaction or CommitTransaction has been called.</p>
-
-<h3 id="operationtime">OperationTime</h3>
-
-<p>The operation time returned by the server for the most recent operation in this session. Operation times are used by the driver to ensure causal consistency when the ClientSessionOptions specify that causal consistency is desired. While an application might never use the actual value, it might set this value (by calling AdvanceOperationTime) when initializing a causally consistent session.</p>
-
-<h3 id="options">Options</h3>
-
-<p>Returns the options that were passed to StartSession.</p>
-
-<h3 id="advanceclustertime-and-advanceoperationtime">AdvanceClusterTime and AdvanceOperationTime</h3>
-
-<pre><code class="language-csharp">void AdvanceClusterTime(BsonDocument newClusterTime);
-void AdvanceOperationTime(BsonTimestamp newOperationTime);
-</code></pre>
-
-<p>Call these methods to advance the cluster and operation times when you want subsequent operations in this session to be causally consistent with operations that have executed outside of this session. Typically the values you pass to AdvanceClusterTime and AdvanceOperation time will come from the ClusterTime and OperationTime properties of some other session.</p>
-
-<h3 id="transaction-methods">Transaction methods</h3>
-
-<p>The methods to start, abort or commit a transaction are documented in the next section.</p>
-
-<h2 id="transactions">Transactions</h2>
-
-<p>Transactions are started, committed or aborted using methods of IClientSession. A session can only execute one transaction at a time, but a session can execute more than one transaction as long as each transaction is committed or aborted before the next one is started.</p>
-
-<h3 id="starttransaction">StartTransaction</h3>
-
-<pre><code class="language-csharp">void StartTransaction(TransactionOptions transactionOptions = null);
-</code></pre>
-
-<p>Start a transaction by calling StartTransaction, optionally specifying options for the transaction.</p>
-
-<p>Each transaction option can be specified at any of the following levels:</p>
-
-<ol>
-<li>StartTransaction in the options parameter</li>
-<li>StartSession in the defaultTransactionOptions parameter</li>
-<li>Defaulted</li>
-</ol>
-
-<p>You can specify different options at different levels. An option specified in StartTransaction overrides the same option specified in the defaultTransactionOptions passed to StartSession, which in turn overrides the default value.</p>
-
-<h4 id="transactionoptions">TransactionOptions</h4>
-
-<pre><code class="language-csharp">public class TransactionOptions
-{
-    public ReadConcern ReadConcern { get; };
-    public ReadPreference ReadPreference { get; };
-    public WriteConcern WriteConcern { get; };
-
-    public TransactionOptions(
-        Optional&lt;ReadConcern&gt; readConcern = default(Optional&lt;ReadConcern&gt;),
-        Optional&lt;ReadPreference&gt; readPreference = default(Optional&lt;ReadPreference&gt;),
-        Optional&lt;WriteConcern&gt; writeConcern = default(Optional&lt;WriteConcern&gt;));
-
-    public TransactionOptions With(
-        Optional&lt;ReadConcern&gt; readConcern = default(Optional&lt;ReadConcern&gt;),
-        Optional&lt;ReadPreference&gt; readPreference = default(Optional&lt;ReadPreference&gt;),
-        Optional&lt;WriteConcern&gt; writeConcern = default(Optional&lt;WriteConcern&gt;))
-}
-</code></pre>
-
-<p>Create an instance of TransactionOptions either by calling the constructor with any desired optional arguments, or by calling the With method on an existing instance of TransactionOptions to create a new instance with some values changed.</p>
-
-<h5 id="readconcern">ReadConcern</h5>
-
-<p>The ReadConcern used while in the transaction. All operations in the transaction use the ReadConcern specified when StartTransaction is called.</p>
-
-<h5 id="readpreference">ReadPreference</h5>
-
-<p>The ReadPreference used while in the transaction. Currently, the ReadPreference for a transaction must be Primary.</p>
-
-<h5 id="writeconcern">WriteConcern</h5>
-
-<p>The WriteConcern used for this transaction. The WriteConcern only applies when committing the transaction, not to the individual operations executed while in the transaction.</p>
-
-<h3 id="committransaction-and-committransactionasync">CommitTransaction and CommitTransactionAsync</h3>
-
-<pre><code class="language-csharp">void CommitTransaction(CancellationToken cancellationToken = default(CancellationToken));
-Task CommitTransactionAsync(CancellationToken cancellationToken = default(CancellationToken));
-</code></pre>
-
-<p>You must call CommitTransaction or CommitTransactionAsync in order for a transaction to be committed. If a session is ended while a transaction is in progress the transaction will be automatically aborted.</p>
-
-<p>The commit is executed with the WriteConcern specified by the transaction options.</p>
-
-<h3 id="aborttransaction-and-aborttransactionasync">AbortTransaction and AbortTransactionAsync</h3>
-
-<pre><code class="language-csharp">void AbortTransaction(CancellationToken cancellationToken = default(CancellationToken));
-Task AbortTransactionAsync(CancellationToken cancellationToken = default(CancellationToken));
-</code></pre>
-
-<p>Call AbortTransaction or AbortTransactionAsync to abort a transaction. Since any transaction in progress is automatically aborted when a session is ended, you can also implicitly abort an uncommitted transaction by simply ending the session.</p>
-
-<p>In this example we rely on the implied transaction abort:</p>
-
-<pre><code class="language-csharp">using (var session = client.StartSession())
-{
-    session.StartTransaction();
-    // execute operations using the session
-    session.CommitTransaction(); // if an exception is thrown before reaching here the transaction will be implicitly aborted
-}
-</code></pre>
-
-<p>When writing an async program you may want to avoid using the implied abort transaction that occurs when Dispose is called on a session with a transaction in progress, because Dispose is a blocking operation. To be fully async, even in the case where the transaction needs to be aborted, you might instead write:</p>
-
-<pre><code class="language-csharp">using (var session = await client.StartSessionAsync())
-{
-    try
+    await cursor.ForEachAsync(change =&gt;
     {
-        // execute async operations using the session
-    }
-    catch
+        // process change event
+    });
+}
+</code></pre>
+
+<h3 id="watching-changes-in-all-collections-in-a-single-database">Watching changes in all collections in a single database</h3>
+
+<p>To watch changes in all collections in a single database call the Watch or WatchAsync method of IMongoDatabase.</p>
+
+<pre><code class="language-csharp">using (var cursor = database.Watch())
+{
+    foreach (var change in cursor.ToEnumerable())
     {
-        await session.AbortTransactionAsync(); // now Dispose on the session has nothing to do and won't block
-        throw;
+        // process change event
     }
-    await session.CommitTransactionAsync();
+}
+</code></pre>
+
+<p>or</p>
+
+<pre><code class="language-csharp">using (var cursor = await database.WatchAsync())
+{
+    await cursor.ForEachAsync(change =&gt;
+    {
+        // process change event
+    });
+}
+</code></pre>
+
+<h3 id="watching-changes-in-all-collections-in-all-databases">Watching changes in all collections in all databases</h3>
+
+<p>To watch changes in all collections in all databases call the Watch or WatchAsync method of IMongoClient.</p>
+
+<pre><code class="language-csharp">using (var cursor = client.Watch())
+{
+    foreach (var change in cursor.ToEnumerable())
+    {
+        // process change event
+    }
+}
+</code></pre>
+
+<p>or</p>
+
+<pre><code class="language-csharp">using (var cursor = await client.WatchAsync())
+{
+    await cursor.ForEachAsync(change =&gt;
+    {
+        // process change event
+    });
+}
+</code></pre>
+
+<h3 id="strongly-typed-changestreamdocument-lt-tdocument-gt-class">Strongly typed ChangeStreamDocument&lt;TDocument&gt; class</h3>
+
+<p>The cursor returned from the Watch methods returns the change stream events wrapped in a strongly typed C# class called ChangeStreamDocument&lt;TDocument&gt; (unless you used a pipeline that changed the shape of the results). The underlying change stream events are documented in the server documentation <a href="https://docs.mongodb.com/manual/reference/change-events/">here</a>.</p>
+
+<pre><code class="language-csharp">public class ChangeStreamDocument&lt;TDocument&gt;
+{
+    public BsonDocument ClusterTime { get; }
+    public CollectionNamespace CollectionNamespace { get; }
+    public BsonDocument DocumentKey { get; }
+    public TDocument FullDocument { get; }
+    public ChangeStreamOperationType OperationType { get; }
+    public BsonDocument ResumeToken { get; }
+    public ChangeStreamUpdateDescription UpdateDescription { get; }
+}
+</code></pre>
+
+<p>ClusterTime is the timestamp from the oplog entry associated with the event.</p>
+
+<p>CollectionNamespace is the full namespace of the collection containing the changed document.</p>
+
+<p>DocumentKey contains the _id of the document created or modified by the operation. For sharded collections it also contains the shard key of the document.</p>
+
+<p>For Insert and Replace operations,  FullDocument is the new document created by the operation. For Delete operations FullDocument is null as the document no longer exists. For Update operations FullDocument is only present if you set the FullDocument option in the options passed to Watch to ChangeStreamFullDocumentOption.UpdateLookup, in which case it contains the most current majority-committed version of the document modified by the Update operation (see the server documentation for fullDocument <a href="https://docs.mongodb.com/manual/reference/change-events/">here</a> for details).</p>
+
+<p>OperationType is one of: Insert, Update, Replace, Delete or Invalidate.</p>
+
+<p>ResumeToken is metadata identifying the change stream event. It can be passed to Watch in the ResumeAfter option to start a new change stream that will resume with the next change event after this one. This is useful when your application needs to restart a change stream after a network outage.</p>
+
+<p>UpdateDescription is only present when the OperationType is Update. It describes the fields that were updated or removed by the Update operation.</p>
+
+<h3 id="using-an-optional-pipeline">Using an optional pipeline</h3>
+
+<p>All the Watch and WatchAsync methods have overloads that take a pipeline argument. An application can pass in a pipeline to filter or modify the change stream in some way.</p>
+
+<p>Only certain modifications are valid in a change stream pipeline. See the server documentation <a href="https://docs.mongodb.com/manual/changeStreams/#modify-change-stream-output">here</a> for details.</p>
+
+<p>For example, if you are only interested in monitoring inserted documents, you could use a pipeline to filter the change stream to only include insert operations.</p>
+
+<pre><code class="language-csharp">var pipeline = 
+    new EmptyPipelineDefinition&lt;ChangeStreamDocument&lt;BsonDocument&gt;&gt;()
+    .Match(x =&gt; x.OperationType == ChangeStreamOperationType.Insert);
+using (var cursor = collection.Watch(pipeline))
+{
+    foreach (var change in cursor.ToEnumerable())
+    {
+        // process insert change event
+    }
+}
+</code></pre>
+
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+<p>The implementation of Watch depends on the presence of a &ldquo;resume token&rdquo; in the change stream. The resume token is the value of the &ldquo;_id&rdquo; field in the change stream documents (represented as the ResumeToken property of the ChangeStreamDocument class). If you use a pipeline and the pipeline changes the shape of the change stream documents, the pipeline MUST preserve the presence of the &ldquo;_id&rdquo; field, and it MUST NOT change its value.</p>
+
+</div>
+</p>
+
+<h3 id="passing-options-to-the-watch-and-watchasync-methods">Passing options to the Watch and WatchAsync methods</h3>
+
+<p>You can pass options to the Watch and WatchAsync methods in the optional options argument, which is of type ChangeStreamOptions.</p>
+
+<pre><code class="language-csharp">public class ChangeStreamOptions
+{
+    public int? BatchSize { get; set; }
+    public Collation Collation { get; set; }
+    public ChangeStreamFullDocumentOption FullDocument { get; set; }
+    public TimeSpan? MaxAwaitTime { get; set; }
+    public BsonDocument ResumeAfter { get; set; }
+    public BsonTimestamp StartAtOperationTime { get; set; }
+}
+</code></pre>
+
+<p>BatchSize determines the maximum number of change events the server will return at one time. The server might return fewer.</p>
+
+<p>FullDocument can be set to ChangeStreamFullDocumentOption.UpdateLookup if you want the change stream event for Update operations to include a copy of the full document (the full document might include additional changes that are the result of subsequent change events, see the server documentation <a href="https://docs.mongodb.com/manual/reference/change-events/#update-event">here</a>).</p>
+
+<p>ResumeAfter and StartAtOperationTime are useful when you want to resume or start a change stream from some point in time.</p>
+
+<p>For example, if you want to monitor only updates, and you want each change event to include the full document, you would write:</p>
+
+<pre><code class="language-csharp">var pipeline = 
+    new EmptyPipelineDefinition&lt;ChangeStreamDocument&lt;BsonDocument&gt;&gt;()
+    .Match(x =&gt; x.OperationType == ChangeStreamOperationType.Update);
+
+var changeStreamOptions = new ChangeStreamOptions
+{
+    FullDocument = ChangeStreamFullDocumentOption.UpdateLookup
+};
+
+using (var cursor = collection.Watch(pipeline, changeStreamOptions))
+{
+    foreach (var change in cursor.ToEnumerable())
+    {
+        // process updated document in change.FullDocument
+    }
 }
 </code></pre>
 
@@ -2583,8 +2608,8 @@ Task AbortTransactionAsync(CancellationToken cancellationToken = default(Cancell
 <div id="btnv">
   
   <div class="pull-left">
-  <a class="navigation prev" href="/mongo-csharp-driver/2.7/reference/driver/crud/writing/">
-      <i class="fa fa-long-arrow-left"> </i> Writing
+  <a class="navigation prev" href="/mongo-csharp-driver/2.7/reference/driver/crud/">
+      <i class="fa fa-long-arrow-left"> </i> Reading and Writing
   </a>
   </div>
   
@@ -2608,38 +2633,14 @@ Task AbortTransactionAsync(CancellationToken cancellationToken = default(Cancell
 <ul>
 <li>
 <ul>
-<li><a href="#sessions">Sessions</a>
+<li><a href="#change-streams">Change Streams</a>
 <ul>
-<li><a href="#startsession-and-startsessionasync">StartSession and StartSessionAsync</a></li>
-<li><a href="#clientsessionoptions">ClientSessionOptions</a>
-<ul>
-<li><a href="#causalconsistency">CausalConsistency</a></li>
-<li><a href="#defaulttransactionoptions">DefaultTransactionOptions</a></li>
-</ul></li>
-<li><a href="#iclientsession-properties-and-methods">IClientSession properties and methods</a>
-<ul>
-<li><a href="#client">Client</a></li>
-<li><a href="#clustertime">ClusterTime</a></li>
-</ul></li>
-<li><a href="#isintransaction">IsInTransaction</a></li>
-<li><a href="#operationtime">OperationTime</a></li>
-<li><a href="#options">Options</a></li>
-<li><a href="#advanceclustertime-and-advanceoperationtime">AdvanceClusterTime and AdvanceOperationTime</a></li>
-<li><a href="#transaction-methods">Transaction methods</a></li>
-</ul></li>
-<li><a href="#transactions">Transactions</a>
-<ul>
-<li><a href="#starttransaction">StartTransaction</a>
-<ul>
-<li><a href="#transactionoptions">TransactionOptions</a>
-<ul>
-<li><a href="#readconcern">ReadConcern</a></li>
-<li><a href="#readpreference">ReadPreference</a></li>
-<li><a href="#writeconcern">WriteConcern</a></li>
-</ul></li>
-</ul></li>
-<li><a href="#committransaction-and-committransactionasync">CommitTransaction and CommitTransactionAsync</a></li>
-<li><a href="#aborttransaction-and-aborttransactionasync">AbortTransaction and AbortTransactionAsync</a></li>
+<li><a href="#watching-changes-in-a-single-collection">Watching changes in a single collection</a></li>
+<li><a href="#watching-changes-in-all-collections-in-a-single-database">Watching changes in all collections in a single database</a></li>
+<li><a href="#watching-changes-in-all-collections-in-all-databases">Watching changes in all collections in all databases</a></li>
+<li><a href="#strongly-typed-changestreamdocument-lt-tdocument-gt-class">Strongly typed ChangeStreamDocument&lt;TDocument&gt; class</a></li>
+<li><a href="#using-an-optional-pipeline">Using an optional pipeline</a></li>
+<li><a href="#passing-options-to-the-watch-and-watchasync-methods">Passing options to the Watch and WatchAsync methods</a></li>
 </ul></li>
 </ul></li>
 </ul>

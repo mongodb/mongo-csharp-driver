@@ -9,7 +9,7 @@
 
     <link rel="shortcut icon" href="/mongo-csharp-driver/2.7/img/favicon.png">
 
-    <title>Using a Tailable Cursor</title>
+    <title>Sessions and Transactions</title>
 
     <link rel="stylesheet" href="/mongo-csharp-driver/2.7/lib/bootstrap.css" type="text/css" />
 <link rel="stylesheet" href="/mongo-csharp-driver/2.7/lib/font-awesome/css/font-awesome.min.css" type="text/css" />
@@ -800,319 +800,65 @@
 
 
   
+  
+  
+  
+  
+  
+  
+  
 
-
+  
+    
+    
+    
+      
+      
+      
+        
+        
         
           
         
       
-    
-    
       
+    
+    
+  
+  
+
+
+        
+      
+    
     
   
 
 
         
-          
-        
       
     
       
       
         
-        
-        
-        
-        
-        
-        
-        
-
-
-
-
-
-
-
-
-
-  
-
-
-        
-          
-        
       
     
       
       
-        
-        
-        
-        
-        
-        
-        
-        
-
-
-
-
-
-
-
-
-
-  
-
-
-        
-          
-        
-      
     
-    
-      
     
   
 
 
         
-          
-        
       
     
       
       
-        
-        
-        
-        
-        
-        
-        
-        
-
-
-
-
-
-
-
-
-
-  
-    
     
       
       
-        
-        
-        
-        
-        
-        
-        
-        
-
-
-
-
-
-
-
-
-
-  
-
-
-        
-          
-        
-      
     
-    
-      
-    
-  
-
-
-        
-          
-        
-      
-    
-      
-      
-        
-        
-        
-        
-        
-        
-        
-        
-
-
-
-
-
-
-
-
-
-  
-    
-    
-      
-      
-        
-        
-        
-        
-        
-        
-        
-        
-
-
-
-
-
-
-
-
-
-  
-
-
-        
-          
-        
-      
-    
-      
-      
-        
-        
-        
-        
-        
-        
-        
-        
-
-
-
-
-
-
-
-
-
-  
-
-
-        
-          
-        
-      
-    
-      
-      
-        
-        
-        
-        
-        
-        
-        
-        
-
-
-
-
-
-
-
-
-
-  
-
-
-        
-          
-        
-      
-    
-      
-      
-        
-        
-        
-        
-        
-        
-        
-        
-
-
-
-
-
-
-
-
-
-  
-
-
-        
-          
-        
-      
-    
-      
-      
-        
-        
-        
-        
-        
-        
-        
-        
-
-
-
-
-
-
-
-
-
-  
-
-
-        
-          
-        
-      
-    
-    
-      
-    
-  
-
-
-        
-          
-        
-      
-    
-    
-      
     
   
 
@@ -1134,129 +880,17 @@
     
       
       
-        
-        
-        
-        
-        
-        
-        
-        
-
-
-
-
-
-
-
-
-
-  
-
-
-        
-          
-        
+    
+      
       
     
       
       
-        
-        
-        
-        
-        
-        
-        
-        
-
-
-
-
-
-
-
-
-
-  
-
-
-        
-          
-        
-      
     
       
       
-        
-        
-        
-        
-        
-        
-        
-        
-
-
-
-
-
-
-
-
-
-  
-
-
-        
-          
-        
-      
     
       
-      
-        
-        
-        
-        
-        
-        
-        
-        
-
-
-
-
-
-
-
-
-
-  
-  
-  
-  
-  
-  
-  
-  
-
-  
-    
-    
-    
-      
-    
-  
-  
-
-
-        
-      
-    
-      
-      
-        
       
     
     
@@ -1506,16 +1140,18 @@
 
 
 
+  
 
 
 
-<li class="toctree-l1 ">
+
+<li class="toctree-l1  current">
   <a href="/mongo-csharp-driver/2.7/reference/" class="">
       <i class='fa fa-book'></i>
       <span>Reference</span>
-      <span class="menu-arrow fa fa-angle-right"></span>
+      <span class="menu-arrow fa fa-angle-down"></span>
   </a>
-    <ul >
+    <ul  class="current">
         
         
         
@@ -1773,16 +1409,18 @@
 
 
 
+  
 
 
 
-<li class="toctree-l2 ">
+
+<li class="toctree-l2  current">
   <a href="/mongo-csharp-driver/2.7/reference/driver/" class="">
       <i class='fa'></i>
       <span>Driver</span>
       
   </a>
-    <ul >
+    <ul  class="current">
         
         
         
@@ -1982,16 +1620,18 @@
 
 
 
+  
 
 
 
-<li class="toctree-l3 ">
+
+<li class="toctree-l3  current">
   <a href="/mongo-csharp-driver/2.7/reference/driver/crud/" class="">
       <i class='fa'></i>
       <span>Reading and Writing</span>
       
   </a>
-    <ul >
+    <ul  class="current">
         
         
         
@@ -2095,6 +1735,8 @@
 
 
 
+
+  
 
 
 
@@ -2439,18 +2081,16 @@
 
 
 
-  
 
 
 
-
-<li class="toctree-l1  current">
+<li class="toctree-l1 ">
   <a href="/mongo-csharp-driver/2.7/examples/" class="">
       <i class='fa fa-code'></i>
       <span>Examples</span>
-      <span class="menu-arrow fa fa-angle-down"></span>
+      <span class="menu-arrow fa fa-angle-right"></span>
   </a>
-    <ul  class="current">
+    <ul >
         
         
         
@@ -2554,8 +2194,6 @@
 
 
 
-
-  
 
 
 
@@ -2733,7 +2371,7 @@
 
 
    
-<a class="edit-link" href="https://github.com/mongodb/mongo-csharp-driver/blob/master/docs/reference/content/examples%5ctailable_cursor.md" target="_blank" title="Edit examples\tailable_cursor.md on GitHub"><i class="fa fa-pencil-square-o"></i></a>
+<a class="edit-link" href="https://github.com/mongodb/mongo-csharp-driver/blob/master/docs/reference/content/reference%5cdriver%5ccrud%5csessions_and_transactions.md" target="_blank" title="Edit reference\driver\crud\sessions_and_transactions.md on GitHub"><i class="fa fa-pencil-square-o"></i></a>
 
 
 
@@ -2749,119 +2387,225 @@
   
   
   
-  
-  
-  <li><a href="/mongo-csharp-driver/2.7/examples/">Examples</a> <i class="fa fa-angle-right"></i></li>
-  <li>Using a Tailable Cursor</li>
+  <li><a href="/mongo-csharp-driver/2.7/reference/">Reference</a> <i class="fa fa-angle-right"></i></li>
+  <li><a href="/mongo-csharp-driver/2.7/reference/driver/">Driver</a> <i class="fa fa-angle-right"></i></li>
+  <li><a href="/mongo-csharp-driver/2.7/reference/driver/crud/">Reading and Writing</a> <i class="fa fa-angle-right"></i></li>
+  <li>Sessions and Transactions</li>
 </ul>
 </div>
 
 
 
 
-<h2 id="using-a-tailable-cursor">Using a Tailable Cursor</h2>
+<h2 id="sessions">Sessions</h2>
 
-<p>MongoDB offers the option to watch a <a href="http://docs.mongodb.org/manual/core/capped-collections/
-">capped collection</a> for changes using a <a href="http://docs.mongodb.org/manual/tutorial/create-tailable-cursor/
-">tailable cursor</a>.</p>
+<p>A session is used to group together a series of operations that are related to each other and should be executed with the same session options. Sessions are also used for transactions.</p>
 
-<p>The code below &ldquo;tails&rdquo; a capped collection and outputs documents to the console as they are added. The method also handles the possibility of a dead cursor by tracking the field <code>insertDate</code>. New documents are added with increasing values of <code>insertDate</code>.</p>
+<p>New overloaded methods that take a session parameter have been added for all operation methods in the driver. You execute multiple operations in the same session by passing the same session value to each operation.</p>
 
-<p><div class="admonition note">
-<h5 class="admonition-title">Note</h5>
-<p>Even though we are using <a href="/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Bson_BsonDocument.htm"><code>BsonDocument</code></a> below, it is possible to use an application defined class by replacing the <a href="/mongo-csharp-driver/2.7/apidocs/html/T_MongoDB_Bson_BsonDocument.htm"><code>BsonDocument</code></a> references with that of your application defined class.</p>
+<p>When you call an older operation method that does not take a session parameter, the driver will start an implicit session to execute that one operation and then immediately end the implicit session.</p>
 
-</div>
-</p>
+<h3 id="startsession-and-startsessionasync">StartSession and StartSessionAsync</h3>
 
-<p>This version of the code uses the synchronous API to tail the capped collection:</p>
+<pre><code class="language-csharp">IClientSessionHandle StartSession(ClientSessionOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+Task&lt;IClientSessionHandle&gt; StartSessionAsync(ClientSessionOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+</code></pre>
 
-<pre><code class="language-csharp">private static void TailCollection(IMongoCollection&lt;BsonDocument&gt; collection)
+<p>A session is started by calling the StartSession or StartSessionAsync methods of IMongoClient:</p>
+
+<p>You must end a session when you no longer need it. You end a session by calling Dispose, which will happen automatically if you put the session inside a using statement.</p>
+
+<p>The recommended way of using a session is:</p>
+
+<pre><code class="language-csharp">var sessionOptions = new ClientSessionOptions { ... };
+using (var session = client.StartSession(sessionOptions, cancellationToken))
 {
-    // Set lastInsertDate to the smallest value possible
-    BsonValue lastInsertDate = BsonMinKey.Value;
-    
-    var options = new FindOptions&lt;BsonDocument&gt; 
-    { 
-        // Our cursor is a tailable cursor and informs the server to await
-        CursorType = CursorType.TailableAwait
-    };
-    
-    // Initially, we don't have a filter. An empty BsonDocument matches everything.
-    BsonDocument filter = new BsonDocument();
-    
-    // NOTE: This loops forever. It would be prudent to provide some form of 
-    // an escape condition based on your needs; e.g. the user presses a key.
-    while (true)
-    {
-        // Start the cursor and wait for the initial response
-        using (var cursor = collection.FindSync(filter, options))
-        {
-            foreach (var document in cursor.ToEnumerable())
-            {
-                // Set the last value we saw 
-                lastInsertDate = document[&quot;insertDate&quot;];
-                
-                // Write the document to the console.
-                Console.WriteLine(document.ToString());
-            }
-        }
-
-        // The tailable cursor died so loop through and restart it
-        // Now, we want documents that are strictly greater than the last value we saw
-        filter = new BsonDocument(&quot;$gt&quot;, new BsonDocument(&quot;insertDate&quot;, lastInsertDate));
-    }
+    // execute some operations passing the session as an argument to each operation
 }
 </code></pre>
 
-<p>This version of the code uses the asynchronous API to tail the capped collection:</p>
+<p>or</p>
 
-<pre><code class="language-csharp">private static async Task TailCollectionAsync(IMongoCollection&lt;BsonDocument&gt; collection)
+<pre><code class="language-csharp">var sessionOptions = new ClientSessionOptions { ... };
+using (var session = await client.StartSessionAsync(sessionOptions, cancellationToken))
 {
-    // Set lastInsertDate to the smallest value possible
-    BsonValue lastInsertDate = BsonMinKey.Value;
-    
-    var options = new FindOptions&lt;BsonDocument&gt; 
-    { 
-        // Our cursor is a tailable cursor and informs the server to await
-        CursorType = CursorType.TailableAwait
-    };
-    
-    // Initially, we don't have a filter. An empty BsonDocument matches everything.
-    BsonDocument filter = new BsonDocument();
-    
-    // NOTE: This loops forever. It would be prudent to provide some form of 
-    // an escape condition based on your needs; e.g. the user presses a key.
-    while (true)
-    {
-        // Start the cursor and wait for the initial response
-        using (var cursor = await collection.FindAsync(filter, options))
-        {
-            // This callback will get invoked with each new document found
-            await cursor.ForEachAsync(document =&gt;
-            {
-                // Set the last value we saw 
-                lastInsertDate = document[&quot;insertDate&quot;];
-                
-                // Write the document to the console.
-                await Console.WriteLineAsync(document.ToString());
-            });
-        }
-
-        // The tailable cursor died so loop through and restart it
-        // Now, we want documents that are strictly greater than the last value we saw
-        filter = new BsonDocument(&quot;$gt&quot;, new BsonDocument(&quot;insertDate&quot;, lastInsertDate));
-    }
+    // execute some operations passing the session as an argument to each operation
 }
 </code></pre>
 
-<p><div class="admonition note">
-<h5 class="admonition-title">Note</h5>
-<p>If multiple documents might have the exact same insert date, then using the above logic might cause you to miss some documents in the event that the cursor gets restarted. To solve this,
-you could track all the documents you&rsquo;ve seen by their identifiers for the same <code>lastInsertDate</code> and ignore them when restarting the tailable cursor. In addition, you would need to change the <code>$gt</code> condition to <code>$gte</code></p>
+<p>A session is typically short lived. You start a session, execute some operations, and end the session.</p>
 
-</div>
-.</p>
+<h3 id="clientsessionoptions">ClientSessionOptions</h3>
+
+<p>The ClientSessionOptions class is used to specify any desired options when calling StartSession.</p>
+
+<pre><code class="language-csharp">public class ClientSessionOptions
+{
+    public bool? CausalConsistency { get; set; }
+    public TransactionOptions DefaultTransactionOptions { get; set; }
+}
+</code></pre>
+
+<h4 id="causalconsistency">CausalConsistency</h4>
+
+<p>Set to true if you want all operations in a session to be causally consistent.</p>
+
+<h4 id="defaulttransactionoptions">DefaultTransactionOptions</h4>
+
+<p>You can provide default transaction options to be used for any options that are not provided when StartTransaction is called.</p>
+
+<h3 id="iclientsession-properties-and-methods">IClientSession properties and methods</h3>
+
+<p>The IClientSession interface defines the properties and methods available on a session.</p>
+
+<pre><code class="language-csharp">public interface IClientSession : IDisposable
+{
+    IMongoClient Client { get; }
+    BsonDocument ClusterTime { get; }
+    bool IsInTransaction { get; }
+    BsonTimestamp OperationTime { get; }
+    ClientSessionOptions Options { get; }
+
+    void AdvanceClusterTime(BsonDocument newClusterTime);
+    void AdvanceOperationTime(BsonTimestamp newOperationTime);
+
+    // see also transaction related methods documented below
+}
+</code></pre>
+
+<p>Note: a few members of IClientSession have been deliberately omitted from this documentation, either because they are rarely used or because they are for internal use only.</p>
+
+<h4 id="client">Client</h4>
+
+<p>The Client property returns a reference to the IMongoClient instance that was used to start this session.</p>
+
+<h4 id="clustertime">ClusterTime</h4>
+
+<p>The ClusterTime property returns the highest cluster time that has been seen by this client. The value is an opaque BsonDocument containing a cluster time that has been returned by the server. While an application might never inspect the actual value, it might set this value (by calling AdvanceClusterTime) when initializing a causally consistent session.</p>
+
+<h3 id="isintransaction">IsInTransaction</h3>
+
+<p>Specifies whether the session is currently in a transaction. A session is in a transaction after StartTransaction has been called and until either AbortTransaction or CommitTransaction has been called.</p>
+
+<h3 id="operationtime">OperationTime</h3>
+
+<p>The operation time returned by the server for the most recent operation in this session. Operation times are used by the driver to ensure causal consistency when the ClientSessionOptions specify that causal consistency is desired. While an application might never use the actual value, it might set this value (by calling AdvanceOperationTime) when initializing a causally consistent session.</p>
+
+<h3 id="options">Options</h3>
+
+<p>Returns the options that were passed to StartSession.</p>
+
+<h3 id="advanceclustertime-and-advanceoperationtime">AdvanceClusterTime and AdvanceOperationTime</h3>
+
+<pre><code class="language-csharp">void AdvanceClusterTime(BsonDocument newClusterTime);
+void AdvanceOperationTime(BsonTimestamp newOperationTime);
+</code></pre>
+
+<p>Call these methods to advance the cluster and operation times when you want subsequent operations in this session to be causally consistent with operations that have executed outside of this session. Typically the values you pass to AdvanceClusterTime and AdvanceOperation time will come from the ClusterTime and OperationTime properties of some other session.</p>
+
+<h3 id="transaction-methods">Transaction methods</h3>
+
+<p>The methods to start, abort or commit a transaction are documented in the next section.</p>
+
+<h2 id="transactions">Transactions</h2>
+
+<p>Transactions are started, committed or aborted using methods of IClientSession. A session can only execute one transaction at a time, but a session can execute more than one transaction as long as each transaction is committed or aborted before the next one is started.</p>
+
+<h3 id="starttransaction">StartTransaction</h3>
+
+<pre><code class="language-csharp">void StartTransaction(TransactionOptions transactionOptions = null);
+</code></pre>
+
+<p>Start a transaction by calling StartTransaction, optionally specifying options for the transaction.</p>
+
+<p>Each transaction option can be specified at any of the following levels:</p>
+
+<ol>
+<li>StartTransaction in the options parameter</li>
+<li>StartSession in the defaultTransactionOptions parameter</li>
+<li>Defaulted</li>
+</ol>
+
+<p>You can specify different options at different levels. An option specified in StartTransaction overrides the same option specified in the defaultTransactionOptions passed to StartSession, which in turn overrides the default value.</p>
+
+<h4 id="transactionoptions">TransactionOptions</h4>
+
+<pre><code class="language-csharp">public class TransactionOptions
+{
+    public ReadConcern ReadConcern { get; };
+    public ReadPreference ReadPreference { get; };
+    public WriteConcern WriteConcern { get; };
+
+    public TransactionOptions(
+        Optional&lt;ReadConcern&gt; readConcern = default(Optional&lt;ReadConcern&gt;),
+        Optional&lt;ReadPreference&gt; readPreference = default(Optional&lt;ReadPreference&gt;),
+        Optional&lt;WriteConcern&gt; writeConcern = default(Optional&lt;WriteConcern&gt;));
+
+    public TransactionOptions With(
+        Optional&lt;ReadConcern&gt; readConcern = default(Optional&lt;ReadConcern&gt;),
+        Optional&lt;ReadPreference&gt; readPreference = default(Optional&lt;ReadPreference&gt;),
+        Optional&lt;WriteConcern&gt; writeConcern = default(Optional&lt;WriteConcern&gt;))
+}
+</code></pre>
+
+<p>Create an instance of TransactionOptions either by calling the constructor with any desired optional arguments, or by calling the With method on an existing instance of TransactionOptions to create a new instance with some values changed.</p>
+
+<h5 id="readconcern">ReadConcern</h5>
+
+<p>The ReadConcern used while in the transaction. All operations in the transaction use the ReadConcern specified when StartTransaction is called.</p>
+
+<h5 id="readpreference">ReadPreference</h5>
+
+<p>The ReadPreference used while in the transaction. Currently, the ReadPreference for a transaction must be Primary.</p>
+
+<h5 id="writeconcern">WriteConcern</h5>
+
+<p>The WriteConcern used for this transaction. The WriteConcern only applies when committing the transaction, not to the individual operations executed while in the transaction.</p>
+
+<h3 id="committransaction-and-committransactionasync">CommitTransaction and CommitTransactionAsync</h3>
+
+<pre><code class="language-csharp">void CommitTransaction(CancellationToken cancellationToken = default(CancellationToken));
+Task CommitTransactionAsync(CancellationToken cancellationToken = default(CancellationToken));
+</code></pre>
+
+<p>You must call CommitTransaction or CommitTransactionAsync in order for a transaction to be committed. If a session is ended while a transaction is in progress the transaction will be automatically aborted.</p>
+
+<p>The commit is executed with the WriteConcern specified by the transaction options.</p>
+
+<h3 id="aborttransaction-and-aborttransactionasync">AbortTransaction and AbortTransactionAsync</h3>
+
+<pre><code class="language-csharp">void AbortTransaction(CancellationToken cancellationToken = default(CancellationToken));
+Task AbortTransactionAsync(CancellationToken cancellationToken = default(CancellationToken));
+</code></pre>
+
+<p>Call AbortTransaction or AbortTransactionAsync to abort a transaction. Since any transaction in progress is automatically aborted when a session is ended, you can also implicitly abort an uncommitted transaction by simply ending the session.</p>
+
+<p>In this example we rely on the implied transaction abort:</p>
+
+<pre><code class="language-csharp">using (var session = client.StartSession())
+{
+    session.StartTransaction();
+    // execute operations using the session
+    session.CommitTransaction(); // if an exception is thrown before reaching here the transaction will be implicitly aborted
+}
+</code></pre>
+
+<p>When writing an async program you may want to avoid using the implied abort transaction that occurs when Dispose is called on a session with a transaction in progress, because Dispose is a blocking operation. To be fully async, even in the case where the transaction needs to be aborted, you might instead write:</p>
+
+<pre><code class="language-csharp">using (var session = await client.StartSessionAsync())
+{
+    try
+    {
+        // execute async operations using the session
+    }
+    catch
+    {
+        await session.AbortTransactionAsync(); // now Dispose on the session has nothing to do and won't block
+        throw;
+    }
+    await session.CommitTransactionAsync();
+}
+</code></pre>
 
 
 
@@ -2871,15 +2615,15 @@ you could track all the documents you&rsquo;ve seen by their identifiers for the
 <div id="btnv">
   
   <div class="pull-left">
-  <a class="navigation prev" href="/mongo-csharp-driver/2.7/examples/mixing_static_and_dynamic/">
-      <i class="fa fa-long-arrow-left"> </i> Mixing Static and Dynamic Data
+  <a class="navigation prev" href="/mongo-csharp-driver/2.7/reference/driver/crud/writing/">
+      <i class="fa fa-long-arrow-left"> </i> Writing
   </a>
   </div>
   
   
   <div class="pull-right">
-  <a class="navigation next" href="/mongo-csharp-driver/2.7/examples/user_management/">
-    Managing Users <i class="fa fa-long-arrow-right"> </i>
+  <a class="navigation next" href="/mongo-csharp-driver/2.7/reference/driver/change_streams/">
+    Change Streams <i class="fa fa-long-arrow-right"> </i>
   </a>
   
 </div>
@@ -2896,7 +2640,39 @@ you could track all the documents you&rsquo;ve seen by their identifiers for the
 <ul>
 <li>
 <ul>
-<li><a href="#using-a-tailable-cursor">Using a Tailable Cursor</a></li>
+<li><a href="#sessions">Sessions</a>
+<ul>
+<li><a href="#startsession-and-startsessionasync">StartSession and StartSessionAsync</a></li>
+<li><a href="#clientsessionoptions">ClientSessionOptions</a>
+<ul>
+<li><a href="#causalconsistency">CausalConsistency</a></li>
+<li><a href="#defaulttransactionoptions">DefaultTransactionOptions</a></li>
+</ul></li>
+<li><a href="#iclientsession-properties-and-methods">IClientSession properties and methods</a>
+<ul>
+<li><a href="#client">Client</a></li>
+<li><a href="#clustertime">ClusterTime</a></li>
+</ul></li>
+<li><a href="#isintransaction">IsInTransaction</a></li>
+<li><a href="#operationtime">OperationTime</a></li>
+<li><a href="#options">Options</a></li>
+<li><a href="#advanceclustertime-and-advanceoperationtime">AdvanceClusterTime and AdvanceOperationTime</a></li>
+<li><a href="#transaction-methods">Transaction methods</a></li>
+</ul></li>
+<li><a href="#transactions">Transactions</a>
+<ul>
+<li><a href="#starttransaction">StartTransaction</a>
+<ul>
+<li><a href="#transactionoptions">TransactionOptions</a>
+<ul>
+<li><a href="#readconcern">ReadConcern</a></li>
+<li><a href="#readpreference">ReadPreference</a></li>
+<li><a href="#writeconcern">WriteConcern</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#committransaction-and-committransactionasync">CommitTransaction and CommitTransactionAsync</a></li>
+<li><a href="#aborttransaction-and-aborttransactionasync">AbortTransaction and AbortTransactionAsync</a></li>
+</ul></li>
 </ul></li>
 </ul>
 </nav>
