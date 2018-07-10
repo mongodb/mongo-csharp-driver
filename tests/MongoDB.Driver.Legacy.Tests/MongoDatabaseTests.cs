@@ -83,11 +83,12 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestCreateCollectionSetIndexOptionDefaults()
         {
-            RequireServer.Check().Supports(Feature.IndexOptionsDefaults);
+            RequireServer.Check().Supports(Feature.IndexOptionsDefaults).ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
             var collection = _database.GetCollection("testindexoptiondefaults");
             collection.Drop();
             Assert.False(collection.Exists());
-            var storageEngineOptions = new BsonDocument("mmapv1", new BsonDocument());
+            var storageEngine = CoreTestConfiguration.GetStorageEngine();
+            var storageEngineOptions = new BsonDocument(storageEngine, new BsonDocument());
             var indexOptionDefaults = new IndexOptionDefaults { StorageEngine = storageEngineOptions };
             var expectedIndexOptionDefaultsDocument = new BsonDocument("storageEngine", storageEngineOptions);
             var options = CollectionOptions.SetIndexOptionDefaults(indexOptionDefaults);
@@ -108,9 +109,12 @@ namespace MongoDB.Driver.Tests
             Assert.False(collection.Exists());
             var storageEngineOptions = new BsonDocument
             {
-                { "wiredTiger", new BsonDocument("configString", "block_compressor=zlib") },
-                { "mmapv1", new BsonDocument() }
+                { "wiredTiger", new BsonDocument("configString", "block_compressor=zlib") }
             };
+            if (Feature.MmapV1StorageEngine.IsSupported(CoreTestConfiguration.ServerVersion))
+            {
+                storageEngineOptions.Add("mmapv1", new BsonDocument());
+            }
             var options = CollectionOptions.SetStorageEngineOptions(storageEngineOptions);
             _database.CreateCollection(collection.Name, options);
 
@@ -190,9 +194,10 @@ namespace MongoDB.Driver.Tests
             exception.Should().BeOfType<MongoWriteConcernException>();
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestEvalNoArgs()
         {
+            RequireServer.Check().Supports(Feature.Eval);
 #pragma warning disable 618
             if (!DriverTestConfiguration.Client.Settings.Credentials.Any())
             {
@@ -203,9 +208,10 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestEvalNoArgsNoLock()
         {
+            RequireServer.Check().Supports(Feature.Eval);
 #pragma warning disable 618
             if (!DriverTestConfiguration.Client.Settings.Credentials.Any())
             {
@@ -216,9 +222,10 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestEvalWithMaxTime()
         {
+            RequireServer.Check().Supports(Feature.Eval);
 #pragma warning disable 618
             if (!DriverTestConfiguration.Client.Settings.Credentials.Any())
             {
@@ -242,9 +249,10 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestEvalWithOneArg()
         {
+            RequireServer.Check().Supports(Feature.Eval);
 #pragma warning disable 618
             if (!DriverTestConfiguration.Client.Settings.Credentials.Any())
             {
@@ -255,9 +263,10 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestEvalWithOneArgNoLock()
         {
+            RequireServer.Check().Supports(Feature.Eval);
 #pragma warning disable 618
             if (!DriverTestConfiguration.Client.Settings.Credentials.Any())
             {
@@ -268,9 +277,10 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestEvalWithTwoArgs()
         {
+            RequireServer.Check().Supports(Feature.Eval);
 #pragma warning disable 618
             if (!DriverTestConfiguration.Client.Settings.Credentials.Any())
             {
@@ -281,9 +291,10 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestEvalWithTwoArgsNoLock()
         {
+            RequireServer.Check().Supports(Feature.Eval);
 #pragma warning disable 618
             if (!DriverTestConfiguration.Client.Settings.Credentials.Any())
             {

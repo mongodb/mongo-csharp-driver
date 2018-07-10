@@ -43,6 +43,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __createIndexesCommand = new Feature("CreateIndexesCommand", new SemanticVersion(3, 0, 0));
         private static readonly Feature __currentOpCommand = new Feature("CurrentOpCommand", new SemanticVersion(3, 2, 0));
         private static readonly Feature __documentValidation = new Feature("DocumentValidation", new SemanticVersion(3, 2, 0));
+        private static readonly Feature __eval = new Feature("Eval", new SemanticVersion(0, 0, 0), new SemanticVersion(4, 1, 0, ""));
         private static readonly Feature __explainCommand = new Feature("ExplainCommand", new SemanticVersion(3, 0, 0));
         private static readonly Feature __failPoints = new Feature("FailPoints", new SemanticVersion(2, 4, 0));
         private static readonly Feature __findAndModifyWriteConcern = new Feature("FindAndModifyWriteConcern", new SemanticVersion(3, 2, 0));
@@ -56,6 +57,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __indexOptionsDefaults = new Feature("IndexOptionsDefaults", new SemanticVersion(3, 2, 0));
         private static readonly Feature __maxStaleness = new Feature("MaxStaleness", new SemanticVersion(3, 3, 12));
         private static readonly Feature __maxTime = new Feature("MaxTime", new SemanticVersion(2, 6, 0));
+        private static readonly Feature __mmapV1StorageEngine = new Feature("MmapV1StorageEngine", new SemanticVersion(0, 0, 0), new SemanticVersion(4, 1, 0, ""));
         private static readonly Feature __partialIndexes = new Feature("PartialIndexes", new SemanticVersion(3, 2, 0));
         private static readonly ReadConcernFeature __readConcern = new ReadConcernFeature("ReadConcern", new SemanticVersion(3, 2, 0));
         private static readonly Feature __scramSha1Authentication = new Feature("ScramSha1Authentication", new SemanticVersion(3, 0, 0));
@@ -167,6 +169,11 @@ namespace MongoDB.Driver.Core.Misc
         public static Feature DocumentValidation => __documentValidation;
 
         /// <summary>
+        /// Gets the eval feature.
+        /// </summary>
+        public static Feature Eval => __eval;
+
+        /// <summary>
         /// Gets the explain command feature.
         /// </summary>
         public static Feature ExplainCommand => __explainCommand;
@@ -232,6 +239,11 @@ namespace MongoDB.Driver.Core.Misc
         public static Feature MaxTime => __maxTime;
 
         /// <summary>
+        /// Gets the mmapv1 storage engine feature.
+        /// </summary>
+        public static Feature MmapV1StorageEngine => __mmapV1StorageEngine;
+
+        /// <summary>
         /// Gets the partial indexes feature.
         /// </summary>
         public static Feature PartialIndexes => __partialIndexes;
@@ -245,7 +257,7 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the scram sha1 authentication feature.
         /// </summary>
         public static Feature ScramSha1Authentication => __scramSha1Authentication;
-        
+
         /// <summary>
         /// Gets the scram sha256 authentication feature.
         /// </summary>
@@ -317,7 +329,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <returns>Whether a feature is supported by a version of the server.</returns>
         public bool IsSupported(SemanticVersion serverVersion)
         {
-            return _supportRemovedVersion != null 
+            return _supportRemovedVersion != null
                    ? serverVersion >= _firstSupportedVersion && serverVersion < _supportRemovedVersion
                    : serverVersion >= _firstSupportedVersion;
         }
