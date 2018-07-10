@@ -217,6 +217,16 @@ functions:
           ${PREPARE_SHELL}
           AUTH=${AUTH} SSL=${SSL} MONGODB_URI="${MONGODB_URI}" TOPOLOGY=${TOPOLOGY} OS=${OS} evergreen/run-tests.sh
 
+  run-atlas-connectivity-tests:
+    - command: shell.exec
+      type: test
+      params:
+        silent: true
+        working_dir: mongo-csharp-driver
+        script: |
+          # DO NOT ECHO WITH XTRACE (which PREPARE_SHELL does)
+          ATLAS_FREE="${ATLAS_FREE}" ATLAS_REPLICA="${ATLAS_REPLICA}" ATLAS_SHARDED="${ATLAS_SHARDED}" ATLAS_TLS11="${ATLAS_TLS11}" ATLAS_TLS12="${ATLAS_TLS12}" evergreen/run-atlas-connectivity-tests.sh
+
   run-plain-auth-tests:
     - command: shell.exec
       type: test
@@ -331,6 +341,13 @@ tasks:
         - func: bootstrap-mongo-orchestration
         - func: run-tests
 
+    - name: atlas-connectivity-tests
+      depends_on:
+        - variant: windows-64-compile
+          name: compile
+      commands:
+        - func: run-atlas-connectivity-tests
+
     - name: plain-auth-tests
       depends_on:
         - variant: windows-64-compile
@@ -442,6 +459,13 @@ buildvariants:
   tags: ["tests-variant"]
   tasks:
      - name: test
+
+- name: atlas-connectivity-tests
+  display_name: "Atlas Connectivity Tests"
+  run_on:
+    - windows-64-vs2015-small
+  tasks:
+    - name: atlas-connectivity-tests
 
 # - name: plain-auth-tests
 #   display_name: "PLAIN (LDAP) Auth tests"

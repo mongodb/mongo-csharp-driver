@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2035
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Bson", "src\MongoDB.Bson\MongoDB.Bson.csproj", "{0E9A3A2A-49CD-4F6C-847C-DC79B4B65CE6}"
 EndProject
@@ -40,6 +40,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{82C26C54-8760-4F9F-AC64-00E72F49355C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{48C67B2A-FD93-4E81-BE98-5E4491E57A51}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtlasConnectivity.Tests", "tests\AtlasConnectivity.Tests\AtlasConnectivity.Tests.csproj", "{99C4C279-8ACF-43F0-88DE-4AE382AD77B9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -115,6 +117,10 @@ Global
 		{F7B7D81A-CA16-4CD7-8B6C-444280EA37C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F7B7D81A-CA16-4CD7-8B6C-444280EA37C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F7B7D81A-CA16-4CD7-8B6C-444280EA37C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{99C4C279-8ACF-43F0-88DE-4AE382AD77B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{99C4C279-8ACF-43F0-88DE-4AE382AD77B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{99C4C279-8ACF-43F0-88DE-4AE382AD77B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{99C4C279-8ACF-43F0-88DE-4AE382AD77B9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -137,5 +143,9 @@ Global
 		{6B5D1EA6-1088-4122-B8C4-B341822C7915} = {82C26C54-8760-4F9F-AC64-00E72F49355C}
 		{1537C58E-BECD-4ED2-A900-1AFBB601D2B2} = {48C67B2A-FD93-4E81-BE98-5E4491E57A51}
 		{F7B7D81A-CA16-4CD7-8B6C-444280EA37C1} = {48C67B2A-FD93-4E81-BE98-5E4491E57A51}
+		{99C4C279-8ACF-43F0-88DE-4AE382AD77B9} = {48C67B2A-FD93-4E81-BE98-5E4491E57A51}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {03215EF2-473F-4B62-B505-1E3AF774EA7B}
 	EndGlobalSection
 EndGlobal

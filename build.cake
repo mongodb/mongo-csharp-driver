@@ -136,7 +136,20 @@ Task("TestNet45")
     .IsDependentOn("BuildNet45")
     .Does(() =>
     {
-        var testAssemblies = GetFiles("./tests/**/bin/" + configuration + "/*Tests.dll");
+        var testAssemblies = new List<FilePath>();
+        var testProjectNames = new []
+        {
+            "MongoDB.Bson.Tests",
+            "MongoDB.Driver.Core.Tests",
+            "MongoDB.Driver.Tests",
+            "MongoDB.Driver.GridFS.Tests",
+            "MongoDB.Driver.Legacy.Tests"
+        };
+        foreach (var testProjectName in testProjectNames)
+        {
+            var testAssembly = testsDirectory.CombineWithFilePath($"{testProjectName}/bin/{configuration}/{testProjectName}.dll");
+            testAssemblies.Add(testAssembly);
+        }
         var testSettings = new XUnit2Settings
         {
             Parallelism = ParallelismOption.None,
@@ -170,6 +183,28 @@ Task("TestNetStandard15")
             };
             DotNetCoreTest(testSettings, testProjectFile, xunitSettings);
         }
+    });
+
+Task("TestAtlasConnectivity")
+    .IsDependentOn("BuildNet45")
+    .Does(() =>
+    {
+        var testAssemblies = new List<FilePath>();
+        var testProjectNames = new []
+        {
+            "AtlasConnectivity.Tests"
+        };
+        foreach (var testProjectName in testProjectNames)
+        {
+            var testAssembly = testsDirectory.CombineWithFilePath($"{testProjectName}/bin/{configuration}/{testProjectName}.dll");
+            testAssemblies.Add(testAssembly);
+        }
+        var testSettings = new XUnit2Settings
+        {
+            Parallelism = ParallelismOption.None,
+            ToolTimeout = TimeSpan.FromMinutes(30)
+        };
+        XUnit2(testAssemblies, testSettings);
     });
 
 Task("Docs")
