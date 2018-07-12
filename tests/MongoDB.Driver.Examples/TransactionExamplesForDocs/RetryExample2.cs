@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Examples.TransactionExamplesForDocs
                 catch (MongoException exception)
                 {
                     // can retry commit
-                    if (exception.HasErrorLabel("UnknwonTransactionCommitResult"))
+                    if (exception.HasErrorLabel("UnknownTransactionCommitResult"))
                     {
                         Console.WriteLine("UnknownTransactionCommitResult, retrying commit operation.");
                         continue;

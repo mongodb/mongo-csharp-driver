@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Examples.TransactionExamplesForDocs
                     // can retry commit
                     if (exception.HasErrorLabel("UnknownTransactionCommitResult"))
                     {
-                        Console.WriteLine("UnknwonTransactionCommiResult, retrying commit operation");
+                        Console.WriteLine("UnknownTransactionCommitResult, retrying commit operation");
                         continue;
                     }
                     else
@@ -86,9 +86,11 @@ namespace MongoDB.Driver.Examples.TransactionExamplesForDocs
             try
             {
                 employeesCollection.UpdateOne(
+                    session,
                     Builders<BsonDocument>.Filter.Eq("employee", 3),
                     Builders<BsonDocument>.Update.Set("status", "Inactive"));
                 eventsCollection.InsertOne(
+                    session,
                     new BsonDocument
                     {
                         { "employee", 3 },

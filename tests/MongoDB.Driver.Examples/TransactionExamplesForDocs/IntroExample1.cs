@@ -33,9 +33,11 @@ namespace MongoDB.Driver.Examples.TransactionExamplesForDocs
             try
             {
                 employeesCollection.UpdateOne(
+                    session,
                     Builders<BsonDocument>.Filter.Eq("employee", 3),
                     Builders<BsonDocument>.Update.Set("status", "Inactive"));
                 eventsCollection.InsertOne(
+                    session,
                     new BsonDocument
                     {
                         { "employee", 3 },
@@ -54,7 +56,7 @@ namespace MongoDB.Driver.Examples.TransactionExamplesForDocs
                 try
                 {
                     session.CommitTransaction(); // uses write concern set at transaction start
-                    Console.WriteLine("Transaction commited.");
+                    Console.WriteLine("Transaction committed.");
                     break;
                 }
                 catch (MongoException exception)
