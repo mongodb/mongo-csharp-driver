@@ -23,8 +23,24 @@ namespace MongoDB.Driver.Examples.TransactionExamplesForDocs
         // Start Transaction Intro Example 1
         public void UpdateEmployeeInfo(IMongoClient client, IClientSessionHandle session)
         {
-            var employeesCollection = client.GetDatabase("hr").GetCollection<BsonDocument>("employees");
-            var eventsCollection = client.GetDatabase("reporting").GetCollection<BsonDocument>("events");
+
+            var hrDatabase = client.GetDatabase("hr");
+            var reportingDatabase = client.GetDatabase("reporting");
+
+            try
+            {
+                // Ensure collection namespaces exist before starting transaction.
+                hrDatabase.CreateCollection("employees");
+                reportingDatabase.CreateCollection("events");
+            }
+            catch (MongoCommandException exception)
+            {
+                // Ignore if collections exist.
+                Console.WriteLine($"Caught exception while creating collection: {exception.Message}.");
+            }
+
+            var employeesCollection = hrDatabase.GetCollection<BsonDocument>("employees");
+            var eventsCollection = reportingDatabase.GetCollection<BsonDocument>("events");
 
             session.StartTransaction(new TransactionOptions(
                 readConcern: ReadConcern.Snapshot,
@@ -33,9 +49,11 @@ namespace MongoDB.Driver.Examples.TransactionExamplesForDocs
             try
             {
                 employeesCollection.UpdateOne(
+                    session,
                     Builders<BsonDocument>.Filter.Eq("employee", 3),
                     Builders<BsonDocument>.Update.Set("status", "Inactive"));
                 eventsCollection.InsertOne(
+                    session,
                     new BsonDocument
                     {
                         { "employee", 3 },
