@@ -76,7 +76,6 @@ namespace MongoDB.Driver.Examples.TransactionExamplesForDocs
         // updates two collections in a transaction
         public void UpdateEmployeeInfo(IMongoClient client, IClientSessionHandle session)
         {
-
             var employeesCollection = client.GetDatabase("hr").GetCollection<BsonDocument>("employees");
             var eventsCollection = client.GetDatabase("reporting").GetCollection<BsonDocument>("events");
 
