@@ -24,7 +24,6 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
@@ -32,7 +31,6 @@ using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -256,7 +254,7 @@ namespace MongoDB.Driver.Core.Servers
                 return;
             }
 
-            if (__invalidatingExceptions.Contains(ex.GetType()))
+            if (ShouldInvalidateServer(ex))
             {
                 Invalidate();
             }
@@ -264,6 +262,96 @@ namespace MongoDB.Driver.Core.Servers
             {
                 RequestHeartbeat();
             }
+        }
+
+        private bool IsNotMaster(ServerErrorCode code, string message)
+        {
+            switch (code)
+            {
+                case ServerErrorCode.NotMaster: // 10107
+                case ServerErrorCode.NotMasterNoSlaveOk: // 13435
+                    return true;
+            }
+
+            if (message != null)
+            {
+                if (message.IndexOf("not master", StringComparison.OrdinalIgnoreCase) != -1 &&
+                    message.IndexOf("not master or secondary", StringComparison.OrdinalIgnoreCase) == -1)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool IsNotMasterOrRecovering(ServerErrorCode code, string message)
+        {
+            return IsNotMaster(code, message) || IsRecovering(code, message);
+        }
+
+        private bool IsRecovering(ServerErrorCode code, string message)
+        {
+            switch (code)
+            {
+                case ServerErrorCode.InterruptedAtShutdown: // 11600
+                case ServerErrorCode.InterruptedDueToReplStateChange: // 11602
+                case ServerErrorCode.NotMasterOrSecondary: // 13436
+                case ServerErrorCode.PrimarySteppedDown: // 189
+                case ServerErrorCode.ShutdownInProgress: // 91
+                    return true;
+            }
+
+            if (message != null)
+            {
+                if (message.IndexOf("not master or secondary", StringComparison.OrdinalIgnoreCase) != -1 ||
+                    message.IndexOf("node is recovering", StringComparison.OrdinalIgnoreCase) != -1)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool ShouldInvalidateServer(Exception exception)
+        {
+            if (__invalidatingExceptions.Contains(exception.GetType()))
+            {
+                return true;
+            }
+
+            var commandException = exception as MongoCommandException;
+            if (commandException != null)
+            {
+                var code = (ServerErrorCode)commandException.Code;
+                var message = commandException.ErrorMessage;
+
+                if (IsNotMasterOrRecovering(code, message))
+                {
+                    return true;
+                }
+
+                if (commandException.GetType() == typeof(MongoWriteConcernException))
+                {
+                    var writeConcernException = (MongoWriteConcernException)commandException;
+                    var writeConcernResult = writeConcernException.WriteConcernResult;
+                    var response = writeConcernResult.Response;
+                    var writeConcernError = response["writeConcernError"].AsBsonDocument;
+                    if (writeConcernError != null)
+                    {
+                        code = (ServerErrorCode)writeConcernError.GetValue("code", -1).ToInt32();
+                        message = writeConcernError.GetValue("errmsg", null)?.AsString;
+
+                        if (IsNotMasterOrRecovering(code, message))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
         }
 
         private void ThrowIfDisposed()
