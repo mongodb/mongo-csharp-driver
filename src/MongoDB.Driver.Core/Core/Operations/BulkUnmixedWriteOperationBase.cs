@@ -198,14 +198,30 @@ namespace MongoDB.Driver.Core.Operations
         private BulkWriteBatchResult ExecuteBatch(RetryableWriteContext context, Batch batch, CancellationToken cancellationToken)
         {
             var operation = CreateBatchOperation(batch);
-            var operationResult = RetryableWriteOperationExecutor.Execute(operation, context, cancellationToken);
+            BsonDocument operationResult;
+            try
+            {
+                operationResult = RetryableWriteOperationExecutor.Execute(operation, context, cancellationToken);
+            }
+            catch (MongoWriteConcernException exception) when (exception.IsWriteConcernErrorOnly())
+            {
+                operationResult = exception.Result;
+            }
             return CreateBatchResult(batch, operationResult);
         }
 
         private async Task<BulkWriteBatchResult> ExecuteBatchAsync(RetryableWriteContext context, Batch batch, CancellationToken cancellationToken)
         {
             var operation = CreateBatchOperation(batch);
-            var operationResult = await RetryableWriteOperationExecutor.ExecuteAsync(operation, context, cancellationToken).ConfigureAwait(false);
+            BsonDocument operationResult;
+            try
+            {
+                operationResult = await RetryableWriteOperationExecutor.ExecuteAsync(operation, context, cancellationToken).ConfigureAwait(false);
+            }
+            catch (MongoWriteConcernException exception) when (exception.IsWriteConcernErrorOnly())
+            {
+                operationResult = exception.Result;
+            }
             return CreateBatchResult(batch, operationResult);
         }
 

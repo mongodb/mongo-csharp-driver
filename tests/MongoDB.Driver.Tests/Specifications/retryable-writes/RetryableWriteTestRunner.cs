@@ -29,7 +29,7 @@ using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.retryable_writes
 {
-    public class TestRunner
+    public class RetryableWriteTestRunner
     {
         private readonly string _databaseName = DriverTestConfiguration.DatabaseNamespace.DatabaseName;
         private readonly string _collectionName = DriverTestConfiguration.CollectionNamespace.CollectionName;

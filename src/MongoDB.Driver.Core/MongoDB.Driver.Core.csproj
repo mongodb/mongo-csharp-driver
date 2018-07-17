@@ -153,7 +153,6 @@
     <Compile Include="Core\Operations\RetryableWriteOperationExecutor.cs" />
     <Compile Include="Core\Operations\RetryableWriteContext.cs" />
     <Compile Include="Core\Operations\RetryableUpdateCommandOperation.cs" />
-    <Compile Include="Core\Operations\WriteConcernErrorHelper.cs" />
     <Compile Include="Core\Operations\WriteConcernHelper.cs" />
     <Compile Include="Core\Servers\ClusterClockAdvancingCoreSession.cs" />
     <Compile Include="Core\Servers\IServerMonitor.cs" />

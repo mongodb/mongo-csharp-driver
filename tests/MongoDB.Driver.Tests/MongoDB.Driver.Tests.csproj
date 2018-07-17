@@ -223,7 +223,7 @@
     <Compile Include="Specifications\retryable-writes\FindOneAndReplaceTest.cs" />
     <Compile Include="Specifications\retryable-writes\FindOneAndUpdateTest.cs" />
     <Compile Include="Specifications\retryable-writes\IRetryableWriteTest.cs" />
-    <Compile Include="Specifications\retryable-writes\TestRunner.cs" />
+    <Compile Include="Specifications\retryable-writes\RetryableWriteTestRunner.cs" />
     <Compile Include="Specifications\retryable-writes\UpdateOneTest.cs" />
     <Compile Include="Specifications\transactions\TransactionTestRunner.cs" />
     <Compile Include="UpdateDefinitionBuilderTests.cs" />
@@ -419,13 +419,21 @@
     <EmbeddedResource Include="Specifications\transactions\tests\update.json" />
     <EmbeddedResource Include="Specifications\transactions\tests\write-concern.json" />
     <EmbeddedResource Include="Specifications\transactions\tests\transaction-options.json" />
-    <EmbeddedResource Include="Specifications\retryable-writes\tests\retryableErrors.json" />
     <EmbeddedResource Include="Specifications\transactions\tests\run-command.json" />
     <EmbeddedResource Include="Specifications\transactions\tests\error-labels.json" />
     <EmbeddedResource Include="Specifications\transactions\tests\retryable-abort.json" />
     <EmbeddedResource Include="Specifications\transactions\tests\retryable-commit.json" />
     <EmbeddedResource Include="Specifications\change-streams\tests\change-streams-errors.json" />
     <EmbeddedResource Include="Specifications\change-streams\tests\change-streams.json" />
+    <EmbeddedResource Include="Specifications\retryable-writes\tests\bulkWrite-serverErrors.json" />
+    <EmbeddedResource Include="Specifications\retryable-writes\tests\deleteOne-serverErrors.json" />
+    <EmbeddedResource Include="Specifications\retryable-writes\tests\findOneAndDelete-serverErrors.json" />
+    <EmbeddedResource Include="Specifications\retryable-writes\tests\findOneAndReplace-serverErrors.json" />
+    <EmbeddedResource Include="Specifications\retryable-writes\tests\findOneAndUpdate-serverErrors.json" />
+    <EmbeddedResource Include="Specifications\retryable-writes\tests\insertMany-serverErrors.json" />
+    <EmbeddedResource Include="Specifications\retryable-writes\tests\insertOne-serverErrors.json" />
+    <EmbeddedResource Include="Specifications\retryable-writes\tests\replaceOne-serverErrors.json" />
+    <EmbeddedResource Include="Specifications\retryable-writes\tests\updateOne-serverErrors.json" />
     <None Include="testcert.pfx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -165,7 +165,6 @@
     <Compile Include="Core\Operations\OperationTestBase.cs" />
     <Compile Include="Core\Operations\QueryHelperTests.cs" />
     <Compile Include="Core\Operations\WriteCommandOperationTests.cs" />
-    <Compile Include="Core\Operations\WriteConcernErrorHelperTests.cs" />
     <Compile Include="Core\Operations\WriteConcernHelperTests.cs" />
     <Compile Include="Core\Servers\ClusterClockAdvancingCoreSessionTests.cs" />
     <Compile Include="Core\Servers\ServerDescriptionWithSimilarLastUpdateTimestampEqualityComparer.cs" />

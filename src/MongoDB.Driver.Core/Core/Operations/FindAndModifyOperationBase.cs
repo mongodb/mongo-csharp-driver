@@ -208,15 +208,6 @@ namespace MongoDB.Driver.Core.Operations
                 GuidRepresentation = _messageEncoderSettings.GetOrDefault<GuidRepresentation>(MessageEncoderSettingsName.GuidRepresentation, GuidRepresentation.CSharpLegacy)
             };
 
-            BsonValue writeConcernError;
-            if (rawBsonDocument.TryGetValue("writeConcernError", out writeConcernError))
-            {
-                var message = writeConcernError["errmsg"].AsString;
-                var response = rawBsonDocument.Materialize(binaryReaderSettings);
-                var writeConcernResult = new WriteConcernResult(response);
-                throw new MongoWriteConcernException(connectionId, message, writeConcernResult);
-            }
-
             using (var stream = new ByteBufferStream(rawBsonDocument.Slice, ownsBuffer: false))
             using (var reader = new BsonBinaryReader(stream, binaryReaderSettings))
             {

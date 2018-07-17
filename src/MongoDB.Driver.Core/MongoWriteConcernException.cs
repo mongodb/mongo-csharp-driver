@@ -83,5 +83,16 @@ namespace MongoDB.Driver
             info.AddValue("_writeConcernResult", _writeConcernResult);
         }
 #endif
+
+        /// <summary>
+        /// Determines whether the exception is due to a write concern error only.
+        /// </summary>
+        /// <returns>
+        ///   <c>true</c> if the exception is due to a write concern error only; otherwise, <c>false</c>.
+        /// </returns>
+        public bool IsWriteConcernErrorOnly()
+        {
+            return Result != null && Result.Contains("ok") && Result["ok"].ToBoolean() && Result.Contains("writeConcernError");
+        }
     }
 }
