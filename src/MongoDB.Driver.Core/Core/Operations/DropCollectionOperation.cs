@@ -108,7 +108,6 @@ namespace MongoDB.Driver.Core.Operations
                     }
                     result = ex.Result;
                 }
-                WriteConcernErrorHelper.ThrowIfHasWriteConcernError(channel.ConnectionDescription.ConnectionId, result);
                 return result;
             }
         }
@@ -136,7 +135,6 @@ namespace MongoDB.Driver.Core.Operations
                     }
                     result = ex.Result;
                 }
-                WriteConcernErrorHelper.ThrowIfHasWriteConcernError(channel.ConnectionDescription.ConnectionId, result);
                 return result;
             }
         }

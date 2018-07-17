@@ -303,6 +303,15 @@ namespace MongoDB.Driver.Core.WireProtocol
                     throw new MongoCommandException(connectionId, message, _command, materializedDocument);
                 }
 
+                if (rawDocument.Contains("writeConcernError"))
+                {
+                    var materializedDocument = rawDocument.Materialize(binaryReaderSettings);
+                    var writeConcernError = materializedDocument["writeConcernError"].AsBsonDocument;
+                    var message = writeConcernError.AsBsonDocument.GetValue("errmsg", null)?.AsString;
+                    var writeConcernResult = new WriteConcernResult(materializedDocument);
+                    throw new MongoWriteConcernException(connectionId, message, writeConcernResult);
+                }
+
                 using (var stream = new ByteBufferStream(rawDocument.Slice, ownsBuffer: false))
                 {
                     using (var reader = new BsonBinaryReader(stream, binaryReaderSettings))
