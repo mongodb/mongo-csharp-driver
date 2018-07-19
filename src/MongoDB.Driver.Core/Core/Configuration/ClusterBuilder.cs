@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Core.Configuration
             var serverMonitorFactory = new ServerMonitorFactory(
                 _serverSettings,
                 serverMonitorConnectionFactory,
-                _eventAggregator);
+                new EventAggregator());
 
             var serverFactory = new ServerFactory(
                 _clusterSettings.ConnectionMode,
