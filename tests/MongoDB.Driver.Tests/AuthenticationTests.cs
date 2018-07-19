@@ -308,7 +308,7 @@ namespace MongoDB.Driver.Tests
         {
             var exception = Record.Exception(()=>new MongoClient(settings).ListDatabaseNames().ToEnumerable().ToList());
 
-            exception.Should().BeOfType<TimeoutException>();
+            exception.Should().BeOfType<MongoAuthenticationException>();
         }
 	    
         private BsonDocument CreateAdminDatabaseReadWriteUser(

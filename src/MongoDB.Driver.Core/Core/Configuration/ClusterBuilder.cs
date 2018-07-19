@@ -16,6 +16,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Connections;
@@ -80,9 +81,14 @@ namespace MongoDB.Driver.Core.Configuration
                 connectionFactory,
                 _eventAggregator);
 
+            var serverMonitorConnectionSettings = _connectionSettings.With(authenticators: new IAuthenticator[] { });
+            var serverMonitorConnectionFactory = new BinaryConnectionFactory(
+                serverMonitorConnectionSettings, 
+                streamFactory, 
+                _eventAggregator);
             var serverMonitorFactory = new ServerMonitorFactory(
                 _serverSettings,
-                connectionFactory,
+                serverMonitorConnectionFactory,
                 _eventAggregator);
 
             var serverFactory = new ServerFactory(

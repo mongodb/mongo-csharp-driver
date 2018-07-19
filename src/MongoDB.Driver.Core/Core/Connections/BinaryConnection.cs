@@ -615,6 +615,7 @@ namespace MongoDB.Driver.Core.Connections
                 ex is ThreadAbortException ||
                 ex is StackOverflowException ||
 #endif
+                ex is MongoAuthenticationException ||
                 ex is OutOfMemoryException)
             {
                 return ex;
