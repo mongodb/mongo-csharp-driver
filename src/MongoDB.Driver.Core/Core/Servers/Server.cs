@@ -147,8 +147,20 @@ namespace MongoDB.Driver.Core.Servers
                 connection.Open(CancellationToken.None);
                 return new ServerChannel(this, connection);
             }
-            catch
+            catch (Exception ex)
             {
+                if (ShouldClearConnectionPool(ex))
+                {
+                    try
+                    {
+                        _connectionPool.Clear();
+                    }
+                    catch
+                    {                        
+                        // ignore exceptions
+                    }
+                    
+                }
                 connection.Dispose();
                 throw;
             }
@@ -169,8 +181,19 @@ namespace MongoDB.Driver.Core.Servers
                 await connection.OpenAsync(CancellationToken.None).ConfigureAwait(false);
                 return new ServerChannel(this, connection);
             }
-            catch
+            catch (Exception ex)
             {
+                if (ShouldClearConnectionPool(ex))
+                {
+                    try
+                    {
+                        _connectionPool.Clear();
+                    }
+                    catch
+                    {                        
+                        // ignore exceptions
+                    }
+                }
                 connection.Dispose();
                 throw;
             }
@@ -312,6 +335,11 @@ namespace MongoDB.Driver.Core.Servers
             }
 
             return false;
+        }
+        
+        private bool ShouldClearConnectionPool(Exception ex)
+        {
+            return ex is MongoAuthenticationException;
         }
 
         private bool ShouldInvalidateServer(Exception exception)
