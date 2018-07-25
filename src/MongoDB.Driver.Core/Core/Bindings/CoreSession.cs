@@ -322,13 +322,19 @@ namespace MongoDB.Driver.Core.Bindings
             {
                 if (_currentTransaction != null)
                 {
-                    try
+                    switch (_currentTransaction.State)
                     {
-                        AbortTransaction(CancellationToken.None);
-                    }
-                    catch
-                    {
-                        // ignore exceptions
+                        case CoreTransactionState.Starting:
+                        case CoreTransactionState.InProgress:
+                            try
+                            {
+                                AbortTransaction(CancellationToken.None);
+                            }
+                            catch
+                            {
+                                // ignore exceptions
+                            }
+                            break;
                     }
                 }
 
