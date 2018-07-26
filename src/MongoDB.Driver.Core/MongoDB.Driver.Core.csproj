@@ -119,8 +119,11 @@
     <Compile Include="Core\Bindings\CoreTransaction.cs" />
     <Compile Include="Core\Bindings\WrappingCoreServerSession.cs" />
     <Compile Include="Core\Bindings\WrappingCoreSession.cs" />
+    <Compile Include="Core\Configuration\SdamLoggingSettings.cs" />
     <Compile Include="Core\Connections\ClientDocumentHelper.cs" />
     <Compile Include="Core\Connections\IsMasterHelper.cs" />
+    <Compile Include="Core\Events\Diagnostics\TraceSourceSdamEventSubscriber.cs" />
+    <Compile Include="Core\Events\SdamInformationEvent.cs" />
     <Compile Include="Core\Misc\ArrayFiltersFeature.cs" />
     <Compile Include="Core\Misc\CachedEnumerable.cs" />
     <Compile Include="Core\Misc\CollationFeature.cs" />

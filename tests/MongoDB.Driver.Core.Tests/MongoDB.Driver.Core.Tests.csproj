@@ -100,6 +100,7 @@
     <Compile Include="Core\Connections\IsMasterHelperTests.cs" />
     <Compile Include="Core\Events\EventAggregatorTests.cs" />
     <Compile Include="Core\Events\ReflectionEventSubscriberTests.cs" />
+    <Compile Include="Core\Events\TraceSourceSdamEventSubscriberTests.cs" />
     <Compile Include="Core\Misc\ReadAheadEnumerableTests.cs" />
     <Compile Include="Core\Misc\SemaphoreSlimRequestTests.cs" />
     <Compile Include="Core\Misc\StreamExtensionMethodsTests.cs" />
