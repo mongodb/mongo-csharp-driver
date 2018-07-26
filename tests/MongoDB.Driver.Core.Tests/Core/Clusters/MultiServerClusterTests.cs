@@ -443,6 +443,8 @@ namespace MongoDB.Driver.Core.Clusters
             mockServer.Verify(s => s.Invalidate(), Times.Once);
 
             _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Next().Should().BeOfType<SdamInformationEvent>()
+                .Subject.Message.Should().Contain("Initializing (maxSetVersion, maxElectionId)");
             _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
             _capturedEvents.Any().Should().BeFalse();
         }
@@ -467,7 +469,11 @@ namespace MongoDB.Driver.Core.Clusters
             var mockServer = Mock.Get(_serverFactory.GetServer(_firstEndPoint));
             mockServer.Verify(s => s.Invalidate(), Times.Once);
 
+            _capturedEvents.Next().Should().BeOfType<SdamInformationEvent>()
+                .Subject.Message.Should().Contain("Initializing (maxSetVersion, maxElectionId)");
             _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Next().Should().BeOfType<SdamInformationEvent>()
+                .Subject.Message.Should().Contain("Updating stale setVersion");
             _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
             _capturedEvents.Any().Should().BeFalse();
         }
@@ -493,7 +499,11 @@ namespace MongoDB.Driver.Core.Clusters
             var mockServer = Mock.Get(_serverFactory.GetServer(_firstEndPoint));
             mockServer.Verify(s => s.Invalidate(), Times.Once);
 
+            _capturedEvents.Next().Should().BeOfType<SdamInformationEvent>()
+                .Subject.Message.Should().Contain("Initializing (maxSetVersion, maxElectionId)");
             _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Next().Should().BeOfType<SdamInformationEvent>()
+                .Subject.Message.Should().Contain("Updating stale electionId");
             _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
             _capturedEvents.Any().Should().BeFalse();
         }
@@ -518,7 +528,11 @@ namespace MongoDB.Driver.Core.Clusters
             var mockServer = Mock.Get(_serverFactory.GetServer(_secondEndPoint));
             mockServer.Verify(s => s.Invalidate(), Times.Once);
 
+            _capturedEvents.Next().Should().BeOfType<SdamInformationEvent>()
+                .Subject.Message.Should().Contain("Initializing (maxSetVersion, maxElectionId)");
             _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Next().Should().BeOfType<SdamInformationEvent>()
+                .Subject.Message.Should().Contain("Invalidating server");
             _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
             _capturedEvents.Any().Should().BeFalse();
         }
@@ -543,7 +557,11 @@ namespace MongoDB.Driver.Core.Clusters
             var mockServer = Mock.Get(_serverFactory.GetServer(_secondEndPoint));
             mockServer.Verify(s => s.Invalidate(), Times.Once);
 
+            _capturedEvents.Next().Should().BeOfType<SdamInformationEvent>()
+                .Subject.Message.Should().Contain("Initializing (maxSetVersion, maxElectionId)");
             _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Next().Should().BeOfType<SdamInformationEvent>()
+                .Subject.Message.Should().Contain("Invalidating server");
             _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
             _capturedEvents.Any().Should().BeFalse();
         }

@@ -14,12 +14,15 @@
 */
 
 using System;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Events.Diagnostics;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
@@ -30,11 +33,15 @@ namespace MongoDB.Driver.Core.Configuration
     /// </summary>
     public class ClusterBuilder
     {
+        // constants
+        private const string __traceSourceName = "MongoDB-SDAM";
+        
         // fields
         private EventAggregator _eventAggregator;
         private ClusterSettings _clusterSettings;
         private ConnectionPoolSettings _connectionPoolSettings;
         private ConnectionSettings _connectionSettings;
+        private SdamLoggingSettings _sdamLoggingSettings;
         private ServerSettings _serverSettings;
         private SslStreamSettings _sslStreamSettings;
         private Func<IStreamFactory, IStreamFactory> _streamFactoryWrapper;
@@ -47,6 +54,7 @@ namespace MongoDB.Driver.Core.Configuration
         public ClusterBuilder()
         {
             _clusterSettings = new ClusterSettings();
+            _sdamLoggingSettings = new SdamLoggingSettings(null);
             _serverSettings = new ServerSettings();
             _connectionPoolSettings = new ConnectionPoolSettings();
             _connectionSettings = new ConnectionSettings();
@@ -137,6 +145,28 @@ namespace MongoDB.Driver.Core.Configuration
 
             _connectionPoolSettings = configurator(_connectionPoolSettings);
             return this;
+        }
+        
+        /// <summary>
+        /// Configures the SDAM logging settings.
+        /// </summary>
+        /// <param name="configurator">The SDAM logging settings configurator delegate.</param>
+        /// <returns>A reconfigured cluster builder.</returns>
+        public ClusterBuilder ConfigureSdamLogging(Func<SdamLoggingSettings, SdamLoggingSettings> configurator)
+        {
+            _sdamLoggingSettings = configurator(_sdamLoggingSettings);
+            if (!_sdamLoggingSettings.IsLoggingEnabled)
+            {
+                return this;
+            }
+            var traceSource = new TraceSource(__traceSourceName, SourceLevels.All);
+            traceSource.Listeners.Clear(); // remove the default listener
+            var listener = _sdamLoggingSettings.ShouldLogToStdout
+                ? new TextWriterTraceListener(Console.Out)
+                : new TextWriterTraceListener(new FileStream(_sdamLoggingSettings.LogFilename, FileMode.Append));
+            listener.TraceOutputOptions = TraceOptions.DateTime;
+            traceSource.Listeners.Add(listener);
+            return this.Subscribe(new TraceSourceSdamEventSubscriber(traceSource));
         }
 
         /// <summary>

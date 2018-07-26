@@ -19,6 +19,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Diagnostics.TextWriterTraceListener" Version="4.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\MongoDB.Bson.Dotnet\MongoDB.Bson.Dotnet.csproj" />
   </ItemGroup>
 

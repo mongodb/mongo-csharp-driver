@@ -261,7 +261,7 @@ namespace MongoDB.Driver.Core.Configuration
             return builder.Subscribe(subscriber);
         }
 #endif
-
+        
         /// <summary>
         /// Configures the cluster to trace events to the specified <paramref name="traceSource"/>.
         /// </summary>
