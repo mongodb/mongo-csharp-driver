@@ -14,23 +14,20 @@
 */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
 using Xunit;
-using System.Collections;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.Clusters;
 
 namespace MongoDB.Driver.Tests.Specifications.command_monitoring
 {
@@ -106,8 +103,6 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
         [ClassData(typeof(TestCaseFactory))]
         public void RunTestDefinition(IEnumerable<BsonDocument> data, string databaseName, string collectionName, BsonDocument definition, bool async)
         {
-            RequireServer.Check().ClusterTypes(ClusterType.ReplicaSet, ClusterType.Standalone);
-
             definition = (BsonDocument)DeepCopy(definition); // protect against side effects when the same definition is run twice (async=false/true)
 
             BsonValue bsonValue;
@@ -300,6 +295,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
                         {
                             writeError["code"] = 42;
                             writeError["errmsg"] = "";
+                            writeError.Remove("codeName");
                         }
                     }
                     break;
