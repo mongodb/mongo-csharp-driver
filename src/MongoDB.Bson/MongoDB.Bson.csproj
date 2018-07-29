@@ -158,6 +158,7 @@
     <Compile Include="Serialization\CollectionsSerializationProvider.cs" />
     <Compile Include="Serialization\Conventions\AttributeConventionPack.cs" />
     <Compile Include="Serialization\Conventions\CamelCaseElementNameConvention.cs" />
+    <Compile Include="Serialization\Conventions\IncludeReadOnlyMemberConvention.cs" />
     <Compile Include="Serialization\Conventions\NamedParameterCreatorMapConvention.cs" />
     <Compile Include="Serialization\Conventions\ConventionBase.cs" />
     <Compile Include="Serialization\Conventions\ConventionPack.cs" />

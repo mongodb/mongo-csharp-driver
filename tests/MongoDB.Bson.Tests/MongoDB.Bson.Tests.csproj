@@ -158,6 +158,7 @@
     <Compile Include="Serialization\Conventions\IgnoreExtraElementsConventionsTests.cs" />
     <Compile Include="Serialization\Conventions\IgnoreIfDefaultConventionsTests.cs" />
     <Compile Include="Serialization\Conventions\IgnoreIfNullConventionsTests.cs" />
+    <Compile Include="Serialization\Conventions\IncludeReadOnlyMemberConventionTests.cs" />
     <Compile Include="Serialization\Conventions\MemberDefaultValueConventionTests.cs" />
     <Compile Include="Serialization\Conventions\MemberNameElementNameConventionsTests.cs" />
     <Compile Include="Serialization\Conventions\NamedExtraElementsConventionsTests.cs" />
