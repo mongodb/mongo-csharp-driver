@@ -52,6 +52,7 @@ namespace MongoDB.Driver
         private ReadPreference _readPreference;
         private string _replicaSetName;
         private bool _retryWrites;
+        private string _sdamLogFilename;
         private List<MongoServerAddress> _servers;
         private TimeSpan _serverSelectionTimeout;
         private TimeSpan _socketTimeout;
@@ -411,6 +412,19 @@ namespace MongoDB.Driver
                 _retryWrites = value;
             }
         }
+        
+        /// <summary>
+        /// Gets or set the name of the SDAM log file. Null turns logging off. stdout will log to console.
+        /// </summary>
+        public string SdamLogFilename
+        {
+            get { return _sdamLogFilename; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _sdamLogFilename = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the address of the server (see also Servers if using more than one address).
@@ -625,6 +639,7 @@ namespace MongoDB.Driver
             serverSettings.ReplicaSetName = clientSettings.ReplicaSetName;
             serverSettings.RetryWrites = clientSettings.RetryWrites;
             serverSettings.LocalThreshold = clientSettings.LocalThreshold;
+            serverSettings.SdamLogFilename = clientSettings.SdamLogFilename;
             serverSettings.Servers = new List<MongoServerAddress>(clientSettings.Servers);
             serverSettings.ServerSelectionTimeout = clientSettings.ServerSelectionTimeout;
             serverSettings.SocketTimeout = clientSettings.SocketTimeout;
@@ -680,6 +695,7 @@ namespace MongoDB.Driver
             serverSettings.ReplicaSetName = url.ReplicaSetName;
             serverSettings.RetryWrites = url.RetryWrites ?? false;
             serverSettings.LocalThreshold = url.LocalThreshold;
+            serverSettings.SdamLogFilename = null; // SdamLogFilename must be provided in code
             serverSettings.Servers = new List<MongoServerAddress>(url.Servers);
             serverSettings.ServerSelectionTimeout = url.ServerSelectionTimeout;
             serverSettings.SocketTimeout = url.SocketTimeout;
@@ -721,6 +737,7 @@ namespace MongoDB.Driver
             clone._replicaSetName = _replicaSetName;
             clone._retryWrites = _retryWrites;
             clone._localThreshold = _localThreshold;
+            clone._sdamLogFilename = _sdamLogFilename;
             clone._servers = new List<MongoServerAddress>(_servers);
             clone._serverSelectionTimeout = _serverSelectionTimeout;
             clone._socketTimeout = _socketTimeout;
@@ -778,6 +795,7 @@ namespace MongoDB.Driver
                _replicaSetName == rhs._replicaSetName &&
                _retryWrites == rhs._retryWrites &&
                _localThreshold == rhs._localThreshold &&
+               _sdamLogFilename == rhs._sdamLogFilename &&
                _servers.SequenceEqual(rhs._servers) &&
                _serverSelectionTimeout == rhs._serverSelectionTimeout &&
                _socketTimeout == rhs._socketTimeout &&
@@ -853,6 +871,7 @@ namespace MongoDB.Driver
                 .Hash(_replicaSetName)
                 .Hash(_retryWrites)
                 .Hash(_localThreshold)
+                .Hash(_sdamLogFilename)
                 .HashElements(_servers)
                 .Hash(_serverSelectionTimeout)
                 .Hash(_socketTimeout)
@@ -903,6 +922,10 @@ namespace MongoDB.Driver
             parts.Add(string.Format("ReplicaSetName={0}", _replicaSetName));
             parts.Add(string.Format("RetryWrites={0}", _retryWrites));
             parts.Add(string.Format("LocalThreshold={0}", _localThreshold));
+            if (_sdamLogFilename != null)
+            {
+                parts.Add($"SDAMLogFilename={_sdamLogFilename}");
+            }
             parts.Add(string.Format("Servers={0}", string.Join(",", _servers.Select(s => s.ToString()).ToArray())));
             parts.Add(string.Format("ServerSelectionTimeout={0}", _serverSelectionTimeout));
             parts.Add(string.Format("SocketTimeout={0}", _socketTimeout));
@@ -940,6 +963,7 @@ namespace MongoDB.Driver
                 _maxConnectionPoolSize,
                 _minConnectionPoolSize,
                 _replicaSetName,
+                _sdamLogFilename,
                 _servers.ToList(),
                 _serverSelectionTimeout,
                 _socketTimeout,

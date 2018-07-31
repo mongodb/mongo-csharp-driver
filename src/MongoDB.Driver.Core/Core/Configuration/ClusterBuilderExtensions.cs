@@ -261,6 +261,25 @@ namespace MongoDB.Driver.Core.Configuration
             return builder.Subscribe(subscriber);
         }
 #endif
+        
+        /// <summary>
+        /// Configures the cluster to trace SDAM events to the specified <paramref name="traceSource"/>.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="traceSource">The trace source.</param>
+        /// <param name="createTraceSourceEventSubscriber">The func that creates an event subscriber from a trace source.</param>
+        /// <returns>A reconfigured cluster builder.</returns>
+        public static ClusterBuilder TraceSdamWith(
+            this ClusterBuilder builder, 
+            TraceSource traceSource, 
+            Func<TraceSource,IEventSubscriber> createTraceSourceEventSubscriber)
+        {
+            Ensure.IsNotNull(builder, nameof(builder));
+            Ensure.IsNotNull(traceSource, nameof(traceSource));
+
+            var subscriber = createTraceSourceEventSubscriber(traceSource);
+            return builder.Subscribe(subscriber);
+        }
 
         /// <summary>
         /// Configures the cluster to trace events to the specified <paramref name="traceSource"/>.
