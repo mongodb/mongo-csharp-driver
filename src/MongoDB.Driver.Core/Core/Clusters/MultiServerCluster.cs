@@ -24,6 +24,7 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Events.Diagnostics;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
@@ -51,6 +52,7 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly Action<ClusterAddedServerEvent> _addedServerEventHandler;
         private readonly Action<ClusterRemovingServerEvent> _removingServerEventHandler;
         private readonly Action<ClusterRemovedServerEvent> _removedServerEventHandler;
+        private readonly Action<SdamInformationEvent> _sdamInformationEventHandler;
 
         // constructors
         public MultiServerCluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber)
@@ -80,6 +82,7 @@ namespace MongoDB.Driver.Core.Clusters
             eventSubscriber.TryGetEventHandler(out _addedServerEventHandler);
             eventSubscriber.TryGetEventHandler(out _removingServerEventHandler);
             eventSubscriber.TryGetEventHandler(out _removedServerEventHandler);
+            eventSubscriber.TryGetEventHandler(out _sdamInformationEventHandler);
         }
 
         // methods
@@ -290,6 +293,7 @@ namespace MongoDB.Driver.Core.Clusters
 
         private ClusterDescription ProcessReplicaSetChange(ClusterDescription clusterDescription, ServerDescriptionChangedEventArgs args, List<IClusterableServer> newServers)
         {
+            var newServerDescription = args.NewServerDescription;
             if (!args.NewServerDescription.Type.IsReplicaSetMember())
             {
                 return RemoveServer(clusterDescription, args.NewServerDescription.EndPoint, string.Format("Server is a {0}, not a replica set member.", args.NewServerDescription.Type));
@@ -336,6 +340,15 @@ namespace MongoDB.Driver.Core.Clusters
                             {
                                 var server = _servers.SingleOrDefault(x => EndPointHelper.Equals(args.NewServerDescription.EndPoint, x.EndPoint));
                                 server.Invalidate();
+                                
+                                _sdamInformationEventHandler?.Invoke(new SdamInformationEvent(() =>
+                                    $"Invalidating potential primary "+ 
+                                    $"{TraceSourceEventHelper.Format(newServerDescription.EndPoint)} " + 
+                                    $"whose (set version, election id) tuple of " + 
+                                    $"({newServerDescription.ReplicaSetConfig.Version}, {newServerDescription.ElectionId}) " + 
+                                    $"is less than one already seen of ({_maxElectionInfo.SetVersion}," +
+                                    $"{_maxElectionInfo.ElectionId})"));
+                                    
                                 return clusterDescription.WithServerDescription(
                                     new ServerDescription(server.ServerId, server.EndPoint));
                             }
@@ -347,6 +360,9 @@ namespace MongoDB.Driver.Core.Clusters
                         _maxElectionInfo = new ElectionInfo(
                             args.NewServerDescription.ReplicaSetConfig.Version.Value,
                             args.NewServerDescription.ElectionId);
+                        _sdamInformationEventHandler?.Invoke(new SdamInformationEvent(() =>
+                                $"Setting max election id to {args.NewServerDescription.ElectionId} from " +
+                                $"replica set primary {TraceSourceEventHelper.Format(newServerDescription.EndPoint)}"));
                     }
                 }
 
