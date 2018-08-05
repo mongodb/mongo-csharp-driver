@@ -52,18 +52,12 @@ namespace MongoDB.Driver.Core.Operations.ElementNameValidators
         {
             Ensure.IsNotNull(elementName, nameof(elementName));
 
-            if (elementName.Length == 0)
-            {
-                // the server seems to allow empty element names, but in 1.x we did not
-                return false;
-            }
-
             if (elementName.IndexOf('.') != -1)
             {
                 return false;
             }
 
-            if (elementName[0] == '$' && !__exceptions.Contains(elementName))
+            if (elementName.Length != 0 && elementName[0] == '$' && !__exceptions.Contains(elementName))
             {
                 return false;
             }
