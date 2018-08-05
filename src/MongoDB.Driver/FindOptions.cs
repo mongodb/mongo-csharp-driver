@@ -101,6 +101,16 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the exclusive upper bound for the index key.
+        /// </summary>
+        public BsonDocument MaxKey { get; set; }
+
+        /// <summary>
+        /// Gets or sets the inclusive lower bound for the index key.
+        /// </summary>
+        public BsonDocument MinKey { get; set; }
+
+        /// <summary>
         /// Gets or sets the maximum time.
         /// </summary>
         public TimeSpan? MaxTime
