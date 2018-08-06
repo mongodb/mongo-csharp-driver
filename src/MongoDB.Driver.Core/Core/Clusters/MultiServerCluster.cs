@@ -347,7 +347,7 @@ namespace MongoDB.Driver.Core.Clusters
                                 _sdamInformationEventHandler?.Invoke(new SdamInformationEvent(() =>
                                     $"Invalidating potential primary "+ 
                                     $"{TraceSourceEventHelper.Format(newServerDescription.EndPoint)} " + 
-                                    $"whose (set version, election id) tuple of " + 
+                                    $"whose (setVersion, electionId) tuple of " + 
                                     $"({newServerDescription.ReplicaSetConfig.Version}, {newServerDescription.ElectionId}) " + 
                                     $"is less than one already seen of ({_maxElectionInfo.SetVersion}," +
                                     $"{_maxElectionInfo.ElectionId})"));
@@ -360,12 +360,37 @@ namespace MongoDB.Driver.Core.Clusters
 
                     if (isCurrentPrimaryStale)
                     {
+                        if (_maxElectionInfo == null)
+                        {
+                            _sdamInformationEventHandler?.Invoke(new SdamInformationEvent(() =>
+                                $"Initializing (maxSetVersion, maxElectionId) to " + 
+                                $"({args.NewServerDescription.ReplicaSetConfig.Version}, " +
+                                $"{args.NewServerDescription.ElectionId}) from " +
+                                $"replica set primary {TraceSourceEventHelper.Format(newServerDescription.EndPoint)}"));
+                        }
+                        else
+                        {
+                            if (_maxElectionInfo.IsSetVersionStale(args.NewServerDescription.ReplicaSetConfig.Version.Value))
+                            {
+                                _sdamInformationEventHandler?.Invoke(new SdamInformationEvent(() =>
+                                    $"Stale setVersion: Updating (maxSetVersion, maxElectionId) to " +
+                                    $"({args.NewServerDescription.ReplicaSetConfig.Version}, " +
+                                    $"{args.NewServerDescription.ElectionId}) from " +
+                                    $"replica set primary {TraceSourceEventHelper.Format(newServerDescription.EndPoint)}"));
+                            } 
+                            else // current primary is stale & setVersion is not stale ⇒ the electionId must be stale
+                            {
+                                _sdamInformationEventHandler?.Invoke(new SdamInformationEvent(() =>
+                                    $"Stale electionId: Updating (maxSetVersion, maxElectionId) to " +
+                                    $"({args.NewServerDescription.ReplicaSetConfig.Version}, " +
+                                    $"{args.NewServerDescription.ElectionId}) from " +
+                                    $"replica set primary {TraceSourceEventHelper.Format(newServerDescription.EndPoint)}"));
+                            }
+                        }
+                        
                         _maxElectionInfo = new ElectionInfo(
                             args.NewServerDescription.ReplicaSetConfig.Version.Value,
                             args.NewServerDescription.ElectionId);
-                        _sdamInformationEventHandler?.Invoke(new SdamInformationEvent(() =>
-                                $"Setting max election id to {args.NewServerDescription.ElectionId} from " +
-                                $"replica set primary {TraceSourceEventHelper.Format(newServerDescription.EndPoint)}"));
                     }
                 }
 
