@@ -331,7 +331,10 @@ namespace MongoDB.Driver.Core.Clusters
                     if (_maxElectionInfo != null)
                     {
                         isCurrentPrimaryStale = _maxElectionInfo.IsStale(args.NewServerDescription.ReplicaSetConfig.Version.Value, args.NewServerDescription.ElectionId);
-                        var isReportedPrimaryStale = !isCurrentPrimaryStale;
+                        var isReportedPrimaryStale = _maxElectionInfo.IsFresh(
+                            args.NewServerDescription.ReplicaSetConfig.Version.Value,
+                            args.NewServerDescription.ElectionId); 
+                                
 
                         if (isReportedPrimaryStale && args.NewServerDescription.ElectionId != null)
                         {
@@ -538,23 +541,21 @@ namespace MongoDB.Driver.Core.Clusters
 
             public ElectionId ElectionId => _electionId;
 
+            public bool IsFresh(int setVersion, ElectionId electionId)
+            {
+                return _setVersion > setVersion
+                       || _setVersion == setVersion && _electionId != null && _electionId.CompareTo(electionId) > 0;
+            }
+            
+            public bool IsSetVersionStale(int setVersion)
+            {
+                return _setVersion < setVersion;
+            }
+            
             public bool IsStale(int setVersion, ElectionId electionId)
             {
-                if (_setVersion < setVersion)
-                {
-                    return true;
-                }
-                if (_setVersion > setVersion)
-                {
-                    return false;
-                }
-
-                if (_electionId == null)
-                {
-                    return true;
-                }
-
-                return _electionId.CompareTo(electionId) <= 0;
+                return IsSetVersionStale(setVersion) 
+                       || _setVersion == setVersion && (_electionId == null || _electionId.CompareTo(electionId) < 0);
             }
         }
     }
