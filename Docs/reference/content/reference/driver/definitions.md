@@ -172,7 +172,7 @@ Both of these will render the projection `{ x: 1 }`.
 
 ### Projection Definition Builder 
 
-_See the [tests]({{< testref "MongoDB.Driver.Tests/ProjectionDefinitionBuilderTests.cs" >}}) for examples._
+_See the [tests]({{< testref "https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Tests/ProjectionDefinitionBuilderTests.cs" >}}) for examples._
 
 The [`ProjectionDefinitionBuilder<TDocument>`]({{< apiref "T_MongoDB_Driver_ProjectionDefinitionBuilder_1" >}}) exists to make it easier to build up projections in MongoDB's syntax. For the projection `{ x: 1, y: 1, _id: 0 }`:
 
