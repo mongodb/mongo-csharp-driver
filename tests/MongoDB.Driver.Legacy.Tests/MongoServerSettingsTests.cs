@@ -87,6 +87,7 @@ namespace MongoDB.Driver.Tests
             settings.Credential = MongoCredential.CreateMongoCRCredential("database", "username", "password").WithMechanismProperty("SERVICE_NAME", "other");
 #pragma warning restore 618
             settings.SslSettings = new SslSettings { CheckCertificateRevocation = false };
+            settings.SdamLogFilename = "unimatrix-zero";
 
             var clone = settings.Clone();
             Assert.Equal(settings, clone);
@@ -160,6 +161,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(ReadPreference.Primary, settings.ReadPreference);
             Assert.Equal(null, settings.ReplicaSetName);
             Assert.Equal(false, settings.RetryWrites);
+            Assert.Equal(null, settings.SdamLogFilename);
             Assert.Equal(_localHost, settings.Server);
             Assert.Equal(_localHost, settings.Servers.First());
             Assert.Equal(1, settings.Servers.Count());
@@ -259,6 +261,10 @@ namespace MongoDB.Driver.Tests
             clone = settings.Clone();
             clone.Server = new MongoServerAddress("someotherhost");
             Assert.False(clone.Equals(settings));
+            
+            clone = settings.Clone();
+            clone.SdamLogFilename = "osiris";
+            Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
             clone.ServerSelectionTimeout = new TimeSpan(1, 2, 3);
@@ -322,6 +328,7 @@ namespace MongoDB.Driver.Tests
             var builder = new MongoUrlBuilder(connectionString);
             var url = builder.ToMongoUrl();
             var clientSettings = MongoClientSettings.FromUrl(url);
+            clientSettings.SdamLogFilename = "section-31";
 
             var settings = MongoServerSettings.FromClientSettings(clientSettings);
             Assert.Equal(url.ApplicationName, settings.ApplicationName);
@@ -348,6 +355,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(url.ReplicaSetName, settings.ReplicaSetName);
             Assert.Equal(url.RetryWrites, settings.RetryWrites);
             Assert.Equal(url.LocalThreshold, settings.LocalThreshold);
+            Assert.Equal(clientSettings.SdamLogFilename, settings.SdamLogFilename);
             Assert.True(url.Servers.SequenceEqual(settings.Servers));
             Assert.Equal(url.ServerSelectionTimeout, settings.ServerSelectionTimeout);
             Assert.Equal(url.SocketTimeout, settings.SocketTimeout);
@@ -616,6 +624,21 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(localThreshold, settings.LocalThreshold);
             Assert.Throws<InvalidOperationException>(() => { settings.LocalThreshold = localThreshold; });
         }
+        
+        [Fact]
+        public void TestSdamLogFileName()
+        {
+            var settings = new MongoServerSettings();
+            Assert.Equal(null, settings.SdamLogFilename);
+
+            var sdamLogFileName = "advanced-potion-making";
+            settings.SdamLogFilename = sdamLogFileName;
+            Assert.Same(sdamLogFileName, settings.SdamLogFilename);
+
+            settings.Freeze();
+            Assert.Same(sdamLogFileName, settings.SdamLogFilename);
+            Assert.Throws<InvalidOperationException>(() => { settings.SdamLogFilename = sdamLogFileName; });
+        }
 
         [Fact]
         public void TestServer()
@@ -826,6 +849,7 @@ namespace MongoDB.Driver.Tests
                 MinConnectionPoolSize = 5,
                 ReplicaSetName = "rs",
                 LocalThreshold = TimeSpan.FromMilliseconds(20),
+                SdamLogFilename = "navi",
                 Servers = servers,
                 ServerSelectionTimeout = TimeSpan.FromSeconds(6),
                 SocketTimeout = TimeSpan.FromSeconds(4),
@@ -853,6 +877,7 @@ namespace MongoDB.Driver.Tests
             result.MinConnectionPoolSize.Should().Be(subject.MinConnectionPoolSize);
             result.ReplicaSetName.Should().Be(subject.ReplicaSetName);
             result.LocalThreshold.Should().Be(subject.LocalThreshold);
+            result.SdamLogFilename.Should().Be(subject.SdamLogFilename);
             result.Servers.Should().Equal(subject.Servers);
             result.ServerSelectionTimeout.Should().Be(subject.ServerSelectionTimeout);
             result.SocketTimeout.Should().Be(subject.SocketTimeout);

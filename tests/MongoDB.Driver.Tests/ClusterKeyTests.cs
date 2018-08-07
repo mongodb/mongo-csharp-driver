@@ -50,6 +50,7 @@ namespace MongoDB.Driver.Tests
         [InlineData("MinConnectionPoolSize", true)]
         [InlineData("ReplicaSetName", true)]
         [InlineData("LocalThreshold", true)]
+        [InlineData("SdamLogFileName", true)]
         [InlineData("Servers", false)]
         [InlineData("ServerSelectionTimeout", true)]
         [InlineData("SocketTimeout", true)]
@@ -85,6 +86,7 @@ namespace MongoDB.Driver.Tests
             var maxConnectionPoolSize = 50;
             var minConnectionPoolSize = 5;
             var replicaSetName = "abc";
+            var sdamLogFileName = "stdout";
             var servers = new[] { new MongoServerAddress("localhost") };
             var serverSelectionTimeout = TimeSpan.FromSeconds(6);
             var socketTimeout = TimeSpan.FromSeconds(4);
@@ -115,6 +117,7 @@ namespace MongoDB.Driver.Tests
                 case "MaxConnectionPoolSize": maxConnectionPoolSize = 99; break;
                 case "MinConnectionPoolSize": minConnectionPoolSize = 99; break;
                 case "ReplicaSetName": replicaSetName = "different"; break;
+                case "SdamLogFileName": sdamLogFileName = "different"; break;
                 case "Servers": servers = new[] { new MongoServerAddress("different") }; break;
                 case "ServerSelectionTimeout": serverSelectionTimeout = TimeSpan.FromSeconds(98); break;
                 case "SocketTimeout": socketTimeout = TimeSpan.FromSeconds(99); break;
@@ -141,6 +144,7 @@ namespace MongoDB.Driver.Tests
                 MinConnectionPoolSize = minConnectionPoolSize,
                 ReplicaSetName = replicaSetName,
                 LocalThreshold = localThreshold,
+                SdamLogFilename = sdamLogFileName,
                 Servers = servers,
                 ServerSelectionTimeout = serverSelectionTimeout,
                 SocketTimeout = socketTimeout,

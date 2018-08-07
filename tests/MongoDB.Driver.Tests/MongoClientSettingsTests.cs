@@ -79,6 +79,7 @@ namespace MongoDB.Driver.Tests
             settings.Credential = MongoCredential.CreateMongoCRCredential("database", "username", "password").WithMechanismProperty("SERVICE_NAME", "other");
 #pragma warning restore 618
             settings.SslSettings = new SslSettings { CheckCertificateRevocation = false };
+            settings.SdamLogFilename = "stdout";
 
             var clone = settings.Clone();
             Assert.Equal(settings, clone);
@@ -156,6 +157,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(MongoDefaults.ComputedWaitQueueSize, settings.WaitQueueSize);
             Assert.Equal(MongoDefaults.WaitQueueTimeout, settings.WaitQueueTimeout);
             Assert.Equal(WriteConcern.Acknowledged, settings.WriteConcern);
+            Assert.Equal(null, settings.SdamLogFilename);
         }
 
         [Fact]
@@ -275,6 +277,10 @@ namespace MongoDB.Driver.Tests
 
             clone = settings.Clone();
             clone.WriteConcern = WriteConcern.W2;
+            Assert.False(clone.Equals(settings));
+
+            clone = settings.Clone();
+            clone.SdamLogFilename = "garbage";
             Assert.False(clone.Equals(settings));
         }
 
@@ -577,6 +583,21 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(localThreshold, settings.LocalThreshold);
             Assert.Throws<InvalidOperationException>(() => { settings.LocalThreshold = localThreshold; });
         }
+        
+        [Fact]
+        public void TestSdamLogFileName()
+        {
+            var settings = new MongoClientSettings();
+            Assert.Equal(null, settings.SdamLogFilename);
+
+            var sdamLogFileName = "LCARS";
+            settings.SdamLogFilename = sdamLogFileName;
+            Assert.Same(sdamLogFileName, settings.SdamLogFilename);
+
+            settings.Freeze();
+            Assert.Same(sdamLogFileName, settings.SdamLogFilename);
+            Assert.Throws<InvalidOperationException>(() => { settings.SdamLogFilename = sdamLogFileName; });
+        }
 
         [Fact]
         public void TestServer()
@@ -803,6 +824,7 @@ namespace MongoDB.Driver.Tests
                 MinConnectionPoolSize = 5,
                 ReplicaSetName = "rs",
                 LocalThreshold = TimeSpan.FromMilliseconds(20),
+                SdamLogFilename = "pokédex",
                 Servers = servers,
                 ServerSelectionTimeout = TimeSpan.FromSeconds(6),
                 SocketTimeout = TimeSpan.FromSeconds(4),
@@ -830,6 +852,7 @@ namespace MongoDB.Driver.Tests
             result.MinConnectionPoolSize.Should().Be(subject.MinConnectionPoolSize);
             result.ReplicaSetName.Should().Be(subject.ReplicaSetName);
             result.LocalThreshold.Should().Be(subject.LocalThreshold);
+            result.SdamLogFilename.Should().Be(subject.SdamLogFilename);
             result.Servers.Should().Equal(subject.Servers);
             result.ServerSelectionTimeout.Should().Be(subject.ServerSelectionTimeout);
             result.SocketTimeout.Should().Be(subject.SocketTimeout);
