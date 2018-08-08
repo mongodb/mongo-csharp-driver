@@ -479,8 +479,9 @@ namespace MongoDB.Driver.Core.Events
         {  
             var traceSource = new TraceSource(name, SourceLevels.All);
             traceSource.Listeners.Clear();
+            var logFileStream = new FileStream(logFileName, FileMode.Append);
             traceSource.Listeners.Add(
-                new TextWriterTraceListener(logFileName) { TraceOutputOptions = TraceOptions.DateTime });
+                new TextWriterTraceListener(logFileStream) { TraceOutputOptions = TraceOptions.DateTime });
             return traceSource;
         }
 

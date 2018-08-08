@@ -170,7 +170,7 @@ namespace MongoDB.Driver.Core.Configuration
             traceSource.Listeners.Clear(); // remove the default listener
             var listener = _sdamLoggingSettings.LogToStdout
                 ? new TextWriterTraceListener(Console.Out)
-                : new TextWriterTraceListener(_sdamLoggingSettings.LogFilename);
+                : new TextWriterTraceListener(new FileStream(_sdamLoggingSettings.LogFilename, FileMode.Append));
             listener.TraceOutputOptions = TraceOptions.DateTime;
             traceSource.Listeners.Add(listener);
             return this.TraceSdamWith(traceSource, source => new TraceSourceSdamEventSubscriber(source));
