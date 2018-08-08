@@ -839,7 +839,9 @@ namespace MongoDB.Driver
                     Comment = options.Comment,
                     CursorType = options.CursorType,
                     MaxAwaitTime = options.MaxAwaitTime,
+                    MaxKey = options.MaxKey,
                     MaxTime = options.MaxTime,
+                    MinKey = options.MinKey,
                     Modifiers = options.Modifiers,
                     NoCursorTimeout = options.NoCursorTimeout,
                     OplogReplay = options.OplogReplay
