@@ -72,6 +72,37 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
+        /// Initializes a new instance of the BsonDocument by coping elements from another BsonDocument.
+        /// </summary>
+        /// <param name="document">The document whose elements will be copied</param>
+        public BsonDocument(BsonDocument document)
+        {
+            if (document == null)
+            {
+                throw new ArgumentNullException("document");
+            }
+
+            _allowDuplicateNames = document.AllowDuplicateNames;
+            AddRange(document);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the BsonDocument by coping elements from a LazyBsonDocument.
+        /// </summary>
+        /// <param name="document">The document whose elements will be copied</param>
+        public BsonDocument(LazyBsonDocument document) : this((BsonDocument)document)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the BsonDocument by coping elements from a RawBsonDocument.
+        /// </summary>
+        /// <param name="document">The document whose elements will be copied</param>
+        public BsonDocument(RawBsonDocument document) : this((BsonDocument)document)
+        {
+        }
+
+        /// <summary>
         /// Initializes a new instance of the BsonDocument class and adds new elements from a dictionary of key/value pairs.
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
@@ -821,7 +852,7 @@ namespace MongoDB.Bson
         /// <returns>A deep clone of the document.</returns>
         public override BsonValue DeepClone()
         {
-            BsonDocument clone = new BsonDocument();
+            BsonDocument clone = new BsonDocument() { AllowDuplicateNames = AllowDuplicateNames };
             foreach (BsonElement element in _elements)
             {
                 clone.Add(element.DeepClone());
