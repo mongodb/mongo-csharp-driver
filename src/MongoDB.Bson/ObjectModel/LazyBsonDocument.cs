@@ -50,6 +50,7 @@ namespace MongoDB.Bson
                 throw new ArgumentNullException("slice");
             }
 
+            AllowDuplicateNames = true; // raw BSON always supports duplicate names
             _slice = slice;
         }
 
