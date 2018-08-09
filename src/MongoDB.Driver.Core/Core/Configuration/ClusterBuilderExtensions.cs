@@ -272,7 +272,7 @@ namespace MongoDB.Driver.Core.Configuration
         public static ClusterBuilder TraceSdamWith(
             this ClusterBuilder builder, 
             TraceSource traceSource, 
-            Func<TraceSource,IEventSubscriber> createTraceSourceEventSubscriber)
+            Func<TraceSource, IEventSubscriber> createTraceSourceEventSubscriber)
         {
             Ensure.IsNotNull(builder, nameof(builder));
             Ensure.IsNotNull(traceSource, nameof(traceSource));
