@@ -24,6 +24,7 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Events.Diagnostics;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
@@ -51,6 +52,7 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly Action<ClusterAddedServerEvent> _addedServerEventHandler;
         private readonly Action<ClusterRemovingServerEvent> _removingServerEventHandler;
         private readonly Action<ClusterRemovedServerEvent> _removedServerEventHandler;
+        private readonly Action<SdamInformationEvent> _sdamInformationEventHandler;
 
         // constructors
         public MultiServerCluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber)
@@ -80,6 +82,7 @@ namespace MongoDB.Driver.Core.Clusters
             eventSubscriber.TryGetEventHandler(out _addedServerEventHandler);
             eventSubscriber.TryGetEventHandler(out _removingServerEventHandler);
             eventSubscriber.TryGetEventHandler(out _removedServerEventHandler);
+            eventSubscriber.TryGetEventHandler(out _sdamInformationEventHandler);
         }
 
         // methods
@@ -290,6 +293,7 @@ namespace MongoDB.Driver.Core.Clusters
 
         private ClusterDescription ProcessReplicaSetChange(ClusterDescription clusterDescription, ServerDescriptionChangedEventArgs args, List<IClusterableServer> newServers)
         {
+            var newServerDescription = args.NewServerDescription;
             if (!args.NewServerDescription.Type.IsReplicaSetMember())
             {
                 return RemoveServer(clusterDescription, args.NewServerDescription.EndPoint, string.Format("Server is a {0}, not a replica set member.", args.NewServerDescription.Type));
@@ -327,7 +331,10 @@ namespace MongoDB.Driver.Core.Clusters
                     if (_maxElectionInfo != null)
                     {
                         isCurrentPrimaryStale = _maxElectionInfo.IsStale(args.NewServerDescription.ReplicaSetConfig.Version.Value, args.NewServerDescription.ElectionId);
-                        var isReportedPrimaryStale = !isCurrentPrimaryStale;
+                        var isReportedPrimaryStale = _maxElectionInfo.IsFresh(
+                            args.NewServerDescription.ReplicaSetConfig.Version.Value,
+                            args.NewServerDescription.ElectionId); 
+                                
 
                         if (isReportedPrimaryStale && args.NewServerDescription.ElectionId != null)
                         {
@@ -336,6 +343,15 @@ namespace MongoDB.Driver.Core.Clusters
                             {
                                 var server = _servers.SingleOrDefault(x => EndPointHelper.Equals(args.NewServerDescription.EndPoint, x.EndPoint));
                                 server.Invalidate();
+                                
+                                _sdamInformationEventHandler?.Invoke(new SdamInformationEvent(() =>
+                                    $"Invalidating potential primary "+ 
+                                    $"{TraceSourceEventHelper.Format(newServerDescription.EndPoint)} " + 
+                                    $"whose (setVersion, electionId) tuple of " + 
+                                    $"({newServerDescription.ReplicaSetConfig.Version}, {newServerDescription.ElectionId}) " + 
+                                    $"is less than one already seen of ({_maxElectionInfo.SetVersion}," +
+                                    $"{_maxElectionInfo.ElectionId})"));
+                                    
                                 return clusterDescription.WithServerDescription(
                                     new ServerDescription(server.ServerId, server.EndPoint));
                             }
@@ -344,6 +360,34 @@ namespace MongoDB.Driver.Core.Clusters
 
                     if (isCurrentPrimaryStale)
                     {
+                        if (_maxElectionInfo == null)
+                        {
+                            _sdamInformationEventHandler?.Invoke(new SdamInformationEvent(() =>
+                                $"Initializing (maxSetVersion, maxElectionId) to " + 
+                                $"({args.NewServerDescription.ReplicaSetConfig.Version}, " +
+                                $"{args.NewServerDescription.ElectionId}) from " +
+                                $"replica set primary {TraceSourceEventHelper.Format(newServerDescription.EndPoint)}"));
+                        }
+                        else
+                        {
+                            if (_maxElectionInfo.IsSetVersionStale(args.NewServerDescription.ReplicaSetConfig.Version.Value))
+                            {
+                                _sdamInformationEventHandler?.Invoke(new SdamInformationEvent(() =>
+                                    $"Stale setVersion: Updating (maxSetVersion, maxElectionId) to " +
+                                    $"({args.NewServerDescription.ReplicaSetConfig.Version}, " +
+                                    $"{args.NewServerDescription.ElectionId}) from " +
+                                    $"replica set primary {TraceSourceEventHelper.Format(newServerDescription.EndPoint)}"));
+                            } 
+                            else // current primary is stale & setVersion is not stale ⇒ the electionId must be stale
+                            {
+                                _sdamInformationEventHandler?.Invoke(new SdamInformationEvent(() =>
+                                    $"Stale electionId: Updating (maxSetVersion, maxElectionId) to " +
+                                    $"({args.NewServerDescription.ReplicaSetConfig.Version}, " +
+                                    $"{args.NewServerDescription.ElectionId}) from " +
+                                    $"replica set primary {TraceSourceEventHelper.Format(newServerDescription.EndPoint)}"));
+                            }
+                        }
+                        
                         _maxElectionInfo = new ElectionInfo(
                             args.NewServerDescription.ReplicaSetConfig.Version.Value,
                             args.NewServerDescription.ElectionId);
@@ -522,23 +566,21 @@ namespace MongoDB.Driver.Core.Clusters
 
             public ElectionId ElectionId => _electionId;
 
+            public bool IsFresh(int setVersion, ElectionId electionId)
+            {
+                return _setVersion > setVersion
+                       || _setVersion == setVersion && _electionId != null && _electionId.CompareTo(electionId) > 0;
+            }
+            
+            public bool IsSetVersionStale(int setVersion)
+            {
+                return _setVersion < setVersion;
+            }
+            
             public bool IsStale(int setVersion, ElectionId electionId)
             {
-                if (_setVersion < setVersion)
-                {
-                    return true;
-                }
-                if (_setVersion > setVersion)
-                {
-                    return false;
-                }
-
-                if (_electionId == null)
-                {
-                    return true;
-                }
-
-                return _electionId.CompareTo(electionId) <= 0;
+                return IsSetVersionStale(setVersion) 
+                       || _setVersion == setVersion && (_electionId == null || _electionId.CompareTo(electionId) < 0);
             }
         }
     }

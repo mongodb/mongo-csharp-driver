@@ -90,6 +90,11 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
             Info(TraceSourceEventHelper.ClusterIdBase + 8, "{0}: {1}", TraceSourceEventHelper.Label(@event.OldDescription.ClusterId), @event.NewDescription);
         }
 
+        private void Handle(SdamInformationEvent @event)
+        {
+            Info(TraceSourceEventHelper.ClusterIdBase + 9, "{0}", @event);
+        }
+
         // Servers
         private void Handle(ServerOpeningEvent @event)
         {
