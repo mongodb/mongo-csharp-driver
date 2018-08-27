@@ -131,7 +131,7 @@ namespace MongoDB.Driver.Core.Authentication
 
             public string Name => _name;
 
-            public ISaslStep Initialize(IConnection connection, ConnectionDescription description)
+            public ISaslStep Initialize(IConnection connection, SaslConversation conversation, ConnectionDescription description)
             {
                 Ensure.IsNotNull(connection, nameof(connection));
                 Ensure.IsNotNull(description, nameof(description));
