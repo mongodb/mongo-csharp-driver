@@ -84,6 +84,14 @@ namespace MongoDB.Bson.IO
         byte[] ReadBytes();
 
         /// <summary>
+        /// Reads BSON binary data from the reader to the buffer at offset and respecting the size.
+        /// </summary>
+        /// <param name="buffer">Target buffer</param>
+        /// <param name="offset">Target offset</param>
+        /// <returns>Bytes read</returns>
+        int ReadBytes(byte[] buffer, int offset);
+
+        /// <summary>
         /// Reads a BSON DateTime from the reader.
         /// </summary>
         /// <returns>The number of milliseconds since the Unix epoch.</returns>

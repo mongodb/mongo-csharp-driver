@@ -273,8 +273,34 @@ namespace MongoDB.Bson.IO
             State = GetNextState();
             return _bsonStream.ReadBytes(size);
         }
-#pragma warning restore 618
 
+        /// <summary>
+        /// Reads BSON binary data from the reader to the buffer at offset and respecting the size.
+        /// </summary>
+        /// <param name="bytes">Target buffer</param>
+        /// <param name="offset">Target offset</param>
+        /// <returns>Bytes read</returns>
+        public override int ReadBytes(byte[] bytes, int offset) {
+            if (Disposed) { ThrowObjectDisposedException(); }
+            VerifyBsonType("ReadBytes", BsonType.Binary);
+
+            int size = ReadSize();
+            
+            var subType = _bsonStream.ReadBinarySubType();
+            if (subType != BsonBinarySubType.Binary)
+            {
+                var message = string.Format("ReadBytes requires the binary sub type to be Binary, not {0}.", subType);
+                throw new FormatException(message);
+            }
+
+            State = GetNextState();
+            
+            _bsonStream.ReadBytes(bytes, offset, size);
+
+            return size;
+        }
+
+#pragma warning restore 618
         /// <summary>
         /// Reads a BSON DateTime from the reader.
         /// </summary>

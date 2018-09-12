@@ -916,6 +916,23 @@ namespace MongoDB.Bson.Tests.IO
             Assert.Equal(json, BsonSerializer.Deserialize<ObjectId>(json).ToJson(jsonSettings));
         }
 
+        [Fact]
+        public void TestReadWithReusedBuffer() {
+            var expectedBytes = new byte[] { 0x01, 0x23 };
+            var json          = "HexData(0, \"123\")";
+            using (_bsonReader = new JsonReader(json))
+            {
+                Assert.Equal(BsonType.Binary, _bsonReader.ReadBsonType());
+                var bytes     = new byte[1024];
+                int readBytes = _bsonReader.ReadBytes(bytes, 50);
+                Assert.Equal(2, readBytes);
+                Assert.True(expectedBytes.SequenceEqual(bytes.Skip(50).Take(2)));
+                Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
+            }
+            var expectedJson = "new BinData(0, \"ASM=\")";
+            Assert.Equal(expectedJson, BsonSerializer.Deserialize<byte[]>(json).ToJson());
+        }
+
         [Theory]
         [InlineData("{ $regex : \"abc\", $options : \"i\" }", "abc", "i")]
         [InlineData("{ $regex : \"abc/\", $options : \"i\" }", "abc/", "i")]

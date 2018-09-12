@@ -421,6 +421,33 @@ namespace MongoDB.Bson.IO
             }
 
             return binaryData.Bytes;
+
+        }
+
+        /// <summary>
+        /// Reads BSON binary data from the reader to the buffer at offset and respecting the size.
+        /// </summary>
+        /// <param name="bytes">Target buffer</param>
+        /// <param name="offset">Target offset</param>
+        /// <returns>Bytes read</returns>
+        public override int ReadBytes(byte[] bytes, int offset)
+        {
+
+            if (Disposed) { ThrowObjectDisposedException(); }
+            VerifyBsonType("ReadBinaryData", BsonType.Binary);
+            State = GetNextState();
+            var binaryData = _currentValue.AsBsonBinaryData;
+
+            var subType = binaryData.SubType;
+            if (subType != BsonBinarySubType.Binary && subType != BsonBinarySubType.OldBinary)
+            {
+                var message = string.Format("ReadBytes requires the binary sub type to be Binary, not {0}.", subType);
+                throw new FormatException(message);
+            }
+
+            binaryData.Bytes.CopyTo(bytes, offset);
+
+            return binaryData.Bytes.Length;
 #pragma warning restore
         }
 

@@ -184,6 +184,13 @@ namespace MongoDB.Bson.IO
         /// <param name="bytes">The bytes.</param>
         public abstract void WriteBytes(byte[] bytes);
 
+		/// <summary>
+		/// Writes BSON binary data to the writer.
+		/// </summary>
+		/// <param name="bytes">The bytes.</param>
+		/// <param name="size"> </param>
+		public abstract void WriteBytes(byte[] bytes, int size);
+
         /// <summary>
         /// Writes a BSON DateTime to the writer.
         /// </summary>
