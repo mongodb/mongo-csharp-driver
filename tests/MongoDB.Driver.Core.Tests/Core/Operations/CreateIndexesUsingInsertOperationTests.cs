@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check();
+            RequireServer.Check().Supports(Feature.CreateIndexesUsingInsertOperations);
             DropCollection();
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) { Background = true } };
             var subject = new CreateIndexesUsingInsertOperation(_collectionNamespace, requests, _messageEncoderSettings);
@@ -112,7 +112,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check();
+            RequireServer.Check().Supports(Feature.CreateIndexesUsingInsertOperations);
             DropCollection();
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) };
             var subject = new CreateIndexesUsingInsertOperation(_collectionNamespace, requests, _messageEncoderSettings);
@@ -129,7 +129,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check();
+            RequireServer.Check().Supports(Feature.CreateIndexesUsingInsertOperations);
             DropCollection();
             var requests = new[]
             {
@@ -150,7 +150,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check();
+            RequireServer.Check().Supports(Feature.CreateIndexesUsingInsertOperations);
             DropCollection();
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) { Sparse = true } };
             var subject = new CreateIndexesUsingInsertOperation(_collectionNamespace, requests, _messageEncoderSettings);
@@ -168,7 +168,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check();
+            RequireServer.Check().Supports(Feature.CreateIndexesUsingInsertOperations);
             DropCollection();
             var expireAfter = TimeSpan.FromSeconds(1.5);
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) { ExpireAfter = expireAfter } };
@@ -187,7 +187,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check();
+            RequireServer.Check().Supports(Feature.CreateIndexesUsingInsertOperations);
             DropCollection();
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) { Unique = true } };
             var subject = new CreateIndexesUsingInsertOperation(_collectionNamespace, requests, _messageEncoderSettings);

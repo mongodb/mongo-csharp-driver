@@ -41,6 +41,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __commandMessage = new Feature("CommandMessage", new SemanticVersion(3, 6, 0));
         private static readonly CommandsThatWriteAcceptWriteConcernFeature __commandsThatWriteAcceptWriteConcern = new CommandsThatWriteAcceptWriteConcernFeature("CommandsThatWriteAcceptWriteConcern", new SemanticVersion(3, 3, 11));
         private static readonly Feature __createIndexesCommand = new Feature("CreateIndexesCommand", new SemanticVersion(3, 0, 0));
+        private static readonly Feature __createIndexesUsingInsertOperations = new Feature("CreateIndexesCommand", new SemanticVersion(1, 0, 0), new SemanticVersion(4, 1, 2));
         private static readonly Feature __currentOpCommand = new Feature("CurrentOpCommand", new SemanticVersion(3, 2, 0));
         private static readonly Feature __documentValidation = new Feature("DocumentValidation", new SemanticVersion(3, 2, 0));
         private static readonly Feature __eval = new Feature("Eval", new SemanticVersion(0, 0, 0), new SemanticVersion(4, 1, 0, ""));
@@ -157,6 +158,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the create indexes command feature.
         /// </summary>
         public static Feature CreateIndexesCommand => __createIndexesCommand;
+        
+        /// <summary>
+        /// Gets the create indexes using insert operations feature.
+        /// </summary>
+        public static Feature CreateIndexesUsingInsertOperations => __createIndexesUsingInsertOperations;
 
         /// <summary>
         /// Gets the current op command feature.
