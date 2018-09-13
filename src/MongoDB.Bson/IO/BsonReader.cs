@@ -173,7 +173,7 @@ namespace MongoDB.Bson.IO
         /// <param name="bytes">Target buffer</param>
         /// <param name="offset">Target offset</param>
         /// <returns>Bytes read</returns>
-        public abstract int ReadBytes(byte[] bytes, int offset);
+        public abstract int ReadBytes(byte[] bytes, int offset = 0);
 
         /// <summary>
         /// Reads a BSON DateTime from the reader.

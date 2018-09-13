@@ -188,7 +188,7 @@ namespace MongoDB.Driver.Linq.Processors.Pipeline.MethodCallBinders
                 return _parent.ReadBytes();
             }
 
-            public int ReadBytes(byte[] bytes, int offset)
+            public int ReadBytes(byte[] bytes, int offset = 0)
             {
                 return _parent.ReadBytes(bytes, offset);
             }

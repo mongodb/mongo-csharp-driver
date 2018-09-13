@@ -261,27 +261,27 @@ namespace MongoDB.Bson.IO
             State = GetNextState();
         }
 
-		/// <summary>
-		/// Writes BSON binary data to the writer.
-		/// </summary>
-		/// <param name="bytes">The bytes.</param>
-		/// <param name="size"> The count of bytes used in the bytes[] </param>
-		public override void WriteBytes(byte[] bytes, int size)
-		{
-			if (Disposed) { throw new ObjectDisposedException("BsonBinaryWriter"); }
-			if (State != BsonWriterState.Value)
-			{
-				ThrowInvalidState("WriteBytes", BsonWriterState.Value);
-			}
+        /// <summary>
+        /// Writes BSON binary data to the writer.
+        /// </summary>
+        /// <param name="bytes">The bytes.</param>
+        /// <param name="size"> The count of bytes used in the bytes[] </param>
+        public override void WriteBytes(byte[] bytes, int size)
+        {
+            if (Disposed) { throw new ObjectDisposedException("BsonBinaryWriter"); }
+            if (State != BsonWriterState.Value)
+            {
+                ThrowInvalidState("WriteBytes", BsonWriterState.Value);
+            }
 
-			_bsonStream.WriteBsonType(BsonType.Binary);
-			WriteNameHelper();
-			_bsonStream.WriteInt32(size);
-			_bsonStream.WriteBinarySubType(BsonBinarySubType.Binary);
-			_bsonStream.WriteBytes(bytes, 0, bytes.Length);
+            _bsonStream.WriteBsonType(BsonType.Binary);
+            WriteNameHelper();
+            _bsonStream.WriteInt32(size);
+            _bsonStream.WriteBinarySubType(BsonBinarySubType.Binary);
+            _bsonStream.WriteBytes(bytes, 0, size);
 
-			State = GetNextState();
-		}
+            State = GetNextState();
+        }
 
         /// <summary>
         /// Writes a BSON DateTime to the writer.

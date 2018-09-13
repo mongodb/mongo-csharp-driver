@@ -186,7 +186,7 @@ namespace MongoDB.Bson.IO
         /// <param name="bytes">Target buffer</param>
         /// <param name="offset">Target offset</param>
         /// <returns>Bytes read</returns>
-        public override int ReadBytes(byte[] bytes, int offset)
+        public override int ReadBytes(byte[] bytes, int offset = 0)
         {
             if (Disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadBytes", BsonType.Binary);
