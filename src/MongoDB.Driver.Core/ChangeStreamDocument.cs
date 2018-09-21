@@ -51,7 +51,7 @@ namespace MongoDB.Driver
         /// <value>
         /// The cluster time.
         /// </value>
-        public BsonDocument ClusterTime => GetValue<BsonDocument>(nameof(ClusterTime), null);
+        public BsonTimestamp ClusterTime => GetValue<BsonTimestamp>(nameof(ClusterTime), null);
 
         /// <summary>
         /// Gets the namespace of the collection.

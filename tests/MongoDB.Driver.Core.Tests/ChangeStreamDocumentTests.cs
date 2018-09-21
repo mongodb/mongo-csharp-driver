@@ -75,7 +75,7 @@ namespace MongoDB.Driver
         [Fact]
         public void ClusterTime_should_return_expected_result()
         {
-            var value = new BsonDocument("x", 1234);
+            var value = new BsonTimestamp(DateTime.Now.Ticks);
             var backingDocument = new BsonDocument { { "other", 1 }, { "clusterTime", value } };
             var subject = CreateSubject(backingDocument: backingDocument);
 
