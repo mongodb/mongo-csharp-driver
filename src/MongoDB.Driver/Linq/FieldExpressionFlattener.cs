@@ -43,15 +43,14 @@ namespace MongoDB.Driver.Linq
                     throw new NotSupportedException($"Only a constant index is supported in the expression {node}.");
                 }
 
-                var index = constantIndex.Value.ToString();
-                if (index == "-1")
-                {
-                    // We've treated -1 as meaning $ operator. We can't break this now,
-                    // so, specifically when we are flattening fields names, this is 
-                    // how we'll continue to treat -1.
-                    index = "$";
-                }
+                // We've treated -1 as meaning $ operator. We can't break this now,
+                // so, specifically when we are flattening fields names, this is 
+                // how we'll continue to treat -1.
 
+                var index = constantIndex.Value is int intIndex && intIndex == -1
+                    ? "$"
+                    : constantIndex.Value.ToString();
+                    
                 return new FieldExpression(
                     field.AppendFieldName(index),
                     node.Serializer);
