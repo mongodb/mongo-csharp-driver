@@ -453,8 +453,15 @@ buildvariants:
   tasks:
     - name: compile
 
-- matrix_name: "tests"
-  matrix_spec: { version: "*", topology: "*", auth: "*", ssl: "*", os: "*" }
+- matrix_name: "secure-tests"
+  matrix_spec: { version: "*", topology: "*", auth: "auth", ssl: "ssl", os: "*" }
+  display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
+  tags: ["tests-variant"]
+  tasks:
+     - name: test
+
+- matrix_name: "unsecure-tests"
+  matrix_spec: { version: "*", topology: "*", auth: "noauth", ssl: "nossl", os: "*" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
