@@ -119,6 +119,7 @@
     <Compile Include="DropIndexOptionsTest.cs" />
     <Compile Include="CreateViewOptionsTests.cs" />
     <Compile Include="EstimatedDocumentCountOptionsTests.cs" />
+    <Compile Include="ExpressionFlattening\ArrayIndexFormatterTests.cs" />
     <Compile Include="FieldDefinitionTests.cs" />
     <Compile Include="FilterDefinitionBuilderEnumComparedToEnumWithStringRepresentationTests.cs" />
     <Compile Include="FilterDefinitionBuilderEnumComparedToNullableEnumTests.cs" />

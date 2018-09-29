@@ -20,16 +20,12 @@ using MongoDB.Driver.Linq.Expressions;
 
 namespace MongoDB.Driver.Linq
 {
-    internal class FieldExpressionFlattener : ExtensionExpressionVisitor
+	internal class FieldExpressionFlattener : ExtensionExpressionVisitor
     {
         public static Expression FlattenFields(Expression node)
         {
             var visitor = new FieldExpressionFlattener();
             return visitor.Visit(node);
-        }
-
-        public FieldExpressionFlattener()
-        {
         }
 
         protected internal override Expression VisitArrayIndex(ArrayIndexExpression node)
@@ -43,16 +39,10 @@ namespace MongoDB.Driver.Linq
                     throw new NotSupportedException($"Only a constant index is supported in the expression {node}.");
                 }
 
-                // We've treated -1 as meaning $ operator. We can't break this now,
-                // so, specifically when we are flattening fields names, this is 
-                // how we'll continue to treat -1.
-
-                var index = constantIndex.Value is int intIndex && intIndex == -1
-                    ? "$"
-                    : constantIndex.Value.ToString();
-                    
+                var formattedIndex = ArrayIndexFormatter.FormatArrayIndex(constantIndex.Value);
+                
                 return new FieldExpression(
-                    field.AppendFieldName(index),
+                    field.AppendFieldName(formattedIndex),
                     node.Serializer);
             }
 
