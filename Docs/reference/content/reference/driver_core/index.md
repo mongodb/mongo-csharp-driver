@@ -11,7 +11,7 @@ title = "Driver Core"
 
 ## Driver Core
 
-Driver Core is a full driver with complete support for all types of deployment configurations, authentication, SSL, and cursors. The API is verbose, but highly configurable which is why it's a great solution to build higher-level APIs upon. The [MongoDB .NET Driver]({{< relref "reference\driver\index.md" >}} is built upon Driver Core.
+Driver Core is a full driver with complete support for all types of deployment configurations, authentication, SSL, and cursors. The API is verbose, but highly configurable which is why it's a great solution to build higher-level APIs upon. The [MongoDB .NET Driver]({{< relref "reference\driver\index.md" >}}) is built upon Driver Core.
 
 ## Services
 
