@@ -72,10 +72,12 @@ namespace MongoDB.Driver
             result.Should().BeSameAs(backingDocument);
         }
 
-        [Fact]
-        public void ClusterTime_should_return_expected_result()
+        [Theory]
+        [InlineData(1, 2)]
+        [InlineData(3, 4)]
+        public void ClusterTime_should_return_expected_result(int timestamp, int increment)
         {
-            var value = new BsonTimestamp(DateTime.Now.Ticks);
+            var value = new BsonTimestamp(timestamp, increment);
             var backingDocument = new BsonDocument { { "other", 1 }, { "clusterTime", value } };
             var subject = CreateSubject(backingDocument: backingDocument);
 
