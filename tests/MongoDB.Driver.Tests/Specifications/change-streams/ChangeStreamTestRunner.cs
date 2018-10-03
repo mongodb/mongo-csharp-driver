@@ -354,33 +354,22 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
         {
             JsonDrivenHelper.EnsureAllFieldsAreValid(expectedDocument, "_id", "documentKey", "operationType", "ns", "fullDocument");
 
-            // assert that all properties of a ChangeStreamDocument can be accessed without an exception being thrown
-            var backingDocument = actualDocument.BackingDocument;
-            var clusterTime = actualDocument.ClusterTime;
-            var collectionNamespace = actualDocument.CollectionNamespace;
-            var documentKey = actualDocument.DocumentKey;
-            var fullDocument = actualDocument.FullDocument;
-            var operationType = actualDocument.OperationType;
-            var resumeToken = actualDocument.ResumeToken;
-            var updateDescription = actualDocument.UpdateDescription;
-
-            backingDocument.Should().NotBeNull();
-            clusterTime.Should().NotBeNull();
+            AssertChangeStreamDocumentPropertyValuesAgainstBackingDocument(actualDocument);
 
             if (expectedDocument.Contains("_id"))
             {
-                resumeToken.Should().NotBeNull();
+                actualDocument.ResumeToken.Should().NotBeNull();
             }
 
             if (expectedDocument.Contains("documentKey"))
             {
-                documentKey.Should().NotBeNull();
+                actualDocument.DocumentKey.Should().NotBeNull();
             }
 
             if (expectedDocument.Contains("operationType"))
             {
                 var expectedOperationType = (ChangeStreamOperationType)Enum.Parse(typeof(ChangeStreamOperationType), expectedDocument["operationType"].AsString, ignoreCase: true);
-                operationType.Should().Be(expectedOperationType);
+                actualDocument.OperationType.Should().Be(expectedOperationType);
             }
 
             if (expectedDocument.Contains("ns"))
@@ -390,14 +379,64 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
                 var expectedDatabaseName = ns["db"].AsString;
                 var expectedCollectionName = ns["coll"].AsString;
                 var expectedCollectionNamespace = new CollectionNamespace(new DatabaseNamespace(expectedDatabaseName), expectedCollectionName);
-                collectionNamespace.Should().Be(expectedCollectionNamespace);
+                actualDocument.CollectionNamespace.Should().Be(expectedCollectionNamespace);
             }
 
             if (expectedDocument.Contains("fullDocument"))
             {
+                var actualFullDocument = actualDocument.FullDocument;
+                actualFullDocument.Remove("_id");
                 var expectedFullDocument = expectedDocument["fullDocument"].AsBsonDocument;
-                fullDocument.Remove("_id");
-                fullDocument.Should().Be(expectedFullDocument);
+                actualFullDocument.Should().Be(expectedFullDocument);
+            }
+        }
+
+        private void AssertChangeStreamDocumentPropertyValuesAgainstBackingDocument(ChangeStreamDocument<BsonDocument> actualDocument)
+        {
+            var backingDocument = actualDocument.BackingDocument;
+            backingDocument.Should().NotBeNull();
+
+            var clusterTime = actualDocument.ClusterTime;
+            if (backingDocument.Contains("clusterTime"))
+            {
+                clusterTime.Should().Be(backingDocument["clusterTime"].AsBsonTimestamp);
+            }
+            else
+            {
+                clusterTime.Should().BeNull();
+            }
+
+            var collectionNamespace = actualDocument.CollectionNamespace;
+            collectionNamespace.DatabaseNamespace.DatabaseName.Should().Be(backingDocument["ns"]["db"].AsString);
+            collectionNamespace.CollectionName.Should().Be(backingDocument["ns"]["coll"].AsString);
+
+            var documentKey = actualDocument.DocumentKey;
+            documentKey.Should().Be(backingDocument["documentKey"].AsBsonDocument);
+
+            var fullDocument = actualDocument.FullDocument;
+            if (backingDocument.Contains("fullDocument"))
+            {
+                fullDocument.Should().Be(backingDocument["fullDocument"].AsBsonDocument);
+            }
+            else
+            {
+                fullDocument.Should().BeNull();
+            }
+
+            var operationType = actualDocument.OperationType;
+            operationType.ToString().ToLowerInvariant().Should().Be(backingDocument["operationType"].AsString);
+
+            var resumeToken = actualDocument.ResumeToken;
+            resumeToken.Should().Be(backingDocument["_id"].AsBsonDocument);
+
+            var updateDescription = actualDocument.UpdateDescription;
+            if (backingDocument.Contains("updateDescription"))
+            {
+                updateDescription.Should().Be(backingDocument["updateDescription"].AsBsonDocument);
+            }
+            else
+            {
+                updateDescription.Should().BeNull();
             }
         }
 
