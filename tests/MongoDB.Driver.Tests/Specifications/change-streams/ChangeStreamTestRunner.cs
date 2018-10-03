@@ -354,20 +354,33 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
         {
             JsonDrivenHelper.EnsureAllFieldsAreValid(expectedDocument, "_id", "documentKey", "operationType", "ns", "fullDocument");
 
+            // assert that all properties of a ChangeStreamDocument can be accessed without an exception being thrown
+            var backingDocument = actualDocument.BackingDocument;
+            var clusterTime = actualDocument.ClusterTime;
+            var collectionNamespace = actualDocument.CollectionNamespace;
+            var documentKey = actualDocument.DocumentKey;
+            var fullDocument = actualDocument.FullDocument;
+            var operationType = actualDocument.OperationType;
+            var resumeToken = actualDocument.ResumeToken;
+            var updateDescription = actualDocument.UpdateDescription;
+
+            backingDocument.Should().NotBeNull();
+            clusterTime.Should().NotBeNull();
+
             if (expectedDocument.Contains("_id"))
             {
-                actualDocument.ResumeToken.Should().NotBeNull();
+                resumeToken.Should().NotBeNull();
             }
 
             if (expectedDocument.Contains("documentKey"))
             {
-                actualDocument.DocumentKey.Should().NotBeNull();
+                documentKey.Should().NotBeNull();
             }
 
             if (expectedDocument.Contains("operationType"))
             {
                 var expectedOperationType = (ChangeStreamOperationType)Enum.Parse(typeof(ChangeStreamOperationType), expectedDocument["operationType"].AsString, ignoreCase: true);
-                actualDocument.OperationType.Should().Be(expectedOperationType);
+                operationType.Should().Be(expectedOperationType);
             }
 
             if (expectedDocument.Contains("ns"))
@@ -377,15 +390,14 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
                 var expectedDatabaseName = ns["db"].AsString;
                 var expectedCollectionName = ns["coll"].AsString;
                 var expectedCollectionNamespace = new CollectionNamespace(new DatabaseNamespace(expectedDatabaseName), expectedCollectionName);
-                actualDocument.CollectionNamespace.Should().Be(expectedCollectionNamespace);
+                collectionNamespace.Should().Be(expectedCollectionNamespace);
             }
 
             if (expectedDocument.Contains("fullDocument"))
             {
-                var actualFullDocument = actualDocument.FullDocument;
-                actualFullDocument.Remove("_id");
                 var expectedFullDocument = expectedDocument["fullDocument"].AsBsonDocument;
-                actualFullDocument.Should().Be(expectedFullDocument);
+                fullDocument.Remove("_id");
+                fullDocument.Should().Be(expectedFullDocument);
             }
         }
 
