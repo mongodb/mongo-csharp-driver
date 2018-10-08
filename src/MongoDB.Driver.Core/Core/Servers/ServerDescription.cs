@@ -559,5 +559,37 @@ namespace MongoDB.Driver.Core.Servers
                 return this;
             }
         }
+
+        /// <summary>
+        /// Returns a new ServerDescription with a new HeartbeatException.
+        /// </summary>
+        /// <param name="heartbeatException">The heartbeat exception.</param>
+        /// <returns>
+        /// A new instance of ServerDescription.
+        /// </returns>
+        public ServerDescription WithHeartbeatException(Exception heartbeatException)
+        {
+            return new ServerDescription(
+                _serverId,
+                _endPoint,
+                averageRoundTripTime: _averageRoundTripTime,
+                canonicalEndPoint: _canonicalEndPoint,
+                electionId: _electionId,
+                heartbeatException: heartbeatException,
+                heartbeatInterval: _heartbeatInterval,
+                lastUpdateTimestamp: _lastUpdateTimestamp,
+                lastWriteTimestamp: _lastWriteTimestamp,
+                logicalSessionTimeout: _logicalSessionTimeout,
+                maxBatchCount: _maxBatchCount,
+                maxDocumentSize: _maxDocumentSize,
+                maxMessageSize: _maxMessageSize,
+                maxWireDocumentSize: _maxWireDocumentSize,
+                replicaSetConfig: _replicaSetConfig,
+                state: _state,
+                tags: _tags,
+                type: _type,
+                version: _version,
+                wireVersionRange: _wireVersionRange);
+        }
     }
 }
