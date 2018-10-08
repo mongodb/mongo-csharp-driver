@@ -227,9 +227,31 @@ namespace MongoDB.Driver.Core.Clusters
                     var eventArgs = await _serverDescriptionChangedQueue.DequeueAsync(monitorServersCancellationToken).ConfigureAwait(false); // TODO: add timeout and cancellationToken to DequeueAsync
                     ProcessServerDescriptionChanged(eventArgs);
                 }
-                catch
+                catch (OperationCanceledException) when (monitorServersCancellationToken.IsCancellationRequested)
                 {
-                    // TODO: log this somewhere...
+                    // ignore OperationCanceledException when monitor servers cancellation is requested
+                }
+                catch (Exception unexpectedException)
+                {
+                    // if we catch an exception here it's because of a bug in the driver
+
+                    var handler = _sdamInformationEventHandler;
+                    if (handler != null)
+                    {
+                        try
+                        {
+                            handler.Invoke(new SdamInformationEvent(() =>
+                                string.Format(
+                                    "Unexpected exception in MultiServerCluster.MonitorServersAsync: {0}",
+                                    unexpectedException.ToString())));
+                        }
+                        catch
+                        {
+                            // ignore any exceptions thrown by the handler (note: event handlers aren't supposed to throw exceptions)
+                        }
+                    }
+
+                    // TODO: should we reset the cluster state in some way? (the state is undefined since an unexpected exception was thrown)
                 }
             }
         }
