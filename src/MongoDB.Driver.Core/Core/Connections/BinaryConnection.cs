@@ -675,7 +675,7 @@ namespace MongoDB.Driver.Core.Connections
                 if (!_connection._state.TryChange(State.Connecting, State.Failed) && !_connection._state.TryChange(State.Initializing, State.Failed))
                 {
                     var currentState = _connection._state.Value;
-                    if (currentState != State.Disposed)
+                    if (currentState != State.Failed && currentState != State.Disposed)
                     {
                         throw new InvalidOperationException($"Invalid BinaryConnection state transition from {currentState} to Failed.");
                     }
