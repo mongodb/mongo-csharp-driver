@@ -100,7 +100,10 @@ namespace MongoDB.Bson.Serialization.Serializers
                 case BsonType.Int32: return (TEnum)Enum.ToObject(typeof(TEnum), bsonReader.ReadInt32());
                 case BsonType.Int64: return (TEnum)Enum.ToObject(typeof(TEnum), bsonReader.ReadInt64());
                 case BsonType.Double: return (TEnum)Enum.ToObject(typeof(TEnum), (long)bsonReader.ReadDouble());
-                case BsonType.String: return (TEnum)Enum.Parse(typeof(TEnum), bsonReader.ReadString());
+                case BsonType.String: 
+                    TEnum result;
+                    Enum.TryParse<TEnum>(bsonReader.ReadString(), out result);
+                    return result;
                 default:
                     throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
