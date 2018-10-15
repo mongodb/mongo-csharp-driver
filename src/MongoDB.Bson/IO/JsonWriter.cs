@@ -814,7 +814,7 @@ namespace MongoDB.Bson.IO
         // private methods
         private string EscapedString(string value)
         {
-            if (value.All(c => !NeedsEscaping(c)))
+            if (!NeedsEscaping(value))
             {
                 return value;
             }
@@ -935,7 +935,20 @@ namespace MongoDB.Bson.IO
             }
         }
 
-        private static bool NeedsEscaping(char c)
+        private bool NeedsEscaping(string text)
+        {
+           foreach (var letter in text)
+           {
+              if (NeedsEscaping(letter))
+              {
+                  return true;
+              }
+           }
+
+            return false;
+        }
+
+        private bool NeedsEscaping(char c)
         {
             switch (c)
             {
