@@ -39,7 +39,7 @@ namespace MongoDB.Bson.Serialization.Conventions
                 return;
             }
 
-            var properties = typeInfo.GetProperties();
+            var properties = typeInfo.GetProperties(BindingFlags.Instance | BindingFlags.Public );
             if (properties.Any(p => p.CanWrite))
             {
                 return; // a type that has any writable properties is not immutable
