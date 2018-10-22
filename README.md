@@ -122,6 +122,7 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Sridhar Nanjundeswaran    https://github.com/sridharn
 * Rich Quackenbush          rich.quackenbush@captiveaire.com
 * Carl Reinke               https://github.com/mindless2112
+* Gian Maria Ricci          https://github.com/alkampfergit
 * Andrew Rondeau            github@andrewrondeau.com
 * Ed Rooth                  edward.rooth@wallstreetjapan.com
 * Sam558                    https://github.com/Sam558
