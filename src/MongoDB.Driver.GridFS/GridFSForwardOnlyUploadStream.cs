@@ -151,45 +151,28 @@ namespace MongoDB.Driver.GridFS
             await operation.ExecuteAsync(_binding, cancellationToken).ConfigureAwait(false);
         }
 
-        public override void Close()
-        {
-            Close(CancellationToken.None);
-        }
-
         public override void Close(CancellationToken cancellationToken)
         {
-            if (_closed)
+            try
             {
-                return;
+                CloseIfNotAlreadyClosed(cancellationToken);
             }
-            ThrowIfDisposed();
-            _closed = true;
-
-            if (!_aborted)
+            finally
             {
-                WriteFinalBatch(cancellationToken);
-                WriteFilesCollectionDocument(cancellationToken);
+                Dispose();
             }
-
-            base.Close();
         }
 
         public override async Task CloseAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (_closed)
+            try
             {
-                return;
+                await CloseIfNotAlreadyClosedAsync(cancellationToken).ConfigureAwait(false);
             }
-            ThrowIfDisposed();
-            _closed = true;
-
-            if (!_aborted)
+            finally
             {
-                await WriteFinalBatchAsync(cancellationToken).ConfigureAwait(false);
-                await WriteFilesCollectionDocumentAsync(cancellationToken).ConfigureAwait(false);
+                Dispose();
             }
-
-            base.Close();
         }
 
         public override void Flush()
@@ -252,6 +235,69 @@ namespace MongoDB.Driver.GridFS
         }
 
         // private methods
+        private void CloseIfNotAlreadyClosed(CancellationToken cancellationToken)
+        {
+            if (!_closed)
+            {
+                try
+                {
+                    CloseImplementation(cancellationToken);
+                }
+                finally
+                {
+                    _closed = true;
+                }
+            }
+        }
+
+        private async Task CloseIfNotAlreadyClosedAsync(CancellationToken cancellationToken)
+        {
+            if (!_closed)
+            {
+                try
+                {
+                    await CloseImplementationAsync(cancellationToken).ConfigureAwait(false);
+                }
+                finally
+                {
+                    _closed = true;
+                }
+            }
+        }
+
+        private void CloseIfNotAlreadyClosedFromDispose(bool disposing)
+        {
+            if (disposing)
+            {
+                try
+                {
+                    CloseIfNotAlreadyClosed(CancellationToken.None);
+                }
+                catch
+                {
+                    // ignore any exceptions from CloseIfNotAlreadyClosed when called from Dispose
+                }
+            }
+        }
+
+        private void CloseImplementation(CancellationToken cancellationToken)
+        {
+            if (!_aborted)
+            {
+                WriteFinalBatch(cancellationToken);
+                WriteFilesCollectionDocument(cancellationToken);
+            }
+        }
+
+        private async Task CloseImplementationAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (!_aborted)
+            {
+                await WriteFinalBatchAsync(cancellationToken).ConfigureAwait(false);
+                await WriteFilesCollectionDocumentAsync(cancellationToken).ConfigureAwait(false);
+            }
+        }
+
         private BulkMixedWriteOperation CreateAbortOperation()
         {
             var chunksCollectionNamespace = _bucket.GetChunksCollectionNamespace();
@@ -308,6 +354,8 @@ namespace MongoDB.Driver.GridFS
 
         protected override void Dispose(bool disposing)
         {
+            CloseIfNotAlreadyClosedFromDispose(disposing);
+
             if (!_disposed)
             {
                 _disposed = true;
