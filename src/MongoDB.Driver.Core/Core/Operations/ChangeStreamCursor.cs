@@ -81,20 +81,18 @@ namespace MongoDB.Driver.Core.Operations
         public bool MoveNext(CancellationToken cancellationToken = default(CancellationToken))
         {
             bool hasMore;
-            try
+            while (true)
             {
-                hasMore = _cursor.MoveNext(cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                if (RetryabilityHelper.IsResumableChangeStreamException(ex))
+                try
                 {
-                    _cursor = _changeStreamOperation.Resume(_binding, cancellationToken);
                     hasMore = _cursor.MoveNext(cancellationToken);
+                    break;
                 }
-                else
+                catch (Exception ex) when (RetryabilityHelper.IsResumableChangeStreamException(ex))
                 {
-                    throw;
+                    var newCursor = _changeStreamOperation.Resume(_binding, cancellationToken);
+                    _cursor.Dispose();
+                    _cursor = newCursor;
                 }
             }
 
@@ -104,22 +102,20 @@ namespace MongoDB.Driver.Core.Operations
 
         /// <inheritdoc/>
         public async Task<bool> MoveNextAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
+        {          
             bool hasMore;
-            try
+            while (true)
             {
-                hasMore = await _cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                if (RetryabilityHelper.IsResumableChangeStreamException(ex))
+                try
                 {
-                    _cursor = await _changeStreamOperation.ResumeAsync(_binding, cancellationToken).ConfigureAwait(false);
                     hasMore = await _cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false);
+                    break;
                 }
-                else
+                catch (Exception ex) when (RetryabilityHelper.IsResumableChangeStreamException(ex))
                 {
-                    throw;
+                    var newCursor = await _changeStreamOperation.ResumeAsync(_binding, cancellationToken).ConfigureAwait(false);
+                    _cursor.Dispose();
+                    _cursor = newCursor;
                 }
             }
 
