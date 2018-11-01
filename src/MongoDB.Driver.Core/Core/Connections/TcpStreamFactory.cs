@@ -249,7 +249,16 @@ namespace MongoDB.Driver.Core.Connections
                 addressFamily = _settings.AddressFamily;
             }
 
-            return new Socket(addressFamily, SocketType.Stream, ProtocolType.Tcp);
+            var socket = new Socket(addressFamily, SocketType.Stream, ProtocolType.Tcp);
+            var keepAliveValues = new KeepAliveValues
+            {
+                OnOff = 1,
+                KeepAliveTime = 300000, // 300 seconds in milliseconds
+                KeepAliveInterval = 10000 // 10 seconds in milliseconds
+            };
+            socket.IOControl(IOControlCode.KeepAliveValues, keepAliveValues.ToBytes(), null);
+
+            return socket;
         }
 
         private async Task<EndPoint[]> ResolveEndPointsAsync(EndPoint initial)
