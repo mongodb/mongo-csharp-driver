@@ -41,6 +41,30 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         [Fact]
+        public void constructor_with_other_should_initialize_instance()
+        {
+            var other = new TcpStreamSettings(
+                addressFamily: AddressFamily.InterNetworkV6,
+                connectTimeout: TimeSpan.FromSeconds(123),
+                readTimeout: TimeSpan.FromSeconds(456),
+                receiveBufferSize: 123,
+                sendBufferSize: 456,
+                socketConfigurator: (Action<Socket>)((Socket _) => { }),
+                writeTimeout: TimeSpan.FromSeconds(789)
+            );
+
+            var result = new TcpStreamSettings(other);
+
+            result.AddressFamily.Should().Be(other.AddressFamily);
+            result.ConnectTimeout.Should().Be(other.ConnectTimeout);
+            result.ReadTimeout.Should().Be(other.ReadTimeout);
+            result.ReceiveBufferSize.Should().Be(other.ReceiveBufferSize);
+            result.SendBufferSize.Should().Be(other.SendBufferSize);
+            result.SocketConfigurator.Should().Be(other.SocketConfigurator);
+            result.WriteTimeout.Should().Be(other.WriteTimeout);
+        }
+
+        [Fact]
         public void constructor_should_throw_when_connectTimeout_is_negative()
         {
             Action action = () => new TcpStreamSettings(connectTimeout: TimeSpan.FromSeconds(-1));

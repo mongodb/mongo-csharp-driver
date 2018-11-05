@@ -20,6 +20,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
@@ -105,5 +106,11 @@ namespace MongoDB.Driver.Core.Connections
             connection.Should().NotBeNull();
             connection.Should().BeOfType<BinaryConnection>();
         }
+    }
+
+    public static class BinaryConnectionFactoryReflector
+    {
+        internal static ConnectionSettings _settings(this BinaryConnectionFactory obj) => (ConnectionSettings)Reflector.GetFieldValue(obj, nameof(_settings));
+        internal static IStreamFactory _streamFactory(this BinaryConnectionFactory obj) => (IStreamFactory)Reflector.GetFieldValue(obj, nameof(_streamFactory));
     }
 }

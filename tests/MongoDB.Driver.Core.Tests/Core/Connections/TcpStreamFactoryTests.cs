@@ -29,6 +29,7 @@ using System.IO;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Bson.TestHelpers;
 
 namespace MongoDB.Driver.Core.Connections
 {
@@ -184,5 +185,10 @@ namespace MongoDB.Driver.Core.Connections
             var keepAlive = (int)socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive);
             keepAlive.Should().NotBe(0); // .NET returns 1 but Mono returns 8
         }
+    }
+
+    public static class TcpStreamFactoryReflector
+    {
+        internal static TcpStreamSettings _settings(this TcpStreamFactory obj) => (TcpStreamSettings)Reflector.GetFieldValue(obj, nameof(_settings));
     }
 }

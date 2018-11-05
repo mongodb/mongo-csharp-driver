@@ -92,6 +92,7 @@
     <Compile Include="Core\Clusters\ClusterClockTests.cs" />
     <Compile Include="Core\Clusters\ElectionIdTests.cs" />
     <Compile Include="Core\Clusters\ReplicaSetConfigTests.cs" />
+    <Compile Include="Core\Configuration\ClusterBuilderTests.cs" />
     <Compile Include="Core\Configuration\ClusterSettingsTests.cs" />
     <Compile Include="Core\Configuration\ConnectionPoolSettingsTests.cs" />
     <Compile Include="Core\Configuration\ConnectionSettingsTests.cs" />
@@ -170,6 +171,7 @@
     <Compile Include="Core\Operations\WriteConcernHelperTests.cs" />
     <Compile Include="Core\Servers\ClusterClockAdvancingCoreSessionTests.cs" />
     <Compile Include="Core\Servers\ServerDescriptionWithSimilarLastUpdateTimestampEqualityComparer.cs" />
+    <Compile Include="Core\Servers\ServerMonitorFactoryTests.cs" />
     <Compile Include="Core\Servers\ServerMonitorTests.cs" />
     <Compile Include="Core\Servers\HeartbeatDelayTests.cs" />
     <Compile Include="Core\WireProtocol\CommandWriteProtocolTests.cs" />

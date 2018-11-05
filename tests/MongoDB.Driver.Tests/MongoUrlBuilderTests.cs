@@ -538,6 +538,7 @@ namespace MongoDB.Driver.Tests
             Assert.Throws<ArgumentOutOfRangeException>(() => { builder.HeartbeatTimeout = TimeSpan.FromMilliseconds(-2); });
             builder.HeartbeatTimeout = TimeSpan.FromMilliseconds(0);
             builder.HeartbeatTimeout = TimeSpan.FromMilliseconds(1);
+            builder.HeartbeatTimeout = TimeSpan.FromMilliseconds(-1);
         }
 
         [Theory]
