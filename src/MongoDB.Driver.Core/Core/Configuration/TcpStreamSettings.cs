@@ -63,6 +63,17 @@ namespace MongoDB.Driver.Core.Configuration
             _writeTimeout = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(writeTimeout.WithDefault(null), "writeTimeout");
         }
 
+        internal TcpStreamSettings(TcpStreamSettings other)
+        {
+            _addressFamily = other.AddressFamily;
+            _connectTimeout = other.ConnectTimeout;
+            _readTimeout = other.ReadTimeout;
+            _receiveBufferSize = other.ReceiveBufferSize;
+            _sendBufferSize = other.SendBufferSize;
+            _socketConfigurator = other.SocketConfigurator;
+            _writeTimeout = other.WriteTimeout;
+        }
+
         // properties
         /// <summary>
         /// Gets the address family.

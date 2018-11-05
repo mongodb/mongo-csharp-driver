@@ -241,7 +241,7 @@ namespace MongoDB.Driver
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
-                _heartbeatTimeout = Ensure.IsGreaterThanZero(value, nameof(value));
+                _heartbeatTimeout = Ensure.IsInfiniteOrGreaterThanZero(value, nameof(value));
             }
         }
 
