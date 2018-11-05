@@ -430,6 +430,18 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Result.Should().Be("2012-12-01");
         }
 
+        [SkippableFact]
+        public void Should_translate_dateToString_without_format()
+        {
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
+
+            var result = Project(x => new { Result = x.J.ToString() });
+
+            result.Projection.Should().Be("{ Result: { \"$dateToString\": {format: \"%Y-%m-%d %H:%M\", date: \"$J\" } }, _id: 0 }");
+
+            result.Value.Result.Should().Be("2012-12-01 13:14");
+        }
+        
         [Fact]
         public void Should_translate_day_of_month()
         {
@@ -499,43 +511,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             result.Value.Result.Should().Be(result.Value.J.AddHours(-result.Value.N));
         }
-
-        [SkippableFact]
-        public void Should_translate_datetime_to_string()
-        {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.1.6");
-            
-            var result = Project(x => new { J = x.J, Result = x.J.ToString() });
-
-            result.Projection.Should().Be("{ J: \"$J\", Result: { \"$dateToString\": { \"format\": \"%Y-%m-%d %H:%M\", \"date\": \"$J\" } }, _id: 0 }");
-
-            result.Value.Result.Should().Be(result.Value.J.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture));
-        }
-
-        [SkippableFact]
-        public void Should_translate_datetime_to_string_with_format()
-        {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.1.6");
-
-            var result = Project(x => new { J = x.J, Result = x.J.ToString("%d.%m.%Y") });
-
-            result.Projection.Should().Be("{ J: \"$J\", Result: { \"$dateToString\": { \"format\": \"%d.%m.%Y\", \"date\": \"$J\" } }, _id: 0 }");
-
-            result.Value.Result.Should().Be(result.Value.J.ToString("dd.MM.yyyy", CultureInfo.InvariantCulture));
-        }
-
-        [SkippableFact]
-        public void Should_translate_datetime_to_string_with_format_and_culture()
-        {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.1.6");
-
-            var result = Project(x => new { J = x.J, Result = x.J.ToString("%Y-%m-%dT%H:%M:%S.%LZ", CultureInfo.InvariantCulture) });
-
-            result.Projection.Should().Be("{ J: \"$J\", Result: { \"$dateToString\": { \"format\": \"%Y-%m-%dT%H:%M:%S.%LZ\", \"date\": \"$J\" } }, _id: 0 }");
-
-            result.Value.Result.Should().Be(result.Value.J.ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'", CultureInfo.InvariantCulture));
-        }
-
+        
         [Fact]
         public void Should_translate_divide()
         {
