@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Core.Connections
         public byte[] ToBytes()
         {
             // set the tcp_keepalive struct at the following page for documentation of the buffer layout
-            /// https://msdn.microsoft.com/en-us/library/windows/desktop/dd877220(v=vs.85).aspx
+            // https://msdn.microsoft.com/en-us/library/windows/desktop/dd877220(v=vs.85).aspx
             var bytes = new byte[24];
             Array.Copy(BitConverter.GetBytes(OnOff), 0, bytes, 0, 8);
             Array.Copy(BitConverter.GetBytes(KeepAliveTime), 0, bytes, 8, 8);
