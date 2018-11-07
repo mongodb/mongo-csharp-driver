@@ -22,6 +22,7 @@
         <dependency id="NETStandard.Library" version="[1.6.1, )" />
         <dependency id="System.Collections.Specialized" version="[4.0.1, )" />
         <dependency id="System.Diagnostics.TraceSource" version="[4.0.0, )" />
+        <dependency id="System.Diagnostics.TextWriterTraceListener" version="[4.0.0, )" />
         <dependency id="System.Net.NameResolution" version="[4.3.0, )" />
         <dependency id="System.Net.Security" version="[4.0.0, )" />
         <dependency id="System.Security.SecureString" version="[4.0.0, )" />
