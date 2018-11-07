@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <VersionPrefix>2.7.0</VersionPrefix>
-    <VersionSuffix>beta1</VersionSuffix>
+    <VersionPrefix>2.7.1</VersionPrefix>
+    <VersionSuffix></VersionSuffix>
     <TargetFramework>netstandard1.5</TargetFramework>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
