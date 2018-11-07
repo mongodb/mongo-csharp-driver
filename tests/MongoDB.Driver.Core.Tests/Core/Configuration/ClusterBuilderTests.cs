@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Core.Configuration
 
             var serverMonitorConnectionFactory = (BinaryConnectionFactory)result._connectionFactory();
             var serverMonitorConnectionSettings = serverMonitorConnectionFactory._settings();
-            serverMonitorConnectionSettings.Authenticators.Should().HaveCount(0);
+            serverMonitorConnectionSettings.Authenticators.Should().Equal(authenticators);
 
             var serverMonitorStreamFactory = (TcpStreamFactory)serverMonitorConnectionFactory._streamFactory();
             var serverMonitorTcpStreamSettings = serverMonitorStreamFactory._settings();
