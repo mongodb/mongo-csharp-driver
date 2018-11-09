@@ -826,7 +826,7 @@ namespace MongoDB.Bson.IO
               }
            }
 
-        return false;
+            return false;
         }
 
         private bool NeedsEscaping(char c)
