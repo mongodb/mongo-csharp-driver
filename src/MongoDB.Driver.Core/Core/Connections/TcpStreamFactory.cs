@@ -250,13 +250,30 @@ namespace MongoDB.Driver.Core.Connections
             }
 
             var socket = new Socket(addressFamily, SocketType.Stream, ProtocolType.Tcp);
-            var keepAliveValues = new KeepAliveValues
+
+            // not all platforms support IOControl
+            try
             {
-                OnOff = 1,
-                KeepAliveTime = 300000, // 300 seconds in milliseconds
-                KeepAliveInterval = 10000 // 10 seconds in milliseconds
-            };
-            socket.IOControl(IOControlCode.KeepAliveValues, keepAliveValues.ToBytes(), null);
+                var keepAliveValues = new KeepAliveValues
+                {
+                    OnOff = 1,
+                    KeepAliveTime = 300000, // 300 seconds in milliseconds
+                    KeepAliveInterval = 10000 // 10 seconds in milliseconds
+                };
+                socket.IOControl(IOControlCode.KeepAliveValues, keepAliveValues.ToBytes(), null);
+            }
+            catch (PlatformNotSupportedException)
+            {
+                // most platforms should support this call to SetSocketOption, but just in case call it in a try/catch also
+                try
+                {
+                    socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+                }
+                catch (PlatformNotSupportedException)
+                {
+                    // ignore PlatformNotSupportedException
+                }
+            }
 
             return socket;
         }
