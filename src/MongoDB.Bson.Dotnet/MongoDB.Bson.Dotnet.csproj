@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <VersionPrefix>2.7.1</VersionPrefix>
+    <VersionPrefix>2.7.2</VersionPrefix>
     <VersionSuffix></VersionSuffix>
     <TargetFramework>netstandard1.5</TargetFramework>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
