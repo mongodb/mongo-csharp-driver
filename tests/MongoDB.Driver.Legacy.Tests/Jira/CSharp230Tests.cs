@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp230
 
         public CSharp230Tests()
         {
-            _collection = LegacyTestConfiguration.Collection;
+            _collection = LegacyTestConfiguration.Database.GetCollection(GetType().Name);
         }
 
         [Fact]

@@ -19,7 +19,7 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents the representation to use when converting a Guid to a BSON binary value.
     /// </summary>
-#if NET45
+#if NET452
     [Serializable]
 #endif
     public enum GuidRepresentation

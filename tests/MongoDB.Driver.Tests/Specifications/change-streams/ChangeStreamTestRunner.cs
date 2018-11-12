@@ -239,7 +239,7 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
             string reason;
             if (!test.CanExecute(DriverTestConfiguration.Client.Cluster.Description, arguments, out reason))
             {
-                throw new SkipTestException(reason);
+                throw new SkipException(reason);
             }
 
             var database = client.GetDatabase(operation["database"].AsString);
@@ -470,11 +470,7 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
             {
                 get
                 {
-#if NET45
                     return "MongoDB.Driver.Tests.Specifications.change_streams.tests.";
-#else
-                    return "MongoDB.Driver.Tests.Dotnet.Specifications.change_streams.tests.";
-#endif
                 }
             }
 

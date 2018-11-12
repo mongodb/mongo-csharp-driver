@@ -128,7 +128,7 @@ namespace MongoDB.Driver.Specifications.connection_string
             }
             else if (expectedHost["type"] == "unix")
             {
-                throw new SkipTestException("Test skipped because unix host types are not supported.");
+                throw new SkipException("Test skipped because unix host types are not supported.");
             }
 
             throw new AssertionException($"Unknown host type {expectedHost["type"]}.");
@@ -143,11 +143,7 @@ namespace MongoDB.Driver.Specifications.connection_string
 
             public IEnumerator<object[]> GetEnumerator()
             {
-#if NET45
-                const string prefix = "MongoDB.Driver.Specifications.connection_string.tests.";
-#else
-                const string prefix = "MongoDB.Driver.Core.Tests.Dotnet.Specifications.connection_string.tests.";
-#endif
+                const string prefix = "MongoDB.Driver.Core.Tests.Specifications.connection_string.tests.";
                 var executingAssembly = typeof(TestCaseFactory).GetTypeInfo().Assembly;
                 var enumerable = executingAssembly
                     .GetManifestResourceNames()

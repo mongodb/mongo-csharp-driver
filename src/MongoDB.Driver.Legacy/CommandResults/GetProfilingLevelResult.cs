@@ -22,7 +22,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents the results of a GetProfilingLevel command.
     /// </summary>
-#if NET45
+#if NET452
     [Serializable]
 #endif
     [BsonSerializer(typeof(CommandResultSerializer<GetProfilingLevelResult>))]

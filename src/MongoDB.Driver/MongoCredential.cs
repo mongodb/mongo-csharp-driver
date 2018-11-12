@@ -26,7 +26,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Credential to access a MongoDB database.
     /// </summary>
-#if NET45
+#if NET452
     [Serializable]
 #endif
     public class MongoCredential : IEquatable<MongoCredential>

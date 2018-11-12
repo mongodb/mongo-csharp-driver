@@ -22,7 +22,7 @@ namespace MongoDB.Driver.GridFS
     /// <summary>
     /// Represents setting for GridFS.
     /// </summary>
-#if NET45
+#if NET452
     [Serializable]
 #endif
     public class MongoGridFSSettings : IEquatable<MongoGridFSSettings>

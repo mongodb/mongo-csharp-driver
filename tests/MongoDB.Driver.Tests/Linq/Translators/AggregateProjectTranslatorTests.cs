@@ -1253,21 +1253,25 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         {
             RequireServer.Check().VersionGreaterThanOrEqualTo("3.3.6");
 
-            var result = Project(x => new { Result = x.A.Split('e') });
-            result.Projection.Should().Be("{ Result: { \"$split\": [\"$A\", \"e\" ] }, _id: 0 }");
-            result.Value.Result.Should().BeEquivalentTo("Aw", "som", "");
+#if !NETCOREAPP2_1 
+            /* for implementations that don't support omitted optional parameters in expression trees
+             * skip to next test */
+            var result1 = Project(x => new { Result = x.A.Split('e') });
+            result1.Projection.Should().Be("{ Result: { \"$split\": [\"$A\", \"e\" ] }, _id: 0 }");
+            result1.Value.Result.Should().BeEquivalentTo("Aw", "som", "");
+#endif
 
-            result = Project(x => new { Result = x.A.Split(new[] { 'e' }) });
-            result.Projection.Should().Be("{ Result: { \"$split\": [\"$A\", \"e\" ] }, _id: 0 }");
-            result.Value.Result.Should().BeEquivalentTo("Aw", "som", "");
+            var result2 = Project(x => new { Result = x.A.Split(new[] { 'e' }) });
+            result2.Projection.Should().Be("{ Result: { \"$split\": [\"$A\", \"e\" ] }, _id: 0 }");
+            result2.Value.Result.Should().BeEquivalentTo("Aw", "som", "");
 
-            result = Project(x => new { Result = x.A.Split(new[] { 'e' }, StringSplitOptions.None) });
-            result.Projection.Should().Be("{ Result: { \"$split\": [\"$A\", \"e\" ] }, _id: 0 }");
-            result.Value.Result.Should().BeEquivalentTo("Aw", "som", "");
+            var result3 = Project(x => new { Result = x.A.Split(new[] { 'e' }, StringSplitOptions.None) });
+            result3.Projection.Should().Be("{ Result: { \"$split\": [\"$A\", \"e\" ] }, _id: 0 }");
+            result3.Value.Result.Should().BeEquivalentTo("Aw", "som", "");
 
-            result = Project(x => new { Result = x.A.Split(new[] { "es" }, StringSplitOptions.None) });
-            result.Projection.Should().Be("{ Result: { \"$split\": [\"$A\", \"es\" ] }, _id: 0 }");
-            result.Value.Result.Should().BeEquivalentTo("Aw", "ome");
+            var result4 = Project(x => new { Result = x.A.Split(new[] { "es" }, StringSplitOptions.None) });
+            result4.Projection.Should().Be("{ Result: { \"$split\": [\"$A\", \"es\" ] }, _id: 0 }");
+            result4.Value.Result.Should().BeEquivalentTo("Aw", "ome");
         }
 
         [SkippableFact]
@@ -1351,7 +1355,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         [Theory]
         [InlineData(StringComparison.CurrentCulture)]
         [InlineData(StringComparison.CurrentCultureIgnoreCase)]
-#if NET45
+#if NET452
         [InlineData(StringComparison.InvariantCulture)]
         [InlineData(StringComparison.InvariantCultureIgnoreCase)]
 #endif

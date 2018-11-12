@@ -25,7 +25,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a document from the system.profile collection.
     /// </summary>
-#if NET45
+#if NET452
     [Serializable]
 #endif
     [BsonSerializer(typeof(SystemProfileInfoSerializer))]
@@ -348,7 +348,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Statistics about locks for a system.profile document.
     /// </summary>
-#if NET45
+#if NET452
     [Serializable]
 #endif
     [BsonSerializer(typeof(SystemProfileLockStatisticsSerializer))]
@@ -401,7 +401,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Statistics about system.profile read and write time spent in locks.
     /// </summary>
-#if NET45
+#if NET452
     [Serializable]
 #endif
     [BsonSerializer(typeof(SystemProfileReadWriteLockStatisticsSerializer))]

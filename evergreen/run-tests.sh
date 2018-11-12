@@ -51,9 +51,9 @@ fi
 echo "Running $AUTH tests over $SSL for $TOPOLOGY and connecting to $MONGODB_URI"
 
 if [ "$OS" == "windows-64" ]; then
-  export TARGET="TestWindows"
+  export TARGET="Test"
 else
-  export TARGET="TestLinux"
+  export TARGET="Test"
 fi
 
 for var in TMP TEMP NUGET_PACKAGES NUGET_HTTP_CACHE_PATH APPDATA; do setx $var z:\\data\\tmp; export $var=z:\\data\\tmp; done

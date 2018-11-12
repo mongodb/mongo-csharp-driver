@@ -22,7 +22,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents the result of a command (there are also subclasses for various commands).
     /// </summary>
-#if NET45
+#if NET452
     [Serializable]
 #endif
     [BsonSerializer(typeof(CommandResultSerializer<CommandResult>))]

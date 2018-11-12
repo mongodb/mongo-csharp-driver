@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Core.Authentication
     {
         // Currently, we only support SaslPrep in .NET Framework due to a lack of a string normalization function in
         // .NET Standard
-#if NET45
+#if NET452
         [Fact]
         public void SaslPrepQuery_accepts_undefined_codepoint()
         {     

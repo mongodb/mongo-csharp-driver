@@ -17,7 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-#if NET45
+#if NET452
 using System.Runtime.Serialization.Formatters.Binary;
 #endif
 using FluentAssertions;
@@ -142,7 +142,7 @@ namespace MongoDB.Driver
             subject.ErrorLabels.Should().Equal(errorLabels.Where(x => x != removeErrorLabel));
         }
 
-#if NET45
+#if NET452
         [Fact]
         public void Serialization_should_work()
         {

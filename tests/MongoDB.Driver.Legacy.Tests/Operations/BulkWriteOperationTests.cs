@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Tests.Operations
         {
             _server = LegacyTestConfiguration.Server;
             _primary = _server.Instances.First(x => x.IsPrimary);
-            _collection = LegacyTestConfiguration.Collection;
+            _collection = LegacyTestConfiguration.Database.GetCollection(GetType().Name);
         }
 
         [Fact]

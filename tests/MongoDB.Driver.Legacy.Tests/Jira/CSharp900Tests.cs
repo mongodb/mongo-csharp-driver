@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Tests.Jira
 
         public CSharp900Tests()
         {
-            _collection = LegacyTestConfiguration.GetCollection<B>();
+            _collection = LegacyTestConfiguration.Database.GetCollection<B>(GetType().Name);
 
             _collection.Drop();
             _collection.CreateIndex("Value", "SubValues.Value");

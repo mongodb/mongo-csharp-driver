@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Builders
     /// <summary>
     /// A builder for the options of the GeoNear command.
     /// </summary>
-#if NET45
+#if NET452
     [Serializable]
 #endif
     [Obsolete("Use GeoNearArgs instead.")]

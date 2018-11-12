@@ -14,7 +14,7 @@
 */
 
 using System;
-#if NET45
+#if NET452
 using System.Runtime.Serialization;
 #endif
 using MongoDB.Bson;
@@ -28,7 +28,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB write concern exception.
     /// </summary>
-#if NET45
+#if NET452
     [Serializable]
 #endif
     public class MongoWriteConcernException : MongoCommandException
@@ -49,7 +49,7 @@ namespace MongoDB.Driver
             _writeConcernResult = Ensure.IsNotNull(writeConcernResult, nameof(writeConcernResult));
         }
 
-#if NET45
+#if NET452
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoWriteConcernException"/> class.
         /// </summary>
@@ -75,7 +75,7 @@ namespace MongoDB.Driver
         }
 
         // methods
-#if NET45
+#if NET452
         /// <inheritdoc/>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {

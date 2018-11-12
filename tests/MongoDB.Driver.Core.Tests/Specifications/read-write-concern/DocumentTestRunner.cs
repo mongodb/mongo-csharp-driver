@@ -142,11 +142,7 @@ namespace MongoDB.Driver.Specifications.read_write_concern.tests
         {
             public IEnumerator<object[]> GetEnumerator()
             {
-#if NET45
-                const string prefix = "MongoDB.Driver.Specifications.read_write_concern.tests.document.";
-#else
-                const string prefix = "MongoDB.Driver.Core.Tests.Dotnet.Specifications.read_write_concern.tests.document.";
-#endif
+                const string prefix = "MongoDB.Driver.Core.Tests.Specifications.read_write_concern.tests.document.";
                 var executingAssembly = typeof(TestCaseFactory).GetTypeInfo().Assembly;
                 var enumerable = executingAssembly
                     .GetManifestResourceNames()

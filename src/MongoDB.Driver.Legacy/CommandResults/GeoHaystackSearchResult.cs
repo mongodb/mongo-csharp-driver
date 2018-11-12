@@ -27,7 +27,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents the result of a GeoHaystackSearch command.
     /// </summary>
-#if NET45
+#if NET452
     [Serializable]
 #endif
     public abstract class GeoHaystackSearchResult : CommandResult
@@ -231,7 +231,7 @@ namespace MongoDB.Driver
     /// Represents the result of a GeoHaystackSearch command.
     /// </summary>
     /// <typeparam name="TDocument">The type of the returned documents.</typeparam>
-#if NET45
+#if NET452
     [Serializable]
 #endif
     [BsonSerializer(typeof(GeoHaystackSearchResult<>.Serializer))]

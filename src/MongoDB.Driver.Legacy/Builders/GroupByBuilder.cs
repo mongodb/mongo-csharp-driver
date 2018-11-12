@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Builders
     /// <summary>
     /// A builder for specifying what the GroupBy command should group by.
     /// </summary>
-#if NET45
+#if NET452
     [Serializable]
 #endif
     [BsonSerializer(typeof(GroupByBuilder.Serializer))]

@@ -77,7 +77,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         }
 
         [Theory]
-        [InlineData(0)]
+        [InlineData((BsonType)0)]
         [InlineData(BsonType.Int32)]
         [InlineData(BsonType.Int64)]
         [InlineData(BsonType.String)]

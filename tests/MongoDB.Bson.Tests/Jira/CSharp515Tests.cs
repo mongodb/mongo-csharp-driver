@@ -42,12 +42,12 @@ namespace MongoDB.Bson.Tests.Jira.CSharp515
             }
         }
 
-#if NET45
+#if NET452
         private static readonly AssemblyName __assemblyName = Assembly.GetExecutingAssembly().GetName();
         private static readonly bool __assemblyIsSigned = __assemblyName.GetPublicKey().Length > 0;
         private static readonly string __discriminatorAssemblyName = __assemblyIsSigned ? __assemblyName.FullName : __assemblyName.Name;
 #else
-        private static readonly string __discriminatorAssemblyName = "MongoDB.Bson.Tests.Dotnet";
+        private static readonly string __discriminatorAssemblyName = "MongoDB.Bson.Tests";
 #endif
 
         private string _jsonTemplate = ("{ '_id' : 1, 'R' : #V, 'S' : #V, 'RS' : { '_t' : 'S`1', '_v' : #V }, 'OR' : { '_t' : 'System.Collections.ObjectModel.ReadOnlyCollection`1[System.Int32]', '_v' : #V }, 'OS' : { '_t' : 'MongoDB.Bson.Tests.Jira.CSharp515.CSharp515Tests+S`1[System.Int32], " + __discriminatorAssemblyName + "', '_v' : #V } }").Replace("'", "\"");

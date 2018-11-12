@@ -1,1 +1,0 @@
-﻿The max-staleness tests are run by the ..\server-selection\ServerSelectionTestRunner.

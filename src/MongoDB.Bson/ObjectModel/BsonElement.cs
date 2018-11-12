@@ -20,7 +20,7 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents a BSON element.
     /// </summary>
-#if NET45
+#if NET452
     [Serializable]
 #endif
     public struct BsonElement : IComparable<BsonElement>, IEquatable<BsonElement>

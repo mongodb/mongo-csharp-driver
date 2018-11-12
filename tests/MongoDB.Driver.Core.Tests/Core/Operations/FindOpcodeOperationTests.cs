@@ -282,7 +282,9 @@ namespace MongoDB.Driver.Core.Operations
             [Values(1, 5, 6, 12)] int limit)
         {
             RequireServer.Check().VersionLessThan("3.2.0");
-            var collectionNamespace = CoreTestConfiguration.GetCollectionNamespaceForTestMethod();
+            var collectionNamespace = CoreTestConfiguration.GetCollectionNamespaceForTestMethod(
+                className: GetType().Name,
+                methodName: nameof(ExecuteAsync_should_find_all_the_documents_matching_the_query_when_limit_is_used));
             for (var id = 1; id <= limit + 1; id++)
             {
                 var document = new BsonDocument { { "id", id }, { "filler", new string('x', 1000000) } }; // about 1MB big

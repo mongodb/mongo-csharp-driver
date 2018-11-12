@@ -174,7 +174,9 @@ namespace MongoDB.Driver.Tests
             RequireServer.Check().Supports(Feature.AggregateCountStage);
             var client = DriverTestConfiguration.Client;
             var databaseNamespace = CoreTestConfiguration.DatabaseNamespace;
-            var collectionNamespace = CoreTestConfiguration.GetCollectionNamespaceForTestMethod();
+            var collectionNamespace = CoreTestConfiguration.GetCollectionNamespaceForTestMethod(
+                className: GetType().Name, 
+                methodName: nameof(Count_should_return_the_expected_result));
             var database = client.GetDatabase(databaseNamespace.DatabaseName);
             database.DropCollection(collectionNamespace.CollectionName);
             var collection = database.GetCollection<BsonDocument>(collectionNamespace.CollectionName);

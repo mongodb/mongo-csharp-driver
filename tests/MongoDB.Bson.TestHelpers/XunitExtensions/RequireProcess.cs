@@ -14,6 +14,7 @@
 */
 
 using System;
+using Xunit;
 
 namespace MongoDB.Bson.TestHelpers.XunitExtensions
 {
@@ -33,7 +34,7 @@ namespace MongoDB.Bson.TestHelpers.XunitExtensions
             {
                 return this;
             }
-            throw new SkipTestException($"Test skipped because process is a {actualBits}-bit process and not a {bits}-bit process.");
+            throw new SkipException($"Test skipped because process is a {actualBits}-bit process and not a {bits}-bit process.");
         }
     }
 }

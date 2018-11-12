@@ -22,7 +22,7 @@ namespace MongoDB.Shared
     {
         public static IncrementalMD5 Create()
         {
-#if NET45
+#if NET452
             return new IncrementalMD5Net45();
 #else
             return new IncrementalMD5NetStandard16();
@@ -34,7 +34,7 @@ namespace MongoDB.Shared
         public abstract byte[] GetHashAndReset();
     }
 
-#if NET45
+#if NET452
     internal class IncrementalMD5Net45 : IncrementalMD5
     {
         private static readonly byte[] __emptyByteArray = new byte[0];

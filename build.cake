@@ -1,6 +1,6 @@
 #addin "nuget:?package=Cake.FileHelpers"
-#addin "nuget:?package=Cake.Git&version=0.18.0"
-#addin "nuget:?package=Cake.Incubator&version=2.0.0"
+#addin "nuget:?package=Cake.Git"
+#addin "nuget:?package=Cake.Incubator"
 #tool "nuget:?package=GitVersion.CommandLine"
 #tool "nuget:?package=xunit.runner.console"
 #load buildhelpers.cake
@@ -30,6 +30,7 @@ var toolsDirectory = solutionDirectory.Combine("Tools");
 var toolsHugoDirectory = toolsDirectory.Combine("Hugo");
 
 var solutionFile = solutionDirectory.CombineWithFilePath("CSharpDriver.sln");
+var solutionFullPath = solutionFile.FullPath;
 var srcProjectNames = new[]
 {
     "MongoDB.Bson",
@@ -44,175 +45,72 @@ Task("Default")
 
 Task("TestAndPackage")
     .IsDependentOn("Test")
-    .IsDependentOn("Package");
-
-Task("Build")
-    .IsDependentOn("BuildNet45")
-    .IsDependentOn("BuildNetStandard15");
-
-Task("BuildNet45")
-    .Does(() =>
+    .IsDependentOn("Package");    
+   
+Task("Clean")
+    .Does( ()=> 
     {
-        NuGetRestore(solutionFile);
-        GlobalAssemblyInfo.OverwriteGlobalAssemblyInfoFile(Context, solutionDirectory, configuration, gitVersion);
-        DotNetBuild(solutionFile, settings => settings
-            .SetConfiguration(configuration)
-            .SetVerbosity(Verbosity.Minimal)
-            .WithProperty("TargetFrameworkVersion", "v4.5"));
-
-        EnsureDirectoryExists(artifactsBinNet45Directory);
-        foreach (var projectName in srcProjectNames)
-        {
-            var projectDirectory = srcDirectory.Combine(projectName);
-            var outputDirectory = projectDirectory.Combine("bin").Combine(configuration);
-            foreach (var extension in new [] { ".dll", ".pdb", ".xml" })
-            {
-                var outputFileName = projectName + extension;
-                var outputFile = outputDirectory.CombineWithFilePath(outputFileName);
-                var artifactFile = artifactsBinNet45Directory.CombineWithFilePath(outputFileName);
-                CopyFile(outputFile, artifactFile);
-            }
-        }
-
-        foreach (var dnsClientFileName in new[] { "DnsClient.dll", "DnsClient.xml"})
-        {
-            var sourceDirectory = srcDirectory.Combine("MongoDB.Driver.Core").Combine("bin").Combine("Release");
-            var sourceFile = sourceDirectory.CombineWithFilePath(dnsClientFileName);
-            var destinationFile = artifactsBinNet45Directory.CombineWithFilePath(dnsClientFileName);
-            CopyFile(sourceFile, destinationFile);
-        }
-    })
-    .Finally(() =>
-    {
-        GlobalAssemblyInfo.RestoreGlobalAssemblyInfoFile(Context, solutionDirectory);
+        CleanDirectory(artifactsDirectory);
+        CleanDirectories("./**/obj");
+        CleanDirectories($"./**/bin/{configuration}");
     });
 
-Task("BuildNetStandard15")
+Task("Restore")
+    .IsDependentOn("Clean")
+    .Does(() => 
+    {
+        DotNetCoreRestore(solutionFullPath);
+    });
+
+Task("Build")
+    .IsDependentOn("Restore")
     .Does(() =>
     {
-        var dotNetProjectDirectories = srcProjectNames.Select(
-            projectName=>srcDirectory.Combine(projectName+".Dotnet"));
-
-        foreach (var directory in dotNetProjectDirectories) 
-        {
-            DotNetCoreRestore(directory.ToString());
-        }
-        GlobalAssemblyInfo.OverwriteGlobalAssemblyInfoFile(Context, solutionDirectory, configuration, gitVersion);
-        var settings= new DotNetCoreBuildSettings { Configuration = configuration };
-        foreach (var directory in dotNetProjectDirectories) 
-        {
-            DotNetCoreBuild(directory.ToString(), settings);
-        }
-        EnsureDirectoryExists(artifactsBinNetStandard15Directory);
-        foreach (var projectName in srcProjectNames)
-        {
-            var projectDirectory = srcDirectory.Combine(projectName + ".Dotnet");
-            var outputDirectory = projectDirectory.Combine("bin").Combine(configuration).Combine("netstandard1.5");
-            foreach (var extension in new [] { ".dll", ".pdb", ".xml" })
-            {
-                var outputFileName = projectName + extension;
-                var outputFile = outputDirectory.CombineWithFilePath(outputFileName);
-                var artifactFile = artifactsBinNetStandard15Directory.CombineWithFilePath(outputFileName);
-                CopyFile(outputFile, artifactFile);
-            }
-        }
-    })
-    .Finally(() =>
-    {
-        GlobalAssemblyInfo.RestoreGlobalAssemblyInfoFile(Context, solutionDirectory);
+       var settings = new DotNetCoreBuildSettings { NoRestore = true, Configuration = configuration };
+       DotNetCoreBuild(solutionFullPath, settings);
     });
 
 Task("Test")
-    .IsDependentOn("TestWindows");
-
-Task("TestWindows")
-    .IsDependentOn("TestNet45")
-    .IsDependentOn("TestNetStandard15");
-
-Task("TestLinux")
-    .IsDependentOn("TestNetStandard15");
-
-Task("TestNet45")
-    .IsDependentOn("BuildNet45")
-    .Does(() =>
+    .IsDependentOn("Build")
+    .DoesForEach(
+        GetFiles("./**/*.Tests.csproj")
+        .Where(name => !name.ToString().Contains("Atlas")),
+        testProject => 
     {
-        var testAssemblies = new List<FilePath>();
-        var testProjectNames = new []
-        {
-            "MongoDB.Bson.Tests",
-            "MongoDB.Driver.Core.Tests",
-            "MongoDB.Driver.Tests",
-            "MongoDB.Driver.GridFS.Tests",
-            "MongoDB.Driver.Legacy.Tests"
-        };
-        foreach (var testProjectName in testProjectNames)
-        {
-            var testAssembly = testsDirectory.CombineWithFilePath($"{testProjectName}/bin/{configuration}/{testProjectName}.dll");
-            testAssemblies.Add(testAssembly);
-        }
-        var testSettings = new XUnit2Settings
-        {
-            Parallelism = ParallelismOption.None,
-            ToolTimeout = TimeSpan.FromMinutes(30)
-        };
-        XUnit2(testAssemblies, testSettings);
+        DotNetCoreTest(
+            testProject.FullPath,
+            new DotNetCoreTestSettings {
+                NoBuild = true,
+                NoRestore = true,
+                Configuration = configuration,
+                ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64")
+            }
+        );
     });
-
-Task("TestNetStandard15")
-    .IsDependentOn("BuildNetStandard15")
-    .Does(() =>
-    {
-        var testProjectNames = new []
-        {
-            "MongoDB.Bson.Tests.Dotnet",
-            "MongoDB.Driver.Core.Tests.Dotnet",
-            "MongoDB.Driver.Tests.Dotnet",
-            "MongoDB.Driver.GridFS.Tests.Dotnet",
-            "MongoDB.Driver.Legacy.Tests.Dotnet"
-        };
-        foreach (var testProjectName in testProjectNames)
-        {
-            var testProjectDirectory = testsDirectory.Combine(testProjectName);
-            DotNetCoreRestore(testProjectDirectory.ToString());
-            var testProjectFile = testProjectDirectory.CombineWithFilePath($"{testProjectName}.csproj");
-            var testSettings = new DotNetCoreTestSettings();
-            var xunitSettings = new XUnit2Settings
-            {
-                Parallelism = ParallelismOption.None,
-                ToolTimeout = TimeSpan.FromMinutes(30)
-            };
-            DotNetCoreTest(testSettings, testProjectFile, xunitSettings);
-        }
-    });
-
+    
 Task("TestAtlasConnectivity")
-    .IsDependentOn("BuildNet45")
-    .Does(() =>
-    {
-        var testAssemblies = new List<FilePath>();
-        var testProjectNames = new []
-        {
-            "AtlasConnectivity.Tests"
-        };
-        foreach (var testProjectName in testProjectNames)
-        {
-            var testAssembly = testsDirectory.CombineWithFilePath($"{testProjectName}/bin/{configuration}/{testProjectName}.dll");
-            testAssemblies.Add(testAssembly);
+    .IsDependentOn("Build")
+    .DoesForEach(
+        GetFiles("./**/AtlasConnectivity.Tests.csproj"),
+        testProject => 
+{
+    DotNetCoreTest(
+        testProject.FullPath,
+        new DotNetCoreTestSettings {
+            NoBuild = true,
+            NoRestore = true,
+            Configuration = configuration,
+            ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64")
         }
-        var testSettings = new XUnit2Settings
-        {
-            Parallelism = ParallelismOption.None,
-            ToolTimeout = TimeSpan.FromMinutes(30)
-        };
-        XUnit2(testAssemblies, testSettings);
-    });
+    );
+});
 
 Task("Docs")
     .IsDependentOn("ApiDocs")
     .IsDependentOn("RefDocs");
 
 Task("ApiDocs")
-    .IsDependentOn("BuildNet45")
+    .IsDependentOn("Build")
     .Does(() =>
     {
         EnsureDirectoryExists(artifactsDocsApiDocsDirectory);
@@ -298,8 +196,7 @@ Task("Package")
     .IsDependentOn("PackageNugetPackages");
 
 Task("PackageReleaseZipFile")
-    .IsDependentOn("BuildNet45")
-    .IsDependentOn("BuildNetStandard15")
+    .IsDependentOn("Build")
     .IsDependentOn("ApiDocs")
     .Does(() =>
     {
@@ -341,8 +238,7 @@ Task("PackageReleaseZipFile")
     });
 
 Task("PackageNugetPackages")
-    .IsDependentOn("BuildNet45")
-    .IsDependentOn("BuildNetStandard15")
+    .IsDependentOn("Build")
     .Does(() =>
     {
         EnsureDirectoryExists(artifactsPackagesDirectory);
@@ -365,8 +261,6 @@ Task("PackageNugetPackages")
                 OutputDirectory = artifactsPackagesDirectory,
                 Symbols = true
             });
-
-            // DeleteFile(tempNuspecFile);
         }
     });
 

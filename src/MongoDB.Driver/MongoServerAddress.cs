@@ -24,7 +24,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// The address of a MongoDB server.
     /// </summary>
-#if NET45
+#if NET452
     [Serializable]
 #endif
     public class MongoServerAddress : IEquatable<MongoServerAddress>

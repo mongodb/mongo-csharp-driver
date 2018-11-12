@@ -20,7 +20,7 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents the BSON undefined value.
     /// </summary>
-#if NET45
+#if NET452
     [Serializable]
 #endif
     public class BsonUndefined : BsonValue, IComparable<BsonUndefined>, IEquatable<BsonUndefined>

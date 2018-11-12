@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents the result of a bulk write operation.
     /// </summary>
-#if NET45
+#if NET452
     [Serializable]
 #endif
     public abstract class BulkWriteOperationResult
@@ -133,7 +133,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <summary>
         /// Represents the result of an acknowledged bulk write operation.
         /// </summary>
-#if NET45
+#if NET452
     [Serializable]
 #endif
         public class Acknowledged : BulkWriteOperationResult
@@ -227,7 +227,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <summary>
         /// Represents the result of an unacknowledged BulkWrite operation.
         /// </summary>
-#if NET45
+#if NET452
     [Serializable]
 #endif
         public class Unacknowledged : BulkWriteOperationResult

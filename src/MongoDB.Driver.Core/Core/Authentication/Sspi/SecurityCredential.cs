@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
             long timestamp;
 
             var credential = new SecurityCredential();
-#if NET45
+#if NET452
             RuntimeHelpers.PrepareConstrainedRegions();
 #endif
             try { }

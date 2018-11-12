@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             string reason;
             if (!test.CanExecute(DriverTestConfiguration.Client.Cluster.Description, arguments, out reason))
             {
-                throw new SkipTestException(reason);
+                throw new SkipException(reason);
             }
 
             test.Execute(DriverTestConfiguration.Client.Cluster.Description, database, collection, arguments, outcome, async);

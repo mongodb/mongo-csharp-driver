@@ -25,6 +25,7 @@ Imports MongoDB.Bson.Serialization.Attributes
 Imports MongoDB.Bson.Serialization.Options
 Imports MongoDB.Driver
 Imports MongoDB.Driver.Linq
+Imports MongoDB.Driver.Tests
 
 Namespace MongoDB.Driver.VB.Tests.Linq
     Public Class SelectDictionaryTests

@@ -286,13 +286,8 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
         {
             public IEnumerator<object[]> GetEnumerator()
             {
-#if NET45
-                const string prefix = "MongoDB.Driver.Specifications.server_discovery_and_monitoring.tests.";
-                const string monitoringPrefix = "MongoDB.Driver.Specifications.server_discovery_and_monitoring.tests.monitoring.";
-#else
-                const string prefix = "MongoDB.Driver.Core.Tests.Dotnet.Specifications.server_discovery_and_monitoring.tests.";
-                const string monitoringPrefix = "MongoDB.Driver.Core.Tests.Dotnet.Specifications.server_discovery_and_monitoring.tests.monitoring.";
-#endif
+                const string prefix = "MongoDB.Driver.Core.Tests.Specifications.server_discovery_and_monitoring.tests.";
+                const string monitoringPrefix = "MongoDB.Driver.Core.Tests.Specifications.server_discovery_and_monitoring.tests.monitoring.";
                 var executingAssembly = typeof(TestCaseFactory).GetTypeInfo().Assembly;
                 var enumerable = executingAssembly
                     .GetManifestResourceNames()

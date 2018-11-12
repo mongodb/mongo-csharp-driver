@@ -249,7 +249,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
         {
             var c = new C { S = new SortedSet<int> { x, y } };
             var json = c.ToJson();
-            var expected = string.Format("{{ 'S' : [1, 2] }}", x, y).Replace("'", "\""); // always sorted
+            var expected = string.Format("{{ 'S' : [1, 2] }}").Replace("'", "\""); // always sorted
             Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<C>(json);
@@ -368,7 +368,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
         {
             var c = new C { S = new SortedSet<int> { x, y } };
             var json = c.ToJson();
-            var expected = string.Format("{{ 'S' : [1, 2] }}", x, y).Replace("'", "\""); // always sorted
+            var expected = string.Format("{{ 'S' : [1, 2] }}").Replace("'", "\""); // always sorted
             Assert.Equal(expected, json);
 
             var r = BsonSerializer.Deserialize<C>(json);

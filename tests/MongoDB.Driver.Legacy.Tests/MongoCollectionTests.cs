@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Tests
             _server = LegacyTestConfiguration.Server;
             _primary = _server.Instances.First(x => x.IsPrimary);
             _database = LegacyTestConfiguration.Database;
-            _collection = LegacyTestConfiguration.Collection;
+            _collection = _database.GetCollection(GetType().Name);
         }
 
         // TODO: more tests for MongoCollection
@@ -893,6 +893,9 @@ namespace MongoDB.Driver.Tests
         public void TestDropIndexWriteConcern()
         {
             RequireServer.Check().Supports(Feature.AggregateOut, Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
+            
+            _collection.Drop();
+            _collection.CreateIndex("x");
             var writeConcern = new WriteConcern(9, wTimeout: TimeSpan.FromMilliseconds(1));
 
             var exception = Record.Exception(() => _collection.WithWriteConcern(writeConcern).DropIndex("x"));

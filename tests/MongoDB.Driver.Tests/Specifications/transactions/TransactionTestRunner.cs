@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
         {
             if (test.Contains("skipReason"))
             {
-                throw new SkipTestException(test["skipReason"].AsString);
+                throw new SkipException(test["skipReason"].AsString);
             }
             //if (test["description"].AsString != "rerun commit after empty transaction")
             //{
@@ -414,11 +414,7 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
             {
                 get
                 {
-#if NET45
                     return "MongoDB.Driver.Tests.Specifications.transactions.tests.";
-#else
-                    return "MongoDB.Driver.Tests.Dotnet.Specifications.transactions.tests.";
-#endif
                 }
             }
 

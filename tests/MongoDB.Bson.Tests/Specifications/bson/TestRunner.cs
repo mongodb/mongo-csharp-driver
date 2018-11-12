@@ -158,11 +158,7 @@ namespace MongoDB.Bson.Specifications.bson
         {
             public  IEnumerator<object[]> GetEnumerator()
             {
-#if NETSTANDARD1_5 || NETSTANDARD1_6
-                const string prefix = "MongoDB.Bson.Tests.Dotnet.Specifications.bson.tests.";
-#else
                 const string prefix = "MongoDB.Bson.Tests.Specifications.bson.tests.";
-#endif
                 var executingAssembly = typeof(TestCaseFactory).GetTypeInfo().Assembly;
                 var enumerable = executingAssembly
                     .GetManifestResourceNames()

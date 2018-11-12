@@ -26,7 +26,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents the details of a write error.
     /// </summary>
-#if NET45
+#if NET452
     [Serializable]
 #endif
     public class WriteError

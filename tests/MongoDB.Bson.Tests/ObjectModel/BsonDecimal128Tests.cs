@@ -129,7 +129,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
         [InlineData(0.0, 0L, 0)]
         [InlineData(-1.0, 0L, -1)]
         [InlineData(1.0, 0L, 1)]
-        public void CompareTo_with_BsonValue_of_type_Int32_should_return_expected_result(double doubleValue, long otherInt64Value, int expectedResult)
+        public void CompareTo_with_BsonValue_of_type_Int64_should_return_expected_result(double doubleValue, long otherInt64Value, int expectedResult)
         {
             var subject = new BsonDecimal128((Decimal128)(decimal)doubleValue);
             var other = (BsonValue)new BsonInt64(otherInt64Value);

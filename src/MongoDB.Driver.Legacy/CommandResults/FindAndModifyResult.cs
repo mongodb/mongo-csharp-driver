@@ -23,7 +23,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents the result of a FindAndModify command.
     /// </summary>
-#if NET45
+#if NET452
     [Serializable]
 #endif
     [BsonSerializer(typeof(CommandResultSerializer<FindAndModifyResult>))]

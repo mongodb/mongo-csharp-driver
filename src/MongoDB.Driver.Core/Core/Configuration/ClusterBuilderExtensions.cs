@@ -240,7 +240,7 @@ namespace MongoDB.Driver.Core.Configuration
             return "admin";
         }
 
-#if NET45
+#if NET452
         /// <summary>
         /// Configures the cluster to write performance counters.
         /// </summary>

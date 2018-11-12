@@ -15,7 +15,7 @@
 
 using System;
 using System.IO;
-#if NET45
+#if NET452
 using System.Runtime.Remoting;
 #endif
 using System.Threading;
@@ -95,7 +95,7 @@ namespace MongoDB.Driver.GridFS
         }
 
         // methods
-#if NET45
+#if NET452
         /// <inheritdoc/>
         public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
         {
@@ -103,7 +103,7 @@ namespace MongoDB.Driver.GridFS
         }
 #endif
 
-#if NET45
+#if NET452
         /// <inheritdoc/>
         public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
         {
@@ -111,7 +111,7 @@ namespace MongoDB.Driver.GridFS
         }
 #endif
 
-#if NET45
+#if NET452
         /// <inheritdoc/>
         public override void Close()
         {
@@ -125,7 +125,7 @@ namespace MongoDB.Driver.GridFS
             return _wrappedStream.CopyToAsync(destination, bufferSize, cancellationToken);
         }
 
- #if NET45
+ #if NET452
        /// <inheritdoc/>
         public override ObjRef CreateObjRef(Type requestedType)
         {
@@ -133,9 +133,9 @@ namespace MongoDB.Driver.GridFS
         }
 #endif
 
-#if NET45
+#if NET452
         /// <inheritdoc/>
-        [Obsolete()]
+        [Obsolete("Not supported by DelegatingStream.")]
         protected override WaitHandle CreateWaitHandle()
         {
             throw new NotSupportedException();
@@ -151,7 +151,7 @@ namespace MongoDB.Driver.GridFS
             }
         }
 
-#if NET45
+#if NET452
         /// <inheritdoc/>
         public override int EndRead(IAsyncResult asyncResult)
         {
@@ -159,7 +159,7 @@ namespace MongoDB.Driver.GridFS
         }
 #endif
 
-#if NET45
+#if NET452
         /// <inheritdoc/>
         public override void EndWrite(IAsyncResult asyncResult)
         {
@@ -191,7 +191,7 @@ namespace MongoDB.Driver.GridFS
             return _wrappedStream.GetHashCode();
         }
 
- #if NET45
+ #if NET452
        /// <inheritdoc/>
         public override object InitializeLifetimeService()
         {
@@ -199,9 +199,9 @@ namespace MongoDB.Driver.GridFS
         }
 #endif
 
-#if NET45
+#if NET452
         /// <inheritdoc/>
-        [Obsolete()]
+        [Obsolete("Not supported by DelegatingStream.")]
         protected override void ObjectInvariant()
         {
             throw new NotSupportedException();

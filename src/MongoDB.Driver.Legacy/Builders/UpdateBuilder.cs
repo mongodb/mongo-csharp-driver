@@ -710,7 +710,7 @@ namespace MongoDB.Driver.Builders
     /// <summary>
     /// A builder for creating update modifiers.
     /// </summary>
-#if NET45
+#if NET452
     [Serializable]
 #endif
     [BsonSerializer(typeof(UpdateBuilder.Serializer))]
@@ -2267,7 +2267,7 @@ namespace MongoDB.Driver.Builders
     /// A builder for creating update modifiers.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-#if NET45
+#if NET452
     [Serializable]
 #endif
     [BsonSerializer(typeof(UpdateBuilder<>.Serializer))]

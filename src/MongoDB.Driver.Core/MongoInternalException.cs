@@ -14,7 +14,7 @@
 */
 
 using System;
-#if NET45
+#if NET452
 using System.Runtime.Serialization;
 #endif
 
@@ -23,7 +23,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB internal exception (almost surely the result of a bug).
     /// </summary>
-#if NET45
+#if NET452
     [Serializable]
 #endif
     public class MongoInternalException : MongoException
@@ -48,7 +48,7 @@ namespace MongoDB.Driver
         {
         }
 
-#if NET45
+#if NET452
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoInternalException"/> class.
         /// </summary>

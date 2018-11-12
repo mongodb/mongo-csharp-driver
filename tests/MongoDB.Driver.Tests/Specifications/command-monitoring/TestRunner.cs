@@ -112,7 +112,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
                 var maxServerVersion = SemanticVersion.Parse(bsonValue.AsString);
                 if (serverVersion > maxServerVersion)
                 {
-                    throw new SkipTestException($"Test ignored because server version {serverVersion} is greater than max server version {maxServerVersion}.");
+                    throw new SkipException($"Test ignored because server version {serverVersion} is greater than max server version {maxServerVersion}.");
                 }
             }
             if (definition.TryGetValue("ignore_if_server_version_less_than", out bsonValue))
@@ -121,7 +121,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
                 var minServerVersion = SemanticVersion.Parse(bsonValue.AsString);
                 if (serverVersion < minServerVersion)
                 {
-                    throw new SkipTestException($"Test ignored because server version {serverVersion} is less than min server version {minServerVersion}.");
+                    throw new SkipException($"Test ignored because server version {serverVersion} is less than min server version {minServerVersion}.");
                 }
             }
 
@@ -216,7 +216,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
             string reason;
             if (!test.CanExecute(__client.Cluster.Description, arguments, out reason))
             {
-                throw new SkipTestException(reason);
+                throw new SkipException(reason);
             }
 
             test.Execute(__client.Cluster.Description, database, collection, arguments, async);

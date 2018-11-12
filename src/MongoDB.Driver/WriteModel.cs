@@ -25,7 +25,7 @@ namespace MongoDB.Driver
     /// Base class for a write model.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-#if NET45
+#if NET452
     [Serializable]
 #endif
     public abstract class WriteModel<TDocument>

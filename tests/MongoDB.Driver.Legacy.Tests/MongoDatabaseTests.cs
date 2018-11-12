@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Tests
         {
             _server = LegacyTestConfiguration.Server;
             _primary = LegacyTestConfiguration.Server.Primary;
-            _database = LegacyTestConfiguration.Database;
+            _database = _server.GetDatabase(GetType().Name);
             _adminDatabase = _server.GetDatabase("admin");
             // TODO: DropDatabase
             //_database.Drop();
@@ -52,6 +52,7 @@ namespace MongoDB.Driver.Tests
         public void TestCollectionExists()
         {
             var collectionName = "testcollectionexists";
+            EnsureCollectionDoesNotExist(collectionName);            
             Assert.False(_database.CollectionExists(collectionName));
 
             _database.GetCollection(collectionName).Insert(new BsonDocument());
@@ -74,6 +75,7 @@ namespace MongoDB.Driver.Tests
         public void TestCreateCollection()
         {
             var collectionName = "testcreatecollection";
+            EnsureCollectionDoesNotExist(collectionName);
             Assert.False(_database.CollectionExists(collectionName));
 
             _database.CreateCollection(collectionName);
@@ -149,9 +151,11 @@ namespace MongoDB.Driver.Tests
         {
             RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
             var subject = _database;
+            var collectionName = "Restricted Section";
             var writeConcern = new WriteConcern(9);
+            EnsureCollectionDoesNotExist(collectionName);
 
-            var exception = Record.Exception(() => subject.WithWriteConcern(writeConcern).CreateCollection("collection"));
+            var exception = Record.Exception(() => subject.WithWriteConcern(writeConcern).CreateCollection(collectionName));
 
             exception.Should().BeOfType<MongoWriteConcernException>();
         }
@@ -163,8 +167,10 @@ namespace MongoDB.Driver.Tests
             var subject = _database;
             var writeConcern = new WriteConcern(9);
             var pipeline = new BsonDocument[0];
+            var viewName = "The Marauder's Map";
+            EnsureCollectionDoesNotExist(viewName);
 
-            var exception = Record.Exception(() => subject.WithWriteConcern(writeConcern).CreateView("viewName", "viewOn", pipeline, null));
+            var exception = Record.Exception(() => subject.WithWriteConcern(writeConcern).CreateView(viewName, "viewOn", pipeline, null));
 
             exception.Should().BeOfType<MongoWriteConcernException>();
         }
@@ -173,6 +179,7 @@ namespace MongoDB.Driver.Tests
         public void TestDropCollection()
         {
             var collectionName = "testdropcollection";
+            EnsureCollectionDoesNotExist(collectionName);
             Assert.False(_database.CollectionExists(collectionName));
 
             _database.GetCollection(collectionName).Insert(new BsonDocument());
@@ -188,8 +195,10 @@ namespace MongoDB.Driver.Tests
             RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
             var subject = _database;
             var writeConcern = new WriteConcern(9);
+            var collectionName = "MacGuffins";
+            EnsureCollectionExists(collectionName);;
 
-            var exception = Record.Exception(() => subject.WithWriteConcern(writeConcern).DropCollection("collection"));
+            var exception = Record.Exception(() => subject.WithWriteConcern(writeConcern).DropCollection(collectionName));
 
             exception.Should().BeOfType<MongoWriteConcernException>();
         }
@@ -376,7 +385,7 @@ namespace MongoDB.Driver.Tests
         {
             if (_primary.InstanceType != MongoServerInstanceType.ShardRouter)
             {
-                var collection = LegacyTestConfiguration.Collection;
+                var collection = _database.GetCollection(nameof(TestGetProfilingInfo));
                 if (collection.Exists()) { collection.Drop(); }
                 collection.Insert(new BsonDocument("x", 1));
                 _database.SetProfilingLevel(ProfilingLevel.All);
@@ -403,6 +412,8 @@ namespace MongoDB.Driver.Tests
         {
             var collectionName1 = "testrenamecollection1";
             var collectionName2 = "testrenamecollection2";
+            EnsureCollectionDoesNotExist(collectionName1);
+            EnsureCollectionDoesNotExist(collectionName2);
             Assert.False(_database.CollectionExists(collectionName1));
             Assert.False(_database.CollectionExists(collectionName2));
 
@@ -428,6 +439,8 @@ namespace MongoDB.Driver.Tests
         {
             const string collectionName1 = "testrenamecollectiondroptarget1";
             const string collectionName2 = "testrenamecollectiondroptarget2";
+            EnsureCollectionDoesNotExist(collectionName1);
+            EnsureCollectionDoesNotExist(collectionName2);
             Assert.False(_database.CollectionExists(collectionName1));
             Assert.False(_database.CollectionExists(collectionName2));
 

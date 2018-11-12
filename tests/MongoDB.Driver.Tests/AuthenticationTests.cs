@@ -229,7 +229,7 @@ namespace MongoDB.Driver.Tests
         
         // Currently, we only support SaslPrep in .NET Framework due to a lack of a string normalization function in
         // .NET Standard
-#if NET45
+#if NET452
         [SkippableTheory]
         [ParameterAttributeData]
         [InlineData("IX", "IX", "I\u00ADX", "\u2168", "\u2163")] // "IX", "IX", "I-X", Roman numeral nine, Roman numeral four

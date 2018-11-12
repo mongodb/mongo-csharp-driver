@@ -14,7 +14,7 @@
 */
 
 using System;
-#if NET45
+#if NET452
 using System.Runtime.Serialization;
 #endif
 
@@ -23,7 +23,7 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents a BSON exception.
     /// </summary>
-#if NET45
+#if NET452
     [Serializable]
 #endif
     public class BsonException : Exception
@@ -66,7 +66,7 @@ namespace MongoDB.Bson
         {
         }
 
-#if NET45
+#if NET452
         /// <summary>
         /// Initializes a new instance of the BsonException class (this overload used by deserialization).
         /// </summary>

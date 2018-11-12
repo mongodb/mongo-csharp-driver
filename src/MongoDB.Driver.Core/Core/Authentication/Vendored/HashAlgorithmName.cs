@@ -46,7 +46,7 @@ using System;
 namespace MongoDB.Driver.Core.Authentication.Vendored
 {
     // .NET Standard 1.5 includes this class, as does .NET Framework >= 4.6
-#if NET45
+#if NET452
    // Strongly typed string representing the name of a hash algorithm.
     // Open ended to allow extensibility while giving the discoverable feel of an enum for common values.
 

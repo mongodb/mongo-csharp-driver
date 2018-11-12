@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Core.Authentication
 
         private static byte[] Hmac1(UTF8Encoding encoding, byte[] data, string key)
         {
-#if NET45
+#if NET452
             using (var hmac = new HMACSHA1(data, useManagedSha1: true))
 #else
                 using (var hmac = new HMACSHA1(data))

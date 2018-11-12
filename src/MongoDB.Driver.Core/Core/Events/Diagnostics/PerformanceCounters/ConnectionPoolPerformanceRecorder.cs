@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-#if NET45
+#if NET452
 namespace MongoDB.Driver.Core.Events.Diagnostics.PerformanceCounters
 {
     internal class ConnectionPoolPerformanceRecorder

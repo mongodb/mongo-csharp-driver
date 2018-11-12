@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Builders
     /// <summary>
     /// A builder for the options of the GeoHaystackSearch command.
     /// </summary>
-#if NET45
+#if NET452
     [Serializable]
 #endif
     [Obsolete("Use GeoHaystackSearchArgs instead.")]
@@ -201,7 +201,7 @@ namespace MongoDB.Driver.Builders
     /// A builder for the options of the GeoHaystackSearch command.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-#if NET45
+#if NET452
     [Serializable]
 #endif
     [Obsolete("Use GeoHaystackSearchArgs instead.")]

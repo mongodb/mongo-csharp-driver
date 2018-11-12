@@ -611,7 +611,7 @@ namespace MongoDB.Driver.Core.Connections
         private Exception WrapException(Exception ex, string action)
         {
             if (
-#if NET45
+#if NET452
                 ex is ThreadAbortException ||
                 ex is StackOverflowException ||
 #endif

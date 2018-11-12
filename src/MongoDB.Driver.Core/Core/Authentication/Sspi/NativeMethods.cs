@@ -14,7 +14,7 @@
 */
 
 using System;
-#if NET45
+#if NET452
 using System.Runtime.ConstrainedExecution;
 #endif
 using System.Runtime.InteropServices;
@@ -188,7 +188,7 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
         /// http://msdn.microsoft.com/en-us/library/windows/desktop/aa375354(v=vs.85).aspx
         /// </remarks>
         [DllImport("security.dll", CharSet = CharSet.Unicode, SetLastError = false)]
-#if NET45
+#if NET452
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
 #endif
         public static extern uint DeleteSecurityContext(ref SspiHandle context);
@@ -248,7 +248,7 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
         /// http://msdn.microsoft.com/en-us/library/aa375416(v=vs.85).aspx
         /// </remarks>
         [DllImport("security.dll")]
-#if NET45
+#if NET452
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
 #endif
         public static extern uint FreeContextBuffer(IntPtr contextBuffer);
@@ -262,7 +262,7 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
         /// http://msdn.microsoft.com/en-us/library/windows/desktop/aa375417(v=vs.85).aspx
         /// </remarks>
         [DllImport("security.dll")]
-#if NET45
+#if NET452
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
 #endif
         public static extern int FreeCredentialsHandle(ref SspiHandle sspiHandle);

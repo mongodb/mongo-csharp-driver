@@ -251,13 +251,8 @@ namespace MongoDB.Driver.Specifications.server_selection
         {
             public IEnumerator<object[]> GetEnumerator()
             {
-#if NET45
-                const string prefix = "MongoDB.Driver.Specifications.server_selection.tests.server_selection.";
-                const string maxStalenessPrefix = "MongoDB.Driver.Specifications.max_staleness.tests.";
-#else
-                const string prefix = "MongoDB.Driver.Core.Tests.Dotnet.Specifications.server_selection.tests.server_selection.";
-                const string maxStalenessPrefix = "MongoDB.Driver.Core.Tests.Dotnet.Specifications.max_staleness.tests.";
-#endif
+                const string prefix = "MongoDB.Driver.Core.Tests.Specifications.server_selection.tests.server_selection.";
+                const string maxStalenessPrefix = "MongoDB.Driver.Core.Tests.Specifications.max_staleness.tests.";
                 var executingAssembly = typeof(TestCaseFactory).GetTypeInfo().Assembly;
                 var enumerable = executingAssembly
                     .GetManifestResourceNames()

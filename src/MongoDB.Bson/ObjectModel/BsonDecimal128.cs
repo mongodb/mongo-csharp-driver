@@ -22,7 +22,7 @@ namespace MongoDB.Bson
     /// Represents a BSON Decimal128 value.
     /// </summary>
     /// <seealso cref="MongoDB.Bson.BsonValue" />
-#if NET45
+#if NET452
     [Serializable]
 #endif
     public class BsonDecimal128 : BsonValue, IComparable<BsonDecimal128>, IEquatable<BsonDecimal128>

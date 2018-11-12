@@ -55,7 +55,7 @@ namespace MongoDB.Driver
         {
             if (_chars == null)
             {
-#if NET45
+#if NET452
                 _charsIntPtr = Marshal.SecureStringToGlobalAllocUnicode(_secureString);
 #else
                 _charsIntPtr = SecureStringMarshal.SecureStringToGlobalAllocUnicode(_secureString);

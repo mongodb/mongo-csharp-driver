@@ -128,7 +128,7 @@ namespace MongoDB.Bson.Serialization
 
             Dictionary<string, object> values = null;
             var document = default(TClass);
-#if NET45
+#if NET452
             ISupportInitialize supportsInitialization = null;
 #endif
             if (_classMap.HasCreatorMaps)
@@ -141,7 +141,7 @@ namespace MongoDB.Bson.Serialization
                 // for mutable classes we deserialize the values directly into the result object
                 document = (TClass)_classMap.CreateInstance();
 
-#if NET45
+#if NET452
                 supportsInitialization = document as ISupportInitialize;
                 if (supportsInitialization != null)
                 {
@@ -286,7 +286,7 @@ namespace MongoDB.Bson.Serialization
 
             if (document != null)
             {
-#if NET45
+#if NET452
                 if (supportsInitialization != null)
                 {
                     supportsInitialization.EndInit();
@@ -433,7 +433,7 @@ namespace MongoDB.Bson.Serialization
             var creatorMap = ChooseBestCreator(values);
             var document = creatorMap.CreateInstance(values); // removes values consumed
 
-#if NET45
+#if NET452
             var supportsInitialization = document as ISupportInitialize;
             if (supportsInitialization != null)
             {
@@ -453,7 +453,7 @@ namespace MongoDB.Bson.Serialization
                 }
             }
 
-#if NET45
+#if NET452
             if (supportsInitialization != null)
             {
                 supportsInitialization.EndInit();

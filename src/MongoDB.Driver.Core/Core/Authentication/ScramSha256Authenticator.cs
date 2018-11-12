@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Core.Authentication
 
         private static byte[] Hi256(UsernamePasswordCredential credential, byte[] salt, int iterations)
         {
-#if NET45
+#if NET452
             var passwordIntPtr = Marshal.SecureStringToGlobalAllocUnicode(credential.SaslPreppedPassword);
 #else
             var passwordIntPtr = SecureStringMarshal.SecureStringToGlobalAllocUnicode(credential.SaslPreppedPassword);

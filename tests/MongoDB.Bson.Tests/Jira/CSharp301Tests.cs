@@ -60,7 +60,7 @@ namespace MongoDB.Bson.Tests.Jira
         {
             var c = new C { Id = 1, Obj = new Hashtable { } };
             var json = c.ToJson();
-#if NET45
+#if NET452
             var discriminator = "System.Collections.Hashtable";
 #else
             var discriminator = typeof(Hashtable).AssemblyQualifiedName;
@@ -78,7 +78,7 @@ namespace MongoDB.Bson.Tests.Jira
         {
             var c = new C { Id = 1, Obj = new Hashtable { { "x", 1 } } };
             var json = c.ToJson();
-#if NET45
+#if NET452
             var discriminator = "System.Collections.Hashtable";
 #else
             var discriminator = typeof(Hashtable).AssemblyQualifiedName;

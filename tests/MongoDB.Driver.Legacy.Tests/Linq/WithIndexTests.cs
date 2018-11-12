@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Tests.Linq
 
         private static bool OneTimeSetup()
         {
-            __collection = LegacyTestConfiguration.GetCollection<B>();
+            __collection = LegacyTestConfiguration.Database.GetCollection<B>(typeof(WithIndexTests).Name);
 
             __collection.Drop();
             __collection.CreateIndex(new IndexKeysBuilder().Ascending("a", "b"), IndexOptions.SetName("i"));

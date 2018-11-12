@@ -100,7 +100,7 @@ namespace MongoDB.Bson.Tests.ObjectModel
         [InlineData(0L, 0L)]
         [InlineData(long.MinValue, long.MinValue)]
         [InlineData(long.MaxValue, long.MaxValue)]
-        [InlineData(0UL, 0L)]
+        [InlineData(1UL, 1L)]
         [InlineData(ulong.MinValue, 0L)]
         [InlineData(ulong.MaxValue, -1L)]
         public void Create_should_return_expected_result(object value, long expectedValue)

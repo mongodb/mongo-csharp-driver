@@ -229,7 +229,7 @@ namespace MongoDB.Driver.Tests
         {
             var mockCursor = new Mock<IAsyncCursor<int>>();
             mockCursor.SetupSequence(c => c.MoveNextAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult(true)).Returns(Task.FromResult(false));
-            mockCursor.SetupSequence(c => c.Current).Returns(new List<int> { 1 }).Returns(null);
+            mockCursor.SetupSequence(c => c.Current).Returns(new List<int> { 1 }).Returns((List<int>)null);
             return Task.FromResult(mockCursor.Object);
         }
 
@@ -237,7 +237,7 @@ namespace MongoDB.Driver.Tests
         {
             var mockCursor = new Mock<IAsyncCursor<int>>();
             mockCursor.SetupSequence(c => c.MoveNextAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult(true)).Returns(Task.FromResult(true)).Returns(Task.FromResult(false));
-            mockCursor.SetupSequence(c => c.Current).Returns(new List<int>()).Returns(new List<int> { 1 }).Returns(null);
+            mockCursor.SetupSequence(c => c.Current).Returns(new List<int>()).Returns(new List<int> { 1 }).Returns((List<int>)null);
             return Task.FromResult(mockCursor.Object);
         }
 
@@ -253,7 +253,7 @@ namespace MongoDB.Driver.Tests
         {
             var mockCursor = new Mock<IAsyncCursor<int>>();
             mockCursor.SetupSequence(c => c.MoveNextAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult(true)).Returns(Task.FromResult(false));
-            mockCursor.SetupSequence(c => c.Current).Returns(new List<int>()).Returns(null);
+            mockCursor.SetupSequence(c => c.Current).Returns(new List<int>()).Returns((List<int>)null);
             return Task.FromResult(mockCursor.Object);
         }
     }

@@ -20,7 +20,7 @@ namespace MongoDB.Bson.IO
     /// <summary>
     /// Represents settings for a BsonDocumentReader.
     /// </summary>
-#if NET45
+#if NET452
     [Serializable]
 #endif
     public class BsonDocumentReaderSettings : BsonReaderSettings

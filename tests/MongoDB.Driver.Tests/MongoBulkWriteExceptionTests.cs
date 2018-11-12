@@ -17,7 +17,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-#if NET45
+#if NET452
 using System.Runtime.Serialization.Formatters.Binary;
 #endif
 using FluentAssertions;
@@ -138,7 +138,7 @@ namespace MongoDB.Driver.Tests
             ((InsertOneModel<BsonDocument>)mapped.UnprocessedRequests[0]).Document.Should().Be("{a:1}");
         }
 
-#if NET45
+#if NET452
         [Fact]
         public void Serialization_should_work()
         {

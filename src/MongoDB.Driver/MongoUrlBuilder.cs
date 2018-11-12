@@ -32,7 +32,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents URL-style connection strings.
     /// </summary>
-#if NET45
+#if NET452
     [Serializable]
 #endif
     public class MongoUrlBuilder

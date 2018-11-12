@@ -402,7 +402,7 @@ axes:
         display_name: "Windows 64-bit"
         variables:
           OS: "windows-64"
-        run_on: windows-64-vs2015-small
+        run_on: windows-64-vs2017-test
 
   - id: topology
     display_name: Topology
@@ -449,7 +449,7 @@ buildvariants:
 - name: windows-64-compile
   display_name: "Windows 64-bit compile"
   run_on:
-    - windows-64-vs2015-small
+    - windows-64-vs2017-compile
   tasks:
     - name: compile
 
@@ -470,20 +470,20 @@ buildvariants:
 - name: atlas-connectivity-tests
   display_name: "Atlas Connectivity Tests"
   run_on:
-    - windows-64-vs2015-small
+    - windows-64-vs2017-test
   tasks:
     - name: atlas-connectivity-tests
 
 # - name: plain-auth-tests
 #   display_name: "PLAIN (LDAP) Auth tests"
 #   run_on:
-#     - windows-64-vs2015-small
+#     - windows-64-vs2017-test
 #   tasks:
 #     - name: plain-auth-tests
 
 # - name: publish-snapshot
 #   display_name: publish-snapshot
 #   run_on:
-#     - windows-64-vs2015-small
+#     - windows-64-vs2017-test
 #   tasks:
 #     - name: publish-snapshot

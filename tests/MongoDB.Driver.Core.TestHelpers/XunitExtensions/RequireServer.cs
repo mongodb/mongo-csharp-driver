@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
+using Xunit;
 
 namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 {
@@ -31,7 +32,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
         {
             if (Environment.GetEnvironmentVariable("SKIPTESTSTHATREQUIRESERVER") != null)
             {
-                throw new SkipTestException("Test skipped because it requires a server.");
+                throw new SkipException("Test skipped because it requires a server.");
             }
             return new RequireServer();
         }
@@ -51,7 +52,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
             {
                 return this;
             }
-            throw new SkipTestException($"Test skipped because authentication is {(actualAuthentication ? "on" : "off")}.");
+            throw new SkipException($"Test skipped because authentication is {(actualAuthentication ? "on" : "off")}.");
         }
 
         public RequireServer ClusterType(ClusterType clusterType)
@@ -61,7 +62,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
             {
                 return this;
             }
-            throw new SkipTestException($"Test skipped because cluster type is {actualClusterType} and not {clusterType}.");
+            throw new SkipException($"Test skipped because cluster type is {actualClusterType} and not {clusterType}.");
         }
 
         public RequireServer ClusterTypes(params ClusterType[] clusterTypes)
@@ -72,7 +73,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
                 return this;
             }
             var clusterTypesString = string.Join(", ", clusterTypes.Select(t => t.ToString()));
-            throw new SkipTestException($"Test skipped because cluster type is {actualClusterType} and not one of ({clusterTypesString}).");
+            throw new SkipException($"Test skipped because cluster type is {actualClusterType} and not one of ({clusterTypesString}).");
         }
 
         public RequireServer Supports(Feature feature)
@@ -81,7 +82,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
             {
                 return this;
             }
-            throw new SkipTestException($"Test skipped because server version {_serverVersion} does not support the {feature.Name} feature.");
+            throw new SkipException($"Test skipped because server version {_serverVersion} does not support the {feature.Name} feature.");
         }
 
         public RequireServer Supports(params Feature[] features)
@@ -107,7 +108,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
             {
                return this;
             }
-            throw new SkipTestException($"Test skipped because the cluster does not support sessions.");
+            throw new SkipException($"Test skipped because the cluster does not support sessions.");
         }
 
         public RequireServer DoesNotSupport(Feature feature)
@@ -116,7 +117,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
             {
                 return this;
             }
-            throw new SkipTestException($"Test skipped because server version {_serverVersion} does support the {feature.Name} feature.");
+            throw new SkipException($"Test skipped because server version {_serverVersion} does support the {feature.Name} feature.");
         }
 
         public RequireServer DoesNotSupport(params Feature[] features)
@@ -135,7 +136,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
             {
                 return this;
             }
-            throw new SkipTestException($"Test skipped because storage engine is \"{actualStorageEngine}\" and not \"{storageEngine}\".");
+            throw new SkipException($"Test skipped because storage engine is \"{actualStorageEngine}\" and not \"{storageEngine}\".");
         }
 
         public RequireServer StorageEngines(params string[] storageEngines)
@@ -146,7 +147,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
                 return this;
             }
             var storageEnginesString = string.Join(", ", storageEngines.Select(e => "\"" + e + "\""));
-            throw new SkipTestException($"Test skipped because storage engine is \"{actualStorageEngine}\" and not one of ({storageEnginesString}).");
+            throw new SkipException($"Test skipped because storage engine is \"{actualStorageEngine}\" and not one of ({storageEnginesString}).");
         }
 
         public RequireServer VersionGreaterThanOrEqualTo(SemanticVersion version)
@@ -156,7 +157,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
             {
                 return this;
             }
-            throw new SkipTestException($"Test skipped because server version {actualVersion} is not greater than or equal to {version}.");
+            throw new SkipException($"Test skipped because server version {actualVersion} is not greater than or equal to {version}.");
         }
 
         public RequireServer VersionGreaterThanOrEqualTo(string version)
@@ -171,7 +172,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
             {
                 return this;
             }
-            throw new SkipTestException($"Test skipped because server version {actualVersion} is not less than {version}.");
+            throw new SkipException($"Test skipped because server version {actualVersion} is not less than {version}.");
         }
 
         public RequireServer VersionLessThan(string version)
@@ -186,7 +187,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
             {
                 return this;
             }
-            throw new SkipTestException($"Test skipped because server version {actualVersion} is not less than or equal to {version}.");
+            throw new SkipException($"Test skipped because server version {actualVersion} is not less than or equal to {version}.");
         }
 
         public RequireServer VersionLessThanOrEqualTo(string version)

@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp93
         {
             var server = LegacyTestConfiguration.Server;
             var database = LegacyTestConfiguration.Database;
-            var collection = LegacyTestConfiguration.Collection;
+            var collection = database.GetCollection(GetType().Name);
 
             if (collection.Exists())
             {
@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp93
         {
             var server = LegacyTestConfiguration.Server;
             var database = LegacyTestConfiguration.Database;
-            var collection = LegacyTestConfiguration.Collection;
+            var collection = database.GetCollection(GetType().Name);
 
             if (collection.Exists())
             {

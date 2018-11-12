@@ -16,7 +16,7 @@
 using System;
 using System.Collections.Generic;
 using MongoDB.Driver.Core.Misc;
-#if NET45
+#if NET452
 using System.Runtime.Serialization;
 #endif
 
@@ -25,7 +25,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB exception.
     /// </summary>
-#if NET45
+#if NET452
     [Serializable]
 #endif
     public class MongoException : Exception
@@ -53,7 +53,7 @@ namespace MongoDB.Driver
         {
         }
 
-#if NET45
+#if NET452
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoException"/> class.
         /// </summary>
@@ -110,7 +110,7 @@ namespace MongoDB.Driver
             _errorLabels.Remove(errorLabel);
         }
 
-#if NET45
+#if NET452
         /// <inheritdoc/>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {

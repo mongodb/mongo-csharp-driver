@@ -877,11 +877,13 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             Assert<C>(c => !c.S.Trim().StartsWith("xyz"), 4, "{ \"s\" : { \"$not\" : /^\\s*xyz.*\\s*$/s } }");
         }
 
+#if NET452 || NETCOREAPP1_0        
         [Fact]
         public void TestWhereSTrimStartTrimEndToLowerContainsXyz()
         {
             Assert<C>(c => c.S.TrimStart(' ', '.', '-', '\t').TrimEnd().ToLower().Contains("xyz"), 1, "{ \"s\" : /^[\\ \\.\\-\\t]*.*xyz.*\\s*$/is }");
         }
+#endif    
 
         [Fact]
         public void TestWhereSToLowerEqualsConstantLowerCaseValue()
