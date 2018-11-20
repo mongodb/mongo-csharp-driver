@@ -13,11 +13,14 @@
 * limitations under the License.
 */
 
-using System;
-using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Tests;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace MongoDB.Driver.Examples
@@ -120,6 +123,59 @@ namespace MongoDB.Driver.Examples
                 // End Changestream Example 3
 
                 next.FullDocument.Should().Be(documents[1]);
+            }
+        }
+
+        [Fact]
+        public void ChangestreamExample4()
+        {
+            RequireServer.Check().Supports(Feature.AggregateAddFields);
+
+            var client = DriverTestConfiguration.Client;
+            var database = client.GetDatabase("ChangeStreamExamples");
+            database.DropCollection("inventory");
+
+            var cancelationTokenSource = new CancellationTokenSource();
+            try
+            {
+                var document = new BsonDocument("username", "alice");
+
+                Task.Run(() =>
+                {
+                    var inventoryCollection = database.GetCollection<BsonDocument>("inventory");
+
+                    while (!cancelationTokenSource.IsCancellationRequested)
+                    {
+                        Thread.Sleep(TimeSpan.FromMilliseconds(100));
+                        document["_id"] = ObjectId.GenerateNewId();
+                        inventoryCollection.InsertOne(document);
+                    }
+                }, cancelationTokenSource.Token);
+
+                // Start Changestream Example 4
+                var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<BsonDocument>>()
+                    .Match(change =>
+                        change.FullDocument["username"] == "alice" ||
+                        change.OperationType == ChangeStreamOperationType.Delete)
+                    .AppendStage<ChangeStreamDocument<BsonDocument>, ChangeStreamDocument<BsonDocument>, BsonDocument>(
+                        "{ $addFields : { newField : 'this is an added field!' } }");
+
+                var collection = database.GetCollection<BsonDocument>("inventory");
+                using (var changeStream = collection.Watch(pipeline))
+                {
+                    using (var enumerator = changeStream.ToEnumerable().GetEnumerator())
+                    {
+                        if (enumerator.MoveNext())
+                        {
+                            var next = enumerator.Current;
+                        }
+                    }
+                }
+                // End Changestream Example 4
+            }
+            finally
+            {
+                cancelationTokenSource.Cancel();
             }
         }
     }
