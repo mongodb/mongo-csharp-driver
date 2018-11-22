@@ -106,6 +106,41 @@ namespace MongoDB.Driver.Examples
                 // End Causal Consistency Example 2
             }
         }
+        
+        [Fact]
+        public void Causal_Consistency_Example_3()
+        {
+            RequireServer.Check().SupportsCausalConsistency();
+
+            DropCollection(CreateClient(), "myDatabase", "myCollection");
+
+            // Start Tunable Consistency Controls Example
+            var connectionString = "mongodb://localhost/?readPreference=secondaryPreferred";
+
+            var client = new MongoClient(connectionString);
+            var database = client.GetDatabase("myDatabase");
+            var collection = database.GetCollection<BsonDocument>("myCollection");
+
+            // Start client session, which is causally consistent by default
+            using (var session = client.StartSession())
+            {
+                // Run causally related operations within the session
+                collection.InsertOne(session, new BsonDocument("name", "Tom"));
+                collection.UpdateOne(session,
+                    Builders<BsonDocument>.Filter.Eq("name", "Tom"),
+                    Builders<BsonDocument>.Update.Set("name", "John"));
+
+                foreach (var document in collection.Find(session, FilterDefinition<BsonDocument>.Empty).ToEnumerable())
+                {
+                    // process document
+                }
+            }
+            // End Tunable Consistency Controls Example
+
+            var result = collection.Find("{}").FirstOrDefault();
+            RemoveIds(new[] { result });
+            result.Should().Be("{ name: 'John' }");
+        }
 
         private IMongoClient CreateClient()
         {
