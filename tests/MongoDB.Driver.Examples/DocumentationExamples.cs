@@ -1568,6 +1568,44 @@ namespace MongoDB.Driver.Examples
             result.Should().Be("cuisine_1_name_1");
         }
 
+        [Fact]
+        public void Exploiting_The_Power_Of_Arrays_Example()
+        {
+            RequireServer.Check().Supports(Feature.ArrayFilters);
+
+            var document = new BsonDocument
+            {
+                { "_id", 1 },
+                { "a", new BsonArray { new BsonDocument("b", 0), new BsonDocument("b", 1) } }
+            };
+
+            var arrayUpdatesTestCollectionName = "arrayUpdatesTest";
+            var testDatabase = client.GetDatabase("test");
+            testDatabase.DropCollection(arrayUpdatesTestCollectionName);
+            var arrayUpdatesTestCollection = testDatabase.GetCollection<BsonDocument>(arrayUpdatesTestCollectionName);
+            arrayUpdatesTestCollection.InsertOne(document);
+
+            // Start Exploiting The Power Of Arrays Example
+            var collection = client
+                .GetDatabase("test")
+                .GetCollection<BsonDocument>("arrayUpdatesTest");
+
+            collection.UpdateOne(
+                Builders<BsonDocument>.Filter.Eq("_id", 1),
+                Builders<BsonDocument>.Update.Set("a.$[i].b", 2),
+                new UpdateOptions()
+                {
+                    ArrayFilters = new List<ArrayFilterDefinition<BsonValue>>()
+                    {
+                        "{ 'i.b' : 0 }"
+                    }
+                });
+            // End Exploiting The Power Of Arrays Example
+
+            var result = arrayUpdatesTestCollection.Find("{}").FirstOrDefault();
+            result.Should().Be("{ \"_id\" : 1, \"a\" : [{ \"b\" : 2 }, { \"b\" : 1 }] }");
+        }
+
         // private methods
         private IEnumerable<BsonDocument> ParseMultiple(params string[] documents)
         {
