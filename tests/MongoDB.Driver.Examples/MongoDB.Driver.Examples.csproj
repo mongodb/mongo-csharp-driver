@@ -65,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AggregatePrimer.cs" />
+    <Compile Include="CausalConsistencyExamples.cs" />
     <Compile Include="ChangeStreamExamples.cs" />
     <Compile Include="DocumentationExamples.cs" />
     <Compile Include="IndexesPrimer.cs" />
