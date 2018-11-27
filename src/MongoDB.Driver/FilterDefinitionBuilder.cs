@@ -797,6 +797,16 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Creates a json schema filter.
+        /// </summary>
+        /// <param name="schema">The json validation schema.</param>
+        /// <returns>A schema filter.</returns>
+        public FilterDefinition<TDocument> JsonSchema(BsonDocument schema)
+        {
+            return new BsonDocumentFilterDefinition<TDocument>(new BsonDocument("$jsonSchema", schema)); 
+        }
+
+        /// <summary>
         /// Creates a less than filter for a UInt32 field.
         /// </summary>
         /// <param name="field">The field.</param>

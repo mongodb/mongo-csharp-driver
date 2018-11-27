@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -24,7 +23,6 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.GeoJsonObjectModel;
-using MongoDB.Driver.Tests.Linq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -538,6 +536,24 @@ namespace MongoDB.Driver.Tests
 
             Assert(subject.AnyIn(x => x.FavoriteColors, new[] { "blue", "green" }), "{colors: {$in: ['blue','green']}}");
             Assert(subject.AnyIn("FavoriteColors", new[] { "blue", "green" }), "{colors: {$in: ['blue','green']}}");
+        }
+
+        [Fact]
+        public void JsonSchema()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.JsonSchema(new BsonDocument
+                {
+                    { "bsonType", "object" },
+                    { "properties", new BsonDocument("x", new BsonDocument
+                        {
+                            { "type" , "number" },
+                            { "minimum", 2 }
+                        })
+                    }
+                }),
+                "{ $jsonSchema : { bsonType : \"object\", properties : { x : { type : \"number\", minimum : 2 } } } }");
         }
 
         [Fact]
