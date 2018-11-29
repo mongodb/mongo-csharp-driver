@@ -132,7 +132,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
                 {
                     case "A successful insert one command with write errors":
                     case "A successful insert many command with write errors":
-                        throw new SkipTestException("Test ignored because of CSHARP-2444");
+                        throw new SkipException("Test ignored because of CSHARP-2444");
                 }
             }
 
