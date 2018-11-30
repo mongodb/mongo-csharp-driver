@@ -13,21 +13,23 @@
 * limitations under the License.
 */
 
+using FluentAssertions;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
-using FluentAssertions;
-using Moq;
 using Xunit;
-using MongoDB.Driver.Core.Operations;
-using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
 
 namespace MongoDB.Driver.Tests
 {
@@ -194,6 +196,39 @@ namespace MongoDB.Driver.Tests
                     x => x.Meanings);
 
             var expectedLookup = BsonDocument.Parse("{$lookup: { from: 'NameMeaning', localField: 'FirstName', foreignField: 'Name', as: 'Meanings' } }");
+
+            AssertLast(subject, expectedLookup);
+        }
+
+        [SkippableFact]
+        public void Lookup_expressive_should_generate_the_correct_lookup_when_using_BsonDocument()
+        {
+            RequireServer.Check().Supports(Feature.AggregateLet);
+
+            var subject = CreateSubject().Lookup(
+                CreateCollection<BsonDocument>("foreign"),
+                new BsonDocument("name", "value"),
+                new EmptyPipelineDefinition<BsonDocument>(),
+                "as");
+
+            var expectedLookup = BsonDocument.Parse("{ $lookup : { from : 'foreign', let : { 'name' : 'value' }, pipeline : [ ], as : 'as' } }");
+
+            AssertLast(subject, expectedLookup);
+        }
+
+        [SkippableFact]
+        public void Lookup_expressive_should_generate_the_correct_lookup_when_using_lambdas()
+        {
+            RequireServer.Check().Supports(Feature.AggregateLet);
+
+            var subject = CreateSubject()
+                .Lookup<Person, NameMeaning, NameMeaning, IEnumerable<NameMeaning>, LookedUpPerson>(
+                    CreateCollection<NameMeaning>(),
+                    new BsonDocument("name", "value"),
+                    PipelineDefinition<NameMeaning, NameMeaning>.Create("{}"),
+                    person => person.Meanings);
+
+            var expectedLookup = BsonDocument.Parse("{ $lookup : { from : 'NameMeaning', let : { 'name' : 'value' }, pipeline : [ { } ], as : 'Meanings' } }");
 
             AssertLast(subject, expectedLookup);
         }
@@ -568,14 +603,14 @@ namespace MongoDB.Driver.Tests
             return new AggregateFluent<Person, Person>(null, collection, new EmptyPipelineDefinition<Person>(), new AggregateOptions());
         }
 
-        private IMongoCollection<T> CreateCollection<T>()
+        private IMongoCollection<T> CreateCollection<T>(string collectionName = null)
         {
             var mockDatabase = new Mock<IMongoDatabase>();
             SetupDatabaseGetCollectionMethod<BsonDocument>(mockDatabase);
 
             var settings = new MongoCollectionSettings();
             var mockCollection = new Mock<IMongoCollection<T>>();
-            mockCollection.SetupGet(c => c.CollectionNamespace).Returns(new CollectionNamespace(new DatabaseNamespace("test"), typeof(T).Name));
+            mockCollection.SetupGet(c => c.CollectionNamespace).Returns(new CollectionNamespace(new DatabaseNamespace("test"), collectionName ?? typeof(T).Name));
             mockCollection.SetupGet(c => c.Database).Returns(mockDatabase.Object);
             mockCollection.SetupGet(c => c.DocumentSerializer).Returns(settings.SerializerRegistry.GetSerializer<T>());
             mockCollection.SetupGet(c => c.Settings).Returns(settings);

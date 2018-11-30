@@ -13,12 +13,13 @@
 * limitations under the License.
 */
 
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core.Misc;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
@@ -144,6 +145,17 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(foreignCollectionName, nameof(foreignCollectionName));
             var foreignCollection = _collection.Database.GetCollection<TForeignDocument>(foreignCollectionName);
             return WithPipeline(_pipeline.Lookup(foreignCollection, localField, foreignField, @as, options));
+        }
+
+        public override IAggregateFluent<TNewResult> Lookup<TForeignDocument, TAsElement, TAs, TNewResult>(
+            IMongoCollection<TForeignDocument> foreignCollection,
+            BsonDocument let,
+            PipelineDefinition<TForeignDocument, TAsElement> lookupPipeline,
+            FieldDefinition<TNewResult, TAs> @as,
+            AggregateLookupOptions<TForeignDocument, TNewResult> options = null)
+        {
+            Ensure.IsNotNull(foreignCollection, nameof(foreignCollection));
+            return WithPipeline(_pipeline.Lookup(foreignCollection, let, lookupPipeline, @as));
         }
 
         public override IAggregateFluent<TResult> Match(FilterDefinition<TResult> filter)

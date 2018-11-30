@@ -207,6 +207,27 @@ namespace MongoDB.Driver
         IAggregateFluent<TNewResult> Lookup<TForeignDocument, TNewResult>(string foreignCollectionName, FieldDefinition<TResult> localField, FieldDefinition<TForeignDocument> foreignField, FieldDefinition<TNewResult> @as, AggregateLookupOptions<TForeignDocument, TNewResult> options = null);
 
         /// <summary>
+        /// Appends a lookup stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TForeignDocument">The type of the foreign collection documents.</typeparam>
+        /// <typeparam name="TAsElement">The type of the as field elements.</typeparam>
+        /// <typeparam name="TAs">The type of the as field.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="foreignCollection">The foreign collection.</param>
+        /// <param name="let">The "let" definition.</param>
+        /// <param name="lookupPipeline">The lookup pipeline.</param>
+        /// <param name="as">The as field in <typeparamref name="TNewResult" /> in which to place the results of the lookup pipeline.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        IAggregateFluent<TNewResult> Lookup<TForeignDocument, TAsElement, TAs, TNewResult>(
+            IMongoCollection<TForeignDocument> foreignCollection,
+            BsonDocument let,
+            PipelineDefinition<TForeignDocument, TAsElement> lookupPipeline,
+            FieldDefinition<TNewResult, TAs> @as,
+            AggregateLookupOptions<TForeignDocument, TNewResult> options = null)
+            where TAs : IEnumerable<TAsElement>;
+
+        /// <summary>
         /// Appends a match stage to the pipeline.
         /// </summary>
         /// <param name="filter">The filter.</param>

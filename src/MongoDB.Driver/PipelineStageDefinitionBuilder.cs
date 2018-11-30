@@ -812,6 +812,89 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Creates a $lookup stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TForeignDocument">The type of the foreign collection documents.</typeparam>
+        /// <typeparam name="TAsElement">The type of the as field elements.</typeparam>
+        /// <typeparam name="TAs">The type of the as field.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="foreignCollection">The foreign collection.</param>
+        /// <param name="let">The "let" definition.</param>
+        /// <param name="lookupPipeline">The lookup pipeline.</param>
+        /// <param name="as">The as field in <typeparamref name="TOutput" /> in which to place the results of the lookup pipeline.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TOutput> Lookup<TInput, TForeignDocument, TAsElement, TAs, TOutput>(
+            IMongoCollection<TForeignDocument> foreignCollection,
+            BsonDocument let,
+            PipelineDefinition<TForeignDocument, TAsElement> lookupPipeline,
+            FieldDefinition<TOutput, TAs> @as,
+            AggregateLookupOptions<TForeignDocument, TOutput> options = null)
+            where TAs : IEnumerable<TAsElement>
+        {
+            Ensure.IsNotNull(foreignCollection, nameof(foreignCollection));
+            Ensure.IsNotNull(lookupPipeline, nameof(lookupPipeline));
+            Ensure.IsNotNull(@as, nameof(@as));
+
+            options = options ?? new AggregateLookupOptions<TForeignDocument, TOutput>();
+            const string operatorName = "$lookup";
+            var stage = new DelegatedPipelineStageDefinition<TInput, TOutput>(
+                operatorName,
+                (inputSerializer, sr) =>
+                {
+                    var foreignSerializer = options.ForeignSerializer ?? foreignCollection.DocumentSerializer ?? inputSerializer as IBsonSerializer<TForeignDocument> ?? sr.GetSerializer<TForeignDocument>();
+                    var outputSerializer = options.ResultSerializer ?? inputSerializer as IBsonSerializer<TOutput> ?? sr.GetSerializer<TOutput>();
+                    var lookupPipelineDocuments = new BsonArray(lookupPipeline.Render(foreignSerializer, sr).Documents);
+
+                    var lookupBody = new BsonDocument
+                    {
+                        { "from", foreignCollection.CollectionNamespace.CollectionName },
+                        { "let", let, let != null },
+                        { "pipeline", lookupPipelineDocuments },
+                        { "as", @as.Render(outputSerializer, sr).FieldName }
+                    };
+
+                    return new RenderedPipelineStageDefinition<TOutput>(operatorName, new BsonDocument(operatorName, lookupBody), outputSerializer);
+                });
+
+            return stage;
+        }
+
+        /// <summary>
+        /// Creates a $lookup stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TForeignDocument">The type of the foreign collection documents.</typeparam>
+        /// <typeparam name="TAsElement">The type of the as field elements.</typeparam>
+        /// <typeparam name="TAs">The type of the as field.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="foreignCollection">The foreign collection.</param>
+        /// <param name="let">The "let" definition.</param>
+        /// <param name="lookupPipeline">The lookup pipeline.</param>
+        /// <param name="as">The as field in <typeparamref name="TOutput" /> in which to place the results of the lookup pipeline.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TOutput> Lookup<TInput, TForeignDocument, TAsElement, TAs, TOutput>(
+            IMongoCollection<TForeignDocument> foreignCollection,
+            BsonDocument let,
+            PipelineDefinition<TForeignDocument, TAsElement> lookupPipeline,
+            Expression<Func<TOutput, TAs>> @as,
+            AggregateLookupOptions<TForeignDocument, TOutput> options = null)
+            where TAs : IEnumerable<TAsElement>
+        {
+            Ensure.IsNotNull(foreignCollection, nameof(foreignCollection));
+            Ensure.IsNotNull(lookupPipeline, nameof(lookupPipeline));
+            Ensure.IsNotNull(@as, nameof(@as));
+
+            return Lookup<TInput, TForeignDocument, TAsElement, TAs, TOutput>(
+                foreignCollection, 
+                let,
+                lookupPipeline,
+                new ExpressionFieldDefinition<TOutput, TAs>(@as));
+        }
+
+        /// <summary>
         /// Creates a $match stage.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>

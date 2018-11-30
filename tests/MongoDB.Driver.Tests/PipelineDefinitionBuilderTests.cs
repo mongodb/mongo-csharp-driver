@@ -17,6 +17,9 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using System;
 using System.Collections.Generic;
 using Xunit;
@@ -71,6 +74,25 @@ namespace MongoDB.Driver.Tests
             ChangeStreamStageOptions options = null;
 
             var exception = Record.Exception(() => pipeline.ChangeStream(options));
+
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("pipeline");
+        }
+
+        [SkippableFact]
+        public void Lookup_should_throw_when_pipeline_is_null()
+        {
+            RequireServer.Check().Supports(Feature.AggregateLet);
+
+            PipelineDefinition<BsonDocument, IEnumerable<BsonDocument>> pipeline = null;
+            IMongoCollection<BsonDocument> collection = null;
+
+            var exception = Record.Exception(() => pipeline.Lookup(
+                collection,
+                new BsonDocument(),
+                new EmptyPipelineDefinition<BsonDocument>(),
+                new StringFieldDefinition<BsonDocument, IEnumerable<BsonDocument>>("asValue")
+            ));
 
             var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
             argumentNullException.ParamName.Should().Be("pipeline");

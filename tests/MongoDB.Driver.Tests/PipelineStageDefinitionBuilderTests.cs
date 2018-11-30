@@ -16,7 +16,12 @@
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using System;
 using System.Collections.Generic;
 using Xunit;
 
@@ -103,10 +108,224 @@ namespace MongoDB.Driver.Tests
             stage.Document.Should().Be("{ $changeStream : { fullDocument : \"default\" } }");
         }
 
+        [SkippableFact]
+        public void Lookup_with_let_should_return_the_expected_result()
+        {
+            RequireServer.Check().Supports(Feature.AggregateLet);
+
+            var client = new MongoClient(CoreTestConfiguration.ConnectionString.ToString());
+            var warehousesCollection = client.GetDatabase("test").GetCollection<BsonDocument>("warehouses");
+
+            var lookupPipeline = new EmptyPipelineDefinition<BsonDocument>()
+                .Match(new BsonDocument("$expr",
+                    new BsonDocument("$and", new BsonArray
+                    {
+                        new BsonDocument("$eq", new BsonArray { "$stock_item", "$$order_item" }),
+                        new BsonDocument("$gte", new BsonArray { "$instock", "$$order_qty" })
+                    })))
+                .Project(
+                    Builders<BsonDocument>.Projection
+                        .Exclude("_id")
+                        .Exclude("stock_item"));
+            
+            var result = PipelineStageDefinitionBuilder.Lookup<BsonDocument,BsonDocument, BsonDocument, IEnumerable<BsonDocument>, BsonDocument>(
+                warehousesCollection,
+                new BsonDocument
+                {
+                    { "order_item", "$item" },
+                    { "order_qty", "$ordered" }
+                },
+                lookupPipeline,
+                new StringFieldDefinition<BsonDocument, IEnumerable<BsonDocument>>("stockdata")
+            );
+
+            RenderStage(result).Document.Should().Be(@"
+                {
+                    '$lookup' :
+                    {
+                        'from' : 'warehouses',
+                        'let' :
+                        {
+                            'order_item' : '$item',
+                            'order_qty' : '$ordered'
+                        },
+                        'pipeline' : [
+                        {
+                            '$match' :
+                            { 
+                                '$expr' :
+                                { 
+                                    '$and' : [
+                                        { '$eq' : ['$stock_item', '$$order_item'] },
+                                        { '$gte' : ['$instock', '$$order_qty'] }]
+                                }
+                            }
+                        },
+                        { '$project' : { '_id' : 0, 'stock_item' : 0 } }],
+                        'as' : 'stockdata'
+                    }
+                }");
+        }
+
+        [SkippableFact]
+        public void Lookup_without_optional_let_should_return_the_expected_result()
+        {
+            RequireServer.Check().Supports(Feature.AggregateLet);
+
+            var client = new MongoClient(CoreTestConfiguration.ConnectionString.ToString());
+            var warehousesCollection = client.GetDatabase("test").GetCollection<BsonDocument>("warehouses");
+
+            var lookupPipeline = new EmptyPipelineDefinition<BsonDocument>();
+
+            var result = PipelineStageDefinitionBuilder.Lookup<BsonDocument, BsonDocument, BsonDocument, IEnumerable<BsonDocument>, BsonDocument >(
+                warehousesCollection,
+                null,
+                lookupPipeline,
+                new StringFieldDefinition<BsonDocument, IEnumerable<BsonDocument>>("stockdata")
+            );
+
+            RenderStage(result).Document.Should().Be(@"
+                {
+                    '$lookup' :
+                    {
+                        'from' : 'warehouses',
+                        'pipeline' : [ ],
+                        'as' : 'stockdata'
+                    }
+                }");
+        }
+
+        public class Order
+        {
+            [BsonElement("stockdata")]
+            public IEnumerable<StockData> StockData { get; set; }
+        }
+
+        public class Warehouse
+        {
+            [BsonElement("stock_item")]
+            public string StockItem { get; set; }
+            [BsonElement("instock")]
+            public int Instock { get; set; }
+        }
+
+        public class StockData
+        {
+            [BsonElement("instock")]
+            public int Instock { get; set; }
+        }
+
+        [SkippableFact]
+        public void Lookup_with_entity_generic_params_should_return_the_expected_result()
+        {
+            RequireServer.Check().Supports(Feature.AggregateLet);
+
+            var client = new MongoClient(CoreTestConfiguration.ConnectionString.ToString());
+            var warehousesCollection = client.GetDatabase("test").GetCollection<Warehouse>("warehouses");
+
+            var lookupPipeline = new EmptyPipelineDefinition<Warehouse>()
+                .Match(new BsonDocument("$expr",
+                    new BsonDocument("$and", new BsonArray
+                    {
+                        new BsonDocument("$eq", new BsonArray { "$stock_item", "$$order_item" }),
+                        new BsonDocument("$gte", new BsonArray { "$instock", "$$order_qty" })
+                    })))
+                .Project<Warehouse, Warehouse, StockData>(
+                    Builders<Warehouse>.Projection
+                        .Exclude(warehouses => warehouses.StockItem));
+
+            var result = PipelineStageDefinitionBuilder.Lookup<BsonDocument, Warehouse, StockData, IEnumerable<StockData>, Order>(
+                warehousesCollection,
+                new BsonDocument
+                {
+                    { "order_item", "$item" },
+                    { "order_qty", "$ordered" }
+                },
+                lookupPipeline,
+                order => order.StockData
+            );
+
+            RenderStage(result).Document.Should().Be(@"
+                {
+                    '$lookup' :
+                    {
+                        'from' : 'warehouses',
+                        'let' :
+                        {
+                            'order_item' : '$item',
+                            'order_qty' : '$ordered'
+                        },
+                        'pipeline' : [
+                        {
+                            '$match' :
+                            {
+                                '$expr' :
+                                { 
+                                    '$and' : [
+                                        { '$eq' : ['$stock_item', '$$order_item'] },
+                                        { '$gte' : ['$instock', '$$order_qty'] }]
+                                }
+                            }
+                        },
+                        { '$project' : { 'stock_item' : 0 } }],
+                        'as' : 'stockdata'
+                    }
+                }");
+        }
+
+        [SkippableFact]
+        public void Lookup_with_empty_required_params_should_throw_expected_exception()
+        {
+            RequireServer.Check().Supports(Feature.AggregateLet);
+
+            string warehousesCollectionName = "warehouses";
+
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                PipelineStageDefinitionBuilder.Lookup<BsonDocument, BsonDocument, BsonDocument, IEnumerable<BsonDocument>, BsonDocument>(
+                    null,
+                    null,
+                    new EmptyPipelineDefinition<BsonDocument>(),
+                    new StringFieldDefinition<BsonDocument, IEnumerable<BsonDocument>>("stockdata")
+                );
+            });
+
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                var client = new MongoClient(CoreTestConfiguration.ConnectionString.ToString());
+                var warehousesCollection = client.GetDatabase("test").GetCollection<BsonDocument>(warehousesCollectionName);
+                PipelineStageDefinitionBuilder.Lookup<BsonDocument, BsonDocument, BsonDocument, IEnumerable<BsonDocument>, BsonDocument>(
+                    warehousesCollection,
+                    null,
+                    null,
+                    new StringFieldDefinition<BsonDocument, IEnumerable<BsonDocument>>("stockdata")
+                );
+            });
+
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                var client = new MongoClient(CoreTestConfiguration.ConnectionString.ToString());
+                var warehousesCollection = client.GetDatabase("test").GetCollection<BsonDocument>(warehousesCollectionName);
+                PipelineStageDefinitionBuilder.Lookup<BsonDocument, BsonDocument, BsonDocument, IEnumerable<BsonDocument>, BsonDocument>(
+                    warehousesCollection,
+                    null,
+                    new EmptyPipelineDefinition<BsonDocument>(),
+                    (StringFieldDefinition<BsonDocument, IEnumerable<BsonDocument>>)null
+                );
+            });
+        }
+
         // private methods
         private RenderedPipelineStageDefinition<ChangeStreamDocument<BsonDocument>> RenderStage(PipelineStageDefinition<BsonDocument, ChangeStreamDocument<BsonDocument>> stage)
         {
             return stage.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry);
+        }
+
+        private RenderedPipelineStageDefinition<TOutput> RenderStage<TInput, TOutput>(PipelineStageDefinition<TInput, TOutput> stage)
+        {
+            var registry = BsonSerializer.SerializerRegistry;
+            var serializer = registry.GetSerializer<TInput>();
+            return stage.Render(serializer, registry);
         }
     }
 }
