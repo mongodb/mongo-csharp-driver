@@ -116,10 +116,13 @@ namespace MongoDB.Driver.Core.Clusters
         {
             get
             {
-                lock (_descriptionLock)
-                {
+                // we do not need lock here, because reading and writing refs is thread safe
+                // and the worst thing we can came up with - outdated description,
+                // but race condition is impossible 
+                //lock (_descriptionLock)
+                //{
                     return _description;
-                }
+                //}
             }
         }
 

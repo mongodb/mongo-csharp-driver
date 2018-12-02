@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
@@ -712,15 +713,14 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
         private class ListConnectionHolder
         {
-            private readonly object _lock = new object();
-            private readonly List<PooledConnection> _connections;
+            private readonly ConcurrentQueue<PooledConnection> _connections;
 
             private readonly Action<ConnectionPoolRemovingConnectionEvent> _removingConnectionEventHandler;
             private readonly Action<ConnectionPoolRemovedConnectionEvent> _removedConnectionEventHandler;
 
             public ListConnectionHolder(IEventSubscriber eventSubscriber)
             {
-                _connections = new List<PooledConnection>();
+                _connections = new ConcurrentQueue<PooledConnection>();
 
                 eventSubscriber.TryGetEventHandler(out _removingConnectionEventHandler);
                 eventSubscriber.TryGetEventHandler(out _removedConnectionEventHandler);
@@ -730,59 +730,56 @@ namespace MongoDB.Driver.Core.ConnectionPools
             {
                 get
                 {
-                    lock (_lock)
-                    {
-                        return _connections.Count;
-                    }
+                    return _connections.Count;
                 }
             }
 
             public void Clear()
             {
-                lock (_lock)
+                PooledConnection connection;
+                while (_connections.TryDequeue(out connection))
                 {
-                    foreach (var connection in _connections)
-                    {
-                        RemoveConnection(connection);
-                    }
-                    _connections.Clear();
+                    RemoveConnection(connection);
                 }
             }
 
             public void Prune()
             {
-                lock (_lock)
+                // try to clear our FIFO buffer of expired connections
+                // if first not expired connection is found - it will be returned back to the pool
+
+                PooledConnection expired;
+                while (_connections.TryDequeue(out expired))
                 {
-                    for (int i = 0; i < _connections.Count; i++)
+                    if (expired.IsExpired)
                     {
-                        if (_connections[i].IsExpired)
-                        {
-                            RemoveConnection(_connections[i]);
-                            _connections.RemoveAt(i);
-                            break;
-                        }
+                        RemoveConnection(expired);
+                    }
+                    else
+                    {
+                        _connections.Enqueue(expired);
+                        break;
                     }
                 }
             }
 
             public PooledConnection Acquire()
             {
-                lock (_lock)
+                // try to find first not expired connection
+
+                PooledConnection connection;
+                while (_connections.TryDequeue(out connection))
                 {
-                    if (_connections.Count > 0)
+                    if (connection.IsExpired)
                     {
-                        var connection = _connections[_connections.Count - 1];
-                        _connections.RemoveAt(_connections.Count - 1);
-                        if (connection.IsExpired)
-                        {
-                            RemoveConnection(connection);
-                        }
-                        else
-                        {
-                            return connection;
-                        }
+                        RemoveConnection(connection);
+                    }
+                    else
+                    {
+                        return connection;
                     }
                 }
+
                 return null;
             }
 
@@ -794,10 +791,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     return;
                 }
 
-                lock (_lock)
-                {
-                    _connections.Add(connection);
-                }
+                _connections.Enqueue(connection);
             }
 
             private void RemoveConnection(PooledConnection connection)
