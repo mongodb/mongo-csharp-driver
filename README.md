@@ -133,5 +133,7 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Vyacheslav Stroy          https://github.com/kreig
 * Testo                     test1@doramail.com   
 * Zhmayev Yaroslav          https://github.com/salaros
+* Alexey Skalozub           https://github.com/pieceofsummer@gmail
+* Elliott Millar            https://github.com/elliott-pd
 
 If you have contributed and we have neglected to add you to this list please contact one of the maintainers to be added to the list (with apologies).
