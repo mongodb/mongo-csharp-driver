@@ -1,9 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>net452;netcoreapp2.1</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <AssemblyTitle>MongoDB.Driver.TestConsoleApplication</AssemblyTitle>
+    <Product>MongoDB.Driver.TestConsoleApplication</Product>
+    <Company>MongoDB Inc.</Company>
+    <Copyright>Copyright © 2010-present MongoDB Inc.</Copyright>
+    <Description>MongoDB.Driver test console application.</Description>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Version)'==''">
+    <Version>0.0.0-local</Version>
   </PropertyGroup>
 
   <PropertyGroup>

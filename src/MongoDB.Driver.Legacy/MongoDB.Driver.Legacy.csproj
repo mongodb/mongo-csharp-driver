@@ -2,11 +2,22 @@
 
   <PropertyGroup>
     <TargetFrameworks>net452;netstandard1.5</TargetFrameworks>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <LangVersion>6</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
     <CodeAnalysisRuleSet>..\..\MongoDBLegacy.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <AssemblyTitle>MongoDB.Driver.Legacy</AssemblyTitle>
+    <Product>MongoDB.Driver.Legacy</Product>
+    <Company>MongoDB Inc.</Company>
+    <Copyright>Copyright © 2010-present MongoDB Inc.</Copyright>
+    <Description>Legacy MongoDB supported driver for MongoDB.  See http://www.mongodb.org/display/DOCS/CSharp+Language+Center for more details.</Description>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Version)'==''">
+    <Version>0.0.0-local</Version>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -28,7 +39,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\MongoDB.Shared\GlobalAssemblyInfo.cs" Link="Properties\GlobalAssemblyInfo.cs" />
     <Compile Include="..\MongoDB.Shared\IncrementalMD5.cs" Link="IncrementalMD5.cs" />
     <Compile Include="..\MongoDB.Shared\MaxTimeHelper.cs" Link="MaxTimeHelper.cs" />
   </ItemGroup>

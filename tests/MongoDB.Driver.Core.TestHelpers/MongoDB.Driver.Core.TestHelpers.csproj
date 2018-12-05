@@ -2,12 +2,23 @@
 
   <PropertyGroup>
     <TargetFrameworks>net452;netstandard1.5</TargetFrameworks>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <LangVersion>6</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
     <IsPackable>false</IsPackable>
     <CodeAnalysisRuleSet>..\..\MongoDBTest.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <AssemblyTitle>MongoDB.Driver.Core.TestHelpers</AssemblyTitle>
+    <Product>MongoDB.Driver.Core.TestHelpers</Product>
+    <Company>MongoDB Inc.</Company>
+    <Copyright>Copyright © 2010-present MongoDB Inc.</Copyright>
+    <Description>Helper classes applicable to test projects that reference MongoDB.Driver.Core.</Description>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Version)'==''">
+    <Version>0.0.0-local</Version>
   </PropertyGroup>
 
   <PropertyGroup>

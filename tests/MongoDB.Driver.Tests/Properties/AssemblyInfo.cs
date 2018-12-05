@@ -13,25 +13,9 @@
 * limitations under the License.
 */
 
-using System.Reflection;
 using System.Runtime.InteropServices;
 using Xunit;
 
-// General Information about an assembly is controlled through the following 
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
-[assembly: AssemblyTitle("MongoDB.Driver.Tests")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyProduct("MongoDB.Driver.Tests")]
-[assembly: AssemblyCompany("MongoDB Inc.")]
-[assembly: AssemblyCopyright("Copyright © 2010-present MongoDB Inc.")]
-[assembly: AssemblyVersion("0.0.0.0")]
-[assembly: AssemblyInformationalVersion("unofficial")]
-[assembly: AssemblyFileVersion("0.0.0.0")]
-[assembly: AssemblyMetadata("githash", "none")]
-[assembly: AssemblyConfiguration("Debug")]
-
-// The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("1c95faac-3afd-4038-bd5e-5cbd65377453")]
+[assembly: ComVisible(false)]
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]

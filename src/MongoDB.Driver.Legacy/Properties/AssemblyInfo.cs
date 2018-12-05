@@ -14,23 +14,11 @@
 */
 
 using System;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-// General Information about an assembly is controlled through the following 
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
-[assembly: AssemblyTitle("MongoDB.Driver.Legacy")]
-[assembly: AssemblyDescription("Legacy MongoDB supported driver for MongoDB.  See http://www.mongodb.org/display/DOCS/CSharp+Language+Center for more details.")]
-[assembly: AssemblyProduct("MongoDB.Driver.Legacy")]
-
-// The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("2a530ff9-4881-4f2e-b7db-09ba6a3ba9ff")]
 [assembly: CLSCompliant(true)]
 [assembly: ComVisible(false)]
 
 [assembly: InternalsVisibleTo("MongoDB.Driver.Legacy.TestHelpers")]
-[assembly: InternalsVisibleTo("MongoDB.Driver.Legacy.TestHelpers.Dotnet")]
 [assembly: InternalsVisibleTo("MongoDB.Driver.Legacy.Tests")]
-[assembly: InternalsVisibleTo("MongoDB.Driver.Legacy.Tests.Dotnet")]

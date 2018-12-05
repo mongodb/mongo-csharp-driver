@@ -66,8 +66,17 @@ Task("Build")
     .IsDependentOn("Restore")
     .Does(() =>
     {
-       var settings = new DotNetCoreBuildSettings { NoRestore = true, Configuration = configuration };
-       DotNetCoreBuild(solutionFullPath, settings);
+       var settings = new DotNetCoreBuildSettings
+       {
+           NoRestore = true,
+           Configuration = configuration,
+           EnvironmentVariables = new Dictionary<string, string>
+           {
+               { "Version", gitVersion.SemVer },
+               { "SourceRevisionId", gitVersion.Sha }
+           }
+        };
+        DotNetCoreBuild(solutionFullPath, settings);
     });
 
 Task("Test")

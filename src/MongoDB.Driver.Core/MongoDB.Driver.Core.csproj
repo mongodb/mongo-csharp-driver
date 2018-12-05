@@ -2,11 +2,22 @@
 
   <PropertyGroup>
     <TargetFrameworks>net452;netstandard1.5</TargetFrameworks>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <LangVersion>6</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
     <CodeAnalysisRuleSet>..\..\MongoDB.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <AssemblyTitle>MongoDB.Driver.Core</AssemblyTitle>
+    <Product>MongoDB.Driver.Core</Product>
+    <Company>MongoDB Inc.</Company>
+    <Copyright>Copyright © 2010-present MongoDB Inc.</Copyright>
+    <Description>Official MongoDB supported Driver Core library. See http://www.mongodb.org/display/DOCS/CSharp+Language+Center for more details.</Description>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Version)'==''">
+    <Version>0.0.0-local</Version>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -45,7 +56,6 @@
 
   <ItemGroup>
     <Compile Include="..\MongoDB.Shared\ApplicationNameHelper.cs" Link="Core\Configuration\ApplicationNameHelper.cs" />
-    <Compile Include="..\MongoDB.Shared\GlobalAssemblyInfo.cs" Link="Properties\GlobalAssemblyInfo.cs" />
     <Compile Include="..\MongoDB.Shared\Hasher.cs" Link="Core\Misc\Hasher.cs" />
     <Compile Include="..\MongoDB.Shared\MaxTimeHelper.cs" Link="Core\Operations\MaxTimeHelper.cs" />
   </ItemGroup>
