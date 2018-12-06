@@ -150,6 +150,7 @@ namespace MongoDB.Bson.Serialization
 #endif
             }
 
+            var docDictionaryImpl = document as IDictionary<string, object>;
             var discriminatorConvention = _classMap.GetDiscriminatorConvention();
             var allMemberMaps = _classMap.AllMemberMaps;
             var extraElementsMemberMapIndex = _classMap.ExtraElementsMemberMapIndex;
@@ -199,6 +200,16 @@ namespace MongoDB.Bson.Serialization
                     }
                     memberMapBitArray[memberMapIndex >> 5] |= 1U << (memberMapIndex & 31);
                 }
+                else if(docDictionaryImpl != null)
+                {
+                    // If the document itself implements IDictionary<TKey, TValue>, document to serialize could
+                    // contain extra elements as document properties...
+                    docDictionaryImpl.Add
+                    (
+                        elementName, 
+                        BsonTypeMapper.MapToDotNetValue(BsonValueSerializer.Instance.Deserialize(context))
+                    );
+                }
                 else
                 {
                     if (elementName == discriminatorConvention.ElementName)
@@ -210,6 +221,7 @@ namespace MongoDB.Bson.Serialization
                     if (extraElementsMemberMapIndex >= 0)
                     {
                         var extraElementsMemberMap = _classMap.ExtraElementsMemberMap;
+
                         if (document != null)
                         {
                             DeserializeExtraElementMember(context, document, elementName, extraElementsMemberMap);
@@ -577,6 +589,7 @@ namespace MongoDB.Bson.Serialization
             var bsonWriter = context.Writer;
 
             var remainingMemberMaps = _classMap.AllMemberMaps.ToList();
+            HashSet<string> classElementNames = new HashSet<string>(remainingMemberMaps.Select(map => map.MemberName));
 
             bsonWriter.WriteStartDocument();
 
@@ -604,7 +617,28 @@ namespace MongoDB.Bson.Serialization
                 SerializeMember(context, document, memberMap);
             }
 
+
+            // It might happen that a class implements IDictionary<string, object>, so 
+            // the keys can be also extra elements.
+            SerializeDictionary(context, document as IDictionary<string, object>, classElementNames);
+
             bsonWriter.WriteEndDocument();
+        }
+
+        private void SerializeDictionary(BsonSerializationContext context, IDictionary<string, object> extraElements, HashSet<string> classElementNames = null)
+        {
+            if (extraElements != null && extraElements.Count > 0)
+            {
+                foreach (var key in classElementNames == null ?
+                                           extraElements.Keys : extraElements.Keys.Where(key => !classElementNames.Contains(key)))
+                                   
+                {
+                    context.Writer.WriteName(key);
+                    var value = extraElements[key];
+                    var bsonValue = BsonTypeMapper.MapToBsonValue(value);
+                    BsonValueSerializer.Instance.Serialize(context, bsonValue);
+                }
+            }
         }
 
         private void SerializeExtraElements(BsonSerializationContext context, object obj, BsonMemberMap extraElementsMemberMap)
@@ -612,6 +646,10 @@ namespace MongoDB.Bson.Serialization
             var bsonWriter = context.Writer;
 
             var extraElements = extraElementsMemberMap.Getter(obj);
+
+            if (extraElements == null)
+                extraElements = obj as IDictionary<string, object>;
+
             if (extraElements != null)
             {
                 if (extraElementsMemberMap.MemberType == typeof(BsonDocument))
@@ -625,14 +663,7 @@ namespace MongoDB.Bson.Serialization
                 }
                 else
                 {
-                    var dictionary = (IDictionary<string, object>)extraElements;
-                    foreach (var key in dictionary.Keys)
-                    {
-                        bsonWriter.WriteName(key);
-                        var value = dictionary[key];
-                        var bsonValue = BsonTypeMapper.MapToBsonValue(value);
-                        BsonValueSerializer.Instance.Serialize(context, bsonValue);
-                    }
+                    SerializeDictionary(context, (IDictionary<string, object>)extraElements);
                 }
             }
         }
