@@ -753,7 +753,7 @@ namespace MongoDB.Driver
                 foreach (MongoServerAddress server in _servers)
                 {
                     if (!firstServer) { url.Append(","); }
-                    if (server.Port == 27017)
+                    if (server.Port == 27017 || _scheme == ConnectionStringScheme.MongoDBPlusSrv)
                     {
                         url.Append(server.Host);
                     }
