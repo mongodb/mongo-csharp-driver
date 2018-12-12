@@ -14,6 +14,16 @@
     <Company>MongoDB Inc.</Company>
     <Copyright>Copyright © 2010-present MongoDB Inc.</Copyright>
     <Description>Legacy MongoDB supported driver for MongoDB.  See http://www.mongodb.org/display/DOCS/CSharp+Language+Center for more details.</Description>
+    <Authors>rstam;craiggwilson</Authors>
+    <PackageId>mongocsharpdriver</PackageId>
+    <PackageIconUrl>http://jobs.mongodb.org/files/logos/889002/889002.png</PackageIconUrl>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageDescription>This package contains the legacy driver. The new driver's package name is MongoDB.Driver</PackageDescription>
+    <PackageProjectUrl>http://www.mongodb.org/display/DOCS/CSharp+Language+Center</PackageProjectUrl>
+    <PackageLicenseFile>License.txt</PackageLicenseFile>
+    <PackageTags></PackageTags>
+    <PackageLanguage>en-US</PackageLanguage>
+    <IncludeSymbols>true</IncludeSymbols>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Version)'==''">
@@ -41,6 +51,10 @@
   <ItemGroup>
     <Compile Include="..\MongoDB.Shared\IncrementalMD5.cs" Link="IncrementalMD5.cs" />
     <Compile Include="..\MongoDB.Shared\MaxTimeHelper.cs" Link="MaxTimeHelper.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\License.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
   </ItemGroup>
 
 </Project>

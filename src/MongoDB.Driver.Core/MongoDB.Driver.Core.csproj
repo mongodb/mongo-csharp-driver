@@ -14,6 +14,15 @@
     <Company>MongoDB Inc.</Company>
     <Copyright>Copyright © 2010-present MongoDB Inc.</Copyright>
     <Description>Official MongoDB supported Driver Core library. See http://www.mongodb.org/display/DOCS/CSharp+Language+Center for more details.</Description>
+    <Authors>rstam;craiggwilson</Authors>
+    <PackageIconUrl>http://jobs.mongodb.org/files/logos/889002/889002.png</PackageIconUrl>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageDescription>Core Component of the Official MongoDB .NET Driver.</PackageDescription>
+    <PackageProjectUrl>http://www.mongodb.org/display/DOCS/CSharp+Language+Center</PackageProjectUrl>
+    <PackageLicenseFile>License.txt</PackageLicenseFile>
+    <PackageTags>mongodb;mongo;nosql</PackageTags>
+    <PackageLanguage>en-US</PackageLanguage>
+    <IncludeSymbols>true</IncludeSymbols>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Version)'==''">
@@ -34,7 +43,7 @@
 
   <ItemGroup>
     <PackageReference Include="DnsClient" Version="1.0.7" />
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.1" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
@@ -58,6 +67,10 @@
     <Compile Include="..\MongoDB.Shared\ApplicationNameHelper.cs" Link="Core\Configuration\ApplicationNameHelper.cs" />
     <Compile Include="..\MongoDB.Shared\Hasher.cs" Link="Core\Misc\Hasher.cs" />
     <Compile Include="..\MongoDB.Shared\MaxTimeHelper.cs" Link="Core\Operations\MaxTimeHelper.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\License.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
   </ItemGroup>
 
 </Project>

@@ -253,23 +253,24 @@ Task("PackageNugetPackages")
         EnsureDirectoryExists(artifactsPackagesDirectory);
         CleanDirectory(artifactsPackagesDirectory);
 
-        var packageVersion = gitVersion.NuGetVersion;
-
-        var nuspecFiles = GetFiles("./Build/*.nuspec");
-        foreach (var nuspecFile in nuspecFiles)
+        var projects = new[]
         {
-            var tempNuspecFilename = nuspecFile.GetFilenameWithoutExtension().ToString() + "." + packageVersion + ".nuspec";
-            var tempNuspecFile = artifactsPackagesDirectory.CombineWithFilePath(tempNuspecFilename);
+            "MongoDB.Bson",
+            "MongoDB.Driver.Core",
+            "MongoDB.Driver",
+            "MongoDB.Driver.GridFS",
+            "MongoDB.Driver.Legacy"
+        };
 
-            CopyFile(nuspecFile, tempNuspecFile);
-            ReplaceTextInFiles(tempNuspecFile.ToString(), "@driverPackageVersion@", packageVersion);
-            ReplaceTextInFiles(tempNuspecFile.ToString(), "@solutionDirectory@", solutionDirectory.FullPath);
-
-            NuGetPack(tempNuspecFile, new NuGetPackSettings
+        foreach (var project in projects)
+        {
+            var projectPath = $"{srcDirectory}\\{project}\\{project}.csproj";
+            var settings = new DotNetCorePackSettings
             {
-                OutputDirectory = artifactsPackagesDirectory,
-                Symbols = true
-            });
+                Configuration = configuration,
+                OutputDirectory = artifactsPackagesDirectory
+            };
+            DotNetCorePack(projectPath, settings);
         }
     });
 
