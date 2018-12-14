@@ -34,16 +34,126 @@ using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.WireProtocol;
+using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    // public methods
     public class AsyncCursorTests
     {
         // public methods
+        [Fact]
+        public void Close_and_dispose_should_dispose_cursor_only_once()
+        {
+            int testCursorId = 1;
+            var mockChannelHandle = new Mock<IChannelHandle>();
+            var mockChannelSource = new Mock<IChannelSource>();
+            SetupChannelMocks(mockChannelSource, mockChannelHandle, false, $"{{ 'ok' : true, 'cursorsNotFound' : [], 'cursorsKilled' : [{testCursorId}] }}");
+
+            var subject = CreateSubject(cursorId: 1, channelSource: Optional.Create(mockChannelSource.Object));
+            subject.Close();
+            VerifyHowManyTimesKillCursorsCommandWasCalled(mockChannelHandle, Times.Once(), false);
+            subject.Dispose();
+            VerifyHowManyTimesKillCursorsCommandWasCalled(mockChannelHandle, Times.Once(), false);
+        }
+
+        [Theory]
+        //sync
+        [InlineData(false, "3.1.0")]
+        [InlineData(false, "3.2.0")]
+        //async
+        [InlineData(true, "3.1.0")]
+        [InlineData(true, "3.2.0")]
+        public void Close_should_call_supported_kill_cursors(bool async, string version)
+        {
+            bool isKillCursorsCommandSupported = Feature.KillCursorsCommand.IsSupported(SemanticVersion.Parse(version));
+
+            var mockChannelHandle = new Mock<IChannelHandle>();
+            int testCursorId = 1;
+
+            var mockChannelSource = new Mock<IChannelSource>();
+            SetupChannelMocks(mockChannelSource, mockChannelHandle, async, $"{{ 'ok' : true, 'cursorsNotFound' : [], 'cursorsKilled' : [{testCursorId}] }}", version);
+
+            var subject = CreateSubject(cursorId: testCursorId, channelSource: Optional.Create(mockChannelSource.Object));
+
+            if (async)
+            {
+                subject.CloseAsync().Wait();
+            }
+            else
+            {
+                subject.Close();
+            }
+
+            VerifyHowManyTimesKillCursorsWasCalled(
+                mockChannelHandle,
+                isKillCursorsCommandSupported ? Times.Never() : Times.Once(), 
+                async);
+            VerifyHowManyTimesKillCursorsCommandWasCalled(
+                mockChannelHandle,
+                isKillCursorsCommandSupported ? Times.Once() : Times.Never(),
+                async);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Close_should_dispose_cursor_only_once([Values(false, true)]bool async)
+        {
+            int testCursorId = 1;
+            var mockChannelHandle = new Mock<IChannelHandle>();
+            var mockChannelSource = new Mock<IChannelSource>();
+            SetupChannelMocks(mockChannelSource, mockChannelHandle, async, $"{{ 'ok' : true, 'cursorsNotFound' : [], 'cursorsKilled' : [{testCursorId}] }}");
+
+            var subject = CreateSubject(cursorId: 1, channelSource: Optional.Create(mockChannelSource.Object));
+            if (async)
+            {
+                subject.CloseAsync().Wait();
+                VerifyHowManyTimesKillCursorsCommandWasCalled(mockChannelHandle, Times.Once(), async);
+                subject.CloseAsync().Wait();
+                VerifyHowManyTimesKillCursorsCommandWasCalled(mockChannelHandle, Times.Once(), async);
+            }
+            else
+            {
+                subject.Close();
+                VerifyHowManyTimesKillCursorsCommandWasCalled(mockChannelHandle, Times.Once(), async);
+                subject.Close();
+                VerifyHowManyTimesKillCursorsCommandWasCalled(mockChannelHandle, Times.Once(), async);
+            }
+        }
+
+        [Theory]
+        //sync
+        [InlineData(false, "{ 'ok' : false }", typeof(MongoCommandException))]
+        [InlineData(false, "{ 'ok' : true, 'cursorsNotFound' : ['cursorId'] }", typeof(MongoCursorNotFoundException))]
+        [InlineData(false, "{ 'ok' : true, 'cursorsNotFound' : [], 'cursorsKilled' : [2] }", typeof(MongoCommandException))]
+        //async
+        [InlineData(true, "{ 'ok' : false }", typeof(MongoCommandException))]
+        [InlineData(true, "{ 'ok' : true, 'cursorsNotFound' : ['cursorId'] }", typeof(MongoCursorNotFoundException))]
+        [InlineData(true, "{ 'ok' : true, 'cursorsNotFound' : [], 'cursorsKilled' : [2] }", typeof(MongoCommandException))]
+        public void Close_should_throw_expected_exceptions(bool async, string commandResult, Type exceptionType)
+        {
+            var mockChannelHandle = new Mock<IChannelHandle>();
+            var mockChannelSource = new Mock<IChannelSource>();
+            int testCursorId = 1;
+
+            SetupChannelMocks(mockChannelSource, mockChannelHandle, async, commandResult);
+
+            var subject = CreateSubject(cursorId: testCursorId, channelSource: Optional.Create(mockChannelSource.Object));
+
+            Exception exception;
+            if (async)
+            {
+                exception = Record.ExceptionAsync(async () => await subject.CloseAsync()).Result;
+            }
+            else
+            {
+                exception = Record.Exception(() => subject.Close());
+            }
+            exception.Should().BeOfType(exceptionType);
+        }
+
         [Fact]
         public void constructor_should_dispose_channel_source_when_cursor_id_is_zero()
         {
@@ -180,14 +290,85 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Fact]
+        public void CreateKillCursorsCommand_should_return_expected_result()
+        {
+            var subject = CreateSubject(cursorId: 1);
+
+            var result = subject.CreateKillCursorsCommand();
+
+            result.Should().Be("{ \"killCursors\" : \"test\", \"cursors\" : [NumberLong(1)] }");
+        }
+
+        [Fact]
+        public void Dispose_should_be_shielded_from_exceptions()
+        {
+            var mockChannelSource = new Mock<IChannelSource>();
+            mockChannelSource
+                .Setup(c => c.GetChannel(It.IsAny<CancellationToken>()))
+                .Throws<Exception>();
+
+            var subject = CreateSubject(cursorId: 1, channelSource: Optional.Create(mockChannelSource.Object));
+
+            subject.Dispose();
+        }
+
+        [Fact]
+        public void Dispose_should_dispose_channel_source_when_cursor_was_not_closed_by_exception()
+        {
+            var mockChannelSource = new Mock<IChannelSource>();
+            mockChannelSource
+                .Setup(c => c.GetChannel(It.IsAny<CancellationToken>()))
+                .Throws<Exception>();
+
+            var subject = CreateSubject(cursorId: 1, channelSource: Optional.Create(mockChannelSource.Object));
+            subject.Dispose();
+            mockChannelSource.Verify(c => c.Dispose(), Times.Once);
+        }
+
+        [Fact]
         public void Dispose_should_dispose_channel_source_when_cursor_id_is_zero()
         {
             var mockChannelSource = new Mock<IChannelSource>();
-            var subject = CreateSubject(cursorId: 1, channelSource: Optional.Create(mockChannelSource.Object));
+            var subject = CreateSubject(cursorId: 0, channelSource: Optional.Create(mockChannelSource.Object));
 
             subject.Dispose();
 
             mockChannelSource.Verify(s => s.Dispose(), Times.Once);
+        }
+
+        [Fact]
+        public void Dispose_should_dispose_cursor_only_once()
+        {
+            int testCursorId = 1;
+            var mockChannelHandle = new Mock<IChannelHandle>();
+            var mockChannelSource = new Mock<IChannelSource>();
+            SetupChannelMocks(mockChannelSource, mockChannelHandle, false, $"{{ 'ok' : true, 'cursorsNotFound' : [], 'cursorsKilled' : [{testCursorId}] }}");
+
+            var subject = CreateSubject(cursorId: 1, channelSource: Optional.Create(mockChannelSource.Object));
+            subject.Dispose();
+            VerifyHowManyTimesKillCursorsCommandWasCalled(mockChannelHandle, Times.Once(), false);
+            subject.Dispose();
+            VerifyHowManyTimesKillCursorsCommandWasCalled(mockChannelHandle, Times.Once(), false);
+        }
+
+        [Fact]
+        public void Dispose_should_not_call_close_cursors_for_zero_cursor_id()
+        {
+            var mockChannelHandle = new Mock<IChannelHandle>();
+            mockChannelHandle
+                .Setup(c => c.ConnectionDescription)
+                .Returns(CreateConnectionDescriptionSupportingSession());
+
+            var mockChannelSource = new Mock<IChannelSource>();
+            mockChannelSource
+                .Setup(c => c.GetChannel(It.IsAny<CancellationToken>()))
+                .Returns(mockChannelHandle.Object);
+
+            var subject = CreateSubject(cursorId: 0, channelSource: Optional.Create(mockChannelSource.Object));
+            subject.Dispose();
+
+            VerifyHowManyTimesKillCursorsWasCalled(mockChannelHandle, Times.Never(), false);
+            VerifyHowManyTimesKillCursorsCommandWasCalled(mockChannelHandle, Times.Never(), false);
         }
 
         [Theory]
@@ -273,7 +454,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // private methods
-        private ConnectionDescription CreateConnectionDescriptionSupportingSession()
+        private ConnectionDescription CreateConnectionDescriptionSupportingSession(string version = "3.6.0")
         {
             var clusterId = new ClusterId(1);
             var endPoint = new DnsEndPoint("localhost", 27017);
@@ -286,7 +467,7 @@ namespace MongoDB.Driver.Core.Operations
             var isMasterResult = new IsMasterResult(isMasterDocument);
             var buildInfoDocument = new BsonDocument
             {
-                { "version", "3.6.0" }
+                { "version", version }
             };
             var buildInfoResult = new BuildInfoResult(buildInfoDocument);
             return new ConnectionDescription(connectionId, isMasterResult, buildInfoResult);
@@ -314,6 +495,125 @@ namespace MongoDB.Driver.Core.Operations
                 serializer.WithDefault(BsonDocumentSerializer.Instance),
                 new MessageEncoderSettings(),
                 maxTime.WithDefault(null));
+        }
+
+        private void SetupChannelMocks(Mock<IChannelSource> mockChannelSource, Mock<IChannelHandle> mockChannelHandle, bool async, string commandResult, string version = "3.6.0")
+        {
+            mockChannelHandle
+                .Setup(c => c.ConnectionDescription)
+                .Returns(CreateConnectionDescriptionSupportingSession(version));
+
+            var bsonCommandResult = BsonDocument.Parse(commandResult);
+            if (async)
+            {
+                mockChannelSource
+                    .Setup(c => c.GetChannelAsync(It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(mockChannelHandle.Object);
+
+                mockChannelHandle
+                    .Setup(
+                        c => c.CommandAsync(
+                            It.IsAny<ICoreSession>(),
+                            It.IsAny<ReadPreference>(),
+                            It.IsAny<DatabaseNamespace>(),
+                            It.IsAny<BsonDocument>(),
+                            It.IsAny<IEnumerable<Type1CommandMessageSection>>(),
+                            It.IsAny<IElementNameValidator>(),
+                            It.IsAny<BsonDocument>(),
+                            It.IsAny<Action<IMessageEncoderPostProcessor>>(),
+                            It.IsAny<CommandResponseHandling>(),
+                            It.IsAny<IBsonSerializer<BsonDocument>>(),
+                            It.IsAny<MessageEncoderSettings>(),
+                            It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(bsonCommandResult);
+            }
+            else
+            {
+                mockChannelSource
+                    .Setup(c => c.GetChannel(It.IsAny<CancellationToken>()))
+                    .Returns(mockChannelHandle.Object);
+
+                mockChannelHandle
+                    .Setup(
+                        c => c.Command(
+                            It.IsAny<ICoreSession>(),
+                            It.IsAny<ReadPreference>(),
+                            It.IsAny<DatabaseNamespace>(),
+                            It.IsAny<BsonDocument>(),
+                            It.IsAny<IEnumerable<Type1CommandMessageSection>>(),
+                            It.IsAny<IElementNameValidator>(),
+                            It.IsAny<BsonDocument>(),
+                            It.IsAny<Action<IMessageEncoderPostProcessor>>(),
+                            It.IsAny<CommandResponseHandling>(),
+                            It.IsAny<IBsonSerializer<BsonDocument>>(),
+                            It.IsAny<MessageEncoderSettings>(),
+                            It.IsAny<CancellationToken>()))
+                    .Returns(bsonCommandResult);
+            }
+        }
+
+        private void VerifyHowManyTimesKillCursorsWasCalled(Mock<IChannelHandle> mockChannelHandle, Times times, bool async)
+        {
+            if (async)
+            {
+                mockChannelHandle.Verify(
+                    s => s.KillCursorsAsync(
+                        It.IsAny<IEnumerable<long>>(),
+                        It.IsAny<MessageEncoderSettings>(),
+                        It.IsAny<CancellationToken>()),
+                    times);
+            }
+            else
+            {
+                mockChannelHandle.Verify(
+                    s => s.KillCursors(
+                        It.IsAny<IEnumerable<long>>(),
+                        It.IsAny<MessageEncoderSettings>(),
+                        It.IsAny<CancellationToken>()),
+                    times);
+            }
+        }
+
+        private void VerifyHowManyTimesKillCursorsCommandWasCalled(Mock<IChannelHandle> mockChannelHandle, Times times, bool async)
+        {
+            if (async)
+            {
+                mockChannelHandle.Verify(
+                    s => s.CommandAsync(
+                        It.IsAny<ICoreSession>(),
+                        It.IsAny<ReadPreference>(),
+                        It.IsAny<DatabaseNamespace>(),
+                        It.IsAny<BsonDocument>(),
+                        It.IsAny<IEnumerable<Type1CommandMessageSection>>(),
+                        It.IsAny<IElementNameValidator>(),
+                        It.IsAny<BsonDocument>(),
+                        It.IsAny<Action<IMessageEncoderPostProcessor>>(),
+                        It.IsAny<CommandResponseHandling>(),
+                        It.IsAny<IBsonSerializer<BsonDocument>>(),
+                        It.IsAny<MessageEncoderSettings>(),
+                        It.IsAny<CancellationToken>()),
+                    times);                    
+                 
+                
+            }
+            else
+            {
+                mockChannelHandle.Verify(
+                    s => s.Command(
+                        It.IsAny<ICoreSession>(),
+                        It.IsAny<ReadPreference>(),
+                        It.IsAny<DatabaseNamespace>(),
+                        It.IsAny<BsonDocument>(),
+                        It.IsAny<IEnumerable<Type1CommandMessageSection>>(),
+                        It.IsAny<IElementNameValidator>(),
+                        It.IsAny<BsonDocument>(),
+                        It.IsAny<Action<IMessageEncoderPostProcessor>>(),
+                        It.IsAny<CommandResponseHandling>(),
+                        It.IsAny<IBsonSerializer<BsonDocument>>(),
+                        It.IsAny<MessageEncoderSettings>(),
+                        It.IsAny<CancellationToken>()),
+                    times);
+            }
         }
     }
 
@@ -447,5 +747,6 @@ namespace MongoDB.Driver.Core.Operations
 
         // private methods
         public static BsonDocument CreateGetMoreCommand(this AsyncCursor<BsonDocument> obj) => (BsonDocument)Reflector.Invoke(obj, nameof(CreateGetMoreCommand));
+        public static BsonDocument CreateKillCursorsCommand(this AsyncCursor<BsonDocument> obj) => (BsonDocument)Reflector.Invoke(obj, nameof(CreateKillCursorsCommand));
     }
 }
