@@ -16,8 +16,6 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Threading;
 using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Clusters;
@@ -181,7 +179,8 @@ namespace MongoDB.Driver.Core.Configuration
         {
             Ensure.IsNotNull(wrapper, nameof(wrapper));
 
-            _streamFactoryWrapper = inner => wrapper(_streamFactoryWrapper(inner));
+            var previous = _streamFactoryWrapper; // use a local variable to ensure the previous value is captured properly by the lambda
+            _streamFactoryWrapper = inner => wrapper(previous(inner));
             return this;
         }
 

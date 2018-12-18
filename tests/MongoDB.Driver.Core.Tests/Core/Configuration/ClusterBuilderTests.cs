@@ -14,11 +14,13 @@
 */
 
 using System;
+using System.Collections.Generic;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Configuration
@@ -59,10 +61,26 @@ namespace MongoDB.Driver.Core.Configuration
 
             var serverSettings = result._settings();
         }
+
+        [Fact]
+        public void StreamFactoryWrappers_should_be_called_in_the_correct_order()
+        {
+            var subject = new ClusterBuilder();
+            var calls = new List<int>();
+            subject.RegisterStreamFactory(factory => { calls.Add(1); return factory; });
+            subject.RegisterStreamFactory(factory => { calls.Add(2); return factory; });
+            subject.RegisterStreamFactory(factory => { calls.Add(3); return factory; });
+
+            subject._streamFactoryWrapper()(Mock.Of<IStreamFactory>());
+
+            calls.Should().Equal(1, 2, 3);
+        }
     }
 
     public static class ClusterBuilderReflector
     {
         internal static IServerMonitorFactory CreateServerMonitorFactory(this ClusterBuilder obj) => (IServerMonitorFactory)Reflector.Invoke(obj, nameof(CreateServerMonitorFactory));
+
+        internal static Func<IStreamFactory, IStreamFactory> _streamFactoryWrapper(this ClusterBuilder obj) => (Func<IStreamFactory, IStreamFactory>)Reflector.GetFieldValue(obj, nameof(_streamFactoryWrapper));
     }
 }
