@@ -316,7 +316,7 @@ var filter = Builders<BsonDocument>.Filter.Lt("i", 100);
 var update = Builders<BsonDocument>.Update.Inc("i", 100);
 ```
 ```csharp
-var result = collection.UpdateOne(filter, update);
+var result = collection.UpdateMany(filter, update);
 
 if (result.IsModifiedCountAvailable)
 {
