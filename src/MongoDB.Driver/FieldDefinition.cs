@@ -172,12 +172,25 @@ namespace MongoDB.Driver
     public abstract class FieldDefinition<TDocument, TField>
     {
         /// <summary>
-        /// Renders the field to a <see cref="String"/>.
+        /// Renders the field to a <see cref="RenderedFieldDefinition{TField}"/>.
         /// </summary>
         /// <param name="documentSerializer">The document serializer.</param>
         /// <param name="serializerRegistry">The serializer registry.</param>
-        /// <returns>A <see cref="String"/>.</returns>
+        /// <returns>A <see cref="RenderedFieldDefinition{TField}"/>.</returns>
         public abstract RenderedFieldDefinition<TField> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry);
+
+        /// Renders the field to a <see cref="RenderedFieldDefinition{TField}"/>.
+        /// <param name="documentSerializer"></param>
+        /// <param name="serializerRegistry"></param>
+        /// <param name="allowScalarValueForArrayField"></param>
+        /// <returns>A <see cref="RenderedFieldDefinition{TField}"/>.</returns>
+        public virtual RenderedFieldDefinition<TField> Render(
+            IBsonSerializer<TDocument> documentSerializer, 
+            IBsonSerializerRegistry serializerRegistry,
+            bool allowScalarValueForArrayField)
+        {
+            return Render(documentSerializer, serializerRegistry); // ignore allowScalarValueForArrayField if not overridden by subclass
+        }
 
         /// <summary>
         /// Performs an implicit conversion from <see cref="System.String" /> to <see cref="FieldDefinition{TDocument, TField}" />.
@@ -293,6 +306,15 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         public override RenderedFieldDefinition<TField> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
+            return Render(documentSerializer, serializerRegistry, allowScalarValueForArrayField: false);
+        }
+
+        /// <inheritdoc />
+        public override RenderedFieldDefinition<TField> Render(
+            IBsonSerializer<TDocument> documentSerializer, 
+            IBsonSerializerRegistry serializerRegistry,
+            bool allowScalarValueForArrayField)
+        {
             var lambda = (LambdaExpression)PartialEvaluator.Evaluate(_expression);
             var bindingContext = new PipelineBindingContext(serializerRegistry);
             var parameterExpression = new DocumentExpression(documentSerializer);
@@ -308,7 +330,7 @@ namespace MongoDB.Driver
 
             var underlyingSerializer = field.Serializer;
             var fieldSerializer = underlyingSerializer as IBsonSerializer<TField>;
-            var valueSerializer = (IBsonSerializer<TField>)FieldValueSerializerHelper.GetSerializerForValueType(underlyingSerializer, serializerRegistry, typeof(TField));
+            var valueSerializer = (IBsonSerializer<TField>)FieldValueSerializerHelper.GetSerializerForValueType(underlyingSerializer, serializerRegistry, typeof(TField), allowScalarValueForArrayField);
 
             return new RenderedFieldDefinition<TField>(field.FieldName, fieldSerializer, valueSerializer, underlyingSerializer);
         }
@@ -366,6 +388,15 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         public override RenderedFieldDefinition<TField> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
+            return Render(documentSerializer, serializerRegistry, allowScalarValueForArrayField: false);
+        }
+
+        /// <inheritdoc />
+        public override RenderedFieldDefinition<TField> Render(
+            IBsonSerializer<TDocument> documentSerializer, 
+            IBsonSerializerRegistry serializerRegistry,
+            bool allowScalarValueForArrayField)
+        {
             string resolvedName;
             IBsonSerializer underlyingSerializer;
             StringFieldDefinitionHelper.Resolve<TDocument>(_fieldName, documentSerializer, out resolvedName, out underlyingSerializer);
@@ -379,7 +410,7 @@ namespace MongoDB.Driver
             }
             else if (underlyingSerializer != null)
             {
-                valueSerializer = (IBsonSerializer<TField>)FieldValueSerializerHelper.GetSerializerForValueType(underlyingSerializer, serializerRegistry, typeof(TField));
+                valueSerializer = (IBsonSerializer<TField>)FieldValueSerializerHelper.GetSerializerForValueType(underlyingSerializer, serializerRegistry, typeof(TField), allowScalarValueForArrayField);
             }
             else
             {

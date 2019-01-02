@@ -28,16 +28,11 @@ namespace MongoDB.Driver
     {
         public static IBsonSerializer GetSerializerForValueType(IBsonSerializer fieldSerializer, IBsonSerializerRegistry serializerRegistry, Type valueType)
         {
-            return GetSerializerForValueType(fieldSerializer, serializerRegistry, valueType, 0);
+            return GetSerializerForValueType(fieldSerializer, serializerRegistry, valueType, allowScalarValueForArrayField: false);
         }
 
-        private static IBsonSerializer GetSerializerForValueType(IBsonSerializer fieldSerializer, IBsonSerializerRegistry serializerRegistry, Type valueType, int recursionLevel)
+        public static IBsonSerializer GetSerializerForValueType(IBsonSerializer fieldSerializer, IBsonSerializerRegistry serializerRegistry, Type valueType, bool allowScalarValueForArrayField)
         {
-            if (recursionLevel > 1)
-            {
-                throw new ArgumentException("Unexpectedly high recursion level.", nameof(recursionLevel));
-            }
-
             var fieldType = fieldSerializer.ValueType;
 
             // these will normally be equal unless we've removed some Convert(s) that the compiler put in
@@ -121,17 +116,17 @@ namespace MongoDB.Driver
                 return (IBsonSerializer)ienumerableSerializerConstructor.Invoke(new object[] { itemSerializer });
             }
 
-            // if the fieldSerializer is an array serializer try to adapt its itemSerializer for valueType
-            IBsonArraySerializer arraySerializer;
-            if ((arraySerializer = fieldSerializer as IBsonArraySerializer) != null)
+            if (allowScalarValueForArrayField)
             {
-                BsonSerializationInfo itemSerializationInfo;
-                if (arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
+                // if the fieldSerializer is an array serializer try to adapt its itemSerializer for valueType
+                IBsonArraySerializer arraySerializer;
+                if ((arraySerializer = fieldSerializer as IBsonArraySerializer) != null)
                 {
-                    if (recursionLevel == 0)
+                    BsonSerializationInfo itemSerializationInfo;
+                    if (arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
                     {
                         var itemSerializer = itemSerializationInfo.Serializer;
-                        return GetSerializerForValueType(itemSerializer, serializerRegistry, valueType, recursionLevel + 1);
+                        return GetSerializerForValueType(itemSerializer, serializerRegistry, valueType, allowScalarValueForArrayField: false);
                     }
                 }
             }
@@ -150,7 +145,7 @@ namespace MongoDB.Driver
             }
             else
             {
-                return GetSerializerForValueType(fieldSerializer, serializerRegistry, valueType);
+                return GetSerializerForValueType(fieldSerializer, serializerRegistry, valueType, allowScalarValueForArrayField: false);
             }
         }
 
