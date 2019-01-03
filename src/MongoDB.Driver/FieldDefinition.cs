@@ -22,7 +22,6 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Expressions;
 using MongoDB.Driver.Linq.Processors;
-using MongoDB.Driver.Linq.Translators;
 
 namespace MongoDB.Driver
 {
@@ -179,10 +178,12 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="RenderedFieldDefinition{TField}"/>.</returns>
         public abstract RenderedFieldDefinition<TField> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry);
 
+        /// <summary>
         /// Renders the field to a <see cref="RenderedFieldDefinition{TField}"/>.
-        /// <param name="documentSerializer"></param>
-        /// <param name="serializerRegistry"></param>
-        /// <param name="allowScalarValueForArrayField"></param>
+        /// </summary>
+        /// <param name="documentSerializer">The document serializer.</param>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        /// <param name="allowScalarValueForArrayField">Whether a scalar value is allowed for an array field.</param>
         /// <returns>A <see cref="RenderedFieldDefinition{TField}"/>.</returns>
         public virtual RenderedFieldDefinition<TField> Render(
             IBsonSerializer<TDocument> documentSerializer, 
