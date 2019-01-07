@@ -17,20 +17,22 @@ using System;
 
 namespace MongoDB.Driver.Core.Connections
 {
+    // see the tcp_keepalive struct at the following page for documentation of the buffer layout
+    // https://msdn.microsoft.com/en-us/library/windows/desktop/dd877220(v=vs.85).aspx
+    // note: a u_long in C is 4 bytes so the C# equivalent is uint
+
     internal struct KeepAliveValues
     {
-        public ulong OnOff { get; set; }
-        public ulong KeepAliveTime { get; set; }
-        public ulong KeepAliveInterval { get; set; }
+        public uint OnOff { get; set; }
+        public uint KeepAliveTime { get; set; }
+        public uint KeepAliveInterval { get; set; }
 
         public byte[] ToBytes()
         {
-            // set the tcp_keepalive struct at the following page for documentation of the buffer layout
-            // https://msdn.microsoft.com/en-us/library/windows/desktop/dd877220(v=vs.85).aspx
-            var bytes = new byte[24];
-            Array.Copy(BitConverter.GetBytes(OnOff), 0, bytes, 0, 8);
-            Array.Copy(BitConverter.GetBytes(KeepAliveTime), 0, bytes, 8, 8);
-            Array.Copy(BitConverter.GetBytes(KeepAliveInterval), 0, bytes, 16, 8);
+            var bytes = new byte[12];
+            Array.Copy(BitConverter.GetBytes(OnOff), 0, bytes, 0, 4);
+            Array.Copy(BitConverter.GetBytes(KeepAliveTime), 0, bytes, 4, 4);
+            Array.Copy(BitConverter.GetBytes(KeepAliveInterval), 0, bytes, 8, 4);
             return bytes;
         }
     }
