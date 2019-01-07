@@ -13,11 +13,6 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
 
@@ -28,8 +23,8 @@ namespace MongoDB.Driver.Core.Connections
         [Theory]
         [InlineData(0)]
         [InlineData(1)]
-        [InlineData(ulong.MaxValue)]
-        public void OnOff_get_and_set_work(ulong value)
+        [InlineData(uint.MaxValue)]
+        public void OnOff_get_and_set_work(uint value)
         {
             var subject = new KeepAliveValues();
 
@@ -42,8 +37,8 @@ namespace MongoDB.Driver.Core.Connections
         [Theory]
         [InlineData(0)]
         [InlineData(1)]
-        [InlineData(ulong.MaxValue)]
-        public void KeepAliveTime_get_and_set_work(ulong value)
+        [InlineData(uint.MaxValue)]
+        public void KeepAliveTime_get_and_set_work(uint value)
         {
             var subject = new KeepAliveValues();
 
@@ -56,8 +51,8 @@ namespace MongoDB.Driver.Core.Connections
         [Theory]
         [InlineData(0)]
         [InlineData(1)]
-        [InlineData(ulong.MaxValue)]
-        public void KeepAliveInterval_get_and_set_work(ulong value)
+        [InlineData(uint.MaxValue)]
+        public void KeepAliveInterval_get_and_set_work(uint value)
         {
             var subject = new KeepAliveValues();
 
@@ -68,9 +63,9 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         [Theory]
-        [InlineData(0x0102030405060708, 0x0203040506070809, 0x030405060708090a, new byte[] { 0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01, 0x09, 0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x0a, 0x09, 0x08, 0x07, 0x06, 0x05, 0x04, 0x03 })]
-        [InlineData(0xf1f2f3f4f5f6f7f8, 0xf2f3f4f5f6f7f8f9, 0xf3f4f5f6f7f8f9fa, new byte[] { 0xf8, 0xf7, 0xf6, 0xf5, 0xf4, 0xf3, 0xf2, 0xf1, 0xf9, 0xf8, 0xf7, 0xf6, 0xf5, 0xf4, 0xf3, 0xf2, 0xfa, 0xf9, 0xf8, 0xf7, 0xf6, 0xf5, 0xf4, 0xf3 })]
-        public void ToBytes_should_return_expected_result(ulong onOff, ulong keepAliveTime, ulong keepAliveInterval, byte[] expectedResult)
+        [InlineData(0x01020304, 0x02030405, 0x03040506, new byte[] { 0x04, 0x03, 0x02, 0x01, 0x05, 0x04, 0x03, 0x02, 0x06, 0x05, 0x04, 0x03 })]
+        [InlineData(0xf1f2f3f4, 0xf2f3f4f5, 0xf3f4f5f6, new byte[] { 0xf4, 0xf3, 0xf2, 0xf1, 0xf5, 0xf4, 0xf3, 0xf2, 0xf6, 0xf5, 0xf4, 0xf3 })]
+        public void ToBytes_should_return_expected_result(uint onOff, uint keepAliveTime, uint keepAliveInterval, byte[] expectedResult)
         {
             var subject = new KeepAliveValues
             {
