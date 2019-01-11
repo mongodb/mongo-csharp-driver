@@ -55,7 +55,7 @@
     <PackageReference Include="System.Diagnostics.TextWriterTraceListener" Version="4.0.0" />
     <PackageReference Include="System.Diagnostics.TraceSource" Version="4.0.0" />
     <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
-    <PackageReference Include="System.Net.Security" Version="4.0.0" />
+    <PackageReference Include="System.Net.Security" Version="4.3.2" />
     <PackageReference Include="System.Security.SecureString" Version="4.0.0" />
   </ItemGroup>
 
