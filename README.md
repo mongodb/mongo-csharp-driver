@@ -108,6 +108,7 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * James Hadwen              james.hadwen@sociustec.com
 * Jacob Jewell              jacobjewell@eflexsystems.com
 * Danny Kendrick            https://github.com/dkendrick
+* Ruslan Khasanbaev         https://github.com/flaksirus
 * Brian Knight              brianknight10@gmail.com  
 * Andrey Kondratyev         https://github.com/byTimo
 * Anatoly Koperin           https://github.com/ExM
