@@ -20,7 +20,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 using MongoDB.Bson;
 using MongoDB.Driver.Linq.Expressions;
 using MongoDB.Driver.Linq.Expressions.ResultOperators;
@@ -89,6 +88,9 @@ namespace MongoDB.Driver.Linq.Translators
                 case ExpressionType.Multiply:
                 case ExpressionType.MultiplyChecked:
                     return TranslateOperation((BinaryExpression)node, "$multiply", true);
+                case ExpressionType.Negate:
+                case ExpressionType.NegateChecked:
+                    return TranslateNegate((UnaryExpression)node);
                 case ExpressionType.New:
                     return TranslateNew((NewExpression)node);
                 case ExpressionType.NewArrayInit:
@@ -342,6 +344,14 @@ namespace MongoDB.Driver.Linq.Translators
                 return new BsonDocument("$size", TranslateValue(node.Expression));
             }
 
+            //
+            result = TranslateValue(node.Expression);
+            if (result.BsonType == BsonType.String && result.AsString.StartsWith("$"))
+            {
+                // this looks like variable access expression
+                return BsonValue.Create(result.AsString + "." + node.Member.Name);
+            }
+            
             var message = string.Format("Member {0} of type {1} in the expression tree {2} cannot be translated.",
                 node.Member.Name,
                 node.Member.DeclaringType,
@@ -388,7 +398,7 @@ namespace MongoDB.Driver.Linq.Translators
                 }
 
                 if (node.Object.Type == typeof(DateTime)
-                    && TryTranslateDateTimeCall(node, out result))
+                    && TryTranslateDateTimeMethodCall(node, out result))
                 {
                     return result;
                 }
@@ -437,6 +447,11 @@ namespace MongoDB.Driver.Linq.Translators
             return TranslateMapping(mapping);
         }
 
+        private BsonValue TranslateNegate(UnaryExpression node)
+        {
+            var operand = TranslateValue(node.Operand);
+            return new BsonDocument("$subtract", new BsonArray(new BsonValue[] { 0, operand }));
+        }
         private BsonValue TranslateNewArrayInit(NewArrayExpression node)
         {
             var bsonArray = new BsonArray();
@@ -804,69 +819,46 @@ namespace MongoDB.Driver.Linq.Translators
             result = null;
             return false;
         }
-
-        private bool TryTranslateDateTimeCall(MethodCallExpression node, out BsonValue result)
-        {
-            result = null;
-            var field = TranslateValue(node.Object);
-
-            switch (node.Method.Name)
-            {
-                case "ToString":
-                    if (node.Arguments.Count == 1)
-                    {
-                        var format = TranslateValue(node.Arguments[0]);
-                        result = new BsonDocument("$dateToString", new BsonDocument
-                        {
-                            { "format", format },
-                            { "date", field }
-                        });
-                        return true;
-                    }
-                    break;
-            }
-
-            return false;
-        }
-
+        
         private bool TryTranslateDateTimeMemberAccess(MemberExpression node, out BsonValue result)
         {
             result = null;
-            var field = TranslateValue(node.Expression);
+            var date = TranslateValue(node.Expression);
+
             switch (node.Member.Name)
             {
                 case "Day":
-                    result = new BsonDocument("$dayOfMonth", field);
+                    result = new BsonDocument("$dayOfMonth", date);
                     return true;
                 case "DayOfWeek":
                     // The server's day of week values are 1 greater than
                     // .NET's DayOfWeek enum values
                     result = new BsonDocument("$subtract", new BsonArray
                         {
-                            new BsonDocument("$dayOfWeek", field),
+                            new BsonDocument("$dayOfWeek", date),
                             (BsonInt32)1
                         });
                     return true;
                 case "DayOfYear":
-                    result = new BsonDocument("$dayOfYear", field);
+                    result = new BsonDocument("$dayOfYear", date);
                     return true;
                 case "Hour":
-                    result = new BsonDocument("$hour", field);
+                    result = new BsonDocument("$hour", date);
                     return true;
                 case "Millisecond":
-                    result = new BsonDocument("$millisecond", field);
+                    result = new BsonDocument("$millisecond", date);
                     return true;
                 case "Minute":
-                    result = new BsonDocument("$minute", field);
+                    result = new BsonDocument("$minute", date);
                     return true;
                 case "Month":
-                    result = new BsonDocument("$month", field);
+                    result = new BsonDocument("$month", date);
                     return true;
                 case "Second":
-                    result = new BsonDocument("$second", field);
+                    result = new BsonDocument("$second", date);
                     return true;
                 case "Year":
-                    result = new BsonDocument("$year", field);
+                    result = new BsonDocument("$year", date);
                     return true;
             }
 
@@ -890,6 +882,94 @@ namespace MongoDB.Driver.Linq.Translators
 
             return false;
         }
+        private bool TryTranslateDateTimeAddXXX(MethodCallExpression node, long multiplier, out BsonValue result)
+        {
+            result = null;
+            if (node.Arguments.Count != 1) 
+            {
+                // All DateTime.AddXXX() functions take single argument
+                return false;
+            }
+
+            var date = TranslateValue(node.Object);
+            BsonValue arg;
+
+            var expr = node.Arguments[0];
+            if (expr.NodeType == ExpressionType.Constant)
+            {
+                // argument value is constant
+                // no need to multiply on server, do it right away
+                double value = (double)((ConstantExpression)expr).Value;
+
+                // trim to long
+                long value_ms = (long)Math.Round(value * multiplier);
+
+                arg = BsonValue.Create(value_ms);
+            }
+            else
+            {
+                // value derived from another expression
+                // will be calculated on the server
+                arg = TranslateValue(expr);
+
+                if (multiplier != 1)
+                {
+                    arg = new BsonDocument("$multiply", new BsonArray(new[] { multiplier, arg }));
+                }
+            }
+
+            result = new BsonDocument("$add", new BsonArray(new[] { date, arg }));
+            return true;
+        }
+        
+        private bool TryTranslateDateTimeMethodCall(MethodCallExpression node, out BsonValue result)
+        {
+            switch (node.Method.Name)
+            {
+                case "ToString":
+                    if (node.Arguments.Count <= 1)
+                    {
+                        // $dateToString
+                        var field = TranslateValue(node.Object);
+                        // default format YYYY-MM-DD HH:mm
+                        var format = node.Arguments.Count == 1 ? TranslateValue(node.Arguments[0]) : "%Y-%m-%d %H:%M";
+                        result = new BsonDocument("$dateToString", new BsonDocument
+                        {
+                            { "format", format },
+                            { "date", field }
+                        });
+                        return true;
+                    }
+                    break;
+                case "AddYears":
+                case "AddMonths":
+                    // adding years/months has potential issues with leap years,
+                    // so don't bother with them for now
+                    throw new NotSupportedException("Adding months/years is not supported");
+
+                case "AddDays":
+                    return TryTranslateDateTimeAddXXX(node, 24 * 60 * 60 * 1000, out result);
+                case "AddHours":
+                    return TryTranslateDateTimeAddXXX(node, 60 * 60 * 1000, out result);
+                case "AddMinutes":
+                    return TryTranslateDateTimeAddXXX(node, 60 * 1000, out result);
+                case "AddSeconds":
+                    return TryTranslateDateTimeAddXXX(node, 1000, out result);
+                case "AddMilliseconds":
+                    return TryTranslateDateTimeAddXXX(node, 1, out result);
+
+                case "Add":
+                case "Subtract":
+                    // TimeSpan is not mapped into BsonValue,
+                    // so don't bother with it for now
+                    break;
+            }
+
+            // other methods are not supported
+            result = null;
+            return false;
+        }
+
 
         private bool TryTranslateFirstResultOperator(PipelineExpression node, out BsonValue result)
         {
@@ -1020,29 +1100,37 @@ namespace MongoDB.Driver.Linq.Translators
         private bool TryTranslateStaticMathMethodCall(MethodCallExpression node, out BsonValue result)
         {
             result = null;
+            if (node.Arguments.Count == 0) 
+            {
+                // None of these methods take no args
+                return false;
+            }
+
+            var field = TranslateValue(node.Arguments[0]);
+
             switch (node.Method.Name)
             {
                 case "Abs":
-                    result = new BsonDocument("$abs", TranslateValue(node.Arguments[0]));
+                    result = new BsonDocument("$abs", field);
                     return true;
                 case "Ceiling":
-                    result = new BsonDocument("$ceil", TranslateValue(node.Arguments[0]));
+                    result = new BsonDocument("$ceil", field);
                     return true;
                 case "Exp":
                     result = new BsonDocument("$exp", new BsonArray
                     {
-                        TranslateValue(node.Arguments[0])
+                        field
                     });
                     return true;
                 case "Floor":
-                    result = new BsonDocument("$floor", TranslateValue(node.Arguments[0]));
+                    result = new BsonDocument("$floor", field);
                     return true;
                 case "Log":
                     if (node.Arguments.Count == 2)
                     {
                         result = new BsonDocument("$log", new BsonArray
                         {
-                            TranslateValue(node.Arguments[0]),
+                            field,
                             TranslateValue(node.Arguments[1])
                         });
                     }
@@ -1050,51 +1138,132 @@ namespace MongoDB.Driver.Linq.Translators
                     {
                         result = new BsonDocument("$ln", new BsonArray
                         {
-                            TranslateValue(node.Arguments[0])
+                            field
                         });
                     }
                     return true;
                 case "Log10":
                     result = new BsonDocument("$log10", new BsonArray
                     {
-                        TranslateValue(node.Arguments[0])
+                        field
                     });
                     return true;
                 case "Pow":
+                    if (node.Arguments.Count == 2)
+                    {
                     result = new BsonDocument("$pow", new BsonArray
                     {
-                        TranslateValue(node.Arguments[0]),
+                            field,
                         TranslateValue(node.Arguments[1])
                     });
                     return true;
+                    }
+                    break;
                 case "Sqrt":
                     result = new BsonDocument("$sqrt", new BsonArray
                     {
-                        TranslateValue(node.Arguments[0])
+                        field
                     });
                     return true;
                 case "Truncate":
-                    result = new BsonDocument("$trunc", TranslateValue(node.Arguments[0]));
+                    result = new BsonDocument("$trunc", field);
                     return true;
             }
 
             return false;
         }
 
+        private BsonValue StringEqualsHelper(BsonValue a, BsonValue b, Expression stringComparisonExpr)
+        {
+            StringComparison comparisonType = StringComparison.Ordinal;
+
+            if (stringComparisonExpr != null && stringComparisonExpr.NodeType == ExpressionType.Constant)
+            {
+                // has comparison type specified
+                comparisonType = (StringComparison)((ConstantExpression)stringComparisonExpr).Value;
+            }
+
+            switch (comparisonType)
+            {
+                case StringComparison.OrdinalIgnoreCase:
+                    // $strcasecmp returns -1/0/1, so additional operation is needed:
+                    return new BsonDocument("$eq", new BsonArray(new[] 
+                    {
+                        new BsonDocument("$strcasecmp", new BsonArray(new[] { a, b })),
+                        (BsonValue)0
+                    }));
+                case StringComparison.Ordinal:
+                    return new BsonDocument("$eq", new BsonArray(new[] { a, b }));
+                default:
+                    throw new NotSupportedException("Only Ordinal and OrdinalIgnoreCase are supported for string comparisons.");
+            }
+        }
+
         private bool TryTranslateStaticStringMethodCall(MethodCallExpression node, out BsonValue result)
         {
             result = null;
+            if (node.Arguments.Count == 0) 
+            {
+                // None of these methods take no args
+                return false;
+            }
+
+            var field = TranslateValue(node.Arguments[0]);
             switch (node.Method.Name)
             {
                 case "IsNullOrEmpty":
-                    var field = TranslateValue(node.Arguments[0]);
-                    result = new BsonDocument("$or",
+                    if (node.Arguments.Count == 1)
+                    {
+                        result = new BsonDocument("$or",
                         new BsonArray
                         {
-                            new BsonDocument("$eq", new BsonArray { field, BsonNull.Value }),
-                            new BsonDocument("$eq", new BsonArray { field, BsonString.Empty })
+                            new BsonDocument("$eq", new BsonArray
+                            {
+                                field,
+                                BsonNull.Value
+                            }),
+                            new BsonDocument("$eq", new BsonArray
+                            {
+                                field,
+                                BsonString.Empty
+                            })
                         });
-                    return true;
+                        return true;
+                    }
+                    break;
+                case "Equals":
+                    if (node.Arguments.Count >= 2 && node.Arguments.Count <= 3)
+                    {
+                        result = StringEqualsHelper(field, 
+                            TranslateValue(node.Arguments[1]),
+                            (node.Arguments.Count == 3) ? node.Arguments[2] : null);
+                        return true;
+                    }
+                    break;
+                case "Concat":
+                    if (node.Arguments.Count == 1 && node.Arguments[0].Type == typeof(string[]))
+                    {
+                        // this is .Concat(params string[] args) overload
+                        result = new BsonDocument("$concat", field);
+                        return true;
+                    }
+                    else if (node.Arguments.Count >= 2 && node.Arguments.Count <= 4 && 
+                             node.Arguments.All(p => p.Type == typeof(string)))
+                    {
+                        // this is one of .Concat(string, string[, string[, string]]) overloads
+                        var array = new BsonArray();
+                        foreach (var arg in node.Arguments)
+                        {
+                            array.Add(TranslateValue(arg));
+                        }
+
+                        result = new BsonDocument("$concat", array);
+                        return true;
+                    }
+                    else
+                    {
+                        throw new NotSupportedException("Some overloads of String.Concat() are not supported");
+                    }
             }
 
             return false;
@@ -1104,6 +1273,7 @@ namespace MongoDB.Driver.Linq.Translators
         {
             result = null;
             var field = TranslateValue(node.Object);
+
             switch (node.Method.Name)
             {
                 case "Equals":
@@ -1130,12 +1300,10 @@ namespace MongoDB.Driver.Linq.Translators
                     break;
                 case "IndexOf":
                     var indexOfArgs = new BsonArray { field };
-
                     if (node.Arguments.Count < 1 || node.Arguments.Count > 3)
                     {
                         return false;
                     }
-
                     if (node.Arguments[0].Type != typeof(char) && node.Arguments[0].Type != typeof(string))
                     {
                         return false;
@@ -1146,34 +1314,28 @@ namespace MongoDB.Driver.Linq.Translators
                         value = new BsonString(new string((char)value.AsInt32, 1));
                     }
                     indexOfArgs.Add(value);
-
                     if (node.Arguments.Count > 1)
                     {
                         if (node.Arguments[1].Type != typeof(int))
                         {
                             return false;
                         }
-
                         var startIndex = TranslateValue(node.Arguments[1]);
                         indexOfArgs.Add(startIndex);
                     }
-
                     if (node.Arguments.Count > 2)
                     {
                         if (node.Arguments[2].Type != typeof(int))
                         {
                             return false;
                         }
-
                         var count = TranslateValue(node.Arguments[2]);
                         var endIndex = new BsonDocument("$add", new BsonArray { indexOfArgs[2], count });
                         indexOfArgs.Add(endIndex);
                     }
-
                     var indexOpName = _stringTranslationMode == AggregateStringTranslationMode.CodePoints ?
                             "$indexOfCP" :
                             "$indexOfBytes";
-
                     result = new BsonDocument(indexOpName, indexOfArgs);
                     return true;
                 case "Split":
@@ -1215,17 +1377,17 @@ namespace MongoDB.Driver.Linq.Translators
                     });
                     return true;
                 case "Substring":
-                    if (node.Arguments.Count == 2)
+                    var substrOpName = _stringTranslationMode == AggregateStringTranslationMode.CodePoints ?
+                        "$substrCP" :
+                        "$substr";
+                    if (node.Arguments.Count == 2 || node.Arguments.Count == 1)
                     {
-                        var substrOpName = _stringTranslationMode == AggregateStringTranslationMode.CodePoints ?
-                            "$substrCP" :
-                            "$substr";
                         result = new BsonDocument(substrOpName, new BsonArray(new[]
-                            {
-                                field,
-                                TranslateValue(node.Arguments[0]),
-                                TranslateValue(node.Arguments[1])
-                            }));
+                        {
+                            field,
+                            TranslateValue(node.Arguments[0]),
+                            node.Arguments.Count == 2 ? TranslateValue(node.Arguments[1]) : -1
+                        }));
                         return true;
                     }
                     break;

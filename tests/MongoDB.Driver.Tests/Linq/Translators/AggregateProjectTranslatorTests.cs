@@ -17,12 +17,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Translators;
@@ -429,6 +427,18 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Result.Should().Be("2012-12-01");
         }
 
+        [SkippableFact]
+        public void Should_translate_dateToString_without_format()
+        {
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
+
+            var result = Project(x => new { Result = x.J.ToString() });
+
+            result.Projection.Should().Be("{ Result: { \"$dateToString\": {format: \"%Y-%m-%d %H:%M\", date: \"$J\" } }, _id: 0 }");
+
+            result.Value.Result.Should().Be("2012-12-01 13:14");
+        }
+        
         [Fact]
         public void Should_translate_day_of_month()
         {
@@ -459,6 +469,46 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Result.Should().Be(336);
         }
 
+        [Fact]
+        public void Should_translate_datetime_add_xxx()
+        {
+            var result = Project(x => new { J = x.J, Result = x.J.AddDays(2.5) });
+
+            result.Projection.Should().Be("{ J: \"$J\", Result: { \"$add\": [\"$J\", NumberLong(216000000)] }, _id: 0 }");
+
+            result.Value.Result.Should().Be(result.Value.J.AddDays(2.5));
+        }
+
+        [Fact]
+        public void Should_translate_datetime_add_xxx_negative()
+        {
+            var result = Project(x => new { J = x.J, Result = x.J.AddMinutes(-3) });
+
+            result.Projection.Should().Be("{ J: \"$J\", Result: { \"$add\": [\"$J\", NumberLong(-180000)] }, _id: 0 }");
+
+            result.Value.Result.Should().Be(result.Value.J.AddMinutes(-3));
+        }
+
+        [Fact]
+        public void Should_translate_datetime_add_xxx_from_variable()
+        {
+            var result = Project(x => new { J = x.J, N = x.C.E.F, Result = x.J.AddHours(x.C.E.F) });
+
+            result.Projection.Should().Be("{ J: \"$J\", N: \"$C.E.F\", Result: { \"$add\": [\"$J\", { \"$multiply\": [NumberLong(3600000), \"$C.E.F\"] } ] }, _id: 0 }");
+
+            result.Value.Result.Should().Be(result.Value.J.AddHours(result.Value.N));
+        }
+
+        [Fact]
+        public void Should_translate_datetime_add_xxx_negative_from_variable()
+        {
+            var result = Project(x => new { J = x.J, N = x.C.E.H, Result = x.J.AddHours(-x.C.E.H) });
+
+            result.Projection.Should().Be("{ J: \"$J\", N: \"$C.E.H\", Result: { \"$add\": [\"$J\", { \"$multiply\": [NumberLong(3600000), { \"$subtract\": [ 0, \"$C.E.H\" ] } ] } ] }, _id: 0 }");
+
+            result.Value.Result.Should().Be(result.Value.J.AddHours(-result.Value.N));
+        }
+        
         [Fact]
         public void Should_translate_divide()
         {
@@ -813,6 +863,16 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Projection.Should().Be("{ Result: { \"$multiply\": [\"$_id\", \"$C.E.F\", \"$C.E.H\"] }, _id: 0 }");
 
             result.Value.Result.Should().Be(2420);
+        }
+        
+        [Fact]
+        public void Should_translate_negation()
+        {
+            var result = Project(x => new { Result = -x.C.E.F });
+
+            result.Projection.Should().Be("{ Result: { \"$subtract\": [0, \"$C.E.F\"] }, _id: 0 }");
+
+            result.Value.Result.Should().Be(-11);
         }
 
         [SkippableFact]
@@ -1331,7 +1391,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             result.Value.Result.Should().BeTrue();
         }
-
+        
         [Fact]
         public void Should_translate_string_equals_using_comparison()
         {
@@ -1341,7 +1401,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             result.Value.Result.Should().BeTrue();
         }
-
+        
         [Fact]
         public void Should_translate_string_case_insensitive_equals()
         {
@@ -1367,6 +1427,50 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Fact]
+        public void Should_translate_static_string_equals()
+        {
+            var result = Project(x => new { Result = string.Equals(x.B, "Balloon") });
+
+            result.Projection.Should().Be("{ Result: { \"$eq\": [\"$B\", \"Balloon\"] }, _id: 0 }");
+
+            result.Value.Result.Should().BeTrue();
+        }
+
+        [Fact]
+        public void Should_translate_static_string_equals_using_comparison()
+        {
+            var result = Project(x => new { Result = string.Equals(x.B, "Balloon", StringComparison.Ordinal) });
+
+            result.Projection.Should().Be("{ Result: { \"$eq\": [\"$B\", \"Balloon\"] }, _id: 0 }");
+
+            result.Value.Result.Should().BeTrue();
+        }
+
+        [Fact]
+        public void Should_translate_static_string_case_insensitive_equals()
+        {
+            var result = Project(x => new { Result = string.Equals(x.B, "balloon", StringComparison.OrdinalIgnoreCase) });
+
+            result.Projection.Should().Be("{ Result: { \"$eq\": [{ \"$strcasecmp\": [\"$B\", \"balloon\"] }, 0] }, _id: 0 }");
+
+            result.Value.Result.Should().BeTrue();
+        }
+
+        [Theory]
+        [InlineData(StringComparison.CurrentCulture)]
+        [InlineData(StringComparison.CurrentCultureIgnoreCase)]
+#if NET45
+        [InlineData(StringComparison.InvariantCulture)]
+        [InlineData(StringComparison.InvariantCultureIgnoreCase)]
+#endif
+        public void Should_throw_for_a_not_supported_static_string_comparison_type(StringComparison comparison)
+        {
+            Action act = () => Project(x => new { Result = string.Equals(x.B, "balloon", comparison) });
+
+            act.ShouldThrow<NotSupportedException>();
+        }
+
+        [Fact]
         public void Should_translate_string_is_null_or_empty()
         {
             var result = Project(x => new { Result = string.IsNullOrEmpty(x.B) });
@@ -1375,7 +1479,103 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             result.Value.Result.Should().BeFalse();
         }
+        
+        [Fact]
+        public void Should_translate_string_concat_with_2_strings()
+        {
+            var result = Project(x => new { Result = string.Concat(x.A, x.B) });
 
+            result.Projection.Should().Be("{ Result: { \"$concat\": [\"$A\", \"$B\"] }, _id: 0 }");
+
+            result.Value.Result.Should().Be("AwesomeBalloon");
+        }
+
+        [Fact]
+        public void Should_translate_string_concat_with_3_strings()
+        {
+            var result = Project(x => new { Result = string.Concat(x.B, "&", x.B) });
+
+            result.Projection.Should().Be("{ Result: { \"$concat\": [\"$B\", \"&\", \"$B\"] }, _id: 0 }");
+
+            result.Value.Result.Should().Be("Balloon&Balloon");
+        }
+
+        [Fact]
+        public void Should_translate_string_concat_with_4_strings()
+        {
+            var result = Project(x => new { Result = string.Concat(x.A, " ", x.B, "!") });
+
+            result.Projection.Should().Be("{ Result: { \"$concat\": [\"$A\", \" \", \"$B\", \"!\"] }, _id: 0 }");
+
+            result.Value.Result.Should().Be("Awesome Balloon!");
+        }
+
+        [Fact]
+        public void Should_translate_string_concat_with_params_string_array()
+        {
+            var result = Project(x => new { Result = string.Concat(x.A, "+", x.B, "+", x.C.D) });
+
+            result.Projection.Should().Be("{ Result: { \"$concat\": [\"$A\", \"+\", \"$B\", \"+\", \"$C.D\"] }, _id: 0 }");
+
+            result.Value.Result.Should().Be("Awesome+Balloon+Dexter");
+        }
+
+        [Fact]
+        public void Should_throw_for_a_not_supported_string_concat_with_enumerable_of_string()
+        {
+            Action act = () => Project(x => new { Result = string.Concat(x.C.E.I) });
+
+            act.ShouldThrow<NotSupportedException>();
+        }
+        
+        [Fact]
+        public void Should_throw_for_a_not_supported_string_concat_with_1_object()
+        {
+            Action act = () => Project(x => new { Result = string.Concat((object)x.A) });
+
+            act.ShouldThrow<NotSupportedException>();
+        }
+
+        [Fact]
+        public void Should_throw_for_a_not_supported_string_concat_with_2_objects()
+        {
+            Action act = () => Project(x => new { Result = string.Concat(x.A, x.C) });
+
+            act.ShouldThrow<NotSupportedException>();
+        }
+        
+        [Fact]
+        public void Should_throw_for_a_not_supported_string_concat_with_3_objects()
+        {
+            Action act = () => Project(x => new { Result = string.Concat(x.C, x.C, x.C) });
+
+            act.ShouldThrow<NotSupportedException>();
+        }
+
+        [Fact]
+        public void Should_throw_for_a_not_supported_string_concat_with_4_objects()
+        {
+            Action act = () => Project(x => new { Result = string.Concat(x.C, x.B, x.C, x.C) });
+
+            act.ShouldThrow<NotSupportedException>();
+        }
+
+        [Fact]
+        public void Should_throw_for_a_not_supported_string_concat_with_params_object_array()
+        {
+            Action act = () => Project(x => new { Result = string.Concat(x.A, 1, x.C, false, x.G) });
+
+            act.ShouldThrow<NotSupportedException>();
+        }
+
+        [Fact]
+        public void Should_throw_for_a_not_supported_string_concat_with_generic_enumerable()
+        {
+            Action act = () => Project(x => new { Result = string.Concat(x.G) });
+
+            act.ShouldThrow<NotSupportedException>();
+        }
+        
         [Fact]
         public void Should_translate_substr()
         {
@@ -1394,6 +1594,16 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             var result = Project(x => new { Result = x.B.Substring(3, 20) }, __codePointTranslationOptions);
 
             result.Projection.Should().Be("{ Result: { \"$substrCP\": [\"$B\",3, 20] }, _id: 0 }");
+
+            result.Value.Result.Should().Be("loon");
+        }
+
+        [Fact]
+        public void Should_translate_substring_with_1_arg()
+        {
+            var result = Project(x => new { Result = x.B.Substring(3) });
+
+            result.Projection.Should().Be("{ Result: { \"$substr\": [\"$B\", 3, -1] }, _id: 0 }");
 
             result.Value.Result.Should().Be("loon");
         }
