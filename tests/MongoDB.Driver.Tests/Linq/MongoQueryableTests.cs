@@ -1489,7 +1489,7 @@ namespace Tests.MongoDB.Driver.Linq
 
             Assert(query,
                 1,
-                "{ $match: { 'G.D': \"Don't\" } }");
+                "{ $match : { 'G' : { '$elemMatch' : { 'D' : \"Don't\" } } } }");
         }
 
         private List<T> Assert<T>(IMongoQueryable<T> queryable, int resultCount, params string[] expectedStages)

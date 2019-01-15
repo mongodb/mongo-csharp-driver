@@ -18,12 +18,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Translators;
@@ -115,12 +112,81 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             Assert(
                 x => x.G.Any(g => g.D == "Don't"),
                 1,
-                "{\"G.D\": \"Don't\"}");
+                "{ G : { $elemMatch : { D : \"Don't\" } } }");
 
             Assert(
                 x => x.G.Any(g => g.D == "Don't" && g.E.F == 33),
                 1,
-                "{G: {$elemMatch: {D: \"Don't\", 'E.F': 33}}}");
+                "{ G : { $elemMatch : { D : \"Don't\", 'E.F' : 33 } } }");
+        }
+
+        [Fact]
+        public void Any_with_a_gte_predicate_on_documents()
+        {
+            Assert(
+                x => x.G.Any(g => g.E.F >= 100),
+                1,
+                "{ \"G\" : { \"$elemMatch\" : { \"E.F\" : { \"$gte\" : 100 } } } }");
+        }
+
+        [Fact]
+        public void Any_with_a_ne_and_Equal_predicate_on_documents()
+        {
+            Assert(
+                x => x.G.Any(g => !g.D.Equals("Don't")),
+                2,
+                "{ \"G\" : { \"$elemMatch\" : { \"D\" : { \"$ne\" : \"Don't\" } } } }");
+        }
+
+        [Fact]
+        public void Any_with_a_ne_predicate_on_documents()
+        {
+            Assert(
+                x => x.G.Any(g => g.S != null),
+                1,
+                "{ \"G\" : { \"$elemMatch\" : { \"S\" : { \"$ne\" : null } } } }");
+            Assert(
+                x => x.G.Any(g => !(g.S == null)),
+                1,
+                "{ \"G\" : { \"$elemMatch\" : { \"S\" : { \"$ne\" : null } } } }");
+        }
+
+        [Fact]
+        public void Any_with_a_multi_not_brackets_predicate_on_documents()
+        {
+            Assert(
+                x => x.G.Any(g => !(!(g.D == "Don't"))),
+                1,
+                "{ \"G\" : { \"$elemMatch\" : { \"D\" : \"Don't\" } } }");
+
+            Assert(
+                x => x.G.Any(g => !(!(!(!(g.D == "Don't"))))),
+                1,
+                "{ \"G\" : { \"$elemMatch\" : { \"D\" : \"Don't\" } } }");
+
+            Assert(
+                x => x.G.Any(g => !(g.S == null)),
+                1,
+                "{ \"G\" : { \"$elemMatch\" : { \"S\" : { \"$ne\" : null } } } }");
+
+            Assert(
+                x => x.G.Any(g => !(!(!(g.S == null)))),
+                1,
+                "{ \"G\" : { \"$elemMatch\" : { \"S\" : { \"$ne\" : null } } } }");
+        }
+
+        [Fact]
+        public void Any_with_a_multi_conditions_predicate_on_documents()
+        {
+            Assert(
+                x => x.G.Any(g => g.D != "Don't" && g.E.F == 333),
+                1,
+                "{ \"G\" : { \"$elemMatch\" : { \"D\" : { \"$ne\" : \"Don't\" }, \"E.F\" : 333 } } }");
+
+            Assert(
+                x => x.G.Any(g => g.D == "Don't" || g.E.F != 32),
+                2,
+                "{ \"G\" : { \"$elemMatch\" : { \"$or\" : [{ \"D\" : \"Don't\" }, { \"E.F\" : { \"$ne\" : 32 } }] } } }");
         }
 
         [Fact]
@@ -129,22 +195,22 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             Assert(
                 x => x.G.Any(g => g.S.Any()),
                 1,
-                "{G: {$elemMatch: {S: {$ne: null, $not: {$size: 0}}}}}");
+                "{ G : { $elemMatch : { S : { $ne : null, $not : { $size : 0 } } } } }");
 
             Assert(
                 x => x.G.Any(g => g.S.Any(s => s.D == "Delilah")),
                 1,
-                "{\"G.S.D\": \"Delilah\"}");
+                "{ \"G.S\" : { $elemMatch : { \"D\" : \"Delilah\" } } }");
 
             Assert(
                 x => x.G.Any(g => g.D == "Don't" && g.S.Any(s => s.D == "Delilah")),
                 1,
-                "{G: {$elemMatch: {D: \"Don't\", \"S.D\": \"Delilah\" }}}");
+                "{ \"G\" : { \"$elemMatch\" : { \"D\" : \"Don't\", \"S\" : { \"$elemMatch\" : { \"D\" : \"Delilah\" } } } } }");
 
             Assert(
                 x => x.G.Any(g => g.D == "Don't" && g.S.Any(s => s.E == null && s.D == "Delilah")),
                 1,
-                "{G: {$elemMatch: {D: \"Don't\", \"S\": {$elemMatch: {E: null, D: \"Delilah\" }}}}}");
+                "{ G : { $elemMatch : { D : \"Don't\", \"S\" : { $elemMatch : { E : null, D : \"Delilah\" } } } } }");
         }
 
         [Fact]
@@ -153,12 +219,12 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             Assert(
                 x => x.G.Any(g => !g.S.Any()),
                 2,
-                "{G: {$elemMatch: {$nor: [{S: {$ne: null, $not: {$size: 0}}}]}}}");
+                "{ G : { $elemMatch : { $nor : [{ S : { $ne : null, $not : { $size : 0 } } }] } } }");
 
             Assert(
                 x => x.G.Any(g => !g.S.Any(s => s.D == "Delilah")),
                 1,
-                "{\"G.S.D\": {$ne: \"Delilah\"}}");
+                "{\"G.S\" : { $not : { $elemMatch : { \"D\" : \"Delilah\" } } } }");
         }
 
         [Fact]
@@ -167,12 +233,12 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             Assert(
                 x => x.M.Any(m => m > 5),
                 1,
-                "{M: {$gt: 5}}");
+                "{ M : { $elemMatch : { $gt : 5 } } }");
 
             Assert(
                 x => x.M.Any(m => m > 2 && m < 6),
                 2,
-                "{M: {$elemMatch: {$gt: 2, $lt: 6}}}");
+                "{ M : { $elemMatch : { $gt : 2, $lt : 6 } } }");
         }
 
         [SkippableFact]
@@ -240,7 +306,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             Assert(
                 x => x.G.AsQueryable().Any(filter),
                 1,
-                "{ 'G.D': \"Don't\" }");
+                "{ 'G' : { '$elemMatch' : { 'D' : \"Don't\" } } }");
         }
 
         [SkippableFact]

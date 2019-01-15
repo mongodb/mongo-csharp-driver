@@ -286,7 +286,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         [Fact]
         public void TestWhereDAAnyWithPredicate()
         {
-            Assert<C>(c => c.DA.Any(d => d.Z == 333), 1, "{ \"da.z\" : 333 }");
+            Assert<C>(c => c.DA.Any(d => d.Z == 333), 1, "{ \"da\" : { \"$elemMatch\" : { \"z\" : 333 } } }");
 
             Assert<C>(c => c.DA.Any(d => d.Z >= 222 && d.Z <= 444), 2, "{ \"da\" : { \"$elemMatch\" : { \"z\" : { \"$gte\" : 222, \"$lte\" : 444 } } } }");
         }

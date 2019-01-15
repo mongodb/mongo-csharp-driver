@@ -16,7 +16,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -24,7 +23,6 @@ using System.Text.RegularExpressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Expressions;
 using MongoDB.Driver.Linq.Expressions.ResultOperators;
 using MongoDB.Driver.Linq.Processors;
@@ -177,7 +175,13 @@ namespace MongoDB.Driver.Linq.Translators
                 case ExpressionType.LessThan:
                 case ExpressionType.LessThanOrEqual:
                 case ExpressionType.NotEqual:
-                    return true;
+                    // the SERVER processes a $ne operator in a different way with
+                    // other comparison operators (see CSHARP-2012).
+                    // So, a NotEqual operator should be handled only by a "$elemMatch".
+                    // To simplify the logic and do not take responsibility for analysis
+                    // an expression here, other comparison operators are processed in the
+                    // same way as $ne.
+                    return false;
                 case ExpressionType.Call:
                     var callNode = (MethodCallExpression)node;
                     switch (callNode.Method.Name)
