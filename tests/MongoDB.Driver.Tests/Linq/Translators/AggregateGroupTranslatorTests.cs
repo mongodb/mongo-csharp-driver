@@ -17,13 +17,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
-using MongoDB.Driver;
-using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Translators;
@@ -121,6 +117,46 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             var result = Group(x => x.A, g => new { Result = g.Count() });
 
             result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$sum\": 1 } }");
+
+            result.Value.Result.Should().Be(1);
+        }
+
+        [Fact]
+        public void Should_translate_count_with_a_predicate()
+        {
+            var result = Group(x => x.A, g => new { Result = g.Count(x => x.A != "Awesome") });
+
+            result.Projection.Should().Be("{ \"_id\" : \"$A\", \"Result\" : { \"$sum\" : { \"$cond\" : [{ \"$ne\" : [\"$A\", \"Awesome\"] }, 1, 0] } } }");
+
+            result.Value.Result.Should().Be(1);
+        }
+
+        [Fact]
+        public void Should_translate_where_with_a_predicate_and_count()
+        {
+            var result = Group(x => x.A, g => new { Result = g.Where(x => x.A != "Awesome").Count() });
+
+            result.Projection.Should().Be("{ \"_id\" : \"$A\", \"Result\" : { \"$sum\" : { \"$cond\" : [{ \"$ne\" : [\"$A\", \"Awesome\"] }, 1, 0] } } }");
+
+            result.Value.Result.Should().Be(1);
+        }
+
+        [Fact]
+        public void Should_translate_where_select_and_count_with_predicates()
+        {
+            var result = Group(x => x.A, g => new { Result = g.Select(x => new { A = x.A }).Count(x => x.A != "Awesome") });
+
+            result.Projection.Should().Be("{ \"_id\" : \"$A\", \"Result\" : { \"$sum\" : { \"$cond\" : [{ \"$ne\" : [\"$A\", \"Awesome\"] }, 1, 0] } } }");
+
+            result.Value.Result.Should().Be(1);
+        }
+
+        [Fact]
+        public void Should_translate_where_select_with_predicate_and_count()
+        {
+            var result = Group(x => x.A, g => new { Result = g.Select(x => new { A = x.A }).Count() });
+
+            result.Projection.Should().Be("{ \"_id\" : \"$A\", \"Result\" : { \"$sum\" : 1 } }");
 
             result.Value.Result.Should().Be(1);
         }
