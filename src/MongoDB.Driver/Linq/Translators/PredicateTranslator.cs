@@ -202,6 +202,11 @@ namespace MongoDB.Driver.Linq.Translators
                     var pipelineExpression = node as PipelineExpression;
                     if (pipelineExpression != null)
                     {
+                        if (pipelineExpression.ResultOperator is ContainsResultOperator)
+                        {
+                            return false;
+                        }
+
                         var source = pipelineExpression.Source as ISerializationExpression;
                         return source == null;
                     }
@@ -992,7 +997,14 @@ namespace MongoDB.Driver.Linq.Translators
                     var ienumerableInterfaceType = constantExpression.Type.FindIEnumerable();
                     var itemType = ienumerableInterfaceType.GetTypeInfo().GetGenericArguments()[0];
                     var serializedValues = field.SerializeValues(itemType, (IEnumerable)constantExpression.Value);
-                    return __builder.In(field.FieldName, serializedValues);
+                    if (string.IsNullOrEmpty(field.FieldName))
+                    {
+                        return new BsonDocument("$in", serializedValues);
+                    }
+                    else
+                    {
+                        return __builder.In(field.FieldName, serializedValues);
+                    }
                 }
             }
             else
@@ -1653,11 +1665,6 @@ namespace MongoDB.Driver.Linq.Translators
             protected internal override Expression VisitDocument(DocumentExpression node)
             {
                 return new FieldExpression("", node.Serializer);
-            }
-
-            protected internal override Expression VisitPipeline(PipelineExpression node)
-            {
-                return node;
             }
         }
     }

@@ -1839,8 +1839,15 @@ namespace MongoDB.Driver
 
         private static BsonDocument NegateArbitraryFilter(BsonDocument filter)
         {
-            // $not only works as a meta operator on a single operator so simulate Not using $nor
-            return new BsonDocument("$nor", new BsonArray { filter });
+            if (filter.ElementCount == 1 && filter.GetElement(0).Name.StartsWith("$"))
+            {
+                return new BsonDocument("$not", filter);
+            }
+            else
+            {
+                // $not only works as a meta operator on a single operator so simulate Not using $nor
+                return new BsonDocument("$nor", new BsonArray { filter });
+            }
         }
 
         private static BsonDocument NegateSingleElementFilter(BsonDocument filter, BsonElement element)
@@ -1898,6 +1905,8 @@ namespace MongoDB.Driver
         {
             switch (element.Name)
             {
+                case "$and":
+                    return new BsonDocument("$nor", new BsonArray { filter });
                 case "$or":
                     return new BsonDocument("$nor", element.Value);
                 case "$nor":

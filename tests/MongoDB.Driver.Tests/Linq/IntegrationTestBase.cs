@@ -16,8 +16,8 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Bson.Serialization.Attributes;
-using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq
 {
@@ -25,11 +25,18 @@ namespace MongoDB.Driver.Tests.Linq
     {
         protected static IMongoCollection<Root> __collection;
         protected static IMongoCollection<Other> __otherCollection;
+        protected static IMongoCollection<Root> __customCollection;
+        protected static List<Root> __customDocuments;
+
         private static ConcurrentDictionary<Type, bool> __oneTimeSetupTracker = new ConcurrentDictionary<Type, bool>();
 
         protected IntegrationTestBase()
         {
             __oneTimeSetupTracker.GetOrAdd(GetType(), OneTimeSetup); // run OneTimeSetup once per subclass
+        }
+
+        protected virtual void FillCustomDocuments(List<Root> customDocuments)
+        {
         }
 
         private bool OneTimeSetup(Type type)
@@ -38,14 +45,27 @@ namespace MongoDB.Driver.Tests.Linq
             var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             __collection = db.GetCollection<Root>(DriverTestConfiguration.CollectionNamespace.CollectionName);
             __otherCollection = db.GetCollection<Other>(DriverTestConfiguration.CollectionNamespace.CollectionName + "_other");
+            __customCollection = db.GetCollection<Root>(DriverTestConfiguration.CollectionNamespace.CollectionName + "_custom");
             db.DropCollection(__collection.CollectionNamespace.CollectionName);
             db.DropCollection(__collection.CollectionNamespace.CollectionName + "_other");
 
             InsertFirst();
             InsertSecond();
             InsertJoin();
+            ConfigureCustomCollection(db);
 
             return true;
+        }
+
+        private void ConfigureCustomCollection(IMongoDatabase db)
+        {
+            __customDocuments = new List<Root>();
+            FillCustomDocuments(__customDocuments);
+            db.DropCollection(__customCollection.CollectionNamespace.CollectionName);
+            if (__customDocuments.Count > 0)
+            {
+                __customCollection.InsertMany(__customDocuments);
+            }
         }
 
         private void InsertFirst()
