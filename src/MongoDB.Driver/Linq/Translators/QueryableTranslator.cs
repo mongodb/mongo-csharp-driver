@@ -23,7 +23,6 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Expressions;
-using MongoDB.Driver.Linq.Expressions.ResultOperators;
 using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver.Linq.Translators
@@ -327,7 +326,17 @@ namespace MongoDB.Driver.Linq.Translators
                 throw new NotSupportedException(message);
             }
 
-            BsonValue unwindValue = "$" + field.FieldName;
+            BsonValue unwindValue;
+            var parentFieldExpression = field.Document as IFieldExpression;
+            if (parentFieldExpression != null)
+            {
+                unwindValue = $"${parentFieldExpression.FieldName}.{field.FieldName}";
+            }
+            else
+            {
+                unwindValue = $"${field.FieldName}";
+            }
+
             var groupJoin = node.Source as GroupJoinExpression;
             if (groupJoin != null && isLeftOuterJoin)
             {
