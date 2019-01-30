@@ -793,9 +793,19 @@ namespace MongoDB.Driver
             {
                 query.AppendFormat("ipv6=true;");
             }
-            if (_useSsl)
+            if (_scheme == ConnectionStringScheme.MongoDBPlusSrv)
             {
-                query.AppendFormat("ssl=true;");
+                if (!_useSsl)
+                {
+                    query.AppendFormat("ssl=false;");
+                }
+            }
+            else
+            {
+                if (_useSsl)
+                {
+                    query.AppendFormat("ssl=true;");
+                }
             }
             if (!_verifySslCertificate)
             {

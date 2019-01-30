@@ -1206,13 +1206,23 @@ namespace MongoDB.Driver.Tests
             builder.WTimeout = TimeSpan.FromSeconds(1);
         }
 
-        [Fact]
-        public void TestToString_WithSrvSpecified_ParsedSameConnectionString()
+        [Theory]
+        [InlineData("mongodb://localhost", "mongodb://localhost")]
+        [InlineData("mongodb://localhost/?ssl=false", "mongodb://localhost")]
+        [InlineData("mongodb://localhost/?ssl=true", "mongodb://localhost/?ssl=true")]
+        [InlineData("mongodb://localhost:27018", "mongodb://localhost:27018")]
+        [InlineData("mongodb://localhost:27018/?ssl=false", "mongodb://localhost:27018")]
+        [InlineData("mongodb://localhost:27018/?ssl=true", "mongodb://localhost:27018/?ssl=true")]
+        [InlineData("mongodb+srv://localhost", "mongodb+srv://localhost")]
+        [InlineData("mongodb+srv://localhost/?ssl=false", "mongodb+srv://localhost/?ssl=false")]
+        [InlineData("mongodb+srv://localhost/?ssl=true", "mongodb+srv://localhost")]
+        public void ToString_should_return_expected_result_for_scheme_port_and_ssl(string connectionString, string expectedResult)
         {
-            const string connectionString = "mongodb+srv://localhost";
-            var builder = new MongoUrlBuilder(connectionString);
-            var builder2 = new MongoUrlBuilder(builder.ToString());
-            Assert.Equal(builder.ToString(), builder2.ToString());
+            var subject = new MongoUrlBuilder(connectionString);
+
+            var result = subject.ToString();
+
+            result.Should().Be(expectedResult);
         }
 
         // private methods
