@@ -55,7 +55,7 @@ namespace MongoDB.Bson.TestHelpers.JsonDrivenTests
         {
             info.AddValue(nameof(_name), _name);
             info.AddValue(nameof(_shared), _shared.ToJson());
-            info.AddValue(nameof(_test), _shared.ToJson());
+            info.AddValue(nameof(_test), _test.ToJson());
         }
 
         public override string ToString()
