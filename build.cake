@@ -3,7 +3,6 @@
 #addin "nuget:?package=Cake.Incubator"
 #tool "nuget:?package=GitVersion.CommandLine"
 #tool "nuget:?package=xunit.runner.console"
-#load buildhelpers.cake
 
 using System.Text.RegularExpressions;
 using System.Linq;
@@ -16,7 +15,7 @@ var gitVersion = GitVersion();
 var solutionDirectory = MakeAbsolute(Directory("./"));
 var artifactsDirectory = solutionDirectory.Combine("artifacts");
 var artifactsBinDirectory = artifactsDirectory.Combine("bin");
-var artifactsBinNet45Directory = artifactsBinDirectory.Combine("net45");
+var artifactsBinNet452Directory = artifactsBinDirectory.Combine("net452");
 var artifactsBinNetStandard15Directory = artifactsBinDirectory.Combine("netstandard1.5");
 var artifactsDocsDirectory = artifactsDirectory.Combine("docs");
 var artifactsDocsApiDocsDirectory = artifactsDocsDirectory.Combine("ApiDocs-" + gitVersion.LegacySemVer);
@@ -47,16 +46,7 @@ Task("TestAndPackage")
     .IsDependentOn("Test")
     .IsDependentOn("Package");    
    
-Task("Clean")
-    .Does( ()=> 
-    {
-        CleanDirectory(artifactsDirectory);
-        CleanDirectories("./**/obj");
-        CleanDirectories($"./**/bin/{configuration}");
-    });
-
 Task("Restore")
-    .IsDependentOn("Clean")
     .Does(() => 
     {
         DotNetCoreRestore(solutionFullPath);
@@ -77,6 +67,43 @@ Task("Build")
            }
         };
         DotNetCoreBuild(solutionFullPath, settings);
+    });
+
+Task("BuildArtifacts")
+    .IsDependentOn("Build")
+    .Does(() =>
+    {
+        foreach (var targetFramework in new[] { "net452", "netstandard1.5" })
+        {
+            var toDirectory = artifactsBinDirectory.Combine(targetFramework);
+            CleanDirectory(toDirectory);
+
+            var projects = new[] { "MongoDB.Bson", "MongoDB.Driver.Core", "MongoDB.Driver", "MongoDB.Driver.Legacy", "MongoDB.Driver.GridFS" };
+            foreach (var project in projects)
+            {
+                var fromDirectory = srcDirectory.Combine(project).Combine("bin").Combine(configuration).Combine(targetFramework);
+
+                var fileNames = new List<string>();
+                foreach (var extension in new[] { "dll", "pdb", "xml" })
+                {
+                    var fileName = $"{project}.{extension}";
+                    fileNames.Add(fileName);
+                }
+
+                // DnsClient.dll is needed by Sandcastle
+                if (targetFramework == "net452" && project == "MongoDB.Driver.Core")
+                {
+                    fileNames.Add("DnsClient.dll");
+                }
+
+                foreach (var fileName in fileNames)
+                {
+                    var fromFile = fromDirectory.CombineWithFilePath(fileName);
+                    var toFile = toDirectory.CombineWithFilePath(fileName);
+                    CopyFile(fromFile, toFile);
+                }
+            }
+        }
     });
 
 Task("Test")
@@ -119,7 +146,7 @@ Task("Docs")
     .IsDependentOn("RefDocs");
 
 Task("ApiDocs")
-    .IsDependentOn("Build")
+    .IsDependentOn("BuildArtifacts")
     .Does(() =>
     {
         EnsureDirectoryExists(artifactsDocsApiDocsDirectory);
@@ -205,7 +232,7 @@ Task("Package")
     .IsDependentOn("PackageNugetPackages");
 
 Task("PackageReleaseZipFile")
-    .IsDependentOn("Build")
+    .IsDependentOn("BuildArtifacts")
     .IsDependentOn("ApiDocs")
     .Does(() =>
     {
@@ -216,10 +243,10 @@ Task("PackageReleaseZipFile")
         EnsureDirectoryExists(stagingDirectory);
         CleanDirectory(stagingDirectory);
 
-        var stagingNet45Directory = stagingDirectory.Combine("net45");
-        CopyDirectory(artifactsBinNet45Directory, stagingNet45Directory);
-        DeleteFile(stagingNet45Directory.CombineWithFilePath("DnsClient.dll"));
-        DeleteFile(stagingNet45Directory.CombineWithFilePath("DnsClient.xml"));
+        var stagingNet452Directory = stagingDirectory.Combine("net452");
+        CopyDirectory(artifactsBinNet452Directory, stagingNet452Directory);
+        DeleteFile(stagingNet452Directory.CombineWithFilePath("DnsClient.dll"));
+        DeleteFile(stagingNet452Directory.CombineWithFilePath("DnsClient.xml"));
 
         var stagingNetStandard15Directory = stagingDirectory.Combine("netstandard1.5");
         CopyDirectory(artifactsBinNetStandard15Directory, stagingNetStandard15Directory);

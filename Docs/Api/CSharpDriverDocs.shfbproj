@@ -20,16 +20,16 @@
     <HtmlHelpName>CSharpDriverDocs</HtmlHelpName>
     <Language>en-US</Language>
     <DocumentationSources>
-      <DocumentationSource sourceFile="..\..\artifacts\bin\net45\MongoDB.Bson.dll" />
-      <DocumentationSource sourceFile="..\..\artifacts\bin\net45\MongoDB.Bson.xml" />
-      <DocumentationSource sourceFile="..\..\artifacts\bin\net45\MongoDB.Driver.Core.dll" />
-      <DocumentationSource sourceFile="..\..\artifacts\bin\net45\MongoDB.Driver.Core.XML" />
-      <DocumentationSource sourceFile="..\..\artifacts\bin\net45\MongoDB.Driver.dll" />
-      <DocumentationSource sourceFile="..\..\artifacts\bin\net45\MongoDB.Driver.xml" />
-      <DocumentationSource sourceFile="..\..\artifacts\bin\net45\MongoDB.Driver.GridFS.dll" />
-      <DocumentationSource sourceFile="..\..\artifacts\bin\net45\MongoDB.Driver.GridFS.xml" />
-      <DocumentationSource sourceFile="..\..\artifacts\bin\net45\MongoDB.Driver.Legacy.dll" />
-      <DocumentationSource sourceFile="..\..\artifacts\bin\net45\MongoDB.Driver.Legacy.xml" />
+      <DocumentationSource sourceFile="..\..\artifacts\bin\net452\MongoDB.Bson.dll" />
+      <DocumentationSource sourceFile="..\..\artifacts\bin\net452\MongoDB.Bson.xml" />
+      <DocumentationSource sourceFile="..\..\artifacts\bin\net452\MongoDB.Driver.Core.dll" />
+      <DocumentationSource sourceFile="..\..\artifacts\bin\net452\MongoDB.Driver.Core.XML" />
+      <DocumentationSource sourceFile="..\..\artifacts\bin\net452\MongoDB.Driver.dll" />
+      <DocumentationSource sourceFile="..\..\artifacts\bin\net452\MongoDB.Driver.xml" />
+      <DocumentationSource sourceFile="..\..\artifacts\bin\net452\MongoDB.Driver.GridFS.dll" />
+      <DocumentationSource sourceFile="..\..\artifacts\bin\net452\MongoDB.Driver.GridFS.xml" />
+      <DocumentationSource sourceFile="..\..\artifacts\bin\net452\MongoDB.Driver.Legacy.dll" />
+      <DocumentationSource sourceFile="..\..\artifacts\bin\net452\MongoDB.Driver.Legacy.xml" />
     </DocumentationSources>
     <HelpFileFormat>HtmlHelp1, Website</HelpFileFormat>
     <HelpTitle>MongoDB .NET Driver API Documentation</HelpTitle>
@@ -93,7 +93,7 @@
     Include namespaces (false by default)
     Namespaces comments filename ("Namespaces" if not specified or empty)
     Output folder (current folder if not specified or empty) -->
-          <output includeNamespaces="false" namespacesFile="Namespaces" folder="{@OutputFolder}\..\bin\net45" />
+          <output includeNamespaces="false" namespacesFile="Namespaces" folder="{@OutputFolder}\..\bin\net452" />
         </component>
       </ComponentConfig>
     </ComponentConfigurations>
