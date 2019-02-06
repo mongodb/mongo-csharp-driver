@@ -245,8 +245,7 @@ Task("PackageReleaseZipFile")
 
         var stagingNet452Directory = stagingDirectory.Combine("net452");
         CopyDirectory(artifactsBinNet452Directory, stagingNet452Directory);
-        DeleteFile(stagingNet452Directory.CombineWithFilePath("DnsClient.dll"));
-        DeleteFile(stagingNet452Directory.CombineWithFilePath("DnsClient.xml"));
+        DeleteFiles($"{stagingNet452Directory}/DnsClient.*");
 
         var stagingNetStandard15Directory = stagingDirectory.Combine("netstandard1.5");
         CopyDirectory(artifactsBinNetStandard15Directory, stagingNetStandard15Directory);
@@ -260,7 +259,7 @@ Task("PackageReleaseZipFile")
         var stagingLicenseFile = stagingDirectory.CombineWithFilePath("license.txt");
         CopyFile(licenseFile, stagingLicenseFile);
 
-        var releaseNotesFileName = "Release Notes v" + gitVersion.LegacySemVer + ".md";
+        var releaseNotesFileName = "Release Notes v" + gitVersion.MajorMinorPatch + ".md";
         var releaseNotesDirectory = solutionDirectory.Combine("Release Notes");
         var releaseNotesFile =  releaseNotesDirectory.CombineWithFilePath(releaseNotesFileName);
         var stagingDirectoryReleaseNotesFile = stagingDirectory.CombineWithFilePath(releaseNotesFileName);
