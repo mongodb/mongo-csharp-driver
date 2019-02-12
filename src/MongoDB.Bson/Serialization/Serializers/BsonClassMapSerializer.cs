@@ -616,15 +616,12 @@ namespace MongoDB.Bson.Serialization
         {
             var bsonWriter = context.Writer;
 
-            var remainingMemberMaps = _classMap.AllMemberMaps.ToList();
-
             bsonWriter.WriteStartDocument();
 
             var idMemberMap = _classMap.IdMemberMap;
             if (idMemberMap != null && args.SerializeIdFirst)
             {
                 SerializeMember(context, document, idMemberMap);
-                remainingMemberMaps.Remove(idMemberMap);
             }
 
             //var autoTimeStampMemberMap = _classMap.AutoTimeStampMemberMap;
@@ -639,9 +636,12 @@ namespace MongoDB.Bson.Serialization
                 SerializeDiscriminator(context, args.NominalType, document);
             }
 
-            foreach (var memberMap in remainingMemberMaps)
+            foreach (var memberMap in _classMap.AllMemberMaps)
             {
-                SerializeMember(context, document, memberMap);
+                if (memberMap != idMemberMap || !args.SerializeIdFirst)
+                {
+                    SerializeMember(context, document, memberMap);
+                }
             }
 
             bsonWriter.WriteEndDocument();
