@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+using System.Reflection;
+
 namespace MongoDB.Bson.Serialization.Conventions
 {
     /// <summary>
@@ -39,7 +41,12 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="memberMap">The member map.</param>
         public void Apply(BsonMemberMap memberMap)
         {
-            if (!memberMap.MemberType.IsValueType)
+#if NETSTANDARD1_5 || NETSTANDARD1_6
+            var type = memberMap.MemberType.GetTypeInfo();
+#else
+            var type = memberMap.MemberType;
+#endif
+            if (!type.IsValueType)
             {
                 memberMap.SetUseExistingInstance(_useExistingInstance);
             }

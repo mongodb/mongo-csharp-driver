@@ -345,7 +345,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         public Test<TCollection> DoNotUseExistingInstanceWritableInnerInstance { get; set; }
 
         // hack so we can set the collection initializer from the outside in order to allow for a default constructor (called during deserialization) that still populates the collections
-        public static Func<TCollection> CollectionFactory;
+        internal static Func<TCollection> CollectionFactory;
 
         // this will be called by the deserializer
         public Test() : this(true)

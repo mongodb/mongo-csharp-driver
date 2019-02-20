@@ -462,7 +462,12 @@ namespace MongoDB.Bson.Serialization
         public BsonMemberMap SetUseExistingInstance(bool useExistingInstance)
         {
             if (_frozen) { ThrowFrozenException(); }
-            if (_memberType.IsValueType)
+#if NETSTANDARD1_5 || NETSTANDARD1_6
+            var type = _memberType.GetTypeInfo();
+#else
+            var type = _memberType;
+#endif
+            if (type.IsValueType)
             {
                 throw new InvalidOperationException($"{nameof(SetUseExistingInstance)} can only be used for reference types");
             }
