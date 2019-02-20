@@ -273,7 +273,7 @@ namespace MongoDB.Bson.IO
 
             if (!_elementNameValidator.IsValidElementName(name))
             {
-                var message = string.Format("Element name '{0}' is not valid'.", name);
+                var message = string.Format("Element name '{0}' is not valid.", name);
                 throw new BsonSerializationException(message);
             }
             _childElementNameValidatorFactory = () => _elementNameValidator.GetValidatorForChildContent(name);
