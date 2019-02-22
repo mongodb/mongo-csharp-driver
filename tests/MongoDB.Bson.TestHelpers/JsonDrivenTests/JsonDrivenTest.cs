@@ -80,7 +80,11 @@ namespace MongoDB.Bson.TestHelpers.JsonDrivenTests
                 {
                     throw new Exception("Unexpected exception was thrown.", _actualException);
                 }
-                AssertResult();
+
+                if (_expectedResult != null)
+                {
+                    AssertResult();
+                }
             }
             else
             {
