@@ -40,6 +40,7 @@ tests:
             pipeline:
               - $match: {_id: {$gte: 2}}
               - $group: {_id: null, n: {$sum: 1}}
+            cursor: {}
             lsid: session0
             readConcern:
               level: snapshot
@@ -55,6 +56,7 @@ tests:
             pipeline:
               - $match: {_id: {$gte: 2}}
               - $group: {_id: null, n: {$sum: 1}}
+            cursor: {}
             lsid: session0
             readConcern:  # No readConcern
             txnNumber:
@@ -319,6 +321,276 @@ tests:
             lsid: session0
             readConcern:
               level: snapshot
+            txnNumber:
+              $numberLong: "1"
+            startTransaction: true
+            autocommit: false
+            writeConcern:
+          command_name: find
+          database_name: *database_name
+      - command_started_event:
+          command:
+            find: *collection_name
+            lsid: session0
+            readConcern:  # No readConcern
+            txnNumber:
+              $numberLong: "1"
+            startTransaction:
+            autocommit: false
+            writeConcern:
+          command_name: find
+          database_name: *database_name
+      - *commitTransactionEvent
+
+    outcome: *outcome
+
+  - description: countDocuments ignores collection readConcern
+
+    operations:
+      - &startTransactionNoReadConcern
+        name: startTransaction
+        object: session0
+      - *countDocuments
+      - *countDocuments
+      - *commitTransaction
+
+    expectations:
+      - command_started_event:
+          command:
+            aggregate: *collection_name
+            pipeline:
+              - $match: {_id: {$gte: 2}}
+              - $group: {_id: null, n: {$sum: 1}}
+            cursor: {}
+            lsid: session0
+            readConcern:  # No readConcern
+            txnNumber:
+              $numberLong: "1"
+            startTransaction: true
+            autocommit: false
+          command_name: aggregate
+          database_name: *database_name
+      - command_started_event:
+          command:
+            aggregate: *collection_name
+            pipeline:
+              - $match: {_id: {$gte: 2}}
+              - $group: {_id: null, n: {$sum: 1}}
+            cursor: {}
+            lsid: session0
+            readConcern:  # No readConcern
+            txnNumber:
+              $numberLong: "1"
+            startTransaction:
+            autocommit: false
+          command_name: aggregate
+          database_name: *database_name
+      - *commitTransactionEvent
+
+    outcome: *outcome
+
+  - description: find ignores collection readConcern
+
+    operations:
+      - *startTransactionNoReadConcern
+      - *find
+      - *find
+      - *commitTransaction
+
+    expectations:
+      - command_started_event:
+          command:
+            find: *collection_name
+            batchSize: 3
+            lsid: session0
+            readConcern:  # No readConcern
+            txnNumber:
+              $numberLong: "1"
+            startTransaction: true
+            autocommit: false
+          command_name: find
+          database_name: *database_name
+      - command_started_event:
+          command:
+            getMore:
+              # 42 is a fake placeholder value for the cursorId.
+              $numberLong: '42'
+            collection: *collection_name
+            batchSize: 3
+            lsid: session0
+            readConcern:  # No readConcern
+            txnNumber:
+              $numberLong: "1"
+            startTransaction:
+            autocommit: false
+          command_name: getMore
+          database_name: *database_name
+      - command_started_event:
+          command:
+            find: *collection_name
+            batchSize: 3
+            lsid: session0
+            readConcern:  # No readConcern
+            txnNumber:
+              $numberLong: "1"
+            startTransaction:
+            autocommit: false
+          command_name: find
+          database_name: *database_name
+      - command_started_event:
+          command:
+            getMore:
+              $numberLong: '42'
+            collection: *collection_name
+            batchSize: 3
+            lsid: session0
+            readConcern:  # No readConcern
+            txnNumber:
+              $numberLong: "1"
+            startTransaction:
+            autocommit: false
+          command_name: getMore
+          database_name: *database_name
+      - *commitTransactionEvent
+
+    outcome: *outcome
+
+  - description: aggregate ignores collection readConcern
+
+    operations:
+      - *startTransactionNoReadConcern
+      - *aggregate
+      - *aggregate
+      - *commitTransaction
+
+    expectations:
+      - command_started_event:
+          command:
+            aggregate: *collection_name
+            pipeline:
+              - $project:
+                  _id: 1
+            cursor:
+              batchSize: 3
+            lsid: session0
+            readConcern:  # No readConcern
+            txnNumber:
+              $numberLong: "1"
+            startTransaction: true
+            autocommit: false
+          command_name: aggregate
+          database_name: *database_name
+      - command_started_event:
+          command:
+            getMore:
+              # 42 is a fake placeholder value for the cursorId.
+              $numberLong: '42'
+            collection: *collection_name
+            batchSize: 3
+            lsid: session0
+            readConcern:  # No readConcern
+            txnNumber:
+              $numberLong: "1"
+            startTransaction:
+            autocommit: false
+          command_name: getMore
+          database_name: *database_name
+      - command_started_event:
+          command:
+            aggregate: *collection_name
+            pipeline:
+              - $project:
+                  _id: 1
+            cursor:
+              batchSize: 3
+            lsid: session0
+            readConcern:  # No readConcern
+            txnNumber:
+              $numberLong: "1"
+            startTransaction:
+            autocommit: false
+          command_name: aggregate
+          database_name: *database_name
+      - command_started_event:
+          command:
+            getMore:
+              $numberLong: '42'
+            collection: *collection_name
+            batchSize: 3
+            lsid: session0
+            readConcern:  # No readConcern
+            txnNumber:
+              $numberLong: "1"
+            startTransaction:
+            autocommit: false
+          command_name: getMore
+          database_name: *database_name
+      - *commitTransactionEvent
+
+    outcome: *outcome
+
+  - description: distinct ignores collection readConcern
+
+    operations:
+      - *startTransactionNoReadConcern
+      - *distinct
+      - *distinct
+      - *commitTransaction
+
+    expectations:
+      - command_started_event:
+          command:
+            distinct: *collection_name
+            key: _id
+            lsid: session0
+            readConcern:  # No readConcern
+            txnNumber:
+              $numberLong: "1"
+            startTransaction: true
+            autocommit: false
+            writeConcern:
+          command_name: distinct
+          database_name: *database_name
+      - command_started_event:
+          command:
+            distinct: *collection_name
+            key: _id
+            lsid: session0
+            readConcern:  # No readConcern
+            txnNumber:
+              $numberLong: "1"
+            startTransaction:
+            autocommit: false
+            writeConcern:
+          command_name: distinct
+          database_name: *database_name
+      - *commitTransactionEvent
+
+    outcome: *outcome
+
+  - description: runCommand ignores database readConcern
+
+    operations:
+      - *startTransactionNoReadConcern
+      - name: runCommand
+        object: database
+        databaseOptions:
+          readConcern:
+            level: majority
+        command_name: find
+        arguments:
+          session: session0
+          command:
+            find: *collection_name
+      - *runCommand
+      - *commitTransaction
+
+    expectations:
+      - command_started_event:
+          command:
+            find: *collection_name
+            lsid: session0
+            readConcern:  # No readConcern
             txnNumber:
               $numberLong: "1"
             startTransaction: true

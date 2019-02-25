@@ -106,6 +106,10 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                 case "insertedIds":
                     _result.InsertedCount.Should().Be(expectedValue.AsBsonDocument.ElementCount);
                     break;
+                
+                case "insertedCount":
+                    _result.InsertedCount.Should().Be(expectedValue.ToInt64());
+                    break;
 
                 case "matchedCount":
                     _result.MatchedCount.Should().Be(expectedValue.ToInt64());

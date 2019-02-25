@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
     {
         // private fields
         private BsonDocument _command;
+        private ReadConcern _readConcern = new ReadConcern();
         private ReadPreference _readPreference;
         private BsonDocument _result;
         private IClientSessionHandle _session;
@@ -40,7 +41,8 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         // public methods
         public override void Arrange(BsonDocument document)
         {
-            JsonDrivenHelper.EnsureAllFieldsAreValid(document, "name", "object", "command_name", "arguments", "result");
+            var expectedNames = new[] {"name", "object", "command_name", "arguments", "result", "databaseOptions"};
+            JsonDrivenHelper.EnsureAllFieldsAreValid(document, expectedNames);
             base.Arrange(document);
 
             if (document.Contains("command_name"))
@@ -65,11 +67,15 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         {
             if (_session == null)
             {
-                _result = _database.RunCommand<BsonDocument>(_command, _readPreference, cancellationToken);
+                _result = _database
+                    .WithReadConcern(_readConcern)
+                    .RunCommand<BsonDocument>(_command, _readPreference, cancellationToken);
             }
             else
             {
-                _result = _database.RunCommand<BsonDocument>(_session, _command, _readPreference, cancellationToken);
+                _result = _database
+                    .WithReadConcern(_readConcern)
+                    .RunCommand<BsonDocument>(_session, _command, _readPreference, cancellationToken);
             }
         }
 
@@ -77,11 +83,15 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         {
             if (_session == null)
             {
-                _result = await _database.RunCommandAsync<BsonDocument>(_command, _readPreference, cancellationToken);
+                _result = await _database
+                    .WithReadConcern(_readConcern)
+                    .RunCommandAsync<BsonDocument>(_command, _readPreference, cancellationToken).ConfigureAwait(false);
             }
             else
             {
-                _result = await _database.RunCommandAsync<BsonDocument>(_session, _command, _readPreference, cancellationToken);
+                _result = await _database
+                    .WithReadConcern(_readConcern)
+                    .RunCommandAsync<BsonDocument>(_session, _command, _readPreference, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -91,6 +101,13 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
             {
                 case "command":
                     _command = value.AsBsonDocument;
+                    return;
+                
+                case "databaseOptions":
+                    if (value.AsBsonDocument.TryGetValue("readConcern", out var readConcernValue))
+                    {
+                        _readConcern = ReadConcern.FromBsonDocument(readConcernValue.AsBsonDocument);
+                    }
                     return;
 
                 case "readPreference":
