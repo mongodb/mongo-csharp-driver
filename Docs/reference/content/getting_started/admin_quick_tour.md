@@ -233,8 +233,8 @@ Not all commands have a specific helper, however you can run any command by usin
 var buildInfoCommand = new BsonDocument("buildinfo", 1);
 ```
 ```csharp
-var result = database.RunCommand(buildInfoCommand);
+var result = database.RunCommand<BsonDocument>(buildInfoCommand);
 ```
 ```csharp
-var result = await database.RunCommandAsync(buildInfoCommand);
+var result = await database.RunCommandAsync<BsonDocument>(buildInfoCommand);
 ```
