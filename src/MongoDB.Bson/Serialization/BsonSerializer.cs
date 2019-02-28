@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -25,7 +26,6 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.IdGenerators;
-using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization
 {
@@ -38,11 +38,11 @@ namespace MongoDB.Bson.Serialization
         private static ReaderWriterLockSlim __configLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         private static Dictionary<Type, IIdGenerator> __idGenerators = new Dictionary<Type, IIdGenerator>();
         private static Dictionary<Type, IDiscriminatorConvention> __discriminatorConventions = new Dictionary<Type, IDiscriminatorConvention>();
-        private static Dictionary<BsonValue, HashSet<Type>> __discriminators = new Dictionary<BsonValue, HashSet<Type>>();
-        private static HashSet<Type> __discriminatedTypes = new HashSet<Type>();
+        private static Hashtable __discriminators = new Hashtable(EqualityComparer<BsonValue>.Default); // effectively a Dictionary<BsonValue, HashSet<Type>>
+        private static Hashtable __discriminatedTypes = new Hashtable();
         private static BsonSerializerRegistry __serializerRegistry;
         private static TypeMappingSerializationProvider __typeMappingSerializationProvider;
-        private static HashSet<Type> __typesWithRegisteredKnownTypes = new HashSet<Type>();
+        private static Hashtable __typesWithRegisteredKnownTypes = new Hashtable(EqualityComparer<Type>.Default);
 
         private static bool __useNullIdChecker = false;
         private static bool __useZeroIdChecker = false;
@@ -276,7 +276,7 @@ namespace MongoDB.Bson.Serialization
         public static bool IsTypeDiscriminated(Type type)
         {
             var typeInfo = type.GetTypeInfo();
-            return typeInfo.IsInterface || __discriminatedTypes.Contains(type);
+            return typeInfo.IsInterface || __discriminatedTypes.ContainsKey(type);
         }
 
         /// <summary>
@@ -295,56 +295,49 @@ namespace MongoDB.Bson.Serialization
             // note: EnsureKnownTypesAreRegistered handles its own locking so call from outside any lock
             EnsureKnownTypesAreRegistered(nominalType);
 
-            __configLock.EnterReadLock();
-            try
-            {
-                Type actualType = null;
+            Type actualType = null;
 
-                HashSet<Type> hashSet;
-                if (__discriminators.TryGetValue(discriminator, out hashSet))
+            object hashSetAsObject = __discriminators[discriminator];
+            if (hashSetAsObject != null)
+            {
+                HashSet<Type> hashSet = (HashSet<Type>)__discriminators[discriminator];
+                foreach (var type in hashSet)
                 {
-                    foreach (var type in hashSet)
+                    if (nominalType.GetTypeInfo().IsAssignableFrom(type))
                     {
-                        if (nominalType.GetTypeInfo().IsAssignableFrom(type))
+                        if (actualType == null)
                         {
-                            if (actualType == null)
-                            {
-                                actualType = type;
-                            }
-                            else
-                            {
-                                string message = string.Format("Ambiguous discriminator '{0}'.", discriminator);
-                                throw new BsonSerializationException(message);
-                            }
+                            actualType = type;
+                        }
+                        else
+                        {
+                            string message = string.Format("Ambiguous discriminator '{0}'.", discriminator);
+                            throw new BsonSerializationException(message);
                         }
                     }
                 }
-
-                if (actualType == null && discriminator.IsString)
-                {
-                    actualType = TypeNameDiscriminator.GetActualType(discriminator.AsString); // see if it's a Type name
-                }
-
-                if (actualType == null)
-                {
-                    string message = string.Format("Unknown discriminator value '{0}'.", discriminator);
-                    throw new BsonSerializationException(message);
-                }
-
-                if (!nominalType.GetTypeInfo().IsAssignableFrom(actualType))
-                {
-                    string message = string.Format(
-                        "Actual type {0} is not assignable to expected type {1}.",
-                        actualType.FullName, nominalType.FullName);
-                    throw new BsonSerializationException(message);
-                }
-
-                return actualType;
             }
-            finally
+
+            if (actualType == null && discriminator.IsString)
             {
-                __configLock.ExitReadLock();
+                actualType = TypeNameDiscriminator.GetActualType(discriminator.AsString); // see if it's a Type name
             }
+
+            if (actualType == null)
+            {
+                string message = string.Format("Unknown discriminator value '{0}'.", discriminator);
+                throw new BsonSerializationException(message);
+            }
+
+            if (!nominalType.GetTypeInfo().IsAssignableFrom(actualType))
+            {
+                string message = string.Format(
+                    "Actual type {0} is not assignable to expected type {1}.",
+                    actualType.FullName, nominalType.FullName);
+                throw new BsonSerializationException(message);
+            }
+
+            return actualType;
         }
 
         /// <summary>
@@ -504,6 +497,17 @@ namespace MongoDB.Bson.Serialization
             return __serializerRegistry.GetSerializer(type);
         }
 
+        private static void PopulateHashSet(HashSet<Type> hashSet, Type type)
+        {
+            hashSet.Add(type);
+
+            // mark all base types as discriminated (so we know that it's worth reading a discriminator)
+            for (var baseType = type.GetTypeInfo().BaseType; baseType != null; baseType = baseType.GetTypeInfo().BaseType)
+            {
+                __discriminatedTypes[baseType] = null /* we don't care about the value */;
+            }
+        }
+
         /// <summary>
         /// Registers the discriminator for a type.
         /// </summary>
@@ -519,23 +523,27 @@ namespace MongoDB.Bson.Serialization
             }
 
             __configLock.EnterWriteLock();
+
             try
             {
-                HashSet<Type> hashSet;
-                if (!__discriminators.TryGetValue(discriminator, out hashSet))
+                object hashSetAsObject = __discriminators[discriminator];
+                if (hashSetAsObject == null)
                 {
-                    hashSet = new HashSet<Type>();
-                    __discriminators.Add(discriminator, hashSet);
+                    // straight forward: discriminator was unknown so we just add a new hash set
+                    HashSet<Type> hashSet = new HashSet<Type>();
+                    PopulateHashSet(hashSet, type);
+                    __discriminators[discriminator] = hashSet;
                 }
-
-                if (!hashSet.Contains(type))
+                else
                 {
-                    hashSet.Add(type);
-
-                    // mark all base types as discriminated (so we know that it's worth reading a discriminator)
-                    for (var baseType = type.GetTypeInfo().BaseType; baseType != null; baseType = baseType.GetTypeInfo().BaseType)
+                    HashSet<Type> hashSet = (HashSet<Type>)hashSetAsObject;
+                    if (!hashSet.Contains(type))
                     {
-                        __discriminatedTypes.Add(baseType);
+                        // an existing hash set was there so we duplicate it and replace the old one in the cache with a new instance
+                        // so that consumers can safely iterate over it because we don't modify the same instance
+                        hashSet = new HashSet<Type>(hashSet);
+                        PopulateHashSet(hashSet, type);
+                        __discriminators[discriminator] = hashSet;
                     }
                 }
             }
@@ -672,23 +680,15 @@ namespace MongoDB.Bson.Serialization
         // internal static methods
         internal static void EnsureKnownTypesAreRegistered(Type nominalType)
         {
-            __configLock.EnterReadLock();
-            try
+            if (__typesWithRegisteredKnownTypes.ContainsKey(nominalType))
             {
-                if (__typesWithRegisteredKnownTypes.Contains(nominalType))
-                {
-                    return;
-                }
-            }
-            finally
-            {
-                __configLock.ExitReadLock();
+                return;
             }
 
             __configLock.EnterWriteLock();
             try
             {
-                if (!__typesWithRegisteredKnownTypes.Contains(nominalType))
+                if (!__typesWithRegisteredKnownTypes.ContainsKey(nominalType))
                 {
                     // only call LookupClassMap for classes with a BsonKnownTypesAttribute
 #if NET452
@@ -702,7 +702,7 @@ namespace MongoDB.Bson.Serialization
                         LookupSerializer(nominalType);
                     }
 
-                    __typesWithRegisteredKnownTypes.Add(nominalType);
+                    __typesWithRegisteredKnownTypes[nominalType] = null /* we don't care about the value */;
                 }
             }
             finally
