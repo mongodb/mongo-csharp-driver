@@ -594,6 +594,7 @@
                   }
                 }
               ],
+              "cursor": {},
               "readConcern": null,
               "lsid": "session0",
               "txnNumber": {

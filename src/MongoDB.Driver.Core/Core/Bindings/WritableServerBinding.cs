@@ -63,7 +63,8 @@ namespace MongoDB.Driver.Core.Bindings
         public IChannelSourceHandle GetReadChannelSource(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-            var server = _cluster.SelectServer(WritableServerSelector.Instance, cancellationToken);
+            var server = _cluster.SelectServerAndPinIfNeeded(_session, WritableServerSelector.Instance, cancellationToken);
+            
             return GetChannelSourceHelper(server);
         }
 
@@ -71,7 +72,7 @@ namespace MongoDB.Driver.Core.Bindings
         public async Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-            var server = await _cluster.SelectServerAsync(WritableServerSelector.Instance, cancellationToken).ConfigureAwait(false);
+            var server = await _cluster.SelectServerAndPinIfNeededAsync(_session, WritableServerSelector.Instance, cancellationToken).ConfigureAwait(false);
             return GetChannelSourceHelper(server);
         }
 
@@ -79,7 +80,7 @@ namespace MongoDB.Driver.Core.Bindings
         public IChannelSourceHandle GetWriteChannelSource(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-            var server = _cluster.SelectServer(WritableServerSelector.Instance, cancellationToken);
+            var server = _cluster.SelectServerAndPinIfNeeded(_session, WritableServerSelector.Instance, cancellationToken);
             return GetChannelSourceHelper(server);
         }
 
@@ -87,7 +88,7 @@ namespace MongoDB.Driver.Core.Bindings
         public async Task<IChannelSourceHandle> GetWriteChannelSourceAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-            var server = await _cluster.SelectServerAsync(WritableServerSelector.Instance, cancellationToken).ConfigureAwait(false);
+            var server = await _cluster.SelectServerAndPinIfNeededAsync(_session, WritableServerSelector.Instance, cancellationToken).ConfigureAwait(false);
             return GetChannelSourceHelper(server);
         }
 

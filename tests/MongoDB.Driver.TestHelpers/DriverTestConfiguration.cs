@@ -80,9 +80,13 @@ namespace MongoDB.Driver.Tests
             return CreateDisposableClient((MongoClientSettings s) => s.ClusterConfigurator = clusterConfigurator);
         }
 
-        public static DisposableMongoClient CreateDisposableClient(Action<MongoClientSettings> clientSettingsConfigurator)
+        public static DisposableMongoClient CreateDisposableClient(
+            Action<MongoClientSettings> clientSettingsConfigurator, 
+            bool useMultipleShardRouters = false)
         {
-            var connectionString = CoreTestConfiguration.ConnectionString.ToString();
+            var connectionString = useMultipleShardRouters 
+                ? CoreTestConfiguration.ConnectionStringWithMultipleShardRouters.ToString()
+                : CoreTestConfiguration.ConnectionString.ToString();
             var clientSettings = MongoClientSettings.FromUrl(new MongoUrl(connectionString));
             clientSettingsConfigurator(clientSettings);
             var client = new MongoClient(clientSettings);

@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Core.Bindings
         public IChannelSourceHandle GetReadChannelSource(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-            var server = _cluster.SelectServer(_serverSelector, cancellationToken);
+            var server = _cluster.SelectServerAndPinIfNeeded(_session, _serverSelector, cancellationToken);
             return GetChannelSourceHelper(server);
         }
 
@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Core.Bindings
         public async Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-            var server = await _cluster.SelectServerAsync(_serverSelector, cancellationToken).ConfigureAwait(false);
+            var server = await _cluster.SelectServerAndPinIfNeededAsync(_session, _serverSelector, cancellationToken).ConfigureAwait(false);
             return GetChannelSourceHelper(server);
         }
 

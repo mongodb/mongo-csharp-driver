@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -60,7 +61,20 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)
         {
-            RequireServer.Check().Supports(Feature.Transactions).ClusterType(ClusterType.ReplicaSet);
+            if (CoreTestConfiguration.Cluster.Description.Type == ClusterType.Sharded)
+            {
+                RequireServer.Check().Supports(Feature.ShardedTransactions);
+            } 
+            else
+            {
+                RequireServer.Check().Supports(Feature.Transactions).ClusterType(ClusterType.ReplicaSet);
+            }
+
+            if (testCase.Test.Contains("skipReason"))
+            {
+                throw new SkipException($"skipReason: {testCase.Test["skipReason"].AsString}");
+            }
+            
             Run(testCase.Shared, testCase.Test);
         }
 
@@ -94,7 +108,14 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
 
                 Dictionary<string, BsonValue> sessionIdMap;
 
-                using (var client = CreateDisposableClient(test, eventCapturer))
+                var useMultipleShardRouters = shared["_path"].AsString.EndsWith("pin-mongos.json") 
+                    && CoreTestConfiguration.Cluster.Description.Type == ClusterType.Sharded;
+                if (useMultipleShardRouters)
+                {
+                    PrimeShardRoutersWithDistinctCommand();
+                }
+                
+                using (var client = CreateDisposableClient(test, eventCapturer, useMultipleShardRouters))
                 using (var session0 = StartSession(client, test, "session0"))
                 using (var session1 = StartSession(client, test, "session1"))
                 {
@@ -161,13 +182,32 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
             }
         }
 
-        private DisposableMongoClient CreateDisposableClient(BsonDocument test, EventCapturer eventCapturer)
+        /// <summary>
+        /// Temporary patch until SERVER-39704 is resolved.
+        /// </summary>
+        public void PrimeShardRoutersWithDistinctCommand()
         {
-            return DriverTestConfiguration.CreateDisposableClient((MongoClientSettings settings) =>
+            var connectionString = CoreTestConfiguration.ConnectionStringWithMultipleShardRouters;
+            foreach (var endPoint in connectionString.Hosts.Cast<DnsEndPoint>())
             {
-                ConfigureClientSettings(settings, test);
-                settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
-            });
+                var clientSettings = MongoClientSettings.FromConnectionString(connectionString.ToString());
+                clientSettings.Server = new MongoServerAddress(endPoint.Host, endPoint.Port);
+                var client = new MongoClient(clientSettings);
+                var database = client.GetDatabase(_databaseName);
+                var collection = database.GetCollection<BsonDocument>(_collectionName);
+                collection.Distinct<BsonValue>("_id", "{ }");
+            }
+        }
+        
+        private DisposableMongoClient CreateDisposableClient(BsonDocument test, EventCapturer eventCapturer, bool useMultipleShardRouters)
+        {
+            return DriverTestConfiguration.CreateDisposableClient(
+                (MongoClientSettings settings) =>
+                {
+                    ConfigureClientSettings(settings, test);
+                    settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
+                }, 
+                useMultipleShardRouters);
         }
 
         private void ConfigureClientSettings(MongoClientSettings settings, BsonDocument test)

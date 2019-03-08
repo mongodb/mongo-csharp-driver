@@ -67,6 +67,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __scramSha1Authentication = new Feature("ScramSha1Authentication", new SemanticVersion(3, 0, 0));
         private static readonly Feature __scramSha256Authentication = new Feature("ScramSha256Authentication", new SemanticVersion(4, 0, 0, ""));
         private static readonly Feature __serverExtractsUsernameFromX509Certificate = new Feature("ServerExtractsUsernameFromX509Certificate", new SemanticVersion(3, 3, 12));
+        private static readonly Feature __shardedTransactions = new Feature("ShardedTransactions", new SemanticVersion(4, 1, 0));
         private static readonly Feature __transactions = new Feature("Transactions", new SemanticVersion(3, 7, 0));
         private static readonly Feature __userManagementCommands = new Feature("UserManagementCommands", new SemanticVersion(2, 6, 0));
         private static readonly Feature __views = new Feature("Views", new SemanticVersion(3, 3, 11));
@@ -291,6 +292,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the server extracts username from X509 certificate feature.
         /// </summary>
         public static Feature ServerExtractsUsernameFromX509Certificate => __serverExtractsUsernameFromX509Certificate;
+
+        /// <summary>
+        /// Gets the sharded transactions feature.
+        /// </summary>
+        public static Feature ShardedTransactions => __shardedTransactions;
 
         /// <summary>
         /// Gets the transactions feature.

@@ -20,6 +20,7 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Bindings
 {
@@ -37,6 +38,7 @@ namespace MongoDB.Driver.Core.Bindings
         private bool _isCommitTransactionInProgress;
         private readonly IOperationClock _operationClock = new OperationClock();
         private readonly CoreSessionOptions _options;
+        private IServer _pinnedServer;
         private readonly ICoreServerSession _serverSession;
 
         // constructors
@@ -109,6 +111,13 @@ namespace MongoDB.Driver.Core.Bindings
 
         /// <inheritdoc />
         public CoreSessionOptions Options => _options;
+
+        /// <inheritdoc />
+        public IServer PinnedServer
+        {
+            get => _pinnedServer;
+            set => _pinnedServer = value;
+        }
 
         /// <inheritdoc />
         public ICoreServerSession ServerSession => _serverSession;

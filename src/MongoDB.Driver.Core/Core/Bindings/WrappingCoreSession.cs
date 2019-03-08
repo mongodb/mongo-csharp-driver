@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Bindings
 {
@@ -124,6 +125,13 @@ namespace MongoDB.Driver.Core.Bindings
                 ThrowIfDisposed();
                 return _wrapped.Options;
             }
+        }
+
+        /// <inheritdoc />
+        public IServer PinnedServer
+        {
+            get => _wrapped.PinnedServer;
+            set => _wrapped.PinnedServer = value;
         }
 
         /// <inheritdoc />

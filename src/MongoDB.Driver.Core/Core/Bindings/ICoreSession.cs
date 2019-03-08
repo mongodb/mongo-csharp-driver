@@ -18,6 +18,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Bindings
 {
@@ -91,6 +92,15 @@ namespace MongoDB.Driver.Core.Bindings
         /// </value>
         CoreSessionOptions Options { get; }
 
+        /// <summary>
+        /// Gets or sets pinned server for the current transaction.
+        /// Value has meaning if and only if a transaction is in progress.
+        /// </summary>
+        /// <value>
+        /// The pinned server for the current transaction.
+        /// </value>
+        IServer PinnedServer { get; set; }
+        
         /// <summary>
         /// Gets the server session.
         /// </summary>
