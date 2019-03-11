@@ -237,7 +237,7 @@ namespace MongoDB.Driver
         
         private static ConnectionString GetConnectionStringWithMultipleShardRouters()
         {
-            var uri = Environment.GetEnvironmentVariable("MONGODB_URI_WITH_MULTIPLE_MONGOSES") ?? "mongodb://localhost,localhost:27018");
+            var uri = Environment.GetEnvironmentVariable("MONGODB_URI_WITH_MULTIPLE_MONGOSES") ?? "mongodb://localhost,localhost:27018";
             return new ConnectionString(uri);
         }
 
