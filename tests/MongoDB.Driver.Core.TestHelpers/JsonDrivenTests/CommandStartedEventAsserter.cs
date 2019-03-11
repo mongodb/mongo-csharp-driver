@@ -78,6 +78,7 @@ namespace MongoDB.Driver.Core.TestHelpers.JsonDrivenTests
         {
             RecursiveFieldSetter.SetAll(actualCommand, "getMore", 42L);
             RecursiveFieldSetter.SetAll(actualCommand, "afterClusterTime", 42);
+            RecursiveFieldSetter.SetAll(actualCommand, "recoveryToken", 42);
 
             foreach (var aspect in aspects)
             {
@@ -95,6 +96,7 @@ namespace MongoDB.Driver.Core.TestHelpers.JsonDrivenTests
                 {
                     case "autocommit":
                     case "readConcern":
+                    case "recoveryToken":
                     case "startTransaction":
                     case "txnNumber":
                     case "writeConcern":

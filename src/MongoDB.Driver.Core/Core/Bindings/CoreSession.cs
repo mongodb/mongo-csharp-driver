@@ -39,7 +39,6 @@ namespace MongoDB.Driver.Core.Bindings
         private bool _isCommitTransactionInProgress;
         private readonly IOperationClock _operationClock = new OperationClock();
         private readonly CoreSessionOptions _options;
-        private IServer _pinnedServer;
         private readonly ICoreServerSession _serverSession;
 
         // constructors
@@ -112,13 +111,6 @@ namespace MongoDB.Driver.Core.Bindings
 
         /// <inheritdoc />
         public CoreSessionOptions Options => _options;
-
-        /// <inheritdoc />
-        public IServer PinnedServer
-        {
-            get => _pinnedServer;
-            set => _pinnedServer = value;
-        }
 
         /// <inheritdoc />
         public ICoreServerSession ServerSession => _serverSession;
@@ -278,7 +270,8 @@ namespace MongoDB.Driver.Core.Bindings
                 }
                 catch (Exception exception) when (ShouldRetryEndTransactionException(exception))
                 {
-                    // ignore exception and retry
+                    // unpin server if needed, then ignore exception and retry
+                    TransactionHelper.UnpinServerIfNeededOnRetryableCommitException(_currentTransaction, exception);
                 }
 
                 var secondAttempt = CreateCommitTransactionOperation(isCommitRetry: true);
@@ -312,7 +305,8 @@ namespace MongoDB.Driver.Core.Bindings
                 }
                 catch (Exception exception) when (ShouldRetryEndTransactionException(exception))
                 {
-                    // ignore exception and retry
+                    // unpin server if needed, then ignore exception and retry
+                    TransactionHelper.UnpinServerIfNeededOnRetryableCommitException(_currentTransaction, exception);
                 }
 
                 var secondAttempt = CreateCommitTransactionOperation(isCommitRetry: true);
@@ -382,7 +376,7 @@ namespace MongoDB.Driver.Core.Bindings
 
         private IReadOperation<BsonDocument> CreateCommitTransactionOperation(bool isCommitRetry)
         {
-            return new CommitTransactionOperation(GetCommitTransactionWriteConcern(isCommitRetry));
+            return new CommitTransactionOperation(_currentTransaction.RecoveryToken, GetCommitTransactionWriteConcern(isCommitRetry));
         }
 
         private void EnsureAbortTransactionCanBeCalled(string methodName)

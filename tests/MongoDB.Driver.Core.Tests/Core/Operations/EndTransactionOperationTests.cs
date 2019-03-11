@@ -174,10 +174,11 @@ namespace MongoDB.Driver.Core.Operations
         public void constructor_should_initialize_instance()
         {
             var writeConcern = new WriteConcern();
-
-            var result = new CommitTransactionOperation(writeConcern);
+            var recoveryToken = BsonDocument.Parse("{generalOrder: 1}");
+            var result = new CommitTransactionOperation(recoveryToken, writeConcern);
 
             result.CommandName().Should().Be("commitTransaction");
+            result.RecoveryToken.Should().Be(recoveryToken);
             result.WriteConcern.Should().BeSameAs(writeConcern);
         }
 
@@ -185,7 +186,7 @@ namespace MongoDB.Driver.Core.Operations
         public void CommandName_should_return_expected_result()
         {
             var writeConcern = new WriteConcern();
-            var subject = new CommitTransactionOperation(writeConcern);
+            var subject = new CommitTransactionOperation(null, writeConcern);
 
             var result = subject.CommandName();
 

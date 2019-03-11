@@ -93,15 +93,6 @@ namespace MongoDB.Driver.Core.Bindings
         CoreSessionOptions Options { get; }
 
         /// <summary>
-        /// Gets or sets pinned server for the current transaction.
-        /// Value has meaning if and only if a transaction is in progress.
-        /// </summary>
-        /// <value>
-        /// The pinned server for the current transaction.
-        /// </value>
-        IServer PinnedServer { get; set; }
-        
-        /// <summary>
         /// Gets the server session.
         /// </summary>
         /// <value>

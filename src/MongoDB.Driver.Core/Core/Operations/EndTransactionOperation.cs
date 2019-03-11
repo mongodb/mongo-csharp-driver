@@ -102,8 +102,12 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        // private methods
-        private BsonDocument CreateCommand()
+        // protected methods
+        /// <summary>
+        /// Creates the command for the operation.
+        /// </summary>
+        /// <returns>The command.</returns>
+        protected virtual BsonDocument CreateCommand()
         {
             return new BsonDocument
             {
@@ -112,6 +116,7 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
+        // private methods
         private IReadOperation<BsonDocument> CreateOperation()
         {
             var command = CreateCommand();
@@ -144,6 +149,8 @@ namespace MongoDB.Driver.Core.Operations
     /// </summary>
     public sealed class CommitTransactionOperation : EndTransactionOperation
     {
+        private readonly BsonDocument _recoveryToken;
+
         // public constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="AbortTransactionOperation"/> class.
@@ -154,6 +161,20 @@ namespace MongoDB.Driver.Core.Operations
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AbortTransactionOperation"/> class.
+        /// </summary>
+        /// <param name="recoveryToken">The recovery token.</param>
+        /// <param name="writeConcern">The write concern.</param>
+        public CommitTransactionOperation(BsonDocument recoveryToken, WriteConcern writeConcern)
+            : base(writeConcern)
+        {
+            _recoveryToken = recoveryToken;
+        }
+
+        // internal properties
+        internal BsonDocument RecoveryToken => _recoveryToken;
+        
         // protected properties
         /// <inheritdoc />
         protected override string CommandName => "commitTransaction";
@@ -185,6 +206,19 @@ namespace MongoDB.Driver.Core.Operations
                 ReplaceTransientTransactionErrorWithUnknownTransactionCommitResult(exception);
                 throw;
             }
+        }
+
+        // protected methods
+        /// <inheritdoc />
+        protected override BsonDocument CreateCommand()
+        {
+            var command = base.CreateCommand();
+            if (_recoveryToken != null)
+            {
+                command.Add("recoveryToken", _recoveryToken);
+            }
+
+            return command;
         }
 
         // private methods

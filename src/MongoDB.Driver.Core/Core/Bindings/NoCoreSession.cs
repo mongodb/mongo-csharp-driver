@@ -17,8 +17,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Bindings
 {
@@ -76,13 +74,6 @@ namespace MongoDB.Driver.Core.Bindings
 
         /// <inheritdoc />
         public CoreSessionOptions Options => null;
-
-        /// <inheritdoc />
-        public IServer PinnedServer
-        {
-            get => throw new NotSupportedException($"NoCoreSession does not support {nameof(PinnedServer)}.");
-            set => throw new NotSupportedException($"NoCoreSession does not support {nameof(PinnedServer)}.");
-        }
 
         /// <inheritdoc />
         public ICoreServerSession ServerSession => NoCoreServerSession.Instance;

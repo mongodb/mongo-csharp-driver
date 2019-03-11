@@ -13,6 +13,9 @@
 * limitations under the License.
 */
 
+using MongoDB.Bson;
+using MongoDB.Driver.Core.Servers;
+
 namespace MongoDB.Driver.Core.Bindings
 {
     /// <summary>
@@ -22,6 +25,8 @@ namespace MongoDB.Driver.Core.Bindings
     {
         // private fields
         private bool _isEmpty;
+        private IServer _pinnedServer;
+        private BsonDocument _recoveryToken;
         private CoreTransactionState _state;
         private readonly long _transactionNumber;
         private readonly TransactionOptions _transactionOptions;
@@ -58,6 +63,18 @@ namespace MongoDB.Driver.Core.Bindings
         public CoreTransactionState State => _state;
 
         /// <summary>
+        /// Gets or sets pinned server for the current transaction.
+        /// Value has meaning if and only if a transaction is in progress.
+        /// </summary>
+        /// <value>
+        /// The pinned server for the current transaction.
+        /// </value>
+        public IServer PinnedServer {
+            get => _pinnedServer;
+            internal set => _pinnedServer = value;
+        }
+
+        /// <summary>
         /// Gets the transaction number.
         /// </summary>
         /// <value>
@@ -72,6 +89,18 @@ namespace MongoDB.Driver.Core.Bindings
         /// The transaction options.
         /// </value>
         public TransactionOptions TransactionOptions => _transactionOptions;
+
+        /// <summary>
+        /// Gets the recovery token used in sharded transactions.
+        /// </summary>
+        /// <value>
+        /// The recovery token.
+        /// </value>
+        public BsonDocument RecoveryToken
+        {
+            get => _recoveryToken;
+            internal set => _recoveryToken = value;
+        }
 
         // internal methods
         internal void SetState(CoreTransactionState state)

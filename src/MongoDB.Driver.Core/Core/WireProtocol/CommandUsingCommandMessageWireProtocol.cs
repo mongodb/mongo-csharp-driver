@@ -106,9 +106,13 @@ namespace MongoDB.Driver.Core.WireProtocol
                     return default(TCommandResult);
                 }
             }
-            catch (MongoException exception) when (ShouldAddTransientTransactionError(exception))
+            catch (Exception exception)
             {
-                exception.AddErrorLabel("TransientTransactionError");
+                if (exception is MongoException mongoException && ShouldAddTransientTransactionError(mongoException))
+                {
+                    mongoException.AddErrorLabel("TransientTransactionError");
+                }
+                TransactionHelper.UnpinServerIfNeededOnCommandException(_session, exception);
                 throw;
             }
         }
@@ -139,9 +143,13 @@ namespace MongoDB.Driver.Core.WireProtocol
                     return default(TCommandResult);
                 }
             }
-            catch (MongoException exception) when (ShouldAddTransientTransactionError(exception))
+            catch (Exception exception)
             {
-                exception.AddErrorLabel("TransientTransactionError");
+                if (exception is MongoException mongoException && ShouldAddTransientTransactionError(mongoException))
+                {
+                    mongoException.AddErrorLabel("TransientTransactionError");
+                }
+                TransactionHelper.UnpinServerIfNeededOnCommandException(_session, exception);
                 throw;
             }
         }
@@ -266,7 +274,15 @@ namespace MongoDB.Driver.Core.WireProtocol
                     _session.AdvanceOperationTime(operationTime.AsBsonTimestamp);
                 }
 
-                if (!rawDocument.GetValue("ok", false).ToBoolean())
+                if (rawDocument.GetValue("ok", false).ToBoolean())
+                {
+                    if (rawDocument.TryGetValue("recoveryToken", out var rawRecoveryToken))
+                    {
+                        var recoveryToken = ((RawBsonDocument)rawRecoveryToken).Materialize(binaryReaderSettings);
+                        _session.CurrentTransaction.RecoveryToken = recoveryToken;
+                    }
+                }
+                else
                 {
                     var materializedDocument = rawDocument.Materialize(binaryReaderSettings);
 

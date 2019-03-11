@@ -69,18 +69,17 @@ namespace MongoDB.Driver.Core.Clusters
         {
             if (cluster.Description.Type == ClusterType.Sharded && session.IsInTransaction)
             {
-                session.PinnedServer = server;
+                session.CurrentTransaction.PinnedServer = server;
             }
         }
 
         private static IServer GetPinnedServerIfValid(ICluster cluster, ICoreSessionHandle session)
         {
             if (cluster.Description.Type == ClusterType.Sharded 
-                && session.IsInTransaction 
-                && session.PinnedServer != null 
+                && session.IsInTransaction
                 && session.CurrentTransaction.State != CoreTransactionState.Starting)
             {
-                return session.PinnedServer;
+                return session.CurrentTransaction.PinnedServer;
             }
             else
             {

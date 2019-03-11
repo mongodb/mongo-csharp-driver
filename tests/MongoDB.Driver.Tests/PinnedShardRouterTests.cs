@@ -12,8 +12,10 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
@@ -56,7 +58,6 @@ namespace MongoDB.Driver.Tests
             RequireMultipleShardRouters();
             
             DropCollection();
-            var emptyDocument = new BsonDocument();
             var eventCapturer = CreateEventCapturer();
             var listOfFindResults = new List<List<BsonDocument>>();
             using (var client = CreateDisposableClient(eventCapturer, useMultipleShardRouters:true))
@@ -65,37 +66,38 @@ namespace MongoDB.Driver.Tests
                 // Session is pinned to mongos.
                 session.StartTransaction();
                 var database = client.GetDatabase(_databaseName);
+                CreateCollection();
                 var collection = database.GetCollection<BsonDocument>(_collectionName)
                     .WithWriteConcern(WriteConcern.WMajority);
 
                 if (async)
                 {
-                    await collection.InsertOneAsync(emptyDocument).ConfigureAwait(false);
+                    await collection.InsertOneAsync(new BsonDocument()).ConfigureAwait(false);
                     await session.CommitTransactionAsync().ConfigureAwait(false);
-                    for (var i = 0; i < 20; i++)
+                    for (var i = 0; i < 50; i++)
                     {
                         session.StartTransaction();
-                        var cursor = await collection.FindAsync(session, filter: emptyDocument).ConfigureAwait(false);
+                        var cursor = await collection.FindAsync(session, filter: new BsonDocument()).ConfigureAwait(false);
                         listOfFindResults.Add(cursor.ToList());
                         await session.CommitTransactionAsync().ConfigureAwait(false);
                     }
                 }
                 else
                 {
-                    collection.InsertOne(emptyDocument);
+                    collection.InsertOne(new BsonDocument());
                     session.CommitTransaction();
 
-                    for (var i = 0; i < 20; i++)
+                    for (var i = 0; i < 50; i++)
                     {
                         session.StartTransaction();
-                        var cursor = collection.Find(session, filter: emptyDocument);
+                        var cursor = collection.Find(session, filter: new BsonDocument());
                         listOfFindResults.Add(cursor.ToList());
                         session.CommitTransaction();
                     }
                 }
             }
             
-            listOfFindResults.Should().OnlyContain(findResult => findResult.Count == 1);
+            listOfFindResults.Should().OnlyContain(findResult => findResult.Count > 0);
             var servers = new HashSet<ServerId>(eventCapturer.Events.Select(e => ((CommandStartedEvent) e).ConnectionId.ServerId));
             servers.Count.Should().BeGreaterThan(1);
 
@@ -113,12 +115,12 @@ namespace MongoDB.Driver.Tests
             RequireMultipleShardRouters();
             
             DropCollection();
-            var emptyDocument = new BsonDocument();
             var eventCapturer = CreateEventCapturer();
             var listOfFindResults = new List<List<BsonDocument>>();
             using (var client = CreateDisposableClient(eventCapturer, useMultipleShardRouters:true))
             using (var session = client.StartSession())
             {
+                CreateCollection();
                 // Session is pinned to mongos.
                 session.StartTransaction();
                 var database = client.GetDatabase(_databaseName);
@@ -127,26 +129,25 @@ namespace MongoDB.Driver.Tests
 
                 if (async)
                 {
-                    await collection.InsertOneAsync(emptyDocument).ConfigureAwait(false);
+                    await collection.InsertOneAsync(new BsonDocument()).ConfigureAwait(false);
                     await session.CommitTransactionAsync().ConfigureAwait(false);
-                    for (var i = 0; i < 20; i++)
+                    for (var i = 0; i < 50; i++)
                     {
-                        var cursor = await collection.FindAsync(session, filter: emptyDocument).ConfigureAwait(false);
+                        var cursor = await collection.FindAsync(session, filter: new BsonDocument()).ConfigureAwait(false);
                         listOfFindResults.Add(cursor.ToList());
                     }    
                 }
                 else
                 { 
-                    collection.InsertOne(emptyDocument);
                     session.CommitTransaction();
-                    for (var i = 0; i < 20; i++)
+                    for (var i = 0; i < 50; i++)
                     {
-                        listOfFindResults.Add(collection.Find(session, filter: emptyDocument).ToList());
+                        listOfFindResults.Add(collection.Find(session, filter: new BsonDocument()).ToList());
                     }
                 }
             }
 
-            listOfFindResults.Should().OnlyContain(findResult => findResult.Count == 1);
+            listOfFindResults.Should().OnlyContain(findResult => findResult.Count > 0);
             var servers = new HashSet<ServerId>(eventCapturer.Events.Select(e => ((CommandStartedEvent) e).ConnectionId.ServerId));
             servers.Count.Should().BeGreaterThan(1);
         }
@@ -156,16 +157,29 @@ namespace MongoDB.Driver.Tests
             return new EventCapturer()
                 .Capture<CommandStartedEvent>(e => !__commandsToNotCapture.Contains(e.CommandName));
         }
-        
+
+        private void CreateCollection()
+        {
+            var client = DriverTestConfiguration.Client;
+            var database = client.GetDatabase(_databaseName).WithWriteConcern(WriteConcern.WMajority);
+            // Collection must be created outside of a transaction
+            database.GetCollection<BsonDocument>(_collectionName).InsertOne(new BsonDocument());
+        }
+
         private DisposableMongoClient CreateDisposableClient(EventCapturer eventCapturer, bool useMultipleShardRouters)
         {
-            return DriverTestConfiguration.CreateDisposableClient((MongoClientSettings settings) =>
+            // Increase localThresholdMS and wait until all nodes are discovered to avoid false positives.
+            var client = DriverTestConfiguration.CreateDisposableClient((MongoClientSettings settings) =>
                 {
                     settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
+                    settings.LocalThreshold = TimeSpan.FromMilliseconds(1000);
                 }, 
                 useMultipleShardRouters);
+            var timeOut = TimeSpan.FromSeconds(60);
+            SpinWait.SpinUntil(() => client.Cluster.Description.Type != ClusterType.Unknown, timeOut).Should().BeTrue();
+            return client;
         }
-        
+
         private void DropCollection()
         {
             var client = DriverTestConfiguration.Client;
