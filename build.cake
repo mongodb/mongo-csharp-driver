@@ -294,7 +294,11 @@ Task("PackageNugetPackages")
             var settings = new DotNetCorePackSettings
             {
                 Configuration = configuration,
-                OutputDirectory = artifactsPackagesDirectory
+                OutputDirectory = artifactsPackagesDirectory,
+                NoBuild = true,
+                IncludeSymbols = true,
+                MSBuildSettings = new DotNetCoreMSBuildSettings()
+                    .WithProperty("PackageVersion", gitVersion.SemVer)
             };
             DotNetCorePack(projectPath, settings);
         }
