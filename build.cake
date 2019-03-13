@@ -315,10 +315,18 @@ Task("PushToMyget")
 
         var packageFiles = new List<FilePath>();
 
-        var nuspecFiles = GetFiles("./artifacts/packages/*.nuspec");
-        foreach (var nuspecFile in nuspecFiles)
+        var projects = new[]
         {
-            var packageFileName = nuspecFile.GetFilenameWithoutExtension() + ".nupkg";
+            "MongoDB.Bson",
+            "MongoDB.Driver.Core",
+            "MongoDB.Driver",
+            "MongoDB.Driver.GridFS",
+            "mongocsharpdriver" // the Nuget package name for MongoDB.Driver.Legacy
+        };
+
+        foreach (var project in projects)
+        {
+            var packageFileName = $"{project}.{gitVersion.SemVer}.nupkg";
             var packageFile = artifactsPackagesDirectory.CombineWithFilePath(packageFileName);
             packageFiles.Add(packageFile);
         }
