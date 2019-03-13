@@ -62,7 +62,7 @@ Task("Build")
            Configuration = configuration,
            EnvironmentVariables = new Dictionary<string, string>
            {
-               { "Version", gitVersion.SemVer },
+               { "Version", gitVersion.LegacySemVer },
                { "SourceRevisionId", gitVersion.Sha }
            }
         };
@@ -298,7 +298,7 @@ Task("PackageNugetPackages")
                 NoBuild = true,
                 IncludeSymbols = true,
                 MSBuildSettings = new DotNetCoreMSBuildSettings()
-                    .WithProperty("PackageVersion", gitVersion.SemVer)
+                    .WithProperty("PackageVersion", gitVersion.LegacySemVer)
             };
             DotNetCorePack(projectPath, settings);
         }
@@ -326,7 +326,7 @@ Task("PushToMyget")
 
         foreach (var project in projects)
         {
-            var packageFileName = $"{project}.{gitVersion.SemVer}.nupkg";
+            var packageFileName = $"{project}.{gitVersion.LegacySemVer}.nupkg";
             var packageFile = artifactsPackagesDirectory.CombineWithFilePath(packageFileName);
             packageFiles.Add(packageFile);
         }
