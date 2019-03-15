@@ -75,7 +75,14 @@ namespace MongoDB.Bson.TestHelpers
             var methodInfo = type.GetMethods(flags)
                 .Where(m => m.Name == name && m.GetParameters().Length == 0)
                 .Single();
-            return methodInfo.Invoke(null, new object[] { });
+            try
+            {
+                return methodInfo.Invoke(null, new object[] { });
+            }
+            catch (TargetInvocationException exception)
+            {
+                throw exception.InnerException;
+            }
         }
 
         public static object InvokeStatic<T1>(Type type, string name, T1 arg1)
@@ -84,7 +91,30 @@ namespace MongoDB.Bson.TestHelpers
             var methodInfo = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Static)
                 .Where(m => m.Name == name && m.GetParameters().Select(p => p.ParameterType).SequenceEqual(parameterTypes))
                 .Single();
-            return methodInfo.Invoke(null, new object[] { arg1 });
+            try
+            {
+                return methodInfo.Invoke(null, new object[] { arg1 });
+            }
+            catch (TargetInvocationException exception)
+            {
+                throw exception.InnerException;
+            }
+        }
+
+        public static object InvokeStatic<T1, T2, T3, T4>(Type type, string name, T1 arg1, T2 arg2, T3 arg3, T4 arg4)
+        {
+            var parameterTypes = new[] { typeof(T1), typeof(T2), typeof(T3), typeof(T4) };
+            var methodInfo = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Static)
+                .Where(m => m.Name == name && m.GetParameters().Select(p => p.ParameterType).SequenceEqual(parameterTypes))
+                .Single();
+            try
+            {
+                return methodInfo.Invoke(null, new object[] { arg1, arg2, arg3, arg4 });
+            }
+            catch (TargetInvocationException exception)
+            {
+                throw exception.InnerException;
+            }
         }
 
         public static void SetFieldValue(object obj, string name, object value, BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance)

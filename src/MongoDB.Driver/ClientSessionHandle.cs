@@ -13,10 +13,13 @@
 * limitations under the License.
 */
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver
 {
@@ -28,6 +31,7 @@ namespace MongoDB.Driver
     {
         // private fields
         private readonly IMongoClient _client;
+        private readonly IClock _clock;
         private readonly ICoreSessionHandle _coreSession;
         private bool _disposed;
         private readonly ClientSessionOptions _options;
@@ -40,12 +44,18 @@ namespace MongoDB.Driver
         /// <param name="client">The client.</param>
         /// <param name="options">The options.</param>
         /// <param name="coreSession">The wrapped session.</param>
-        public ClientSessionHandle(IMongoClient client, ClientSessionOptions options, ICoreSessionHandle coreSession)
+        public ClientSessionHandle(IMongoClient client, ClientSessionOptions options, ICoreSessionHandle coreSession) 
+            : this(client, options, coreSession, SystemClock.Instance)
+        {
+        }
+
+        internal ClientSessionHandle(IMongoClient client, ClientSessionOptions options, ICoreSessionHandle coreSession, IClock clock) 
         {
             _client = client;
             _options = options;
             _coreSession = coreSession;
             _serverSession = new ServerSession(coreSession.ServerSession);
+            _clock = clock;
         }
 
         // public properties
@@ -134,7 +144,22 @@ namespace MongoDB.Driver
             _coreSession.StartTransaction(effectiveTransactionOptions);
         }
 
-        // private methods
+        /// <inheritdoc />
+        public TResult WithTransaction<TResult>(Func<IClientSessionHandle, CancellationToken, TResult> callback, TransactionOptions transactionOptions = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(callback, nameof(callback));
+
+            return TransactionExecutor.ExecuteWithRetries(this, callback, transactionOptions, _clock, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<TResult> WithTransactionAsync<TResult>(Func<IClientSessionHandle, CancellationToken, Task<TResult>> callbackAsync, TransactionOptions transactionOptions = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(callbackAsync, nameof(callbackAsync));
+
+            return TransactionExecutor.ExecuteWithRetriesAsync(this, callbackAsync, transactionOptions, _clock, cancellationToken);
+        }
+
         private TransactionOptions GetEffectiveTransactionOptions(TransactionOptions transactionOptions)
         {
             var defaultTransactionOptions = _options?.DefaultTransactionOptions;

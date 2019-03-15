@@ -135,6 +135,26 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="transactionOptions">The transaction options.</param>
         void StartTransaction(TransactionOptions transactionOptions = null);
+
+        /// <summary>
+        /// Executes a callback within a transaction, with retries if needed.
+        /// </summary>
+        /// <param name="callback">The user defined callback.</param>
+        /// <param name="transactionOptions">The transaction options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <typeparam name="TResult">The type of callback result.</typeparam>
+        /// <returns>The callback result.</returns>
+        TResult WithTransaction<TResult>(Func<IClientSessionHandle, CancellationToken, TResult> callback, TransactionOptions transactionOptions = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Executes a callback within a transaction, with retries if needed.
+        /// </summary>
+        /// <param name="callbackAsync">The user defined callback.</param>
+        /// <param name="transactionOptions">The transaction options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <typeparam name="TResult">The type of callback result.</typeparam>
+        /// <returns>The callback result.</returns>
+        Task<TResult> WithTransactionAsync<TResult>(Func<IClientSessionHandle, CancellationToken, Task<TResult>> callbackAsync, TransactionOptions transactionOptions = null, CancellationToken cancellationToken = default(CancellationToken));
     }
 
     /// <summary>

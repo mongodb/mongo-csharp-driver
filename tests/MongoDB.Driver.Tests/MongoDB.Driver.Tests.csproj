@@ -73,4 +73,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Specifications\transactions-convenient-api\tests\" />
+  </ItemGroup>
+
 </Project>

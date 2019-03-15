@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 
@@ -48,6 +47,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                     case "abortTransaction": return new JsonDrivenAbortTransactionTest(_objectMap);
                     case "commitTransaction": return new JsonDrivenCommitTransactionTest(_objectMap);
                     case "startTransaction": return new JsonDrivenStartTransactionTest(_objectMap);
+                    case "withTransaction": return new JsonDrivenWithTransactionTest(this, _objectMap);
                     default: throw new FormatException($"Invalid method name: \"{name}\".");
                 }
             }

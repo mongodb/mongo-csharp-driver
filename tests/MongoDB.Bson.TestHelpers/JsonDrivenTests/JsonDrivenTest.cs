@@ -96,6 +96,14 @@ namespace MongoDB.Bson.TestHelpers.JsonDrivenTests
             }
         }
 
+        public void ThrowActualExceptionIfNotNull()
+        {
+            if (_actualException != null)
+            {
+                throw _actualException;
+            }
+        }
+
         // protected methods
         protected virtual void AssertException()
         {

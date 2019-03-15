@@ -262,11 +262,11 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
 
         private IClientSessionHandle StartSession(IMongoClient client, BsonDocument test, string sessionKey)
         {
-            var options = CreateSessionOptions(test, sessionKey);
+            var options = ParseSessionOptions(test, sessionKey);
             return client.StartSession(options);
         }
 
-        private ClientSessionOptions CreateSessionOptions(BsonDocument test, string sessionKey)
+        private ClientSessionOptions ParseSessionOptions(BsonDocument test, string sessionKey)
         {
             var options = new ClientSessionOptions();
             if (test.Contains("sessionOptions"))
