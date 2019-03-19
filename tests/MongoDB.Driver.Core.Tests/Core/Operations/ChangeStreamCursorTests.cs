@@ -308,7 +308,7 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        void ProcessBatch_should_save_resumeToken(
+        void ProcessBatch_should_save_documentResumeToken(
             [Values(false, true)] bool async)
         {
             var mockCursor = new Mock<IAsyncCursor<RawBsonDocument>>();
@@ -335,7 +335,7 @@ namespace MongoDB.Driver.Core.Operations
                 result = subject.MoveNext(cancellationToken);
             }
 
-            subject._changeStreamOperation().ResumeAfter.Should().Be("{ resumeAfter : 1 }");
+            subject._changeStreamOperation().DocumentResumeToken.Should().Be("{ resumeAfter : 1 }");
         }
 
         [Theory]

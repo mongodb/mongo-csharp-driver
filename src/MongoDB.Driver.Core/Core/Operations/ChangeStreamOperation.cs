@@ -35,6 +35,14 @@ namespace MongoDB.Driver.Core.Operations
     {
         // properties
         /// <summary>
+        /// Gets or sets the document resume token.
+        /// </summary>
+        /// <value>
+        /// The document resume token.
+        /// </value>
+        BsonDocument DocumentResumeToken { get; set; }
+
+        /// <summary>
         /// Gets or sets the resume after value.
         /// </summary>
         /// <value>
@@ -79,13 +87,16 @@ namespace MongoDB.Driver.Core.Operations
         private Collation _collation;
         private readonly CollectionNamespace _collectionNamespace;
         private readonly DatabaseNamespace _databaseNamespace;
+        private BsonDocument _documentResumeToken;
         private ChangeStreamFullDocumentOption _fullDocument = ChangeStreamFullDocumentOption.Default;
+        private BsonTimestamp _initialOperationTime;
         private TimeSpan? _maxAwaitTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly IReadOnlyList<BsonDocument> _pipeline;
         private ReadConcern _readConcern = ReadConcern.Default;
         private readonly IBsonSerializer<TResult> _resultSerializer;
         private BsonDocument _resumeAfter;
+        private BsonDocument _startAfter;
         private BsonTimestamp _startAtOperationTime;
 
         // constructors
@@ -96,8 +107,8 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="resultSerializer">The result value serializer.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public ChangeStreamOperation(
-            IEnumerable<BsonDocument> pipeline, 
-            IBsonSerializer<TResult> resultSerializer, 
+            IEnumerable<BsonDocument> pipeline,
+            IBsonSerializer<TResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings)
         {
             _pipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).ToList();
@@ -180,6 +191,13 @@ namespace MongoDB.Driver.Core.Operations
         /// </value>
         public DatabaseNamespace DatabaseNamespace => _databaseNamespace;
 
+        /// <inheritdoc/>
+        public BsonDocument DocumentResumeToken
+        {
+            get { return _documentResumeToken; }
+            set { _documentResumeToken = value; }
+        }
+
         /// <summary>
         /// Gets or sets the full document option.
         /// </summary>
@@ -248,13 +266,20 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <inheritdoc />
+        public BsonDocument StartAfter
+        {
+            get { return _startAfter; }
+            set { _startAfter = value; }
+        }
+
+        /// <inheritdoc />
         public BsonTimestamp StartAtOperationTime
         {
             get { return _startAtOperationTime; }
             set { _startAtOperationTime = value; }
         }
 
-        // public methods        
+        // public methods
         /// <inheritdoc />
         public IAsyncCursor<TResult> Execute(IReadBinding binding, CancellationToken cancellationToken)
         {
@@ -269,15 +294,8 @@ namespace MongoDB.Driver.Core.Operations
             using (var channel = channelSource.GetChannel(cancellationToken))
             using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
             {
-                cursor = Resume(channelBinding, cancellationToken);
-                if (_startAtOperationTime == null && _resumeAfter == null)
-                {
-                    var maxWireVersion = channel.ConnectionDescription.IsMasterResult.MaxWireVersion;
-                    if (maxWireVersion >= 7)
-                    {
-                        _startAtOperationTime = binding.Session.OperationTime;
-                    }
-                }
+                cursor = ExecuteAggregateOperation(channelBinding, resuming: false, cancellationToken);
+                SaveInitialOperationTimeIfRequired(channel, channelBinding, cursor);
             }
 
             return new ChangeStreamCursor<TResult>(cursor, _resultSerializer, bindingHandle.Fork(), this);
@@ -297,15 +315,8 @@ namespace MongoDB.Driver.Core.Operations
             using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
             {
-                cursor = await ResumeAsync(channelBinding, cancellationToken).ConfigureAwait(false);
-                if (_startAtOperationTime == null && _resumeAfter == null)
-                {
-                    var maxWireVersion = channel.ConnectionDescription.IsMasterResult.MaxWireVersion;
-                    if (maxWireVersion >= 7)
-                    {
-                        _startAtOperationTime = binding.Session.OperationTime;
-                    }
-                }
+                cursor = await ExecuteAggregateOperationAsync(channelBinding, resuming: false, cancellationToken).ConfigureAwait(false);
+                SaveInitialOperationTimeIfRequired(channel, channelBinding, cursor);
             }
 
             return new ChangeStreamCursor<TResult>(cursor, _resultSerializer, bindingHandle.Fork(), this);
@@ -314,21 +325,19 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc />
         public IAsyncCursor<RawBsonDocument> Resume(IReadBinding binding, CancellationToken cancellationToken)
         {
-            var aggregateOperation = CreateAggregateOperation();
-            return aggregateOperation.Execute(binding, cancellationToken);
+            return ExecuteAggregateOperation(binding, resuming: true, cancellationToken);
         }
 
         /// <inheritdoc />
         public Task<IAsyncCursor<RawBsonDocument>> ResumeAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
-            var aggregateOperation = CreateAggregateOperation();
-            return aggregateOperation.ExecuteAsync(binding, cancellationToken);
+            return ExecuteAggregateOperationAsync(binding, resuming: true, cancellationToken);
         }
 
         // private methods
-        private AggregateOperation<RawBsonDocument> CreateAggregateOperation()
+        private AggregateOperation<RawBsonDocument> CreateAggregateOperation(bool resuming)
         {
-            var changeStreamStage = CreateChangeStreamStage();
+            var changeStreamStage = CreateChangeStreamStage(resuming);
             var combinedPipeline = CreateCombinedPipeline(changeStreamStage);
 
             AggregateOperation<RawBsonDocument> operation;
@@ -350,14 +359,17 @@ namespace MongoDB.Driver.Core.Operations
             return operation;
         }
 
-        private BsonDocument CreateChangeStreamStage()
+        private BsonDocument CreateChangeStreamStage(bool resuming)
         {
+            var resumeStartValues = GetEffectiveResumeStartValues(resuming);
+
             var changeStreamOptions = new BsonDocument
             {
                 { "fullDocument", ToString(_fullDocument) },
                 { "allChangesForCluster", true, _collectionNamespace == null && _databaseNamespace == null },
-                { "startAtOperationTime", _startAtOperationTime, _startAtOperationTime != null },
-                { "resumeAfter", _resumeAfter, _resumeAfter != null }
+                { "startAfter", resumeStartValues.StartAfter, resumeStartValues.StartAfter != null},
+                { "startAtOperationTime", resumeStartValues.StartAtOperationTime, resumeStartValues.StartAtOperationTime != null },
+                { "resumeAfter", resumeStartValues.ResumeAfter, resumeStartValues.ResumeAfter != null }
             };
             return new BsonDocument("$changeStream", changeStreamOptions);
         }
@@ -370,6 +382,61 @@ namespace MongoDB.Driver.Core.Operations
             return combinedPipeline;
         }
 
+        private IAsyncCursor<RawBsonDocument> ExecuteAggregateOperation(IReadBinding binding, bool resuming, CancellationToken cancellationToken)
+        {
+            var aggregateOperation = CreateAggregateOperation(resuming);
+            return aggregateOperation.Execute(binding, cancellationToken);
+        }
+
+        private Task<IAsyncCursor<RawBsonDocument>> ExecuteAggregateOperationAsync(IReadBinding binding, bool resuming, CancellationToken cancellationToken)
+        {
+            var aggregateOperation = CreateAggregateOperation(resuming);
+            return aggregateOperation.ExecuteAsync(binding, cancellationToken);
+        }
+
+        private ResumeStartValue GetEffectiveResumeStartValues(bool resuming)
+        {
+            if (resuming)
+            {
+                if (_documentResumeToken != null)
+                {
+                    return new ResumeStartValue { ResumeAfter = _documentResumeToken };
+                }
+
+                if (_startAfter != null)
+                {
+                    return new ResumeStartValue { ResumeAfter = _startAfter };
+                }
+
+                if (_resumeAfter != null)
+                {
+                    return new ResumeStartValue { ResumeAfter = _resumeAfter };
+                }
+
+                if (_startAtOperationTime != null || _initialOperationTime != null)
+                {
+                    return new ResumeStartValue { StartAtOperationTime = _startAtOperationTime ?? _initialOperationTime };
+                }
+            }
+
+            return new ResumeStartValue { ResumeAfter = _resumeAfter, StartAfter = _startAfter, StartAtOperationTime = _startAtOperationTime };
+        }
+
+        private void SaveInitialOperationTimeIfRequired(IChannelHandle channel, IReadBinding binding, IAsyncCursor<RawBsonDocument> cursor)
+        {
+            if (_startAtOperationTime == null && _resumeAfter == null && _startAfter == null)
+            {
+                var maxWireVersion = channel.ConnectionDescription.IsMasterResult.MaxWireVersion;
+                if (maxWireVersion >= 7)
+                {
+                    if (_documentResumeToken != null)
+                    {
+                        _initialOperationTime = binding.Session.OperationTime;
+                    }
+                }
+            }
+        }
+
         private string ToString(ChangeStreamFullDocumentOption fullDocument)
         {
             switch (fullDocument)
@@ -378,6 +445,14 @@ namespace MongoDB.Driver.Core.Operations
                 case ChangeStreamFullDocumentOption.UpdateLookup: return "updateLookup";
                 default: throw new ArgumentException($"Invalid FullDocument option: {fullDocument}.", nameof(fullDocument));
             }
+        }
+
+        // nested types
+        private struct ResumeStartValue
+        {
+            public BsonDocument ResumeAfter { get; set; }
+            public BsonDocument StartAfter { get; set; }
+            public BsonTimestamp StartAtOperationTime { get; set; }
         }
     }
 }

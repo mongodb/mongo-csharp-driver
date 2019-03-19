@@ -27,16 +27,87 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
+using MongoDB.Bson.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
     public class ChangeStreamOperationTests : OperationTestBase
     {
+        [Theory]
+        [InlineData("{ 'a' : '1' }", "{ 'b' : '2' }", 3L, "{ 'c' : '3' }", null, "{ 'c' : '3' }", null)]
+        [InlineData("{ 'a' : '1' }", "{ 'b' : '2' }", 3L, null, null, "{ 'b' : '2' }", null)]
+        [InlineData("{ 'a' : '1' }", null, 3L, null, null, "{ 'a' : '1' }", null)]
+        [InlineData(null, null, 3L, null, null, null, 3L)]
+        [InlineData(null, null, null, null, 4L, null, 4L)]
+        public void ChangeStreamOperation_should_have_expected_change_stream_operation_options_for_resume_process_after_resumable_error(
+            string resumeAfterJson,
+            string startAfterJson,
+            object startAtOperationTimeValue,
+            string documentResumeTokenJson,
+            object initialOperationTime,
+            string expectedResumeAfter,
+            object expectedStartAtOperationTimeValue)
+        {
+            var pipeline = new BsonDocument[0];
+            var resultSerializer = new ChangeStreamDocumentSerializer<BsonDocument>(BsonDocumentSerializer.Instance);
+            var messageEncoderSettings = new MessageEncoderSettings();
+
+            var resumeAfter = resumeAfterJson != null ? BsonDocument.Parse(resumeAfterJson) : null;
+            var startAfter = startAfterJson != null ? BsonDocument.Parse(startAfterJson) : null;
+            var startAtOperationTime = startAtOperationTimeValue != null ? BsonTimestamp.Create(startAtOperationTimeValue) : null;
+            var documentResumeToken = documentResumeTokenJson != null ? BsonDocument.Parse(documentResumeTokenJson) : null;
+
+            ChangeStreamOperation<ChangeStreamDocument<BsonDocument>> subject = new ChangeStreamOperation<ChangeStreamDocument<BsonDocument>>(_collectionNamespace, pipeline, resultSerializer, messageEncoderSettings)
+            {
+                ResumeAfter = resumeAfter,
+                StartAfter = startAfter,
+                StartAtOperationTime = startAtOperationTime,
+                DocumentResumeToken = documentResumeToken
+            };
+
+            if (initialOperationTime != null)
+            {
+                subject._initialOperationTime(BsonTimestamp.Create(initialOperationTime));
+            }
+
+            var result = subject.CreateChangeStreamStage(true);
+
+            var changeStream = result.GetValue("$changeStream").AsBsonDocument;
+            changeStream.GetValue("resumeAfter", null).Should().Be(expectedResumeAfter != null ? BsonDocument.Parse(expectedResumeAfter) : null);
+            changeStream.TryGetValue("startAfter", out _).Should().BeFalse();
+            changeStream.GetValue("startAtOperationTime", null).Should().Be(expectedStartAtOperationTimeValue != null ? BsonTimestamp.Create(expectedStartAtOperationTimeValue) : null);
+        }
+
+        [Fact]
+        public void ChangeStreamOperation_should_not_calculate_effective_options_for_non_resume_process()
+        {
+            var pipeline = new BsonDocument[0];
+            var resultSerializer = new ChangeStreamDocumentSerializer<BsonDocument>(BsonDocumentSerializer.Instance);
+            var messageEncoderSettings = new MessageEncoderSettings();
+
+            var resumeAfter = new BsonDocument("a", 1);
+            var startAfter = new BsonDocument("b", 2);
+            var startAtOperationTime = BsonTimestamp.Create(3L);
+            var documentResumeToken = new BsonDocument("c", 3);
+
+            ChangeStreamOperation<ChangeStreamDocument<BsonDocument>> subject = new ChangeStreamOperation<ChangeStreamDocument<BsonDocument>>(_collectionNamespace, pipeline, resultSerializer, messageEncoderSettings)
+            {
+                ResumeAfter = resumeAfter,
+                StartAfter = startAfter,
+                StartAtOperationTime = startAtOperationTime,
+                DocumentResumeToken = documentResumeToken
+            };
+
+            var result = subject.CreateChangeStreamStage(false);
+
+            var changeStream = result.GetValue("$changeStream").AsBsonDocument;
+            changeStream.GetValue("resumeAfter").Should().Be(resumeAfter);
+            changeStream.GetValue("startAfter").Should().Be(startAfter);
+            changeStream.GetValue("startAtOperationTime").Should().Be(startAtOperationTime);
+        }
+
         [Fact]
         public void constructor_with_database_should_initialize_instance()
         {
@@ -58,6 +129,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.ReadConcern.Should().Be(ReadConcern.Default);
             subject.ResultSerializer.Should().BeSameAs(resultSerializer);
             subject.ResumeAfter.Should().BeNull();
+            subject.StartAfter.Should().BeNull();
             subject.StartAtOperationTime.Should().BeNull();
         }
 
@@ -142,6 +214,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.ReadConcern.Should().Be(ReadConcern.Default);
             subject.ResultSerializer.Should().BeSameAs(resultSerializer);
             subject.ResumeAfter.Should().BeNull();
+            subject.StartAfter.Should().BeNull();
             subject.StartAtOperationTime.Should().BeNull();
         }
 
@@ -343,6 +416,19 @@ namespace MongoDB.Driver.Core.Operations
             var result = subject.ResumeAfter;
 
             result.Should().Be(value);
+        }
+
+        [SkippableTheory]
+        [InlineData(null)]
+        [InlineData("{ '_data' : 'testValue' }")]
+        public void StartAfter_get_and_set_should_work(string startAfter)
+        {
+            var subject = CreateSubject();
+
+            subject.StartAfter = startAfter != null ? BsonDocument.Parse(startAfter) : null;
+            var result = subject.StartAfter;
+
+            result.Should().Be(startAfter);
         }
 
         [Theory]
@@ -551,14 +637,16 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Theory]
-        [InlineData(null, null, ChangeStreamFullDocumentOption.Default, null, ReadConcernLevel.Local, null, "{ $changeStream : { fullDocument : \"default\" } }")]
-        [InlineData(1, null, ChangeStreamFullDocumentOption.Default, null, ReadConcernLevel.Local, null, "{ $changeStream : { fullDocument : \"default\" } }")]
-        [InlineData(null, "locale", ChangeStreamFullDocumentOption.Default, null, ReadConcernLevel.Local, null, "{ $changeStream : { fullDocument : \"default\" } }")]
-        [InlineData(null, null, ChangeStreamFullDocumentOption.UpdateLookup, null, ReadConcernLevel.Local, null, "{ $changeStream : { fullDocument : \"updateLookup\" } }")]
-        [InlineData(null, null, ChangeStreamFullDocumentOption.Default, 1, ReadConcernLevel.Local, null, "{ $changeStream : { fullDocument : \"default\" } }")]
-        [InlineData(null, null, ChangeStreamFullDocumentOption.Default, null, ReadConcernLevel.Majority, null, "{ $changeStream : { fullDocument : \"default\" } }")]
-        [InlineData(null, null, ChangeStreamFullDocumentOption.Default, null, ReadConcernLevel.Local, "{ a : 1 }", "{ $changeStream: { fullDocument: \"default\", resumeAfter : { a : 1 } } }")]
-        [InlineData(1, "locale", ChangeStreamFullDocumentOption.UpdateLookup, 2, ReadConcernLevel.Majority, "{ a : 1 }", "{ $changeStream: { fullDocument: \"updateLookup\", resumeAfter : { a : 1 } } }")]
+        [InlineData(null, null, ChangeStreamFullDocumentOption.Default, null, ReadConcernLevel.Local, null, null, "{ $changeStream : { fullDocument : \"default\" } }")]
+        [InlineData(1, null, ChangeStreamFullDocumentOption.Default, null, ReadConcernLevel.Local, null, null, "{ $changeStream : { fullDocument : \"default\" } }")]
+        [InlineData(null, "locale", ChangeStreamFullDocumentOption.Default, null, ReadConcernLevel.Local, null, null, "{ $changeStream : { fullDocument : \"default\" } }")]
+        [InlineData(null, null, ChangeStreamFullDocumentOption.UpdateLookup, null, ReadConcernLevel.Local, null, null, "{ $changeStream : { fullDocument : \"updateLookup\" } }")]
+        [InlineData(null, null, ChangeStreamFullDocumentOption.Default, 1, ReadConcernLevel.Local, null, null, "{ $changeStream : { fullDocument : \"default\" } }")]
+        [InlineData(null, null, ChangeStreamFullDocumentOption.Default, null, ReadConcernLevel.Majority, null, null, "{ $changeStream : { fullDocument : \"default\" } }")]
+        [InlineData(null, null, ChangeStreamFullDocumentOption.Default, null, ReadConcernLevel.Local, "{ a : 1 }", null, "{ $changeStream: { fullDocument: \"default\", resumeAfter : { a : 1 } } }")]
+        [InlineData(1, "locale", ChangeStreamFullDocumentOption.UpdateLookup, 2, ReadConcernLevel.Majority, "{ a : 1 }", null, "{ $changeStream: { fullDocument: \"updateLookup\", resumeAfter : { a : 1 } } }")]
+        [InlineData(null, null, ChangeStreamFullDocumentOption.Default, null, ReadConcernLevel.Local, "{ a : 1 }", "{ b : 2 }", "{ $changeStream: { fullDocument: \"default\", startAfter : { b : 2 }, resumeAfter : { a : 1 } } }")]
+        [InlineData(1, "locale", ChangeStreamFullDocumentOption.UpdateLookup, 2, ReadConcernLevel.Majority, "{ a : 1 }", "{ b : 2 }", "{ $changeStream: { fullDocument: \"updateLookup\", startAfter : { b : 2 }, resumeAfter : { a : 1 } } }")]
         public void CreateAggregateOperation_should_return_expected_result(
             int? batchSize,
             string locale,
@@ -566,12 +654,14 @@ namespace MongoDB.Driver.Core.Operations
             int? maxAwaitTimeMS,
             ReadConcernLevel level,
             string resumeAferJson,
+            string startAfterJson,
             string expectedChangeStreamStageJson)
         {
             var collation = locale == null ? null : new Collation(locale);
             var maxAwaitTime = maxAwaitTimeMS == null ? (TimeSpan?)null : TimeSpan.FromMilliseconds(maxAwaitTimeMS.Value);
             var readConcern = new ReadConcern(level);
             var resumeAfter = resumeAferJson == null ? null : BsonDocument.Parse(resumeAferJson);
+            var startAfter = startAfterJson == null ? null : BsonDocument.Parse(startAfterJson);
             var expectedChangeStreamStage = BsonDocument.Parse(expectedChangeStreamStageJson);
             var collectionNamespace = new CollectionNamespace(new DatabaseNamespace("foo"), "bar");
             var pipeline = new List<BsonDocument> { BsonDocument.Parse("{ $match : { operationType : \"insert\" } }") };
@@ -584,7 +674,8 @@ namespace MongoDB.Driver.Core.Operations
                 FullDocument = fullDocument,
                 MaxAwaitTime = maxAwaitTime,
                 ReadConcern = readConcern,
-                ResumeAfter = resumeAfter
+                ResumeAfter = resumeAfter,
+                StartAfter = startAfter
             };
             var expectedPipeline = new BsonDocument[]
             {
@@ -592,7 +683,7 @@ namespace MongoDB.Driver.Core.Operations
                 pipeline[0]
             };
 
-            var result = subject.CreateAggregateOperation();
+            var result = subject.CreateAggregateOperation(resuming: false);
 
             result.AllowDiskUse.Should().NotHaveValue();
             result.BatchSize.Should().Be(batchSize);
@@ -623,10 +714,19 @@ namespace MongoDB.Driver.Core.Operations
 
     internal static class ChangeStreamOperationReflector
     {
-        public static AggregateOperation<RawBsonDocument> CreateAggregateOperation(this ChangeStreamOperation<BsonDocument> subject)
+        public static AggregateOperation<RawBsonDocument> CreateAggregateOperation(this ChangeStreamOperation<BsonDocument> subject, bool resuming)
         {
-            var methodInfo = typeof(ChangeStreamOperation<BsonDocument>).GetMethod("CreateAggregateOperation", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (AggregateOperation<RawBsonDocument>)methodInfo.Invoke(subject, new object[] { });
+            return (AggregateOperation<RawBsonDocument>)Reflector.Invoke(subject, nameof(CreateAggregateOperation), resuming);
+        }
+
+        public static BsonDocument CreateChangeStreamStage(this ChangeStreamOperation<ChangeStreamDocument<BsonDocument>> subject, bool resuming)
+        {
+            return (BsonDocument)Reflector.Invoke(subject, nameof(CreateChangeStreamStage), resuming);
+        }
+
+        public static void _initialOperationTime(this ChangeStreamOperation<ChangeStreamDocument<BsonDocument>> subject, BsonTimestamp value)
+        {
+            Reflector.SetFieldValue(subject, nameof(_initialOperationTime), value);
         }
     }
 }

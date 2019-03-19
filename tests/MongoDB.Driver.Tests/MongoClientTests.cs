@@ -288,6 +288,7 @@ namespace MongoDB.Driver.Tests
                 FullDocument = ChangeStreamFullDocumentOption.UpdateLookup,
                 MaxAwaitTime = TimeSpan.FromSeconds(123),
                 ResumeAfter = new BsonDocument(),
+                StartAfter = new BsonDocument(),
                 StartAtOperationTime = new BsonTimestamp(1, 2)
             };
             var cancellationToken = new CancellationTokenSource().Token;
@@ -339,6 +340,7 @@ namespace MongoDB.Driver.Tests
             changeStreamOperation.ReadConcern.Should().Be(clientSettings.ReadConcern);
             changeStreamOperation.ResultSerializer.Should().BeOfType<ChangeStreamDocumentSerializer<BsonDocument>>();
             changeStreamOperation.ResumeAfter.Should().Be(options.ResumeAfter);
+            changeStreamOperation.StartAfter.Should().Be(options.StartAfter);
             changeStreamOperation.StartAtOperationTime.Should().Be(options.StartAtOperationTime);
         }
 

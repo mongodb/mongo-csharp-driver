@@ -344,6 +344,7 @@ namespace MongoDB.Driver
                         { "fullDocument", MongoUtils.ToCamelCase(options.FullDocument.ToString()) },
                         { "allChangesForCluster", true, options.AllChangesForCluster ?? false },
                         { "resumeAfter", options.ResumeAfter, options.ResumeAfter != null },
+                        { "startAfter", options.StartAfter, options.StartAfter != null }, 
                         { "startAtOperationTime", options.StartAtOperationTime, options.StartAtOperationTime != null }
                     };
                     var document = new BsonDocument(operatorName, renderedOptions);

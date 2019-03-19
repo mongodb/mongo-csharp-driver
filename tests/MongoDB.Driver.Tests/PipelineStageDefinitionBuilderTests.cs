@@ -18,7 +18,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using System;
@@ -89,6 +88,23 @@ namespace MongoDB.Driver.Tests
             var options = new ChangeStreamStageOptions
             {
                 StartAtOperationTime = startAtOperationTime
+            };
+
+            var result = PipelineStageDefinitionBuilder.ChangeStream<BsonDocument>(options);
+
+            var stage = RenderStage(result);
+            stage.Document.Should().Be(expectedStage);
+        }
+
+        [Theory]
+        [InlineData(null, "{ $changeStream : { fullDocument : 'default' } }")]
+        [InlineData("{ '_data' : 'testValue' }", "{ $changeStream : { fullDocument : 'default', startAfter : { '_data' : 'testValue' } } }")]
+        public void ChangeStream_with_startAfter_should_return_the_expected_result(string content, string expectedStage)
+        {
+            var startAfter = content != null ? BsonDocument.Parse(content) : null;
+            var options = new ChangeStreamStageOptions
+            {
+                StartAfter = startAfter
             };
 
             var result = PipelineStageDefinitionBuilder.ChangeStream<BsonDocument>(options);

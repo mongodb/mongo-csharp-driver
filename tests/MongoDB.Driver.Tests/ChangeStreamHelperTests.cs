@@ -37,6 +37,7 @@ namespace MongoDB.Driver.Tests
                 FullDocument = ChangeStreamFullDocumentOption.UpdateLookup,
                 MaxAwaitTime = TimeSpan.FromSeconds(123),
                 ResumeAfter = new BsonDocument(),
+                StartAfter = new BsonDocument(),
                 StartAtOperationTime = new BsonTimestamp(1, 2)
             };
             var readConcern = new ReadConcern();
@@ -56,6 +57,7 @@ namespace MongoDB.Driver.Tests
             result.ReadConcern.Should().BeSameAs(readConcern);
             result.ResultSerializer.Should().BeOfType<ChangeStreamDocumentSerializer<BsonDocument>>();
             result.ResumeAfter.Should().BeSameAs(options.ResumeAfter);
+            result.StartAfter.Should().BeSameAs(options.StartAfter);
             result.StartAtOperationTime.Should().BeSameAs(options.StartAtOperationTime);
         }
 
@@ -73,6 +75,7 @@ namespace MongoDB.Driver.Tests
                 FullDocument = ChangeStreamFullDocumentOption.UpdateLookup,
                 MaxAwaitTime = TimeSpan.FromSeconds(123),
                 ResumeAfter = new BsonDocument(),
+                StartAfter = new BsonDocument(),
                 StartAtOperationTime = new BsonTimestamp(1, 2)
             };
             var readConcern = new ReadConcern();
@@ -92,6 +95,7 @@ namespace MongoDB.Driver.Tests
             result.ReadConcern.Should().BeSameAs(readConcern);
             result.ResultSerializer.Should().BeOfType<ChangeStreamDocumentSerializer<BsonDocument>>();
             result.ResumeAfter.Should().BeSameAs(options.ResumeAfter);
+            result.StartAfter.Should().BeSameAs(options.StartAfter);
             result.StartAtOperationTime.Should().BeSameAs(options.StartAtOperationTime);
         }
 
@@ -111,6 +115,7 @@ namespace MongoDB.Driver.Tests
                 FullDocument = ChangeStreamFullDocumentOption.UpdateLookup,
                 MaxAwaitTime = TimeSpan.FromSeconds(123),
                 ResumeAfter = new BsonDocument(),
+                StartAfter = new BsonDocument(),
                 StartAtOperationTime = new BsonTimestamp(1, 2)
             };
             var readConcern = new ReadConcern();
@@ -130,6 +135,7 @@ namespace MongoDB.Driver.Tests
             result.ReadConcern.Should().BeSameAs(readConcern);
             result.ResultSerializer.Should().BeOfType<ChangeStreamDocumentSerializer<BsonDocument>>();
             result.ResumeAfter.Should().BeSameAs(options.ResumeAfter);
+            result.StartAfter.Should().BeSameAs(options.StartAfter);
             result.StartAtOperationTime.Should().BeSameAs(options.StartAtOperationTime);
         }
 

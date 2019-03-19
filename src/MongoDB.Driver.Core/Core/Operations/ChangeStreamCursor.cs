@@ -20,7 +20,6 @@ using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -155,8 +154,7 @@ namespace MongoDB.Driver.Core.Operations
 
             if (lastRawDocument != null)
             {
-                _changeStreamOperation.ResumeAfter = lastRawDocument["_id"].DeepClone().AsBsonDocument;
-                _changeStreamOperation.StartAtOperationTime = null;
+                _changeStreamOperation.DocumentResumeToken = lastRawDocument["_id"].DeepClone().AsBsonDocument;
             }
 
             return documents;

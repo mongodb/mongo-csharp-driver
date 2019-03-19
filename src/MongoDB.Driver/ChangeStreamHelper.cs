@@ -103,6 +103,7 @@ namespace MongoDB.Driver
             operation.MaxAwaitTime = options.MaxAwaitTime;
             operation.ReadConcern = readConcern;
             operation.ResumeAfter = options.ResumeAfter;
+            operation.StartAfter = options.StartAfter;
             operation.StartAtOperationTime = options.StartAtOperationTime;
         }
     }

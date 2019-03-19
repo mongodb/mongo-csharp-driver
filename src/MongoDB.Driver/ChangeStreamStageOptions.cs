@@ -26,6 +26,7 @@ namespace MongoDB.Driver
         private bool? _allChangesForCluster;
         private ChangeStreamFullDocumentOption _fullDocument = ChangeStreamFullDocumentOption.Default;
         private BsonDocument _resumeAfter;
+        private BsonDocument _startAfter;
         private BsonTimestamp _startAtOperationTime;
 
         // public properties
@@ -62,6 +63,18 @@ namespace MongoDB.Driver
         {
             get { return _resumeAfter; }
             set { _resumeAfter = value; }
+        }
+
+        /// <summary>
+        /// Get or sets the start after.
+        /// </summary>
+        /// <value>
+        /// The start after.
+        /// </value>
+        public BsonDocument StartAfter
+        {
+            get { return _startAfter; }
+            set { _startAfter = value; }
         }
 
         /// <summary>
