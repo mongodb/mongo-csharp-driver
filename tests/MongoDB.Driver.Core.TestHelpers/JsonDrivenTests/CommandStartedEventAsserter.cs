@@ -19,6 +19,7 @@ using System.Linq;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core.Events;
 
@@ -127,7 +128,10 @@ namespace MongoDB.Driver.Core.TestHelpers.JsonDrivenTests
                 AdaptExpectedUpdateModels(actualValue.AsBsonArray.Cast<BsonDocument>().ToList(), expectedValue.AsBsonArray.Cast<BsonDocument>().ToList());
             }
 
-            if (!actualValue.Equals(expectedValue))
+            var namesToUseOrderInsensitiveComparisonWith = new[] { "writeConcern" };
+            var useOrderInsensitiveComparison = namesToUseOrderInsensitiveComparisonWith.Contains(name);
+
+            if (!(useOrderInsensitiveComparison ? BsonValueEquivalencyComparer.Compare(actualValue, expectedValue) : actualValue.Equals(expectedValue)))
             {
                 throw new AssertionFailedException($"Expected field '{name}' in command '{commandName}' to be {expectedValue.ToJson()} but found {actualValue.ToJson()}.");
             }

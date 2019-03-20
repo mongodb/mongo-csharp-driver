@@ -271,7 +271,7 @@ namespace MongoDB.Driver.Core.Bindings
 
                 try
                 {
-                    var firstAttempt = CreateCommitTransactionOperation();
+                    var firstAttempt = CreateCommitTransactionOperation(IsFirstCommitAttemptRetry());
                     ExecuteEndTransactionOnPrimary(firstAttempt, cancellationToken);
                     return;
                 }
@@ -280,7 +280,7 @@ namespace MongoDB.Driver.Core.Bindings
                     // ignore exception and retry
                 }
 
-                var secondAttempt = CreateCommitTransactionOperation();
+                var secondAttempt = CreateCommitTransactionOperation(isCommitRetry: true);
                 ExecuteEndTransactionOnPrimary(secondAttempt, cancellationToken);
             }
             finally
@@ -305,7 +305,7 @@ namespace MongoDB.Driver.Core.Bindings
 
                 try
                 {
-                    var firstAttempt = CreateCommitTransactionOperation();
+                    var firstAttempt = CreateCommitTransactionOperation(IsFirstCommitAttemptRetry());
                     await ExecuteEndTransactionOnPrimaryAsync(firstAttempt, cancellationToken).ConfigureAwait(false);
                     return;
                 }
@@ -314,7 +314,7 @@ namespace MongoDB.Driver.Core.Bindings
                     // ignore exception and retry
                 }
 
-                var secondAttempt = CreateCommitTransactionOperation();
+                var secondAttempt = CreateCommitTransactionOperation(isCommitRetry: true);
                 await ExecuteEndTransactionOnPrimaryAsync(secondAttempt, cancellationToken).ConfigureAwait(false);
             }
             finally
@@ -379,9 +379,9 @@ namespace MongoDB.Driver.Core.Bindings
             return new AbortTransactionOperation(GetTransactionWriteConcern());
         }
 
-        private IReadOperation<BsonDocument> CreateCommitTransactionOperation()
+        private IReadOperation<BsonDocument> CreateCommitTransactionOperation(bool isCommitRetry)
         {
-            return new CommitTransactionOperation(GetTransactionWriteConcern());
+            return new CommitTransactionOperation(GetCommitTransactionWriteConcern(isCommitRetry));
         }
 
         private void EnsureAbortTransactionCanBeCalled(string methodName)
@@ -480,6 +480,27 @@ namespace MongoDB.Driver.Core.Bindings
                 _currentTransaction.TransactionOptions?.WriteConcern ??
                 _options.DefaultTransactionOptions?.WriteConcern ??
                 WriteConcern.WMajority;
+        }
+
+        private WriteConcern GetCommitTransactionWriteConcern(bool isCommitRetry)
+        {
+            var writeConcern = GetTransactionWriteConcern();
+            if (isCommitRetry)
+            {
+                writeConcern = writeConcern.With(mode: "majority");
+                if (writeConcern.WTimeout == null)
+                {
+                    writeConcern = writeConcern.With(wTimeout: TimeSpan.FromMilliseconds(10000));
+                }
+            }
+
+            return writeConcern;
+        }
+
+        private bool IsFirstCommitAttemptRetry()
+        {
+            // According to the spec, trying to commit again while the state is "committed" is considered a retry.
+            return _currentTransaction.State == CoreTransactionState.Committed;
         }
 
         private bool ShouldRetryEndTransactionException(Exception exception)
