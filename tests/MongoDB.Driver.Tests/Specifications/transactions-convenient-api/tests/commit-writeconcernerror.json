@@ -4,7 +4,6 @@
   "data": [],
   "tests": [
     {
-      "skipReason" : "Pending CSHARP-2493",
       "description": "commitTransaction is retried after WriteConcernFailed timeout error",
       "failPoint": {
         "configureFailPoint": "failCommand",
@@ -143,7 +142,6 @@
       }
     },
     {
-      "skipReason" : "Pending CSHARP-2493",
       "description": "commitTransaction is retried after WriteConcernFailed non-timeout error",
       "failPoint": {
         "configureFailPoint": "failCommand",

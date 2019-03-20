@@ -4,7 +4,6 @@
   "data": [],
   "tests": [
     {
-      "skipReason" : "Pending CSHARP-2493",
       "description": "commitTransaction succeeds after multiple connection errors",
       "failPoint": {
         "configureFailPoint": "failCommand",
@@ -136,7 +135,6 @@
       }
     },
     {
-      "skipReason" : "Pending CSHARP-2493",
       "description": "commitTransaction retry only overwrites write concern w option",
       "failPoint": {
         "configureFailPoint": "failCommand",
@@ -281,7 +279,6 @@
       }
     },
     {
-      "skipReason" : "Pending CSHARP-2493",
       "description": "commit is retried after commitTransaction UnknownTransactionCommitResult (NotMaster)",
       "failPoint": {
         "configureFailPoint": "failCommand",
