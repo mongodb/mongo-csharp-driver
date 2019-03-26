@@ -459,6 +459,7 @@ namespace MongoDB.Driver.Core.Servers
                 .AppendFormatIf(_state == ServerState.Connected, ", WireVersionRange: \"{0}\"", _wireVersionRange)
                 .AppendFormatIf(_electionId != null, ", ElectionId: \"{0}\"", _electionId)
                 .AppendFormatIf(_heartbeatException != null, ", HeartbeatException: \"{0}\"", _heartbeatException)
+                .AppendFormat(", LastUpdateTimestamp: \"{0:yyyy-MM-ddTHH:mm:ss.fffffffK}\"", _lastUpdateTimestamp)
                 .Append(" }")
                 .ToString();
         }
