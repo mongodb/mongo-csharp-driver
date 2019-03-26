@@ -577,7 +577,7 @@ namespace MongoDB.Driver.Core.Servers
                 electionId: _electionId,
                 heartbeatException: heartbeatException,
                 heartbeatInterval: _heartbeatInterval,
-                lastUpdateTimestamp: _lastUpdateTimestamp,
+                lastUpdateTimestamp: DateTime.UtcNow,
                 lastWriteTimestamp: _lastWriteTimestamp,
                 logicalSessionTimeout: _logicalSessionTimeout,
                 maxBatchCount: _maxBatchCount,
