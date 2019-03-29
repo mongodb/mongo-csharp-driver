@@ -54,43 +54,41 @@ namespace MongoDB.Driver.Core.Clusters
         public void CreateInitial_should_return_initial_description()
         {
             var subject = ClusterDescription.CreateInitial(__clusterId, ClusterConnectionMode.Standalone);
+
             subject.ClusterId.Should().Be(__clusterId);
+            subject.ConnectionMode.Should().Be(ClusterConnectionMode.Standalone);
+            subject.DnsMonitorException.Should().BeNull();
+            subject.LogicalSessionTimeout.Should().NotHaveValue();
             subject.Servers.Should().BeEmpty();
             subject.State.Should().Be(ClusterState.Disconnected);
-            subject.ConnectionMode.Should().Be(ClusterConnectionMode.Standalone);
             subject.Type.Should().Be(ClusterType.Unknown);
-            subject.LogicalSessionTimeout.Should().NotHaveValue();
         }
 
         // instance member tests
         [Fact]
         public void Constructor_should_initialize_instance()
         {
+            var dnsMonitorException = new Exception();
             var subject = new ClusterDescription(
                 __clusterId,
                 ClusterConnectionMode.ReplicaSet,
+                dnsMonitorException,
                 ClusterType.ReplicaSet,
                 new[] { __serverDescription1, __serverDescription2 });
+
             subject.ClusterId.Should().Be(__clusterId);
+            subject.ConnectionMode.Should().Be(ClusterConnectionMode.ReplicaSet);
+            subject.DnsMonitorException.Should().BeSameAs(dnsMonitorException);
+            subject.LogicalSessionTimeout.Should().NotHaveValue();
             subject.Servers.Should().ContainInOrder(new[] { __serverDescription1, __serverDescription2 });
             subject.State.Should().Be(ClusterState.Disconnected);
             subject.Type.Should().Be(ClusterType.ReplicaSet);
-            subject.LogicalSessionTimeout.Should().NotHaveValue();
-        }
-
-        [Fact]
-        public void Equals_should_ignore_revision()
-        {
-            var subject1 = CreateSubject();
-            var subject2 = CreateSubject("Revision");
-            subject1.Equals(subject2).Should().BeTrue();
-            subject1.Equals((object)subject2).Should().BeTrue();
-            subject1.GetHashCode().Should().Be(subject2.GetHashCode());
         }
 
         [Theory]
         [InlineData("ClusterId")]
         [InlineData("ConnectionMode")]
+        [InlineData("DnsMonitorException")]
         [InlineData("Servers")]
         [InlineData("Type")]
         public void Equals_should_return_false_if_any_field_is_not_equal(string notEqualField)
@@ -240,6 +238,47 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         [Fact]
+        public void ToString_should_return_string_representation_when_dnsMonitorException_is_not_null()
+        {
+            var dnsMonitorException = new Exception("DNS");
+            var subject = new ClusterDescription(new ClusterId(1), ClusterConnectionMode.Standalone, dnsMonitorException, ClusterType.Standalone, new[] { __serverDescription1 });
+            var expected = string.Format(
+                "{{ ClusterId : \"1\", ConnectionMode : \"Standalone\", Type : \"Standalone\", State : \"Disconnected\", Servers : [{0}], DnsMonitorException : \"{1}\" }}",
+                __serverDescription1,
+                dnsMonitorException);
+            subject.ToString().Should().Be(expected);
+        }
+
+        [Theory]
+        [InlineData(false, false)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        public void WithDnsMonitorException_should_return_expected_result(bool useNullValue1, bool useNullValue2)
+        {
+            var value1 = useNullValue1 ? null : new Exception();
+            var value2 = useNullValue2 ? null : new Exception();
+            var subject = CreateSubject(dnsMonitorException: value1);
+
+            var result = subject.WithDnsMonitorException(value2);
+
+            result.Should().NotBeSameAs(subject);
+            result.DnsMonitorException.Should().Be(value2);
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void WithDnsMonitorException_should_return_same_instance_when_value_did_not_change(bool useNullValue)
+        {
+            var value = useNullValue ? null : new Exception();
+            var subject = CreateSubject(dnsMonitorException: value);
+
+            var result = subject.WithDnsMonitorException(value);
+
+            result.Should().BeSameAs(subject);
+        }
+
+        [Fact]
         public void WithServerDescription_should_add_server_if_server_does_not_exist()
         {
             var subject1 = CreateSubject();
@@ -296,22 +335,38 @@ namespace MongoDB.Driver.Core.Clusters
             subject2.Should().BeSameAs(subject1);
         }
 
-        private ClusterDescription CreateSubject(string notEqualField = null)
+        private ClusterDescription CreateSubject(Exception dnsMonitorException)
         {
             var clusterId = new ClusterId(1);
             var connectionMode = ClusterConnectionMode.ReplicaSet;
             var type = ClusterType.ReplicaSet;
             var servers = new[] { __serverDescription1, __serverDescription2 };
 
-            switch (notEqualField)
+            return new ClusterDescription(clusterId, connectionMode, dnsMonitorException, type, servers);
+        }
+
+        private ClusterDescription CreateSubject(string notEqualField = null)
+        {
+            var clusterId = new ClusterId(1);
+            var connectionMode = ClusterConnectionMode.ReplicaSet;
+            Exception dnsMonitorException = null;
+            var type = ClusterType.ReplicaSet;
+            var servers = new[] { __serverDescription1, __serverDescription2 };
+
+            if (notEqualField != null)
             {
-                case "ClusterId": clusterId = new ClusterId(2); break;
-                case "ConnectionMode": connectionMode = ClusterConnectionMode.Standalone; break;
-                case "Type": type = ClusterType.Unknown; break;
-                case "Servers": servers = new[] { __serverDescription1 }; break;
+                switch (notEqualField)
+                {
+                    case "ClusterId": clusterId = new ClusterId(2); break;
+                    case "ConnectionMode": connectionMode = ClusterConnectionMode.Standalone; break;
+                    case "DnsMonitorException": dnsMonitorException = new Exception(); break;
+                    case "Type": type = ClusterType.Unknown; break;
+                    case "Servers": servers = new[] { __serverDescription1 }; break;
+                    default: throw new ArgumentException($"Unknown field name: \"{notEqualField}\".", nameof(notEqualField));
+                }
             }
 
-            return new ClusterDescription(clusterId, connectionMode, type, servers);
+            return new ClusterDescription(clusterId, connectionMode, dnsMonitorException, type, servers);
         }
     }
 }

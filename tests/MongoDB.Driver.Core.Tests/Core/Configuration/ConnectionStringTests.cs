@@ -22,8 +22,6 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Configuration;
-using MongoDB.Driver.Core.Operations;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Configuration
@@ -31,6 +29,86 @@ namespace MongoDB.Driver.Core.Configuration
     [Trait("Category", "ConnectionString")]
     public class ConnectionStringTests
     {
+        [Theory]
+        [InlineData("mongodb://localhost", true)]
+        [InlineData("mongodb+srv://localhost", false)]
+        public void constructor_should_initialize_isResolved(string connectionString, bool expectedIsResolved)
+        {
+            var subject = new ConnectionString(connectionString);
+
+            subject.IsResolved.Should().Be(expectedIsResolved);
+        }
+
+        [Theory]
+        [InlineData("mongodb://localhost", true)]
+        [InlineData("mongodb+srv://localhost", false)]
+        [InlineData("mongodb+srv://localhost", true)]
+        public void constructor_with_isResolved_should_initialize_isResolved(string connectionString, bool isResolved)
+        {
+            var subject = new ConnectionString(connectionString, isResolved);
+
+            subject.IsResolved.Should().Be(isResolved);
+        }
+
+        [Fact]
+        public void constructor_should_throw_when_isResolved_is_invalid()
+        {
+            var exception = Record.Exception(() => new ConnectionString("mongodb://localhost", false));
+
+            var e = exception.Should().BeOfType<ArgumentException>().Subject;
+            e.ParamName.Should().Be("isResolved");
+        }
+
+        [Theory]
+        [InlineData("mongodb://test5.test.build.10gen.cc", "mongodb://test5.test.build.10gen.cc", false)]
+        [InlineData("mongodb://test5.test.build.10gen.cc", "mongodb://test5.test.build.10gen.cc", true)]
+        [InlineData("mongodb+srv://test5.test.build.10gen.cc", "mongodb://localhost.test.build.10gen.cc:27017/?replicaSet=repl0&authSource=thisDB&ssl=true", false)]
+        [InlineData("mongodb+srv://test5.test.build.10gen.cc", "mongodb://localhost.test.build.10gen.cc:27017/?replicaSet=repl0&authSource=thisDB&ssl=true", true)]
+        public void Resolve_should_return_expected_result(string connectionString, string expectedResult, bool async)
+        {
+            var subject = new ConnectionString(connectionString);
+
+            ConnectionString result;
+            if (async)
+            {
+                result = subject.Resolve();
+            }
+            else
+            {
+                result = subject.ResolveAsync().GetAwaiter().GetResult();
+            }
+
+            result.IsResolved.Should().BeTrue();
+            result.ToString().Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [InlineData("mongodb://test5.test.build.10gen.cc", false, "mongodb://test5.test.build.10gen.cc", false)]
+        [InlineData("mongodb://test5.test.build.10gen.cc", false, "mongodb://test5.test.build.10gen.cc", true)]
+        [InlineData("mongodb://test5.test.build.10gen.cc", true, "mongodb://test5.test.build.10gen.cc", false)]
+        [InlineData("mongodb://test5.test.build.10gen.cc", true, "mongodb://test5.test.build.10gen.cc", true)]
+        [InlineData("mongodb+srv://test5.test.build.10gen.cc", false, "mongodb+srv://test5.test.build.10gen.cc/?replicaSet=repl0&authSource=thisDB&ssl=true", false)]
+        [InlineData("mongodb+srv://test5.test.build.10gen.cc", false, "mongodb+srv://test5.test.build.10gen.cc/?replicaSet=repl0&authSource=thisDB&ssl=true", true)]
+        [InlineData("mongodb+srv://test5.test.build.10gen.cc", true, "mongodb://localhost.test.build.10gen.cc:27017/?replicaSet=repl0&authSource=thisDB&ssl=true", false)]
+        [InlineData("mongodb+srv://test5.test.build.10gen.cc", true, "mongodb://localhost.test.build.10gen.cc:27017/?replicaSet=repl0&authSource=thisDB&ssl=true", true)]
+        public void Resolve_with_resolveHosts_should_return_expected_result(string connectionString, bool resolveHosts, string expectedResult, bool async)
+        {
+            var subject = new ConnectionString(connectionString);
+
+            ConnectionString result;
+            if (async)
+            {
+                result = subject.Resolve(resolveHosts);
+            }
+            else
+            {
+                result = subject.ResolveAsync(resolveHosts).GetAwaiter().GetResult();
+            }
+
+            result.IsResolved.Should().BeTrue();
+            result.ToString().Should().Be(expectedResult);
+        }
+
         [Fact]
         public void With_one_host_and_no_port()
         {

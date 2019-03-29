@@ -20,11 +20,9 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Bson;
 using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
-using MongoDB.Driver.Core.Events.Diagnostics;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
@@ -33,17 +31,22 @@ namespace MongoDB.Driver.Core.Clusters
     /// <summary>
     /// Represents a multi server cluster.
     /// </summary>
-    internal sealed class MultiServerCluster : Cluster
+    internal sealed class MultiServerCluster : Cluster, IDnsMonitoringCluster
     {
         // fields
+        private readonly IDnsMonitorFactory _dnsMonitorFactory;
+        private Thread _dnsMonitorThread;
         private readonly CancellationTokenSource _monitorServersCancellationTokenSource;
         private volatile ElectionInfo _maxElectionInfo;
+        private Task _monitorServersTask;
         private volatile string _replicaSetName;
         private readonly AsyncQueue<ServerDescriptionChangedEventArgs> _serverDescriptionChangedQueue;
         private readonly List<IClusterableServer> _servers;
         private readonly object _serversLock = new object();
         private readonly InterlockedInt32 _state;
+        private readonly object _updateClusterDescriptionLock = new object();
 
+        private readonly IEventSubscriber _eventSubscriber;
         private readonly Action<ClusterClosingEvent> _closingEventHandler;
         private readonly Action<ClusterClosedEvent> _closedEventHandler;
         private readonly Action<ClusterOpeningEvent> _openingEventHandler;
@@ -55,7 +58,11 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly Action<SdamInformationEvent> _sdamInformationEventHandler;
 
         // constructors
-        public MultiServerCluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber)
+        public MultiServerCluster(
+            ClusterSettings settings, 
+            IClusterableServerFactory serverFactory, 
+            IEventSubscriber eventSubscriber,
+            IDnsMonitorFactory dnsMonitorFactory = null)
             : base(settings, serverFactory, eventSubscriber)
         {
             Ensure.IsGreaterThanZero(settings.EndPoints.Count, "settings.EndPoints.Count");
@@ -68,12 +75,14 @@ namespace MongoDB.Driver.Core.Clusters
                 throw new ArgumentException("ClusterConnectionMode.Direct is not supported for a MultiServerCluster.");
             }
 
+            _dnsMonitorFactory = dnsMonitorFactory ?? new DnsMonitorFactory(eventSubscriber);
             _monitorServersCancellationTokenSource = new CancellationTokenSource();
             _serverDescriptionChangedQueue = new AsyncQueue<ServerDescriptionChangedEventArgs>();
             _servers = new List<IClusterableServer>();
             _state = new InterlockedInt32(State.Initial);
             _replicaSetName = settings.ReplicaSetName;
 
+            _eventSubscriber = eventSubscriber;
             eventSubscriber.TryGetEventHandler(out _closingEventHandler);
             eventSubscriber.TryGetEventHandler(out _closedEventHandler);
             eventSubscriber.TryGetEventHandler(out _openingEventHandler);
@@ -132,24 +141,30 @@ namespace MongoDB.Driver.Core.Clusters
                 }
 
                 var stopwatch = Stopwatch.StartNew();
-                MonitorServersAsync().ConfigureAwait(false);
-                // We lock here even though AddServer locks. Monitors
-                // are re-entrant such that this won't cause problems,
-                // but could prevent issues of conflicting reports
-                // from servers that are quick to respond.
-                var clusterDescription = Description.WithType(Settings.ConnectionMode.ToClusterType());
+
                 var newServers = new List<IClusterableServer>();
-                lock (_serversLock)
+                lock (_updateClusterDescriptionLock)
                 {
-                    foreach (var endPoint in Settings.EndPoints)
+                    // We lock here even though AddServer locks. Monitors
+                    // are re-entrant such that this won't cause problems,
+                    // but could prevent issues of conflicting reports
+                    // from servers that are quick to respond.
+                    var clusterDescription = Description.WithType(Settings.ConnectionMode.ToClusterType());
+                    if (Settings.Scheme != ConnectionStringScheme.MongoDBPlusSrv)
                     {
-                        clusterDescription = EnsureServer(clusterDescription, endPoint, newServers);
+                        lock (_serversLock)
+                        {
+                            foreach (var endPoint in Settings.EndPoints)
+                            {
+                                clusterDescription = EnsureServer(clusterDescription, endPoint, newServers);
+                            }
+                        }
                     }
+
+                    stopwatch.Stop();
+
+                    UpdateClusterDescription(clusterDescription);
                 }
-
-                stopwatch.Stop();
-
-                UpdateClusterDescription(clusterDescription);
 
                 foreach (var server in newServers)
                 {
@@ -160,6 +175,17 @@ namespace MongoDB.Driver.Core.Clusters
                 {
                     _openedEventHandler(new ClusterOpenedEvent(ClusterId, Settings, stopwatch.Elapsed));
                 }
+
+                _monitorServersTask = MonitorServersAsync(); // store the Task for use as evidence when testing that MonitorServerAsync was called
+                _monitorServersTask.ConfigureAwait(false);
+
+                if (Settings.Scheme == ConnectionStringScheme.MongoDBPlusSrv)
+                {
+                    var dnsEndPoint = (DnsEndPoint)Settings.EndPoints.Single();
+                    var lookupDomainName = dnsEndPoint.Host;
+                    var dnsMonitor = _dnsMonitorFactory.CreateDnsMonitor(this, lookupDomainName, _monitorServersCancellationTokenSource.Token);
+                    _dnsMonitorThread = dnsMonitor.Start(); // store the Thread for use as evidence when testing that the DnsMonitor was started
+                }
             }
         }
 
@@ -167,6 +193,9 @@ namespace MongoDB.Driver.Core.Clusters
         {
             switch (clusterType)
             {
+                case ClusterType.Standalone:
+                    return serverType == ServerType.Standalone;
+
                 case ClusterType.ReplicaSet:
                     return serverType.IsReplicaSetMember();
 
@@ -177,6 +206,10 @@ namespace MongoDB.Driver.Core.Clusters
                     switch (connectionMode)
                     {
                         case ClusterConnectionMode.Automatic:
+                            if (serverType == ServerType.Standalone)
+                            {
+                                return Settings.Scheme == ConnectionStringScheme.MongoDBPlusSrv; // Standalone is only valid in MultiServerCluster when using MongoDBPlusSrv scheme
+                            }
                             return serverType.IsReplicaSetMember() || serverType == ServerType.ShardRouter;
 
                         default:
@@ -207,9 +240,9 @@ namespace MongoDB.Driver.Core.Clusters
                     catch (ObjectDisposedException)
                     {
                         // There is a possible race condition here
-                        // due to the fact that we are working 
+                        // due to the fact that we are working
                         // with the server outside of the lock,
-                        // meaning another thread could remove 
+                        // meaning another thread could remove
                         // the server and dispose of it before
                         // we invoke the method.
                     }
@@ -263,49 +296,56 @@ namespace MongoDB.Driver.Core.Clusters
 
         private void ProcessServerDescriptionChanged(ServerDescriptionChangedEventArgs args)
         {
-            var newServerDescription = args.NewServerDescription;
-            var newClusterDescription = Description;
-
-            if (!_servers.Any(x => EndPointHelper.Equals(x.EndPoint, newServerDescription.EndPoint)))
-            {
-                return;
-            }
-
             var newServers = new List<IClusterableServer>();
-            if (newServerDescription.State == ServerState.Disconnected)
+            lock (_updateClusterDescriptionLock)
             {
-                newClusterDescription = newClusterDescription.WithServerDescription(newServerDescription);
-            }
-            else
-            {
-                if (IsServerValidForCluster(newClusterDescription.Type, Settings.ConnectionMode, newServerDescription.Type))
+                var newServerDescription = args.NewServerDescription;
+                var newClusterDescription = Description;
+
+                if (!_servers.Any(x => EndPointHelper.Equals(x.EndPoint, newServerDescription.EndPoint)))
                 {
-                    if (newClusterDescription.Type == ClusterType.Unknown)
-                    {
-                        newClusterDescription = newClusterDescription.WithType(newServerDescription.Type.ToClusterType());
-                    }
+                    return;
+                }
 
-                    switch (newClusterDescription.Type)
-                    {
-                        case ClusterType.ReplicaSet:
-                            newClusterDescription = ProcessReplicaSetChange(newClusterDescription, args, newServers);
-                            break;
-
-                        case ClusterType.Sharded:
-                            newClusterDescription = ProcessShardedChange(newClusterDescription, args);
-                            break;
-
-                        default:
-                            throw new MongoInternalException("Unexpected cluster type.");
-                    }
+                if (newServerDescription.State == ServerState.Disconnected)
+                {
+                    newClusterDescription = newClusterDescription.WithServerDescription(newServerDescription);
                 }
                 else
                 {
-                    newClusterDescription = newClusterDescription.WithoutServerDescription(newServerDescription.EndPoint);
-                }
-            }
+                    if (IsServerValidForCluster(newClusterDescription.Type, Settings.ConnectionMode, newServerDescription.Type))
+                    {
+                        if (newClusterDescription.Type == ClusterType.Unknown)
+                        {
+                            newClusterDescription = newClusterDescription.WithType(newServerDescription.Type.ToClusterType());
+                        }
 
-            UpdateClusterDescription(newClusterDescription);
+                        switch (newClusterDescription.Type)
+                        {
+                            case ClusterType.Standalone:
+                                newClusterDescription = ProcessStandaloneChange(newClusterDescription, args);
+                                break;
+
+                            case ClusterType.ReplicaSet:
+                                newClusterDescription = ProcessReplicaSetChange(newClusterDescription, args, newServers);
+                                break;
+
+                            case ClusterType.Sharded:
+                                newClusterDescription = ProcessShardedChange(newClusterDescription, args);
+                                break;
+
+                            default:
+                                throw new MongoInternalException("Unexpected cluster type.");
+                        }
+                    }
+                    else
+                    {
+                        newClusterDescription = newClusterDescription.WithoutServerDescription(newServerDescription.EndPoint);
+                    }
+                }
+
+                UpdateClusterDescription(newClusterDescription);
+            }
 
             foreach (var server in newServers)
             {
@@ -354,8 +394,7 @@ namespace MongoDB.Driver.Core.Clusters
                         isCurrentPrimaryStale = _maxElectionInfo.IsStale(args.NewServerDescription.ReplicaSetConfig.Version.Value, args.NewServerDescription.ElectionId);
                         var isReportedPrimaryStale = _maxElectionInfo.IsFresher(
                             args.NewServerDescription.ReplicaSetConfig.Version.Value,
-                            args.NewServerDescription.ElectionId); 
-                                
+                            args.NewServerDescription.ElectionId);
 
                         if (isReportedPrimaryStale && args.NewServerDescription.ElectionId != null)
                         {
@@ -364,20 +403,20 @@ namespace MongoDB.Driver.Core.Clusters
                             {
                                 var server = _servers.SingleOrDefault(x => EndPointHelper.Equals(args.NewServerDescription.EndPoint, x.EndPoint));
                                 server.Invalidate();
-                                
+
                                 _sdamInformationEventHandler?.Invoke(new SdamInformationEvent(() =>
                                     string.Format(
-                                        @"Invalidating server: Setting ServerType to ""Unknown"" for {0} because it " + 
-                                        @"claimed to be the replica set primary for replica set ""{1}"" but sent a " + 
-                                        @"(setVersion, electionId) tuple of ({2}, {3}) that was less than than the " + 
+                                        @"Invalidating server: Setting ServerType to ""Unknown"" for {0} because it " +
+                                        @"claimed to be the replica set primary for replica set ""{1}"" but sent a " +
+                                        @"(setVersion, electionId) tuple of ({2}, {3}) that was less than than the " +
                                         @"largest tuple seen, (maxSetVersion, maxElectionId), of ({4}, {5}).",
                                         args.NewServerDescription.EndPoint,
                                         args.NewServerDescription.ReplicaSetConfig.Name,
                                         args.NewServerDescription.ReplicaSetConfig.Version,
-                                        args.NewServerDescription.ElectionId, 
+                                        args.NewServerDescription.ElectionId,
                                         _maxElectionInfo.SetVersion,
                                         _maxElectionInfo.ElectionId)));
-                                    
+
                                 return clusterDescription.WithServerDescription(
                                     new ServerDescription(server.ServerId, server.EndPoint));
                             }
@@ -390,13 +429,13 @@ namespace MongoDB.Driver.Core.Clusters
                         {
                             _sdamInformationEventHandler?.Invoke(new SdamInformationEvent(() =>
                                 string.Format(
-                                    @"Initializing (maxSetVersion, maxElectionId): Saving tuple " + 
-                                    @"(setVersion, electionId) of ({0}, {1}) as (maxSetVersion, maxElectionId) for " + 
-                                    @"replica set ""{2}"" because replica set primary {3} sent ({0}, {1}), the first " + 
+                                    @"Initializing (maxSetVersion, maxElectionId): Saving tuple " +
+                                    @"(setVersion, electionId) of ({0}, {1}) as (maxSetVersion, maxElectionId) for " +
+                                    @"replica set ""{2}"" because replica set primary {3} sent ({0}, {1}), the first " +
                                     @"(setVersion, electionId) tuple ever seen for replica set ""{4}"".",
                                     args.NewServerDescription.ReplicaSetConfig.Version,
                                     args.NewServerDescription.ElectionId,
-                                    args.NewServerDescription.ReplicaSetConfig.Name, 
+                                    args.NewServerDescription.ReplicaSetConfig.Name,
                                     args.NewServerDescription.EndPoint,
                                     args.NewServerDescription.ReplicaSetConfig.Name)));
                         }
@@ -406,9 +445,9 @@ namespace MongoDB.Driver.Core.Clusters
                             {
                                 _sdamInformationEventHandler?.Invoke(new SdamInformationEvent(() =>
                                     string.Format(
-                                        @"Updating stale setVersion: Updating the current " + 
-                                        @"(maxSetVersion, maxElectionId) tuple from ({0}, {1}) to ({2}, {3}) for " + 
-                                        @"replica set ""{4}"" because replica set primary {5} sent ({6}, {7})—a larger " + 
+                                        @"Updating stale setVersion: Updating the current " +
+                                        @"(maxSetVersion, maxElectionId) tuple from ({0}, {1}) to ({2}, {3}) for " +
+                                        @"replica set ""{4}"" because replica set primary {5} sent ({6}, {7})—a larger " +
                                         @"(setVersion, electionId) tuple then the saved tuple, ({0}, {1}).",
                                         _maxElectionInfo.SetVersion,
                                         _maxElectionInfo.ElectionId,
@@ -418,16 +457,16 @@ namespace MongoDB.Driver.Core.Clusters
                                         args.NewServerDescription.EndPoint,
                                         args.NewServerDescription.ReplicaSetConfig.Version,
                                         args.NewServerDescription.ElectionId))) ;
-                            } 
+                            }
                             else // current primary is stale & setVersion is not stale ⇒ the electionId must be stale
                             {
                                 _sdamInformationEventHandler?.Invoke(new SdamInformationEvent(() =>
                                     string.Format(
-                                        @"Updating stale electionId: Updating the current " + 
-                                        @"(maxSetVersion, maxElectionId) tuple from ({0}, {1}) to ({2}, {3}) for " + 
-                                        @"replica set ""{4}"" because replica set primary {5} sent ({6}, {7})—" + 
+                                        @"Updating stale electionId: Updating the current " +
+                                        @"(maxSetVersion, maxElectionId) tuple from ({0}, {1}) to ({2}, {3}) for " +
+                                        @"replica set ""{4}"" because replica set primary {5} sent ({6}, {7})—" +
                                         @"a larger (setVersion, electionId) tuple than the saved tuple, ({0}, {1}).",
-                                        _maxElectionInfo.SetVersion, 
+                                        _maxElectionInfo.SetVersion,
                                         _maxElectionInfo.ElectionId,
                                         args.NewServerDescription.ReplicaSetConfig.Version,
                                         args.NewServerDescription.ElectionId,
@@ -437,7 +476,7 @@ namespace MongoDB.Driver.Core.Clusters
                                         args.NewServerDescription.ElectionId)));
                             }
                         }
-                        
+
                         _maxElectionInfo = new ElectionInfo(
                             args.NewServerDescription.ReplicaSetConfig.Version.Value,
                             args.NewServerDescription.ElectionId);
@@ -478,6 +517,87 @@ namespace MongoDB.Driver.Core.Clusters
             }
 
             return clusterDescription.WithServerDescription(args.NewServerDescription);
+        }
+
+        private ClusterDescription ProcessStandaloneChange(ClusterDescription clusterDescription, ServerDescriptionChangedEventArgs args)
+        {
+            if (args.NewServerDescription.Type != ServerType.Unknown)
+            {
+                if (args.NewServerDescription.Type == ServerType.Standalone)
+                {
+                    foreach (var endPoint in clusterDescription.Servers.Select(s => s.EndPoint).ToList())
+                    {
+                        if (!EndPointHelper.Equals(endPoint, args.NewServerDescription.EndPoint))
+                        {
+                            clusterDescription = RemoveServer(clusterDescription, endPoint, "Removing all other end points once a standalone is discovered.");
+                        }
+                    }
+                }
+                else
+                {
+                    return RemoveServer(clusterDescription, args.NewServerDescription.EndPoint, "Server is not a standalone server.");
+                }
+            }
+
+            return clusterDescription.WithServerDescription(args.NewServerDescription);
+        }
+
+        void IDnsMonitoringCluster.ProcessDnsException(Exception exception)
+        {
+            lock (_updateClusterDescriptionLock)
+            {
+                var newClusterDescription = Description.WithDnsMonitorException(exception);
+                UpdateClusterDescription(newClusterDescription);
+            }
+        }
+
+        void IDnsMonitoringCluster.ProcessDnsResults(List<DnsEndPoint> dnsEndPoints)
+        {
+            if (dnsEndPoints.Count == 0)
+            {
+                return;
+            }
+
+            var newServers = new List<IClusterableServer>();
+            lock (_updateClusterDescriptionLock)
+            {
+                var oldClusterDescription = Description;
+
+                var clusterType = oldClusterDescription.Type;
+                if (clusterType != ClusterType.Unknown && clusterType != ClusterType.Sharded)
+                {
+                    return;
+                }
+
+                var newClusterDescription = oldClusterDescription;
+                var currentEndPoints = oldClusterDescription.Servers.Select(serverDescription => serverDescription.EndPoint).ToList();
+
+                var endPointsToAdd = dnsEndPoints.Where(endPoint => !currentEndPoints.Contains(endPoint));
+                foreach (var endPoint in endPointsToAdd)
+                {
+                    newClusterDescription = EnsureServer(newClusterDescription, endPoint, newServers);
+                }
+
+                var endPointsToRemove = currentEndPoints.Where(endPoint => !dnsEndPoints.Contains(endPoint));
+                foreach (var endPoint in endPointsToRemove)
+                {
+                    newClusterDescription = RemoveServer(newClusterDescription, endPoint, "Server no longer appears in the DNS SRV records.");
+                }
+
+                newClusterDescription = newClusterDescription.WithDnsMonitorException(null);
+                UpdateClusterDescription(newClusterDescription);
+            }
+
+            foreach (var addedServer in newServers)
+            {
+                addedServer.Initialize();
+            }
+        }
+
+        bool IDnsMonitoringCluster.ShouldDnsMonitorStop()
+        {
+            var clusterType = Description.Type;
+            return clusterType != ClusterType.Unknown && clusterType != ClusterType.Sharded;
         }
 
         private ClusterDescription EnsureServer(ClusterDescription clusterDescription, EndPoint endPoint, List<IClusterableServer> newServers)
@@ -618,11 +738,11 @@ namespace MongoDB.Driver.Core.Clusters
 
             public bool IsFresher(int setVersion, ElectionId electionId)
             {
-                return 
-                    _setVersion > setVersion || 
+                return
+                    _setVersion > setVersion ||
                     _setVersion == setVersion && _electionId != null && _electionId.CompareTo(electionId) > 0;
             }
-            
+
             public bool IsStale(int setVersion, ElectionId electionId)
             {
                 if (_setVersion < setVersion)
@@ -638,9 +758,9 @@ namespace MongoDB.Driver.Core.Clusters
                 {
                     return true;
                 }
-                
+
                 return _electionId.CompareTo(electionId) < 0;
-                
+
                 /* above is equivalent to:
                  * return
                  *   _setVersion < setVersion

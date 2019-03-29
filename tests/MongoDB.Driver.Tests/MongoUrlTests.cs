@@ -28,6 +28,83 @@ namespace MongoDB.Driver.Tests
     [Trait("Category", "ConnectionString")]
     public class MongoUrlTests
     {
+        [Theory]
+        [InlineData("mongodb://localhost", true)]
+        [InlineData("mongodb+srv://localhost", false)]
+        public void constructor_with_string_should_set_isResolved_to_expected_value(string connectionString, bool expectedResult)
+        {
+            var subject = new MongoUrl(connectionString);
+
+            var result = subject.IsResolved;
+
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [InlineData("mongodb://localhost", true)]
+        [InlineData("mongodb+srv://localhost", false)]
+        [InlineData("mongodb+srv://localhost", true)]
+        public void constructor_with_string_and_bool_should_initialize_instance(string url, bool isResolved)
+        {
+            var result = new MongoUrl(url, isResolved);
+
+            result.IsResolved.Should().Be(isResolved);
+        }
+
+        [Theory]
+        [InlineData("mongodb://localhost")]
+        public void constructor_with_string_and_bool_should_throw_when_false_is_invalid(string url)
+        {
+            var exception = Record.Exception(() => new MongoUrl(url, false));
+
+            var e =exception.Should().BeOfType<ArgumentException>().Subject;
+            e.ParamName.Should().Be("isResolved");
+        }
+
+        [Theory]
+        [InlineData("mongodb+srv://test5.test.build.10gen.cc", "localhost.test.build.10gen.cc:27017", false)]
+        [InlineData("mongodb+srv://test5.test.build.10gen.cc", "localhost.test.build.10gen.cc:27017", true)]
+        public void Resolve_should_return_expected_result(string url, string expectedServer, bool async)
+        {
+            var subject = new MongoUrl(url);
+
+            MongoUrl result;
+            if (async)
+            {
+                result = subject.Resolve();
+            }
+            else
+            {
+                result = subject.ResolveAsync().GetAwaiter().GetResult();
+            }
+
+            var expectedServers = new[] { MongoServerAddress.Parse(expectedServer) };
+            result.Servers.Should().Equal(expectedServers);
+        }
+
+        [Theory]
+        [InlineData("mongodb+srv://test5.test.build.10gen.cc", false, "test5.test.build.10gen.cc:53", false)]
+        [InlineData("mongodb+srv://test5.test.build.10gen.cc", false, "test5.test.build.10gen.cc:53", true)]
+        [InlineData("mongodb+srv://test5.test.build.10gen.cc", true, "localhost.test.build.10gen.cc:27017", false)]
+        [InlineData("mongodb+srv://test5.test.build.10gen.cc", true, "localhost.test.build.10gen.cc:27017", true)]
+        public void Resolve_with_resolveHosts_should_return_expected_result(string url, bool resolveHosts, string expectedServer, bool async)
+        {
+            var subject = new MongoUrl(url);
+
+            MongoUrl result;
+            if (async)
+            {
+                result = subject.Resolve(resolveHosts);
+            }
+            else
+            {
+                result = subject.ResolveAsync(resolveHosts).GetAwaiter().GetResult();
+            }
+
+            var expectedServers = new[] { MongoServerAddress.Parse(expectedServer) };
+            result.Servers.Should().Equal(expectedServers);
+        }
+
         [Fact]
         public void TestAll()
         {
@@ -121,6 +198,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(TimeSpan.FromSeconds(11), url.HeartbeatInterval);
                 Assert.Equal(TimeSpan.FromSeconds(12), url.HeartbeatTimeout);
                 Assert.Equal(true, url.IPv6);
+                Assert.Equal(true, url.IsResolved);
                 Assert.Equal(true, url.Journal);
                 Assert.Equal(TimeSpan.FromSeconds(2), url.MaxConnectionIdleTime);
                 Assert.Equal(TimeSpan.FromSeconds(3), url.MaxConnectionLifeTime);

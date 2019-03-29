@@ -38,6 +38,7 @@ namespace MongoDB.Driver.Core.Configuration
         private readonly IReadOnlyList<EndPoint> _endPoints;
         private readonly int _maxServerSelectionWaitQueueSize;
         private readonly string _replicaSetName;
+        private readonly ConnectionStringScheme _scheme;
         private readonly TimeSpan _serverSelectionTimeout;
         private readonly IServerSelector _preServerSelector;
         private readonly IServerSelector _postServerSelector;
@@ -53,6 +54,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="serverSelectionTimeout">The server selection timeout.</param>
         /// <param name="preServerSelector">The pre server selector.</param>
         /// <param name="postServerSelector">The post server selector.</param>
+        /// <param name="scheme">The connection string scheme.</param>
         public ClusterSettings(
             Optional<ClusterConnectionMode> connectionMode = default(Optional<ClusterConnectionMode>),
             Optional<IEnumerable<EndPoint>> endPoints = default(Optional<IEnumerable<EndPoint>>),
@@ -60,7 +62,8 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<string> replicaSetName = default(Optional<string>),
             Optional<TimeSpan> serverSelectionTimeout = default(Optional<TimeSpan>),
             Optional<IServerSelector> preServerSelector = default(Optional<IServerSelector>),
-            Optional<IServerSelector> postServerSelector = default(Optional<IServerSelector>))
+            Optional<IServerSelector> postServerSelector = default(Optional<IServerSelector>),
+            Optional<ConnectionStringScheme> scheme = default(Optional<ConnectionStringScheme>))
         {
             _connectionMode = connectionMode.WithDefault(ClusterConnectionMode.Automatic);
             _endPoints = Ensure.IsNotNull(endPoints.WithDefault(__defaultEndPoints), "endPoints").ToList();
@@ -69,6 +72,7 @@ namespace MongoDB.Driver.Core.Configuration
             _serverSelectionTimeout = Ensure.IsGreaterThanOrEqualToZero(serverSelectionTimeout.WithDefault(TimeSpan.FromSeconds(30)), "serverSelectionTimeout");
             _preServerSelector = preServerSelector.WithDefault(null);
             _postServerSelector = postServerSelector.WithDefault(null);
+            _scheme = scheme.WithDefault(ConnectionStringScheme.MongoDB);
         }
 
         // properties
@@ -117,6 +121,17 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
+        /// Gets the connection string scheme.
+        /// </summary>
+        /// <value>
+        /// The connection string scheme.
+        /// </value>
+        public ConnectionStringScheme Scheme
+        {
+            get { return _scheme; }
+        }
+
+        /// <summary>
         /// Gets the server selection timeout.
         /// </summary>
         /// <value>
@@ -160,6 +175,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="serverSelectionTimeout">The server selection timeout.</param>
         /// <param name="preServerSelector">The pre server selector.</param>
         /// <param name="postServerSelector">The post server selector.</param>
+        /// <param name="scheme">The connection string scheme.</param>
         /// <returns>A new ClusterSettings instance.</returns>
         public ClusterSettings With(
             Optional<ClusterConnectionMode> connectionMode = default(Optional<ClusterConnectionMode>),
@@ -168,7 +184,8 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<string> replicaSetName = default(Optional<string>),
             Optional<TimeSpan> serverSelectionTimeout = default(Optional<TimeSpan>),
             Optional<IServerSelector> preServerSelector = default(Optional<IServerSelector>),
-            Optional<IServerSelector> postServerSelector = default(Optional<IServerSelector>))
+            Optional<IServerSelector> postServerSelector = default(Optional<IServerSelector>),
+            Optional<ConnectionStringScheme> scheme = default(Optional<ConnectionStringScheme>))
         {
             return new ClusterSettings(
                 connectionMode: connectionMode.WithDefault(_connectionMode),
@@ -177,7 +194,8 @@ namespace MongoDB.Driver.Core.Configuration
                 replicaSetName: replicaSetName.WithDefault(_replicaSetName),
                 serverSelectionTimeout: serverSelectionTimeout.WithDefault(_serverSelectionTimeout),
                 preServerSelector: Optional.Create(preServerSelector.WithDefault(_preServerSelector)),
-                postServerSelector: Optional.Create(postServerSelector.WithDefault(_postServerSelector)));
+                postServerSelector: Optional.Create(postServerSelector.WithDefault(_postServerSelector)),
+                scheme: scheme.WithDefault(_scheme));
         }
     }
 }

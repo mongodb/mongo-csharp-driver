@@ -39,6 +39,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="DnsClient" Version="1.2.0" />
     <PackageReference Include="FluentAssertions" Version="4.12.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />

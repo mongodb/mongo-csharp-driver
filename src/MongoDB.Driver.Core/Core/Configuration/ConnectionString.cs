@@ -74,6 +74,7 @@ namespace MongoDB.Driver.Core.Configuration
         private TimeSpan? _heartbeatTimeout;
         private IReadOnlyList<EndPoint> _hosts;
         private bool? _ipv6;
+        private bool _isResolved;
         private bool? _journal;
         private TimeSpan? _localThreshold;
         private TimeSpan? _maxIdleTime;
@@ -113,6 +114,24 @@ namespace MongoDB.Driver.Core.Configuration
             _unknownOptions = new NameValueCollection(StringComparer.OrdinalIgnoreCase);
             _authMechanismProperties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             Parse();
+
+            _isResolved = _scheme != ConnectionStringScheme.MongoDBPlusSrv;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionString" /> class.
+        /// </summary>
+        /// <param name="connectionString">The connection string.</param>
+        /// <param name="isResolved">Whether the connection string is resolved.</param>
+        internal ConnectionString(string connectionString, bool isResolved)
+            : this(connectionString)
+        {
+            if (!isResolved && _scheme != ConnectionStringScheme.MongoDBPlusSrv)
+            {
+                throw new ArgumentException("Only connection strings with scheme MongoDBPlusSrv can be unresolved.", nameof(isResolved));
+            }
+
+            _isResolved = isResolved;
         }
 
         // public properties
@@ -229,6 +248,14 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
+        /// Gets whether the connection string has been resolved. Always true when scheme is MongoDB.
+        /// </summary>
+        public bool IsResolved
+        {
+            get { return _isResolved; }
+        }
+
+        /// <summary>
         /// Gets the journal value of the write concern.
         /// </summary>
         public bool? Journal
@@ -336,7 +363,7 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
        /// <summary>
-        /// Gets the scheme.
+        /// Gets the connection string scheme.
         /// </summary>
         public ConnectionStringScheme Scheme
         {
@@ -449,7 +476,18 @@ namespace MongoDB.Driver.Core.Configuration
         /// <returns>A resolved ConnectionString.</returns>
         public ConnectionString Resolve()
         {
-            if (_scheme == ConnectionStringScheme.MongoDB)
+            return Resolve(resolveHosts: true);
+        }
+
+        /// <summary>
+        /// Resolves a connection string. If the connection string indicates more information is available
+        /// in the DNS system, it will acquire that information as well.
+        /// </summary>
+        /// <param name="resolveHosts">Whether to resolve hosts.</param>
+        /// <returns>A resolved ConnectionString.</returns>
+        public ConnectionString Resolve(bool resolveHosts)
+        {
+            if (_isResolved)
             {
                 return this;
             }
@@ -457,16 +495,28 @@ namespace MongoDB.Driver.Core.Configuration
             var host = GetHostNameForDns();
 
             var client = new LookupClient();
-            var response = client.Query(srvPrefix + host, QueryType.SRV, QueryClass.IN);
-            var hosts = GetHostsFromResponse(response);
-            ValidateResolvedHosts(host, hosts);
 
-            response = client.Query(host, QueryType.TXT, QueryClass.IN);
-            var options = GetOptionsFromResponse(response);
+            ConnectionStringScheme resolvedScheme;
+            List<string> hosts;
+            if (resolveHosts)
+            {
+                resolvedScheme = ConnectionStringScheme.MongoDB;
+                var srvResponse = client.Query(srvPrefix + host, QueryType.SRV, QueryClass.IN);
+                hosts = GetHostsFromResponse(srvResponse);
+                ValidateResolvedHosts(host, hosts);
+            }
+            else
+            {
+                resolvedScheme = ConnectionStringScheme.MongoDBPlusSrv;
+                hosts = new List<string> { host };
+            }
+
+            var txtResponse = client.Query(host, QueryType.TXT, QueryClass.IN);
+            var options = GetOptionsFromResponse(txtResponse);
 
             var resolvedOptions = GetResolvedOptions(options);
 
-            return BuildResolvedConnectionString(hosts, resolvedOptions);
+            return BuildResolvedConnectionString(resolvedScheme, hosts, resolvedOptions);
         }
 
         /// <summary>
@@ -475,26 +525,50 @@ namespace MongoDB.Driver.Core.Configuration
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A resolved ConnectionString.</returns>
-        public async Task<ConnectionString> ResolveAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<ConnectionString> ResolveAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (_scheme == ConnectionStringScheme.MongoDB)
+            return ResolveAsync(resolveHosts: true, cancellationToken);
+        }
+
+        /// <summary>
+        /// Resolves a connection string. If the connection string indicates more information is available
+        /// in the DNS system, it will acquire that information as well.
+        /// </summary>
+        /// <param name="resolveHosts">Whether to resolve hosts.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A resolved ConnectionString.</returns>
+        public async Task<ConnectionString> ResolveAsync(bool resolveHosts, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (_isResolved)
             {
                 return this;
             }
 
-            string host = GetHostNameForDns();
+            var host = GetHostNameForDns();
 
             var client = new LookupClient();
-            var response = await client.QueryAsync(srvPrefix + host, QueryType.SRV, QueryClass.IN, cancellationToken).ConfigureAwait(false);
-            var hosts = GetHostsFromResponse(response);
-            ValidateResolvedHosts(host, hosts);
 
-            response = await client.QueryAsync(host, QueryType.TXT, QueryClass.IN, cancellationToken).ConfigureAwait(false);
-            var options = GetOptionsFromResponse(response);
+            ConnectionStringScheme resolvedScheme;
+            List<string> hosts;
+            if (resolveHosts)
+            {
+                resolvedScheme = ConnectionStringScheme.MongoDB;
+                var srvResponse = await client.QueryAsync(srvPrefix + host, QueryType.SRV, QueryClass.IN).ConfigureAwait(false);
+                hosts = GetHostsFromResponse(srvResponse);
+                ValidateResolvedHosts(host, hosts);
+            }
+            else
+            {
+                resolvedScheme = ConnectionStringScheme.MongoDBPlusSrv;
+                hosts = new List<string> { host };
+            }
+
+            var txtResponse = await client.QueryAsync(host, QueryType.TXT, QueryClass.IN).ConfigureAwait(false);
+            var options = GetOptionsFromResponse(txtResponse);
 
             var resolvedOptions = GetResolvedOptions(options);
 
-            return BuildResolvedConnectionString(hosts, resolvedOptions);
+            return BuildResolvedConnectionString(resolvedScheme, hosts, resolvedOptions);
         }
 
         /// <inheritdoc/>
@@ -504,9 +578,9 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         // private methods
-        private ConnectionString BuildResolvedConnectionString(List<string> resolvedHosts, NameValueCollection resolvedOptions)
+        private ConnectionString BuildResolvedConnectionString(ConnectionStringScheme resolvedScheme, List<string> resolvedHosts, NameValueCollection resolvedOptions)
         {
-            var connectionString = "mongodb://";
+            var connectionString = resolvedScheme == ConnectionStringScheme.MongoDBPlusSrv ? "mongodb+srv://" : "mongodb://";
             if (_username != null)
             {
                 connectionString += Uri.EscapeDataString(_username);
@@ -548,7 +622,7 @@ namespace MongoDB.Driver.Core.Configuration
                 connectionString += "?" + string.Join("&", mergedOptions);
             }
 
-            return new ConnectionString(connectionString);
+            return new ConnectionString(connectionString, isResolved: true);
         }
 
         private void ExtractScheme(Match match)
@@ -1050,6 +1124,31 @@ namespace MongoDB.Driver.Core.Configuration
 
         private void ValidateResolvedHosts(string original, List<string> resolved)
         {
+            if (resolved.Count == 0)
+            {
+                throw new MongoConfigurationException($"No hosts were found in the SRV record for {original}.");
+            }
+
+            // for each resolved host, make sure that it ends with domain of the parent.
+            foreach(var resolvedHost in resolved)
+            {
+                EndPoint endPoint;
+                if (!EndPointHelper.TryParse(resolvedHost, 0, out endPoint) || !(endPoint is DnsEndPoint))
+                {
+                    throw new MongoConfigurationException($"Unable to parse {resolvedHost} as a hostname.");
+                }
+                var dnsEndPoint = (DnsEndPoint)endPoint;
+
+                var host = ((DnsEndPoint)endPoint).Host;
+                if (!HasValidParentDomain(original, dnsEndPoint))
+                {
+                    throw new MongoConfigurationException($"Hosts in the SRV record must have the same parent domain as the seed host.");
+                }
+            }
+        }
+
+        internal static bool HasValidParentDomain(string original, DnsEndPoint resolvedEndPoint)
+        {
             // Helper functions...
             Func<string, string[]> getParentParts = x => x.Split('.').Skip(1).ToArray();
 
@@ -1073,27 +1172,10 @@ namespace MongoDB.Driver.Core.Configuration
                 return true;
             };
 
-            if (resolved.Count == 0)
-            {
-                throw new MongoConfigurationException($"No hosts were found in the SRV record for {original}.");
-            }
-
-            // for each resolved host, make sure that it ends with domain of the parent.
+            // make sure that the resolve host ends with domain of the parent.
             var originalParentParts = getParentParts(original);
-            foreach(var resolvedHost in resolved)
-            {
-                EndPoint endPoint;
-                if (!EndPointHelper.TryParse(resolvedHost, 0, out endPoint) || !(endPoint is DnsEndPoint))
-                {
-                    throw new MongoConfigurationException($"Unable to parse {resolvedHost} as a hostname.");
-                }
-
-                var host = ((DnsEndPoint)endPoint).Host;
-                if (!endsWith(getParentParts(host), originalParentParts))
-                {
-                    throw new MongoConfigurationException($"Hosts in the SRV record must have the same parent domain as the seed host.");
-                }
-            }
+            var host = resolvedEndPoint.Host;
+            return endsWith(getParentParts(host), originalParentParts);
         }
 
         private void ValidateResolvedOptions(IEnumerable<string> optionNames)

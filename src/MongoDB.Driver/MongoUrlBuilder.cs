@@ -103,6 +103,7 @@ namespace MongoDB.Driver
             _replicaSetName = null;
             _retryWrites = null;
             _localThreshold = MongoDefaults.LocalThreshold;
+            _scheme = ConnectionStringScheme.MongoDB;
             _servers = new[] { new MongoServerAddress("localhost", 27017) };
             _serverSelectionTimeout = MongoDefaults.ServerSelectionTimeout;
             _socketTimeout = MongoDefaults.SocketTimeout;
@@ -433,7 +434,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// The scheme used to connect with mongodb.
+        /// The connection string scheme.
         /// </summary>
         public ConnectionStringScheme Scheme
         {

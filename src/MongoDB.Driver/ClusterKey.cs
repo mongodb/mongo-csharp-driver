@@ -23,20 +23,6 @@ namespace MongoDB.Driver
 {
     internal class ClusterKey
     {
-        #region static
-        // static fields
-        private static readonly int __defaultReceiveBufferSize;
-        private static readonly int __defaultSendBufferSize;
-
-        // static constructor
-        static ClusterKey()
-        {
-            var defaultTcpStreamSettings = new TcpStreamSettings();
-            __defaultReceiveBufferSize = defaultTcpStreamSettings.ReceiveBufferSize;
-            __defaultSendBufferSize = defaultTcpStreamSettings.SendBufferSize;
-        }
-        #endregion
-
         // fields
         private readonly string _applicationName;
         private readonly Action<ClusterBuilder> _clusterConfigurator;
@@ -54,6 +40,7 @@ namespace MongoDB.Driver
         private readonly int _minConnectionPoolSize;
         private readonly int _receiveBufferSize;
         private readonly string _replicaSetName;
+        private readonly ConnectionStringScheme _scheme;
         private readonly string _sdamLogFilename;
         private readonly int _sendBufferSize;
         private readonly IReadOnlyList<MongoServerAddress> _servers;
@@ -80,8 +67,11 @@ namespace MongoDB.Driver
             TimeSpan maxConnectionLifeTime,
             int maxConnectionPoolSize,
             int minConnectionPoolSize,
+            int receiveBufferSize,
             string replicaSetName,
+            ConnectionStringScheme scheme,
             string sdamLogFilename,
+            int sendBufferSize,
             IReadOnlyList<MongoServerAddress> servers,
             TimeSpan serverSelectionTimeout,
             TimeSpan socketTimeout,
@@ -104,10 +94,11 @@ namespace MongoDB.Driver
             _maxConnectionLifeTime = maxConnectionLifeTime;
             _maxConnectionPoolSize = maxConnectionPoolSize;
             _minConnectionPoolSize = minConnectionPoolSize;
-            _receiveBufferSize = __defaultReceiveBufferSize; // TODO: add ReceiveBufferSize to MongoServerSettings?
+            _receiveBufferSize = receiveBufferSize;
             _replicaSetName = replicaSetName;
+            _scheme = scheme;
             _sdamLogFilename = sdamLogFilename;
-            _sendBufferSize = __defaultSendBufferSize; // TODO: add SendBufferSize to MongoServerSettings?
+            _sendBufferSize = sendBufferSize;
             _servers = servers;
             _serverSelectionTimeout = serverSelectionTimeout;
             _socketTimeout = socketTimeout;
@@ -136,6 +127,7 @@ namespace MongoDB.Driver
         public int MinConnectionPoolSize { get { return _minConnectionPoolSize; } }
         public int ReceiveBufferSize { get { return _receiveBufferSize; } }
         public string ReplicaSetName { get { return _replicaSetName; } }
+        public ConnectionStringScheme Scheme { get { return _scheme; } }
         public string SdamLogFilename { get { return _sdamLogFilename; }}
         public int SendBufferSize { get { return _sendBufferSize; } }
         public IReadOnlyList<MongoServerAddress> Servers { get { return _servers; } }
@@ -181,6 +173,7 @@ namespace MongoDB.Driver
                 _minConnectionPoolSize == rhs._minConnectionPoolSize &&
                 _receiveBufferSize == rhs._receiveBufferSize &&
                 _replicaSetName == rhs._replicaSetName &&
+                _scheme == rhs._scheme &&
                 _sdamLogFilename == rhs._sdamLogFilename &&
                 _sendBufferSize == rhs._sendBufferSize &&
                 _servers.SequenceEqual(rhs._servers) &&

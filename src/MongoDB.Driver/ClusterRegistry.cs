@@ -94,7 +94,8 @@ namespace MongoDB.Driver
                 replicaSetName: clusterKey.ReplicaSetName,
                 maxServerSelectionWaitQueueSize: clusterKey.WaitQueueSize,
                 serverSelectionTimeout: clusterKey.ServerSelectionTimeout,
-                postServerSelector: new LatencyLimitingServerSelector(clusterKey.LocalThreshold));
+                postServerSelector: new LatencyLimitingServerSelector(clusterKey.LocalThreshold),
+                scheme: clusterKey.Scheme);
         }
 
         private ConnectionPoolSettings ConfigureConnectionPool(ConnectionPoolSettings settings, ClusterKey clusterKey)

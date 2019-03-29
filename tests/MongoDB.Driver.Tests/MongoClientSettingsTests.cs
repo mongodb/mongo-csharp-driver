@@ -20,7 +20,6 @@ using System.Security.Authentication;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -65,9 +64,9 @@ namespace MongoDB.Driver.Tests
             // set everything to non default values to test that all settings are cloned
             var connectionString =
                 "mongodb://user1:password1@somehost/?appname=app;" +
-                "connect=direct;connectTimeout=123;uuidRepresentation=pythonLegacy;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;" +
+                "connect=direct;connectTimeout=123;uuidRepresentation=pythonLegacy;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;localThreshold=128;" +
                 "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;readConcernLevel=majority;" +
-                "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;localThreshold=128;socketTimeout=129;" +
+                "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;socketTimeout=129;" +
                 "serverSelectionTimeout=20s;ssl=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
                 "w=1;fsync=true;journal=true;w=2;wtimeout=131;gssapiServiceName=other";
             var builder = new MongoUrlBuilder(connectionString);
@@ -146,6 +145,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(ReadPreference.Primary, settings.ReadPreference);
             Assert.Equal(null, settings.ReplicaSetName);
             Assert.Equal(false, settings.RetryWrites);
+            Assert.Equal(ConnectionStringScheme.MongoDB, settings.Scheme);
             Assert.Equal(_localHost, settings.Server);
             Assert.Equal(_localHost, settings.Servers.First());
             Assert.Equal(1, settings.Servers.Count());
@@ -208,6 +208,10 @@ namespace MongoDB.Driver.Tests
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
+            clone.LocalThreshold = new TimeSpan(1, 2, 3);
+            Assert.False(clone.Equals(settings));
+
+            clone = settings.Clone();
             clone.MaxConnectionIdleTime = new TimeSpan(1, 2, 3);
             Assert.False(clone.Equals(settings));
 
@@ -240,7 +244,7 @@ namespace MongoDB.Driver.Tests
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
-            clone.LocalThreshold = new TimeSpan(1, 2, 3);
+            clone.Scheme = ConnectionStringScheme.MongoDBPlusSrv;
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
@@ -305,9 +309,9 @@ namespace MongoDB.Driver.Tests
             // set everything to non default values to test that all settings are converted
             var connectionString =
                 "mongodb://user1:password1@somehost/?appname=app1;authSource=db;authMechanismProperties=CANONICALIZE_HOST_NAME:true;" +
-                "connect=direct;connectTimeout=123;uuidRepresentation=pythonLegacy;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;" +
+                "connect=direct;connectTimeout=123;uuidRepresentation=pythonLegacy;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;localThreshold=128;" +
                 "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;readConcernLevel=majority;" +
-                "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;retryWrites=true;localThreshold=128;socketTimeout=129;" +
+                "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;retryWrites=true;socketTimeout=129;" +
                 "serverSelectionTimeout=20s;ssl=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
                 "w=1;fsync=true;journal=true;w=2;wtimeout=131;gssapiServiceName=other";
             var builder = new MongoUrlBuilder(connectionString);
@@ -330,6 +334,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(url.HeartbeatInterval, settings.HeartbeatInterval);
             Assert.Equal(url.HeartbeatTimeout, settings.HeartbeatTimeout);
             Assert.Equal(url.IPv6, settings.IPv6);
+            Assert.Equal(url.LocalThreshold, settings.LocalThreshold);
             Assert.Equal(url.MaxConnectionIdleTime, settings.MaxConnectionIdleTime);
             Assert.Equal(url.MaxConnectionLifeTime, settings.MaxConnectionLifeTime);
             Assert.Equal(url.MaxConnectionPoolSize, settings.MaxConnectionPoolSize);
@@ -338,7 +343,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(url.ReadPreference, settings.ReadPreference);
             Assert.Equal(url.ReplicaSetName, settings.ReplicaSetName);
             Assert.Equal(url.RetryWrites, settings.RetryWrites);
-            Assert.Equal(url.LocalThreshold, settings.LocalThreshold);
+            Assert.Equal(url.Scheme, settings.Scheme);
             Assert.True(url.Servers.SequenceEqual(settings.Servers));
             Assert.Equal(url.ServerSelectionTimeout, settings.ServerSelectionTimeout);
             Assert.Equal(url.SocketTimeout, settings.SocketTimeout);
@@ -372,6 +377,23 @@ namespace MongoDB.Driver.Tests
             Assert.Equal("MONGODB-X509", credential.Mechanism);
             Assert.Equal(null, credential.Username);
             Assert.IsType<ExternalEvidence>(credential.Evidence);
+        }
+
+        [Theory]
+        [InlineData("mongodb+srv://username:password@test5.test.build.10gen.cc/?connect=direct", ConnectionStringScheme.MongoDB, "localhost.test.build.10gen.cc:27017")]
+        [InlineData("mongodb+srv://username:password@test5.test.build.10gen.cc/?connect=standalone", ConnectionStringScheme.MongoDB, "localhost.test.build.10gen.cc:27017")]
+        [InlineData("mongodb+srv://username:password@test5.test.build.10gen.cc/?connect=automatic",  ConnectionStringScheme.MongoDBPlusSrv, "test5.test.build.10gen.cc:53")]
+        [InlineData("mongodb+srv://username:password@test5.test.build.10gen.cc/?connect=replicaset", ConnectionStringScheme.MongoDBPlusSrv, "test5.test.build.10gen.cc:53")]
+        [InlineData("mongodb+srv://username:password@test5.test.build.10gen.cc/?connect=shardrouter", ConnectionStringScheme.MongoDBPlusSrv, "test5.test.build.10gen.cc:53")]
+        public void TestFromUrlResolving(string connectionString, ConnectionStringScheme expectedScheme, string expectedEndPoint)
+        {
+            var url = new MongoUrl(connectionString);
+
+            var result = MongoClientSettings.FromUrl(url);
+
+            var expectedServers = new[] { MongoServerAddress.Parse(expectedEndPoint) };
+            result.Servers.Should().Equal(expectedServers);
+            result.Scheme.Should().Be(expectedScheme);
         }
 
         [Fact]
@@ -447,6 +469,21 @@ namespace MongoDB.Driver.Tests
             settings.Freeze();
             Assert.Equal(ipv6, settings.IPv6);
             Assert.Throws<InvalidOperationException>(() => { settings.IPv6 = ipv6; });
+        }
+
+        [Fact]
+        public void TestLocalThreshold()
+        {
+            var settings = new MongoClientSettings();
+            Assert.Equal(MongoDefaults.LocalThreshold, settings.LocalThreshold);
+
+            var localThreshold = new TimeSpan(1, 2, 3);
+            settings.LocalThreshold = localThreshold;
+            Assert.Equal(localThreshold, settings.LocalThreshold);
+
+            settings.Freeze();
+            Assert.Equal(localThreshold, settings.LocalThreshold);
+            Assert.Throws<InvalidOperationException>(() => { settings.LocalThreshold = localThreshold; });
         }
 
         [Fact]
@@ -570,20 +607,20 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void TestLocalThreshold()
+        public void TestScheme()
         {
             var settings = new MongoClientSettings();
-            Assert.Equal(MongoDefaults.LocalThreshold, settings.LocalThreshold);
+            Assert.Equal(ConnectionStringScheme.MongoDB, settings.Scheme);
 
-            var localThreshold = new TimeSpan(1, 2, 3);
-            settings.LocalThreshold = localThreshold;
-            Assert.Equal(localThreshold, settings.LocalThreshold);
+            var scheme = ConnectionStringScheme.MongoDBPlusSrv;
+            settings.Scheme = scheme;
+            Assert.Equal(scheme, settings.Scheme);
 
             settings.Freeze();
-            Assert.Equal(localThreshold, settings.LocalThreshold);
-            Assert.Throws<InvalidOperationException>(() => { settings.LocalThreshold = localThreshold; });
+            Assert.Equal(scheme, settings.Scheme);
+            Assert.Throws<InvalidOperationException>(() => { settings.Scheme = scheme; });
         }
-        
+
         [Fact]
         public void TestSdamLogFileName()
         {
@@ -798,6 +835,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void ToClusterKey_should_copy_relevant_values()
         {
+            var clusterConfigurator = new Action<ClusterBuilder>(b => { });
 #pragma warning disable 618
             var credential = MongoCredential.CreateMongoCRCredential("source", "username", "password");
 #pragma warning restore 618
@@ -811,6 +849,7 @@ namespace MongoDB.Driver.Tests
             var subject = new MongoClientSettings
             {
                 ApplicationName = "app",
+                ClusterConfigurator = clusterConfigurator,
                 ConnectionMode = ConnectionMode.Direct,
                 ConnectTimeout = TimeSpan.FromSeconds(1),
                 Credential = credential,
@@ -818,12 +857,13 @@ namespace MongoDB.Driver.Tests
                 HeartbeatInterval = TimeSpan.FromSeconds(7),
                 HeartbeatTimeout = TimeSpan.FromSeconds(8),
                 IPv6 = true,
+                LocalThreshold = TimeSpan.FromMilliseconds(20),
                 MaxConnectionIdleTime = TimeSpan.FromSeconds(2),
                 MaxConnectionLifeTime = TimeSpan.FromSeconds(3),
                 MaxConnectionPoolSize = 10,
                 MinConnectionPoolSize = 5,
                 ReplicaSetName = "rs",
-                LocalThreshold = TimeSpan.FromMilliseconds(20),
+                Scheme = ConnectionStringScheme.MongoDB,
                 SdamLogFilename = "pokédex",
                 Servers = servers,
                 ServerSelectionTimeout = TimeSpan.FromSeconds(6),
@@ -838,6 +878,7 @@ namespace MongoDB.Driver.Tests
             var result = subject.ToClusterKey();
 
             result.ApplicationName.Should().Be(subject.ApplicationName);
+            result.ClusterConfigurator.Should().BeSameAs(clusterConfigurator);
             result.ConnectionMode.Should().Be(subject.ConnectionMode);
             result.ConnectTimeout.Should().Be(subject.ConnectTimeout);
 #pragma warning disable 618
@@ -846,13 +887,16 @@ namespace MongoDB.Driver.Tests
             result.HeartbeatInterval.Should().Be(subject.HeartbeatInterval);
             result.HeartbeatTimeout.Should().Be(subject.HeartbeatTimeout);
             result.IPv6.Should().Be(subject.IPv6);
+            result.LocalThreshold.Should().Be(subject.LocalThreshold);
             result.MaxConnectionIdleTime.Should().Be(subject.MaxConnectionIdleTime);
             result.MaxConnectionLifeTime.Should().Be(subject.MaxConnectionLifeTime);
             result.MaxConnectionPoolSize.Should().Be(subject.MaxConnectionPoolSize);
             result.MinConnectionPoolSize.Should().Be(subject.MinConnectionPoolSize);
+            result.ReceiveBufferSize.Should().Be(MongoDefaults.TcpReceiveBufferSize);
             result.ReplicaSetName.Should().Be(subject.ReplicaSetName);
-            result.LocalThreshold.Should().Be(subject.LocalThreshold);
+            result.Scheme.Should().Be(subject.Scheme);
             result.SdamLogFilename.Should().Be(subject.SdamLogFilename);
+            result.SendBufferSize.Should().Be(MongoDefaults.TcpSendBufferSize);
             result.Servers.Should().Equal(subject.Servers);
             result.ServerSelectionTimeout.Should().Be(subject.ServerSelectionTimeout);
             result.SocketTimeout.Should().Be(subject.SocketTimeout);

@@ -36,6 +36,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.EndPoints.Should().EqualUsing(new[] { new DnsEndPoint("localhost", 27017) }, EndPointHelper.EndPointEqualityComparer);
             subject.MaxServerSelectionWaitQueueSize.Should().Be(500);
             subject.ReplicaSetName.Should().Be(null);
+            subject.Scheme.Should().Be(ConnectionStringScheme.MongoDB);
             subject.ServerSelectionTimeout.Should().Be(TimeSpan.FromSeconds(30));
         }
 
@@ -74,6 +75,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.EndPoints.Should().EqualUsing(__defaults.EndPoints, EndPointHelper.EndPointEqualityComparer);
             subject.MaxServerSelectionWaitQueueSize.Should().Be(__defaults.MaxServerSelectionWaitQueueSize);
             subject.ReplicaSetName.Should().Be(__defaults.ReplicaSetName);
+            subject.Scheme.Should().Be(__defaults.Scheme);
             subject.ServerSelectionTimeout.Should().Be(__defaults.ServerSelectionTimeout);
         }
 
@@ -88,6 +90,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.EndPoints.Should().EqualUsing(endPoints, EndPointHelper.EndPointEqualityComparer);
             subject.MaxServerSelectionWaitQueueSize.Should().Be(__defaults.MaxServerSelectionWaitQueueSize);
             subject.ReplicaSetName.Should().Be(__defaults.ReplicaSetName);
+            subject.Scheme.Should().Be(__defaults.Scheme);
             subject.ServerSelectionTimeout.Should().Be(__defaults.ServerSelectionTimeout);
         }
 
@@ -102,6 +105,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.EndPoints.Should().EqualUsing(__defaults.EndPoints, EndPointHelper.EndPointEqualityComparer);
             subject.MaxServerSelectionWaitQueueSize.Should().Be(maxServerSelectionWaitQueueSize);
             subject.ReplicaSetName.Should().Be(__defaults.ReplicaSetName);
+            subject.Scheme.Should().Be(__defaults.Scheme);
             subject.ServerSelectionTimeout.Should().Be(__defaults.ServerSelectionTimeout);
         }
 
@@ -116,6 +120,22 @@ namespace MongoDB.Driver.Core.Configuration
             subject.EndPoints.Should().EqualUsing(__defaults.EndPoints, EndPointHelper.EndPointEqualityComparer);
             subject.MaxServerSelectionWaitQueueSize.Should().Be(__defaults.MaxServerSelectionWaitQueueSize);
             subject.ReplicaSetName.Should().Be(replicaSetName);
+            subject.Scheme.Should().Be(__defaults.Scheme);
+            subject.ServerSelectionTimeout.Should().Be(__defaults.ServerSelectionTimeout);
+        }
+
+        [Fact]
+        public void constructor_with_scheme_should_initialize_instance()
+        {
+            var scheme = ConnectionStringScheme.MongoDBPlusSrv;
+
+            var subject = new ClusterSettings(scheme: scheme);
+
+            subject.ConnectionMode.Should().Be(__defaults.ConnectionMode);
+            subject.EndPoints.Should().EqualUsing(__defaults.EndPoints, EndPointHelper.EndPointEqualityComparer);
+            subject.MaxServerSelectionWaitQueueSize.Should().Be(__defaults.MaxServerSelectionWaitQueueSize);
+            subject.ReplicaSetName.Should().Be(__defaults.ReplicaSetName);
+            subject.Scheme.Should().Be(scheme);
             subject.ServerSelectionTimeout.Should().Be(__defaults.ServerSelectionTimeout);
         }
 
@@ -130,6 +150,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.EndPoints.Should().EqualUsing(__defaults.EndPoints, EndPointHelper.EndPointEqualityComparer);
             subject.MaxServerSelectionWaitQueueSize.Should().Be(__defaults.MaxServerSelectionWaitQueueSize);
             subject.ReplicaSetName.Should().Be(__defaults.ReplicaSetName);
+            subject.Scheme.Should().Be(__defaults.Scheme);
             subject.ServerSelectionTimeout.Should().Be(serverSelectionTimeout);
         }
 
@@ -146,6 +167,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.EndPoints.Should().EqualUsing(subject.EndPoints, EndPointHelper.EndPointEqualityComparer);
             result.MaxServerSelectionWaitQueueSize.Should().Be(subject.MaxServerSelectionWaitQueueSize);
             result.ReplicaSetName.Should().Be(subject.ReplicaSetName);
+            result.Scheme.Should().Be(subject.Scheme);
             result.ServerSelectionTimeout.Should().Be(subject.ServerSelectionTimeout);
         }
 
@@ -162,6 +184,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.EndPoints.Should().EqualUsing(newEndPoints, EndPointHelper.EndPointEqualityComparer);
             result.MaxServerSelectionWaitQueueSize.Should().Be(subject.MaxServerSelectionWaitQueueSize);
             result.ReplicaSetName.Should().Be(subject.ReplicaSetName);
+            result.Scheme.Should().Be(subject.Scheme);
             result.ServerSelectionTimeout.Should().Be(subject.ServerSelectionTimeout);
         }
 
@@ -178,6 +201,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.EndPoints.Should().EqualUsing(subject.EndPoints, EndPointHelper.EndPointEqualityComparer);
             result.MaxServerSelectionWaitQueueSize.Should().Be(newMaxServerSelectionWaitQueueSize);
             result.ReplicaSetName.Should().Be(subject.ReplicaSetName);
+            result.Scheme.Should().Be(subject.Scheme);
             result.ServerSelectionTimeout.Should().Be(subject.ServerSelectionTimeout);
         }
 
@@ -194,6 +218,24 @@ namespace MongoDB.Driver.Core.Configuration
             result.EndPoints.Should().EqualUsing(subject.EndPoints, EndPointHelper.EndPointEqualityComparer);
             result.MaxServerSelectionWaitQueueSize.Should().Be(subject.MaxServerSelectionWaitQueueSize);
             result.ReplicaSetName.Should().Be(newReplicaSetName);
+            result.Scheme.Should().Be(subject.Scheme);
+            result.ServerSelectionTimeout.Should().Be(subject.ServerSelectionTimeout);
+        }
+
+        [Fact]
+        public void With_scheme_should_return_expected_result()
+        {
+            var oldScheme = ConnectionStringScheme.MongoDB;
+            var newScheme = ConnectionStringScheme.MongoDBPlusSrv;
+            var subject = new ClusterSettings(scheme: oldScheme);
+
+            var result = subject.With(scheme: newScheme);
+
+            result.ConnectionMode.Should().Be(subject.ConnectionMode);
+            result.EndPoints.Should().EqualUsing(subject.EndPoints, EndPointHelper.EndPointEqualityComparer);
+            result.MaxServerSelectionWaitQueueSize.Should().Be(subject.MaxServerSelectionWaitQueueSize);
+            result.ReplicaSetName.Should().Be(subject.ReplicaSetName);
+            result.Scheme.Should().Be(newScheme);
             result.ServerSelectionTimeout.Should().Be(subject.ServerSelectionTimeout);
         }
 
@@ -210,6 +252,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.EndPoints.Should().EqualUsing(subject.EndPoints, EndPointHelper.EndPointEqualityComparer);
             result.MaxServerSelectionWaitQueueSize.Should().Be(subject.MaxServerSelectionWaitQueueSize);
             result.ReplicaSetName.Should().Be(subject.ReplicaSetName);
+            result.Scheme.Should().Be(subject.Scheme);
             result.ServerSelectionTimeout.Should().Be(newServerSelectionTimeout);
         }
     }
