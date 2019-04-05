@@ -217,6 +217,32 @@ namespace MongoDB.Driver.Linq.Translators
             }
         }
 
+        private FilterDefinition<BsonDocument> ConvertElemMatchFilterToScalarElementMatchIfNeeded(FilterDefinition<BsonDocument> filter, IFieldExpression fieldExpression, Expression wherePredicate)
+        {
+            if ((!(fieldExpression.Serializer is IBsonDocumentSerializer)) || DoesExpressionUseDocumentItself(wherePredicate))
+            {
+                return new ScalarElementMatchFilterDefinition<BsonDocument>(filter);
+            }
+            else
+            {
+                return filter;
+            }
+        }
+
+        private bool DoesExpressionUseDocumentItself(Expression node)
+        {
+            // if a left operand is DocumentExpression, we need to generate a "$elemMatch" in a short form,
+            // otherwise we will have $elemMatch queries with gaps similar to : "{ $elemMatch : { ' ' : {"
+            if (node is BinaryExpression binaryExpression)
+            {
+                if (binaryExpression.Left is DocumentExpression)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         private FilterDefinition<BsonDocument> TranslateArrayLength(Expression variableNode, ExpressionType operatorType, ConstantExpression constantNode)
         {
             var allowedOperators = new[]
@@ -935,10 +961,8 @@ namespace MongoDB.Driver.Linq.Translators
             {
                 var predicate = DocumentToFieldConverter.Convert(whereExpression.Predicate);
                 filter = __builder.ElemMatch(fieldExpression.FieldName, Translate(predicate));
-                if (!(fieldExpression.Serializer is IBsonDocumentSerializer))
-                {
-                    filter = new ScalarElementMatchFilterDefinition<BsonDocument>(filter);
-                }
+
+                filter = ConvertElemMatchFilterToScalarElementMatchIfNeeded(filter, fieldExpression, whereExpression.Predicate);
             }
 
             return filter;

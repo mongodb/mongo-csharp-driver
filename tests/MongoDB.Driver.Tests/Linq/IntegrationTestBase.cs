@@ -16,7 +16,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDB.Driver.Tests.Linq
@@ -101,7 +101,8 @@ namespace MongoDB.Driver.Tests.Linq
                                     {
                                         D = "Delilah"
                                     }
-                            }
+                            },
+                            Ids = new [] { new ObjectId("111111111111111111111111") }
                         },
                         new C
                         {
@@ -251,6 +252,8 @@ namespace MongoDB.Driver.Tests.Linq
 
         public class C
         {
+            public IEnumerable<ObjectId> Ids { get; set; }
+
             public string D { get; set; }
 
             public E E { get; set; }

@@ -121,6 +121,56 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Fact]
+        public void Any_with_a_predicate_on_document_itself()
+        {
+            Assert(
+                x => x.G.Any(g => g != null),
+                2,
+                "{ 'G' : { '$elemMatch' : { '$ne' : null } } }");
+
+            Assert(
+                x => x.G.Any(g => null != g),
+                2,
+                "{ 'G' : { '$elemMatch' : { '$ne' : null } } }");
+
+            Assert(
+                x => x.G.Any(g => g.E.I.Any(i => i == "insecure")),
+                1,
+                "{ \"G.E.I\" : { '$elemMatch' : { '$eq': 'insecure' } } }");
+        }
+
+        [Fact]
+        public void Any_with_a_predicate_on_document_itself_and_objectId()
+        {
+            Assert(
+                x => x.G.Any(g => g.Ids.Any(i => i == ObjectId.Parse("111111111111111111111111"))),
+                1,
+                "{ 'G.Ids' : { '$elemMatch' : { '$eq' : ObjectId('111111111111111111111111') } } }");
+        }
+
+        [Fact]
+        public void Any_with_a_predicate_on_documents_itself_and_ClassEquals()
+        {
+            var c1 = new C()
+            {
+                D = "Dolphin",
+                E = new E()
+                {
+                    F = 55,
+                    H = 66,
+                    I = new List<string>()
+                    {
+                        "insecure"
+                    }
+                }
+            };
+            Assert(
+                x => x.G.Any(g => g == c1),
+                1,
+                "{ \"G\" : { \"$elemMatch\" : { \"Ids\" : null, \"D\" : \"Dolphin\", \"E\" : { \"F\" : 55, \"H\" : 66, \"I\" : [\"insecure\"] }, \"S\" : null, \"X\" : null } } }");
+        }
+
+        [Fact]
         public void Any_with_a_gte_predicate_on_documents()
         {
             Assert(
@@ -585,7 +635,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             Assert(
                 x => x.C == new C { D = "Dexter" },
                 0,
-                "{C: {D: 'Dexter', E: null, S: null, X: null}}");
+                "{ C : { Ids : null, D : 'Dexter', E : null, S : null, X : null } }");
         }
 
         [Fact]
@@ -594,7 +644,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             Assert(
                 x => x.C.Equals(new C { D = "Dexter" }),
                 0,
-                "{C: {D: 'Dexter', E: null, S: null, X: null}}");
+                "{ C : { Ids : null, D : 'Dexter', E : null, S : null, X : null } }");
         }
 
         [Fact]
@@ -603,7 +653,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             Assert(
                 x => x.C != new C { D = "Dexter" },
                 2,
-                "{C: {$ne: {D: 'Dexter', E: null, S: null, X: null}}}");
+                "{ C : { $ne : { Ids : null, D : 'Dexter', E : null, S : null, X : null } } }");
         }
 
         [Fact]
