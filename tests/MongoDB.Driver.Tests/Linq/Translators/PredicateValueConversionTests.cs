@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             Assert(
                 x => x.C == objectToConvert,
                 0,
-                "{ C : { D : 'Dexter', E : null, S : null, X : null } }");
+                "{ C : { Ids : null, D : 'Dexter', E : null, S : null, X : null } }");
         }
 
         public void Assert(Expression<Func<Root, bool>> filter, int expectedCount, string expectedFilter)
