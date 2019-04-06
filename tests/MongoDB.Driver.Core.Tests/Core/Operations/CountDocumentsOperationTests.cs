@@ -585,7 +585,7 @@ namespace MongoDB.Driver.Core.Operations
             return new List<BsonDocument>
             {
                 BsonDocument.Parse("{ $match : { } }"),
-                BsonDocument.Parse("{ $group : { _id : null, n : { $sum : 1 } } }")
+                BsonDocument.Parse("{ $group : { _id : 1, n : { $sum : 1 } } }")
             };
         }
 

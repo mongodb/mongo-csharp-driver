@@ -216,7 +216,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 pipeline.Add(new BsonDocument("$limit", _limit.Value));
             }
-            pipeline.Add(new BsonDocument("$group", new BsonDocument { { "_id", BsonNull.Value }, { "n", new BsonDocument("$sum", 1) } }));
+            pipeline.Add(new BsonDocument("$group", new BsonDocument { { "_id", 1 }, { "n", new BsonDocument("$sum", 1) } }));
             return pipeline;
         }
 
