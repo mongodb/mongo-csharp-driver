@@ -308,7 +308,9 @@ namespace MongoDB.Driver.Core.Clusters
             }
 
             OnDescriptionChanged(oldClusterDescription, newClusterDescription);
-            oldDescriptionChangedTaskCompletionSource.TrySetResult(true);
+
+            // TODO: use RunContinuationsAsynchronously instead once we require a new enough .NET Framework
+            Task.Run(() => oldDescriptionChangedTaskCompletionSource.TrySetResult(true));
         }
 
         private string BuildTimeoutExceptionMessage(TimeSpan timeout, IServerSelector selector, ClusterDescription clusterDescription)
