@@ -26,6 +26,7 @@ namespace MongoDB.Bson.Serialization
     {
         // private fields
         private readonly ConcurrentDictionary<Type, IBsonSerializer> _cache;
+        private readonly ConcurrentDictionary<Type, IBsonSerializer> _explicitRegistrations;
         private readonly ConcurrentStack<IBsonSerializationProvider> _serializationProviders;
 
         // constructors
@@ -34,7 +35,8 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         public BsonSerializerRegistry()
         {
-            _cache = new ConcurrentDictionary<Type,IBsonSerializer>();
+            _cache = new ConcurrentDictionary<Type, IBsonSerializer>();
+            _explicitRegistrations = new ConcurrentDictionary<Type, IBsonSerializer>();
             _serializationProviders = new ConcurrentStack<IBsonSerializationProvider>();
         }
 
@@ -101,11 +103,13 @@ namespace MongoDB.Bson.Serialization
                 throw new ArgumentException(message, "type");
             }
 
-            if (!_cache.TryAdd(type, serializer))
+            if (!_explicitRegistrations.TryAdd(type, serializer))
             {
                 var message = string.Format("There is already a serializer registered for type {0}.", BsonUtils.GetFriendlyTypeName(type));
                 throw new BsonSerializationException(message);
             }
+
+            _cache[type] = serializer;
         }
 
         /// <summary>
