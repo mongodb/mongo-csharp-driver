@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Core.Servers
 
         public void Invalidate()
         {
-            SetDescriptionIfChanged(_baseDescription);
+            SetDescription(_baseDescription.With(lastUpdateTimestamp: DateTime.UtcNow));
             RequestHeartbeat();
         }
 
@@ -232,7 +232,7 @@ namespace MongoDB.Driver.Core.Servers
             }
             else
             {
-                newDescription = _baseDescription;
+                newDescription = _baseDescription.With(lastUpdateTimestamp: DateTime.UtcNow);
             }
 
             if (heartbeatException != null)
@@ -240,7 +240,7 @@ namespace MongoDB.Driver.Core.Servers
                 newDescription = newDescription.With(heartbeatException: heartbeatException);
             }
 
-            SetDescriptionIfChanged(newDescription);
+            SetDescription(newDescription);
 
             return true;
         }
@@ -320,17 +320,6 @@ namespace MongoDB.Driver.Core.Servers
         {
             Interlocked.Exchange(ref _currentDescription, newDescription);
             OnDescriptionChanged(oldDescription, newDescription);
-        }
-
-        private void SetDescriptionIfChanged(ServerDescription newDescription)
-        {
-            var oldDescription = Interlocked.CompareExchange(ref _currentDescription, null, null);
-            if (oldDescription.Equals(newDescription))
-            {
-                return;
-            }
-
-            SetDescription(oldDescription, newDescription);
         }
 
         private void ThrowIfDisposed()

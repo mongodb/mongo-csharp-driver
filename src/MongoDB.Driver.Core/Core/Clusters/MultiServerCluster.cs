@@ -39,10 +39,10 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly CancellationTokenSource _monitorServersCancellationTokenSource;
         private volatile ElectionInfo _maxElectionInfo;
         private volatile string _replicaSetName;
-        private readonly AsyncQueue<ServerDescriptionChangedEventArgs> _serverDescriptionChangedQueue;
         private readonly List<IClusterableServer> _servers;
         private readonly object _serversLock = new object();
         private readonly InterlockedInt32 _state;
+        private readonly object _updateClusterDescriptionLock = new object();
 
         private readonly Action<ClusterClosingEvent> _closingEventHandler;
         private readonly Action<ClusterClosedEvent> _closedEventHandler;
@@ -69,7 +69,6 @@ namespace MongoDB.Driver.Core.Clusters
             }
 
             _monitorServersCancellationTokenSource = new CancellationTokenSource();
-            _serverDescriptionChangedQueue = new AsyncQueue<ServerDescriptionChangedEventArgs>();
             _servers = new List<IClusterableServer>();
             _state = new InterlockedInt32(State.Initial);
             _replicaSetName = settings.ReplicaSetName;
@@ -132,24 +131,27 @@ namespace MongoDB.Driver.Core.Clusters
                 }
 
                 var stopwatch = Stopwatch.StartNew();
-                MonitorServersAsync().ConfigureAwait(false);
-                // We lock here even though AddServer locks. Monitors
-                // are re-entrant such that this won't cause problems,
-                // but could prevent issues of conflicting reports
-                // from servers that are quick to respond.
-                var clusterDescription = Description.WithType(Settings.ConnectionMode.ToClusterType());
+
                 var newServers = new List<IClusterableServer>();
-                lock (_serversLock)
+                lock (_updateClusterDescriptionLock)
                 {
-                    foreach (var endPoint in Settings.EndPoints)
+                    // We lock here even though AddServer locks. Monitors
+                    // are re-entrant such that this won't cause problems,
+                    // but could prevent issues of conflicting reports
+                    // from servers that are quick to respond.
+                    var clusterDescription = Description.WithType(Settings.ConnectionMode.ToClusterType());
+                    lock (_serversLock)
                     {
-                        clusterDescription = EnsureServer(clusterDescription, endPoint, newServers);
+                        foreach (var endPoint in Settings.EndPoints)
+                        {
+                            clusterDescription = EnsureServer(clusterDescription, endPoint, newServers);
+                        }
                     }
+
+                    stopwatch.Stop();
+
+                    UpdateClusterDescription(clusterDescription);
                 }
-
-                stopwatch.Stop();
-
-                UpdateClusterDescription(clusterDescription);
 
                 foreach (var server in newServers)
                 {
@@ -217,95 +219,84 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
-        private async Task MonitorServersAsync()
-        {
-            var monitorServersCancellationToken = _monitorServersCancellationTokenSource.Token;
-            while (!monitorServersCancellationToken.IsCancellationRequested)
-            {
-                try
-                {
-                    var eventArgs = await _serverDescriptionChangedQueue.DequeueAsync(monitorServersCancellationToken).ConfigureAwait(false); // TODO: add timeout and cancellationToken to DequeueAsync
-                    ProcessServerDescriptionChanged(eventArgs);
-                }
-                catch (OperationCanceledException) when (monitorServersCancellationToken.IsCancellationRequested)
-                {
-                    // ignore OperationCanceledException when monitor servers cancellation is requested
-                }
-                catch (Exception unexpectedException)
-                {
-                    // if we catch an exception here it's because of a bug in the driver
-
-                    var handler = _sdamInformationEventHandler;
-                    if (handler != null)
-                    {
-                        try
-                        {
-                            handler.Invoke(new SdamInformationEvent(() =>
-                                string.Format(
-                                    "Unexpected exception in MultiServerCluster.MonitorServersAsync: {0}",
-                                    unexpectedException.ToString())));
-                        }
-                        catch
-                        {
-                            // ignore any exceptions thrown by the handler (note: event handlers aren't supposed to throw exceptions)
-                        }
-                    }
-
-                    // TODO: should we reset the cluster state in some way? (the state is undefined since an unexpected exception was thrown)
-                }
-            }
-        }
-
         private void ServerDescriptionChangedHandler(object sender, ServerDescriptionChangedEventArgs args)
         {
-            _serverDescriptionChangedQueue.Enqueue(args);
+            try
+            {
+                ProcessServerDescriptionChanged(args);
+            }
+            catch (Exception unexpectedException)
+            {
+                // if we catch an exception here it's because of a bug in the driver
+                var handler = _sdamInformationEventHandler;
+                if (handler != null)
+                {
+                    try
+                    {
+                        handler.Invoke(new SdamInformationEvent(() =>
+                            string.Format(
+                                "Unexpected exception in MultiServerCluster.ServerDescriptionChangedHandler: {0}",
+                                unexpectedException.ToString())));
+                    }
+                    catch
+                    {
+                        // ignore any exceptions thrown by the handler (note: event handlers aren't supposed to throw exceptions)
+                    }
+                }
+                // TODO: should we reset the cluster state in some way? (the state is undefined since an unexpected exception was thrown)
+            }
         }
 
         private void ProcessServerDescriptionChanged(ServerDescriptionChangedEventArgs args)
         {
-            var newServerDescription = args.NewServerDescription;
-            var newClusterDescription = Description;
-
-            if (!_servers.Any(x => EndPointHelper.Equals(x.EndPoint, newServerDescription.EndPoint)))
-            {
-                return;
-            }
-
             var newServers = new List<IClusterableServer>();
-            if (newServerDescription.State == ServerState.Disconnected)
+            lock (_updateClusterDescriptionLock)
             {
-                newClusterDescription = newClusterDescription.WithServerDescription(newServerDescription);
-            }
-            else
-            {
-                if (IsServerValidForCluster(newClusterDescription.Type, Settings.ConnectionMode, newServerDescription.Type))
+                var newServerDescription = args.NewServerDescription;
+                var newClusterDescription = Description;
+
+                if (!_servers.Any(x => EndPointHelper.Equals(x.EndPoint, newServerDescription.EndPoint)))
                 {
-                    if (newClusterDescription.Type == ClusterType.Unknown)
-                    {
-                        newClusterDescription = newClusterDescription.WithType(newServerDescription.Type.ToClusterType());
-                    }
+                    return;
+                }
 
-                    switch (newClusterDescription.Type)
-                    {
-                        case ClusterType.ReplicaSet:
-                            newClusterDescription = ProcessReplicaSetChange(newClusterDescription, args, newServers);
-                            break;
-
-                        case ClusterType.Sharded:
-                            newClusterDescription = ProcessShardedChange(newClusterDescription, args);
-                            break;
-
-                        default:
-                            throw new MongoInternalException("Unexpected cluster type.");
-                    }
+                if (newServerDescription.State == ServerState.Disconnected)
+                {
+                    newClusterDescription = newClusterDescription.WithServerDescription(newServerDescription);
                 }
                 else
                 {
-                    newClusterDescription = newClusterDescription.WithoutServerDescription(newServerDescription.EndPoint);
-                }
-            }
+                    if (IsServerValidForCluster(newClusterDescription.Type, Settings.ConnectionMode, newServerDescription.Type))
+                    {
+                        if (newClusterDescription.Type == ClusterType.Unknown)
+                        {
+                            newClusterDescription = newClusterDescription.WithType(newServerDescription.Type.ToClusterType());
+                        }
 
-            UpdateClusterDescription(newClusterDescription);
+                        switch (newClusterDescription.Type)
+                        {
+
+
+                            case ClusterType.ReplicaSet:
+                                newClusterDescription = ProcessReplicaSetChange(newClusterDescription, args, newServers);
+                                break;
+
+                            case ClusterType.Sharded:
+                                newClusterDescription = ProcessShardedChange(newClusterDescription, args);
+                                break;
+
+                            default:
+                                throw new MongoInternalException("Unexpected cluster type.");
+                        }
+                    }
+                    else
+                    {
+                        newClusterDescription = newClusterDescription.WithoutServerDescription(newServerDescription.EndPoint);
+                    }
+                }
+
+                UpdateClusterDescription(newClusterDescription);
+            }
 
             foreach (var server in newServers)
             {
