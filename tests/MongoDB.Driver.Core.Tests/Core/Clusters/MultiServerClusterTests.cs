@@ -276,17 +276,6 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         [Fact]
-        public void Initialize_should_start_monitor_servers_task()
-        {
-            using (var subject = CreateSubject())
-            {
-                subject.Initialize();
-
-                (subject._monitorServersTask() == null).Should().BeFalse(); // warning: Should().NotBeNull() against a Task was hanging
-            }
-        }
-
-        [Fact]
         public void Initialize_should_not_start_dns_monitor_thread_when_scheme_is_MongoDB()
         {
             using (var subject = CreateSubject())

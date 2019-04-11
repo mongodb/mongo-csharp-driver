@@ -38,9 +38,7 @@ namespace MongoDB.Driver.Core.Clusters
         private Thread _dnsMonitorThread;
         private readonly CancellationTokenSource _monitorServersCancellationTokenSource;
         private volatile ElectionInfo _maxElectionInfo;
-        private Task _monitorServersTask;
         private volatile string _replicaSetName;
-        private readonly AsyncQueue<ServerDescriptionChangedEventArgs> _serverDescriptionChangedQueue;
         private readonly List<IClusterableServer> _servers;
         private readonly object _serversLock = new object();
         private readonly InterlockedInt32 _state;
@@ -77,7 +75,6 @@ namespace MongoDB.Driver.Core.Clusters
 
             _dnsMonitorFactory = dnsMonitorFactory ?? new DnsMonitorFactory(eventSubscriber);
             _monitorServersCancellationTokenSource = new CancellationTokenSource();
-            _serverDescriptionChangedQueue = new AsyncQueue<ServerDescriptionChangedEventArgs>();
             _servers = new List<IClusterableServer>();
             _state = new InterlockedInt32(State.Initial);
             _replicaSetName = settings.ReplicaSetName;
@@ -176,9 +173,6 @@ namespace MongoDB.Driver.Core.Clusters
                     _openedEventHandler(new ClusterOpenedEvent(ClusterId, Settings, stopwatch.Elapsed));
                 }
 
-                _monitorServersTask = MonitorServersAsync(); // store the Task for use as evidence when testing that MonitorServerAsync was called
-                _monitorServersTask.ConfigureAwait(false);
-
                 if (Settings.Scheme == ConnectionStringScheme.MongoDBPlusSrv)
                 {
                     var dnsEndPoint = (DnsEndPoint)Settings.EndPoints.Single();
@@ -250,48 +244,32 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
-        private async Task MonitorServersAsync()
-        {
-            var monitorServersCancellationToken = _monitorServersCancellationTokenSource.Token;
-            while (!monitorServersCancellationToken.IsCancellationRequested)
-            {
-                try
-                {
-                    var eventArgs = await _serverDescriptionChangedQueue.DequeueAsync(monitorServersCancellationToken).ConfigureAwait(false); // TODO: add timeout and cancellationToken to DequeueAsync
-                    ProcessServerDescriptionChanged(eventArgs);
-                }
-                catch (OperationCanceledException) when (monitorServersCancellationToken.IsCancellationRequested)
-                {
-                    // ignore OperationCanceledException when monitor servers cancellation is requested
-                }
-                catch (Exception unexpectedException)
-                {
-                    // if we catch an exception here it's because of a bug in the driver
-
-                    var handler = _sdamInformationEventHandler;
-                    if (handler != null)
-                    {
-                        try
-                        {
-                            handler.Invoke(new SdamInformationEvent(() =>
-                                string.Format(
-                                    "Unexpected exception in MultiServerCluster.MonitorServersAsync: {0}",
-                                    unexpectedException.ToString())));
-                        }
-                        catch
-                        {
-                            // ignore any exceptions thrown by the handler (note: event handlers aren't supposed to throw exceptions)
-                        }
-                    }
-
-                    // TODO: should we reset the cluster state in some way? (the state is undefined since an unexpected exception was thrown)
-                }
-            }
-        }
-
         private void ServerDescriptionChangedHandler(object sender, ServerDescriptionChangedEventArgs args)
         {
-            _serverDescriptionChangedQueue.Enqueue(args);
+            try
+            {
+                ProcessServerDescriptionChanged(args);
+            }
+            catch (Exception unexpectedException)
+            {
+                // if we catch an exception here it's because of a bug in the driver
+                var handler = _sdamInformationEventHandler;
+                if (handler != null)
+                {
+                    try
+                    {
+                        handler.Invoke(new SdamInformationEvent(() =>
+                            string.Format(
+                                "Unexpected exception in MultiServerCluster.ServerDescriptionChangedHandler: {0}",
+                                unexpectedException.ToString())));
+                    }
+                    catch
+                    {
+                        // ignore any exceptions thrown by the handler (note: event handlers aren't supposed to throw exceptions)
+                    }
+                }
+                // TODO: should we reset the cluster state in some way? (the state is undefined since an unexpected exception was thrown)
+            }
         }
 
         private void ProcessServerDescriptionChanged(ServerDescriptionChangedEventArgs args)

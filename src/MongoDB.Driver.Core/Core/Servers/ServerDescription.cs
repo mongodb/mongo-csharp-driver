@@ -508,57 +508,27 @@ namespace MongoDB.Driver.Core.Servers
             Optional<SemanticVersion> version = default(Optional<SemanticVersion>),
             Optional<Range<int>> wireVersionRange = default(Optional<Range<int>>))
         {
-            if (!lastUpdateTimestamp.HasValue)
-            {
-                lastUpdateTimestamp = DateTime.UtcNow;
-            }
-
-            if (
-                averageRoundTripTime.Replaces(_averageRoundTripTime) ||
-                canonicalEndPoint.Replaces(_canonicalEndPoint) ||
-                electionId.Replaces(_electionId) ||
-                heartbeatException.Replaces(_heartbeatException) ||
-                heartbeatInterval.Replaces(_heartbeatInterval) ||
-                lastUpdateTimestamp.Replaces(_lastUpdateTimestamp) ||
-                lastWriteTimestamp.Replaces(_lastWriteTimestamp) ||
-                logicalSessionTimeout.Replaces(_logicalSessionTimeout) ||
-                maxBatchCount.Replaces(_maxBatchCount) ||
-                maxDocumentSize.Replaces(_maxDocumentSize) ||
-                maxMessageSize.Replaces(_maxMessageSize) ||
-                maxWireDocumentSize.Replaces(_maxWireDocumentSize) ||
-                replicaSetConfig.Replaces(_replicaSetConfig) ||
-                state.Replaces(_state) ||
-                tags.Replaces(_tags) ||
-                type.Replaces(_type) ||
-                version.Replaces(_version) ||
-                wireVersionRange.Replaces(_wireVersionRange))
-            {
-                return new ServerDescription(
-                    _serverId,
-                    _endPoint,
-                    averageRoundTripTime: averageRoundTripTime.WithDefault(_averageRoundTripTime),
-                    canonicalEndPoint: canonicalEndPoint.WithDefault(_canonicalEndPoint),
-                    electionId: electionId.WithDefault(_electionId),
-                    heartbeatException: heartbeatException.WithDefault(_heartbeatException),
-                    heartbeatInterval: heartbeatInterval.WithDefault(_heartbeatInterval),
-                    lastUpdateTimestamp: lastUpdateTimestamp.WithDefault(_lastUpdateTimestamp),
-                    lastWriteTimestamp: lastWriteTimestamp.WithDefault(_lastWriteTimestamp),
-                    logicalSessionTimeout: logicalSessionTimeout.WithDefault(_logicalSessionTimeout),
-                    maxBatchCount: maxBatchCount.WithDefault(_maxBatchCount),
-                    maxDocumentSize: maxDocumentSize.WithDefault(_maxDocumentSize),
-                    maxMessageSize: maxMessageSize.WithDefault(_maxMessageSize),
-                    maxWireDocumentSize: maxWireDocumentSize.WithDefault(_maxWireDocumentSize),
-                    replicaSetConfig: replicaSetConfig.WithDefault(_replicaSetConfig),
-                    state: state.WithDefault(_state),
-                    tags: tags.WithDefault(_tags),
-                    type: type.WithDefault(_type),
-                    version: version.WithDefault(_version),
-                    wireVersionRange: wireVersionRange.WithDefault(_wireVersionRange));
-            }
-            else
-            {
-                return this;
-            }
+            return new ServerDescription(
+                _serverId,
+                _endPoint,
+                averageRoundTripTime: averageRoundTripTime.WithDefault(_averageRoundTripTime),
+                canonicalEndPoint: canonicalEndPoint.WithDefault(_canonicalEndPoint),
+                electionId: electionId.WithDefault(_electionId),
+                heartbeatException: heartbeatException.WithDefault(_heartbeatException),
+                heartbeatInterval: heartbeatInterval.WithDefault(_heartbeatInterval),
+                lastUpdateTimestamp: lastUpdateTimestamp.WithDefault(DateTime.UtcNow),
+                lastWriteTimestamp: lastWriteTimestamp.WithDefault(_lastWriteTimestamp),
+                logicalSessionTimeout: logicalSessionTimeout.WithDefault(_logicalSessionTimeout),
+                maxBatchCount: maxBatchCount.WithDefault(_maxBatchCount),
+                maxDocumentSize: maxDocumentSize.WithDefault(_maxDocumentSize),
+                maxMessageSize: maxMessageSize.WithDefault(_maxMessageSize),
+                maxWireDocumentSize: maxWireDocumentSize.WithDefault(_maxWireDocumentSize),
+                replicaSetConfig: replicaSetConfig.WithDefault(_replicaSetConfig),
+                state: state.WithDefault(_state),
+                tags: tags.WithDefault(_tags),
+                type: type.WithDefault(_type),
+                version: version.WithDefault(_version),
+                wireVersionRange: wireVersionRange.WithDefault(_wireVersionRange));
         }
 
         /// <summary>
