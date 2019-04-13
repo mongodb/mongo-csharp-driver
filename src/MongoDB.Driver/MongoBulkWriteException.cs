@@ -223,7 +223,8 @@ namespace MongoDB.Driver
             var processedRequests = ex.Result.ProcessedRequests
                 .Select(r => new { CorrelationId = r.CorrelationId.Value, Request = requests[r.CorrelationId.Value] })
                 .OrderBy(x => x.CorrelationId)
-                .Select(x => x.Request);
+                .Select(x => x.Request)
+                .ToList();
 
             var unprocessedRequests = ex.UnprocessedRequests
                 .Select(r => new { CorrelationId = r.CorrelationId.Value, Request = requests[r.CorrelationId.Value] })

@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Tests
                 processedRequests: new[] { new InsertRequest(new BsonDocument("b", 1)) },
                 upserts: new List<BulkWriteOperationUpsert>());
 
-            var models = new[] 
+            var models = new List<WriteModel<BsonDocument>>
             {
                 new InsertOneModel<BsonDocument>(new BsonDocument("a", 1))
             };
@@ -70,7 +70,7 @@ namespace MongoDB.Driver.Tests
                 requestCount: 1,
                 processedRequests: new[] { new InsertRequest(new BsonDocument("b", 1)) });
 
-            var models = new[] 
+            var models = new List<WriteModel<BsonDocument>>
             {
                 new InsertOneModel<BsonDocument>(new BsonDocument("a", 1))
             };
