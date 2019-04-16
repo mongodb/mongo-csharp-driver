@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 
@@ -50,6 +51,40 @@ namespace MongoDB.Driver
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result indicates whether any more documents are available.</returns>
         Task<bool> MoveNextAsync(CancellationToken cancellationToken = default(CancellationToken));
+    }
+
+    /// <summary>
+    /// Represents an asynchronous cursor for change stream.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
+    public interface IChangeStreamCursor<out TDocument> : IAsyncCursor<TDocument>
+    {
+        /// <summary>
+        /// Gets the resume token.
+        /// </summary>
+        /// <returns>
+        /// The resume token.
+        /// </returns>
+        BsonDocument GetResumeToken();
+    }
+
+    internal interface ICursorBatchInfo
+    {
+        /// <summary>
+        /// Gets the post batch resume token.
+        /// </summary>
+        /// <value>
+        /// The post batch resume token.
+        /// </value>
+        BsonDocument PostBatchResumeToken { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether the first batch was empty or not.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if the first batch was empty; otherwise, <c>false</c>.
+        /// </value>
+        bool WasFirstBatchEmpty { get; }
     }
 
     /// <summary>

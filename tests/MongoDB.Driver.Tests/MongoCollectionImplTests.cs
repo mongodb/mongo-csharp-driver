@@ -2784,7 +2784,7 @@ namespace MongoDB.Driver
                 }
             }
 
-            var call = _operationExecutor.GetReadCall<IAsyncCursor<ChangeStreamDocument<BsonDocument>>>();
+            var call = _operationExecutor.GetReadCall<IChangeStreamCursor<ChangeStreamDocument<BsonDocument>>>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
             var operation = call.Operation.Should().BeOfType<ChangeStreamOperation<ChangeStreamDocument<BsonDocument>>>().Subject;
@@ -2840,7 +2840,7 @@ namespace MongoDB.Driver
                 }
             }
 
-            var call = _operationExecutor.GetReadCall<IAsyncCursor<ChangeStreamDocument<BsonDocument>>>();
+            var call = _operationExecutor.GetReadCall<IChangeStreamCursor<ChangeStreamDocument<BsonDocument>>>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
             var operation = call.Operation.Should().BeOfType<ChangeStreamOperation<ChangeStreamDocument<BsonDocument>>>().Subject;

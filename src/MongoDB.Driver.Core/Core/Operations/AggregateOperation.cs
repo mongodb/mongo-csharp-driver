@@ -360,6 +360,7 @@ namespace MongoDB.Driver.Core.Operations
                 command,
                 result.Results,
                 result.CursorId.GetValueOrDefault(0),
+                result.PostBatchResumeToken,
                 _batchSize,
                 null, // limit
                 _resultSerializer,
@@ -375,6 +376,7 @@ namespace MongoDB.Driver.Core.Operations
                 command,
                 result.Results,
                 0, // cursorId
+                null, // postBatchResumeToken
                 null, // batchSize
                 null, // limit
                 _resultSerializer,
@@ -394,6 +396,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             public long? CursorId;
             public CollectionNamespace CollectionNamespace;
+            public BsonDocument PostBatchResumeToken;
             public TResult[] Results;
         }
 
@@ -466,6 +469,10 @@ namespace MongoDB.Driver.Core.Operations
                         case "firstBatch":
                             var arraySerializer = new ArraySerializer<TResult>(_resultSerializer);
                             result.Results = arraySerializer.Deserialize(context);
+                            break;
+
+                        case "postBatchResumeToken":
+                            result.PostBatchResumeToken = BsonDocumentSerializer.Instance.Deserialize(context);
                             break;
 
                         default:

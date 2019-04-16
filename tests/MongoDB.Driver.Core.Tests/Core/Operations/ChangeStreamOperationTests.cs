@@ -35,79 +35,6 @@ namespace MongoDB.Driver.Core.Operations
 {
     public class ChangeStreamOperationTests : OperationTestBase
     {
-        [Theory]
-        [InlineData("{ 'a' : '1' }", "{ 'b' : '2' }", 3L, "{ 'c' : '3' }", null, "{ 'c' : '3' }", null)]
-        [InlineData("{ 'a' : '1' }", "{ 'b' : '2' }", 3L, null, null, "{ 'b' : '2' }", null)]
-        [InlineData("{ 'a' : '1' }", null, 3L, null, null, "{ 'a' : '1' }", null)]
-        [InlineData(null, null, 3L, null, null, null, 3L)]
-        [InlineData(null, null, null, null, 4L, null, 4L)]
-        public void ChangeStreamOperation_should_have_expected_change_stream_operation_options_for_resume_process_after_resumable_error(
-            string resumeAfterJson,
-            string startAfterJson,
-            object startAtOperationTimeValue,
-            string documentResumeTokenJson,
-            object initialOperationTime,
-            string expectedResumeAfter,
-            object expectedStartAtOperationTimeValue)
-        {
-            var pipeline = new BsonDocument[0];
-            var resultSerializer = new ChangeStreamDocumentSerializer<BsonDocument>(BsonDocumentSerializer.Instance);
-            var messageEncoderSettings = new MessageEncoderSettings();
-
-            var resumeAfter = resumeAfterJson != null ? BsonDocument.Parse(resumeAfterJson) : null;
-            var startAfter = startAfterJson != null ? BsonDocument.Parse(startAfterJson) : null;
-            var startAtOperationTime = startAtOperationTimeValue != null ? BsonTimestamp.Create(startAtOperationTimeValue) : null;
-            var documentResumeToken = documentResumeTokenJson != null ? BsonDocument.Parse(documentResumeTokenJson) : null;
-
-            ChangeStreamOperation<ChangeStreamDocument<BsonDocument>> subject = new ChangeStreamOperation<ChangeStreamDocument<BsonDocument>>(_collectionNamespace, pipeline, resultSerializer, messageEncoderSettings)
-            {
-                ResumeAfter = resumeAfter,
-                StartAfter = startAfter,
-                StartAtOperationTime = startAtOperationTime,
-                DocumentResumeToken = documentResumeToken
-            };
-
-            if (initialOperationTime != null)
-            {
-                subject._initialOperationTime(BsonTimestamp.Create(initialOperationTime));
-            }
-
-            var result = subject.CreateChangeStreamStage(true);
-
-            var changeStream = result.GetValue("$changeStream").AsBsonDocument;
-            changeStream.GetValue("resumeAfter", null).Should().Be(expectedResumeAfter != null ? BsonDocument.Parse(expectedResumeAfter) : null);
-            changeStream.TryGetValue("startAfter", out _).Should().BeFalse();
-            changeStream.GetValue("startAtOperationTime", null).Should().Be(expectedStartAtOperationTimeValue != null ? BsonTimestamp.Create(expectedStartAtOperationTimeValue) : null);
-        }
-
-        [Fact]
-        public void ChangeStreamOperation_should_not_calculate_effective_options_for_non_resume_process()
-        {
-            var pipeline = new BsonDocument[0];
-            var resultSerializer = new ChangeStreamDocumentSerializer<BsonDocument>(BsonDocumentSerializer.Instance);
-            var messageEncoderSettings = new MessageEncoderSettings();
-
-            var resumeAfter = new BsonDocument("a", 1);
-            var startAfter = new BsonDocument("b", 2);
-            var startAtOperationTime = BsonTimestamp.Create(3L);
-            var documentResumeToken = new BsonDocument("c", 3);
-
-            ChangeStreamOperation<ChangeStreamDocument<BsonDocument>> subject = new ChangeStreamOperation<ChangeStreamDocument<BsonDocument>>(_collectionNamespace, pipeline, resultSerializer, messageEncoderSettings)
-            {
-                ResumeAfter = resumeAfter,
-                StartAfter = startAfter,
-                StartAtOperationTime = startAtOperationTime,
-                DocumentResumeToken = documentResumeToken
-            };
-
-            var result = subject.CreateChangeStreamStage(false);
-
-            var changeStream = result.GetValue("$changeStream").AsBsonDocument;
-            changeStream.GetValue("resumeAfter").Should().Be(resumeAfter);
-            changeStream.GetValue("startAfter").Should().Be(startAfter);
-            changeStream.GetValue("startAtOperationTime").Should().Be(startAtOperationTime);
-        }
-
         [Fact]
         public void constructor_with_database_should_initialize_instance()
         {
@@ -683,7 +610,7 @@ namespace MongoDB.Driver.Core.Operations
                 pipeline[0]
             };
 
-            var result = subject.CreateAggregateOperation(resuming: false);
+            var result = subject.CreateAggregateOperation();
 
             result.AllowDiskUse.Should().NotHaveValue();
             result.BatchSize.Should().Be(batchSize);
@@ -714,19 +641,14 @@ namespace MongoDB.Driver.Core.Operations
 
     internal static class ChangeStreamOperationReflector
     {
-        public static AggregateOperation<RawBsonDocument> CreateAggregateOperation(this ChangeStreamOperation<BsonDocument> subject, bool resuming)
+        public static AggregateOperation<RawBsonDocument> CreateAggregateOperation(this ChangeStreamOperation<BsonDocument> subject)
         {
-            return (AggregateOperation<RawBsonDocument>)Reflector.Invoke(subject, nameof(CreateAggregateOperation), resuming);
+            return (AggregateOperation<RawBsonDocument>)Reflector.Invoke(subject, nameof(CreateAggregateOperation));
         }
 
-        public static BsonDocument CreateChangeStreamStage(this ChangeStreamOperation<ChangeStreamDocument<BsonDocument>> subject, bool resuming)
+        public static BsonDocument CreateChangeStreamStage(this ChangeStreamOperation<ChangeStreamDocument<BsonDocument>> subject)
         {
-            return (BsonDocument)Reflector.Invoke(subject, nameof(CreateChangeStreamStage), resuming);
-        }
-
-        public static void _initialOperationTime(this ChangeStreamOperation<ChangeStreamDocument<BsonDocument>> subject, BsonTimestamp value)
-        {
-            Reflector.SetFieldValue(subject, nameof(_initialOperationTime), value);
+            return (BsonDocument)Reflector.Invoke(subject, nameof(CreateChangeStreamStage));
         }
     }
 }

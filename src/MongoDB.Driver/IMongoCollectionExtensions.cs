@@ -19,6 +19,7 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Linq;
 
 namespace MongoDB.Driver
@@ -2123,7 +2124,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A change stream.
         /// </returns>
-        public static IAsyncCursor<ChangeStreamDocument<TDocument>> Watch<TDocument>(
+        public static IChangeStreamCursor<ChangeStreamDocument<TDocument>> Watch<TDocument>(
             this IMongoCollection<TDocument> collection,
             ChangeStreamOptions options = null,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -2144,7 +2145,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A change stream.
         /// </returns>
-        public static IAsyncCursor<ChangeStreamDocument<TDocument>> Watch<TDocument>(
+        public static IChangeStreamCursor<ChangeStreamDocument<TDocument>> Watch<TDocument>(
             this IMongoCollection<TDocument> collection,
             IClientSessionHandle session,
             ChangeStreamOptions options = null,
@@ -2166,7 +2167,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A change stream.
         /// </returns>
-        public static Task<IAsyncCursor<ChangeStreamDocument<TDocument>>> WatchAsync<TDocument>(
+        public static Task<IChangeStreamCursor<ChangeStreamDocument<TDocument>>> WatchAsync<TDocument>(
             this IMongoCollection<TDocument> collection,
             ChangeStreamOptions options = null,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -2187,7 +2188,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A change stream.
         /// </returns>
-        public static Task<IAsyncCursor<ChangeStreamDocument<TDocument>>> WatchAsync<TDocument>(
+        public static Task<IChangeStreamCursor<ChangeStreamDocument<TDocument>>> WatchAsync<TDocument>(
             this IMongoCollection<TDocument> collection,
             IClientSessionHandle session,
             ChangeStreamOptions options = null,

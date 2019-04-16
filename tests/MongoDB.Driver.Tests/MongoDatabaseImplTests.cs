@@ -982,7 +982,7 @@ namespace MongoDB.Driver
                 }
             }
 
-            var call = _operationExecutor.GetReadCall<IAsyncCursor<ChangeStreamDocument<BsonDocument>>>();
+            var call = _operationExecutor.GetReadCall<IChangeStreamCursor<ChangeStreamDocument<BsonDocument>>>();
             if (usingSession)
             {
                 call.SessionId.Should().BeSameAs(session.ServerSession.Id);
