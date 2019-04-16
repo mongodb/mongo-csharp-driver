@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -425,17 +426,41 @@ namespace MongoDB.Driver.Core.Bindings
         {
             if (_currentTransaction == null)
             {
-                return;
+                EnsureTransactionsAreSupported();
+            }
+            else
+            {
+                switch (_currentTransaction.State)
+                {
+                    case CoreTransactionState.Aborted:
+                    case CoreTransactionState.Committed:
+                        break;
+
+                    default:
+                        throw new InvalidOperationException("Transaction already in progress.");
+                }
+            }
+        }
+
+        private void EnsureTransactionsAreSupported()
+        {
+            var connectedDataBearingServers = _cluster.Description.Servers.Where(s => s.State == ServerState.Connected && s.IsDataBearing).ToList();
+
+            if (connectedDataBearingServers.Count == 0)
+            {
+                throw new NotSupportedException("StartTransaction cannot determine if transactions are supported because there are no connected servers.");
             }
 
-            switch (_currentTransaction.State)
+            foreach (var connectedDataBearingServer in connectedDataBearingServers)
             {
-                case CoreTransactionState.Aborted:
-                case CoreTransactionState.Committed:
-                    return;
-
-                default:
-                    throw new InvalidOperationException("Transaction already in progress.");
+                if (connectedDataBearingServer.Type == ServerType.ShardRouter)
+                {
+                    Feature.ShardedTransactions.ThrowIfNotSupported(connectedDataBearingServer.Version);
+                }
+                else
+                {
+                    Feature.Transactions.ThrowIfNotSupported(connectedDataBearingServer.Version);
+                }
             }
         }
 
