@@ -140,14 +140,18 @@ In addition, any messages sent to the server that are not already commands will 
 
 #### CommandStartedEvent
 
-The [`CommandStartedEvent`]({{< apiref "T_MongoDB_Driver_Core_Events_CommandStartedEvent" >}}) contains, amoungst other information, the command name as well as the command itself. While the command also contains the command name, the command is potentially heavy to access and will not live beyond the lifetime of the event. Any information necessary from the command should be pulled out and used immediately or stored. 
+The [`CommandStartedEvent`]({{< apiref "T_MongoDB_Driver_Core_Events_CommandStartedEvent" >}}) contains, amongst other information, the command name as well as the command itself. While the command also contains the command name, the command is potentially heavy to access and will not live beyond the lifetime of the event. Any information necessary from the command should be pulled out and used immediately or stored. 
 
 
 #### CommandSucceededEvent
 
-The [`CommandSucceededEvent`]({{< apiref "T_MongoDB_Driver_Core_Events_CommandSucceededEvent" >}}) contains, amoungst other information, the command name, the duration of the command, and the reply. The reply is potentially heavy to access and will not live beyond the lifetime of the event.  Any information necessary from the reply should be pulled out and used immediately or stored. 
+The [`CommandSucceededEvent`]({{< apiref "T_MongoDB_Driver_Core_Events_CommandSucceededEvent" >}}) contains, amongst other information, the command name, the duration of the command, and the reply. The reply is potentially heavy to access and will not live beyond the lifetime of the event.  Any information necessary from the reply should be pulled out and used immediately or stored. 
 
 
 #### CommandFailedEvent
 
-The [`CommandFailedEvent`]({{< apiref "T_MongoDB_Driver_Core_Events_CommandFailedEvent" >}}) contains, amoungst other information, the command name, the duration of the command, and the exception. The exception is potentially heavy to access and will not live beyond the lifetime of the event.  Any information necessary from the exception should be pulled out and used immediately or stored. 
+The [`CommandFailedEvent`]({{< apiref "T_MongoDB_Driver_Core_Events_CommandFailedEvent" >}}) contains, amongst other information, the command name, the duration of the command, and the exception. The exception is potentially heavy to access and will not live beyond the lifetime of the event.  Any information necessary from the exception should be pulled out and used immediately or stored. 
+
+### SDAM Events
+
+There are a number of events that are raised as part of Server Discovery and Monitoring (SDAM). See [SDAM Events]({{< relref "sdamevents.md" >}}) for more information.
