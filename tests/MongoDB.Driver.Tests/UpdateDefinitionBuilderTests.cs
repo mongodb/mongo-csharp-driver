@@ -239,18 +239,16 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void Indexed_Typed()
+        public void Incorrect_index_should_throw_expected_exception_with_set()
         {
             var subject = CreateSubject<Person>();
+            string expectedErrorMessage = "Array indexes must be greater than or equal to -1.";
 
-            Assert(subject.Set(x => x.FavoriteColors[2], "yellow"), "{$set: {'colors.2': 'yellow'}}");
-            Assert(subject.Set(x => x.Pets[2].Name, "Fluffencutters"), "{$set: {'pets.2.name': 'Fluffencutters'}}");
-            Assert(subject.Set(x => x.Pets.ElementAt(2).Name, "Fluffencutters"), "{$set: {'pets.2.name': 'Fluffencutters'}}");
-
-            var index = 2;
-            Assert(subject.Set(x => x.FavoriteColors[index], "yellow"), "{$set: {'colors.2': 'yellow'}}");
-            Assert(subject.Set(x => x.Pets[index].Name, "Fluffencutters"), "{$set: {'pets.2.name': 'Fluffencutters'}}");
-            Assert(subject.Set(x => x.Pets.ElementAt(index).Name, "Fluffencutters"), "{$set: {'pets.2.name': 'Fluffencutters'}}");
+#pragma warning disable 251
+            AssertThrow<Person, IndexOutOfRangeException>(subject.Set(x => x.FavoriteColors[-2], "yellow"), expectedErrorMessage);
+#pragma warning restore
+            AssertThrow<Person, IndexOutOfRangeException>(subject.Set(x => x.Pets[-2].Name, "Fluffencutters"), expectedErrorMessage);
+            AssertThrow<Person, IndexOutOfRangeException>(subject.Set(x => x.Pets.ElementAt(-2).Name, "Fluffencutters"), expectedErrorMessage);
         }
 
         [Fact]
@@ -263,6 +261,21 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore
             Assert(subject.Set(x => x.Pets[-1].Name, "Fluffencutters"), "{$set: {'pets.$.name': 'Fluffencutters'}}");
             Assert(subject.Set(x => x.Pets.ElementAt(-1).Name, "Fluffencutters"), "{$set: {'pets.$.name': 'Fluffencutters'}}");
+        }
+
+        [Fact]
+        public void Indexed_Typed()
+        {
+            var subject = CreateSubject<Person>();
+
+            Assert(subject.Set(x => x.FavoriteColors[2], "yellow"), "{$set: {'colors.2': 'yellow'}}");
+            Assert(subject.Set(x => x.Pets[2].Name, "Fluffencutters"), "{$set: {'pets.2.name': 'Fluffencutters'}}");
+            Assert(subject.Set(x => x.Pets.ElementAt(2).Name, "Fluffencutters"), "{$set: {'pets.2.name': 'Fluffencutters'}}");
+
+            var index = 2;
+            Assert(subject.Set(x => x.FavoriteColors[index], "yellow"), "{$set: {'colors.2': 'yellow'}}");
+            Assert(subject.Set(x => x.Pets[index].Name, "Fluffencutters"), "{$set: {'pets.2.name': 'Fluffencutters'}}");
+            Assert(subject.Set(x => x.Pets.ElementAt(index).Name, "Fluffencutters"), "{$set: {'pets.2.name': 'Fluffencutters'}}");
         }
 
         [Fact]
@@ -626,8 +639,7 @@ namespace MongoDB.Driver.Tests
 
         private void Assert<TDocument>(UpdateDefinition<TDocument> update, BsonDocument expected)
         {
-            var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
-            var renderedUpdate = update.Render(documentSerializer, BsonSerializer.SerializerRegistry);
+            var renderedUpdate = Render(update);
 
             renderedUpdate.Should().Be(expected);
         }
@@ -637,9 +649,22 @@ namespace MongoDB.Driver.Tests
             Assert(update, BsonDocument.Parse(expected));
         }
 
+        private void AssertThrow<TDocument, TException>(UpdateDefinition<TDocument> update, string errorMessage) where TException : Exception
+        {
+            var exception = Record.Exception(() => { Render(update); });
+            exception.Should().BeOfType<TException>();
+            exception.Message.Should().Be(errorMessage);
+        }
+
         private UpdateDefinitionBuilder<TDocument> CreateSubject<TDocument>()
         {
             return new UpdateDefinitionBuilder<TDocument>();
+        }
+
+        private BsonDocument Render<TDocument>(UpdateDefinition<TDocument> update)
+        {
+            var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
+            return update.Render(documentSerializer, BsonSerializer.SerializerRegistry);
         }
 
         private class Person

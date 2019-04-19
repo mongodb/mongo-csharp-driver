@@ -110,6 +110,7 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Danny Kendrick            https://github.com/dkendrick
 * Ruslan Khasanbaev         https://github.com/flaksirus
 * Brian Knight              brianknight10@gmail.com  
+* John Knoop                https://github.com/johnknoop
 * Andrey Kondratyev         https://github.com/byTimo
 * Anatoly Koperin           https://github.com/ExM
 * Nik Kolev                 nkolev@gmail.com

@@ -15,6 +15,7 @@
 */
 
 using System;
+using System.Globalization;
 using System.Linq.Expressions;
 using MongoDB.Driver.Linq.Expressions;
 
@@ -43,14 +44,7 @@ namespace MongoDB.Driver.Linq
                     throw new NotSupportedException($"Only a constant index is supported in the expression {node}.");
                 }
 
-                var index = constantIndex.Value.ToString();
-                if (index == "-1")
-                {
-                    // We've treated -1 as meaning $ operator. We can't break this now,
-                    // so, specifically when we are flattening fields names, this is 
-                    // how we'll continue to treat -1.
-                    index = "$";
-                }
+                var index = FormatArrayIndex(constantIndex.Value);
 
                 return new FieldExpression(
                     field.AppendFieldName(index),
@@ -85,6 +79,38 @@ namespace MongoDB.Driver.Linq
             }
 
             return node;
+        }
+
+        // private methods
+        private static string FormatArrayIndex(object index)
+        {
+            if (index is int intIndex)
+            {
+                return FormatArrayIndex((long)intIndex);
+            }
+
+            if (index is long longIndex)
+            {
+                return FormatArrayIndex(longIndex);
+            }
+
+            throw new NotSupportedException("Array indexes must be int or long.");
+        }
+
+        private static string FormatArrayIndex(long index) 
+        {
+            switch (index)
+            {
+                // We've treated -1 as meaning $ operator. We can't break this now,
+                // so, specifically when we are flattening fields names, this is 
+                // how we'll continue to treat -1.
+                case var _ when index < -1L:
+                    throw new IndexOutOfRangeException("Array indexes must be greater than or equal to -1.");
+                case var _ when index == -1L:
+                    return "$";
+                default:
+                    return index.ToString(NumberFormatInfo.InvariantInfo);
+            }
         }
     }
 }
