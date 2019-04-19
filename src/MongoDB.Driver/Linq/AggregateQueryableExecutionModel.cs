@@ -81,18 +81,32 @@ namespace MongoDB.Driver.Linq
             return sb.ToString();
         }
 
-        internal override object Execute<TInput>(IMongoCollection<TInput> collection, AggregateOptions options)
+        internal override object Execute<TInput>(IClientSessionHandle session, IMongoCollection<TInput> collection, AggregateOptions options)
         {
             var pipeline = CreatePipeline<TInput>();
 
-            return collection.Aggregate(pipeline, options, CancellationToken.None);
+            if (session == null)
+            {
+                return collection.Aggregate(pipeline, options, CancellationToken.None);
+            }
+            else
+            {
+                return collection.Aggregate(session, pipeline, options, CancellationToken.None);
+            }
         }
 
-        internal override Task ExecuteAsync<TInput>(IMongoCollection<TInput> collection, AggregateOptions options, CancellationToken cancellationToken)
+        internal override Task ExecuteAsync<TInput>(IClientSessionHandle session, IMongoCollection<TInput> collection, AggregateOptions options, CancellationToken cancellationToken)
         {
             var pipeline = CreatePipeline<TInput>();
 
-            return collection.AggregateAsync(pipeline, options, cancellationToken);
+            if (session == null)
+            {
+                return collection.AggregateAsync(pipeline, options, cancellationToken);
+            }
+            else
+            {
+                return collection.AggregateAsync(session, pipeline, options, cancellationToken);
+            }
         }
 
         private BsonDocumentStagePipelineDefinition<TInput, TOutput> CreatePipeline<TInput>()

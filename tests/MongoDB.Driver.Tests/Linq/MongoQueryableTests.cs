@@ -22,6 +22,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.Tests;
 using MongoDB.Driver.Tests.Linq;
 using Xunit;
 
@@ -1716,6 +1717,31 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $match : { 'G' : { '$elemMatch' : { 'D' : \"Don't\" } } } }");
         }
 
+        [Fact]
+        public void AsQueryable_in_transaction()
+        {
+            using (var session = DriverTestConfiguration.Client.StartSession())
+            {
+                session.StartTransaction();
+                try
+                {
+                    __collection.InsertOne(session, new Root());
+
+                    var result_not_in_transaction = CreateQuery(null).Count(); // checks AsQueryable with null session (outside transaction)
+
+                    result_not_in_transaction.Should().Be(2);
+
+                    var result_in_transaction = CreateQuery(session).Count(); // checks AsQueryable with current session (inside transaction)
+
+                    result_in_transaction.Should().Be(3);
+                }
+                finally
+                {
+                    session.AbortTransaction();
+                }
+            }
+        }
+
         private List<T> Assert<T>(IMongoQueryable<T> queryable, int resultCount, params string[] expectedStages)
         {
             var executionModel = (AggregateQueryableExecutionModel<T>)queryable.GetExecutionModel();
@@ -1736,6 +1762,11 @@ namespace Tests.MongoDB.Driver.Linq
         private IMongoQueryable<Root> CreateQuery()
         {
             return __collection.AsQueryable();
+        }
+
+        private IMongoQueryable<Root> CreateQuery(IClientSessionHandle session)
+        {
+            return __collection.AsQueryable(session);
         }
 
         private IMongoQueryable<Other> CreateOtherQuery()
