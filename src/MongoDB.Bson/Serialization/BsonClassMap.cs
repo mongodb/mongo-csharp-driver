@@ -38,10 +38,7 @@ namespace MongoDB.Bson.Serialization
         private readonly static Queue<Type> __knownTypesQueue = new Queue<Type>();
 
         private static readonly MethodInfo __getUninitializedObjectMethodInfo =
-            typeof(string)
-            .GetTypeInfo()
-            .Assembly
-            .GetType("System.Runtime.Serialization.FormatterServices")
+            GetFormatterServicesType()
             .GetTypeInfo()
             ?.GetMethod("GetUninitializedObject", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
 
@@ -1306,7 +1303,21 @@ namespace MongoDB.Bson.Serialization
             var message = string.Format("Class map for {0} has been not been frozen yet.", _classType.FullName);
             throw new InvalidOperationException(message);
         }
-    }
+
+        private static Type GetFormatterServicesType()
+        {
+#if NET452
+            return typeof(string)
+                .GetTypeInfo()
+                .Assembly
+                .GetType("System.Runtime.Serialization.FormatterServices");
+#else
+            return 
+                Assembly.Load(new AssemblyName("System.Runtime.Serialization.Formatters"))
+                .GetType("System.Runtime.Serialization.FormatterServices");
+#endif
+        }
+	}
 
     /// <summary>
     /// Represents a mapping between a class and a BSON document.
