@@ -527,7 +527,7 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
 
         private void VerifyCollectionData(IEnumerable<BsonDocument> expectedDocuments)
         {
-            var database = DriverTestConfiguration.Client.GetDatabase(_databaseName);
+            var database = DriverTestConfiguration.Client.GetDatabase(_databaseName).WithReadConcern(ReadConcern.Local);
             var collection = database.GetCollection<BsonDocument>(_collectionName);
             var actualDocuments = collection.Find("{}").ToList();
             actualDocuments.Should().BeEquivalentTo(expectedDocuments);

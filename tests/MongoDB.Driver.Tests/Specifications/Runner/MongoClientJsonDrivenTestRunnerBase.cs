@@ -309,7 +309,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
 
         protected void VerifyCollectionData(IEnumerable<BsonDocument> expectedDocuments)
         {
-            var database = DriverTestConfiguration.Client.GetDatabase(DatabaseName);
+            var database = DriverTestConfiguration.Client.GetDatabase(DatabaseName).WithReadConcern(ReadConcern.Local);
             var collection = database.GetCollection<BsonDocument>(CollectionName);
             var actualDocuments = collection.Find("{}").ToList();
             actualDocuments.Should().BeEquivalentTo(expectedDocuments);
