@@ -371,7 +371,7 @@ namespace MongoDB.Driver.Core.Bindings
         // private methods
         private IReadOperation<BsonDocument> CreateAbortTransactionOperation()
         {
-            return new AbortTransactionOperation(GetTransactionWriteConcern());
+            return new AbortTransactionOperation(_currentTransaction.RecoveryToken, GetTransactionWriteConcern());
         }
 
         private IReadOperation<BsonDocument> CreateCommitTransactionOperation(bool isCommitRetry)
