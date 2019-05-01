@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Core.Operations
     /// Represents a Find operation.
     /// </summary>
     /// <typeparam name="TDocument">The type of the returned documents.</typeparam>
-    public class FindOperation<TDocument> : IReadOperation<IAsyncCursor<TDocument>>
+    public class FindOperation<TDocument> : IReadOperation<IAsyncCursor<TDocument>>, IExecutableInRetryableReadContext<IAsyncCursor<TDocument>>
     {
         // fields
         private bool? _allowPartialResults;
@@ -53,6 +53,7 @@ namespace MongoDB.Driver.Core.Operations
         private BsonDocument _projection;
         private ReadConcern _readConcern = ReadConcern.Default;
         private readonly IBsonSerializer<TDocument> _resultSerializer;
+        private bool _retryRequested;
         private bool? _returnKey;
         private bool? _showRecordId;
         private bool? _singleBatch;
@@ -342,6 +343,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
+        /// Gets or sets whether or not retry was requested.
+        /// </summary>
+        /// <value>
+        /// Whether retry was requested.
+        /// </value>
+        public bool RetryRequested
+        {
+            get { return _retryRequested; }
+            set { _retryRequested = value; }
+        }
+
+        /// <summary>
         /// Gets or sets whether to only return the key values.
         /// </summary>
         /// <value>
@@ -420,13 +433,19 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (var channelSource = binding.GetReadChannelSource(cancellationToken))
-            using (var channel = channelSource.GetChannel(cancellationToken))
-            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
+            using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationToken))
             {
-                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
-                return operation.Execute(channelBinding, cancellationToken);
+                return Execute(context, cancellationToken);
             }
+        }
+
+        /// <inheritdoc/>
+        public IAsyncCursor<TDocument> Execute(RetryableReadContext context, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(context, nameof(context));
+
+            var operation = CreateOperation(context.Channel.ConnectionDescription.ServerVersion);
+            return operation.Execute(context, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -434,13 +453,19 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false))
-            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
-            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
+            using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
             {
-                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
-                return await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
+                return await ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
             }
+        }
+
+        /// <inheritdoc/>
+        public async Task<IAsyncCursor<TDocument>> ExecuteAsync(RetryableReadContext context, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(context, nameof(context));
+
+            var operation = CreateOperation(context.Channel.ConnectionDescription.ServerVersion);
+            return await operation.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
         }
 
         // private methods
@@ -503,6 +528,7 @@ namespace MongoDB.Driver.Core.Operations
                 OplogReplay = _oplogReplay,
                 Projection = _projection,
                 ReadConcern = _readConcern,
+                RetryRequested = _retryRequested, // might be overridden by retryable read context
                 ReturnKey = returnKey,
                 ShowRecordId = showRecordId,
                 SingleBatch = _singleBatch,
@@ -558,7 +584,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 #pragma warning restore
 
-        private IReadOperation<IAsyncCursor<TDocument>> CreateOperation(SemanticVersion serverVersion)
+        private IExecutableInRetryableReadContext<IAsyncCursor<TDocument>> CreateOperation(SemanticVersion serverVersion)
         {
             var hasExplainModifier = _modifiers != null && _modifiers.Contains("$explain");
             if (Feature.FindCommand.IsSupported(serverVersion) && !hasExplainModifier)

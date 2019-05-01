@@ -39,6 +39,7 @@ namespace MongoDB.Driver.Core.Operations
         private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private ReadConcern _readConcern = ReadConcern.Default;
+        private bool _retryRequested;
         private long? _skip;
 
         // constructors
@@ -148,6 +149,16 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether to retry.
+        /// </summary>
+        /// <value>Whether to retry.</value>
+        public bool RetryRequested
+        {
+            get => _retryRequested;
+            set => _retryRequested = value;
+        }
+
+        /// <summary>
         /// Gets or sets the number of documents to skip before counting the remaining matching documents.
         /// </summary>
         /// <value>
@@ -164,30 +175,22 @@ namespace MongoDB.Driver.Core.Operations
         public long Execute(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
-            using (var channelSource = binding.GetReadChannelSource(cancellationToken))
-            using (var channel = channelSource.GetChannel(cancellationToken))
-            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
-            {
-                var operation = CreateOperation();
-                var cursor = operation.Execute(channelBinding, cancellationToken);
-                var result = cursor.ToList(cancellationToken);
-                return ExtractCountFromResult(result);
-            }
+
+            var operation = CreateOperation();
+            var cursor = operation.Execute(binding, cancellationToken);
+            var result = cursor.ToList(cancellationToken);
+            return ExtractCountFromResult(result);
         }
 
         /// <inheritdoc/>
         public async Task<long> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
-            using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false))
-            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
-            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
-            {
-                var operation = CreateOperation();
-                var cursor = await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
-                var result = await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
-                return ExtractCountFromResult(result);
-            }
+
+            var operation = CreateOperation();
+            var cursor = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+            var result = await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
+            return ExtractCountFromResult(result);
         }
 
         // private methods
@@ -199,7 +202,8 @@ namespace MongoDB.Driver.Core.Operations
                 Collation = _collation,
                 Hint = _hint,
                 MaxTime = _maxTime,
-                ReadConcern = _readConcern
+                ReadConcern = _readConcern,
+                RetryRequested = _retryRequested
             };
             return operation;
         }

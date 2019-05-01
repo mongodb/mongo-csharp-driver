@@ -137,6 +137,7 @@ namespace MongoDB.Driver.Tests
                 ReadConcernLevel = ReadConcernLevel.Majority,
                 ReadPreference = readPreference,
                 ReplicaSetName = "name",
+                RetryReads = false,
                 RetryWrites = true,
                 LocalThreshold = TimeSpan.FromSeconds(6),
                 Server = new MongoServerAddress("host"),
@@ -180,6 +181,7 @@ namespace MongoDB.Driver.Tests
                 "waitQueueSize=123",
                 "waitQueueTimeout=8s",
                 "uuidRepresentation=pythonLegacy",
+                "retryReads=false",
                 "retryWrites=true"
             });
 
@@ -208,6 +210,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(ReadConcernLevel.Majority, url.ReadConcernLevel);
                 Assert.Equal(readPreference, url.ReadPreference);
                 Assert.Equal("name", url.ReplicaSetName);
+                Assert.Equal(false, url.RetryReads);
                 Assert.Equal(true, url.RetryWrites);
                 Assert.Equal(TimeSpan.FromSeconds(6), url.LocalThreshold);
                 Assert.Equal(ConnectionStringScheme.MongoDB, url.Scheme);

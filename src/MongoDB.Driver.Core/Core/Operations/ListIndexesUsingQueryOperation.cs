@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents a list indexes operation.
     /// </summary>
-    public class ListIndexesUsingQueryOperation : IReadOperation<IAsyncCursor<BsonDocument>>
+    public class ListIndexesUsingQueryOperation : IReadOperation<IAsyncCursor<BsonDocument>>, IExecutableInRetryableReadContext<IAsyncCursor<BsonDocument>>
     {
         // fields
         private readonly CollectionNamespace _collectionNamespace;
@@ -77,16 +77,40 @@ namespace MongoDB.Driver.Core.Operations
         public IAsyncCursor<BsonDocument> Execute(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
+
+            using (var context = RetryableReadContext.Create(binding, retryRequested: false, cancellationToken))
+            {
+                return Execute(context, cancellationToken);
+            }
+        }
+
+        /// <inheritdoc/>
+        public IAsyncCursor<BsonDocument> Execute(RetryableReadContext context, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(context, nameof(context));
+
             var operation = CreateOperation();
-            return operation.Execute(binding, cancellationToken);
+            return operation.Execute(context, cancellationToken);
         }
 
         /// <inheritdoc/>
         public async Task<IAsyncCursor<BsonDocument>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
+
+            using (var context = await RetryableReadContext.CreateAsync(binding, retryRequested: false, cancellationToken).ConfigureAwait(false))
+            {
+                return await ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<IAsyncCursor<BsonDocument>> ExecuteAsync(RetryableReadContext context, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(context, nameof(context));
+
             var operation = CreateOperation();
-            return await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
+            return await operation.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
         }
 
         // private methods
@@ -96,7 +120,8 @@ namespace MongoDB.Driver.Core.Operations
             var filter = new BsonDocument("ns", _collectionNamespace.FullName);
             return new FindOperation<BsonDocument>(systemIndexesCollection, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
-                Filter = filter
+                Filter = filter,
+                RetryRequested = false
             };
         }
     }

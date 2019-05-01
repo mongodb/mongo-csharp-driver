@@ -44,6 +44,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.Limit.Should().NotHaveValue();
             subject.MaxTime.Should().NotHaveValue();
             subject.ReadConcern.IsServerDefault.Should().BeTrue();
+            subject.RetryRequested.Should().BeFalse();
             subject.Skip.Should().NotHaveValue();
         }
 
@@ -165,6 +166,19 @@ namespace MongoDB.Driver.Core.Operations
             var result = subject.ReadConcern;
 
             result.Should().BeSameAs(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void RetryRequested_get_and_set_should_work(
+            [Values(false, true)] bool value)
+        {
+            var subject = new CountDocumentsOperation(_collectionNamespace, _messageEncoderSettings);
+
+            subject.RetryRequested = value;
+            var result = subject.RetryRequested;
+
+            result.Should().Be(value);
         }
 
         [Theory]
@@ -430,6 +444,7 @@ namespace MongoDB.Driver.Core.Operations
             result.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
             result.Pipeline.Should().Equal(expectedPipeline);
             result.ReadConcern.Should().Be(ReadConcern.Default);
+            result.RetryRequested.Should().BeFalse();
             result.ResultSerializer.Should().Be(BsonDocumentSerializer.Instance);
         }
 
@@ -487,6 +502,21 @@ namespace MongoDB.Driver.Core.Operations
             var result = subject.CreateOperation();
 
             result.ReadConcern.Should().BeSameAs(readConcern);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateOperation_should_return_expected_result_when_RetryRequested_is_specified(
+            [Values(false, true)] bool retryRequested)
+        {
+            var subject = new CountDocumentsOperation(_collectionNamespace, _messageEncoderSettings)
+            {
+                RetryRequested = retryRequested
+            };
+
+            var result = subject.CreateOperation();
+
+            result.RetryRequested.Should().Be(retryRequested);
         }
 
         [Fact]

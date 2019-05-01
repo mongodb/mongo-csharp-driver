@@ -132,6 +132,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.OplogReplay.Should().NotHaveValue();
             subject.Projection.Should().BeNull();
             subject.ReadConcern.Should().BeSameAs(ReadConcern.Default);
+            subject.RetryRequested.Should().BeFalse();
             subject.ReturnKey.Should().NotHaveValue();
             subject.ShowRecordId.Should().NotHaveValue();
             subject.SingleBatch.Should().NotHaveValue();
@@ -1173,6 +1174,20 @@ namespace MongoDB.Driver.Core.Operations
 
             var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
             argumentNullException.ParamName.Should().Be("value");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void RetryRequested_get_and_set_should_work(
+            [Values(false, true)]
+            bool value)
+        {
+            var subject = new FindCommandOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+
+            subject.RetryRequested = value;
+            var result = subject.RetryRequested;
+
+            result.Should().Be(value);
         }
 
         [Theory]

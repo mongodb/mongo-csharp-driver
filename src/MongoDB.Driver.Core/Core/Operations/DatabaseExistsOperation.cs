@@ -31,6 +31,7 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private DatabaseNamespace _databaseNamespace;
         private MessageEncoderSettings _messageEncoderSettings;
+        private bool _retryRequested;
 
         // constructors
         /// <summary>
@@ -67,12 +68,24 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
-        // methods
+        /// <summary>
+        /// Gets or sets whether or not retry was requested.
+        /// </summary>
+        /// <value>
+        /// Whether retry was requested.
+        /// </value>
+        public bool RetryRequested
+        {
+            get { return _retryRequested; }
+            set { _retryRequested = value; }
+        }
+
+        // public methods
         /// <inheritdoc/>
         public bool Execute(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
-            var operation = new ListDatabasesOperation(_messageEncoderSettings);
+            var operation = CreateOperation();
             var result = operation.Execute(binding, cancellationToken);
             var list = result.ToList(cancellationToken);
             return list.Any(x => x["name"] == _databaseNamespace.DatabaseName);
@@ -82,10 +95,19 @@ namespace MongoDB.Driver.Core.Operations
         public async Task<bool> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
-            var operation = new ListDatabasesOperation(_messageEncoderSettings);
+            var operation = CreateOperation();
             var result = await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
             var list = await result.ToListAsync(cancellationToken).ConfigureAwait(false);
             return list.Any(x => x["name"] == _databaseNamespace.DatabaseName);
+        }
+
+        // private methods
+        private ListDatabasesOperation CreateOperation()
+        {
+            return new ListDatabasesOperation(_messageEncoderSettings)
+            {
+                RetryRequested = _retryRequested
+            };
         }
     }
 }

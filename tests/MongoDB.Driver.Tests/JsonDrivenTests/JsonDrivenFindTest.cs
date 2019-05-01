@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         // public methods
         public override void Arrange(BsonDocument document)
         {
-            JsonDrivenHelper.EnsureAllFieldsAreValid(document, "name", "object", "collectionOptions", "arguments", "result");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(document, "name", "object", "collectionOptions", "arguments", "result", "error");
             base.Arrange(document);
         }
 
@@ -89,9 +89,17 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                 case "filter":
                     _filter = new BsonDocumentFilterDefinition<BsonDocument>(value.AsBsonDocument);
                     return;
+                
+                case "limit":
+                    _options.Limit = value.ToInt32();
+                    return;
 
                 case "session":
                     _session = (IClientSessionHandle)_objectMap[value.AsString];
+                    return;
+                
+                case "sort":
+                    _options.Sort = (SortDefinition<BsonDocument>)value;
                     return;
             }
 

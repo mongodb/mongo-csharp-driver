@@ -13,8 +13,6 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -35,6 +33,7 @@ namespace MongoDB.Driver.Core.Operations
         private BsonDocument _filter;
         private MessageEncoderSettings _messageEncoderSettings;
         private bool? _nameOnly;
+        private bool _retryRequested;
 
         // constructors
         /// <summary>
@@ -82,6 +81,18 @@ namespace MongoDB.Driver.Core.Operations
             set { _nameOnly = value; }
         }
 
+        /// <summary>
+        /// Gets or sets whether or not retry was requested.
+        /// </summary>
+        /// <value>
+        /// Whether retry was requested.
+        /// </value>
+        public bool RetryRequested
+        {
+            get { return _retryRequested; }
+            set { _retryRequested = value; }
+        }
+
         // public methods
         /// <inheritdoc/>
         public IAsyncCursor<BsonDocument> Execute(IReadBinding binding, CancellationToken cancellationToken)
@@ -121,7 +132,10 @@ namespace MongoDB.Driver.Core.Operations
         private ReadCommandOperation<BsonDocument> CreateOperation()
         {
             var command = CreateCommand();
-            return new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            return new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            {
+                RetryRequested = _retryRequested
+            };
         }
     }
 }

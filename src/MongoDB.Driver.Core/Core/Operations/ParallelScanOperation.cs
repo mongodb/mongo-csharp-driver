@@ -150,7 +150,10 @@ namespace MongoDB.Driver.Core.Operations
         private ReadCommandOperation<BsonDocument> CreateOperation(IChannel channel, IBinding binding)
         {
             var command = CreateCommand(channel.ConnectionDescription, binding.Session);
-            return new ReadCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            return new ReadCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            {
+                RetryRequested = false
+            };
         }
 
         private IReadOnlyList<IAsyncCursor<TDocument>> CreateCursors(IChannelSourceHandle channelSource, BsonDocument command, BsonDocument result)

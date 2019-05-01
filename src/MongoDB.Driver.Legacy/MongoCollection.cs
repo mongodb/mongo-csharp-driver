@@ -164,7 +164,8 @@ namespace MongoDB.Driver
                 {
                     BatchSize = args.BatchSize,
                     Collation = args.Collation,
-                    MaxTime = args.MaxTime
+                    MaxTime = args.MaxTime,
+                    RetryRequested = _server.Settings.RetryReads
                 };
 
                 return new AggregateEnumerable(this, findOperation, ReadPreference.Primary);
@@ -179,6 +180,7 @@ namespace MongoDB.Driver
                     Collation = args.Collation,
                     MaxTime = args.MaxTime,
                     ReadConcern = _settings.ReadConcern,
+                    RetryRequested = _server.Settings.RetryReads,
                     UseCursor = args.OutputMode == AggregateOutputMode.Cursor
                 };
                 return new AggregateEnumerable(this, operation, _settings.ReadPreference);
@@ -243,6 +245,7 @@ namespace MongoDB.Driver
                 Limit = args.Limit,
                 MaxTime = args.MaxTime,
                 ReadConcern = _settings.ReadConcern,
+                RetryRequested = _server.Settings.RetryReads,
                 Skip = args.Skip
             };
 
@@ -334,7 +337,8 @@ namespace MongoDB.Driver
                 Collation = args.Collation,
                 Filter = args.Query == null ? null : new BsonDocumentWrapper(args.Query),
                 MaxTime = args.MaxTime,
-                ReadConcern = _settings.ReadConcern
+                ReadConcern = _settings.ReadConcern,
+                RetryRequested = _server.Settings.RetryReads
             };
 
             return ExecuteReadOperation(session, operation).ToList();
@@ -807,6 +811,7 @@ namespace MongoDB.Driver
                 Limit = -1,
                 MaxTime = args.MaxTime,
                 Projection = fields,
+                RetryRequested = _server.Settings.RetryReads,
                 Skip = args.Skip,
                 Sort = args.SortBy.ToBsonDocument()
             };
@@ -1154,7 +1159,10 @@ namespace MongoDB.Driver
 
         private GetIndexesResult GetIndexes(IClientSessionHandle session)
         {
-            var operation = new ListIndexesOperation(_collectionNamespace, GetMessageEncoderSettings());
+            var operation = new ListIndexesOperation(_collectionNamespace, GetMessageEncoderSettings())
+            {
+                RetryRequested = _server.Settings.RetryReads
+            };
             var cursor = ExecuteReadOperation(session, operation, ReadPreference.Primary);
             var list = cursor.ToList();
             return new GetIndexesResult(list.ToArray());
@@ -1349,7 +1357,10 @@ namespace MongoDB.Driver
 
         private bool IndexExistsByName(IClientSessionHandle session, string indexName)
         {
-            var operation = new ListIndexesOperation(_collectionNamespace, GetMessageEncoderSettings());
+            var operation = new ListIndexesOperation(_collectionNamespace, GetMessageEncoderSettings())
+            {
+                RetryRequested = _server.Settings.RetryReads
+            };
             var indexes = ExecuteReadOperation(session, operation, ReadPreference.Primary).ToList();
             return indexes.Any(index => index["name"].AsString == indexName);
         }

@@ -148,6 +148,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.OplogReplay.Should().NotHaveValue();
             subject.Projection.Should().BeNull();
             subject.ReadConcern.Should().Be(ReadConcern.Default);
+            subject.RetryRequested.Should().BeFalse();
             subject.ReturnKey.Should().NotHaveValue();
             subject.ShowRecordId.Should().NotHaveValue();
             subject.SingleBatch.Should().NotHaveValue();
@@ -209,6 +210,7 @@ namespace MongoDB.Driver.Core.Operations
                 OplogReplay = true,
                 Projection = new BsonDocument("projection", 1),
                 ReadConcern = ReadConcern.Local,
+                RetryRequested = true,
                 ReturnKey = true,
                 ShowRecordId = true,
                 SingleBatch = true,
@@ -243,6 +245,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Projection.Should().BeSameAs(subject.Projection);
             result.ReadConcern.Should().BeSameAs(subject.ReadConcern);
             result.ResultSerializer.Should().BeSameAs(subject.ResultSerializer);
+            result.RetryRequested.Should().Be(subject.RetryRequested);
             result.ReturnKey.Should().Be(subject.ReturnKey);
             result.ShowRecordId.Should().Be(subject.ShowRecordId);
             result.SingleBatch.Should().Be(subject.SingleBatch);
@@ -594,11 +597,11 @@ namespace MongoDB.Driver.Core.Operations
             {
                 if (async)
                 {
-                    subject.ExecuteAsync(null, CancellationToken.None).GetAwaiter().GetResult();
+                    subject.ExecuteAsync(binding: null, CancellationToken.None).GetAwaiter().GetResult();
                 }
                 else
                 {
-                    subject.Execute(null, CancellationToken.None);
+                    subject.Execute(binding: null, CancellationToken.None);
                 }
             });
 
@@ -875,6 +878,20 @@ namespace MongoDB.Driver.Core.Operations
             var result = subject.ResultSerializer;
 
             result.Should().BeSameAs(resultSerializer);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void RetryRequested_get_and_set_should_work(
+            [Values(false, true)]
+            bool value)
+        {
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+
+            subject.RetryRequested = value;
+            var result = subject.RetryRequested;
+
+            result.Should().Be(value);
         }
 
         [Theory]

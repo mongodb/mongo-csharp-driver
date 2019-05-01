@@ -238,7 +238,7 @@ namespace MongoDB.Driver.Core.Operations
 
             return new BsonDocument
             {
-                { "mapreduce", _collectionNamespace.CollectionName }, // all lowercase command name for backwards compatibility
+                { "mapReduce", _collectionNamespace.CollectionName },
                 { "map", _mapFunction },
                 { "reduce", _reduceFunction },
                 { "out" , CreateOutputOptions() },

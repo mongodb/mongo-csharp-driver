@@ -202,7 +202,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
         {
             _objectMap = objectMap;
 
-            var factory = new JsonDrivenTestFactory(client, DatabaseName, CollectionName, objectMap);
+            var factory = new JsonDrivenTestFactory(client, DatabaseName, CollectionName, bucketName: null, objectMap);
 
             foreach (var operation in test[OperationsKey].AsBsonArray.Cast<BsonDocument>())
             {

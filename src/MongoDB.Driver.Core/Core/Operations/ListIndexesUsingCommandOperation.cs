@@ -30,11 +30,12 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents a list indexes operation.
     /// </summary>
-    public class ListIndexesUsingCommandOperation : IReadOperation<IAsyncCursor<BsonDocument>>
+    public class ListIndexesUsingCommandOperation : IReadOperation<IAsyncCursor<BsonDocument>>, IExecutableInRetryableReadContext<IAsyncCursor<BsonDocument>>
     {
         // fields
         private readonly CollectionNamespace _collectionNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
+        private bool _retryRequested;
 
         // constructors
         /// <summary>
@@ -73,28 +74,46 @@ namespace MongoDB.Driver.Core.Operations
             get { return _messageEncoderSettings; }
         }
 
+        /// <summary>
+        /// Gets or sets whether or not retry was requested.
+        /// </summary>
+        /// <value>
+        /// Whether retry was requested.
+        /// </value>
+        public bool RetryRequested
+        {
+            get => _retryRequested;
+            set => _retryRequested = value;
+        }
+
         // public methods
         /// <inheritdoc/>
         public IAsyncCursor<BsonDocument> Execute(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
+            using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationToken))
+            {
+                return Execute(context, cancellationToken);
+            }
+        }
+
+        /// <inheritdoc/>
+        public IAsyncCursor<BsonDocument> Execute(RetryableReadContext context, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(context, nameof(context));
+
             using (EventContext.BeginOperation())
-            using (var channelSource = binding.GetReadChannelSource(cancellationToken))
             {
                 var operation = CreateOperation();
                 try
                 {
-                    var result = operation.Execute(channelSource, binding.ReadPreference, binding.Session, cancellationToken);
-                    return CreateCursor(channelSource, result, operation.Command);
+                    var result = operation.Execute(context, cancellationToken);
+                    return CreateCursor(context.ChannelSource, result, operation.Command);
                 }
-                catch (MongoCommandException ex)
+                catch (MongoCommandException ex) when (IsCollectionNotFoundException(ex))
                 {
-                    if (IsCollectionNotFoundException(ex))
-                    {
-                        return new SingleBatchAsyncCursor<BsonDocument>(new List<BsonDocument>());
-                    }
-                    throw;
+                    return new SingleBatchAsyncCursor<BsonDocument>(new List<BsonDocument>());
                 }
             }
         }
@@ -104,22 +123,28 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
+            using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
+            {
+                return await ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<IAsyncCursor<BsonDocument>> ExecuteAsync(RetryableReadContext context, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(context, nameof(context));
+
             using (EventContext.BeginOperation())
-            using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false))
             {
                 var operation = CreateOperation();
                 try
                 {
-                    var result = await operation.ExecuteAsync(channelSource, binding.ReadPreference, binding.Session, cancellationToken).ConfigureAwait(false);
-                    return CreateCursor(channelSource, result, operation.Command);
+                    var result = await operation.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
+                    return CreateCursor(context.ChannelSource, result, operation.Command);
                 }
-                catch (MongoCommandException ex)
+                catch (MongoCommandException ex) when (IsCollectionNotFoundException(ex))
                 {
-                    if (IsCollectionNotFoundException(ex))
-                    {
-                        return new SingleBatchAsyncCursor<BsonDocument>(new List<BsonDocument>());
-                    }
-                    throw;
+                    return new SingleBatchAsyncCursor<BsonDocument>(new List<BsonDocument>());
                 }
             }
         }
@@ -129,7 +154,10 @@ namespace MongoDB.Driver.Core.Operations
         {
             var databaseNamespace = _collectionNamespace.DatabaseNamespace;
             var command = new BsonDocument("listIndexes", _collectionNamespace.CollectionName);
-            return new ReadCommandOperation<BsonDocument>(databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            return new ReadCommandOperation<BsonDocument>(databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            {
+                RetryRequested = _retryRequested // might be overridden by retryable read context
+            };
         }
 
         private IAsyncCursor<BsonDocument> CreateCursor(IChannelSourceHandle channelSource, BsonDocument result, BsonDocument command)

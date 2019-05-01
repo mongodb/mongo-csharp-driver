@@ -14,9 +14,6 @@
 */
 
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -32,8 +29,11 @@ namespace MongoDB.Driver.Core.Operations
     /// Represents a read command operation.
     /// </summary>
     /// <typeparam name="TCommandResult">The type of the command result.</typeparam>
-    public class ReadCommandOperation<TCommandResult> : CommandOperationBase<TCommandResult>, IReadOperation<TCommandResult>
+    public class ReadCommandOperation<TCommandResult> : CommandOperationBase<TCommandResult>, IReadOperation<TCommandResult>, IRetryableReadOperation<TCommandResult>
     {
+        // private fields
+        private bool _retryRequested;
+
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="ReadCommandOperation{TCommandResult}"/> class.
@@ -51,16 +51,37 @@ namespace MongoDB.Driver.Core.Operations
         {
         }
 
-        // methods        
+        // public properties        
+        /// <summary>
+        /// Gets or sets a value indicating whether to retry.
+        /// </summary>
+        /// <value>Whether to retry.</value>
+        public bool RetryRequested
+        {
+            get => _retryRequested;
+            set => _retryRequested = value;
+        }
+
+        // public methods        
         /// <inheritdoc/>
         public TCommandResult Execute(IReadBinding binding, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (EventContext.BeginOperation())
-            using (var channelSource = binding.GetReadChannelSource(cancellationToken))
+            using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationToken))
             {
-                return ExecuteProtocol(channelSource, binding.Session, binding.ReadPreference, cancellationToken);
+                return Execute(context, cancellationToken);
+            }
+        }
+
+        /// <inheritdoc/>
+        public TCommandResult Execute(RetryableReadContext context, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(context, nameof(context));
+
+            using (EventContext.BeginOperation())
+            {
+                return RetryableReadOperationExecutor.Execute(this, context, cancellationToken);
             }
         }
 
@@ -69,11 +90,33 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (EventContext.BeginOperation())
-            using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
             {
-                return await ExecuteProtocolAsync(channelSource, binding.Session, binding.ReadPreference, cancellationToken).ConfigureAwait(false);
+                return await ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
             }
+        }
+
+        /// <inheritdoc/>
+        public async Task<TCommandResult> ExecuteAsync(RetryableReadContext context, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(context, nameof(context));
+
+            using (EventContext.BeginOperation())
+            {
+                return await RetryableReadOperationExecutor.ExecuteAsync(this, context, cancellationToken).ConfigureAwait(false);
+            }
+        }
+
+        /// <inheritdoc/>
+        public TCommandResult ExecuteAttempt(RetryableReadContext context, int attempt, long? transactionNumber, CancellationToken cancellationToken)
+        {
+            return ExecuteProtocol(context.ChannelSource, context.Binding.Session, context.Binding.ReadPreference, cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public Task<TCommandResult> ExecuteAttemptAsync(RetryableReadContext context, int attempt, long? transactionNumber, CancellationToken cancellationToken)
+        {
+            return ExecuteProtocolAsync(context.ChannelSource, context.Binding.Session, context.Binding.ReadPreference, cancellationToken);
         }
     }
 }

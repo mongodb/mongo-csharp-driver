@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
@@ -74,6 +75,17 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
             }
             var clusterTypesString = string.Join(", ", clusterTypes.Select(t => t.ToString()));
             throw new SkipException($"Test skipped because cluster type is {actualClusterType} and not one of ({clusterTypesString}).");
+        }
+
+        public RequireServer RunOn(BsonArray requirements)
+        {
+            var cluster = CoreTestConfiguration.Cluster;
+            if (requirements.Any(requirement => CanRunOn(cluster, requirement.AsBsonDocument)))
+            {
+                return this;
+            }
+
+            throw new SkipException($"Test skipped because cluster does not meet runOn requirements: {requirements}.");
         }
 
         public RequireServer Supports(Feature feature)
@@ -193,6 +205,53 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
         public RequireServer VersionLessThanOrEqualTo(string version)
         {
             return VersionLessThanOrEqualTo(SemanticVersion.Parse(version));
+        }
+
+        // private methods
+        private bool CanRunOn(ICluster cluster, BsonDocument requirement)
+        {
+            if (requirement.TryGetValue("minServerVersion", out var minServerVersionBsonValue))
+            {
+                var actualVersion = CoreTestConfiguration.ServerVersion;
+                var minServerVersion = SemanticVersion.Parse(minServerVersionBsonValue.AsString);
+                if (actualVersion < minServerVersion)
+                {
+                    return false;
+                }
+            }
+
+            if (requirement.TryGetValue("maxServerVersion", out var maxServerVersionBsonValue))
+            {
+                var actualVersion = CoreTestConfiguration.ServerVersion;
+                var maxServerVersion = SemanticVersion.Parse(maxServerVersionBsonValue.AsString);
+                if (actualVersion > maxServerVersion)
+                {
+                    return false;
+                }
+            }
+
+            if (requirement.TryGetValue("topology", out var topologyBsonValue))
+            {
+                var actualClusterType = CoreTestConfiguration.Cluster.Description.Type;
+                var runOnClusterTypes = topologyBsonValue.AsBsonArray.Select(topology => MapTopologyToClusterType(topology.AsString)).ToList();
+                if (!runOnClusterTypes.Contains(actualClusterType))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private ClusterType MapTopologyToClusterType(string topology)
+        {
+            switch (topology)
+            {
+                case "single": return Clusters.ClusterType.Standalone;
+                case "replicaset": return Clusters.ClusterType.ReplicaSet;
+                case "sharded": return Clusters.ClusterType.Sharded;
+                default: throw new ArgumentException($"Invalid topology: \"{topology}\".", nameof(topology));
+            }
         }
     }
 }

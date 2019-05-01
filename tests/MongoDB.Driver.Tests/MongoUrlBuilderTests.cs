@@ -62,6 +62,7 @@ namespace MongoDB.Driver.Tests
                 ReadConcernLevel = ReadConcernLevel.Majority,
                 ReadPreference = readPreference,
                 ReplicaSetName = "name",
+                RetryReads = false,
                 RetryWrites = true,
                 LocalThreshold = TimeSpan.FromSeconds(6),
                 Server = new MongoServerAddress("host"),
@@ -105,6 +106,7 @@ namespace MongoDB.Driver.Tests
                 "waitQueueSize=123",
                 "waitQueueTimeout=8s",
                 "uuidRepresentation=pythonLegacy",
+                "retryReads=false",
                 "retryWrites=true"
             });
 
@@ -132,6 +134,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(ReadConcernLevel.Majority, builder.ReadConcernLevel);
                 Assert.Equal(readPreference, builder.ReadPreference);
                 Assert.Equal("name", builder.ReplicaSetName);
+                Assert.Equal(false, builder.RetryReads);
                 Assert.Equal(true, builder.RetryWrites);
                 Assert.Equal(TimeSpan.FromSeconds(6), builder.LocalThreshold);
                 Assert.Equal(ConnectionStringScheme.MongoDB, builder.Scheme);
@@ -349,6 +352,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(null, builder.Password);
                 Assert.Equal(null, builder.ReadPreference);
                 Assert.Equal(null, builder.ReplicaSetName);
+                Assert.Equal(null, builder.RetryReads);
                 Assert.Equal(null, builder.RetryWrites);
                 Assert.Equal(MongoDefaults.LocalThreshold, builder.LocalThreshold);
                 Assert.Equal(MongoDefaults.ServerSelectionTimeout, builder.ServerSelectionTimeout);
@@ -825,6 +829,16 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(name, builder.ReplicaSetName);
                 Assert.Equal(connectionString, builder.ToString());
             }
+        }
+
+        [Theory]
+        [InlineData("mongodb://localhost/", null)]
+        [InlineData("mongodb://localhost/?retryReads=true", true)]
+        [InlineData("mongodb://localhost/?retryReads=false", false)]
+        public void TestRetryReads(string url, bool? retryReads)
+        {
+            var builder = new MongoUrlBuilder(url);
+            Assert.Equal(retryReads, builder.RetryReads);
         }
 
         [Theory]

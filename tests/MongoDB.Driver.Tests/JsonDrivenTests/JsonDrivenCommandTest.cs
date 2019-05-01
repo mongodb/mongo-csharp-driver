@@ -126,7 +126,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         // private methods
         private bool LooksLikeAnExpectedException(BsonDocument document)
         {
-            var errorFieldNames = new[] { "errorCodeName", "errorContains", "errorLabelsContain", "errorLabelsOmit" };
+            var errorFieldNames = new[] { "error", "errorCodeName", "errorContains", "errorLabelsContain", "errorLabelsOmit" };
             return document.Names.Any(x => errorFieldNames.Contains(x));
         }
     }

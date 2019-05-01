@@ -451,7 +451,8 @@ namespace MongoDB.Driver
             return new ListDatabasesOperation(messageEncoderSettings)
             {
                 Filter = options.Filter?.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry),
-                NameOnly = options.NameOnly
+                NameOnly = options.NameOnly,
+                RetryRequested = _settings.RetryReads
             };
         }
 
@@ -477,7 +478,12 @@ namespace MongoDB.Driver
             PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline,
             ChangeStreamOptions options)
         {
-            return ChangeStreamHelper.CreateChangeStreamOperation(pipeline, options, _settings.ReadConcern, GetMessageEncoderSettings());
+            return ChangeStreamHelper.CreateChangeStreamOperation(
+                pipeline, 
+                options, 
+                _settings.ReadConcern, 
+                GetMessageEncoderSettings(), 
+                _settings.RetryReads);
         }
 
         private TResult ExecuteReadOperation<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, CancellationToken cancellationToken = default(CancellationToken))

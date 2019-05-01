@@ -50,7 +50,8 @@ namespace MongoDB.Driver.Operations
             var filter = _username == null ? new BsonDocument() : new BsonDocument("user", _username);
             var operation = new FindOperation<BsonDocument>(collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
-                Filter = filter
+                Filter = filter,
+                RetryRequested = false
             };
             var cursor = operation.Execute(binding, cancellationToken);
             return cursor.ToList(cancellationToken);

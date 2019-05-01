@@ -199,7 +199,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var expectedResult = new BsonDocument
             {
-                { "mapreduce", _collectionNamespace.CollectionName },
+                { "mapReduce", _collectionNamespace.CollectionName },
                 { "map", _mapFunction },
                 { "reduce", _reduceFunction },
                 { "out", new BsonDocument { {"replace", _outputCollectionNamespace.CollectionName }, { "db", _databaseNamespace.DatabaseName } } },
@@ -231,7 +231,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var expectedResult = new BsonDocument
             {
-                { "mapreduce", _collectionNamespace.CollectionName },
+                { "mapReduce", _collectionNamespace.CollectionName },
                 { "map", _mapFunction },
                 { "reduce", _reduceFunction },
                 { "out", new BsonDocument { {"replace", _outputCollectionNamespace.CollectionName }, { "db", _databaseNamespace.DatabaseName } } },
@@ -575,7 +575,7 @@ namespace MongoDB.Driver.Core.Operations
             EnsureTestData();
             var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
 
-            VerifySessionIdWasSentWhenSupported(subject, "mapreduce", async);
+            VerifySessionIdWasSentWhenSupported(subject, "mapReduce", async);
         }
 
         // helper methods

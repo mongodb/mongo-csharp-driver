@@ -91,7 +91,10 @@ namespace MongoDB.Driver.Operations
             try
             {
                 var command = new BsonDocument("usersInfo", _username);
-                var operation = new ReadCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+                var operation = new ReadCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+                {
+                    RetryRequested = false
+                };
                 var result = operation.Execute(channelSource, ReadPreference.Primary, session, cancellationToken);
 
                 BsonValue users;

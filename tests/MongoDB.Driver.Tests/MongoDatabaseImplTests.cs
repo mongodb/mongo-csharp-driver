@@ -544,6 +544,7 @@ namespace MongoDB.Driver
             {
                 op.Filter.Should().BeNull();
             }
+            op.RetryRequested.Should().BeTrue();
         }
 
         [SkippableTheory]
@@ -660,6 +661,7 @@ namespace MongoDB.Driver
             {
                 op.Filter.Should().BeNull();
             }
+            op.RetryRequested.Should().BeTrue();
         }
 
         [Theory]
@@ -940,6 +942,47 @@ namespace MongoDB.Driver
 
         [Theory]
         [ParameterAttributeData]
+        public void RunCommand_should_set_RetryRequested_to_false(
+            [Values(false, true)] bool usingSession,
+            [Values(false, true)] bool async)
+        {
+            var session = CreateSession(usingSession);
+            var commandDocument = new BsonDocument("count", "foo");
+            var command = (Command<BsonDocument>)commandDocument;
+            var readPreference = ReadPreference.Secondary;
+            var cancellationToken = new CancellationTokenSource().Token;
+
+            if (usingSession)
+            {
+                if (async)
+                {
+                    _subject.RunCommandAsync(session, command, readPreference, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    _subject.RunCommand(session, command, readPreference, cancellationToken);
+                }
+            }
+            else
+            {
+                if (async)
+                {
+                    _subject.RunCommandAsync(command, readPreference, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    _subject.RunCommand(command, readPreference, cancellationToken);
+                }
+            }
+
+            var call = _operationExecutor.GetReadCall<BsonDocument>();
+
+            var op = call.Operation.Should().BeOfType<ReadCommandOperation<BsonDocument>>().Subject;
+            op.RetryRequested.Should().BeFalse();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void Watch_should_invoke_the_correct_operation(
            [Values(false, true)] bool usingSession,
            [Values(false, true)] bool async)
@@ -1005,6 +1048,7 @@ namespace MongoDB.Driver
             changeStreamOperation.ReadConcern.Should().Be(_subject.Settings.ReadConcern);
             changeStreamOperation.ResultSerializer.Should().BeOfType<ChangeStreamDocumentSerializer<BsonDocument>>();
             changeStreamOperation.ResumeAfter.Should().Be(options.ResumeAfter);
+            changeStreamOperation.RetryRequested.Should().BeTrue();
             changeStreamOperation.StartAfter.Should().Be(options.StartAfter);
             changeStreamOperation.StartAtOperationTime.Should().Be(options.StartAtOperationTime);
         }
@@ -1073,6 +1117,8 @@ namespace MongoDB.Driver
         private MongoDatabaseImpl CreateSubject(IOperationExecutor operationExecutor)
         {
             var mockClient = new Mock<IMongoClient>();
+            var clientSettings = new MongoClientSettings();
+            mockClient.SetupGet(m => m.Settings).Returns(clientSettings);
             var mockCluster = new Mock<ICluster>();
             mockClient.SetupGet(m => m.Cluster).Returns(mockCluster.Object);
             var settings = new MongoDatabaseSettings();

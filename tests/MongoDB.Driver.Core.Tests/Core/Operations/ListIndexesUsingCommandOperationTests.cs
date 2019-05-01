@@ -48,6 +48,7 @@ namespace MongoDB.Driver.Core.Operations
 
             subject.CollectionNamespace.Should().BeSameAs(_collectionNamespace);
             subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
+            subject.RetryRequested.Should().BeFalse();
         }
 
         [Fact]
@@ -140,6 +141,19 @@ namespace MongoDB.Driver.Core.Operations
             var result = subject.MessageEncoderSettings;
 
             result.Should().BeSameAs(_messageEncoderSettings);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void RetryRequested_get_should_return_expected_result(
+            [Values(false, true)] bool value)
+        {
+            var subject = new ListIndexesUsingCommandOperation(_collectionNamespace, _messageEncoderSettings);
+
+            subject.RetryRequested = value;
+            var result = subject.RetryRequested;
+
+            result.Should().Be(value);
         }
 
         // helper methods

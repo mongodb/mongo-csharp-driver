@@ -676,7 +676,10 @@ namespace MongoDB.Driver
 
         private IEnumerable<string> GetCollectionNames(IClientSessionHandle session)
         {
-            var operation = new ListCollectionsOperation(_namespace, GetMessageEncoderSettings());
+            var operation = new ListCollectionsOperation(_namespace, GetMessageEncoderSettings())
+            {
+                RetryRequested = _server.Settings.RetryReads
+            };
             var cursor = ExecuteReadOperation(session, operation, ReadPreference.Primary);
             var list = cursor.ToList();
             return list.Select(c => c["name"].AsString).OrderBy(n => n).ToList();
@@ -1086,7 +1089,10 @@ namespace MongoDB.Driver
             }
             else
             {
-                var operation = new ReadCommandOperation<TCommandResult>(_namespace, commandDocument, resultSerializer, messageEncoderSettings);
+                var operation = new ReadCommandOperation<TCommandResult>(_namespace, commandDocument, resultSerializer, messageEncoderSettings)
+                {
+                    RetryRequested = false
+                };
                 return ExecuteReadOperation(session, operation, readPreference);
             }
         }

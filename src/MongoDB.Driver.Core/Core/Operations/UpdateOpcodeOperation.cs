@@ -143,7 +143,6 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (EventContext.BeginOperation())
             using (var context = RetryableWriteContext.Create(binding, false, cancellationToken))
             {
                 return Execute(context, cancellationToken);
@@ -153,14 +152,17 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc/>
         public WriteConcernResult Execute(RetryableWriteContext context, CancellationToken cancellationToken)
         {
-            if (Feature.WriteCommands.IsSupported(context.Channel.ConnectionDescription.ServerVersion) && _writeConcern.IsAcknowledged)
+            using (EventContext.BeginOperation())
             {
-                var emulator = CreateEmulator();
-                return emulator.Execute(context, cancellationToken);
-            }
-            else
-            {
-                return ExecuteProtocol(context.Channel, cancellationToken);
+                if (Feature.WriteCommands.IsSupported(context.Channel.ConnectionDescription.ServerVersion) && _writeConcern.IsAcknowledged)
+                {
+                    var emulator = CreateEmulator();
+                    return emulator.Execute(context, cancellationToken);
+                }
+                else
+                {
+                    return ExecuteProtocol(context.Channel, cancellationToken);
+                }
             }
         }
 
@@ -169,7 +171,6 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (EventContext.BeginOperation())
             using (var context = await RetryableWriteContext.CreateAsync(binding, false, cancellationToken).ConfigureAwait(false))
             {
                 return await ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
@@ -179,14 +180,17 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc/>
         public async Task<WriteConcernResult> ExecuteAsync(RetryableWriteContext context, CancellationToken cancellationToken)
         {
-            if (Feature.WriteCommands.IsSupported(context.Channel.ConnectionDescription.ServerVersion) && _writeConcern.IsAcknowledged)
+            using (EventContext.BeginOperation())
             {
-                var emulator = CreateEmulator();
-                return await emulator.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
-            }
-            else
-            {
-                return await ExecuteProtocolAsync(context.Channel, cancellationToken).ConfigureAwait(false);
+                if (Feature.WriteCommands.IsSupported(context.Channel.ConnectionDescription.ServerVersion) && _writeConcern.IsAcknowledged)
+                {
+                    var emulator = CreateEmulator();
+                    return await emulator.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
+                }
+                else
+                {
+                    return await ExecuteProtocolAsync(context.Channel, cancellationToken).ConfigureAwait(false);
+                }
             }
         }
 

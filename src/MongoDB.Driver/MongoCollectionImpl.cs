@@ -708,6 +708,7 @@ namespace MongoDB.Driver
                 MaxAwaitTime = options.MaxAwaitTime,
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
+                RetryRequested = _database.Client.Settings.RetryReads,
                 UseCursor = options.UseCursor
             };
         }
@@ -724,7 +725,8 @@ namespace MongoDB.Driver
                 BatchSize = options.BatchSize,
                 Collation = options.Collation,
                 MaxTime = options.MaxTime,
-                ReadConcern = _settings.ReadConcern
+                ReadConcern = _settings.ReadConcern,
+                RetryRequested = _database.Client.Settings.RetryReads
             };
         }
 
@@ -763,7 +765,13 @@ namespace MongoDB.Driver
             PipelineDefinition<ChangeStreamDocument<TDocument>, TResult> pipeline,
             ChangeStreamOptions options)
         {
-            return ChangeStreamHelper.CreateChangeStreamOperation(this, pipeline, _documentSerializer, options, _settings.ReadConcern, _messageEncoderSettings);
+            return ChangeStreamHelper.CreateChangeStreamOperation(
+                this,
+                pipeline,
+                _documentSerializer,
+                options,
+                _settings.ReadConcern, messageEncoderSettings: _messageEncoderSettings,
+                _database.Client.Settings.RetryReads);
         }
 
         private CountDocumentsOperation CreateCountDocumentsOperation(FilterDefinition<TDocument> filter, CountOptions options)
@@ -776,6 +784,7 @@ namespace MongoDB.Driver
                 Limit = options.Limit,
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
+                RetryRequested = _database.Client.Settings.RetryReads,
                 Skip = options.Skip
             };
         }
@@ -790,6 +799,7 @@ namespace MongoDB.Driver
                 Limit = options.Limit,
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
+                RetryRequested = _database.Client.Settings.RetryReads,
                 Skip = options.Skip
             };
         }
@@ -808,7 +818,8 @@ namespace MongoDB.Driver
                 Collation = options.Collation,
                 Filter = filter.Render(_documentSerializer, _settings.SerializerRegistry),
                 MaxTime = options.MaxTime,
-                ReadConcern = _settings.ReadConcern
+                ReadConcern = _settings.ReadConcern,
+                RetryRequested = _database.Client.Settings.RetryReads,
             };
         }
 
@@ -816,7 +827,8 @@ namespace MongoDB.Driver
         {
             return new CountOperation(_collectionNamespace, _messageEncoderSettings)
             {
-                MaxTime = options?.MaxTime
+                MaxTime = options?.MaxTime,
+                RetryRequested = _database.Client.Settings.RetryReads
             };
         }
 
@@ -913,6 +925,7 @@ namespace MongoDB.Driver
                 OplogReplay = options.OplogReplay,
                 Projection = renderedProjection.Document,
                 ReadConcern = _settings.ReadConcern,
+                RetryRequested = _database.Client.Settings.RetryReads,
                 Skip = options.Skip,
                 Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry)
             };
@@ -981,7 +994,8 @@ namespace MongoDB.Driver
             {
                 Collation = options.Collation,
                 MaxTime = options.MaxTime,
-                ReadConcern = _settings.ReadConcern
+                ReadConcern = _settings.ReadConcern,
+                RetryRequested = _database.Client.Settings.RetryReads
             };
         }
 
@@ -1427,7 +1441,10 @@ namespace MongoDB.Driver
 
             private ListIndexesOperation CreateListIndexesOperation()
             {
-                return new ListIndexesOperation(_collection._collectionNamespace, _collection._messageEncoderSettings);
+                return new ListIndexesOperation(_collection._collectionNamespace, _collection._messageEncoderSettings)
+                {
+                    RetryRequested = _collection.Database.Client.Settings.RetryReads
+                };
             }
         }
     }

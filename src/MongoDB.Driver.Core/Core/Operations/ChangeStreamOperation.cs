@@ -13,17 +13,17 @@
 * limitations under the License.
 */
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -94,6 +94,7 @@ namespace MongoDB.Driver.Core.Operations
         private ReadConcern _readConcern = ReadConcern.Default;
         private readonly IBsonSerializer<TResult> _resultSerializer;
         private BsonDocument _resumeAfter;
+        private bool _retryRequested;
         private BsonDocument _startAfter;
         private BsonTimestamp _startAtOperationTime;
 
@@ -256,6 +257,16 @@ namespace MongoDB.Driver.Core.Operations
             set { _resumeAfter = value; }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether to retry.
+        /// </summary>
+        /// <value>Whether to retry.</value>
+        public bool RetryRequested
+        {
+            get => _retryRequested;
+            set => _retryRequested = value;
+        }
+
         /// <inheritdoc />
         public BsonDocument StartAfter
         {
@@ -274,6 +285,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc />
         public IChangeStreamCursor<TResult> Execute(IReadBinding binding, CancellationToken cancellationToken)
         {
+            Ensure.IsNotNull(binding, nameof(binding));
             var bindingHandle = binding as IReadBindingHandle;
             if (bindingHandle == null)
             {
@@ -283,13 +295,11 @@ namespace MongoDB.Driver.Core.Operations
             IAsyncCursor<RawBsonDocument> cursor;
             ICursorBatchInfo cursorBatchInfo;
             BsonTimestamp initialOperationTime;
-            using (var channelSource = binding.GetReadChannelSource(cancellationToken))
-            using (var channel = channelSource.GetChannel(cancellationToken))
-            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
+            using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationToken))
             {
-                cursor = ExecuteAggregateOperation(channelBinding, cancellationToken);
+                cursor = ExecuteAggregateOperation(context, cancellationToken);
                 cursorBatchInfo = (ICursorBatchInfo)cursor;
-                initialOperationTime = GetInitialOperationTimeIfRequired(channel, channelBinding, cursorBatchInfo);
+                initialOperationTime = GetInitialOperationTimeIfRequired(context, cursorBatchInfo);
             }
 
             var postBatchResumeToken = GetInitialPostBatchResumeTokenIfRequired(cursorBatchInfo);
@@ -309,6 +319,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc />
         public async Task<IChangeStreamCursor<TResult>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
+            Ensure.IsNotNull(binding, nameof(binding));
             var bindingHandle = binding as IReadBindingHandle;
             if (bindingHandle == null)
             {
@@ -318,13 +329,11 @@ namespace MongoDB.Driver.Core.Operations
             IAsyncCursor<RawBsonDocument> cursor;
             ICursorBatchInfo cursorBatchInfo;
             BsonTimestamp initialOperationTime;
-            using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false))
-            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
-            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
+            using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
             {
-                cursor = await ExecuteAggregateOperationAsync(channelBinding, cancellationToken).ConfigureAwait(false);
+                cursor = await ExecuteAggregateOperationAsync(context, cancellationToken).ConfigureAwait(false);
                 cursorBatchInfo = (ICursorBatchInfo)cursor;
-                initialOperationTime = GetInitialOperationTimeIfRequired(channel, channelBinding, cursorBatchInfo);
+                initialOperationTime = GetInitialOperationTimeIfRequired(context, cursorBatchInfo);
             }
 
             var postBatchResumeToken = GetInitialPostBatchResumeTokenIfRequired(cursorBatchInfo);
@@ -344,13 +353,19 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc />
         public IAsyncCursor<RawBsonDocument> Resume(IReadBinding binding, CancellationToken cancellationToken)
         {
-            return ExecuteAggregateOperation(binding, cancellationToken);
+            using (var context = RetryableReadContext.Create(binding, retryRequested: false, cancellationToken))
+            {
+                return ExecuteAggregateOperation(context, cancellationToken);
+            }
         }
 
         /// <inheritdoc />
-        public Task<IAsyncCursor<RawBsonDocument>> ResumeAsync(IReadBinding binding, CancellationToken cancellationToken)
+        public async Task<IAsyncCursor<RawBsonDocument>> ResumeAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
-            return ExecuteAggregateOperationAsync(binding, cancellationToken);
+            using (var context = await RetryableReadContext.CreateAsync(binding, retryRequested: false, cancellationToken).ConfigureAwait(false))
+            {
+                return await ExecuteAggregateOperationAsync(context, cancellationToken).ConfigureAwait(false);
+            }
         }
 
         // private methods
@@ -362,12 +377,18 @@ namespace MongoDB.Driver.Core.Operations
             AggregateOperation<RawBsonDocument> operation;
             if (_collectionNamespace != null)
             {
-                operation = new AggregateOperation<RawBsonDocument>(_collectionNamespace, combinedPipeline, RawBsonDocumentSerializer.Instance, _messageEncoderSettings);
+                operation = new AggregateOperation<RawBsonDocument>(_collectionNamespace, combinedPipeline, RawBsonDocumentSerializer.Instance, _messageEncoderSettings)
+                {
+                    RetryRequested = _retryRequested // might be overridden by retryable read context
+                };
             }
             else
             {
                 var databaseNamespace = _databaseNamespace ?? DatabaseNamespace.Admin;
-                operation = new AggregateOperation<RawBsonDocument>(databaseNamespace, combinedPipeline, RawBsonDocumentSerializer.Instance, _messageEncoderSettings);
+                operation = new AggregateOperation<RawBsonDocument>(databaseNamespace, combinedPipeline, RawBsonDocumentSerializer.Instance, _messageEncoderSettings)
+                {
+                    RetryRequested = _retryRequested // might be overridden by retryable read context
+                };
             }
 
             operation.BatchSize = _batchSize;
@@ -399,16 +420,16 @@ namespace MongoDB.Driver.Core.Operations
             return combinedPipeline;
         }
 
-        private IAsyncCursor<RawBsonDocument> ExecuteAggregateOperation(IReadBinding binding, CancellationToken cancellationToken)
+        private IAsyncCursor<RawBsonDocument> ExecuteAggregateOperation(RetryableReadContext context, CancellationToken cancellationToken)
         {
             var aggregateOperation = CreateAggregateOperation();
-            return aggregateOperation.Execute(binding, cancellationToken);
+            return aggregateOperation.Execute(context, cancellationToken);
         }
 
-        private Task<IAsyncCursor<RawBsonDocument>> ExecuteAggregateOperationAsync(IReadBinding binding, CancellationToken cancellationToken)
+        private Task<IAsyncCursor<RawBsonDocument>> ExecuteAggregateOperationAsync(RetryableReadContext context, CancellationToken cancellationToken)
         {
             var aggregateOperation = CreateAggregateOperation();
-            return aggregateOperation.ExecuteAsync(binding, cancellationToken);
+            return aggregateOperation.ExecuteAsync(context, cancellationToken);
         }
 
         private BsonDocument GetInitialPostBatchResumeTokenIfRequired(ICursorBatchInfo cursorBatchInfo)
@@ -417,16 +438,16 @@ namespace MongoDB.Driver.Core.Operations
             return cursorBatchInfo.WasFirstBatchEmpty ? cursorBatchInfo.PostBatchResumeToken : null;
         }
 
-        private BsonTimestamp GetInitialOperationTimeIfRequired(IChannelHandle channel, IReadBinding binding, ICursorBatchInfo cursorBatchInfo)
+        private BsonTimestamp GetInitialOperationTimeIfRequired(RetryableReadContext context, ICursorBatchInfo cursorBatchInfo)
         {
             if (_startAtOperationTime == null && _resumeAfter == null && _startAfter == null)
             {
-                var maxWireVersion = channel.ConnectionDescription.IsMasterResult.MaxWireVersion;
+                var maxWireVersion = context.Channel.ConnectionDescription.IsMasterResult.MaxWireVersion;
                 if (maxWireVersion >= 7)
                 {
                     if (cursorBatchInfo.PostBatchResumeToken == null && cursorBatchInfo.WasFirstBatchEmpty)
                     {
-                        return binding.Session.OperationTime;
+                        return context.Binding.Session.OperationTime;
                     }
                 }
             }

@@ -55,6 +55,7 @@ namespace MongoDB.Driver.Core.Operations
 
             subject.DatabaseNamespace.DatabaseName.Should().Be(_databaseNamespace.DatabaseName);
             subject.MessageEncoderSettings.Should().BeEquivalentTo(_messageEncoderSettings);
+            subject.RetryRequested.Should().BeFalse();
         }
 
         [SkippableTheory]

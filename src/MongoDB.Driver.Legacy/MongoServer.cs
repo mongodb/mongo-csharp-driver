@@ -646,7 +646,10 @@ namespace MongoDB.Driver
         private IEnumerable<string> GetDatabaseNames(IClientSessionHandle session)
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
-            var operation = new ListDatabasesOperation(messageEncoderSettings);
+            var operation = new ListDatabasesOperation(messageEncoderSettings)
+            {
+                RetryRequested = _settings.RetryReads
+            };
             var list = ExecuteReadOperation(session, operation).ToList();
             return list.Select(x => (string)x["name"]).OrderBy(name => name);
         }

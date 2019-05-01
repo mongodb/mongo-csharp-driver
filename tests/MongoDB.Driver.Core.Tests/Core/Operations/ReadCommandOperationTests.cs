@@ -53,6 +53,20 @@ namespace MongoDB.Driver.Core.Operations
             result.DatabaseNamespace.Should().BeSameAs(databaseNamespace);
             result.MessageEncoderSettings.Should().BeSameAs(messageEncoderSettings);
             result.ResultSerializer.Should().BeSameAs(resultSerializer);
+            result.RetryRequested.Should().BeFalse();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void RetryRequested_get_and_set_should_work(
+            [Values(false, true)] bool value)
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            subject.RetryRequested = value;
+            var result = subject.RetryRequested;
+
+            result.Should().Be(value);
         }
 
         [Theory]

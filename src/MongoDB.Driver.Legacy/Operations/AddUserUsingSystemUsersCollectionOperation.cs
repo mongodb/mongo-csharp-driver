@@ -89,7 +89,8 @@ namespace MongoDB.Driver.Operations
             var operation = new FindOperation<BsonDocument>(collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
                 Filter = new BsonDocument("user", _username),
-                Limit = -1
+                Limit = -1,
+                RetryRequested = false
             };
             var cursor = operation.Execute(channelSource, ReadPreference.Primary, session, cancellationToken);
             var userDocuments = cursor.ToList();

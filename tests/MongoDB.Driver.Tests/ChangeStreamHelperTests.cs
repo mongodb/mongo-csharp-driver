@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Tests
             var messageEncoderSettings = new MessageEncoderSettings();
             var renderedPipeline = RenderPipeline(pipeline);
 
-            var result = ChangeStreamHelper.CreateChangeStreamOperation(pipeline, options, readConcern, messageEncoderSettings);
+            var result = ChangeStreamHelper.CreateChangeStreamOperation(pipeline, options, readConcern, messageEncoderSettings, true);
 
             result.BatchSize.Should().Be(options.BatchSize);
             result.Collation.Should().BeSameAs(options.Collation);
@@ -57,6 +57,7 @@ namespace MongoDB.Driver.Tests
             result.ReadConcern.Should().BeSameAs(readConcern);
             result.ResultSerializer.Should().BeOfType<ChangeStreamDocumentSerializer<BsonDocument>>();
             result.ResumeAfter.Should().BeSameAs(options.ResumeAfter);
+            result.RetryRequested.Should().Be(true);
             result.StartAfter.Should().BeSameAs(options.StartAfter);
             result.StartAtOperationTime.Should().BeSameAs(options.StartAtOperationTime);
         }
@@ -66,7 +67,7 @@ namespace MongoDB.Driver.Tests
         {
             var databaseNamespace = new DatabaseNamespace("databaseName");
             var mockDatabase = new Mock<IMongoDatabase>();
-            mockDatabase.SetupGet(m => m.DatabaseNamespace).Returns(databaseNamespace);          
+            mockDatabase.SetupGet(m => m.DatabaseNamespace).Returns(databaseNamespace);
             var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<BsonDocument>>().Limit(1);
             var options = new ChangeStreamOptions
             {
@@ -82,7 +83,7 @@ namespace MongoDB.Driver.Tests
             var messageEncoderSettings = new MessageEncoderSettings();
             var renderedPipeline = RenderPipeline(pipeline);
 
-            var result = ChangeStreamHelper.CreateChangeStreamOperation(mockDatabase.Object, pipeline, options, readConcern, messageEncoderSettings);
+            var result = ChangeStreamHelper.CreateChangeStreamOperation(mockDatabase.Object, pipeline, options, readConcern, messageEncoderSettings, true);
 
             result.BatchSize.Should().Be(options.BatchSize);
             result.Collation.Should().BeSameAs(options.Collation);
@@ -95,6 +96,7 @@ namespace MongoDB.Driver.Tests
             result.ReadConcern.Should().BeSameAs(readConcern);
             result.ResultSerializer.Should().BeOfType<ChangeStreamDocumentSerializer<BsonDocument>>();
             result.ResumeAfter.Should().BeSameAs(options.ResumeAfter);
+            result.RetryRequested.Should().Be(true);
             result.StartAfter.Should().BeSameAs(options.StartAfter);
             result.StartAtOperationTime.Should().BeSameAs(options.StartAtOperationTime);
         }
@@ -122,7 +124,7 @@ namespace MongoDB.Driver.Tests
             var messageEncoderSettings = new MessageEncoderSettings();
             var renderedPipeline = RenderPipeline(pipeline);
 
-            var result = ChangeStreamHelper.CreateChangeStreamOperation(mockCollection.Object, pipeline, documentSerializer, options, readConcern, messageEncoderSettings);
+            var result = ChangeStreamHelper.CreateChangeStreamOperation(mockCollection.Object, pipeline, documentSerializer, options, readConcern, messageEncoderSettings, true);
 
             result.BatchSize.Should().Be(options.BatchSize);
             result.Collation.Should().BeSameAs(options.Collation);
@@ -135,6 +137,7 @@ namespace MongoDB.Driver.Tests
             result.ReadConcern.Should().BeSameAs(readConcern);
             result.ResultSerializer.Should().BeOfType<ChangeStreamDocumentSerializer<BsonDocument>>();
             result.ResumeAfter.Should().BeSameAs(options.ResumeAfter);
+            result.RetryRequested.Should().Be(true);
             result.StartAfter.Should().BeSameAs(options.StartAfter);
             result.StartAtOperationTime.Should().BeSameAs(options.StartAtOperationTime);
         }

@@ -158,7 +158,10 @@ namespace MongoDB.Driver.Core.Operations
                 _databaseNamespace,
                 command,
                 BsonDocumentSerializer.Instance,
-                _messageEncoderSettings);
+                _messageEncoderSettings)
+            {
+                RetryRequested = false
+            };
         }
 
         private WriteCommandOperation<BsonDocument> CreateWriteOperation()

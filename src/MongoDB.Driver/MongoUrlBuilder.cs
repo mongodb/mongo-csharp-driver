@@ -60,6 +60,7 @@ namespace MongoDB.Driver
         private ReadConcernLevel? _readConcernLevel;
         private ReadPreference _readPreference;
         private string _replicaSetName;
+        private bool? _retryReads;
         private bool? _retryWrites;
         private ConnectionStringScheme _scheme;
         private IEnumerable<MongoServerAddress> _servers;
@@ -101,6 +102,7 @@ namespace MongoDB.Driver
             _readConcernLevel = null;
             _readPreference = null;
             _replicaSetName = null;
+            _retryReads = null;
             _retryWrites = null;
             _localThreshold = MongoDefaults.LocalThreshold;
             _scheme = ConnectionStringScheme.MongoDB;
@@ -423,6 +425,15 @@ namespace MongoDB.Driver
             get { return _replicaSetName; }
             set { _replicaSetName = value; }
         }
+        
+        /// <summary>
+        /// Gets or sets whether to retry reads.
+        /// </summary>
+        public bool? RetryReads
+        {
+            get { return _retryReads; }
+            set { _retryReads = value; }
+        }
 
         /// <summary>
         /// Gets or sets whether to retry writes.
@@ -665,6 +676,7 @@ namespace MongoDB.Driver
                 _readPreference = new ReadPreference(connectionString.ReadPreference.Value, connectionString.ReadPreferenceTags, connectionString.MaxStaleness);
             }
             _replicaSetName = connectionString.ReplicaSet;
+            _retryReads = connectionString.RetryReads;
             _retryWrites = connectionString.RetryWrites;
             _localThreshold = connectionString.LocalThreshold.GetValueOrDefault(MongoDefaults.LocalThreshold);
             _scheme = connectionString.Scheme;
@@ -910,6 +922,10 @@ namespace MongoDB.Driver
             if (_guidRepresentation != MongoDefaults.GuidRepresentation)
             {
                 query.AppendFormat("uuidRepresentation={0};", (_guidRepresentation == GuidRepresentation.CSharpLegacy) ? "csharpLegacy" : MongoUtils.ToCamelCase(_guidRepresentation.ToString()));
+            }
+            if (!_retryReads.GetValueOrDefault(true))
+            {
+                query.AppendFormat("retryReads=false;");
             }
             if (_retryWrites.GetValueOrDefault(false))
             {

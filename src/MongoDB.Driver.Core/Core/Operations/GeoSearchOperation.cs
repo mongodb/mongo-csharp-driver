@@ -184,7 +184,10 @@ namespace MongoDB.Driver.Core.Operations
                 _collectionNamespace.DatabaseNamespace,
                 command,
                 _resultSerializer,
-                _messageEncoderSettings);
+                _messageEncoderSettings)
+            {
+                RetryRequested = false
+            };
         }
     }
 }

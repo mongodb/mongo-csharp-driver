@@ -66,6 +66,11 @@ namespace MongoDB.Bson.TestHelpers.JsonDrivenTests
                 SetArguments(document["arguments"].AsBsonDocument);
             }
 
+            if (document.Contains("error"))
+            {
+                _expectedException = new BsonDocument(); // any exception will do
+            }
+
             if (document.Contains("result"))
             {
                 ParseExpectedResult(document["result"]);

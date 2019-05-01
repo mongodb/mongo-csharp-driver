@@ -277,6 +277,7 @@ namespace MongoDB.Driver.Core.Configuration
                 "readPreference=primary;" +
                 "readPreferenceTags=dc:1;" +
                 "replicaSet=funny;" +
+                "retryReads=false;" +
                 "retryWrites=true;" +
                 "localThreshold=50ms;" +
                 "socketTimeout=40ms;" +
@@ -313,6 +314,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ReadPreference.Should().Be(ReadPreferenceMode.Primary);
             subject.ReadPreferenceTags.Single().Should().Be(new TagSet(new[] { new Tag("dc", "1") }));
             subject.ReplicaSet.Should().Be("funny");
+            subject.RetryReads.Should().BeFalse();
             subject.RetryWrites.Should().BeTrue();
             subject.LocalThreshold.Should().Be(TimeSpan.FromMilliseconds(50));
             subject.SocketTimeout.Should().Be(TimeSpan.FromMilliseconds(40));
@@ -653,13 +655,25 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         [Theory]
-        [InlineData("mongodb://localhost?retryWrites=true", true)]
-        [InlineData("mongodb://localhost?retryWrites=false", false)]
-        public void When_retryWrites_is_specified(string connectionString, bool ssl)
+        [InlineData("mongodb://localhost", null)]
+        [InlineData("mongodb://localhost?retryReads=true", true)]
+        [InlineData("mongodb://localhost?retryReads=false", false)]
+        public void When_retryReads_is_specified(string connectionString, bool? retryReads)
         {
             var subject = new ConnectionString(connectionString);
 
-            subject.RetryWrites.Should().Be(ssl);
+            subject.RetryReads.Should().Be(retryReads);
+        }
+
+        [Theory]
+        [InlineData("mongodb://localhost", null)]
+        [InlineData("mongodb://localhost?retryWrites=true", true)]
+        [InlineData("mongodb://localhost?retryWrites=false", false)]
+        public void When_retryWrites_is_specified(string connectionString, bool? retryWrites)
+        {
+            var subject = new ConnectionString(connectionString);
+
+            subject.RetryWrites.Should().Be(retryWrites);
         }
 
         [Theory]

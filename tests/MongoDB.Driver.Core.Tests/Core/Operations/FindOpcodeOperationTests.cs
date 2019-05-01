@@ -350,7 +350,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new FindOpcodeOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
-            Func<Task> action = () => subject.ExecuteAsync(null, CancellationToken.None);
+            Func<Task> action = () => subject.ExecuteAsync(binding: null, CancellationToken.None);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("binding");
         }

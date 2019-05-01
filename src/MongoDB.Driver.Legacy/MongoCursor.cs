@@ -873,6 +873,7 @@ namespace MongoDB.Driver
                 NoCursorTimeout = noCursorTimeout,
                 Projection = Fields.ToBsonDocument(),
                 ReadConcern = ReadConcern,
+                RetryRequested = Server.Settings.RetryReads,
                 Skip = Skip
             };
 

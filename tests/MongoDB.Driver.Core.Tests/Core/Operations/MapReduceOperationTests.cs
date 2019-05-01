@@ -466,7 +466,7 @@ namespace MongoDB.Driver.Core.Operations
             EnsureTestData();
             var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings);
 
-            VerifySessionIdWasSentWhenSupported(subject, "mapreduce", async);
+            VerifySessionIdWasSentWhenSupported(subject, "mapReduce", async);
         }
 
         [SkippableTheory]
@@ -487,7 +487,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var expectedResult = new BsonDocument
             {
-                { "mapreduce", _collectionNamespace.CollectionName },
+                { "mapReduce", _collectionNamespace.CollectionName },
                 { "map", _mapFunction },
                 { "reduce", _reduceFunction },
                 { "out", new BsonDocument("inline", 1) },
@@ -532,7 +532,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var expectedResult = new BsonDocument
             {
-                { "mapreduce", _collectionNamespace.CollectionName },
+                { "mapReduce", _collectionNamespace.CollectionName },
                 { "map", _mapFunction },
                 { "reduce", _reduceFunction },
                 { "out", new BsonDocument("inline", 1) },

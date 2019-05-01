@@ -24,6 +24,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
     public class JsonDrivenTestFactory
     {
         // private fields
+        private readonly string _bucketName;
         private readonly IMongoClient _client;
         private readonly string _databaseName;
         private readonly string _collectionName;
@@ -31,16 +32,17 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         private readonly IJsonDrivenTestRunner _testRunner;
 
         // public constructors
-        public JsonDrivenTestFactory(IMongoClient client, string databaseName, string collectionName, Dictionary<string, object> objectMap)
-            : this(null, client, databaseName, collectionName, objectMap)
+        public JsonDrivenTestFactory(IMongoClient client, string databaseName, string collectionName, string bucketName, Dictionary<string, object> objectMap)
+            : this(null, client, databaseName, collectionName, bucketName, objectMap)
         {
         }
 
-        public JsonDrivenTestFactory(IJsonDrivenTestRunner testRunner, IMongoClient client, string databaseName, string collectionName, Dictionary<string, object> objectMap)
+        public JsonDrivenTestFactory(IJsonDrivenTestRunner testRunner, IMongoClient client, string databaseName, string collectionName, string bucketName, Dictionary<string, object> objectMap)
         {
             _client = client;
             _databaseName = databaseName;
             _collectionName = collectionName;
+            _bucketName = bucketName;
             _objectMap = objectMap;
             _testRunner = testRunner;
         }
@@ -48,6 +50,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         // public methods
         public JsonDrivenTest CreateTest(string receiver, string name)
         {
+            IMongoDatabase database;
             switch (receiver)
             {
                 case "testRunner":
@@ -56,6 +59,15 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                         case "targetedFailPoint": return new JsonDrivenTargetedFailPointTest(_testRunner, _objectMap);
                         case "assertSessionPinned": return new JsonDrivenAssertSessionPinnedTest(_testRunner, _objectMap);
                         case "assertSessionUnpinned": return new JsonDrivenAssertSessionUnpinnedTest(_testRunner, _objectMap);
+                        default: throw new FormatException($"Invalid method name: \"{name}\".");
+                    }
+
+                case "client":
+                    switch (name)
+                    {
+                        case "listDatabaseNames": return new JsonDrivenListDatabaseNamesTest(_client, _objectMap);
+                        case "listDatabases": return new JsonDrivenListDatabasesTest(_client, _objectMap);
+                        case "watch": return new JsonDrivenClientWatchTest(_client, _objectMap);
                         default: throw new FormatException($"Invalid method name: \"{name}\".");
                     }
 
@@ -70,10 +82,13 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                     }
 
                 case "database":
-                    var database = _client.GetDatabase(_databaseName);
+                    database = _client.GetDatabase(_databaseName);
                     switch (name)
                     {
+                        case "listCollectionNames": return new JsonDrivenListCollectionNamesTest(database, _objectMap);
+                        case "listCollections": return new JsonDrivenListCollectionsTest(database, _objectMap);
                         case "runCommand": return new JsonDrivenRunCommandTest(database, _objectMap);
+                        case "watch": return new JsonDrivenDatabaseWatchTest(database, _objectMap);
                         default: throw new FormatException($"Invalid method name: \"{name}\".");
                     }
 
@@ -88,19 +103,32 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                         case "deleteMany": return new JsonDrivenDeleteManyTest(collection, _objectMap);
                         case "deleteOne": return new JsonDrivenDeleteOneTest(collection, _objectMap);
                         case "distinct": return new JsonDrivenDistinctTest(collection, _objectMap);
+                        case "estimatedDocumentCount": return new JsonDrivenEstimatedCountTest(collection, _objectMap);
                         case "find": return new JsonDrivenFindTest(collection, _objectMap);
                         case "findOneAndDelete": return new JsonDrivenFindOneAndDeleteTest(collection, _objectMap);
                         case "findOneAndReplace": return new JsonDrivenFindOneAndReplaceTest(collection, _objectMap);
                         case "findOneAndUpdate": return new JsonDrivenFindOneAndUpdateTest(collection, _objectMap);
                         case "insertMany": return new JsonDrivenInsertManyTest(collection, _objectMap);
                         case "insertOne": return new JsonDrivenInsertOneTest(collection, _objectMap);
+                        case "listIndexes": return new JsonDrivenListIndexesTest(collection, _objectMap);
+                        case "mapReduce": return new JsonDrivenMapReduceTest(collection, _objectMap);
                         case "replaceOne": return new JsonDrivenReplaceOneTest(collection, _objectMap);
                         case "updateMany": return new JsonDrivenUpdateManyTest(collection, _objectMap);
                         case "updateOne": return new JsonDrivenUpdateOneTest(collection, _objectMap);
+                        case "watch": return new JsonDrivenCollectionWatchTest(collection, _objectMap);
                         default: throw new FormatException($"Invalid method name: \"{name}\".");
                     }
 
-                 default:
+                case "gridfsbucket":
+                    database = _client.GetDatabase(_databaseName);
+                    switch (name)
+                    {
+                        case "download": return new JsonDrivenGridFSDownloadTest(database, _bucketName, _objectMap);
+                        case "download_by_name": return new JsonDrivenGridFSDownloadByNameTest(database, _bucketName, _objectMap);
+                        default: throw new FormatException($"Invalid method name: \"{name}\".");
+                    }
+
+                default:
                      throw new FormatException($"Invalid receiver: \"{receiver}\".");
             }
         }

@@ -23,7 +23,9 @@ namespace MongoDB.Driver.Core.Operations
         // private static fields
         private static readonly HashSet<ServerErrorCode> __notResumableChangeStreamErrorCodes;
         private static readonly HashSet<Type> __resumableChangeStreamExceptions;
+        private static readonly HashSet<Type> __retryableReadExceptions;
         private static readonly HashSet<Type> __retryableWriteExceptions;
+        private static readonly HashSet<ServerErrorCode> __retryableReadErrorCodes;
         private static readonly HashSet<ServerErrorCode> __retryableWriteErrorCodes;
 
         // static constructor
@@ -41,9 +43,10 @@ namespace MongoDB.Driver.Core.Operations
                 typeof(MongoCursorNotFoundException)
             };
 
-            __retryableWriteExceptions = new HashSet<Type>(resumableAndRetryableExceptions)
-            {
-            };
+
+            __retryableReadExceptions = new HashSet<Type>(resumableAndRetryableExceptions);
+            
+            __retryableWriteExceptions = new HashSet<Type>(resumableAndRetryableExceptions);
 
             var resumableAndRetryableErrorCodes = new HashSet<ServerErrorCode>
             {
@@ -52,6 +55,8 @@ namespace MongoDB.Driver.Core.Operations
                 ServerErrorCode.NetworkTimeout,
                 ServerErrorCode.SocketException
             };
+
+            __retryableReadErrorCodes = new HashSet<ServerErrorCode>(resumableAndRetryableErrorCodes);
 
             __retryableWriteErrorCodes = new HashSet<ServerErrorCode>(resumableAndRetryableErrorCodes)
             {
@@ -79,6 +84,26 @@ namespace MongoDB.Driver.Core.Operations
             {
                 return __resumableChangeStreamExceptions.Contains(exception.GetType());
             }
+        }
+        
+        public static bool IsRetryableReadException(Exception exception)
+        {
+            if (__retryableReadExceptions.Contains(exception.GetType()))
+            {
+                return true;
+            }
+
+            var commandException = exception as MongoCommandException;
+            if (commandException != null)
+            {
+                var code = (ServerErrorCode)commandException.Code;
+                if (__retryableReadErrorCodes.Contains(code))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public static bool IsRetryableWriteException(Exception exception)

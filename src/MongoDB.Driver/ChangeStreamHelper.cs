@@ -28,14 +28,18 @@ namespace MongoDB.Driver
             PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline,
             ChangeStreamOptions options,
             ReadConcern readConcern,
-            MessageEncoderSettings messageEncoderSettings)
+            MessageEncoderSettings messageEncoderSettings,
+            bool retryRequested)
         {
             var renderedPipeline = RenderPipeline(pipeline, BsonDocumentSerializer.Instance);
 
             var operation = new ChangeStreamOperation<TResult>(
                 renderedPipeline.Documents,
                 renderedPipeline.OutputSerializer,
-                messageEncoderSettings);
+                messageEncoderSettings)
+            {
+                RetryRequested = retryRequested    
+            };
             SetOperationOptions(operation, options, readConcern);
 
             return operation;
@@ -46,7 +50,8 @@ namespace MongoDB.Driver
             PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline,
             ChangeStreamOptions options,
             ReadConcern readConcern,
-            MessageEncoderSettings messageEncoderSettings)
+            MessageEncoderSettings messageEncoderSettings,
+            bool retryRequested)
         {
             var renderedPipeline = RenderPipeline(pipeline, BsonDocumentSerializer.Instance);
 
@@ -54,7 +59,10 @@ namespace MongoDB.Driver
                 database.DatabaseNamespace,
                 renderedPipeline.Documents,
                 renderedPipeline.OutputSerializer,
-                messageEncoderSettings);
+                messageEncoderSettings) 
+            {
+                RetryRequested = retryRequested    
+            };
             SetOperationOptions(operation, options, readConcern);
 
             return operation;
@@ -66,7 +74,8 @@ namespace MongoDB.Driver
             IBsonSerializer<TDocument> documentSerializer,
             ChangeStreamOptions options,
             ReadConcern readConcern,
-            MessageEncoderSettings messageEncoderSettings)
+            MessageEncoderSettings messageEncoderSettings,
+            bool retryRequested)
         {
             var renderedPipeline = RenderPipeline(pipeline, documentSerializer);
 
@@ -74,7 +83,10 @@ namespace MongoDB.Driver
                 collection.CollectionNamespace,
                 renderedPipeline.Documents,
                 renderedPipeline.OutputSerializer,
-                messageEncoderSettings);
+                messageEncoderSettings) 
+            {
+                RetryRequested = retryRequested    
+            };
             SetOperationOptions(operation, options, readConcern);
 
             return operation;

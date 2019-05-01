@@ -470,7 +470,8 @@ namespace MongoDB.Driver
             return new ListCollectionsOperation(_databaseNamespace, messageEncoderSettings)
             {
                 Filter = options?.Filter?.Render(_settings.SerializerRegistry.GetSerializer<BsonDocument>(), _settings.SerializerRegistry),
-                NameOnly = true
+                NameOnly = true,
+                RetryRequested = _client.Settings.RetryReads
             };
         }
 
@@ -479,7 +480,8 @@ namespace MongoDB.Driver
             var messageEncoderSettings = GetMessageEncoderSettings();
             return new ListCollectionsOperation(_databaseNamespace, messageEncoderSettings)
             {
-                Filter = options?.Filter?.Render(_settings.SerializerRegistry.GetSerializer<BsonDocument>(), _settings.SerializerRegistry)
+                Filter = options?.Filter?.Render(_settings.SerializerRegistry.GetSerializer<BsonDocument>(), _settings.SerializerRegistry),
+                RetryRequested = _client.Settings.RetryReads
             };
         }
 
@@ -517,14 +519,23 @@ namespace MongoDB.Driver
         {
             var renderedCommand = command.Render(_settings.SerializerRegistry);
             var messageEncoderSettings = GetMessageEncoderSettings();
-            return new ReadCommandOperation<TResult>(_databaseNamespace, renderedCommand.Document, renderedCommand.ResultSerializer, messageEncoderSettings);
+            return new ReadCommandOperation<TResult>(_databaseNamespace, renderedCommand.Document, renderedCommand.ResultSerializer, messageEncoderSettings)
+            {
+                RetryRequested = false
+            };
         }
 
         private ChangeStreamOperation<TResult> CreateChangeStreamOperation<TResult>(
             PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline,
             ChangeStreamOptions options)
         {
-            return ChangeStreamHelper.CreateChangeStreamOperation(this, pipeline, options, _settings.ReadConcern, GetMessageEncoderSettings());
+            return ChangeStreamHelper.CreateChangeStreamOperation(
+                this, 
+                pipeline, 
+                options, 
+                _settings.ReadConcern, 
+                GetMessageEncoderSettings(),
+                _client.Settings.RetryReads);
         }
 
         private IEnumerable<string> ExtractCollectionNames(IEnumerable<BsonDocument> collections)

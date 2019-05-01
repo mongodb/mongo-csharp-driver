@@ -44,6 +44,7 @@ namespace MongoDB.Driver.GridFS
         private readonly IncrementalMD5 _md5;
         private int _nextChunkNumber;
         private long _position;
+        private bool _retryReads;
 
         // constructors
         public GridFSForwardOnlyDownloadStream(
@@ -90,6 +91,12 @@ namespace MongoDB.Driver.GridFS
             }
         }
 
+        public bool RetryReads
+        {
+            get => _retryReads;
+            set => _retryReads = value;
+        }
+    
         // methods
         public override int Read(byte[] buffer, int offset, int count)
         {
@@ -208,7 +215,8 @@ namespace MongoDB.Driver.GridFS
                 messageEncoderSettings)
             {
                 Filter = filter,
-                Sort = sort
+                Sort = sort,
+                RetryRequested = _retryReads
             };
         }
 

@@ -82,6 +82,19 @@ namespace MongoDB.Driver.GridFS.Tests
 
         [Theory]
         [ParameterAttributeData]
+        public void RetryReads_get_and_set_should_work(
+            [Values(false, true)] bool value)
+        {
+            var subject = CreateSubject();
+
+            subject.RetryReads = value;
+            var result = subject.RetryReads;
+
+            result.Should().Be(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void Read_should_return_expected_result(
             [Values(0.0, 0.5, 1.0, 1.5, 2.0, 2.5)] double fileLengthMultiple,
             [Values(0.0, 0.5)] double positionMultiple,

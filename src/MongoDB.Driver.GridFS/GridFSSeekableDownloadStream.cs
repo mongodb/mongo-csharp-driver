@@ -36,6 +36,7 @@ namespace MongoDB.Driver.GridFS
         private readonly BsonValue _idAsBsonValue;
         private long _n = -1;
         private long _position;
+        private bool _retryReads;
 
         // constructors
         public GridFSSeekableDownloadStream(
@@ -68,6 +69,11 @@ namespace MongoDB.Driver.GridFS
             }
         }
 
+        public bool RetryReads
+        {
+            get => _retryReads;
+            set => _retryReads = value;
+        }
 
         // methods
         public override int Read(byte[] buffer, int offset, int count)
@@ -159,7 +165,8 @@ namespace MongoDB.Driver.GridFS
                 messageEncoderSettings)
             {
                 Filter = filter,
-                Limit = -1
+                Limit = -1,
+                RetryRequested = _retryReads
             };
 
         }

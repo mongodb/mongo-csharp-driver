@@ -44,6 +44,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.DatabaseNamespace.Should().BeSameAs(_databaseNamespace);
             subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
             subject.Filter.Should().BeNull();
+            subject.RetryRequested.Should().BeFalse();
         }
 
         [Fact]
@@ -85,6 +86,19 @@ namespace MongoDB.Driver.Core.Operations
             var result = subject.NameOnly;
 
             result.Should().Be(nameOnly);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void RetryRequested_get_and_set_should_work(
+           [Values(false, true)] bool value)
+        {
+            var subject = new ListCollectionsUsingCommandOperation(_databaseNamespace, _messageEncoderSettings);
+
+            subject.RetryRequested = value;
+            var result = subject.RetryRequested;
+
+            result.Should().Be(value);
         }
 
         [SkippableTheory]

@@ -101,7 +101,7 @@ namespace MongoDB.Driver.Core.Operations
                 new BsonDocument { {"_id", 2 }, { "value", 4 } },
             };
 
-            VerifySessionIdWasSentWhenSupported(subject, "mapreduce", async);
+            VerifySessionIdWasSentWhenSupported(subject, "mapReduce", async);
         }
 
         [Theory]
