@@ -716,11 +716,7 @@ namespace MongoDB.Bson
         {
             if (Flags.IsFirstForm(d._highBits))
             {
-                if (Decimal128.IsZero(d))
-                {
-                    return decimal.Zero;
-                }
-                else if (Decimal128.Compare(d, __minDecimalValue) < 0 || Decimal128.Compare(d, __maxDecimalValue) > 0)
+                if (Decimal128.Compare(d, __minDecimalValue) < 0 || Decimal128.Compare(d, __maxDecimalValue) > 0)
                 {
                     throw new OverflowException("Value is too large or too small to be converted to a Decimal.");
                 }
@@ -830,7 +826,7 @@ namespace MongoDB.Bson
                 ulong value;
                 if (Decimal128.TryTruncateToUInt64(d, maxNegativeValue, (ulong)short.MaxValue, out value))
                 {
-                    return Decimal128.IsNegative(d) ? (value == maxNegativeValue ? short.MinValue : (short )(-(short)value)) : (short)value;
+                    return Decimal128.IsNegative(d) ? (value == maxNegativeValue ? short.MinValue : (short)(-(short)value)) : (short)value;
                 }
                 else
                 {
