@@ -20,9 +20,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-#if NET452
 using System.Runtime.Serialization;
-#endif
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Conventions;
 
@@ -36,13 +34,8 @@ namespace MongoDB.Bson.Serialization
         // private static fields
         private readonly static Dictionary<Type, BsonClassMap> __classMaps = new Dictionary<Type, BsonClassMap>();
         private readonly static Queue<Type> __knownTypesQueue = new Queue<Type>();
-
-        private static readonly MethodInfo __getUninitializedObjectMethodInfo =
-            GetFormatterServicesType()
-            .GetTypeInfo()
-            ?.GetMethod("GetUninitializedObject", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
-
         private static int __freezeNestingLevel = 0;
+        private static readonly MethodInfo __getUninitializedObjectMethodInfo = GetGetUninitializedObjectMethodInfo();
 
         // private fields
         private readonly Type _classType;
@@ -421,6 +414,55 @@ namespace MongoDB.Bson.Serialization
             {
                 BsonSerializer.ConfigLock.ExitWriteLock();
             }
+        }
+
+        // private static methods
+        private static Type GetFormatterServicesType()
+        {
+#if NET452
+            return typeof(FormatterServices);
+#else
+            // TODO: once we depend on newer versions of .NET Standard we should be able to do this without reflection
+
+            try
+            {
+                // new approach which works on .NET Core 3.0
+                var formattersAssembly = Assembly.Load(new AssemblyName("System.Runtime.Serialization.Formatters"));
+                var formatterServicesType = formattersAssembly.GetType("System.Runtime.Serialization.FormatterServices");
+                if (formatterServicesType != null)
+                {
+                    return formatterServicesType;
+                }
+            }
+            catch
+            {
+                // ignore exceptions and continue to fallback code
+            }
+
+            // fallback to previous approach (which worked on older versions of .NET Core)
+            var mscorlibAssembly = typeof(string).GetTypeInfo().Assembly;
+            return mscorlibAssembly.GetType("System.Runtime.Serialization.FormatterServices");
+#endif
+        }
+
+        private static MethodInfo GetGetUninitializedObjectMethodInfo()
+        {
+            // don't let exceptions leak out of this method because it's called from the type initializer
+            try
+            {
+                var formatterServicesType = GetFormatterServicesType();
+                if (formatterServicesType != null)
+                {
+                    var formatterServicesTypeInfo = formatterServicesType.GetTypeInfo();
+                    return formatterServicesTypeInfo.GetMethod("GetUninitializedObject", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
+                }
+            }
+            catch
+            {
+                // ignore exceptions
+            }
+
+            return null;
         }
 
         // public methods
@@ -1303,21 +1345,7 @@ namespace MongoDB.Bson.Serialization
             var message = string.Format("Class map for {0} has been not been frozen yet.", _classType.FullName);
             throw new InvalidOperationException(message);
         }
-
-        private static Type GetFormatterServicesType()
-        {
-#if NET452
-            return typeof(string)
-                .GetTypeInfo()
-                .Assembly
-                .GetType("System.Runtime.Serialization.FormatterServices");
-#else
-            return 
-                Assembly.Load(new AssemblyName("System.Runtime.Serialization.Formatters"))
-                .GetType("System.Runtime.Serialization.FormatterServices");
-#endif
-        }
-	}
+    }
 
     /// <summary>
     /// Represents a mapping between a class and a BSON document.
