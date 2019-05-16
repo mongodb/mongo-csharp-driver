@@ -14,7 +14,7 @@
     <Company>MongoDB Inc.</Company>
     <Copyright>Copyright © 2010-present MongoDB Inc.</Copyright>
     <Description>Legacy MongoDB supported driver for MongoDB.  See http://www.mongodb.org/display/DOCS/CSharp+Language+Center for more details.</Description>
-    <Authors>rstam;craiggwilson</Authors>
+    <Authors>vincentkam;dmitry_lukyanov;rstam;craiggwilson</Authors>
     <PackageId>mongocsharpdriver</PackageId>
     <PackageIconUrl>http://jobs.mongodb.org/files/logos/889002/889002.png</PackageIconUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
