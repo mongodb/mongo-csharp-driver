@@ -109,6 +109,7 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Jacob Jewell              jacobjewell@eflexsystems.com
 * Danny Kendrick            https://github.com/dkendrick
 * Ruslan Khasanbaev         https://github.com/flaksirus
+* Konstantin Khitrykh       https://github.com/KonH
 * Brian Knight              brianknight10@gmail.com  
 * John Knoop                https://github.com/johnknoop
 * Andrey Kondratyev         https://github.com/byTimo
