@@ -120,6 +120,16 @@ namespace MongoDB.Driver.Builders
         {
             return new IndexKeysBuilder().TextAll();
         }
+
+        /// <summary>
+        /// Sets a wildcard key to the index. The method doesn't expect to specify a wildcard key explicitly.
+        /// </summary>
+        /// <param name="name">The wildcard key name. If the wildcard name is empty, the generated key will be `All field paths`, otherwise `A single field path`.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static IndexKeysBuilder Wildcard(string name = null)
+        {
+            return new IndexKeysBuilder().Wildcard(name);
+        }
     }
 
     /// <summary>
@@ -261,6 +271,28 @@ namespace MongoDB.Driver.Builders
             return _document;
         }
 
+        /// <summary>
+        /// Sets a wildcard key to the index. The method doesn't expect to specify a wildcard key explicitly.
+        /// </summary>
+        /// <param name="name">The wildcard key name. If the wildcard name is empty, the generated key will be `All field paths`, otherwise `A single field path`.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public IndexKeysBuilder Wildcard(string name = null)
+        {
+            var wildcard = name;
+            if (wildcard == null)
+            {
+                wildcard = "$**";
+            }
+            else
+            {
+                wildcard += ".$**";
+            }
+
+            _document.Add(wildcard, 1);
+
+            return this;
+        }
+
         // nested class
         new internal class Serializer : SerializerBase<IndexKeysBuilder>
         {
@@ -398,6 +430,17 @@ namespace MongoDB.Driver.Builders
             return new IndexKeysBuilder<TDocument>().TextAll();
         }
 
+        /// <summary>
+        /// Sets a wildcard key to the index.
+        /// </summary>
+        /// <param name="memberExpression">The member expression representing the wildcard key name. If the wildcard name is empty, the generated key will be `All field paths`, otherwise `A single field path`.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static IndexKeysBuilder<TDocument> Wildcard(Expression<Func<TDocument, object>> memberExpression = null)
+        {
+            return new IndexKeysBuilder<TDocument>().Wildcard(memberExpression);
+        }
     }
 
     /// <summary>
@@ -564,6 +607,20 @@ namespace MongoDB.Driver.Builders
         public override BsonDocument ToBsonDocument()
         {
             return _indexKeysBuilder.ToBsonDocument();
+        }
+
+        /// <summary>
+        /// Sets a wildcard key to the index.
+        /// </summary>
+        /// <param name="memberExpression">The member expression representing the wildcard key name. If the wildcard name is empty, the generated key will be `All field paths`, otherwise `A single field path`.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public IndexKeysBuilder<TDocument> Wildcard(Expression<Func<TDocument, object>> memberExpression = null)
+        {
+            var name = memberExpression != null ? GetElementName(memberExpression) : null;
+            _indexKeysBuilder = _indexKeysBuilder.Wildcard(name);
+            return this;
         }
 
         // private methods

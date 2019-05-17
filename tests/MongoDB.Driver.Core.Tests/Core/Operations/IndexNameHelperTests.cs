@@ -15,6 +15,7 @@
 
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
@@ -47,6 +48,19 @@ namespace MongoDB.Driver.Core.Operations
         {
             var keys = new[] { "a", "b", "c c" };
             var expectedResult = "a_1_b_1_c_c_1";
+
+            var result = IndexNameHelper.GetIndexName(keys);
+
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void GetIndexName_with_wildcard_keys_should_return_expected_result(
+            [Values("$**", "a.$**")] string key)
+        {
+            var keys = new[] { key };
+            var expectedResult = key + "_1";
 
             var result = IndexNameHelper.GetIndexName(keys);
 

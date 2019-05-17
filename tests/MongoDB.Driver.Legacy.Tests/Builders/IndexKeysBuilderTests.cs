@@ -13,13 +13,12 @@
 * limitations under the License.
 */
 
-using System;
 using System.Linq;
+using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
-using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -36,6 +35,42 @@ namespace MongoDB.Driver.Tests.Builders
             _server = LegacyTestConfiguration.Server;
             _database = LegacyTestConfiguration.Database;
             _primary = _server.Primary;
+        }
+
+        [SkippableFact]
+        public void CreateIndex_with_wildcard_index_should_create_expected_index()
+        {
+            RequireServer.Check().Supports(Feature.WildcardIndexes);
+            var collection = _database.GetCollection<BsonDocument>("test_wildcard_index");
+            collection.Drop();
+
+            collection.CreateIndex(
+                IndexKeys.Wildcard("a"),
+                IndexOptions
+                    .SetName("custom"));
+            var indexes = collection.GetIndexes();
+            var index = indexes.RawDocuments.Single(i => i["name"].AsString == "custom");
+
+            index["key"]["a.$**"].AsInt32.Should().Be(1);
+        }
+
+        [SkippableFact]
+        public void CreateIndex_with_wildcardProjection_should_create_expected_index()
+        {
+            RequireServer.Check().Supports(Feature.WildcardIndexes);
+            var collection = _database.GetCollection<BsonDocument>("test_wildcard_index");
+            collection.Drop();
+
+            collection.CreateIndex(
+                IndexKeys.Wildcard(), // wildcardProjection can be only with '$**'
+                IndexOptions
+                    .SetWildcardProjection("_id", true)
+                    .SetName("custom"));
+            var indexes = collection.GetIndexes();
+            var index = indexes.RawDocuments.Single(i => i["name"].AsString == "custom");
+
+            index["key"]["$**"].AsInt32.Should().Be(1);
+            index["wildcardProjection"].Should().Be(BsonDocument.Parse("{ _id : 1 }"));
         }
 
         [Fact]
@@ -218,6 +253,18 @@ namespace MongoDB.Driver.Tests.Builders
             Assert.Equal("idioma", index["language_override"].AsString);
             Assert.Equal("spanish", index["default_language"].AsString);
             Assert.Equal(1, index["key"]["c"].AsInt32);
+        }
+
+        [Fact]
+        public void Wildcard_should_return_expected_result()
+        {
+            var keys = IndexKeys.Wildcard();
+            BsonDocument expected = BsonDocument.Parse("{ \"$**\" : 1 }");
+            keys.ToBsonDocument().Should().Be(expected);
+
+            keys = IndexKeys.Wildcard("b");
+            expected = BsonDocument.Parse("{ \"b.$**\" : 1 }");
+            keys.ToBsonDocument().Should().Be(expected);
         }
     }
 }

@@ -443,3 +443,29 @@ var keys = builder.Ascending("X").Descending("Y");
 
 var keys = builder.Ascending("x").Descending("y");
 ```
+
+Also, the builder provides API methods to build a wildcard index. There are two ways to do it: `All field paths` and `A single field path`.
+
+For example, to build up the `All field paths` key `{ "$**": 1 }` or `A single field path` key `{ "x.$**": 1 }`, do the following:
+
+```csharp
+var builder = Builders<BsonDocument>.IndexKeys;
+
+// All field paths
+var keys = builder.Wildcard();
+
+// A single field path
+var keys = builder.Wildcard("x");
+```
+
+We can achieve the same result in the typed variant:
+
+```csharp
+var builder = Builders<Widget>.IndexKeys;
+
+// All field paths
+var keys = builder.Wildcard();
+
+// A single field path
+var keys = builder.Wildcard(x => x.X);
+```

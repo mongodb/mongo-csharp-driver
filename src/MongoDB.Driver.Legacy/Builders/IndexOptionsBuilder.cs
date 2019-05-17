@@ -181,6 +181,19 @@ namespace MongoDB.Driver.Builders
         {
             return new IndexOptionsBuilder().SetWeight(name, value);
         }
+
+        /// <summary>
+        /// Sets the wildcardProjection for the index.
+        /// </summary>
+        /// <param name="name">The field name.</param>
+        /// <param name="included">The flag determines whether the field should be included or excluded from wildcard projecting.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static IndexOptionsBuilder SetWildcardProjection(string name, bool included)
+        {
+            return new IndexOptionsBuilder().SetWildcardProjection(name, included);
+        }
     }
 
     /// <summary>
@@ -370,6 +383,26 @@ namespace MongoDB.Driver.Builders
             return this;
         }
 
+        ///  <summary>
+        ///  Sets the wildcardProjection for the index.
+        ///  </summary>
+        ///  <param name="name">The field name.</param>
+        ///  <param name="included">The flag determines whether the field should be included or excluded from wildcard projecting.</param>
+        ///  <returns>
+        /// The builder (so method calls can be chained).
+        ///  </returns>
+        public IndexOptionsBuilder SetWildcardProjection(string name, bool included)
+        {
+            if (!_document.TryGetValue("wildcardProjection", out var wildcardProjection))
+            {
+                wildcardProjection = new BsonDocument();
+                _document.Add("wildcardProjection", wildcardProjection);
+            }
+
+            wildcardProjection[name] = included ? 1 : 0;
+            return this;
+        }
+
         /// <summary>
         /// Returns the result of the builder as a BsonDocument.
         /// </summary>
@@ -550,6 +583,20 @@ namespace MongoDB.Driver.Builders
         public static IndexOptionsBuilder<TDocument> SetWeight<TMember>(Expression<Func<TDocument, TMember>> memberExpression, int value)
         {
             return new IndexOptionsBuilder<TDocument>().SetWeight(memberExpression, value);
+        }
+
+        /// <summary>
+        /// Sets the wildcardProjection for the index.
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <param name="memberExpression">The member expression representing the wildcard projection field name.</param>
+        /// <param name="included">The flag determines whether the field should be included or excluded from wildcard projecting.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static IndexOptionsBuilder<TDocument> SetWildcardProjection<TMember>(Expression<Func<TDocument, TMember>> memberExpression, bool included)
+        {
+            return new IndexOptionsBuilder<TDocument>().SetWildcardProjection(memberExpression, included);
         }
     }
 
@@ -738,6 +785,22 @@ namespace MongoDB.Driver.Builders
         {
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             _indexOptionsBuilder = _indexOptionsBuilder.SetWeight(serializationInfo.ElementName, value);
+            return this;
+        }
+
+        ///  <summary>
+        ///  Sets the wildcardProjection for the index.
+        ///  </summary>
+        ///  <typeparam name="TMember">The type of the member.</typeparam>
+        ///  <param name="memberExpression">The member expression representing the wildcard projection field name.</param>
+        ///  <param name="included">The flag determines whether the field should be included or excluded from wildcard projecting.</param>
+        ///  <returns>
+        /// The builder (so method calls can be chained).
+        ///  </returns>
+        public IndexOptionsBuilder<TDocument> SetWildcardProjection<TMember>(Expression<Func<TDocument, TMember>> memberExpression, bool included)
+        {
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            _indexOptionsBuilder = _indexOptionsBuilder.SetWildcardProjection(serializationInfo.ElementName, included);
             return this;
         }
 

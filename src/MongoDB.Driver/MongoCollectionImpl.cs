@@ -26,7 +26,6 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using MongoDB.Driver.Linq;
 
 namespace MongoDB.Driver
 {
@@ -1396,6 +1395,7 @@ namespace MongoDB.Driver
                     var options = m.Options ?? new CreateIndexOptions<TDocument>();
                     var keysDocument = m.Keys.Render(_collection._documentSerializer, _collection._settings.SerializerRegistry);
                     var renderedPartialFilterExpression = options.PartialFilterExpression == null ? null : options.PartialFilterExpression.Render(_collection._documentSerializer, _collection._settings.SerializerRegistry);
+                    var renderedWildcardProjection = options.WildcardProjection?.Render(_collection._documentSerializer, _collection._settings.SerializerRegistry);
 
                     return new CreateIndexRequest(keysDocument)
                     {
@@ -1416,7 +1416,8 @@ namespace MongoDB.Driver
                         TextIndexVersion = options.TextIndexVersion,
                         Unique = options.Unique,
                         Version = options.Version,
-                        Weights = options.Weights
+                        Weights = options.Weights,
+                        WildcardProjection = renderedWildcardProjection
                     };
                 });
             }

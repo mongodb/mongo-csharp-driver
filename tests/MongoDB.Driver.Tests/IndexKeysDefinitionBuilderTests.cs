@@ -184,11 +184,33 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Text("$**"), "{'$**': 'text'}");
         }
 
+        [Fact]
+        public void Wildcard_should_return_expected_result()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.Wildcard("a"), "{ 'a.$**' : 1 }");
+            Assert(subject.Wildcard(), "{ '$**' : 1 }");
+        }
+
+        [Fact]
+        public void Wildcard_typed_should_return_expected_result()
+        {
+            var subject = CreateSubject<Person>();
+
+            Assert(subject.Wildcard(person => person.FirstName), "{ 'fn.$**' : 1 }"); // with BsonElement attribute
+            Assert(subject.Wildcard(person => person.Info), "{ 'Info.$**' : 1 }");
+            Assert(subject.Wildcard(person => person.Age), "{ 'Age.$**' : 1 }");
+            Assert(subject.Wildcard(person => person.Job), "{ 'Job.$**' : 1 }");
+            Assert(subject.Wildcard(person => person.Interviews), "{ 'Interviews.$**' : 1 }");
+        }
+
+
         private void Assert<TDocument>(IndexKeysDefinition<TDocument> keys, string expectedJson)
         {
-            var renderedSort = Render<TDocument>(keys);
+            var rendered = Render(keys);
 
-            renderedSort.Should().Be(expectedJson);
+            rendered.Should().Be(expectedJson);
         }
 
         private BsonDocument Render<TDocument>(IndexKeysDefinition<TDocument> keys)
@@ -209,6 +231,19 @@ namespace MongoDB.Driver.Tests
 
             [BsonElement("ln")]
             public string LastName { get; set; }
+
+            public string Info { get; set; }
+
+            public int Age { get; set; }
+
+            public Job Job { get; set; }
+
+            public Job[] Interviews { get; set; }
+        }
+
+        public class Job
+        {
+            public string Title { get; set; }
         }
     }
 }

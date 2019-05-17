@@ -1518,6 +1518,7 @@ namespace MongoDB.Driver
         public void Indexes_CreateOne_should_execute_a_CreateIndexesOperation(
             [Values(false, true)] bool usingSession,
             [Values(false, true)] bool usingCreateOneIndexOptions,
+            [Values(false, true)] bool usingWildcardIndex,
             [Values(false, true)] bool async,
             [Values(null, -1, 0, 42, 9000)] int? milliseconds)
         {
@@ -1525,12 +1526,16 @@ namespace MongoDB.Driver
             var subject = CreateSubject<BsonDocument>().WithWriteConcern(writeConcern);
             var session = CreateSession(usingSession);
             var keysDocument = new BsonDocument("x", 1);
-            var keysDefinition = (IndexKeysDefinition<BsonDocument>)keysDocument;
+            var keysDefinition =
+                usingWildcardIndex
+                    ? Builders<BsonDocument>.IndexKeys.Wildcard()
+                    : keysDocument;
             var partialFilterDocument = BsonDocument.Parse("{ x : { $gt : 0 } }");
             var partialFilterDefinition = (FilterDefinition<BsonDocument>)partialFilterDocument;
             var weights = new BsonDocument("y", 1);
             var storageEngine = new BsonDocument("awesome", true);
             var maxTime = milliseconds != null ? TimeSpan.FromMilliseconds(milliseconds.Value) : (TimeSpan?)null;
+            var wildcardProjectionDefinition = Builders<BsonDocument>.Projection.Include("w");
             var createOneIndexOptions = usingCreateOneIndexOptions ? new CreateOneIndexOptions { MaxTime = maxTime } : null;
             var options = new CreateIndexOptions<BsonDocument>
             {
@@ -1553,6 +1558,11 @@ namespace MongoDB.Driver
                 Version = 70,
                 Weights = weights
             };
+            if (usingWildcardIndex)
+            {
+                options.WildcardProjection = wildcardProjectionDefinition;
+            }
+
             var cancellationToken = new CancellationTokenSource().Token;
             var model = new CreateIndexModel<BsonDocument>(keysDefinition, options);
 
@@ -1596,7 +1606,11 @@ namespace MongoDB.Driver
             request.Collation.Should().BeSameAs(options.Collation);
             request.DefaultLanguage.Should().Be(options.DefaultLanguage);
             request.ExpireAfter.Should().Be(options.ExpireAfter);
-            request.Keys.Should().Be(keysDocument);
+            var expectedKeysResult =
+                usingWildcardIndex
+                    ? new BsonDocument("$**", 1)
+                    : keysDocument;
+            request.Keys.Should().Be(expectedKeysResult);
             request.LanguageOverride.Should().Be(options.LanguageOverride);
             request.Max.Should().Be(options.Max);
             request.Min.Should().Be(options.Min);
@@ -1609,6 +1623,15 @@ namespace MongoDB.Driver
             request.Unique.Should().Be(options.Unique);
             request.Version.Should().Be(options.Version);
             request.Weights.Should().Be(options.Weights);
+            if (usingWildcardIndex)
+            {
+                var wildcardProjection = wildcardProjectionDefinition.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry);
+                request.WildcardProjection.Should().Be(wildcardProjection);
+            }
+            else
+            {
+                request.WildcardProjection.Should().BeNull();
+            }
             request.GetIndexName().Should().Be(options.Name);
         }
 
@@ -1617,6 +1640,7 @@ namespace MongoDB.Driver
         public void Indexes_CreateMany_should_execute_a_CreateIndexesOperation(
             [Values(false, true)] bool usingSession,
             [Values(false, true)] bool usingCreateManyIndexesOptions,
+            [Values(false, true)] bool usingWildcardIndex,
             [Values(false, true)] bool async,
             [Values(null, -1, 0, 42, 9000)] int? milliseconds)
         {
@@ -1625,11 +1649,15 @@ namespace MongoDB.Driver
             var session = CreateSession(usingSession);
             var keysDocument1 = new BsonDocument("x", 1);
             var keysDocument2 = new BsonDocument("z", 1);
-            var keysDefinition1 = (IndexKeysDefinition<BsonDocument>)keysDocument1;
+            var keysDefinition1 =
+                usingWildcardIndex
+                    ? Builders<BsonDocument>.IndexKeys.Wildcard()
+                    : keysDocument1;
             var keysDefinition2 = (IndexKeysDefinition<BsonDocument>)keysDocument2;
             var partialFilterDocument = BsonDocument.Parse("{ x : { $gt : 0 } }");
             var partialFilterDefinition = (FilterDefinition<BsonDocument>)partialFilterDocument;
             var weights = new BsonDocument("y", 1);
+            var wildcardProjectionDefinition = Builders<BsonDocument>.Projection.Include("w");
             var storageEngine = new BsonDocument("awesome", true);
             var maxTime = milliseconds != null ? TimeSpan.FromMilliseconds(milliseconds.Value) : (TimeSpan?)null;
             var createManyIndexesOptions = usingCreateManyIndexesOptions ? new CreateManyIndexesOptions { MaxTime = maxTime } : null;
@@ -1655,8 +1683,13 @@ namespace MongoDB.Driver
                 Version = 70,
                 Weights = weights
             };
-            var model1 = new CreateIndexModel<BsonDocument>(keysDocument1, options);
-            var model2 = new CreateIndexModel<BsonDocument>(keysDocument2);
+            if (usingWildcardIndex)
+            {
+                options.WildcardProjection = wildcardProjectionDefinition;
+            }
+
+            var model1 = new CreateIndexModel<BsonDocument>(keysDefinition1, options);
+            var model2 = new CreateIndexModel<BsonDocument>(keysDefinition2);
             var cancellationToken = new CancellationTokenSource().Token;
 
             if (usingSession)
@@ -1699,7 +1732,11 @@ namespace MongoDB.Driver
             request1.Collation.Should().BeSameAs(options.Collation);
             request1.DefaultLanguage.Should().Be(options.DefaultLanguage);
             request1.ExpireAfter.Should().Be(options.ExpireAfter);
-            request1.Keys.Should().Be(keysDocument1);
+            var expectedKeysResult =
+                usingWildcardIndex
+                    ? new BsonDocument("$**", 1)
+                    : keysDocument1;
+            request1.Keys.Should().Be(expectedKeysResult);
             request1.LanguageOverride.Should().Be(options.LanguageOverride);
             request1.Max.Should().Be(options.Max);
             request1.Min.Should().Be(options.Min);
@@ -1712,6 +1749,16 @@ namespace MongoDB.Driver
             request1.Unique.Should().Be(options.Unique);
             request1.Version.Should().Be(options.Version);
             request1.Weights.Should().Be(weights);
+            if (usingWildcardIndex)
+            {
+                var wildcardProjection = wildcardProjectionDefinition.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry);
+                request1.WildcardProjection.Should().Be(wildcardProjection);
+            }
+            else
+            {
+                request1.WildcardProjection.Should().BeNull();
+            }
+
             request1.GetIndexName().Should().Be(options.Name);
 
             var request2 = operation.Requests.ElementAt(1);
@@ -1735,6 +1782,7 @@ namespace MongoDB.Driver
             request2.Unique.Should().NotHaveValue();
             request2.Version.Should().NotHaveValue();
             request2.Weights.Should().BeNull();
+            request2.WildcardProjection.Should().BeNull();
             request2.GetIndexName().Should().Be("z_1");
         }
 

@@ -242,6 +242,7 @@ namespace MongoDB.Driver
 
         // private fields
         private FilterDefinition<TDocument> _partialFilterExpression;
+        private ProjectionDefinition<TDocument> _wildcardProjection;
 
         // public properties
         /// <summary>
@@ -251,6 +252,15 @@ namespace MongoDB.Driver
         {
             get { return _partialFilterExpression; }
             set { _partialFilterExpression = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the wildcard projection.
+        /// </summary>
+        public ProjectionDefinition<TDocument> WildcardProjection
+        {
+            get { return _wildcardProjection; }
+            set { _wildcardProjection = value; }
         }
     }
 }

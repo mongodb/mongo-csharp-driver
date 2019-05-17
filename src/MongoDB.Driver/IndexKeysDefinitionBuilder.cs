@@ -414,6 +414,26 @@ namespace MongoDB.Driver
         {
             return Text(new ExpressionFieldDefinition<TDocument>(field));
         }
+
+        /// <summary>
+        /// Creates a wildcard index key definition. The method doesn't expect to specify a wildcard key explicitly.
+        /// </summary>
+        /// <param name="field">The wildcard key name. If the wildcard name is empty, the generated key will be `All field paths`, otherwise `A single field path`.</param>
+        /// <returns>A wildcard index key definition.</returns>
+        public IndexKeysDefinition<TDocument> Wildcard(FieldDefinition<TDocument> field = null)
+        {
+            return new WildcardIndexKeyDefinition<TDocument>(field);
+        }
+
+        /// <summary>
+        /// Creates a wildcard index key definition.
+        /// </summary>
+        /// <param name="field">The field expression representing the wildcard key name.</param>
+        /// <returns>A wildcard index key definition.</returns>
+        public IndexKeysDefinition<TDocument> Wildcard(Expression<Func<TDocument, object>> field)
+        {
+            return Wildcard(new ExpressionFieldDefinition<TDocument>(field));
+        }
     }
 
     internal sealed class CombinedIndexKeysDefinition<TDocument> : IndexKeysDefinition<TDocument>
@@ -523,6 +543,33 @@ namespace MongoDB.Driver
         {
             var renderedField = _field.Render(documentSerializer, serializerRegistry);
             return new BsonDocument(renderedField.FieldName, _type);
+        }
+    }
+
+    internal sealed class WildcardIndexKeyDefinition<TDocument> : IndexKeysDefinition<TDocument>
+    {
+        private readonly FieldDefinition<TDocument> _field;
+
+        public WildcardIndexKeyDefinition(FieldDefinition<TDocument> field = null)
+        {
+            _field = field;
+        }
+
+        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            string fieldName;
+            if (_field == null)
+            {
+                fieldName = "$**";
+            }
+            else
+            {
+                var renderedField = _field.Render(documentSerializer, serializerRegistry);
+                fieldName = renderedField.FieldName;
+                fieldName += ".$**";
+            }
+
+            return new BsonDocument(fieldName, 1);
         }
     }
 }

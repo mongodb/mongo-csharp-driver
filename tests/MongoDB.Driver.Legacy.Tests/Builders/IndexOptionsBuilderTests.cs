@@ -14,6 +14,7 @@
 */
 
 using System;
+using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Builders;
 using Xunit;
@@ -164,6 +165,18 @@ namespace MongoDB.Driver.Tests.Builders
             var options = IndexOptions.SetWeight("a", 2).SetWeight("b", 10);
             string expected = "{ \"weights\" : { \"a\" : 2, \"b\" : 10 } }";
             Assert.Equal(expected, options.ToJson());
+        }
+
+        [Fact]
+        public void WildcardProjection_should_return_expected_result()
+        {
+            var options = IndexOptions.SetWildcardProjection("a", true);
+            BsonDocument expected = BsonDocument.Parse("{ \"wildcardProjection\" : { \"a\" : 1 } }");
+            options.ToBsonDocument().Should().Be(expected);
+
+            options = IndexOptions.SetWildcardProjection("a.b", true).SetWildcardProjection("_id", false);
+            expected = BsonDocument.Parse("{ \"wildcardProjection\" : { \"a.b\" : 1, \"_id\" :  0} }");
+            options.ToBsonDocument().Should().Be(expected);
         }
     }
 }

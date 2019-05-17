@@ -14,6 +14,7 @@
 */
 
 using System;
+using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Builders;
 using Xunit;
@@ -22,12 +23,17 @@ namespace MongoDB.Driver.Tests.Builders
 {
     public class IndexOptionsBuilderTypedTests
     {
-
         public class TestClass
         {
             public int _id;
             public string textfield;
             public string idioma;
+            public Details details = new Details();
+        }
+
+        public class Details
+        {
+            public string text;
         }
 
         [Fact]
@@ -172,6 +178,20 @@ namespace MongoDB.Driver.Tests.Builders
             var options = IndexOptions<TestClass>.SetWeight(x => x.textfield, 2).SetWeight(x => x.idioma, 10);
             string expected = "{ \"weights\" : { \"textfield\" : 2, \"idioma\" : 10 } }";
             Assert.Equal(expected, options.ToJson());
+        }
+
+        [Fact]
+        public void WildcardProjection_should_return_expected_result()
+        {
+            var options = IndexOptions<TestClass>.SetWildcardProjection(x => x.textfield, true);
+            BsonDocument expected = BsonDocument.Parse("{ \"wildcardProjection\" : { \"textfield\" : 1 } }");
+            options.ToBsonDocument().Should().Be(expected);
+
+            options = IndexOptions<TestClass>
+                .SetWildcardProjection(x => x._id, false)
+                .SetWildcardProjection(x => x.details.text, true);
+            expected = BsonDocument.Parse("{ \"wildcardProjection\" : { \"_id\" : 0, \"details.text\" : 1 } }");
+            options.ToBsonDocument().Should().Be(expected);
         }
     }
 }

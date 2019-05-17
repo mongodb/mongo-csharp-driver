@@ -73,6 +73,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __transactions = new Feature("Transactions", new SemanticVersion(4, 0, 0));
         private static readonly Feature __userManagementCommands = new Feature("UserManagementCommands", new SemanticVersion(2, 6, 0));
         private static readonly Feature __views = new Feature("Views", new SemanticVersion(3, 3, 11));
+        private static readonly Feature __wildcardIndexes = new Feature("WildcardIndexes", new SemanticVersion(4, 1, 6));
         private static readonly Feature __writeCommands = new Feature("WriteCommands", new SemanticVersion(2, 6, 0));
 
         /// <summary>
@@ -329,6 +330,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the write commands feature.
         /// </summary>
         public static Feature WriteCommands => __writeCommands;
+
+        /// <summary>
+        /// Gets the wildcard indexes feature.
+        /// </summary>
+        public static Feature WildcardIndexes => __wildcardIndexes;
         #endregion
 
         private readonly string _name;

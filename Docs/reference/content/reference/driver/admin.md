@@ -189,6 +189,47 @@ collection.Indexes.CreateOne("{ x : 1 }", options);
 await collection.Indexes.CreateOneAsync("{ x : 1 }", options);
 ```
 
+Also, there is a generic [`CreateIndexOptions<TDocument>`]({{< apiref "T_MongoDB_Driver_CreateIndexOptions_1" >}}) which extends the non-generic version and provides a number of additional options available when creating an index. For example, to create a `wildcard projection` index on "name" and "description.text", do the following:
+
+Given the following classes:
+
+```csharp
+public class Description
+{
+    [BsonElement("text")]
+    public string Text { get; set; }
+}
+
+public class Widget
+{
+    public ObjectId Id { get; set; }
+
+    [BsonElement("name")]
+    public int Name { get; set; }
+
+    [BsonElement("description")]
+    public Description Description { get; set; }
+}
+```
+
+The wildcard projection value can be implicitly convertible from both a JSON string as well as a [`BsonDocument`]({{< apiref "T_MongoDB_Bson_BsonDocument" >}}).
+
+```csharp
+var options = new CreateIndexOptions<Widget>();
+
+options.WildcardProjection = "{ 'name' : 1, 'description.text' : 1 }";
+
+//or
+
+options.WildcardProjection = new BsonDocument { { "name", 1 }, { "description.text", 1 } };
+```
+
+We can achieve the same result with using a `projection` builder:
+
+```csharp
+options.WildcardProjection = Builders<Widget>.Projection.Include(x => x.Name).Include(x => x.Description.Text);
+```
+
 ### Dropping an index
 
 To drop a single index use the [`DropOne`]({{< apiref "M_MongoDB_Driver_IMongoIndexManager_1_DropOne" >}}) or [`DropOneAsync`]({{< apiref "M_MongoDB_Driver_IMongoIndexManager_1_DropOneAsync" >}}) methods.
