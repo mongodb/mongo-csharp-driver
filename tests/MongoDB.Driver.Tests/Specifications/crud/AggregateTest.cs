@@ -15,11 +15,10 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 
 namespace MongoDB.Driver.Tests.Specifications.crud
 {
@@ -28,15 +27,13 @@ namespace MongoDB.Driver.Tests.Specifications.crud
         private List<BsonDocument> _stages;
         private AggregateOptions _options = new AggregateOptions();
 
-        public override bool CanExecute(ClusterDescription clusterDescription, BsonDocument arguments, out string reason)
+        public override void SkipIfNotSupported(BsonDocument arguments)
         {
-            var version = clusterDescription.Servers[0].Version;
-            reason = string.Format("Server must be at least 2.6.0. Current server is {0}.", version);
-            return !(version < new SemanticVersion(2, 6, 0) &&
-                ((BsonArray)arguments["pipeline"])
-                    .Cast<BsonDocument>()
-                    .Last()
-                    .Contains("$out"));
+            var lastStage = arguments["pipeline"].AsBsonArray.Last().AsBsonDocument;
+            if (lastStage.GetElement(0).Name == "$out")
+            {
+                RequireServer.Check().Supports(Feature.AggregateOut);
+            }
         }
 
         protected override bool TrySetArgument(string name, BsonValue value)

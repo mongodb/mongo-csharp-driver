@@ -236,15 +236,11 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
             var test = CrudOperationTestFactory.CreateTest(name);
 
             var arguments = (BsonDocument)operation.GetValue("arguments", new BsonDocument());
-            string reason;
-            if (!test.CanExecute(DriverTestConfiguration.Client.Cluster.Description, arguments, out reason))
-            {
-                throw new SkipException(reason);
-            }
+            test.SkipIfNotSupported(arguments);
 
             var database = client.GetDatabase(operation["database"].AsString);
             var collection = database.GetCollection<BsonDocument>(operation["collection"].AsString);
-            test.Execute(DriverTestConfiguration.Client.Cluster.Description, database, collection, arguments, outcome: null, async: false);
+            test.Execute(DriverTestConfiguration.Client.Cluster.Description, database, collection, arguments, outcome: null, isErrorExpected: false, async: false);
         }
 
         private List<CommandStartedEvent> GetEvents(EventCapturer eventCapturer)

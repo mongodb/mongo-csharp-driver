@@ -18,12 +18,10 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
@@ -49,6 +47,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.BypassDocumentValidation.Should().NotHaveValue();
             subject.Collation.Should().BeNull();
             subject.MaxTime.Should().NotHaveValue();
+            subject.ReadConcern.Should().BeNull();
             subject.WriteConcern.Should().BeNull();
         }
 
@@ -181,6 +180,19 @@ namespace MongoDB.Driver.Core.Operations
 
             var e = exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
             e.ParamName.Should().Be("value");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void ReadConcern_get_and_set_should_work([Values(ReadConcernLevel.Local, ReadConcernLevel.Majority)] ReadConcernLevel level)
+        {
+            var subject = new AggregateToCollectionOperation(_collectionNamespace, __pipeline, _messageEncoderSettings);
+            var value = new ReadConcern(new Optional<ReadConcernLevel?>(level));
+
+            subject.ReadConcern = value;
+            var result = subject.ReadConcern;
+
+            result.Should().BeSameAs(value);
         }
 
         [Theory]
@@ -388,6 +400,32 @@ namespace MongoDB.Driver.Core.Operations
             };
             result.Should().Be(expectedResult);
             result["maxTimeMS"].BsonType.Should().Be(BsonType.Int32);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_ReadConcern_is_set(
+            [Values(ReadConcernLevel.Majority)] ReadConcernLevel readConcernLevel,
+            [Values(false, true)] bool withReadConcern)
+        {
+            var subject = new AggregateToCollectionOperation(_collectionNamespace, __pipeline, _messageEncoderSettings);
+            if (withReadConcern)
+            {
+                subject.ReadConcern = new ReadConcern(readConcernLevel);
+            };
+            var session = OperationTestHelper.CreateSession();
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+
+            var result = subject.CreateCommand(session, connectionDescription);
+
+            var expectedResult = new BsonDocument
+            {
+                { "aggregate", _collectionNamespace.CollectionName },
+                { "pipeline", new BsonArray(__pipeline) },
+                { "readConcern", () => subject.ReadConcern.ToBsonDocument(), withReadConcern },
+                { "cursor", new BsonDocument() }
+            };
+            result.Should().Be(expectedResult);
         }
 
         [Theory]

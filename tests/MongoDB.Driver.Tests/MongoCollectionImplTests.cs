@@ -143,6 +143,7 @@ namespace MongoDB.Driver
             [Values(false, true)] bool async)
         {
             var writeConcern = new WriteConcern(1);
+            var readConcern = new ReadConcern(ReadConcernLevel.Majority);
             var subject = CreateSubject<BsonDocument>().WithWriteConcern(writeConcern);
             var session = CreateSession(usingSession);
             var pipeline = new EmptyPipelineDefinition<BsonDocument>()
@@ -199,6 +200,7 @@ namespace MongoDB.Driver
             aggregateOperation.Hint.Should().Be(options.Hint);
             aggregateOperation.MaxTime.Should().Be(options.MaxTime);
             aggregateOperation.Pipeline.Should().Equal(renderedPipeline.Documents);
+            aggregateOperation.ReadConcern.Should().Be(readConcern);
             aggregateOperation.WriteConcern.Should().BeSameAs(writeConcern);
 
             var mockCursor = new Mock<IAsyncCursor<BsonDocument>>();

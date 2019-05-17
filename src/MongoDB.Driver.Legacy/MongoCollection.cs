@@ -153,6 +153,7 @@ namespace MongoDB.Driver
                     BypassDocumentValidation = args.BypassDocumentValidation,
                     Collation = args.Collation,
                     MaxTime = args.MaxTime,
+                    ReadConcern = _settings.ReadConcern,
                     WriteConcern = _settings.WriteConcern
                 };
                 ExecuteWriteOperation(session, aggregateOperation);

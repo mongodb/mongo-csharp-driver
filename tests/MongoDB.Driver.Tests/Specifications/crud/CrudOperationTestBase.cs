@@ -14,25 +14,29 @@
 */
 
 using System;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Tests.Specifications.crud
 {
     public abstract class CrudOperationTestBase : ICrudOperationTest
     {
+        public Exception ActualException { get; set; }
         protected ClusterDescription ClusterDescription { get; private set; }
 
-        public virtual bool CanExecute(ClusterDescription clusterDescription, BsonDocument arguments, out string reason)
+        public virtual void SkipIfNotSupported(BsonDocument arguments)
         {
-            reason = null;
-            return true;
         }
 
-        public void Execute(ClusterDescription clusterDescription, IMongoDatabase database, IMongoCollection<BsonDocument> collection, BsonDocument arguments, BsonDocument outcome, bool async)
+        public void Execute(
+            ClusterDescription clusterDescription,
+            IMongoDatabase database,
+            IMongoCollection<BsonDocument> collection,
+            BsonDocument arguments,
+            BsonDocument outcome,
+            bool isErrorExpected,
+            bool async)
         {
             ClusterDescription = clusterDescription;
 
@@ -44,8 +48,20 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                 }
             }
 
-            Execute(collection, outcome, async);
+            try
+            {
+                Execute(collection, outcome, async);
+            }
+            catch (Exception ex) when (isErrorExpected)
+            {
+                ActualException = ex;
+            }
 
+            AssertOutcome(outcome, database, collection);
+        }
+
+        protected virtual void AssertOutcome(BsonDocument outcome, IMongoDatabase database, IMongoCollection<BsonDocument> collection)
+        {
             if (outcome != null && outcome.Contains("collection"))
             {
                 var collectionToVerify = collection;
@@ -70,14 +86,22 @@ namespace MongoDB.Driver.Tests.Specifications.crud
 
     public abstract class CrudOperationWithResultTestBase<TResult> : CrudOperationTestBase
     {
+        private TResult _result;
+
         protected sealed override void Execute(IMongoCollection<BsonDocument> collection, BsonDocument outcome, bool async)
         {
-            var actualResult = ExecuteAndGetResult(collection, async);
-            if (outcome != null)
+            _result = ExecuteAndGetResult(collection, async);
+        }
+
+        protected override void AssertOutcome(BsonDocument outcome, IMongoDatabase database, IMongoCollection<BsonDocument> collection)
+        {
+            if (outcome != null && outcome.Contains("result"))
             {
                 var expectedResult = ConvertExpectedResult(outcome["result"]);
-                VerifyResult(actualResult, expectedResult);
+                VerifyResult(_result, expectedResult);
             }
+
+            base.AssertOutcome(outcome, database, collection);
         }
 
         protected abstract TResult ConvertExpectedResult(BsonValue expectedResult);

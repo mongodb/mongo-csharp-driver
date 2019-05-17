@@ -14,18 +14,24 @@
 */
 
 using System;
-using System.Threading.Tasks;
-using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Tests.Specifications.crud
 {
     public interface ICrudOperationTest
     {
-        bool CanExecute(ClusterDescription clusterDescription, BsonDocument arguments, out string reason);
+        Exception ActualException { get; set; }
 
-        void Execute(ClusterDescription clusterDescription, IMongoDatabase database, IMongoCollection<BsonDocument> collection, BsonDocument arguments, BsonDocument outcome, bool async);
+        void Execute(
+            ClusterDescription clusterDescription, 
+            IMongoDatabase database, 
+            IMongoCollection<BsonDocument> collection, 
+            BsonDocument arguments, 
+            BsonDocument outcome, 
+            bool isErrorExpected,
+            bool async);
+
+        void SkipIfNotSupported(BsonDocument arguments);
     }
 }

@@ -43,6 +43,7 @@ namespace MongoDB.Driver.Core.Operations
         private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly IReadOnlyList<BsonDocument> _pipeline;
+        private ReadConcern _readConcern;
         private WriteConcern _writeConcern;
 
         // constructors
@@ -168,6 +169,21 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
+        /// Gets or sets the read concern.
+        /// </summary>
+        /// <value>
+        /// The read concern.
+        /// </value>
+        public ReadConcern ReadConcern
+        {
+            get { return _readConcern; }
+            set
+            {
+                _readConcern = value;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the write concern.
         /// </summary>
         /// <value>
@@ -213,6 +229,9 @@ namespace MongoDB.Driver.Core.Operations
             var serverVersion = connectionDescription.ServerVersion;
             Feature.Collation.ThrowIfNotSupported(serverVersion, _collation);
 
+            var readConcern = _readConcern != null
+                ? ReadConcernHelper.GetReadConcernForCommand(session, connectionDescription, _readConcern)
+                : null;
             var writeConcern = WriteConcernHelper.GetWriteConcernForCommandThatWrites(session, _writeConcern, serverVersion);
             return new BsonDocument
             {
@@ -222,6 +241,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "bypassDocumentValidation", () => _bypassDocumentValidation.Value, _bypassDocumentValidation.HasValue && Feature.BypassDocumentValidation.IsSupported(serverVersion) },
                 { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue },
                 { "collation", () => _collation.ToBsonDocument(), _collation != null },
+                { "readConcern", readConcern, readConcern != null },
                 { "writeConcern", writeConcern, writeConcern != null },
                 { "cursor", new BsonDocument(), serverVersion >= new SemanticVersion(3, 5, 0) },
                 { "hint", () => _hint, _hint != null },
