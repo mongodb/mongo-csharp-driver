@@ -8,6 +8,15 @@ title = "What's New"
   pre = "<i class='fa fa-star'></i>"
 +++
 
+## What's New in 2.8.0
+
+Some of the changes in 2.8.0 include:
+
+* A number of minor bug fixes
+* Update dependency on System.Net.Security to 4.3.2
+* Update dependency on System.Runtime.InteropServices.RuntimeInformation to 4.3.0
+* Update dependency on DnsClient to 1.2.0 and work around breaking changes in the latest version of DnsClient
+
 ## What's New in 2.7.0
 
 The major new feature in 2.7.0 is support for new server 4.0 features including:

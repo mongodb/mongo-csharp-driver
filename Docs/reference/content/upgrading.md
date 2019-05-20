@@ -11,4 +11,9 @@ title = "Upgrading"
 
 ## Breaking Changes
 
-There should be no breaking changes in version 2.7.0 of the driver.
+For most users there should be no breaking changes in version 2.8.0 of the driver.
+
+Because we have updated several external dependencies to newer versions, you might encounter compatibility
+issues if your application depends on different versions of those dependencies. This might apply to you
+if you depend on System.Runtime.InteropServices.RuntimeInformation or DnsClient. Note that even if your
+application does not depend on these directly, it is possible that you depend on them indirectly.
