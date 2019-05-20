@@ -9,11 +9,11 @@ type = "index"
 
 The [Getting Started]({{< relref "getting_started\index.md" >}}) guide contains information about system requirements, installation, and a simple tutorial to get up and running quickly.
 
-## What's new in 2.7.0
+## What's new in 2.8.0
 
 The [What's New]({{< relref "what_is_new.md" >}}) section contains the major new features of the driver.
 
-The 2.7.0 driver adds support for new features of the 4.0 server.
+The 2.8.0 driver includes bug fixes and depends on newer versions of several external dependencies.
 
 ## Upgrading
 
