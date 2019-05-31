@@ -33,7 +33,7 @@ namespace MongoDB.Driver
         // private fields
         private string _applicationName;
         private Action<ClusterBuilder> _clusterConfigurator;
-        private IEnumerable<MongoCompressor> _compressors;
+        private IReadOnlyList<CompressorConfiguration> _compressors;
         private ConnectionMode _connectionMode;
         private TimeSpan _connectTimeout;
         private MongoCredentialStore _credentials;
@@ -77,10 +77,10 @@ namespace MongoDB.Driver
         public MongoClientSettings()
         {
             _applicationName = null;
+            _compressors = new CompressorConfiguration[0];
             _connectionMode = ConnectionMode.Automatic;
             _connectTimeout = MongoDefaults.ConnectTimeout;
             _credentials = new MongoCredentialStore(new MongoCredential[0]);
-            _compressors = Enumerable.Empty<MongoCompressor>();
             _guidRepresentation = MongoDefaults.GuidRepresentation;
             _heartbeatInterval = ServerSettings.DefaultHeartbeatInterval;
             _heartbeatTimeout = ServerSettings.DefaultHeartbeatTimeout;
@@ -121,6 +121,19 @@ namespace MongoDB.Driver
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
                 _applicationName = ApplicationNameHelper.EnsureApplicationNameIsValid(value, nameof(value));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the compressors.
+        /// </summary>
+        public IReadOnlyList<CompressorConfiguration> Compressors
+        {
+            get { return _compressors; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _compressors = value;
             }
         }
 
@@ -594,19 +607,6 @@ namespace MongoDB.Driver
             }
         }
 
-        /// <summary>
-        /// Gets or sets the compressors.
-        /// </summary>
-        public IEnumerable<MongoCompressor> Compressors
-        {
-            get { return _compressors; }
-            set 
-            {
-                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
-                _compressors = value; 
-            }
-        }
-
         // public operators
         /// <summary>
         /// Determines whether two <see cref="MongoClientSettings"/> instances are equal.
@@ -719,9 +719,9 @@ namespace MongoDB.Driver
         {
             var clone = new MongoClientSettings();
             clone._applicationName = _applicationName;
+            clone._compressors = _compressors;
             clone._clusterConfigurator = _clusterConfigurator;
             clone._connectionMode = _connectionMode;
-            clone._compressors = _compressors;
             clone._connectTimeout = _connectTimeout;
             clone._credentials = _credentials;
             clone._guidRepresentation = _guidRepresentation;
@@ -780,7 +780,7 @@ namespace MongoDB.Driver
             return
                 _applicationName == rhs._applicationName &&
                 object.ReferenceEquals(_clusterConfigurator, rhs._clusterConfigurator) &&
-                _compressors == rhs._compressors &&
+                _compressors.SequenceEqual(rhs._compressors) &&
                 _connectionMode == rhs._connectionMode &&
                 _connectTimeout == rhs._connectTimeout &&
                 _credentials == rhs._credentials &&
@@ -858,6 +858,7 @@ namespace MongoDB.Driver
             return new Hasher()
                 .Hash(_applicationName)
                 .Hash(_clusterConfigurator)
+                .HashElements(_compressors)
                 .Hash(_connectionMode)
                 .Hash(_connectTimeout)
                 .Hash(_credentials)
@@ -908,7 +909,10 @@ namespace MongoDB.Driver
                 sb.AppendFormat("ApplicationName={0};", _applicationName);
             }
 
-            sb.AppendFormat("Compressors=[{0}];", string.Join(",", _compressors));
+            if (_compressors?.Any() ?? false)
+            {
+                sb.AppendFormat("Compressors=[{0}];", string.Join(",", _compressors));
+            }
             sb.AppendFormat("ConnectionMode={0};", _connectionMode);
             sb.AppendFormat("ConnectTimeout={0};", _connectTimeout);
             sb.AppendFormat("Credentials={{{0}}};", _credentials);

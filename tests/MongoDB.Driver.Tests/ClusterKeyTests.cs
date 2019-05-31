@@ -14,12 +14,11 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
 using FluentAssertions;
-using MongoDB.Bson;
-using MongoDB.Driver;
+using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using Xunit;
 
@@ -39,6 +38,7 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [InlineData("ApplicationName", true)]
+        [InlineData("ClusterConfigurator", true)]
         [InlineData("Compressors", true)]
         [InlineData("ConnectionMode", true)]
         [InlineData("ConnectTimeout", true)]
@@ -50,9 +50,12 @@ namespace MongoDB.Driver.Tests
         [InlineData("MaxConnectionLifeTime", true)]
         [InlineData("MaxConnectionPoolSize", true)]
         [InlineData("MinConnectionPoolSize", true)]
+        [InlineData("ReceiveBufferSize", true)]
         [InlineData("ReplicaSetName", true)]
         [InlineData("LocalThreshold", true)]
+        [InlineData("Scheme", true)]
         [InlineData("SdamLogFileName", true)]
+        [InlineData("SendBufferSize", true)]
         [InlineData("Servers", false)]
         [InlineData("ServerSelectionTimeout", true)]
         [InlineData("SocketTimeout", true)]
@@ -73,13 +76,13 @@ namespace MongoDB.Driver.Tests
         private ClusterKey CreateSubject(string notEqualFieldName = null)
         {
             var applicationName = "app1";
-            var compressors = Enumerable.Empty<MongoCompressor>();
+            var clusterConfigurator = new Action<ClusterBuilder>(b => { });
+            var compressors = new CompressorConfiguration[0];
             var connectionMode = ConnectionMode.Direct;
             var connectTimeout = TimeSpan.FromSeconds(1);
 #pragma warning disable 618
-            var credential = MongoCredential.CreateMongoCRCredential("source", "username", "password");
+            var credentials = new List<MongoCredential> { MongoCredential.CreateMongoCRCredential("source", "username", "password") };
 #pragma warning restore 618
-            var guidRepresentation = GuidRepresentation.Standard;
             var heartbeatInterval = TimeSpan.FromSeconds(7);
             var heartbeatTimeout = TimeSpan.FromSeconds(8);
             var ipv6 = false;
@@ -88,8 +91,11 @@ namespace MongoDB.Driver.Tests
             var maxConnectionLifeTime = TimeSpan.FromSeconds(3);
             var maxConnectionPoolSize = 50;
             var minConnectionPoolSize = 5;
+            var receiveBufferSize = 1;
             var replicaSetName = "abc";
+            var scheme = ConnectionStringScheme.MongoDB;
             var sdamLogFileName = "stdout";
+            var sendBufferSize = 1;
             var servers = new[] { new MongoServerAddress("localhost") };
             var serverSelectionTimeout = TimeSpan.FromSeconds(6);
             var socketTimeout = TimeSpan.FromSeconds(4);
@@ -103,64 +109,71 @@ namespace MongoDB.Driver.Tests
             var waitQueueSize = 20;
             var waitQueueTimeout = TimeSpan.FromSeconds(5);
 
-            switch (notEqualFieldName)
+            if (notEqualFieldName != null)
             {
-                case "ApplicationName": applicationName = "app2"; break;
-                case "Compressors": compressors = new[] {new MongoCompressor("zlib")}; break;
-                case "ConnectionMode": connectionMode = ConnectionMode.ReplicaSet; break;
-                case "ConnectTimeout": connectTimeout = TimeSpan.FromSeconds(99); break;
+                switch (notEqualFieldName)
+                {
+                    case "ApplicationName": applicationName = "app2"; break;
+                    case "ClusterConfigurator": clusterConfigurator = new Action<ClusterBuilder>(b => { }); break;
+                    case "Compressors": compressors = new[] { new CompressorConfiguration(CompressorType.Zlib) }; break;
+                    case "ConnectionMode": connectionMode = ConnectionMode.ReplicaSet; break;
+                    case "ConnectTimeout": connectTimeout = TimeSpan.FromSeconds(99); break;
 #pragma warning disable 618
-                case "Credentials": credential = MongoCredential.CreateMongoCRCredential("different", "different", "different"); break;
+                    case "Credentials": credentials = new List<MongoCredential> { MongoCredential.CreateMongoCRCredential("different", "different", "different") }; break;
 #pragma warning restore 618
-                case "HeartbeatInterval": heartbeatInterval = TimeSpan.FromSeconds(99); break;
-                case "HeartbeatTimeout": heartbeatTimeout = TimeSpan.FromSeconds(99); break;
-                case "IPv6": ipv6 = !ipv6; break;
-                case "LocalThreshold": localThreshold = TimeSpan.FromMilliseconds(99); break;
-                case "MaxConnectionIdleTime": maxConnectionIdleTime = TimeSpan.FromSeconds(99); break;
-                case "MaxConnectionLifeTime": maxConnectionLifeTime = TimeSpan.FromSeconds(99); break;
-                case "MaxConnectionPoolSize": maxConnectionPoolSize = 99; break;
-                case "MinConnectionPoolSize": minConnectionPoolSize = 99; break;
-                case "ReplicaSetName": replicaSetName = "different"; break;
-                case "SdamLogFileName": sdamLogFileName = "different"; break;
-                case "Servers": servers = new[] { new MongoServerAddress("different") }; break;
-                case "ServerSelectionTimeout": serverSelectionTimeout = TimeSpan.FromSeconds(98); break;
-                case "SocketTimeout": socketTimeout = TimeSpan.FromSeconds(99); break;
-                case "SslSettings": sslSettings.CheckCertificateRevocation = !sslSettings.CheckCertificateRevocation; break;
-                case "UseSsl": useSsl = !useSsl; break;
-                case "VerifySslCertificate": verifySslCertificate = !verifySslCertificate; break;
-                case "WaitQueueSize": waitQueueSize = 99; break;
-                case "WaitQueueTimeout": waitQueueTimeout = TimeSpan.FromSeconds(99); break;
+                    case "HeartbeatInterval": heartbeatInterval = TimeSpan.FromSeconds(99); break;
+                    case "HeartbeatTimeout": heartbeatTimeout = TimeSpan.FromSeconds(99); break;
+                    case "IPv6": ipv6 = !ipv6; break;
+                    case "LocalThreshold": localThreshold = TimeSpan.FromMilliseconds(99); break;
+                    case "MaxConnectionIdleTime": maxConnectionIdleTime = TimeSpan.FromSeconds(99); break;
+                    case "MaxConnectionLifeTime": maxConnectionLifeTime = TimeSpan.FromSeconds(99); break;
+                    case "MaxConnectionPoolSize": maxConnectionPoolSize = 99; break;
+                    case "MinConnectionPoolSize": minConnectionPoolSize = 99; break;
+                    case "ReceiveBufferSize": receiveBufferSize = 2; break;
+                    case "ReplicaSetName": replicaSetName = "different"; break;
+                    case "Scheme": scheme = ConnectionStringScheme.MongoDBPlusSrv; break;
+                    case "SdamLogFileName": sdamLogFileName = "different"; break;
+                    case "SendBufferSize": sendBufferSize = 2; break;
+                    case "Servers": servers = new[] { new MongoServerAddress("different") }; break;
+                    case "ServerSelectionTimeout": serverSelectionTimeout = TimeSpan.FromSeconds(98); break;
+                    case "SocketTimeout": socketTimeout = TimeSpan.FromSeconds(99); break;
+                    case "SslSettings": sslSettings.CheckCertificateRevocation = !sslSettings.CheckCertificateRevocation; break;
+                    case "UseSsl": useSsl = !useSsl; break;
+                    case "VerifySslCertificate": verifySslCertificate = !verifySslCertificate; break;
+                    case "WaitQueueSize": waitQueueSize = 99; break;
+                    case "WaitQueueTimeout": waitQueueTimeout = TimeSpan.FromSeconds(99); break;
+                    default: throw new ArgumentException($"Invalid field name: \"{notEqualFieldName}\".", nameof(notEqualFieldName));
+                }
             }
 
-            var clientSettings = new MongoClientSettings
-            {
-                ApplicationName = applicationName,
-                Compressors = compressors,
-                ConnectionMode = connectionMode,
-                ConnectTimeout = connectTimeout,
-                Credential = credential,
-                GuidRepresentation = guidRepresentation,
-                HeartbeatInterval = heartbeatInterval,
-                HeartbeatTimeout = heartbeatTimeout,
-                IPv6 = ipv6,
-                MaxConnectionIdleTime = maxConnectionIdleTime,
-                MaxConnectionLifeTime = maxConnectionLifeTime,
-                MaxConnectionPoolSize = maxConnectionPoolSize,
-                MinConnectionPoolSize = minConnectionPoolSize,
-                ReplicaSetName = replicaSetName,
-                LocalThreshold = localThreshold,
-                SdamLogFilename = sdamLogFileName,
-                Servers = servers,
-                ServerSelectionTimeout = serverSelectionTimeout,
-                SocketTimeout = socketTimeout,
-                SslSettings = sslSettings,
-                UseSsl = useSsl,
-                VerifySslCertificate = verifySslCertificate,
-                WaitQueueSize = waitQueueSize,
-                WaitQueueTimeout = waitQueueTimeout
-            };
-
-            return clientSettings.ToClusterKey();
+            return new ClusterKey(
+                applicationName,
+                clusterConfigurator,
+                compressors,
+                connectionMode,
+                connectTimeout,
+                credentials,
+                heartbeatInterval,
+                heartbeatTimeout,
+                ipv6,
+                localThreshold,
+                maxConnectionIdleTime,
+                maxConnectionLifeTime,
+                maxConnectionPoolSize,
+                minConnectionPoolSize,
+                receiveBufferSize,
+                replicaSetName,
+                scheme,
+                sdamLogFileName,
+                sendBufferSize,
+                servers,
+                serverSelectionTimeout,
+                socketTimeout,
+                sslSettings,
+                useSsl,
+                verifySslCertificate,
+                waitQueueSize,
+                waitQueueTimeout);
         }
     }
 }

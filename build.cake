@@ -96,6 +96,12 @@ Task("BuildArtifacts")
                     fileNames.Add("DnsClient.dll");
                 }
 
+                // SharpCompress.dll is needed by Sandcastle
+                if (targetFramework == "net452" && project == "MongoDB.Driver.Core")
+                {
+                    fileNames.Add("SharpCompress.dll");
+                }
+
                 foreach (var fileName in fileNames)
                 {
                     var fromFile = fromDirectory.CombineWithFilePath(fileName);

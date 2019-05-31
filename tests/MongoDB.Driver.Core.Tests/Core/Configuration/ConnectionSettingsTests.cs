@@ -56,13 +56,14 @@ namespace MongoDB.Driver.Core.Configuration
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("authenticators");
         }
-        
+
         [Fact]
         public void constructor_should_throw_when_compressors_is_null()
         {
-            Action action = () => new ConnectionSettings(compressors: null);
+            var exception = Record.Exception(() => new ConnectionSettings(compressors: null));
 
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("compressors");
+            var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            e.ParamName.Should().Be("compressors");
         }
 
         [Theory]
@@ -110,7 +111,7 @@ namespace MongoDB.Driver.Core.Configuration
 
             subject.ApplicationName.Should().BeNull();
             subject.Authenticators.Should().Equal(authenticators);
-            subject.Compressors.Should().Equal(__defaults.Compressors);
+            subject.Compressors.Should().BeEquivalentTo(__defaults.Compressors);
             subject.MaxIdleTime.Should().Be(__defaults.MaxIdleTime);
             subject.MaxLifeTime.Should().Be(__defaults.MaxLifeTime);
         }
@@ -118,7 +119,7 @@ namespace MongoDB.Driver.Core.Configuration
         [Fact]
         public void constructor_with_compressors_should_initialize_instance()
         {
-            var compressors = new[] {new MongoCompressor("zlib")};
+            var compressors = new[] { new CompressorConfiguration(CompressorType.Zlib) };
 
             var subject = new ConnectionSettings(compressors: compressors);
 
@@ -168,7 +169,7 @@ namespace MongoDB.Driver.Core.Configuration
 
             result.ApplicationName.Should().Be(newApplicationName);
             result.Authenticators.Should().Equal(subject.Authenticators);
-            result.Compressors.Should().Equal(subject.Compressors);
+            subject.Compressors.Should().Equal(__defaults.Compressors);
             result.MaxIdleTime.Should().Be(subject.MaxIdleTime);
             result.MaxLifeTime.Should().Be(subject.MaxLifeTime);
         }
@@ -186,7 +187,7 @@ namespace MongoDB.Driver.Core.Configuration
 
             result.ApplicationName.Should().Be(subject.ApplicationName);
             result.Authenticators.Should().Equal(newAuthenticators);
-            result.Compressors.Should().Equal(subject.Compressors);
+            subject.Compressors.Should().Equal(subject.Compressors);
             result.MaxIdleTime.Should().Be(subject.MaxIdleTime);
             result.MaxLifeTime.Should().Be(subject.MaxLifeTime);
         }
@@ -194,8 +195,8 @@ namespace MongoDB.Driver.Core.Configuration
         [Fact]
         public void With_compressors_should_return_expected_result()
         {
-            var oldCompressors = new[] {new MongoCompressor("zlib")};
-            var newCompressors = new[] {new MongoCompressor("snappy")};
+            var oldCompressors = new[] { new CompressorConfiguration(CompressorType.Zlib) };
+            var newCompressors = new[] { new CompressorConfiguration(CompressorType.Snappy) };
             var subject = new ConnectionSettings(compressors: oldCompressors);
 
             var result = subject.With(compressors: newCompressors);

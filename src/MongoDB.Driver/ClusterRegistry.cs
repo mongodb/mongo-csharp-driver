@@ -13,23 +13,15 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
-using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
-using MongoDB.Driver.Core.ConnectionPools;
-using MongoDB.Driver.Core.Connections;
-using MongoDB.Driver.Core.Events;
-using MongoDB.Driver.Core.Events.Diagnostics;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver
 {

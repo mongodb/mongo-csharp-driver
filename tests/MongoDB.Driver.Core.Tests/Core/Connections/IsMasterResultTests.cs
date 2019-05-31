@@ -18,6 +18,7 @@ using System.Net;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using Xunit;
@@ -26,6 +27,34 @@ namespace MongoDB.Driver.Core.Connections
 {
     public class IsMasterResultTests
     {
+        [Theory]
+        [InlineData("{ compression : ['zlib'] }", new[] { CompressorType.Zlib })]
+        [InlineData("{ compression : ['zlib', 'snappy'] }", new[] { CompressorType.Zlib, CompressorType.Snappy })]
+        [InlineData("{ compression : ['noop'] }", new[] { CompressorType.Noop })]
+        [InlineData("{ compression : [] }", new CompressorType[0])]
+        [InlineData("{ }", new CompressorType[0])]
+        public void Compression_should_parse_document_correctly(string json, CompressorType[] expectedCompression)
+        {
+            var subject = new IsMasterResult(BsonDocument.Parse(json));
+
+            var result = subject.Compressions;
+
+            result.Should().Equal(expectedCompression);
+        }
+
+        [Theory]
+        [InlineData("{ compression : ['unsupported'] }", "unsupported")]
+        [InlineData("{ compression : ['zlib', 'unsupported'] }", "unsupported")]
+        public void Compression_should_throw_the_exception_for_an_unsupported_compression_type(string json, string expectedUnsupportedCompressor)
+        {
+            var subject = new IsMasterResult(BsonDocument.Parse(json));
+
+            var exception = Record.Exception(() => subject.Compressions);
+
+            var e = exception.Should().BeOfType<NotSupportedException>().Subject;
+            e.Message.Should().Be($"The unsupported compressor name: '{expectedUnsupportedCompressor}'.");
+        }
+
         [Fact]
         public void Constructor_should_throw_an_ArgumentNullException_if_wrapped_is_null()
         {
@@ -59,20 +88,6 @@ namespace MongoDB.Driver.Core.Connections
             var subject2 = new IsMasterResult(new BsonDocument("x", 2));
 
             subject1.Equals(subject2).Should().BeFalse();
-        }
-
-        [Theory]
-        [InlineData("{ compression : ['zlib'] }", new []{"zlib"})]
-        [InlineData("{ compression : ['zlib', 'snappy'] }", new []{"zlib", "snappy"})]
-        [InlineData("{ compression : [] }", new string[0])]
-        [InlineData("{ }", new string[0])]
-        public void Compression_should_parse_document_correctly(string json, string[] expectedCompression)
-        {
-            var subject = new IsMasterResult(BsonDocument.Parse(json));
-
-            var result = subject.Compression;
-
-            result.Should().Equal(expectedCompression);
         }
 
         [Theory]

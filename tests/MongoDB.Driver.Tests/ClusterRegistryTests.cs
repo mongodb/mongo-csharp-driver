@@ -17,14 +17,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Reflection;
 using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
 using FluentAssertions;
-using MongoDB.Bson;
-using MongoDB.Driver;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Clusters.ServerSelectors;
+using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 using Xunit;
@@ -44,62 +41,64 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void GetOrCreateCluster_should_return_a_cluster_with_the_correct_settings()
         {
+            var clusterConfigurator = new Action<ClusterBuilder>(b => { });
 #pragma warning disable 618
-            var credential = MongoCredential.CreateMongoCRCredential("source", "username", "password");
+            var credentials = new List<MongoCredential> { MongoCredential.CreateMongoCRCredential("source", "username", "password") };
 #pragma warning restore 618
             var servers = new[] { new MongoServerAddress("localhost"), new MongoServerAddress("127.0.0.1", 30000), new MongoServerAddress("[::1]", 27018) };
-
             var sslSettings = new SslSettings
             {
                 CheckCertificateRevocation = true,
                 EnabledSslProtocols = SslProtocols.Tls
             };
 
-            var clientSettings = new MongoClientSettings
-            {
-                ApplicationName = "app1",
-                Compressors = new[] {new MongoCompressor("zlib")},
-                ConnectionMode = ConnectionMode.ReplicaSet,
-                ConnectTimeout = TimeSpan.FromSeconds(1),
-                Credential = credential,
-                GuidRepresentation = GuidRepresentation.Standard,
-                HeartbeatInterval = TimeSpan.FromSeconds(7),
-                HeartbeatTimeout = TimeSpan.FromSeconds(8),
-                IPv6 = true,
-                MaxConnectionIdleTime = TimeSpan.FromSeconds(2),
-                MaxConnectionLifeTime = TimeSpan.FromSeconds(3),
-                MaxConnectionPoolSize = 10,
-                MinConnectionPoolSize = 5,
-                ReplicaSetName = "rs",
-                LocalThreshold = TimeSpan.FromMilliseconds(20),
-                Servers = servers,
-                ServerSelectionTimeout = TimeSpan.FromSeconds(5),
-                SocketTimeout = TimeSpan.FromSeconds(4),
-                SslSettings = sslSettings,
-                UseSsl = true,
-                VerifySslCertificate = true,
-                WaitQueueSize = 20,
-                WaitQueueTimeout = TimeSpan.FromSeconds(6)
-            };
+            var clusterKey = new ClusterKey(
+                applicationName: "app1",
+                clusterConfigurator: clusterConfigurator,
+                compressors: new[] { new CompressorConfiguration(CompressorType.Zlib) },
+                connectionMode: ConnectionMode.ReplicaSet,
+                connectTimeout: TimeSpan.FromSeconds(1),
+                credentials: credentials,
+                heartbeatInterval: TimeSpan.FromSeconds(2),
+                heartbeatTimeout: TimeSpan.FromSeconds(3),
+                ipv6: true,
+                localThreshold: TimeSpan.FromSeconds(4),
+                maxConnectionIdleTime: TimeSpan.FromSeconds(5),
+                maxConnectionLifeTime: TimeSpan.FromSeconds(6),
+                maxConnectionPoolSize: 7,
+                minConnectionPoolSize: 8,
+                receiveBufferSize: 9,
+                replicaSetName: "rs",
+                scheme: ConnectionStringScheme.MongoDB,
+                sdamLogFilename: "sdam.log",
+                sendBufferSize: 10,
+                servers: servers,
+                serverSelectionTimeout: TimeSpan.FromSeconds(11),
+                socketTimeout: TimeSpan.FromSeconds(12),
+                sslSettings: sslSettings,
+                useSsl: true,
+                verifySslCertificate: true,
+                waitQueueSize: 13,
+                waitQueueTimeout: TimeSpan.FromSeconds(14));
 
             var subject = new ClusterRegistry();
 
-            using (var cluster = subject.GetOrCreateCluster(clientSettings.ToClusterKey()))
+            using (var cluster = subject.GetOrCreateCluster(clusterKey))
             {
-                var endPoints = new EndPoint[]
+                var expectedEndPoints = new EndPoint[]
                 {
                     new DnsEndPoint("localhost", 27017),
                     new IPEndPoint(IPAddress.Parse("127.0.0.1"), 30000),
                     new IPEndPoint(IPAddress.Parse("[::1]"), 27018)
                 };
-                cluster.Settings.ConnectionMode.Should().Be(ClusterConnectionMode.ReplicaSet);
-                cluster.Settings.EndPoints.Equals(endPoints);
-                cluster.Settings.ReplicaSetName.Should().Be("rs");
-                cluster.Settings.ServerSelectionTimeout.Should().Be(clientSettings.ServerSelectionTimeout);
-                cluster.Settings.PostServerSelector.Should().NotBeNull().And.Subject.Should().BeOfType<LatencyLimitingServerSelector>();
-                cluster.Settings.MaxServerSelectionWaitQueueSize.Should().Be(20);
+                cluster.Settings.ConnectionMode.Should().Be(clusterKey.ConnectionMode.ToCore());
+                cluster.Settings.EndPoints.Should().Equal(expectedEndPoints);
+                cluster.Settings.MaxServerSelectionWaitQueueSize.Should().Be(clusterKey.WaitQueueSize);
+                cluster.Settings.ReplicaSetName.Should().Be(clusterKey.ReplicaSetName);
+                cluster.Settings.Scheme.Should().Be(clusterKey.Scheme);
+                cluster.Settings.ServerSelectionTimeout.Should().Be(clusterKey.ServerSelectionTimeout);
 
-                cluster.Description.Servers.Select(s => s.EndPoint).Should().Contain(endPoints);
+                cluster.Description.Servers.Select(s => s.EndPoint).Should().BeEquivalentTo(expectedEndPoints);
 
                 // TODO: don't know how to test the rest of the settings because they are all private to the cluster
             }
@@ -150,19 +149,10 @@ namespace MongoDB.Driver.Tests
         }
     }
 
-    internal static class ClusterRegistryTestsReflector
+    internal static class ClusterRegistryReflector
     {
-        public static Dictionary<ClusterKey, ICluster> _registry(this ClusterRegistry clusterRegistry)
-        {
-            var fieldInfo = typeof(ClusterRegistry).GetField("_registry", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (Dictionary<ClusterKey, ICluster>)fieldInfo.GetValue(clusterRegistry);
-        }
+        public static Dictionary<ClusterKey, ICluster> _registry(this ClusterRegistry clusterRegistry) => (Dictionary<ClusterKey, ICluster>)Reflector.GetFieldValue(clusterRegistry, nameof(_registry));
 
-        public static int _state(this ICluster cluster)
-        {
-            var fieldInfo = typeof(SingleServerCluster).GetField("_state", BindingFlags.NonPublic | BindingFlags.Instance);
-            var interlockedInt32 = (InterlockedInt32)fieldInfo.GetValue(cluster);
-            return interlockedInt32.Value;
-        }
+        public static int _state(this ICluster cluster) => (int)((InterlockedInt32)Reflector.GetFieldValue(cluster, nameof(_state))).Value;
     }
 }

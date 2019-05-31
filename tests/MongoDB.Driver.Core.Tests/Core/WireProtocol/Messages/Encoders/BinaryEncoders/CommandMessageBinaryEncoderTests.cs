@@ -14,13 +14,16 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.Helpers;
+using MongoDB.Driver.Core.Misc;
 using Xunit;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
@@ -42,7 +45,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         [Fact]
         public void ReadMessage_should_throw_when_message_length_is_negative()
         {
-            var bytes = CommandMessageHelper.CreateMessageBytes();
+            var bytes = CreateMessageBytes();
             var messageLength = -1;
             BitConverter.GetBytes(messageLength).CopyTo(bytes, 0);
             var subject = CreateSubject(bytes);
@@ -56,7 +59,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         [Fact]
         public void ReadMessage_should_throw_when_message_did_not_end_at_end_position()
         {
-            var bytes = CommandMessageHelper.CreateMessageBytes();
+            var bytes = CreateMessageBytes();
             bytes[0]--;
             var subject = CreateSubject(bytes);
 
@@ -69,7 +72,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         [Fact]
         public void ReadMessage_should_throw_when_end_of_file_is_reached()
         {
-            var bytes = CommandMessageHelper.CreateMessageBytes();
+            var bytes = CreateMessageBytes();
             bytes[0]++;
             var subject = CreateSubject(bytes);
 
@@ -83,7 +86,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         public void ReadMessage_should_read_requestId(
             [Values(1, 2)] int requestId)
         {
-            var bytes = CommandMessageHelper.CreateMessageBytes(requestId: requestId);
+            var bytes = CreateMessageBytes(requestId: requestId);
             var subject = CreateSubject(bytes);
 
             var result = subject.ReadMessage();
@@ -96,7 +99,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         public void ReadMessage_should_read_responseTo(
             [Values(1, 2)] int responseTo)
         {
-            var bytes = CommandMessageHelper.CreateMessageBytes(responseTo: responseTo);
+            var bytes = CreateMessageBytes(responseTo: responseTo);
             var subject = CreateSubject(bytes);
 
             var result = subject.ReadMessage();
@@ -107,7 +110,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         [Fact]
         public void ReadMessage_should_throw_when_opcode_is_invalid()
         {
-            var bytes = CommandMessageHelper.CreateMessageBytes();
+            var bytes = CreateMessageBytes();
             bytes[12]++;
             var subject = CreateSubject(bytes);
 
@@ -122,7 +125,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         public void ReadMessage_should_read_moreToCome(
             [Values(false, true)] bool moreToCome)
         {
-            var bytes = CommandMessageHelper.CreateMessageBytes(moreToCome: moreToCome);
+            var bytes = CreateMessageBytes(moreToCome: moreToCome);
             var subject = CreateSubject(bytes);
 
             var result = subject.ReadMessage();
@@ -135,7 +138,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         public void ReadMessage_should_throw_when_flags_is_invalid(
            [Values(-1, 1, 4)] int flags)
         {
-            var bytes = CommandMessageHelper.CreateMessageBytes();
+            var bytes = CreateMessageBytes();
             BitConverter.GetBytes(flags).CopyTo(bytes, 16);
             var subject = CreateSubject(bytes);
             var expectedMessage = flags == 1 ? "Command message CheckSumPresent flag not supported." : "Command message has invalid flags";
@@ -155,8 +158,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         [InlineData(new[] { 1, 1, 0 })]
         public void ReadMessage_should_read_sections(int[] sectionTypes)
         {
-            var sections = CommandMessageHelper.CreateSections(sectionTypes);
-            var bytes = CommandMessageHelper.CreateMessageBytes(sections: sections);
+            var sections = CreateSections(sectionTypes);
+            var bytes = CreateMessageBytes(sections: sections);
             var subject = CreateSubject(bytes);
 
             var result = subject.ReadMessage();
@@ -171,11 +174,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         [InlineData(new[] { 1, 1, 1 })]
         public void ReadMessage_should_throw_when_no_type_0_section_is_present(int[] sectionTypes)
         {
-            var sections = CommandMessageHelper.CreateSections(sectionTypes);
-            var sectionBytes = sections.Select(s => CommandMessageHelper.CreateSectionBytes(s)).ToArray();
+            var sections = CreateSections(sectionTypes);
+            var sectionBytes = sections.Select(s => CreateSectionBytes(s)).ToArray();
             var messageLength = 20 + sectionBytes.Select(s => s.Length).Sum();
-            var header = CommandMessageHelper.CreateHeaderBytes(messageLength, 0, 0, 0);
-            var bytes = CommandMessageHelper.CreateMessageBytes(header, sectionBytes);
+            var header = CreateHeaderBytes(messageLength, 0, 0, 0);
+            var bytes = CreateMessageBytes(header, sectionBytes);
             var subject = CreateSubject(bytes);
 
             var exception = Record.Exception(() => subject.ReadMessage());
@@ -191,11 +194,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         [InlineData(new[] { 1, 0, 0 })]
         public void ReadMessage_should_throw_when_more_than_one_type_0_section_is_present(int[] sectionTypes)
         {
-            var sections = CommandMessageHelper.CreateSections(sectionTypes);
-            var sectionBytes = sections.Select(s => CommandMessageHelper.CreateSectionBytes(s)).ToArray();
+            var sections = CreateSections(sectionTypes);
+            var sectionBytes = sections.Select(s => CreateSectionBytes(s)).ToArray();
             var messageLength = 20 + sectionBytes.Select(s => s.Length).Sum();
-            var header = CommandMessageHelper.CreateHeaderBytes(messageLength, 0, 0, 0);
-            var bytes = CommandMessageHelper.CreateMessageBytes(header, sectionBytes);
+            var header = CreateHeaderBytes(messageLength, 0, 0, 0);
+            var bytes = CreateMessageBytes(header, sectionBytes);
             var subject = CreateSubject(bytes);
 
             var exception = Record.Exception(() => subject.ReadMessage());
@@ -207,8 +210,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         [Fact]
         public void ReadMessage_should_throw_when_payload_type_is_invalid()
         {
-            var message = CommandMessageHelper.CreateMessage();
-            var bytes = CommandMessageHelper.CreateMessageBytes(message);
+            var message = CreateMessage();
+            var bytes = CreateMessageBytes(message);
             bytes[20] = 0xff;
             var subject = CreateSubject(bytes);
 
@@ -221,9 +224,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         [Fact]
         public void ReadMessage_should_throw_when_type_1_payload_size_is_negative()
         {
-            var sections = CommandMessageHelper.CreateSections(sectionTypes: new[] { 1, 0 });
-            var message = CommandMessageHelper.CreateMessage(sections: sections);
-            var bytes = CommandMessageHelper.CreateMessageBytes(message);
+            var sections = CreateSections(sectionTypes: new[] { 1, 0 });
+            var message = CreateMessage(sections: sections);
+            var bytes = CreateMessageBytes(message);
             var negativePayloadSize = -1;
             BitConverter.GetBytes(negativePayloadSize).CopyTo(bytes, 21);
             var subject = CreateSubject(bytes);
@@ -237,9 +240,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         [Fact]
         public void ReadMessage_should_throw_when_type_1_payload_does_not_end_at_expected_end_position()
         {
-            var sections = CommandMessageHelper.CreateSections(sectionTypes: new[] { 1, 0 });
-            var message = CommandMessageHelper.CreateMessage(sections: sections);
-            var bytes = CommandMessageHelper.CreateMessageBytes(message);
+            var sections = CreateSections(sectionTypes: new[] { 1, 0 });
+            var message = CreateMessage(sections: sections);
+            var bytes = CreateMessageBytes(message);
             bytes[21]--;
             var subject = CreateSubject(bytes);
 
@@ -255,11 +258,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         [InlineData(new[] { 1, 0 })]
         public void WriteMessage_should_write_messageLength(int[] sectionTypes)
         {
-            var sections = CommandMessageHelper.CreateSections(sectionTypes);
-            var message = CommandMessageHelper.CreateMessage(sections: sections);
+            var sections = CreateSections(sectionTypes);
+            var message = CreateMessage(sections: sections);
             var stream = new MemoryStream();
             var subject = CreateSubject(stream);
-            var bytes = CommandMessageHelper.CreateMessageBytes(message);
+            var bytes = CreateMessageBytes(message);
             var expectedMessageLength = bytes.Length;
 
             subject.WriteMessage(message);
@@ -275,7 +278,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         public void WriteMessage_should_write_requestId(
             [Values(1, 2)] int requestId)
         {
-            var message = CommandMessageHelper.CreateMessage(requestId: requestId);
+            var message = CreateMessage(requestId: requestId);
             var stream = new MemoryStream();
             var subject = CreateSubject(stream);
 
@@ -291,7 +294,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         public void WriteMessage_should_write_responseTo(
             [Values(1, 2)] int responseTo)
         {
-            var message = CommandMessageHelper.CreateMessage(responseTo: responseTo);
+            var message = CreateMessage(responseTo: responseTo);
             var stream = new MemoryStream();
             var subject = CreateSubject(stream);
 
@@ -305,7 +308,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         [Fact]
         public void WriteMessage_should_write_expected_opcode()
         {
-            var message = CommandMessageHelper.CreateMessage();
+            var message = CreateMessage();
             var stream = new MemoryStream();
             var subject = CreateSubject(stream);
 
@@ -321,7 +324,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         public void WriteMessage_should_write_flags(
             [Values(false, true)] bool moreToCome)
         {
-            var message = CommandMessageHelper.CreateMessage(moreToCome: moreToCome);
+            var message = CreateMessage(moreToCome: moreToCome);
             var stream = new MemoryStream();
             var subject = CreateSubject(stream);
 
@@ -338,11 +341,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         [InlineData(new[] { 1, 0 })]
         public void WriteMessage_should_write_sections(int[] sectionTypes)
         {
-            var sections = CommandMessageHelper.CreateSections(sectionTypes);
-            var message = CommandMessageHelper.CreateMessage(sections: sections);
+            var sections = CreateSections(sectionTypes);
+            var message = CreateMessage(sections: sections);
             var stream = new MemoryStream();
             var subject = CreateSubject(stream);
-            var expectedMessageBytes = CommandMessageHelper.CreateMessageBytes(message);
+            var expectedMessageBytes = CreateMessageBytes(message);
 
             subject.WriteMessage(message);
             var result = stream.ToArray();
@@ -358,7 +361,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var command = BsonDocument.Parse("{ command : \"x\", writeConcern : { w : 0 } }");
             var section = new Type0CommandMessageSection<BsonDocument>(command, BsonDocumentSerializer.Instance);
             var sections = new CommandMessageSection[] { section };
-            var message = CommandMessageHelper.CreateMessage(sections: sections, moreToCome: true);
+            var message = CreateMessage(sections: sections, moreToCome: true);
             message.PostWriteAction = encoder =>
             {
                 encoder.ChangeWriteConcernFromW0ToW1();
@@ -387,10 +390,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 new BsonDocument("x", 1),
                 new BsonDocument("x", 2)
             };
-            var type0Section = CommandMessageHelper.CreateType0Section();
-            var type1Section = CommandMessageHelper.CreateType1Section("id", documents, canBeSplit: true);
-            var message = CommandMessageHelper.CreateMessage(sections: new CommandMessageSection[] { type0Section, type1Section });
-            var messageBytes = CommandMessageHelper.CreateMessageBytes(message);
+            var type0Section = CreateType0Section();
+            var type1Section = CreateType1Section("id", documents, canBeSplit: true);
+            var message = CreateMessage(sections: new CommandMessageSection[] { type0Section, type1Section });
+            var messageBytes = CreateMessageBytes(message);
             var maxMessageSize = messageBytes.Length - 1;
             var encoderSettings = new MessageEncoderSettings();
             encoderSettings.Add(MessageEncoderSettingsName.MaxMessageSize, maxMessageSize);
@@ -409,8 +412,109 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         }
 
         // private methods
+        private int CreateFlags(CommandMessage message)
+        {
+            return message.MoreToCome ? (int)OpMsgFlags.MoreToCome : 0;
+        }
 
+        private byte[] CreateHeaderBytes(int messageLength, int requestId, int responseTo, int flags)
+        {
+            using (var memoryStream = new MemoryStream())
+            using (var stream = new BsonStreamAdapter(memoryStream))
+            {
+                stream.WriteInt32(messageLength);
+                stream.WriteInt32(requestId);
+                stream.WriteInt32(responseTo);
+                stream.WriteInt32((int)Opcode.OpMsg);
+                stream.WriteInt32(flags);
+                return memoryStream.ToArray();
+            }
+        }
 
+        private CommandMessage CreateMessage(
+            int requestId = 0,
+            int responseTo = 0,
+            IEnumerable<CommandMessageSection> sections = null,
+            bool moreToCome = false)
+        {
+            sections = sections ?? new[] { CreateType0Section() };
+            return new CommandMessage(requestId, responseTo, sections, moreToCome);
+        }
+
+        private byte[] CreateMessageBytes(byte[] header, byte[][] sections)
+        {
+            var messageLength = header.Length + sections.Select(s => s.Length).Sum();
+            var message = new byte[messageLength];
+            header.CopyTo(message, 0);
+            var offset = header.Length;
+            foreach (var section in sections)
+            {
+                section.CopyTo(message, offset);
+                offset += section.Length;
+            }
+            return message;
+        }
+
+        private byte[] CreateMessageBytes(CommandMessage message)
+        {
+            var sections = message.Sections.Select(s => CreateSectionBytes(s)).ToArray();
+            var messageLength = 20 + sections.Select(s => s.Length).Sum();
+            var header = CreateHeaderBytes(messageLength, message.RequestId, message.ResponseTo, CreateFlags(message));
+            return CreateMessageBytes(header, sections);
+        }
+
+        private byte[] CreateMessageBytes(
+            int requestId = 0,
+            int responseTo = 0,
+            IEnumerable<CommandMessageSection> sections = null,
+            bool moreToCome = false)
+        {
+            var message = CreateMessage(requestId, responseTo, sections, moreToCome);
+            return CreateMessageBytes(message);
+        }
+
+        private byte[] CreateSectionBytes(CommandMessageSection section)
+        {
+            switch (section.PayloadType)
+            {
+                case PayloadType.Type0:
+                    return CreateType0SectionBytes((Type0CommandMessageSection<BsonDocument>)section);
+
+                case PayloadType.Type1:
+                    return CreateType1SectionBytes((Type1CommandMessageSection<BsonDocument>)section);
+
+                default:
+                    throw new ArgumentException($"Invalid payload type: {section.PayloadType}.");
+            }
+        }
+
+        private List<CommandMessageSection> CreateSections(params int[] sectionTypes)
+        {
+            var sections = new List<CommandMessageSection>();
+            for (var i = 0; i < sectionTypes.Length; i++)
+            {
+                var sectionType = sectionTypes[i];
+
+                CommandMessageSection section;
+                switch (sectionType)
+                {
+                    case 0:
+                        section = CreateType0Section();
+                        break;
+
+                    case 1:
+                        var identifier = $"id{i}";
+                        var documents = Enumerable.Range(0, i + 1).Select(n => new BsonDocument("n", n)).ToArray();
+                        section = CreateType1Section(identifier, documents);
+                        break;
+
+                    default:
+                        throw new ArgumentException($"Invalid payload type: {sectionType}.", nameof(sectionTypes));
+                }
+                sections.Add(section);
+            }
+            return sections;
+        }
 
         private CommandMessageBinaryEncoder CreateSubject(byte[] bytes)
         {
@@ -427,5 +531,55 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             return new CommandMessageBinaryEncoder(stream, encoderSettings);
         }
 
+        private Type0CommandMessageSection<BsonDocument> CreateType0Section(BsonDocument document = null)
+        {
+            document = document ?? new BsonDocument("t", 0);
+            return new Type0CommandMessageSection<BsonDocument>(document, BsonDocumentSerializer.Instance);
+        }
+
+        private byte[] CreateType0SectionBytes(Type0CommandMessageSection<BsonDocument> section)
+        {
+            using (var memoryStream = new MemoryStream())
+            using (var writer = new BsonBinaryWriter(memoryStream))
+            {
+                memoryStream.WriteByte(0);
+                var context = BsonSerializationContext.CreateRoot(writer);
+                BsonDocumentSerializer.Instance.Serialize(context, section.Document);
+                return memoryStream.ToArray();
+            }
+        }
+
+        private Type1CommandMessageSection<BsonDocument> CreateType1Section(
+            string identifier = null,
+            BsonDocument[] documents = null,
+            bool canBeSplit = false)
+        {
+            identifier = identifier ?? "id";
+            documents = documents ?? new BsonDocument[0];
+            var batch = new BatchableSource<BsonDocument>(documents, canBeSplit: canBeSplit);
+            return new Type1CommandMessageSection<BsonDocument>(identifier, batch, BsonDocumentSerializer.Instance, NoOpElementNameValidator.Instance, null, null);
+        }
+
+        private byte[] CreateType1SectionBytes(Type1CommandMessageSection<BsonDocument> section)
+        {
+            using (var memoryStream = new MemoryStream())
+            using (var stream = new BsonStreamAdapter(memoryStream))
+            using (var writer = new BsonBinaryWriter(stream))
+            {
+                stream.WriteByte(1);
+                var payloadStartPosition = stream.Position;
+                stream.WriteInt32(0); // size
+                stream.WriteCString(section.Identifier);
+                var context = BsonSerializationContext.CreateRoot(writer);
+                var batch = section.Documents;
+                for (var i = 0; i < batch.Count; i++)
+                {
+                    var document = batch.Items[batch.Offset + i];
+                    BsonDocumentSerializer.Instance.Serialize(context, document);
+                }
+                stream.BackpatchSize(payloadStartPosition);
+                return memoryStream.ToArray();
+            }
+        }
     }
 }

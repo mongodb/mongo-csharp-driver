@@ -16,10 +16,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Driver;
+using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using Xunit;
 
@@ -39,16 +38,15 @@ namespace MongoDB.Driver.Tests
                 { "SERVICE_NAME", "other" },
                 { "CANONICALIZE_HOST_NAME", "true" }
             };
-            var zlibCompressor = new  MongoCompressor("zlib");
-            zlibCompressor.Properties.Add(MongoCompressor.Level, 4);
-
+            var zlibCompressor = new CompressorConfiguration(CompressorType.Zlib);
+            zlibCompressor.Properties.Add("Level", 4);
             var built = new MongoUrlBuilder()
             {
                 ApplicationName = "app",
                 AuthenticationMechanism = "GSSAPI",
                 AuthenticationMechanismProperties = authMechanismProperties,
                 AuthenticationSource = "db",
-                Compressors = new[] {zlibCompressor},
+                Compressors = new[] { zlibCompressor },
                 ConnectionMode = ConnectionMode.ReplicaSet,
                 ConnectTimeout = TimeSpan.FromSeconds(1),
                 DatabaseName = "database",
@@ -123,7 +121,9 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(authMechanismProperties, builder.AuthenticationMechanismProperties);
                 Assert.Equal("db", builder.AuthenticationSource);
                 Assert.Equal(123, builder.ComputedWaitQueueSize);
-                Assert.Contains(builder.Compressors, x => x.Name == "zlib");
+                Assert.Contains(
+                    builder.Compressors,
+                    x => x.Type == CompressorType.Zlib && x.Properties.ContainsKey("Level") && (int)x.Properties["Level"] == 4);
                 Assert.Equal(ConnectionMode.ReplicaSet, builder.ConnectionMode);
                 Assert.Equal(TimeSpan.FromSeconds(1), builder.ConnectTimeout);
                 Assert.Equal("database", builder.DatabaseName);
@@ -249,21 +249,41 @@ namespace MongoDB.Driver.Tests
         }
 
         [Theory]
-        [InlineData(null, "mongodb://localhost", new[] { "" })]
-        [InlineData(new []{ "zlib" }, "mongodb://localhost/?compressors={0}", new[] { "zlib" })]
-        public void TestCompressors(string[] compressors, string formatString, string[] values)
+        [InlineData(null, null, "mongodb://localhost", null)]
+        [InlineData(new[] { CompressorType.Zlib }, null, "mongodb://localhost/?compressors={0}", new[] { CompressorType.Zlib })]
+        [InlineData(new[] { CompressorType.Zlib }, "Level;zlibCompressionLevel;1", "mongodb://localhost/?compressors={0}", new[] { CompressorType.Zlib })]
+        [InlineData(new[] { CompressorType.Snappy }, null, "mongodb://localhost/?compressors={0}", new[] { CompressorType.Snappy })]
+        [InlineData(new[] { CompressorType.Snappy, CompressorType.Zlib }, null, "mongodb://localhost/?compressors={0}", new[] { CompressorType.Snappy, CompressorType.Zlib })]
+        public void TestCompressors(CompressorType[] compressors, string compressionProperty, string formatString, CompressorType[] values)
         {
-            var built = new MongoUrlBuilder { Server = _localhost };
-            if (compressors != null) { built.Compressors = compressors.Select(x => new MongoCompressor("zlib")); }
-
-            var canonicalConnectionString = string.Format(formatString, values[0]);
-            foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
+            var subject = new MongoUrlBuilder { Server = _localhost };
+            if (compressors != null)
             {
-                Assert.Equal(compressors ?? new string[0], builder.Compressors.Select(x => x.Name));
-                Assert.Equal(canonicalConnectionString, builder.ToString());
+                subject.Compressors = compressors
+                    .Select(x =>
+                    {
+                        var compression = new CompressorConfiguration(x);
+                        if (!string.IsNullOrWhiteSpace(compressionProperty))
+                        {
+                            var @params = compressionProperty.Split(';');
+                            compression.Properties.Add(@params[0], @params[2]);
+                        }
+                        return compression;
+                    })
+                    .ToList();
             }
+
+            Assert.Equal(compressors ?? new CompressorType[0], subject.Compressors.Select(x => x.Type));
+            var expectedValues = values == null ? string.Empty : string.Join(",", values.Select(c => c.ToString().ToLower()));
+            if (!string.IsNullOrWhiteSpace(compressionProperty))
+            {
+                var @params = compressionProperty.Split(';');
+                expectedValues += $";{@params[1]}={@params[2]}";
+            }
+            var canonicalConnectionString = string.Format(formatString, expectedValues);
+            Assert.Equal(canonicalConnectionString, subject.ToString());
         }
-        
+
         [Theory]
         [InlineData(null, "mongodb://localhost", new[] { "" })]
         [InlineData(ConnectionMode.Automatic, "mongodb://localhost{0}", new[] { "", "/?connect=automatic", "/?connect=Automatic" })]
@@ -358,7 +378,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(null, builder.AuthenticationMechanism);
                 Assert.Equal(0, builder.AuthenticationMechanismProperties.Count());
                 Assert.Equal(null, builder.AuthenticationSource);
-                Assert.Equal(Enumerable.Empty<MongoCompressor>(), builder.Compressors);
+                Assert.Equal(new CompressorConfiguration[0], builder.Compressors);
                 Assert.Equal(MongoDefaults.ComputedWaitQueueSize, builder.ComputedWaitQueueSize);
                 Assert.Equal(ConnectionMode.Automatic, builder.ConnectionMode);
                 Assert.Equal(MongoDefaults.ConnectTimeout, builder.ConnectTimeout);

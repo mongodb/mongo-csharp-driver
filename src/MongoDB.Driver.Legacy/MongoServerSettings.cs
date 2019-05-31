@@ -34,7 +34,7 @@ namespace MongoDB.Driver
         // private fields
         private string _applicationName;
         private Action<ClusterBuilder> _clusterConfigurator;
-        private IEnumerable<MongoCompressor> _compressors;
+        private IReadOnlyList<CompressorConfiguration> _compressors;
         private ConnectionMode _connectionMode;
         private TimeSpan _connectTimeout;
         private MongoCredentialStore _credentials;
@@ -79,7 +79,7 @@ namespace MongoDB.Driver
         public MongoServerSettings()
         {
             _applicationName = null;
-            _compressors = Enumerable.Empty<MongoCompressor>();
+            _compressors = new CompressorConfiguration[0];
             _connectionMode = ConnectionMode.Automatic;
             _connectTimeout = MongoDefaults.ConnectTimeout;
             _credentials = new MongoCredentialStore(new MongoCredential[0]);
@@ -146,6 +146,19 @@ namespace MongoDB.Driver
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 _clusterConfigurator = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the compressors.
+        /// </summary>
+        public IReadOnlyList<CompressorConfiguration> Compressors
+        {
+            get { return _compressors; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
+                _compressors = value;
             }
         }
 
@@ -618,19 +631,6 @@ namespace MongoDB.Driver
             }
         }
 
-        /// <summary>
-        /// Gets or sets the compressors.
-        /// </summary>
-        public IEnumerable<MongoCompressor> Compressors
-        {
-            get { return _compressors; }
-            set
-            {
-                if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
-                _compressors = value;
-            }
-        }
-
         // public operators
         /// <summary>
         /// Determines whether two <see cref="MongoServerSettings"/> instances are equal.
@@ -835,7 +835,7 @@ namespace MongoDB.Driver
             return
                 _applicationName == rhs._applicationName &&
                 object.ReferenceEquals(_clusterConfigurator, rhs._clusterConfigurator) &&
-                _compressors == rhs._compressors &&
+               _compressors.SequenceEqual(rhs._compressors) &&
                _connectionMode == rhs._connectionMode &&
                _connectTimeout == rhs._connectTimeout &&
                _credentials == rhs._credentials &&
@@ -914,7 +914,7 @@ namespace MongoDB.Driver
             return new Hasher()
                 .Hash(_applicationName)
                 .Hash(_clusterConfigurator)
-                .Hash(_compressors)
+                .HashElements(_compressors)
                 .Hash(_connectionMode)
                 .Hash(_connectTimeout)
                 .Hash(_credentials)
@@ -965,7 +965,12 @@ namespace MongoDB.Driver
             {
                 parts.Add(string.Format("ApplicationName={0}", _applicationName));
             }
-            parts.Add(string.Format("Compressors={0}", string.Join(",", _compressors)));
+
+            if (_compressors?.Any() ?? false)
+            {
+                parts.Add($"Compressors={string.Join(",", _compressors)}");
+            }
+
             parts.Add(string.Format("ConnectionMode={0}", _connectionMode));
             parts.Add(string.Format("ConnectTimeout={0}", _connectTimeout));
             parts.Add(string.Format("Credentials={{{0}}}", _credentials));

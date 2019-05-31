@@ -22,13 +22,9 @@ namespace MongoDB.Driver.Examples
 {
     public class AggregatePrimer : PrimerTestFixture
     {
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task GroupDocumentsByAFieldAndCalculateCount(bool compressionEnabled)
+        [Fact]
+        public async Task GroupDocumentsByAFieldAndCalculateCount()
         {
-            WithCompression(compressionEnabled);
-            
             // @begin: group-documents-by-a-field-and-calculate-count
             // @code: start
             var collection = __database.GetCollection<BsonDocument>("restaurants");
@@ -52,13 +48,9 @@ namespace MongoDB.Driver.Examples
             // @end: group-documents-by-a-field-and-calculate-count
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task FilterAndGroupDocuments(bool compressionEnabled)
+        [Fact]
+        public async Task FilterAndGroupDocuments()
         {
-            WithCompression(compressionEnabled);
-            
             // @begin: filter-and-group-documents
             // @code: start
             var collection = __database.GetCollection<BsonDocument>("restaurants");

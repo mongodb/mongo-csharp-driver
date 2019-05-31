@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
@@ -27,6 +28,21 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     /// <seealso cref="MongoDB.Driver.Core.WireProtocol.Messages.MongoDBMessage" />
     public sealed class CommandMessage : MongoDBMessage
     {
+        // static
+        private static readonly HashSet<string> __messagesNotToBeCompressed = new HashSet<string>
+        {
+            "isMaster",
+            "saslStart",
+            "saslContinue",
+            "getnonce",
+            "authenticate",
+            "createUser",
+            "updateUser",
+            "copydbsaslstart",
+            "copydbgetnonce",
+            "copydb"
+        };
+
         // fields
         private bool _moreToCome;
         private Action<IMessageEncoderPostProcessor> _postWriteAction;
@@ -60,6 +76,23 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         }
 
         // public properties
+        /// <inheritdoc />
+        public override bool MayBeCompressed
+        {
+            get
+            {
+                var section = _sections.OfType<Type0CommandMessageSection<BsonDocument>>().First();
+                var commandName = section.Document.First().Name;
+
+                if (__messagesNotToBeCompressed.Contains(commandName))
+                {
+                    return false;
+                }
+
+                return true;
+            }
+        }
+
         /// <inheritdoc />
         public override MongoDBMessageType MessageType => MongoDBMessageType.Command;
 

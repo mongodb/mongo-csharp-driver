@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-present MongoDB Inc.
+﻿/* Copyright 2019-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,53 +13,60 @@
 * limitations under the License.
 */
 
+using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Compression;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages
 {
-	/// <summary>
-	/// Represents a compressed message.
-	/// </summary>
-	/// <seealso cref="MongoDB.Driver.Core.WireProtocol.Messages.MongoDBMessage" />
-	public class CompressedMessage : MongoDBMessage
-	{
-		private readonly MongoDBMessage _messageToBeCompressed;
-		private readonly ICompressor _compressor;
+    /// <summary>
+    /// Represents a compressed message.
+    /// </summary>
+    public class CompressedMessage : MongoDBMessage
+    {
+        private readonly CompressorType _compressorType;
+        private readonly MongoDBMessage _originalMessage;
+        private readonly BsonStream _originalMessageStream;  // not owned by this class
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="CompressedMessage"/> class.
-		/// </summary>
-		/// <param name="messageToBeCompressed">The message to be compressed.</param>
-		/// <param name="compressor">The compressor.</param>
-		public CompressedMessage(MongoDBMessage messageToBeCompressed, ICompressor compressor)
-		{
-			_messageToBeCompressed = messageToBeCompressed;
-			_compressor = compressor;
-		}
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CompressedMessage"/> class.
+        /// </summary>
+        /// <param name="originalMessage">The original message.</param>
+        /// <param name="originalMessageStream">The original message stream.</param>
+        /// <param name="compressorType">The compressor type.</param>
+        public CompressedMessage(
+            MongoDBMessage originalMessage,
+            BsonStream originalMessageStream,
+            CompressorType compressorType)
+        {
+            _originalMessage = Ensure.IsNotNull(originalMessage, nameof(originalMessage));
+            _originalMessageStream = originalMessageStream;
+            _compressorType = compressorType;
+        }
 
-		/// <summary>
-		/// Gets the type of the message.
-		/// </summary>
-		public override MongoDBMessageType MessageType => MongoDBMessageType.Compressed;
+        /// <summary>
+        /// The compressor type.
+        /// </summary>
+        public CompressorType CompressorType => _compressorType;
 
-		/// <summary>
-		/// The message that should be compressed.
-		/// </summary>
-		public MongoDBMessage MessageToBeCompressed => _messageToBeCompressed;
+        /// <inheritdoc />
+        public override MongoDBMessageType MessageType => MongoDBMessageType.Compressed;
 
-		/// <summary>
-		/// The compressor
-		/// </summary>
-		public ICompressor Compressor
-		{
-			get { return _compressor; }
-		}
+        /// <summary>
+        /// The original message.
+        /// </summary>
+        public MongoDBMessage OriginalMessage => _originalMessage;
 
-		/// <inheritdoc/>
-		public override IMessageEncoder GetEncoder(IMessageEncoderFactory encoderFactory)
-		{
-			return encoderFactory.GetCompressedMessageEncoder();
-		}
-	}
+        /// <summary>
+        /// The uncompressed original message stream.
+        /// </summary>
+        public BsonStream OriginalMessageStream => _originalMessageStream;
+
+        /// <inheritdoc />
+        public override IMessageEncoder GetEncoder(IMessageEncoderFactory encoderFactory)
+        {
+            return encoderFactory.GetCompressedMessageEncoder(null);
+        }
+    }
 }

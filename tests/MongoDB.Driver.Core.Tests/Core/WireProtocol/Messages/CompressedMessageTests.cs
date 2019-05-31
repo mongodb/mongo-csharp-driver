@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-present MongoDB Inc.
+﻿/* Copyright 2019-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,58 +15,65 @@
 
 using System.IO;
 using FluentAssertions;
+using MongoDB.Bson;
+using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Compression;
-using MongoDB.Driver.Core.Helpers;
+using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
+using Moq;
 using Xunit;
 
-namespace MongoDB.Driver.Core.WireProtocol.Messages
+namespace MongoDB.Driver.Core.Tests.Core.WireProtocol.Messages
 {
-	public class CompressedMessageTests
-	{
-		[Fact]
-		public void Constructor_should_initialize_instance()
-		{
-			var message = CommandMessageHelper.CreateMessage();
-			var compressor = new ZlibCompressor(-1);
+    public class CompressedMessageTests
+    {
+        [Fact]
+        public void Constructor_should_initialize_instance()
+        {
+            var compressorType = CompressorType.Zlib;
+            var commandMessage = GetCommandMessage();
 
-			var result = new CompressedMessage(message, compressor);
+            var result = new CompressedMessage(commandMessage, Mock.Of<BsonStream>(), compressorType);
 
-			result.Compressor.Should().Be(compressor);
-			result.MessageToBeCompressed.Should().Be(message);
-		}
+            result.CompressorType.Should().Be(compressorType);
+            result.OriginalMessage.ShouldBeEquivalentTo(commandMessage);
+            result.MessageType.Should().Be(MongoDBMessageType.Compressed);
+        }
 
-		[Fact]
-		public void MessageType_should_return_expected_result()
-		{
-			var subject = CreateSubject();
+        [Fact]
+        public void GetEncoder_should_return_a_CompressedMessageEncoder()
+        {
+            var subject = CreateSubject();
 
-			var result = subject.MessageType;
+            var stream = new MemoryStream();
+            var encoderSettings = new MessageEncoderSettings();
+            var encoderFactory = new BinaryMessageEncoderFactory(stream, encoderSettings, Mock.Of<ICompressorSource>());
 
-			result.Should().Be(MongoDBMessageType.Compressed);
-		}
+            var result = subject.GetEncoder(encoderFactory);
 
-		[Fact]
-		public void GetEncoder_should_return_a_CompressedMessageEncoder()
-		{
-			var subject = CreateSubject();
+            result.Should().BeOfType<CompressedMessageBinaryEncoder>();
+        }
 
-			var stream = new MemoryStream();
-			var encoderSettings = new MessageEncoderSettings();
-			var encoderFactory = new BinaryMessageEncoderFactory(stream, encoderSettings);
+        private CompressedMessage CreateSubject()
+        {
+            var message = GetCommandMessage();
+            var compressorType = CompressorType.Zlib;
 
-			var result = subject.GetEncoder(encoderFactory);
+            return new CompressedMessage(message, Mock.Of<BsonStream>(), compressorType);
+        }
 
-			result.Should().BeOfType<CompressedMessageBinaryEncoder>();
-		}
-		
-		private CompressedMessage CreateSubject()
-		{
-			var message = CommandMessageHelper.CreateMessage();
-			var compressor = new ZlibCompressor(-1);
-
-			return new CompressedMessage(message, compressor);
-		}
-	}
+        private CommandMessage GetCommandMessage()
+        {
+            return new CommandMessage(
+                1,
+                1,
+                new CommandMessageSection[1]
+                {
+                    new Type0CommandMessageSection<BsonDocument>(new BsonDocument(), BsonDocumentSerializer.Instance )
+                },
+                false);
+        }
+    }
 }

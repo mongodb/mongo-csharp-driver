@@ -23,7 +23,7 @@ namespace MongoDB.Bson.IO
     /// Represents a Stream backed by an IByteBuffer. Similar to MemoryStream but backed by an IByteBuffer
     /// instead of a byte array and also implements the BsonStream interface for higher performance BSON I/O.
     /// </summary>
-    public class ByteBufferStream : BsonStream
+    public class ByteBufferStream : BsonStream, IStreamEfficientCopyTo
     {
         // private fields
         private IByteBuffer _buffer;
@@ -122,6 +122,19 @@ namespace MongoDB.Bson.IO
         }
 
         // public methods
+        /// <inheritdoc/>
+        public void EfficientCopyTo(Stream destination)
+        {
+            long remainingCount;
+            while ((remainingCount = Length - Position) > 0)
+            {
+                var segment = _buffer.AccessBackingBytes((int)Position);
+                var count = (int)Math.Min(segment.Count, remainingCount);
+                destination.Write(segment.Array, segment.Offset, count);
+                Position += count;
+            }
+        }
+
         /// <inheritdoc/>
         public override void Flush()
         {

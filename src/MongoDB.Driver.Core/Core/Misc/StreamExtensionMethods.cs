@@ -24,6 +24,18 @@ namespace MongoDB.Driver.Core.Misc
     internal static class StreamExtensionMethods
     {
         // static methods
+        public static void EfficientCopyTo(this Stream input, Stream output)
+        {
+            if (input is IStreamEfficientCopyTo efficientCopyToStream)
+            {
+                efficientCopyToStream.EfficientCopyTo(output);
+            }
+            else
+            {
+                input.CopyTo(output); // fallback to standard CopyTo if EfficientCopyTo is not available
+            }
+        }
+
         public static void ReadBytes(this Stream stream, byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(stream, nameof(stream));

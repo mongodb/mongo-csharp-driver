@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Compression;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Configuration
@@ -224,7 +225,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ApplicationName.Should().BeNull();
             subject.AuthMechanism.Should().BeNull();
             subject.AuthSource.Should().BeNull();
-            subject.Compressors.Should().BeNull();
+            subject.Compressors.Should().BeEmpty();
             subject.Connect.Should().Be(ClusterConnectionMode.Automatic);
             subject.ConnectTimeout.Should().Be(null);
             subject.DatabaseName.Should().BeNull();
@@ -263,7 +264,7 @@ namespace MongoDB.Driver.Core.Configuration
                 "authMechanism=GSSAPI;" +
                 "authMechanismProperties=CANONICALIZE_HOST_NAME:true;" +
                 "authSource=admin;" +
-                "compressors=zlib;" +
+                "compressors=snappy,zlib;" +
                 "zlibCompressionLevel=4;" +
                 "connect=replicaSet;" +
                 "connectTimeout=15ms;" +
@@ -300,8 +301,13 @@ namespace MongoDB.Driver.Core.Configuration
             subject.AuthMechanismProperties.Count.Should().Be(1);
             subject.AuthMechanismProperties["canonicalize_host_name"].Should().Be("true");
             subject.AuthSource.Should().Be("admin");
-            subject.Compressors.Should().Contain(x => x.Name == "zlib")
-                                        .And.Contain(x => x.Properties.ContainsKey(MongoCompressor.Level));
+#if NET452 || NETSTANDARD2_0
+            var expectedCompressorTypes = new[] { CompressorType.Snappy, CompressorType.Zlib };
+#else
+            var expectedCompressorTypes = new[] { CompressorType.Zlib };
+#endif
+            subject.Compressors.Select(x => x.Type).Should().Equal(expectedCompressorTypes);
+            subject.Compressors.Single(x => x.Type == CompressorType.Zlib).Properties["Level"].Should().Be(4);
             subject.Connect.Should().Be(ClusterConnectionMode.ReplicaSet);
             subject.ConnectTimeout.Should().Be(TimeSpan.FromMilliseconds(15));
             subject.DatabaseName.Should().Be("test");
@@ -388,23 +394,23 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         [Theory]
-        [InlineData("mongodb://localhost?compressors=zlib", "zlib")]
-        public void When_compressors_are_specified(string connectionString, string compressor)
+        [InlineData("mongodb://localhost?compressors=zlib", CompressorType.Zlib)]
+        public void When_compressor_is_specified(string connectionString, CompressorType compressor)
         {
             var subject = new ConnectionString(connectionString);
 
-            subject.Compressors.Should().Contain(x => x.Name == compressor);
+            subject.Compressors.Should().Contain(x => x.Type == compressor);
         }
 
         [Theory]
-        [InlineData("mongodb://localhost?compressors=snappy", "snappy")]
-        public void Throw_if_compressor_unsupported(string connectionString, string compressor)
+        [InlineData("mongodb://localhost?compressors=unsupported")]
+        public void When_compressor_is_specified_with_unsupported_value_the_value_should_be_ignored(string connectionString)
         {
-           Action action = () => new ConnectionString(connectionString);
+            var subject = new ConnectionString(connectionString);
 
-            action.ShouldThrow<MongoConfigurationException>().WithMessage($"*{compressor}*");
+            subject.Compressors.Should().BeEmpty();
         }
-        
+
         [Theory]
         [InlineData("mongodb://localhost?connect=automatic", ClusterConnectionMode.Automatic)]
         [InlineData("mongodb://localhost?connect=direct", ClusterConnectionMode.Direct)]

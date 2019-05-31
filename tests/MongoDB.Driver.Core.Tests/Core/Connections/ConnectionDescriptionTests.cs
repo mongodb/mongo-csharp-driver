@@ -19,7 +19,7 @@ using System.Net;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Servers;
 using Xunit;
 
@@ -31,14 +31,35 @@ namespace MongoDB.Driver.Core.Connections
             "{ ok: 1, version: \"2.6.3\" }"
         ));
 
+        private static readonly IEnumerable<CompressorType> __compressors = new[] { CompressorType.Zlib };
+
         private static readonly ConnectionId __connectionId = new ConnectionId(
             new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017)));
 
-        private static readonly IEnumerable<string> __compression = new[] {"zlib"};
-        
         private static readonly IsMasterResult __isMasterResult = new IsMasterResult(BsonDocument.Parse(
             "{ ok: 1, maxWriteBatchSize: 10, maxBsonObjectSize: 20, maxMessageSizeBytes: 30, compression: ['zlib'] }"
         ));
+
+        private static readonly IsMasterResult __isMasterResultWithoutCompression = new IsMasterResult(BsonDocument.Parse(
+            "{ ok: 1, maxWriteBatchSize: 10, maxBsonObjectSize: 20, maxMessageSizeBytes: 30 }"
+        ));
+
+        [Fact]
+        public void AvailableCompressors_should_not_be_null()
+        {
+            var subject = new ConnectionDescription(__connectionId, __isMasterResultWithoutCompression, __buildInfoResult);
+
+            subject.AvailableCompressors.Count.Should().Be(0);
+        }
+
+        [Fact]
+        public void AvailableCompressors_should_return_expected_result()
+        {
+            var subject = new ConnectionDescription(__connectionId, __isMasterResult, __buildInfoResult);
+
+            subject.AvailableCompressors.Count.Should().Be(1);
+            subject.AvailableCompressors.Should().Equal(__compressors);
+        }
 
         [Fact]
         public void Constructor_should_throw_an_ArgumentNullException_when_connectionId_is_null()
@@ -84,14 +105,6 @@ namespace MongoDB.Driver.Core.Connections
             subject1.Equals(subject3).Should().BeFalse();
             subject1.Equals(subject4).Should().BeFalse();
             subject1.Equals(subject5).Should().BeFalse();
-        }
-
-        [Fact]
-        public void Compression_should_return_Compression()
-        {
-            var subject = new ConnectionDescription(__connectionId, __isMasterResult, __buildInfoResult);
-
-            subject.Compression.Should().Equal(__compression);
         }
 
         [Fact]

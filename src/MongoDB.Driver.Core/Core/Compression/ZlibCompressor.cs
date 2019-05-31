@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-present MongoDB Inc.
+﻿/* Copyright 2019-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,74 +13,69 @@
 * limitations under the License.
 */
 
-using System.Diagnostics.CodeAnalysis;
+using System;
 using System.IO;
+using MongoDB.Driver.Core.Misc;
 using SharpCompress.Compressors;
 using SharpCompress.Compressors.Deflate;
+using SharpCompress.IO;
 
 namespace MongoDB.Driver.Core.Compression
 {
-	/// <summary>
-	/// Compressors using zlib algorithm
-	/// </summary> 
-	public sealed class ZlibCompressor : ICompressor
-	{
-		private readonly CompressionLevel _compressionLevel;
+    /// <summary>
+    /// Compressor according to the zlib algorithm.
+    /// </summary> 
+    internal sealed class ZlibCompressor : ICompressor
+    {
+        private readonly CompressionLevel _compressionLevel;
 
-		/// <inheritdoc />
-		public string Name => "zlib";
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ZlibCompressor" /> class.
+        /// </summary>
+        /// <param name="compressionLevel">The compression level.</param>
+        public ZlibCompressor(int? compressionLevel = 0)
+        {
+            _compressionLevel = GetCompressionLevel(compressionLevel);
+        }
 
-		/// <inheritdoc />
-		public CompressorId Id => CompressorId.zlib;
+        /// <inheritdoc />
+        public CompressorType Type => CompressorType.Zlib;
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="ZlibCompressor" /> class.
-		/// </summary>
-		/// <param name="compressionLevel">The compression level.</param>
-		public ZlibCompressor(int compressionLevel)
-		{
-			_compressionLevel = GetCompressionLevel(compressionLevel);
-		}
+        /// <inheritdoc />
+        public void Compress(Stream input, Stream output)
+        {
+            using (var zlibStream = new ZlibStream(new NonDisposingStream(output), CompressionMode.Compress, _compressionLevel))
+            {
+                zlibStream.FlushMode = FlushType.Sync;
+                input.EfficientCopyTo(zlibStream);
+            }
+        }
 
-		/// <inheritdoc />
-		[SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
-		public byte[] Compress(byte[] bytesToCompress, int offset)
-		{
-			using (var memoryStream = new MemoryStream())
-			{
-				using (var zlibStream = new ZlibStream(memoryStream, CompressionMode.Compress, _compressionLevel))
-				{
-					zlibStream.Write(bytesToCompress, offset, bytesToCompress.Length - offset);
-				}
-				
-				return memoryStream.ToArray();
-			}
-		}
+        /// <inheritdoc />
+        public void Decompress(Stream input, Stream output)
+        {
+            using (var zlibStream = new ZlibStream(new NonDisposingStream(input), CompressionMode.Decompress))
+            {
+                zlibStream.CopyTo(output);
+            }
+        }
 
-		/// <inheritdoc />
-		[SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
-		public byte[] Decompress(byte[] bytesToDecompress)
-		{
-			using (var memoryStream = new MemoryStream())
-			{
-				using (var zlibStream = new ZlibStream(memoryStream, CompressionMode.Decompress))
-				{
-					zlibStream.Write(bytesToDecompress, 0, bytesToDecompress.Length);
-				}
-				
-				return memoryStream.ToArray();
-			}
-		}
+        private static CompressionLevel GetCompressionLevel(int? compressionLevel)
+        {
+            if (!compressionLevel.HasValue)
+            {
+                compressionLevel = -1;
+            }
 
-		private static CompressionLevel GetCompressionLevel(int compressionLevel)
-		{
-			if (compressionLevel < 0)
-				return CompressionLevel.Default;
-
-			if (compressionLevel > 9)
-				return CompressionLevel.BestCompression;
-
-			return (CompressionLevel) compressionLevel;
-		}
-	}
+            switch (compressionLevel)
+            {
+                case -1:
+                    return CompressionLevel.Default;
+                case int _ when compressionLevel >= 0 && compressionLevel <= 9:
+                    return (CompressionLevel)compressionLevel;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(compressionLevel));
+            }
+        }
+    }
 }

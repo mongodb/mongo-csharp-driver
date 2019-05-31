@@ -46,7 +46,6 @@ namespace MongoDB.Driver.Core.Connections
         {
             Ensure.IsNotNull(serverId, nameof(serverId));
             Ensure.IsNotNull(endPoint, nameof(endPoint));
-
             return new BinaryConnection(serverId, endPoint, _settings, _streamFactory, _connectionInitializer, _eventSubscriber);
         }
     }

@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-present MongoDB Inc.
+﻿/* Copyright 2019–present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,34 +13,49 @@
 * limitations under the License.
 */
 
+using System.IO;
+
 namespace MongoDB.Driver.Core.Compression
 {
-	/// <summary>
-	/// Represents a compressor.
-	/// </summary>
-	public interface ICompressor
-	{
-		/// <summary>
-		/// Gets the name of the compressor.
-		/// </summary>
-		string Name { get; }
-		
-		/// <summary>
-		/// Gets the id of the compressor
-		/// </summary>
-		CompressorId Id { get; }
+    /// <summary>
+    /// Represents the compressor type.
+    /// </summary>
+    public enum CompressorType
+    {
+        // NOTE: the numeric values of the enum members MUST be kept in sync with the binary wire protocol
 
-		/// <summary>
-		/// Compresses the specified byte array with a given offset.
-		/// </summary>
-		/// <param name="bytesToCompress">Bytes to compress.</param>
-		/// <param name="offset">Offset of the bytes.</param>
-		byte[] Compress(byte[] bytesToCompress, int offset);
+        /// <summary>
+        /// The content of the message is uncompressed. This is realistically only used for testing.
+        /// </summary>
+        Noop = 0,
+        /// <summary>
+        /// The content of the message is compressed using snappy.
+        /// </summary>
+        Snappy = 1,
+        /// <summary>
+        /// The content of the message is compressed using zlib. 
+        /// </summary>
+        Zlib = 2
+    }
 
-		/// <summary>
-		/// Decompresses the specified byte array.
-		/// </summary>
-		/// <param name="bytesToDecompress">Bytes to decompress.</param>
-		byte[] Decompress(byte[] bytesToDecompress);
-	}
+    /// <summary>
+    /// Represents a compressor.
+    /// </summary>
+    public interface ICompressor
+    {
+        /// <summary>
+        /// Gets the compressor type.
+        /// </summary>
+        CompressorType Type { get; }
+
+        /// <summary>
+        /// Compresses the specified stream.
+        /// </summary>
+        void Compress(Stream input, Stream output);
+
+        /// <summary>
+        /// Decompresses the specified stream.
+        /// </summary>
+        void Decompress(Stream input, Stream output);
+    }
 }

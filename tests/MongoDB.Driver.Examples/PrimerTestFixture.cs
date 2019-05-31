@@ -54,32 +54,6 @@ namespace MongoDB.Driver.Examples
             __reloadCollection = true;
         }
 
-        protected void WithCompression(bool compressionEnabled)
-        {
-            if (!compressionEnabled)
-            {
-                return;
-            }
-
-            var connectionString = CoreTestConfiguration.ConnectionString.ToString();
-
-            connectionString = AppendCompression(connectionString);
-            
-            __client = new MongoClient(connectionString);
-            __database = __client.GetDatabase("test");
-        }
-
-        private string AppendCompression(string connectionString)
-        {
-            if (connectionString.Contains("?"))
-                return $"{connectionString}&compressors=zlib";
-
-            if (connectionString.EndsWith("/"))
-                return $"{connectionString}?compressors=zlib";
-
-            return $"{connectionString}/?compressors=zlib";
-        }
-
         // helper methods
         private void LoadCollection()
         {

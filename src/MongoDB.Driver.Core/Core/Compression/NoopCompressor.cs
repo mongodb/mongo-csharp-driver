@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+﻿/* Copyright 2019–present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,19 +13,23 @@
 * limitations under the License.
 */
 
-namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
+using System.IO;
+using MongoDB.Driver.Core.Misc;
+
+namespace MongoDB.Driver.Core.Compression
 {
-    internal enum Opcode
+    internal class NoopCompressor : ICompressor
     {
-        Reply = 1,
-        Message = 1000,
-        Update = 2001,
-        Insert = 2002,
-        Query = 2004,
-        GetMore = 2005,
-        Delete = 2006,
-        KillCursors = 2007,
-        Compressed = 2012,
-        OpMsg = 2013
+        public CompressorType Type => CompressorType.Noop;
+
+        public void Compress(Stream input, Stream output)
+        {
+            input.EfficientCopyTo(output);
+        }
+
+        public void Decompress(Stream input, Stream output)
+        {
+            input.EfficientCopyTo(output);
+        }
     }
 }

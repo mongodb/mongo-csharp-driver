@@ -26,7 +26,7 @@ namespace MongoDB.Driver
         // fields
         private readonly string _applicationName;
         private readonly Action<ClusterBuilder> _clusterConfigurator;
-        private readonly IEnumerable<MongoCompressor> _compressors;
+        private readonly IReadOnlyList<CompressorConfiguration> _compressors;
         private readonly ConnectionMode _connectionMode;
         private readonly TimeSpan _connectTimeout;
         private readonly IReadOnlyList<MongoCredential> _credentials;
@@ -57,7 +57,7 @@ namespace MongoDB.Driver
         public ClusterKey(
             string applicationName,
             Action<ClusterBuilder> clusterConfigurator,
-            IEnumerable<MongoCompressor> compressors,
+            IReadOnlyList<CompressorConfiguration> compressors,
             ConnectionMode connectionMode,
             TimeSpan connectTimeout,
             IReadOnlyList<MongoCredential> credentials,
@@ -117,7 +117,7 @@ namespace MongoDB.Driver
         // properties
         public string ApplicationName { get { return _applicationName; } }
         public Action<ClusterBuilder> ClusterConfigurator { get { return _clusterConfigurator; } }
-        public IEnumerable<MongoCompressor> Compressors { get { return _compressors; } }
+        public IReadOnlyList<CompressorConfiguration> Compressors { get { return _compressors; } }
         public ConnectionMode ConnectionMode { get { return _connectionMode; } }
         public TimeSpan ConnectTimeout { get { return _connectTimeout; } }
         public IReadOnlyList<MongoCredential> Credentials { get { return _credentials; } }
@@ -164,7 +164,7 @@ namespace MongoDB.Driver
                 _hashCode == rhs._hashCode && // fail fast
                 _applicationName == rhs._applicationName &&
                 object.ReferenceEquals(_clusterConfigurator, rhs._clusterConfigurator) &&
-                _compressors == rhs._compressors &&
+                _compressors.SequenceEqual(rhs._compressors) &&
                 _connectionMode == rhs._connectionMode &&
                 _connectTimeout == rhs._connectTimeout &&
                 _credentials.SequenceEqual(rhs._credentials) &&

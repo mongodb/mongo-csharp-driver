@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-present MongoDB Inc.
+﻿/* Copyright 2019-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Compression;
@@ -22,98 +21,132 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
-	/// <summary>
-	/// Represents a binary encoder for a compressed message.
-	/// </summary>
-	public sealed class CompressedMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder
-	{
-		private readonly MessageEncoderSettings _encoderSettings;
-		private const int MessageHeaderLength = 16;
+    /// <summary>
+    /// Represents a binary encoder for a compressed message.
+    /// </summary>
+    public sealed class CompressedMessageBinaryEncoder : MessageBinaryEncoderBase, IMessageEncoder
+    {
+        private readonly ICompressorSource _compressorSource;
+        private readonly MessageEncoderSettings _encoderSettings;
+        private readonly IMessageEncoderSelector _originalEncoderSelector;
+        private const int MessageHeaderLength = 16;
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="CompressedMessageBinaryEncoder" /> class.
-		/// </summary>
-		/// <param name="stream">The stream.</param>
-		/// <param name="encoderSettings">The encoder settings.</param>
-		public CompressedMessageBinaryEncoder(Stream stream, MessageEncoderSettings encoderSettings)
-			: base(stream, encoderSettings)
-		{
-			_encoderSettings = encoderSettings;
-		}
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CompressedMessageBinaryEncoder" /> class.
+        /// </summary>
+        /// <param name="stream">The stream.</param>
+        /// <param name="originalEncoderSelector">The original encoder selector.</param>
+        /// <param name="compressorSource">The compressor source.</param>
+        /// <param name="encoderSettings">The encoder settings.</param>
+        public CompressedMessageBinaryEncoder(
+            Stream stream,
+            IMessageEncoderSelector originalEncoderSelector,
+            ICompressorSource compressorSource,
+            MessageEncoderSettings encoderSettings)
+            : base(stream, encoderSettings)
+        {
+            _compressorSource = Ensure.IsNotNull(compressorSource, nameof(compressorSource));
+            _encoderSettings = encoderSettings; // can be null
+            _originalEncoderSelector = originalEncoderSelector;
+        }
 
-		/// <summary>
-		/// Reads the message.
-		/// </summary>
-		/// <returns>A message.</returns>
-		public CompressedMessage ReadMessage()
-		{
-			throw new NotSupportedException();
-		}
-		
-		/// <summary>
-		/// Writes the message.
-		/// </summary>
-		/// <param name="message">The message.</param>
-		public void WriteMessage(CompressedMessage message)
-		{
-			Ensure.IsNotNull(message, nameof(message));
+        /// <summary>
+        /// Reads the message.
+        /// </summary>
+        /// <returns>A message.</returns>
+        public CompressedMessage ReadMessage()
+        {
+            var reader = CreateBinaryReader();
+            var stream = reader.BsonStream;
 
-			var writer = CreateBinaryWriter();
-			var stream = writer.BsonStream;
-			var messageStartPosition = stream.Position;
+            var messageStartPosition = stream.Position;
+            var messageLength = stream.ReadInt32();
+            EnsureMessageLengthIsValid(messageLength);
+            var requestId = stream.ReadInt32();
+            var responseTo = stream.ReadInt32();
+            var opcode = (Opcode)stream.ReadInt32();
+            EnsureOpcodeIsValid(opcode);
+            var originalOpcode = (Opcode)stream.ReadInt32();
+            var uncompressedSize = stream.ReadInt32();
+            var compressorType = (CompressorType)stream.ReadByte();
+            var compressor = _compressorSource.Get(compressorType);
 
-			var originalMessageBytes = EncodeOriginalMessage(message.MessageToBeCompressed);
+            using (var uncompressedBuffer = new MultiChunkBuffer(new OutputBufferChunkSource(BsonChunkPool.Default)))
+            using (var uncompressedStream = new ByteBufferStream(uncompressedBuffer, ownsBuffer: false))
+            {
+                uncompressedStream.WriteInt32(uncompressedSize + MessageHeaderLength);
+                uncompressedStream.WriteInt32(requestId);
+                uncompressedStream.WriteInt32(responseTo);
+                uncompressedStream.WriteInt32((int)originalOpcode);
+                compressor.Decompress(stream, uncompressedStream);
+                uncompressedStream.Position = 0;
+                uncompressedBuffer.MakeReadOnly();
 
-			WriteHeader(stream, originalMessageBytes, message.Compressor.Id);
-			var compressedBytes = message.Compressor.Compress(originalMessageBytes, MessageHeaderLength);
+                var originalMessageEncoderFactory = new BinaryMessageEncoderFactory(uncompressedStream, _encoderSettings, _compressorSource);
+                var originalMessageEncoder = _originalEncoderSelector.GetEncoder(originalMessageEncoderFactory);
+                var originalMessage = originalMessageEncoder.ReadMessage();
 
-			stream.Write(compressedBytes, 0, compressedBytes.Length);
-			
-			stream.BackpatchSize(messageStartPosition);
-		}
+                return new CompressedMessage(originalMessage, null, compressorType);
+            }
+        }
 
-		[SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
-		private static void WriteHeader(BsonStream bsonStream, byte[] originalMessageBytes, CompressorId compressorId)
-		{
-			using (var stream = new MemoryStream(originalMessageBytes))
-			using (var reader = new BinaryReader(stream))
-			{
-				var messageSize = reader.ReadInt32();
-				var messageRequestId = reader.ReadInt32();
-				var responseTo = reader.ReadInt32();
-				var originalOpCode = reader.ReadInt32();
-				
-				bsonStream.WriteInt32(0); // Compressed message size
-				bsonStream.WriteInt32(messageRequestId);
-				bsonStream.WriteInt32(responseTo);
-				bsonStream.WriteInt32((int)Opcode.Compressed);
-				bsonStream.WriteInt32(originalOpCode);
-				bsonStream.WriteInt32(messageSize - MessageHeaderLength);
-				bsonStream.WriteByte((byte)compressorId);
-			}
-		}
+        /// <summary>
+        /// Writes the message.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        public void WriteMessage(CompressedMessage message)
+        {
+            Ensure.IsNotNull(message, nameof(message));
 
-		private byte[] EncodeOriginalMessage(MongoDBMessage originalMessage)
-		{
-			using (var stream = new MemoryStream())
-			{
-				var encoderFactory = new BinaryMessageEncoderFactory(stream, _encoderSettings);
+            var writer = CreateBinaryWriter();
+            var stream = writer.BsonStream;
 
-				var encoder = originalMessage.GetEncoder(encoderFactory);
-				encoder.WriteMessage(originalMessage);
-				
-				return stream.ToArray();
-			}
-		}
-		
-		MongoDBMessage IMessageEncoder.ReadMessage()
-		{
-			return ReadMessage();
-		}
-		
-		void IMessageEncoder.WriteMessage(MongoDBMessage message)
-		{
-			WriteMessage((CompressedMessage)message);
-		}
-	}
+            var uncompressedMessageStream = message.OriginalMessageStream;
+            var uncompressedMessageLength = uncompressedMessageStream.ReadInt32();
+            var requestId = uncompressedMessageStream.ReadInt32();
+            var responseTo = uncompressedMessageStream.ReadInt32();
+            var originalOpcode = (Opcode)uncompressedMessageStream.ReadInt32();
+
+            var compressorType = message.CompressorType;
+            var compressor = _compressorSource.Get(compressorType);
+
+            var messageStartPosition = stream.Position;
+            stream.WriteInt32(0); // messageLength
+            stream.WriteInt32(requestId);
+            stream.WriteInt32(responseTo);
+            stream.WriteInt32((int)Opcode.Compressed);
+            stream.WriteInt32((int)originalOpcode);
+            stream.WriteInt32(uncompressedMessageLength - MessageHeaderLength);
+            stream.WriteByte((byte)compressorType);
+            compressor.Compress(uncompressedMessageStream, stream);
+            stream.BackpatchSize(messageStartPosition);
+        }
+
+        MongoDBMessage IMessageEncoder.ReadMessage()
+        {
+            return ReadMessage();
+        }
+
+        void IMessageEncoder.WriteMessage(MongoDBMessage message)
+        {
+            WriteMessage((CompressedMessage)message);
+        }
+
+        // private methods
+        private void EnsureMessageLengthIsValid(int messageLength)
+        {
+            if (messageLength < 0)
+            {
+                throw new FormatException("Command message length is negative.");
+            }
+        }
+
+        private void EnsureOpcodeIsValid(Opcode opcode)
+        {
+            if (opcode != Opcode.Compressed)
+            {
+                throw new FormatException("Command message opcode is not OP_COMPRESSED.");
+            }
+        }
+    }
 }

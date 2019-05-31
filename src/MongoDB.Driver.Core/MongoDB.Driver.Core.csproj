@@ -49,6 +49,9 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
+    <PackageReference Include="Snappy.NET">
+      <Version>1.1.1.8</Version>
+    </PackageReference>
     <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
   </ItemGroup>
 

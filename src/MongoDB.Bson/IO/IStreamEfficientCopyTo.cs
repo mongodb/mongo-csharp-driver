@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-present MongoDB Inc.
+﻿/* Copyright 2019-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,24 +13,19 @@
 * limitations under the License.
 */
 
-namespace MongoDB.Driver.Core.Compression
+using System.IO;
+
+namespace MongoDB.Bson.IO
 {
-	/// <summary>
-	/// Represents the compressor id.
-	/// </summary>
-	public enum CompressorId
-	{
-		/// <summary>
-		/// No compression.
-		/// </summary>
-		noop = 0,
-		///// <summary>
-		///// Compression using snappy algorithm. NOT SUPPORTED YET.
-		///// </summary>
-		//snappy = 1, 
-		/// <summary>
-		/// Compression using zlib algorithm. 
-		/// </summary>
-		zlib = 2
-	}
+    /// <summary>
+    /// Represents the effective CopyTo method.
+    /// </summary>
+    public interface IStreamEfficientCopyTo
+    {
+        /// <summary>
+        /// Copy the current stream to the destination without making unnecessary copies of the bytes.
+        /// </summary>
+        /// <param name="destination">The destination stream.</param>
+        void EfficientCopyTo(Stream destination);
+    }
 }

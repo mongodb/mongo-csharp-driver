@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -33,9 +32,9 @@ namespace MongoDB.Driver.Core.Connections
             return command.Add("client", clientDocument, clientDocument != null); 
         }
 
-        internal static BsonDocument AddCompressorsToCommand(BsonDocument command, IEnumerable<MongoCompressor> compressors)
+        internal static BsonDocument AddCompressorsToCommand(BsonDocument command, IEnumerable<CompressorConfiguration> compressors)
         {
-            var compressorsArray = new BsonArray(compressors.Select(x => x.Name));
+            var compressorsArray = new BsonArray(compressors.Select(x => x.Type.ToString().ToLowerInvariant()));
 
             return command.Add("compression", compressorsArray);
         }
@@ -44,7 +43,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             return new BsonDocument { { "isMaster", 1 } };
         }
-
+        
         internal static BsonDocument CustomizeCommand(BsonDocument command, IReadOnlyList<IAuthenticator> authenticators)
         {
             return authenticators.Count == 1 ? authenticators[0].CustomizeInitialIsMasterCommand(command) : command;

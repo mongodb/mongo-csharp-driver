@@ -15,6 +15,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
 
@@ -27,12 +29,12 @@ namespace MongoDB.Driver.Core.Connections
     {
         // fields
         private readonly BuildInfoResult _buildInfoResult;
+        private readonly IReadOnlyList<CompressorType> _compressors;
         private readonly ConnectionId _connectionId;
         private readonly IsMasterResult _isMasterResult;
         private readonly int _maxBatchCount;
         private readonly int _maxDocumentSize;
         private readonly int _maxMessageSize;
-        private readonly IEnumerable<string> _compression;
         private readonly SemanticVersion _serverVersion;
 
         // constructors
@@ -48,10 +50,10 @@ namespace MongoDB.Driver.Core.Connections
             _buildInfoResult = Ensure.IsNotNull(buildInfoResult, nameof(buildInfoResult));
             _isMasterResult = Ensure.IsNotNull(isMasterResult, nameof(isMasterResult));
 
+            _compressors = Ensure.IsNotNull(_isMasterResult.Compressions, "compressions");
             _maxBatchCount = isMasterResult.MaxBatchCount;
             _maxDocumentSize = isMasterResult.MaxDocumentSize;
             _maxMessageSize = isMasterResult.MaxMessageSize;
-            _compression = isMasterResult.Compression;
             _serverVersion = buildInfoResult.ServerVersion;
         }
 
@@ -65,6 +67,14 @@ namespace MongoDB.Driver.Core.Connections
         public BuildInfoResult BuildInfoResult
         {
             get { return _buildInfoResult; }
+        }
+
+        /// <summary>
+        /// Gets the available compressors.
+        /// </summary>
+        public IReadOnlyList<CompressorType> AvailableCompressors
+        {
+            get { return _compressors; }
         }
 
         /// <summary>
@@ -142,14 +152,6 @@ namespace MongoDB.Driver.Core.Connections
         public SemanticVersion ServerVersion
         {
             get { return _serverVersion; }
-        }
-
-        /// <summary>
-        /// Gets the compressors.
-        /// </summary>
-        public IEnumerable<string> Compression
-        {
-            get { return _compression; }
         }
 
         // methods

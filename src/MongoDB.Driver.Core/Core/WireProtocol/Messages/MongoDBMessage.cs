@@ -29,6 +29,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     {
         // properties
         /// <summary>
+        /// Gets the flag whether the message may be compressed or not.
+        /// </summary>
+        public virtual bool MayBeCompressed => false;
+
+        /// <summary>
         /// Gets the type of the message.
         /// </summary>
         public abstract MongoDBMessageType MessageType { get; }

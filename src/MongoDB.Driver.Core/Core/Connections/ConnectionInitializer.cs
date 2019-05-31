@@ -14,30 +14,13 @@
 */
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
-/* Copyright 2013-present MongoDB Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
-
-using System;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Authentication;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
 
 namespace MongoDB.Driver.Core.Connections
@@ -47,13 +30,13 @@ namespace MongoDB.Driver.Core.Connections
     /// </summary>
     internal class ConnectionInitializer : IConnectionInitializer
     {
-        private readonly IEnumerable<MongoCompressor> _compressors;
         private readonly BsonDocument _clientDocument;
+        private readonly IReadOnlyList<CompressorConfiguration> _compressors;
 
-        public ConnectionInitializer(string applicationName, IEnumerable<MongoCompressor> compressors)
+        public ConnectionInitializer(string applicationName, IReadOnlyList<CompressorConfiguration> compressors)
         {
             _clientDocument = ClientDocumentHelper.CreateClientDocument(applicationName);
-            _compressors = compressors;
+            _compressors = Ensure.IsNotNull(compressors, nameof(compressors));
         }
 
         public ConnectionDescription InitializeConnection(IConnection connection, CancellationToken cancellationToken)
@@ -147,7 +130,7 @@ namespace MongoDB.Driver.Core.Connections
             return IsMasterHelper.CustomizeCommand(command, authenticators);
         }
 
-        private static ConnectionDescription UpdateConnectionIdWithServerValue(ConnectionDescription description, BsonDocument getLastErrorResult)
+        private ConnectionDescription UpdateConnectionIdWithServerValue(ConnectionDescription description, BsonDocument getLastErrorResult)
         {
             BsonValue connectionIdBsonValue;
             if (getLastErrorResult.TryGetValue("connectionId", out connectionIdBsonValue))

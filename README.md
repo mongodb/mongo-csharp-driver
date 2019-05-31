@@ -103,6 +103,7 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Teun Duynstee             teun@duynstee.com
 * Einar Egilsson            https://github.com/einaregilsson
 * Ken Egozi                 mail@kenegozi.com
+* Alexander Endris          https://github.com/AlexEndris
 * Daniel Goldman            daniel@stackwave.com
 * Simon Green               simon@captaincodeman.com
 * James Hadwen              james.hadwen@sociustec.com

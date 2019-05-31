@@ -434,6 +434,18 @@ axes:
         variables:
            SSL: "nossl"
 
+  - id: compressor
+    display_name: Compressor
+    values:
+      - id: "zlib"
+        display_name: Zlib
+        variables:
+           COMPRESSOR: "zlib"
+      - id: "snappy"
+        display_name: Snappy
+        variables:
+           COMPRESSOR: "snappy"
+
 buildvariants:
 
 - name: windows-64-compile
@@ -456,6 +468,20 @@ buildvariants:
   tags: ["tests-variant"]
   tasks:
      - name: test
+
+- matrix_name: "tests-zlib-compression"
+  matrix_spec: { compressor : "zlib", auth: "noauth", ssl: "nossl", version: ["3.4", "3.6", "4.0", "latest"], topology: "standalone", os: "*" }
+  display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
+  tags: ["tests-variant"]
+  tasks:
+     - name: "test"
+
+#- matrix_name: "tests-snappy-compression"
+#  matrix_spec: { compressor : "snappy", auth: "noauth", ssl: "nossl", version: ["3.4", "3.6", "4.0", "latest"], topology: "standalone", os: "*" }
+#  display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
+#  tags: ["tests-variant"]
+#  tasks:
+#     - name: "test"
 
 - name: atlas-connectivity-tests
   display_name: "Atlas Connectivity Tests"

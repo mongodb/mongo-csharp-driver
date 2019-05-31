@@ -22,12 +22,9 @@ namespace MongoDB.Driver.Examples
 {
     public class RemovePrimer : PrimerTestFixture
     {
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task RemoveMatchingDocument(bool compressionEnabled)
+        [Fact]
+        public async Task RemoveMatchingDocument()
         {
-            WithCompression(compressionEnabled);
             AltersCollection();
 
             // @begin: remove-matching-documents
@@ -44,12 +41,9 @@ namespace MongoDB.Driver.Examples
             // @end: remove-matching-documents
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task RemoveAllDocuments(bool compressionEnabled)
+        [Fact]
+        public async Task RemoveAllDocuments()
         {
-            WithCompression(compressionEnabled);
             AltersCollection();
 
             // @begin: remove-all-documents
@@ -66,12 +60,9 @@ namespace MongoDB.Driver.Examples
             // @end: remove-all-documents
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task DropCollection(bool compressionEnabled)
+        [Fact]
+        public async Task DropCollection()
         {
-            WithCompression(compressionEnabled);
             AltersCollection();
 
             // @begin: drop-collection
