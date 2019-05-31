@@ -22,7 +22,6 @@ using System.Reflection;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Events;
@@ -93,6 +92,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
                     cb.ConfigureServer(ss => ss.With(heartbeatInterval: Timeout.InfiniteTimeSpan));
                 }
             };
+            settings.RetryWrites = false;
 
             __client = new MongoClient(settings);
 

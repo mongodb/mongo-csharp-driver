@@ -96,7 +96,7 @@ namespace MongoDB.Driver
             _readPreference = ReadPreference.Primary;
             _replicaSetName = null;
             _retryReads = true;
-            _retryWrites = false;
+            _retryWrites = true;
             _scheme = ConnectionStringScheme.MongoDB;
             _sdamLogFilename = null;
             _servers = new List<MongoServerAddress> { new MongoServerAddress("localhost") };
@@ -421,6 +421,9 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets whether to retry writes.
         /// </summary>
+        /// <value>
+        /// The default value is <c>true</c>.
+        /// </value>
         public bool RetryWrites
         {
             get { return _retryWrites; }
@@ -727,7 +730,7 @@ namespace MongoDB.Driver
             serverSettings.ReadPreference = (url.ReadPreference == null) ? ReadPreference.Primary : url.ReadPreference;
             serverSettings.ReplicaSetName = url.ReplicaSetName;
             serverSettings.RetryReads = url.RetryReads ?? true;
-            serverSettings.RetryWrites = url.RetryWrites ?? false;
+            serverSettings.RetryWrites = url.RetryWrites ?? true;
             serverSettings.LocalThreshold = url.LocalThreshold;
             serverSettings.Scheme = url.Scheme;
             serverSettings.SdamLogFilename = null; // SdamLogFilename must be provided in code

@@ -92,6 +92,20 @@ namespace MongoDB.Driver.Tests
             return __database.GetCollection<T>(__collection.Name);
         }
 
+        public static MongoServer GetServer(
+            bool? retryWrites = null)
+        {
+            var settings = DriverTestConfiguration.GetClientSettings();
+            if (retryWrites.HasValue)
+            {
+                settings.RetryWrites = retryWrites.Value;
+            }
+            var client = new MongoClient(settings);
+#pragma warning disable 618
+            return client.GetServer();
+#pragma warning restore 618
+        }
+
         public static void StartReplication(MongoServerInstance secondary)
         {
             using (__server.RequestStart(secondary))

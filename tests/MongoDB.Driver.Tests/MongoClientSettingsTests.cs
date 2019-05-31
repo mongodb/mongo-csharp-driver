@@ -145,7 +145,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(ReadPreference.Primary, settings.ReadPreference);
             Assert.Equal(null, settings.ReplicaSetName);
             Assert.Equal(true, settings.RetryReads);
-            Assert.Equal(false, settings.RetryWrites);
+            Assert.Equal(true, settings.RetryWrites);
             Assert.Equal(ConnectionStringScheme.MongoDB, settings.Scheme);
             Assert.Equal(_localHost, settings.Server);
             Assert.Equal(_localHost, settings.Servers.First());
@@ -245,7 +245,7 @@ namespace MongoDB.Driver.Tests
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
-            clone.RetryWrites = true;
+            clone.RetryWrites = false;
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
@@ -616,15 +616,15 @@ namespace MongoDB.Driver.Tests
         public void TestRetryWrites()
         {
             var settings = new MongoClientSettings();
-            Assert.Equal(false, settings.RetryWrites);
+            Assert.Equal(true, settings.RetryWrites);
 
-            var retryWrites = true;
+            var retryWrites = false;
             settings.RetryWrites = retryWrites;
             Assert.Equal(retryWrites, settings.RetryWrites);
 
             settings.Freeze();
             Assert.Equal(retryWrites, settings.RetryWrites);
-            Assert.Throws<InvalidOperationException>(() => { settings.RetryWrites = false; });
+            Assert.Throws<InvalidOperationException>(() => { settings.RetryWrites = true; });
         }
 
         [Fact]

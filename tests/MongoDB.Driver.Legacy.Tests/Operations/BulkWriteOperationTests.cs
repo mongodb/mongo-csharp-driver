@@ -14,17 +14,16 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
-using MongoDB.Driver;
 using MongoDB.Driver.Builders;
-using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Legacy.Tests;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Operations
@@ -168,7 +167,7 @@ namespace MongoDB.Driver.Tests.Operations
         {
             var count = _primary.MaxBatchCount + maxBatchCountDelta;
             _collection.Drop();
-            _collection.InsertBatch(Enumerable.Range(0, count).Select(n => new BsonDocument { { "_id", n },  { "n", 0 } }));
+            _collection.InsertBatch(Enumerable.Range(0, count).Select(n => new BsonDocument { { "_id", n }, { "n", 0 } }));
 
             var bulk = _collection.InitializeOrderedBulkOperation();
             for (var n = 0; n < count; n++)
@@ -209,13 +208,16 @@ namespace MongoDB.Driver.Tests.Operations
         [InlineData(true, 1)]
         public void TestExecuteWithExplicitWriteConcern(bool ordered, int w)
         {
+            var server = LegacyTestConfiguration.GetServer(retryWrites: false);
+            var collection = GetCollection(server);
+
             // use RequestStart because some of the test cases use { w : 0 }
-            using (_server.RequestStart())
+            using (server.RequestStart())
             {
-                _collection.Drop();
+                collection.Drop();
 
                 var document = new BsonDocument("_id", 1);
-                var bulk = InitializeBulkOperation(_collection, ordered);
+                var bulk = InitializeBulkOperation(collection, ordered);
                 bulk.Insert(document);
                 var result = bulk.Execute(new WriteConcern(w));
 
@@ -223,7 +225,7 @@ namespace MongoDB.Driver.Tests.Operations
                 CheckExpectedResult(expectedResult, result);
 
                 var expectedDocuments = new[] { document };
-                _collection.FindAll().Should().BeEquivalentTo(expectedDocuments);
+                collection.FindAll().Should().BeEquivalentTo(expectedDocuments);
             }
         }
 
@@ -706,7 +708,7 @@ namespace MongoDB.Driver.Tests.Operations
 
             var expectedDocuments = new BsonDocument[]
             {
-                new BsonDocument { { "b", 1 }, { "a", 1 } },                   
+                new BsonDocument { { "b", 1 }, { "a", 1 } },
                 _primary.BuildInfo.Version < new Version(2, 6, 0) ?
                     new BsonDocument { { "a", 2 }, { "b", 3 } } : // servers prior to 2.6 rewrite field order on update
                     new BsonDocument { { "b", 3 }, { "a", 2 } },
@@ -1127,10 +1129,13 @@ namespace MongoDB.Driver.Tests.Operations
         [InlineData(true)]
         public void TestW0DoesNotReportErrors(bool ordered)
         {
+            var server = LegacyTestConfiguration.GetServer(retryWrites: false);
+            var collection = GetCollection(server);
+
             // use a request so we can read our own writes even with older servers
-            using (_server.RequestStart())
+            using (server.RequestStart())
             {
-                _collection.Drop();
+                collection.Drop();
 
                 var documents = new[]
                 {
@@ -1138,7 +1143,7 @@ namespace MongoDB.Driver.Tests.Operations
                     new BsonDocument("_id", 1)
                 };
 
-                var bulk = InitializeBulkOperation(_collection, ordered);
+                var bulk = InitializeBulkOperation(collection, ordered);
                 bulk.Insert(documents[0]);
                 bulk.Insert(documents[1]);
                 var result = bulk.Execute(WriteConcern.Unacknowledged);
@@ -1147,7 +1152,7 @@ namespace MongoDB.Driver.Tests.Operations
                 CheckExpectedResult(expectedResult, result);
 
                 var expectedDocuments = new[] { documents[0] };
-                _collection.FindAll().Should().BeEquivalentTo(expectedDocuments);
+                collection.FindAll().Should().BeEquivalentTo(expectedDocuments);
             }
         }
 
@@ -1250,6 +1255,13 @@ namespace MongoDB.Driver.Tests.Operations
                 Assert.Throws<NotSupportedException>(() => { var x = result.ModifiedCount; });
                 Assert.Throws<NotSupportedException>(() => { var x = result.Upserts; });
             }
+        }
+
+        private MongoCollection<BsonDocument> GetCollection(MongoServer server)
+        {
+            return server
+                .GetDatabase(CoreTestConfiguration.DatabaseNamespace.DatabaseName)
+                .GetCollection(GetType().Name);
         }
 
         private BulkWriteOperation<T> InitializeBulkOperation<T>(MongoCollection<T> collection, bool ordered)

@@ -8,6 +8,12 @@ title = "What's New"
   pre = "<i class='fa fa-star'></i>"
 +++
 
+## What's New in 2.9.0
+
+Some of the changes in 2.9.0 include:
+
+* Retryable writes are enabled by default
+
 ## What's New in 2.8.0
 
 Some of the changes in 2.8.0 include:

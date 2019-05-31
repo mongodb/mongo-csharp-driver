@@ -927,9 +927,9 @@ namespace MongoDB.Driver
             {
                 query.AppendFormat("retryReads=false;");
             }
-            if (_retryWrites.GetValueOrDefault(false))
+            if (_retryWrites.HasValue)
             {
-                query.AppendFormat("retryWrites=true;");
+                query.AppendFormat("retryWrites={0};", JsonConvert.ToString(_retryWrites.Value));
             }
             if (query.Length != 0)
             {

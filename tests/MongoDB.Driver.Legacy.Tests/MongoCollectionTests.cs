@@ -34,7 +34,6 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.TestHelpers;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Legacy.Tests;
-using MongoDB.Bson.TestHelpers;
 
 namespace MongoDB.Driver.Tests
 {
@@ -54,7 +53,7 @@ namespace MongoDB.Driver.Tests
         public MongoCollectionTests()
         {
             _server = LegacyTestConfiguration.Server;
-            _primary = _server.Instances.First(x => x.IsPrimary);
+            _primary = GetPrimary(_server);
             _database = LegacyTestConfiguration.Database;
             _collection = _database.GetCollection(GetType().Name);
         }
@@ -1230,15 +1229,19 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestFindAndRemoveWithMaxTime()
         {
-            if (_primary.Supports(FeatureId.MaxTime))
+            var server = LegacyTestConfiguration.GetServer(retryWrites: false);
+            var primary = GetPrimary(server);
+            var collection = GetCollection(server);
+
+            if (primary.Supports(FeatureId.MaxTime))
             {
-                using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
+                using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, server, primary))
                 {
                     if (failpoint.IsSupported())
                     {
                         failpoint.SetAlwaysOn();
                         var args = new FindAndRemoveArgs { MaxTime = TimeSpan.FromMilliseconds(1) };
-                        Assert.Throws<MongoExecutionTimeoutException>(() => _collection.FindAndRemove(args));
+                        Assert.Throws<MongoExecutionTimeoutException>(() => collection.FindAndRemove(args));
                     }
                 }
             }
@@ -3575,6 +3578,18 @@ namespace MongoDB.Driver.Tests
         {
             _database.DropCollection(collectionName);
             _database.CreateCollection(collectionName);
+        }
+
+        private MongoCollection<BsonDocument> GetCollection(MongoServer server)
+        {
+            return server
+                .GetDatabase(CoreTestConfiguration.DatabaseNamespace.DatabaseName)
+                .GetCollection(GetType().Name);
+        }
+
+        private MongoServerInstance GetPrimary(MongoServer server)
+        {
+            return server.Instances.First(c => c.IsPrimary);
         }
 
         // nested types
