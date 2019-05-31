@@ -52,6 +52,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <summary>
         /// OP_UPDATE
         /// </summary>
-        Update
+        Update,
+        /// <summary>
+        /// OP_COMPRESSED
+        /// </summary>
+        Compressed,
     }
 }

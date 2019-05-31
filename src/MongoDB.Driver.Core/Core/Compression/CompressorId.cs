@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+﻿/* Copyright 2013-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,25 +13,24 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
+namespace MongoDB.Driver.Core.Compression
 {
-    internal enum Opcode
-    {
-        Reply = 1,
-        Message = 1000,
-        Update = 2001,
-        Insert = 2002,
-        Query = 2004,
-        GetMore = 2005,
-        Delete = 2006,
-        KillCursors = 2007,
-        Compressed = 2012,
-        OpMsg = 2013
-    }
+	/// <summary>
+	/// Represents the compressor id.
+	/// </summary>
+	public enum CompressorId
+	{
+		/// <summary>
+		/// No compression.
+		/// </summary>
+		noop = 0,
+		///// <summary>
+		///// Compression using snappy algorithm. NOT SUPPORTED YET.
+		///// </summary>
+		//snappy = 1, 
+		/// <summary>
+		/// Compression using zlib algorithm. 
+		/// </summary>
+		zlib = 2
+	}
 }

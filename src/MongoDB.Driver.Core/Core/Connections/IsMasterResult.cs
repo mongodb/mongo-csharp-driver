@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
@@ -280,6 +281,23 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public IEnumerable<string> Compression
+        {
+            get
+            {
+                BsonValue value;
+                if (_wrapped.TryGetValue("compression", out value))
+                {
+                    return value.AsBsonArray.Select(x => x.AsString).ToList();
+                }
+
+                return Enumerable.Empty<string>();
+            }
+        }
+        
         /// <summary>
         /// Gets the replica set tags.
         /// </summary>

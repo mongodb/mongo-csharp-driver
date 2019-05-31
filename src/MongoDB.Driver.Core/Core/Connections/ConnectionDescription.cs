@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
 
@@ -31,6 +32,7 @@ namespace MongoDB.Driver.Core.Connections
         private readonly int _maxBatchCount;
         private readonly int _maxDocumentSize;
         private readonly int _maxMessageSize;
+        private readonly IEnumerable<string> _compression;
         private readonly SemanticVersion _serverVersion;
 
         // constructors
@@ -49,6 +51,7 @@ namespace MongoDB.Driver.Core.Connections
             _maxBatchCount = isMasterResult.MaxBatchCount;
             _maxDocumentSize = isMasterResult.MaxDocumentSize;
             _maxMessageSize = isMasterResult.MaxMessageSize;
+            _compression = isMasterResult.Compression;
             _serverVersion = buildInfoResult.ServerVersion;
         }
 
@@ -139,6 +142,14 @@ namespace MongoDB.Driver.Core.Connections
         public SemanticVersion ServerVersion
         {
             get { return _serverVersion; }
+        }
+
+        /// <summary>
+        /// Gets the compressors.
+        /// </summary>
+        public IEnumerable<string> Compression
+        {
+            get { return _compression; }
         }
 
         // methods

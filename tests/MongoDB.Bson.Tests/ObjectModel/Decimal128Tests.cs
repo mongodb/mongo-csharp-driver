@@ -78,7 +78,7 @@ namespace MongoDB.Bson.Tests
         public void ToDecimal_should_return_expected_result(string valueString, string expectedResultString)
         {
             var subject = Decimal128.Parse(valueString);
-            var expectedResult = decimal.Parse(expectedResultString);
+            var expectedResult = decimal.Parse(expectedResultString, CultureInfo.InvariantCulture);
 
             var result = Decimal128.ToDecimal(subject);
 

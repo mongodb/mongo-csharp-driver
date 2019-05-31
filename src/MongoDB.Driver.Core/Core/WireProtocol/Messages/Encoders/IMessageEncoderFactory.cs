@@ -19,6 +19,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core.Compression;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
 {
@@ -90,5 +91,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
         /// </summary>
         /// <returns>An encoder.</returns>
         IMessageEncoder GetUpdateMessageEncoder();
+
+        /// <summary>
+        /// Gets an encoder for a Compressed message.
+        /// </summary>
+        /// <returns>An encoder.</returns>
+        IMessageEncoder GetCompressedMessageEncoder();
     }
 }

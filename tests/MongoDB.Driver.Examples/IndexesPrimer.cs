@@ -22,9 +22,12 @@ namespace MongoDB.Driver.Examples
 {
     public class IndexesPrimer : PrimerTestFixture
     {
-        [Fact]
-        public async Task SingleFieldIndex()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task SingleFieldIndex(bool compressionEnabled)
         {
+            WithCompression(compressionEnabled);
             AltersCollection();
 
             // @begin: single-field-index
@@ -46,9 +49,12 @@ namespace MongoDB.Driver.Examples
             // @end: single-field-index
         }
 
-        [Fact]
-        public async Task CreateCompoundIndex()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task CreateCompoundIndex(bool compressionEnabled)
         {
+            WithCompression(compressionEnabled);
             AltersCollection();
 
             // @begin: create-compound-index

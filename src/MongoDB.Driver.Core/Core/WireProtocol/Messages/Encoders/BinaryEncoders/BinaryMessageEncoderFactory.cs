@@ -16,6 +16,7 @@
 using System.IO;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
@@ -102,6 +103,12 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         public IMessageEncoder GetUpdateMessageEncoder()
         {
             return new UpdateMessageBinaryEncoder(_stream, _encoderSettings);
+        }
+
+        /// <inheritdoc />
+        public IMessageEncoder GetCompressedMessageEncoder()
+        {
+            return new CompressedMessageBinaryEncoder(_stream, _encoderSettings);
         }
     }
 }

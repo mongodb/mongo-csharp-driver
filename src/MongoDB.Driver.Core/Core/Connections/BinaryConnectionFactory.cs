@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Core.Connections
             _settings = Ensure.IsNotNull(settings, nameof(settings));
             _streamFactory = Ensure.IsNotNull(streamFactory, nameof(streamFactory));
             _eventSubscriber = Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
-            _connectionInitializer = new ConnectionInitializer(settings.ApplicationName);
+            _connectionInitializer = new ConnectionInitializer(settings.ApplicationName, settings.Compressors);
         }
 
         // methods
@@ -46,6 +46,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             Ensure.IsNotNull(serverId, nameof(serverId));
             Ensure.IsNotNull(endPoint, nameof(endPoint));
+
             return new BinaryConnection(serverId, endPoint, _settings, _streamFactory, _connectionInitializer, _eventSubscriber);
         }
     }

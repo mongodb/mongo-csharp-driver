@@ -25,6 +25,7 @@ using DnsClient;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
 
@@ -101,6 +102,9 @@ namespace MongoDB.Driver.Core.Configuration
         private TimeSpan? _waitQueueTimeout;
         private WriteConcern.WValue _w;
         private TimeSpan? _wTimeout;
+        private IEnumerable<string> _compressorNames;
+        private int? _zlibCompressionLevel;
+        private IEnumerable<MongoCompressor> _compressors;
 
         // constructors
         /// <summary>
@@ -468,6 +472,14 @@ namespace MongoDB.Driver.Core.Configuration
             get { return _wTimeout; }
         }
 
+        /// <summary>
+        /// Gets the compressors that should be requested.
+        /// </summary>
+        public IEnumerable<MongoCompressor> Compressors
+        {
+            get { return _compressors; }
+        }
+
         // public methods
         /// <summary>
         /// Gets the option.
@@ -700,6 +712,39 @@ namespace MongoDB.Driver.Core.Configuration
                 _allOptions.Add(parts[0], parts[1]);
                 ParseOption(parts[0].Trim(), Uri.UnescapeDataString(parts[1].Trim()));
             }
+
+            CreateCompressors();
+        }
+
+        private void CreateCompressors()
+        {
+            if (_compressorNames == null)
+            {
+                return;
+            }
+
+            var compressors = new List<MongoCompressor>();
+            
+            foreach (var compressor in _compressorNames)
+            {
+                CompressorId id;
+
+                if (!Enum.TryParse(compressor, out id))
+                {
+                    throw new MongoConfigurationException($"Unsupported compressor '{compressor}'.");
+                }
+
+                var mongoCompressor = new MongoCompressor(compressor.ToLowerInvariant());
+                
+                if (id == CompressorId.zlib && _zlibCompressionLevel.HasValue)
+                {
+                    mongoCompressor.Properties.Add(MongoCompressor.Level, _zlibCompressionLevel.Value);
+                }
+
+                compressors.Add(mongoCompressor);
+            }
+
+            _compressors = compressors;
         }
 
         private void ExtractUsernameAndPassword(Match match)
@@ -785,6 +830,9 @@ namespace MongoDB.Driver.Core.Configuration
                     break;
                 case "authsource":
                     _authSource = value;
+                    break;
+                case "compressors":
+                    _compressorNames = value.Split(',');
                     break;
                 case "connect":
                     _connect = ParseClusterConnectionMode(name, value);
@@ -940,6 +988,9 @@ namespace MongoDB.Driver.Core.Configuration
                 case "waitqueuetimeout":
                 case "waitqueuetimeoutms":
                     _waitQueueTimeout = ParseTimeSpan(name, value);
+                    break;
+                case "zlibcompressionlevel":
+                    _zlibCompressionLevel = ParseInt32(name, value);
                     break;
                 default:
                     _unknownOptions.Add(name, value);

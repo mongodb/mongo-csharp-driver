@@ -42,6 +42,7 @@ namespace MongoDB.Driver
         private string _authenticationMechanism;
         private Dictionary<string, string> _authenticationMechanismProperties;
         private string _authenticationSource;
+        private IEnumerable<MongoCompressor> _compressors;
         private ConnectionMode _connectionMode;
         private TimeSpan _connectTimeout;
         private string _databaseName;
@@ -85,6 +86,7 @@ namespace MongoDB.Driver
             _authenticationMechanism = MongoDefaults.AuthenticationMechanism;
             _authenticationMechanismProperties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             _authenticationSource = null;
+            _compressors = Enumerable.Empty<MongoCompressor>();
             _connectionMode = ConnectionMode.Automatic;
             _connectTimeout = MongoDefaults.ConnectTimeout;
             _databaseName = null;
@@ -608,6 +610,15 @@ namespace MongoDB.Driver
             }
         }
 
+        /// <summary>
+        /// Gets or sets the compressors that should be requested.
+        /// </summary>
+        public IEnumerable<MongoCompressor> Compressors
+        {
+            get { return _compressors; }
+            set { _compressors = value; }
+        }
+
         // public methods
         /// <summary>
         /// Returns a WriteConcern value based on this instance's settings and a default enabled value.
@@ -635,6 +646,7 @@ namespace MongoDB.Driver
             _authenticationMechanism = connectionString.AuthMechanism;
             _authenticationMechanismProperties = connectionString.AuthMechanismProperties.ToDictionary(x => x.Key, x => x.Value, StringComparer.OrdinalIgnoreCase);
             _authenticationSource = connectionString.AuthSource;
+            _compressors = connectionString.Compressors ?? Enumerable.Empty<MongoCompressor>();
             switch (connectionString.Connect)
             {
                 case ClusterConnectionMode.Direct:
@@ -823,6 +835,16 @@ namespace MongoDB.Driver
             if (!_verifySslCertificate)
             {
                 query.AppendFormat("sslVerifyCertificate=false;");
+            }
+            if (_compressors.Any())
+            {
+                query.AppendFormat("compressors={0};", string.Join(",", _compressors.Select(x => x.Name)));
+
+                var zlibCompressor = _compressors.FirstOrDefault(x => x.Name == "zlib");
+                object zlibcompressionLevel;
+
+                if (zlibCompressor != null && zlibCompressor.Properties.TryGetValue(MongoCompressor.Level, out zlibcompressionLevel))
+                    query.AppendFormat("zlibCompressionLevel={0};", zlibcompressionLevel);
             }
             if (_connectionMode != ConnectionMode.Automatic)
             {

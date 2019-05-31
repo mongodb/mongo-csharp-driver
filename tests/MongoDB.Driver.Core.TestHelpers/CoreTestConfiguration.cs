@@ -225,7 +225,7 @@ namespace MongoDB.Driver
             var uri = Environment.GetEnvironmentVariable("MONGODB_URI") ?? Environment.GetEnvironmentVariable("MONGO_URI");
             if (uri == null)
             {
-                uri = "mongodb://localhost";
+                uri = "mongodb://localhost/";
                 if (IsReplicaSet(uri))
                 {
                     uri += "/?connect=replicaSet";

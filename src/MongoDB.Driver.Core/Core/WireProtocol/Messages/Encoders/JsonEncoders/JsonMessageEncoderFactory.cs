@@ -126,5 +126,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         {
             return new UpdateMessageJsonEncoder(_textReader, _textWriter, _encoderSettings);
         }
+
+        /// <inheritdoc />
+        public IMessageEncoder GetCompressedMessageEncoder()
+        {
+            throw new System.NotSupportedException();
+        }
     }
 }

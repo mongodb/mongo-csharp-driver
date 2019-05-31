@@ -22,6 +22,7 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -31,6 +32,7 @@ namespace MongoDB.Driver.Core.Connections
 {
     internal class CommandEventHelper
     {
+        private readonly IDictionary<CompressorId, ICompressor> _compressorDictionary;
         private static readonly string[] __writeConcernIndicators = new[] { "wtimeout", "jnote", "wnote" };
         private static readonly HashSet<string> __securitySensitiveCommands = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
@@ -53,12 +55,13 @@ namespace MongoDB.Driver.Core.Connections
         private readonly bool _shouldProcessRequestMessages;
         private readonly bool _shouldTrackState;
 
-        public CommandEventHelper(IEventSubscriber eventSubscriber)
+        public CommandEventHelper(IEventSubscriber eventSubscriber, IDictionary<CompressorId, ICompressor> compressorDictionary)
         {
             eventSubscriber.TryGetEventHandler(out _startedEvent);
             eventSubscriber.TryGetEventHandler(out _succeededEvent);
             eventSubscriber.TryGetEventHandler(out _failedEvent);
 
+            _compressorDictionary = compressorDictionary;
             _shouldTrackState = _succeededEvent != null || _failedEvent != null;
             _shouldProcessRequestMessages = _startedEvent != null || _shouldTrackState;
 
@@ -229,10 +232,19 @@ namespace MongoDB.Driver.Core.Connections
 
         private void ProcessRequestMessages(Queue<RequestMessage> messageQueue, ConnectionId connectionId, Stream stream, MessageEncoderSettings encoderSettings, Stopwatch stopwatch)
         {
+            var messageCompressionHelper = new MessageCompressionHelper(_compressorDictionary, encoderSettings);
+            
             var message = messageQueue.Dequeue();
             switch (message.MessageType)
             {
                 case MongoDBMessageType.Command:
+                    if (messageCompressionHelper.IsCompressedMessage(stream))
+                    {
+                        var uncompressedStream = messageCompressionHelper.UncompressMessage(stream);
+                        ProcessCommandRequestMessage((CommandRequestMessage)message, messageQueue, connectionId, new CommandMessageBinaryEncoder(uncompressedStream, encoderSettings), stopwatch);
+                        break;
+                    }
+                    
                     ProcessCommandRequestMessage((CommandRequestMessage)message, messageQueue, connectionId, new CommandMessageBinaryEncoder(stream, encoderSettings), stopwatch);
                     break;
                 case MongoDBMessageType.Delete:

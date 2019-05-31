@@ -114,12 +114,17 @@ namespace MongoDB.Driver.Tests
                 { "SERVICE_NAME", "other" },
                 { "CANONICALIZE_HOST_NAME", "true" }
             };
+            
+            var zlibCompressor = new  MongoCompressor("zlib");
+            zlibCompressor.Properties.Add(MongoCompressor.Level, 4);
+            
             var built = new MongoUrlBuilder()
             {
                 ApplicationName = "app",
                 AuthenticationMechanism = "GSSAPI",
                 AuthenticationMechanismProperties = authMechanismProperties,
                 AuthenticationSource = "db",
+                Compressors = new[] {zlibCompressor},
                 ConnectionMode = ConnectionMode.ReplicaSet,
                 ConnectTimeout = TimeSpan.FromSeconds(1),
                 DatabaseName = "database",
@@ -160,6 +165,8 @@ namespace MongoDB.Driver.Tests
                 "ipv6=true",
                 "ssl=true", // UseSsl
                 "sslVerifyCertificate=false", // VerifySslCertificate
+                "compressors=zlib",
+                "zlibCompressionLevel=4",
                 "connect=replicaSet",
                 "replicaSet=name",
                 "readConcernLevel=majority",
@@ -192,6 +199,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(authMechanismProperties, url.AuthenticationMechanismProperties);
                 Assert.Equal("db", url.AuthenticationSource);
                 Assert.Equal(123, url.ComputedWaitQueueSize);
+                Assert.Contains(url.Compressors, x => x.Name == "zlib");
                 Assert.Equal(ConnectionMode.ReplicaSet, url.ConnectionMode);
                 Assert.Equal(TimeSpan.FromSeconds(1), url.ConnectTimeout);
                 Assert.Equal("database", url.DatabaseName);

@@ -25,11 +25,16 @@ namespace MongoDB.Driver.Examples
 {
     public class QueryPrimer : PrimerTestFixture
     {
-        [Fact]
-        public async Task QueryAll()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task QueryAll(bool compressionEnabled)
         {
+            WithCompression(compressionEnabled);
+            
             // @begin: query-all
             // @code: start
+            
             var collection = __database.GetCollection<BsonDocument>("restaurants");
             var filter = new BsonDocument();
             var count = 0;
@@ -54,9 +59,13 @@ namespace MongoDB.Driver.Examples
             // @end: query-all
         }
 
-        [Fact]
-        public async Task LogicalAnd()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task LogicalAnd(bool compressionEnabled)
         {
+            WithCompression(compressionEnabled);
+
             // @begin: logical-and
             // @code: start
             var collection = __database.GetCollection<BsonDocument>("restaurants");
@@ -72,9 +81,13 @@ namespace MongoDB.Driver.Examples
             // @end: logical-and
         }
 
-        [Fact]
-        public async Task LogicalOr()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task LogicalOr(bool compressionEnabled)
         {
+            WithCompression(compressionEnabled);
+
             // @begin: logical-or
             // @code: start
             var collection = __database.GetCollection<BsonDocument>("restaurants");
@@ -90,9 +103,13 @@ namespace MongoDB.Driver.Examples
             // @end: logical-or
         }
 
-        [Fact]
-        public async Task QueryTopLevelField()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task QueryTopLevelField(bool compressionEnabled)
         {
+            WithCompression(compressionEnabled);
+
             // @begin: query-top-level-field
             // @code: start
             var collection = __database.GetCollection<BsonDocument>("restaurants");
@@ -107,9 +124,13 @@ namespace MongoDB.Driver.Examples
             // @end: query-top-level-field
         }
 
-        [Fact]
-        public async Task QueryEmbeddedDocument()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task QueryEmbeddedDocument(bool compressionEnabled)
         {
+            WithCompression(compressionEnabled);
+
             // @begin: query-embedded-document
             // @code: start
             var collection = __database.GetCollection<BsonDocument>("restaurants");
@@ -124,9 +145,13 @@ namespace MongoDB.Driver.Examples
             // @end: query-embedded-document
         }
 
-        [Fact]
-        public async Task QueryFieldInArray()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task QueryFieldInArray(bool compressionEnabled)
         {
+            WithCompression(compressionEnabled);
+
             // @begin: query-field-in-array
             // @code: start
             var collection = __database.GetCollection<BsonDocument>("restaurants");
@@ -141,9 +166,13 @@ namespace MongoDB.Driver.Examples
             // @end: query-field-in-array
         }
 
-        [Fact]
-        public async Task GreaterThan()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task GreaterThan(bool compressionEnabled)
         {
+            WithCompression(compressionEnabled);
+
             // @begin: greater-than
             // @code: start
             var collection = __database.GetCollection<BsonDocument>("restaurants");
@@ -158,9 +187,13 @@ namespace MongoDB.Driver.Examples
             // @end: greater-than
         }
 
-        [Fact]
-        public async Task LessThan()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task LessThan(bool compressionEnabled)
         {
+            WithCompression(compressionEnabled);
+
             // @begin: less-than
             // @code: start
             var collection = __database.GetCollection<BsonDocument>("restaurants");
@@ -175,9 +208,13 @@ namespace MongoDB.Driver.Examples
             // @end: less-than
         }
 
-        [Fact]
-        public async Task Sort()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Sort(bool compressionEnabled)
         {
+            WithCompression(compressionEnabled);
+
             // @begin: sort
             // @code: start
             var collection = __database.GetCollection<BsonDocument>("restaurants");

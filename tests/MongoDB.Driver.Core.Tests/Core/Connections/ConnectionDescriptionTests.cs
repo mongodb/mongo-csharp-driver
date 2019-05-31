@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Net;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -33,8 +34,10 @@ namespace MongoDB.Driver.Core.Connections
         private static readonly ConnectionId __connectionId = new ConnectionId(
             new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017)));
 
+        private static readonly IEnumerable<string> __compression = new[] {"zlib"};
+        
         private static readonly IsMasterResult __isMasterResult = new IsMasterResult(BsonDocument.Parse(
-            "{ ok: 1, maxWriteBatchSize: 10, maxBsonObjectSize: 20, maxMessageSizeBytes: 30 }"
+            "{ ok: 1, maxWriteBatchSize: 10, maxBsonObjectSize: 20, maxMessageSizeBytes: 30, compression: ['zlib'] }"
         ));
 
         [Fact]
@@ -81,6 +84,14 @@ namespace MongoDB.Driver.Core.Connections
             subject1.Equals(subject3).Should().BeFalse();
             subject1.Equals(subject4).Should().BeFalse();
             subject1.Equals(subject5).Should().BeFalse();
+        }
+
+        [Fact]
+        public void Compression_should_return_Compression()
+        {
+            var subject = new ConnectionDescription(__connectionId, __isMasterResult, __buildInfoResult);
+
+            subject.Compression.Should().Equal(__compression);
         }
 
         [Fact]

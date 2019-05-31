@@ -203,5 +203,16 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 encoder.Should().BeOfType<UpdateMessageJsonEncoder>();
             }
         }
+        
+        [Fact]
+        public void GetCompressedMessageEncoder_should_throw_not_supported_exception()
+        {
+            using (var textWriter = new StringWriter())
+            {
+                var encoderFactory = new JsonMessageEncoderFactory(null, textWriter, __messageEncoderSettings);
+                Action action =  () => encoderFactory.GetCompressedMessageEncoder();
+                action.ShouldThrow<NotSupportedException>();
+            }
+        }
     }
 }
