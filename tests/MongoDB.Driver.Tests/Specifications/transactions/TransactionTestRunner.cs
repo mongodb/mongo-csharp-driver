@@ -16,13 +16,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
@@ -136,6 +134,12 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
                 throw new SkipException($"Test skipped because {test["skipReason"]}.");
             }
 
+            if (shared.TryGetValue("runOn", out var runOn))
+            {
+                RequireServer.Check().RunOn(runOn.AsBsonArray);
+            }
+
+            // support for "topology" will be removed soon when the JSON files are all updated to the newer format that no longer uses "topology"
             if (shared.TryGetValue("topology", out var topology))
             {
                 CheckClusterTopology(topology.AsBsonArray);
@@ -147,7 +151,8 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
                 "collection_name",
                 "data",
                 "tests",
-                "topology");
+                "topology",
+                "runOn");
             JsonDrivenHelper.EnsureAllFieldsAreValid(test,
                 "description",
                 "clientOptions",
@@ -259,7 +264,7 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
                 collection.Distinct<BsonValue>("_id", "{ }");
             }
         }
-        
+
         private DisposableMongoClient CreateDisposableClient(BsonDocument test, EventCapturer eventCapturer, bool useMultipleShardRouters)
         {
             return DriverTestConfiguration.CreateDisposableClient(
@@ -267,7 +272,7 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
                 {
                     ConfigureClientSettings(settings, test);
                     settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
-                }, 
+                },
                 useMultipleShardRouters);
         }
 
@@ -378,7 +383,7 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
                     var primary = cluster.SelectServer(WritableServerSelector.Instance, CancellationToken.None);
                     failPointServers = new List<IServer> { primary };
                     break;
-                
+
                 case ClusterType.Sharded:
                     failPointServers =
                         cluster.Description.Servers
