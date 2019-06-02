@@ -210,7 +210,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             DriverTestConfiguration
                 .Client
                 .GetDatabase(databaseName)
-                .GetCollection<BsonDocument>(collectionName)
+                .GetCollection<BsonDocument>(collectionName, new MongoCollectionSettings { WriteConcern = WriteConcern.WMajority })
                 .InsertMany(data);
         }
 
