@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
             "getnonce"
         };
 
-        private readonly string[] _expectedSharedColumns = { "_path", "database_name", "collection_name", "data", "tests", "minServerVersion" };
+        private readonly string[] _expectedSharedColumns = { "_path", "runOn", "database_name", "collection_name", "data", "tests" };
 
         private string DatabaseName { get; set; }
         private string CollectionName { get; set; }
@@ -147,12 +147,11 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
 
         protected virtual void CheckServerRequirements(BsonDocument document)
         {
-            if (document.Contains("minServerVersion"))
+            if (document.TryGetValue("runOn", out var runOn))
             {
-                var minServerVersion = document["minServerVersion"].AsString;
-                RequireServer.Check().VersionGreaterThanOrEqualTo(minServerVersion);
+                RequireServer.Check().RunOn(runOn.AsBsonArray);
             }
-        }
+       }
 
         protected virtual void ConfigureClientSettings(MongoClientSettings settings, BsonDocument test)
         {
@@ -269,14 +268,17 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
 
         protected DisposableMongoClient CreateDisposableClient(BsonDocument test, EventCapturer eventCapturer)
         {
-            return DriverTestConfiguration.CreateDisposableClient(settings =>
-            {
-                ConfigureClientSettings(settings, test);
-                if (eventCapturer != null)
+            var useMultipleShardRouters = test.GetValue("useMultipleMongoses", false).AsBoolean;
+            return DriverTestConfiguration.CreateDisposableClient(
+                settings =>
                 {
-                    settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
-                }
-            });
+                    ConfigureClientSettings(settings, test);
+                    if (eventCapturer != null)
+                    {
+                        settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
+                    }
+                },
+                useMultipleShardRouters);
         }
 
         protected void DropCollection()
@@ -354,6 +356,9 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
 
         private void SetupAndRunTest(BsonDocument shared, BsonDocument test)
         {
+            JsonDrivenHelper.EnsureAllFieldsAreValid(shared, ExpectedSharedColumns);
+            JsonDrivenHelper.EnsureAllFieldsAreValid(test, ExpectedTestColumns);
+
             if (test.Contains(SkipReasonKey))
             {
                 throw new SkipException(test[SkipReasonKey].AsString);
@@ -362,8 +367,6 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
             Ensure.IsNotNullOrEmpty(DatabaseNameKey, nameof(DatabaseNameKey));
             Ensure.IsNotNullOrEmpty(CollectionNameKey, nameof(CollectionNameKey));
 
-            JsonDrivenHelper.EnsureAllFieldsAreValid(shared, ExpectedSharedColumns);
-            JsonDrivenHelper.EnsureAllFieldsAreValid(test, ExpectedTestColumns);
             CustomDataValidation(shared, test);
 
             DatabaseName = shared[DatabaseNameKey].AsString;

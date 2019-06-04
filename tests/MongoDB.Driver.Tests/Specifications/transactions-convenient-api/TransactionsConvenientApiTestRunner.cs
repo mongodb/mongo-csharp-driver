@@ -34,21 +34,6 @@ namespace MongoDB.Driver.Tests.Specifications.transactions_convenient_api
             SetupAndRunTest(testCase);
         }
 
-        protected override void CheckServerRequirements(BsonDocument document)
-        {
-            base.CheckServerRequirements(document);
-            var clusterType = CoreTestConfiguration.Cluster.Description.Type;
-            RequireServer.Check().ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded);
-            if (clusterType == ClusterType.ReplicaSet)
-            {
-                RequireServer.Check().Supports(Feature.Transactions);
-            }
-            else if (clusterType == ClusterType.Sharded)
-            {
-                RequireServer.Check().Supports(Feature.ShardedTransactions);
-            }
-        }
-
         protected override void RunTest(BsonDocument shared, BsonDocument test, EventCapturer eventCapturer)
         {
             using (var client = CreateDisposableClient(test, eventCapturer))

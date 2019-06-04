@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
     {
         private const string SessionIdKeySuffix = "__ClientSessionId";
 
-        protected override string[] ExpectedTestColumns => new[] { "description", "clientOptions", "failPoint", "sessionOptions", "operations", "expectations", "outcome", "async" };
+        protected override string[] ExpectedTestColumns => new[] { "description", "clientOptions", "useMultipleMongoses", "failPoint", "sessionOptions", "operations", "expectations", "outcome", "async" };
 
         // protected methods`
         protected override void TestInitialize()

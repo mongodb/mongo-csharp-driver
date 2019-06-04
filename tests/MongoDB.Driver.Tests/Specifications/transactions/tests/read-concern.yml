@@ -1,4 +1,11 @@
-topology: [replicaset, sharded]
+runOn:
+    -
+        minServerVersion: "4.0"
+        topology: ["replicaset"]
+    -
+        minServerVersion: "4.1.8"
+        topology: ["sharded"]
+
 database_name: &database_name "transaction-tests"
 collection_name: &collection_name "test"
 
@@ -40,7 +47,7 @@ tests:
             aggregate: *collection_name
             pipeline:
               - $match: {_id: {$gte: 2}}
-              - $group: {_id: null, n: {$sum: 1}}
+              - $group: {_id: 1, n: {$sum: 1}}
             cursor: {}
             lsid: session0
             readConcern:
@@ -56,7 +63,7 @@ tests:
             aggregate: *collection_name
             pipeline:
               - $match: {_id: {$gte: 2}}
-              - $group: {_id: null, n: {$sum: 1}}
+              - $group: {_id: 1, n: {$sum: 1}}
             cursor: {}
             lsid: session0
             readConcern:  # No readConcern
@@ -361,7 +368,7 @@ tests:
             aggregate: *collection_name
             pipeline:
               - $match: {_id: {$gte: 2}}
-              - $group: {_id: null, n: {$sum: 1}}
+              - $group: {_id: 1, n: {$sum: 1}}
             cursor: {}
             lsid: session0
             readConcern:  # No readConcern
@@ -376,7 +383,7 @@ tests:
             aggregate: *collection_name
             pipeline:
               - $match: {_id: {$gte: 2}}
-              - $group: {_id: null, n: {$sum: 1}}
+              - $group: {_id: 1, n: {$sum: 1}}
             cursor: {}
             lsid: session0
             readConcern:  # No readConcern

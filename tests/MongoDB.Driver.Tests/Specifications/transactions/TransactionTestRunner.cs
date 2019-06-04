@@ -26,7 +26,6 @@ using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Events;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.JsonDrivenTests;
@@ -85,26 +84,6 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
         }
 
         // private methods
-        private void CheckClusterTopology(BsonArray allowedTopologies)
-        {
-            var allowedClusterTypes = allowedTopologies.Select(MapToplogyToClusterType).ToArray();
-            RequireServer.Check().ClusterTypes(allowedClusterTypes);
-
-            var clusterType = CoreTestConfiguration.Cluster.Description.Type;
-            switch (clusterType)
-            {
-                case ClusterType.Sharded:
-                    RequireServer.Check().Supports(Feature.ShardedTransactions);
-                    break;
-                case ClusterType.ReplicaSet:
-                    RequireServer.Check().Supports(Feature.Transactions);
-                    break;
-                default:
-                    throw new Exception("Topology type for transactions must be replicaset or sharded.");
-
-            }
-        }
-
         private void Dispose(bool disposing)
         {
             if (disposing)
@@ -113,17 +92,6 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
                 {
                     disposable.Dispose();
                 }
-            }
-        }
-
-        private ClusterType MapToplogyToClusterType(BsonValue topology)
-        {
-            switch (topology.AsString)
-            {
-                case "single": return ClusterType.Standalone;
-                case "replicaset": return ClusterType.ReplicaSet;
-                case "sharded": return ClusterType.Sharded;
-                default: throw new ArgumentException("Unknown topology type");
             }
         }
 
@@ -139,19 +107,12 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
                 RequireServer.Check().RunOn(runOn.AsBsonArray);
             }
 
-            // support for "topology" will be removed soon when the JSON files are all updated to the newer format that no longer uses "topology"
-            if (shared.TryGetValue("topology", out var topology))
-            {
-                CheckClusterTopology(topology.AsBsonArray);
-            }
-
             JsonDrivenHelper.EnsureAllFieldsAreValid(shared,
                 "_path",
                 "database_name",
                 "collection_name",
                 "data",
                 "tests",
-                "topology",
                 "runOn");
             JsonDrivenHelper.EnsureAllFieldsAreValid(test,
                 "description",
