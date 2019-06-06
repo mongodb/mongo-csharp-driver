@@ -22,6 +22,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
@@ -269,6 +270,8 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
         protected DisposableMongoClient CreateDisposableClient(BsonDocument test, EventCapturer eventCapturer)
         {
             var useMultipleShardRouters = test.GetValue("useMultipleMongoses", false).AsBoolean;
+            useMultipleShardRouters = false; // TODO: remove this line once SERVER-41532 is fixed
+
             return DriverTestConfiguration.CreateDisposableClient(
                 settings =>
                 {
