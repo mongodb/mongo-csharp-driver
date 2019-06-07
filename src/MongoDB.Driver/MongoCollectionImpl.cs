@@ -173,7 +173,7 @@ namespace MongoDB.Driver
             }
             options = options ?? new BulkWriteOptions();
 
-            var operation = CreateBulkWriteOperation(requests, options);
+            var operation = CreateBulkWriteOperation(session, requests, options);
             try
             {
                 var result = ExecuteWriteOperation(session, operation, cancellationToken);
@@ -200,7 +200,7 @@ namespace MongoDB.Driver
             }
             options = options ?? new BulkWriteOptions();
 
-            var operation = CreateBulkWriteOperation(requests, options);
+            var operation = CreateBulkWriteOperation(session, requests, options);
             try
             {
                 var result = await ExecuteWriteOperationAsync(session, operation, cancellationToken).ConfigureAwait(false);
@@ -747,8 +747,10 @@ namespace MongoDB.Driver
             };
         }
 
-        private BulkMixedWriteOperation CreateBulkWriteOperation(IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options)
+        private BulkMixedWriteOperation CreateBulkWriteOperation(IClientSessionHandle session, IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options)
         {
+            var effectiveWriteConcern = session.IsInTransaction ? WriteConcern.Acknowledged : _settings.WriteConcern;
+
             return new BulkMixedWriteOperation(
                 _collectionNamespace,
                 requests.Select(ConvertWriteModelToWriteRequest),
@@ -757,7 +759,7 @@ namespace MongoDB.Driver
                 BypassDocumentValidation = options.BypassDocumentValidation,
                 IsOrdered = options.IsOrdered,
                 RetryRequested = _database.Client.Settings.RetryWrites,
-                WriteConcern = _settings.WriteConcern
+                WriteConcern = effectiveWriteConcern
             };
         }
 

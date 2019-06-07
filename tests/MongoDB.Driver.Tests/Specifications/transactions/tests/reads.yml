@@ -49,7 +49,9 @@ tests:
   - description: find
 
     operations:
-      - *startTransaction
+      - &startTransaction
+        name: startTransaction
+        object: session0
       - &find
         name: find
         object: collection

@@ -21,7 +21,7 @@ Server Fail Point
 =================
 
 failCommand
------------
+```````````
 
 Some tests depend on a server fail point, expressed in the ``failPoint`` field.
 For example the ``failCommand`` fail point allows the client to force the
@@ -207,6 +207,9 @@ Then for each element in ``tests``:
    create it explicitly.)
 #. If the YAML file contains a ``data`` array, insert the documents in ``data``
    into the test collection, using writeConcern "majority".
+#. When testing against a sharded cluster run a ``distinct`` command on the
+   newly created collection on all mongoses. For an explanation see,
+   `Why do tests that run distinct sometimes fail with StaleDbVersion?`_
 #. If ``failPoint`` is specified, its value is a configureFailPoint command.
    Run the command on the admin database to enable the fail point.
 #. Create a **new** MongoClient ``client``, with Command Monitoring listeners
@@ -496,9 +499,32 @@ manually.
 
 .. _SERVER-39349: https://jira.mongodb.org/browse/SERVER-39349
 
+Why do tests that run distinct sometimes fail with StaleDbVersion?
+``````````````````````````````````````````````````````````````````
+
+When a shard receives its first command that contains a dbVersion, the shard
+returns a StaleDbVersion error and the Mongos retries the operation. In a
+sharded transaction, Mongos does not retry these operations and instead returns
+the error to the client. For example::
+
+  Command distinct failed: Transaction aa09e296-472a-494f-8334-48d57ab530b6:1 was aborted on statement 0 due to: an error from cluster data placement change :: caused by :: got stale databaseVersion response from shard sh01 at host localhost:27217 :: caused by :: don't know dbVersion.
+
+To workaround this limitation, a driver test runner MUST run a
+non-transactional ``distinct`` command on each Mongos before running any test
+that uses ``distinct``. To ease the implementation drivers can simply run
+``distinct`` before *every* test.
+
+Note that drivers can remove this workaround once `SERVER-39704`_ is resolved
+so that mongos retries this operation transparently. The ``distinct`` command
+is the only command allowed in a sharded transaction that uses the
+``dbVersion`` concept so it is the only command affected.
+
+.. _SERVER-39704: https://jira.mongodb.org/browse/SERVER-39704
+
 Changelog
 =========
 
+:2019-03-25: Add workaround for StaleDbVersion on distinct.
 :2019-03-01: Add top-level ``runOn`` field to denote server version and/or
              topology requirements requirements for the test file. Removes the
              ``topology`` top-level field, which is now expressed within
