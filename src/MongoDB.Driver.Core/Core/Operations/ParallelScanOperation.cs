@@ -52,6 +52,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="numberOfCursors">The number of cursors.</param>
         /// <param name="serializer">The serializer.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
+        [Obsolete("ParallelScanOperation was deprecated in server version 4.1.")]
         public ParallelScanOperation(
             CollectionNamespace collectionNamespace,
             int numberOfCursors,

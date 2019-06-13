@@ -83,6 +83,7 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 ### Maintainers:
 * Vincent Kam               vincent.kam@mongodb.com
 * Dmitry Lukyanov           dmitry.lukyanov@mongodb.com
+* Katie Sadoff              katie.sadoff@mongodb.com
 * Robert Stam               robert@mongodb.com
 * Craig Wilson              craig.wilson@mongodb.com
 
