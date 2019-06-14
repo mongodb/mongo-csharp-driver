@@ -177,6 +177,7 @@ namespace MongoDB.Driver
         [InlineData("replace", ChangeStreamOperationType.Replace)]
         [InlineData("delete", ChangeStreamOperationType.Delete)]
         [InlineData("rename", ChangeStreamOperationType.Rename)]
+        [InlineData("drop", ChangeStreamOperationType.Drop)]
         public void OperationType_should_return_expected_result(string operationTypeName, ChangeStreamOperationType expectedResult)
         {
             var backingDocument = new BsonDocument { { "other", 1 }, { "operationType", operationTypeName } };

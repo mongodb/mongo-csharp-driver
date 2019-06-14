@@ -43,6 +43,10 @@ namespace MongoDB.Driver
         /// <summary>
         /// A rename operation type.
         /// </summary>
-        Rename
+        Rename,
+        /// <summary>
+        /// A drop operation type.
+        /// </summary>
+        Drop
     }
 }
