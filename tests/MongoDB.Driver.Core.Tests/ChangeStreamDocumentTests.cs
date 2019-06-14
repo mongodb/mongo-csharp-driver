@@ -176,6 +176,7 @@ namespace MongoDB.Driver
         [InlineData("update", ChangeStreamOperationType.Update)]
         [InlineData("replace", ChangeStreamOperationType.Replace)]
         [InlineData("delete", ChangeStreamOperationType.Delete)]
+        [InlineData("rename", ChangeStreamOperationType.Rename)]
         public void OperationType_should_return_expected_result(string operationTypeName, ChangeStreamOperationType expectedResult)
         {
             var backingDocument = new BsonDocument { { "other", 1 }, { "operationType", operationTypeName } };
@@ -196,6 +197,31 @@ namespace MongoDB.Driver
             var result = subject.OperationType;
 
             result.Should().Be((ChangeStreamOperationType)(-1));
+        }
+
+        [Fact]
+        public void RenameTo_should_return_expected_result()
+        {
+            var value = new CollectionNamespace(new DatabaseNamespace("database"), "collection");
+            var to = new BsonDocument { { "db", value.DatabaseNamespace.DatabaseName }, { "coll", value.CollectionName } };
+            var backingDocument = new BsonDocument { { "other", 1 }, { "to", to } };
+            var subject = CreateSubject(backingDocument: backingDocument);
+
+            var result = subject.RenameTo;
+
+            result.Should().Be(value);
+        }
+
+        [Fact]
+        public void RenameTo_should_return_null_when_not_present()
+        {
+            var value = new BsonDocument("x", 1234);
+            var backingDocument = new BsonDocument { { "other", 1 } };
+            var subject = CreateSubject(backingDocument: backingDocument);
+
+            var result = subject.RenameTo;
+
+            result.Should().BeNull();
         }
 
         [Fact]

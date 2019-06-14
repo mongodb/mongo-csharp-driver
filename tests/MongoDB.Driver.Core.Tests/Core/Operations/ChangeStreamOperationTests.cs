@@ -412,6 +412,7 @@ namespace MongoDB.Driver.Core.Operations
                 change.CollectionNamespace.Should().BeNull();
                 change.DocumentKey.Should().BeNull();
                 change.FullDocument.Should().BeNull();
+                change.RenameTo.Should().BeNull();
                 change.ResumeToken.Should().NotBeNull();
                 change.UpdateDescription.Should().BeNull();
             }
@@ -442,6 +443,7 @@ namespace MongoDB.Driver.Core.Operations
                 change.CollectionNamespace.Should().Be(_collectionNamespace);
                 change.DocumentKey.Should().Be("{ _id : 1 }");
                 change.FullDocument.Should().BeNull();
+                change.RenameTo.Should().BeNull();
                 change.ResumeToken.Should().NotBeNull();
                 change.UpdateDescription.Should().BeNull();
             }
@@ -473,6 +475,7 @@ namespace MongoDB.Driver.Core.Operations
                 change.CollectionNamespace.Should().Be(_collectionNamespace);
                 change.DocumentKey.Should().Be("{ _id : 2 }");
                 change.FullDocument.Should().Be("{ _id : 2, x : 2 }");
+                change.RenameTo.Should().BeNull();
                 change.ResumeToken.Should().NotBeNull();
                 change.UpdateDescription.Should().BeNull();
             }
@@ -550,6 +553,7 @@ namespace MongoDB.Driver.Core.Operations
                 change.CollectionNamespace.Should().Be(_collectionNamespace);
                 change.DocumentKey.Should().Be("{ _id : 1 }");
                 change.FullDocument.Should().Be(fullDocument == ChangeStreamFullDocumentOption.Default ? null : "{ _id : 1, x : 2 }");
+                change.RenameTo.Should().BeNull();
                 change.ResumeToken.Should().NotBeNull();
                 change.UpdateDescription.RemovedFields.Should().BeEmpty();
                 change.UpdateDescription.UpdatedFields.Should().Be("{ x : 2 }");

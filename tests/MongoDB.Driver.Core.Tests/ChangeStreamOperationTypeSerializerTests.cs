@@ -30,6 +30,7 @@ namespace MongoDB.Driver
         [InlineData("\"invalidate\"", ChangeStreamOperationType.Invalidate)]
         [InlineData("\"replace\"", ChangeStreamOperationType.Replace)]
         [InlineData("\"update\"", ChangeStreamOperationType.Update)]
+        [InlineData("\"rename\"", ChangeStreamOperationType.Rename)]
         public void Deserialize_should_return_expected_result(string json, ChangeStreamOperationType expectedResult)
         {
             var subject = CreateSubject();
@@ -67,6 +68,7 @@ namespace MongoDB.Driver
         [InlineData(ChangeStreamOperationType.Invalidate, "\"invalidate\"")]
         [InlineData(ChangeStreamOperationType.Replace, "\"replace\"")]
         [InlineData(ChangeStreamOperationType.Update, "\"update\"")]
+        [InlineData(ChangeStreamOperationType.Rename, "\"rename\"")]
         public void Serialize_should_have_expected_result(ChangeStreamOperationType value, string expectedResult)
         {
             var subject = CreateSubject();
@@ -85,7 +87,7 @@ namespace MongoDB.Driver
 
         [Theory]
         [InlineData(-1)]
-        [InlineData(5)]
+        [InlineData(6)]
         public void Serialize_should_throw_when_value_is_invalid(int valueAsInt)
         {
             var subject = CreateSubject();

@@ -86,6 +86,14 @@ namespace MongoDB.Driver
         public ChangeStreamOperationType OperationType => GetValue<ChangeStreamOperationType>(nameof(OperationType), (ChangeStreamOperationType)(-1));
 
         /// <summary>
+        /// Gets the new namespace for the ns collection. This field is omitted for all operation types except "rename".
+        /// </summary>
+        /// <value>
+        /// The new namespace of the ns collection.
+        /// </value>
+        public CollectionNamespace RenameTo => GetValue<CollectionNamespace>(nameof(RenameTo), null);
+
+        /// <summary>
         /// Gets the resume token.
         /// </summary>
         /// <value>

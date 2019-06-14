@@ -51,6 +51,7 @@ namespace MongoDB.Driver
                 case "invalidate": return ChangeStreamOperationType.Invalidate;
                 case "replace": return ChangeStreamOperationType.Replace;
                 case "update": return ChangeStreamOperationType.Update;
+                case "rename": return ChangeStreamOperationType.Rename;
                 default: throw new FormatException($"Invalid ChangeStreamOperationType: \"{stringValue}\".");
             }
         }
@@ -67,6 +68,7 @@ namespace MongoDB.Driver
                 case ChangeStreamOperationType.Invalidate: writer.WriteString("invalidate"); break;
                 case ChangeStreamOperationType.Replace: writer.WriteString("replace"); break;
                 case ChangeStreamOperationType.Update: writer.WriteString("update"); break;
+                case ChangeStreamOperationType.Rename: writer.WriteString("rename"); break;
                 default: throw new ArgumentException($"Invalid ChangeStreamOperationType: {value}.", nameof(value));
             }
         }
