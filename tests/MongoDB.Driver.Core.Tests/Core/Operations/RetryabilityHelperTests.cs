@@ -46,6 +46,17 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Theory]
+        [InlineData("NonResumableChangeStreamError", false)]
+        public void IsResumableChangeStreamException_should_return_expected_result_using_error_label(string label, bool expectedResult)
+        {
+            var exception = CoreExceptionHelper.CreateMongoCommandException(label: label);
+
+            var result = RetryabilityHelper.IsResumableChangeStreamException(exception);
+
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
         [InlineData(typeof(IOException), false)]
         [InlineData(typeof(MongoConnectionException), true)]
         [InlineData(typeof(MongoCursorNotFoundException), true)]

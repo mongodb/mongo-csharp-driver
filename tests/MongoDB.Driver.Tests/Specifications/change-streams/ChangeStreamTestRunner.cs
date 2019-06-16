@@ -19,7 +19,6 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events;
@@ -258,7 +257,14 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
         private List<ChangeStreamDocument<BsonDocument>> ReadChangeStreamDocuments(IAsyncCursor<ChangeStreamDocument<BsonDocument>> cursor, BsonDocument test, bool async)
         {
             var result = new List<ChangeStreamDocument<BsonDocument>>();
-            var expectedNumberOfDocuments = test["result"]["success"].AsBsonArray.Count;
+            var resultDocument = test["result"].AsBsonDocument;
+            if (!resultDocument.TryGetValue("success", out var successNode))
+            {
+                // skip an empty batch which is the result of an initial "aggregate" change stream request
+                // next `MoveNext` will call a server
+                cursor.MoveNext();
+            }
+            int expectedNumberOfDocuments = successNode?.AsBsonArray.Count ?? 0;
 
             while (async ? cursor.MoveNextAsync().GetAwaiter().GetResult() : cursor.MoveNext())
             {
@@ -452,10 +458,17 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
             JsonDrivenHelper.EnsureAllFieldsAreValid(expectedResult, "error");
             var expectedError = expectedResult["error"].AsBsonDocument;
 
-            JsonDrivenHelper.EnsureAllFieldsAreValid((BsonDocument)expectedError, "code");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(expectedError, "code", "errorLabels");
             var code = expectedError["code"].ToInt32();
-
             actualMongoCommandException.Code.Should().Be(code);
+
+            if (expectedError.TryGetValue("errorLabels", out var expectedLabels))
+            {
+                foreach (var expectedLabel in expectedLabels.AsBsonArray)
+                {
+                    actualMongoCommandException.HasErrorLabel(expectedLabel.ToString()).Should().BeTrue();
+                }
+            }
         }
 
         // nested types

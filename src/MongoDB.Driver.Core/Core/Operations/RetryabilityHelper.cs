@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -22,6 +23,7 @@ namespace MongoDB.Driver.Core.Operations
     {
         // private static fields
         private static readonly HashSet<ServerErrorCode> __notResumableChangeStreamErrorCodes;
+        private static readonly HashSet<string> __notResumableChangeStreamErrorLabels;
         private static readonly HashSet<Type> __resumableChangeStreamExceptions;
         private static readonly HashSet<Type> __retryableReadExceptions;
         private static readonly HashSet<Type> __retryableWriteExceptions;
@@ -45,7 +47,7 @@ namespace MongoDB.Driver.Core.Operations
 
 
             __retryableReadExceptions = new HashSet<Type>(resumableAndRetryableExceptions);
-            
+
             __retryableWriteExceptions = new HashSet<Type>(resumableAndRetryableExceptions);
 
             var resumableAndRetryableErrorCodes = new HashSet<ServerErrorCode>
@@ -69,6 +71,11 @@ namespace MongoDB.Driver.Core.Operations
                 ServerErrorCode.CursorKilled,
                 ServerErrorCode.Interrupted
             };
+
+            __notResumableChangeStreamErrorLabels = new HashSet<string>()
+            {
+                "NonResumableChangeStreamError"
+            };
         }
 
         // public static methods
@@ -78,14 +85,17 @@ namespace MongoDB.Driver.Core.Operations
             if (commandException != null)
             {
                 var code = (ServerErrorCode)commandException.Code;
-                return !__notResumableChangeStreamErrorCodes.Contains(code);
+                var isNonResumable =
+                    __notResumableChangeStreamErrorCodes.Contains(code) ||
+                    __notResumableChangeStreamErrorLabels.Any(c => commandException.HasErrorLabel(c));
+                return !isNonResumable;
             }
             else
             {
                 return __resumableChangeStreamExceptions.Contains(exception.GetType());
             }
         }
-        
+
         public static bool IsRetryableReadException(Exception exception)
         {
             if (__retryableReadExceptions.Contains(exception.GetType()))
