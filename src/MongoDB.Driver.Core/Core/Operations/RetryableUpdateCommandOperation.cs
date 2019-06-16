@@ -187,7 +187,7 @@ namespace MongoDB.Driver.Core.Operations
                 try
                 {
                     var position = writer.Position;
-                    BsonDocumentSerializer.Instance.Serialize(context, request.Update);
+                    BsonValueSerializer.Instance.Serialize(context, request.Update);
                     if (request.UpdateType == UpdateType.Update && writer.Position == position + 8)
                     {
                         throw new BsonSerializationException("Update documents cannot be empty.");

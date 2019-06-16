@@ -15,16 +15,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Connections;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations.ElementNameValidators;
-using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
@@ -57,7 +51,7 @@ namespace MongoDB.Driver.Core.Operations
                 MessageEncoderSettings,
                 WriteConcern,
                 request.Filter,
-                request.Update,
+                request.Update.AsBsonDocument,
                 ElementNameValidatorFactory.ForUpdateType(request.UpdateType),
                 request.IsMulti,
                 request.IsUpsert,
@@ -80,7 +74,7 @@ namespace MongoDB.Driver.Core.Operations
                 MessageEncoderSettings,
                 WriteConcern,
                 request.Filter,
-                request.Update,
+                request.Update.AsBsonDocument,
                 ElementNameValidatorFactory.ForUpdateType(request.UpdateType),
                 request.IsMulti,
                 request.IsUpsert,

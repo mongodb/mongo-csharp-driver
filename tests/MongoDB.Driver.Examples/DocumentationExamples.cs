@@ -1630,7 +1630,7 @@ namespace MongoDB.Driver.Examples
         {
             var registry = BsonSerializer.SerializerRegistry;
             var serializer = registry.GetSerializer<BsonDocument>();
-            return update.Render(serializer, registry);
+            return update.Render(serializer, registry).AsBsonDocument;
         }
 
         private BsonArray Render(PipelineDefinition<BsonDocument, BsonDocument> pipeline)

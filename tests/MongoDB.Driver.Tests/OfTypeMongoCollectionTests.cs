@@ -16,16 +16,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
-using MongoDB.Driver;
 using MongoDB.Driver.Core.Bindings;
 using Moq;
 using Xunit;
@@ -459,7 +455,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject();
             var cancellationToken = new CancellationTokenSource().Token;
-            
+
             var exception = Record.Exception(() =>
             {
                 if (async)
@@ -737,7 +733,7 @@ namespace MongoDB.Driver.Tests
         private BsonDocument RenderUpdate<TDocument>(UpdateDefinition<TDocument> update)
         {
             var serializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
-            return update.Render(serializer, BsonSerializer.SerializerRegistry);
+            return update.Render(serializer, BsonSerializer.SerializerRegistry).AsBsonDocument;
         }
 
         public class A

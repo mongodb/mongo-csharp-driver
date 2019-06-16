@@ -407,6 +407,49 @@ namespace MongoDB.Driver
 
         [Theory]
         [ParameterAttributeData]
+        public void BulkWrite_should_throw_if_model_is_invalid([Values(false, true)] bool async)
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            var pipeline = new BsonDocumentStagePipelineDefinition<BsonDocument, BsonDocument>(new[] { new BsonDocument("$project", "{ value : 1 }") });
+            var update = new PipelineUpdateDefinition<BsonDocument>(pipeline);
+            var arrayFilters = new List<ArrayFilterDefinition>()
+            {
+                new BsonDocumentArrayFilterDefinition<BsonDocument>(new BsonDocument("x", 1))
+            };
+
+            var models = new WriteModel<BsonDocument>[]
+            {
+                new UpdateOneModel<BsonDocument>(new BsonDocument("n", 1), update)
+                {
+                    ArrayFilters = arrayFilters
+                },
+                new UpdateManyModel<BsonDocument>(new BsonDocument("n", 2), update)
+                {
+                    ArrayFilters = arrayFilters
+                }
+            };
+
+            foreach (var model in models)
+            {
+                Exception exception;
+                if (async)
+                {
+                    exception = Record.ExceptionAsync(async () => { await subject.BulkWriteAsync(new[] { model }); })
+                        .GetAwaiter()
+                        .GetResult();
+                }
+                else
+                {
+                    exception = Record.Exception(() => { subject.BulkWrite(new[] { model }); });
+                }
+
+                exception.Should().BeOfType<NotSupportedException>();
+            }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void Count_should_execute_a_CountOperation(
             [Values(false, true)] bool usingSession,
             [Values(false, true)] bool async)
@@ -1466,6 +1509,39 @@ namespace MongoDB.Driver
             operation.Sort.Should().Be(sortDocument);
             operation.Update.Should().Be(updateDocument);
             operation.WriteConcern.Should().BeSameAs(subject.Settings.WriteConcern);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void FindOneAndUpdate_should_throw_if_parameters_are_invalid(
+            [Values(false)] bool async)
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var pipeline = new BsonDocumentStagePipelineDefinition<BsonDocument, BsonDocument>(new[] { new BsonDocument("$project", "{ value : 1 }") });
+            var update = new PipelineUpdateDefinition<BsonDocument>(pipeline);
+            var filterDocument = BsonDocument.Parse("{ x : 1 }");
+            var filterDefinition = (FilterDefinition<BsonDocument>)filterDocument;
+            var arrayFilterDocument = BsonDocument.Parse("{ b : 1 }");
+            var arrayFilterDefinition = (ArrayFilterDefinition<BsonDocument>)arrayFilterDocument;
+            var options = new FindOneAndUpdateOptions<BsonDocument, BsonDocument>()
+            {
+                ArrayFilters = new[] { arrayFilterDefinition },
+            };
+            var cancellationToken = new CancellationTokenSource().Token;
+
+            Exception exception;
+            if (async)
+            {
+                exception = Record.ExceptionAsync(async () => { await subject.FindOneAndUpdateAsync(filterDefinition, update, options, cancellationToken); })
+                    .GetAwaiter()
+                    .GetResult();
+            }
+            else
+            {
+                exception = Record.Exception(() => { subject.FindOneAndUpdate(filterDefinition, update, options, cancellationToken); });
+            }
+
+            exception.Should().BeOfType<NotSupportedException>();
         }
 
         [Theory]
@@ -2564,8 +2640,8 @@ namespace MongoDB.Driver
         [ParameterAttributeData]
         public void UpdateMany_should_throw_a_WriteException_when_an_error_occurs(
             [Values(false, true)] bool usingSession,
-            [Values(null, false,true)] bool? bypassDocumentValidation,
-            [Values(false,true)] bool isUpsert,
+            [Values(null, false, true)] bool? bypassDocumentValidation,
+            [Values(false, true)] bool isUpsert,
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject<BsonDocument>();

@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core.Operations
         private readonly BsonDocument _filter;
         private bool _isMulti;
         private bool _isUpsert;
-        private readonly BsonDocument _update;
+        private readonly BsonValue _update;
         private UpdateType _updateType;
 
         // constructors
@@ -42,16 +42,12 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="updateType">The update type.</param>
         /// <param name="filter">The filter.</param>
         /// <param name="update">The update.</param>
-        public UpdateRequest(UpdateType updateType, BsonDocument filter, BsonDocument update)
+        public UpdateRequest(UpdateType updateType, BsonDocument filter, BsonValue update)
             : base(WriteRequestType.Update)
         {
             _updateType = updateType;
             _filter = Ensure.IsNotNull(filter, nameof(filter));
-            _update = Ensure.IsNotNull(update, nameof(update));
-            if (updateType == UpdateType.Update && _update.ElementCount == 0)
-            {
-                throw new ArgumentException("Updates must have at least 1 update operator.", nameof(update));
-            }
+            _update = EnsureUpdateIsValid(update, updateType);
         }
 
         // properties
@@ -111,7 +107,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <summary>
         /// Gets the update specification.
         /// </summary>
-        public BsonDocument Update
+        public BsonValue Update
         {
             get { return _update; }
         }
@@ -129,6 +125,43 @@ namespace MongoDB.Driver.Core.Operations
         public override bool IsRetryable(ConnectionDescription connectionDescription)
         {
             return !_isMulti;
+        }
+
+        // private methods
+        private BsonValue EnsureUpdateIsValid(BsonValue update, UpdateType updateType)
+        {
+            Ensure.IsNotNull(update, nameof(update));
+
+            if (updateType == UpdateType.Update)
+            {
+                switch (update)
+                {
+                    case BsonDocument document:
+                    {
+                        if (document.ElementCount == 0)
+                        {
+                            throw new ArgumentException("Updates must have at least 1 update operator.",
+                                nameof(update));
+                        }
+
+                        break;
+                    }
+                    case BsonArray array:
+                    {
+                        if (array.Count == 0)
+                        {
+                            throw new ArgumentException("Updates must have at least 1 update operator in a pipeline.",
+                                nameof(update));
+                        }
+
+                        break;
+                    }
+                    default:
+                        throw new ArgumentException("Updates must be BsonDocument or BsonArray.", nameof(update));
+                }
+            }
+
+            return update;
         }
     }
 }

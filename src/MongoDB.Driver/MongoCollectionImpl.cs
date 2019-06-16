@@ -171,6 +171,11 @@ namespace MongoDB.Driver
             {
                 throw new ArgumentException("Must contain at least 1 request.", "requests");
             }
+            foreach (var request in requests)
+            {
+                request.ThrowIfNotValid();
+            }
+
             options = options ?? new BulkWriteOptions();
 
             var operation = CreateBulkWriteOperation(session, requests, options);
@@ -198,6 +203,11 @@ namespace MongoDB.Driver
             {
                 throw new ArgumentException("Must contain at least 1 request.", "requests");
             }
+            foreach (var request in requests)
+            {
+                request.ThrowIfNotValid();
+            }
+
             options = options ?? new BulkWriteOptions();
 
             var operation = CreateBulkWriteOperation(session, requests, options);
@@ -430,6 +440,11 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(update, nameof(update));
             options = options ?? new FindOneAndUpdateOptions<TDocument, TProjection>();
 
+            if (update is PipelineUpdateDefinition<TDocument> && (options.ArrayFilters != null && options.ArrayFilters.Any()))
+            {
+                throw new NotSupportedException("An arrayfilter is not supported in the pipeline-style update.");
+            }
+
             var operation = CreateFindOneAndUpdateOperation(filter, update, options);
             return ExecuteWriteOperation(session, operation, cancellationToken);
         }
@@ -445,6 +460,11 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(filter, nameof(filter));
             Ensure.IsNotNull(update, nameof(update));
             options = options ?? new FindOneAndUpdateOptions<TDocument, TProjection>();
+
+            if (update is PipelineUpdateDefinition<TDocument> && (options.ArrayFilters != null && options.ArrayFilters.Any()))
+            {
+                throw new NotSupportedException("An arrayfilter is not supported in the pipeline-style update.");
+            }
 
             var operation = CreateFindOneAndUpdateOperation(filter, update, options);
             return ExecuteWriteOperationAsync(session, operation, cancellationToken);

@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
         {
             SkipTestIfNeeded(definition, test);
 
-            var databaseName = DriverTestConfiguration.DatabaseNamespace.DatabaseName;
+            var databaseName = GetDatabaseName(definition);
             var collectionName = GetCollectionName(definition);
             DropCollection(databaseName, collectionName);
             PrepareData(databaseName, collectionName, definition);
@@ -163,15 +163,27 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             return collection;
         }
 
-        private string GetCollectionName(BsonDocument operation)
+        private string GetCollectionName(BsonDocument definition)
         {
-            if (operation.TryGetValue("collection_name", out var collectionName))
+            if (definition.TryGetValue("collection_name", out var collectionName))
             {
                 return collectionName.AsString;
             }
             else
             {
                 return DriverTestConfiguration.CollectionNamespace.CollectionName;
+            }
+        }
+
+        private string GetDatabaseName(BsonDocument definition)
+        {
+            if (definition.TryGetValue("database_name", out var databaseName))
+            {
+                return databaseName.AsString;
+            }
+            else
+            {
+                return DriverTestConfiguration.DatabaseNamespace.DatabaseName;
             }
         }
 

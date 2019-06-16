@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
@@ -27,12 +28,12 @@ namespace MongoDB.Driver
     public abstract class UpdateDefinition<TDocument>
     {
         /// <summary>
-        /// Renders the update to a <see cref="BsonDocument"/>.
+        /// Renders the update to a <see cref="BsonValue"/>.
         /// </summary>
         /// <param name="documentSerializer">The document serializer.</param>
         /// <param name="serializerRegistry">The serializer registry.</param>
-        /// <returns>A <see cref="BsonDocument"/>.</returns>
-        public abstract BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry);
+        /// <returns>A <see cref="BsonValue"/>.</returns>
+        public abstract BsonValue Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry);
 
         /// <summary>
         /// Performs an implicit conversion from <see cref="BsonDocument"/> to <see cref="UpdateDefinition{TDocument}"/>.
@@ -66,6 +67,74 @@ namespace MongoDB.Driver
             }
             return new JsonUpdateDefinition<TDocument>(json);
         }
+
+        /// <summary>
+        /// Performs an implicit conversion from <see cref="PipelineDefinition{TDocument, TDocument}"/> to <see cref="UpdateDefinition{TDocument}"/>.
+        /// </summary>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <returns>
+        /// The result of the conversion.
+        /// </returns>
+        public static implicit operator UpdateDefinition<TDocument>(PipelineDefinition<TDocument, TDocument> pipeline)
+        {
+            if (pipeline == null)
+            {
+                return null;
+            }
+            return new PipelineUpdateDefinition<TDocument>(pipeline);
+        }
+    }
+
+    /// <summary>
+    /// A <see cref="PipelineDefinition{TDocument,TDocument}"/> based update definition.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
+    public sealed class PipelineUpdateDefinition<TDocument> : UpdateDefinition<TDocument>
+    {
+        private readonly PipelineDefinition<TDocument, TDocument> _pipeline;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PipelineUpdateDefinition{TDocument}"/> class.
+        /// </summary>
+        /// <param name="pipeline">The pipeline.</param>
+        public PipelineUpdateDefinition(PipelineDefinition<TDocument, TDocument> pipeline)
+        {
+            _pipeline = Ensure.IsNotNull(pipeline, nameof(pipeline));
+        }
+
+        /// <summary>
+        /// Renders the update to a <see cref="BsonValue"/> that represents <see cref="BsonArray"/>.
+        /// </summary>
+        /// <param name="documentSerializer">The document serializer.</param>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        /// <returns>A <see cref="BsonValue"/>.</returns>
+        public override BsonValue Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            var renderedPipeline = _pipeline.Render(documentSerializer, serializerRegistry);
+            return new BsonArray(renderedPipeline.Documents);
+        }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            var serializerRegistry = BsonSerializer.SerializerRegistry;
+            var inputSerializer = serializerRegistry.GetSerializer<TDocument>();
+            return ToString(inputSerializer, serializerRegistry);
+        }
+
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <param name="inputSerializer">The input serializer.</param>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
+        public string ToString(IBsonSerializer<TDocument> inputSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            var renderedPipeline = Render(inputSerializer, serializerRegistry);
+            return renderedPipeline.ToJson();
+        }
     }
 
     /// <summary>
@@ -94,7 +163,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override BsonValue Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             return _document;
         }
@@ -126,7 +195,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override BsonValue Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             return BsonDocument.Parse(_json);
         }
@@ -158,7 +227,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override BsonValue Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             var serializer = serializerRegistry.GetSerializer(_obj.GetType());
             return new BsonDocumentWrapper(_obj, serializer);

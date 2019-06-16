@@ -14,19 +14,18 @@
 */
 
 using System;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Misc;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MongoDB.Driver.Tests.Specifications.crud
 {
     public class FindOneAndUpdateTest : CrudOperationWithResultTestBase<BsonDocument>
     {
         private BsonDocument _filter;
-        private BsonDocument _update;
         private FindOneAndUpdateOptions<BsonDocument> _options = new FindOneAndUpdateOptions<BsonDocument>();
+        private BsonValue _update;
 
         protected override bool TrySetArgument(string name, BsonValue value)
         {
@@ -36,7 +35,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                     _filter = (BsonDocument)value;
                     return true;
                 case "update":
-                    _update = (BsonDocument)value;
+                    _update = value;
                     return true;
                 case "projection":
                     _options.Projection = (BsonDocument)value;
@@ -79,13 +78,27 @@ namespace MongoDB.Driver.Tests.Specifications.crud
 
         protected override BsonDocument ExecuteAndGetResult(IMongoCollection<BsonDocument> collection, bool async)
         {
+            UpdateDefinition<BsonDocument> updateDefinition = null;
+            if (_update is BsonDocument updateDocument)
+            {
+                updateDefinition = new BsonDocumentUpdateDefinition<BsonDocument>(updateDocument);
+            }
+            else if (_update is BsonArray stages)
+            {
+                var pipeline = new BsonDocumentStagePipelineDefinition<BsonDocument, BsonDocument>(stages.Cast<BsonDocument>());
+                updateDefinition = new PipelineUpdateDefinition<BsonDocument>(pipeline);
+            }
+
             if (async)
             {
-                return collection.FindOneAndUpdateAsync(_filter, _update, _options).GetAwaiter().GetResult();
+                return collection
+                    .FindOneAndUpdateAsync(_filter, updateDefinition, _options)
+                    .GetAwaiter()
+                    .GetResult();
             }
             else
             {
-                return collection.FindOneAndUpdate(_filter, _update, _options);
+                return collection.FindOneAndUpdate(_filter, updateDefinition, _options);
             }
         }
 
