@@ -50,10 +50,13 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __eval = new Feature("Eval", new SemanticVersion(0, 0, 0), new SemanticVersion(4, 1, 0, ""));
         private static readonly Feature __explainCommand = new Feature("ExplainCommand", new SemanticVersion(3, 0, 0));
         private static readonly Feature __failPoints = new Feature("FailPoints", new SemanticVersion(2, 4, 0));
+        private static readonly Feature __failPointsFailCommand = new Feature("FailPointsFailCommand", new SemanticVersion(4, 0, 0));
         private static readonly Feature __findAndModifyWriteConcern = new Feature("FindAndModifyWriteConcern", new SemanticVersion(3, 2, 0));
         private static readonly Feature __findCommand = new Feature("FindCommand", new SemanticVersion(3, 2, 0));
         private static readonly Feature __geoNearCommand = new Feature("GeoNearCommand", new SemanticVersion(1, 0, 0), new SemanticVersion(4, 1, 0, ""));
         private static readonly Feature __groupCommand = new Feature("GroupCommand", new SemanticVersion(1, 0, 0), new SemanticVersion(4, 0, 0, "rc1"));
+        private static readonly Feature __keepConnectionPoolWhenNotMasterConnectionException = new Feature("KeepConnectionPoolWhenNotMasterConnectionException", new SemanticVersion(4, 1, 10));
+        private static readonly Feature __keepConnectionPoolWhenReplSetStepDown = new Feature("KeepConnectionPoolWhenReplSetStepDown", new SemanticVersion(4, 1, 10));
         private static readonly Feature __killCursorsCommand = new Feature("KillCursorsCommand", new SemanticVersion(3, 2, 0));
         private static readonly Feature __listCollectionsCommand = new Feature("ListCollectionsCommand", new SemanticVersion(3, 0, 0));
         private static readonly Feature __listDatabasesFilter = new Feature("ListDatabasesFilter", new SemanticVersion(3, 4, 2));
@@ -212,6 +215,11 @@ namespace MongoDB.Driver.Core.Misc
         public static Feature FailPoints => __failPoints;
 
         /// <summary>
+        /// Gets the fail points fail command feature.
+        /// </summary>
+        public static Feature FailPointsFailCommand => __failPointsFailCommand;
+
+        /// <summary>
         /// Gets the find and modify write concern feature.
         /// </summary>
         public static Feature FindAndModifyWriteConcern => __findAndModifyWriteConcern;
@@ -230,6 +238,16 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the group command feature.
         /// </summary>
         public static Feature GroupCommand => __groupCommand;
+
+        /// <summary>
+        /// Gets the keep connection pool when NotMaster connection exception feature.
+        /// </summary>
+        public static Feature KeepConnectionPoolWhenNotMasterConnectionException => __keepConnectionPoolWhenNotMasterConnectionException;
+
+        /// <summary>
+        /// Gets the keep connection pool when replSetStepDown feature.
+        /// </summary>
+        public static Feature KeepConnectionPoolWhenReplSetStepDown => __keepConnectionPoolWhenReplSetStepDown;
 
         /// <summary>
         /// Get the killCursors command feature.

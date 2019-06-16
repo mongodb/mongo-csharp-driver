@@ -156,10 +156,10 @@ namespace MongoDB.Driver.Core.Servers
                         _connectionPool.Clear();
                     }
                     catch
-                    {                        
+                    {
                         // ignore exceptions
                     }
-                    
+
                 }
                 connection.Dispose();
                 throw;
@@ -190,7 +190,7 @@ namespace MongoDB.Driver.Core.Servers
                         _connectionPool.Clear();
                     }
                     catch
-                    {                        
+                    {
                         // ignore exceptions
                     }
                 }
@@ -224,8 +224,7 @@ namespace MongoDB.Driver.Core.Servers
         public void Invalidate()
         {
             ThrowIfNotOpen();
-            _connectionPool.Clear();
-            _monitor.Invalidate();
+            Invalidate(clearConnectionPool: true);
         }
 
         public void RequestHeartbeat()
@@ -279,12 +278,22 @@ namespace MongoDB.Driver.Core.Servers
 
             if (ShouldInvalidateServer(ex))
             {
-                Invalidate();
+                var shouldClearConnectionPool = ShouldClearConnectionPoolForChannelException(ex, connection.Description.ServerVersion);
+                Invalidate(shouldClearConnectionPool);
             }
             else
             {
                 RequestHeartbeat();
             }
+        }
+
+        private void Invalidate(bool clearConnectionPool)
+        {
+            if (clearConnectionPool)
+            {
+                _connectionPool.Clear();
+            }
+            _monitor.Invalidate();
         }
 
         private bool IsNotMaster(ServerErrorCode code, string message)
@@ -336,10 +345,20 @@ namespace MongoDB.Driver.Core.Servers
 
             return false;
         }
-        
+
         private bool ShouldClearConnectionPool(Exception ex)
         {
             return ex is MongoAuthenticationException;
+        }
+
+        private bool ShouldClearConnectionPoolForChannelException(Exception ex, SemanticVersion serverVersion)
+        {
+            if (ex is MongoNotPrimaryException mongoNotPrimaryException && mongoNotPrimaryException.Code == (int)ServerErrorCode.NotMaster)
+            {
+                return !Feature.KeepConnectionPoolWhenNotMasterConnectionException.IsSupported(serverVersion);
+            }
+
+            return true;
         }
 
         private bool ShouldInvalidateServer(Exception exception)
