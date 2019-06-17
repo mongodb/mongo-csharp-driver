@@ -1201,11 +1201,13 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="args">The args.</param>
         /// <returns>A list of results as BsonDocuments.</returns>
+        [Obsolete("The group command was deprecated in server version 3.4.")]
         public virtual IEnumerable<BsonDocument> Group(GroupArgs args)
         {
             return UsingImplicitSession(session => Group(session, args));
         }
 
+        [Obsolete("The group command was deprecated in server version 3.4.")]
         private IEnumerable<BsonDocument> Group(IClientSessionHandle session, GroupArgs args)
         {
             if (args == null) { throw new ArgumentNullException("args"); }
@@ -1255,6 +1257,7 @@ namespace MongoDB.Driver
         /// <param name="reduce">A JavaScript function that is called for each matching document in a group.</param>
         /// <param name="finalize">A JavaScript function that is called at the end of the group command.</param>
         /// <returns>A list of results as BsonDocuments.</returns>
+        [Obsolete("The group command was deprecated in server version 3.4.")]
         public virtual IEnumerable<BsonDocument> Group(
             IMongoQuery query,
             BsonJavaScript keyFunction,
@@ -1281,6 +1284,7 @@ namespace MongoDB.Driver
         /// <param name="reduce">A JavaScript function that is called for each matching document in a group.</param>
         /// <param name="finalize">A JavaScript function that is called at the end of the group command.</param>
         /// <returns>A list of results as BsonDocuments.</returns>
+        [Obsolete("The group command was deprecated in server version 3.4.")]
         public virtual IEnumerable<BsonDocument> Group(
             IMongoQuery query,
             IMongoGroupBy keys,
@@ -1307,6 +1311,7 @@ namespace MongoDB.Driver
         /// <param name="reduce">A JavaScript function that is called for each matching document in a group.</param>
         /// <param name="finalize">A JavaScript function that is called at the end of the group command.</param>
         /// <returns>A list of results as BsonDocuments.</returns>
+        [Obsolete("The group command was deprecated in server version 3.4.")]
         public virtual IEnumerable<BsonDocument> Group(
             IMongoQuery query,
             string key,

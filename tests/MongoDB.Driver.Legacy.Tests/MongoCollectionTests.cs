@@ -892,7 +892,7 @@ namespace MongoDB.Driver.Tests
         public void TestDropIndexWriteConcern()
         {
             RequireServer.Check().Supports(Feature.AggregateOut, Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
-            
+
             _collection.Drop();
             _collection.CreateIndex("x");
             var writeConcern = new WriteConcern(9, wTimeout: TimeSpan.FromMilliseconds(1));
@@ -2073,8 +2073,9 @@ namespace MongoDB.Driver.Tests
             _collection.Insert(new BsonDocument("x", 3));
             _collection.Insert(new BsonDocument("x", 3));
             _collection.Insert(new BsonDocument("x", 3));
-
+#pragma warning disable 618
             var results = _collection.Group(new GroupArgs
+#pragma warning restore
             {
                 KeyFields = GroupBy.Keys("x"),
                 Initial = new BsonDocument("count", 0),
@@ -2102,8 +2103,9 @@ namespace MongoDB.Driver.Tests
             _collection.Insert(new BsonDocument("x", 3));
             _collection.Insert(new BsonDocument("x", 3));
             _collection.Insert(new BsonDocument("x", 3));
-
+#pragma warning disable 618
             var results = _collection.Group(new GroupArgs
+#pragma warning restore
             {
                 KeyFields = GroupBy.Keys("x"),
                 Initial = new BsonDocument("count", 0),
@@ -2130,8 +2132,9 @@ namespace MongoDB.Driver.Tests
             _collection.Insert(new BsonDocument("x", 3));
             _collection.Insert(new BsonDocument("x", 3));
             _collection.Insert(new BsonDocument("x", 3));
-
+#pragma warning disable 618
             var results = _collection.Group(new GroupArgs
+#pragma warning restore
             {
                 KeyFunction = "function(doc) { return { x : doc.x }; }",
                 Initial = new BsonDocument("count", 0),
@@ -2168,7 +2171,9 @@ namespace MongoDB.Driver.Tests
                             ReduceFunction = "function(doc, prev) { prev.count += 1 }",
                             MaxTime = TimeSpan.FromMilliseconds(1)
                         };
+#pragma warning disable 618
                         Assert.Throws<MongoExecutionTimeoutException>(() => _collection.Group(args));
+#pragma warning restore
                     }
                 }
             }
@@ -2185,8 +2190,9 @@ namespace MongoDB.Driver.Tests
             _collection.Insert(new BsonDocument("x", 3));
             _collection.Insert(new BsonDocument("x", 3));
             _collection.Insert(new BsonDocument("x", 3));
-
+#pragma warning disable 618
             var results = _collection.Group(new GroupArgs
+#pragma warning restore
             {
                 Query = Query.LT("x", 3),
                 KeyFields = GroupBy.Keys("x"),
