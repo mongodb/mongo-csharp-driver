@@ -58,7 +58,8 @@
       <NamespaceSummaryItem name="MongoDB.Driver.Core.Clusters" isDocumented="True">The MongoDB.Driver.Core.Clusters namespace contains classes related to clusters.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="MongoDB.Driver.Core.Clusters.ServerSelectors" isDocumented="True">The MongoDB.Driver.Core.Clusters.ServerSelectors namespace contains classes related to server selectors.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="MongoDB.Driver.Core.Configuration" isDocumented="True">The MongoDB.Driver.Core.Configuration namespace contains classes related to configuration.</NamespaceSummaryItem>
-      <NamespaceSummaryItem name="MongoDB.Driver.Core.ConnectionPools" isDocumented="True">The MongoDB.Driver.Core.ConnecitonPools namespace contains classes related to connection pools.</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="MongoDB.Driver.Core.Compression" isDocumented="True">The MongoDB.Driver.Core.Compression namespace contains classes related to compression.</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="MongoDB.Driver.Core.ConnectionPools" isDocumented="True">The MongoDB.Driver.Core.ConnectionPools namespace contains classes related to connection pools.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="MongoDB.Driver.Core.Connections" isDocumented="True">The MongoDB.Driver.Core.Connections namespace contains classes related to connections.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="MongoDB.Driver.Core.Events" isDocumented="True">The MongoDB.Driver.Core.Events namespace contains classes related to events.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="MongoDB.Driver.Core.Events.Diagnostics" isDocumented="True">The MongoDB.Driver.Core.Events.Diagnostics namespace contains classes related to diagnostics.</NamespaceSummaryItem>

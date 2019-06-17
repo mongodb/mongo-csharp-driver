@@ -51,11 +51,15 @@ namespace MongoDB.Driver.Core.Compression
         /// <summary>
         /// Compresses the specified stream.
         /// </summary>
+        /// <param name="input">The input stream.</param>
+        /// <param name="output">The output stream.</param>
         void Compress(Stream input, Stream output);
 
         /// <summary>
         /// Decompresses the specified stream.
         /// </summary>
+        /// <param name="input">The input stream.</param>
+        /// <param name="output">The output stream.</param>
         void Decompress(Stream input, Stream output);
     }
 }

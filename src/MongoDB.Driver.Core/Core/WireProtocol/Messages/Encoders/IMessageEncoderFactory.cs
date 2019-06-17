@@ -44,6 +44,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
         /// Gets an encoder for a Compressed message.
         /// </summary>
         /// <returns>An encoder.</returns>
+        /// <param name="originalEncoderSelector">The original encoder selector.</param>
         IMessageEncoder GetCompressedMessageEncoder(IMessageEncoderSelector originalEncoderSelector);
 
         /// <summary>
