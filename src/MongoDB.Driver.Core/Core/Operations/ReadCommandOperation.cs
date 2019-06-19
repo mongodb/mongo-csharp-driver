@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -51,7 +50,7 @@ namespace MongoDB.Driver.Core.Operations
         {
         }
 
-        // public properties        
+        // public properties
         /// <summary>
         /// Gets or sets a value indicating whether to retry.
         /// </summary>
@@ -62,7 +61,7 @@ namespace MongoDB.Driver.Core.Operations
             set => _retryRequested = value;
         }
 
-        // public methods        
+        // public methods
         /// <inheritdoc/>
         public TCommandResult Execute(IReadBinding binding, CancellationToken cancellationToken)
         {
@@ -110,13 +109,13 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc/>
         public TCommandResult ExecuteAttempt(RetryableReadContext context, int attempt, long? transactionNumber, CancellationToken cancellationToken)
         {
-            return ExecuteProtocol(context.ChannelSource, context.Binding.Session, context.Binding.ReadPreference, cancellationToken);
+            return ExecuteProtocol(context.Channel, context.Binding.Session, context.Binding.ReadPreference, cancellationToken);
         }
 
         /// <inheritdoc/>
         public Task<TCommandResult> ExecuteAttemptAsync(RetryableReadContext context, int attempt, long? transactionNumber, CancellationToken cancellationToken)
         {
-            return ExecuteProtocolAsync(context.ChannelSource, context.Binding.Session, context.Binding.ReadPreference, cancellationToken);
+            return ExecuteProtocolAsync(context.Channel, context.Binding.Session, context.Binding.ReadPreference, cancellationToken);
         }
     }
 }

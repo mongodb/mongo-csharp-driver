@@ -312,6 +312,30 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
+        [Theory]
+        [ParameterAttributeData]
+        public void Execute_should_call_GetChannel_only_once([Values(false, true)] bool async)
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var readPreference = ReadPreference.Primary;
+            var serverDescription = CreateServerDescription(ServerType.Standalone);
+            var mockChannel = CreateMockChannel();
+            var mockChannelSource = CreateMockChannelSource(serverDescription, mockChannel.Object);
+            var binding = CreateMockReadBinding(readPreference, mockChannelSource.Object).Object;
+            var cancellationToken = new CancellationTokenSource().Token;
+
+            if (async)
+            {
+                subject.ExecuteAsync(binding, cancellationToken).GetAwaiter().GetResult();
+                mockChannelSource.Verify(c => c.GetChannelAsync(cancellationToken), Times.Once);
+            }
+            else
+            {
+                subject.Execute(binding, cancellationToken);
+                mockChannelSource.Verify(c => c.GetChannel(cancellationToken), Times.Once);
+            }
+        }
+
         // private methods
         private Mock<IReadBinding> CreateMockReadBinding(ReadPreference readPreference, IChannelSourceHandle channelSource)
         {
