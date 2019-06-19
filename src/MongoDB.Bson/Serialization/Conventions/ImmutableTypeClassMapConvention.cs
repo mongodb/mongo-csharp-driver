@@ -76,7 +76,12 @@ namespace MongoDB.Bson.Serialization.Conventions
                 // if any constructors were mapped by this convention then map all the properties also
                 foreach (var property in properties)
                 {
-                    classMap.MapMember(property);
+                    var memberMap = classMap.MapMember(property);
+                    if (classMap.IsAnonymous)
+                    {
+                        var defaultValue = memberMap.DefaultValue;
+                        memberMap.SetDefaultValue(defaultValue);
+                    }
                 }
             }
         }
