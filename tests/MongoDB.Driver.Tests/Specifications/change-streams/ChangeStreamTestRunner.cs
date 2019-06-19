@@ -354,7 +354,7 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
 
         private void AssertChangeStreamDocument(ChangeStreamDocument<BsonDocument> actualDocument, BsonDocument expectedDocument)
         {
-            JsonDrivenHelper.EnsureAllFieldsAreValid(expectedDocument, "_id", "documentKey", "operationType", "ns", "fullDocument");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(expectedDocument, "_id", "documentKey", "operationType", "ns", "fullDocument", "updateDescription", "to");
 
             AssertChangeStreamDocumentPropertyValuesAgainstBackingDocument(actualDocument);
 
@@ -391,6 +391,29 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
                 var expectedFullDocument = expectedDocument["fullDocument"].AsBsonDocument;
                 actualFullDocument.Should().Be(expectedFullDocument);
             }
+
+            if (expectedDocument.Contains("updateDescription"))
+            {
+                var expectedUpdateDescription = expectedDocument["updateDescription"].AsBsonDocument;
+                JsonDrivenHelper.EnsureAllFieldsAreValid(expectedUpdateDescription, "updatedFields", "removedFields");
+                var actualUpdateDescription = actualDocument.UpdateDescription;
+                actualUpdateDescription.UpdatedFields.Should().Be(expectedUpdateDescription["updatedFields"].AsBsonDocument);
+                if (expectedUpdateDescription.Contains("removedFields"))
+                {
+                    var actualRemovedFields = new BsonArray(actualUpdateDescription.RemovedFields);
+                    actualRemovedFields.Should().Be(expectedUpdateDescription["removedFields"].AsBsonArray);
+                }
+            }
+
+            if (expectedDocument.Contains("to"))
+            {
+                var to = expectedDocument["to"].AsBsonDocument;
+                JsonDrivenHelper.EnsureAllFieldsAreValid(to, "db", "coll");
+                var expectedRenameToDatabaseName = to["db"].AsString;
+                var expectedRenameToCollectionName = to["coll"].AsString;
+                var expectedRenameToCollectionNamespace = new CollectionNamespace(new DatabaseNamespace(expectedRenameToDatabaseName), expectedRenameToCollectionName);
+                actualDocument.RenameTo.Should().Be(expectedRenameToCollectionNamespace);
+            }
         }
 
         private void AssertChangeStreamDocumentPropertyValuesAgainstBackingDocument(ChangeStreamDocument<BsonDocument> actualDocument)
@@ -408,12 +431,27 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
                 clusterTime.Should().BeNull();
             }
 
+            var operationType = actualDocument.OperationType;
+            operationType.ToString().ToLowerInvariant().Should().Be(backingDocument["operationType"].AsString);
+
+            if (operationType == ChangeStreamOperationType.Invalidate)
+            {
+                return;
+            }
+
             var collectionNamespace = actualDocument.CollectionNamespace;
             collectionNamespace.DatabaseNamespace.DatabaseName.Should().Be(backingDocument["ns"]["db"].AsString);
             collectionNamespace.CollectionName.Should().Be(backingDocument["ns"]["coll"].AsString);
 
             var documentKey = actualDocument.DocumentKey;
-            documentKey.Should().Be(backingDocument["documentKey"].AsBsonDocument);
+            if (operationType == ChangeStreamOperationType.Rename || operationType == ChangeStreamOperationType.Drop)
+            {
+                documentKey.Should().BeNull();
+            }
+            else
+            {
+                documentKey.Should().Be(backingDocument["documentKey"].AsBsonDocument);
+            }
 
             var fullDocument = actualDocument.FullDocument;
             if (backingDocument.Contains("fullDocument"))
@@ -425,16 +463,15 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
                 fullDocument.Should().BeNull();
             }
 
-            var operationType = actualDocument.OperationType;
-            operationType.ToString().ToLowerInvariant().Should().Be(backingDocument["operationType"].AsString);
-
             var resumeToken = actualDocument.ResumeToken;
             resumeToken.Should().Be(backingDocument["_id"].AsBsonDocument);
 
             var updateDescription = actualDocument.UpdateDescription;
             if (backingDocument.Contains("updateDescription"))
             {
-                updateDescription.Should().Be(backingDocument["updateDescription"].AsBsonDocument);
+                var removedFields = new BsonArray(updateDescription.RemovedFields);
+                removedFields.Should().Be(backingDocument["updateDescription"]["removedFields"].AsBsonArray);
+                updateDescription.UpdatedFields.Should().Be(backingDocument["updateDescription"]["updatedFields"].AsBsonDocument);
             }
             else
             {

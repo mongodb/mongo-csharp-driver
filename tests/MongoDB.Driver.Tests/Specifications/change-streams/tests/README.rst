@@ -48,7 +48,7 @@ Each YAML file has the following keys:
     - ``database``: Database against which to run the operation
     - ``collection``: Collection against which to run the operation
     - ``name``: Name of the command to run
-    - ``arguments``: Object of arguments for the command (ex: document to insert)
+    - ``arguments`` (optional): Object of arguments for the command (ex: document to insert)
 
   - ``expectations``: Optional list of command-started events in Extended JSON format
   - ``result``: Document with ONE of the following fields:

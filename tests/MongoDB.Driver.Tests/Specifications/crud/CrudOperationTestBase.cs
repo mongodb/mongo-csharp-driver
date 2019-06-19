@@ -73,7 +73,10 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             }
         }
 
-        protected abstract bool TrySetArgument(string name, BsonValue value);
+        protected virtual bool TrySetArgument(string name, BsonValue value)
+        {
+            return false;
+        }
 
         protected abstract void Execute(IMongoCollection<BsonDocument> collection, BsonDocument outcome, bool async);
 

@@ -29,12 +29,14 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                 case "deleteMany": return new DeleteManyTest();
                 case "deleteOne": return new DeleteOneTest();
                 case "distinct": return new DistinctTest();
+                case "drop": return new DropCollectionTest();
                 case "find": return new FindTest();
                 case "findOneAndDelete": return new FindOneAndDeleteTest();
                 case "findOneAndReplace": return new FindOneAndReplaceTest();
                 case "findOneAndUpdate": return new FindOneAndUpdateTest();
                 case "insertMany": return new InsertManyTest();
                 case "insertOne": return new InsertOneTest();
+                case "rename": return new RenameCollectionTest();
                 case "replaceOne": return new ReplaceOneTest();
                 case "updateOne": return new UpdateOneTest();
                 case "updateMany": return new UpdateManyTest();
