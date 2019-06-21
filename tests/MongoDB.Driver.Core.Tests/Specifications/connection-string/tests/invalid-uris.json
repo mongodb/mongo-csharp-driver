@@ -215,6 +215,16 @@
             "uri": "mongodb:///tmp/mongodb-27017.sock/", 
             "valid": false, 
             "warning": null
-        }
+        },
+        {
+            "auth": null,
+            "description": "Username with password containing an unescaped percent sign",
+            "hosts": null,
+            "options": null,
+            "uri": "mongodb://alice%foo:bar@127.0.0.1",
+            "valid": false,
+            "warning": null
+        }	    
+
     ]
 }

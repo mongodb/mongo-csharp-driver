@@ -28,6 +28,7 @@ using Xunit;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using Xunit.Sdk;
 using System.Collections;
+using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 
 namespace MongoDB.Driver.Specifications.connection_string
 {
@@ -35,8 +36,9 @@ namespace MongoDB.Driver.Specifications.connection_string
     {
         [SkippableTheory]
         [ClassData(typeof(TestCaseFactory))]
-        public void RunTestDefinition(BsonDocument definition)
+        public void RunTestDefinition(JsonDrivenTestCase testCase)
         {
+            var definition = testCase.Test;
             ConnectionString connectionString = null;
             Exception parseException = null;
             try
@@ -134,63 +136,19 @@ namespace MongoDB.Driver.Specifications.connection_string
             throw new AssertionException($"Unknown host type {expectedHost["type"]}.");
         }
 
-        private class TestCaseFactory : IEnumerable<object[]>
+        private class TestCaseFactory : JsonDrivenTestCaseFactory
         {
             private static readonly string[] __ignoredTestNames = new string[]
             {
-                "invalid-uris: Missing delimiting slash between hosts and options"
+                "invalid-uris.json:Missing delimiting slash between hosts and options"
             };
 
-            public IEnumerator<object[]> GetEnumerator()
-            {
-                const string prefix = "MongoDB.Driver.Core.Tests.Specifications.connection_string.tests.";
-                var executingAssembly = typeof(TestCaseFactory).GetTypeInfo().Assembly;
-                var enumerable = executingAssembly
-                    .GetManifestResourceNames()
-                    .Where(path => path.StartsWith(prefix) && path.EndsWith(".json"))
-                    .SelectMany(path =>
-                    {
-                        var definition = ReadDefinition(path);
-                        var tests = (BsonArray)definition["tests"];
-                        var fullName = path.Remove(0, prefix.Length);
-                        var list = new List<object[]>();
-                        foreach (BsonDocument test in tests)
-                        {
-                            //var data = new TestCaseData(test);
-                            //data.SetCategory("Specifications");
-                            //data.SetCategory("ConnectionString");
-                            //var testName = fullName.Remove(fullName.Length - 5) + ": " + test["description"];
-                            //if (_ignoredTestNames.Contains(testName))
-                            //{
-                            //    data = data.Ignore("Does not apply");
-                            //}
-                            //list.Add(data.SetName(testName));
-                            var testName = fullName.Remove(fullName.Length - 5) + ": " + test["description"];
-                            if (!__ignoredTestNames.Contains(testName))
-                            {
-                                var data = new object[] { test };
-                                list.Add(data);
-                            }
-                        }
-                        return list;
-                    });
-                return enumerable.GetEnumerator();
-            }
+            protected override string PathPrefix => "MongoDB.Driver.Core.Tests.Specifications.connection_string.tests.";
 
-            IEnumerator IEnumerable.GetEnumerator()
+            protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)
             {
-                return GetEnumerator();
-            }
-
-            private static BsonDocument ReadDefinition(string path)
-            {
-                var executingAssembly = typeof(TestCaseFactory).GetTypeInfo().Assembly;
-                using (var definitionStream = executingAssembly.GetManifestResourceStream(path))
-                using (var definitionStringReader = new StreamReader(definitionStream))
-                {
-                    var definitionString = definitionStringReader.ReadToEnd();
-                    return BsonDocument.Parse(definitionString);
-                }
+                return base.CreateTestCases(document)
+                    .Where(test => !__ignoredTestNames.Any(ignoredName => test.Name.EndsWith(ignoredName)));
             }
         }
     }
