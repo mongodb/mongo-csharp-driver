@@ -782,6 +782,11 @@ namespace MongoDB.Driver.Core.Configuration
             ExtractDatabaseName(match);
             ExtractOptions(match);
             ExtractHosts(match);
+
+            if (_journal.HasValue && _journal.Value && _w != null && _w.Equals(0))
+            {
+                throw new MongoConfigurationException("This is an invalid w and journal pair.");
+            }
         }
 
         private void ParseOption(string name, string value)

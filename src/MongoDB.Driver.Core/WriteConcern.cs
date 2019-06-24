@@ -195,6 +195,11 @@ namespace MongoDB.Driver
             _wTimeout = Ensure.IsNullOrGreaterThanZero(wTimeout.WithDefault(null), "wTimeout");
             _fsync = fsync.WithDefault(null);
             _journal = journal.WithDefault(null);
+
+            if (_w != null && w.Value.Equals(0) && _journal.HasValue && journal.Value.Equals(true))
+            {
+                throw new MongoConfigurationException("This write concern is not valid.");
+            }
         }
 
         // properties

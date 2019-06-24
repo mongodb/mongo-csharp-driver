@@ -85,7 +85,7 @@ tests:
         isAcknowledged: false
     -
         description: "W is 0 with journal true"
-        valid: true
+        valid: false
         writeConcern: { w: 0, journal: true }
         writeConcernDocument: { w: 0, j: true }
         isServerDefault: false

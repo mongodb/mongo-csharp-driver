@@ -107,8 +107,8 @@
     {
       "description": "Acknowledged with w as 0 and journal true",
       "uri": "mongodb://localhost/?w=0&journal=true",
-      "valid": true,
-      "warning": true,
+      "valid": false,
+      "warning": false,
       "writeConcern": {
         "w": 0,
         "journal": true

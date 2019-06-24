@@ -193,12 +193,15 @@ namespace MongoDB.Driver
             result.WTimeout.Should().NotHaveValue();
         }
 
+        // exclude case where w = 0 and journal = true per new spec
         [Theory]
-        [ParameterAttributeData]
+        [InlineData(0, null)]
+        [InlineData(1, null)]
+        [InlineData(0, false)]
+        [InlineData(1, true)]
+        [InlineData(1, false)]
         public void constructor_with_w_and_journal_should_initialize_instance(
-            [Values(0, 1)]
             int w,
-            [Values(false, true, null)]
             bool? journal)
         {
             var result = new WriteConcern(w, journal: journal);
@@ -333,13 +336,13 @@ namespace MongoDB.Driver
             hashCode1.Should().Be(hashCode2);
         }
 
+        // exclude w = 0 and journal = true per new spec
         [Theory]
         [InlineData(0, null, null, null, false)]
         [InlineData(1, null, null, null, true)]
         [InlineData(0, false, null, null, false)]
         [InlineData(0, true, null, null, true)]
         [InlineData(0, null, false, null, false)]
-        [InlineData(0, null, true, null, true)]
         [InlineData(0, null, null, 1, false)]
         public void IsAcknowledged_should_return_expected_result_with_w(
             int? w,
