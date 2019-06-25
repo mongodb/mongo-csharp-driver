@@ -27,6 +27,36 @@ namespace MongoDB.Driver
     public static class IMongoDatabaseExtensions
     {
         /// <summary>
+        /// Begins a fluent aggregation interface.
+        /// </summary>
+        /// <param name="database">The database.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>
+        /// A fluent aggregate interface.
+        /// </returns>
+        public static IAggregateFluent<NoPipelineInput> Aggregate(this IMongoDatabase database, AggregateOptions options = null)
+        {
+            var emptyPipeline = new EmptyPipelineDefinition<NoPipelineInput>(NoPipelineInputSerializer.Instance);
+            return new DatabaseAggregateFluent<NoPipelineInput>(null, database, emptyPipeline, options ?? new AggregateOptions());
+        }
+
+        /// <summary>
+        /// Begins a fluent aggregation interface.
+        /// </summary>
+        /// <param name="database">The database.</param>
+        /// <param name="session">The session.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>
+        /// A fluent aggregate interface.
+        /// </returns>
+        public static IAggregateFluent<NoPipelineInput> Aggregate(this IMongoDatabase database, IClientSessionHandle session, AggregateOptions options = null)
+        {
+            Ensure.IsNotNull(session, nameof(session));
+            var emptyPipeline = new EmptyPipelineDefinition<NoPipelineInput>(NoPipelineInputSerializer.Instance);
+            return new DatabaseAggregateFluent<NoPipelineInput>(session, database, emptyPipeline, options ?? new AggregateOptions());
+        }
+
+        /// <summary>
         /// Watches changes on all collection in a database.
         /// </summary>
         /// <param name="database">The database.</param>

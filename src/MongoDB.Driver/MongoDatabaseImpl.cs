@@ -36,6 +36,7 @@ namespace MongoDB.Driver
         private readonly IMongoClient _client;
         private readonly ICluster _cluster;
         private readonly DatabaseNamespace _databaseNamespace;
+        private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly IOperationExecutor _operationExecutor;
         private readonly MongoDatabaseSettings _settings;
 
@@ -47,6 +48,13 @@ namespace MongoDB.Driver
             _settings = Ensure.IsNotNull(settings, nameof(settings)).Freeze();
             _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
             _operationExecutor = Ensure.IsNotNull(operationExecutor, nameof(operationExecutor));
+
+            _messageEncoderSettings = new MessageEncoderSettings
+            {
+                { MessageEncoderSettingsName.GuidRepresentation, _settings.GuidRepresentation },
+                { MessageEncoderSettingsName.ReadEncoding, _settings.ReadEncoding ?? Utf8Encodings.Strict },
+                { MessageEncoderSettingsName.WriteEncoding, _settings.WriteEncoding ?? Utf8Encodings.Strict }
+            };
         }
 
         // public properties
@@ -66,6 +74,74 @@ namespace MongoDB.Driver
         }
 
         // public methods
+        public override IAsyncCursor<TResult> Aggregate<TResult>(PipelineDefinition<NoPipelineInput, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return UsingImplicitSession(session => Aggregate(session, pipeline, options, cancellationToken), cancellationToken);
+        }
+
+        public override IAsyncCursor<TResult> Aggregate<TResult>(IClientSessionHandle session, PipelineDefinition<NoPipelineInput, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(session, nameof(session));
+            var renderedPipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).Render(NoPipelineInputSerializer.Instance, _settings.SerializerRegistry);
+            options = options ?? new AggregateOptions();
+
+            var last = renderedPipeline.Documents.LastOrDefault();
+            if (last != null && last.GetElement(0).Name == "$out")
+            {
+                var aggregateOperation = CreateAggregateToCollectionOperation(renderedPipeline, options);
+                ExecuteWriteOperation(session, aggregateOperation, cancellationToken);
+
+                // we want to delay execution of the find because the user may
+                // not want to iterate the results at all...
+                var findOperation = CreateAggregateToCollectionFindOperation(last, renderedPipeline.OutputSerializer, options);
+                var forkedSession = session.Fork();
+                var deferredCursor = new DeferredAsyncCursor<TResult>(
+                    () => forkedSession.Dispose(),
+                    ct => ExecuteReadOperation(forkedSession, findOperation, ReadPreference.Primary, ct),
+                    ct => ExecuteReadOperationAsync(forkedSession, findOperation, ReadPreference.Primary, ct));
+                return deferredCursor;
+            }
+            else
+            {
+                var aggregateOperation = CreateAggregateOperation(renderedPipeline, options);
+                return ExecuteReadOperation(session, aggregateOperation, cancellationToken);
+            }
+        }
+
+        public override Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(PipelineDefinition<NoPipelineInput, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return UsingImplicitSessionAsync(session => AggregateAsync(session, pipeline, options, cancellationToken), cancellationToken);
+        }
+
+        public override async Task<IAsyncCursor<TResult>> AggregateAsync<TResult>(IClientSessionHandle session, PipelineDefinition<NoPipelineInput, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(session, nameof(session));
+            var renderedPipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).Render(NoPipelineInputSerializer.Instance, _settings.SerializerRegistry);
+            options = options ?? new AggregateOptions();
+
+            var last = renderedPipeline.Documents.LastOrDefault();
+            if (last != null && last.GetElement(0).Name == "$out")
+            {
+                var aggregateOperation = CreateAggregateToCollectionOperation(renderedPipeline, options);
+                await ExecuteWriteOperationAsync(session, aggregateOperation, cancellationToken).ConfigureAwait(false);
+
+                // we want to delay execution of the find because the user may
+                // not want to iterate the results at all...
+                var findOperation = CreateAggregateToCollectionFindOperation(last, renderedPipeline.OutputSerializer, options);
+                var forkedSession = session.Fork();
+                var deferredCursor = new DeferredAsyncCursor<TResult>(
+                    () => forkedSession.Dispose(),
+                    ct => ExecuteReadOperation(forkedSession, findOperation, ReadPreference.Primary, ct),
+                    ct => ExecuteReadOperationAsync(forkedSession, findOperation, ReadPreference.Primary, ct));
+                return await Task.FromResult<IAsyncCursor<TResult>>(deferredCursor).ConfigureAwait(false);
+            }
+            else
+            {
+                var aggregateOperation = CreateAggregateOperation(renderedPipeline, options);
+                return await ExecuteReadOperationAsync(session, aggregateOperation, cancellationToken).ConfigureAwait(false);
+            }
+        }
+
         public override void CreateCollection(string name, CreateCollectionOptions options, CancellationToken cancellationToken)
         {
             UsingImplicitSession(session => CreateCollection(session, name, options, cancellationToken), cancellationToken);
@@ -374,6 +450,62 @@ namespace MongoDB.Driver
         }
 
         // private methods
+        private AggregateOperation<TResult> CreateAggregateOperation<TResult>(RenderedPipelineDefinition<TResult> renderedPipeline, AggregateOptions options)
+        {
+            return new AggregateOperation<TResult>(
+                _databaseNamespace,
+                renderedPipeline.Documents,
+                renderedPipeline.OutputSerializer,
+                _messageEncoderSettings)
+            {
+                AllowDiskUse = options.AllowDiskUse,
+                BatchSize = options.BatchSize,
+                Collation = options.Collation,
+                Comment = options.Comment,
+                Hint = options.Hint,
+                MaxAwaitTime = options.MaxAwaitTime,
+                MaxTime = options.MaxTime,
+                ReadConcern = _settings.ReadConcern,
+                RetryRequested = _client.Settings.RetryReads,
+                UseCursor = options.UseCursor
+            };
+        }
+
+        private FindOperation<TResult> CreateAggregateToCollectionFindOperation<TResult>(BsonDocument outStage, IBsonSerializer<TResult> resultSerializer, AggregateOptions options)
+        {
+            var outputCollectionName = outStage.GetElement(0).Value.AsString;
+
+            return new FindOperation<TResult>(
+                new CollectionNamespace(_databaseNamespace, outputCollectionName),
+                resultSerializer,
+                _messageEncoderSettings)
+            {
+                BatchSize = options.BatchSize,
+                Collation = options.Collation,
+                MaxTime = options.MaxTime,
+                ReadConcern = _settings.ReadConcern,
+                RetryRequested = _client.Settings.RetryReads
+            };
+        }
+
+        private AggregateToCollectionOperation CreateAggregateToCollectionOperation<TResult>(RenderedPipelineDefinition<TResult> renderedPipeline, AggregateOptions options)
+        {
+            return new AggregateToCollectionOperation(
+                _databaseNamespace,
+                renderedPipeline.Documents,
+                _messageEncoderSettings)
+            {
+                AllowDiskUse = options.AllowDiskUse,
+                BypassDocumentValidation = options.BypassDocumentValidation,
+                Collation = options.Collation,
+                Comment = options.Comment,
+                Hint = options.Hint,
+                MaxTime = options.MaxTime,
+                ReadConcern = _settings.ReadConcern,
+                WriteConcern = _settings.WriteConcern
+            };
+        }
+
         private void CreateCollectionHelper<TDocument>(IClientSessionHandle session, string name, CreateCollectionOptions<TDocument> options, CancellationToken cancellationToken)
         {
             options = options ?? new CreateCollectionOptions<TDocument>();

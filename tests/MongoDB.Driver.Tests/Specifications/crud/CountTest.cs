@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             return expectedResult.ToInt64();
         }
 
-        protected override long ExecuteAndGetResult(IMongoCollection<BsonDocument> collection, bool async)
+        protected override long ExecuteAndGetResult(IMongoDatabase database, IMongoCollection<BsonDocument> collection, bool async)
         {
             if (async)
             {

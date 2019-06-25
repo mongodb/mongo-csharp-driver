@@ -23,29 +23,22 @@ using System.Threading.Tasks;
 
 namespace MongoDB.Driver
 {
-    internal class AggregateFluent<TDocument, TResult> : AggregateFluentBase<TResult>
+    internal abstract class AggregateFluent<TInput, TResult> : AggregateFluentBase<TResult>
     {
         // fields
-        private readonly IMongoCollection<TDocument> _collection;
-        private readonly AggregateOptions _options;
-        private readonly PipelineDefinition<TDocument, TResult> _pipeline;
-        private readonly IClientSessionHandle _session;
+        protected readonly AggregateOptions _options;
+        protected readonly PipelineDefinition<TInput, TResult> _pipeline;
+        protected readonly IClientSessionHandle _session;
 
         // constructors
-        public AggregateFluent(IClientSessionHandle session, IMongoCollection<TDocument> collection, PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options)
+        protected AggregateFluent(IClientSessionHandle session, PipelineDefinition<TInput, TResult> pipeline, AggregateOptions options)
         {
             _session = session; // can be null
-            _collection = Ensure.IsNotNull(collection, nameof(collection));
             _pipeline = Ensure.IsNotNull(pipeline, nameof(pipeline));
             _options = Ensure.IsNotNull(options, nameof(options));
         }
 
         // properties
-        public override IMongoDatabase Database
-        {
-            get { return _collection.Database; }
-        }
-
         public override AggregateOptions Options
         {
             get { return _options; }
@@ -143,7 +136,7 @@ namespace MongoDB.Driver
         public override IAggregateFluent<TNewResult> Lookup<TForeignDocument, TNewResult>(string foreignCollectionName, FieldDefinition<TResult> localField, FieldDefinition<TForeignDocument> foreignField, FieldDefinition<TNewResult> @as, AggregateLookupOptions<TForeignDocument, TNewResult> options)
         {
             Ensure.IsNotNull(foreignCollectionName, nameof(foreignCollectionName));
-            var foreignCollection = _collection.Database.GetCollection<TForeignDocument>(foreignCollectionName);
+            var foreignCollection = Database.GetCollection<TForeignDocument>(foreignCollectionName);
             return WithPipeline(_pipeline.Lookup(foreignCollection, localField, foreignField, @as, options));
         }
 
@@ -218,7 +211,7 @@ namespace MongoDB.Driver
             var combinedSort = Builders<TResult>.Sort.Combine(oldSort, newSort);
             var combinedSortStage = PipelineStageDefinitionBuilder.Sort(combinedSort);
             stages[stages.Count - 1] = combinedSortStage;
-            var newPipeline = new PipelineStagePipelineDefinition<TDocument, TResult>(stages);
+            var newPipeline = new PipelineStagePipelineDefinition<TInput, TResult>(stages);
             return (IOrderedAggregateFluent<TResult>)WithPipeline(newPipeline);
         }
 
@@ -232,6 +225,34 @@ namespace MongoDB.Driver
             return WithPipeline(_pipeline.Unwind(field, options));
         }
 
+        public override string ToString()
+        {
+            return $"aggregate({_pipeline})";
+        }
+
+        protected abstract IAggregateFluent<TNewResult> WithPipeline<TNewResult>(PipelineDefinition<TInput, TNewResult> pipeline);
+    }
+
+    internal class CollectionAggregateFluent<TDocument, TResult> : AggregateFluent<TDocument, TResult>
+    {
+        // private fields
+        private readonly IMongoCollection<TDocument> _collection;
+
+        // constructors
+        public CollectionAggregateFluent(
+            IClientSessionHandle session,
+            IMongoCollection<TDocument> collection,
+            PipelineDefinition<TDocument, TResult> pipeline,
+            AggregateOptions options)
+            : base(session, pipeline, options)
+        {
+            _collection = Ensure.IsNotNull(collection, nameof(collection));
+        }
+
+        // public properties
+        public override IMongoDatabase Database => _collection.Database;
+
+        // public methods
         public override IAsyncCursor<TResult> ToCursor(CancellationToken cancellationToken)
         {
             if (_session == null)
@@ -256,14 +277,61 @@ namespace MongoDB.Driver
             }
         }
 
-        public override string ToString()
+        // protected methods
+        protected override IAggregateFluent<TNewResult> WithPipeline<TNewResult>(PipelineDefinition<TDocument, TNewResult> pipeline)
         {
-            return $"aggregate({_pipeline})";
+            return new CollectionAggregateFluent<TDocument, TNewResult>(_session, _collection, pipeline, _options);
+        }
+    }
+
+    internal class DatabaseAggregateFluent<TResult> : AggregateFluent<NoPipelineInput, TResult>
+    {
+        // private fields
+        private readonly IMongoDatabase _database;
+
+        // constructors
+        public DatabaseAggregateFluent(
+            IClientSessionHandle session,
+            IMongoDatabase database,
+            PipelineDefinition<NoPipelineInput, TResult> pipeline,
+            AggregateOptions options)
+            : base(session, pipeline, options)
+        {
+            _database = Ensure.IsNotNull(database, nameof(database));
         }
 
-        public IAggregateFluent<TNewResult> WithPipeline<TNewResult>(PipelineDefinition<TDocument, TNewResult> pipeline)
+        // public properties
+        public override IMongoDatabase Database => _database;
+
+        // public methods
+        public override IAsyncCursor<TResult> ToCursor(CancellationToken cancellationToken)
         {
-            return new AggregateFluent<TDocument, TNewResult>(_session, _collection, pipeline, _options);
+            if (_session == null)
+            {
+                return _database.Aggregate(_pipeline, _options, cancellationToken);
+            }
+            else
+            {
+                return _database.Aggregate(_session, _pipeline, _options, cancellationToken);
+            }
+        }
+
+        public override Task<IAsyncCursor<TResult>> ToCursorAsync(CancellationToken cancellationToken)
+        {
+            if (_session == null)
+            {
+                return _database.AggregateAsync(_pipeline, _options, cancellationToken);
+            }
+            else
+            {
+                return _database.AggregateAsync(_session, _pipeline, _options, cancellationToken);
+            }
+        }
+
+        // protected methods
+        protected override IAggregateFluent<TNewResult> WithPipeline<TNewResult>(PipelineDefinition<NoPipelineInput, TNewResult> pipeline)
+        {
+            return new DatabaseAggregateFluent<TNewResult>(_session, _database, pipeline, _options);
         }
     }
 }

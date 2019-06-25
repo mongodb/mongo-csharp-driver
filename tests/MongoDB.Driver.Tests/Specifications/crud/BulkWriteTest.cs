@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             return new BulkWriteResult<BsonDocument>.Acknowledged(requestCount, matchedCount, deletedCount, insertedCount, modifiedCount, _requests, upserts);
         }
 
-        protected override BulkWriteResult<BsonDocument> ExecuteAndGetResult(IMongoCollection<BsonDocument> collection, bool async)
+        protected override BulkWriteResult<BsonDocument> ExecuteAndGetResult(IMongoDatabase database, IMongoCollection<BsonDocument> collection, bool async)
         {
             if (async)
             {

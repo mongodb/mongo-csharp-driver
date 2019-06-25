@@ -35,11 +35,29 @@ namespace MongoDB.Driver.Core.Operations
         };
 
         [Fact]
-        public void Constructor_should_create_a_valid_instance()
+        public void Constructor_with_databaseNamespace_should_create_a_valid_instance()
+        {
+            var subject = new AggregateToCollectionOperation(_databaseNamespace, __pipeline, _messageEncoderSettings);
+
+            subject.CollectionNamespace.Should().BeNull();
+            subject.DatabaseNamespace.Should().BeSameAs(_databaseNamespace);
+            subject.Pipeline.Should().Equal(__pipeline);
+            subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
+
+            subject.AllowDiskUse.Should().NotHaveValue();
+            subject.BypassDocumentValidation.Should().NotHaveValue();
+            subject.Collation.Should().BeNull();
+            subject.MaxTime.Should().NotHaveValue();
+            subject.WriteConcern.Should().BeNull();
+        }
+
+        [Fact]
+        public void Constructor_with_collectionNamespace_should_create_a_valid_instance()
         {
             var subject = new AggregateToCollectionOperation(_collectionNamespace, __pipeline, _messageEncoderSettings);
 
             subject.CollectionNamespace.Should().BeSameAs(_collectionNamespace);
+            subject.DatabaseNamespace.Should().BeSameAs(_collectionNamespace.DatabaseNamespace);
             subject.Pipeline.Should().Equal(__pipeline);
             subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
 
@@ -52,9 +70,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Fact]
+        public void Constructor_should_throw_when_databaseNamespace_is_null()
+        {
+            var exception = Record.Exception(() => new AggregateToCollectionOperation((DatabaseNamespace)null, __pipeline, _messageEncoderSettings));
+
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("databaseNamespace");
+        }
+
+        [Fact]
         public void Constructor_should_throw_when_collectionNamespace_is_null()
         {
-            var exception = Record.Exception(() => new AggregateToCollectionOperation(null, __pipeline, _messageEncoderSettings));
+            var exception = Record.Exception(() => new AggregateToCollectionOperation((CollectionNamespace)null, __pipeline, _messageEncoderSettings));
 
             var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
             argumentNullException.ParamName.Should().Be("collectionNamespace");

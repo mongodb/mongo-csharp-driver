@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             return false;
         }
 
-        protected override void Execute(IMongoCollection<BsonDocument> collection, BsonDocument outcome, bool async)
+        protected override void Execute(IMongoDatabase database, IMongoCollection<BsonDocument> collection, BsonDocument outcome, bool async)
         {
             if (async)
             {

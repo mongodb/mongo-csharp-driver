@@ -39,6 +39,7 @@ namespace MongoDB.Driver.Core.Operations
         private Collation _collation;
         private readonly CollectionNamespace _collectionNamespace;
         private string _comment;
+        private readonly DatabaseNamespace _databaseNamespace;
         private BsonValue _hint;
         private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
@@ -50,16 +51,28 @@ namespace MongoDB.Driver.Core.Operations
         /// <summary>
         /// Initializes a new instance of the <see cref="AggregateToCollectionOperation"/> class.
         /// </summary>
-        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="databaseNamespace">The database namespace.</param>
         /// <param name="pipeline">The pipeline.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        public AggregateToCollectionOperation(CollectionNamespace collectionNamespace, IEnumerable<BsonDocument> pipeline, MessageEncoderSettings messageEncoderSettings)
+        public AggregateToCollectionOperation(DatabaseNamespace databaseNamespace, IEnumerable<BsonDocument> pipeline, MessageEncoderSettings messageEncoderSettings)
         {
-            _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
+            _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));
             _pipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).ToList();
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
 
             EnsureIsOutputToCollectionPipeline();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AggregateToCollectionOperation"/> class.
+        /// </summary>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
+        public AggregateToCollectionOperation(CollectionNamespace collectionNamespace, IEnumerable<BsonDocument> pipeline, MessageEncoderSettings messageEncoderSettings)
+            : this(Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace)).DatabaseNamespace, pipeline, messageEncoderSettings)
+        {
+            _collectionNamespace = collectionNamespace;
         }
 
         // properties
@@ -120,6 +133,17 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _comment; }
             set { _comment = value; }
+        }
+
+        /// <summary>
+        /// Gets the database namespace.
+        /// </summary>
+        /// <value>
+        /// The database namespace.
+        /// </value>
+        public DatabaseNamespace DatabaseNamespace
+        {
+            get { return _databaseNamespace; }
         }
 
         /// <summary>
@@ -235,7 +259,7 @@ namespace MongoDB.Driver.Core.Operations
             var writeConcern = WriteConcernHelper.GetWriteConcernForCommandThatWrites(session, _writeConcern, serverVersion);
             return new BsonDocument
             {
-                { "aggregate", _collectionNamespace.CollectionName },
+                { "aggregate", _collectionNamespace == null ? (BsonValue)1 : _collectionNamespace.CollectionName },
                 { "pipeline", new BsonArray(_pipeline) },
                 { "allowDiskUse", () => _allowDiskUse.Value, _allowDiskUse.HasValue },
                 { "bypassDocumentValidation", () => _bypassDocumentValidation.Value, _bypassDocumentValidation.HasValue && Feature.BypassDocumentValidation.IsSupported(serverVersion) },

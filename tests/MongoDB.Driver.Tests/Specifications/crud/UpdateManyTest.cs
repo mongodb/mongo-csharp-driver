@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             return new UpdateResult.Acknowledged(expectedResult["matchedCount"].ToInt64(), modifiedCount, upsertedId);
         }
 
-        protected override UpdateResult ExecuteAndGetResult(IMongoCollection<BsonDocument> collection, bool async)
+        protected override UpdateResult ExecuteAndGetResult(IMongoDatabase database, IMongoCollection<BsonDocument> collection, bool async)
         {
             UpdateDefinition<BsonDocument> updateDefinition = null;
             if (_update is BsonDocument updateDocument)

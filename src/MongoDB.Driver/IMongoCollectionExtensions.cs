@@ -41,7 +41,7 @@ namespace MongoDB.Driver
         public static IAggregateFluent<TDocument> Aggregate<TDocument>(this IMongoCollection<TDocument> collection, AggregateOptions options = null)
         {
             var emptyPipeline = new EmptyPipelineDefinition<TDocument>(collection.DocumentSerializer);
-            return new AggregateFluent<TDocument, TDocument>(null, collection, emptyPipeline, options ?? new AggregateOptions());
+            return new CollectionAggregateFluent<TDocument, TDocument>(null, collection, emptyPipeline, options ?? new AggregateOptions());
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(session, nameof(session));
             var emptyPipeline = new EmptyPipelineDefinition<TDocument>(collection.DocumentSerializer);
-            return new AggregateFluent<TDocument, TDocument>(session, collection, emptyPipeline, options ?? new AggregateOptions());
+            return new CollectionAggregateFluent<TDocument, TDocument>(session, collection, emptyPipeline, options ?? new AggregateOptions());
         }
 
         /// <summary>

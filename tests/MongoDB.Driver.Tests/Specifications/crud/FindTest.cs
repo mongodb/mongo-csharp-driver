@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             return ((BsonArray)expectedResult).Select(x => x.ToBsonDocument()).ToList();
         }
 
-        protected override List<BsonDocument> ExecuteAndGetResult(IMongoCollection<BsonDocument> collection, bool async)
+        protected override List<BsonDocument> ExecuteAndGetResult(IMongoDatabase database, IMongoCollection<BsonDocument> collection, bool async)
         {
             if (async)
             {

@@ -64,6 +64,174 @@ namespace MongoDB.Driver
 
         [Theory]
         [ParameterAttributeData]
+        public void Aggregate_should_execute_an_AggregateOperation_when_out_is_not_specified(
+            [Values(false, true)] bool usingSession,
+            [Values(false, true)] bool async)
+        {
+            var subject = _subject;
+            var session = CreateSession(usingSession);
+            var pipeline = new EmptyPipelineDefinition<NoPipelineInput>()
+                .AppendStage<NoPipelineInput, NoPipelineInput, BsonDocument>("{ $currentOp : { } }")
+                .Limit(1);
+            var options = new AggregateOptions()
+            {
+                AllowDiskUse = true,
+                BatchSize = 10,
+                Collation = new Collation("en_US"),
+                Comment = "test",
+                Hint = new BsonDocument("x", 1),
+                MaxAwaitTime = TimeSpan.FromSeconds(4),
+                MaxTime = TimeSpan.FromSeconds(3),
+                UseCursor = false
+            };
+            var cancellationToken = new CancellationTokenSource().Token;
+            var renderedPipeline = RenderPipeline(subject, pipeline);
+
+            if (usingSession)
+            {
+                if (async)
+                {
+                    subject.AggregateAsync(session, pipeline, options, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    subject.Aggregate(session, pipeline, options, cancellationToken);
+                }
+            }
+            else
+            {
+                if (async)
+                {
+                    subject.AggregateAsync(pipeline, options, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    subject.Aggregate(pipeline, options, cancellationToken);
+                }
+            }
+
+            var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
+            VerifySessionAndCancellationToken(call, session, cancellationToken);
+
+            var operation = call.Operation.Should().BeOfType<AggregateOperation<BsonDocument>>().Subject;
+            operation.AllowDiskUse.Should().Be(options.AllowDiskUse);
+            operation.BatchSize.Should().Be(options.BatchSize);
+            operation.Collation.Should().BeSameAs(options.Collation);
+            operation.CollectionNamespace.Should().BeNull();
+            operation.Comment.Should().Be(options.Comment);
+            operation.DatabaseNamespace.Should().BeSameAs(subject.DatabaseNamespace);
+            operation.Hint.Should().Be(options.Hint);
+            operation.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
+            operation.MaxTime.Should().Be(options.MaxTime);
+            operation.Pipeline.Should().Equal(renderedPipeline.Documents);
+            operation.ReadConcern.Should().Be(subject.Settings.ReadConcern);
+            operation.RetryRequested.Should().BeTrue();
+            operation.ResultSerializer.Should().BeSameAs(renderedPipeline.OutputSerializer);
+            operation.UseCursor.Should().Be(options.UseCursor);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Aggregate_should_execute_an_AggregateToCollectionOperation_and_a_FindOperation_when_out_is_specified(
+            [Values(false, true)] bool usingSession,
+            [Values(false, true)] bool async)
+        {
+            var writeConcern = new WriteConcern(1);
+            var subject = CreateSubject(null).WithWriteConcern(writeConcern);
+            var session = CreateSession(usingSession);
+            var pipeline = new EmptyPipelineDefinition<NoPipelineInput>()
+                .AppendStage<NoPipelineInput, NoPipelineInput, BsonDocument>("{ $currentOp : { } }")
+                .Out(subject.GetCollection<BsonDocument>("funny"));
+            var options = new AggregateOptions()
+            {
+                AllowDiskUse = true,
+                BatchSize = 10,
+                BypassDocumentValidation = true,
+                Collation = new Collation("en_US"),
+                Comment = "test",
+                Hint = new BsonDocument("x", 1),
+                MaxTime = TimeSpan.FromSeconds(3),
+                UseCursor = false,
+            };
+            var cancellationToken1 = new CancellationTokenSource().Token;
+            var cancellationToken2 = new CancellationTokenSource().Token;
+            var renderedPipeline = RenderPipeline(subject, pipeline);
+
+            IAsyncCursor<BsonDocument> result;
+            if (usingSession)
+            {
+                if (async)
+                {
+                    result = subject.AggregateAsync(session, pipeline, options, cancellationToken1).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    result = subject.Aggregate(session, pipeline, options, cancellationToken1);
+                }
+            }
+            else
+            {
+                if (async)
+                {
+                    result = subject.AggregateAsync(pipeline, options, cancellationToken1).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    result = subject.Aggregate(pipeline, options, cancellationToken1);
+                }
+            }
+
+            var aggregateCall = _operationExecutor.GetWriteCall<BsonDocument>();
+            VerifySessionAndCancellationToken(aggregateCall, session, cancellationToken1);
+
+            var aggregateOperation = aggregateCall.Operation.Should().BeOfType<AggregateToCollectionOperation>().Subject;
+            aggregateOperation.AllowDiskUse.Should().Be(options.AllowDiskUse);
+            aggregateOperation.BypassDocumentValidation.Should().Be(options.BypassDocumentValidation);
+            aggregateOperation.Collation.Should().BeSameAs(options.Collation);
+            aggregateOperation.CollectionNamespace.Should().BeNull();
+            aggregateOperation.Comment.Should().Be(options.Comment);
+            aggregateOperation.DatabaseNamespace.Should().BeSameAs(subject.DatabaseNamespace);
+            aggregateOperation.Hint.Should().Be(options.Hint);
+            aggregateOperation.MaxTime.Should().Be(options.MaxTime);
+            aggregateOperation.Pipeline.Should().Equal(renderedPipeline.Documents);
+            aggregateOperation.WriteConcern.Should().BeSameAs(writeConcern);
+
+            var mockCursor = new Mock<IAsyncCursor<BsonDocument>>();
+            _operationExecutor.EnqueueResult(mockCursor.Object);
+
+            if (async)
+            {
+                result.MoveNextAsync(cancellationToken2).GetAwaiter().GetResult();
+            }
+            else
+            {
+                result.MoveNext(cancellationToken2);
+            }
+
+            var findCall = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
+            VerifySessionAndCancellationToken(findCall, session, cancellationToken2);
+
+            var findOperation = findCall.Operation.Should().BeOfType<FindOperation<BsonDocument>>().Subject;
+            findOperation.AllowPartialResults.Should().NotHaveValue();
+            findOperation.BatchSize.Should().Be(options.BatchSize);
+            findOperation.Collation.Should().BeSameAs(options.Collation);
+            findOperation.CollectionNamespace.FullName.Should().Be("foo.funny");
+            findOperation.Comment.Should().BeNull();
+            findOperation.CursorType.Should().Be(Core.Operations.CursorType.NonTailable);
+            findOperation.Filter.Should().BeNull();
+            findOperation.Limit.Should().Be(null);
+            findOperation.MaxTime.Should().Be(options.MaxTime);
+            findOperation.Modifiers.Should().BeNull();
+            findOperation.NoCursorTimeout.Should().NotHaveValue();
+            findOperation.OplogReplay.Should().NotHaveValue();
+            findOperation.Projection.Should().BeNull();
+            findOperation.RetryRequested.Should().BeTrue();
+            findOperation.Skip.Should().Be(null);
+            findOperation.Sort.Should().BeNull();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void CreateCollection_should_execute_a_CreateCollectionOperation_when_options_is_generic(
             [Values(false, true)] bool usingSession,
             [Values(false, true)] bool async)
@@ -1129,6 +1297,13 @@ namespace MongoDB.Driver
                 settings,
                 new Mock<ICluster>().Object,
                 operationExecutor ?? _operationExecutor);
+        }
+
+        private RenderedPipelineDefinition<TOutput> RenderPipeline<TOutput>(IMongoDatabase dataabse, PipelineDefinition<NoPipelineInput, TOutput> pipeline)
+        {
+            var inputSerializer = NoPipelineInputSerializer.Instance;
+            var serializerRegistry = BsonSerializer.SerializerRegistry;
+            return pipeline.Render(inputSerializer, serializerRegistry);
         }
 
         private static void VerifySessionAndCancellationToken<TDocument>(MockOperationExecutor.ReadCall<TDocument> call, IClientSessionHandle session, CancellationToken cancellationToken)

@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Tests
                 result = collection.Aggregate(options);
             }
 
-            var fluent = result.Should().BeOfType<AggregateFluent<Person, Person>>().Subject;
+            var fluent = result.Should().BeOfType<CollectionAggregateFluent<Person, Person>>().Subject;
             fluent._collection().Should().BeSameAs(collection);
             fluent._options().Should().BeSameAs(options);
             fluent._pipeline().Should().BeOfType<EmptyPipelineDefinition<Person>>();

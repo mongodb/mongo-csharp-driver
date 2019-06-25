@@ -19,9 +19,8 @@ namespace MongoDB.Driver.Tests.Specifications.crud
 {
     public class DropCollectionTest : CrudOperationTestBase
     {
-        protected override void Execute(IMongoCollection<BsonDocument> collection, BsonDocument outcome, bool async)
+        protected override void Execute(IMongoDatabase database, IMongoCollection<BsonDocument> collection, BsonDocument outcome, bool async)
         {
-            var database = collection.Database;
             var name = collection.CollectionNamespace.CollectionName;
             if (async)
             {

@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             return new ReplaceOneResult.Acknowledged(expectedResult["matchedCount"].ToInt64(), modifiedCount, upsertedId);
         }
 
-        protected override ReplaceOneResult ExecuteAndGetResult(IMongoCollection<BsonDocument> collection, bool async)
+        protected override ReplaceOneResult ExecuteAndGetResult(IMongoDatabase database, IMongoCollection<BsonDocument> collection, bool async)
         {
             if (async)
             {

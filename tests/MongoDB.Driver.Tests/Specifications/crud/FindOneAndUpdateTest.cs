@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             return (BsonDocument)expectedResult;
         }
 
-        protected override BsonDocument ExecuteAndGetResult(IMongoCollection<BsonDocument> collection, bool async)
+        protected override BsonDocument ExecuteAndGetResult(IMongoDatabase database, IMongoCollection<BsonDocument> collection, bool async)
         {
             UpdateDefinition<BsonDocument> updateDefinition = null;
             if (_update is BsonDocument updateDocument)

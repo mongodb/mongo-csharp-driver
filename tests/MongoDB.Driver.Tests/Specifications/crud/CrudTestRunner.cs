@@ -21,6 +21,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.TestHelpers.JsonDrivenTests;
@@ -52,8 +53,15 @@ namespace MongoDB.Driver.Tests.Specifications.crud
 
         [SkippableTheory]
         [ClassData(typeof(TestCaseFactory))]
-        public void RunTestDefinition(BsonDocument definition, BsonDocument test, bool async)
+        public void Run(JsonDrivenTestCase testCase)
         {
+            RunTestDefinition(testCase.Shared, testCase.Test);
+        }
+
+        public void RunTestDefinition(BsonDocument definition, BsonDocument test)
+        {
+            JsonDrivenHelper.EnsureAllFieldsAreValid(definition, "_path", "database_name", "collection_name", "minServerVersion", "maxServerVersion", "data", "tests");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(test, "description", "skipReason", "operation", "operations", "expectations", "outcome", "async");
             SkipTestIfNeeded(definition, test);
 
             var databaseName = GetDatabaseName(definition);
@@ -67,11 +75,13 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                 var operations = test.Contains("operation")
                     ? new[] { test["operation"].AsBsonDocument }
                     : test["operations"].AsBsonArray.Cast<BsonDocument>();
+                var outcome = (BsonDocument)test.GetValue("outcome", null);
+                var async = test["async"].AsBoolean;
 
                 foreach (var operation in operations)
                 {
-                    var collection = GetCollection(database, collectionName, operation);
-                    ExecuteOperation(client, database, collection, operation, (BsonDocument)test.GetValue("outcome", null), async);
+                    var collection = collectionName == null ? null : GetCollection(database, collectionName, operation);
+                    ExecuteOperation(client, database, collection, operation, outcome, async);
                 }
 
                 AssertEventsIfNeeded(_capturedEvents, test);
@@ -136,12 +146,27 @@ namespace MongoDB.Driver.Tests.Specifications.crud
 
         private void ExecuteOperation(IMongoClient client, IMongoDatabase database, IMongoCollection<BsonDocument> collection, BsonDocument operation, BsonDocument outcome, bool async)
         {
+            JsonDrivenHelper.EnsureAllFieldsAreValid(operation, "name", "object", "collectionOptions", "arguments", "error", "result");
+
+            if (operation.TryGetValue("object", out var @object))
+            {
+                if (@object.AsString == "database")
+                {
+                    collection = null;
+                }
+            }
+
             var name = (string)operation["name"];
             var test = CrudOperationTestFactory.CreateTest(name);
             bool isErrorExpected = operation.GetValue("error", false).AsBoolean;
 
             var arguments = (BsonDocument)operation.GetValue("arguments", new BsonDocument());
             test.SkipIfNotSupported(arguments);
+            if (operation.TryGetValue("result", out var result))
+            {
+                outcome = outcome ?? new BsonDocument();
+                outcome["result"] = result;
+            }
 
             test.Execute(client.Cluster.Description, database, collection, arguments, outcome, isErrorExpected, async);
 
@@ -218,12 +243,15 @@ namespace MongoDB.Driver.Tests.Specifications.crud
 
         private void PrepareData(string databaseName, string collectionName, BsonDocument operation)
         {
-            var data = operation["data"].AsBsonArray.Cast<BsonDocument>();
-            DriverTestConfiguration
-                .Client
-                .GetDatabase(databaseName)
-                .GetCollection<BsonDocument>(collectionName, new MongoCollectionSettings { WriteConcern = WriteConcern.WMajority })
-                .InsertMany(data);
+            if (operation.TryGetValue("data", out var data))
+            {
+                var documents = data.AsBsonArray.Cast<BsonDocument>();
+                DriverTestConfiguration
+                    .Client
+                    .GetDatabase(databaseName)
+                    .GetCollection<BsonDocument>(collectionName, new MongoCollectionSettings { WriteConcern = WriteConcern.WMajority })
+                    .InsertMany(documents);
+            }
         }
 
         private void SkipTestIfNeeded(BsonDocument definition, BsonDocument test)
@@ -244,50 +272,22 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             }
         }
 
-        private class TestCaseFactory : IEnumerable<object[]>
+        private class TestCaseFactory : JsonDrivenTestCaseFactory
         {
-            public IEnumerator<object[]> GetEnumerator()
-            {
-                const string prefix = "MongoDB.Driver.Tests.Specifications.crud.tests.";
-                var definitions = typeof(TestCaseFactory).GetTypeInfo().Assembly
-                    .GetManifestResourceNames()
-                    .Where(path => path.StartsWith(prefix) && path.EndsWith(".json"))
-                    .Select(path => ReadDefinition(path));
+            // protected properties
+            protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.crud.tests.";
 
-                var testCases = new List<object[]>();
-                foreach (var definition in definitions)
+            // protected methods
+            protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)
+            {
+                foreach (var testCase in base.CreateTestCases(document))
                 {
-                    foreach (BsonDocument test in definition["tests"].AsBsonArray)
+                    foreach (var async in new[] { false, true })
                     {
-                        foreach (var async in new[] { false, true })
-                        {
-                            //var testCase = new TestCaseData(definition, test, async);
-                            //testCase.SetCategory("Specifications");
-                            //testCase.SetCategory("crud");
-                            //testCase.SetName($"{test["description"]}({async})");
-                            var testCase = new object[] { definition, test, async };
-                            testCases.Add(testCase);
-                        }
+                        var name = $"{testCase.Name}:async={async}";
+                        var test = testCase.Test.DeepClone().AsBsonDocument.Add("async", async);
+                        yield return new JsonDrivenTestCase(name, testCase.Shared, test);
                     }
-                }
-
-                return testCases.GetEnumerator();
-            }
-
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return GetEnumerator();
-            }
-
-            private static BsonDocument ReadDefinition(string path)
-            {
-                using (var definitionStream = typeof(TestCaseFactory).GetTypeInfo().Assembly.GetManifestResourceStream(path))
-                using (var definitionStringReader = new StreamReader(definitionStream))
-                {
-                    var definitionString = definitionStringReader.ReadToEnd();
-                    var definition = BsonDocument.Parse(definitionString);
-                    definition.InsertAt(0, new BsonElement("path", path));
-                    return definition;
                 }
             }
         }

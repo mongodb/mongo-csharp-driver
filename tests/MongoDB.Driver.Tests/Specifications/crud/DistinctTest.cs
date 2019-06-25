@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             return ((BsonArray)expectedResult).ToList();
         }
 
-        protected override List<BsonValue> ExecuteAndGetResult(IMongoCollection<BsonDocument> collection, bool async)
+        protected override List<BsonValue> ExecuteAndGetResult(IMongoDatabase database, IMongoCollection<BsonDocument> collection, bool async)
         {
             var filter = _filter ?? new BsonDocument();
             if (async)

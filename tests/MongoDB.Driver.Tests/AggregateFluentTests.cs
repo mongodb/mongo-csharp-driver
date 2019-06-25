@@ -748,7 +748,7 @@ namespace MongoDB.Driver.Tests
             _mockCollection.SetupGet(c => c.DocumentSerializer).Returns(settings.SerializerRegistry.GetSerializer<C>());
             _mockCollection.SetupGet(c => c.Settings).Returns(settings);
             var options = new AggregateOptions();
-            var subject = new AggregateFluent<C, C>(session, _mockCollection.Object, new EmptyPipelineDefinition<C>(), options);
+            var subject = new CollectionAggregateFluent<C, C>(session, _mockCollection.Object, new EmptyPipelineDefinition<C>(), options);
 
             return subject;
         }
@@ -813,28 +813,31 @@ namespace MongoDB.Driver.Tests
 
     internal static class AggregateFluentReflector
     {
-        public static IMongoCollection<TDocument> _collection<TDocument, TResult>(this AggregateFluent<TDocument, TResult> obj)
+        public static AggregateOptions _options<TInput, TResult>(this AggregateFluent<TInput, TResult> obj)
         {
-            var fieldInfo = typeof(AggregateFluent<TDocument, TResult>).GetField("_collection", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (IMongoCollection<TDocument>)fieldInfo.GetValue(obj);
-        }
-
-        public static AggregateOptions _options<TDocument, TResult>(this AggregateFluent<TDocument, TResult> obj)
-        {
-            var fieldInfo = typeof(AggregateFluent<TDocument, TResult>).GetField("_options", BindingFlags.NonPublic | BindingFlags.Instance);
+            var fieldInfo = typeof(AggregateFluent<TInput, TResult>).GetField("_options", BindingFlags.NonPublic | BindingFlags.Instance);
             return (AggregateOptions)fieldInfo.GetValue(obj);
         }
 
-        public static PipelineDefinition<TDocument, TResult> _pipeline<TDocument, TResult>(this AggregateFluent<TDocument, TResult> obj)
+        public static PipelineDefinition<TInput, TResult> _pipeline<TInput, TResult>(this AggregateFluent<TInput, TResult> obj)
         {
-            var fieldInfo = typeof(AggregateFluent<TDocument, TResult>).GetField("_pipeline", BindingFlags.NonPublic | BindingFlags.Instance);
-            return (PipelineDefinition<TDocument, TResult>)fieldInfo.GetValue(obj);
+            var fieldInfo = typeof(AggregateFluent<TInput, TResult>).GetField("_pipeline", BindingFlags.NonPublic | BindingFlags.Instance);
+            return (PipelineDefinition<TInput, TResult>)fieldInfo.GetValue(obj);
         }
 
-        public static IClientSessionHandle _session<TDocument, TResult>(this AggregateFluent<TDocument, TResult> obj)
+        public static IClientSessionHandle _session<TInput, TResult>(this AggregateFluent<TInput, TResult> obj)
         {
-            var fieldInfo = typeof(AggregateFluent<TDocument, TResult>).GetField("_session", BindingFlags.NonPublic | BindingFlags.Instance);
+            var fieldInfo = typeof(AggregateFluent<TInput, TResult>).GetField("_session", BindingFlags.NonPublic | BindingFlags.Instance);
             return (IClientSessionHandle)fieldInfo.GetValue(obj);
+        }
+    }
+
+    internal static class CollectionAggregateFluentReflector
+    {
+        public static IMongoCollection<TDocument> _collection<TDocument, TResult>(this CollectionAggregateFluent<TDocument, TResult> obj)
+        {
+            var fieldInfo = typeof(CollectionAggregateFluent<TDocument, TResult>).GetField("_collection", BindingFlags.NonPublic | BindingFlags.Instance);
+            return (IMongoCollection<TDocument>)fieldInfo.GetValue(obj);
         }
     }
 }
