@@ -1053,6 +1053,16 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Creates an update pipeline.
+        /// </summary>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <returns>An update pipeline.</returns>
+        public UpdateDefinition<TDocument> Pipeline(PipelineDefinition<TDocument, TDocument> pipeline)
+        {
+            return new PipelineUpdateDefinition<TDocument>(pipeline);
+        }
+
+        /// <summary>
         /// Creates a pop operator.
         /// </summary>
         /// <param name="field">The field.</param>

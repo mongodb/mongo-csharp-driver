@@ -947,6 +947,46 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Appends a $replaceWith stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TIntermediate">The type of the intermediate documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="newRoot">The new root.</param>
+        /// <returns>
+        /// A new pipeline with an additional stage.
+        /// </returns>
+        public static PipelineDefinition<TInput, TOutput> ReplaceWith<TInput, TIntermediate, TOutput>(
+            this PipelineDefinition<TInput, TIntermediate> pipeline,
+            AggregateExpressionDefinition<TIntermediate, TOutput> newRoot)
+        {
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.ReplaceWith(newRoot));
+        }
+
+        /// <summary>
+        /// Appends a $replaceWith stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TIntermediate">The type of the intermediate documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="newRoot">The new root.</param>
+        /// <param name="translationOptions">The translation options.</param>
+        /// <returns>
+        /// The fluent aggregate interface.
+        /// </returns>
+        public static PipelineDefinition<TInput, TOutput> ReplaceWith<TInput, TIntermediate, TOutput>(
+            this PipelineDefinition<TInput, TIntermediate> pipeline,
+            Expression<Func<TIntermediate, TOutput>> newRoot,
+            ExpressionTranslationOptions translationOptions = null)
+        {
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.ReplaceWith(newRoot, translationOptions));
+        }
+
+        /// <summary>
         /// Appends a $skip stage to the pipeline.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>

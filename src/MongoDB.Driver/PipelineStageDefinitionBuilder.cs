@@ -1078,6 +1078,47 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Creates a $replaceWith stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="newRoot">The new root.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TOutput> ReplaceWith<TInput, TOutput>(
+            AggregateExpressionDefinition<TInput, TOutput> newRoot)
+        {
+            Ensure.IsNotNull(newRoot, nameof(newRoot));
+
+            const string operatorName = "$replaceWith";
+            var stage = new DelegatedPipelineStageDefinition<TInput, TOutput>(
+                operatorName,
+                (s, sr) =>
+                {
+                    var document = new BsonDocument(operatorName, newRoot.Render(s, sr));
+                    var outputSerializer = sr.GetSerializer<TOutput>();
+                    return new RenderedPipelineStageDefinition<TOutput>(operatorName, document, outputSerializer);
+                });
+
+            return stage;
+        }
+
+        /// <summary>
+        /// Creates a $replaceWith stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="newRoot">The new root.</param>
+        /// <param name="translationOptions">The translation options.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TOutput> ReplaceWith<TInput, TOutput>(
+            Expression<Func<TInput, TOutput>> newRoot,
+            ExpressionTranslationOptions translationOptions = null)
+        {
+            Ensure.IsNotNull(newRoot, nameof(newRoot));
+            return ReplaceWith(new ExpressionAggregateExpressionDefinition<TInput, TOutput>(newRoot, translationOptions));
+        }
+
+        /// <summary>
         /// Creates a $skip stage.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>

@@ -630,6 +630,47 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
+        public void ReplaceWith_should_add_the_expected_stage([Values(false, true)] bool async)
+        {
+            var subject = CreateSubject();
+
+            var result = subject.ReplaceWith<BsonDocument>("$X");
+
+            Predicate<PipelineDefinition<C, BsonDocument>> isExpectedPipeline = pipeline =>
+            {
+                var renderedPipeline = RenderPipeline(pipeline);
+                return
+                    renderedPipeline.Documents.Count == 1 &&
+                    renderedPipeline.Documents[0] == BsonDocument.Parse("{ $replaceWith : '$X' }") &&
+                    renderedPipeline.OutputSerializer.ValueType == typeof(BsonDocument);
+            };
+
+            if (async)
+            {
+                result.ToCursorAsync().GetAwaiter().GetResult();
+
+                _mockCollection.Verify(
+                    c => c.AggregateAsync<BsonDocument>(
+                        It.Is<PipelineDefinition<C, BsonDocument>>(pipeline => isExpectedPipeline(pipeline)),
+                        It.IsAny<AggregateOptions>(),
+                        CancellationToken.None),
+                    Times.Once);
+            }
+            else
+            {
+                result.ToCursor();
+
+                _mockCollection.Verify(
+                    c => c.Aggregate<BsonDocument>(
+                        It.Is<PipelineDefinition<C, BsonDocument>>(pipeline => isExpectedPipeline(pipeline)),
+                        It.IsAny<AggregateOptions>(),
+                        CancellationToken.None),
+                    Times.Once);
+            }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void SortByCount_should_add_the_expected_stage(
             [Values(false, true)]
             bool async)

@@ -330,6 +330,16 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void Pipeline()
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>()
+                .AppendStage<BsonDocument, BsonDocument, BsonDocument>("{ $addFields : { x : 2 } }");
+
+            Assert(subject.Pipeline(pipeline), new[] { "{ \"$addFields\" : { \"x\" : 2 } }" });
+        }
+
+        [Fact]
         public void PopFirst()
         {
             var subject = CreateSubject<BsonDocument>();
@@ -639,9 +649,17 @@ namespace MongoDB.Driver.Tests
 
         private void Assert<TDocument>(UpdateDefinition<TDocument> update, BsonDocument expected)
         {
-            var renderedUpdate = Render(update);
+            var renderedUpdate = Render(update).AsBsonDocument;
 
             renderedUpdate.Should().Be(expected);
+        }
+
+        private void Assert<TDocument>(UpdateDefinition<TDocument> update, string[] expectedArrayItems)
+        {
+            var renderedUpdate = Render(update).AsBsonArray;
+
+            var bsonArray = new BsonArray(expectedArrayItems.Select(BsonDocument.Parse));
+            renderedUpdate.Should().Be(bsonArray);
         }
 
         private void Assert<TDocument>(UpdateDefinition<TDocument> update, string expected)
@@ -661,10 +679,10 @@ namespace MongoDB.Driver.Tests
             return new UpdateDefinitionBuilder<TDocument>();
         }
 
-        private BsonDocument Render<TDocument>(UpdateDefinition<TDocument> update)
+        private BsonValue Render<TDocument>(UpdateDefinition<TDocument> update)
         {
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
-            return update.Render(documentSerializer, BsonSerializer.SerializerRegistry).AsBsonDocument;
+            return update.Render(documentSerializer, BsonSerializer.SerializerRegistry);
         }
 
         private class Person

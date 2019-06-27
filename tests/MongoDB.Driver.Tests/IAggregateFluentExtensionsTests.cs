@@ -288,6 +288,28 @@ namespace MongoDB.Driver.Tests
             AssertLast(subject, expectedStage);
         }
 
+        [Fact]
+        public void ReplaceWith_should_generate_the_correct_stage()
+        {
+            var subject = CreateSubject()
+                .ReplaceWith(x => x.PhoneNumber);
+
+            var expectedStage = BsonDocument.Parse("{ $replaceWith : '$PhoneNumber' }");
+
+            AssertLast(subject, expectedStage);
+        }
+
+        [Fact]
+        public void ReplaceWith_should_generate_the_correct_stage_with_anonymous_class()
+        {
+            var subject = CreateSubject()
+                .ReplaceWith(x => new { Name = x.FirstName + " " + x.LastName });
+
+            var expectedStage = BsonDocument.Parse("{ $replaceWith : { Name : { $concat : [ '$FirstName', ' ', '$LastName' ] } } }");
+
+            AssertLast(subject, expectedStage);
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void Single_should_add_limit_and_call_ToCursor(

@@ -40,9 +40,19 @@ namespace MongoDB.Driver.Tests
             result.Should().Be("[{ \"$addFields\" : { \"x\" : 2 } }]");
         }
 
+        [Fact]
+        public void PipelineUpdateDefinition_should_work_with_pipeline_builder_and_replaceWith()
+        {
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>()
+                .ReplaceWith((AggregateExpressionDefinition<BsonDocument, BsonDocument>)"{ _id : \"$_id\", s : { $sum : [\"$X\", \"$Y\"] } }");
+            var subject = CreateSubject(pipeline);
+            var result = subject.ToString();
+            result.Should().Be("[{ \"$replaceWith\" : { \"_id\" : \"$_id\", \"s\" : { \"$sum\" : [\"$X\", \"$Y\"] } } }]");
+        }
+
         private PipelineUpdateDefinition<BsonDocument> CreateSubject(params string[] stages)
         {
-            return CreateSubject(PipelineDefinition<BsonDocument,BsonDocument>.Create(stages));
+            return CreateSubject(PipelineDefinition<BsonDocument, BsonDocument>.Create(stages));
         }
 
         private PipelineUpdateDefinition<BsonDocument> CreateSubject(PipelineDefinition<BsonDocument, BsonDocument> pipeline)

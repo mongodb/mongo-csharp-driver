@@ -187,6 +187,11 @@ namespace MongoDB.Driver
             return WithPipeline(_pipeline.ReplaceRoot(newRoot));
         }
 
+        public override IAggregateFluent<TNewResult> ReplaceWith<TNewResult>(AggregateExpressionDefinition<TResult, TNewResult> newRoot)
+        {
+            return WithPipeline(_pipeline.ReplaceWith(newRoot));
+        }
+
         public override IAggregateFluent<TResult> Skip(int skip)
         {
             return WithPipeline(_pipeline.Skip(skip));
