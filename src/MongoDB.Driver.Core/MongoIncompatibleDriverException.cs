@@ -20,6 +20,7 @@ using System.Runtime.Serialization;
 #endif
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver
 {
@@ -35,8 +36,7 @@ namespace MongoDB.Driver
         // static methods
         internal static void ThrowIfNotSupported(ClusterDescription description)
         {
-            var isIncompatible = description.Servers
-                .Any(sd => sd.WireVersionRange != null && !sd.WireVersionRange.Overlaps(Cluster.SupportedWireVersionRange));
+            var isIncompatible = description.Servers.Any(IsServerIncompatible);
 
             if (isIncompatible)
             {
@@ -46,8 +46,7 @@ namespace MongoDB.Driver
 
         private static string FormatMessage(ClusterDescription description)
         {
-            var incompatibleServer = description.Servers
-                .FirstOrDefault(sd => sd.WireVersionRange != null && !sd.WireVersionRange.Overlaps(Cluster.SupportedWireVersionRange));
+            var incompatibleServer = description.Servers.FirstOrDefault(IsServerIncompatible);
 
             if (incompatibleServer == null)
             {
@@ -62,6 +61,14 @@ namespace MongoDB.Driver
 
             return $"Server at {EndPointHelper.ToString(incompatibleServer.EndPoint)} requires wire version {incompatibleServer.WireVersionRange.Min},"
                 + $" but this version of the driver only supports up to {Cluster.SupportedWireVersionRange.Max}.";
+        }
+
+        private static bool IsServerIncompatible(ServerDescription description)
+        {
+            return
+                description.Type != ServerType.Unknown &&
+                description.WireVersionRange != null &&
+                !description.WireVersionRange.Overlaps(Cluster.SupportedWireVersionRange);
         }
         #endregion
 

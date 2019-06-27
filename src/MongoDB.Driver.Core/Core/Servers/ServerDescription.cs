@@ -194,13 +194,10 @@ namespace MongoDB.Driver.Core.Servers
         /// <value>
         /// <c>true</c> if this server is compatible with the driver; otherwise, <c>false</c>.
         /// </value>
-        public bool IsCompatibleWithDriver
-        {
-            get
-            {
-                return _wireVersionRange == null || _wireVersionRange.Overlaps(Cluster.SupportedWireVersionRange);
-            }
-        }
+        public bool IsCompatibleWithDriver =>
+            _type == ServerType.Unknown ||
+            _wireVersionRange == null || 
+            _wireVersionRange.Overlaps(Cluster.SupportedWireVersionRange);
 
         /// <summary>
         /// Gets a value indicating whether this instance is a data bearing server.

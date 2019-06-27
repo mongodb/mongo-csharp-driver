@@ -135,13 +135,47 @@ namespace MongoDB.Driver.Core.Clusters
                 var serverId = new ServerId(clusterId, endPoint);
                 var wireRange = wireRanges[i];
                 var wireVersionRange = wireRange == 0 ? new Range<int>(0, 0) : wireRange == 1 ? new Range<int>(2, 6) : null;
-                var server = new ServerDescription(serverId, endPoint, wireVersionRange: wireVersionRange);
+                var server = new ServerDescription(serverId, endPoint, wireVersionRange: wireVersionRange, type: ServerType.Standalone);
                 subject = subject.WithServerDescription(server);
             }
 
             var result = subject.IsCompatibleWithDriver;
 
             result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [InlineData(new int[0])]
+        [InlineData(new int[] { 0 })]
+        [InlineData(new int[] { 1 })]
+        [InlineData(new int[] { 2 })]
+        [InlineData(new int[] { 0, 0 })]
+        [InlineData(new int[] { 0, 1 })]
+        [InlineData(new int[] { 0, 2 })]
+        [InlineData(new int[] { 1, 0 })]
+        [InlineData(new int[] { 1, 1 })]
+        [InlineData(new int[] { 1, 2 })]
+        [InlineData(new int[] { 2, 0 })]
+        [InlineData(new int[] { 2, 1 })]
+        [InlineData(new int[] { 2, 2 })]
+        public void IsCompatibleWithDriver_should_return_true_if_server_unknown(int[] wireRanges)
+        {
+            var clusterId = new ClusterId(1);
+            var connectionMode = ClusterConnectionMode.Automatic;
+            var subject = ClusterDescription.CreateInitial(clusterId, connectionMode);
+            for (var i = 0; i < wireRanges.Length; i++)
+            {
+                var endPoint = new DnsEndPoint("localhost", i);
+                var serverId = new ServerId(clusterId, endPoint);
+                var wireRange = wireRanges[i];
+                var wireVersionRange = wireRange == 0 ? new Range<int>(0, 0) : wireRange == 1 ? new Range<int>(2, 6) : null;
+                var server = new ServerDescription(serverId, endPoint, wireVersionRange: wireVersionRange, type: ServerType.Unknown);
+                subject = subject.WithServerDescription(server);
+            }
+
+            var result = subject.IsCompatibleWithDriver;
+
+            result.Should().BeTrue();
         }
 
         [Fact]
