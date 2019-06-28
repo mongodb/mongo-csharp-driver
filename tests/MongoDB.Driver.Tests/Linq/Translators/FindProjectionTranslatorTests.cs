@@ -93,6 +93,20 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Fact]
+        public void Should_translate_a_new_expression_where_one_field_starts_with_another_field()
+        {
+            var result = Project(p => new { p.C.E, p.C.E1 }, "{  C : { E : { F : 2, H : 3 }, E1 : { F : 4, H : 5 } } }");
+
+            result.Projection.Should().Be("{ \"C.E\" : 1, \"C.E1\" : 1, _id : 0 }");
+
+            result.Value.E.F.Should().Be(2);
+            result.Value.E.H.Should().Be(3);
+
+            result.Value.E1.F.Should().Be(4);
+            result.Value.E1.H.Should().Be(5);
+        }
+
+        [Fact]
         public void Should_translate_a_new_expression_with_a_single_top_level_field()
         {
             var result = Project(p => new { p.A }, "{ A: \"Jack\" }");
@@ -110,6 +124,17 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Projection.Should().Be("{ A: 1, B: 1, _id: 0 }");
 
             result.Value.FullName.Should().Be("Jack Awesome");
+        }
+
+        [Fact]
+        public void Should_translate_a_new_expression_with_top_level_fields_when_one_field_starts_with_another()
+        {
+            var result = Project(p => new { p.A, p.A1 }, "{ A : \"Jack\", A1 : \"Peter\" }");
+
+            result.Projection.Should().Be("{ A : 1, A1 : 1 _id: 0 }");
+
+            result.Value.A.Should().Be("Jack");
+            result.Value.A1.Should().Be("Peter");
         }
 
         [Fact]
@@ -144,7 +169,19 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Fact]
-        public void Should_translate_with_a_hierarchical_redundancy()
+        public void Should_translate_with_a_hierarchical_redundancy_and_a_non_top_level_projection()
+        {
+            var result = Project(p => new { p.C.E, F = p.C.E.F }, "{  C : { E : { F : 2, H : 3 } } }");
+
+            result.Projection.Should().Be("{ \"C.E\" : 1, _id : 0 }");
+
+            result.Value.E.H.Should().Be(3);
+            result.Value.F.Should().Be(2);
+            result.Value.E.F.Should().Be(2);
+        }
+
+        [Fact]
+        public void Should_translate_with_a_hierarchical_redundancy_and_a_top_level_projection()
         {
             var result = Project(p => new { p.C, F = p.C.E.F }, "{ C: { D: \"CEO\", E: { F: 2 } } }");
 
@@ -152,6 +189,18 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             result.Value.C.D.Should().Be("CEO");
             result.Value.C.E.F.Should().Be(2);
+            result.Value.F.Should().Be(2);
+        }
+
+        [Fact]
+        public void Should_translate_with_a_hierarchical_redundancy_and_when_one_field_starts_with_another()
+        {
+            var result = Project(p => new { p.C.E, F = p.C.E.E1.F }, "{  C : { E : { E1 : { F : 2, H : 3 } } } }");
+
+            result.Projection.Should().Be("{ \"C.E\" : 1, _id : 0 }");
+
+            result.Value.E.E1.H.Should().Be(3);
+            result.Value.E.E1.F.Should().Be(2);
             result.Value.F.Should().Be(2);
         }
 
@@ -259,6 +308,8 @@ namespace MongoDB.Driver.Tests.Linq.Translators
 
             public string A { get; set; }
 
+            public string A1 { get; set; }
+
             public string B { get; set; }
 
             public C C { get; set; }
@@ -271,6 +322,8 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             public string D { get; set; }
 
             public E E { get; set; }
+
+            public E E1 { get; set; }
         }
 
         public class E
@@ -280,6 +333,8 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             public int H { get; set; }
 
             public IEnumerable<string> I { get; set; }
+
+            public E E1 { get; set; }
         }
     }
 }
