@@ -1,44 +1,56 @@
-﻿using MongoDB.Bson.Serialization.IdGenerators;
+﻿/* Copyright 2019-present MongoDB Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+using MongoDB.Bson.Serialization.IdGenerators;
 using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization.Conventions
 {
     /// <summary>
-    /// A convention that sets representation of a string id class member to ObjectId in BSON with a StringObjectIdGenerator.
+    /// A convention that sets the representation of a string id class member to ObjectId in BSON with a StringObjectIdGenerator.
+    /// This convention is only responsible for setting the serializer and idGenerator. It is assumed that this convention runs after
+    /// other conventions that identify which member is the _id and that the _id has already been added to the class map.
     /// </summary>
     public class StringIdStoredAsObjectIdConvention : ConventionBase, IMemberMapConvention
     {
-        /// <summary>
-        /// Applies a post processing modification to the class map.
-        /// </summary>
-        /// <param name="memberMap">The BsonMemberMap map.</param>
-        /// <remarks>This method sets both the serializer and the IdGenerator on the id member field.</remarks>
+        /// <inheritdoc/>
         public void Apply(BsonMemberMap memberMap)
         {
-            var idMemberMap = memberMap.ClassMap?.IdMemberMap;
-
-            if (idMemberMap == null)
+            if (memberMap != memberMap.ClassMap.IdMemberMap)
             {
                 return;
             }
 
-            if (idMemberMap.MemberType != typeof(string))
+            if (memberMap.MemberType != typeof(string))
             {
                 return;
             }
 
-            if (idMemberMap.IdGenerator != null)
+            var defaultStringSerializer = BsonSerializer.LookupSerializer(typeof(string));
+            if (memberMap.GetSerializer() != defaultStringSerializer)
             {
                 return;
             }
 
-            var idSerializer = idMemberMap.GetSerializer();
-
-            if (idSerializer is StringSerializer stringSerializer && stringSerializer.Representation == BsonType.String)
+            if (memberMap.IdGenerator != null)
             {
-                idMemberMap.SetSerializer(new StringSerializer(representation: BsonType.ObjectId));
-                idMemberMap.SetIdGenerator(StringObjectIdGenerator.Instance);
+                return;
             }
+
+            memberMap.SetSerializer(new StringSerializer(representation: BsonType.ObjectId));
+            memberMap.SetIdGenerator(StringObjectIdGenerator.Instance);
         }
     }
 }
