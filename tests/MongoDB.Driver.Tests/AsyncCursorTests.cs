@@ -13,9 +13,14 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using FluentAssertions;
+using FluentAssertions.Common;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -53,6 +58,37 @@ namespace MongoDB.Driver.Tests
             }
         }
 
+        [SkippableFact]
+        public void KillCursor_should_actually_work()
+        {
+            RequireServer.Check().Supports(Feature.KillCursorsCommand);
+            var eventCapturer = new EventCapturer().Capture<CommandSucceededEvent>(x => x.CommandName.Equals("killCursors"));
+            using (var client = DriverTestConfiguration.CreateDisposableClient(eventCapturer))
+            {
+                IAsyncCursor<BsonDocument> cursor;
+                var database = client.GetDatabase("test");
+                var collection = database.GetCollection<BsonDocument>(GetType().Name);
+                var documents = new List<BsonDocument>();
+                for (int i = 0; i < 1000; i++)
+                {
+                    documents.Add(new BsonDocument("x", i));
+                }
+
+                collection.InsertMany(documents);
+                cursor = collection.FindSync("{}");
+                cursor.MoveNext();
+
+                var cursorId = ((AsyncCursor<BsonDocument>) cursor)._cursorId();
+                cursorId.Should().NotBe(0);
+                cursor.Dispose();
+
+                var desiredResult = BsonDocument.Parse($"{{ \"cursorsKilled\" : [{cursorId}], \"cursorsNotFound\" : [], " +
+                    $"\"cursorsAlive\" : [], \"cursorsUnknown\" : [], \"ok\" : 1.0 }}");
+                var result = ((CommandSucceededEvent) eventCapturer.Events[0]).Reply;
+                result.IsSameOrEqualTo(desiredResult);
+            }
+        }
+
         //private methods
         private IMongoClient CreateClient()
         {
@@ -64,5 +100,11 @@ namespace MongoDB.Driver.Tests
         {
             client.GetDatabase(databaseName).DropCollection(collectionName);
         }
+    }
+
+    public static class AsyncCursorReflector
+    {
+        public static long _cursorId(this AsyncCursor<BsonDocument> obj) =>
+            (long) Reflector.GetFieldValue(obj, nameof(_cursorId));
     }
 }

@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
