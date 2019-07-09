@@ -360,6 +360,10 @@ axes:
         display_name: "latest"
         variables:
            VERSION: "latest"
+      - id: "4.2"
+        display_name: "4.2"
+        variables:
+           VERSION: "4.2"       
       - id: "4.0"
         display_name: "4.0"
         variables:
@@ -470,14 +474,14 @@ buildvariants:
      - name: test
 
 - matrix_name: "tests-zlib-compression"
-  matrix_spec: { compressor : "zlib", auth: "noauth", ssl: "nossl", version: ["3.4", "3.6", "4.0", "latest"], topology: "standalone", os: "*" }
+  matrix_spec: { compressor : "zlib", auth: "noauth", ssl: "nossl", version: ["3.4", "3.6", "4.0", "4.2", "latest"], topology: "standalone", os: "*" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
      - name: "test"
 
 #- matrix_name: "tests-snappy-compression"
-#  matrix_spec: { compressor : "snappy", auth: "noauth", ssl: "nossl", version: ["3.4", "3.6", "4.0", "latest"], topology: "standalone", os: "*" }
+#  matrix_spec: { compressor : "snappy", auth: "noauth", ssl: "nossl", version: ["3.4", "3.6", "4.0", "4.2", "latest"], topology: "standalone", os: "*" }
 #  display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
 #  tags: ["tests-variant"]
 #  tasks:
