@@ -756,7 +756,7 @@ namespace MongoDB.Driver.Core.Configuration
             const string optionsPattern = @"(\?" + optionPattern + @"((&|;)" + optionPattern + ")*)?";
             const string pattern =
                 @"^(?<scheme>mongodb|mongodb\+srv)://" +
-                @"((?<username>[^:@]+)(:(?<password>[^:@]*))?@)?" +
+                @"((?<username>[^:@/]+)(:(?<password>[^:@/]*))?@)?" +
                 serversPattern + @"(/" + databasePattern + ")?/?" + optionsPattern + "$";
 
             if (_originalConnectionString.Contains("%"))

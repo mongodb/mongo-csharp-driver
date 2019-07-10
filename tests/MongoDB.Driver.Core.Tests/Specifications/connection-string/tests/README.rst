@@ -97,3 +97,7 @@ handler and watching for output).
 
 Not all drivers may be able to directly assert the hosts, auth credentials, and
 options. Doing so may require exposing the driver's URI parsing component.
+
+The file valid-db-with-dotted-name.yml is a special case for testing drivers
+that allow dotted namespaces, instead of only database names, in the Auth
+Database portion of the URI.

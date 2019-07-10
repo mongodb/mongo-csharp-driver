@@ -206,7 +206,34 @@
             "uri": "mongodb://alice@foo:bar@127.0.0.1", 
             "valid": false, 
             "warning": null
-        }, 
+        },
+	    {
+            "auth": null,
+            "description": "Username containing an unescaped slash",
+            "hosts": null,
+            "options": null,
+            "uri": "mongodb://alice/@localhost/db",
+            "valid": false,
+            "warning": null
+        },
+        {
+            "auth": null,
+            "description": "Username containing unescaped slash with password",
+            "hosts": null,
+            "options": null,
+            "uri": "mongodb://alice/bob:foo@localhost/db",
+            "valid": false,
+            "warning": null
+        },
+        {
+            "auth": null,
+            "description": "Username with password containing an unescaped slash",
+            "hosts": null,
+            "options": null,
+            "uri": "mongodb://alice:foo/bar@localhost/db",
+            "valid": false,
+            "warning": null
+        },
         {
             "auth": null, 
             "description": "Host with unescaped slash", 
@@ -214,6 +241,24 @@
             "options": null, 
             "uri": "mongodb:///tmp/mongodb-27017.sock/", 
             "valid": false, 
+            "warning": null
+        },
+	    {
+            "auth": null,
+            "description": "mongodb+srv with multiple service names",
+            "hosts": null,
+            "options": null,
+            "uri": "mongodb+srv://test5.test.mongodb.com,test6.test.mongodb.com",
+            "valid": false,
+            "warning": null
+        },
+        {
+            "auth": null,
+            "description": "mongodb+srv with port number",
+            "hosts": null,
+            "options": null,
+            "uri": "mongodb+srv://test7.test.mongodb.com:27018",
+            "valid": false,
             "warning": null
         },
         {
@@ -224,7 +269,6 @@
             "uri": "mongodb://alice%foo:bar@127.0.0.1",
             "valid": false,
             "warning": null
-        }	    
-
+        }
     ]
 }

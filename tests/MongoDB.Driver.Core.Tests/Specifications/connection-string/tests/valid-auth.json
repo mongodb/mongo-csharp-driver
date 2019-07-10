@@ -37,26 +37,7 @@
             "uri": "mongodb://alice:foo@127.0.0.1/test", 
             "valid": true, 
             "warning": false
-        }, 
-        {
-            "auth": {
-                "db": "t\u0000est", 
-                "password": "f\u0000oo", 
-                "username": "a\u0000lice"
-            }, 
-            "description": "User info for single IPv4 host with database (escaped null bytes)", 
-            "hosts": [
-                {
-                    "host": "127.0.0.1", 
-                    "port": null, 
-                    "type": "ipv4"
-                }
-            ], 
-            "options": null, 
-            "uri": "mongodb://a%00lice:f%00oo@127.0.0.1/t%00est", 
-            "valid": true, 
-            "warning": false
-        }, 
+        },
         {
             "auth": {
                 "db": null, 
@@ -223,7 +204,7 @@
             "auth": {
                 "db": "my=db", 
                 "password": null, 
-                "username": "@l:ce"
+                "username": "@l:ce/="
             }, 
             "description": "Escaped username and database without password", 
             "hosts": [
@@ -234,14 +215,14 @@
                 }
             ], 
             "options": null, 
-            "uri": "mongodb://%40l%3Ace@example.com/my%3Ddb", 
+            "uri": "mongodb://%40l%3Ace%2F%3D@example.com/my%3Ddb", 
             "valid": true, 
             "warning": false
         }, 
         {
             "auth": {
                 "db": "admin?", 
-                "password": "f:zzb@zz", 
+                "password": "f:zzb@z/z=", 
                 "username": "$am"
             }, 
             "description": "Escaped user info and database (MONGODB-CR)", 
@@ -255,10 +236,31 @@
             "options": {
                 "authmechanism": "MONGODB-CR"
             }, 
-            "uri": "mongodb://%24am:f%3Azzb%40zz@127.0.0.1/admin%3F?authMechanism=MONGODB-CR", 
+            "uri": "mongodb://%24am:f%3Azzb%40z%2Fz%3D@127.0.0.1/admin%3F?authMechanism=MONGODB-CR", 
             "valid": true, 
             "warning": false
-        }, 
+        },
+{
+      "description": "Subdelimiters in user/pass don't need escaping (MONGODB-CR)",
+      "uri": "mongodb://!$&'()*+,;=:!$&'()*+,;=@127.0.0.1/admin?authMechanism=MONGODB-CR",
+      "valid": true,
+      "warning": false,
+      "hosts": [
+        {
+          "type": "ipv4",
+          "host": "127.0.0.1",
+          "port": null
+        }
+      ],
+      "auth": {
+        "username": "!$&'()*+,;=",
+        "password": "!$&'()*+,;=",
+        "db": "admin"
+      },
+      "options": {
+        "authmechanism": "MONGODB-CR"
+      }
+    },	
         {
             "auth": {
                 "db": null, 
