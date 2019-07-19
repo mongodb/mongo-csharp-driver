@@ -46,29 +46,5 @@ namespace MongoDB.Driver.Core.Operations
 
             mockChannelSource.Verify(s => s.Dispose(), Times.Exactly(shouldCallDispose ? 1 : 0));
         }
-
-        // seems like a good place to put this
-        [Fact]
-        public void Kill_Cursor_should_actually_kill_the_cursor()
-        {
-            MongoDatabase database = LegacyTestConfiguration.Database;
-            MongoCollection<BsonDocument> collection = database.GetCollection(GetType().Name);
-
-            // insert 1000 documents into a collection
-            for (int i = 0; i < 1000; i++)
-            {
-                collection.Insert(new BsonDocument("x", i));
-            }
-
-//            do a "find" on the collection and iterate the cursor past the first document
-//            store the cursor id in a variable
-            var cursor = collection.Find(Query.EQ("x", 1));
-            cursor = collection.Find(Query.EQ("x", 2));
-//            assert the cursor id is nonzero - do we have cursor ID?
-            cursor.Should().NotBeNull();
-//            kill the cursor (explicitly, or by letting it go out of scope, depending on the driver)
-//            assert that the driver receives a server reply to "killCursors" with "ok: 1", an empty "cursorsNotFound" array, an empty "cursorsAlive" array, an empty "cursorsUnknown" array, and a "cursorsKilled" array with one element equal to the cursor id
-
-        }
     }
 }

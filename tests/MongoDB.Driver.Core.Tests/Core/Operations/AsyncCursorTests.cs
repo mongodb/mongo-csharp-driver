@@ -36,6 +36,7 @@ using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
+using MongoDB.Driver.Tests;
 using Moq;
 using Xunit;
 
@@ -458,32 +459,33 @@ namespace MongoDB.Driver.Core.Operations
         public void KillCursor_should_actually_work(
             [Values(false, true)] bool async)
         {
-            MongoClient client= new MongoClient();
+            using (var client = DriverTestConfiguration.CreateDisposableClient())
+            {
             var database = client.GetDatabase("admin");
             var collection = database.GetCollection<BsonDocument>(GetType().Name);
 
-            if (async)
-            {
-                // insert 1000 documents into a collection
-                for (int i = 0; i < 1000; i++)
+                if (async)
                 {
-                    collection.InsertOneAsync(new BsonDocument("x", i)).GetAwaiter().GetResult();
+                    // insert 1000 documents into a collection
+                    for (int i = 0; i < 1000; i++)
+                    {
+                        collection.InsertOneAsync(new BsonDocument("x", i)).GetAwaiter().GetResult();
+                    }
+
+                    var cursor = collection.FindAsync("{x: 2}").GetAwaiter().GetResult();
+
                 }
-
-                var cursor = collection.FindAsync("{x: 2}").GetAwaiter().GetResult();
-
-            }
-            else
-            {
-                // insert 1000 documents into a collection
-                for (int i = 0; i < 1000; i++)
+                else
                 {
-                    collection.InsertOne(new BsonDocument("x", i));
+                    // insert 1000 documents into a collection
+                    for (int i = 0; i < 1000; i++)
+                    {
+                        collection.InsertOne(new BsonDocument("x", i));
+                    }
+
+                    var cursor = collection.FindSync("{x: 2}");
                 }
-
-                var cursor = collection.FindSync("{x: 2}");
             }
-
 //            still need to do the following:
 //            - store the cursor id in a variable
 //            - assert the cursor id is nonzero
