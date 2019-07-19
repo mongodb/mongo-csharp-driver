@@ -15,7 +15,10 @@
 
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -53,6 +56,54 @@ namespace MongoDB.Driver.Tests
             }
         }
 
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void KillCursor_should_actually_work(
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.KillCursorsCommand);
+            var eventCapturer = new EventCapturer().Capture<CommandSucceededEvent>(x => x.CommandName.Equals("killCursors"));
+            using (var client = DriverTestConfiguration.CreateDisposableClient(eventCapturer))
+            {
+                IAsyncCursor<BsonDocument> cursor;
+                var database = client.GetDatabase("admin");
+                var collection = database.GetCollection<BsonDocument>(GetType().Name);
+                if (async)
+                {
+                    for (int i = 0; i < 1000; i++)
+                    {
+                        collection.InsertOneAsync(new BsonDocument("x", i)).GetAwaiter().GetResult();
+                    }
+
+                    cursor = collection.FindAsync("{}").GetAwaiter().GetResult();
+                    cursor.MoveNextAsync().GetAwaiter().GetResult();
+                }
+                else
+                {
+                    for (int i = 0; i < 1000; i++)
+                    {
+                        collection.InsertOne(new BsonDocument("x", i));
+                    }
+
+                    cursor = collection.FindSync("{}");
+                    cursor.MoveNext();
+
+                }
+
+                long cursorId;
+                using (cursor)
+                {
+                    cursorId = ((AsyncCursor<BsonDocument>) cursor)._cursorId();
+                    cursorId.Should().NotBe(0);
+                }
+
+                var desiredResult = BsonDocument.Parse($"{{ \"cursorsKilled\" : [{cursorId}], \"cursorsNotFound\" : [], " +
+                    $"\"cursorsAlive\" : [], \"cursorsUnknown\" : [], \"ok\" : 1.0 }}");
+                var result = ((CommandSucceededEvent) eventCapturer.Events[0]).Reply;
+                result.Should().Be(desiredResult);
+            }
+        }
+
         //private methods
         private IMongoClient CreateClient()
         {
@@ -64,5 +115,11 @@ namespace MongoDB.Driver.Tests
         {
             client.GetDatabase(databaseName).DropCollection(collectionName);
         }
+    }
+
+    public static class AsyncCursorReflector
+    {
+        public static long _cursorId(this AsyncCursor<BsonDocument> obj) =>
+            (long) Reflector.GetFieldValue(obj, nameof(_cursorId));
     }
 }
