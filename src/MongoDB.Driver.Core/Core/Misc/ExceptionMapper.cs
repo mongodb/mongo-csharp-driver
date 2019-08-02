@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Core.Misc
                     case 13475:
                     case 16986:
                     case 16712:
-                        return new MongoExecutionTimeoutException(connectionId, message: "Operation exceeded time limit.");
+                        return new MongoExecutionTimeoutException(connectionId, message: "Operation exceeded time limit.", response);
                 }
             }
 

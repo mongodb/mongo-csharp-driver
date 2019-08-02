@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         // private methods
         private TransactionOptions ParseTransactionOptions(BsonDocument document)
         {
-            JsonDrivenHelper.EnsureAllFieldsAreValid(document, "readConcern", "readPreference", "writeConcern");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(document, "readConcern", "readPreference", "writeConcern", "maxCommitTimeMS");
 
             var options = new TransactionOptions();
             if (document.Contains("readConcern"))
@@ -104,6 +104,11 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
             if (document.Contains("writeConcern"))
             {
                 options = options.With(writeConcern: WriteConcern.FromBsonDocument(document["writeConcern"].AsBsonDocument));
+            }
+
+            if (document.Contains("maxCommitTimeMS"))
+            {
+                options = options.With(maxCommitTime: TimeSpan.FromMilliseconds(document["maxCommitTimeMS"].ToInt32()));
             }
 
             return options;

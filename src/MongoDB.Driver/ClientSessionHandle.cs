@@ -166,8 +166,9 @@ namespace MongoDB.Driver
             var readConcern = transactionOptions?.ReadConcern ?? defaultTransactionOptions?.ReadConcern ?? _client.Settings?.ReadConcern ?? ReadConcern.Default;
             var readPreference = transactionOptions?.ReadPreference ?? defaultTransactionOptions?.ReadPreference ?? _client.Settings?.ReadPreference ?? ReadPreference.Primary;
             var writeConcern = transactionOptions?.WriteConcern ?? defaultTransactionOptions?.WriteConcern ?? _client.Settings?.WriteConcern ?? new WriteConcern();
+            var maxCommitTime = transactionOptions?.MaxCommitTime ?? defaultTransactionOptions?.MaxCommitTime;
 
-            return new TransactionOptions(readConcern, readPreference, writeConcern);
+            return new TransactionOptions(readConcern, readPreference, writeConcern, maxCommitTime);
         }
     }
 }

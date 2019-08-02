@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -92,6 +93,10 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
 
                 case "session":
                     _session = (IClientSessionHandle)_objectMap[value.AsString];
+                    return;
+
+                case "maxTimeMS":
+                    _options.MaxTime = TimeSpan.FromMilliseconds(value.ToInt32());
                     return;
             }
 

@@ -450,6 +450,7 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
             ReadConcern readConcern = null;
             ReadPreference readPreference = null;
             WriteConcern writeConcern = null;
+            TimeSpan? maxCommitTimeMS = null;
 
             foreach (var element in document)
             {
@@ -467,12 +468,16 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
                         writeConcern = WriteConcern.FromBsonDocument(element.Value.AsBsonDocument);
                         break;
 
+                    case "maxCommitTimeMS":
+                        maxCommitTimeMS = TimeSpan.FromMilliseconds(element.Value.ToInt32());
+                        break;
+
                     default:
                         throw new ArgumentException($"Invalid field: {element.Name}.");
                 }
             }
 
-            return new TransactionOptions(readConcern, readPreference, writeConcern);
+            return new TransactionOptions(readConcern, readPreference, writeConcern, maxCommitTimeMS);
         }
 
         private void VerifyCollectionOutcome(BsonDocument outcome)

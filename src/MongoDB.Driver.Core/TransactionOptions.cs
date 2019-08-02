@@ -14,11 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MongoDB.Bson;
 
 namespace MongoDB.Driver
 {
@@ -28,6 +23,7 @@ namespace MongoDB.Driver
     public class TransactionOptions
     {
         // private fields
+        private readonly TimeSpan? _maxCommitTime;
         private readonly ReadConcern _readConcern;
         private readonly ReadPreference _readPreference;
         private readonly WriteConcern _writeConcern;
@@ -39,17 +35,28 @@ namespace MongoDB.Driver
         /// <param name="readConcern">The read concern.</param>
         /// <param name="readPreference">The read preference.</param>
         /// <param name="writeConcern">The write concern.</param>
+        /// <param name="maxCommitTime">The max commit time.</param>
         public TransactionOptions(
             Optional<ReadConcern> readConcern = default(Optional<ReadConcern>),
             Optional<ReadPreference> readPreference = default(Optional<ReadPreference>),
-            Optional<WriteConcern> writeConcern = default(Optional<WriteConcern>))
+            Optional<WriteConcern> writeConcern = default(Optional<WriteConcern>),
+            Optional<TimeSpan?> maxCommitTime = default(Optional<TimeSpan?>))
         {
             _readConcern = readConcern.WithDefault(null);
             _readPreference = readPreference.WithDefault(null);
             _writeConcern = writeConcern.WithDefault(null);
+            _maxCommitTime = maxCommitTime.WithDefault(null);
         }
 
         // public properties
+        /// <summary>
+        /// Gets the max commit time.
+        /// </summary>
+        /// <value>
+        /// The max commit time.
+        /// </value>
+        public TimeSpan? MaxCommitTime => _maxCommitTime;
+
         /// <summary>
         /// Gets the read concern.
         /// </summary>
@@ -81,18 +88,21 @@ namespace MongoDB.Driver
         /// <param name="readConcern">The new read concern.</param>
         /// <param name="readPreference">The read preference.</param>
         /// <param name="writeConcern">The new write concern.</param>
+        /// <param name="maxCommitTime">The max commit time.</param>
         /// <returns>
         /// The new TransactionOptions.
         /// </returns>
         public TransactionOptions With(
             Optional<ReadConcern> readConcern = default(Optional<ReadConcern>),
             Optional<ReadPreference> readPreference = default(Optional<ReadPreference>),
-            Optional<WriteConcern> writeConcern = default(Optional<WriteConcern>))
+            Optional<WriteConcern> writeConcern = default(Optional<WriteConcern>),
+            Optional<TimeSpan?> maxCommitTime = default(Optional<TimeSpan?>))
         {
             return new TransactionOptions(
                 readConcern: readConcern.WithDefault(_readConcern),
                 readPreference: readPreference.WithDefault(_readPreference),
-                writeConcern: writeConcern.WithDefault(_writeConcern));
+                writeConcern: writeConcern.WithDefault(_writeConcern),
+                maxCommitTime: maxCommitTime.WithDefault(_maxCommitTime));
         }
     }
 }

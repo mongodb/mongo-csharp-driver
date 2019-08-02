@@ -119,7 +119,7 @@ namespace MongoDB.Driver.Core.Operations
         /// Creates the command for the operation.
         /// </summary>
         /// <returns>The command.</returns>
-        private BsonDocument CreateCommand()
+        protected virtual BsonDocument CreateCommand()
         {
             return new BsonDocument
             {
@@ -175,6 +175,9 @@ namespace MongoDB.Driver.Core.Operations
     /// </summary>
     public sealed class CommitTransactionOperation : EndTransactionOperation
     {
+        // private fields
+        private TimeSpan? _maxCommitTime;
+
         // public constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="AbortTransactionOperation"/> class.
@@ -193,6 +196,15 @@ namespace MongoDB.Driver.Core.Operations
         public CommitTransactionOperation(BsonDocument recoveryToken, WriteConcern writeConcern)
             : base(recoveryToken, writeConcern)
         {
+        }
+
+        // public properties
+        /// <summary>Gets the maximum commit time.</summary>
+        /// <value>The maximum commit time.</value>
+        public TimeSpan? MaxCommitTime
+        {
+            get => _maxCommitTime;
+            set => _maxCommitTime = Ensure.IsNullOrGreaterThanZero(value, nameof(value));
         }
 
         // protected properties
@@ -228,6 +240,18 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
+        // protected methods
+        /// <inheritdoc />
+        protected override BsonDocument CreateCommand()
+        {
+            var command = base.CreateCommand();
+            if (_maxCommitTime.HasValue)
+            {
+                command.Add("maxTimeMS", (long)_maxCommitTime.Value.TotalMilliseconds);
+            }
+            return command;
+        }
+
         // private methods
         private void ReplaceTransientTransactionErrorWithUnknownTransactionCommitResult(MongoException exception)
         {
@@ -242,7 +266,9 @@ namespace MongoDB.Driver.Core.Operations
                 return true;
             }
 
-            if (exception is MongoNotPrimaryException || exception is MongoNodeIsRecoveringException)
+            if (exception is MongoNotPrimaryException ||
+                exception is MongoNodeIsRecoveringException ||
+                exception is MongoExecutionTimeoutException) // MaxTimeMSExpired
             {
                 return true;
             }

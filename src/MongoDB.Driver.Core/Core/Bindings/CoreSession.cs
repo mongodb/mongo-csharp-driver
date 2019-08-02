@@ -376,7 +376,9 @@ namespace MongoDB.Driver.Core.Bindings
 
         private IReadOperation<BsonDocument> CreateCommitTransactionOperation(bool isCommitRetry)
         {
-            return new CommitTransactionOperation(_currentTransaction.RecoveryToken, GetCommitTransactionWriteConcern(isCommitRetry));
+            var writeConcern = GetCommitTransactionWriteConcern(isCommitRetry);
+            var maxCommitTime = _currentTransaction.TransactionOptions.MaxCommitTime;
+            return new CommitTransactionOperation(_currentTransaction.RecoveryToken, writeConcern) { MaxCommitTime = maxCommitTime };
         }
 
         private void EnsureAbortTransactionCanBeCalled(string methodName)
@@ -490,7 +492,8 @@ namespace MongoDB.Driver.Core.Bindings
             var readConcern = transactionOptions?.ReadConcern ?? _options.DefaultTransactionOptions?.ReadConcern ?? ReadConcern.Default;
             var readPreference = transactionOptions?.ReadPreference ?? _options.DefaultTransactionOptions?.ReadPreference ?? ReadPreference.Primary;
             var writeConcern = transactionOptions?.WriteConcern ?? _options.DefaultTransactionOptions?.WriteConcern ?? new WriteConcern();
-            return new TransactionOptions(readConcern, readPreference, writeConcern);
+            var maxCommitTime = transactionOptions?.MaxCommitTime ?? _options.DefaultTransactionOptions?.MaxCommitTime;
+            return new TransactionOptions(readConcern, readPreference, writeConcern, maxCommitTime);
         }
 
         private WriteConcern GetTransactionWriteConcern()

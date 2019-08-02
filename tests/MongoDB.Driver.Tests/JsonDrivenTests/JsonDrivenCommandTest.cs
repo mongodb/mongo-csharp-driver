@@ -51,6 +51,11 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                     }
                 }
 
+                if (actualErrorCodeName == null && _actualException is MongoExecutionTimeoutException mongoExecutionTimeout)
+                {
+                    actualErrorCodeName = mongoExecutionTimeout.CodeName;
+                }
+
                 if (actualErrorCodeName == null)
                 {
                     throw new Exception("Exception was missing \"errorCodeName\".");

@@ -100,6 +100,7 @@ namespace MongoDB.Driver.Core.TestHelpers.JsonDrivenTests
                     case "startTransaction":
                     case "txnNumber":
                     case "writeConcern":
+                    case "maxTimeMS":
                         if (actualCommand.Contains(name))
                         {
                             throw new AssertionFailedException($"Did not expect field '{name}' in command: {actualCommand.ToJson()}.");
@@ -130,7 +131,7 @@ namespace MongoDB.Driver.Core.TestHelpers.JsonDrivenTests
                 AdaptExpectedUpdateModels(actualValue.AsBsonArray.Cast<BsonDocument>().ToList(), expectedValue.AsBsonArray.Cast<BsonDocument>().ToList());
             }
 
-            var namesToUseOrderInsensitiveComparisonWith = new[] { "writeConcern" };
+            var namesToUseOrderInsensitiveComparisonWith = new[] { "writeConcern", "maxTimeMS" };
             var useOrderInsensitiveComparison = namesToUseOrderInsensitiveComparisonWith.Contains(name);
 
             if (!(useOrderInsensitiveComparison ? BsonValueEquivalencyComparer.Compare(actualValue, expectedValue) : actualValue.Equals(expectedValue)))

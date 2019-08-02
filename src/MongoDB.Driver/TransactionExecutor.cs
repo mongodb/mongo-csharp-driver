@@ -26,6 +26,7 @@ namespace MongoDB.Driver
         // constants
         private const string TransientTransactionErrorLabel = "TransientTransactionError";
         private const string UnknownTransactionCommitResultLabel = "UnknownTransactionCommitResult";
+        private const int ExceededTimeLimitErrorCode = 50;
         private static readonly TimeSpan __transactionTimeout = TimeSpan.FromSeconds(120);
 
         public static TResult ExecuteWithRetries<TResult>(
@@ -152,7 +153,7 @@ namespace MongoDB.Driver
                 catch (Exception ex)
                 {
                     var now = clock.UtcNow; // call UtcNow once since we need to facilitate predictable mocking
-                    if (HasErrorLabel(ex, UnknownTransactionCommitResultLabel) && !HasTimedOut(startTime, now))
+                    if (ShouldRetryCommit(ex, startTime, now))
                     {
                         continue;
                     }
@@ -179,7 +180,7 @@ namespace MongoDB.Driver
                 catch (Exception ex)
                 {
                     var now = clock.UtcNow; // call UtcNow once since we need to facilitate predictable mocking
-                    if (HasErrorLabel(ex, UnknownTransactionCommitResultLabel) && !HasTimedOut(startTime, now))
+                    if (ShouldRetryCommit(ex, startTime, now))
                     {
                         continue;
                     }
@@ -206,6 +207,30 @@ namespace MongoDB.Driver
             }
         }
 
+        private static bool IsExceededTimeLimitException(Exception ex)
+        {
+            if (ex is MongoExecutionTimeoutException timeoutException && 
+                timeoutException.Code == ExceededTimeLimitErrorCode)
+            {
+                return true;
+            }
+
+            if (ex is MongoWriteConcernException writeConcernException)
+            {
+                var writeConcernError = writeConcernException.WriteConcernResult.Response?.GetValue("writeConcernError", null)?.AsBsonDocument;
+                if (writeConcernError != null)
+                {
+                    var code = writeConcernError.GetValue("code", -1).ToInt32();
+                    if (code == ExceededTimeLimitErrorCode)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
         private static bool IsTransactionInStartingOrInProgressState(IClientSessionHandle clientSession)
         {
             var currentTransaction = clientSession.WrappedCoreSession.CurrentTransaction;
@@ -218,6 +243,14 @@ namespace MongoDB.Driver
                 var transactionState = currentTransaction.State;
                 return transactionState == CoreTransactionState.Starting || transactionState == CoreTransactionState.InProgress;
             }
+        }
+
+        private static bool ShouldRetryCommit(Exception ex, DateTime startTime, DateTime now)
+        {
+            return
+                HasErrorLabel(ex, UnknownTransactionCommitResultLabel) &&
+                !HasTimedOut(startTime, now) &&
+                !IsExceededTimeLimitException(ex);
         }
 
         // nested types
