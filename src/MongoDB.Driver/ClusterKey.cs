@@ -24,6 +24,7 @@ namespace MongoDB.Driver
     internal class ClusterKey
     {
         // fields
+        private readonly bool _allowInsecureTls;
         private readonly string _applicationName;
         private readonly Action<ClusterBuilder> _clusterConfigurator;
         private readonly IReadOnlyList<CompressorConfiguration> _compressors;
@@ -48,13 +49,13 @@ namespace MongoDB.Driver
         private readonly TimeSpan _serverSelectionTimeout;
         private readonly TimeSpan _socketTimeout;
         private readonly SslSettings _sslSettings;
-        private readonly bool _useSsl;
-        private readonly bool _verifySslCertificate;
+        private readonly bool _useTls;
         private readonly int _waitQueueSize;
         private readonly TimeSpan _waitQueueTimeout;
 
         // constructors
         public ClusterKey(
+            bool allowInsecureTls,
             string applicationName,
             Action<ClusterBuilder> clusterConfigurator,
             IReadOnlyList<CompressorConfiguration> compressors,
@@ -78,11 +79,11 @@ namespace MongoDB.Driver
             TimeSpan serverSelectionTimeout,
             TimeSpan socketTimeout,
             SslSettings sslSettings,
-            bool useSsl,
-            bool verifySslCertificate,
+            bool useTls,
             int waitQueueSize,
             TimeSpan waitQueueTimeout)
         {
+            _allowInsecureTls = allowInsecureTls;
             _applicationName = applicationName;
             _clusterConfigurator = clusterConfigurator;
             _compressors = compressors;
@@ -106,8 +107,7 @@ namespace MongoDB.Driver
             _serverSelectionTimeout = serverSelectionTimeout;
             _socketTimeout = socketTimeout;
             _sslSettings = sslSettings;
-            _useSsl = useSsl;
-            _verifySslCertificate = verifySslCertificate;
+            _useTls = useTls;
             _waitQueueSize = waitQueueSize;
             _waitQueueTimeout = waitQueueTimeout;
 
@@ -115,6 +115,7 @@ namespace MongoDB.Driver
         }
 
         // properties
+        public bool AllowInsecureTls => _allowInsecureTls;
         public string ApplicationName { get { return _applicationName; } }
         public Action<ClusterBuilder> ClusterConfigurator { get { return _clusterConfigurator; } }
         public IReadOnlyList<CompressorConfiguration> Compressors { get { return _compressors; } }
@@ -138,8 +139,7 @@ namespace MongoDB.Driver
         public TimeSpan ServerSelectionTimeout { get { return _serverSelectionTimeout; } }
         public TimeSpan SocketTimeout { get { return _socketTimeout; } }
         public SslSettings SslSettings { get { return _sslSettings; } }
-        public bool UseSsl { get { return _useSsl; } }
-        public bool VerifySslCertificate { get { return _verifySslCertificate; } }
+        public bool UseTls => _useTls;
         public int WaitQueueSize { get { return _waitQueueSize; } }
         public TimeSpan WaitQueueTimeout { get { return _waitQueueTimeout; } }
 
@@ -162,6 +162,7 @@ namespace MongoDB.Driver
             var rhs = (ClusterKey)obj;
             return
                 _hashCode == rhs._hashCode && // fail fast
+                _allowInsecureTls == rhs._allowInsecureTls &&
                 _applicationName == rhs._applicationName &&
                 object.ReferenceEquals(_clusterConfigurator, rhs._clusterConfigurator) &&
                 _compressors.SequenceEqual(rhs._compressors) &&
@@ -185,8 +186,7 @@ namespace MongoDB.Driver
                 _serverSelectionTimeout == rhs._serverSelectionTimeout &&
                 _socketTimeout == rhs._socketTimeout &&
                 object.Equals(_sslSettings, rhs._sslSettings) &&
-                _useSsl == rhs._useSsl &&
-                _verifySslCertificate == rhs._verifySslCertificate &&
+                _useTls == rhs._useTls &&
                 _waitQueueSize == rhs._waitQueueSize &&
                 _waitQueueTimeout == rhs._waitQueueTimeout;
         }

@@ -37,6 +37,7 @@ namespace MongoDB.Driver
     public class MongoUrlBuilder
     {
         // private fields
+        private bool _allowInsecureTls;
         private string _applicationName;
         private string _authenticationMechanism;
         private Dictionary<string, string> _authenticationMechanismProperties;
@@ -67,8 +68,7 @@ namespace MongoDB.Driver
         private TimeSpan _serverSelectionTimeout;
         private TimeSpan _socketTimeout;
         private string _username;
-        private bool _useSsl;
-        private bool _verifySslCertificate;
+        private bool _useTls;
         private WriteConcern.WValue _w;
         private double _waitQueueMultiple;
         private int _waitQueueSize;
@@ -81,6 +81,7 @@ namespace MongoDB.Driver
         /// </summary>
         public MongoUrlBuilder()
         {
+            _allowInsecureTls = false;
             _applicationName = null;
             _authenticationMechanism = MongoDefaults.AuthenticationMechanism;
             _authenticationMechanismProperties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -111,8 +112,7 @@ namespace MongoDB.Driver
             _serverSelectionTimeout = MongoDefaults.ServerSelectionTimeout;
             _socketTimeout = MongoDefaults.SocketTimeout;
             _username = null;
-            _useSsl = false;
-            _verifySslCertificate = true;
+            _useTls = false;
             _w = null;
             _waitQueueMultiple = MongoDefaults.WaitQueueMultiple;
             _waitQueueSize = MongoDefaults.WaitQueueSize;
@@ -131,6 +131,15 @@ namespace MongoDB.Driver
         }
 
         // public properties
+        /// <summary>
+        /// Gets or sets whether to relax TLS constraints as much as possible.
+        /// </summary>
+        public bool AllowInsecureTls
+        {
+            get => _allowInsecureTls;
+            set => _allowInsecureTls = value;
+        }
+
         /// <summary>
         /// Gets or sets the application name.
         /// </summary>
@@ -525,19 +534,30 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets a value indicating whether to use SSL.
         /// </summary>
+        [Obsolete("Use UseTls instead.")]
         public bool UseSsl
         {
-            get { return _useSsl; }
-            set { _useSsl = value; }
+            get { return _useTls; }
+            set { _useTls = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to use TLS.
+        /// </summary>
+        public bool UseTls
+        {
+            get => _useTls;
+            set => _useTls = value;
         }
 
         /// <summary>
         /// Gets or sets a value indicating whether to verify an SSL certificate.
         /// </summary>
+        [Obsolete("Use AllowInsecureTls instead.")]
         public bool VerifySslCertificate
         {
-            get { return _verifySslCertificate; }
-            set { _verifySslCertificate = value; }
+            get => !_allowInsecureTls;
+            set => _allowInsecureTls = !value;
         }
 
         /// <summary>
@@ -641,6 +661,7 @@ namespace MongoDB.Driver
         public void Parse(string url)
         {
             var connectionString = new ConnectionString(url);
+            _allowInsecureTls = connectionString.TlsInsecure.GetValueOrDefault(false);
             _applicationName = connectionString.ApplicationName;
             _authenticationMechanism = connectionString.AuthMechanism;
             _authenticationMechanismProperties = connectionString.AuthMechanismProperties.ToDictionary(x => x.Key, x => x.Value, StringComparer.OrdinalIgnoreCase);
@@ -716,8 +737,7 @@ namespace MongoDB.Driver
             _serverSelectionTimeout = connectionString.ServerSelectionTimeout.GetValueOrDefault(MongoDefaults.ServerSelectionTimeout);
             _socketTimeout = connectionString.SocketTimeout.GetValueOrDefault(MongoDefaults.SocketTimeout);
             _username = connectionString.Username;
-            _useSsl = connectionString.Ssl.GetValueOrDefault(false);
-            _verifySslCertificate = connectionString.SslVerifyCertificate.GetValueOrDefault(true);
+            _useTls = connectionString.Tls.GetValueOrDefault(false);
             _w = connectionString.W;
             if (connectionString.WaitQueueSize != null)
             {
@@ -819,21 +839,21 @@ namespace MongoDB.Driver
             }
             if (_scheme == ConnectionStringScheme.MongoDBPlusSrv)
             {
-                if (!_useSsl)
+                if (!_useTls)
                 {
-                    query.AppendFormat("ssl=false;");
+                    query.AppendFormat("tls=false;");
                 }
             }
             else
             {
-                if (_useSsl)
+                if (_useTls)
                 {
-                    query.AppendFormat("ssl=true;");
+                    query.AppendFormat("tls=true;");
                 }
             }
-            if (!_verifySslCertificate)
+            if (_allowInsecureTls)
             {
-                query.AppendFormat("sslVerifyCertificate=false;");
+                query.AppendFormat("tlsInsecure=true;");
             }
 
             if (_compressors?.Any() ?? false)

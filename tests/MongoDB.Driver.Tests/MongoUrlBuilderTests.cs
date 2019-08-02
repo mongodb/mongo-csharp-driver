@@ -42,6 +42,7 @@ namespace MongoDB.Driver.Tests
             zlibCompressor.Properties.Add("Level", 4);
             var built = new MongoUrlBuilder()
             {
+                AllowInsecureTls = true,
                 ApplicationName = "app",
                 AuthenticationMechanism = "GSSAPI",
                 AuthenticationMechanismProperties = authMechanismProperties,
@@ -71,8 +72,13 @@ namespace MongoDB.Driver.Tests
                 ServerSelectionTimeout = TimeSpan.FromSeconds(10),
                 SocketTimeout = TimeSpan.FromSeconds(7),
                 Username = "username",
+#pragma warning disable 618
                 UseSsl = true,
+#pragma warning restore 618
+                UseTls = true,
+#pragma warning disable 618
                 VerifySslCertificate = false,
+#pragma warning restore 618
                 W = 2,
                 WaitQueueSize = 123,
                 WaitQueueTimeout = TimeSpan.FromSeconds(8),
@@ -85,8 +91,8 @@ namespace MongoDB.Driver.Tests
                 "authSource=db",
                 "appname=app",
                 "ipv6=true",
-                "ssl=true", // UseSsl
-                "sslVerifyCertificate=false", // VerifySslCertificate
+                "tls=true", // UseTls
+                "tlsInsecure=true",
                 "compressors=zlib",
                 "zlibCompressionLevel=4",
                 "connect=replicaSet",
@@ -116,6 +122,7 @@ namespace MongoDB.Driver.Tests
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
+                Assert.Equal(true, builder.AllowInsecureTls);
                 Assert.Equal("app", builder.ApplicationName);
                 Assert.Equal("GSSAPI", builder.AuthenticationMechanism);
                 Assert.Equal(authMechanismProperties, builder.AuthenticationMechanismProperties);
@@ -149,14 +156,36 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(TimeSpan.FromSeconds(10), builder.ServerSelectionTimeout);
                 Assert.Equal(TimeSpan.FromSeconds(7), builder.SocketTimeout);
                 Assert.Equal("username", builder.Username);
+#pragma warning disable 618
                 Assert.Equal(true, builder.UseSsl);
+#pragma warning restore 618
+                Assert.Equal(true, builder.UseTls);
+#pragma warning disable 618
                 Assert.Equal(false, builder.VerifySslCertificate);
+#pragma warning restore 618
                 Assert.Equal(2, ((WriteConcern.WCount)builder.W).Value);
                 Assert.Equal(0.0, builder.WaitQueueMultiple);
                 Assert.Equal(123, builder.WaitQueueSize);
                 Assert.Equal(TimeSpan.FromSeconds(8), builder.WaitQueueTimeout);
                 Assert.Equal(TimeSpan.FromSeconds(9), builder.WTimeout);
                 Assert.Equal(connectionString, builder.ToString());
+            }
+        }
+
+        [Theory]
+        [InlineData(null, "mongodb://localhost", new[] { "" })]
+        [InlineData(false, "mongodb://localhost/?tlsInsecure={0}", new[] { "false", "False" })]
+        [InlineData(true, "mongodb://localhost/?tlsInsecure={0}", new[] { "true", "True" })]
+        public void TestAllowInsecureTls(bool? allowInsecureTls, string formatString, string[] values)
+        {
+            var built = new MongoUrlBuilder { Server = _localhost };
+            if (allowInsecureTls != null) { built.AllowInsecureTls = allowInsecureTls.Value; }
+
+            var canonicalConnectionString = string.Format(formatString, values[0]).Replace("/?tlsInsecure=false", "");
+            foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
+            {
+                Assert.Equal(allowInsecureTls ?? false, builder.AllowInsecureTls);
+                Assert.Equal(canonicalConnectionString, builder.ToString());
             }
         }
 
@@ -374,6 +403,7 @@ namespace MongoDB.Driver.Tests
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
+                Assert.Equal(false, builder.AllowInsecureTls);
                 Assert.Equal(null, builder.ApplicationName);
                 Assert.Equal(null, builder.AuthenticationMechanism);
                 Assert.Equal(0, builder.AuthenticationMechanismProperties.Count());
@@ -402,8 +432,13 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(MongoDefaults.ServerSelectionTimeout, builder.ServerSelectionTimeout);
                 Assert.Equal(MongoDefaults.SocketTimeout, builder.SocketTimeout);
                 Assert.Equal(null, builder.Username);
+#pragma warning disable 618
                 Assert.Equal(false, builder.UseSsl);
+#pragma warning restore 618
+                Assert.Equal(false, builder.UseTls);
+#pragma warning disable 618
                 Assert.Equal(true, builder.VerifySslCertificate);
+#pragma warning restore 618
                 Assert.Equal(null, builder.W);
                 Assert.Equal(MongoDefaults.WaitQueueMultiple, builder.WaitQueueMultiple);
                 Assert.Equal(MongoDefaults.WaitQueueSize, builder.WaitQueueSize);
@@ -1085,34 +1120,17 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [InlineData(null, "mongodb://localhost", new[] { "" })]
-        [InlineData(false, "mongodb://localhost/?ssl={0}", new[] { "false", "False" })]
-        [InlineData(true, "mongodb://localhost/?ssl={0}", new[] { "true", "True" })]
-        public void TestUseSsl(bool? useSsl, string formatString, string[] values)
+        [InlineData(false, "mongodb://localhost/?tls={0}", new[] { "false", "False" })]
+        [InlineData(true, "mongodb://localhost/?tls={0}", new[] { "true", "True" })]
+        public void TestUseTls(bool? useTls, string formatString, string[] values)
         {
             var built = new MongoUrlBuilder { Server = _localhost };
-            if (useSsl != null) { built.UseSsl = useSsl.Value; }
+            if (useTls != null) { built.UseTls = useTls.Value; }
 
-            var canonicalConnectionString = string.Format(formatString, values[0]).Replace("/?ssl=false", "");
+            var canonicalConnectionString = string.Format(formatString, values[0]).Replace("/?tls=false", "");
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
-                Assert.Equal(useSsl ?? false, builder.UseSsl);
-                Assert.Equal(canonicalConnectionString, builder.ToString());
-            }
-        }
-
-        [Theory]
-        [InlineData(null, "mongodb://localhost", new[] { "" })]
-        [InlineData(false, "mongodb://localhost/?sslVerifyCertificate={0}", new[] { "false", "False" })]
-        [InlineData(true, "mongodb://localhost/?sslVerifyCertificate={0}", new[] { "true", "True" })]
-        public void TestVerifySslCertificate(bool? verifySslCertificate, string formatString, string[] values)
-        {
-            var built = new MongoUrlBuilder { Server = _localhost };
-            if (verifySslCertificate != null) { built.VerifySslCertificate = verifySslCertificate.Value; }
-
-            var canonicalConnectionString = string.Format(formatString, values[0]).Replace("/?sslVerifyCertificate=true", "");
-            foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
-            {
-                Assert.Equal(verifySslCertificate ?? true, builder.VerifySslCertificate);
+                Assert.Equal(useTls ?? false, builder.UseTls);
                 Assert.Equal(canonicalConnectionString, builder.ToString());
             }
         }
@@ -1267,12 +1285,12 @@ namespace MongoDB.Driver.Tests
         [Theory]
         [InlineData("mongodb://localhost", "mongodb://localhost")]
         [InlineData("mongodb://localhost/?ssl=false", "mongodb://localhost")]
-        [InlineData("mongodb://localhost/?ssl=true", "mongodb://localhost/?ssl=true")]
+        [InlineData("mongodb://localhost/?ssl=true", "mongodb://localhost/?tls=true")]
         [InlineData("mongodb://localhost:27018", "mongodb://localhost:27018")]
         [InlineData("mongodb://localhost:27018/?ssl=false", "mongodb://localhost:27018")]
-        [InlineData("mongodb://localhost:27018/?ssl=true", "mongodb://localhost:27018/?ssl=true")]
+        [InlineData("mongodb://localhost:27018/?ssl=true", "mongodb://localhost:27018/?tls=true")]
         [InlineData("mongodb+srv://localhost", "mongodb+srv://localhost")]
-        [InlineData("mongodb+srv://localhost/?ssl=false", "mongodb+srv://localhost/?ssl=false")]
+        [InlineData("mongodb+srv://localhost/?ssl=false", "mongodb+srv://localhost/?tls=false")]
         [InlineData("mongodb+srv://localhost/?ssl=true", "mongodb+srv://localhost")]
         public void ToString_should_return_expected_result_for_scheme_port_and_ssl(string connectionString, string expectedResult)
         {

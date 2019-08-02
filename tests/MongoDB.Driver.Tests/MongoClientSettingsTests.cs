@@ -33,6 +33,21 @@ namespace MongoDB.Driver.Tests
         private readonly MongoServerAddress _localHost = new MongoServerAddress("localhost");
 
         [Fact]
+        public void TestAllowInsecureTls()
+        {
+            var settings = new MongoClientSettings();
+            Assert.Equal(false, settings.AllowInsecureTls);
+
+            var allowInsecureTls = true;
+            settings.AllowInsecureTls = allowInsecureTls;
+            Assert.Equal(allowInsecureTls, settings.AllowInsecureTls);
+
+            settings.Freeze();
+            Assert.Equal(allowInsecureTls, settings.AllowInsecureTls);
+            Assert.Throws<InvalidOperationException>(() => { settings.AllowInsecureTls = allowInsecureTls; });
+        }
+
+        [Fact]
         public void TestApplicationName()
         {
             var settings = new MongoClientSettings();
@@ -143,6 +158,7 @@ namespace MongoDB.Driver.Tests
         public void TestDefaults()
         {
             var settings = new MongoClientSettings();
+            Assert.Equal(false, settings.AllowInsecureTls);
             Assert.Equal(null, settings.ApplicationName);
             Assert.Equal(Enumerable.Empty<CompressorConfiguration>(), settings.Compressors);
             Assert.Equal(ConnectionMode.Automatic, settings.ConnectionMode);
@@ -170,8 +186,13 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(MongoDefaults.ServerSelectionTimeout, settings.ServerSelectionTimeout);
             Assert.Equal(MongoDefaults.SocketTimeout, settings.SocketTimeout);
             Assert.Equal(null, settings.SslSettings);
+#pragma warning disable 618
             Assert.Equal(false, settings.UseSsl);
+#pragma warning restore 618
+            Assert.Equal(false, settings.UseTls);
+#pragma warning disable 618
             Assert.Equal(true, settings.VerifySslCertificate);
+#pragma warning restore 618
             Assert.Equal(MongoDefaults.ComputedWaitQueueSize, settings.WaitQueueSize);
             Assert.Equal(MongoDefaults.WaitQueueTimeout, settings.WaitQueueTimeout);
             Assert.Equal(WriteConcern.Acknowledged, settings.WriteConcern);
@@ -184,6 +205,10 @@ namespace MongoDB.Driver.Tests
             var settings = new MongoClientSettings();
             var clone = settings.Clone();
             Assert.True(clone.Equals(settings));
+
+            clone = settings.Clone();
+            clone.AllowInsecureTls = !settings.AllowInsecureTls;
+            Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
             clone.ApplicationName = "app2";
@@ -290,11 +315,19 @@ namespace MongoDB.Driver.Tests
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
+#pragma warning disable 618
             clone.UseSsl = !settings.UseSsl;
+#pragma warning restore 618
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
+            clone.UseTls = !settings.UseTls;
+            Assert.False(clone.Equals(settings));
+
+            clone = settings.Clone();
+#pragma warning disable 618
             clone.VerifySslCertificate = !settings.VerifySslCertificate;
+#pragma warning restore 618
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
@@ -338,12 +371,13 @@ namespace MongoDB.Driver.Tests
                 "compressors=zlib,snappy;zlibCompressionLevel=9;connect=direct;connectTimeout=123;uuidRepresentation=pythonLegacy;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;localThreshold=128;" +
                 "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;readConcernLevel=majority;" +
                 "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;retryReads=false;retryWrites=true;socketTimeout=129;" +
-                "serverSelectionTimeout=20s;ssl=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
+                "serverSelectionTimeout=20s;tls=true;tlsInsecure=true;waitqueuesize=130;waitQueueTimeout=131;" +
                 "w=1;fsync=true;journal=true;w=2;wtimeout=131;gssapiServiceName=other";
             var builder = new MongoUrlBuilder(connectionString);
             var url = builder.ToMongoUrl();
 
             var settings = MongoClientSettings.FromUrl(url);
+            Assert.Equal(url.AllowInsecureTls, settings.AllowInsecureTls);
             Assert.Equal(url.ApplicationName, settings.ApplicationName);
             Assert.Equal(url.Compressors, settings.Compressors);
             Assert.Equal(url.ConnectionMode, settings.ConnectionMode);
@@ -376,8 +410,14 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(url.ServerSelectionTimeout, settings.ServerSelectionTimeout);
             Assert.Equal(url.SocketTimeout, settings.SocketTimeout);
             Assert.Equal(null, settings.SslSettings);
+#pragma warning disable 618
             Assert.Equal(url.UseSsl, settings.UseSsl);
+#pragma warning restore 618
+            Assert.Equal(url.UseTls, settings.UseTls);
+#pragma warning disable 618
             Assert.Equal(url.VerifySslCertificate, settings.VerifySslCertificate);
+#pragma warning restore 618
+
             Assert.Equal(url.ComputedWaitQueueSize, settings.WaitQueueSize);
             Assert.Equal(url.WaitQueueTimeout, settings.WaitQueueTimeout);
             Assert.Equal(url.GetWriteConcern(true), settings.WriteConcern);
@@ -803,6 +843,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestUseSsl()
         {
+#pragma warning disable 618
             var settings = new MongoClientSettings();
             Assert.Equal(false, settings.UseSsl);
 
@@ -813,11 +854,28 @@ namespace MongoDB.Driver.Tests
             settings.Freeze();
             Assert.Equal(useSsl, settings.UseSsl);
             Assert.Throws<InvalidOperationException>(() => { settings.UseSsl = useSsl; });
+#pragma warning restore 618
+        }
+
+        [Fact]
+        public void TestUseTls()
+        {
+            var settings = new MongoClientSettings();
+            Assert.Equal(false, settings.UseTls);
+
+            var useTls = true;
+            settings.UseTls = useTls;
+            Assert.Equal(useTls, settings.UseTls);
+
+            settings.Freeze();
+            Assert.Equal(useTls, settings.UseTls);
+            Assert.Throws<InvalidOperationException>(() => { settings.UseTls = useTls; });
         }
 
         [Fact]
         public void TestVerifySslCertificate()
         {
+#pragma warning disable 618
             var settings = new MongoClientSettings();
             Assert.Equal(true, settings.VerifySslCertificate);
 
@@ -828,6 +886,7 @@ namespace MongoDB.Driver.Tests
             settings.Freeze();
             Assert.Equal(verifySslCertificate, settings.VerifySslCertificate);
             Assert.Throws<InvalidOperationException>(() => { settings.VerifySslCertificate = verifySslCertificate; });
+#pragma warning restore 618
         }
 
         [Fact]
@@ -891,6 +950,7 @@ namespace MongoDB.Driver.Tests
 
             var subject = new MongoClientSettings
             {
+                AllowInsecureTls = false,
                 ApplicationName = "app",
                 ClusterConfigurator = clusterConfigurator,
                 ConnectionMode = ConnectionMode.Direct,
@@ -912,14 +972,14 @@ namespace MongoDB.Driver.Tests
                 ServerSelectionTimeout = TimeSpan.FromSeconds(6),
                 SocketTimeout = TimeSpan.FromSeconds(4),
                 SslSettings = sslSettings,
-                UseSsl = true,
-                VerifySslCertificate = true,
+                UseTls = true,
                 WaitQueueSize = 20,
                 WaitQueueTimeout = TimeSpan.FromSeconds(5)
             };
 
             var result = subject.ToClusterKey();
 
+            result.AllowInsecureTls.Should().Be(subject.AllowInsecureTls);
             result.ApplicationName.Should().Be(subject.ApplicationName);
             result.ClusterConfigurator.Should().BeSameAs(clusterConfigurator);
             result.ConnectionMode.Should().Be(subject.ConnectionMode);
@@ -944,8 +1004,7 @@ namespace MongoDB.Driver.Tests
             result.ServerSelectionTimeout.Should().Be(subject.ServerSelectionTimeout);
             result.SocketTimeout.Should().Be(subject.SocketTimeout);
             result.SslSettings.Should().Be(subject.SslSettings);
-            result.UseSsl.Should().Be(subject.UseSsl);
-            result.VerifySslCertificate.Should().Be(subject.VerifySslCertificate);
+            result.UseTls.Should().Be(subject.UseTls);
             result.WaitQueueSize.Should().Be(subject.WaitQueueSize);
             result.WaitQueueTimeout.Should().Be(subject.WaitQueueTimeout);
         }

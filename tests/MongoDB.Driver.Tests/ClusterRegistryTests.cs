@@ -53,6 +53,7 @@ namespace MongoDB.Driver.Tests
             };
 
             var clusterKey = new ClusterKey(
+                allowInsecureTls: false,
                 applicationName: "app1",
                 clusterConfigurator: clusterConfigurator,
                 compressors: new[] { new CompressorConfiguration(CompressorType.Zlib) },
@@ -76,8 +77,7 @@ namespace MongoDB.Driver.Tests
                 serverSelectionTimeout: TimeSpan.FromSeconds(11),
                 socketTimeout: TimeSpan.FromSeconds(12),
                 sslSettings: sslSettings,
-                useSsl: true,
-                verifySslCertificate: true,
+                useTls: true,
                 waitQueueSize: 13,
                 waitQueueTimeout: TimeSpan.FromSeconds(14));
 

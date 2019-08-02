@@ -36,6 +36,7 @@ namespace MongoDB.Driver
         private static Dictionary<string, MongoUrl> __cache = new Dictionary<string, MongoUrl>();
 
         // private fields
+        private readonly bool _allowInsecureTls;
         private readonly string _applicationName;
         private readonly string _authenticationMechanism;
         private readonly IEnumerable<KeyValuePair<string, string>> _authenticationMechanismProperties;
@@ -67,8 +68,7 @@ namespace MongoDB.Driver
         private readonly TimeSpan _serverSelectionTimeout;
         private readonly TimeSpan _socketTimeout;
         private readonly string _username;
-        private readonly bool _useSsl;
-        private readonly bool _verifySslCertificate;
+        private readonly bool _useTls;
         private readonly WriteConcern.WValue _w;
         private readonly double _waitQueueMultiple;
         private readonly int _waitQueueSize;
@@ -87,6 +87,7 @@ namespace MongoDB.Driver
             _originalUrl = url;
 
             var builder = new MongoUrlBuilder(url); // parses url
+            _allowInsecureTls = builder.AllowInsecureTls;
             _applicationName = builder.ApplicationName;
             _authenticationMechanism = builder.AuthenticationMechanism;
             _authenticationMechanismProperties = builder.AuthenticationMechanismProperties;
@@ -118,8 +119,7 @@ namespace MongoDB.Driver
             _serverSelectionTimeout = builder.ServerSelectionTimeout;
             _socketTimeout = builder.SocketTimeout;
             _username = builder.Username;
-            _useSsl = builder.UseSsl;
-            _verifySslCertificate = builder.VerifySslCertificate;
+            _useTls = builder.UseTls;
             _w = builder.W;
             _waitQueueMultiple = builder.WaitQueueMultiple;
             _waitQueueSize = builder.WaitQueueSize;
@@ -140,6 +140,11 @@ namespace MongoDB.Driver
         }
 
         // public properties
+        /// <summary>
+        /// Gets whether to relax TLS constraints as much as possible.
+        /// </summary>
+        public bool AllowInsecureTls => _allowInsecureTls;
+
         /// <summary>
         /// Gets the application name.
         /// </summary>
@@ -440,18 +445,19 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets a value indicating whether to use SSL.
         /// </summary>
-        public bool UseSsl
-        {
-            get { return _useSsl; }
-        }
+        [Obsolete("Use UseTls instead.")]
+        public bool UseSsl => _useTls;
+
+        /// <summary>
+        /// Gets a value indicating whether to use TLS.
+        /// </summary>
+        public bool UseTls => _useTls;
 
         /// <summary>
         /// Gets a value indicating whether to verify an SSL certificate.
         /// </summary>
-        public bool VerifySslCertificate
-        {
-            get { return _verifySslCertificate; }
-        }
+        [Obsolete("Use AllowInsecureTls instead.")]
+        public bool VerifySslCertificate => !_allowInsecureTls;
 
         /// <summary>
         /// Gets the W component of the write concern.

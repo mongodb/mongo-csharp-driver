@@ -29,7 +29,8 @@ namespace MongoDB.Bson.TestHelpers.JsonDrivenTests
         // protected properties
         protected virtual Assembly Assembly => this.GetType().GetTypeInfo().Assembly;
 
-        protected abstract string PathPrefix { get; }
+        protected virtual string PathPrefix { get; } = null;
+        protected virtual string[] PathPrefixes { get; } = null;
 
         // public methods
         public IEnumerator<object[]> GetEnumerator()
@@ -71,7 +72,15 @@ namespace MongoDB.Bson.TestHelpers.JsonDrivenTests
 
         protected virtual bool ShouldReadJsonDocument(string path)
         {
-            return path.StartsWith(PathPrefix) && path.EndsWith(".json");
+            var prefixes = GetPathPrefixes();
+            return prefixes.Any(path.StartsWith) && path.EndsWith(".json");
+        }
+
+        private string[] GetPathPrefixes()
+        {
+            var prefixes = !string.IsNullOrEmpty(PathPrefix) ? new[] { PathPrefix } : PathPrefixes;
+
+            return prefixes ?? throw new NotImplementedException("A test must have at least one test path.");
         }
     }
 

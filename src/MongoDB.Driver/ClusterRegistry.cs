@@ -62,7 +62,7 @@ namespace MongoDB.Driver
                 .ConfigureTcp(settings => ConfigureTcp(settings, clusterKey))
                 .ConfigureSdamLogging(settings => ConfigureSdamLogging(settings, clusterKey));
 
-            if (clusterKey.UseSsl)
+            if (clusterKey.UseTls)
             {
                 builder.ConfigureSsl(settings => ConfigureSsl(settings, clusterKey));
             }
@@ -126,12 +126,12 @@ namespace MongoDB.Driver
 
         private SslStreamSettings ConfigureSsl(SslStreamSettings settings, ClusterKey clusterKey)
         {
-            if (clusterKey.UseSsl)
+            if (clusterKey.UseTls)
             {
                 var sslSettings = clusterKey.SslSettings ?? new SslSettings();
 
                 var validationCallback = sslSettings.ServerCertificateValidationCallback;
-                if (validationCallback == null && !clusterKey.VerifySslCertificate)
+                if (validationCallback == null && clusterKey.AllowInsecureTls)
                 {
                     validationCallback = AcceptAnySslCertificate;
                 }

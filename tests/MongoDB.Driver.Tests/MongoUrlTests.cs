@@ -119,6 +119,7 @@ namespace MongoDB.Driver.Tests
 
             var built = new MongoUrlBuilder()
             {
+                AllowInsecureTls = true,
                 ApplicationName = "app",
                 AuthenticationMechanism = "GSSAPI",
                 AuthenticationMechanismProperties = authMechanismProperties,
@@ -148,8 +149,7 @@ namespace MongoDB.Driver.Tests
                 ServerSelectionTimeout = TimeSpan.FromSeconds(10),
                 SocketTimeout = TimeSpan.FromSeconds(7),
                 Username = "username",
-                UseSsl = true,
-                VerifySslCertificate = false,
+                UseTls = true,
                 W = 2,
                 WaitQueueSize = 123,
                 WaitQueueTimeout = TimeSpan.FromSeconds(8),
@@ -162,8 +162,8 @@ namespace MongoDB.Driver.Tests
                 "authSource=db",
                 "appname=app",
                 "ipv6=true",
-                "ssl=true", // UseSsl
-                "sslVerifyCertificate=false", // VerifySslCertificate
+                "tls=true", // UseTls
+                "tlsInsecure=true",
                 "compressors=zlib",
                 "zlibCompressionLevel=4",
                 "connect=replicaSet",
@@ -193,6 +193,7 @@ namespace MongoDB.Driver.Tests
 
             foreach (var url in EnumerateBuiltAndParsedUrls(built, connectionString))
             {
+                Assert.Equal(true, url.AllowInsecureTls);
                 Assert.Equal("app", url.ApplicationName);
                 Assert.Equal("GSSAPI", url.AuthenticationMechanism);
                 Assert.Equal(authMechanismProperties, url.AuthenticationMechanismProperties);
@@ -225,8 +226,13 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(TimeSpan.FromSeconds(10), url.ServerSelectionTimeout);
                 Assert.Equal(TimeSpan.FromSeconds(7), url.SocketTimeout);
                 Assert.Equal("username", url.Username);
+#pragma warning disable 618
                 Assert.Equal(true, url.UseSsl);
+#pragma warning restore 618
+                Assert.Equal(true, url.UseTls);
+#pragma warning disable 618
                 Assert.Equal(false, url.VerifySslCertificate);
+#pragma warning restore 618
                 Assert.Equal(2, ((WriteConcern.WCount)url.W).Value);
                 Assert.Equal(0.0, url.WaitQueueMultiple);
                 Assert.Equal(123, url.WaitQueueSize);
@@ -274,7 +280,7 @@ namespace MongoDB.Driver.Tests
 
             var resolved = subject.Resolve();
 
-            Assert.Equal("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc/funny?authSource=thisDB;ssl=true;replicaSet=rs0", resolved.ToString());
+            Assert.Equal("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc/funny?authSource=thisDB;tls=true;replicaSet=rs0", resolved.ToString());
         }
 
         [Fact]
@@ -289,7 +295,7 @@ namespace MongoDB.Driver.Tests
 
             var resolved = await subject.ResolveAsync();
 
-            Assert.Equal("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc/funny?authSource=thisDB;ssl=true;replicaSet=rs0", resolved.ToString());
+            Assert.Equal("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc/funny?authSource=thisDB;tls=true;replicaSet=rs0", resolved.ToString());
         }
 
         // private methods

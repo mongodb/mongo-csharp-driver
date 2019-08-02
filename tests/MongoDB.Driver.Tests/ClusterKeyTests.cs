@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Authentication;
 using FluentAssertions;
 using MongoDB.Driver.Core.Compression;
@@ -37,6 +36,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Theory]
+        [InlineData("AllowInsecureTls", true)]
         [InlineData("ApplicationName", true)]
         [InlineData("ClusterConfigurator", true)]
         [InlineData("Compressors", true)]
@@ -60,8 +60,7 @@ namespace MongoDB.Driver.Tests
         [InlineData("ServerSelectionTimeout", true)]
         [InlineData("SocketTimeout", true)]
         [InlineData("SslSettings", true)]
-        [InlineData("UseSsl", true)]
-        [InlineData("VerifySslCertificate", true)]
+        [InlineData("UseTls", true)]
         [InlineData("WaitQueueSize", true)]
         [InlineData("WaitQueueTimeout", true)]
         public void Equals_should_return_false_if_any_field_is_not_equal(string notEqualFieldName, bool expectEqualHashCode)
@@ -75,6 +74,7 @@ namespace MongoDB.Driver.Tests
 
         private ClusterKey CreateSubject(string notEqualFieldName = null)
         {
+            var allowInsecureTls = true;
             var applicationName = "app1";
             var clusterConfigurator = new Action<ClusterBuilder>(b => { });
             var compressors = new CompressorConfiguration[0];
@@ -104,8 +104,7 @@ namespace MongoDB.Driver.Tests
                 CheckCertificateRevocation = true,
                 EnabledSslProtocols = SslProtocols.Tls
             };
-            var useSsl = false;
-            var verifySslCertificate = false;
+            var useTls = false;
             var waitQueueSize = 20;
             var waitQueueTimeout = TimeSpan.FromSeconds(5);
 
@@ -113,6 +112,7 @@ namespace MongoDB.Driver.Tests
             {
                 switch (notEqualFieldName)
                 {
+                    case "AllowInsecureTls": allowInsecureTls = !allowInsecureTls; break;
                     case "ApplicationName": applicationName = "app2"; break;
                     case "ClusterConfigurator": clusterConfigurator = new Action<ClusterBuilder>(b => { }); break;
                     case "Compressors": compressors = new[] { new CompressorConfiguration(CompressorType.Zlib) }; break;
@@ -138,8 +138,7 @@ namespace MongoDB.Driver.Tests
                     case "ServerSelectionTimeout": serverSelectionTimeout = TimeSpan.FromSeconds(98); break;
                     case "SocketTimeout": socketTimeout = TimeSpan.FromSeconds(99); break;
                     case "SslSettings": sslSettings.CheckCertificateRevocation = !sslSettings.CheckCertificateRevocation; break;
-                    case "UseSsl": useSsl = !useSsl; break;
-                    case "VerifySslCertificate": verifySslCertificate = !verifySslCertificate; break;
+                    case "UseTls": useTls = !useTls; break;
                     case "WaitQueueSize": waitQueueSize = 99; break;
                     case "WaitQueueTimeout": waitQueueTimeout = TimeSpan.FromSeconds(99); break;
                     default: throw new ArgumentException($"Invalid field name: \"{notEqualFieldName}\".", nameof(notEqualFieldName));
@@ -147,6 +146,7 @@ namespace MongoDB.Driver.Tests
             }
 
             return new ClusterKey(
+                allowInsecureTls,
                 applicationName,
                 clusterConfigurator,
                 compressors,
@@ -170,8 +170,7 @@ namespace MongoDB.Driver.Tests
                 serverSelectionTimeout,
                 socketTimeout,
                 sslSettings,
-                useSsl,
-                verifySslCertificate,
+                useTls,
                 waitQueueSize,
                 waitQueueTimeout);
         }

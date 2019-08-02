@@ -32,6 +32,7 @@ namespace MongoDB.Driver
     public class MongoServerSettings : IEquatable<MongoServerSettings>, IInheritableMongoClientSettings
     {
         // private fields
+        private bool _allowInsecureTls;
         private string _applicationName;
         private Action<ClusterBuilder> _clusterConfigurator;
         private IReadOnlyList<CompressorConfiguration> _compressors;
@@ -60,8 +61,7 @@ namespace MongoDB.Driver
         private TimeSpan _serverSelectionTimeout;
         private TimeSpan _socketTimeout;
         private SslSettings _sslSettings;
-        private bool _useSsl;
-        private bool _verifySslCertificate;
+        private bool _useTls;
         private int _waitQueueSize;
         private TimeSpan _waitQueueTimeout;
         private WriteConcern _writeConcern;
@@ -78,6 +78,7 @@ namespace MongoDB.Driver
         /// </summary>
         public MongoServerSettings()
         {
+            _allowInsecureTls = false;
             _applicationName = null;
             _compressors = new CompressorConfiguration[0];
             _connectionMode = ConnectionMode.Automatic;
@@ -105,8 +106,7 @@ namespace MongoDB.Driver
             _serverSelectionTimeout = MongoDefaults.ServerSelectionTimeout;
             _socketTimeout = MongoDefaults.SocketTimeout;
             _sslSettings = null;
-            _useSsl = false;
-            _verifySslCertificate = true;
+            _useTls = false;
             _waitQueueSize = MongoDefaults.ComputedWaitQueueSize;
             _waitQueueTimeout = MongoDefaults.WaitQueueTimeout;
             _writeConcern = WriteConcern.Unacknowledged;
@@ -121,6 +121,19 @@ namespace MongoDB.Driver
         public AddressFamily AddressFamily
         {
             get { return _ipv6 ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork; }
+        }
+
+        /// <summary>
+        /// Gets or sets whether to relax TLS constraints as much as possible.
+        /// </summary>
+        public bool AllowInsecureTls
+        {
+            get { return _allowInsecureTls; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
+                _allowInsecureTls = value;
+            }
         }
 
         /// <summary>
@@ -552,26 +565,41 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets a value indicating whether to use SSL.
         /// </summary>
+        [Obsolete("Use UseTls instead.")]
         public bool UseSsl
         {
-            get { return _useSsl; }
+            get { return _useTls; }
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
-                _useSsl = value;
+                _useTls = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to use TLS.
+        /// </summary>
+        public bool UseTls
+        {
+            get { return _useTls; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
+                _useTls = value;
             }
         }
 
         /// <summary>
         /// Gets or sets a value indicating whether to verify an SSL certificate.
         /// </summary>
+        [Obsolete("Use AllowInsecureTls instead.")]
         public bool VerifySslCertificate
         {
-            get { return _verifySslCertificate; }
+            get { return !_allowInsecureTls; }
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
-                _verifySslCertificate = value;
+                _allowInsecureTls = !value;
             }
         }
 
@@ -667,6 +695,7 @@ namespace MongoDB.Driver
         public static MongoServerSettings FromClientSettings(MongoClientSettings clientSettings)
         {
             var serverSettings = new MongoServerSettings();
+            serverSettings.AllowInsecureTls = clientSettings.AllowInsecureTls;
             serverSettings.ApplicationName = clientSettings.ApplicationName;
             serverSettings.ClusterConfigurator = clientSettings.ClusterConfigurator;
             serverSettings.Compressors = clientSettings.Compressors;
@@ -696,8 +725,7 @@ namespace MongoDB.Driver
             serverSettings.ServerSelectionTimeout = clientSettings.ServerSelectionTimeout;
             serverSettings.SocketTimeout = clientSettings.SocketTimeout;
             serverSettings.SslSettings = (clientSettings.SslSettings == null) ? null : clientSettings.SslSettings.Clone();
-            serverSettings.UseSsl = clientSettings.UseSsl;
-            serverSettings.VerifySslCertificate = clientSettings.VerifySslCertificate;
+            serverSettings.UseTls = clientSettings.UseTls;
             serverSettings.WaitQueueSize = clientSettings.WaitQueueSize;
             serverSettings.WaitQueueTimeout = clientSettings.WaitQueueTimeout;
             serverSettings.WriteConcern = clientSettings.WriteConcern;
@@ -715,6 +743,7 @@ namespace MongoDB.Driver
             var credential = url.GetCredential();
 
             var serverSettings = new MongoServerSettings();
+            serverSettings.AllowInsecureTls = url.AllowInsecureTls;
             serverSettings.ApplicationName = url.ApplicationName;
             serverSettings.Compressors = url.Compressors;
             serverSettings.ConnectionMode = url.ConnectionMode;
@@ -755,8 +784,7 @@ namespace MongoDB.Driver
             serverSettings.ServerSelectionTimeout = url.ServerSelectionTimeout;
             serverSettings.SocketTimeout = url.SocketTimeout;
             serverSettings.SslSettings = null; // SSL settings must be provided in code
-            serverSettings.UseSsl = url.UseSsl;
-            serverSettings.VerifySslCertificate = url.VerifySslCertificate;
+            serverSettings.UseTls = url.UseTls;
             serverSettings.WaitQueueSize = url.ComputedWaitQueueSize;
             serverSettings.WaitQueueTimeout = url.WaitQueueTimeout;
             serverSettings.WriteConcern = url.GetWriteConcern(false);
@@ -772,6 +800,7 @@ namespace MongoDB.Driver
         public MongoServerSettings Clone()
         {
             var clone = new MongoServerSettings();
+            clone._allowInsecureTls = _allowInsecureTls;
             clone._applicationName = _applicationName;
             clone._clusterConfigurator = _clusterConfigurator;
             clone._compressors = _compressors;
@@ -800,8 +829,7 @@ namespace MongoDB.Driver
             clone._serverSelectionTimeout = _serverSelectionTimeout;
             clone._socketTimeout = _socketTimeout;
             clone._sslSettings = (_sslSettings == null) ? null : _sslSettings.Clone();
-            clone._useSsl = _useSsl;
-            clone._verifySslCertificate = _verifySslCertificate;
+            clone._useTls = _useTls;
             clone._waitQueueSize = _waitQueueSize;
             clone._waitQueueTimeout = _waitQueueTimeout;
             clone._writeConcern = _writeConcern;
@@ -833,6 +861,7 @@ namespace MongoDB.Driver
             if (object.ReferenceEquals(obj, null) || GetType() != obj.GetType()) { return false; }
             var rhs = (MongoServerSettings)obj;
             return
+                _allowInsecureTls == rhs._allowInsecureTls &&
                 _applicationName == rhs._applicationName &&
                 object.ReferenceEquals(_clusterConfigurator, rhs._clusterConfigurator) &&
                _compressors.SequenceEqual(rhs._compressors) &&
@@ -861,8 +890,7 @@ namespace MongoDB.Driver
                _serverSelectionTimeout == rhs._serverSelectionTimeout &&
                _socketTimeout == rhs._socketTimeout &&
                _sslSettings == rhs._sslSettings &&
-               _useSsl == rhs._useSsl &&
-               _verifySslCertificate == rhs._verifySslCertificate &&
+                _useTls == rhs._useTls &&
                _waitQueueSize == rhs._waitQueueSize &&
                _waitQueueTimeout == rhs._waitQueueTimeout &&
                _writeConcern.Equals(rhs._writeConcern) &&
@@ -912,6 +940,7 @@ namespace MongoDB.Driver
             }
 
             return new Hasher()
+                .Hash(_allowInsecureTls)
                 .Hash(_applicationName)
                 .Hash(_clusterConfigurator)
                 .HashElements(_compressors)
@@ -940,8 +969,7 @@ namespace MongoDB.Driver
                 .Hash(_serverSelectionTimeout)
                 .Hash(_socketTimeout)
                 .Hash(_sslSettings)
-                .Hash(_useSsl)
-                .Hash(_verifySslCertificate)
+                .Hash(_useTls)
                 .Hash(_waitQueueSize)
                 .Hash(_waitQueueTimeout)
                 .Hash(_writeConcern)
@@ -1008,8 +1036,8 @@ namespace MongoDB.Driver
             {
                 parts.Add(string.Format("SslSettings={0}", _sslSettings));
             }
-            parts.Add(string.Format("Ssl={0}", _useSsl));
-            parts.Add(string.Format("SslVerifyCertificate={0}", _verifySslCertificate));
+            parts.Add(string.Format("Tls={0}", _useTls));
+            parts.Add(string.Format("TlsInsecure={0}", _allowInsecureTls));
             parts.Add(string.Format("WaitQueueSize={0}", _waitQueueSize));
             parts.Add(string.Format("WaitQueueTimeout={0}", _waitQueueTimeout));
             parts.Add(string.Format("WriteConcern={0}", _writeConcern));
@@ -1024,6 +1052,7 @@ namespace MongoDB.Driver
         internal ClusterKey ToClusterKey()
         {
             return new ClusterKey(
+                _allowInsecureTls,
                 _applicationName,
                 _clusterConfigurator,
                 _compressors,
@@ -1047,8 +1076,7 @@ namespace MongoDB.Driver
                 _serverSelectionTimeout,
                 _socketTimeout,
                 _sslSettings,
-                _useSsl,
-                _verifySslCertificate,
+                _useTls,
                 _waitQueueSize,
                 _waitQueueTimeout);
         }

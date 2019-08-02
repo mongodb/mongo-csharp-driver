@@ -107,7 +107,7 @@ namespace MongoDB.Driver
                 .ConfigureWithConnectionString(__connectionString.Value)
                 .ConfigureCluster(c => c.With(serverSelectionTimeout: TimeSpan.FromMilliseconds(int.Parse(serverSelectionTimeoutString))));
 
-            if (__connectionString.Value.Ssl.HasValue && __connectionString.Value.Ssl.Value)
+            if (__connectionString.Value.Tls.HasValue && __connectionString.Value.Tls.Value)
             {
                 var certificateFilename = Environment.GetEnvironmentVariable("MONGO_SSL_CERT_FILE");
                 if (certificateFilename != null)

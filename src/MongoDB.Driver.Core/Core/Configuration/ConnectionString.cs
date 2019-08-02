@@ -94,8 +94,8 @@ namespace MongoDB.Driver.Core.Configuration
         private ConnectionStringScheme _scheme;
         private TimeSpan? _serverSelectionTimeout;
         private TimeSpan? _socketTimeout;
-        private bool? _ssl;
-        private bool? _sslVerifyCertificate;
+        private bool? _tls;
+        private bool? _tlsInsecure;
         private string _username;
         private GuidRepresentation? _uuidRepresentation;
         private double? _waitQueueMultiple;
@@ -383,7 +383,7 @@ namespace MongoDB.Driver.Core.Configuration
             get { return _retryWrites; }
         }
 
-       /// <summary>
+        /// <summary>
         /// Gets the connection string scheme.
         /// </summary>
         public ConnectionStringScheme Scheme
@@ -410,18 +410,27 @@ namespace MongoDB.Driver.Core.Configuration
         /// <summary>
         /// Gets whether to use SSL.
         /// </summary>
+        [Obsolete("Use Tls instead.")]
         public bool? Ssl
         {
-            get { return _ssl; }
+            get { return _tls; }
         }
 
         /// <summary>
         /// Gets whether to verify SSL certificates.
         /// </summary>
-        public bool? SslVerifyCertificate
-        {
-            get { return _sslVerifyCertificate; }
-        }
+        [Obsolete("Use TlsInsecure instead.")]
+        public bool? SslVerifyCertificate => !_tlsInsecure;
+
+        /// <summary>
+        /// Gets whether to use TLS.
+        /// </summary>
+        public bool? Tls => _tls;
+
+        /// <summary>
+        /// Gets whether to relax TLS constraints as much as possible.
+        /// </summary>
+        public bool? TlsInsecure => _tlsInsecure;
 
         /// <summary>
         /// Gets the username.
@@ -620,9 +629,9 @@ namespace MongoDB.Driver.Core.Configuration
             }
 
             // remove any option from the resolved options that was specified locally
-            foreach(var key in _allOptions.AllKeys)
+            foreach (var key in _allOptions.AllKeys)
             {
-                if(resolvedOptions.Get(key) != null)
+                if (resolvedOptions.Get(key) != null)
                 {
                     resolvedOptions.Remove(key);
                 }
@@ -654,8 +663,11 @@ namespace MongoDB.Driver.Core.Configuration
                 if (schemeGroup.Value == "mongodb+srv")
                 {
                     _scheme = ConnectionStringScheme.MongoDBPlusSrv;
-                    _ssl = true;
-                    _allOptions.Add("ssl", "true");
+                    if (!_tls.HasValue)
+                    {
+                        _tls = true;
+                        _allOptions.Add("tls", "true");
+                    }
                 }
             }
         }
@@ -777,10 +789,10 @@ namespace MongoDB.Driver.Core.Configuration
                 throw new MongoConfigurationException(message);
             }
 
-            ExtractScheme(match);
             ExtractUsernameAndPassword(match);
             ExtractDatabaseName(match);
             ExtractOptions(match);
+            ExtractScheme(match);
             ExtractHosts(match);
 
             if (_journal.HasValue && _journal.Value && _w != null && _w.Equals(0))
@@ -940,11 +952,22 @@ namespace MongoDB.Driver.Core.Configuration
                 case "sockettimeoutms":
                     _socketTimeout = ParseTimeSpan(name, value);
                     break;
-                case "ssl":
-                    _ssl = ParseBoolean(name, value);
+                case "ssl": // Obsolete
+                case "tls":
+                    var tlsValue = ParseBoolean(name, value);
+                    if (_tls.HasValue && _tls.Value != tlsValue)
+                    {
+                        throw new MongoConfigurationException("tls has already been configured with a different value.");
+                    }
+                    _tls = tlsValue;
                     break;
-                case "sslverifycertificate":
-                    _sslVerifyCertificate = ParseBoolean(name, value);
+                case "sslverifycertificate": // Obsolete
+                    var sslVerifyCertificateValue = ParseBoolean(name, value);
+                    _tlsInsecure = EnsureTlsInsecureIsValid(!sslVerifyCertificateValue);
+                    break;
+                case "tlsinsecure":
+                    var tlsInsecureValue = ParseBoolean(name, value);
+                    _tlsInsecure = EnsureTlsInsecureIsValid(tlsInsecureValue);
                     break;
                 case "guids":
                 case "uuidrepresentation":
@@ -1126,6 +1149,16 @@ namespace MongoDB.Driver.Core.Configuration
             }
         }
 
+        private bool EnsureTlsInsecureIsValid(bool value)
+        {
+            if (_tlsInsecure.HasValue && _tlsInsecure.Value != value)
+            {
+                throw new MongoConfigurationException("tlsInsecure has already been configured with a different value.");
+            }
+
+            return value;
+        }
+
         private List<string> GetHostsFromResponse(IDnsQueryResponse response)
         {
             var hosts = new List<string>();
@@ -1176,7 +1209,7 @@ namespace MongoDB.Driver.Core.Configuration
             }
 
             // for each resolved host, make sure that it ends with domain of the parent.
-            foreach(var resolvedHost in resolved)
+            foreach (var resolvedHost in resolved)
             {
                 EndPoint endPoint;
                 if (!EndPointHelper.TryParse(resolvedHost, 0, out endPoint) || !(endPoint is DnsEndPoint))
@@ -1206,8 +1239,8 @@ namespace MongoDB.Driver.Core.Configuration
                     return false;
                 }
 
-                // loop from back to front making sure that all of b is at the back of a, in order.
-                for (int ai = a.Length - 1, bi = b.Length - 1; bi >= 0; ai--, bi--)
+            // loop from back to front making sure that all of b is at the back of a, in order.
+            for (int ai = a.Length - 1, bi = b.Length - 1; bi >= 0; ai--, bi--)
                 {
                     if (a[ai] != b[bi])
                     {

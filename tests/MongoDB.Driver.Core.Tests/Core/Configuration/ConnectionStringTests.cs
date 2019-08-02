@@ -63,8 +63,8 @@ namespace MongoDB.Driver.Core.Configuration
         [Theory]
         [InlineData("mongodb://test5.test.build.10gen.cc", "mongodb://test5.test.build.10gen.cc", false)]
         [InlineData("mongodb://test5.test.build.10gen.cc", "mongodb://test5.test.build.10gen.cc", true)]
-        [InlineData("mongodb+srv://test5.test.build.10gen.cc", "mongodb://localhost.test.build.10gen.cc:27017/?replicaSet=repl0&authSource=thisDB&ssl=true", false)]
-        [InlineData("mongodb+srv://test5.test.build.10gen.cc", "mongodb://localhost.test.build.10gen.cc:27017/?replicaSet=repl0&authSource=thisDB&ssl=true", true)]
+        [InlineData("mongodb+srv://test5.test.build.10gen.cc", "mongodb://localhost.test.build.10gen.cc:27017/?replicaSet=repl0&authSource=thisDB&tls=true", false)]
+        [InlineData("mongodb+srv://test5.test.build.10gen.cc", "mongodb://localhost.test.build.10gen.cc:27017/?replicaSet=repl0&authSource=thisDB&tls=true", true)]
         public void Resolve_should_return_expected_result(string connectionString, string expectedResult, bool async)
         {
             var subject = new ConnectionString(connectionString);
@@ -88,10 +88,10 @@ namespace MongoDB.Driver.Core.Configuration
         [InlineData("mongodb://test5.test.build.10gen.cc", false, "mongodb://test5.test.build.10gen.cc", true)]
         [InlineData("mongodb://test5.test.build.10gen.cc", true, "mongodb://test5.test.build.10gen.cc", false)]
         [InlineData("mongodb://test5.test.build.10gen.cc", true, "mongodb://test5.test.build.10gen.cc", true)]
-        [InlineData("mongodb+srv://test5.test.build.10gen.cc", false, "mongodb+srv://test5.test.build.10gen.cc/?replicaSet=repl0&authSource=thisDB&ssl=true", false)]
-        [InlineData("mongodb+srv://test5.test.build.10gen.cc", false, "mongodb+srv://test5.test.build.10gen.cc/?replicaSet=repl0&authSource=thisDB&ssl=true", true)]
-        [InlineData("mongodb+srv://test5.test.build.10gen.cc", true, "mongodb://localhost.test.build.10gen.cc:27017/?replicaSet=repl0&authSource=thisDB&ssl=true", false)]
-        [InlineData("mongodb+srv://test5.test.build.10gen.cc", true, "mongodb://localhost.test.build.10gen.cc:27017/?replicaSet=repl0&authSource=thisDB&ssl=true", true)]
+        [InlineData("mongodb+srv://test5.test.build.10gen.cc", false, "mongodb+srv://test5.test.build.10gen.cc/?replicaSet=repl0&authSource=thisDB&tls=true", false)]
+        [InlineData("mongodb+srv://test5.test.build.10gen.cc", false, "mongodb+srv://test5.test.build.10gen.cc/?replicaSet=repl0&authSource=thisDB&tls=true", true)]
+        [InlineData("mongodb+srv://test5.test.build.10gen.cc", true, "mongodb://localhost.test.build.10gen.cc:27017/?replicaSet=repl0&authSource=thisDB&tls=true", false)]
+        [InlineData("mongodb+srv://test5.test.build.10gen.cc", true, "mongodb://localhost.test.build.10gen.cc:27017/?replicaSet=repl0&authSource=thisDB&tls=true", true)]
         public void Resolve_with_resolveHosts_should_return_expected_result(string connectionString, bool resolveHosts, string expectedResult, bool async)
         {
             var subject = new ConnectionString(connectionString);
@@ -108,6 +108,49 @@ namespace MongoDB.Driver.Core.Configuration
 
             result.IsResolved.Should().BeTrue();
             result.ToString().Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [InlineData("mongodb://test5.test.build.10gen.cc?tlsInsecure=true&tlsInsecure=false", true)]
+        [InlineData("mongodb://test5.test.build.10gen.cc?tlsInsecure=false&tlsInsecure=true", true)]
+        [InlineData("mongodb://test5.test.build.10gen.cc?tlsInsecure=true&tlsInsecure=true", false)]
+        public void With_more_then_one_tlsInsecure(string connectionString, bool shouldThrow)
+        {
+            var exception = Record.Exception(() => { var _ = new ConnectionString(connectionString); });
+
+            if (shouldThrow)
+            {
+                var e = exception.Should().BeOfType<MongoConfigurationException>().Subject;
+                e.Message.Should().Be("tlsInsecure has already been configured with a different value.");
+            }
+            else
+            {
+                exception.Should().BeNull();
+            }
+        }
+
+        [Theory]
+        [InlineData("mongodb://test5.test.build.10gen.cc?tls=true&tls=false", true)]
+        [InlineData("mongodb://test5.test.build.10gen.cc?ssl=false&ssl=true", true)]
+        [InlineData("mongodb://test5.test.build.10gen.cc?ssl=false&tls=true", true)]
+        [InlineData("mongodb://test5.test.build.10gen.cc?tls=false&ssl=true", true)]
+        [InlineData("mongodb://test5.test.build.10gen.cc?ssl=false&ssl=false", false)]
+        [InlineData("mongodb://test5.test.build.10gen.cc?tls=false&tls=false", false)]
+        [InlineData("mongodb://test5.test.build.10gen.cc?ssl=true&ssl=true", false)]
+        [InlineData("mongodb://test5.test.build.10gen.cc?tls=true&tls=true", false)]
+        public void With_more_then_one_tls_or_ssl(string connectionString, bool shouldThrow)
+        {
+            var exception = Record.Exception(() => { var _ = new ConnectionString(connectionString); });
+
+            if (shouldThrow)
+            {
+                var e = exception.Should().BeOfType<MongoConfigurationException>().Subject;
+                e.Message.Should().Be("tls has already been configured with a different value.");
+            }
+            else
+            {
+                exception.Should().BeNull();
+            }
         }
 
         [Fact]
@@ -245,8 +288,12 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ReplicaSet.Should().BeNull();
             subject.LocalThreshold.Should().Be(null);
             subject.SocketTimeout.Should().Be(null);
+#pragma warning disable 618
             subject.Ssl.Should().Be(null);
             subject.SslVerifyCertificate.Should().Be(null);
+#pragma warning restore 618
+            subject.Tls.Should().Be(null);
+            subject.TlsInsecure.Should().Be(null);
             subject.Username.Should().BeNull();
             subject.UuidRepresentation.Should().BeNull();
             subject.WaitQueueMultiple.Should().Be(null);
@@ -329,8 +376,12 @@ namespace MongoDB.Driver.Core.Configuration
             subject.RetryWrites.Should().BeTrue();
             subject.LocalThreshold.Should().Be(TimeSpan.FromMilliseconds(50));
             subject.SocketTimeout.Should().Be(TimeSpan.FromMilliseconds(40));
+#pragma warning disable 618
             subject.Ssl.Should().BeFalse();
             subject.SslVerifyCertificate.Should().Be(true);
+#pragma warning restore 618
+            subject.Tls.Should().BeFalse();
+            subject.TlsInsecure.Should().Be(false);
             subject.Username.Should().Be("user");
             subject.UuidRepresentation.Should().Be(GuidRepresentation.Standard);
             subject.WaitQueueMultiple.Should().Be(10);
@@ -785,7 +836,9 @@ namespace MongoDB.Driver.Core.Configuration
         {
             var subject = new ConnectionString(connectionString);
 
+#pragma warning disable 618
             subject.Ssl.Should().Be(ssl);
+#pragma warning restore 618
         }
 
         [Theory]
@@ -795,7 +848,29 @@ namespace MongoDB.Driver.Core.Configuration
         {
             var subject = new ConnectionString(connectionString);
 
+#pragma warning disable 618
             subject.SslVerifyCertificate.Should().Be(sslVerifyCertificate);
+#pragma warning restore 618
+        }
+
+        [Theory]
+        [InlineData("mongodb://localhost?tls=true", true)]
+        [InlineData("mongodb://localhost?tls=false", false)]
+        public void When_tls_is_specified(string connectionString, bool tls)
+        {
+            var subject = new ConnectionString(connectionString);
+
+            subject.Tls.Should().Be(tls);
+        }
+
+        [Theory]
+        [InlineData("mongodb://localhost?tlsInsecure=true", true)]
+        [InlineData("mongodb://localhost?tlsInsecure=false", false)]
+        public void When_tlsInsecure_is_specified(string connectionString, bool tlsInsecure)
+        {
+            var subject = new ConnectionString(connectionString);
+
+            subject.TlsInsecure.Should().Be(tlsInsecure);
         }
 
         [Theory]
@@ -932,7 +1007,7 @@ namespace MongoDB.Driver.Core.Configuration
 
             var resolved = subject.Resolve();
 
-            resolved.ToString().Should().Be("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc:27017/funny/?authSource=thisDB&ssl=true&replicaSet=rs0");
+            resolved.ToString().Should().Be("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc:27017/funny/?authSource=thisDB&replicaSet=rs0&tls=true");
         }
 
         [Fact]
@@ -946,7 +1021,7 @@ namespace MongoDB.Driver.Core.Configuration
 
             var resolved = await subject.ResolveAsync();
 
-            resolved.ToString().Should().Be("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc:27017/funny/?authSource=thisDB&ssl=true&replicaSet=rs0");
+            resolved.ToString().Should().Be("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc:27017/funny/?authSource=thisDB&replicaSet=rs0&tls=true");
         }
 
         [Fact]

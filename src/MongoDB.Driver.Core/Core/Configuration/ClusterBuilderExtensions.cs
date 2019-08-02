@@ -90,14 +90,13 @@ namespace MongoDB.Driver.Core.Configuration
                     writeTimeout: connectionString.SocketTimeout.Value));
             }
 
-            if (connectionString.Ssl != null)
+            if (connectionString.Tls != null)
             {
                 builder = builder.ConfigureSsl(ssl =>
                 {
-                    if (!connectionString.SslVerifyCertificate.GetValueOrDefault(true))
+                    if (connectionString.TlsInsecure.GetValueOrDefault(false))
                     {
-                        ssl = ssl.With(
-                            serverCertificateValidationCallback: new RemoteCertificateValidationCallback(AcceptAnySslCertificate));
+                        ssl = ssl.With(serverCertificateValidationCallback: new RemoteCertificateValidationCallback(AcceptAnySslCertificate));
                     }
 
                     return ssl;
