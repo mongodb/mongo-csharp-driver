@@ -27,6 +27,7 @@ using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
@@ -190,7 +191,9 @@ namespace MongoDB.Driver.Core.WireProtocol
             var dbElement = new BsonElement("$db", _databaseNamespace.DatabaseName);
             extraElements.Add(dbElement);
 
-            if (_readPreference != null && _readPreference != ReadPreference.Primary)
+            if (connectionDescription.IsMasterResult.ServerType != ServerType.Standalone
+                && _readPreference != null
+                && _readPreference != ReadPreference.Primary)
             {
                 var readPreferenceDocument = QueryHelper.CreateReadPreferenceDocument(_readPreference);
                 var readPreferenceElement = new BsonElement("$readPreference", readPreferenceDocument);
