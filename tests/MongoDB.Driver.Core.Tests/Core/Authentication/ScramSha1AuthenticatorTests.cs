@@ -18,7 +18,6 @@ using System.Net;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.Helpers;
@@ -135,8 +134,7 @@ namespace MongoDB.Driver.Core.Authentication
         [Theory]
         [ParameterAttributeData]
         public void Authenticate_should_not_throw_when_authentication_succeeds(
-            [Values(false, true)]
-            bool async)
+            [Values(false, true)] bool async)
         {
             var randomStringGenerator = new ConstantRandomStringGenerator("fyko+d2lbbFgONRv9qkxdawL");
             var subject = new ScramSha1Authenticator(__credential, randomStringGenerator);
@@ -175,6 +173,43 @@ namespace MongoDB.Driver.Core.Authentication
 
             sentMessages[0].Should().Be("{opcode: \"query\", requestId: " + actualRequestId0 + ", database: \"source\", collection: \"$cmd\", batchSize: -1, slaveOk: true, query: {saslStart: 1, mechanism: \"SCRAM-SHA-1\", payload: new BinData(0, \"biwsbj11c2VyLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdM\")}}");
             sentMessages[1].Should().Be("{opcode: \"query\", requestId: " + actualRequestId1 + ", database: \"source\", collection: \"$cmd\", batchSize: -1, slaveOk: true, query: {saslContinue: 1, conversationId: 1, payload: new BinData(0, \"Yz1iaXdzLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdMSG8rVmdrN3F2VU9LVXd1V0xJV2c0bC85U3JhR01IRUUscD1NQzJUOEJ2Ym1XUmNrRHc4b1dsNUlWZ2h3Q1k9\")}}");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Authenticate_should_use_cache(
+            [Values(false, true)] bool async)
+        {
+            var randomStringGenerator = new ConstantRandomStringGenerator("fyko+d2lbbFgONRv9qkxdawL");
+            var subject = new ScramSha1Authenticator(__credential, randomStringGenerator);
+
+            var saslStartReply = MessageHelper.BuildReply<RawBsonDocument>(
+                RawBsonDocumentHelper.FromJson(
+                    "{conversationId: 1, payload: BinData(0,\"cj1meWtvK2QybGJiRmdPTlJ2OXFreGRhd0xIbytWZ2s3cXZVT0tVd3VXTElXZzRsLzlTcmFHTUhFRSxzPXJROVpZM01udEJldVAzRTFURFZDNHc9PSxpPTEwMDAw\"), done: false, ok: 1}"));
+            var saslContinueReply = MessageHelper.BuildReply<RawBsonDocument>(
+                RawBsonDocumentHelper.FromJson(
+                    "{conversationId: 1, payload: BinData(0,\"dj1VTVdlSTI1SkQxeU5ZWlJNcFo0Vkh2aFo5ZTA9\"), done: true, ok: 1}"));
+
+            var connection = new MockConnection(__serverId);
+            connection.EnqueueReplyMessage(saslStartReply);
+            connection.EnqueueReplyMessage(saslContinueReply);
+
+            if (async)
+            {
+                subject.AuthenticateAsync(connection, __description, CancellationToken.None).GetAwaiter()
+                    .GetResult();
+            }
+            else
+            {
+                subject.Authenticate(connection, __description, CancellationToken.None);
+            }
+
+            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should()
+                .BeTrue();
+
+            subject._cache().Should().NotBe(null);
+            subject._cache()._cacheKey().Should().NotBe(null);
+            subject._cache()._cachedEntry().Should().NotBe(null);
         }
     }
 }

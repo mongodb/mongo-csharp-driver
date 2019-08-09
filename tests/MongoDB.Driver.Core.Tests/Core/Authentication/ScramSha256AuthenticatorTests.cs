@@ -1,4 +1,4 @@
-﻿/* Copyright 2018–present MongoDB Inc.
+/* Copyright 2018–present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ using System.Net;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Authentication;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.Helpers;
@@ -70,7 +70,7 @@ namespace MongoDB.Driver.Core.Authentication
             if (async)
             {
                 authenticator.AuthenticateAsync(connection, __description, CancellationToken.None).GetAwaiter().GetResult();
-            } 
+            }
             authenticator.Authenticate(connection, __description, CancellationToken.None);
         }
         
@@ -261,5 +261,62 @@ namespace MongoDB.Driver.Core.Authentication
                            conversationId: 1, " + 
                 $"         payload: new BinData(0, \"{ToUtf8Base64(_clientRequest2)}\")}}}}");
         }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Authenticate_should_use_cache(
+            [Values(false, true)] bool async)
+        {
+            var randomStringGenerator = new ConstantRandomStringGenerator(_clientNonce);
+            var subject = new ScramSha256Authenticator(__credential, randomStringGenerator);
+
+            var saslStartReply = MessageHelper.BuildReply<RawBsonDocument>(RawBsonDocumentHelper.FromJson(
+                @"{conversationId: 1," +
+                $" payload: BinData(0,\"{ToUtf8Base64(_serverResponse1)}\")," +
+                @" done: false,
+                   ok: 1}"));
+            var saslContinueReply = MessageHelper.BuildReply<RawBsonDocument>(RawBsonDocumentHelper.FromJson(
+                @"{conversationId: 1," +
+                $" payload: BinData(0,\"{ToUtf8Base64(_serverReponse2)}\")," +
+                @" done: true,
+                   ok: 1}"));
+
+            var connection = new MockConnection(__serverId);
+            connection.EnqueueReplyMessage(saslStartReply);
+            connection.EnqueueReplyMessage(saslContinueReply);
+
+            if (async)
+            {
+                subject.AuthenticateAsync(connection, __description, CancellationToken.None).GetAwaiter()
+                    .GetResult();
+            }
+            else
+            {
+                subject.Authenticate(connection, __description, CancellationToken.None);
+            }
+
+            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should()
+                .BeTrue();
+
+            subject._cache().Should().NotBe(null);
+            subject._cache()._cacheKey().Should().NotBe(null);
+            subject._cache()._cachedEntry().Should().NotBe(null);
+        }
+    }
+
+    internal static class ScramShaAuthenticatorReflector
+    {
+        public static ScramCache _cache(this ScramShaAuthenticator obj) =>
+             (ScramCache)Reflector.GetFieldValue(Reflector.GetFieldValue(obj, "_mechanism"), nameof(_cache));
+
+    }
+
+    internal static class ScramCacheReflector
+    {
+        public static ScramCacheKey _cacheKey (this ScramCache obj) =>
+            (ScramCacheKey)Reflector.GetFieldValue(obj, nameof(_cacheKey));
+
+        public static ScramCacheEntry _cachedEntry (this ScramCache obj) =>
+            (ScramCacheEntry)Reflector.GetFieldValue(obj, nameof(_cachedEntry));
     }
 }

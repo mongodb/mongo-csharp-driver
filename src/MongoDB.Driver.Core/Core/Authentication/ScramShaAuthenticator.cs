@@ -1,4 +1,4 @@
-﻿/* Copyright 2018–present MongoDB Inc.
+/* Copyright 2018–present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -72,8 +72,8 @@ namespace MongoDB.Driver.Core.Authentication
             H h,
             Hi hi,
             Hmac hmac)
-            : this(credential, hashAlgorithmName, new DefaultRandomStringGenerator(), h, hi, hmac) { }
-        
+            : this(credential, hashAlgorithmName, new DefaultRandomStringGenerator(), h, hi, hmac, new ScramCache()) { }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ScramShaAuthenticator"/> class.
         /// </summary>
@@ -83,14 +83,16 @@ namespace MongoDB.Driver.Core.Authentication
         /// <param name="h">The H function to use.</param>
         /// <param name="hi">The Hi function to use.</param>
         /// <param name="hmac">The Hmac function to use.</param>
+        /// <param name="cache">The cache to use.</param>
         internal ScramShaAuthenticator(
             UsernamePasswordCredential credential, 
             HashAlgorithmName hashAlgorithName,
             IRandomStringGenerator randomStringGenerator,
             H h,
             Hi hi,
-            Hmac hmac)
-            : base(new ScramShaMechanism(credential, hashAlgorithName, randomStringGenerator, h, hi, hmac))
+            Hmac hmac,
+            ScramCache cache)
+            : base(new ScramShaMechanism(credential, hashAlgorithName, randomStringGenerator, h, hi, hmac, cache))
         {
             _databaseName = credential.Source;
         }
@@ -108,6 +110,7 @@ namespace MongoDB.Driver.Core.Authentication
             private readonly Hi _hi;
             private readonly Hmac _hmac;
             private readonly string _name;
+            private ScramCache _cache;
 
             public ScramShaMechanism(
                 UsernamePasswordCredential credential, 
@@ -115,7 +118,8 @@ namespace MongoDB.Driver.Core.Authentication
                 IRandomStringGenerator randomStringGenerator,
                 H h,
                 Hi hi,
-                Hmac hmac)
+                Hmac hmac,
+                ScramCache cache)
             {
                 _credential = Ensure.IsNotNull(credential, nameof(credential));
                 _h = h;
@@ -127,6 +131,7 @@ namespace MongoDB.Driver.Core.Authentication
                 }
                 _name = $"SCRAM-SHA-{hashAlgorithmName.ToString().Substring(3)}";
                 _randomStringGenerator = Ensure.IsNotNull(randomStringGenerator, nameof(randomStringGenerator));
+                _cache = cache;
             }
 
             public string Name => _name;
@@ -143,9 +148,9 @@ namespace MongoDB.Driver.Core.Authentication
 
                 var clientFirstMessageBare = username + "," + nonce;
                 var clientFirstMessage = gs2Header + clientFirstMessageBare;
-                var clientFirstMessageBytes = Utf8Encodings.Strict.GetBytes(clientFirstMessage); 
+                var clientFirstMessageBytes = Utf8Encodings.Strict.GetBytes(clientFirstMessage);
 
-                return new ClientFirst(clientFirstMessageBytes, clientFirstMessageBare, _credential, r, _h, _hi, _hmac);
+                return new ClientFirst(clientFirstMessageBytes, clientFirstMessageBare, _credential, r, _h, _hi, _hmac, _cache);
             }
 
             private string GenerateRandomString()
@@ -163,7 +168,7 @@ namespace MongoDB.Driver.Core.Authentication
         
         private class ClientFirst : ISaslStep
         {
-            
+
             private readonly byte[] _bytesToSendToServer;
             private readonly string _clientFirstMessageBare;
             private readonly UsernamePasswordCredential _credential;
@@ -173,6 +178,8 @@ namespace MongoDB.Driver.Core.Authentication
             private readonly Hi _hi;
             private readonly Hmac _hmac;
 
+            private ScramCache _cache;
+
             public ClientFirst(
                 byte[] bytesToSendToServer, 
                 string clientFirstMessageBare, 
@@ -180,7 +187,8 @@ namespace MongoDB.Driver.Core.Authentication
                 string rPrefix,
                 H h,
                 Hi hi,
-                Hmac hmac)
+                Hmac hmac,
+                ScramCache cache)
             {
                 _bytesToSendToServer = bytesToSendToServer;
                 _clientFirstMessageBare = clientFirstMessageBare;
@@ -189,6 +197,7 @@ namespace MongoDB.Driver.Core.Authentication
                 _hi = hi;
                 _hmac = hmac;
                 _rPrefix = rPrefix;
+                _cache = cache;
             }
 
             public byte[] BytesToSendToServer => _bytesToSendToServer;
@@ -214,19 +223,31 @@ namespace MongoDB.Driver.Core.Authentication
                 var nonce = "r=" + r;
                 var clientFinalMessageWithoutProof = channelBinding + "," + nonce;
 
-                var saltedPassword = _hi(
-                    _credential,
-                    Convert.FromBase64String(s),
-                    int.Parse(i));
+                var salt = Convert.FromBase64String(map['s']);
+                var iterations = int.Parse(map['i']);
 
-                var clientKey = _hmac(encoding, saltedPassword, "Client Key");
+                byte[] clientKey;
+                byte[] serverKey;
+
+                var cacheKey = new ScramCacheKey(_credential.SaslPreppedPassword, salt, iterations);
+                if (_cache.TryGet(cacheKey, out var cacheEntry))
+                {
+                    clientKey = cacheEntry.ClientKey;
+                    serverKey = cacheEntry.ServerKey;
+                }
+                else
+                {
+                    var saltedPassword = _hi( _credential, salt, iterations);
+                    clientKey = _hmac(encoding, saltedPassword, "Client Key");
+                    serverKey = _hmac(encoding, saltedPassword, "Server Key");
+                    _cache.Add(cacheKey, new ScramCacheEntry(clientKey, serverKey));
+                }
+
                 var storedKey = _h(clientKey);
                 var authMessage = _clientFirstMessageBare + "," + serverFirstMessage + "," + clientFinalMessageWithoutProof;
                 var clientSignature = _hmac(encoding, storedKey, authMessage);
                 var clientProof = XOR(clientKey, clientSignature);
-                var serverKey = _hmac(encoding, saltedPassword, "Server Key");
                 var serverSignature = _hmac(encoding, serverKey, authMessage);
-
                 var proof = "p=" + Convert.ToBase64String(clientProof);
                 var clientFinalMessage = clientFinalMessageWithoutProof + "," + proof;
 
@@ -243,7 +264,6 @@ namespace MongoDB.Driver.Core.Authentication
 
                 return result;
             }
-
         }
 
         private class ClientLast : ISaslStep
