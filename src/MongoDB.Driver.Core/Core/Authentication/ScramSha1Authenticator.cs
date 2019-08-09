@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         internal ScramSha1Authenticator(UsernamePasswordCredential credential, IRandomStringGenerator randomStringGenerator)
-            : base(credential, HashAlgorithmName.SHA1, randomStringGenerator, H1, Hi1, Hmac1) 
+            : base(credential, HashAlgorithmName.SHA1, randomStringGenerator, H1, Hi1, Hmac1, new ScramCache()) 
         {
         }
         
