@@ -13,10 +13,6 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.IO
@@ -89,6 +85,9 @@ namespace MongoDB.Bson.IO
 
                 stream.Position = oldPosition;
             }
+
+            _found = false;
+            _value = default;
 
             return stream.ReadCString(encoding);
         }
