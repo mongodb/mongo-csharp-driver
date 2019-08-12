@@ -663,6 +663,20 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestCreateIndex()
         {
+            void assertNamespace(IndexInfo indexInfo)
+            {
+                if (CoreTestConfiguration.ServerVersion < new SemanticVersion(4, 3, 0, ""))
+                {
+                    Assert.Equal(_collection.FullName, indexInfo.Namespace);
+                }
+                else
+                {
+                    var exception = Record.Exception(() => indexInfo.Namespace);
+                    var e = exception.Should().BeOfType<KeyNotFoundException>().Subject;
+                    e.Message.Should().Be("Element 'ns' not found.");
+                }
+            }
+
             _collection.Drop();
             _collection.Insert(new BsonDocument("x", 1));
 
@@ -674,7 +688,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(false, indexes[0].IsUnique);
             Assert.Equal(new IndexKeysDocument("_id", 1), indexes[0].Key);
             Assert.Equal("_id_", indexes[0].Name);
-            Assert.Equal(_collection.FullName, indexes[0].Namespace);
+            assertNamespace(indexes[0]);
             Assert.True(indexes[0].Version >= 0);
 
             var result = _collection.CreateIndex("x");
@@ -690,7 +704,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(false, indexes[0].IsUnique);
             Assert.Equal(new IndexKeysDocument("_id", 1), indexes[0].Key);
             Assert.Equal("_id_", indexes[0].Name);
-            Assert.Equal(_collection.FullName, indexes[0].Namespace);
+            assertNamespace(indexes[0]);
             Assert.True(indexes[0].Version >= 0);
             Assert.Equal(false, indexes[1].DroppedDups);
             Assert.Equal(false, indexes[1].IsBackground);
@@ -698,7 +712,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(false, indexes[1].IsUnique);
             Assert.Equal(new IndexKeysDocument("x", 1), indexes[1].Key);
             Assert.Equal("x_1", indexes[1].Name);
-            Assert.Equal(_collection.FullName, indexes[1].Namespace);
+            assertNamespace(indexes[1]);
             Assert.True(indexes[1].Version >= 0);
 
             // note: DropDups is silently ignored in server 2.8
