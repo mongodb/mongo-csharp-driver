@@ -27,6 +27,11 @@ namespace MongoDB.Driver
     public enum ReadConcernLevel
     {
         /// <summary>
+        /// Reads available data.
+        /// </summary>
+        Available,
+
+        /// <summary>
         /// Reads data committed locally.
         /// </summary>
         Local,

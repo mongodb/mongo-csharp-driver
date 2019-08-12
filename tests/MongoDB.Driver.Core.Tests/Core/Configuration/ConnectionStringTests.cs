@@ -666,8 +666,11 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         [Theory]
+        [InlineData("mongodb://localhost?readConcernLevel=available", ReadConcernLevel.Available)]
+        [InlineData("mongodb://localhost?readConcernLevel=linearizable", ReadConcernLevel.Linearizable)]
         [InlineData("mongodb://localhost?readConcernLevel=local", ReadConcernLevel.Local)]
         [InlineData("mongodb://localhost?readConcernLevel=majority", ReadConcernLevel.Majority)]
+        [InlineData("mongodb://localhost?readConcernLevel=snapshot", ReadConcernLevel.Snapshot)]
         public void When_readConcernLevel_is_specified(string connectionString, ReadConcernLevel readConcernLevel)
         {
             var subject = new ConnectionString(connectionString);
