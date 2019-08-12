@@ -1281,9 +1281,10 @@ namespace MongoDB.Bson
                 return;
             }
 
+            var count = _elements.Count;
             if (_indexes == null)
             {
-                _indexes = new Dictionary<string, int>();
+                _indexes = new Dictionary<string, int>(count);
             }
             else
             {
@@ -1291,7 +1292,6 @@ namespace MongoDB.Bson
             }
 
             // process the elements in reverse order so that in case of duplicates the dictionary ends up pointing at the first one
-            var count = _elements.Count;
             for (int index = count - 1; index >= 0; index--)
             {
                 BsonElement element = _elements[index];
