@@ -192,9 +192,9 @@ namespace MongoDB.Bson.Serialization
 
             bsonReader.ReadStartDocument();
             var elementTrie = _classMap.ElementTrie;
+            var trieDecoder = new TrieNameDecoder<int>(elementTrie);
             while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
             {
-                var trieDecoder = new TrieNameDecoder<int>(elementTrie);
                 var elementName = bsonReader.ReadName(trieDecoder);
 
                 if (trieDecoder.Found)

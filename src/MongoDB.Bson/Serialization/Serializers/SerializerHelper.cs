@@ -82,9 +82,9 @@ namespace MongoDB.Bson.Serialization.Serializers
             var foundMemberFlags = 0L;
 
             reader.ReadStartDocument();
+            var trieDecoder = new TrieNameDecoder<long>(_trie);
             while (reader.ReadBsonType() != 0)
             {
-                var trieDecoder = new TrieNameDecoder<long>(_trie);
                 var elementName = reader.ReadName(trieDecoder);
 
                 long memberFlag;
