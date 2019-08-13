@@ -234,6 +234,16 @@ namespace MongoDB.Driver.Core.WireProtocol
             return new Type0CommandMessageSection<BsonDocument>(_command, elementAppendingSerializer);
         }
 
+        private bool IsRetryableWriteExceptionAndDeploymentDoesNotSupportRetryableWrites(MongoCommandException exception)
+        {
+            return
+                exception.Result.TryGetValue("code", out var errorCode) &&
+                errorCode.ToInt32() == 20 &&
+                exception.Result.TryGetValue("errmsg", out var errmsg) &&
+                errmsg.AsString.StartsWith("Transaction numbers");
+        }
+
+
         private void MessageWasProbablySent(CommandRequestMessage message)
         {
             if (_session.Id != null)
@@ -319,7 +329,17 @@ namespace MongoDB.Driver.Core.WireProtocol
                         message = string.Format("Command {0} failed.", commandName);
                     }
 
-                    throw new MongoCommandException(connectionId, message, _command, materializedDocument);
+                    var exception = new MongoCommandException(connectionId, message, _command, materializedDocument);
+
+                    // https://jira.mongodb.org/browse/CSHARP-2678
+                    if (IsRetryableWriteExceptionAndDeploymentDoesNotSupportRetryableWrites(exception))
+                    {
+                        throw WrapNotSupportedRetryableWriteException(exception);
+                    }
+                    else
+                    {
+                        throw exception;
+                    }
                 }
 
                 if (rawDocument.Contains("writeConcernError"))
@@ -353,6 +373,19 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
 
             return false;
+        }
+
+        private MongoException WrapNotSupportedRetryableWriteException(MongoCommandException exception)
+        {
+            const string friendlyErrorMessage =
+                "This MongoDB deployment does not support retryable writes. " +
+                "Please add retryWrites=false to your connection string.";
+            return new MongoCommandException(
+                exception.ConnectionId,
+                friendlyErrorMessage,
+                exception.Command,
+                exception.Result,
+                innerException: exception);
         }
     }
 }

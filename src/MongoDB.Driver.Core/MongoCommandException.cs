@@ -75,7 +75,21 @@ namespace MongoDB.Driver
         /// <param name="command">The command.</param>
         /// <param name="result">The command result.</param>
         public MongoCommandException(ConnectionId connectionId, string message, BsonDocument command, BsonDocument result)
-            : base(connectionId, message)
+            : this(connectionId, message, command, result, innerException: null)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MongoCommandException"/> class.
+        /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
+        /// <param name="message">The message.</param>
+        /// <param name="command">The command.</param>
+        /// // <param name="result">The command result.</param>
+        /// <param name="innerException">The inner exception.</param>
+        ///
+        public MongoCommandException(ConnectionId connectionId, string message, BsonDocument command, BsonDocument result, Exception innerException)
+            : base(connectionId, message, innerException)
         {
             _command = command; // can be null
             _result = result; // can be null
