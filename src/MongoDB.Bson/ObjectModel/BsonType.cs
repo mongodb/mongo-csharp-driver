@@ -20,7 +20,7 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents the type of a BSON element.
     /// </summary>
-#if NET452
+#if NET452 || NETSTANDARD2_0
     [Serializable]
 #endif
     public enum BsonType

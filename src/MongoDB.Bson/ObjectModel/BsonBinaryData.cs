@@ -21,7 +21,7 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents BSON binary data.
     /// </summary>
-#if NET452
+#if NET452 || NETSTANDARD2_0
     [Serializable]
 #endif
     public class BsonBinaryData : BsonValue, IComparable<BsonBinaryData>, IEquatable<BsonBinaryData>

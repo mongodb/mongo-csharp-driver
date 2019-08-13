@@ -21,7 +21,7 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents a BSON DateTime value.
     /// </summary>
-#if NET452
+#if NET452 || NETSTANDARD2_0
     [Serializable]
 #endif
     public class BsonDateTime : BsonValue, IComparable<BsonDateTime>, IEquatable<BsonDateTime>

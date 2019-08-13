@@ -24,7 +24,7 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents an ObjectId (see also BsonObjectId).
     /// </summary>
-#if NET452
+#if NET452 || NETSTANDARD2_0
     [Serializable]
 #endif
     public struct ObjectId : IComparable<ObjectId>, IEquatable<ObjectId>, IConvertible

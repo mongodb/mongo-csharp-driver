@@ -419,7 +419,7 @@ namespace MongoDB.Bson.Serialization
         // private static methods
         private static Type GetFormatterServicesType()
         {
-#if NET452
+#if NET452 || NETSTANDARD2_0
             return typeof(FormatterServices);
 #else
             // TODO: once we depend on newer versions of .NET Standard we should be able to do this without reflection
