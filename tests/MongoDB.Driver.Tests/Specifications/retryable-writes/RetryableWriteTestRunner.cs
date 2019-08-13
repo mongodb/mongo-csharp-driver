@@ -55,6 +55,11 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
         {
             RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
 
+            if (CoreTestConfiguration.GetStorageEngine() == "mmapv1")
+            {
+                throw new SkipException("Test skipped because mmapv1 does not support retryable writes.");
+            }
+
             BsonValue minServerVersion;
             if (definition.TryGetValue("minServerVersion", out minServerVersion))
             {
