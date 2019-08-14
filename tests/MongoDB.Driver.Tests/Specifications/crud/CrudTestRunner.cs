@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
 
         public void RunTestDefinition(BsonDocument definition, BsonDocument test)
         {
-            JsonDrivenHelper.EnsureAllFieldsAreValid(definition, "_path", "database_name", "collection_name", "minServerVersion", "maxServerVersion", "data", "tests");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(definition, "_path", "database_name", "collection_name", "runOn", "minServerVersion", "maxServerVersion", "data", "tests");
             JsonDrivenHelper.EnsureAllFieldsAreValid(test, "description", "skipReason", "operation", "operations", "expectations", "outcome", "async");
             SkipTestIfNeeded(definition, test);
 
@@ -158,7 +158,12 @@ namespace MongoDB.Driver.Tests.Specifications.crud
 
             var name = (string)operation["name"];
             var test = CrudOperationTestFactory.CreateTest(name);
-            bool isErrorExpected = operation.GetValue("error", false).AsBoolean;
+            var isErrorExpected = false;
+            if (operation.TryGetValue("error", out var error) ||
+                (outcome != null && outcome.TryGetValue("error", out error)))
+            {
+                isErrorExpected = error.ToBoolean();
+            }
 
             var arguments = (BsonDocument)operation.GetValue("arguments", new BsonDocument());
             test.SkipIfNotSupported(arguments);
@@ -245,17 +250,25 @@ namespace MongoDB.Driver.Tests.Specifications.crud
         {
             if (operation.TryGetValue("data", out var data))
             {
-                var documents = data.AsBsonArray.Cast<BsonDocument>();
-                DriverTestConfiguration
-                    .Client
-                    .GetDatabase(databaseName)
-                    .GetCollection<BsonDocument>(collectionName, new MongoCollectionSettings { WriteConcern = WriteConcern.WMajority })
-                    .InsertMany(documents);
+                var documents = data.AsBsonArray.Cast<BsonDocument>().ToList();
+                if (documents.Count > 0)
+                {
+                    DriverTestConfiguration
+                        .Client
+                        .GetDatabase(databaseName)
+                        .GetCollection<BsonDocument>(collectionName, new MongoCollectionSettings { WriteConcern = WriteConcern.WMajority })
+                        .InsertMany(documents);
+                }
             }
         }
 
         private void SkipTestIfNeeded(BsonDocument definition, BsonDocument test)
         {
+            if (definition.TryGetValue("runOn", out var runOn))
+            {
+                RequireServer.Check().RunOn(runOn.AsBsonArray);
+            }
+
             if (definition.TryGetValue("minServerVersion", out var minServerVersion))
             {
                 RequireServer.Check().VersionGreaterThanOrEqualTo(minServerVersion.AsString);
@@ -269,6 +282,12 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             if (test.TryGetValue("skipReason", out var reason))
             {
                 throw new SkipException(reason.AsString);
+            }
+
+            if (definition["_path"].AsString.EndsWith("aggregate-out-readConcern.json") &&
+                test["description"].AsString == "invalid readConcern with out stage")
+            {
+                throw new SkipException("The C# driver does not support invalid read concerns.");
             }
         }
 

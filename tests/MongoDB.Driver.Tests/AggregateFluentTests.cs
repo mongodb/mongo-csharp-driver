@@ -80,9 +80,9 @@ namespace MongoDB.Driver.Tests
         }
 
         [Theory]
-        [InlineData(ChangeStreamFullDocumentOption.Default, null, "{ $changeStream : { fullDocument : \"default\" } }")]
+        [InlineData(ChangeStreamFullDocumentOption.Default, null, "{ $changeStream : { } }")]
         [InlineData(ChangeStreamFullDocumentOption.UpdateLookup, null, "{ $changeStream : { fullDocument : \"updateLookup\" } }")]
-        [InlineData(ChangeStreamFullDocumentOption.Default, "{ a : 1 }", "{ $changeStream : { fullDocument : \"default\", resumeAfter : { a : 1 } } }")]
+        [InlineData(ChangeStreamFullDocumentOption.Default, "{ a : 1 }", "{ $changeStream : { resumeAfter : { a : 1 } } }")]
         [InlineData(ChangeStreamFullDocumentOption.UpdateLookup, "{ a : 1 }", "{ $changeStream : { fullDocument : \"updateLookup\", resumeAfter : { a : 1 } } }")]
         public void ChangeStream_should_add_the_expected_stage(
             ChangeStreamFullDocumentOption fullDocument,
@@ -119,7 +119,7 @@ namespace MongoDB.Driver.Tests
             var inputSerializer = serializerRegistry.GetSerializer<C>();
             var stages = RenderStages(result.Stages, inputSerializer, serializerRegistry);
             stages.Count.Should().Be(1);
-            stages[0].Document.Should().Be("{ $changeStream : { fullDocument : \"default\" } }");
+            stages[0].Document.Should().Be("{ $changeStream : { } }");
         }
 
         [Theory]
@@ -490,6 +490,53 @@ namespace MongoDB.Driver.Tests
             result[0].Should().Be("{ 'item' : 'almonds', 'price' : 12, 'ordered' : 2, 'stockdata' : [{ 'instock' : 120 }, { 'instock' : 80 }, { 'instock' : 60 }, { 'instock' : 40 }, { 'instock' : 80 }] }");
             result[1].Should().Be("{ 'item' : 'pecans', 'price' : 20, 'ordered' : 1, 'stockdata' : [{ 'instock' : 120 }, { 'instock' : 80 }, { 'instock' : 60 }, { 'instock' : 40 }, { 'instock' : 80 }] }");
             result[2].Should().Be("{ 'item' : 'cookies', 'price' : 10, 'ordered' : 60, 'stockdata' : [{ 'instock' : 120 }, { 'instock' : 80 }, { 'instock' : 60 }, { 'instock' : 40 }, { 'instock' : 80 }] }");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Merge_should_add_the_expected_stage_and_call_Aggregate(
+            [Values(false, true)] bool async)
+        {
+            var subject =
+                CreateSubject()
+                .Match(Builders<C>.Filter.Eq(c => c.X, 1));
+            var outputDatabase = subject.Database;
+            var outputCollection = outputDatabase.GetCollection<C>("collection");
+            var mergeOptions = new MergeStageOptions<C>();
+
+            Predicate<PipelineDefinition<C, C>> isExpectedPipeline = pipeline =>
+            {
+                var renderedPipeline = RenderPipeline(pipeline);
+                return
+                    renderedPipeline.Documents.Count == 2 &&
+                    renderedPipeline.Documents[0] == BsonDocument.Parse("{ $match : { X : 1 } }") &&
+                    renderedPipeline.Documents[1] == BsonDocument.Parse("{ $merge : { into : { db : 'test', coll : 'collection' } } }") &&
+                    renderedPipeline.OutputSerializer.ValueType == typeof(C);
+            };
+
+            IAsyncCursor<C> cursor;
+            if (async)
+            {
+                cursor = subject.MergeAsync(outputCollection, mergeOptions, CancellationToken.None).GetAwaiter().GetResult();
+
+                _mockCollection.Verify(
+                    c => c.AggregateAsync<C>(
+                        It.Is<PipelineDefinition<C, C>>(pipeline => isExpectedPipeline(pipeline)),
+                        It.IsAny<AggregateOptions>(),
+                        CancellationToken.None),
+                    Times.Once);
+            }
+            else
+            {
+                cursor = subject.Merge(outputCollection, mergeOptions, CancellationToken.None);
+
+                _mockCollection.Verify(
+                    c => c.Aggregate<C>(
+                        It.Is<PipelineDefinition<C, C>>(pipeline => isExpectedPipeline(pipeline)),
+                        It.IsAny<AggregateOptions>(),
+                        CancellationToken.None),
+                    Times.Once);
+            }
         }
 
         [Theory]

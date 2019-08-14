@@ -85,15 +85,16 @@ namespace MongoDB.Driver
             var renderedPipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).Render(NoPipelineInputSerializer.Instance, _settings.SerializerRegistry);
             options = options ?? new AggregateOptions();
 
-            var last = renderedPipeline.Documents.LastOrDefault();
-            if (last != null && last.GetElement(0).Name == "$out")
+            var lastStage = renderedPipeline.Documents.LastOrDefault();
+            var lastStageName = lastStage?.GetElement(0).Name;
+            if (lastStage != null && (lastStageName == "$out" || lastStageName == "$merge"))
             {
                 var aggregateOperation = CreateAggregateToCollectionOperation(renderedPipeline, options);
                 ExecuteWriteOperation(session, aggregateOperation, cancellationToken);
 
                 // we want to delay execution of the find because the user may
                 // not want to iterate the results at all...
-                var findOperation = CreateAggregateToCollectionFindOperation(last, renderedPipeline.OutputSerializer, options);
+                var findOperation = CreateAggregateToCollectionFindOperation(lastStage, renderedPipeline.OutputSerializer, options);
                 var forkedSession = session.Fork();
                 var deferredCursor = new DeferredAsyncCursor<TResult>(
                     () => forkedSession.Dispose(),
@@ -119,15 +120,16 @@ namespace MongoDB.Driver
             var renderedPipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).Render(NoPipelineInputSerializer.Instance, _settings.SerializerRegistry);
             options = options ?? new AggregateOptions();
 
-            var last = renderedPipeline.Documents.LastOrDefault();
-            if (last != null && last.GetElement(0).Name == "$out")
+            var lastStage = renderedPipeline.Documents.LastOrDefault();
+            var lastStageName = lastStage?.GetElement(0).Name;
+            if (lastStage != null && (lastStageName == "$out" || lastStageName == "$merge"))
             {
                 var aggregateOperation = CreateAggregateToCollectionOperation(renderedPipeline, options);
                 await ExecuteWriteOperationAsync(session, aggregateOperation, cancellationToken).ConfigureAwait(false);
 
                 // we want to delay execution of the find because the user may
                 // not want to iterate the results at all...
-                var findOperation = CreateAggregateToCollectionFindOperation(last, renderedPipeline.OutputSerializer, options);
+                var findOperation = CreateAggregateToCollectionFindOperation(lastStage, renderedPipeline.OutputSerializer, options);
                 var forkedSession = session.Fork();
                 var deferredCursor = new DeferredAsyncCursor<TResult>(
                     () => forkedSession.Dispose(),
@@ -473,12 +475,40 @@ namespace MongoDB.Driver
 
         private FindOperation<TResult> CreateAggregateToCollectionFindOperation<TResult>(BsonDocument outStage, IBsonSerializer<TResult> resultSerializer, AggregateOptions options)
         {
-            var outputCollectionName = outStage.GetElement(0).Value.AsString;
+            CollectionNamespace outputCollectionNamespace;
+            var stageName = outStage.GetElement(0).Name;
+            switch (stageName)
+            {
+                case "$out":
+                    {
+                        var outputCollectionName = outStage[0].AsString;
+                        outputCollectionNamespace = new CollectionNamespace(_databaseNamespace, outputCollectionName);
+                    }
+                    break;
+                case "$merge":
+                    {
+                        var mergeArguments = outStage[0].AsBsonDocument;
+                        DatabaseNamespace outputDatabaseNamespace;
+                        string outputCollectionName;
+                        var into = mergeArguments["into"];
+                        if (into.IsString)
+                        {
+                            outputDatabaseNamespace = _databaseNamespace;
+                            outputCollectionName = into.AsString;
+                        }
+                        else
+                        {
+                            outputDatabaseNamespace = new DatabaseNamespace(into["db"].AsString);
+                            outputCollectionName = into["coll"].AsString;
+                        }
+                        outputCollectionNamespace = new CollectionNamespace(outputDatabaseNamespace, outputCollectionName);
+                    }
+                    break;
+                default:
+                    throw new ArgumentException($"Unexpected stage name: {stageName}.");
+            }
 
-            return new FindOperation<TResult>(
-                new CollectionNamespace(_databaseNamespace, outputCollectionName),
-                resultSerializer,
-                _messageEncoderSettings)
+            return new FindOperation<TResult>(outputCollectionNamespace, resultSerializer, _messageEncoderSettings)
             {
                 BatchSize = options.BatchSize,
                 Collation = options.Collation,

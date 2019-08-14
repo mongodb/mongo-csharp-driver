@@ -29,7 +29,7 @@ tests:
                         listCollections: 1
             - *retryable_command_started_event
     -
-        description: "ListCollections succeeds after InterruptedDueToStepDown"
+        description: "ListCollections succeeds after InterruptedDueToReplStateChange"
         failPoint:
             <<: *failCommand_failPoint
             data: { failCommands: [listCollections], errorCode: 11602 }

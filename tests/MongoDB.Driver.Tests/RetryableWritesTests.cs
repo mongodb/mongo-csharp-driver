@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Tests
         public void Retryable_write_operation_should_throw_custom_exception_on_servers_using_mmapv1()
         {
             RequireSupportForRetryableWrites();
-            RequireServer.Check().StorageEngine("mmapv1");
+            RequireServer.Check().ClusterType(ClusterType.ReplicaSet).StorageEngine("mmapv1");
 
             using (var client = GetClient())
             using (var session = client.StartSession())

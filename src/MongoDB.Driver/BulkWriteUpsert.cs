@@ -62,6 +62,30 @@ namespace MongoDB.Driver
             get { return _index; }
         }
 
+        // public methods
+        /// <inheritdoc />
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, null) || obj.GetType() != typeof(BulkWriteUpsert))
+            {
+                return false;
+            }
+
+            var other = (BulkWriteUpsert)obj;
+            return
+                _index == other._index &&
+                _id.Equals(other._id);
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return new Hasher()
+                .Hash(_index)
+                .Hash(_id)
+                .GetHashCode();
+        }
+
         // internal static methods
         internal static BulkWriteUpsert FromCore(Core.Operations.BulkWriteOperationUpsert upsert)
         {

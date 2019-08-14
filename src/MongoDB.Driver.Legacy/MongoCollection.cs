@@ -144,8 +144,9 @@ namespace MongoDB.Driver
 
             var messageEncoderSettings = GetMessageEncoderSettings();
 
-            var last = args.Pipeline.LastOrDefault();
-            if (last != null && last.GetElement(0).Name == "$out")
+            var lastStage = args.Pipeline.LastOrDefault();
+            var lastStageName = lastStage?.GetElement(0).Name;
+            if (lastStage != null && (lastStageName == "$out" || lastStageName== "$merge"))
             {
                 var aggregateOperation = new AggregateToCollectionOperation(_collectionNamespace, args.Pipeline, messageEncoderSettings)
                 {
@@ -158,8 +159,39 @@ namespace MongoDB.Driver
                 };
                 ExecuteWriteOperation(session, aggregateOperation);
 
-                var outputCollectionName = last[0].AsString;
-                var outputCollectionNamespace = new CollectionNamespace(_collectionNamespace.DatabaseNamespace, outputCollectionName);
+                CollectionNamespace outputCollectionNamespace;
+                var stageName = lastStage.GetElement(0).Name;
+                switch (stageName)
+                {
+                    case "$out":
+                        {
+                            var outputCollectionName = lastStage[0].AsString;
+                            outputCollectionNamespace = new CollectionNamespace(_collectionNamespace.DatabaseNamespace, outputCollectionName);
+                        }
+                        break;
+                    case "$merge":
+                        {
+                            var mergeArguments = lastStage[0].AsBsonDocument;
+                            DatabaseNamespace outputDatabaseNamespace;
+                            string outputCollectionName;
+                            var into = mergeArguments["into"];
+                            if (into.IsString)
+                            {
+                                outputDatabaseNamespace = _collectionNamespace.DatabaseNamespace;
+                                outputCollectionName = into.AsString;
+                            }
+                            else
+                            {
+                                outputDatabaseNamespace = new DatabaseNamespace(into["db"].AsString);
+                                outputCollectionName = into["coll"].AsString;
+                            }
+                            outputCollectionNamespace = new CollectionNamespace(outputDatabaseNamespace, outputCollectionName);
+                        }
+                        break;
+                    default:
+                        throw new ArgumentException($"Unexpected stage name: {stageName}.");
+                }
+
                 var resultSerializer = BsonDocumentSerializer.Instance;
                 var findOperation = new FindOperation<BsonDocument>(outputCollectionNamespace, resultSerializer, messageEncoderSettings)
                 {

@@ -30,9 +30,11 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             switch (name)
             {
                 case "options":
-                    return TryParseOptions((BsonDocument)value);
+                    ParseOptions((BsonDocument)value);
+                    return true;
                 case "requests":
-                    return TryParseRequests((BsonArray)value);
+                    ParseRequests((BsonArray)value);
+                    return true;
             }
 
             return false;
@@ -45,6 +47,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             long deletedCount = 0;
             long insertedCount = 0;
             long? modifiedCount = null;
+            long upsertedCount = 0;
             List<BulkWriteUpsert> upserts = new List<BulkWriteUpsert>();
 
             foreach (var element in expectedResult.AsBsonDocument)
@@ -53,6 +56,10 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                 {
                     case "deletedCount":
                         deletedCount = element.Value.ToInt64();
+                        break;
+
+                    case "insertedCount":
+                        insertedCount = element.Value.ToInt64();
                         break;
 
                     case "insertedIds":
@@ -67,22 +74,27 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                         break;
 
                     case "upsertedCount":
-                        if (element.Value.ToInt64() != 0)
-                        {
-                            throw new ArgumentException($"Unexpected value for upsertedCount: {element.Value.ToJson()}.");
-                        }
+                        upsertedCount = element.Value.ToInt64();
                         break;
 
                     case "upsertedIds":
-                        if (element.Value.AsBsonDocument.ElementCount != 0)
+                        foreach (var upsertedId in element.Value.AsBsonDocument.Elements)
                         {
-                            throw new ArgumentException($"Unexpected value for upsertedIds: {element.Value.ToJson()}.");
+                            var index = int.Parse(upsertedId.Name);
+                            var id = upsertedId.Value;
+                            var upsert = new BulkWriteUpsert(index, id);
+                            upserts.Add(upsert);
                         }
                         break;
 
                     default:
                         throw new ArgumentException($"Unexpected result field: \"{element.Name}\".");
                 }
+            }
+
+            if (upserts.Count != upsertedCount)
+            {
+                throw new FormatException("upsertedIds count != upsertedCount");
             }
 
             return new BulkWriteResult<BsonDocument>.Acknowledged(requestCount, matchedCount, deletedCount, insertedCount, modifiedCount, _requests, upserts);
@@ -113,49 +125,9 @@ namespace MongoDB.Driver.Tests.Specifications.crud
         }
 
         // private methods
-        private bool TryParseArguments(
-            BsonDocument value,
-            out FilterDefinition<BsonDocument> filter,
-            out UpdateDefinition<BsonDocument> update,
-            out List<ArrayFilterDefinition> arrayFilters)
+        private List<ArrayFilterDefinition> ParseArrayFilters(BsonArray values)
         {
-            arrayFilters = null;
-            filter = null;
-            update = null;
-
-            foreach (BsonElement argument in value["arguments"].AsBsonDocument)
-            {
-                switch (argument.Name)
-                {
-                    case "arrayFilters":
-                        if (!TryParseArrayFilters(argument.Value.AsBsonArray, out arrayFilters))
-                        {
-                            return false;
-                        }
-                        break;
-                    case "filter":
-                        if (!TryParseFilter(argument.Value.AsBsonDocument, out filter))
-                        {
-                            return false;
-                        }
-                        break;
-                    case "update":
-                        if (!TryParseUpdate(argument.Value.AsBsonDocument, out update))
-                        {
-                            return false;
-                        }
-                        break;
-                    default:
-                        return false;
-                }
-            }
-
-            return true;
-        }
-
-        private bool TryParseArrayFilters(BsonArray values, out List<ArrayFilterDefinition> arrayFilters)
-        {
-            arrayFilters = new List<ArrayFilterDefinition>();
+            var arrayFilters = new List<ArrayFilterDefinition>();
 
             foreach (BsonDocument value in values)
             {
@@ -163,16 +135,73 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                 arrayFilters.Add(arrayFilter);
             }
 
-            return true;
+            return arrayFilters;
         }
 
-        private bool TryParseFilter(BsonDocument value, out FilterDefinition<BsonDocument> filter)
+        private void ParseDeleteArguments(BsonDocument value, out FilterDefinition<BsonDocument> filter, out Collation collation)
         {
-            filter = new BsonDocumentFilterDefinition<BsonDocument>(value);
-            return true;
+            filter = null;
+            collation = null;
+
+            foreach (BsonElement argument in value["arguments"].AsBsonDocument)
+            {
+                switch (argument.Name)
+                {
+                    case "collation":
+                        collation = Collation.FromBsonDocument(argument.Value.AsBsonDocument);
+                        break;
+                    case "filter":
+                        filter = ParseFilter(argument.Value.AsBsonDocument);
+                        break;
+                    default:
+                        throw new FormatException($"Unexpected argument: {argument.Name}.");
+                }
+            }
         }
 
-        private bool TryParseOptions(BsonDocument value)
+        private WriteModel<BsonDocument> ParseDeleteManyModel(BsonDocument value)
+        {
+            ParseDeleteArguments(value, out var filter, out var collation);
+            return new DeleteManyModel<BsonDocument>(filter) { Collation = collation };
+        }
+
+        private WriteModel<BsonDocument> ParseDeleteOneModel(BsonDocument value)
+        {
+            ParseDeleteArguments(value, out var filter, out var collation);
+            return new DeleteOneModel<BsonDocument>(filter) { Collation = collation };
+        }
+
+        private FilterDefinition<BsonDocument> ParseFilter(BsonDocument value)
+        {
+            return new BsonDocumentFilterDefinition<BsonDocument>(value);
+        }
+
+        private void ParseInsertArguments(
+            BsonDocument value,
+            out BsonDocument document)
+        {
+            document = null;
+
+            foreach (BsonElement argument in value["arguments"].AsBsonDocument)
+            {
+                switch (argument.Name)
+                {
+                    case "document":
+                        document = argument.Value.AsBsonDocument;
+                        break;
+                    default:
+                        throw new FormatException($"Unexpected argument: {argument.Name}.");
+                }
+            }
+        }
+
+        private WriteModel<BsonDocument> ParseInsertOneModel(BsonDocument value)
+        {
+            ParseInsertArguments(value, out var document);
+            return new InsertOneModel<BsonDocument>(document);
+        }
+
+        private void ParseOptions(BsonDocument value)
         {
             foreach (var element in value)
             {
@@ -182,87 +211,137 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                         _options.IsOrdered = element.Value.ToBoolean();
                         break;
                     default:
-                        return false;
+                        throw new FormatException($"Unexpected option: {element.Name}.");
                 }
             }
-
-            return true;
         }
 
-        private bool TryParseRequests(BsonArray value)
+        private void ParseReplaceArguments(
+            BsonDocument value,
+            out FilterDefinition<BsonDocument> filter,
+            out BsonDocument replacement,
+            out Collation collation,
+            out bool isUpsert)
+        {
+            filter = null;
+            replacement = null;
+            collation = null;
+            isUpsert = false;
+
+            foreach (BsonElement argument in value["arguments"].AsBsonDocument)
+            {
+                switch (argument.Name)
+                {
+                    case "collation":
+                        collation = Collation.FromBsonDocument(argument.Value.AsBsonDocument);
+                        break;
+                    case "filter":
+                        filter = ParseFilter(argument.Value.AsBsonDocument);
+                        break;
+                    case "replacement":
+                        replacement = argument.Value.AsBsonDocument;
+                        break;
+                    case "upsert":
+                        isUpsert = argument.Value.ToBoolean();
+                        break;
+                    default:
+                        throw new FormatException($"Unexpected argument: {argument.Name}.");
+                }
+            }
+        }
+
+        private WriteModel<BsonDocument> ParseReplaceOneModel(BsonDocument value)
+        {
+            ParseReplaceArguments(value, out var filter, out var replacement, out var collation, out var isUpsert);
+            return new ReplaceOneModel<BsonDocument>(filter, replacement) { Collation = collation, IsUpsert = isUpsert };
+        }
+
+        private void ParseRequests(BsonArray value)
         {
             _requests = new List<WriteModel<BsonDocument>>();
 
             foreach (BsonDocument requestValue in value)
             {
-                WriteModel<BsonDocument> request;
-                if (TryParseWriteModel(requestValue, out request))
+                var request = ParseWriteModel(requestValue);
+                _requests.Add(request);
+            }
+        }
+
+        private UpdateDefinition<BsonDocument> ParseUpdate(BsonDocument value)
+        {
+            return new BsonDocumentUpdateDefinition<BsonDocument>(value);
+        }
+
+        private void ParseUpdateArguments(
+            BsonDocument value,
+            out FilterDefinition<BsonDocument> filter,
+            out UpdateDefinition<BsonDocument> update,
+            out List<ArrayFilterDefinition> arrayFilters,
+            out Collation collation,
+            out bool isUpsert)
+        {
+            arrayFilters = null;
+            filter = null;
+            update = null;
+            collation = null;
+            isUpsert = false;
+
+            foreach (BsonElement argument in value["arguments"].AsBsonDocument)
+            {
+                switch (argument.Name)
                 {
-                    _requests.Add(request);
+                    case "arrayFilters":
+                        arrayFilters = ParseArrayFilters(argument.Value.AsBsonArray);
+                        break;
+                    case "collation":
+                        collation = Collation.FromBsonDocument(argument.Value.AsBsonDocument);
+                        break;
+                    case "filter":
+                        filter = ParseFilter(argument.Value.AsBsonDocument);
+                        break;
+                    case "update":
+                        update = ParseUpdate(argument.Value.AsBsonDocument);
+                        break;
+                    case "upsert":
+                        isUpsert = argument.Value.ToBoolean();
+                        break;
+                    default:
+                        throw new FormatException($"Unexpected argument: {argument.Name}.");
                 }
-                else
-                {
-                    return false;
-                }
             }
-
-            return true;
         }
 
-        private bool TryParseUpdate(BsonDocument value, out UpdateDefinition<BsonDocument> update)
+        private WriteModel<BsonDocument> ParseUpdateManyModel(BsonDocument value)
         {
-            update = new BsonDocumentUpdateDefinition<BsonDocument>(value);
-            return true;
+            ParseUpdateArguments(value, out var filter, out var update, out var arrayFilters, out var collation, out var isUpsert);
+            return new UpdateManyModel<BsonDocument>(filter, update) { ArrayFilters = arrayFilters, Collation = collation, IsUpsert = isUpsert };
         }
 
-        private bool TryParseUpdateManyModel(BsonDocument value, out WriteModel<BsonDocument> model)
+        private WriteModel<BsonDocument> ParseUpdateOneModel(BsonDocument value)
         {
-            FilterDefinition<BsonDocument> filter;
-            UpdateDefinition<BsonDocument> update;
-            List<ArrayFilterDefinition> arrayFilters;
-
-            if (TryParseArguments(value, out filter, out update, out arrayFilters))
-            {
-                model = new UpdateManyModel<BsonDocument>(filter, update) { ArrayFilters = arrayFilters };
-                return true;
-            }
-            else
-            {
-                model = null;
-                return false;
-            }
+            ParseUpdateArguments(value, out var filter, out var update, out var arrayFilters, out var collation, out var isUpsert);
+            return new UpdateOneModel<BsonDocument>(filter, update) { ArrayFilters = arrayFilters, Collation = collation, IsUpsert = isUpsert };
         }
 
-        private bool TryParseUpdateOneModel(BsonDocument value, out WriteModel<BsonDocument> model)
-        {
-            FilterDefinition<BsonDocument> filter;
-            UpdateDefinition<BsonDocument> update;
-            List<ArrayFilterDefinition> arrayFilters;
-
-            if (TryParseArguments(value, out filter, out update, out arrayFilters))
-            {
-                model = new UpdateOneModel<BsonDocument>(filter, update) { ArrayFilters = arrayFilters };
-                return true;
-            }
-            else
-            {
-                model = null;
-                return false;
-            }
-        }
-
-        private bool TryParseWriteModel(BsonDocument value, out WriteModel<BsonDocument> request)
+        private WriteModel<BsonDocument> ParseWriteModel(BsonDocument value)
         {
             var name = value["name"].AsString;
             switch (name)
             {
+                case "deleteMany":
+                    return ParseDeleteManyModel(value);
+                case "deleteOne":
+                    return ParseDeleteOneModel(value);
+                case "insertOne":
+                    return ParseInsertOneModel(value);
+                case "replaceOne":
+                    return ParseReplaceOneModel(value);
                 case "updateMany":
-                    return TryParseUpdateManyModel(value, out request);
+                    return ParseUpdateManyModel(value);
                 case "updateOne":
-                    return TryParseUpdateOneModel(value, out request);
+                    return ParseUpdateOneModel(value);
                 default:
-                    request = null;
-                    return false;
+                    throw new FormatException($"Unexpected model name: {name}.");
             }
         }
     }

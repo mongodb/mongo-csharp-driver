@@ -30,9 +30,9 @@ namespace MongoDB.Driver.Tests
     {
         // public methods
         [Theory]
-        [InlineData(null, "{ $changeStream : { fullDocument : 'default' } }")]
-        [InlineData(false, "{ $changeStream : { fullDocument : 'default' } }")]
-        [InlineData(true, "{ $changeStream : { fullDocument : 'default', allChangesForCluster : true } }")]
+        [InlineData(null, "{ $changeStream : { } }")]
+        [InlineData(false, "{ $changeStream : { } }")]
+        [InlineData(true, "{ $changeStream : { allChangesForCluster : true } }")]
         public void ChangeStream_with_allChangesForCluster_should_return_the_expected_result(bool? allChangesForCluster, string expectedStage)
         {
             var options = new ChangeStreamStageOptions
@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Theory]
-        [InlineData(ChangeStreamFullDocumentOption.Default, "{ $changeStream : { fullDocument : 'default' } }")]
+        [InlineData(ChangeStreamFullDocumentOption.Default, "{ $changeStream : { } }")]
         [InlineData(ChangeStreamFullDocumentOption.UpdateLookup, "{ $changeStream : { fullDocument : 'updateLookup' } }")]
         public void ChangeStream_with_fullDocument_should_return_the_expected_result(ChangeStreamFullDocumentOption fullDocument, string expectedStage)
         {
@@ -63,8 +63,8 @@ namespace MongoDB.Driver.Tests
         }
 
         [Theory]
-        [InlineData(null, "{ $changeStream : { fullDocument : 'default' } }")]
-        [InlineData("{ x : 1 }", "{ $changeStream : { fullDocument : 'default', resumeAfter : { x : 1 } } }")]
+        [InlineData(null, "{ $changeStream : { } }")]
+        [InlineData("{ x : 1 }", "{ $changeStream : { resumeAfter : { x : 1 } } }")]
         public void ChangeStream_with_resumeAfter_should_return_the_expected_result(string resumeAfterJson, string expectedStage)
         {
             var resumeAfter = resumeAfterJson == null ? null : BsonDocument.Parse(resumeAfterJson);
@@ -80,8 +80,8 @@ namespace MongoDB.Driver.Tests
         }
 
         [Theory]
-        [InlineData(null, null, "{ $changeStream : { fullDocument : 'default' } }")]
-        [InlineData(1, 2, "{ $changeStream : { fullDocument : 'default', startAtOperationTime : { $timestamp: { t : 1, i : 2 } } } }")]
+        [InlineData(null, null, "{ $changeStream : { } }")]
+        [InlineData(1, 2, "{ $changeStream : { startAtOperationTime : { $timestamp: { t : 1, i : 2 } } } }")]
         public void ChangeStream_with_startAtOperationTime_should_return_the_expected_result(int? t, int? i, string expectedStage)
         {
             var startAtOperationTime = t.HasValue ? new BsonTimestamp(t.Value, i.Value) : null;
@@ -97,8 +97,8 @@ namespace MongoDB.Driver.Tests
         }
 
         [Theory]
-        [InlineData(null, "{ $changeStream : { fullDocument : 'default' } }")]
-        [InlineData("{ '_data' : 'testValue' }", "{ $changeStream : { fullDocument : 'default', startAfter : { '_data' : 'testValue' } } }")]
+        [InlineData(null, "{ $changeStream : { } }")]
+        [InlineData("{ '_data' : 'testValue' }", "{ $changeStream : { startAfter : { '_data' : 'testValue' } } }")]
         public void ChangeStream_with_startAfter_should_return_the_expected_result(string content, string expectedStage)
         {
             var startAfter = content != null ? BsonDocument.Parse(content) : null;
@@ -121,7 +121,7 @@ namespace MongoDB.Driver.Tests
             var result = PipelineStageDefinitionBuilder.ChangeStream<BsonDocument>(options);
 
             var stage = RenderStage(result);
-            stage.Document.Should().Be("{ $changeStream : { fullDocument : \"default\" } }");
+            stage.Document.Should().Be("{ $changeStream : { } }");
         }
 
         [SkippableFact]
@@ -209,6 +209,100 @@ namespace MongoDB.Driver.Tests
                         'as' : 'stockdata'
                     }
                 }");
+        }
+
+        [Theory]
+        [InlineData("database1", "collection1", "{ $merge : { into : { db : 'database1', coll : 'collection1' } } }")]
+        [InlineData("database2", "collection2", "{ $merge : { into : { db : 'database2', coll : 'collection2' } } }")]
+        public void Merge_with_default_options_should_return_the_expected_result(string outputDatabaseName, string outputCollectionName, string expectedStage)
+        {
+            var client = DriverTestConfiguration.Client;
+            var outputDatabase = client.GetDatabase(outputDatabaseName);
+            var outputCollection = outputDatabase.GetCollection<BsonDocument>(outputCollectionName);
+            var mergeOptions = new MergeStageOptions<BsonDocument>();
+
+            var result = PipelineStageDefinitionBuilder.Merge<BsonDocument, BsonDocument>(outputCollection, mergeOptions);
+
+            var stage = RenderStage(result);
+            stage.Document.Should().Be(expectedStage);
+        }
+
+        [Theory]
+        [InlineData("{ }", "{ $merge : { into : { db : 'database', coll : 'collection' }, let : { }, whenMatched : [{ $project : { _id : '$_id' } }] } }")]
+        [InlineData("{ a : 1 }", "{ $merge : { into : { db : 'database', coll : 'collection' }, let : { a : 1 }, whenMatched : [{ $project : { _id : '$_id' } }] } }")]
+        [InlineData("{ a : 1, b : 2 }", "{ $merge : { into : { db : 'database', coll : 'collection' }, let : { a : 1, b : 2 }, whenMatched : [{ $project : { _id : '$_id' } }] } }")]
+        public void Merge_with_LetVariables_should_return_the_expected_result(string letVariables, string expectedStage)
+        {
+            var client = DriverTestConfiguration.Client;
+            var outputDatabase = client.GetDatabase("database");
+            var outputCollection = outputDatabase.GetCollection<BsonDocument>("collection");
+            var mergeOptions = new MergeStageOptions<BsonDocument>
+            {
+                LetVariables = BsonDocument.Parse(letVariables),
+                WhenMatched = MergeStageWhenMatched.Pipeline,
+                WhenMatchedPipeline = new EmptyPipelineDefinition<BsonDocument>().Project("{ _id : '$_id' }")
+            };
+
+            var result = PipelineStageDefinitionBuilder.Merge<BsonDocument, BsonDocument>(outputCollection, mergeOptions);
+
+            var stage = RenderStage(result);
+            stage.Document.Should().Be(expectedStage);
+        }
+
+        [Theory]
+        [InlineData("a", "{ $merge : { into : { db : 'database', coll : 'collection' }, on : 'a' } }")]
+        [InlineData("a,b", "{ $merge : { into : { db : 'database', coll : 'collection' }, on : ['a', 'b'] } }")]
+        public void Merge_with_OnFieldNames_should_return_the_expected_result(string fieldNames, string expectedStage)
+        {
+            var client = DriverTestConfiguration.Client;
+            var outputDatabase = client.GetDatabase("database");
+            var outputCollection = outputDatabase.GetCollection<BsonDocument>("collection");
+            var mergeOptions = new MergeStageOptions<BsonDocument> { OnFieldNames = fieldNames.Split(',') };
+
+            var result = PipelineStageDefinitionBuilder.Merge<BsonDocument, BsonDocument>(outputCollection, mergeOptions);
+
+            var stage = RenderStage(result);
+            stage.Document.Should().Be(expectedStage);
+        }
+
+        [Theory]
+        [InlineData(MergeStageWhenMatched.Fail, "{ $merge : { into : { db : 'database', coll : 'collection' }, whenMatched : 'fail' } }")]
+        [InlineData(MergeStageWhenMatched.KeepExisting, "{ $merge : { into : { db : 'database', coll : 'collection' }, whenMatched : 'keepExisting' } }")]
+        [InlineData(MergeStageWhenMatched.Merge, "{ $merge : { into : { db : 'database', coll : 'collection' }, whenMatched : 'merge' } }")]
+        [InlineData(MergeStageWhenMatched.Pipeline, "{ $merge : { into : { db : 'database', coll : 'collection' }, whenMatched : [{ $project : { _id : '$_id' } }] } }")]
+        [InlineData(MergeStageWhenMatched.Replace, "{ $merge : { into : { db : 'database', coll : 'collection' }, whenMatched : 'replace' } }")]
+        public void Merge_with_WhenMatched_should_return_the_expected_result(MergeStageWhenMatched whenMatched, string expectedStage)
+        {
+            var client = DriverTestConfiguration.Client;
+            var outputDatabase = client.GetDatabase("database");
+            var outputCollection = outputDatabase.GetCollection<BsonDocument>("collection");
+            var mergeOptions = new MergeStageOptions<BsonDocument> { WhenMatched = whenMatched };
+            if (whenMatched == MergeStageWhenMatched.Pipeline)
+            {
+                mergeOptions.WhenMatchedPipeline = new EmptyPipelineDefinition<BsonDocument>().Project("{ _id : '$_id' }");
+            }
+
+            var result = PipelineStageDefinitionBuilder.Merge<BsonDocument, BsonDocument>(outputCollection, mergeOptions);
+
+            var stage = RenderStage(result);
+            stage.Document.Should().Be(expectedStage);
+        }
+
+        [Theory]
+        [InlineData(MergeStageWhenNotMatched.Discard, "{ $merge : { into : { db : 'database', coll : 'collection' }, whenNotMatched : 'discard' } }")]
+        [InlineData(MergeStageWhenNotMatched.Fail, "{ $merge : { into : { db : 'database', coll : 'collection' }, whenNotMatched : 'fail' } }")]
+        [InlineData(MergeStageWhenNotMatched.Insert, "{ $merge : { into : { db : 'database', coll : 'collection' }, whenNotMatched : 'insert' } }")]
+        public void Merge_with_WhenNotMatched_should_return_the_expected_result(MergeStageWhenNotMatched whenNotMatched, string expectedStage)
+        {
+            var client = DriverTestConfiguration.Client;
+            var outputDatabase = client.GetDatabase("database");
+            var outputCollection = outputDatabase.GetCollection<BsonDocument>("collection");
+            var mergeOptions = new MergeStageOptions<BsonDocument> { WhenNotMatched = whenNotMatched };
+
+            var result = PipelineStageDefinitionBuilder.Merge<BsonDocument, BsonDocument>(outputCollection, mergeOptions);
+
+            var stage = RenderStage(result);
+            stage.Document.Should().Be(expectedStage);
         }
 
         public class Order

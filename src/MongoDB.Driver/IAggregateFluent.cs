@@ -235,6 +235,24 @@ namespace MongoDB.Driver
         IAggregateFluent<TResult> Match(FilterDefinition<TResult> filter);
 
         /// <summary>
+        /// Appends a merge stage to the pipeline and executes it, and then returns a cursor to read the contents of the output collection.
+        /// </summary>
+        /// <param name="outputCollection">The output collection.</param>
+        /// <param name="mergeOptions">The merge options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A cursor.</returns>
+        IAsyncCursor<TOutput> Merge<TOutput>(IMongoCollection<TOutput> outputCollection, MergeStageOptions<TOutput> mergeOptions = null, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Appends a merge stage to the pipeline and executes it, and then returns a cursor to read the contents of the output collection.
+        /// </summary>
+        /// <param name="outputCollection">The output collection.</param>
+        /// <param name="mergeOptions">The merge options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A cursor.</returns>
+        Task<IAsyncCursor<TOutput>> MergeAsync<TOutput>(IMongoCollection<TOutput> outputCollection, MergeStageOptions<TOutput> mergeOptions = null, CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// Appends a match stage to the pipeline that matches derived documents and changes the result type to the derived type.
         /// </summary>
         /// <typeparam name="TNewResult">The type of the derived documents.</typeparam>

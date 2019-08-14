@@ -530,7 +530,7 @@ namespace MongoDB.Driver
 
         private IClientSessionHandle StartImplicitSession(bool areSessionsSupported)
         {
-            var options = new ClientSessionOptions();
+            var options = new ClientSessionOptions { CausalConsistency = false };
 
             ICoreSessionHandle coreSession;
 #pragma warning disable 618

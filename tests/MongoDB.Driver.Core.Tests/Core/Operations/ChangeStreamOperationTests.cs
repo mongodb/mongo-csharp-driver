@@ -583,15 +583,15 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Theory]
-        [InlineData(null, null, ChangeStreamFullDocumentOption.Default, null, ReadConcernLevel.Local, null, null, "{ $changeStream : { fullDocument : \"default\" } }")]
-        [InlineData(1, null, ChangeStreamFullDocumentOption.Default, null, ReadConcernLevel.Local, null, null, "{ $changeStream : { fullDocument : \"default\" } }")]
-        [InlineData(null, "locale", ChangeStreamFullDocumentOption.Default, null, ReadConcernLevel.Local, null, null, "{ $changeStream : { fullDocument : \"default\" } }")]
+        [InlineData(null, null, ChangeStreamFullDocumentOption.Default, null, ReadConcernLevel.Local, null, null, "{ $changeStream : { } }")]
+        [InlineData(1, null, ChangeStreamFullDocumentOption.Default, null, ReadConcernLevel.Local, null, null, "{ $changeStream : { } }")]
+        [InlineData(null, "locale", ChangeStreamFullDocumentOption.Default, null, ReadConcernLevel.Local, null, null, "{ $changeStream : { } }")]
         [InlineData(null, null, ChangeStreamFullDocumentOption.UpdateLookup, null, ReadConcernLevel.Local, null, null, "{ $changeStream : { fullDocument : \"updateLookup\" } }")]
-        [InlineData(null, null, ChangeStreamFullDocumentOption.Default, 1, ReadConcernLevel.Local, null, null, "{ $changeStream : { fullDocument : \"default\" } }")]
-        [InlineData(null, null, ChangeStreamFullDocumentOption.Default, null, ReadConcernLevel.Majority, null, null, "{ $changeStream : { fullDocument : \"default\" } }")]
-        [InlineData(null, null, ChangeStreamFullDocumentOption.Default, null, ReadConcernLevel.Local, "{ a : 1 }", null, "{ $changeStream: { fullDocument: \"default\", resumeAfter : { a : 1 } } }")]
+        [InlineData(null, null, ChangeStreamFullDocumentOption.Default, 1, ReadConcernLevel.Local, null, null, "{ $changeStream : { } }")]
+        [InlineData(null, null, ChangeStreamFullDocumentOption.Default, null, ReadConcernLevel.Majority, null, null, "{ $changeStream : { } }")]
+        [InlineData(null, null, ChangeStreamFullDocumentOption.Default, null, ReadConcernLevel.Local, "{ a : 1 }", null, "{ $changeStream: { resumeAfter : { a : 1 } } }")]
         [InlineData(1, "locale", ChangeStreamFullDocumentOption.UpdateLookup, 2, ReadConcernLevel.Majority, "{ a : 1 }", null, "{ $changeStream: { fullDocument: \"updateLookup\", resumeAfter : { a : 1 } } }")]
-        [InlineData(null, null, ChangeStreamFullDocumentOption.Default, null, ReadConcernLevel.Local, "{ a : 1 }", "{ b : 2 }", "{ $changeStream: { fullDocument: \"default\", startAfter : { b : 2 }, resumeAfter : { a : 1 } } }")]
+        [InlineData(null, null, ChangeStreamFullDocumentOption.Default, null, ReadConcernLevel.Local, "{ a : 1 }", "{ b : 2 }", "{ $changeStream: { startAfter : { b : 2 }, resumeAfter : { a : 1 } } }")]
         [InlineData(1, "locale", ChangeStreamFullDocumentOption.UpdateLookup, 2, ReadConcernLevel.Majority, "{ a : 1 }", "{ b : 2 }", "{ $changeStream: { fullDocument: \"updateLookup\", startAfter : { b : 2 }, resumeAfter : { a : 1 } } }")]
         public void CreateAggregateOperation_should_return_expected_result(
             int? batchSize,

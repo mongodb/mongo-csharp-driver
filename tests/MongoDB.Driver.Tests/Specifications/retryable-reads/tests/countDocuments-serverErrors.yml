@@ -36,7 +36,7 @@ tests:
                     database_name: *database_name
              - *retryable_command_started_event
     -
-        description: "CountDocuments succeeds after InterruptedDueToStepDown"
+        description: "CountDocuments succeeds after InterruptedDueToReplStateChange"
         failPoint:
             <<: *failCommand_failPoint
             data: { failCommands: [aggregate], errorCode: 11602 }
