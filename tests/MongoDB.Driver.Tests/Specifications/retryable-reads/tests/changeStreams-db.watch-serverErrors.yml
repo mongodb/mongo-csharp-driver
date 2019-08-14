@@ -31,11 +31,11 @@ tests:
                     command:
                         aggregate: 1
                         cursor: {}
-                        pipeline: [ { $changeStream: { fullDocument: "default" } } ]
+                        pipeline: [ { $changeStream: { } } ]
                     database_name: *database_name
             - *retryable_command_started_event
     -
-        description: "db.watch succeeds after InterruptedDueToStepDown"
+        description: "db.watch succeeds after InterruptedDueToReplStateChange"
         failPoint:
             <<: *failCommand_failPoint
             data: { failCommands: [aggregate], errorCode: 11602 }

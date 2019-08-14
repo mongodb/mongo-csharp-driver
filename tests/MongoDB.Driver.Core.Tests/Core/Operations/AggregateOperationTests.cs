@@ -651,11 +651,13 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        public void Execute_should_throw_when_pipeline_ends_with_out(
+        public void Execute_should_throw_when_pipeline_ends_with_out_or_merge(
+            [Values("$out", "$merge")]
+            string operatorName,
             [Values(false, true)]
             bool async)
         {
-            var pipeline = new [] { BsonDocument.Parse("{ $out : \"xyz\" }") };
+            var pipeline = new [] { BsonDocument.Parse($"{{ {operatorName} : \"xyz\" }}") };
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, pipeline, __resultSerializer, _messageEncoderSettings);
 
             var exception = Record.Exception(() => ExecuteOperation(subject, async));

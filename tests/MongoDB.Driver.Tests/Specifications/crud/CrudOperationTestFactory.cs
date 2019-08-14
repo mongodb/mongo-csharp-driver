@@ -26,10 +26,12 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                 case "aggregate": return new AggregateTest();
                 case "bulkWrite": return new BulkWriteTest();
                 case "count": return new CountTest();
+                case "countDocuments": return new CountDocumentsTest();
                 case "deleteMany": return new DeleteManyTest();
                 case "deleteOne": return new DeleteOneTest();
                 case "distinct": return new DistinctTest();
                 case "drop": return new DropCollectionTest();
+                case "estimatedDocumentCount": return new EstimatedDocumentCountTest();
                 case "find": return new FindTest();
                 case "findOneAndDelete": return new FindOneAndDeleteTest();
                 case "findOneAndReplace": return new FindOneAndReplaceTest();

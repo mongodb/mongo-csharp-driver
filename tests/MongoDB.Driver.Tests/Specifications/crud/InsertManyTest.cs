@@ -13,9 +13,9 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using MongoDB.Bson;
 
 namespace MongoDB.Driver.Tests.Specifications.crud
@@ -23,6 +23,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
     public class InsertManyTest : CrudOperationTestBase
     {
         private List<BsonDocument> _documents;
+        private InsertManyOptions _options;
 
         protected override bool TrySetArgument(string name, BsonValue value)
         {
@@ -30,6 +31,9 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             {
                 case "documents":
                     _documents = ((BsonArray)value).Select(x => (BsonDocument)x).ToList();
+                    return true;
+                case "options":
+                    _options = ParseOptions(value.AsBsonDocument);
                     return true;
             }
 
@@ -40,12 +44,35 @@ namespace MongoDB.Driver.Tests.Specifications.crud
         {
             if (async)
             {
-                collection.InsertManyAsync(_documents).GetAwaiter().GetResult();
+                collection.InsertManyAsync(_documents, _options).GetAwaiter().GetResult();
             }
             else
             {
-                collection.InsertMany(_documents);
+                collection.InsertMany(_documents, _options);
             }
+        }
+
+        // private methods
+        private InsertManyOptions ParseOptions(BsonDocument value)
+        {
+            var options = new InsertManyOptions();
+
+            foreach (var option in value.Elements)
+            {
+                switch (option.Name)
+                {
+                    case "bypassDocumentValidation":
+                        options.BypassDocumentValidation = option.Value.ToBoolean();
+                        break;
+                    case "ordered":
+                        options.IsOrdered = option.Value.ToBoolean();
+                        break;
+                    default:
+                        throw new FormatException($"Unexpected option: ${option.Name}.");
+                }
+            }
+
+            return options;
         }
     }
 }

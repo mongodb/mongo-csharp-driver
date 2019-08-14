@@ -416,9 +416,9 @@ namespace MongoDB.Driver.Core.Operations
 
         private void EnsureIsReadOnlyPipeline()
         {
-            if (Pipeline.Any(s => s.GetElement(0).Name == "$out"))
+            if (Pipeline.Any(s => { var n = s.GetElement(0).Name; return n == "$out" || n == "$merge"; }))
             {
-                throw new ArgumentException("The pipeline for an AggregateOperation contains a $out operator. Use AggregateOutputToCollectionOperation instead.", "pipeline");
+                throw new ArgumentException("The pipeline for an AggregateOperation contains a $out or $merge operator. Use AggregateOutputToCollectionOperation instead.", "pipeline");
             }
         }
 

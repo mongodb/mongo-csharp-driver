@@ -49,7 +49,7 @@ tests:
                         sort: { n: 1 }
                     database_name: *database_name
     -
-        description: "Download succeeds after InterruptedDueToStepDown"
+        description: "Download succeeds after InterruptedDueToReplStateChange"
         failPoint:
             <<: *failCommand_failPoint
             data: { failCommands: [find], errorCode: 11602 }

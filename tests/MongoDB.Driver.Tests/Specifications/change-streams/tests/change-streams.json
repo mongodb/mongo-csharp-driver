@@ -33,9 +33,7 @@
               "cursor": {},
               "pipeline": [
                 {
-                  "$changeStream": {
-                    "fullDocument": "default"
-                  }
+                  "$changeStream": {}
                 }
               ]
             },
@@ -45,7 +43,22 @@
         }
       ],
       "result": {
-        "success": []
+        "success": [
+          {
+            "_id": "42",
+            "documentKey": "42",
+            "operationType": "insert",
+            "ns": {
+              "db": "change-stream-tests",
+              "coll": "test"
+            },
+            "fullDocument": {
+              "x": {
+                "$numberInt": "1"
+              }
+            }
+          }
+        ]
       }
     },
     {
@@ -138,9 +151,7 @@
               "cursor": {},
               "pipeline": [
                 {
-                  "$changeStream": {
-                    "fullDocument": "default"
-                  }
+                  "$changeStream": {}
                 }
               ]
             },
@@ -211,9 +222,7 @@
               "cursor": {},
               "pipeline": [
                 {
-                  "$changeStream": {
-                    "fullDocument": "default"
-                  }
+                  "$changeStream": {}
                 },
                 {
                   "$match": {
@@ -297,9 +306,7 @@
               "cursor": {},
               "pipeline": [
                 {
-                  "$changeStream": {
-                    "fullDocument": "default"
-                  }
+                  "$changeStream": {}
                 }
               ]
             },
@@ -389,7 +396,6 @@
               "pipeline": [
                 {
                   "$changeStream": {
-                    "fullDocument": "default",
                     "allChangesForCluster": true
                   }
                 }
@@ -508,9 +514,7 @@
               "cursor": {},
               "pipeline": [
                 {
-                  "$changeStream": {
-                    "fullDocument": "default"
-                  }
+                  "$changeStream": {}
                 }
               ]
             },
@@ -596,9 +600,7 @@
               "cursor": {},
               "pipeline": [
                 {
-                  "$changeStream": {
-                    "fullDocument": "default"
-                  }
+                  "$changeStream": {}
                 }
               ]
             },
@@ -650,9 +652,7 @@
               "cursor": {},
               "pipeline": [
                 {
-                  "$changeStream": {
-                    "fullDocument": "default"
-                  }
+                  "$changeStream": {}
                 }
               ]
             },

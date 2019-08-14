@@ -403,7 +403,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var changeStreamOptions = new BsonDocument
             {
-                { "fullDocument", ToString(_fullDocument) },
+                { "fullDocument", () => ToString(_fullDocument), _fullDocument != ChangeStreamFullDocumentOption.Default },
                 { "allChangesForCluster", true, _collectionNamespace == null && _databaseNamespace == null },
                 { "startAfter", _startAfter, _startAfter != null},
                 { "startAtOperationTime", _startAtOperationTime, _startAtOperationTime != null },

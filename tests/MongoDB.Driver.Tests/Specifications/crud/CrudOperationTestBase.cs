@@ -98,7 +98,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
 
         protected override void AssertOutcome(BsonDocument outcome, IMongoDatabase database, IMongoCollection<BsonDocument> collection)
         {
-            if (outcome != null && outcome.Contains("result"))
+            if (outcome != null && outcome.Contains("result") && ActualException == null)
             {
                 var expectedResult = ConvertExpectedResult(outcome["result"]);
                 VerifyResult(_result, expectedResult);
