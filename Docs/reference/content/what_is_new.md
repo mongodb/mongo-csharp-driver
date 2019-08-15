@@ -13,6 +13,18 @@ title = "What's New"
 Some of the changes in 2.9.0 include:
 
 * Retryable writes are enabled by default
+* Retryable reads support (enabled by default)
+* Distributed transactions on sharded clusters
+* Convenient API for transactions via `IClientSession.WithTransaction()`
+* Support for message compression
+* SRV polling for `mongodb+srv` connection scheme
+* Update specification using an aggregation framework pipeline
+* SCRAM-SHA authentication caching
+* Connections to the replica set primary are no longer closed after a step-down, allowing in progress read operations to complete
+* New aggregate helper methods support running database-level aggregations
+* `$merge` support
+* Change stream helpers now support the `startAfter` option
+* Index creation helpers now support wildcard indexes
 
 ## What's New in 2.8.0
 
