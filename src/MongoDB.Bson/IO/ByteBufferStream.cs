@@ -32,7 +32,7 @@ namespace MongoDB.Bson.IO
         private readonly bool _ownsBuffer;
         private int _position;
         private readonly byte[] _temp = new byte[12];
-        private readonly byte[] _tempUtf8 = new byte[128];
+        private byte[] _tempUtf8 = new byte[128];
 
         // constructors
         /// <summary>
@@ -529,13 +529,13 @@ namespace MongoDB.Bson.IO
             }
             else
             {
-                var bytes = length <= _tempUtf8.Length ? _tempUtf8 : new byte[length];
-                this.ReadBytes(bytes, 0, length);
-                if (bytes[length - 1] != 0)
+                EnsureBufferSize(length);
+                this.ReadBytes(_tempUtf8, 0, length);
+                if (_tempUtf8[length - 1] != 0)
                 {
                     throw new FormatException("String is missing terminating null byte.");
                 }
-                return Utf8Helper.DecodeUtf8String(bytes, 0, length - 1, encoding);
+                return Utf8Helper.DecodeUtf8String(_tempUtf8, 0, length - 1, encoding);
             }
         }
 
@@ -568,23 +568,10 @@ namespace MongoDB.Bson.IO
             }
             else
             {
-                byte[] bytes;
-                if (maxLength <= _tempUtf8.Length)
-                {
-                    bytes = _tempUtf8;
-                    actualLength = CStringUtf8Encoding.GetBytes(value, bytes, 0, Utf8Encodings.Strict);
-                }
-                else
-                {
-                    bytes = Utf8Encodings.Strict.GetBytes(value);
-                    if (Array.IndexOf<byte>(bytes, 0) != -1)
-                    {
-                        throw new ArgumentException("A CString cannot contain null bytes.", "value");
-                    }
-                    actualLength = bytes.Length;
-                }
+                EnsureBufferSize(maxLength);
+                actualLength = CStringUtf8Encoding.GetBytes(value, _tempUtf8, 0, Utf8Encodings.Strict);
 
-                _buffer.SetBytes(_position, bytes, 0, actualLength);
+                _buffer.SetBytes(_position, _tempUtf8, 0, actualLength);
                 _buffer.SetByte(_position + actualLength, 0);
             }
 
@@ -715,26 +702,26 @@ namespace MongoDB.Bson.IO
             }
             else
             {
-                byte[] bytes;
-                if (maxLength <= _tempUtf8.Length)
-                {
-                    bytes = _tempUtf8;
-                    actualLength = encoding.GetBytes(value, 0, value.Length, bytes, 0);
-                }
-                else
-                {
-                    bytes = encoding.GetBytes(value);
-                    actualLength = bytes.Length;
-                }
+                EnsureBufferSize(maxLength);
+                actualLength = encoding.GetBytes(value, 0, value.Length, _tempUtf8, 0);
 
                 var lengthPlusOneBytes = BitConverter.GetBytes(actualLength + 1);
 
                 _buffer.SetBytes(_position, lengthPlusOneBytes, 0, 4);
-                _buffer.SetBytes(_position + 4, bytes, 0, actualLength);
+                _buffer.SetBytes(_position + 4, _tempUtf8, 0, actualLength);
                 _buffer.SetByte(_position + 4 + actualLength, 0);
             }
 
             SetPositionAfterWrite(_position + actualLength + 5);
+        }
+
+        private void EnsureBufferSize(int length)
+        {
+            if (_tempUtf8.Length < length)
+            {
+                // double the size of the previous buffer with a cap at int.MaxValue
+                _tempUtf8 = new byte[Math.Min(int.MaxValue, Math.Max(_tempUtf8.Length * 2, length))];
+            }
         }
     }
 }
