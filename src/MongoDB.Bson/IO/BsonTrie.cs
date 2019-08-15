@@ -27,6 +27,7 @@ namespace MongoDB.Bson.IO
     {
         // private fields
         private readonly BsonTrieNode<TValue> _root;
+        private byte[] _buffer = new byte[128];
 
         // constructors
         /// <summary>
@@ -152,9 +153,20 @@ namespace MongoDB.Bson.IO
         /// <returns>True if the value was found; otherwise, false.</returns>
         public bool TryGetValue(string elementName, out TValue value)
         {
-            var bytes = Utf8Encodings.Strict.GetBytes(elementName);
-            var utf8 = new ArraySegment<byte>(bytes, 0, bytes.Length);
+            int maxByteCount = Utf8Encodings.Strict.GetMaxByteCount(elementName.Length);
+            EnsureBufferSize(maxByteCount);
+            var bytes = Utf8Encodings.Strict.GetBytes(elementName, 0, elementName.Length, _buffer, 0);
+            var utf8 = new ArraySegment<byte>(_buffer, 0, bytes);
             return TryGetValue(utf8, out value);
+        }
+
+        private void EnsureBufferSize(int length)
+        {
+            if (_buffer.Length < length)
+            {
+                // double the size of the previous buffer with a cap at int.MaxValue
+                _buffer = new byte[Math.Min(int.MaxValue, Math.Max(_buffer.Length * 2, length))];
+            }
         }
     }
 
