@@ -129,6 +129,7 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * John Murphy               https://github.com/jsmurphy
 * Alexander Nagy            optimiz3@gmail.com
 * Sridhar Nanjundeswaran    https://github.com/sridharn
+* Nathan                    https://github.com/terakilobyte
 * Rich Quackenbush          rich.quackenbush@captiveaire.com
 * Carl Reinke               https://github.com/mindless2112
 * Gian Maria Ricci          https://github.com/alkampfergit
