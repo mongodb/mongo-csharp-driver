@@ -331,19 +331,23 @@ namespace MongoDB.Driver.Core.Clusters
             result.Should().Be(expectedResult);
         }
 
-        [Theory]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
-        public void Monitor_should_return_when_ShouldDnsMonitorStop_returns_true(bool firstValue, bool secondValue)
+        [Fact]
+        public void Monitor_should_return_when_ShouldDnsMonitorStop_returns_true()
         {
+            var mockDnsResolver = new Mock<IDnsResolver>();
+            var srvRecords = CreateSrvRecords(new []{ "oneserver.test.com" });
+            mockDnsResolver
+                .Setup(m => m.ResolveSrvRecords(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .Returns(srvRecords);
             var mockCluster = new Mock<IDnsMonitoringCluster>();
             mockCluster
-                .SetupSequence(m => m.ShouldDnsMonitorStop())
-                .Returns(firstValue)
-                .Returns(secondValue);
-            var subject = CreateSubject(cluster: mockCluster.Object);
+                .Setup(m => m.ShouldDnsMonitorStop())
+                .Returns(true);
+            var subject = CreateSubject(cluster: mockCluster.Object, dnsResolver: mockDnsResolver.Object);
 
             subject.Monitor();
+            mockDnsResolver.Verify(c => c.ResolveSrvRecords(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+            mockCluster.Verify(c => c.ShouldDnsMonitorStop(), Times.Once);
         }
 
         [Fact]
@@ -354,7 +358,6 @@ namespace MongoDB.Driver.Core.Clusters
             var exception = new Exception();
             mockCluster
                 .SetupSequence(m => m.ShouldDnsMonitorStop())
-                .Returns(false)
                 .Returns(true);
             mockDnsResolver
                 .Setup(m => m.ResolveSrvRecords(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -374,7 +377,6 @@ namespace MongoDB.Driver.Core.Clusters
             var mockCluster = new Mock<IDnsMonitoringCluster>();
             mockCluster
                 .SetupSequence(x => x.ShouldDnsMonitorStop())
-                .Returns(false)
                 .Returns(true);
             List<DnsEndPoint> actualEndPoints = null;
             var cts = new CancellationTokenSource();
@@ -405,7 +407,6 @@ namespace MongoDB.Driver.Core.Clusters
             var mockCluster = new Mock<IDnsMonitoringCluster>();
             mockCluster
                 .SetupSequence(x => x.ShouldDnsMonitorStop())
-                .Returns(false)
                 .Returns(true);
             var cts = new CancellationTokenSource();
             var mockDnsResolver = new Mock<IDnsResolver>();
@@ -442,11 +443,9 @@ namespace MongoDB.Driver.Core.Clusters
             var mockCluster = new Mock<IDnsMonitoringCluster>();
             mockCluster
                 .SetupSequence(x => x.ShouldDnsMonitorStop())
-                .Returns(false)
                 .Returns(() => { cts.Cancel(); return false; });
             var lookupDomainName = "a.b.com";
             var subject = CreateSubject(cluster: mockCluster.Object, lookupDomainName: lookupDomainName, cancellationToken: cts.Token);
-
             var exception = Record.Exception(() => subject.Monitor());
 
             exception.Should().BeOfType<OperationCanceledException>();

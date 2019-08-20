@@ -225,7 +225,7 @@ functions:
         working_dir: mongo-csharp-driver
         script: |
           # DO NOT ECHO WITH XTRACE (which PREPARE_SHELL does)
-          ATLAS_FREE="${ATLAS_FREE}" ATLAS_REPLICA="${ATLAS_REPLICA}" ATLAS_SHARDED="${ATLAS_SHARDED}" ATLAS_TLS11="${ATLAS_TLS11}" ATLAS_TLS12="${ATLAS_TLS12}" evergreen/run-atlas-connectivity-tests.sh
+          ATLAS_FREE="${ATLAS_FREE}" ATLAS_FREE_SRV="${ATLAS_FREE_SRV}" ATLAS_REPLICA="${ATLAS_REPLICA}" ATLAS_REPLICA_SRV="${ATLAS_REPLICA_SRV}" ATLAS_SHARDED="${ATLAS_SHARDED}" ATLAS_SHARDED_SRV="${ATLAS_SHARDED_SRV}" ATLAS_TLS11="${ATLAS_TLS11}" ATLAS_TLS11_SRV="${ATLAS_TLS11_SRV}" ATLAS_TLS12="${ATLAS_TLS12}" ATLAS_TLS12_SRV="${ATLAS_TLS12_SRV}" evergreen/run-atlas-connectivity-tests.sh
 
   run-plain-auth-tests:
     - command: shell.exec

@@ -20,7 +20,6 @@ using System.Net;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
@@ -29,8 +28,6 @@ using MongoDB.Driver.Core.Helpers;
 using Moq;
 using Xunit;
 using MongoDB.Bson;
-using System.Reflection;
-using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Tests.Core.Clusters;
 using System.Threading.Tasks;
 
@@ -446,30 +443,6 @@ namespace MongoDB.Driver.Core.Clusters
                 var originalDescription = subject.Description;
 
                 PublishDnsResults(subject, endPoints);
-
-                subject.Description.Should().BeSameAs(originalDescription);
-            }
-        }
-
-        [Theory]
-        [InlineData(ServerType.Standalone, ServerType.Standalone, ClusterType.Standalone)]
-        [InlineData(ServerType.ReplicaSetPrimary, ServerType.ReplicaSetSecondary, ClusterType.ReplicaSet)]
-        public void ProcessDnsResults_should_do_nothing_if_cluster_type_is_not_unknown_or_sharded(ServerType serverType1, ServerType serverType2, ClusterType clusterType)
-        {
-            var settings = new ClusterSettings(scheme: ConnectionStringScheme.MongoDBPlusSrv, endPoints: new[] { new DnsEndPoint("a.b.com", 53) });
-            var mockDnsMonitorFactory = CreateMockDnsMonitorFactory();
-            using (var subject = CreateSubject(settings: settings, dnsMonitorFactory: mockDnsMonitorFactory.Object))
-            {
-                subject.Initialize();
-                PublishDnsResults(subject, _firstEndPoint);
-                PublishDescription(subject, _firstEndPoint, serverType1);
-                subject.Description.Type.Should().Be(clusterType);
-                var expectedEndPoints = clusterType == ClusterType.Standalone ? new[] { _firstEndPoint } : new[] { _firstEndPoint, _secondEndPoint, _thirdEndPoint };
-                subject.Description.Servers.Select(s => s.EndPoint).Should().Equal(expectedEndPoints);
-                var originalDescription = subject.Description;
-                var endPointThatShouldBeIgnored = new DnsEndPoint("localhost", 27020);
-
-                PublishDnsResults(subject, endPointThatShouldBeIgnored);
 
                 subject.Description.Should().BeSameAs(originalDescription);
             }
