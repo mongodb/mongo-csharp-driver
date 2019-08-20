@@ -1,7 +1,6 @@
-# .NET Driver Version 2.9.1 Placeholder Release Notes
+# .NET Driver Version 2.9.1 Release Notes
 
-The main new features in 2.9.1 are:
-
+This is a patch release that fixes one bug reported since 2.9.0 was released.
 
 An online version of these release notes is available at:
 
@@ -18,3 +17,6 @@ http://mongodb.github.io/mongo-csharp-driver/
 
 ## Upgrading
 
+There are no known backwards breaking changes in this release.
+
+A bug in 2.9.0 prevents applications from connecting to replica sets via SRV. Applications connecting to replica sets over SRV should NOT upgrade to 2.9.0 and instead should upgrade directly to 2.9.1 or later.
