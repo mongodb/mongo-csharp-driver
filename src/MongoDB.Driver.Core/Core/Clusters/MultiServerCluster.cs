@@ -536,16 +536,14 @@ namespace MongoDB.Driver.Core.Clusters
                 return;
             }
 
+            // Assuming that before this method one from the following conditions has been validated:
+            // 1. The cluster type is Unknown or Sharded.
+            // 2. This method has been called the first time.
+            // Otherwise, the below code should not be called.
             var newServers = new List<IClusterableServer>();
             lock (_updateClusterDescriptionLock)
             {
                 var oldClusterDescription = Description;
-
-                var clusterType = oldClusterDescription.Type;
-                if (clusterType != ClusterType.Unknown && clusterType != ClusterType.Sharded)
-                {
-                    return;
-                }
 
                 var newClusterDescription = oldClusterDescription;
                 var currentEndPoints = oldClusterDescription.Servers.Select(serverDescription => serverDescription.EndPoint).ToList();

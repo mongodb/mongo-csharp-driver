@@ -161,7 +161,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             while (true)
             {
-                if (_cluster.ShouldDnsMonitorStop())
+                if (_processDnsResultHasEverBeenCalled && _cluster.ShouldDnsMonitorStop())
                 {
                     return;
                 }
