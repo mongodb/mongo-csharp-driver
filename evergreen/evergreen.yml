@@ -214,6 +214,9 @@ functions:
       params:
         working_dir: mongo-csharp-driver
         script: |
+          set +x
+          export FLE_AWS_ACCESS_KEY_ID=${FLE_AWS_ACCESS_KEY_ID}
+          export FLE_AWS_SECRET_ACCESS_KEY=${FLE_AWS_SECRET_ACCESS_KEY}
           ${PREPARE_SHELL}
           AUTH=${AUTH} SSL=${SSL} MONGODB_URI="${MONGODB_URI}" TOPOLOGY=${TOPOLOGY} OS=${OS} evergreen/run-tests.sh
 
