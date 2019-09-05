@@ -83,7 +83,6 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 ### Maintainers:
 * Vincent Kam               vincent.kam@mongodb.com
 * Dmitry Lukyanov           dmitry.lukyanov@mongodb.com
-* Katie Sadoff              katie.sadoff@mongodb.com
 * Robert Stam               robert@mongodb.com
 * Craig Wilson              craig.wilson@mongodb.com
 
@@ -136,6 +135,7 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Gian Maria Ricci          https://github.com/alkampfergit
 * Andrew Rondeau            github@andrewrondeau.com
 * Ed Rooth                  edward.rooth@wallstreetjapan.com
+* Katie Sadoff              https://github.com/ksadoff
 * Sam558                    https://github.com/Sam558
 * Sergey Shushlyapin        https://github.com/sergeyshushlyapin
 * Alexey Skalozub           pieceofsummer@gmail.com
