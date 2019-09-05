@@ -22,9 +22,9 @@ For example, to find the newest revision of the file named "securityvideo" uploa
 ```csharp
 IGridFSBucket bucket;
 var filter = Builders<GridFSFileInfo>.Filter.And( 
-    Builders<GridFSFileInfo>.Filter.EQ(x => x.Filename, "securityvideo"),
-    Builders<GridFSFileInfo>.Filter.GTE(x => x.UploadDateTime, new DateTime(2015, 1, 1, 0, 0, 0, DateTimeKind.Utc)),
-    Builders<GridFSFileInfo>.Filter.LT(x => x.UploadDateTime, new DateTime(2015, 2, 1, 0, 0, 0, DateTimeKind.Utc)));
+    Builders<GridFSFileInfo>.Filter.Eq(x => x.Filename, "securityvideo"),
+    Builders<GridFSFileInfo>.Filter.Gte(x => x.UploadDateTime, new DateTime(2015, 1, 1, 0, 0, 0, DateTimeKind.Utc)),
+    Builders<GridFSFileInfo>.Filter.Lt(x => x.UploadDateTime, new DateTime(2015, 2, 1, 0, 0, 0, DateTimeKind.Utc)));
 var sort = Builders<GridFSFileInfo>.Sort.Descending(x => x.UploadDateTime);
 var options = new GridFSFindOptions
 {

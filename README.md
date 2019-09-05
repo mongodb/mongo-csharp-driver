@@ -107,6 +107,7 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Alexander Endris          https://github.com/AlexEndris
 * Daniel Goldman            daniel@stackwave.com
 * Simon Green               simon@captaincodeman.com
+* Bouke Haarsma             https://github.com/Bouke
 * James Hadwen              james.hadwen@sociustec.com
 * Nuri Halperin             https://github.com/nurih
 * Jacob Jewell              jacobjewell@eflexsystems.com
