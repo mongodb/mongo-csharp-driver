@@ -205,6 +205,17 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Fact]
+        public void Should_translate_with_a_hierarchical_redundancy_and_when_one_field_doesnt_start_with_another()
+        {
+            var result = Project(p => new { p.C.E, F = p.C.E1.F }, "{ C : { E : { H : 3 }, E1 : { F : 2 } } }");
+
+            result.Projection.Should().Be("{ \"C.E\" : 1, \"C.E1.F\" : 1, _id : 0 }");
+
+            result.Value.E.H.Should().Be(3);
+            result.Value.F.Should().Be(2);
+        }
+
+        [Fact]
         public void Should_translate_a_single_top_level_array()
         {
             var result = Project(p => p.G, "{ G: [{ D: \"Uno\", E : { F: 1 } }, { D: \"Dos\", E: { F: 2 } }] }");
