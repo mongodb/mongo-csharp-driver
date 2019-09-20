@@ -243,6 +243,18 @@ namespace MongoDB.Driver.Linq.Translators
             return false;
         }
 
+        private string PrepareFieldName(IFieldExpression fieldExpression)
+        {
+            if (fieldExpression.Document is IFieldExpression documentFieldExpression)
+            {
+                return $"{documentFieldExpression.FieldName}{fieldExpression.FieldName}";
+            }
+            else
+            {
+                return fieldExpression.FieldName;
+            }
+        }
+
         private FilterDefinition<BsonDocument> TranslateArrayLength(Expression variableNode, ExpressionType operatorType, ConstantExpression constantNode)
         {
             var allowedOperators = new[]
@@ -952,15 +964,17 @@ namespace MongoDB.Driver.Linq.Translators
             FilterDefinition<BsonDocument> filter;
             var renderWithoutElemMatch = CanAnyBeRenderedWithoutElemMatch(whereExpression.Predicate);
 
+            var fieldName = PrepareFieldName(fieldExpression);
             if (renderWithoutElemMatch)
             {
-                var predicate = FieldNamePrefixer.Prefix(whereExpression.Predicate, fieldExpression.FieldName);
+                var predicate = FieldNamePrefixer.Prefix(whereExpression.Predicate, fieldName);
                 filter = Translate(predicate);
             }
             else
             {
                 var predicate = DocumentToFieldConverter.Convert(whereExpression.Predicate);
-                filter = __builder.ElemMatch(fieldExpression.FieldName, Translate(predicate));
+
+                filter = __builder.ElemMatch(fieldName, Translate(predicate));
 
                 filter = ConvertElemMatchFilterToScalarElementMatchIfNeeded(filter, fieldExpression, whereExpression.Predicate);
             }

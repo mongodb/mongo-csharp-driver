@@ -99,10 +99,67 @@ namespace MongoDB.Driver.Tests.Linq
                             S = new [] {
                                     new C
                                     {
-                                        D = "Delilah"
+                                        D = "Delilah",
+                                        Z = new []
+                                        {
+                                            new E()
+                                            {
+                                                F = 1,
+                                                I = new [] { "I1", "I2" },
+                                            }
+                                        }
                                     }
                             },
-                            Ids = new [] { new ObjectId("111111111111111111111111") }
+                            Ids = new [] { new ObjectId("111111111111111111111111") },
+                            Y = new C
+                            {
+                                D = "Don't",
+                                E = new E
+                                {
+                                    F = 33,
+                                    H = 44,
+                                    I = new [] { "ignanimous"}
+                                },
+                                S = new [] {
+                                    new C
+                                    {
+                                        D = "Delilah",
+                                        Z = new []
+                                        {
+                                            new E
+                                            {
+                                                F = 1,
+                                                I = new [] { "I1", "I2" },
+                                                C = new C
+                                                {
+                                                    D = "D",
+                                                    E = new E
+                                                    {
+                                                        C = new C
+                                                        {
+                                                            X = new []
+                                                            {
+                                                                new E
+                                                                {
+                                                                    F = 2
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    X = new []
+                                                    {
+                                                        new E
+                                                        {
+                                                            F = 4
+                                                        } 
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                Ids = new [] { new ObjectId("111111111111111111111111") }
+                            }
                         },
                         new C
                         {
@@ -261,6 +318,8 @@ namespace MongoDB.Driver.Tests.Linq
             public IEnumerable<C> S { get; set; }
 
             public IEnumerable<E> X { get; set; }
+            public C Y { get; set; }
+            public IEnumerable<E> Z { get; set; }
         }
 
         public class E
@@ -270,6 +329,7 @@ namespace MongoDB.Driver.Tests.Linq
             public int H { get; set; }
 
             public IEnumerable<string> I { get; set; }
+            public C C { get; set; }
         }
 
         public class V : E
