@@ -82,6 +82,14 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         {
             switch (name)
             {
+                case "options":
+                    SetArguments(value.AsBsonDocument);
+                    return;
+
+                case "ordered":
+                    _options.IsOrdered = value.ToBoolean();
+                    return;
+
                 case "requests":
                     _requests = ParseWriteModels(value.AsBsonArray.Cast<BsonDocument>());
                     return;

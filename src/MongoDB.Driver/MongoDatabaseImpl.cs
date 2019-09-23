@@ -454,11 +454,12 @@ namespace MongoDB.Driver
         // private methods
         private AggregateOperation<TResult> CreateAggregateOperation<TResult>(RenderedPipelineDefinition<TResult> renderedPipeline, AggregateOptions options)
         {
+            var messageEncoderSettings = GetMessageEncoderSettings();
             return new AggregateOperation<TResult>(
                 _databaseNamespace,
                 renderedPipeline.Documents,
                 renderedPipeline.OutputSerializer,
-                _messageEncoderSettings)
+                messageEncoderSettings)
             {
                 AllowDiskUse = options.AllowDiskUse,
                 BatchSize = options.BatchSize,
@@ -508,7 +509,12 @@ namespace MongoDB.Driver
                     throw new ArgumentException($"Unexpected stage name: {stageName}.");
             }
 
-            return new FindOperation<TResult>(outputCollectionNamespace, resultSerializer, _messageEncoderSettings)
+            // because auto encryption is not supported for non-collection commands.
+            // So, an error will be thrown in the previous CreateAggregateToCollectionOperation step.
+            // However, since we've added encryption configuration for CreateAggregateToCollectionOperation operation,
+            // it's not superfluous to also add it here
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            return new FindOperation<TResult>(outputCollectionNamespace, resultSerializer, messageEncoderSettings)
             {
                 BatchSize = options.BatchSize,
                 Collation = options.Collation,
@@ -520,10 +526,11 @@ namespace MongoDB.Driver
 
         private AggregateToCollectionOperation CreateAggregateToCollectionOperation<TResult>(RenderedPipelineDefinition<TResult> renderedPipeline, AggregateOptions options)
         {
+            var messageEncoderSettings = GetMessageEncoderSettings();
             return new AggregateToCollectionOperation(
                 _databaseNamespace,
                 renderedPipeline.Documents,
-                _messageEncoderSettings)
+                messageEncoderSettings)
             {
                 AllowDiskUse = options.AllowDiskUse,
                 BypassDocumentValidation = options.BypassDocumentValidation,
@@ -751,12 +758,19 @@ namespace MongoDB.Driver
 
         private MessageEncoderSettings GetMessageEncoderSettings()
         {
-            return new MessageEncoderSettings
+            var messageEncoderSettings = new MessageEncoderSettings
             {
                 { MessageEncoderSettingsName.GuidRepresentation, _settings.GuidRepresentation },
                 { MessageEncoderSettingsName.ReadEncoding, _settings.ReadEncoding ?? Utf8Encodings.Strict },
                 { MessageEncoderSettingsName.WriteEncoding, _settings.WriteEncoding ?? Utf8Encodings.Strict }
             };
+
+            if (_client is MongoClient mongoClient)
+            {
+                mongoClient.ConfigureAutoEncryptionMessageEncoderSettings(messageEncoderSettings);
+            }
+
+            return messageEncoderSettings;
         }
 
         private void UsingImplicitSession(Action<IClientSessionHandle> func, CancellationToken cancellationToken)

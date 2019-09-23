@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using FluentAssertions;
 
 namespace MongoDB.Bson.TestHelpers.JsonDrivenTests
@@ -21,6 +22,11 @@ namespace MongoDB.Bson.TestHelpers.JsonDrivenTests
     {
         // public methods
         public abstract void AssertAspects(object actualValue, BsonDocument aspects);
+
+        public virtual void ConfigurePlaceholders(KeyValuePair<string, BsonValue>[] placeholders)
+        {
+            // do nothing by default
+        }
     }
 
     public abstract class AspectAsserter<TActual> : AspectAsserter

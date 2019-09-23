@@ -474,6 +474,21 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Theory]
+        [InlineData("{ $date: { \"$numberLong\": \"1552949630483\" } }", 1552949630483L)]
+        [InlineData("{ $date: { $numberLong: \"1552949630483\" } }", 1552949630483L)]
+        public void TestDateTimeWithNumberLong(string json, long expectedResult)
+        {
+            using (var reader = new JsonReader(json))
+            {
+                var result = reader.ReadDateTime();
+
+                result.Should().Be(expectedResult);
+                reader.State.Should().Be(BsonReaderState.Initial);
+                reader.IsAtEndOfFile().Should().BeTrue();
+            }
+        }
+
+        [Theory]
         [InlineData("NumberDecimal(1)", "1", "NumberDecimal(\"1\")")]
         [InlineData("NumberDecimal(2147483648)", "2147483648", "NumberDecimal(\"2147483648\")")]
         [InlineData("NumberDecimal(\"1.5\")", "1.5", "NumberDecimal(\"1.5\")")]

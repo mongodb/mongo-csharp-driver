@@ -69,6 +69,20 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         }
 
         /// <summary>
+        /// Gets a flag whether encryption has been configured.
+        /// </summary>
+        /// <value>
+        /// The flag whether encryption is configured or not.
+        /// </value>
+        protected bool IsEncryptionConfigured
+        {
+            get
+            {
+                return _encoderSettings?.GetOrDefault<IBinaryCommandFieldEncryptor>(MessageEncoderSettingsName.BinaryDocumentFieldEncryptor, null) != null;
+            }
+        }
+
+        /// <summary>
         /// Gets the maximum size of the document.
         /// </summary>
         /// <value>

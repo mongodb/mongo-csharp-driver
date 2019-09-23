@@ -1195,7 +1195,7 @@ namespace MongoDB.Bson.IO
             }
             else if (valueToken.Type == JsonTokenType.BeginObject)
             {
-                VerifyToken("$numberLong");
+                VerifyString("$numberLong");
                 VerifyToken(":");
                 var millisecondsSinceEpochToken = PopToken();
                 if (millisecondsSinceEpochToken.Type == JsonTokenType.String)

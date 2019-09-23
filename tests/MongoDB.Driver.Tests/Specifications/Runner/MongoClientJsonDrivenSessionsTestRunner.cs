@@ -28,21 +28,21 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
         protected override string[] ExpectedTestColumns => new[] { "description", "clientOptions", "useMultipleMongoses", "failPoint", "sessionOptions", "operations", "expectations", "outcome", "async" };
 
         // protected methods`
-        protected override void TestInitialize()
+        protected override void TestInitialize(MongoClient client, BsonDocument test, BsonDocument shared)
         {
-            base.TestInitialize();
+            base.TestInitialize(client, test, shared);
             KillAllSessions();
         }
 
-        protected override void AssertEvents(EventCapturer actualEvents, BsonDocument test)
+        protected override void AssertEvent(object actualEvent, BsonDocument expectedEvent)
         {
-            base.AssertEvents(
-                actualEvents,
-                test,
-                document =>
+            base.AssertEvent(
+                actualEvent,
+                expectedEvent,
+                (actual, expected) =>
                 {
                     RecursiveFieldSetter.SetAll(
-                        document, 
+                        expected,
                         "lsid",
                         value =>
                         {

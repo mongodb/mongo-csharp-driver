@@ -14,10 +14,8 @@
 */
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 
@@ -77,6 +75,10 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         {
             switch (name)
             {
+                case "bypassDocumentValidation":
+                    _options.BypassDocumentValidation = value.ToBoolean();
+                    return;
+
                 case "document":
                     _document = value.AsBsonDocument;
                     return;

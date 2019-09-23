@@ -26,6 +26,7 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.Libmongocrypt;
 
 namespace MongoDB.Driver.Core.Clusters
 {
@@ -62,6 +63,7 @@ namespace MongoDB.Driver.Core.Clusters
         // fields
         private readonly IClusterClock _clusterClock = new ClusterClock();
         private readonly ClusterId _clusterId;
+        private CryptClient _cryptClient = null;
         private ClusterDescription _description;
         private TaskCompletionSource<bool> _descriptionChangedTaskCompletionSource;
         private readonly object _descriptionLock = new object();
@@ -107,6 +109,11 @@ namespace MongoDB.Driver.Core.Clusters
         public ClusterId ClusterId
         {
             get { return _clusterId; }
+        }
+
+        public CryptClient CryptClient
+        {
+            get { return _cryptClient; }
         }
 
         public ClusterDescription Description
@@ -188,7 +195,13 @@ namespace MongoDB.Driver.Core.Clusters
         public virtual void Initialize()
         {
             ThrowIfDisposed();
-            _state.TryChange(State.Initial, State.Open);
+            if (_state.TryChange(State.Initial, State.Open))
+            {
+                if (_settings.KmsProviders != null || _settings.SchemaMap != null)
+                {
+                    _cryptClient = CryptClientCreator.CreateCryptClient(_settings.KmsProviders, _settings.SchemaMap);
+                }
+            }
         }
 
         private void RapidHeartbeatTimerCallback(object args)
@@ -350,7 +363,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             using (var helper = new WaitForDescriptionChangedHelper(this, selector, description, descriptionChangedTask, timeout, cancellationToken))
             {
-                var completedTask  = await Task.WhenAny(helper.Tasks).ConfigureAwait(false);
+                var completedTask = await Task.WhenAny(helper.Tasks).ConfigureAwait(false);
                 helper.HandleCompletedTask(completedTask);
             }
         }
@@ -528,7 +541,7 @@ namespace MongoDB.Driver.Core.Clusters
             private readonly CancellationTokenSource _timeoutCancellationTokenSource;
             private readonly Task _timeoutTask;
 
-            public  WaitForDescriptionChangedHelper(Cluster cluster, IServerSelector selector, ClusterDescription description, Task descriptionChangedTask , TimeSpan timeout, CancellationToken cancellationToken)
+            public WaitForDescriptionChangedHelper(Cluster cluster, IServerSelector selector, ClusterDescription description, Task descriptionChangedTask, TimeSpan timeout, CancellationToken cancellationToken)
             {
                 _cluster = cluster;
                 _description = description;
