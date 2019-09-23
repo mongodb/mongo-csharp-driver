@@ -85,6 +85,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                     database = _client.GetDatabase(_databaseName);
                     switch (name)
                     {
+                        case "aggregate": return new JsonDrivenDatabaseAggregateTest(database, _objectMap);
                         case "listCollectionNames": return new JsonDrivenListCollectionNamesTest(database, _objectMap);
                         case "listCollections": return new JsonDrivenListCollectionsTest(database, _objectMap);
                         case "runCommand": return new JsonDrivenRunCommandTest(database, _objectMap);
@@ -104,7 +105,9 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                         case "deleteOne": return new JsonDrivenDeleteOneTest(collection, _objectMap);
                         case "distinct": return new JsonDrivenDistinctTest(collection, _objectMap);
                         case "estimatedDocumentCount": return new JsonDrivenEstimatedCountTest(collection, _objectMap);
-                        case "find": return new JsonDrivenFindTest(collection, _objectMap);
+                        case "find":
+                        case "findOne":
+                            return new JsonDrivenFindTest(collection, _objectMap);
                         case "findOneAndDelete": return new JsonDrivenFindOneAndDeleteTest(collection, _objectMap);
                         case "findOneAndReplace": return new JsonDrivenFindOneAndReplaceTest(collection, _objectMap);
                         case "findOneAndUpdate": return new JsonDrivenFindOneAndUpdateTest(collection, _objectMap);

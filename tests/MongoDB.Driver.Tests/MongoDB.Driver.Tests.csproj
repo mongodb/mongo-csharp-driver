@@ -60,9 +60,17 @@
   <ItemGroup>
     <None Remove="Specifications\**\tests\**\*.json" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <EmbeddedResource Include="Specifications\**\tests\**\*.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Specifications\**\prose-tests\**\*.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Specifications\**\prose-tests\**\*.json" />
   </ItemGroup>
 
   <ItemGroup>

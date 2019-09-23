@@ -82,6 +82,10 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         {
             switch (name)
             {
+                case "arrayFilters":
+                    _options.ArrayFilters = ParseArrayFilters(value.AsBsonArray);
+                    return;
+
                 case "filter":
                     _filter = new BsonDocumentFilterDefinition<BsonDocument>(value.AsBsonDocument);
                     return;
@@ -127,6 +131,16 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                 default:
                     throw new FormatException($"Invalid UpdateOne result aspect: {name}.");
             }
+        }
+
+        private IEnumerable<ArrayFilterDefinition<BsonDocument>> ParseArrayFilters(BsonArray arrayFilters)
+        {
+            var arrayFilter = new List<ArrayFilterDefinition<BsonDocument>>();
+            foreach (var item in arrayFilters)
+            {
+                arrayFilter.Add(item.AsBsonDocument);
+            }
+            return arrayFilter;
         }
     }
 }

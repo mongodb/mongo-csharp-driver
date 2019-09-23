@@ -71,9 +71,9 @@ namespace MongoDB.Bson.TestHelpers.JsonDrivenTests
                 _expectedException = new BsonDocument(); // any exception will do
             }
 
-            if (document.Contains("result"))
+            if (document.TryGetValue("result", out var result) || document.TryGetValue("results", out result))
             {
-                ParseExpectedResult(document["result"]);
+                ParseExpectedResult(result);
             }
         }
 

@@ -29,6 +29,7 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
+using MongoDB.Driver.Encryption;
 
 namespace MongoDB.Driver
 {
@@ -53,6 +54,7 @@ namespace MongoDB.Driver
 
         // private fields
         private readonly ICluster _cluster;
+        private readonly AutoEncryptionLibMongoCryptController _libMongoCryptController;
         private readonly IOperationExecutor _operationExecutor;
         private readonly MongoClientSettings _settings;
 
@@ -78,6 +80,13 @@ namespace MongoDB.Driver
             _settings = Ensure.IsNotNull(settings, nameof(settings)).FrozenCopy();
             _cluster = ClusterRegistry.Instance.GetOrCreateCluster(_settings.ToClusterKey());
             _operationExecutor = new OperationExecutor(this);
+            if (settings.AutoEncryptionOptions != null)
+            {
+                _libMongoCryptController = new AutoEncryptionLibMongoCryptController(
+                    this, 
+                    _cluster.CryptClient,
+                    settings.AutoEncryptionOptions);
+            }
         }
 
         /// <summary>
@@ -128,9 +137,25 @@ namespace MongoDB.Driver
         }
 
         // internal properties
+        internal AutoEncryptionLibMongoCryptController LibMongoCryptController => _libMongoCryptController;
         internal IOperationExecutor OperationExecutor => _operationExecutor;
+        
+        // internal methods
+        internal void ConfigureAutoEncryptionMessageEncoderSettings(MessageEncoderSettings messageEncoderSettings)
+        {
+            var autoEncryptionOptions = _settings.AutoEncryptionOptions;
+            if (autoEncryptionOptions != null)
+            {
+                if (!autoEncryptionOptions.BypassAutoEncryption)
+                {
+                    messageEncoderSettings.Add(MessageEncoderSettingsName.BinaryDocumentFieldEncryptor, _libMongoCryptController);
+                }
+                messageEncoderSettings.Add(MessageEncoderSettingsName.BinaryDocumentFieldDecryptor, _libMongoCryptController);
+            }
+        }
 
         // private static methods
+
 
         // public methods
         /// <inheritdoc/>
@@ -479,10 +504,10 @@ namespace MongoDB.Driver
             ChangeStreamOptions options)
         {
             return ChangeStreamHelper.CreateChangeStreamOperation(
-                pipeline, 
-                options, 
-                _settings.ReadConcern, 
-                GetMessageEncoderSettings(), 
+                pipeline,
+                options,
+                _settings.ReadConcern,
+                GetMessageEncoderSettings(),
                 _settings.RetryReads);
         }
 
@@ -520,12 +545,16 @@ namespace MongoDB.Driver
 
         private MessageEncoderSettings GetMessageEncoderSettings()
         {
-            return new MessageEncoderSettings
+            var messageEncoderSettings = new MessageEncoderSettings
             {
                 { MessageEncoderSettingsName.GuidRepresentation, _settings.GuidRepresentation },
                 { MessageEncoderSettingsName.ReadEncoding, _settings.ReadEncoding ?? Utf8Encodings.Strict },
                 { MessageEncoderSettingsName.WriteEncoding, _settings.WriteEncoding ?? Utf8Encodings.Strict }
             };
+
+            ConfigureAutoEncryptionMessageEncoderSettings(messageEncoderSettings);
+
+            return messageEncoderSettings;
         }
 
         private IClientSessionHandle StartImplicitSession(bool areSessionsSupported)

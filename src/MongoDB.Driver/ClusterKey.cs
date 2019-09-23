@@ -16,7 +16,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Encryption;
 using MongoDB.Shared;
 
 namespace MongoDB.Driver
@@ -35,6 +37,7 @@ namespace MongoDB.Driver
         private readonly TimeSpan _heartbeatInterval;
         private readonly TimeSpan _heartbeatTimeout;
         private readonly bool _ipv6;
+        private readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> _kmsProviders;
         private readonly TimeSpan _localThreshold;
         private readonly TimeSpan _maxConnectionIdleTime;
         private readonly TimeSpan _maxConnectionLifeTime;
@@ -42,6 +45,7 @@ namespace MongoDB.Driver
         private readonly int _minConnectionPoolSize;
         private readonly int _receiveBufferSize;
         private readonly string _replicaSetName;
+        private readonly IReadOnlyDictionary<string, BsonDocument> _schemaMap;
         private readonly ConnectionStringScheme _scheme;
         private readonly string _sdamLogFilename;
         private readonly int _sendBufferSize;
@@ -65,6 +69,7 @@ namespace MongoDB.Driver
             TimeSpan heartbeatInterval,
             TimeSpan heartbeatTimeout,
             bool ipv6,
+            IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders,
             TimeSpan localThreshold,
             TimeSpan maxConnectionIdleTime,
             TimeSpan maxConnectionLifeTime,
@@ -72,6 +77,7 @@ namespace MongoDB.Driver
             int minConnectionPoolSize,
             int receiveBufferSize,
             string replicaSetName,
+            IReadOnlyDictionary<string, BsonDocument> schemaMap,
             ConnectionStringScheme scheme,
             string sdamLogFilename,
             int sendBufferSize,
@@ -93,6 +99,7 @@ namespace MongoDB.Driver
             _heartbeatInterval = heartbeatInterval;
             _heartbeatTimeout = heartbeatTimeout;
             _ipv6 = ipv6;
+            _kmsProviders = kmsProviders;
             _localThreshold = localThreshold;
             _maxConnectionIdleTime = maxConnectionIdleTime;
             _maxConnectionLifeTime = maxConnectionLifeTime;
@@ -100,6 +107,7 @@ namespace MongoDB.Driver
             _minConnectionPoolSize = minConnectionPoolSize;
             _receiveBufferSize = receiveBufferSize;
             _replicaSetName = replicaSetName;
+            _schemaMap = schemaMap;
             _scheme = scheme;
             _sdamLogFilename = sdamLogFilename;
             _sendBufferSize = sendBufferSize;
@@ -125,6 +133,7 @@ namespace MongoDB.Driver
         public TimeSpan HeartbeatInterval { get { return _heartbeatInterval; } }
         public TimeSpan HeartbeatTimeout { get { return _heartbeatTimeout; } }
         public bool IPv6 { get { return _ipv6; } }
+        public IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> KmsProviders { get { return _kmsProviders; } }
         public TimeSpan LocalThreshold { get { return _localThreshold; } }
         public TimeSpan MaxConnectionIdleTime { get { return _maxConnectionIdleTime; } }
         public TimeSpan MaxConnectionLifeTime { get { return _maxConnectionLifeTime; } }
@@ -132,8 +141,9 @@ namespace MongoDB.Driver
         public int MinConnectionPoolSize { get { return _minConnectionPoolSize; } }
         public int ReceiveBufferSize { get { return _receiveBufferSize; } }
         public string ReplicaSetName { get { return _replicaSetName; } }
+        public IReadOnlyDictionary<string, BsonDocument> SchemaMap { get { return _schemaMap; } }
         public ConnectionStringScheme Scheme { get { return _scheme; } }
-        public string SdamLogFilename { get { return _sdamLogFilename; }}
+        public string SdamLogFilename { get { return _sdamLogFilename; } }
         public int SendBufferSize { get { return _sendBufferSize; } }
         public IReadOnlyList<MongoServerAddress> Servers { get { return _servers; } }
         public TimeSpan ServerSelectionTimeout { get { return _serverSelectionTimeout; } }
@@ -172,6 +182,7 @@ namespace MongoDB.Driver
                 _heartbeatInterval == rhs._heartbeatInterval &&
                 _heartbeatTimeout == rhs._heartbeatTimeout &&
                 _ipv6 == rhs._ipv6 &&
+                KmsProvidersHelper.Equals(_kmsProviders, rhs.KmsProviders) &&
                 _localThreshold == rhs._localThreshold &&
                 _maxConnectionIdleTime == rhs._maxConnectionIdleTime &&
                 _maxConnectionLifeTime == rhs._maxConnectionLifeTime &&
@@ -179,6 +190,7 @@ namespace MongoDB.Driver
                 _minConnectionPoolSize == rhs._minConnectionPoolSize &&
                 _receiveBufferSize == rhs._receiveBufferSize &&
                 _replicaSetName == rhs._replicaSetName &&
+                _schemaMap.IsEquivalentTo(rhs._schemaMap, object.Equals) &&
                 _scheme == rhs._scheme &&
                 _sdamLogFilename == rhs._sdamLogFilename &&
                 _sendBufferSize == rhs._sendBufferSize &&

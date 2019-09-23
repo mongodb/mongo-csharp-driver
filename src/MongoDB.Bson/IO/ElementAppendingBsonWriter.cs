@@ -74,6 +74,30 @@ namespace MongoDB.Bson.IO
             base.WriteEndDocument();
         }
 
+        public override void WriteRawBsonDocument(IByteBuffer slice)
+        {
+            WriteStartDocument();
+
+            if (Wrapped is BsonBinaryWriter binaryWriter)
+            {
+                // just copy the bytes (without the length and terminating null)
+                var lengthBytes = new byte[4];
+                slice.GetBytes(0, lengthBytes, 0, 4);
+                var length = BitConverter.ToInt32(lengthBytes, 0);
+                using (var elements = slice.GetSlice(4, length - 5))
+                {
+                    var stream = binaryWriter.BsonStream;
+                    stream.WriteSlice(elements);
+                }
+            }
+            else
+            {
+                throw new NotSupportedException("WriteRawBsonDocument supports only BsonBinaryWriter.");
+            }
+
+            WriteEndDocument();
+        }
+
         /// <inheritdoc />
         public override void WriteStartDocument()
         {

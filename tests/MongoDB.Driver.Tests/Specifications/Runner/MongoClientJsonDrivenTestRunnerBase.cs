@@ -22,7 +22,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
@@ -94,12 +93,31 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
         protected IDictionary<string, object> ObjectMap => _objectMap;
 
         // Virtual methods
-        protected virtual void AssertEvents(EventCapturer actualEvents, BsonDocument test)
+        protected virtual void AssertEvent(object actualEvent, BsonDocument expectedEvent)
         {
-            AssertEvents(actualEvents, test, null);
+            AssertEvent(actualEvent, expectedEvent, null);
         }
 
-        protected virtual void AssertEvents(EventCapturer eventCapturer, BsonDocument test, Action<BsonDocument> prepareEventResult)
+        protected virtual void AssertEvent(object actualEvent, BsonDocument expectedEvent, Action<object, BsonDocument> prepareEventResult, Func<KeyValuePair<string, BsonValue>[]> getPlaceholders = null)
+        {
+            if (expectedEvent.ElementCount != 1)
+            {
+                throw new FormatException("Expected event must be a document with a single element with a name the specifies the type of the event.");
+            }
+
+            prepareEventResult?.Invoke(actualEvent, expectedEvent);
+
+            var eventType = expectedEvent.GetElement(0).Name;
+            var eventAsserter = EventAsserterFactory.CreateAsserter(eventType);
+            if (getPlaceholders != null)
+            {
+                eventAsserter.ConfigurePlaceholders(getPlaceholders());
+            }
+
+            eventAsserter.AssertAspects(actualEvent, expectedEvent[0].AsBsonDocument);
+        }
+
+        protected virtual void AssertEvents(EventCapturer eventCapturer, BsonDocument test)
         {
             if (test.Contains(ExpectationsKey))
             {
@@ -110,9 +128,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
                 for (var index = 0; index < n; index++)
                 {
                     var actualEvent = actualEvents[index];
-
                     var expectedEvent = expectedEvents[index];
-                    prepareEventResult?.Invoke(expectedEvent);
                     AssertEvent(actualEvent, expectedEvent);
                 }
                 if (actualEvents.Count < expectedEvents.Count)
@@ -152,7 +168,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
             {
                 RequireServer.Check().RunOn(runOn.AsBsonArray);
             }
-       }
+        }
 
         protected virtual void ConfigureClientSettings(MongoClientSettings settings, BsonDocument test)
         {
@@ -160,42 +176,34 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
             {
                 foreach (var option in test["clientOptions"].AsBsonDocument)
                 {
-                    switch (option.Name)
+                    if (!TryConfigureClientOption(settings, option))
                     {
-                        case "readConcernLevel":
-                            var level = (ReadConcernLevel)Enum.Parse(typeof(ReadConcernLevel), option.Value.AsString, ignoreCase: true);
-                            settings.ReadConcern = new ReadConcern(level);
-                            break;
-
-                        case "readPreference":
-                            settings.ReadPreference = ReadPreferenceFromBsonValue(option.Value);
-                            break;
-
-                        case "retryWrites":
-                            settings.RetryWrites = option.Value.ToBoolean();
-                            break;
-
-                        case "w":
-                            if (option.Value.IsString)
-                            {
-                                settings.WriteConcern = new WriteConcern(option.Value.AsString);
-                            }
-                            else
-                            {
-                                settings.WriteConcern = new WriteConcern(option.Value.ToInt32());
-                            }
-                            break;
-
-                        default:
-                            throw new FormatException($"Unexpected client option: \"{option.Name}\".");
+                        throw new FormatException($"Unexpected client option: \"{option.Name}\".");
                     }
                 }
             }
         }
 
+        protected virtual void CreateCollection(IMongoClient client, string databaseName, string collectionName, BsonDocument test, BsonDocument shared)
+        {
+            var database = client.GetDatabase(databaseName).WithWriteConcern(WriteConcern.WMajority);
+            database.CreateCollection(collectionName);
+        }
+
+        protected virtual MongoClient CreateClientForTestSetup()
+        {
+            return DriverTestConfiguration.Client;
+        }
+
         protected virtual void CustomDataValidation(BsonDocument shared, BsonDocument test)
         {
             // do nothing by default.
+        }
+
+        protected virtual void DropCollection(MongoClient client, string databaseName, string collectionName, BsonDocument test, BsonDocument shared)
+        {
+            var database = client.GetDatabase(databaseName).WithWriteConcern(WriteConcern.WMajority);
+            database.DropCollection(collectionName);
         }
 
         protected virtual void ExecuteOperations(IMongoClient client, Dictionary<string, object> objectMap, BsonDocument test)
@@ -206,6 +214,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
 
             foreach (var operation in test[OperationsKey].AsBsonArray.Cast<BsonDocument>())
             {
+                ModifyOperationIfNeeded(operation);
                 var receiver = operation["object"].AsString;
                 var name = operation["name"].AsString;
                 var jsonDrivenTest = factory.CreateTest(receiver, name);
@@ -223,11 +232,76 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
             }
         }
 
-        protected abstract void RunTest(BsonDocument shared, BsonDocument test, EventCapturer eventCapturer);
+        protected virtual void InsertData(IMongoClient client, string databaseName, string collectionName, BsonDocument shared)
+        {
+            if (shared.Contains(DataKey))
+            {
+                var documents = shared[DataKey].AsBsonArray.Cast<BsonDocument>().ToList();
+                if (documents.Count > 0)
+                {
+                    var database = client.GetDatabase(databaseName);
+                    var collection = database.GetCollection<BsonDocument>(collectionName).WithWriteConcern(WriteConcern.WMajority);
+                    collection.InsertMany(documents);
+                }
+            }
+        }
 
-        protected virtual void TestInitialize()
+        protected virtual void ModifyOperationIfNeeded(BsonDocument operation)
+        {
+            // do nothing by default
+        }
+
+        protected virtual void RunTest(BsonDocument shared, BsonDocument test, EventCapturer eventCapturer)
+        {
+            using (var client = CreateDisposableClient(test, eventCapturer))
+            {
+                ExecuteOperations(client, null, test);
+            }
+        }
+
+        protected virtual void TestInitialize(MongoClient client, BsonDocument test, BsonDocument shared)
         {
             // do nothing by default.
+        }
+
+        protected virtual bool TryConfigureClientOption(MongoClientSettings settings, BsonElement option)
+        {
+            switch (option.Name)
+            {
+                case "readConcernLevel":
+                    var level = (ReadConcernLevel)Enum.Parse(typeof(ReadConcernLevel), option.Value.AsString, ignoreCase: true);
+                    settings.ReadConcern = new ReadConcern(level);
+                    break;
+
+                case "readPreference":
+                    settings.ReadPreference = ReadPreferenceFromBsonValue(option.Value);
+                    break;
+
+                case "retryWrites":
+                    settings.RetryWrites = option.Value.ToBoolean();
+                    break;
+
+                case "w":
+                    if (option.Value.IsString)
+                    {
+                        settings.WriteConcern = new WriteConcern(option.Value.AsString);
+                    }
+                    else
+                    {
+                        settings.WriteConcern = new WriteConcern(option.Value.ToInt32());
+                    }
+                    break;
+
+                default:
+                    return false;
+            }
+
+            return true;
+        }
+
+        protected virtual void VerifyCollectionData(IEnumerable<BsonDocument> expectedDocuments)
+        {
+            VerifyCollectionData(expectedDocuments, null);
         }
 
         protected virtual void VerifyCollectionOutcome(BsonDocument outcome)
@@ -260,13 +334,6 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
             return null;
         }
 
-        protected void CreateCollection()
-        {
-            var client = DriverTestConfiguration.Client;
-            var database = client.GetDatabase(DatabaseName).WithWriteConcern(WriteConcern.WMajority);
-            database.CreateCollection(CollectionName);
-        }
-
         protected DisposableMongoClient CreateDisposableClient(BsonDocument test, EventCapturer eventCapturer)
         {
             var useMultipleShardRouters = test.GetValue("useMultipleMongoses", false).AsBoolean;
@@ -284,56 +351,32 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
                 useMultipleShardRouters);
         }
 
-        protected void DropCollection()
-        {
-            var client = DriverTestConfiguration.Client;
-            var database = client.GetDatabase(DatabaseName).WithWriteConcern(WriteConcern.WMajority);
-            database.DropCollection(CollectionName);
-        }
-
-        protected void InsertData(BsonDocument shared)
-        {
-            if (shared.Contains(DataKey))
-            {
-                var documents = shared[DataKey].AsBsonArray.Cast<BsonDocument>().ToList();
-                if (documents.Count > 0)
-                {
-                    var client = DriverTestConfiguration.Client;
-                    var database = client.GetDatabase(DatabaseName);
-                    var collection = database.GetCollection<BsonDocument>(CollectionName).WithWriteConcern(WriteConcern.WMajority);
-                    collection.InsertMany(documents);
-                }
-            }
-        }
-
         protected void SetupAndRunTest(JsonDrivenTestCase testCase)
         {
             CheckServerRequirements(testCase.Shared);
             SetupAndRunTest(testCase.Shared, testCase.Test);
         }
 
-        protected void VerifyCollectionData(IEnumerable<BsonDocument> expectedDocuments)
+        protected void VerifyCollectionData(IEnumerable<BsonDocument> expectedDocuments, Action<BsonDocument, BsonDocument> prepareExpectedResult)
         {
             var database = DriverTestConfiguration.Client.GetDatabase(DatabaseName).WithReadConcern(ReadConcern.Local);
             var collection = database.GetCollection<BsonDocument>(CollectionName);
             var actualDocuments = collection.Find("{}").ToList();
+            if (prepareExpectedResult != null)
+            {
+                var n = Math.Min(actualDocuments.Count, expectedDocuments.Count());
+                for (var index = 0; index < n; index++)
+                {
+                    var actualEvent = actualDocuments.ElementAt(index);
+
+                    var expectedEvent = expectedDocuments.ElementAt(index);
+                    prepareExpectedResult(actualEvent, expectedEvent);
+                }
+            }
             actualDocuments.Should().BeEquivalentTo(expectedDocuments);
         }
 
-
         // private methods
-        private void AssertEvent(object actualEvent, BsonDocument expectedEvent)
-        {
-            if (expectedEvent.ElementCount != 1)
-            {
-                throw new FormatException("Expected event must be a document with a single element with a name the specifies the type of the event.");
-            }
-
-            var eventType = expectedEvent.GetElement(0).Name;
-            var eventAsserter = EventAsserterFactory.CreateAsserter(eventType);
-            eventAsserter.AssertAspects(actualEvent, expectedEvent[0].AsBsonDocument);
-        }
-
         private List<CommandStartedEvent> GetEvents(EventCapturer eventCapturer)
         {
             var events = new List<CommandStartedEvent>();
@@ -375,10 +418,11 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
             DatabaseName = shared[DatabaseNameKey].AsString;
             CollectionName = shared[CollectionNameKey].AsString;
 
-            TestInitialize();
-            DropCollection();
-            CreateCollection();
-            InsertData(shared);
+            var client = CreateClientForTestSetup();
+            TestInitialize(client, test, shared);
+            DropCollection(client, DatabaseName, CollectionName, test, shared);
+            CreateCollection(client, DatabaseName, CollectionName, test, shared);
+            InsertData(client, DatabaseName, CollectionName, shared);
 
             using (ConfigureFailPoint(test))
             {

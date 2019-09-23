@@ -20,6 +20,7 @@ using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.Libmongocrypt;
 
 namespace MongoDB.Driver.Core.Clusters
 {
@@ -65,6 +66,14 @@ namespace MongoDB.Driver.Core.Clusters
         /// </summary>
         /// <returns>A core server session.</returns>
         ICoreServerSession AcquireServerSession();
+
+        /// <summary>
+        /// Gets the crypt client.
+        /// </summary>
+        /// <returns>A crypt client.</returns>
+#pragma warning disable CS3003
+        CryptClient CryptClient { get; }
+#pragma warning restore
 
         /// <summary>
         /// Initializes the cluster.

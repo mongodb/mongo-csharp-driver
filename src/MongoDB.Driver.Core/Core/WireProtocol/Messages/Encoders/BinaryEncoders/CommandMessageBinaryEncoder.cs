@@ -296,7 +296,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             stream.WriteCString(section.Identifier);
 
             var batch = section.Documents;
-            var maxDocumentSize = section.MaxDocumentSize ?? writer.Settings.MaxDocumentSize;
+            var maxDocumentSize = 
+                IsEncryptionConfigured && MaxDocumentSize.HasValue
+                    ? MaxDocumentSize.Value 
+                    : section.MaxDocumentSize ?? writer.Settings.MaxDocumentSize;
             writer.PushSettings(s => ((BsonBinaryWriterSettings)s).MaxDocumentSize = maxDocumentSize);
             writer.PushElementNameValidator(section.ElementNameValidator);
             try

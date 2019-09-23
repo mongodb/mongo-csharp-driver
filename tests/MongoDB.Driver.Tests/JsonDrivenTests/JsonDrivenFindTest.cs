@@ -40,14 +40,21 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         // public methods
         public override void Arrange(BsonDocument document)
         {
-            JsonDrivenHelper.EnsureAllFieldsAreValid(document, "name", "object", "collectionOptions", "arguments", "result", "error");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(document, "name", "object", "collectionOptions", "arguments", "result", "results", "error");
             base.Arrange(document);
         }
 
         // protected methods
         protected override void AssertResult()
         {
-            _result.Should().Equal(_expectedResult.AsBsonArray.Cast<BsonDocument>());
+            if (_expectedResult is BsonDocument resultDocument && _result.Count == 1)
+            {
+                _result[0].Should().Be(resultDocument);
+            }
+            else
+            {
+                _result.Should().Equal(_expectedResult.AsBsonArray.Cast<BsonDocument>());
+            }
         }
 
         protected override void CallMethod(CancellationToken cancellationToken)
@@ -92,6 +99,10 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                 
                 case "limit":
                     _options.Limit = value.ToInt32();
+                    return;
+
+                case "result":
+                    ParseExpectedResult(value.IsBsonArray ? value.AsBsonArray : new BsonArray(new[] { value }));
                     return;
 
                 case "session":

@@ -41,6 +41,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __bypassDocumentValidation = new Feature("BypassDocumentValidation", new SemanticVersion(3, 2, 0));
         private static readonly Feature __changeStreamStage = new Feature("ChangeStreamStage", new SemanticVersion(3, 5, 11));
         private static readonly Feature __changeStreamPostBatchResumeToken = new Feature("ChangeStreamPostBatchResumeToken", new SemanticVersion(4, 0 ,7));
+        private static readonly Feature __clientSideEncryption = new Feature("ClientSideEncryption", new SemanticVersion(4, 1, 9));
         private static readonly CollationFeature __collation = new CollationFeature("Collation", new SemanticVersion(3, 3, 11));
         private static readonly Feature __commandMessage = new Feature("CommandMessage", new SemanticVersion(3, 6, 0));
         private static readonly CommandsThatWriteAcceptWriteConcernFeature __commandsThatWriteAcceptWriteConcern = new CommandsThatWriteAcceptWriteConcernFeature("CommandsThatWriteAcceptWriteConcern", new SemanticVersion(3, 3, 11));
@@ -169,6 +170,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the change stream post batch resume token feature.
         /// </summary>
         public static Feature ChangeStreamPostBatchResumeToken => __changeStreamPostBatchResumeToken;
+
+        /// <summary>
+        /// Gets the client side encryption feature.
+        /// </summary>
+        public static Feature ClientSideEncryption => __clientSideEncryption;
 
         /// <summary>
         /// Gets the collation feature.
