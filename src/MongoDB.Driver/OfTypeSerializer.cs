@@ -13,12 +13,13 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Driver
 {
-    internal sealed class OfTypeSerializer<TRootDocument, TDerivedDocument> : SerializerBase<TDerivedDocument>, IBsonDocumentSerializer
+    internal sealed class OfTypeSerializer<TRootDocument, TDerivedDocument> : SerializerBase<TDerivedDocument>, IBsonDocumentSerializer, IBsonIdProvider
         where TDerivedDocument : TRootDocument
     {
         private readonly IBsonSerializer<TDerivedDocument> _derivedDocumentSerializer;
@@ -34,10 +35,33 @@ namespace MongoDB.Driver
             return _derivedDocumentSerializer.Deserialize(context, args);
         }
 
+        public bool GetDocumentId(object document, out object id, out Type idNominalType, out IIdGenerator idGenerator)
+        {
+            if (_derivedDocumentSerializer is IBsonIdProvider idProvider)
+            {
+                return idProvider.GetDocumentId(document, out id, out idNominalType, out idGenerator);
+            }
+            else
+            {
+                id = null;
+                idNominalType = null;
+                idGenerator = null;
+                return false;
+            }
+        }
+
         public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TDerivedDocument value)
         {
             args.NominalType = typeof(TRootDocument);
             _derivedDocumentSerializer.Serialize(context, args, value);
+        }
+
+        public void SetDocumentId(object document, object id)
+        {
+            if (_derivedDocumentSerializer is IBsonIdProvider idProvider)
+            {
+                idProvider.SetDocumentId(document, id);
+            }
         }
 
         public bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo)
