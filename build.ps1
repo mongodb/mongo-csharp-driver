@@ -107,7 +107,7 @@ $MODULES_PACKAGES_CONFIG = Join-Path $MODULES_DIR "packages.config"
 # INSTALL .NET CORE CLI
 ###########################################################################
 
-$DotNetChannel = "Current";
+$DotNetChannel = "2.1";
 $DotNetVersion = "Latest";
 $DotNetInstallerUri = "https://dot.net/v1/dotnet-install.ps1";
 Function Remove-PathVariable([string]$VariableToRemove)
