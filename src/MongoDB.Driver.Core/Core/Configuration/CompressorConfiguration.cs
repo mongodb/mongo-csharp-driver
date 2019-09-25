@@ -15,6 +15,7 @@
 
 using System.Collections.Generic;
 using MongoDB.Driver.Core.Compression;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Configuration
 {
@@ -23,24 +24,90 @@ namespace MongoDB.Driver.Core.Configuration
     /// </summary>
     public sealed class CompressorConfiguration
     {
+        // private fields
+        private readonly IDictionary<string, object> _properties;
+        private readonly CompressorType _type;
+
+        // constructors
         /// <summary>
         /// Initializes an instance of <see cref="CompressorConfiguration"/>.
         /// </summary>
         /// <param name="type">The compressor type.</param>
         public CompressorConfiguration(CompressorType type)
         {
-            Type = type;
-            Properties = new Dictionary<string, object>();
+            _type = type;
+            _properties = new Dictionary<string, object>();
         }
 
+        // public properties
         /// <summary>
         /// Gets the compression properties.
         /// </summary>
-        public IDictionary<string, object> Properties { get; }
+        public IDictionary<string, object> Properties => _properties;
 
         /// <summary>
         /// Gets the compressor type.
         /// </summary>
-        public CompressorType Type { get; }
+        public CompressorType Type => _type;
+
+        // public methods
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(obj, this))
+            {
+                return true;
+            }
+
+            if (object.ReferenceEquals(obj, null) || obj.GetType() != typeof(CompressorConfiguration))
+            {
+                return false;
+            }
+
+            var rhs = (CompressorConfiguration)obj;
+            return
+                _type == rhs._type &&
+                IsEquivalentTo(_properties, rhs._properties);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode()
+        {
+            return new Hasher()
+                .Hash(_type)
+                .HashElements(_properties.Keys) // keep it cheap
+                .GetHashCode();
+        }
+
+        // private methods
+        private bool IsEquivalentTo(IDictionary<string, object> x, IDictionary<string, object> y)
+        {
+            if (object.ReferenceEquals(x, y))
+            {
+                return true;
+            }
+
+            if (object.ReferenceEquals(x, null) || object.ReferenceEquals(y, null))
+            {
+                return false;
+            }
+
+            if (x.Count != y.Count)
+            {
+                return false;
+            }
+
+            foreach (var keyValuePair in x)
+            {
+                var key = keyValuePair.Key;
+                var xValue = keyValuePair.Value;
+                if (!y.TryGetValue(key, out var yValue) || !object.Equals(xValue, yValue))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
     }
 }
