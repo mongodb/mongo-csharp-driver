@@ -412,6 +412,12 @@ namespace MongoDB.Driver.Linq.Translators
                 {
                     return new BsonDocument("$eq", new BsonArray(new[] { TranslateValue(node.Object), TranslateValue(node.Arguments[0]) }));
                 }
+
+                if (node.Method.Name == "ToString"
+                    && node.Arguments.Count == 0)
+                {
+                    return new BsonDocument("$toString", TranslateValue(node.Object));
+                }
             }
 
             var message = string.Format("{0} of type {1} is not supported in the expression tree {2}.",

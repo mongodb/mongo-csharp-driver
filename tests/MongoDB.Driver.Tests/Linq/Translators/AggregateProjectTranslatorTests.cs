@@ -429,6 +429,30 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Result.Should().Be("2012-12-01");
         }
 
+        [SkippableFact]
+        public void Should_translateDecimalToString()
+        {
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
+
+            var result = Project(x => new { Result = x.D.ToString() });
+
+            result.Projection.Should().Be("{ Result: { \"$toString\": \"$D\" }, _id: 0 }");
+
+            result.Value.Result.Should().Be(Math.PI.ToString());
+        }
+
+        [SkippableFact]
+        public void Should_translateDoubleToString()
+        {
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
+
+            var result = Project(x => new { Result = x.F.ToString() });
+
+            result.Projection.Should().Be("{ Result: { \"$toString\": \"$F\" }, _id: 0 }");
+
+            result.Value.Result.Should().Be("123.456");
+        }
+
         [Fact]
         public void Should_translate_day_of_month()
         {

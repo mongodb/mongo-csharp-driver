@@ -86,6 +86,8 @@ namespace MongoDB.Driver.Tests.Linq
                     },
                     X = new List<E> { new E { F = 10 }, new V { W = 12 } }
                 },
+                D = Convert.ToDecimal(Math.PI),
+                F = 123.456,
                 G = new[] {
                         new C
                         {
@@ -277,6 +279,10 @@ namespace MongoDB.Driver.Tests.Linq
             public string B { get; set; }
 
             public C C { get; set; }
+
+            public decimal D { get; set; }
+
+            public double F { get; set; }
 
             public IEnumerable<C> G { get; set; }
 
