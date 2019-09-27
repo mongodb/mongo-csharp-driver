@@ -116,7 +116,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             stream.WriteInt32(responseTo);
             stream.WriteInt32((int)Opcode.Compressed);
             stream.WriteInt32((int)originalOpcode);
-            stream.WriteInt32(uncompressedMessageLength - MessageHeaderLength);
+            stream.WriteInt32(uncompressedMessageLength - MessageHeaderLength); // uncompressedSize
             stream.WriteByte((byte)compressorType);
             compressor.Compress(uncompressedMessageStream, stream);
             stream.BackpatchSize(messageStartPosition);
