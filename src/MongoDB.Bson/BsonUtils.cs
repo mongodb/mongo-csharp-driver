@@ -83,7 +83,7 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
-        /// Parses a hex string into its equivalent byte span
+        /// Parses a hex string into its equivalent span of bytes
         /// </summary>
         /// <param name="s">The hex string to parse.</param>
         /// <param name="span">The byte sequivalent of the hex string.</param>
@@ -160,9 +160,9 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
-        /// Converts a byte span to a hex string.
+        /// Converts a span of bytes to a hex string.
         /// </summary>
-        /// <param name="bytes">The byte span.</param>
+        /// <param name="bytes">The span of bytes.</param>
         /// <returns>A hex string.</returns>
         public static string ToHexString(ReadOnlySpan<byte> bytes)
         {
@@ -236,11 +236,11 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
-        /// Tries to parse a hex string to a pre-allocated byte span
+        /// Tries to parse a hex string to a pre-allocated span of bytes
         /// </summary>
         /// <param name="s">The hex string.</param>
-        /// <param name="buffer">A pre-allocated byte span</param>
-        /// <returns>True if the hex string was successfully parsed, and the allocated byte span has the exact length</returns>
+        /// <param name="buffer">A pre-allocated span of bytes</param>
+        /// <returns>True if the hex string was successfully parsed, and the allocated span of bytes has the exact length</returns>
         public static bool TryParseHexString(string s, Span<byte> buffer)
         {
             if (s == null || buffer.Length != GetHexStringBinaryLength(s)) {
