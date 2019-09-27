@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -o xtrace   # Write all commands first to stderr
 set -o errexit  # Exit the script with error if any of the commands fail
@@ -14,6 +14,7 @@ AUTH=${AUTH:-noauth}
 SSL=${SSL:-nossl}
 MONGODB_URI=${MONGODB_URI:-}
 TOPOLOGY=${TOPOLOGY:-server}
+COMPRESSOR=${COMPRESSOR:-none}
 
 ############################################
 #            Functions                     #
@@ -28,6 +29,15 @@ provision_ssl () {
   else
     export $uri_environment_variable_name="${!uri_environment_variable_name}/?ssl=true&sslVerifyCertificate=false"
   fi
+}
+
+provision_compressor () {
+    uri_environment_variable_name=$1
+    if [[ "${!uri_environment_variable_name}" =~ "/?" ]]; then
+        export $uri_environment_variable_name="${!uri_environment_variable_name}&compressors=$COMPRESSOR"
+    else
+        export $uri_environment_variable_name="${!uri_environment_variable_name}/?compressors=$COMPRESSOR"
+    fi
 }
 
 ############################################
@@ -51,7 +61,14 @@ if [ "$SSL" != "nossl" ]; then
    fi
 fi
 
-echo "Running $AUTH tests over $SSL for $TOPOLOGY and connecting to $MONGODB_URI"
+if [ "$COMPRESSOR" != "none" ]; then
+    provision_compressor MONGODB_URI
+    if [ "$TOPOLOGY" == "sharded_cluster" ]; then
+        provision_compressor MONGODB_URI_WITH_MULTIPLE_MONGOSES
+    fi
+fi
+
+echo "Running $AUTH tests over $SSL for $TOPOLOGY with $COMPRESSOR compressor and connecting to $MONGODB_URI"
 
 if [ "$OS" == "windows-64" ]; then
   export TARGET="Test"

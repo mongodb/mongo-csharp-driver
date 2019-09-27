@@ -218,7 +218,7 @@ functions:
           export FLE_AWS_ACCESS_KEY_ID=${FLE_AWS_ACCESS_KEY_ID}
           export FLE_AWS_SECRET_ACCESS_KEY=${FLE_AWS_SECRET_ACCESS_KEY}
           ${PREPARE_SHELL}
-          AUTH=${AUTH} SSL=${SSL} MONGODB_URI="${MONGODB_URI}" TOPOLOGY=${TOPOLOGY} OS=${OS} evergreen/run-tests.sh
+          AUTH=${AUTH} SSL=${SSL} MONGODB_URI="${MONGODB_URI}" TOPOLOGY=${TOPOLOGY} OS=${OS} COMPRESSOR=${COMPRESSOR} evergreen/run-tests.sh
 
   run-atlas-connectivity-tests:
     - command: shell.exec
@@ -477,18 +477,18 @@ buildvariants:
      - name: test
 
 - matrix_name: "tests-zlib-compression"
-  matrix_spec: { compressor : "zlib", auth: "noauth", ssl: "nossl", version: ["3.4", "3.6", "4.0", "4.2", "latest"], topology: "standalone", os: "*" }
+  matrix_spec: { compressor : "zlib", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "latest"], topology: "standalone", os: "*" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
      - name: "test"
 
-#- matrix_name: "tests-snappy-compression"
-#  matrix_spec: { compressor : "snappy", auth: "noauth", ssl: "nossl", version: ["3.4", "3.6", "4.0", "4.2", "latest"], topology: "standalone", os: "*" }
-#  display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
-#  tags: ["tests-variant"]
-#  tasks:
-#     - name: "test"
+- matrix_name: "tests-snappy-compression"
+  matrix_spec: { compressor : "snappy", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "latest"], topology: "standalone", os: "*" }
+  display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
+  tags: ["tests-variant"]
+  tasks:
+     - name: "test"
 
 - name: atlas-connectivity-tests
   display_name: "Atlas Connectivity Tests"

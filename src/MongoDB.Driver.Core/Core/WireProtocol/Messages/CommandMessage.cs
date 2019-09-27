@@ -81,8 +81,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         {
             get
             {
-                var section = _sections.OfType<Type0CommandMessageSection<BsonDocument>>().First();
-                var commandName = section.Document.First().Name;
+                var type0Section = _sections.OfType<Type0CommandMessageSection>().Single();
+                var command = (BsonDocument)type0Section.Document; // could be a RawBsonDocument but that's OK
+                var commandName = command.GetElement(0).Name;
 
                 if (__messagesNotToBeCompressed.Contains(commandName))
                 {

@@ -1,7 +1,8 @@
-# .NET Driver Version 2.9.2 Placeholder Release Notes
+# .NET Driver Version 2.9.2 Release Notes
 
-The main new features in 2.9.2 are:
+This is a patch release that fixes several bugs reported since 2.9.1 was released.
 
+Most notably in the .NET Framework version of the driver, snappy compression now works properly with servers ≥ 3.6.
 
 An online version of these release notes is available at:
 
@@ -18,3 +19,4 @@ http://mongodb.github.io/mongo-csharp-driver/
 
 ## Upgrading
 
+There are no known backwards breaking changes in this release.
