@@ -161,7 +161,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
             var expectations = (BsonArray)definition["expectations"];
             if (!SpinWait.SpinUntil(() => __capturedEvents.Count == expectations.Count, TimeSpan.FromSeconds(5)))
             {
-                throw new Exception($"Expected {__capturedEvents.Count} events but only {expectations.Count} events were captured.");
+                throw new Exception($"Expected {expectations.Count} events but only {__capturedEvents.Count} events were captured.");
             }
 
             long? operationId = null;
