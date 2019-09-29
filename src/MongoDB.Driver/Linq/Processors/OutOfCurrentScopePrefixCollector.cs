@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Linq.Processors
     internal sealed class OutOfCurrentScopePrefixCollector : ExtensionExpressionVisitor
     {
         private readonly HashSet<string> _outOfCurrentScopePrefixCollection = new HashSet<string>();
+        private bool _isParentConstantExpression = false;
 
         /// <summary>
         /// Collects the list of expression fields which have been defined out of the current scope.
@@ -41,12 +42,25 @@ namespace MongoDB.Driver.Linq.Processors
         public override Expression Visit(Expression node)
         {
             var hasOutOfCurrentScopePrefix = node as IHasOutOfCurrentScopePrefix;
-            if (hasOutOfCurrentScopePrefix != null && !string.IsNullOrWhiteSpace(hasOutOfCurrentScopePrefix.OutOfCurrentScopePrefix))
+            if (hasOutOfCurrentScopePrefix != null &&
+                !string.IsNullOrWhiteSpace(hasOutOfCurrentScopePrefix.OutOfCurrentScopePrefix) &&
+                !_isParentConstantExpression)
             {
                 _outOfCurrentScopePrefixCollection.Add(hasOutOfCurrentScopePrefix.OutOfCurrentScopePrefix);
             }
 
             return base.Visit(node);
+        }
+
+        protected internal override Expression VisitWhere(WhereExpression node)
+        {
+            if (node.Source.NodeType == ExpressionType.Constant)
+            {
+                _isParentConstantExpression = true;
+            }
+            var result = base.VisitWhere(node);
+            _isParentConstantExpression = false;
+            return result;
         }
     }
 }

@@ -60,6 +60,75 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Fact]
+        public void Should_not_throw_the_exception_when_a_child_expression_is_called_from_nested_locals()
+        {
+            Setup();
+
+            var local = new List<int> { 1, 2 };
+            var local2 = new List<bool> { true, false };
+
+            Expression<Func<TestObject, bool>> expr = (a) => a.Collection1.Any(b => local.Any(c => b.Collection2.Contains(c)));
+            AssertWhere(expr, "{ $match : { 'Collection2' : { '$in' : [1, 2] } } }");
+
+            expr = (a) => a.Collection1.Any(b => b.Collection1.Any(c => local.Any(d => c.Collection2.Contains(d))));
+            AssertWhere(expr, "{}");
+
+            expr = (a) => a.Collection1.Any(b => b.Collection2 != null && b.Collection1.Any(c => local.Any(d => c.Collection2.Contains(d))));
+            AssertWhere(expr, "{ $match : { 'Collection1' : { '$elemMatch' : { 'Collection2' : { '$ne' : null, '$in' : [1, 2] } } } } }");
+
+            expr = (a) => a.Collection1.Any(
+                b =>
+                    b.Collection1 != null && b.Collection1.Any(
+                        c =>
+                            local.Any(d => c.Collection2.Contains(d)) &&
+                            local2.Any(e => c.Collection3.Contains(e))
+                        ));
+            AssertWhere(
+                expr,
+                @"{ 
+                    $match : { 
+                        'Collection1' : { 
+                            '$elemMatch' : { 
+                                'Collection1' : { 
+                                    '$ne' : null, 
+                                    '$elemMatch' : { 
+                                        'Collection2' : { '$in' : [1, 2] }, 
+                                        'Collection3' : { '$in' : [true, false] } 
+                                    } 
+                                } 
+                            } 
+                        } 
+                    }
+                }");
+
+            expr = (a) => a.Collection1.Any(
+                b =>
+                    b.Collection1 != null && b.Collection1.Any(
+                        c =>
+                            c.Collection1.Any(d => d.Value1 == 2) &&
+                            local2.Any(e => c.Collection3.Contains(e))
+                        ));
+            AssertWhere(
+                expr, 
+                @"
+                {
+                    $match : { 
+                        'Collection1' : { 
+                            '$elemMatch' : { 
+                                'Collection1' : { 
+                                    '$ne' : null, 
+                                    '$elemMatch' : { 
+                                        'Collection1' : { '$elemMatch' : { 'Value1' : 2 } }, 
+                                        'Collection3' : { '$in' : [true, false] } 
+                                    } 
+                                } 
+                            } 
+                        }
+                    }
+                }");
+        }
+
+        [Fact]
         public void Should_not_throw_the_exception_when_a_predicate_has_only_parameter_expressions()
         {
             Setup();
@@ -173,6 +242,21 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                         c => c.Value1 != 3 && c.Collection1.Any(d => a.Value1 != 5));
             exception = Assert.Throws<NotSupportedException>(() => Execute(CreateWhereQuery(expr)));
             exception.Message.Should().Be(string.Format(NotSupportErrorMessageTemplate, "{document}{Collection1}.Where((({document}{Value1} != 3) AndAlso Any({document}{Collection1}.Where(({document}{Value1} != 5)))))", "a"));
+        }
+
+        // private methods
+        private void AssertWhere(Expression<Func<TestObject, bool>> expression, string expectedStages)
+        {
+            var actualStages = Execute(CreateWhereQuery(expression));
+            var actual = new BsonDocument();
+            foreach (var actualStage in actualStages)
+            {
+                actual.AddRange(actualStage);
+            }
+
+            var expected = BsonDocument.Parse(expectedStages);
+
+            actual.Should().Be(expected);
         }
 
         private IEnumerable<BsonDocument> Execute<T>(IMongoQueryable<T> queryable)
