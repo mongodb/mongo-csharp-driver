@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Core.Clusters
         ICoreServerSession AcquireServerSession();
 
         /// <summary>
-        /// Gets the crypt client.
+        /// [Beta] Gets the crypt client.
         /// </summary>
         /// <returns>A crypt client.</returns>
 #pragma warning disable CS3003

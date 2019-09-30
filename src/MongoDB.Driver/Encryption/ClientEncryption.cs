@@ -23,7 +23,7 @@ using MongoDB.Libmongocrypt;
 namespace MongoDB.Driver.Encryption
 {
     /// <summary>
-    /// Explicit client encryption.
+    /// [Beta] Explicit client encryption.
     /// </summary>
     public sealed class ClientEncryption : IDisposable
     {
@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Encryption
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="ClientEncryption"/> class.
+        /// [Beta] Initializes a new instance of the <see cref="ClientEncryption"/> class.
         /// </summary>
         /// <param name="clientEncryptionOptions">The client encryption options.</param>
         public ClientEncryption(ClientEncryptionOptions clientEncryptionOptions)
@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Encryption
 
         // public methods
         /// <summary>
-        /// Creates a data key.
+        /// [Beta] Creates a data key.
         /// </summary>
         /// <param name="kmsProvider">The kms provider.</param>
         /// <param name="dataKeyOptions">The data key options.</param>
@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Encryption
         }
 
         /// <summary>
-        /// Creates a data key.
+        /// [Beta] Creates a data key.
         /// </summary>
         /// <param name="kmsProvider">The kms provider.</param>
         /// <param name="dataKeyOptions">The data key options.</param>
@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Encryption
         }
 
         /// <summary>
-        /// Decrypts the specified value.
+        /// [Beta] Decrypts the specified value.
         /// </summary>
         /// <param name="value">The value.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
@@ -92,7 +92,7 @@ namespace MongoDB.Driver.Encryption
         }
 
         /// <summary>
-        /// Decrypts the specified value.
+        /// [Beta] Decrypts the specified value.
         /// </summary>
         /// <param name="value">The value.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
@@ -113,7 +113,7 @@ namespace MongoDB.Driver.Encryption
         }
 
         /// <summary>
-        /// Encrypts the specified value.
+        /// [Beta] Encrypts the specified value.
         /// </summary>
         /// <param name="value">The value.</param>
         /// <param name="encryptOptions">The encrypt options.</param>
@@ -131,7 +131,7 @@ namespace MongoDB.Driver.Encryption
         }
 
         /// <summary>
-        /// Encrypts the specified value.
+        /// [Beta] Encrypts the specified value.
         /// </summary>
         /// <param name="value">The value.</param>
         /// <param name="encryptOptions">The encrypt options.</param>
