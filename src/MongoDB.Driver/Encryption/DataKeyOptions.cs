@@ -19,7 +19,7 @@ using MongoDB.Bson;
 namespace MongoDB.Driver.Encryption
 {
     /// <summary>
-    /// Options for creating a data key.
+    /// [Beta] Options for creating a data key.
     /// </summary>
     public class DataKeyOptions
     {
@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Encryption
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="DataKeyOptions"/> class.
+        /// [Beta] Initializes a new instance of the <see cref="DataKeyOptions"/> class.
         /// </summary>
         /// <param name="alternateKeyNames">The alternate key names.</param>
         /// <param name="masterKey">The master key.</param>
@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Encryption
         }
 
         /// <summary>
-        /// Gets the alternate key names.
+        /// [Beta] Gets the alternate key names.
         /// </summary>
         /// <value>
         /// The alternate key names.
@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Encryption
 
         // public properties
         /// <summary>
-        /// Gets the master key.
+        /// [Beta] Gets the master key.
         /// </summary>
         /// <value>
         /// The master key.
@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Encryption
         public BsonDocument MasterKey => _masterKey;
 
         /// <summary>
-        /// Returns a new DataKeyOptions instance with some settings changed.
+        /// [Beta] Returns a new DataKeyOptions instance with some settings changed.
         /// </summary>
         /// <param name="alternateKeyNames">The alternate key names.</param>
         /// <param name="masterKey">The master key.</param>

@@ -19,7 +19,7 @@ using System;
 namespace MongoDB.Driver.Encryption
 {
     /// <summary>
-    /// Encryption options for explicit encryption.
+    /// [Beta] Encryption options for explicit encryption.
     /// </summary>
     public class EncryptOptions
     {
@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Encryption
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="EncryptOptions"/> class.
+        /// [Beta] Initializes a new instance of the <see cref="EncryptOptions"/> class.
         /// </summary>
         /// <param name="algorithm">The encryption algorithm.</param>
         /// <param name="alternateKeyName">The alternate key name.</param>
@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Encryption
 
         // public properties
         /// <summary>
-        /// Gets the algorithm.
+        /// [Beta] Gets the algorithm.
         /// </summary>
         /// <value>
         /// The algorithm.
@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Encryption
         public string Algorithm=> _algorithm;
 
         /// <summary>
-        /// Gets the alternate key name.
+        /// [Beta] Gets the alternate key name.
         /// </summary>
         /// <value>
         /// The alternate key name.
@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Encryption
         public string AlternateKeyName => _alternateKeyName;
 
         /// <summary>
-        /// Gets the key identifier.
+        /// [Beta] Gets the key identifier.
         /// </summary>
         /// <value>
         /// The key identifier.
@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Encryption
         public Guid? KeyId => _keyId;
 
         /// <summary>
-        /// Returns a new EncryptOptions instance with some settings changed.
+        /// [Beta] Returns a new EncryptOptions instance with some settings changed.
         /// </summary>
         /// <param name="algorithm">The encryption algorithm.</param>
         /// <param name="alternateKeyName">The alternate key name.</param>

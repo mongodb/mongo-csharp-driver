@@ -24,14 +24,14 @@ using MongoDB.Libmongocrypt;
 namespace MongoDB.Driver.Core.Clusters
 {
     /// <summary>
-    /// Represents a creator for CryptClient.
+    /// [Beta] Represents a creator for CryptClient.
     /// </summary>
     public sealed class CryptClientCreator
     {
         #region static
 #pragma warning disable 3002
         /// <summary>
-        /// Create a CryptClient instance.
+        /// [Beta] Create a CryptClient instance.
         /// </summary>
         /// <param name="kmsProviders">The kms providers.</param>
         /// <param name="schemaMap">The schema map.</param>

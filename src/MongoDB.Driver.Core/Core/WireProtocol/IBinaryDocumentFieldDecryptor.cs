@@ -19,12 +19,12 @@ using System.Threading.Tasks;
 namespace MongoDB.Driver.Core.WireProtocol
 {
     /// <summary>
-    /// Interface for decrypting fields in a binary document.
+    /// [Beta] Interface for decrypting fields in a binary document.
     /// </summary>
     public interface IBinaryDocumentFieldDecryptor
     {
         /// <summary>
-        /// Decrypts the fields.
+        /// [Beta] Decrypts the fields.
         /// </summary>
         /// <param name="encryptedDocumentBytes">The encrypted document bytes.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         byte[] DecryptFields(byte[] encryptedDocumentBytes, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Decrypts the fields asynchronously.
+        /// [Beta] Decrypts the fields asynchronously.
         /// </summary>
         /// <param name="encryptedDocumentBytes">The encrypted document bytes.</param>
         /// <param name="cancellationToken">The cancellation token.</param>

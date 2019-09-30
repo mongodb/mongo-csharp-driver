@@ -25,12 +25,12 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
     {
         // encoder settings used by the binary encoders
         /// <summary>
-        /// The name of the binary document field decryptor setting.
+        /// [Beta] The name of the binary document field decryptor setting.
         /// </summary>
         public const string BinaryDocumentFieldDecryptor = "BinaryDocumentFieldDecryptor";
 
         /// <summary>
-        /// The name of the binary document field encryptor setting.
+        /// [Beta] The name of the binary document field encryptor setting.
         /// </summary>
         public const string BinaryDocumentFieldEncryptor = "BinaryDocumentFieldEncryptor";
 
