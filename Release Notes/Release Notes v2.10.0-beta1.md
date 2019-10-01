@@ -4,7 +4,7 @@ This is a beta release for the 2.10.0 version of the driver.
 
 The main new features in 2.10.0-beta1 are:
 
-* Support Client-side Field Level Encryption
+* Support for Client-Side Field Level Encryption (Windows-only)
 
 An online version of these release notes is available at:
 
