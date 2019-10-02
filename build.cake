@@ -90,15 +90,11 @@ Task("BuildArtifacts")
                     fileNames.Add(fileName);
                 }
 
-                // DnsClient.dll is needed by Sandcastle
+                // add additional files needed by Sandcastle
                 if (targetFramework == "net452" && project == "MongoDB.Driver.Core")
                 {
                     fileNames.Add("DnsClient.dll");
-                }
-
-                // SharpCompress.dll is needed by Sandcastle
-                if (targetFramework == "net452" && project == "MongoDB.Driver.Core")
-                {
+                    fileNames.Add("MongoDB.Libmongocrypt.dll");
                     fileNames.Add("SharpCompress.dll");
                 }
 
@@ -234,49 +230,7 @@ Task("RefDocs")
     });
 
 Task("Package")
-    .IsDependentOn("PackageReleaseZipFile")
     .IsDependentOn("PackageNugetPackages");
-
-Task("PackageReleaseZipFile")
-    .IsDependentOn("BuildArtifacts")
-    .IsDependentOn("ApiDocs")
-    .Does(() =>
-    {
-        var assemblySemVer = gitVersion.AssemblySemVer; // e.g. 2.4.4.0
-
-        var stagingDirectoryName = "CSharpDriver-" + gitVersion.LegacySemVer;
-        var stagingDirectory = artifactsDirectory.Combine(stagingDirectoryName);
-        EnsureDirectoryExists(stagingDirectory);
-        CleanDirectory(stagingDirectory);
-
-        var stagingNet452Directory = stagingDirectory.Combine("net452");
-        CopyDirectory(artifactsBinNet452Directory, stagingNet452Directory);
-        DeleteFiles($"{stagingNet452Directory}/DnsClient.*");
-
-        var stagingNetStandard15Directory = stagingDirectory.Combine("netstandard1.5");
-        CopyDirectory(artifactsBinNetStandard15Directory, stagingNetStandard15Directory);
-
-        var chmFile = artifactsDocsDirectory.CombineWithFilePath("CSharpDriverDocs.chm");
-        var stagingChmFileName = stagingDirectoryName + ".chm";
-        var stagingChmFile = stagingDirectory.CombineWithFilePath(stagingChmFileName);
-        CopyFile(chmFile, stagingChmFile);
-
-        var licenseFile = solutionDirectory.CombineWithFilePath("license.txt");
-        var stagingLicenseFile = stagingDirectory.CombineWithFilePath("license.txt");
-        CopyFile(licenseFile, stagingLicenseFile);
-
-        var releaseNotesFileName = "Release Notes v" + gitVersion.LegacySemVer + ".md";
-        var releaseNotesDirectory = solutionDirectory.Combine("Release Notes");
-        var releaseNotesFile =  releaseNotesDirectory.CombineWithFilePath(releaseNotesFileName);
-        var stagingDirectoryReleaseNotesFile = stagingDirectory.CombineWithFilePath(releaseNotesFileName);
-        CopyFile(releaseNotesFile, stagingDirectoryReleaseNotesFile);
-
-        var zipFileName = stagingDirectoryName + ".zip";
-        var zipFile = artifactsDirectory.CombineWithFilePath(zipFileName);
-        Zip(stagingDirectory, zipFile);
-
-        DeleteDirectory(stagingDirectory, recursive: true);
-    });
 
 Task("PackageNugetPackages")
     .IsDependentOn("Build")
