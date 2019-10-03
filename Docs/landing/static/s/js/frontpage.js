@@ -29,7 +29,7 @@ function initializeJS() {
 };
 
 var toggleDownload = function() {
-  downloadLink = 'https://github.com/mongodb/mongo-csharp-driver/releases/download/v';
+  downloadLink = 'https://www.nuget.org/api/v2/package/MongoDB.Driver';
   prefix = $('.distroPicker').prop('checked') ? "#nuget" : "#paket"
   driverVersion = $('.driverPicker').selectpicker().val();
   releaseVersion = $('.releasePicker').selectpicker().val();
@@ -51,7 +51,7 @@ var toggleDownload = function() {
 
   activeSample = prefix + "-" + releaseVersion + "-" + driverVersion;
   activeDescription = "#driver-" + driverVersion;
-  activeLink = downloadLink + activeVersion + '/CSharpDriver-' + activeVersion + '.zip';
+  activeLink = downloadLink + '/' + activeVersion;
 
   $('.download').addClass('hidden');
   $(activeSample).removeClass('hidden');

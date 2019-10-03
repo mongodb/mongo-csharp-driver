@@ -8,6 +8,12 @@ title = "What's New"
   pre = "<i class='fa fa-star'></i>"
 +++
 
+## What's New in 2.10.0-beta1
+
+Some of the changes in 2.10.0-beta1 include:
+
+* [Client-side field level encryption support]({{< relref "reference\driver\crud\client_side_encryption.md" >}}) for Windows 
+
 ## What's New in 2.9.0
 
 Some of the changes in 2.9.0 include:

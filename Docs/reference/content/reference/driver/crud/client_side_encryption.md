@@ -1,7 +1,7 @@
 
 +++
-date = "2019-09-30T20:38:-04:00"
-title = "Client-Side Field Level Encryption"
+date = "2019-09-30T20:38:42-04:00"
+title = "Client-Side Encryption"
 [menu.main]
   parent = "Reference Reading and Writing"
   identifier = "Client-Side Field Level Encryption"
