@@ -24,6 +24,7 @@ namespace MongoDB.Driver.Linq.Processors
     /// </summary>
     internal sealed class OutOfCurrentScopePrefixCollector : ExtensionExpressionVisitor
     {
+        private bool _isWhereSourceConstantExpression = false;
         private readonly HashSet<string> _outOfCurrentScopePrefixCollection = new HashSet<string>();
 
         /// <summary>
@@ -41,12 +42,25 @@ namespace MongoDB.Driver.Linq.Processors
         public override Expression Visit(Expression node)
         {
             var hasOutOfCurrentScopePrefix = node as IHasOutOfCurrentScopePrefix;
-            if (hasOutOfCurrentScopePrefix != null && !string.IsNullOrWhiteSpace(hasOutOfCurrentScopePrefix.OutOfCurrentScopePrefix))
+            if (hasOutOfCurrentScopePrefix != null &&
+                !string.IsNullOrWhiteSpace(hasOutOfCurrentScopePrefix.OutOfCurrentScopePrefix) &&
+                !_isWhereSourceConstantExpression)
             {
                 _outOfCurrentScopePrefixCollection.Add(hasOutOfCurrentScopePrefix.OutOfCurrentScopePrefix);
             }
 
             return base.Visit(node);
+        }
+
+        protected internal override Expression VisitWhere(WhereExpression node)
+        {
+            if (node.Source.NodeType == ExpressionType.Constant)
+            {
+                _isWhereSourceConstantExpression = true;
+            }
+            var result = base.VisitWhere(node);
+            _isWhereSourceConstantExpression = false;
+            return result;
         }
     }
 }
