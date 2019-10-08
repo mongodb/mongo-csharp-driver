@@ -596,7 +596,8 @@ namespace MongoDB.Driver
             {
                 return MongoCredential.FromComponents(
                     _authenticationMechanism,
-                    _authenticationSource ?? _databaseName,
+                    _authenticationSource,
+                    _databaseName,
                     _username,
                     _password);
             }
