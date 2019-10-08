@@ -72,6 +72,7 @@ namespace MongoDB.Driver.Tests.Linq
         {
             var root = new Root
             {
+                ObjectId = ObjectId.Parse("555925bfb69aa7d5be29126b"),
                 A = "Awesome",
                 B = "Balloon",
                 C = new C
@@ -151,7 +152,7 @@ namespace MongoDB.Driver.Tests.Linq
                                                         new E
                                                         {
                                                             F = 4
-                                                        } 
+                                                        }
                                                     }
                                                 }
                                             }
@@ -182,7 +183,11 @@ namespace MongoDB.Driver.Tests.Linq
                 R = new DateTime(2013, 1, 2, 3, 4, 5, 6, DateTimeKind.Utc),
                 T = new Dictionary<string, int> { { "one", 1 }, { "two", 2 } },
                 U = 1.23456571661743267789m,
-                V = "2017-02-08T12:10:40.787"
+                V = "2017-02-08T12:10:40.787",
+                W = 8,
+                X = 9,
+                Y = 10,
+                Z = 11
             };
             __collection.InsertOne(root);
         }
@@ -232,7 +237,8 @@ namespace MongoDB.Driver.Tests.Linq
                 M = new[] { 3, 5, 6 },
                 O = new List<long> { 100, 200, 300 },
                 P = 1.1,
-                U = -1.234565723762724332233489m
+                U = -1.234565723762724332233489m,
+                Z = 10
             };
             __collection.InsertOne(root);
         }
@@ -270,6 +276,8 @@ namespace MongoDB.Driver.Tests.Linq
 
         public class Root : IRoot
         {
+            public ObjectId ObjectId { get; set; }
+
             public int Id { get; set; }
 
             public string A { get; set; }
@@ -300,6 +308,14 @@ namespace MongoDB.Driver.Tests.Linq
             public decimal U { get; set; }
 
             public string V { get; set; }
+
+            public double W { get; set; }
+
+            public long X { get; set; }
+
+            public int Y { get; set; }
+
+            public decimal Z { get; set; }
         }
 
         public class RootDescended : Root

@@ -17,12 +17,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Translators;
@@ -340,6 +338,18 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [SkippableFact]
+        public void Should_translate_boolToString()
+        {
+            RequireServer.Check().Supports(Feature.AggregateToString);
+
+            var result = Project(x => new { Result = x.K.ToString() });
+
+            result.Projection.Should().Be("{ Result: { \"$toString\": \"$K\" }, _id: 0 }");
+
+            result.Value.Result.Should().Be("true");
+        }
+
+        [SkippableFact]
         public void Should_translate_ceil()
         {
             RequireServer.Check().VersionGreaterThanOrEqualTo("3.1.6");
@@ -418,6 +428,18 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [SkippableFact]
+        public void Should_translate_dateTimeToString()
+        {
+            RequireServer.Check().Supports(Feature.AggregateToString);
+
+            var result = Project(x => new { Result = x.J.ToString() }); // without a format argument
+
+            result.Projection.Should().Be("{ Result: { \"$toString\": \"$J\" }, _id: 0 }");
+
+            result.Value.Result.Should().Be("2012-12-01T13:14:15.016Z");
+        }
+
+        [SkippableFact]
         public void Should_translate_dateToString()
         {
             RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
@@ -459,6 +481,18 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Result.Should().Be(336);
         }
 
+        [SkippableFact]
+        public void Should_translate_decimalToString()
+        {
+            RequireServer.Check().Supports(Feature.AggregateToString);
+
+            var result = Project(x => new { Result = x.Z.ToString() });
+
+            result.Projection.Should().Be("{ Result: { \"$toString\": \"$Z\" }, _id: 0 }");
+
+            result.Value.Result.Should().Be("11");
+        }
+
         [Fact]
         public void Should_translate_divide()
         {
@@ -477,6 +511,18 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Projection.Should().Be("{ Result: { \"$divide\": [{ \"$divide\": [\"$_id\", \"$C.E.F\"] }, \"$C.E.H\"] }, _id: 0 }");
 
             result.Value.Result.Should().BeApproximately(0.04, .01);
+        }
+
+        [SkippableFact]
+        public void Should_translate_doubleToString()
+        {
+            RequireServer.Check().Supports(Feature.AggregateToString);
+
+            var result = Project(x => new { Result = x.W.ToString() });
+
+            result.Projection.Should().Be("{ Result: { \"$toString\": \"$W\" }, _id: 0 }");
+
+            result.Value.Result.Should().Be("8");
         }
 
         [Fact]
@@ -613,6 +659,18 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Value.Result.Should().Be(-1);
         }
 
+        [SkippableFact]
+        public void Should_translate_intToString()
+        {
+            RequireServer.Check().Supports(Feature.AggregateToString);
+
+            var result = Project(x => new { Result = x.Y.ToString() });
+
+            result.Projection.Should().Be("{ Result: { \"$toString\": \"$Y\" }, _id: 0 }");
+
+            result.Value.Result.Should().Be("10");
+        }
+
         [Fact]
         public void Should_translate_less_than()
         {
@@ -679,6 +737,18 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Projection.Should().Be("{ Result: { \"$log10\": [\"$C.E.F\"] }, _id: 0 }");
 
             result.Value.Result.Should().BeApproximately(1.0413928515823, .0001);
+        }
+
+        [SkippableFact]
+        public void Should_translate_longToString()
+        {
+            RequireServer.Check().Supports(Feature.AggregateToString);
+
+            var result = Project(x => new { Result = x.X.ToString() });
+
+            result.Projection.Should().Be("{ Result: { \"$toString\": \"$X\" }, _id: 0 }");
+
+            result.Value.Result.Should().Be("9");
         }
 
         [SkippableFact]
@@ -861,6 +931,18 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Projection.Should().Be("{ Result: { \"$ne\": [\"$C.E.F\", 5] }, _id: 0 }");
 
             result.Value.Result.Should().BeTrue();
+        }
+
+        [SkippableFact]
+        public void Should_translate_objectIdToString()
+        {
+            RequireServer.Check().Supports(Feature.AggregateToString);
+
+            var result = Project(x => new { Result = x.ObjectId.ToString() });
+
+            result.Projection.Should().Be("{ Result: { \"$toString\": \"$ObjectId\" }, _id: 0 }");
+
+            result.Value.Result.Should().Be("555925bfb69aa7d5be29126b");
         }
 
         [Fact]
@@ -1157,6 +1239,18 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             result.Projection.Should().Be("{ Result: { \"$sqrt\": [\"$C.E.F\"] }, _id: 0 }");
 
             result.Value.Result.Should().BeApproximately(3.31662479, .0001);
+        }
+
+        [SkippableFact]
+        public void Should_translate_stringToString()
+        {
+            RequireServer.Check().Supports(Feature.AggregateToString);
+
+            var result = Project(x => new { Result = x.A.ToString() });
+
+            result.Projection.Should().Be("{ Result: { \"$toString\": \"$A\" }, _id: 0 }");
+
+            result.Value.Result.Should().Be("Awesome");
         }
 
         [SkippableFact]
