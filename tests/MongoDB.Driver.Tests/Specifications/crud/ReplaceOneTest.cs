@@ -14,7 +14,6 @@
 */
 
 using System.Linq;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
@@ -25,7 +24,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
     {
         private BsonDocument _filter;
         private BsonDocument _replacement;
-        private UpdateOptions _options = new UpdateOptions();
+        private ReplaceOptions _options = new ReplaceOptions();
 
         protected override bool TrySetArgument(string name, BsonValue value)
         {

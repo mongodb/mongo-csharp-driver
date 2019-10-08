@@ -2449,12 +2449,6 @@ namespace MongoDB.Driver
             var filterDefinition = (FilterDefinition<BsonDocument>)filterDocument;
             var replacement = BsonDocument.Parse("{ a : 2 }");
             var collation = new Collation("en_US");
-            var options = new UpdateOptions
-            {
-                BypassDocumentValidation = bypassDocumentValidation,
-                Collation = collation,
-                IsUpsert = isUpsert
-            };
             var cancellationToken = new CancellationTokenSource().Token;
 
             var processedRequest = new UpdateRequest(UpdateType.Replacement, filterDocument, replacement)
@@ -2466,34 +2460,126 @@ namespace MongoDB.Driver
             };
             var operationResult = new BulkWriteOperationResult.Unacknowledged(9, new[] { processedRequest });
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
+            _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
+            _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
-            if (usingSession)
+            assertReplaceOne();
+
+            var replaceOptions = new ReplaceOptions()
             {
-                if (async)
+                BypassDocumentValidation = bypassDocumentValidation,
+                Collation = collation,
+                IsUpsert = isUpsert
+            };
+            assertReplaceOneWithReplaceOptions(replaceOptions);
+
+            var updateOptions = new UpdateOptions
+            {
+                BypassDocumentValidation = bypassDocumentValidation,
+                Collation = collation,
+                IsUpsert = isUpsert
+            };
+            assertReplaceOneWithUpdateOptions(updateOptions);
+
+            void assertReplaceOne()
+            {
+                if (usingSession)
                 {
-                    subject.ReplaceOneAsync(session, filterDefinition, replacement, options, cancellationToken).GetAwaiter().GetResult();
+                    if (async)
+                    {
+                        subject.ReplaceOneAsync(session, filterDefinition, replacement, cancellationToken: cancellationToken).GetAwaiter().GetResult();
+                    }
+                    else
+                    {
+                        subject.ReplaceOne(session, filterDefinition, replacement, cancellationToken: cancellationToken);
+                    }
                 }
                 else
                 {
-                    subject.ReplaceOne(session, filterDefinition, replacement, options, cancellationToken);
+                    if (async)
+                    {
+                        subject.ReplaceOneAsync(filterDefinition, replacement, cancellationToken: cancellationToken).GetAwaiter().GetResult();
+                    }
+                    else
+                    {
+                        subject.ReplaceOne(filterDefinition, replacement, cancellationToken: cancellationToken);
+                    }
                 }
+
+                assertOperationResult(null);
             }
-            else
+
+            void assertReplaceOneWithReplaceOptions(ReplaceOptions options)
             {
-                if (async)
+                if (usingSession)
                 {
-                    subject.ReplaceOneAsync(filterDefinition, replacement, options, cancellationToken).GetAwaiter().GetResult();
+                    if (async)
+                    {
+                        subject.ReplaceOneAsync(session, filterDefinition, replacement, options, cancellationToken).GetAwaiter().GetResult();
+                    }
+                    else
+                    {
+                        subject.ReplaceOne(session, filterDefinition, replacement, options, cancellationToken);
+                    }
                 }
                 else
                 {
-                    subject.ReplaceOne(filterDefinition, replacement, options, cancellationToken);
+                    if (async)
+                    {
+                        subject.ReplaceOneAsync(filterDefinition, replacement, options, cancellationToken).GetAwaiter().GetResult();
+                    }
+                    else
+                    {
+                        subject.ReplaceOne(filterDefinition, replacement, options, cancellationToken);
+                    }
                 }
+
+                assertOperationResult(bypassDocumentValidation);
             }
 
-            var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
-            VerifySessionAndCancellationToken(call, session, cancellationToken);
+            void assertReplaceOneWithUpdateOptions(UpdateOptions options)
+            {
+                if (usingSession)
+                {
+                    if (async)
+                    {
+#pragma warning disable 618
+                        subject.ReplaceOneAsync(session, filterDefinition, replacement, options, cancellationToken).GetAwaiter().GetResult();
+#pragma warning restore 618
+                    }
+                    else
+                    {
+#pragma warning disable 618
+                        subject.ReplaceOne(session, filterDefinition, replacement, options, cancellationToken);
+#pragma warning restore 618
+                    }
+                }
+                else
+                {
+                    if (async)
+                    {
+#pragma warning disable 618
+                        subject.ReplaceOneAsync(filterDefinition, replacement, options, cancellationToken).GetAwaiter().GetResult();
+#pragma warning restore 618
+                    }
+                    else
+                    {
+#pragma warning disable 618
+                        subject.ReplaceOne(filterDefinition, replacement, options, cancellationToken);
+#pragma warning restore 618
+                    }
+                }
 
-            VerifySingleWrite(call, bypassDocumentValidation, true, processedRequest);
+                assertOperationResult(bypassDocumentValidation);
+            }
+
+            void assertOperationResult(bool? expectedBypassDocumentValidation)
+            {
+                var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
+                VerifySessionAndCancellationToken(call, session, cancellationToken);
+
+                VerifySingleWrite(call, expectedBypassDocumentValidation, true, processedRequest);
+            }
         }
 
         [Theory]
@@ -2510,12 +2596,6 @@ namespace MongoDB.Driver
             var filterDefinition = (FilterDefinition<BsonDocument>)filterDocument;
             var replacement = BsonDocument.Parse("{ a : 2 }");
             var collation = new Collation("en_US");
-            var options = new UpdateOptions
-            {
-                Collation = collation,
-                BypassDocumentValidation = bypassDocumentValidation,
-                IsUpsert = isUpsert
-            };
             var cancellationToken = new CancellationTokenSource().Token;
 
             var processedRequest = new UpdateRequest(UpdateType.Replacement, filterDocument, replacement)
@@ -2539,35 +2619,132 @@ namespace MongoDB.Driver
                 null,
                 new List<WriteRequest>());
             _operationExecutor.EnqueueException<BulkWriteOperationResult>(operationException);
+            _operationExecutor.EnqueueException<BulkWriteOperationResult>(operationException);
+            _operationExecutor.EnqueueException<BulkWriteOperationResult>(operationException);
 
-            Exception exception;
-            if (usingSession)
+            assertReplaceOne();
+
+            var replaceOptions = new ReplaceOptions
             {
-                if (async)
+                Collation = collation,
+                BypassDocumentValidation = bypassDocumentValidation,
+                IsUpsert = isUpsert
+            };
+            assertReplaceOneWithReplaceOptions(replaceOptions);
+
+            var updateOptions = new UpdateOptions
+            {
+                Collation = collation,
+                BypassDocumentValidation = bypassDocumentValidation,
+                IsUpsert = isUpsert
+            };
+            assertReplaceOneWithUpdateOptions(updateOptions);
+
+            void assertReplaceOne()
+            {
+                Exception exception;
+
+                if (usingSession)
                 {
-                    exception = Record.Exception(() => subject.ReplaceOneAsync(session, filterDefinition, replacement, options, cancellationToken).GetAwaiter().GetResult());
+                    if (async)
+                    {
+                        exception = Record.Exception(() => subject.ReplaceOneAsync(session, filterDefinition, replacement, cancellationToken: cancellationToken).GetAwaiter().GetResult());
+                    }
+                    else
+                    {
+                        exception = Record.Exception(() => subject.ReplaceOne(session, filterDefinition, replacement, cancellationToken: cancellationToken));
+                    }
                 }
                 else
                 {
-                    exception = Record.Exception(() => subject.ReplaceOne(session, filterDefinition, replacement, options, cancellationToken));
+                    if (async)
+                    {
+                        exception = Record.Exception(() => subject.ReplaceOneAsync(filterDefinition, replacement, cancellationToken: cancellationToken).GetAwaiter().GetResult());
+                    }
+                    else
+                    {
+                        exception = Record.Exception(() => subject.ReplaceOne(filterDefinition, replacement, cancellationToken: cancellationToken));
+                    }
                 }
+
+                assertException(exception);
             }
-            else
+
+            void assertReplaceOneWithReplaceOptions(ReplaceOptions options)
             {
-                if (async)
+                Exception exception;
+
+                if (usingSession)
                 {
-                    exception = Record.Exception(() => subject.ReplaceOneAsync(filterDefinition, replacement, options, cancellationToken).GetAwaiter().GetResult());
+                    if (async)
+                    {
+                        exception = Record.Exception(() => subject.ReplaceOneAsync(session, filterDefinition, replacement, options, cancellationToken).GetAwaiter().GetResult());
+                    }
+                    else
+                    {
+                        exception = Record.Exception(() => subject.ReplaceOne(session, filterDefinition, replacement, options, cancellationToken));
+                    }
                 }
                 else
                 {
-                    exception = Record.Exception(() => subject.ReplaceOne(filterDefinition, replacement, options, cancellationToken));
+                    if (async)
+                    {
+                        exception = Record.Exception(() => subject.ReplaceOneAsync(filterDefinition, replacement, options, cancellationToken).GetAwaiter().GetResult());
+                    }
+                    else
+                    {
+                        exception = Record.Exception(() => subject.ReplaceOne(filterDefinition, replacement, options, cancellationToken));
+                    }
                 }
+
+                assertException(exception);
             }
 
-            var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
-            VerifySessionAndCancellationToken(call, session, cancellationToken);
+            void assertReplaceOneWithUpdateOptions(UpdateOptions options)
+            {
+                Exception exception;
 
-            exception.Should().BeOfType<MongoWriteException>();
+                if (usingSession)
+                {
+                    if (async)
+                    {
+#pragma warning disable 618
+                        exception = Record.Exception(() => subject.ReplaceOneAsync(session, filterDefinition, replacement, options, cancellationToken).GetAwaiter().GetResult());
+#pragma warning restore 618
+                    }
+                    else
+                    {
+#pragma warning disable 618
+                        exception = Record.Exception(() => subject.ReplaceOne(session, filterDefinition, replacement, options, cancellationToken));
+#pragma warning restore 618
+                    }
+                }
+                else
+                {
+                    if (async)
+                    {
+#pragma warning disable 618
+                        exception = Record.Exception(() => subject.ReplaceOneAsync(filterDefinition, replacement, options, cancellationToken).GetAwaiter().GetResult());
+#pragma warning restore 618
+                    }
+                    else
+                    {
+#pragma warning disable 618
+                        exception = Record.Exception(() => subject.ReplaceOne(filterDefinition, replacement, options, cancellationToken));
+#pragma warning restore 618
+                    }
+                }
+
+                assertException(exception);
+            }
+
+            void assertException(Exception exception)
+            {
+                var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
+                VerifySessionAndCancellationToken(call, session, cancellationToken);
+
+                exception.Should().BeOfType<MongoWriteException>();
+            }
         }
 
         [Theory]
