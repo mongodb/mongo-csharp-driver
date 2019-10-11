@@ -221,7 +221,9 @@ namespace MongoDB.Driver
             findOperation.Filter.Should().BeNull();
             findOperation.Limit.Should().Be(null);
             findOperation.MaxTime.Should().Be(options.MaxTime);
+#pragma warning disable 618
             findOperation.Modifiers.Should().BeNull();
+#pragma warning restore 618
             findOperation.NoCursorTimeout.Should().NotHaveValue();
             findOperation.OplogReplay.Should().NotHaveValue();
             findOperation.Projection.Should().BeNull();

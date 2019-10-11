@@ -57,7 +57,9 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
                     _options.BatchSize = value.ToInt32();
                     return true;
                 case "modifiers":
+#pragma warning disable 618
                     _options.Modifiers = (BsonDocument)value;
+#pragma warning restore 618
                     return true;
             }
 

@@ -967,15 +967,22 @@ namespace MongoDB.Driver
                 Comment = options.Comment,
                 CursorType = options.CursorType.ToCore(),
                 Filter = filter.Render(_documentSerializer, _settings.SerializerRegistry),
+                Hint = options.Hint,
                 Limit = options.Limit,
+                Max = options.Max,
                 MaxAwaitTime = options.MaxAwaitTime,
                 MaxTime = options.MaxTime,
+                Min = options.Min,
+#pragma warning disable 618
                 Modifiers = options.Modifiers,
+#pragma warning restore 618
                 NoCursorTimeout = options.NoCursorTimeout,
                 OplogReplay = options.OplogReplay,
                 Projection = renderedProjection.Document,
                 ReadConcern = _settings.ReadConcern,
                 RetryRequested = _database.Client.Settings.RetryReads,
+                ReturnKey = options.ReturnKey,
+                ShowRecordId = options.ShowRecordId,
                 Skip = options.Skip,
                 Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry)
             };

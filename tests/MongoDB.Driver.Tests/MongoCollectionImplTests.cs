@@ -228,7 +228,9 @@ namespace MongoDB.Driver
             findOperation.Filter.Should().BeNull();
             findOperation.Limit.Should().Be(null);
             findOperation.MaxTime.Should().Be(options.MaxTime);
+#pragma warning disable 618
             findOperation.Modifiers.Should().BeNull();
+#pragma warning restore 618
             findOperation.NoCursorTimeout.Should().NotHaveValue();
             findOperation.OplogReplay.Should().NotHaveValue();
             findOperation.Projection.Should().BeNull();
@@ -1022,7 +1024,9 @@ namespace MongoDB.Driver
                 Limit = 30,
                 MaxAwaitTime = TimeSpan.FromSeconds(4),
                 MaxTime = TimeSpan.FromSeconds(3),
+#pragma warning disable 618
                 Modifiers = BsonDocument.Parse("{ $snapshot : true }"),
+#pragma warning restore 618
                 NoCursorTimeout = true,
                 OplogReplay = true,
                 Projection = projectionDefinition,
@@ -1069,7 +1073,9 @@ namespace MongoDB.Driver
             operation.Limit.Should().Be(options.Limit);
             operation.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
             operation.MaxTime.Should().Be(options.MaxTime);
+#pragma warning disable 618
             operation.Modifiers.Should().Be(options.Modifiers);
+#pragma warning restore 618
             operation.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
             operation.OplogReplay.Should().Be(options.OplogReplay);
             operation.Projection.Should().Be(projectionDocument);
@@ -1103,7 +1109,9 @@ namespace MongoDB.Driver
                 Limit = 30,
                 MaxAwaitTime = TimeSpan.FromSeconds(4),
                 MaxTime = TimeSpan.FromSeconds(3),
+#pragma warning disable 618
                 Modifiers = BsonDocument.Parse("{ $snapshot : true }"),
+#pragma warning restore 618
                 NoCursorTimeout = true,
                 OplogReplay = true,
                 Projection = projectionDefinition,
@@ -1149,7 +1157,9 @@ namespace MongoDB.Driver
             operation.Limit.Should().Be(options.Limit);
             operation.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
             operation.MaxTime.Should().Be(options.MaxTime);
+#pragma warning disable 618
             operation.Modifiers.Should().Be(options.Modifiers);
+#pragma warning restore 618
             operation.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
             operation.OplogReplay.Should().Be(options.OplogReplay);
             operation.Projection.Should().Be(projectionDocument);

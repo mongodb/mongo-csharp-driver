@@ -128,13 +128,20 @@ namespace MongoDB.Driver
                 Collation = _options.Collation,
                 Comment = _options.Comment,
                 CursorType = _options.CursorType,
+                Hint = _options.Hint,
                 Limit = _options.Limit,
+                Max = _options.Max,
                 MaxAwaitTime = _options.MaxAwaitTime,
                 MaxTime = _options.MaxTime,
+                Min = _options.Min,
+#pragma warning disable 618
                 Modifiers = _options.Modifiers,
+#pragma warning restore 618
                 NoCursorTimeout = _options.NoCursorTimeout,
                 OplogReplay = _options.OplogReplay,
                 Projection = projection,
+                ReturnKey = _options.ReturnKey,
+                ShowRecordId = _options.ShowRecordId,
                 Skip = _options.Skip,
                 Sort = _options.Sort,
             };
@@ -219,14 +226,41 @@ namespace MongoDB.Driver
                 sb.Append(".maxTime(" + _options.MaxTime.Value.TotalMilliseconds + ")");
             }
 
+            if (_options.Hint != null)
+            {
+                sb.Append(".hint(" + _options.Hint + ")");
+            }
+
+            if (_options.Max != null)
+            {
+                sb.Append(".max(" + _options.Max + ")");
+            }
+
+            if (_options.Min != null)
+            {
+                sb.Append(".min(" + _options.Min + ")");
+            }
+
+            if (_options.ReturnKey.HasValue)
+            {
+                sb.Append(".returnKey(" + _options.ReturnKey.Value.ToString().ToLower() + ")");
+            }
+
+            if (_options.ShowRecordId.HasValue)
+            {
+                sb.Append(".showRecordId(" + _options.ShowRecordId.Value.ToString().ToLower() + ")");
+            }
+
             if (_options.Comment != null)
             {
                 sb.Append("._addSpecial(\"$comment\", \"" + _options.Comment + "\")");
             }
 
+#pragma warning disable 618
             if (_options.Modifiers != null)
             {
                 foreach (var modifier in _options.Modifiers)
+#pragma warning restore 618
                 {
                     sb.Append("._addSpecial(\"" + modifier.Name + "\", ");
                     if (modifier.Value.BsonType == BsonType.String)
@@ -250,7 +284,9 @@ namespace MongoDB.Driver
             return new CountOptions
             {
                 Collation = _options.Collation,
-                Hint = _options.Modifiers?.GetValue("$hint", null),
+#pragma warning disable 618
+                Hint = _options.Hint ?? _options.Modifiers?.GetValue("$hint", null),
+#pragma warning restore 618
                 Limit = _options.Limit,
                 MaxTime = _options.MaxTime,
                 Skip = _options.Skip

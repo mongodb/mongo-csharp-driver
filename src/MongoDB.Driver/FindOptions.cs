@@ -30,11 +30,16 @@ namespace MongoDB.Driver
         private Collation _collation;
         private string _comment;
         private CursorType _cursorType;
+        private BsonValue _hint;
+        private BsonDocument _max;
         private TimeSpan? _maxAwaitTime;
         private TimeSpan? _maxTime;
+        private BsonDocument _min;
         private BsonDocument _modifiers;
         private bool? _noCursorTimeout;
         private bool? _oplogReplay;
+        private bool? _returnKey;
+        private bool? _showRecordId;
 
         // constructors
         /// <summary>
@@ -92,6 +97,24 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the hint.
+        /// </summary>
+        public BsonValue Hint
+        {
+            get { return _hint; }
+            set { _hint = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the max key value.
+        /// </summary>
+        public BsonDocument Max
+        {
+            get { return _max; }
+            set { _max = value; }
+        }
+
+        /// <summary>
         /// Gets or sets the maximum await time for TailableAwait cursors.
         /// </summary>
         public TimeSpan? MaxAwaitTime
@@ -110,8 +133,18 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the min key value.
+        /// </summary>
+        public BsonDocument Min
+        {
+            get { return _min; }
+            set { _min = value; }
+        }
+
+        /// <summary>
         /// Gets or sets the modifiers.
         /// </summary>
+        [Obsolete("Use individual properties instead.")]
         public BsonDocument Modifiers
         {
             get { return _modifiers; }
@@ -134,6 +167,24 @@ namespace MongoDB.Driver
         {
             get { return _oplogReplay; }
             set { _oplogReplay = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets returnKey. If true, returns only the index keys in the resulting documents.
+        /// </summary>
+        public bool? ReturnKey
+        {
+            get { return _returnKey; }
+            set { _returnKey = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets whether the record Id should be added to the result document.
+        /// </summary>
+        public bool? ShowRecordId
+        {
+            get { return _showRecordId; }
+            set { _showRecordId = value; }
         }
     }
 

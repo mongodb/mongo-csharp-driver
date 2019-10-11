@@ -85,7 +85,9 @@ namespace MongoDB.Driver.Tests
                 Collation = new Collation("en-us"),
                 Limit = 1,
                 MaxTime = TimeSpan.FromSeconds(2),
+#pragma warning disable 618
                 Modifiers = new BsonDocument("$hint", hint),
+#pragma warning restore 618
                 Skip = 3
             };
             var subject = CreateSubject(session: session, filter: filter, options: findOptions);
@@ -170,7 +172,9 @@ namespace MongoDB.Driver.Tests
                 Collation = new Collation("en-us"),
                 Limit = 1,
                 MaxTime = TimeSpan.FromSeconds(2),
+#pragma warning disable 618
                 Modifiers = new BsonDocument("$hint", hint),
+#pragma warning restore 618
                 Skip = 3
             };
             var subject = CreateSubject(session: session, filter: filter, options: findOptions);
@@ -291,7 +295,7 @@ namespace MongoDB.Driver.Tests
                            options,
                            cancellationToken),
                    Times.Once);
-               }
+                }
             }
         }
 
@@ -302,12 +306,19 @@ namespace MongoDB.Driver.Tests
             subject.Filter = new BsonDocument("Age", 20);
             subject.Options.Collation = new Collation("en_US");
             subject.Options.Comment = "awesome";
+            subject.Options.Hint = "x_3";
+            subject.Options.Max = new BsonDocument("max", 5);
             subject.Options.MaxTime = TimeSpan.FromSeconds(2);
+#pragma warning disable 618
             subject.Options.Modifiers = new BsonDocument
             {
                 { "$explain", true },
                 { "$hint", "ix_1" }
             };
+#pragma warning restore 618
+            subject.Options.Min = new BsonDocument("min", 2);
+            subject.Options.ReturnKey = true;
+            subject.Options.ShowRecordId = true;
 
             var find = subject
                 .SortBy(x => x.LastName)
@@ -325,6 +336,11 @@ namespace MongoDB.Driver.Tests
                 ".skip(2)" +
                 ".limit(10)" +
                 ".maxTime(2000)" +
+                ".hint(x_3)" +
+                ".max({ \"max\" : 5 })" +
+                ".min({ \"min\" : 2 })" +
+                ".returnKey(true)" +
+                ".showRecordId(true)" +
                 "._addSpecial(\"$comment\", \"awesome\")" +
                 "._addSpecial(\"$explain\", true)" +
                 "._addSpecial(\"$hint\", \"ix_1\")");

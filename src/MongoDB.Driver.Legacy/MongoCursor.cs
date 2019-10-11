@@ -869,7 +869,9 @@ namespace MongoDB.Driver
                 Filter = queryDocument,
                 Limit = Limit,
                 MaxAwaitTime = MaxAwaitTime,
+#pragma warning disable 618
                 Modifiers = Options,
+#pragma warning restore 618
                 NoCursorTimeout = noCursorTimeout,
                 Projection = Fields.ToBsonDocument(),
                 ReadConcern = ReadConcern,

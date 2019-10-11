@@ -277,6 +277,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <value>
         /// The additional query modifiers.
         /// </value>
+        [Obsolete("Use individual properties instead.")]
         public BsonDocument Modifiers
         {
             get { return _modifiers; }

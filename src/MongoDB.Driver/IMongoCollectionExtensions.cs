@@ -839,11 +839,18 @@ namespace MongoDB.Driver
                     Collation = options.Collation,
                     Comment = options.Comment,
                     CursorType = options.CursorType,
+                    Hint = options.Hint,
+                    Max = options.Max,
                     MaxAwaitTime = options.MaxAwaitTime,
                     MaxTime = options.MaxTime,
+                    Min = options.Min,
+#pragma warning disable 618
                     Modifiers = options.Modifiers,
+#pragma warning restore 618
                     NoCursorTimeout = options.NoCursorTimeout,
-                    OplogReplay = options.OplogReplay
+                    OplogReplay = options.OplogReplay,
+                    ReturnKey = options.ReturnKey,
+                    ShowRecordId = options.ShowRecordId,
                 };
             }
 
