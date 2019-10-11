@@ -136,6 +136,7 @@ namespace MongoDB.Driver.Core.Configuration
             {
                 builder = builder.ConfigureConnectionPool(s => s.With(minConnections: connectionString.MinPoolSize.Value));
             }
+#pragma warning disable 618
             if (connectionString.WaitQueueSize != null)
             {
                 builder = builder.ConfigureConnectionPool(s => s.With(waitQueueSize: connectionString.WaitQueueSize.Value));
@@ -146,6 +147,7 @@ namespace MongoDB.Driver.Core.Configuration
                 var waitQueueSize = (int)Math.Round(maxConnections * connectionString.WaitQueueMultiple.Value);
                 builder = builder.ConfigureConnectionPool(s => s.With(waitQueueSize: waitQueueSize));
             }
+#pragma warning restore 618
             if (connectionString.WaitQueueTimeout != null)
             {
                 builder = builder.ConfigureConnectionPool(s => s.With(waitQueueTimeout: connectionString.WaitQueueTimeout.Value));

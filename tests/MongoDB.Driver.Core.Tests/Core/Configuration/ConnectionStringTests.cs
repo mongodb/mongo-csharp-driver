@@ -296,8 +296,10 @@ namespace MongoDB.Driver.Core.Configuration
             subject.TlsInsecure.Should().Be(null);
             subject.Username.Should().BeNull();
             subject.UuidRepresentation.Should().BeNull();
+#pragma warning disable 618
             subject.WaitQueueMultiple.Should().Be(null);
             subject.WaitQueueSize.Should().Be(null);
+#pragma warning restore 618
             subject.WaitQueueTimeout.Should().Be(null);
             subject.W.Should().BeNull();
             subject.WTimeout.Should().Be(null);
@@ -384,8 +386,10 @@ namespace MongoDB.Driver.Core.Configuration
             subject.TlsInsecure.Should().Be(false);
             subject.Username.Should().Be("user");
             subject.UuidRepresentation.Should().Be(GuidRepresentation.Standard);
+#pragma warning disable 618
             subject.WaitQueueMultiple.Should().Be(10);
             subject.WaitQueueSize.Should().Be(30);
+#pragma warning restore 618
             subject.WaitQueueTimeout.Should().Be(TimeSpan.FromMilliseconds(60));
             subject.W.Should().Be(WriteConcern.WValue.Parse("4"));
             subject.WTimeout.Should().Be(TimeSpan.FromMilliseconds(20));
@@ -938,7 +942,9 @@ namespace MongoDB.Driver.Core.Configuration
         {
             var subject = new ConnectionString(connectionString);
 
+#pragma warning disable 618
             subject.WaitQueueMultiple.Should().Be(waitQueueMultiple);
+#pragma warning restore 618
         }
 
         [Theory]
@@ -950,7 +956,9 @@ namespace MongoDB.Driver.Core.Configuration
         {
             var subject = new ConnectionString(connectionString);
 
+#pragma warning disable 618
             subject.WaitQueueSize.Should().Be(waitQueueSize);
+#pragma warning restore 618
         }
 
         [Theory]

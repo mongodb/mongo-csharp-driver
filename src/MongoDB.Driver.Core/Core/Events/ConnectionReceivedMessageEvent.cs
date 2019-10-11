@@ -23,7 +23,6 @@ namespace MongoDB.Driver.Core.Events
     /// <summary>
     /// Occurs after a message is received.
     /// </summary>
-    /// <preliminary />
     public struct ConnectionReceivedMessageEvent
     {
         private readonly ConnectionId _connectionId;

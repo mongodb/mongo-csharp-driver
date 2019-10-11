@@ -107,7 +107,9 @@ namespace MongoDB.Driver
             _socketTimeout = MongoDefaults.SocketTimeout;
             _sslSettings = null;
             _useTls = false;
+#pragma warning disable 618
             _waitQueueSize = MongoDefaults.ComputedWaitQueueSize;
+#pragma warning restore 618
             _waitQueueTimeout = MongoDefaults.WaitQueueTimeout;
             _writeConcern = WriteConcern.Unacknowledged;
             _writeEncoding = null;
@@ -606,6 +608,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the wait queue size.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public int WaitQueueSize
         {
             get { return _waitQueueSize; }
@@ -726,7 +729,9 @@ namespace MongoDB.Driver
             serverSettings.SocketTimeout = clientSettings.SocketTimeout;
             serverSettings.SslSettings = (clientSettings.SslSettings == null) ? null : clientSettings.SslSettings.Clone();
             serverSettings.UseTls = clientSettings.UseTls;
+#pragma warning disable 618
             serverSettings.WaitQueueSize = clientSettings.WaitQueueSize;
+#pragma warning restore 618
             serverSettings.WaitQueueTimeout = clientSettings.WaitQueueTimeout;
             serverSettings.WriteConcern = clientSettings.WriteConcern;
             serverSettings.WriteEncoding = clientSettings.WriteEncoding;
@@ -785,7 +790,9 @@ namespace MongoDB.Driver
             serverSettings.SocketTimeout = url.SocketTimeout;
             serverSettings.SslSettings = null; // SSL settings must be provided in code
             serverSettings.UseTls = url.UseTls;
+#pragma warning disable 618
             serverSettings.WaitQueueSize = url.ComputedWaitQueueSize;
+#pragma warning restore 618
             serverSettings.WaitQueueTimeout = url.WaitQueueTimeout;
             serverSettings.WriteConcern = url.GetWriteConcern(false);
             serverSettings.WriteEncoding = null; // WriteEncoding must be provided in code

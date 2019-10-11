@@ -18,7 +18,6 @@ using MongoDB.Driver.Core.Configuration;
 
 namespace MongoDB.Driver.Core.Events
 {
-    /// <preliminary/>
     /// <summary>
     /// Occurs before a cluster is opened.
     /// </summary>

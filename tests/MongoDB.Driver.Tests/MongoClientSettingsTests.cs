@@ -193,7 +193,9 @@ namespace MongoDB.Driver.Tests
 #pragma warning disable 618
             Assert.Equal(true, settings.VerifySslCertificate);
 #pragma warning restore 618
+#pragma warning disable 618
             Assert.Equal(MongoDefaults.ComputedWaitQueueSize, settings.WaitQueueSize);
+#pragma warning restore 618
             Assert.Equal(MongoDefaults.WaitQueueTimeout, settings.WaitQueueTimeout);
             Assert.Equal(WriteConcern.Acknowledged, settings.WriteConcern);
             Assert.Equal(null, settings.SdamLogFilename);
@@ -331,7 +333,9 @@ namespace MongoDB.Driver.Tests
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
+#pragma warning disable 618
             clone.WaitQueueSize = settings.WaitQueueSize + 1;
+#pragma warning restore 618
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
@@ -418,7 +422,9 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(url.VerifySslCertificate, settings.VerifySslCertificate);
 #pragma warning restore 618
 
+#pragma warning disable 618
             Assert.Equal(url.ComputedWaitQueueSize, settings.WaitQueueSize);
+#pragma warning restore 618
             Assert.Equal(url.WaitQueueTimeout, settings.WaitQueueTimeout);
             Assert.Equal(url.GetWriteConcern(true), settings.WriteConcern);
         }
@@ -892,6 +898,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestWaitQueueSize()
         {
+#pragma warning disable 618
             var settings = new MongoClientSettings();
             Assert.Equal(MongoDefaults.ComputedWaitQueueSize, settings.WaitQueueSize);
 
@@ -902,6 +909,7 @@ namespace MongoDB.Driver.Tests
             settings.Freeze();
             Assert.Equal(waitQueueSize, settings.WaitQueueSize);
             Assert.Throws<InvalidOperationException>(() => { settings.WaitQueueSize = waitQueueSize; });
+#pragma warning restore 618
         }
 
         [Fact]
@@ -973,7 +981,9 @@ namespace MongoDB.Driver.Tests
                 SocketTimeout = TimeSpan.FromSeconds(4),
                 SslSettings = sslSettings,
                 UseTls = true,
+#pragma warning disable 618
                 WaitQueueSize = 20,
+#pragma warning restore 618
                 WaitQueueTimeout = TimeSpan.FromSeconds(5)
             };
 
@@ -1005,7 +1015,9 @@ namespace MongoDB.Driver.Tests
             result.SocketTimeout.Should().Be(subject.SocketTimeout);
             result.SslSettings.Should().Be(subject.SslSettings);
             result.UseTls.Should().Be(subject.UseTls);
+#pragma warning disable 618
             result.WaitQueueSize.Should().Be(subject.WaitQueueSize);
+#pragma warning restore 618
             result.WaitQueueTimeout.Should().Be(subject.WaitQueueTimeout);
         }
     }

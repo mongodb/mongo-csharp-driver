@@ -114,8 +114,10 @@ namespace MongoDB.Driver
             _username = null;
             _useTls = false;
             _w = null;
+#pragma warning disable 618
             _waitQueueMultiple = MongoDefaults.WaitQueueMultiple;
             _waitQueueSize = MongoDefaults.WaitQueueSize;
+#pragma warning restore 618
             _waitQueueTimeout = MongoDefaults.WaitQueueTimeout;
             _wTimeout = null;
         }
@@ -196,6 +198,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the actual wait queue size (either WaitQueueSize or WaitQueueMultiple x MaxConnectionPoolSize).
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public int ComputedWaitQueueSize
         {
             get
@@ -575,6 +578,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the wait queue multiple (the actual wait queue size will be WaitQueueMultiple x MaxConnectionPoolSize).
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public double WaitQueueMultiple
         {
             get { return _waitQueueMultiple; }
@@ -592,6 +596,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the wait queue size.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public int WaitQueueSize
         {
             get { return _waitQueueSize; }
@@ -739,6 +744,7 @@ namespace MongoDB.Driver
             _username = connectionString.Username;
             _useTls = connectionString.Tls.GetValueOrDefault(false);
             _w = connectionString.W;
+#pragma warning disable 618
             if (connectionString.WaitQueueSize != null)
             {
                 _waitQueueSize = connectionString.WaitQueueSize.Value;
@@ -749,6 +755,7 @@ namespace MongoDB.Driver
                 _waitQueueMultiple = connectionString.WaitQueueMultiple.Value;
                 _waitQueueSize = 0;
             }
+#pragma warning restore 618
             _waitQueueTimeout = connectionString.WaitQueueTimeout.GetValueOrDefault(MongoDefaults.WaitQueueTimeout);
             _wTimeout = connectionString.WTimeout;
         }
@@ -947,11 +954,15 @@ namespace MongoDB.Driver
             {
                 query.AppendFormat("socketTimeout={0};", FormatTimeSpan(_socketTimeout));
             }
+#pragma warning disable 618
             if (_waitQueueMultiple != 0.0 && _waitQueueMultiple != MongoDefaults.WaitQueueMultiple)
+#pragma warning restore 618
             {
                 query.AppendFormat("waitQueueMultiple={0};", _waitQueueMultiple);
             }
+#pragma warning disable 618
             if (_waitQueueSize != 0 && _waitQueueSize != MongoDefaults.WaitQueueSize)
+#pragma warning restore 618
             {
                 query.AppendFormat("waitQueueSize={0};", _waitQueueSize);
             }

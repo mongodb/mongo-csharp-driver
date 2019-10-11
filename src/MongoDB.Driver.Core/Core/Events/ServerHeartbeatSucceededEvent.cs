@@ -20,7 +20,6 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Events
 {
-    /// <preliminary/>
     /// <summary>
     /// Occurs before heartbeat is issued.
     /// </summary>

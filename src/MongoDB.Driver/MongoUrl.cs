@@ -121,8 +121,10 @@ namespace MongoDB.Driver
             _username = builder.Username;
             _useTls = builder.UseTls;
             _w = builder.W;
+#pragma warning disable 618
             _waitQueueMultiple = builder.WaitQueueMultiple;
             _waitQueueSize = builder.WaitQueueSize;
+#pragma warning restore 618
             _waitQueueTimeout = builder.WaitQueueTimeout;
             _wTimeout = builder.WTimeout;
             _url = builder.ToString(); // keep canonical form
@@ -188,6 +190,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the actual wait queue size (either WaitQueueSize or WaitQueueMultiple x MaxConnectionPoolSize).
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public int ComputedWaitQueueSize
         {
             get
@@ -470,6 +473,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the wait queue multiple (the actual wait queue size will be WaitQueueMultiple x MaxConnectionPoolSize).
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public double WaitQueueMultiple
         {
             get { return _waitQueueMultiple; }
@@ -478,6 +482,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the wait queue size.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public int WaitQueueSize
         {
             get { return _waitQueueSize; }

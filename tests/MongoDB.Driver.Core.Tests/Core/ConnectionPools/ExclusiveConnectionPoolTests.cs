@@ -45,6 +45,16 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _endPoint = new DnsEndPoint("localhost", 27017);
             _capturedEvents = new EventCapturer();
             _serverId = new ServerId(new ClusterId(), _endPoint);
+            _mockConnectionFactory
+                .Setup(c => c.CreateConnection(It.IsAny<ServerId>(), It.IsAny<EndPoint>()))
+                .Returns(()=>
+                {
+                    var connectionMock = new Mock<IConnection>();
+                    connectionMock
+                        .Setup(c => c.Settings)
+                        .Returns(new ConnectionSettings());
+                    return connectionMock.Object;
+                });
             _settings = new ConnectionPoolSettings(
                 maintenanceInterval: Timeout.InfiniteTimeSpan,
                 maxConnections: 4,
@@ -106,6 +116,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             [Values(false, true)]
             bool async)
         {
+            _capturedEvents.Clear();
             Action act;
             if (async)
             {
@@ -117,6 +128,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
 
             act.ShouldThrow<InvalidOperationException>();
+            _capturedEvents.Next().Should().BeOfType<ConnectionPoolCheckingOutConnectionEvent>();
+            var connectionPoolCheckingOutConnectionFailedEvent = _capturedEvents.Next();
+            var e = connectionPoolCheckingOutConnectionFailedEvent.Should().BeOfType<ConnectionPoolCheckingOutConnectionFailedEvent>().Subject;
+            e.Reason.Should().Be(ConnectionCheckOutFailedReason.ConnectionError);
+            _capturedEvents.Any().Should().BeFalse();
         }
 
         [Theory]
@@ -125,6 +141,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             [Values(false, true)]
             bool async)
         {
+            _capturedEvents.Clear();
             _subject.Dispose();
 
             Action act;
@@ -138,6 +155,13 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
 
             act.ShouldThrow<ObjectDisposedException>();
+            _capturedEvents.Next().Should().BeOfType<ConnectionPoolClosingEvent>();
+            _capturedEvents.Next().Should().BeOfType<ConnectionPoolClosedEvent>();
+            _capturedEvents.Next().Should().BeOfType<ConnectionPoolCheckingOutConnectionEvent>();
+            var connectionPoolCheckingOutConnectionFailedEvent = _capturedEvents.Next();
+            var e = connectionPoolCheckingOutConnectionFailedEvent.Should().BeOfType<ConnectionPoolCheckingOutConnectionFailedEvent>().Subject;
+            e.Reason.Should().Be(ConnectionCheckOutFailedReason.PoolClosed);
+            _capturedEvents.Any().Should().BeFalse();
         }
 
         [Theory]
@@ -209,6 +233,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             {
                 _capturedEvents.Next().Should().BeOfType<ConnectionPoolCheckingOutConnectionEvent>();
                 _capturedEvents.Next().Should().BeOfType<ConnectionPoolAddingConnectionEvent>();
+                _capturedEvents.Next().Should().BeOfType<ConnectionCreatedEvent>();
                 _capturedEvents.Next().Should().BeOfType<ConnectionPoolAddedConnectionEvent>();
                 _capturedEvents.Next().Should().BeOfType<ConnectionPoolCheckedOutConnectionEvent>();
             }
@@ -281,9 +306,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _subject.DormantCount.Should().Be(_settings.MinConnections - 1);
 
             _capturedEvents.Next().Should().BeOfType<ConnectionPoolCheckingInConnectionEvent>();
+            _capturedEvents.Next().Should().BeOfType<ConnectionPoolCheckedInConnectionEvent>();
             _capturedEvents.Next().Should().BeOfType<ConnectionPoolRemovingConnectionEvent>();
             _capturedEvents.Next().Should().BeOfType<ConnectionPoolRemovedConnectionEvent>();
-            _capturedEvents.Next().Should().BeOfType<ConnectionPoolCheckedInConnectionEvent>();
             _capturedEvents.Any().Should().BeFalse();
         }
 
@@ -323,7 +348,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
             act.ShouldThrow<TimeoutException>();
 
             _capturedEvents.Next().Should().BeOfType<ConnectionPoolCheckingOutConnectionEvent>();
-            _capturedEvents.Next().Should().BeOfType<ConnectionPoolCheckingOutConnectionFailedEvent>();
+            var connectionPoolCheckingOutConnectionFailedEvent = _capturedEvents.Next();
+            var e = connectionPoolCheckingOutConnectionFailedEvent.Should().BeOfType<ConnectionPoolCheckingOutConnectionFailedEvent>().Subject;
+            e.Reason.Should().Be(ConnectionCheckOutFailedReason.Timeout);
             _capturedEvents.Any().Should().BeFalse();
         }
 
@@ -360,7 +387,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _capturedEvents.Next().Should().BeOfType<ConnectionPoolRemovingConnectionEvent>();
             _capturedEvents.Next().Should().BeOfType<ConnectionPoolRemovedConnectionEvent>();
             _capturedEvents.Next().Should().BeOfType<ConnectionPoolClosedEvent>();
-            // no connection pool events exist for the disposed connection2
+            _capturedEvents.Next().Should().BeOfType<ConnectionPoolCheckingInConnectionEvent>();
+            _capturedEvents.Next().Should().BeOfType<ConnectionPoolCheckedInConnectionEvent>();
+            _capturedEvents.Next().Should().BeOfType<ConnectionPoolRemovingConnectionEvent>();
+            _capturedEvents.Next().Should().BeOfType<ConnectionPoolRemovedConnectionEvent>();
             _capturedEvents.Any().Should().BeFalse();
         }
 
@@ -423,12 +453,14 @@ namespace MongoDB.Driver.Core.ConnectionPools
             InitializeAndWait();
 
             _capturedEvents.Next().Should().BeOfType<ConnectionPoolOpeningEvent>();
+            _capturedEvents.Next().Should().BeOfType<ConnectionPoolOpenedEvent>();
+
             for (int i = 0; i < _settings.MinConnections; i++)
             {
                 _capturedEvents.Next().Should().BeOfType<ConnectionPoolAddingConnectionEvent>();
+                _capturedEvents.Next().Should().BeOfType<ConnectionCreatedEvent>();
                 _capturedEvents.Next().Should().BeOfType<ConnectionPoolAddedConnectionEvent>();
             }
-            _capturedEvents.Next().Should().BeOfType<ConnectionPoolOpenedEvent>();
         }
 
         private void InitializeAndWait()

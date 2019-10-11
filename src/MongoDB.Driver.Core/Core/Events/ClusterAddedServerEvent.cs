@@ -19,7 +19,6 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Events
 {
-    /// <preliminary/>
     /// <summary>
     /// Occurs after a server is added to the cluster.
     /// </summary>

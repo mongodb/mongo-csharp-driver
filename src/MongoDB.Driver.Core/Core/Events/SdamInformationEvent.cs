@@ -17,7 +17,6 @@ using System;
 
 namespace MongoDB.Driver.Core.Events
 {
-    /// <preliminary/>
     /// <summary>
     /// An informational event used for logging Server Discovery and Monitoring (SDAM) events. 
     /// </summary>

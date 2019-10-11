@@ -27,7 +27,6 @@ using MongoDB.Driver.Core.WireProtocol.Messages;
 
 namespace MongoDB.Driver.Core.Events.Diagnostics
 {
-    /// <preliminary/>
     /// <summary>
     /// Represents an event subscriber that records certain events to Windows performance counters.
     /// </summary>

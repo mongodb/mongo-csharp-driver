@@ -167,6 +167,12 @@ namespace MongoDB.Bson.TestHelpers
             fieldInfo.SetValue(obj, value);
         }
 
+        public static void SetStaticFieldValue(Type type, string name, object value)
+        {
+            var fieldInfo = type.GetField(name, BindingFlags.NonPublic | BindingFlags.Static);
+            fieldInfo.SetValue(null, value);
+        }
+
         // private methods
         private static FieldInfo GetDeclaredOrInheritedField(Type type, string name, BindingFlags bindingFlags)
         {

@@ -23,7 +23,6 @@ namespace MongoDB.Driver.Core.Events
     /// <summary>
     /// Occurs when a connection fails.
     /// </summary>
-    /// <preliminary />
     public struct ConnectionFailedEvent
     {
         private readonly ConnectionId _connectionId;

@@ -71,6 +71,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the actual wait queue size (either WaitQueueSize or WaitQueueMultiple x MaxConnectionPoolSize).
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static int ComputedWaitQueueSize
         {
             get
@@ -240,6 +241,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the wait queue multiple (the actual wait queue size will be WaitQueueMultiple x MaxConnectionPoolSize, see also WaitQueueSize).
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static double WaitQueueMultiple
         {
             get { return __waitQueueMultiple; }
@@ -253,6 +255,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the wait queue size (see also WaitQueueMultiple).
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static int WaitQueueSize
         {
             get { return __waitQueueSize; }

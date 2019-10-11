@@ -107,7 +107,9 @@ namespace MongoDB.Driver
             _socketTimeout = MongoDefaults.SocketTimeout;
             _sslSettings = null;
             _useTls = false;
+#pragma warning disable 618
             _waitQueueSize = MongoDefaults.ComputedWaitQueueSize;
+#pragma warning restore 618
             _waitQueueTimeout = MongoDefaults.WaitQueueTimeout;
             _writeConcern = WriteConcern.Acknowledged;
             _writeEncoding = null;
@@ -598,6 +600,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the wait queue size.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public int WaitQueueSize
         {
             get { return _waitQueueSize; }
@@ -748,7 +751,9 @@ namespace MongoDB.Driver
             clientSettings.SocketTimeout = url.SocketTimeout;
             clientSettings.SslSettings = null; // SSL settings must be provided in code
             clientSettings.UseTls = url.UseTls;
+#pragma warning disable 618
             clientSettings.WaitQueueSize = url.ComputedWaitQueueSize;
+#pragma warning restore 618
             clientSettings.WaitQueueTimeout = url.WaitQueueTimeout;
             clientSettings.WriteConcern = url.GetWriteConcern(true); // WriteConcern is enabled by default for MongoClient
             clientSettings.WriteEncoding = null; // WriteEncoding must be provided in code

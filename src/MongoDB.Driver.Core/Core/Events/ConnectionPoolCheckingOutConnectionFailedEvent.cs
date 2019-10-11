@@ -19,12 +19,12 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Events
 {
-    /// <preliminary/>
     /// <summary>
     /// Occurs when a connection could not be checked out of the pool.
     /// </summary>
     public struct ConnectionPoolCheckingOutConnectionFailedEvent
     {
+        private readonly ConnectionCheckOutFailedReason _reason;
         private readonly ServerId _serverId;
         private readonly Exception _exception;
         private readonly long? _operationId;
@@ -35,11 +35,17 @@ namespace MongoDB.Driver.Core.Events
         /// <param name="serverId">The server identifier.</param>
         /// <param name="exception">The exception.</param>
         /// <param name="operationId">The operation identifier.</param>
-        public ConnectionPoolCheckingOutConnectionFailedEvent(ServerId serverId, Exception exception, long? operationId)
+        /// <param name="reason">The reason the checkout failed.</param>
+        public ConnectionPoolCheckingOutConnectionFailedEvent(
+            ServerId serverId,
+            Exception exception,
+            long? operationId,
+            ConnectionCheckOutFailedReason reason)
         {
             _serverId = serverId;
             _exception = exception;
             _operationId = operationId;
+            _reason = reason;
         }
 
         /// <summary>
@@ -64,6 +70,14 @@ namespace MongoDB.Driver.Core.Events
         public long? OperationId
         {
             get { return _operationId; }
+        }
+
+        /// <summary>
+        /// Gets the reason the checkout failed.
+        /// </summary>
+        public ConnectionCheckOutFailedReason Reason
+        {
+            get { return _reason; }
         }
 
         /// <summary>

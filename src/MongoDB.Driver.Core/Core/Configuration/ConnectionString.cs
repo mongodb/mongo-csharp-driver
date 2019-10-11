@@ -451,6 +451,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <summary>
         /// Gets the wait queue multiple.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public double? WaitQueueMultiple
         {
             get { return _waitQueueMultiple; }
@@ -459,6 +460,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <summary>
         /// Gets the wait queue size.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public int? WaitQueueSize
         {
             get { return _waitQueueSize; }

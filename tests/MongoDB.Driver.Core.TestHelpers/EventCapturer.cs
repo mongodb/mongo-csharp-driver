@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Events;
@@ -25,10 +26,11 @@ namespace MongoDB.Driver.Core
 {
     public class EventCapturer : IEventSubscriber
     {
+        private Action<IEnumerable<object>, object> _addEventAction;
         private readonly Queue<object> _capturedEvents;
+        private readonly Dictionary<Type, Func<object, bool>> _eventsToCapture;
         private readonly object _lock = new object();
         private readonly IEventSubscriber _subscriber;
-        private readonly Dictionary<Type, Func<object, bool>> _eventsToCapture;
 
         public EventCapturer()
         {
@@ -98,6 +100,12 @@ namespace MongoDB.Driver.Core
             }
         }
 
+        public Task NotifyWhen(Func<IEnumerable<object>, bool> condition)
+        {
+            var notifier = new EventNotifier(this, condition);
+            return notifier.Initialize();
+        }
+
         public bool TryGetEventHandler<TEvent>(out Action<TEvent> handler)
         {
             if (_eventsToCapture.Count > 0 && !_eventsToCapture.ContainsKey(typeof(TEvent)))
@@ -114,6 +122,7 @@ namespace MongoDB.Driver.Core
             return true;
         }
 
+        // private methods
         private void Capture<TEvent>(TEvent @event)
         {
             var obj = @event as object;
@@ -131,6 +140,7 @@ namespace MongoDB.Driver.Core
             lock (_lock)
             {
                 _capturedEvents.Enqueue(@event);
+                _addEventAction?.Invoke(_capturedEvents, @event);
             }
         }
 
@@ -242,6 +252,43 @@ namespace MongoDB.Driver.Core
             private BsonJavaScriptWithScope RecursivelyMaterialize(BsonJavaScriptWithScope value)
             {
                 return new BsonJavaScriptWithScope(value.Code, RecursivelyMaterialize(value.Scope));
+            }
+        }
+
+        private class EventNotifier
+        {
+            private readonly Func<IEnumerable<object>, bool> _condition;
+            private readonly EventCapturer _eventCapturer;
+            private readonly TaskCompletionSource<bool> _taskCompletionSource;
+
+            public EventNotifier(EventCapturer eventCapturer, Func<IEnumerable<object>, bool> condition)
+            {
+                _eventCapturer = Ensure.IsNotNull(eventCapturer, nameof(eventCapturer));
+                _condition = Ensure.IsNotNull(condition, nameof(condition));
+                _taskCompletionSource = new TaskCompletionSource<bool>();
+            }
+
+            // public methods
+            public Task Initialize()
+            {
+                _eventCapturer._addEventAction += (events, @event) => TriggerNotificationIfCondition(events);
+
+                // condition might already be true even before any more events are added
+                lock (_eventCapturer._lock)
+                {
+                    TriggerNotificationIfCondition(_eventCapturer.Events);
+                }
+
+                return _taskCompletionSource.Task;
+            }
+
+            // private methods
+            private void TriggerNotificationIfCondition(IEnumerable<object> events)
+            {
+                if (_condition(events))
+                {
+                    _taskCompletionSource.TrySetResult(true);
+                }
             }
         }
     }

@@ -93,6 +93,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <value>
         /// The size of the wait queue.
         /// </value>
+        [Obsolete("This property will be removed in a later release.")]
         public int WaitQueueSize
         {
             get { return _waitQueueSize; }
