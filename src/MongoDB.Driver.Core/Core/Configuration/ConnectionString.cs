@@ -776,8 +776,8 @@ namespace MongoDB.Driver.Core.Configuration
                 var invalidPercentPattern = @"%$|%.$|%[^0-9a-fA-F]|%[0-9a-fA-F][^0-9a-fA-F]";
                 if (Regex.IsMatch(_originalConnectionString, invalidPercentPattern))
                 {
-                    var message = string.Format("The connection string '{0}' contains an invalid '%' escape sequence.",
-                        _originalConnectionString);
+                    var protectedConnectionString = protectConnectionString(_originalConnectionString);
+                    var message = $"The connection string '{protectedConnectionString}' contains an invalid '%' escape sequence.";
                     throw new MongoConfigurationException(message);
                 }
             }
@@ -785,7 +785,8 @@ namespace MongoDB.Driver.Core.Configuration
             var match = Regex.Match(_originalConnectionString, pattern);
             if (!match.Success)
             {
-                var message = string.Format("The connection string '{0}' is not valid.", _originalConnectionString);
+                var protectedConnectionString = protectConnectionString(_originalConnectionString);
+                var message = $"The connection string '{protectedConnectionString}' is not valid.";
                 throw new MongoConfigurationException(message);
             }
 
@@ -798,6 +799,12 @@ namespace MongoDB.Driver.Core.Configuration
             if (_journal.HasValue && _journal.Value && _w != null && _w.Equals(0))
             {
                 throw new MongoConfigurationException("This is an invalid w and journal pair.");
+            }
+
+            string protectConnectionString(string connectionString)
+            {
+                var protectedString = Regex.Replace(connectionString, @"(?<=://)[^/]*(?=@)", "<hidden>");
+                return protectedString;
             }
         }
 
