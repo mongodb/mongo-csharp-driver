@@ -137,13 +137,10 @@ namespace MongoDB.Bson.Tests.Serialization
         }
 
         public class InventoryItem
-#if NET452
             : ISupportInitialize
-#endif
         {
             public int Price { get; set; }
 
-#if NET452
             [BsonIgnore]
             public bool WasBeginInitCalled;
             [BsonIgnore]
@@ -158,7 +155,6 @@ namespace MongoDB.Bson.Tests.Serialization
             {
                 WasEndInitCalled = true;
             }
-#endif
         }
 
         [Fact]
@@ -170,10 +166,8 @@ namespace MongoDB.Bson.Tests.Serialization
             var rehydrated = BsonSerializer.Deserialize<InventoryItem>(bson);
 
             Assert.Equal(42, rehydrated.Price);
-#if NET452
             Assert.True(rehydrated.WasBeginInitCalled);
             Assert.True(rehydrated.WasEndInitCalled);
-#endif
         }
 
         [BsonKnownTypes(typeof(B), typeof(C))]
