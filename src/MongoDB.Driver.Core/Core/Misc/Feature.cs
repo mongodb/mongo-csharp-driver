@@ -76,6 +76,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __scramSha256Authentication = new Feature("ScramSha256Authentication", new SemanticVersion(4, 0, 0, ""));
         private static readonly Feature __serverExtractsUsernameFromX509Certificate = new Feature("ServerExtractsUsernameFromX509Certificate", new SemanticVersion(3, 3, 12));
         private static readonly Feature __shardedTransactions = new Feature("ShardedTransactions", new SemanticVersion(4, 1, 6));
+        private static readonly Feature __tailableCursor = new Feature("TailableCursor", new SemanticVersion(3, 2, 0));
         private static readonly Feature __transactions = new Feature("Transactions", new SemanticVersion(4, 0, 0));
         private static readonly Feature __userManagementCommands = new Feature("UserManagementCommands", new SemanticVersion(2, 6, 0));
         private static readonly Feature __views = new Feature("Views", new SemanticVersion(3, 3, 11));
@@ -346,6 +347,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the sharded transactions feature.
         /// </summary>
         public static Feature ShardedTransactions => __shardedTransactions;
+
+        /// <summary>
+        /// Gets the tailable cursor feature.
+        /// </summary>
+        public static Feature TailableCursor => __tailableCursor;
 
         /// <summary>
         /// Gets the transactions feature.

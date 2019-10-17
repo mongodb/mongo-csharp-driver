@@ -13,7 +13,9 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
+using System.Threading;
 using FluentAssertions;
 using FluentAssertions.Common;
 using MongoDB.Bson;
@@ -78,14 +80,66 @@ namespace MongoDB.Driver.Tests
                 cursor = collection.FindSync("{}");
                 cursor.MoveNext();
 
-                var cursorId = ((AsyncCursor<BsonDocument>) cursor)._cursorId();
+                var cursorId = ((AsyncCursor<BsonDocument>)cursor)._cursorId();
                 cursorId.Should().NotBe(0);
                 cursor.Dispose();
 
                 var desiredResult = BsonDocument.Parse($"{{ \"cursorsKilled\" : [{cursorId}], \"cursorsNotFound\" : [], " +
                     $"\"cursorsAlive\" : [], \"cursorsUnknown\" : [], \"ok\" : 1.0 }}");
-                var result = ((CommandSucceededEvent) eventCapturer.Events[0]).Reply;
+                var result = ((CommandSucceededEvent)eventCapturer.Events[0]).Reply;
                 result.IsSameOrEqualTo(desiredResult);
+            }
+        }
+
+        [SkippableFact]
+        public void Tailable_cursor_should_be_able_to_be_cancelled_from_a_different_thread_with_expected_result()
+        {
+            RequireServer.Check().Supports(Feature.TailableCursor);
+
+            string testCollectionName = "test";
+            string testDatabaseName = "test";
+
+            var client = DriverTestConfiguration.Client;
+            var database = client.GetDatabase(testDatabaseName);
+            var collection = database.GetCollection<BsonDocument>(testCollectionName);
+
+            DropCollection(client, testDatabaseName, testCollectionName);
+            var createCollectionOptions = new CreateCollectionOptions()
+            {
+                Capped = true,
+                MaxSize = 1000
+            };
+            database.CreateCollection(testCollectionName, createCollectionOptions);
+            collection.InsertOne(new BsonDocument()); // tailable cursors don't work on an empty collection
+
+            using (var cancellationTokenSource = new CancellationTokenSource())
+            {
+                var findOptions = new FindOptions<BsonDocument>()
+                {
+                    BatchSize = 1,
+                    CursorType = CursorType.TailableAwait
+                };
+                var cursor = collection.FindSync(FilterDefinition<BsonDocument>.Empty, findOptions);
+                var enumerator = cursor.ToEnumerable(cancellationTokenSource.Token).GetEnumerator();
+
+                var semaphore = new SemaphoreSlim(0);
+                var thread = new Thread(() =>
+                {
+                    semaphore.Wait();
+                    cancellationTokenSource.Cancel();
+                });
+                thread.Start();
+
+                var exception = Record.Exception((Action)(() =>
+                {
+                    while (true)
+                    {
+                        _ = enumerator.MoveNext();
+                        semaphore.Release(1);
+                    }
+                }));
+
+                exception.Should().BeAssignableTo<OperationCanceledException>();
             }
         }
 
@@ -105,6 +159,6 @@ namespace MongoDB.Driver.Tests
     public static class AsyncCursorReflector
     {
         public static long _cursorId(this AsyncCursor<BsonDocument> obj) =>
-            (long) Reflector.GetFieldValue(obj, nameof(_cursorId));
+            (long)Reflector.GetFieldValue(obj, nameof(_cursorId));
     }
 }

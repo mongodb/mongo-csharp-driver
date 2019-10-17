@@ -555,6 +555,7 @@ namespace MongoDB.Driver.Core.Operations
         public bool MoveNext(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
+            cancellationToken.ThrowIfCancellationRequested();
 
             bool hasMore;
             if (TryMoveNext(out hasMore))
@@ -571,6 +572,7 @@ namespace MongoDB.Driver.Core.Operations
         public async Task<bool> MoveNextAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
+            cancellationToken.ThrowIfCancellationRequested();
 
             bool hasMore;
             if (TryMoveNext(out hasMore))
