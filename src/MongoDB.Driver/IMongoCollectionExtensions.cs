@@ -163,6 +163,7 @@ namespace MongoDB.Driver
 
         /// <summary>
         /// Counts the number of documents in the collection.
+        /// For a fast estimate of the total documents in a collection see <see cref="IMongoCollection{TDocument}.EstimatedDocumentCount"/>.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="collection">The collection.</param>
@@ -182,6 +183,7 @@ namespace MongoDB.Driver
 
         /// <summary>
         /// Counts the number of documents in the collection.
+        /// For a fast estimate of the total documents in a collection see <see cref="IMongoCollection{TDocument}.EstimatedDocumentCount"/>.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="session">The session.</param>
@@ -203,6 +205,7 @@ namespace MongoDB.Driver
 
         /// <summary>
         /// Counts the number of documents in the collection.
+        /// For a fast estimate of the total documents in a collection see <see cref="IMongoCollection{TDocument}.EstimatedDocumentCountAsync"/>.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="collection">The collection.</param>
@@ -222,6 +225,7 @@ namespace MongoDB.Driver
 
         /// <summary>
         /// Counts the number of documents in the collection.
+        /// For a fast estimate of the total documents in a collection see <see cref="IMongoCollection{TDocument}.EstimatedDocumentCountAsync"/>.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="collection">The collection.</param>

@@ -198,6 +198,7 @@ namespace MongoDB.Driver
 
         /// <summary>
         /// Counts the number of documents in the collection.
+        /// For a fast estimate of the total documents in a collection see <see cref="EstimatedDocumentCount"/>.
         /// </summary>
         /// <remarks>
         /// Note: when migrating from Count to CountDocuments the following query operations must be replaced:
@@ -224,6 +225,7 @@ namespace MongoDB.Driver
 
         /// <summary>
         /// Counts the number of documents in the collection.
+        /// For a fast estimate of the total documents in a collection see <see cref="EstimatedDocumentCount"/>.
         /// </summary>
         /// <remarks>
         /// Note: when migrating from Count to CountDocuments the following query operations must be replaced:
@@ -251,6 +253,7 @@ namespace MongoDB.Driver
 
         /// <summary>
         /// Counts the number of documents in the collection.
+        /// For a fast estimate of the total documents in a collection see <seea cref="EstimatedDocumentCountAsync"/>.
         /// </summary>
         /// <remarks>
         /// Note: when migrating from CountAsync to CountDocumentsAsync the following query operations must be replaced:
@@ -277,6 +280,7 @@ namespace MongoDB.Driver
 
         /// <summary>
         /// Counts the number of documents in the collection.
+        /// For a fast estimate of the total documents in a collection see <see cref="EstimatedDocumentCountAsync"/>.
         /// </summary>
         /// <remarks>
         /// Note: when migrating from CountAsync to CountDocumentsAsync the following query operations must be replaced:

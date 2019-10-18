@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Core.Operations
 {
     /// <summary>
     /// Represents a count documents operation.
+    /// For a fast estimate of the total documents in a collection see <see cref="CountOperation"/>.
     /// </summary>
     public class CountDocumentsOperation : IReadOperation<long>
     {
