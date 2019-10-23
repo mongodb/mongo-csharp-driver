@@ -237,6 +237,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Appends a merge stage to the pipeline and executes it, and then returns a cursor to read the contents of the output collection.
         /// </summary>
+        /// <typeparam name="TOutput">The type of output documents.</typeparam>
         /// <param name="outputCollection">The output collection.</param>
         /// <param name="mergeOptions">The merge options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
@@ -246,6 +247,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Appends a merge stage to the pipeline and executes it, and then returns a cursor to read the contents of the output collection.
         /// </summary>
+        /// <typeparam name="TOutput">The type of output documents.</typeparam>
         /// <param name="outputCollection">The output collection.</param>
         /// <param name="mergeOptions">The merge options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>

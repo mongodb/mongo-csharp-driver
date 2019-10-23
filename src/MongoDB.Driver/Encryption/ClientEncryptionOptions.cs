@@ -78,6 +78,7 @@ namespace MongoDB.Driver.Encryption
         /// <param name="keyVaultClient">The key vault client.</param>
         /// <param name="keyVaultNamespace">The key vault namespace.</param>
         /// <param name="kmsProviders">The KMS providers.</param>
+        /// <returns>A new ClientEncryptionOptions instance.</returns>
         public ClientEncryptionOptions With(
             Optional<IMongoClient> keyVaultClient = default,
             Optional<CollectionNamespace> keyVaultNamespace = default,

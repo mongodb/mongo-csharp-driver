@@ -45,6 +45,7 @@
       <NamespaceSummaryItem name="MongoDB.Bson.Serialization.Serializers" isDocumented="True">The MongoDB.Bson.Serialization.Serializers namespace contains the serializers for the various BSON and base .Net types</NamespaceSummaryItem>
       <NamespaceSummaryItem name="MongoDB.Driver" isDocumented="True">The MongoDB.Driver namespace contains all the basic types and classes that compose the MongoDB driver. It contains the classes needed for most interactions with the database.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="MongoDB.Driver.Builders" isDocumented="True">The MongoDB.Driver.Builders namespace contains helper classes (builders) that can be used to construct various options used in the driver.</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="MongoDB.Driver.Encryption" isDocumented="True">The MongoDB.Driver.Encryption namespace contains all the basic types and classes related to client-side encryption.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="MongoDB.Driver.GridFS" isDocumented="True">The classes used to interact with MongoDB GridFS are part of the MongoDB.Driver.GridFS namespace.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="MongoDB.Driver.Internal" isDocumented="True">The MongoDB.Driver.Internal namespace contains internal classes used by the driver such as ConnectionPool.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="MongoDB.Driver.Wrappers" isDocumented="True">Wrapped versions of various classes for use in serialization are present in the MongoDB.Driver.Wrappers namespace.</NamespaceSummaryItem>
@@ -106,6 +107,15 @@
     <DisableCodeBlockComponent>False</DisableCodeBlockComponent>
     <CppCommentsFixup>False</CppCommentsFixup>
     <CleanIntermediates>True</CleanIntermediates>
+    <PlugInConfigurations>
+      <PlugInConfig id="Additional Reference Links" enabled="True">
+        <configuration>
+          <targets>
+            <target htmlSdkLinkType="None" helpViewerSdkLinkType="Id" websiteSdkLinkType="None" helpFileProject="LibMongocryptDocs.shfbproj" />
+          </targets>
+        </configuration>
+      </PlugInConfig>
+    </PlugInConfigurations>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in
        order for Visual Studio to perform the build.  The others are optional
