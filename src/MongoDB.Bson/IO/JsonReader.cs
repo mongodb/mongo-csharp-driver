@@ -111,7 +111,7 @@ namespace MongoDB.Bson.IO
         {
         }
 
-        private JsonReader(JsonBuffer buffer, JsonReaderSettings settings)
+        internal JsonReader(JsonBuffer buffer, JsonReaderSettings settings)
             : base(settings)
         {
             _buffer = buffer;
@@ -119,7 +119,16 @@ namespace MongoDB.Bson.IO
             _context = new JsonReaderContext(null, ContextType.TopLevel);
         }
 
-        // public methods
+        // public methods        
+        /// <summary>
+        /// Resets the underlying buffer; use this if you are streaming very large BSON documents and want to reduce memory
+        /// use.
+        /// </summary>
+        public void DiscardBufferedData()
+        {
+          _buffer.ResetBuffer();
+        }
+
         /// <summary>
         /// Closes the reader.
         /// </summary>

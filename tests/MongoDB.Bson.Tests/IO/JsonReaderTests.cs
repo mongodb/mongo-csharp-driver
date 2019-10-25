@@ -1600,6 +1600,39 @@ namespace MongoDB.Bson.Tests.IO
                 result.Should().BeTrue();
             }
         }
+
+        [Fact]
+        public void Can_discard_buffered_data()
+        {
+            var json = "[ " + string.Join(",", Enumerable.Repeat("{ \"a\" : { \"x\" : 1 } }", 1024)) + "]";
+            var textReader = new StreamReader(new MemoryStream(Encoding.UTF8.GetBytes(json)));
+
+            var buffer = new JsonBuffer(textReader);
+            using (var reader = new JsonReader(buffer, JsonReaderSettings.Defaults))
+            {
+                reader.ReadStartArray();
+
+                // Deserialize some.
+                for (int idx = 0; idx < 512; idx++)
+                {
+                    BsonSerializer.Deserialize<BsonDocument>(reader);
+                }
+
+                buffer.Position.Should().BeGreaterThan(512);
+                
+                reader.DiscardBufferedData();
+
+                buffer.Position.Should().Be(0);
+                
+                // Make sure we can continue deserializing after the discard.
+                for (int idx = 0; idx < 512; idx++)
+                {
+                    BsonSerializer.Deserialize<BsonDocument>(reader);
+                }
+
+                reader.ReadEndArray();
+            }
+        }
     }
 
     public static class JsonReaderReflector
