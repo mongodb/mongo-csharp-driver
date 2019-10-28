@@ -467,7 +467,13 @@ namespace MongoDB.Driver.Core.Bindings
 
             foreach (var connectedDataBearingServer in connectedDataBearingServers)
             {
-                if (connectedDataBearingServer.Type == ServerType.ShardRouter)
+                var serverType = connectedDataBearingServer.Type;
+
+                if(serverType == ServerType.Standalone || serverType == ServerType.Unknown)
+                {
+                    throw new NotSupportedException("Transactions are supported only in sharded cluster of replica set deployments.");
+                }
+                else if (serverType == ServerType.ShardRouter)
                 {
                     Feature.ShardedTransactions.ThrowIfNotSupported(connectedDataBearingServer.Version);
                 }

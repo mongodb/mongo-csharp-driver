@@ -325,6 +325,8 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         [Theory]
+        [InlineData("NT")]
+        [InlineData("UT")]
         [InlineData("PN")]
         [InlineData("PN,ST")]
         [InlineData("PT,SN")]
@@ -358,7 +360,11 @@ namespace MongoDB.Driver.Core.Bindings
             var exception = Record.Exception(() => subject.EnsureTransactionsAreSupported());
 
             var e = exception.Should().BeOfType<NotSupportedException>().Subject;
-            e.Message.Should().Contain($"does not support the {unsupportedFeatureName} feature.");
+            e.Message.Should().Match<string>(
+                s => s.Contains($"does not support the {unsupportedFeatureName} feature.") || 
+                     s.Contains("Transactions are supported only in sharded cluster of replica set deployments.") ||
+                     s.Contains("StartTransaction cannot determine if transactions are supported because there are no connected servers.")
+            );
         }
 
         // private methods
@@ -446,6 +452,7 @@ namespace MongoDB.Driver.Core.Bindings
             switch (code)
             {
                 case 'A': return ServerType.ReplicaSetArbiter;
+                case 'N': return ServerType.Standalone;
                 case 'P': return ServerType.ReplicaSetPrimary;
                 case 'R': return ServerType.ShardRouter;
                 case 'S': return ServerType.ReplicaSetSecondary;
