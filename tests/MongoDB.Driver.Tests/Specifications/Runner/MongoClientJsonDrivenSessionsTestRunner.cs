@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
 
         protected override string[] ExpectedTestColumns => new[] { "description", "clientOptions", "useMultipleMongoses", "failPoint", "sessionOptions", "operations", "expectations", "outcome", "async" };
 
-        // protected methods`
+        // protected methods
         protected override void TestInitialize(MongoClient client, BsonDocument test, BsonDocument shared)
         {
             base.TestInitialize(client, test, shared);
@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
                 });
         }
 
-        protected override void ExecuteOperations(IMongoClient client, Dictionary<string, object> objectMap, BsonDocument test)
+        protected override void ExecuteOperations(IMongoClient client, Dictionary<string, object> objectMap, BsonDocument test, EventCapturer eventCapturer = null)
         {
             var newItems = new Dictionary<string, object>();
             foreach (var mapItem in objectMap)
@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
                 objectMap.Add(newItem.Key, newItem.Value);
             }
 
-            base.ExecuteOperations(client, objectMap, test);
+            base.ExecuteOperations(client, objectMap, test, eventCapturer);
         }
 
         protected void KillAllSessions()

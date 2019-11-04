@@ -76,6 +76,16 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         /// <inheritdoc />
+        public virtual bool IsDirty
+        {
+            get
+            {
+                ThrowIfDisposed();
+                return _wrapped.IsDirty;
+            }
+        }
+
+        /// <inheritdoc />
         public virtual bool IsCausallyConsistent
         {
             get
@@ -211,6 +221,13 @@ namespace MongoDB.Driver.Core.Bindings
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        /// <inheritdoc />
+        public virtual void MarkDirty()
+        {
+            ThrowIfDisposed();
+            _wrapped.MarkDirty();
         }
 
         /// <inheritdoc />

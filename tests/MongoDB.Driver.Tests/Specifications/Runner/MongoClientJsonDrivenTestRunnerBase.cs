@@ -206,11 +206,11 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
             database.DropCollection(collectionName);
         }
 
-        protected virtual void ExecuteOperations(IMongoClient client, Dictionary<string, object> objectMap, BsonDocument test)
+        protected virtual void ExecuteOperations(IMongoClient client, Dictionary<string, object> objectMap, BsonDocument test, EventCapturer eventCapturer = null)
         {
             _objectMap = objectMap;
 
-            var factory = new JsonDrivenTestFactory(client, DatabaseName, CollectionName, bucketName: null, objectMap);
+            var factory = new JsonDrivenTestFactory(client, DatabaseName, CollectionName, bucketName: null, objectMap, eventCapturer);
 
             foreach (var operation in test[OperationsKey].AsBsonArray.Cast<BsonDocument>())
             {

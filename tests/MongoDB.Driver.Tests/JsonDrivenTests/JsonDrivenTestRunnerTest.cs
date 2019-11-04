@@ -15,6 +15,7 @@
 
 using System.Collections.Generic;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
@@ -30,6 +31,8 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         {
             _testRunner = testRunner;
         }
+
+        protected ICoreSessionHandle CoreSession => _session.WrappedCoreSession;
 
         protected IJsonDrivenTestRunner TestRunner => _testRunner;
 

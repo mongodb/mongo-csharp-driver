@@ -545,7 +545,7 @@ namespace MongoDB.Driver.Core.Servers
                     resultSerializer,
                     messageEncoderSettings);
 
-                return ExecuteProtocol(protocol, cancellationToken);
+                return ExecuteProtocol(protocol, session, cancellationToken);
             }
 
             [Obsolete("Use the newest overload instead.")]
@@ -646,7 +646,7 @@ namespace MongoDB.Driver.Core.Servers
                     resultSerializer,
                     messageEncoderSettings);
 
-                return ExecuteProtocolAsync(protocol, cancellationToken);
+                return ExecuteProtocolAsync(protocol, session, cancellationToken);
             }
 
             public void Dispose()
@@ -963,6 +963,20 @@ namespace MongoDB.Driver.Core.Servers
                 }
             }
 
+            private TResult ExecuteProtocol<TResult>(IWireProtocol<TResult> protocol, ICoreSession session, CancellationToken cancellationToken)
+            {
+                try
+                {
+                    return protocol.Execute(_connection, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    MarkSessionDirtyIfNeeded(session, ex);
+                    _server.HandleChannelException(_connection, ex);
+                    throw;
+                }
+            }
+
             private async Task ExecuteProtocolAsync(IWireProtocol protocol, CancellationToken cancellationToken)
             {
                 try
@@ -984,6 +998,20 @@ namespace MongoDB.Driver.Core.Servers
                 }
                 catch (Exception ex)
                 {
+                    _server.HandleChannelException(_connection, ex);
+                    throw;
+                }
+            }
+            
+            private async Task<TResult> ExecuteProtocolAsync<TResult>(IWireProtocol<TResult> protocol, ICoreSession session, CancellationToken cancellationToken)
+            {
+                try
+                {
+                    return await protocol.ExecuteAsync(_connection, cancellationToken).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    MarkSessionDirtyIfNeeded(session, ex);
                     _server.HandleChannelException(_connection, ex);
                     throw;
                 }
@@ -1024,6 +1052,14 @@ namespace MongoDB.Driver.Core.Servers
                 }
 
                 return slaveOk;
+            }
+
+            private void MarkSessionDirtyIfNeeded(ICoreSession session, Exception ex)
+            {
+                if (ex is MongoConnectionException)
+                {
+                    session.MarkDirty();
+                }
             }
 
             private void ThrowIfDisposed()

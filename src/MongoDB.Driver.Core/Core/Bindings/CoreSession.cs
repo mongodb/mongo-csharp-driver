@@ -80,6 +80,9 @@ namespace MongoDB.Driver.Core.Bindings
         public bool IsCausallyConsistent => _options.IsCausallyConsistent;
 
         /// <inheritdoc />
+        public bool IsDirty => _serverSession.IsDirty;
+
+        /// <inheritdoc />
         public bool IsImplicit => _options.IsImplicit;
 
         /// <inheritdoc />
@@ -345,6 +348,12 @@ namespace MongoDB.Driver.Core.Bindings
                 _serverSession.Dispose();
                 _disposed = true;
             }
+        }
+
+        /// <inheritdoc />
+        public void MarkDirty()
+        {
+            _serverSession.MarkDirty();
         }
 
         /// <inheritdoc />

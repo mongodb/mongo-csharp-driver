@@ -33,6 +33,14 @@ namespace MongoDB.Driver
         BsonDocument Id { get; }
 
         /// <summary>
+        /// Gets a value indicate whether this session is dirty.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if the session is dirty.
+        /// </value>
+        bool IsDirty { get; }
+
+        /// <summary>
         /// Gets the time this server session was last used (in UTC).
         /// </summary>
         /// <value>
@@ -40,13 +48,18 @@ namespace MongoDB.Driver
         /// </value>
         DateTime? LastUsedAt { get; }
 
+        // methods
         /// <summary>
         /// Gets the next transaction number.
         /// </summary>
         /// <returns>The transaction number.</returns>
         long AdvanceTransactionNumber();
 
-        // methods
+        /// <summary>
+        /// Marks the session as dirty.
+        /// </summary>
+        void MarkDirty();
+
         /// <summary>
         /// Called by the driver when the session is used (i.e. sent to the server).
         /// </summary>

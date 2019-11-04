@@ -41,7 +41,7 @@ namespace MongoDB.Driver
                 for (var i = _pool.Count - 1; i >= 0; i--)
                 {
                     var pooledSession = _pool[i];
-                    if (IsAboutToExpire(pooledSession))
+                    if (IsAboutToExpireOrDirty(pooledSession))
                     {
                         pooledSession.Dispose();
                     }
@@ -68,7 +68,7 @@ namespace MongoDB.Driver
                 for (var i = 0; i < _pool.Count; i++)
                 {
                     var pooledSession = _pool[i];
-                    if (IsAboutToExpire(pooledSession))
+                    if (IsAboutToExpireOrDirty(pooledSession))
                     {
                         pooledSession.Dispose();
                         removeCount++;
@@ -80,7 +80,7 @@ namespace MongoDB.Driver
                 }
                 _pool.RemoveRange(0, removeCount);
 
-                if (IsAboutToExpire(session))
+                if (IsAboutToExpireOrDirty(session))
                 {
                     session.Dispose();
                 }
@@ -105,6 +105,11 @@ namespace MongoDB.Driver
                 var timeRemaining = expiresAt - DateTime.UtcNow;
                 return timeRemaining < TimeSpan.FromMinutes(1);
             }
+        }
+
+        private bool IsAboutToExpireOrDirty(ICoreServerSession session)
+        {
+            return IsAboutToExpire(session) || session.IsDirty;
         }
 
         // nested types

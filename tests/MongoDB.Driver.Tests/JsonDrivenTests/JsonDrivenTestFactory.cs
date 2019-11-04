@@ -17,7 +17,7 @@ using System;
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
-using MongoDB.Driver.Tests.Specifications.transactions;
+using MongoDB.Driver.Core;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {
@@ -30,11 +30,18 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         private readonly string _collectionName;
         private readonly Dictionary<string, object> _objectMap;
         private readonly IJsonDrivenTestRunner _testRunner;
+        private readonly EventCapturer _eventCapturer;
 
         // public constructors
         public JsonDrivenTestFactory(IMongoClient client, string databaseName, string collectionName, string bucketName, Dictionary<string, object> objectMap)
             : this(null, client, databaseName, collectionName, bucketName, objectMap)
         {
+        }
+        
+        public JsonDrivenTestFactory(IMongoClient client, string databaseName, string collectionName, string bucketName, Dictionary<string, object> objectMap, EventCapturer eventCapturer)
+            : this(client, databaseName, collectionName, bucketName, objectMap)
+        {
+            _eventCapturer = eventCapturer;
         }
 
         public JsonDrivenTestFactory(IJsonDrivenTestRunner testRunner, IMongoClient client, string databaseName, string collectionName, string bucketName, Dictionary<string, object> objectMap)
@@ -57,8 +64,12 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                     switch (name)
                     {
                         case "targetedFailPoint": return new JsonDrivenTargetedFailPointTest(_testRunner, _objectMap);
+                        case "assertDifferentLsidOnLastTwoCommands": return new JsonDrivenAssertDifferentLsidOnLastTwoCommandsTest(_testRunner, _eventCapturer, _objectMap);
+                        case "assertSessionDirty": return new JsonDrivenAssertSessionDirtyTest(_testRunner, _objectMap);
+                        case "assertSessionNotDirty": return new JsonDrivenAssertSessionNotDirtyTest(_testRunner, _objectMap);
                         case "assertSessionPinned": return new JsonDrivenAssertSessionPinnedTest(_testRunner, _objectMap);
                         case "assertSessionUnpinned": return new JsonDrivenAssertSessionUnpinnedTest(_testRunner, _objectMap);
+                        case "assertSameLsidOnLastTwoCommands": return new JsonDrivenAssertSameLsidOnLastTwoCommandsTest(_testRunner, _eventCapturer, _objectMap);
                         default: throw new FormatException($"Invalid method name: \"{name}\".");
                     }
 
@@ -76,6 +87,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                     {
                         case "abortTransaction": return new JsonDrivenAbortTransactionTest(_objectMap);
                         case "commitTransaction": return new JsonDrivenCommitTransactionTest(_objectMap);
+                        case "endSession": return new JsonDrivenEndSessionTest(_objectMap);
                         case "startTransaction": return new JsonDrivenStartTransactionTest(_objectMap);
                         case "withTransaction": return new JsonDrivenWithTransactionTest(this, _objectMap);
                         default: throw new FormatException($"Invalid method name: \"{name}\".");

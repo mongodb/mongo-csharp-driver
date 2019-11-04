@@ -43,6 +43,15 @@ namespace MongoDB.Driver
             }
         }
 
+        public bool IsDirty
+        {
+            get
+            {
+                ThrowIfDisposed();
+                return _wrapped.IsDirty;
+            }
+        }
+
         public DateTime? LastUsedAt
         {
             get
@@ -72,6 +81,12 @@ namespace MongoDB.Driver
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        public void MarkDirty()
+        {
+            ThrowIfDisposed();
+            _wrapped.MarkDirty();
         }
 
         public void WasUsed()
