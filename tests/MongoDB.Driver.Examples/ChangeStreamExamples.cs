@@ -19,6 +19,7 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Tests;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -44,10 +45,10 @@ namespace MongoDB.Driver.Examples
             .Start();
 
             // Start Changestream Example 1
-            var enumerator = inventory.Watch().ToEnumerable().GetEnumerator();
-            enumerator.MoveNext();
-            var next = enumerator.Current;
-            enumerator.Dispose();
+            var cursor = inventory.Watch();
+            while (cursor.MoveNext() && cursor.Current.Count() == 0) { } // keep calling MoveNext until we've read the first batch
+            var next = cursor.Current.First();
+            cursor.Dispose();
             // End Changestream Example 1
 
             next.FullDocument.Should().Be(document);
@@ -74,10 +75,10 @@ namespace MongoDB.Driver.Examples
 
             // Start Changestream Example 2
             var options = new ChangeStreamOptions { FullDocument = ChangeStreamFullDocumentOption.UpdateLookup };
-            var enumerator = inventory.Watch(options).ToEnumerable().GetEnumerator();
-            enumerator.MoveNext();
-            var next = enumerator.Current;
-            enumerator.Dispose();
+            var cursor = inventory.Watch(options);
+            while (cursor.MoveNext() && cursor.Current.Count() == 0) { } // keep calling MoveNext until we've read the first batch
+            var next = cursor.Current.First();
+            cursor.Dispose();
             // End Changestream Example 2
 
             var expectedFullDocument = document.Set("x", 2);
@@ -98,7 +99,7 @@ namespace MongoDB.Driver.Examples
                 new BsonDocument("x", 2)
             };
 
-            ChangeStreamDocument<BsonDocument> lastChangeStreamDocument;
+            IChangeStreamCursor<ChangeStreamDocument<BsonDocument>> previousCursor;
             {
                 new Thread(() =>
                 {
@@ -107,19 +108,18 @@ namespace MongoDB.Driver.Examples
                 })
                 .Start();
 
-                var enumerator = inventory.Watch().ToEnumerable().GetEnumerator();
-                enumerator.MoveNext();
-                lastChangeStreamDocument = enumerator.Current;
+                previousCursor = inventory.Watch(new ChangeStreamOptions { BatchSize = 1 });
+                while (previousCursor.MoveNext() && previousCursor.Current.Count() == 0) { } // keep calling MoveNext until we've read the first batch
             }
 
             {
                 // Start Changestream Example 3
-                var resumeToken = lastChangeStreamDocument.ResumeToken;
+                var resumeToken = previousCursor.GetResumeToken();
                 var options = new ChangeStreamOptions { ResumeAfter = resumeToken };
-                var enumerator = inventory.Watch(options).ToEnumerable().GetEnumerator();
-                enumerator.MoveNext();
-                var next = enumerator.Current;
-                enumerator.Dispose();
+                var cursor = inventory.Watch(options);
+                cursor.MoveNext();
+                var next = cursor.Current.First();
+                cursor.Dispose();
                 // End Changestream Example 3
 
                 next.FullDocument.Should().Be(documents[1]);
@@ -161,15 +161,10 @@ namespace MongoDB.Driver.Examples
                         "{ $addFields : { newField : 'this is an added field!' } }");
 
                 var collection = database.GetCollection<BsonDocument>("inventory");
-                using (var changeStream = collection.Watch(pipeline))
+                using (var cursor = collection.Watch(pipeline))
                 {
-                    using (var enumerator = changeStream.ToEnumerable().GetEnumerator())
-                    {
-                        if (enumerator.MoveNext())
-                        {
-                            var next = enumerator.Current;
-                        }
-                    }
+                    while (cursor.MoveNext() && cursor.Current.Count() == 0) { } // keep calling MoveNext until we've read the first batch
+                    var next = cursor.Current.First();
                 }
                 // End Changestream Example 4
             }
