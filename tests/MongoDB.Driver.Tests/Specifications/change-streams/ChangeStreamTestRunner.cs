@@ -16,12 +16,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
@@ -50,7 +54,7 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
         private void Run(BsonDocument shared, BsonDocument test)
         {
             JsonDrivenHelper.EnsureAllFieldsAreValid(shared, "_path", "database_name", "database2_name", "collection_name", "collection2_name", "tests");
-            JsonDrivenHelper.EnsureAllFieldsAreValid(test, "description", "minServerVersion", "topology", "target", "changeStreamPipeline", "changeStreamOptions", "operations", "expectations", "result", "async");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(test, "description", "minServerVersion", "topology", "target", "changeStreamPipeline", "changeStreamOptions", "operations", "expectations", "result", "async", "failPoint");
 
             if (test.Contains("minServerVersion"))
             {
@@ -76,6 +80,7 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
             List<CommandStartedEvent> actualEvents = null;
 
             var eventCapturer = CreateEventCapturer();
+            using (ConfigureFailPoint(test))
             using (var client = CreateDisposableClient(eventCapturer))
             {
                 try
@@ -110,6 +115,20 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
         }
 
         // private methods
+        private FailPoint ConfigureFailPoint(BsonDocument test)
+        {
+            if (test.TryGetValue("failPoint", out var failPoint))
+            {
+                var cluster = DriverTestConfiguration.Client.Cluster;
+                var server = cluster.SelectServer(WritableServerSelector.Instance, CancellationToken.None);
+                var session = NoCoreSession.NewHandle();
+                var command = failPoint.AsBsonDocument;
+                return FailPoint.Configure(cluster, session, command);
+            }
+
+            return null;
+        }
+
         private ClusterType[] MapTopologyToClusterTypes(BsonArray topologies)
         {
             var clusterTypes = new List<ClusterType>();
@@ -132,7 +151,12 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
 
             foreach (var element in document)
             {
-                throw new FormatException($"Invalid change stream option: \"{element.Name}\".");
+                switch (element.Name)
+                {
+                    case "batchSize": options.BatchSize = element.Value.ToInt32(); break;
+                    default:
+                        throw new FormatException($"Invalid change stream option: \"{element.Name}\".");
+                }
             }
 
             return options;
@@ -304,7 +328,8 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
 
             if (actualEvents.Count > expectedEvents.Count)
             {
-                throw new Exception($"Unexpected command started event: {actualEvents[n].CommandName}.");
+                // the tests assume that a number of actual events can be bigger than expected.
+                // So, skip this asserting
             }
         }
 

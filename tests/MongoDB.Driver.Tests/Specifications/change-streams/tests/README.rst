@@ -153,8 +153,8 @@ The following tests have not yet been automated, but MUST still be tested. All t
 
 1. ``ChangeStream`` must continuously track the last seen ``resumeToken``
 2. ``ChangeStream`` will throw an exception if the server response is missing the resume token (if wire version is < 8, this is a driver-side error; for 8+, this is a server-side error)
-3. ``ChangeStream`` will automatically resume one time on a resumable error (including `not master`) with the initial pipeline and options, except for the addition/update of a ``resumeToken``.
-4. ``ChangeStream`` will not attempt to resume on any error encountered while executing an ``aggregate`` command.
+3. After receiving a ``resumeToken``, ``ChangeStream`` will automatically resume one time on a resumable error with the initial pipeline and options, except for the addition/update of a ``resumeToken``.
+4. ``ChangeStream`` will not attempt to resume on any error encountered while executing an ``aggregate`` command. Note that retryable reads may retry ``aggregate`` commands. Drivers should be careful to distinguish retries from resume attempts. Alternatively, drivers may specify `retryReads=false` or avoid using a [retryable error](../../retryable-reads/retryable-reads.rst#retryable-error) for this test.
 5. ``ChangeStream`` will not attempt to resume after encountering error code 11601 (Interrupted), 136 (CappedPositionLost), or 237 (CursorKilled) while executing a ``getMore`` command.
 6. ``ChangeStream`` will perform server selection before attempting to resume, using initial ``readPreference``
 7. Ensure that a cursor returned from an aggregate command with a cursor id and an initial empty batch is not closed on the driver side.

@@ -42,7 +42,7 @@ tests:
             cursor: {}
             pipeline:
               - 
-                $changeStream:
+                $changeStream: {}
               -
                 $unsupported: foo
           command_name: aggregate

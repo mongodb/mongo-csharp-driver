@@ -27,7 +27,7 @@ tests:
             cursor: {}
             pipeline:
               -
-                $changeStream:
+                $changeStream: {}
           command_name: aggregate
           database_name: *database_name
     result:
@@ -109,7 +109,7 @@ tests:
             cursor: {}
             pipeline:
               - 
-                $changeStream:
+                $changeStream: {}
           command_name: aggregate
           database_name: *database_name
     result:
@@ -156,7 +156,7 @@ tests:
             cursor: {}
             pipeline:
               - 
-                $changeStream:
+                $changeStream: {}
               -
                 $match:
                   "fullDocument.z":
@@ -212,7 +212,7 @@ tests:
             cursor: {}
             pipeline:
               - 
-                $changeStream:
+                $changeStream: {}
           command_name: aggregate
           database_name: *database_name
     result:
@@ -352,7 +352,7 @@ tests:
             cursor: {}
             pipeline:
               -
-                $changeStream:
+                $changeStream: {}
           command_name: aggregate
           database_name: *database_name
     result:
@@ -410,7 +410,7 @@ tests:
             cursor: {}
             pipeline:
               -
-                $changeStream:
+                $changeStream: {}
           command_name: aggregate
           database_name: *database_name
     result:
@@ -446,7 +446,7 @@ tests:
             cursor: {}
             pipeline:
               -
-                $changeStream:
+                $changeStream: {}
           command_name: aggregate
           database_name: *database_name
     result:
@@ -504,7 +504,7 @@ tests:
             cursor: {batchSize: 1}
             pipeline:
               -
-                $changeStream:
+                $changeStream: {}
           command_name: aggregate
           database_name: *database_name
     result:
