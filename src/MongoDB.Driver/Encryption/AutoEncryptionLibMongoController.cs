@@ -14,10 +14,13 @@
 */
 
 using System;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Libmongocrypt;
 
@@ -181,6 +184,7 @@ namespace MongoDB.Driver.Encryption
                 catch (TimeoutException) when (attempt == 1)
                 {
                     _mongocryptdFactory.SpawnMongocryptdProcessIfRequired();
+                    WaitForMongocryptdReady();
                 }
             }
 
@@ -205,6 +209,7 @@ namespace MongoDB.Driver.Encryption
                 catch (TimeoutException) when (attempt == 1)
                 {
                     _mongocryptdFactory.SpawnMongocryptdProcessIfRequired();
+                    await WaitForMongocryptdReadyAsync().ConfigureAwait(false);
                 }
             }
 
@@ -221,6 +226,36 @@ namespace MongoDB.Driver.Encryption
                 {
                     result.Add(db);
                 }
+            }
+        }
+
+        private void WaitForMongocryptdReady()
+        {
+            var stopwatch = Stopwatch.StartNew();
+            while (stopwatch.Elapsed < TimeSpan.FromSeconds(5))
+            {
+                var clusterDescription = _mongocryptdClient.Cluster?.Description;
+                var mongocryptdServer = clusterDescription?.Servers?.FirstOrDefault();
+                if (mongocryptdServer != null && mongocryptdServer.Type != ServerType.Unknown)
+                {
+                    return;
+                }
+                Thread.Sleep(TimeSpan.FromMilliseconds(5));
+            }
+        }
+
+        private async Task WaitForMongocryptdReadyAsync()
+        {
+            var stopwatch = Stopwatch.StartNew();
+            while (stopwatch.Elapsed < TimeSpan.FromSeconds(5))
+            {
+                var clusterDescription = _mongocryptdClient.Cluster?.Description;
+                var mongocryptdServer = clusterDescription?.Servers?.FirstOrDefault();
+                if (mongocryptdServer != null && mongocryptdServer.Type != ServerType.Unknown)
+                {
+                    return;
+                }
+                await Task.Delay(TimeSpan.FromMilliseconds(5)).ConfigureAwait(false);
             }
         }
     }
