@@ -1028,29 +1028,27 @@ namespace MongoDB.Driver.Linq.Translators
         {
             var value = ((ContainsResultOperator)node.ResultOperator).Value;
             var constantExpression = node.Source as ConstantExpression;
-            IFieldExpression field;
             if (constantExpression != null)
             {
-                field = value as IFieldExpression;
-                if (field != null)
+                if (TryGetFieldNameAndSerializationExpression(value, out var fieldName, out var serializationExpression))
                 {
-                    var ienumerableInterfaceType = constantExpression.Type.FindIEnumerable();
-                    var itemType = ienumerableInterfaceType.GetTypeInfo().GetGenericArguments()[0];
-                    var serializedValues = field.SerializeValues(itemType, (IEnumerable)constantExpression.Value);
-                    if (string.IsNullOrEmpty(field.FieldName))
+                    var iEnumerableInterfaceType = constantExpression.Type.FindIEnumerable();
+                    var itemType = iEnumerableInterfaceType.GetTypeInfo().GetGenericArguments()[0];
+                    var serializedValues = serializationExpression.SerializeValues(itemType, (IEnumerable)constantExpression.Value);
+                    if (string.IsNullOrEmpty(fieldName))
                     {
                         return new BsonDocument("$in", serializedValues);
                     }
                     else
                     {
-                        return __builder.In(field.FieldName, serializedValues);
+                        return __builder.In(fieldName, serializedValues);
                     }
                 }
             }
             else
             {
                 constantExpression = value as ConstantExpression;
-                field = node.Source as IFieldExpression;
+                var field = node.Source as IFieldExpression;
                 if (constantExpression != null && field != null)
                 {
                     var arraySerializer = field.Serializer as IBsonArraySerializer;
@@ -1064,6 +1062,29 @@ namespace MongoDB.Driver.Linq.Translators
             }
 
             return null;
+
+            bool TryGetFieldNameAndSerializationExpression(Expression containsResultOperatorValue, out string fieldName, out ISerializationExpression serializationExpression)
+            {
+                fieldName = null;
+                serializationExpression = containsResultOperatorValue as ISerializationExpression;
+                switch (serializationExpression)
+                {
+                    case IFieldExpression fieldExpression:
+                        fieldName = fieldExpression.FieldName;
+                        break;
+                    case DocumentExpression _:
+                        fieldName = string.Empty;
+                        break;
+                }
+
+                var success = serializationExpression != null && fieldName != null;
+                if (!success)
+                {
+                    serializationExpression = null;
+                }
+
+                return success;
+            }
         }
 
         private FilterDefinition<BsonDocument> TranslateStringIndexOfQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
@@ -1704,6 +1725,7 @@ namespace MongoDB.Driver.Linq.Translators
         }
 
         // nested types
+        // This converter replaces all DocumentExpression nodes on FieldExpression at the current nesting level
         private class DocumentToFieldConverter : ExtensionExpressionVisitor
         {
             public static Expression Convert(Expression node)
@@ -1715,6 +1737,11 @@ namespace MongoDB.Driver.Linq.Translators
             protected internal override Expression VisitDocument(DocumentExpression node)
             {
                 return new FieldExpression("", node.Serializer);
+            }
+
+            protected internal override Expression VisitPipeline(PipelineExpression node)
+            {
+                return node;
             }
         }
     }
