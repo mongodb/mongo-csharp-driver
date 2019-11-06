@@ -1,6 +1,6 @@
-# .NET Driver Version 2.9.3 Placeholder Release Notes
+# .NET Driver Version 2.9.3 Release Notes
 
-This is a patch release that fixes several bugs reported since 2.9.2 was released.
+This is a patch release that fixes several bugs reported since 2.9.2 was released and improves support for `ISupportInitialize`.
 
 An online version of these release notes is available at:
 
