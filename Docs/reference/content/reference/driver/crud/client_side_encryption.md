@@ -50,15 +50,10 @@ client-side. The following example has been adapted from
 [`ClientSideEncryptionExamples.cs`](https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Examples/ClientEncryptionExamples.cs), which can be found on GitHub along with the driver source. 
 
 ```csharp
-using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Driver.Encryption;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Examples
 {
@@ -66,7 +61,7 @@ namespace MongoDB.Driver.Examples
     {
         private const string LocalMasterKey = "Mng0NCt4ZHVUYUJCa1kxNkVyNUR1QURhZ2h2UzR2d2RrZzh0cFBwM3R6NmdWMDFBMUN3YkQ5aXRRMkhGRGdQV09wOGVNYUMxT2k3NjZKelhaQmRCZGJkTXVyZG9uSjFk";
 
-        public void ClientSideEncryptionSimpleTour()
+        public static void Main(string[] args)
         {
             var localMasterKey = Convert.FromBase64String(LocalMasterKey);
 
@@ -109,15 +104,11 @@ example has been adapted from
 which can be found on Github along with the driver source.
 
 ```csharp
-using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Driver.Encryption;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Examples
 {
@@ -125,7 +116,7 @@ namespace MongoDB.Driver.Examples
     {
         private const string LocalMasterKey = "Mng0NCt4ZHVUYUJCa1kxNkVyNUR1QURhZ2h2UzR2d2RrZzh0cFBwM3R6NmdWMDFBMUN3YkQ5aXRRMkhGRGdQV09wOGVNYUMxT2k3NjZKelhaQmRCZGJkTXVyZG9uSjFk";
 
-        public void ClientSideEncryptionAutoEncryptionSettingsTour()
+        public static void Main(string[] args)
         {
             var localMasterKey = Convert.FromBase64String(LocalMasterKey);
 

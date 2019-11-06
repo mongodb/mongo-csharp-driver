@@ -15,12 +15,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Libmongocrypt;
 
 namespace MongoDB.Driver.Encryption
@@ -133,7 +136,28 @@ namespace MongoDB.Driver.Encryption
         private IMongoCollection<BsonDocument> GetKeyVaultCollection()
         {
             var keyVaultDatabase = _keyVaultClient.GetDatabase(_keyVaultNamespace.DatabaseNamespace.DatabaseName);
-            return keyVaultDatabase.GetCollection<BsonDocument>(_keyVaultNamespace.CollectionName);
+
+            var collectionSettings = new MongoCollectionSettings
+            {
+                ReadConcern = ReadConcern.Majority,
+                WriteConcern = WriteConcern.WMajority
+            };
+            return keyVaultDatabase.GetCollection<BsonDocument>(_keyVaultNamespace.CollectionName, collectionSettings);
+        }
+
+        private void ParseKmsEndPoint(string value, out string host, out int port)
+        {
+            var match = Regex.Match(value, @"^(?<host>.*):(?<port>\d+)$");
+            if (match.Success)
+            {
+                host = match.Groups["host"].Value;
+                port = int.Parse(match.Groups["port"].Value);
+            }
+            else
+            {
+                host = value;
+                port = 443;
+            }
         }
 
         private void ProcessNeedKmsState(CryptContext context, CancellationToken cancellationToken)
@@ -184,15 +208,16 @@ namespace MongoDB.Driver.Encryption
         private void SendKmsRequest(KmsRequest request, CancellationToken cancellation)
         {
             var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            socket.Connect(request.Endpoint, 443);
+            ParseKmsEndPoint(request.Endpoint, out var host, out var port);
+            socket.Connect(host, port);
 
             using (var networkStream = new NetworkStream(socket, ownsSocket: true))
             using (var sslStream = new SslStream(networkStream, leaveInnerStreamOpen: false))
             {
 #if NETSTANDARD1_5
-                sslStream.AuthenticateAsClientAsync(request.Endpoint).ConfigureAwait(false).GetAwaiter().GetResult();
+                sslStream.AuthenticateAsClientAsync(host).ConfigureAwait(false).GetAwaiter().GetResult();
 #else
-                sslStream.AuthenticateAsClient(request.Endpoint);
+                sslStream.AuthenticateAsClient(host);
 #endif
 
                 var requestBytes = request.Message.ToArray();
@@ -212,16 +237,17 @@ namespace MongoDB.Driver.Encryption
         private async Task SendKmsRequestAsync(KmsRequest request, CancellationToken cancellation)
         {
             var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            ParseKmsEndPoint(request.Endpoint, out var host, out var port);
 #if NETSTANDARD1_5
-            await socket.ConnectAsync(request.Endpoint, 443).ConfigureAwait(false);
+            await socket.ConnectAsync(host, port).ConfigureAwait(false);
 #else
-            await Task.Factory.FromAsync(socket.BeginConnect(request.Endpoint, 443, null, null), socket.EndConnect).ConfigureAwait(false);
+            await Task.Factory.FromAsync(socket.BeginConnect(host, port, null, null), socket.EndConnect).ConfigureAwait(false);
 #endif
 
             using (var networkStream = new NetworkStream(socket, ownsSocket: true))
             using (var sslStream = new SslStream(networkStream, leaveInnerStreamOpen: false))
             {
-                await sslStream.AuthenticateAsClientAsync(request.Endpoint).ConfigureAwait(false);
+                await sslStream.AuthenticateAsClientAsync(host).ConfigureAwait(false);
 
                 var requestBytes = request.Message.ToArray();
                 await sslStream.WriteAsync(requestBytes, 0, requestBytes.Length).ConfigureAwait(false);

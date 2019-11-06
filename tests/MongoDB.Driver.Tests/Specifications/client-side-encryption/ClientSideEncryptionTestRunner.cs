@@ -111,12 +111,13 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
             if (shared.TryGetValue("key_vault_data", out var keyVaultData))
             {
                 var adminDatabase = client.GetDatabase("admin");
-                var keyVaultCollection = adminDatabase.GetCollection<BsonDocument>(
-                    "datakeys",
-                    new MongoCollectionSettings
-                    {
-                        AssignIdOnInsert = false
-                    });
+                var collectionSettings = new MongoCollectionSettings
+                {
+                    AssignIdOnInsert = false,
+                    ReadConcern = ReadConcern.Majority,
+                    WriteConcern = WriteConcern.WMajority
+                };
+                var keyVaultCollection = adminDatabase.GetCollection<BsonDocument>("datakeys", collectionSettings);
                 var keyVaultDocuments = keyVaultData.AsBsonArray.Select(c => c.AsBsonDocument);
                 keyVaultCollection.InsertMany(keyVaultDocuments);
             }

@@ -142,7 +142,6 @@
                     "command_started_event": {
                         "command": {
                             "listCollections": 1,
-                            "cursor": {},
                             "filter": {
                                 "name": "default"
                             }
@@ -154,7 +153,6 @@
                     "command_started_event": {
                         "command": {
                             "listCollections": 1,
-                            "cursor": {},
                             "filter": {
                                 "name": "datakeys"
                             },
@@ -165,31 +163,34 @@
                 },
                 {
                     "command_started_event": {
-                        "command": {
-                            "find": "datakeys",
-                            "filter": {
-                                "$or": [
-                                    {
-                                        "_id": {
-                                            "$in": [
-                                                {
-                                                    "$binary": {
-                                                        "base64": "AAAAAAAAAAAAAAAAAAAAAA==",
-                                                        "subType": "04"
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    },
-                                    {
-                                        "keyAltNames": {
-                                            "$in": []
-                                        }
+                      "command": {
+                        "find": "datakeys",
+                        "filter": {
+                          "$or": [
+                            {
+                              "_id": {
+                                "$in": [
+                                  {
+                                    "$binary": {
+                                      "base64": "AAAAAAAAAAAAAAAAAAAAAA==",
+                                      "subType": "04"
                                     }
+                                  }
                                 ]
+                              }
                             },
-                            "$db": "admin"
+                            {
+                              "keyAltNames": {
+                                "$in": []
+                              }
+                            }
+                          ]
                         },
+                        "$db": "admin",
+                        "readConcern": {
+                          "level": "majority"
+                        }
+                      },
                         "command_name": "find"
                     }
                 },
@@ -260,7 +261,6 @@
                     "command_started_event": {
                         "command": {
                             "listCollections": 1,
-                            "cursor": {},
                             "filter": {
                                 "name": "default"
                             }
@@ -282,7 +282,6 @@
                     "command_started_event": {
                         "command": {
                             "listCollections": 1,
-                            "cursor": {},
                             "filter": {
                                 "name": "datakeys"
                             },
@@ -316,7 +315,10 @@
                                     }
                                 ]
                             },
-                            "$db": "admin"
+                          "$db": "admin",
+                          "readConcern": {
+                            "level": "majority"
+                          }
                         },
                         "command_name": "find"
                     }

@@ -289,17 +289,25 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var stream = writer.BsonStream;
             var serializer = section.DocumentSerializer;
             var context = BsonSerializationContext.CreateRoot(writer);
-            var maxMessageSize = MaxMessageSize;
+
+            int? maxMessageSize;
+            if (IsEncryptionConfigured)
+            {
+                var maxBatchSize = 2 * 1024 * 1024; // 2 MiB
+                var maxMessageEndPosition = stream.Position + maxBatchSize;
+                maxMessageSize = (int)(maxMessageEndPosition - messageStartPosition);
+            }
+            else
+            {
+                maxMessageSize = MaxMessageSize;
+            }
 
             var payloadStartPosition = stream.Position;
             stream.WriteInt32(0); // size
             stream.WriteCString(section.Identifier);
 
             var batch = section.Documents;
-            var maxDocumentSize = 
-                IsEncryptionConfigured && MaxDocumentSize.HasValue
-                    ? MaxDocumentSize.Value 
-                    : section.MaxDocumentSize ?? writer.Settings.MaxDocumentSize;
+            var maxDocumentSize = section.MaxDocumentSize ?? writer.Settings.MaxDocumentSize;
             writer.PushSettings(s => ((BsonBinaryWriterSettings)s).MaxDocumentSize = maxDocumentSize);
             writer.PushElementNameValidator(section.ElementNameValidator);
             try
@@ -313,7 +321,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                     serializer.Serialize(context, document);
 
                     var messageSize = stream.Position - messageStartPosition;
-                    if (messageSize > maxMessageSize && batch.CanBeSplit)
+                    if (messageSize > maxMessageSize && batch.CanBeSplit && i > 0)
                     {
                         stream.Position = documentStartPosition;
                         stream.SetLength(documentStartPosition);

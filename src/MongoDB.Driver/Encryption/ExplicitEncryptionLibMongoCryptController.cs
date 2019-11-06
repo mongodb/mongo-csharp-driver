@@ -231,10 +231,9 @@ namespace MongoDB.Driver.Encryption
             {
                 case "aws":
                     var customerMasterKey = masterKey["key"].ToString();
+                    var endpoint = masterKey.GetValue("endpoint", null)?.ToString();
                     var region = masterKey["region"].ToString();
-                    return wrappedAlternateKeyNamesBytes != null
-                        ? new AwsKeyId(customerMasterKey, region, wrappedAlternateKeyNamesBytes)
-                        : new AwsKeyId(customerMasterKey, region);
+                    return new AwsKeyId(customerMasterKey, region, wrappedAlternateKeyNamesBytes, endpoint);
                 case "local":
                     return wrappedAlternateKeyNamesBytes != null ? new LocalKeyId(wrappedAlternateKeyNamesBytes) : new LocalKeyId();
                 default:
