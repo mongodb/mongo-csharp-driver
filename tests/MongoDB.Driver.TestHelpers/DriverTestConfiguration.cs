@@ -16,10 +16,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using MongoDB.Bson;
 using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.TestHelpers;
 
@@ -113,9 +111,15 @@ namespace MongoDB.Driver.Tests
         }
 
         public static DisposableMongoClient CreateDisposableClient(
-            Action<MongoClientSettings> clientSettingsConfigurator, 
+            Action<MongoClientSettings> clientSettingsConfigurator,
             bool useMultipleShardRouters = false)
         {
+            if (CoreTestConfiguration.Cluster.Description.Type != ClusterType.Sharded)
+            {
+                // This option has no effect for non-sharded topologies.
+                useMultipleShardRouters = false;
+            }
+
             var connectionString = useMultipleShardRouters 
                 ? CoreTestConfiguration.ConnectionStringWithMultipleShardRouters.ToString()
                 : CoreTestConfiguration.ConnectionString.ToString();
