@@ -1092,8 +1092,6 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(3);
         }
 
-        //
-
         [SkippableTheory]
         [ParameterAttributeData]
         public void Execute_unacknowledged_with_an_error_in_the_first_batch_and_ordered_is_false(
@@ -1117,7 +1115,7 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern = WriteConcern.Unacknowledged
             };
 
-            using (var readWriteBinding = CreateReadWriteBinding())
+            using (var readWriteBinding = CreateReadWriteBinding(useImplicitSession: true))
             using (var channelSource = readWriteBinding.GetWriteChannelSource(CancellationToken.None))
             using (var channel = channelSource.GetChannel(CancellationToken.None))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, readWriteBinding.Session.Fork()))
@@ -1161,7 +1159,7 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern = WriteConcern.Unacknowledged
             };
 
-            using (var readWriteBinding = CreateReadWriteBinding())
+            using (var readWriteBinding = CreateReadWriteBinding(useImplicitSession: true))
             using (var channelSource = readWriteBinding.GetWriteChannelSource(CancellationToken.None))
             using (var channel = channelSource.GetChannel(CancellationToken.None))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, readWriteBinding.Session.Fork()))
@@ -1199,7 +1197,7 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern = WriteConcern.Unacknowledged
             };
 
-            using (var readWriteBinding = CreateReadWriteBinding())
+            using (var readWriteBinding = CreateReadWriteBinding(useImplicitSession: true))
             using (var channelSource = readWriteBinding.GetWriteChannelSource(CancellationToken.None))
             using (var channel = channelSource.GetChannel(CancellationToken.None))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, readWriteBinding.Session.Fork()))
@@ -1237,7 +1235,7 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern = WriteConcern.Unacknowledged
             };
 
-            using (var readWriteBinding = CreateReadWriteBinding())
+            using (var readWriteBinding = CreateReadWriteBinding(useImplicitSession: true))
             using (var channelSource = readWriteBinding.GetWriteChannelSource(CancellationToken.None))
             using (var channel = channelSource.GetChannel(CancellationToken.None))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, readWriteBinding.Session.Fork()))
@@ -1253,6 +1251,23 @@ namespace MongoDB.Driver.Core.Operations
 
         [SkippableTheory]
         [ParameterAttributeData]
+        public void Execute_with_delete_should_not_send_session_id_when_unacknowledged_writes(
+            [Values(false, true)] bool useImplicitSession,
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check();
+            DropCollection();
+            var requests = new[] { new DeleteRequest(BsonDocument.Parse("{ x : 1 }")) };
+            var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings)
+            {
+                WriteConcern = WriteConcern.Unacknowledged
+            };
+
+            VerifySessionIdWasNotSentIfUnacknowledgedWrite(subject, "delete", async, useImplicitSession);
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_with_delete_should_send_session_id_when_supported(
             [Values(false, true)] bool async)
         {
@@ -1261,6 +1276,24 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
             VerifySessionIdWasSentWhenSupported(subject, "delete", async);
+        }
+
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_with_insert_should_not_send_session_id_when_unacknowledged_writes(
+            [Values(false, true)] bool useImplicitSession,
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check();
+            DropCollection();
+            var requests = new[] { new InsertRequest(BsonDocument.Parse("{ _id : 1, x : 3 }")) };
+            var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings)
+            {
+                WriteConcern = WriteConcern.Unacknowledged
+            };
+
+            VerifySessionIdWasNotSentIfUnacknowledgedWrite(subject, "insert", async, useImplicitSession);
         }
 
         [SkippableTheory]
@@ -1274,6 +1307,23 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
             VerifySessionIdWasSentWhenSupported(subject, "insert", async);
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_with_update_should_not_send_session_id_when_unacknowledged_writes(
+            [Values(false, true)] bool useImplicitSession,
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check();
+            DropCollection();
+            var requests = new[] { new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{ x : 1 }"), BsonDocument.Parse("{ $set : { a : 1 } }")) };
+            var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings)
+            {
+                WriteConcern = WriteConcern.Unacknowledged
+            };
+
+            VerifySessionIdWasNotSentIfUnacknowledgedWrite(subject, "update", async, useImplicitSession);
         }
 
         [SkippableTheory]

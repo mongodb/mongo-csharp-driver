@@ -307,11 +307,11 @@ namespace MongoDB.Driver
             return StartSession(__cluster.Value);
         }
 
-        public static ICoreSessionHandle StartSession(ICluster cluster)
+        public static ICoreSessionHandle StartSession(ICluster cluster, CoreSessionOptions options = null)
         {
             if (AreSessionsSupported(cluster))
             {
-                return cluster.StartSession();
+                return cluster.StartSession(options);
             }
             else
             {

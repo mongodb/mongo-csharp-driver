@@ -262,24 +262,38 @@ namespace MongoDB.Driver.Core.WireProtocol
         {
             var extraElements = new List<BsonElement>();
 
-            addIfNotAlreadyAdded("$db", _databaseNamespace.DatabaseName);
+            AddIfNotAlreadyAdded("$db", _databaseNamespace.DatabaseName);
 
             if (connectionDescription.IsMasterResult.ServerType != ServerType.Standalone
                 && _readPreference != null
                 && _readPreference != ReadPreference.Primary)
             {
                 var readPreferenceDocument = QueryHelper.CreateReadPreferenceDocument(_readPreference);
-                addIfNotAlreadyAdded("$readPreference", readPreferenceDocument);
+                AddIfNotAlreadyAdded("$readPreference", readPreferenceDocument);
             }
 
             if (_session.Id != null)
             {
-                addIfNotAlreadyAdded("lsid", _session.Id);
+                if (IsSessionAcknowledged())
+                {
+                    AddIfNotAlreadyAdded("lsid", _session.Id);
+                }
+                else
+                {
+                    if (_session.IsImplicit)
+                    {
+                        // do not set sessionId if session is implicit and write is unacknowledged
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("Explicit session must not be used with unacknowledged writes.");
+                    }
+                }
             }
 
             if (_session.ClusterTime != null)
             {
-                addIfNotAlreadyAdded("$clusterTime", _session.ClusterTime);
+                AddIfNotAlreadyAdded("$clusterTime", _session.ClusterTime);
             }
             Action<BsonWriterSettings> writerSettingsConfigurator = s => s.GuidRepresentation = GuidRepresentation.Unspecified;
 
@@ -287,27 +301,40 @@ namespace MongoDB.Driver.Core.WireProtocol
             if (_session.IsInTransaction)
             {
                 var transaction = _session.CurrentTransaction;
-                addIfNotAlreadyAdded("txnNumber", transaction.TransactionNumber);
+                AddIfNotAlreadyAdded("txnNumber", transaction.TransactionNumber);
                 if (transaction.State == CoreTransactionState.Starting)
                 {
-                    addIfNotAlreadyAdded("startTransaction", true);
+                    AddIfNotAlreadyAdded("startTransaction", true);
                     var readConcern = ReadConcernHelper.GetReadConcernForFirstCommandInTransaction(_session, connectionDescription);
                     if (readConcern != null)
                     {
-                        addIfNotAlreadyAdded("readConcern", readConcern);
+                        AddIfNotAlreadyAdded("readConcern", readConcern);
                     }
                 }
-                addIfNotAlreadyAdded("autocommit", false);
+                AddIfNotAlreadyAdded("autocommit", false);
             }
 
             var elementAppendingSerializer = new ElementAppendingSerializer<BsonDocument>(BsonDocumentSerializer.Instance, extraElements, writerSettingsConfigurator);
             return new Type0CommandMessageSection<BsonDocument>(_command, elementAppendingSerializer);
 
-            void addIfNotAlreadyAdded(string key, BsonValue value)
+            void AddIfNotAlreadyAdded(string key, BsonValue value)
             {
                 if (!_command.Contains(key))
                 {
                     extraElements.Add(new BsonElement(key, value));
+                }
+            }
+
+            bool IsSessionAcknowledged()
+            {
+                if (_command.TryGetValue("writeConcern", out var writeConcernDocument))
+                {
+                    var writeConcern = WriteConcern.FromBsonDocument(writeConcernDocument.AsBsonDocument);
+                    return writeConcern.IsAcknowledged;
+                }
+                else
+                {
+                    return true;
                 }
             }
         }
