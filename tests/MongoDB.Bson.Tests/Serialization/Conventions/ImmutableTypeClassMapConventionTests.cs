@@ -60,6 +60,33 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             }
         }
 
+        private class TestClassD
+        {
+            public TestClassD(int a) { A = a; }
+
+            public static TestClassD Default => new TestClassD(0);
+
+            public int A { get; }
+        }
+
+        private class TestClassE
+        {
+            public TestClassE(int a) { A = a; }
+
+            public static TestClassE Default => new TestClassE(0);
+
+            public int A { get; set; }
+        }
+
+        private class TestClassF
+        {
+            public TestClassF(int a) { A = a; }
+
+            public static TestClassF Default { get; set; } = new TestClassF(0);
+
+            public int A { get; }
+        }
+
         [Fact]
         public void Anonymous_class_should_map_correctly()
         {
@@ -121,6 +148,36 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         {
             var convention = new ImmutableTypeClassMapConvention();
             var classMap = new BsonClassMap<TestClassC>();
+            convention.Apply(classMap);
+            Assert.True(classMap.HasCreatorMaps);
+            Assert.Equal(1, classMap.CreatorMaps.Count());
+        }
+                
+        [Fact]
+        public void TestNoDefaultConstructorClassMapConventionWithTestClassD()
+        {
+            var convention = new ImmutableTypeClassMapConvention();
+            var classMap = new BsonClassMap<TestClassD>();
+            convention.Apply(classMap);
+            Assert.True(classMap.HasCreatorMaps);
+            Assert.Equal(1, classMap.CreatorMaps.Count());
+        }
+
+        [Fact]
+        public void TestNoDefaultConstructorClassMapConventionWithTestClassE()
+        {
+            var convention = new ImmutableTypeClassMapConvention();
+            var classMap = new BsonClassMap<TestClassE>();
+            convention.Apply(classMap);
+            Assert.False(classMap.HasCreatorMaps);
+            Assert.Equal(0, classMap.CreatorMaps.Count());
+        }
+
+        [Fact]
+        public void TestNoDefaultConstructorClassMapConventionWithTestClassF()
+        {
+            var convention = new ImmutableTypeClassMapConvention();
+            var classMap = new BsonClassMap<TestClassF>();
             convention.Apply(classMap);
             Assert.True(classMap.HasCreatorMaps);
             Assert.Equal(1, classMap.CreatorMaps.Count());
