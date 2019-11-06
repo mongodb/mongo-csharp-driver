@@ -167,7 +167,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             Assert(
                 x => x.G.Any(g => g == c1),
                 1,
-                "{ \"G\" : { \"$elemMatch\" : { \"Ids\" : null, \"D\" : \"Dolphin\", \"E\" : { \"F\" : 55, \"H\" : 66, \"I\" : [\"insecure\"], \"C\" : null }, \"S\" : null, \"X\" : null, \"Y\" : null, \"Z\" : null } } }");
+                "{ \"G\" : { \"$elemMatch\" : { \"Ids\" : null, \"D\" : \"Dolphin\", \"E\" : { \"F\" : 55, \"H\" : 66, \"S\": null, \"I\" : [\"insecure\"], \"C\" : null }, \"S\" : null, \"X\" : null, \"Y\" : null, \"Z\" : null } } }");
         }
 
         [Fact]
@@ -310,6 +310,77 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                     ""Y.S"" : { $elemMatch : { ""E"" : null, ""Z"" : { $elemMatch : { ""F"" : 1, ""C.X"" : { $elemMatch : { ""F"" : 4, ""H"" : 0 } } } } } },
                     ""S"" : { $elemMatch : { ""D"" : ""Delilah"", ""Z"" : { $elemMatch : { ""F"" : 1, ""H"" : 0 } } } }
                 } } }");
+        }
+
+        [Fact]
+        public void Any_with_advanced_nested_Anys_and_contains()
+        {
+            Assert(
+                r => r.G != null && r.G.Any(
+                    g => g.X != null && g.X.Any(
+                        x => x.I.Contains("value 3"))),
+                1,
+                "{ G : { '$ne' : null, '$elemMatch' : { 'X' : { '$ne' : null, '$elemMatch' : { 'I' : 'value 3' } } } } }");
+
+            Assert(
+                r => r.G != null && r.G.Any(
+                    g => g.X != null && g.X.Any(
+                        x => x.C.Ids.Contains(new ObjectId("222222222222222222222222")))),
+                1,
+                "{ G : { '$ne' : null, '$elemMatch' : { 'X' : { '$ne' : null, '$elemMatch' : { 'C.Ids' : ObjectId('222222222222222222222222') } } } } }");
+        }
+
+        [Fact]
+        public void Any_with_advanced_nested_Anys_and_endwith()
+        {
+            Assert(
+                r => r.G != null && r.G.Any(
+                    g => g.X != null && g.X.Any(
+                        x => x.S.EndsWith("lue 1"))),
+                1,
+                @"{ G : { '$ne' : null, '$elemMatch' : { 'X' : { '$ne' : null }, 'X.S' : /lue\ 1$/s } } }");
+
+            Assert(
+                r => r.G != null && r.G.Any(
+                    g => g.X != null && g.X.Any(
+                        x => x.C.D.EndsWith("lue 2"))),
+                1,
+                @"{ G : { '$ne' : null, '$elemMatch' : { 'X' : { '$ne' : null }, 'X.C.D' : /lue\ 2$/s } } }");
+        }
+
+        [Fact]
+        public void Any_with_advanced_nested_Anys_and_regex()
+        {
+            var regex = new Regex("^value");
+            Assert(
+                r => r.G != null && r.G.Any(
+                    g => g.X != null && g.X.Any(x => regex.IsMatch(x.S))),
+                1,
+                "{ G : { '$ne' : null, '$elemMatch' : { 'X' : { '$ne' : null, '$elemMatch' : { 'S' : /^value/ } } } } }");
+
+            Assert(
+                r => r.G != null && r.G.Any(
+                    g => g.X != null && g.X.Any(x => regex.IsMatch(x.C.D))),
+                1,
+                "{ G : { '$ne' : null, '$elemMatch' : { 'X' : { '$ne' : null, '$elemMatch' : { 'C.D' : /^value/ } } } } }");
+        }
+
+        [Fact]
+        public void Any_with_advanced_nested_Anys_and_startwith()
+        {
+            Assert(
+                r => r.G != null && r.G.Any(
+                    g => g.X != null && g.X.Any(
+                        x => x.S.StartsWith("value"))),
+                1,
+                "{ G : { '$ne' : null, '$elemMatch' : { 'X' : { '$ne' : null }, 'X.S' : /^value/s } } }");
+
+            Assert(
+                r => r.G != null && r.G.Any(
+                    g => g.X != null && g.X.Any(
+                        x => x.C.D.StartsWith("value"))),
+                1,
+                "{ G : { '$ne' : null, '$elemMatch' : { 'X' : { '$ne' : null }, 'X.C.D' : /^value/s } } }");
         }
 
         [Fact]

@@ -217,6 +217,19 @@ namespace MongoDB.Driver.Tests.Linq
                                 F = 333,
                                 H = 444,
                                 I = new [] { "igloo" }
+                            },
+                            X = new E[]
+                            {
+                                new E()
+                                {
+                                    S = "value 1",
+                                    C = new C()
+                                    {
+                                        D = "value 2",
+                                        Ids = new [] { new ObjectId("222222222222222222222222") }
+                                    },
+                                    I = new [] { "value 3" }
+                                }
                             }
                         },
                         new C
@@ -343,6 +356,7 @@ namespace MongoDB.Driver.Tests.Linq
             public int F { get; set; }
 
             public int H { get; set; }
+            public string S { get; set; }
 
             public IEnumerable<string> I { get; set; }
             public C C { get; set; }
