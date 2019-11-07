@@ -1256,9 +1256,11 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)] bool async)
         {
             RequireServer.Check();
-            DropCollection();
+
+            var collectionNamespace = CoreTestConfiguration.GetCollectionNamespaceForTestMethod(nameof(BulkMixedWriteOperationTests), nameof(Execute_with_delete_should_not_send_session_id_when_unacknowledged_writes));
+            DropCollection(collectionNamespace);
             var requests = new[] { new DeleteRequest(BsonDocument.Parse("{ x : 1 }")) };
-            var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings)
+            var subject = new BulkMixedWriteOperation(collectionNamespace, requests, _messageEncoderSettings)
             {
                 WriteConcern = WriteConcern.Unacknowledged
             };
@@ -1286,9 +1288,11 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)] bool async)
         {
             RequireServer.Check();
-            DropCollection();
+
+            var collectionNamespace = CoreTestConfiguration.GetCollectionNamespaceForTestMethod(nameof(BulkMixedWriteOperationTests), nameof(Execute_with_insert_should_not_send_session_id_when_unacknowledged_writes));
+            DropCollection(collectionNamespace);
             var requests = new[] { new InsertRequest(BsonDocument.Parse("{ _id : 1, x : 3 }")) };
-            var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings)
+            var subject = new BulkMixedWriteOperation(collectionNamespace, requests, _messageEncoderSettings)
             {
                 WriteConcern = WriteConcern.Unacknowledged
             };
@@ -1316,9 +1320,11 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)] bool async)
         {
             RequireServer.Check();
-            DropCollection();
+
+            var collectionNamespace = CoreTestConfiguration.GetCollectionNamespaceForTestMethod(nameof(BulkMixedWriteOperationTests), nameof(Execute_with_update_should_not_send_session_id_when_unacknowledged_writes));
+            DropCollection(collectionNamespace);
             var requests = new[] { new UpdateRequest(UpdateType.Update, BsonDocument.Parse("{ x : 1 }"), BsonDocument.Parse("{ $set : { a : 1 } }")) };
-            var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings)
+            var subject = new BulkMixedWriteOperation(collectionNamespace, requests, _messageEncoderSettings)
             {
                 WriteConcern = WriteConcern.Unacknowledged
             };
