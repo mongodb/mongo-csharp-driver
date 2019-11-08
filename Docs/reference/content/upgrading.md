@@ -11,4 +11,4 @@ title = "Upgrading"
 
 ## Breaking Changes
 
-There should be no breaking changes in version 2.9.0 of the driver.
+A bug in 2.9.0 prevents applications from connecting to replica sets via SRV. Applications connecting to replica sets over SRV should NOT upgrade to 2.9.0 and instead should upgrade directly to 2.9.1 or later.
