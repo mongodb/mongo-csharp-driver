@@ -2721,9 +2721,9 @@
 
 <pre><code class="language-csharp">IGridFSBucket bucket;
 var filter = Builders&lt;GridFSFileInfo&gt;.Filter.And( 
-    Builders&lt;GridFSFileInfo&gt;.Filter.EQ(x =&gt; x.Filename, &quot;securityvideo&quot;),
-    Builders&lt;GridFSFileInfo&gt;.Filter.GTE(x =&gt; x.UploadDateTime, new DateTime(2015, 1, 1, 0, 0, 0, DateTimeKind.Utc)),
-    Builders&lt;GridFSFileInfo&gt;.Filter.LT(x =&gt; x.UploadDateTime, new DateTime(2015, 2, 1, 0, 0, 0, DateTimeKind.Utc)));
+    Builders&lt;GridFSFileInfo&gt;.Filter.Eq(x =&gt; x.Filename, &quot;securityvideo&quot;),
+    Builders&lt;GridFSFileInfo&gt;.Filter.Gte(x =&gt; x.UploadDateTime, new DateTime(2015, 1, 1, 0, 0, 0, DateTimeKind.Utc)),
+    Builders&lt;GridFSFileInfo&gt;.Filter.Lt(x =&gt; x.UploadDateTime, new DateTime(2015, 2, 1, 0, 0, 0, DateTimeKind.Utc)));
 var sort = Builders&lt;GridFSFileInfo&gt;.Sort.Descending(x =&gt; x.UploadDateTime);
 var options = new GridFSFindOptions
 {

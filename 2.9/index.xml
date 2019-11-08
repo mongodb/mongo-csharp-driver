@@ -1009,106 +1009,6 @@ Task AbortTransactionAsync(CancellationToken cancellationToken = default(Cancell
     </item>
     
     <item>
-      <title>Deleting and Renaming Files</title>
-      <link>/mongo-csharp-driver/2.9/reference/gridfs/deletingandrenamingfiles/</link>
-      <pubDate>Mon, 14 Sep 2015 00:00:00 +0000</pubDate>
-      
-      <guid>/mongo-csharp-driver/2.9/reference/gridfs/deletingandrenamingfiles/</guid>
-      <description>
-
-&lt;h2 id=&#34;deleting-and-renaming-files&#34;&gt;Deleting and Renaming Files&lt;/h2&gt;
-
-&lt;p&gt;These methods allow you to delete or rename GridFS files.&lt;/p&gt;
-
-&lt;h3 id=&#34;deleting-a-single-file&#34;&gt;Deleting a single file&lt;/h3&gt;
-
-&lt;p&gt;Use the &lt;a href=&#34;/mongo-csharp-driver/2.9/mongo-csharp-driver/2.9/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_Delete.htm
-&#34;&gt;&lt;code&gt;Delete&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.9/mongo-csharp-driver/2.9/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_DeleteAsync.htm
-&#34;&gt;&lt;code&gt;DeleteAsync&lt;/code&gt;&lt;/a&gt; methods to delete a single file identified by its Id.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
-ObjectId id;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;bucket.Delete(id);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;await bucket.DeleteAsync(id);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;dropping-an-entire-gridfs-bucket&#34;&gt;Dropping an entire GridFS bucket&lt;/h3&gt;
-
-&lt;p&gt;Use the &lt;a href=&#34;/mongo-csharp-driver/2.9/mongo-csharp-driver/2.9/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_Drop.htm
-&#34;&gt;&lt;code&gt;Drop&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.9/mongo-csharp-driver/2.9/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_DropAsync.htm
-&#34;&gt;&lt;code&gt;DropAsync&lt;/code&gt;&lt;/a&gt; methods to drop an entire GridFS bucket at once.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;bucket.Drop();
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;await bucket.DropAsync();
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
-&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-The &amp;ldquo;fs.files&amp;rdquo; collection will be dropped first, followed by the &amp;ldquo;fs.chunks&amp;rdquo; collection. This is the fastest way to delete all files stored in a GridFS bucket at once.
-&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;h3 id=&#34;renaming-a-single-file&#34;&gt;Renaming a single file&lt;/h3&gt;
-
-&lt;p&gt;Use the &lt;a href=&#34;/mongo-csharp-driver/2.9/mongo-csharp-driver/2.9/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_Rename.htm
-&#34;&gt;&lt;code&gt;Rename&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.9/mongo-csharp-driver/2.9/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_RenameAsync.htm
-&#34;&gt;&lt;code&gt;RenameAsync&lt;/code&gt;&lt;/a&gt; methods to rename a single file identified by its Id.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
-ObjectId id;
-string newFilename;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;bucket.Rename(id, newFilename);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;await bucket.RenameAsync(id, newFilename);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;renaming-all-revisions-of-a-file&#34;&gt;Renaming all revisions of a file&lt;/h3&gt;
-
-&lt;p&gt;To rename all revisions of a file you first use the &lt;a href=&#34;/mongo-csharp-driver/2.9/mongo-csharp-driver/2.9/apidocs/html/_MongoDB_Driver_GridFS_IGridFSBucket_Find.htm
-&#34;&gt;&lt;code&gt;Find&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.9/mongo-csharp-driver/2.9/apidocs/html/_MongoDB_Driver_GridFS_IGridFSBucket_FindAsync.htm
-&#34;&gt;&lt;code&gt;FindAsync&lt;/code&gt;&lt;/a&gt; method to find all the revisions, and then loop over the revisions and use the &lt;a href=&#34;/mongo-csharp-driver/2.9/mongo-csharp-driver/2.9/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_Rename.htm
-&#34;&gt;&lt;code&gt;Rename&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.9/mongo-csharp-driver/2.9/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_RenameAsync.htm
-&#34;&gt;&lt;code&gt;RenameAsync&lt;/code&gt;&lt;/a&gt; method to rename each revision one at a time.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
-string oldFilename;
-string newFilename;
-var filter = Builders&amp;lt;GridFSFileInfo&amp;gt;.Filter.EQ(x =&amp;gt; x.Filename, oldFilename);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var filesCursor = bucket.Find(filter);
-var files = filesCursor.ToList();
-
-foreach (var file in files)
-{
-    bucket.Rename(file.Id, newFilename);
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var filesCursor = await bucket.FindAsync(filter);
-var files = await filesCursor.ToListAsync();
-
-foreach (var file in files)
-{
-    await bucket.RenameAsync(file.Id, newFilename);
-}
-&lt;/code&gt;&lt;/pre&gt;
-</description>
-    </item>
-    
-    <item>
       <title>Downloading Files</title>
       <link>/mongo-csharp-driver/2.9/reference/gridfs/downloadingfiles/</link>
       <pubDate>Mon, 14 Sep 2015 00:00:00 +0000</pubDate>
@@ -1359,9 +1259,9 @@ using (var stream = await bucket.OpenDownloadStreamByNameAsync(filename, options
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
 var filter = Builders&amp;lt;GridFSFileInfo&amp;gt;.Filter.And( 
-    Builders&amp;lt;GridFSFileInfo&amp;gt;.Filter.EQ(x =&amp;gt; x.Filename, &amp;quot;securityvideo&amp;quot;),
-    Builders&amp;lt;GridFSFileInfo&amp;gt;.Filter.GTE(x =&amp;gt; x.UploadDateTime, new DateTime(2015, 1, 1, 0, 0, 0, DateTimeKind.Utc)),
-    Builders&amp;lt;GridFSFileInfo&amp;gt;.Filter.LT(x =&amp;gt; x.UploadDateTime, new DateTime(2015, 2, 1, 0, 0, 0, DateTimeKind.Utc)));
+    Builders&amp;lt;GridFSFileInfo&amp;gt;.Filter.Eq(x =&amp;gt; x.Filename, &amp;quot;securityvideo&amp;quot;),
+    Builders&amp;lt;GridFSFileInfo&amp;gt;.Filter.Gte(x =&amp;gt; x.UploadDateTime, new DateTime(2015, 1, 1, 0, 0, 0, DateTimeKind.Utc)),
+    Builders&amp;lt;GridFSFileInfo&amp;gt;.Filter.Lt(x =&amp;gt; x.UploadDateTime, new DateTime(2015, 2, 1, 0, 0, 0, DateTimeKind.Utc)));
 var sort = Builders&amp;lt;GridFSFileInfo&amp;gt;.Sort.Descending(x =&amp;gt; x.UploadDateTime);
 var options = new GridFSFindOptions
 {
@@ -1450,7 +1350,7 @@ var bucket = new GridFSBucket(database, new GridFSBucketOptions
 &#34;&gt;&lt;code&gt;BucketName&lt;/code&gt;&lt;/a&gt; value is the root part of the files and chunks collection names, so in this example the two collections would be named &amp;ldquo;videos.files&amp;rdquo; and &amp;ldquo;videos.chunks&amp;rdquo; instead of &amp;ldquo;fs.files&amp;rdquo; and &amp;ldquo;fs.chunks&amp;rdquo;.&lt;/p&gt;
 
 &lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.9/mongo-csharp-driver/2.9/apidocs/html/P_MongoDB_Driver_GridFS_GridFSBucketOptions_ChunkSizeBytes.htm
-&#34;&gt;&lt;code&gt;ChunkSizeBytes&lt;/code&gt;&lt;/a&gt; value defines the size of each chunk, and in this example we are overriding the default value of 261120 (255MB).&lt;/p&gt;
+&#34;&gt;&lt;code&gt;ChunkSizeBytes&lt;/code&gt;&lt;/a&gt; value defines the size of each chunk, and in this example we are overriding the default value of 261120 (255kB).&lt;/p&gt;
 
 &lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.9/mongo-csharp-driver/2.9/apidocs/html/P_MongoDB_Driver_GridFS_GridFSBucketOptions_WriteConcern.htm
 &#34;&gt;&lt;code&gt;WriteConcern&lt;/code&gt;&lt;/a&gt; is used when uploading files to GridFS, and the &lt;a href=&#34;/mongo-csharp-driver/2.9/mongo-csharp-driver/2.9/apidocs/html/P_MongoDB_Driver_GridFS_GridFSBucketOptions_ReadPreference.htm
@@ -1629,6 +1529,106 @@ var options = new GridFSUploadOptions
     var id = stream.Id; // the unique Id of the file being uploaded
     // write the contents of the file to stream
     await stream.CloseAsync();
+}
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Deleting and Renaming Files</title>
+      <link>/mongo-csharp-driver/2.9/reference/gridfs/deletingandrenamingfiles/</link>
+      <pubDate>Mon, 14 Sep 2015 00:00:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.9/reference/gridfs/deletingandrenamingfiles/</guid>
+      <description>
+
+&lt;h2 id=&#34;deleting-and-renaming-files&#34;&gt;Deleting and Renaming Files&lt;/h2&gt;
+
+&lt;p&gt;These methods allow you to delete or rename GridFS files.&lt;/p&gt;
+
+&lt;h3 id=&#34;deleting-a-single-file&#34;&gt;Deleting a single file&lt;/h3&gt;
+
+&lt;p&gt;Use the &lt;a href=&#34;/mongo-csharp-driver/2.9/mongo-csharp-driver/2.9/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_Delete.htm
+&#34;&gt;&lt;code&gt;Delete&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.9/mongo-csharp-driver/2.9/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_DeleteAsync.htm
+&#34;&gt;&lt;code&gt;DeleteAsync&lt;/code&gt;&lt;/a&gt; methods to delete a single file identified by its Id.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
+ObjectId id;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;bucket.Delete(id);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;await bucket.DeleteAsync(id);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;dropping-an-entire-gridfs-bucket&#34;&gt;Dropping an entire GridFS bucket&lt;/h3&gt;
+
+&lt;p&gt;Use the &lt;a href=&#34;/mongo-csharp-driver/2.9/mongo-csharp-driver/2.9/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_Drop.htm
+&#34;&gt;&lt;code&gt;Drop&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.9/mongo-csharp-driver/2.9/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_DropAsync.htm
+&#34;&gt;&lt;code&gt;DropAsync&lt;/code&gt;&lt;/a&gt; methods to drop an entire GridFS bucket at once.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;bucket.Drop();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;await bucket.DropAsync();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+The &amp;ldquo;fs.files&amp;rdquo; collection will be dropped first, followed by the &amp;ldquo;fs.chunks&amp;rdquo; collection. This is the fastest way to delete all files stored in a GridFS bucket at once.
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;h3 id=&#34;renaming-a-single-file&#34;&gt;Renaming a single file&lt;/h3&gt;
+
+&lt;p&gt;Use the &lt;a href=&#34;/mongo-csharp-driver/2.9/mongo-csharp-driver/2.9/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_Rename.htm
+&#34;&gt;&lt;code&gt;Rename&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.9/mongo-csharp-driver/2.9/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_RenameAsync.htm
+&#34;&gt;&lt;code&gt;RenameAsync&lt;/code&gt;&lt;/a&gt; methods to rename a single file identified by its Id.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
+ObjectId id;
+string newFilename;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;bucket.Rename(id, newFilename);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;await bucket.RenameAsync(id, newFilename);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;renaming-all-revisions-of-a-file&#34;&gt;Renaming all revisions of a file&lt;/h3&gt;
+
+&lt;p&gt;To rename all revisions of a file you first use the &lt;a href=&#34;/mongo-csharp-driver/2.9/mongo-csharp-driver/2.9/apidocs/html/_MongoDB_Driver_GridFS_IGridFSBucket_Find.htm
+&#34;&gt;&lt;code&gt;Find&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.9/mongo-csharp-driver/2.9/apidocs/html/_MongoDB_Driver_GridFS_IGridFSBucket_FindAsync.htm
+&#34;&gt;&lt;code&gt;FindAsync&lt;/code&gt;&lt;/a&gt; method to find all the revisions, and then loop over the revisions and use the &lt;a href=&#34;/mongo-csharp-driver/2.9/mongo-csharp-driver/2.9/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_Rename.htm
+&#34;&gt;&lt;code&gt;Rename&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.9/mongo-csharp-driver/2.9/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_RenameAsync.htm
+&#34;&gt;&lt;code&gt;RenameAsync&lt;/code&gt;&lt;/a&gt; method to rename each revision one at a time.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
+string oldFilename;
+string newFilename;
+var filter = Builders&amp;lt;GridFSFileInfo&amp;gt;.Filter.EQ(x =&amp;gt; x.Filename, oldFilename);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var filesCursor = bucket.Find(filter);
+var files = filesCursor.ToList();
+
+foreach (var file in files)
+{
+    bucket.Rename(file.Id, newFilename);
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var filesCursor = await bucket.FindAsync(filter);
+var files = await filesCursor.ToListAsync();
+
+foreach (var file in files)
+{
+    await bucket.RenameAsync(file.Id, newFilename);
 }
 &lt;/code&gt;&lt;/pre&gt;
 </description>
@@ -1845,7 +1845,7 @@ These are heavy events to generate. Do not subscribe to these unless they provid
 &lt;h2 id=&#34;linq&#34;&gt;LINQ&lt;/h2&gt;
 
 &lt;p&gt;The driver contains an implementation of &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb397926.aspx&#34;&gt;LINQ&lt;/a&gt; that targets the &lt;a href=&#34;http://docs.mongodb.org/manual/aggregation
-&#34;&gt;aggregation framework&lt;/a&gt;. The aggregation framework holds a rich query language that maps very easily from a LINQ expression tree making it straightforward to understand the translation from a LINQ statement into an aggregation framework pipeline. To see a more complicated uses of LINQ from the driver, see the &lt;a href=&#34;﻿https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Tests/Samples/AggregationSample.cs
+&#34;&gt;aggregation framework&lt;/a&gt;. The aggregation framework holds a rich query language that maps very easily from a LINQ expression tree making it straightforward to understand the translation from a LINQ statement into an aggregation framework pipeline. To see a more complicated uses of LINQ from the driver, see the &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Tests/Samples/AggregationSample.cs
 &#34;&gt;AggregationSample&lt;/a&gt; source code.&lt;/p&gt;
 
 &lt;p&gt;For the rest of this page, we&amp;rsquo;ll use the following class:&lt;/p&gt;
@@ -2161,7 +2161,7 @@ var query = collection.AsQueryable()
 
 &lt;h3 id=&#34;supported-methods&#34;&gt;Supported Methods&lt;/h3&gt;
 
-&lt;p&gt;The method examples are shown in isolation, but they can be used and combined with all the other methods as well. You can view the tests for each of these methods in the &lt;a href=&#34;﻿https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Tests/Linq/MongoQueryableTests.cs
+&lt;p&gt;The method examples are shown in isolation, but they can be used and combined with all the other methods as well. You can view the tests for each of these methods in the &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Tests/Linq/MongoQueryableTests.cs
 &#34;&gt;MongoQueryableTests&lt;/a&gt;.&lt;/p&gt;
 
 &lt;h4 id=&#34;any&#34;&gt;Any&lt;/h4&gt;
