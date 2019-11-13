@@ -52,13 +52,13 @@ namespace MongoDB.Driver.Core.Configuration
         /// </summary>
         /// <param name="connectionMode">The connection mode.</param>
         /// <param name="endPoints">The end points.</param>
-        /// <param name="kmsProviders">[Beta] The kms providers.</param>
+        /// <param name="kmsProviders">The kms providers.</param>
         /// <param name="maxServerSelectionWaitQueueSize">Maximum size of the server selection wait queue.</param>
         /// <param name="replicaSetName">Name of the replica set.</param>
         /// <param name="serverSelectionTimeout">The server selection timeout.</param>
         /// <param name="preServerSelector">The pre server selector.</param>
         /// <param name="postServerSelector">The post server selector.</param>
-        /// <param name="schemaMap">[Beta] The schema map.</param>
+        /// <param name="schemaMap">The schema map.</param>
         /// <param name="scheme">The connection string scheme.</param>
         public ClusterSettings(
             Optional<ClusterConnectionMode> connectionMode = default(Optional<ClusterConnectionMode>),
@@ -108,7 +108,7 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
-        /// [Beta] Gets the kms providers.
+        /// Gets the kms providers.
         /// </summary>
         /// <value>
         /// The kms providers.
@@ -141,7 +141,7 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
-        /// [Beta] Gets the schema map.
+        /// Gets the schema map.
         /// </summary>
         /// <value>
         /// The schema map.
@@ -201,13 +201,13 @@ namespace MongoDB.Driver.Core.Configuration
         /// </summary>
         /// <param name="connectionMode">The connection mode.</param>
         /// <param name="endPoints">The end points.</param>
-        /// <param name="kmsProviders">[Beta] The kms providers.</param>
+        /// <param name="kmsProviders">The kms providers.</param>
         /// <param name="maxServerSelectionWaitQueueSize">Maximum size of the server selection wait queue.</param>
         /// <param name="replicaSetName">Name of the replica set.</param>
         /// <param name="serverSelectionTimeout">The server selection timeout.</param>
         /// <param name="preServerSelector">The pre server selector.</param>
         /// <param name="postServerSelector">The post server selector.</param>
-        /// <param name="schemaMap">[Beta] The schema map.</param>
+        /// <param name="schemaMap">The schema map.</param>
         /// <param name="scheme">The connection string scheme.</param>
         /// <returns>A new ClusterSettings instance.</returns>
         public ClusterSettings With(

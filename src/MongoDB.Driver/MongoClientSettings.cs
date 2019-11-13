@@ -143,7 +143,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// [Beta] Gets or sets the auto encryption options.
+        /// Gets or sets the auto encryption options.
         /// </summary>
         public AutoEncryptionOptions AutoEncryptionOptions
         {

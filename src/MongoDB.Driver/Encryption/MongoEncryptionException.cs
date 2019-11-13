@@ -22,7 +22,7 @@ using System;
 namespace MongoDB.Driver.Encryption
 {
     /// <summary>
-    /// [Beta] Represents an encryption exception.
+    /// Represents an encryption exception.
     /// </summary>
 #if NET452
     [Serializable]
@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Encryption
     public class MongoEncryptionException : MongoClientException
     {
         /// <summary>
-        /// [Beta] Initializes a new instance of the <see cref="MongoEncryptionException"/> class.
+        /// Initializes a new instance of the <see cref="MongoEncryptionException"/> class.
         /// </summary>
         /// <param name="innerException">The inner exception.</param>
         public MongoEncryptionException(Exception innerException)

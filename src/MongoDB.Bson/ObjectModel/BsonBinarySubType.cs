@@ -51,7 +51,7 @@ namespace MongoDB.Bson
         /// </summary>
         MD5 = 0x05,
         /// <summary>
-        /// [Beta] Encrypted binary data.
+        /// Encrypted binary data.
         /// </summary>
         Encrypted = 0x06,
         /// <summary>

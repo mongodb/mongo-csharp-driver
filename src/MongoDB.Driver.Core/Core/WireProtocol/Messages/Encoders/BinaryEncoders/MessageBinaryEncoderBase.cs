@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         }
 
         /// <summary>
-        /// [Beta] Gets a flag whether encryption has been configured.
+        /// Gets a flag whether encryption has been configured.
         /// </summary>
         /// <value>
         /// The flag whether encryption is configured or not.

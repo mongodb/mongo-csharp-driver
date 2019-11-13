@@ -22,9 +22,7 @@ unauthorized parties, including server administrators, cannot read the encrypted
 data.
 
 {{% note class="important" %}} 
-Support for client-side field level encryption is in beta, and the beta only
-supports Windows. Backwards-breaking changes may be made before the
-final release (which will support MacOS and Linux).
+Client-side field level encryption is supported only on Windows.
 {{% /note %}}
 
 ## mongocryptd configuration

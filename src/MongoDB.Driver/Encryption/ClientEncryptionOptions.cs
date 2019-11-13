@@ -19,7 +19,7 @@ using MongoDB.Driver.Core.Misc;
 namespace MongoDB.Driver.Encryption
 {
     /// <summary>
-    /// [Beta] Client encryption options.
+    /// Client encryption options.
     /// </summary>
     public class ClientEncryptionOptions
     {
@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Encryption
 
         // constructors
         /// <summary>
-        /// [Beta] Initializes a new instance of the <see cref="ClientEncryptionOptions"/> class.
+        /// Initializes a new instance of the <see cref="ClientEncryptionOptions"/> class.
         /// </summary>
         /// <param name="keyVaultClient">The key vault client.</param>
         /// <param name="keyVaultNamespace">The key vault namespace.</param>
@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Encryption
 
         // public properties
         /// <summary>
-        /// [Beta] Gets the key vault client.
+        /// Gets the key vault client.
         /// </summary>
         /// <value>
         /// The key vault client.
@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Encryption
         public IMongoClient KeyVaultClient => _keyVaultClient;
 
         /// <summary>
-        /// [Beta] Gets the key vault namespace.
+        /// Gets the key vault namespace.
         /// </summary>
         /// <value>
         /// The key vault namespace.
@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Encryption
         public CollectionNamespace KeyVaultNamespace => _keyVaultNamespace;
 
         /// <summary>
-        /// [Beta] Gets the KMS providers.
+        /// Gets the KMS providers.
         /// </summary>
         /// <value>
         /// The KMS providers.
@@ -73,7 +73,7 @@ namespace MongoDB.Driver.Encryption
         public IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> KmsProviders => _kmsProviders;
 
         /// <summary>
-        /// [Beta] Returns a new ClientEncryptionOptions instance with some settings changed.
+        /// Returns a new ClientEncryptionOptions instance with some settings changed.
         /// </summary>
         /// <param name="keyVaultClient">The key vault client.</param>
         /// <param name="keyVaultNamespace">The key vault namespace.</param>

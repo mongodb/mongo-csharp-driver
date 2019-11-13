@@ -9,7 +9,7 @@ type = "index"
 
 The [Getting Started]({{< relref "getting_started\index.md" >}}) guide contains information about system requirements, installation, and a simple tutorial to get up and running quickly.
 
-## What's new in 2.10.0-beta1
+## What's new in 2.10.0
 
 The [What's New]({{< relref "what_is_new.md" >}}) section contains the major new features of the driver.
 

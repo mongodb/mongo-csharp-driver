@@ -23,7 +23,7 @@ using MongoDB.Shared;
 namespace MongoDB.Driver.Encryption
 {
     /// <summary>
-    /// [Beta] Auto encryption options.
+    /// Auto encryption options.
     /// </summary>
     public class AutoEncryptionOptions
     {
@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Encryption
 
         // constructors
         /// <summary>
-        /// [Beta] Initializes a new instance of the <see cref="AutoEncryptionOptions"/> class.
+        /// Initializes a new instance of the <see cref="AutoEncryptionOptions"/> class.
         /// </summary>
         /// <param name="keyVaultNamespace">The keyVault namespace.</param>
         /// <param name="kmsProviders">The kms providers.</param>
@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Encryption
 
         // public properties
         /// <summary>
-        /// [Beta] Gets a value indicating whether to bypass automatic encryption.
+        /// Gets a value indicating whether to bypass automatic encryption.
         /// </summary>
         /// <value>
         ///   <c>true</c> if automatic encryption should be bypasssed; otherwise, <c>false</c>.
@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Encryption
         public bool BypassAutoEncryption => _bypassAutoEncryption;
 
         /// <summary>
-        /// [Beta] Gets the extra options.
+        /// Gets the extra options.
         /// </summary>
         /// <value>
         /// The extra options.
@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Encryption
         public IReadOnlyDictionary<string, object> ExtraOptions => _extraOptions;
 
         /// <summary>
-        /// [Beta] Gets the key vault client.
+        /// Gets the key vault client.
         /// </summary>
         /// <value>
         /// The key vault client.
@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Encryption
         public IMongoClient KeyVaultClient => _keyVaultClient;
 
         /// <summary>
-        /// [Beta] Gets the key vault namespace.
+        /// Gets the key vault namespace.
         /// </summary>
         /// <value>
         /// The key vault namespace.
@@ -98,7 +98,7 @@ namespace MongoDB.Driver.Encryption
         public CollectionNamespace KeyVaultNamespace => _keyVaultNamespace;
 
         /// <summary>
-        /// [Beta] Gets the KMS providers.
+        /// Gets the KMS providers.
         /// </summary>
         /// <value>
         /// The KMS providers.
@@ -106,7 +106,7 @@ namespace MongoDB.Driver.Encryption
         public IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> KmsProviders => _kmsProviders;
 
         /// <summary>
-        /// [Beta] Gets the schema map.
+        /// Gets the schema map.
         /// </summary>
         /// <value>
         /// The schema map.
@@ -114,7 +114,7 @@ namespace MongoDB.Driver.Encryption
         public IReadOnlyDictionary<string, BsonDocument> SchemaMap => _schemaMap;
 
         /// <summary>
-        /// [Beta] Returns a new instance of the <see cref="AutoEncryptionOptions"/> class.
+        /// Returns a new instance of the <see cref="AutoEncryptionOptions"/> class.
         /// </summary>
         /// <param name="keyVaultNamespace">The keyVault namespace.</param>
         /// <param name="kmsProviders">The kms providers.</param>
