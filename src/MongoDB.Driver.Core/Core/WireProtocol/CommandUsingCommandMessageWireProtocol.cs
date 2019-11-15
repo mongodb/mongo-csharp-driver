@@ -102,7 +102,10 @@ namespace MongoDB.Driver.Core.WireProtocol
                 }
                 finally
                 {
-                    MessageWasProbablySent(message);
+                    if (message.WasSent)
+                    {
+                        MessageWasProbablySent(message);
+                    }
                 }
 
                 if (message.WrappedMessage.ResponseExpected)
@@ -141,7 +144,10 @@ namespace MongoDB.Driver.Core.WireProtocol
                 }
                 finally
                 {
-                    MessageWasProbablySent(message);
+                    if (message.WasSent)
+                    {
+                        MessageWasProbablySent(message);
+                    }
                 }
 
                 if (message.WrappedMessage.ResponseExpected)
