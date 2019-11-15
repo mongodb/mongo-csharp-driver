@@ -98,6 +98,7 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Oscar Bralo               https://github.com/Oscarbralo
 * Alex Brown                https://github.com/alexjamesbrown
 * Adam Avery Cole           https://github.com/adamaverycole
+* Nate Contino              https://github.com/nathan-contino-mongo
 * Alex Dawes                https://github.com/alexdawes
 * Justin Dearing            zippy1981@gmail.com
 * Dan DeBilt                dan.debilt@gmail.com

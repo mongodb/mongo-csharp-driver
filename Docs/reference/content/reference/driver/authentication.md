@@ -52,34 +52,71 @@ In .NET Standard, authenticating via SCRAM-SHA-256 may not work with non-ASCII p
 
 ### x.509 Authentication
 
-The [x.509](http://docs.mongodb.org/manual/core/authentication/#x-509-certificate-authentication) mechanism authenticates a user whose name is derived from the distinguished subject name of the x.509 certificate presented by the driver during SSL negotiation. This authentication method requires the use of [SSL connections]({{< relref "reference\driver\ssl.md" >}}) with certificate validation and is available in MongoDB 2.6 and newer. To create a credential of this type, use the following static factory method:
+The [x.509](http://docs.mongodb.org/manual/core/authentication/#x-509-certificate-authentication) mechanism authenticates a user whose name is derived from the distinguished subject name of the x.509 certificate presented by the driver during SSL negotiation. This authentication method requires the use of [SSL connections]({{< relref "reference\driver\ssl.md" >}}) with certificate validation and is available in MongoDB 2.6 and newer. 
+
+There are two ways to create a credential of this type:
+
+1. Programmatically, using the following static factory method:
+
+    ```csharp
+    var credential = MongoCredential.CreateX509Credential(username);
+    ```
+
+    When configuring x.509 authentication programmatically, the `username` parameter provided to `CreateX509Credential` must match the distinguished subject name of your x.509 certificate *exactly*. To determine the exact `username` required for your x.509 connection, consult [the MongoDB server x.509 tutorial](http://docs.mongodb.org/manual/tutorial/configure-x509-client-authentication/#add-x-509-certificate-subject-as-a-user). Alternatively, any `null` `username` parameter provided to `CreateX509Credential` will cause the MongoDB server to infer a username based on the distinguished subject name of the x.509 certificate. Using a `null` username value can help prevent issues when certificates are updated, since you can avoid managing a `username` value and a certificate as separate entities in your environment.
+
+
+2. Manually, using [connection string options](https://docs.mongodb.com/manual/reference/connection-string/#connection-string-options):
+
+    ```
+    mongodb://myserver/?authMechanism=MONGODB-X509
+    ```
+
+    When configuring x.509 authentication from a connection string, you must still provide the certificate programmatically via `MongoClientSettings`. Any connection string specifying x.509 authentication must be imported into a `MongoClientSettings` object using `MongoClientSettings.FromConnectionString` to add the certificate to the configuration.
+
+You can use certificates via the trust stores on your computer, or a PKCS #12 (`.pfx`) file. To be used with client authentication, the [`X509Certificate`]({{< msdnref "system.security.cryptography.x509certificates.x509certificate" >}}) provided to the driver must contain the [`PrivateKey`]({{< msdnref "system.security.cryptography.x509certificates.x509certificate2.privatekey" >}}).
+
+For testing purposes, the `AllowInsecureTls` field of your `MongoClientSettings` can be set to `true` to allow the use of self-signed certificates. Since this setting bypasses the validation of certificates entirely, it should never be used for production uses.
+
+Connecting using a `MongoClientSettings` object built from a connection string: 
 
 ```csharp
-var credential = MongoCredential.CreateX509Credential(username);
-```
+var connectionString = "mongodb://myserver/?authMechanism=MONGODB-X509";
+var settings = MongoClientSettings.FromConnectionString(connectionString);
 
-Or via the connection string:
-
-```
-mongodb://username@myserver/?authMechanism=MONGODB-X509
-```
-
-Even when using the connection string to provide the credential, the certificate must still be provided via code. This certificate can be pulled out of the trust stores on the box, or from a file. However, to be used with client authentication, the [`X509Certificate`]({{< msdnref "system.security.cryptography.x509certificates.x509certificate" >}}) provided to the driver must contain the [`PrivateKey`]({{< msdnref "system.security.cryptography.x509certificates.x509certificate2.privatekey" >}}).
-
-```csharp
-var cert = new X509Certificate2("client.pfx", "mySuperSecretPassword");
-
-var settings = new MongoClientSettings
+settings.useTls = true;
+settings.SslSettings = new SslSettings
 {
-    Credentials = new[] 
+    ClientCertificates = new List<X509Certificate>()
     {
-        MongoCredential.CreateMongoX509Credential("CN=client,OU=user,O=organization,L=Some City,ST=Some State,C=Some Country")
-    },
+        new X509Certificate2("client-certificate.pfx", "password")
+    }
+};
+
+// For testing using self-signed certs, use this option to skip validation.
+// DO NOT USE THIS OPTION FOR PRODUCTION USES
+settings.AllowInsecureTls = true;
+```
+
+Connecting using a `MongoClientSettings` object built from scratch:
+
+```csharp
+var settings = new MongoClientSettings 
+{
+    // if a username is null, the distinguished name from the certificate will be used
+    Credential =  MongoCredential.CreateMongoX509Credential(null),
     SslSettings = new SslSettings
     {
-        ClientCertificates = new[] { cert },
+        ClientCertificates = new List<X509Certificate>()
+        {
+            new X509Certificate2("client-certificate.pfx", "password")
+        },
     },
-    UseSsl = true
+    UseTls = true,
+    Server = new MongoServerAddress("myserver", 27017),
+
+    // For testing using self-signed certs, use this option to skip validation.
+    // DO NOT USE THIS OPTION FOR PRODUCTION USES
+    AllowInsecureTls = true
 };
 ```
 
@@ -114,46 +151,46 @@ mongodb://username%40REALM.com@myserver/?authMechanism=GSSAPI
 Depending on the kerberos setup, it may be required to specify some additional properties. These may be specified in the connection string or via code.
 
 - **CANONICALIZE_HOST_NAME**
-	
-	Uses the DNS server to retrieve the fully qualified domain name (FQDN) of the host.
-	
-	```csharp
-	credential = credential.WithMechanismProperty("CANONICALIZE_HOST_NAME", "true");
-	```
 
-	Or via the connection string:
+    Uses the DNS server to retrieve the fully qualified domain name (FQDN) of the host.
 
-	```
-	mongodb://username@myserver/?authMechanism=GSSAPI&authMechanismProperties=CANONICALIZE_HOSTNAME:true
-	```
+    ```csharp
+    credential = credential.WithMechanismProperty("CANONICALIZE_HOST_NAME", "true");
+    ```
+
+    Or via the connection string:
+
+    ```
+    mongodb://username@myserver/?authMechanism=GSSAPI&authMechanismProperties=CANONICALIZE_HOSTNAME:true
+    ```
 
 - **REALM**
 
-	This is used when the user's realm is different from the service's realm.
+    This is used when the user's realm is different from the service's realm.
 
-	```csharp
-	credential = credential.WithMechanismProperty("REALM", "otherrealm");
-	```
+    ```csharp
+    credential = credential.WithMechanismProperty("REALM", "otherrealm");
+    ```
 
-	Or via the connection string:
+    Or via the connection string:
 
-	```
-	mongodb://username%40REALM.com@myserver/?authMechanism=GSSAPI&authMechanismProperties=REALM:otherrealm
-	```
+    ```
+    mongodb://username%40REALM.com@myserver/?authMechanism=GSSAPI&authMechanismProperties=REALM:otherrealm
+    ```
 
 - **SERVICE_NAME**
 
-	This is used when the service's name is different that the default `mongodb`.
+    This is used when the service's name is different that the default `mongodb`.
 
-	```csharp
-	credential = credential.WithMechanismProperty("SERVICE_NAME", "othername");
-	```
+    ```csharp
+    credential = credential.WithMechanismProperty("SERVICE_NAME", "othername");
+    ```
 
-	Or via the connection string:
+    Or via the connection string:
 
-	```
-	mongodb://username%40REALM.com@myserver/?authMechanism=GSSAPI&authMechanismProperties=SERVICE_NAME:othername
-	```
+    ```
+    mongodb://username%40REALM.com@myserver/?authMechanism=GSSAPI&authMechanismProperties=SERVICE_NAME:othername
+    ```
 
 In addition, it is possible to use multiple authentication mechanism properties either via code or in the connection string. In code, call `WithMechanismProperty` multiple times. In the connection string, separate the entries with a `,` (comma).
 
