@@ -65,7 +65,12 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
 
         protected override void VerifyResult(BsonDocument result)
         {
-            var expectedResult = ParseResult(result);
+            var expectedResult = ParseResult(result, out var expectedInsertedIds);
+            foreach (var insertedId in expectedInsertedIds)
+            {
+                var insertModel = (InsertOneModel<BsonDocument>)_result.ProcessedRequests[insertedId.Key];
+                insertModel.Document["_id"].Should().Be(insertedId.Value);
+            }
             _result.DeletedCount.Should().Be(expectedResult.DeletedCount);
             _result.InsertedCount.Should().Be(expectedResult.InsertedCount);
             _result.MatchedCount.Should().Be(expectedResult.MatchedCount);
@@ -180,12 +185,15 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
             return result;
         }
 
-        private BulkWriteResult<BsonDocument> ParseResult(BsonDocument result)
+        private BulkWriteResult<BsonDocument> ParseResult(BsonDocument result, out Dictionary<int, int> expectedInsertedIds)
         {
             VerifyFields(result, "deletedCount", "insertedCount", "insertedIds", "matchedCount", "modifiedCount", "upsertedCount", "upsertedIds");
 
             var deletedCount = result["deletedCount"].ToInt64();
-            var insertedCount = result["insertedIds"].AsBsonDocument.ElementCount; // TODO: anything to verify besides count?
+            var insertedCount = result["insertedCount"].ToInt64();
+            expectedInsertedIds = result["insertedIds"]
+                .AsBsonDocument
+                .ToDictionary(k => Convert.ToInt32(k.Name), v => v.Value.ToInt32());
             var matchedCount = result["matchedCount"].ToInt64();
             var modifiedCount = result["modifiedCount"].ToInt64();
             var processedRequests = new List<WriteModel<BsonDocument>>(_requests);

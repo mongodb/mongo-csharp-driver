@@ -19,11 +19,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -44,7 +42,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
             var async = testCase.Async;
 
             VerifyServerRequirements(definition);
-            VerifyFields(definition, "path", "data", "minServerVersion", "maxServerVersion", "tests");
+            VerifyFields(definition, "path", "data", "runOn", "tests");
 
             InitializeCollection(definition);
             RunTest(test, async);
@@ -53,23 +51,14 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
         // private methods
         private void VerifyServerRequirements(BsonDocument definition)
         {
-            RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
+            if (definition.TryGetValue("runOn", out var runOn))
+            {
+                RequireServer.Check().RunOn(runOn.AsBsonArray);
+            }
 
             if (CoreTestConfiguration.GetStorageEngine() == "mmapv1")
             {
                 throw new SkipException("Test skipped because mmapv1 does not support retryable writes.");
-            }
-
-            BsonValue minServerVersion;
-            if (definition.TryGetValue("minServerVersion", out minServerVersion))
-            {
-                RequireServer.Check().VersionGreaterThanOrEqualTo(minServerVersion.AsString);
-            }
-
-            BsonValue maxServerVersion;
-            if (definition.TryGetValue("maxServerVersion", out maxServerVersion))
-            {
-                RequireServer.Check().VersionLessThanOrEqualTo(maxServerVersion.AsString);
             }
         }
 
@@ -96,35 +85,41 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
 
         private void RunTest(BsonDocument test, bool async)
         {
-            VerifyFields(test, "description", "clientOptions", "failPoint", "operation", "outcome");
-            var clientOptions = (BsonDocument)test.GetValue("clientOptions", null);
+            VerifyFields(test, "description", "clientOptions", "failPoint", "operation", "outcome", "useMultipleMongoses");
             var failPoint = (BsonDocument)test.GetValue("failPoint", null);
             var operation = test["operation"].AsBsonDocument;
             var outcome = test["outcome"].AsBsonDocument;
 
-            var client = CreateClient(clientOptions);
-            var database = client.GetDatabase(_databaseName);
-            var collection = database.GetCollection<BsonDocument>(_collectionName);
-            var executableTest = CreateExecutableTest(operation);
-
-            using (ConfigureFailPoint(client, failPoint))
+            using (var client = CreateDisposableClient(test))
             {
-                executableTest.Execute(collection, async);
+                var database = client.GetDatabase(_databaseName);
+                var collection = database.GetCollection<BsonDocument>(_collectionName);
+                var executableTest = CreateExecutableTest(operation);
+
+                using (ConfigureFailPoint(client, failPoint))
+                {
+                    executableTest.Execute(collection, async);
+                }
+
+                executableTest.VerifyOutcome(collection, outcome);
             }
-
-            executableTest.VerifyOutcome(collection, outcome);
         }
 
-        private IMongoClient CreateClient(BsonDocument clientOptions)
+        private DisposableMongoClient CreateDisposableClient(BsonDocument test)
         {
-            var clientSettings = ParseClientOptions(clientOptions);
-            return new MongoClient(clientSettings);
+            var useMultipleShardRouters = test.GetValue("useMultipleMongoses", false).AsBoolean;
+            var clientOptions = (BsonDocument)test.GetValue("clientOptions", null);
+
+            return DriverTestConfiguration.CreateDisposableClient(
+                settings =>
+                {
+                    ParseClientOptions(settings, clientOptions);
+                },
+                useMultipleShardRouters);
         }
 
-        private MongoClientSettings ParseClientOptions(BsonDocument clientOptions)
+        private void ParseClientOptions(MongoClientSettings settings, BsonDocument clientOptions)
         {
-            var settings = DriverTestConfiguration.Client.Settings.Clone();
-
             if (clientOptions == null)
             {
                 settings.RetryWrites = true;
@@ -147,8 +142,6 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
                     }
                 }
             }
-
-            return settings;
         }
 
         private IRetryableWriteTest CreateExecutableTest(BsonDocument operation)
@@ -160,6 +153,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
             {
                 case "bulkWrite": executableTest = new BulkWriteTest(); break;
                 case "deleteOne": executableTest = new DeleteOneTest(); break;
+                case "deleteMany": executableTest = new DeleteManyTest(); break;
                 case "findOneAndDelete": executableTest = new FindOneAndDeleteTest(); break;
                 case "findOneAndReplace": executableTest = new FindOneAndReplaceTest(); break;
                 case "findOneAndUpdate": executableTest = new FindOneAndUpdateTest(); break;
@@ -167,6 +161,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
                 case "insertMany": executableTest = new InsertManyTest(); break;
                 case "replaceOne": executableTest = new ReplaceOneTest(); break;
                 case "updateOne": executableTest = new UpdateOneTest(); break;
+                case "updateMany": executableTest = new UpdateManyTest(); break;
                 default: throw new ArgumentException($"Unexpected operation name: {operationName}.");
             }
             executableTest.Initialize(operation);

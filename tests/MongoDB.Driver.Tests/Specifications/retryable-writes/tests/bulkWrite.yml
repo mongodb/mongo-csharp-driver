@@ -1,7 +1,10 @@
+runOn:
+    -
+        minServerVersion: "3.6"
+        topology: ["replicaset"]
+
 data:
     - { _id: 1, x: 11 }
-
-minServerVersion: '3.6'
 
 tests:
     -
@@ -30,6 +33,7 @@ tests:
         outcome:
             result:
                 deletedCount: 1
+                insertedCount: 1
                 insertedIds: { 0: 2 }
                 matchedCount: 1
                 modifiedCount: 1
@@ -86,6 +90,7 @@ tests:
         outcome:
             result:
                 deletedCount: 1
+                insertedCount: 3
                 insertedIds: { 0: 2, 2: 3, 4: 5 }
                 matchedCount: 2
                 modifiedCount: 2
@@ -124,6 +129,7 @@ tests:
         outcome:
             result:
                 deletedCount: 0
+                insertedCount: 1
                 insertedIds: { 0: 2 }
                 matchedCount: 2
                 modifiedCount: 2
@@ -160,6 +166,7 @@ tests:
         outcome:
             result:
                 deletedCount: 0
+                insertedCount: 1
                 insertedIds: { 0: 2 }
                 matchedCount: 2
                 modifiedCount: 2
@@ -190,6 +197,7 @@ tests:
         outcome:
             result:
                 deletedCount: 0
+                insertedCount: 2
                 insertedIds: { 0: 2, 1: 3 }
                 matchedCount: 0
                 modifiedCount: 0
@@ -228,6 +236,7 @@ tests:
             error: true
             result:
                 deletedCount: 0
+                insertedCount: 0
                 insertedIds: { }
                 matchedCount: 0
                 modifiedCount: 0
@@ -264,6 +273,7 @@ tests:
             error: true
             result:
                 deletedCount: 0
+                insertedCount: 1
                 insertedIds: { 0: 2 }
                 matchedCount: 0
                 modifiedCount: 0
@@ -302,6 +312,7 @@ tests:
             error: true
             result:
                 deletedCount: 0
+                insertedCount: 1
                 insertedIds: { 1: 2 }
                 matchedCount: 1
                 modifiedCount: 1
@@ -337,6 +348,7 @@ tests:
         outcome:
             result:
                 deletedCount: 1
+                insertedCount: 1
                 insertedIds: { 1: 2 }
                 matchedCount: 0
                 modifiedCount: 0
@@ -372,6 +384,7 @@ tests:
         outcome:
             result:
                 deletedCount: 0
+                insertedCount: 1
                 insertedIds: { 1: 2 }
                 matchedCount: 1
                 modifiedCount: 1
