@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Examples.TransactionExamplesForDocs
             // For a replica set, include the replica set name and a seedlist of the members in the URI string; e.g.
             // string uri = "mongodb://mongodb0.example.com:27017,mongodb1.example.com:27017/?replicaSet=myRepl";
             // For a sharded cluster, connect to the mongos instances; e.g.
-            // string uri = "mongodb://mongos0.example.com:27017,mongos1.example.com:27017:27017/";
+            // string uri = "mongodb://mongos0.example.com:27017,mongos1.example.com:27017/";
             var client = new MongoClient(connectionString);
 
             // Prereq: Create collections. CRUD operations in transactions must be on existing collections.
