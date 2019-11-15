@@ -85,10 +85,10 @@ var settings = MongoClientSettings.FromConnectionString(connectionString);
 
 settings.useTls = true;
 settings.SslSettings = new SslSettings {
-  ClientCertificates = new List<X509Certificate>()
-  {
-    new X509Certificate2("client-certificate.pfx", "password")
-  }
+    ClientCertificates = new List<X509Certificate>()
+    {
+        new X509Certificate2("client-certificate.pfx", "password")
+    }
 };
 
 // For testing using self-signed certs, use this option to skip validation.
@@ -101,21 +101,21 @@ Connecting using a `MongoClientSettings` object built from scratch:
 ```csharp
 var settings = new MongoClientSettings 
 {
-  // if a username is null, the distinguished name from the certificate will be used
-  Credential =  MongoCredential.CreateMongoX509Credential(null),
-  SslSettings = new SslSettings
-  {
-    ClientCertificates = new List<X509Certificate>()
+    // if a username is null, the distinguished name from the certificate will be used
+    Credential =  MongoCredential.CreateMongoX509Credential(null),
+    SslSettings = new SslSettings
     {
-      new X509Certificate2("client-certificate.pfx", "password")
+        ClientCertificates = new List<X509Certificate>()
+        {
+            new X509Certificate2("client-certificate.pfx", "password")
+        },
     },
-  },
-  UseTls = true,
-  Server = new MongoServerAddress("myserver", 27017),
+    UseTls = true,
+    Server = new MongoServerAddress("myserver", 27017),
 
-  // For testing using self-signed certs, use this option to skip validation.
-  // DO NOT USE THIS OPTION FOR PRODUCTION USES
-  AllowInsecureTls = true
+    // For testing using self-signed certs, use this option to skip validation.
+    // DO NOT USE THIS OPTION FOR PRODUCTION USES
+    AllowInsecureTls = true
 };
 ```
 
