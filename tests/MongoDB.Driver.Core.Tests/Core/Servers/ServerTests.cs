@@ -406,6 +406,8 @@ namespace MongoDB.Driver.Core.Servers
         [InlineData(nameof(MongoNodeIsRecoveringException), true)]
         [InlineData(nameof(MongoNotPrimaryException), true)]
         [InlineData(nameof(SocketException), true)]
+        [InlineData(nameof(TimeoutException), false)]
+        [InlineData(nameof(MongoExecutionTimeoutException), false)]
         internal void ShouldInvalidateServer_should_return_expected_result_for_exceptionType(string exceptionTypeName, bool expectedResult)
         {
             _subject.Initialize();
@@ -424,6 +426,8 @@ namespace MongoDB.Driver.Core.Servers
                 case nameof(MongoNodeIsRecoveringException): exception = new MongoNodeIsRecoveringException(connectionId, command, commandResult); break;
                 case nameof(MongoNotPrimaryException): exception = new MongoNotPrimaryException(connectionId, command, commandResult); break;
                 case nameof(SocketException): exception = new SocketException(); break;
+                case nameof(TimeoutException): exception = new TimeoutException(); break;
+                case nameof(MongoExecutionTimeoutException): exception = new MongoExecutionTimeoutException(connectionId, "message"); break;
                 default: throw new Exception($"Invalid exceptionTypeName: {exceptionTypeName}.");
             }
 
