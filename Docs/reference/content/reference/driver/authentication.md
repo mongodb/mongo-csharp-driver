@@ -84,7 +84,8 @@ var connectionString = "mongodb://myserver/?authMechanism=MONGODB-X509";
 var settings = MongoClientSettings.FromConnectionString(connectionString);
 
 settings.useTls = true;
-settings.SslSettings = new SslSettings {
+settings.SslSettings = new SslSettings
+{
     ClientCertificates = new List<X509Certificate>()
     {
         new X509Certificate2("client-certificate.pfx", "password")
