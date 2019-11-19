@@ -793,7 +793,7 @@ namespace MongoDB.Bson
             {
                 // TODO: implement this more efficiently
                 var stringValue = d.ToString();
-                return double.Parse(stringValue);
+                return double.Parse(stringValue, CultureInfo.InvariantCulture);
             }
             else if (Flags.IsSecondForm(d._highBits))
             {
@@ -945,7 +945,7 @@ namespace MongoDB.Bson
             {
                 // TODO: implement this more efficiently
                 var stringValue = d.ToString();
-                return float.Parse(stringValue);
+                return float.Parse(stringValue, CultureInfo.InvariantCulture);
             }
             else if (Flags.IsSecondForm(d._highBits))
             {

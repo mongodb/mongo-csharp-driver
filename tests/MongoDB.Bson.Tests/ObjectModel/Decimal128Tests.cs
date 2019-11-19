@@ -16,6 +16,7 @@
 using System;
 using FluentAssertions;
 using System.Globalization;
+using System.Threading;
 using Xunit;
 
 namespace MongoDB.Bson.Tests
@@ -119,6 +120,46 @@ namespace MongoDB.Bson.Tests
             var exception = Record.Exception(() => Decimal128.ToDecimal(subject));
 
             exception.Should().BeOfType<OverflowException>();
+        }
+
+        [Theory]
+        [InlineData("123.456", 123.456)]
+        public void ToDouble_should_not_depend_on_current_culture(string valueString, double expectedDouble)
+        {
+            var currentCulture = Thread.CurrentThread.CurrentCulture;
+            try
+            {
+                Thread.CurrentThread.CurrentCulture = new CultureInfo("fr-FR");
+                var subject = Decimal128.Parse(valueString);
+
+                var result = Decimal128.ToDouble(subject);
+
+                result.Should().Be(expectedDouble);
+            }
+            finally
+            {
+                Thread.CurrentThread.CurrentCulture = currentCulture;
+            }
+        }
+
+        [Theory]
+        [InlineData("123.456", 123.456)]
+        public void ToSingle_should_not_depend_on_current_culture(string valueString, float expectedFloat)
+        {
+            var currentCulture = Thread.CurrentThread.CurrentCulture;
+            try
+            {
+                Thread.CurrentThread.CurrentCulture = new CultureInfo("fr-FR");
+                var subject = Decimal128.Parse(valueString);
+
+                var result = Decimal128.ToSingle(subject);
+
+                result.Should().Be(expectedFloat);
+            }
+            finally
+            {
+                Thread.CurrentThread.CurrentCulture = currentCulture;
+            }
         }
 
         [Theory]
