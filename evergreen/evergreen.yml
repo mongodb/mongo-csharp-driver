@@ -356,10 +356,6 @@ axes:
   - id: version
     display_name: MongoDB Version
     values:
-      - id: "latest"
-        display_name: "latest"
-        variables:
-           VERSION: "latest"
       - id: "4.2"
         display_name: "4.2"
         variables:
@@ -474,14 +470,14 @@ buildvariants:
      - name: test
 
 - matrix_name: "tests-zlib-compression"
-  matrix_spec: { compressor : "zlib", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "latest"], topology: "standalone", os: "*" }
+  matrix_spec: { compressor : "zlib", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2"], topology: "standalone", os: "*" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
      - name: "test"
 
 - matrix_name: "tests-snappy-compression"
-  matrix_spec: { compressor : "snappy", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "latest"], topology: "standalone", os: "*" }
+  matrix_spec: { compressor : "snappy", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2"], topology: "standalone", os: "*" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
