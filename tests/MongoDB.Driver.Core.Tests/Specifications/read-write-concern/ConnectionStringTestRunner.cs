@@ -14,20 +14,12 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Reflection;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Configuration;
-using MongoDB.Driver.Core.Misc;
 using Xunit;
-using Xunit.Sdk;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
-using System.Collections;
+using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 
 namespace MongoDB.Driver.Specifications.read_write_concern.tests
 {
@@ -35,8 +27,12 @@ namespace MongoDB.Driver.Specifications.read_write_concern.tests
     {
         [Theory]
         [ClassData(typeof(TestCaseFactory))]
-        public void RunTestDefinition(BsonDocument definition)
+        public void RunTestDefinition(JsonDrivenTestCase testCase)
         {
+            var definition = testCase.Test;
+
+            JsonDrivenHelper.EnsureAllFieldsAreValid(definition, "description", "uri", "valid", "warning", "readConcern", "writeConcern");
+
             ConnectionString connectionString = null;
             Exception parseException = null;
             try
@@ -111,59 +107,9 @@ namespace MongoDB.Driver.Specifications.read_write_concern.tests
             return writeConcern;
         }
 
-        private class TestCaseFactory : IEnumerable<object[]>
+        private class TestCaseFactory : JsonDrivenTestCaseFactory
         {
-            public IEnumerator<object[]> GetEnumerator()
-            {
-                const string prefix = "MongoDB.Driver.Core.Tests.Specifications.read_write_concern.tests.connection_string.";
-                var executingAssembly = typeof(TestCaseFactory).GetTypeInfo().Assembly;
-                var enumerable = executingAssembly
-                    .GetManifestResourceNames()
-                    .Where(path => path.StartsWith(prefix) && path.EndsWith(".json"))
-                    .SelectMany(path =>
-                    {
-                        var definition = ReadDefinition(path);
-                        var tests = (BsonArray)definition["tests"];
-                        var fullName = path.Remove(0, prefix.Length);
-                        var list = new List<object[]>();
-                        foreach (BsonDocument test in tests)
-                        {
-                            //var data = new TestCaseData(test);
-                            //data.SetCategory("Specifications");
-                            //if (test.Contains("readConcern"))
-                            //{
-                            //    data.SetCategory("ReadConcern");
-                            //}
-                            //else
-                            //{
-                            //    data.SetCategory("WriteConcern");
-                            //}
-                            //data.SetCategory("ConnectionString");
-                            //var testName = fullName.Remove(fullName.Length - 5) + ": " + test["description"];
-                            //data = data.SetName(testName);
-                            var data = new object[] { test };
-                            list.Add(data);
-                        }
-                        return list;
-                    });
-                return enumerable.GetEnumerator();
-            }
-
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return GetEnumerator();
-            }
-
-            private static BsonDocument ReadDefinition(string path)
-            {
-                var executingAssembly = typeof(TestCaseFactory).GetTypeInfo().Assembly;
-                using (var definitionStream = executingAssembly.GetManifestResourceStream(path))
-                using (var definitionStringReader = new StreamReader(definitionStream))
-                {
-                    var definitionString = definitionStringReader.ReadToEnd();
-                    return BsonDocument.Parse(definitionString);
-                }
-            }
+            protected override string PathPrefix => "MongoDB.Driver.Core.Tests.Specifications.read_write_concern.tests.connection_string.";
         }
     }
 }
