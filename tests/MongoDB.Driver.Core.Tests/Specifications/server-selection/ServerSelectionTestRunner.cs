@@ -14,13 +14,11 @@
 */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Misc;
@@ -36,8 +34,12 @@ namespace MongoDB.Driver.Specifications.server_selection
 
         [Theory]
         [ClassData(typeof(TestCaseFactory))]
-        public void RunTestDefinition(BsonDocument definition)
+        public void RunTestDefinition(JsonDrivenTestCase testCase)
         {
+            var definition = testCase.Test;
+
+            JsonDrivenHelper.EnsureAllFieldsAreValid(definition, "_path", "in_latency_window", "operation", "read_preference", "suitable_servers", "topology_description", "heartbeatFrequencyMS", "error");
+
             var error = definition.GetValue("error", false).ToBoolean();
             var heartbeatInterval = TimeSpan.FromMilliseconds(definition.GetValue("heartbeatFrequencyMS", 10000).ToInt64());
             var clusterDescription = BuildClusterDescription((BsonDocument)definition["topology_description"], heartbeatInterval);
@@ -108,6 +110,8 @@ namespace MongoDB.Driver.Specifications.server_selection
 
         private ReadPreference BuildReadPreference(BsonDocument readPreferenceDescription)
         {
+            JsonDrivenHelper.EnsureAllFieldsAreValid(readPreferenceDescription, "mode", "tag_sets", "maxStalenessSeconds");
+
             var mode = (ReadPreferenceMode)Enum.Parse(typeof(ReadPreferenceMode), readPreferenceDescription["mode"].AsString);
 
             IEnumerable<TagSet> tagSets = null;
@@ -136,6 +140,8 @@ namespace MongoDB.Driver.Specifications.server_selection
 
         private ClusterDescription BuildClusterDescription(BsonDocument topologyDescription, TimeSpan heartbeatInterval)
         {
+            JsonDrivenHelper.EnsureAllFieldsAreValid(topologyDescription, "servers", "type");
+
             var clusterType = GetClusterType(topologyDescription["type"].ToString());
             var servers = BuildServerDescriptions((BsonArray)topologyDescription["servers"], heartbeatInterval);
 
@@ -174,6 +180,8 @@ namespace MongoDB.Driver.Specifications.server_selection
 
         private ServerDescription BuildServerDescription(BsonDocument serverDescription, TimeSpan heartbeatInterval)
         {
+            JsonDrivenHelper.EnsureAllFieldsAreValid(serverDescription, "address", "avg_rtt_ms", "tags", "type", "lastUpdateTime", "lastWrite", "maxWireVersion");
+
             var endPoint = EndPointHelper.Parse(serverDescription["address"].ToString());
             var averageRoundTripTime = TimeSpan.FromMilliseconds(serverDescription.GetValue("avg_rtt_ms", 0.0).ToDouble());
             var type = GetServerType(serverDescription["type"].ToString());
@@ -244,48 +252,24 @@ namespace MongoDB.Driver.Specifications.server_selection
 
         private TagSet BuildTagSet(BsonDocument tagSet)
         {
+            JsonDrivenHelper.EnsureAllFieldsAreValid(tagSet, "data_center", "rack", "other_tag");
+
             return new TagSet(tagSet.Elements.Select(x => new Tag(x.Name, x.Value.ToString())));
         }
 
-        private class TestCaseFactory : IEnumerable<object[]>
+        // nested types
+        private class TestCaseFactory : JsonDrivenTestCaseFactory
         {
-            public IEnumerator<object[]> GetEnumerator()
+            protected override string[] PathPrefixes => new[]
             {
-                const string prefix = "MongoDB.Driver.Core.Tests.Specifications.server_selection.tests.server_selection.";
-                const string maxStalenessPrefix = "MongoDB.Driver.Core.Tests.Specifications.max_staleness.tests.";
-                var executingAssembly = typeof(TestCaseFactory).GetTypeInfo().Assembly;
-                var enumerable = executingAssembly
-                    .GetManifestResourceNames()
-                    .Where(path => (path.StartsWith(prefix) || path.StartsWith(maxStalenessPrefix)) && path.EndsWith(".json"))
-                    .Select(path =>
-                    {
-                        var definition = ReadDefinition(path);
-                        definition.InsertAt(0, new BsonElement("path", path));
-                        //var data = new TestCaseData(definition);
-                        //data.SetCategory("Specifications");
-                        //data.SetCategory("server-selection");
-                        //var fullName = path.Remove(0, prefix.Length);
-                        //data = data.SetName(fullName.Remove(fullName.Length - 5).Replace(".", "_"));
-                        var data = new object[] { definition };
-                        return data;
-                    });
-                return enumerable.GetEnumerator();
-            }
+                "MongoDB.Driver.Core.Tests.Specifications.server_selection.tests.server_selection.",
+                "MongoDB.Driver.Core.Tests.Specifications.max_staleness.tests."
+            };
 
-            IEnumerator IEnumerable.GetEnumerator()
+            protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)
             {
-                return GetEnumerator();
-            }
-
-            private static BsonDocument ReadDefinition(string path)
-            {
-                var executingAssembly = typeof(TestCaseFactory).GetTypeInfo().Assembly;
-                using (var definitionStream = executingAssembly.GetManifestResourceStream(path))
-                using (var definitionStringReader = new StreamReader(definitionStream))
-                {
-                    var definitionString = definitionStringReader.ReadToEnd();
-                    return BsonDocument.Parse(definitionString);
-                }
+                var name = GetTestCaseName(document, document, 0);
+                yield return new JsonDrivenTestCase(name, document, document);
             }
         }
     }
