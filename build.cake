@@ -172,16 +172,9 @@ Task("ApiDocs")
         var upperCaseIndexFile = artifactsDocsApiDocsDirectory.CombineWithFilePath("Index.html");
         MoveFile(upperCaseIndexFile, lowerCaseIndexFile);
 
-        var apiDocsZipFileName = artifactsDocsApiDocsDirectory.GetDirectoryName() + "-html.zip";
-        var apiDocsZipFile = artifactsDocsDirectory.CombineWithFilePath(apiDocsZipFileName);
-        Console.WriteLine(apiDocsZipFile.FullPath);
-        Zip(artifactsDocsApiDocsDirectory, apiDocsZipFile);
-
         var chmFile = artifactsDocsApiDocsDirectory.CombineWithFilePath("CSharpDriverDocs.chm");
         var artifactsDocsChmFile = artifactsDocsDirectory.CombineWithFilePath("CSharpDriverDocs.chm");
         CopyFile(chmFile, artifactsDocsChmFile);
-
-        DeleteDirectory(artifactsDocsApiDocsDirectory, recursive: true);
     });
 
 Task("RefDocs")
@@ -223,12 +216,6 @@ Task("RefDocs")
 
         var artifactsReferencePublicDirectory = artifactsDocsRefDocsDirectory.Combine(gitVersion.Major + "." + gitVersion.Minor);
         CopyDirectory(referencePublicDirectory, artifactsReferencePublicDirectory);
-
-        var refDocsZipFileName = artifactsDocsRefDocsDirectory.GetDirectoryName() + "-html.zip";
-        var refDocsZipFile = artifactsDocsDirectory.CombineWithFilePath(refDocsZipFileName);
-        Zip(artifactsDocsRefDocsDirectory, refDocsZipFile);
-
-        DeleteDirectory(artifactsDocsRefDocsDirectory, recursive: true);
     });
 
 Task("Package")
