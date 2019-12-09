@@ -15,9 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using FluentAssertions;
 using MongoDB.Bson;
 
 namespace MongoDB.Driver.Tests.Specifications.command_monitoring
@@ -26,18 +23,21 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
     {
         private List<WriteModel<BsonDocument>> _requests;
         private BulkWriteOptions _options = new BulkWriteOptions();
-        private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 
         protected override void Execute(IMongoCollection<BsonDocument> collection, bool async)
         {
-            var collectionWithWriteConcern = collection.WithWriteConcern(_writeConcern);
+            if (collection.Settings.WriteConcern == null)
+            {
+                collection = collection.WithWriteConcern(WriteConcern.Acknowledged);
+            }
+
             if (async)
             {
-                collectionWithWriteConcern.BulkWriteAsync(_requests, _options).GetAwaiter().GetResult();
+                collection.BulkWriteAsync(_requests, _options).GetAwaiter().GetResult();
             }
             else
             {
-                collectionWithWriteConcern.BulkWrite(_requests, _options);
+                collection.BulkWrite(_requests, _options);
             }
         }
 
@@ -46,37 +46,58 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
             switch (name)
             {
                 case "requests":
-                    _requests = ParseRequests((BsonArray)value).ToList();
+                    _requests = ParseRequests(value.AsBsonArray);
                     return true;
-                case "ordered":
-                    _options.IsOrdered = value.ToBoolean();
-                    return true;
-                case "writeConcern":
-                    _writeConcern = WriteConcern.FromBsonDocument((BsonDocument)value);
+                case "options":
+                    _options = ParseOptions(value.AsBsonDocument);
                     return true;
             }
 
             return false;
         }
-
-        private IEnumerable<WriteModel<BsonDocument>> ParseRequests(BsonArray requests)
+        
+        // private methods
+        private BulkWriteOptions ParseOptions(BsonDocument value)
         {
+            var options = new BulkWriteOptions();
+
+            foreach (var option in value.Elements)
+            {
+                switch (option.Name)
+                {
+                    case "ordered":
+                        options.IsOrdered = option.Value.ToBoolean();
+                        break;
+                    default:
+                        throw new FormatException($"Unexpected option: ${option.Name}.");
+                }
+            }
+
+            return options;
+        }
+
+        private List<WriteModel<BsonDocument>> ParseRequests(BsonArray requests)
+        {
+            var result = new List<WriteModel<BsonDocument>>();
             foreach (BsonDocument request in requests)
             {
-                var element = request.GetElement(0);
-                switch (element.Name)
+                var name = request["name"].AsString;
+                var arguments = request["arguments"].AsBsonDocument;
+                switch (name)
                 {
                     case "deleteOne":
-                        yield return ParseDeleteOne((BsonDocument)element.Value);
+                        result.Add(ParseDeleteOne(arguments));
                         break;
                     case "insertOne":
-                        yield return ParseInsertOne((BsonDocument)element.Value);
+                        result.Add(ParseInsertOne(arguments));
                         break;
                     case "updateOne":
-                        yield return ParseUpdateOne((BsonDocument)element.Value);
+                        result.Add(ParseUpdateOne(arguments));
                         break;
                 }
             }
+
+            return result;
         }
 
         private DeleteOneModel<BsonDocument> ParseDeleteOne(BsonDocument request)
@@ -98,7 +119,5 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
             model.IsUpsert = request.GetValue("upsert", false).ToBoolean();
             return model;
         }
-
-
     }
 }

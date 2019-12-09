@@ -13,9 +13,9 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using MongoDB.Bson;
 
 namespace MongoDB.Driver.Tests.Specifications.command_monitoring
@@ -33,8 +33,8 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
                 case "documents":
                     _documents = ((BsonArray)value).OfType<BsonDocument>();
                     return true;
-                case "ordered":
-                    _options.IsOrdered = value.ToBoolean();
+                case "options":
+                    _options = ParseOptions(value.AsBsonDocument);
                     return true;
                 case "writeConcern":
                     _writeConcern = WriteConcern.FromBsonDocument((BsonDocument)value);
@@ -55,6 +55,26 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
             {
                 collectionWithWriteConcern.InsertMany(_documents, _options);
             }
+        }
+
+        // private methods
+        private InsertManyOptions ParseOptions(BsonDocument value)
+        {
+            var options = new InsertManyOptions();
+
+            foreach (var option in value.Elements)
+            {
+                switch (option.Name)
+                {
+                    case "ordered":
+                        options.IsOrdered = option.Value.ToBoolean();
+                        break;
+                    default:
+                        throw new FormatException($"Unexpected option: ${option.Name}.");
+                }
+            }
+
+            return options;
         }
     }
 }

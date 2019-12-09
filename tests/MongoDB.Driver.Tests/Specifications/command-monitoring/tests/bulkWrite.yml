@@ -13,9 +13,11 @@ tests:
       name: "bulkWrite"
       arguments:
         requests:
-          - insertOne: 
+          - name: "insertOne"
+            arguments:
               document: { _id: 4, x: 44 }
-          - updateOne:
+          - name: "updateOne"
+            arguments:
               filter: { _id: 3 }
               update: { $set: { x: 333 } }
     expectations:
@@ -37,7 +39,7 @@ tests:
           command:
             update: *collection_name
             updates:
-              - { q: {_id: 3 }, u: { $set: { x: 333 } }, upsert: false, multi: false }
+              - { q: {_id: 3 }, u: { $set: { x: 333 } } }
             ordered: true
           command_name: "update"
           database_name: *database_name
@@ -45,29 +47,3 @@ tests:
         command_succeeded_event:
           reply: { ok: 1.0, n: 1 }
           command_name: "update"
-  -
-    description: "A successful unordered bulk write with an unacknowledged write concern"
-    comment: "On a 2.4 server, no GLE is sent and requires a client-side manufactored reply"
-    operation:
-      name: "bulkWrite"
-      arguments:
-        requests:
-          - insertOne: 
-              document: { _id: 4, x: 44 }
-        ordered: false
-        writeConcern: { w: 0 }
-    expectations:
-      -
-        command_started_event:
-          command:
-            insert: *collection_name
-            documents:
-              - { _id: 4, x: 44 }
-            ordered: false
-            writeConcern: { w: 0 }
-          command_name: "insert"
-          database_name: *database_name
-      -
-        command_succeeded_event:
-          reply: { ok: 1.0 }
-          command_name: "insert"

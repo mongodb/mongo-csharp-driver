@@ -14,14 +14,12 @@
 */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Events;
@@ -30,7 +28,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Specifications.command_monitoring
 {
-    public class TestRunner
+    public class CommandMonitoringTestRunner
     {
         private static MongoClient __client;
         private static EventCapturer __capturedEvents;
@@ -39,7 +37,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
         private static bool __oneTimeSetupHasRun = false;
         private static object __oneTimeSetupLock = new object();
 
-        static TestRunner()
+        static CommandMonitoringTestRunner()
         {
             __commandsToCapture = new string[]
             {
@@ -66,7 +64,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
             };
         }
 
-        public TestRunner()
+        public CommandMonitoringTestRunner()
         {
             lock (__oneTimeSetupLock)
             {
@@ -101,9 +99,9 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
 
         [SkippableTheory]
         [ClassData(typeof(TestCaseFactory))]
-        public void RunTestDefinition(IEnumerable<BsonDocument> data, string databaseName, string collectionName, BsonDocument definition, bool async)
+        public void RunTestDefinition(JsonDrivenTestCase testCase)
         {
-            definition = (BsonDocument)DeepCopy(definition); // protect against side effects when the same definition is run twice (async=false/true)
+            var definition = testCase.Test;
 
             BsonValue bsonValue;
             if (definition.TryGetValue("ignore_if_server_version_greater_than", out bsonValue))
@@ -136,10 +134,13 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
                 }
             }
 
-            var database = __client
-                .GetDatabase(databaseName);
-            var collection = database
-                .GetCollection<BsonDocument>(collectionName);
+            var data = testCase.Shared["data"].AsBsonArray.Cast<BsonDocument>().ToList();
+            var databaseName = testCase.Shared["database_name"].AsString;
+            var collectionName = testCase.Shared["collection_name"].AsString;
+
+            var operation = (BsonDocument)definition["operation"];
+            var database = __client.GetDatabase(databaseName);
+            var collection = database.GetCollection<BsonDocument>(collectionName);
 
             database.DropCollection(collection.CollectionNamespace.CollectionName);
             collection.InsertMany(data);
@@ -147,7 +148,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
             __capturedEvents.Clear();
             try
             {
-                ExecuteOperation(database, collection, (BsonDocument)definition["operation"], async);
+                ExecuteOperation(database, collectionName, operation, definition["async"].AsBoolean);
             }
             catch (NotImplementedException)
             {
@@ -196,13 +197,24 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
             }
         }
 
+        private IMongoCollection<BsonDocument> GetCollection(IMongoDatabase database, string collectionName, BsonDocument operation)
+        {
+            var collectionSettings = ParseOperationCollectionSettings(operation);
+
+            var collection = database.GetCollection<BsonDocument>(
+                collectionName,
+                collectionSettings);
+
+            return collection;
+        }
+
         private SemanticVersion GetServerVersion()
         {
             var server = __client.Cluster.SelectServer(WritableServerSelector.Instance, CancellationToken.None);
             return server.Description.Version;
         }
 
-        private void ExecuteOperation(IMongoDatabase database, IMongoCollection<BsonDocument> collection, BsonDocument operation, bool async)
+        private void ExecuteOperation(IMongoDatabase database, string collectionName, BsonDocument operation, bool async)
         {
             var name = (string)operation["name"];
             Func<ICrudOperationTest> factory;
@@ -219,7 +231,38 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
                 throw new SkipException(reason);
             }
 
+            var collection = GetCollection(database, collectionName, operation);
             test.Execute(__client.Cluster.Description, database, collection, arguments, async);
+        }
+
+        private MongoCollectionSettings ParseCollectionSettings(BsonDocument collectionOptions)
+        {
+            var settings = new MongoCollectionSettings();
+            foreach (var collectionOption in collectionOptions.Elements)
+            {
+                switch (collectionOption.Name)
+                {
+                    case "writeConcern":
+                        settings.WriteConcern = WriteConcern.FromBsonDocument(collectionOption.Value.AsBsonDocument);
+                        break;
+                    default:
+                        throw new FormatException($"Unexpected collection option: {collectionOption.Name}.");
+                }
+            }
+
+            return settings;
+        }
+
+        private MongoCollectionSettings ParseOperationCollectionSettings(BsonDocument operation)
+        {
+            if (operation.TryGetValue("collectionOptions", out var collectionOptions))
+            {
+                return ParseCollectionSettings(collectionOptions.AsBsonDocument);
+            }
+            else
+            {
+                return null;
+            }
         }
 
         private void VerifyCommandStartedEvent(CommandStartedEvent actual, BsonDocument expected, string databaseName, string collectionName)
@@ -250,7 +293,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
 
         private BsonDocument MassageCommand(string commandName, BsonDocument command)
         {
-            var massagedCommand = (BsonDocument)DeepCopy(command);
+            var massagedCommand = (BsonDocument)command.DeepClone();
             switch (commandName)
             {
                 case "delete":
@@ -267,12 +310,6 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
                     break;
                 case "update":
                     massagedCommand["ordered"] = massagedCommand.GetValue("ordered", true);
-                    foreach (BsonDocument update in (BsonArray)massagedCommand["updates"])
-                    {
-                        update["multi"] = update.GetValue("multi", false);
-                        update["upsert"] = update.GetValue("upsert", false);
-                    }
-
                     break;
             }
 
@@ -284,7 +321,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
 
         private BsonDocument MassageReply(string commandName, BsonDocument reply, BsonDocument expectedReply)
         {
-            var massagedReply = (BsonDocument)DeepCopy(reply);
+            var massagedReply = (BsonDocument)reply.DeepClone();
             switch (commandName)
             {
                 case "find":
@@ -318,77 +355,24 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
             return massagedReply;
         }
 
-        private BsonValue DeepCopy(BsonValue value)
+        // nested types
+        private class TestCaseFactory : JsonDrivenTestCaseFactory
         {
-            if (value.BsonType == BsonType.Document)
+            // protected properties
+            protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.command_monitoring.tests.";
+
+            // protected methods
+            protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)
             {
-                var document = new BsonDocument();
-                foreach (var element in (BsonDocument)value)
+                var testCases = base.CreateTestCases(document);
+                foreach (var testCase in testCases)
                 {
-                    document.Add(element.Name, DeepCopy(element.Value));
-                }
-
-                return document;
-            }
-            else if (value.BsonType == BsonType.Array)
-            {
-                var array = new BsonArray();
-                foreach (var element in (BsonArray)value)
-                {
-                    array.Add(DeepCopy(element));
-                }
-                return array;
-            }
-
-            return value;
-        }
-
-        private class TestCaseFactory : IEnumerable<object[]>
-        {
-            public IEnumerator<object[]> GetEnumerator()
-            {
-                const string prefix = "MongoDB.Driver.Tests.Specifications.command_monitoring.tests.";
-                var testDocuments = typeof(TestCaseFactory).GetTypeInfo().Assembly
-                    .GetManifestResourceNames()
-                    .Where(path => path.StartsWith(prefix) && path.EndsWith(".json"))
-                    .Select(path => ReadDocument(path));
-
-                var testCases = new List<object[]>();
-                foreach (var testDocument in testDocuments)
-                {
-                    var data = testDocument["data"].AsBsonArray.Cast<BsonDocument>().ToList();
-                    var databaseName = testDocument["database_name"].ToString();
-                    var collectionName = testDocument["collection_name"].ToString();
-
-                    foreach (BsonDocument definition in testDocument["tests"].AsBsonArray)
+                    foreach (var async in new[] { false, true })
                     {
-                        foreach (var async in new[] { false, true })
-                        {
-                            //var testCase = new TestCaseData(data, databaseName, collectionName, definition, async);
-                            //testCase.SetCategory("Specifications");
-                            //testCase.SetCategory("command-monitoring");
-                            //testCase.SetName($"{definition["description"]}({async})");
-                            var testCase = new object[] { data, databaseName, collectionName, definition, async };
-                            testCases.Add(testCase);
-                        }
+                        var name = $"{testCase.Name}:async={async}";
+                        var test = testCase.Test.DeepClone().AsBsonDocument.Add("async", async);
+                        yield return new JsonDrivenTestCase(name, testCase.Shared, test);
                     }
-                }
-
-                return testCases.GetEnumerator();
-            }
-
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return GetEnumerator();
-            }
-
-            private static BsonDocument ReadDocument(string path)
-            {
-                using (var definitionStream = typeof(TestCaseFactory).GetTypeInfo().Assembly.GetManifestResourceStream(path))
-                using (var definitionStringReader = new StreamReader(definitionStream))
-                {
-                    var definitionString = definitionStringReader.ReadToEnd();
-                    return BsonDocument.Parse(definitionString);
                 }
             }
         }
