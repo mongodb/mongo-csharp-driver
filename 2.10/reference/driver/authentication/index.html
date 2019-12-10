@@ -2289,31 +2289,68 @@ The databaseName part of the connection string indicates which database the cred
 
 <h3 id="x-509-authentication">x.509 Authentication</h3>
 
-<p>The <a href="http://docs.mongodb.org/manual/core/authentication/#x-509-certificate-authentication">x.509</a> mechanism authenticates a user whose name is derived from the distinguished subject name of the x.509 certificate presented by the driver during SSL negotiation. This authentication method requires the use of <a href="/mongo-csharp-driver/2.10/reference/driver/ssl/">SSL connections</a> with certificate validation and is available in MongoDB 2.6 and newer. To create a credential of this type, use the following static factory method:</p>
+<p>The <a href="http://docs.mongodb.org/manual/core/authentication/#x-509-certificate-authentication">x.509</a> mechanism authenticates a user whose name is derived from the distinguished subject name of the x.509 certificate presented by the driver during SSL negotiation. This authentication method requires the use of <a href="/mongo-csharp-driver/2.10/reference/driver/ssl/">SSL connections</a> with certificate validation and is available in MongoDB 2.6 and newer.</p>
+
+<p>There are two ways to create a credential of this type:</p>
+
+<ol>
+<li><p>Programmatically, using the following static factory method:</p>
 
 <pre><code class="language-csharp">var credential = MongoCredential.CreateX509Credential(username);
 </code></pre>
 
-<p>Or via the connection string:</p>
+<p>When configuring x.509 authentication programmatically, the <code>username</code> parameter provided to <code>CreateX509Credential</code> must match the distinguished subject name of your x.509 certificate <em>exactly</em>. To determine the exact <code>username</code> required for your x.509 connection, consult <a href="http://docs.mongodb.org/manual/tutorial/configure-x509-client-authentication/#add-x-509-certificate-subject-as-a-user">the MongoDB server x.509 tutorial</a>. Alternatively, any <code>null</code> <code>username</code> parameter provided to <code>CreateX509Credential</code> will cause the MongoDB server to infer a username based on the distinguished subject name of the x.509 certificate. Using a <code>null</code> username value can help prevent issues when certificates are updated, since you can avoid managing a <code>username</code> value and a certificate as separate entities in your environment.</p></li>
 
-<pre><code>mongodb://username@myserver/?authMechanism=MONGODB-X509
+<li><p>Manually, using <a href="https://docs.mongodb.com/manual/reference/connection-string/#connection-string-options">connection string options</a>:</p>
+
+<pre><code>mongodb://myserver/?authMechanism=MONGODB-X509
 </code></pre>
 
-<p>Even when using the connection string to provide the credential, the certificate must still be provided via code. This certificate can be pulled out of the trust stores on the box, or from a file. However, to be used with client authentication, the <a href="https://msdn.microsoft.com/en-us/library/system.security.cryptography.x509certificates.x509certificate.aspx"><code>X509Certificate</code></a> provided to the driver must contain the <a href="https://msdn.microsoft.com/en-us/library/system.security.cryptography.x509certificates.x509certificate2.privatekey.aspx"><code>PrivateKey</code></a>.</p>
+<p>When configuring x.509 authentication from a connection string, you must still provide the certificate programmatically via <code>MongoClientSettings</code>. Any connection string specifying x.509 authentication must be imported into a <code>MongoClientSettings</code> object using <code>MongoClientSettings.FromConnectionString</code> to add the certificate to the configuration.</p></li>
+</ol>
 
-<pre><code class="language-csharp">var cert = new X509Certificate2(&quot;client.pfx&quot;, &quot;mySuperSecretPassword&quot;);
+<p>You can use certificates via the trust stores on your computer, or a PKCS #12 (<code>.pfx</code>) file. To be used with client authentication, the <a href="https://msdn.microsoft.com/en-us/library/system.security.cryptography.x509certificates.x509certificate.aspx"><code>X509Certificate</code></a> provided to the driver must contain the <a href="https://msdn.microsoft.com/en-us/library/system.security.cryptography.x509certificates.x509certificate2.privatekey.aspx"><code>PrivateKey</code></a>.</p>
 
-var settings = new MongoClientSettings
+<p>For testing purposes, the <code>AllowInsecureTls</code> field of your <code>MongoClientSettings</code> can be set to <code>true</code> to allow the use of self-signed certificates. Since this setting bypasses the validation of certificates entirely, it should never be used for production uses.</p>
+
+<p>Connecting using a <code>MongoClientSettings</code> object built from a connection string:</p>
+
+<pre><code class="language-csharp">var connectionString = &quot;mongodb://myserver/?authMechanism=MONGODB-X509&quot;;
+var settings = MongoClientSettings.FromConnectionString(connectionString);
+
+settings.useTls = true;
+settings.SslSettings = new SslSettings
 {
-    Credentials = new[] 
+    ClientCertificates = new List&lt;X509Certificate&gt;()
     {
-        MongoCredential.CreateMongoX509Credential(&quot;CN=client,OU=user,O=organization,L=Some City,ST=Some State,C=Some Country&quot;)
-    },
+        new X509Certificate2(&quot;client-certificate.pfx&quot;, &quot;password&quot;)
+    }
+};
+
+// For testing using self-signed certs, use this option to skip validation.
+// DO NOT USE THIS OPTION FOR PRODUCTION USES
+settings.AllowInsecureTls = true;
+</code></pre>
+
+<p>Connecting using a <code>MongoClientSettings</code> object built from scratch:</p>
+
+<pre><code class="language-csharp">var settings = new MongoClientSettings 
+{
+    // if a username is null, the distinguished name from the certificate will be used
+    Credential =  MongoCredential.CreateMongoX509Credential(null),
     SslSettings = new SslSettings
     {
-        ClientCertificates = new[] { cert },
+        ClientCertificates = new List&lt;X509Certificate&gt;()
+        {
+            new X509Certificate2(&quot;client-certificate.pfx&quot;, &quot;password&quot;)
+        },
     },
-    UseSsl = true
+    UseTls = true,
+    Server = new MongoServerAddress(&quot;myserver&quot;, 27017),
+
+    // For testing using self-signed certs, use this option to skip validation.
+    // DO NOT USE THIS OPTION FOR PRODUCTION USES
+    AllowInsecureTls = true
 };
 </code></pre>
 

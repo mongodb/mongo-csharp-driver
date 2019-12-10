@@ -31,9 +31,7 @@ data.&lt;/p&gt;
 
 &lt;p&gt;&lt;div class=&#34;admonition important&#34;&gt;
 &lt;h5 class=&#34;admonition-title&#34;&gt;important&lt;/h5&gt;
-&lt;p&gt;Support for client-side field level encryption is in beta, and the beta only
-supports Windows. Backwards-breaking changes may be made before the
-final release (which will support MacOS and Linux).&lt;/p&gt;
+&lt;p&gt;Client-side field level encryption is supported only on Windows.&lt;/p&gt;
 
 &lt;/div&gt;
 &lt;/p&gt;
@@ -59,15 +57,10 @@ is automatically encrypted on the insert and decrypted when using find on the
 client-side. The following example has been adapted from
 &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Examples/ClientEncryptionExamples.cs&#34;&gt;&lt;code&gt;ClientSideEncryptionExamples.cs&lt;/code&gt;&lt;/a&gt;, which can be found on GitHub along with the driver source.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using System;
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using System;
 using System.Collections.Generic;
-using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Driver.Encryption;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Examples
 {
@@ -75,7 +68,7 @@ namespace MongoDB.Driver.Examples
     {
         private const string LocalMasterKey = &amp;quot;Mng0NCt4ZHVUYUJCa1kxNkVyNUR1QURhZ2h2UzR2d2RrZzh0cFBwM3R6NmdWMDFBMUN3YkQ5aXRRMkhGRGdQV09wOGVNYUMxT2k3NjZKelhaQmRCZGJkTXVyZG9uSjFk&amp;quot;;
 
-        public void ClientSideEncryptionSimpleTour()
+        public static void Main(string[] args)
         {
             var localMasterKey = Convert.FromBase64String(LocalMasterKey);
 
@@ -120,15 +113,11 @@ example has been adapted from
 &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Examples/ClientEncryptionExamples.cs&#34;&gt;&lt;code&gt;ClientSideEncryptionExamples.cs&lt;/code&gt;&lt;/a&gt;,
 which can be found on Github along with the driver source.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using System;
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using System;
 using System.Collections.Generic;
 using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Driver.Encryption;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Examples
 {
@@ -136,7 +125,7 @@ namespace MongoDB.Driver.Examples
     {
         private const string LocalMasterKey = &amp;quot;Mng0NCt4ZHVUYUJCa1kxNkVyNUR1QURhZ2h2UzR2d2RrZzh0cFBwM3R6NmdWMDFBMUN3YkQ5aXRRMkhGRGdQV09wOGVNYUMxT2k3NjZKelhaQmRCZGJkTXVyZG9uSjFk&amp;quot;;
 
-        public void ClientSideEncryptionAutoEncryptionSettingsTour()
+        public static void Main(string[] args)
         {
             var localMasterKey = Convert.FromBase64String(LocalMasterKey);
 
@@ -601,31 +590,68 @@ The databaseName part of the connection string indicates which database the cred
 
 &lt;h3 id=&#34;x-509-authentication&#34;&gt;x.509 Authentication&lt;/h3&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://docs.mongodb.org/manual/core/authentication/#x-509-certificate-authentication&#34;&gt;x.509&lt;/a&gt; mechanism authenticates a user whose name is derived from the distinguished subject name of the x.509 certificate presented by the driver during SSL negotiation. This authentication method requires the use of &lt;a href=&#34;/mongo-csharp-driver/2.10/mongo-csharp-driver/2.10/reference/driver/ssl/&#34;&gt;SSL connections&lt;/a&gt; with certificate validation and is available in MongoDB 2.6 and newer. To create a credential of this type, use the following static factory method:&lt;/p&gt;
+&lt;p&gt;The &lt;a href=&#34;http://docs.mongodb.org/manual/core/authentication/#x-509-certificate-authentication&#34;&gt;x.509&lt;/a&gt; mechanism authenticates a user whose name is derived from the distinguished subject name of the x.509 certificate presented by the driver during SSL negotiation. This authentication method requires the use of &lt;a href=&#34;/mongo-csharp-driver/2.10/mongo-csharp-driver/2.10/reference/driver/ssl/&#34;&gt;SSL connections&lt;/a&gt; with certificate validation and is available in MongoDB 2.6 and newer.&lt;/p&gt;
+
+&lt;p&gt;There are two ways to create a credential of this type:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;Programmatically, using the following static factory method:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var credential = MongoCredential.CreateX509Credential(username);
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;Or via the connection string:&lt;/p&gt;
+&lt;p&gt;When configuring x.509 authentication programmatically, the &lt;code&gt;username&lt;/code&gt; parameter provided to &lt;code&gt;CreateX509Credential&lt;/code&gt; must match the distinguished subject name of your x.509 certificate &lt;em&gt;exactly&lt;/em&gt;. To determine the exact &lt;code&gt;username&lt;/code&gt; required for your x.509 connection, consult &lt;a href=&#34;http://docs.mongodb.org/manual/tutorial/configure-x509-client-authentication/#add-x-509-certificate-subject-as-a-user&#34;&gt;the MongoDB server x.509 tutorial&lt;/a&gt;. Alternatively, any &lt;code&gt;null&lt;/code&gt; &lt;code&gt;username&lt;/code&gt; parameter provided to &lt;code&gt;CreateX509Credential&lt;/code&gt; will cause the MongoDB server to infer a username based on the distinguished subject name of the x.509 certificate. Using a &lt;code&gt;null&lt;/code&gt; username value can help prevent issues when certificates are updated, since you can avoid managing a &lt;code&gt;username&lt;/code&gt; value and a certificate as separate entities in your environment.&lt;/p&gt;&lt;/li&gt;
 
-&lt;pre&gt;&lt;code&gt;mongodb://username@myserver/?authMechanism=MONGODB-X509
+&lt;li&gt;&lt;p&gt;Manually, using &lt;a href=&#34;https://docs.mongodb.com/manual/reference/connection-string/#connection-string-options&#34;&gt;connection string options&lt;/a&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mongodb://myserver/?authMechanism=MONGODB-X509
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;Even when using the connection string to provide the credential, the certificate must still be provided via code. This certificate can be pulled out of the trust stores on the box, or from a file. However, to be used with client authentication, the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.security.cryptography.x509certificates.x509certificate.aspx&#34;&gt;&lt;code&gt;X509Certificate&lt;/code&gt;&lt;/a&gt; provided to the driver must contain the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.security.cryptography.x509certificates.x509certificate2.privatekey.aspx&#34;&gt;&lt;code&gt;PrivateKey&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;When configuring x.509 authentication from a connection string, you must still provide the certificate programmatically via &lt;code&gt;MongoClientSettings&lt;/code&gt;. Any connection string specifying x.509 authentication must be imported into a &lt;code&gt;MongoClientSettings&lt;/code&gt; object using &lt;code&gt;MongoClientSettings.FromConnectionString&lt;/code&gt; to add the certificate to the configuration.&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var cert = new X509Certificate2(&amp;quot;client.pfx&amp;quot;, &amp;quot;mySuperSecretPassword&amp;quot;);
+&lt;p&gt;You can use certificates via the trust stores on your computer, or a PKCS #12 (&lt;code&gt;.pfx&lt;/code&gt;) file. To be used with client authentication, the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.security.cryptography.x509certificates.x509certificate.aspx&#34;&gt;&lt;code&gt;X509Certificate&lt;/code&gt;&lt;/a&gt; provided to the driver must contain the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.security.cryptography.x509certificates.x509certificate2.privatekey.aspx&#34;&gt;&lt;code&gt;PrivateKey&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
 
-var settings = new MongoClientSettings
+&lt;p&gt;For testing purposes, the &lt;code&gt;AllowInsecureTls&lt;/code&gt; field of your &lt;code&gt;MongoClientSettings&lt;/code&gt; can be set to &lt;code&gt;true&lt;/code&gt; to allow the use of self-signed certificates. Since this setting bypasses the validation of certificates entirely, it should never be used for production uses.&lt;/p&gt;
+
+&lt;p&gt;Connecting using a &lt;code&gt;MongoClientSettings&lt;/code&gt; object built from a connection string:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var connectionString = &amp;quot;mongodb://myserver/?authMechanism=MONGODB-X509&amp;quot;;
+var settings = MongoClientSettings.FromConnectionString(connectionString);
+
+settings.useTls = true;
+settings.SslSettings = new SslSettings
 {
-    Credentials = new[] 
+    ClientCertificates = new List&amp;lt;X509Certificate&amp;gt;()
     {
-        MongoCredential.CreateMongoX509Credential(&amp;quot;CN=client,OU=user,O=organization,L=Some City,ST=Some State,C=Some Country&amp;quot;)
-    },
+        new X509Certificate2(&amp;quot;client-certificate.pfx&amp;quot;, &amp;quot;password&amp;quot;)
+    }
+};
+
+// For testing using self-signed certs, use this option to skip validation.
+// DO NOT USE THIS OPTION FOR PRODUCTION USES
+settings.AllowInsecureTls = true;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Connecting using a &lt;code&gt;MongoClientSettings&lt;/code&gt; object built from scratch:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var settings = new MongoClientSettings 
+{
+    // if a username is null, the distinguished name from the certificate will be used
+    Credential =  MongoCredential.CreateMongoX509Credential(null),
     SslSettings = new SslSettings
     {
-        ClientCertificates = new[] { cert },
+        ClientCertificates = new List&amp;lt;X509Certificate&amp;gt;()
+        {
+            new X509Certificate2(&amp;quot;client-certificate.pfx&amp;quot;, &amp;quot;password&amp;quot;)
+        },
     },
-    UseSsl = true
+    UseTls = true,
+    Server = new MongoServerAddress(&amp;quot;myserver&amp;quot;, 27017),
+
+    // For testing using self-signed certs, use this option to skip validation.
+    // DO NOT USE THIS OPTION FOR PRODUCTION USES
+    AllowInsecureTls = true
 };
 &lt;/code&gt;&lt;/pre&gt;
 
@@ -1207,6 +1233,106 @@ Task AbortTransactionAsync(CancellationToken cancellationToken = default(Cancell
     </item>
     
     <item>
+      <title>Deleting and Renaming Files</title>
+      <link>/mongo-csharp-driver/2.10/reference/gridfs/deletingandrenamingfiles/</link>
+      <pubDate>Mon, 14 Sep 2015 00:00:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.10/reference/gridfs/deletingandrenamingfiles/</guid>
+      <description>
+
+&lt;h2 id=&#34;deleting-and-renaming-files&#34;&gt;Deleting and Renaming Files&lt;/h2&gt;
+
+&lt;p&gt;These methods allow you to delete or rename GridFS files.&lt;/p&gt;
+
+&lt;h3 id=&#34;deleting-a-single-file&#34;&gt;Deleting a single file&lt;/h3&gt;
+
+&lt;p&gt;Use the &lt;a href=&#34;/mongo-csharp-driver/2.10/mongo-csharp-driver/2.10/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_Delete.htm
+&#34;&gt;&lt;code&gt;Delete&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.10/mongo-csharp-driver/2.10/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_DeleteAsync.htm
+&#34;&gt;&lt;code&gt;DeleteAsync&lt;/code&gt;&lt;/a&gt; methods to delete a single file identified by its Id.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
+ObjectId id;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;bucket.Delete(id);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;await bucket.DeleteAsync(id);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;dropping-an-entire-gridfs-bucket&#34;&gt;Dropping an entire GridFS bucket&lt;/h3&gt;
+
+&lt;p&gt;Use the &lt;a href=&#34;/mongo-csharp-driver/2.10/mongo-csharp-driver/2.10/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_Drop.htm
+&#34;&gt;&lt;code&gt;Drop&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.10/mongo-csharp-driver/2.10/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_DropAsync.htm
+&#34;&gt;&lt;code&gt;DropAsync&lt;/code&gt;&lt;/a&gt; methods to drop an entire GridFS bucket at once.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;bucket.Drop();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;await bucket.DropAsync();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+The &amp;ldquo;fs.files&amp;rdquo; collection will be dropped first, followed by the &amp;ldquo;fs.chunks&amp;rdquo; collection. This is the fastest way to delete all files stored in a GridFS bucket at once.
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;h3 id=&#34;renaming-a-single-file&#34;&gt;Renaming a single file&lt;/h3&gt;
+
+&lt;p&gt;Use the &lt;a href=&#34;/mongo-csharp-driver/2.10/mongo-csharp-driver/2.10/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_Rename.htm
+&#34;&gt;&lt;code&gt;Rename&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.10/mongo-csharp-driver/2.10/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_RenameAsync.htm
+&#34;&gt;&lt;code&gt;RenameAsync&lt;/code&gt;&lt;/a&gt; methods to rename a single file identified by its Id.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
+ObjectId id;
+string newFilename;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;bucket.Rename(id, newFilename);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;await bucket.RenameAsync(id, newFilename);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;renaming-all-revisions-of-a-file&#34;&gt;Renaming all revisions of a file&lt;/h3&gt;
+
+&lt;p&gt;To rename all revisions of a file you first use the &lt;a href=&#34;/mongo-csharp-driver/2.10/mongo-csharp-driver/2.10/apidocs/html/_MongoDB_Driver_GridFS_IGridFSBucket_Find.htm
+&#34;&gt;&lt;code&gt;Find&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.10/mongo-csharp-driver/2.10/apidocs/html/_MongoDB_Driver_GridFS_IGridFSBucket_FindAsync.htm
+&#34;&gt;&lt;code&gt;FindAsync&lt;/code&gt;&lt;/a&gt; method to find all the revisions, and then loop over the revisions and use the &lt;a href=&#34;/mongo-csharp-driver/2.10/mongo-csharp-driver/2.10/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_Rename.htm
+&#34;&gt;&lt;code&gt;Rename&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.10/mongo-csharp-driver/2.10/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_RenameAsync.htm
+&#34;&gt;&lt;code&gt;RenameAsync&lt;/code&gt;&lt;/a&gt; method to rename each revision one at a time.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
+string oldFilename;
+string newFilename;
+var filter = Builders&amp;lt;GridFSFileInfo&amp;gt;.Filter.EQ(x =&amp;gt; x.Filename, oldFilename);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var filesCursor = bucket.Find(filter);
+var files = filesCursor.ToList();
+
+foreach (var file in files)
+{
+    bucket.Rename(file.Id, newFilename);
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var filesCursor = await bucket.FindAsync(filter);
+var files = await filesCursor.ToListAsync();
+
+foreach (var file in files)
+{
+    await bucket.RenameAsync(file.Id, newFilename);
+}
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
       <title>Downloading Files</title>
       <link>/mongo-csharp-driver/2.10/reference/gridfs/downloadingfiles/</link>
       <pubDate>Mon, 14 Sep 2015 00:00:00 +0000</pubDate>
@@ -1493,106 +1619,6 @@ var options = new GridFSFindOptions
 &lt;p&gt;In older drivers it was possible to store arbitrary information at the root level of a files collection document. If you need to access that information you can use the &lt;a href=&#34;/mongo-csharp-driver/2.10/mongo-csharp-driver/2.10/apidocs/html/P_MongoDB_Driver_GridFS_GridFSFileInfo_BackingDocument.htm
 &#34;&gt;&lt;code&gt;BackingDocument&lt;/code&gt;&lt;/a&gt; property to get access to the complete backing document. When uploading new GridFS files you should store any additional information you want to associate with the uploaded file inside the &lt;a href=&#34;/mongo-csharp-driver/2.10/mongo-csharp-driver/2.10/apidocs/html/P_MongoDB_Driver_GridFS_GridFSFileInfo_Metadata.htm
 &#34;&gt;&lt;code&gt;Metadata&lt;/code&gt;&lt;/a&gt; document.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Deleting and Renaming Files</title>
-      <link>/mongo-csharp-driver/2.10/reference/gridfs/deletingandrenamingfiles/</link>
-      <pubDate>Mon, 14 Sep 2015 00:00:00 +0000</pubDate>
-      
-      <guid>/mongo-csharp-driver/2.10/reference/gridfs/deletingandrenamingfiles/</guid>
-      <description>
-
-&lt;h2 id=&#34;deleting-and-renaming-files&#34;&gt;Deleting and Renaming Files&lt;/h2&gt;
-
-&lt;p&gt;These methods allow you to delete or rename GridFS files.&lt;/p&gt;
-
-&lt;h3 id=&#34;deleting-a-single-file&#34;&gt;Deleting a single file&lt;/h3&gt;
-
-&lt;p&gt;Use the &lt;a href=&#34;/mongo-csharp-driver/2.10/mongo-csharp-driver/2.10/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_Delete.htm
-&#34;&gt;&lt;code&gt;Delete&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.10/mongo-csharp-driver/2.10/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_DeleteAsync.htm
-&#34;&gt;&lt;code&gt;DeleteAsync&lt;/code&gt;&lt;/a&gt; methods to delete a single file identified by its Id.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
-ObjectId id;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;bucket.Delete(id);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;await bucket.DeleteAsync(id);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;dropping-an-entire-gridfs-bucket&#34;&gt;Dropping an entire GridFS bucket&lt;/h3&gt;
-
-&lt;p&gt;Use the &lt;a href=&#34;/mongo-csharp-driver/2.10/mongo-csharp-driver/2.10/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_Drop.htm
-&#34;&gt;&lt;code&gt;Drop&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.10/mongo-csharp-driver/2.10/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_DropAsync.htm
-&#34;&gt;&lt;code&gt;DropAsync&lt;/code&gt;&lt;/a&gt; methods to drop an entire GridFS bucket at once.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;bucket.Drop();
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;await bucket.DropAsync();
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
-&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-The &amp;ldquo;fs.files&amp;rdquo; collection will be dropped first, followed by the &amp;ldquo;fs.chunks&amp;rdquo; collection. This is the fastest way to delete all files stored in a GridFS bucket at once.
-&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;h3 id=&#34;renaming-a-single-file&#34;&gt;Renaming a single file&lt;/h3&gt;
-
-&lt;p&gt;Use the &lt;a href=&#34;/mongo-csharp-driver/2.10/mongo-csharp-driver/2.10/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_Rename.htm
-&#34;&gt;&lt;code&gt;Rename&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.10/mongo-csharp-driver/2.10/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_RenameAsync.htm
-&#34;&gt;&lt;code&gt;RenameAsync&lt;/code&gt;&lt;/a&gt; methods to rename a single file identified by its Id.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
-ObjectId id;
-string newFilename;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;bucket.Rename(id, newFilename);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;await bucket.RenameAsync(id, newFilename);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;renaming-all-revisions-of-a-file&#34;&gt;Renaming all revisions of a file&lt;/h3&gt;
-
-&lt;p&gt;To rename all revisions of a file you first use the &lt;a href=&#34;/mongo-csharp-driver/2.10/mongo-csharp-driver/2.10/apidocs/html/_MongoDB_Driver_GridFS_IGridFSBucket_Find.htm
-&#34;&gt;&lt;code&gt;Find&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.10/mongo-csharp-driver/2.10/apidocs/html/_MongoDB_Driver_GridFS_IGridFSBucket_FindAsync.htm
-&#34;&gt;&lt;code&gt;FindAsync&lt;/code&gt;&lt;/a&gt; method to find all the revisions, and then loop over the revisions and use the &lt;a href=&#34;/mongo-csharp-driver/2.10/mongo-csharp-driver/2.10/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_Rename.htm
-&#34;&gt;&lt;code&gt;Rename&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.10/mongo-csharp-driver/2.10/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_RenameAsync.htm
-&#34;&gt;&lt;code&gt;RenameAsync&lt;/code&gt;&lt;/a&gt; method to rename each revision one at a time.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
-string oldFilename;
-string newFilename;
-var filter = Builders&amp;lt;GridFSFileInfo&amp;gt;.Filter.EQ(x =&amp;gt; x.Filename, oldFilename);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var filesCursor = bucket.Find(filter);
-var files = filesCursor.ToList();
-
-foreach (var file in files)
-{
-    bucket.Rename(file.Id, newFilename);
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var filesCursor = await bucket.FindAsync(filter);
-var files = await filesCursor.ToListAsync();
-
-foreach (var file in files)
-{
-    await bucket.RenameAsync(file.Id, newFilename);
-}
-&lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>
     
@@ -2043,7 +2069,7 @@ These are heavy events to generate. Do not subscribe to these unless they provid
 &lt;h2 id=&#34;linq&#34;&gt;LINQ&lt;/h2&gt;
 
 &lt;p&gt;The driver contains an implementation of &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb397926.aspx&#34;&gt;LINQ&lt;/a&gt; that targets the &lt;a href=&#34;http://docs.mongodb.org/manual/aggregation
-&#34;&gt;aggregation framework&lt;/a&gt;. The aggregation framework holds a rich query language that maps very easily from a LINQ expression tree making it straightforward to understand the translation from a LINQ statement into an aggregation framework pipeline. To see a more complicated uses of LINQ from the driver, see the &lt;a href=&#34;﻿https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Tests/Samples/AggregationSample.cs
+&#34;&gt;aggregation framework&lt;/a&gt;. The aggregation framework holds a rich query language that maps very easily from a LINQ expression tree making it straightforward to understand the translation from a LINQ statement into an aggregation framework pipeline. To see a more complicated uses of LINQ from the driver, see the &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Tests/Samples/AggregationSample.cs
 &#34;&gt;AggregationSample&lt;/a&gt; source code.&lt;/p&gt;
 
 &lt;p&gt;For the rest of this page, we&amp;rsquo;ll use the following class:&lt;/p&gt;
@@ -2359,7 +2385,7 @@ var query = collection.AsQueryable()
 
 &lt;h3 id=&#34;supported-methods&#34;&gt;Supported Methods&lt;/h3&gt;
 
-&lt;p&gt;The method examples are shown in isolation, but they can be used and combined with all the other methods as well. You can view the tests for each of these methods in the &lt;a href=&#34;﻿https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Tests/Linq/MongoQueryableTests.cs
+&lt;p&gt;The method examples are shown in isolation, but they can be used and combined with all the other methods as well. You can view the tests for each of these methods in the &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Tests/Linq/MongoQueryableTests.cs
 &#34;&gt;MongoQueryableTests&lt;/a&gt;.&lt;/p&gt;
 
 &lt;h4 id=&#34;any&#34;&gt;Any&lt;/h4&gt;
