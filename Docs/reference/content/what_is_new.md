@@ -12,7 +12,8 @@ title = "What's New"
 
 Some of the changes in 2.10.0 include:
 
-* [Client-side field level encryption support]({{< relref "reference\driver\crud\client_side_encryption.md" >}}) for Windows 
+* [Client-side field level encryption support]({{< relref "reference\driver\crud\client_side_encryption.md" >}}) for Windows
+* Added new ReplaceOptions parameter for the ReplaceOne CRUD methods
 
 ## What's New in 2.9.0
 
@@ -111,7 +112,7 @@ ReadPreference has a new MaxStaleness property that can be used when reading fro
 
 ### New Linearizable ReadConcernLevel
 
-There is a new ReadConcernLevel called Linearizable in addition to the existing Local and Majority levels. You specify the read concern level by assigning a value to 
+There is a new ReadConcernLevel called Linearizable in addition to the existing Local and Majority levels. You specify the read concern level by assigning a value to
 the ReadConcernLevel property of a ReadConcern value.
 
 ### Support for collations
@@ -179,7 +180,7 @@ In earlier versions of the driver the aggregate fluent API had methods supportin
 executed when the aggregate fluent object was executed, but there was no way to build a standalone pipeline value.
 
 With the introduction of the CreateView method and Facet pipeline operators there is now a need to create
-pipelines separately from the aggregate fluent API. 
+pipelines separately from the aggregate fluent API.
 
 The new PipelineDefinitionBuilder class can be used to create pipelines.
 
@@ -209,7 +210,7 @@ The 2.3.0 driver is a minor release with few new features. The most notable is d
 
 You can now use the .NET driver with .NET Core.
 
-The Nuget packages target two versions of the .NET frameworks: net45 and netstandard1.5. The net45 target allows the driver to be used with the full .NET Framework 
+The Nuget packages target two versions of the .NET frameworks: net45 and netstandard1.5. The net45 target allows the driver to be used with the full .NET Framework
 version 4.5 and later, and the netstandard1.5 target allows the driver to be used with any framework that supports netstandard1.5, which includes .NET Core 1.0.
 
 ## What's New in 2.2.0
@@ -249,7 +250,7 @@ The 2.0.0 driver ships with a host of new features. The most notable are discuss
 ### Async
 
 As has been requested for a while now, the driver now offers a full async stack. Since it uses Tasks, it is fully usable
-with async and await. 
+with async and await.
 
 While we offer a mostly backwards-compatible sync API, it is calling into the async stack underneath. Until you are ready
 to move to async, you should measure against the 1.x versions to ensure performance regressions don't enter your codebase.
@@ -258,7 +259,7 @@ All new applications should utilize the New API.
 
 ### New API
 
-Because of our async nature, we have rebuilt our entire API. The new API is accessible via MongoClient.GetDatabase. 
+Because of our async nature, we have rebuilt our entire API. The new API is accessible via MongoClient.GetDatabase.
 
 - Interfaces are used ([`IMongoClient`]({{< apiref "T_MongoDB_Driver_IMongoClient" >}}), [`IMongoDatabase`]({{< apiref "T_MongoDB_Driver_IMongoDatabase" >}}), [`IMongoCollection<TDocument>`]({{< apiref "T_MongoDB_Driver_IMongoCollection_1" >}})) to support easier testing.
 - A fluent Find API is available with full support for expression trees including projections.
@@ -298,7 +299,7 @@ We've also include some experimental features which are subject to change. These
 #### Logging
 
 It is possible to see what is going on deep down in the driver by listening to core events. We've included a simple text logger as an example:
-	
+
 ``` csharp
 var settings = new MongoClientSettings
 {
