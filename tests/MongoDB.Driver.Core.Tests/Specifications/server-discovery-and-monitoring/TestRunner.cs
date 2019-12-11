@@ -14,15 +14,13 @@
 */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
+using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
@@ -43,9 +41,11 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
 
         [Theory]
         [ClassData(typeof(TestCaseFactory))]
-        public void RunTestDefinition(BsonDocument definition)
+        public void RunTestDefinition(JsonDrivenTestCase testCase)
         {
-            VerifyFields(definition, "description", "path", "phases", "uri");
+            var definition = testCase.Test;
+
+            JsonDrivenHelper.EnsureAllFieldsAreValid(definition, "description", "_path", "phases", "uri");
 
             _cluster = BuildCluster(definition);
             _cluster.Initialize();
@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
 
         private void ApplyPhase(BsonDocument phase)
         {
-            VerifyFields(phase, "outcome", "responses");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(phase, "outcome", "responses");
 
             var responses = phase["responses"].AsBsonArray;
             foreach (BsonArray response in responses)
@@ -80,7 +80,7 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
 
             var address = response[0].AsString;
             var isMasterDocument = response[1].AsBsonDocument;
-            VerifyFields(isMasterDocument, "arbiterOnly", "arbiters", "electionId", "hidden", "hosts", "ismaster", "isreplicaset", "logicalSessionTimeoutMinutes", "maxWireVersion", "me", "minWireVersion", "msg", "ok", "passive", "passives", "primary", "secondary", "setName", "setVersion");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(isMasterDocument, "arbiterOnly", "arbiters", "electionId", "hidden", "hosts", "ismaster", "isreplicaset", "logicalSessionTimeoutMinutes", "maxWireVersion", "me", "minWireVersion", "msg", "ok", "passive", "passives", "primary", "secondary", "setName", "setVersion");
 
             var endPoint = EndPointHelper.Parse(address);
             var isMasterResult = new IsMasterResult(isMasterDocument);
@@ -97,17 +97,6 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
             var currentClusterDescription = _cluster.Description;
             _serverFactory.PublishDescription(newServerDescription);
             SpinWait.SpinUntil(() => !object.ReferenceEquals(_cluster.Description, currentClusterDescription), 100); // sometimes returns false and that's OK
-        }
-
-        private void VerifyFields(BsonDocument document, params string[] expectedNames)
-        {
-            foreach (var name in document.Names)
-            {
-                if (!expectedNames.Contains(name))
-                {
-                    throw new FormatException($"Invalid field: \"{name}\".");
-                }
-            }
         }
 
         private void VerifyTopology(ICluster cluster, string expectedType)
@@ -141,7 +130,7 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
 
         private void VerifyOutcome(BsonDocument outcome)
         {
-            VerifyFields(outcome, "compatible", "logicalSessionTimeoutMinutes", "servers", "setName", "topologyType");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(outcome, "compatible", "logicalSessionTimeoutMinutes", "servers", "setName", "topologyType");
 
             var expectedTopologyType = (string)outcome["topologyType"];
             VerifyTopology(_cluster, expectedTopologyType);
@@ -194,7 +183,7 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
 
         private void VerifyServerDescription(ServerDescription actualDescription, BsonDocument expectedDescription)
         {
-            VerifyFields(expectedDescription, "electionId", "setName", "setVersion", "type");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(expectedDescription, "electionId", "setName", "setVersion", "type");
 
             var expectedType = (string)expectedDescription["type"];
             switch (expectedType)
@@ -282,37 +271,19 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
                 .CreateCluster();
         }
 
-        private class TestCaseFactory : IEnumerable<object[]>
+        private class TestCaseFactory : JsonDrivenTestCaseFactory
         {
-            public IEnumerator<object[]> GetEnumerator()
-            {
-                const string prefix = "MongoDB.Driver.Core.Tests.Specifications.server_discovery_and_monitoring.tests.";
-                const string monitoringPrefix = "MongoDB.Driver.Core.Tests.Specifications.server_discovery_and_monitoring.tests.monitoring.";
-                var executingAssembly = typeof(TestCaseFactory).GetTypeInfo().Assembly;
-                var enumerable = executingAssembly
-                    .GetManifestResourceNames()
-                    .Where(path => path.StartsWith(prefix) && path.EndsWith(".json"))
-                    .Where(path => !path.StartsWith(monitoringPrefix))
-                    .Select(path => ReadDefinition(path))
-                    .Select(definition => new object[] { definition });
-                return enumerable.GetEnumerator();
-            }
+            private readonly string __ignoredTestFolder = "MongoDB.Driver.Core.Tests.Specifications.server_discovery_and_monitoring.tests.monitoring.";
 
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return GetEnumerator();
-            }
+            protected override string PathPrefix => "MongoDB.Driver.Core.Tests.Specifications.server_discovery_and_monitoring.tests.";
 
-            private static BsonDocument ReadDefinition(string path)
+            protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)
             {
-                var executingAssembly = typeof(TestCaseFactory).GetTypeInfo().Assembly;
-                using (var definitionStream = executingAssembly.GetManifestResourceStream(path))
-                using (var definitionStringReader = new StreamReader(definitionStream))
+                var path = document["_path"].ToString();
+                if (!path.StartsWith(__ignoredTestFolder))
                 {
-                    var definitionString = definitionStringReader.ReadToEnd();
-                    var definition = BsonDocument.Parse(definitionString);
-                    definition.InsertAt(0, new BsonElement("path", path));
-                    return definition;
+                    var name = GetTestCaseName(document, document, 0);
+                    yield return new JsonDrivenTestCase(name, document, document);
                 }
             }
         }
