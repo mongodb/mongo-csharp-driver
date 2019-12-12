@@ -321,4 +321,4 @@ tests:
         # In reality, the outcome of the commit is unknown but we fabricate
         # the error with failCommand.errorCode which does not apply the commit
         # operation.
-data: []
+        data: []

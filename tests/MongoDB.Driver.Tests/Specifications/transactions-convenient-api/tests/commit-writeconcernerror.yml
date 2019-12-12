@@ -213,4 +213,4 @@ tests:
           errorLabelsOmit: ["TransientTransactionError"]
     expectations: *expectations_without_retries
     # failCommand with writeConcernError still applies the write operation(s)
-outcome: *outcome
+    outcome: *outcome
