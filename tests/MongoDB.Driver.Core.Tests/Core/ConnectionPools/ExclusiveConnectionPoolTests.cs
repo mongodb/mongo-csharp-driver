@@ -17,7 +17,9 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
@@ -62,12 +64,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 waitQueueSize: 1,
                 waitQueueTimeout: TimeSpan.FromSeconds(2));
 
-            _subject = new ExclusiveConnectionPool(
-                _serverId,
-                _endPoint,
-                _settings,
-                _mockConnectionFactory.Object,
-                _capturedEvents);
+            _subject = CreateSubject();
         }
 
         [Fact]
@@ -463,6 +460,66 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
         }
 
+        [Fact]
+        public void MaintainSizeAsync_should_call_connection_dispose_when_connection_authentication_fail()
+        {
+            var authenticationFailedConnection = new Mock<IConnection>();
+            authenticationFailedConnection
+                .Setup(c => c.OpenAsync(It.IsAny<CancellationToken>())) // an authentication exception is thrown from _connectionInitializer.InitializeConnection
+                                                                        // that in turn is called from OpenAsync
+                .Throws(new MongoAuthenticationException(new ConnectionId(_serverId), "test message"));
+
+            using (var subject = CreateSubject())
+            {
+                _mockConnectionFactory
+                    .Setup(f => f.CreateConnection(_serverId, _endPoint))
+                    .Returns(() =>
+                    {
+                        subject._maintenanceCancellationTokenSource().Cancel(); // Task.Delay will be canceled 
+                        return authenticationFailedConnection.Object;
+                    });
+
+                var _ = Record.Exception(() => subject.MaintainSizeAsync().GetAwaiter().GetResult());
+                authenticationFailedConnection.Verify(conn => conn.Dispose(), Times.Once);
+            }
+        }
+
+        [Fact]
+        public void MaintainSizeAsync_should_not_try_new_attempt_after_failing_without_delay()
+        {
+            var settings =_settings.With(maintenanceInterval: TimeSpan.FromSeconds(10));
+
+            using (var subject = CreateSubject(settings))
+            {
+                _mockConnectionFactory
+                    .SetupSequence(f => f.CreateConnection(_serverId, _endPoint))
+                    .Throws<Exception>()    // failed attempt
+                    .Returns(() =>          // successful attempt which should be delayed
+                    {
+                        // break the loop. With this line the MaintainSizeAsync will contain only 2 iterations
+                        subject._maintenanceCancellationTokenSource().Cancel();
+                        return new MockConnection(_serverId);
+                    });
+
+                var testResult = Task.WaitAny(
+                    subject.MaintainSizeAsync(),            // if this task is completed first, it will mean that there was no delay (10 sec) 
+                    Task.Delay(TimeSpan.FromSeconds(1)));   // time to be sure that delay is happening,
+                                                            // if the method is running more than 1 second, then delay is happening
+                testResult.Should().Be(1);
+            }
+        }
+
+        // private methods
+        private ExclusiveConnectionPool CreateSubject(ConnectionPoolSettings connectionPoolSettings = null)
+        {
+            return new ExclusiveConnectionPool(
+                _serverId,
+                _endPoint,
+                connectionPoolSettings ?? _settings,
+                _mockConnectionFactory.Object,
+                _capturedEvents);
+        }
+
         private void InitializeAndWait()
         {
             _subject.Initialize();
@@ -479,6 +536,19 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _subject.CreatedCount.Should().Be(_settings.MinConnections);
             _subject.DormantCount.Should().Be(_settings.MinConnections);
             _subject.UsedCount.Should().Be(0);
+        }
+    }
+
+    internal static class ExclusiveConnectionPoolReflector
+    {
+        public static CancellationTokenSource _maintenanceCancellationTokenSource(this ExclusiveConnectionPool obj)
+        {
+            return (CancellationTokenSource)Reflector.GetFieldValue(obj, nameof(_maintenanceCancellationTokenSource));
+        }
+
+        public static Task MaintainSizeAsync(this ExclusiveConnectionPool obj)
+        {
+            return (Task)Reflector.Invoke(obj, nameof(MaintainSizeAsync));
         }
     }
 }

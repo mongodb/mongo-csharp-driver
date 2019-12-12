@@ -258,13 +258,12 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 {
                     await PrunePoolAsync(maintenanceCancellationToken).ConfigureAwait(false);
                     await EnsureMinSizeAsync(maintenanceCancellationToken).ConfigureAwait(false);
-                    await Task.Delay(_settings.MaintenanceInterval, maintenanceCancellationToken).ConfigureAwait(false);
                 }
                 catch
                 {
-                    // do nothing, this is called in the background and, quite frankly, should never
-                    // result in an error
+                    // ignore exceptions
                 }
+                await Task.Delay(_settings.MaintenanceInterval, maintenanceCancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -322,7 +321,15 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     // when adding in a connection, we need to open it because 
                     // the whole point of having a min pool size is to have
                     // them available and ready...
-                    await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+                    try
+                    {
+                        await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+                    }
+                    catch (Exception)
+                    {
+                        connection.Dispose();
+                        throw;
+                    }
                     _connectionHolder.Return(connection);
                     stopwatch.Stop();
 
