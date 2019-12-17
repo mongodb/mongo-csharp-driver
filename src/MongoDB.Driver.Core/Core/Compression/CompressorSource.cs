@@ -42,10 +42,8 @@ namespace MongoDB.Driver.Core.Compression
         {
             switch (compressorType)
             {
-#if NET452 || NETSTANDARD2_0
                 case CompressorType.Snappy:
                     return true;
-#endif
                 case CompressorType.Zlib:
                     return true;
                 case CompressorType.Noop: // This is realistically only used for testing

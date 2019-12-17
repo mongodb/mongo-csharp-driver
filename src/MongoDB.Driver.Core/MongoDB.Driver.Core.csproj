@@ -42,6 +42,39 @@
     <RootNamespace>MongoDB.Driver</RootNamespace>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <NoWarn>NU5100</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="snappy64.dll" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <SnappyBinaries>Core/Compression/Snappy/lib/win</SnappyBinaries>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="$(SnappyBinaries)/snappy64.dll">
+      <Pack>true</Pack>
+      <PackagePath>x64/native/windows</PackagePath>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="$(SnappyBinaries)/snappy64.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>snappy64.dll</Link>
+    </Content>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Content Include="MongoDB.Driver.Core.targets">
+      <Pack>true</Pack>
+      <PackagePath>build</PackagePath>
+    </Content>
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="DnsClient" Version="1.2.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.2" PrivateAssets="All" />
@@ -50,9 +83,6 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
-    <PackageReference Include="Snappy.NET">
-      <Version>1.1.1.8</Version>
-    </PackageReference>
     <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
   </ItemGroup>
 

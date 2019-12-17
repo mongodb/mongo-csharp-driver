@@ -20,7 +20,6 @@ using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Compression;
-using Moq;
 using SharpCompress.IO;
 using Xunit;
 
@@ -32,11 +31,10 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
 
         [Theory]
         [InlineData(CompressorType.Snappy)]
-        public void Compressor_should_read_the_previously_written_message_or_throw_the_exception_if_the_current_platform_is_not_supported(CompressorType compressorType)
+        public void Compressor_should_read_the_previously_written_message(CompressorType compressorType)
         {
             var bytes = Encoding.ASCII.GetBytes(__testMessage);
             var compressor = GetCompressor(compressorType);
-#if NET452 || NETSTANDARD2_0
             Assert(
                 bytes,
                 (input, output) =>
@@ -54,15 +52,6 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
                     var result = Encoding.ASCII.GetString(input.ReadBytes((int)input.Length));
                     result.Should().Be(__testMessage);
                 });
-#else
-            var exception = Record.Exception(() => { compressor.Compress(Mock.Of<Stream>(), Mock.Of<Stream>()); });
-
-            exception.Should().BeOfType<NotSupportedException>();
-
-            exception = Record.Exception(() => { compressor.Decompress(Mock.Of<Stream>(), Mock.Of<Stream>()); });
-
-            exception.Should().BeOfType<NotSupportedException>();
-#endif
         }
 
         [Fact]

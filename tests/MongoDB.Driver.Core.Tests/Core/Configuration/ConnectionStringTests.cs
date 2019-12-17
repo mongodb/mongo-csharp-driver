@@ -350,11 +350,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.AuthMechanismProperties.Count.Should().Be(1);
             subject.AuthMechanismProperties["canonicalize_host_name"].Should().Be("true");
             subject.AuthSource.Should().Be("admin");
-#if NET452 || NETSTANDARD2_0
             var expectedCompressorTypes = new[] { CompressorType.Snappy, CompressorType.Zlib };
-#else
-            var expectedCompressorTypes = new[] { CompressorType.Zlib };
-#endif
             subject.Compressors.Select(x => x.Type).Should().Equal(expectedCompressorTypes);
             subject.Compressors.Single(x => x.Type == CompressorType.Zlib).Properties["Level"].Should().Be(4);
             subject.Connect.Should().Be(ClusterConnectionMode.ReplicaSet);

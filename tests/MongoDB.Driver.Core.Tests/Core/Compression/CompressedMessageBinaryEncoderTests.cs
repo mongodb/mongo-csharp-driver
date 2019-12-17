@@ -57,6 +57,7 @@ namespace MongoDB.Driver.Core.Compression
         [InlineData(CompressorType.Zlib, -1)]
         [InlineData(CompressorType.Zlib, 0)]
         [InlineData(CompressorType.Zlib, 6)]
+        [InlineData(CompressorType.Snappy, null)]
         public void Encoder_should_read_the_previously_written_message(
             CompressorType compressorType,
             object compressionOption)
@@ -89,40 +90,7 @@ namespace MongoDB.Driver.Core.Compression
             }
         }
 
-        [Theory]
-        [InlineData(CompressorType.Snappy)]
-        public void Encoder_should_read_the_previously_written_message_or_throw_the_exception_if_the_current_platform_is_not_supported(
-            CompressorType compressorType)
-        {
-            var message = CreateMessage(1, 2);
-
-            var compressedMessage = GetCompressedMessage(message, compressorType);
-            using (compressedMessage.OriginalMessageStream)
-            {
-                CompressorConfiguration compressionProperty = new CompressorConfiguration(compressorType);
-
-                using (var memoryStream = new MemoryStream())
-                {
-                    var subject = CreateSubject(memoryStream, compressionProperty);
-#if NET452 || NETSTANDARD2_0
-                    subject.WriteMessage(compressedMessage);
-                    memoryStream.Position = 0;
-                    var result = subject.ReadMessage();
-
-                    result.ShouldBeEquivalentTo(
-                        compressedMessage,
-                        options =>
-                            options
-                                .Excluding(p => p.OriginalMessageStream));
-#else
-                    var exception = Record.Exception(() => { subject.WriteMessage(compressedMessage); });
-                    
-                    exception.Should().BeOfType<NotSupportedException>();
-#endif
-                }
-            }
-        }
-
+        // private methods
         private CommandResponseMessage CreateMessage(
             int requestId = 0,
             int responseTo = 0,
