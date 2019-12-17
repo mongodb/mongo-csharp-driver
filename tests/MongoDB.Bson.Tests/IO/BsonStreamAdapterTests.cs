@@ -20,7 +20,6 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using Moq;
@@ -912,11 +911,12 @@ namespace MongoDB.Bson.Tests
             var bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
             var stream = new MemoryStream(bytes);
             var subject = new BsonStreamAdapter(stream);
-            var expectedResult = new ObjectId(0x01020304, 0x050607, 0x0809, 0x0a0b0c);
 
             var result = subject.ReadObjectId();
 
-            result.Should().Be(expectedResult);
+            result._a().Should().Be(0x01020304);
+            result._b().Should().Be(0x05060708);
+            result._c().Should().Be(0x090a0b0c);
         }
 
         [Fact]
@@ -1529,7 +1529,7 @@ namespace MongoDB.Bson.Tests
         {
             var stream = new MemoryStream();
             var subject = new BsonStreamAdapter(stream);
-            var value = new ObjectId(0x01020304, 0x050607, 0x0809, 0x0a0b0c);
+            var value = ObjectIdReflector.Create(0x01020304, 0x0506070809, 0x0a0b0c);
             var expectedBytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
 
             subject.WriteObjectId(value);

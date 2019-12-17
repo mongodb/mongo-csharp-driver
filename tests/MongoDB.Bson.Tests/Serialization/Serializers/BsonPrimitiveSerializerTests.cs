@@ -1047,7 +1047,9 @@ namespace MongoDB.Bson.Tests.Serialization
         [Fact]
         public void TestSerializer()
         {
+#pragma warning disable 618
             var objectId = new ObjectId(1, 2, 3, 4);
+#pragma warning restore 618
             var obj = new TestClass
             {
                 ObjectId = objectId,
