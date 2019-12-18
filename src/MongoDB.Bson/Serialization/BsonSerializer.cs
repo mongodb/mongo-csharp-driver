@@ -644,6 +644,7 @@ namespace MongoDB.Bson.Serialization
             Action<BsonSerializationContext.Builder> configurator = null,
             BsonSerializationArgs args = default(BsonSerializationArgs))
         {
+            args.SetOrValidateNominalType(typeof(TNominalType), "<TNominalType>");
             var serializer = LookupSerializer<TNominalType>();
             var context = BsonSerializationContext.CreateRoot(bsonWriter, configurator);
             serializer.Serialize(context, args, value);
@@ -664,6 +665,7 @@ namespace MongoDB.Bson.Serialization
             Action<BsonSerializationContext.Builder> configurator = null,
             BsonSerializationArgs args = default(BsonSerializationArgs))
         {
+            args.SetOrValidateNominalType(nominalType, "nominalType");
             var serializer = LookupSerializer(nominalType);
             var context = BsonSerializationContext.CreateRoot(bsonWriter, configurator);
             serializer.Serialize(context, args, value);

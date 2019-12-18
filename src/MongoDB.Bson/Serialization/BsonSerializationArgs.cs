@@ -74,5 +74,18 @@ namespace MongoDB.Bson.Serialization
             get { return _serializeIdFirst; }
             set { _serializeIdFirst = value; }
         }
+
+        // internal methods
+        internal void SetOrValidateNominalType(Type nominalType, string nominalTypeSource)
+        {
+            if (_nominalType == null)
+            {
+                _nominalType = nominalType;
+            }
+            else if (_nominalType != nominalType)
+            {
+                throw new ArgumentException($"args.NominalType must be equal to {nominalTypeSource}.", "args");
+            }
+        }
     }
 }
