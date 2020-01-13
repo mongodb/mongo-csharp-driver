@@ -124,12 +124,10 @@ namespace MongoDB.Driver.Core.Connections
 
         private void Connect(Socket socket, EndPoint endPoint, CancellationToken cancellationToken)
         {
-            var connected = false;
-            var cancelled = false;
-            var timedOut = false;
+            var state = 1; // 1 == connecting, 2 == connected, 3 == timedout, 4 == cancelled
 
-            using (var registration = cancellationToken.Register(() => { if (!connected) { cancelled = true; try { socket.Dispose(); } catch { } } }))
-            using (var timer = new Timer(_ => { if (!connected) { timedOut = true; try { socket.Dispose(); } catch { } } }, null, _settings.ConnectTimeout, Timeout.InfiniteTimeSpan))
+            using (new Timer(_ => ChangeState(3), null, _settings.ConnectTimeout, Timeout.InfiniteTimeSpan))
+            using (cancellationToken.Register(() => ChangeState(4)))
             {
                 try
                 {
@@ -143,43 +141,48 @@ namespace MongoDB.Driver.Core.Connections
                     {
                         socket.Connect(endPoint);
                     }
-                    connected = true;
-                    return;
+                    ChangeState(2); // note: might not actually go to state 2 if already in state 3 or 4
                 }
-                catch
+                catch when (state == 1)
                 {
-                    if (!cancelled && !timedOut)
-                    {
-                        try { socket.Dispose(); } catch { }
-                        throw;
-                    }
+                    try { socket.Dispose(); } catch { }
+                    throw;
                 }
+                catch when (state >= 3)
+                {
+                    // a timeout or operation cancelled exception will be thrown instead
+                }
+
+                if (state == 3)
+                {
+                    var message = string.Format("Timed out connecting to {0}. Timeout was {1}.", endPoint, _settings.ConnectTimeout);
+                    throw new TimeoutException(message);
+                }
+                if (state == 4) { throw new OperationCanceledException(); }
             }
 
-            try { socket.Dispose(); } catch { }
-
-            cancellationToken.ThrowIfCancellationRequested();
-            if (timedOut)
+            void ChangeState(int to)
             {
-                var message = string.Format("Timed out connecting to {0}. Timeout was {1}.", endPoint, _settings.ConnectTimeout);
-                throw new TimeoutException(message);
+                var from = Interlocked.CompareExchange(ref state, to, 1);
+                if (from == 1 && to >= 3)
+                {
+                    try { socket.Dispose(); } catch { } // disposing the socket aborts the connection attempt
+                }
             }
         }
 
         private async Task ConnectAsync(Socket socket, EndPoint endPoint, CancellationToken cancellationToken)
         {
-            var connected = false;
-            var cancelled = false;
-            var timedOut = false;
+            var state = 1; // 1 == connecting, 2 == connected, 3 == timedout, 4 == cancelled
 
-            using (var registration = cancellationToken.Register(() => { if (!connected) { cancelled = true; try { socket.Dispose(); } catch { } } }))
-            using (var timer = new Timer(_ => { if (!connected) { timedOut = true; try { socket.Dispose(); } catch { } } }, null, _settings.ConnectTimeout, Timeout.InfiniteTimeSpan))
+            using (new Timer(_ => ChangeState(3), null, _settings.ConnectTimeout, Timeout.InfiniteTimeSpan))
+            using (cancellationToken.Register(() => ChangeState(4)))
             {
                 try
                 {
                     var dnsEndPoint = endPoint as DnsEndPoint;
 #if NETSTANDARD1_5 || NETSTANDARD1_6
-                    await socket.ConnectAsync(endPoint).ConfigureAwait(false); // TODO: honor cancellationToken
+                    await socket.ConnectAsync(endPoint).ConfigureAwait(false);
 #else
                     if (dnsEndPoint != null)
                     {
@@ -191,26 +194,33 @@ namespace MongoDB.Driver.Core.Connections
                         await Task.Factory.FromAsync(socket.BeginConnect(endPoint, null, null), socket.EndConnect).ConfigureAwait(false);
                     }
 #endif
-                    connected = true;
-                    return;
+                    ChangeState(2); // note: might not actually go to state 2 if already in state 3 or 4
                 }
-                catch
+                catch when (state == 1)
                 {
-                    if (!cancelled && !timedOut)
-                    {
-                        try { socket.Dispose(); } catch { }
-                        throw;
-                    }
+                    try { socket.Dispose(); } catch { }
+                    throw;
                 }
+                catch when (state >= 3)
+                {
+                    // a timeout or operation cancelled exception will be thrown instead
+                }
+
+                if (state == 3)
+                {
+                    var message = string.Format("Timed out connecting to {0}. Timeout was {1}.", endPoint, _settings.ConnectTimeout);
+                    throw new TimeoutException(message);
+                }
+                if (state == 4) { throw new OperationCanceledException(); }
             }
 
-            try { socket.Dispose(); } catch { }
-
-            cancellationToken.ThrowIfCancellationRequested();
-            if (timedOut)
+            void ChangeState(int to)
             {
-                var message = string.Format("Timed out connecting to {0}. Timeout was {1}.", endPoint, _settings.ConnectTimeout);
-                throw new TimeoutException(message);
+                var from = Interlocked.CompareExchange(ref state, to, 1);
+                if (from == 1 && to >= 3)
+                {
+                    try { socket.Dispose(); } catch { } // disposing the socket aborts the connection attempt
+                }
             }
         }
 
