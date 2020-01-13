@@ -47,11 +47,16 @@ namespace MongoDB.Driver.Core.Misc
                 try
                 {
                     bytesRead = await stream.ReadAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
-                    ChangeState(2);
+                    ChangeState(2); // note: might not actually go to state 2 if already in state 3 or 4
+                }
+                catch when (state == 1)
+                {
+                    try { stream.Dispose(); } catch { }
+                    throw;
                 }
                 catch when (state >= 3)
                 {
-                    // a different exception will be thrown instead below
+                    // a timeout or operation cancelled exception will be thrown instead
                 }
 
                 if (state == 3) { throw new TimeoutException(); }
@@ -161,11 +166,16 @@ namespace MongoDB.Driver.Core.Misc
                 try
                 {
                     await stream.WriteAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
-                    ChangeState(2);
+                    ChangeState(2); // note: might not actually go to state 2 if already in state 3 or 4
+                }
+                catch when (state == 1)
+                {
+                    try { stream.Dispose(); } catch { }
+                    throw;
                 }
                 catch when (state >= 3)
                 {
-                    // a different exception will be thrown instead below
+                    // a timeout or operation cancelled exception will be thrown instead
                 }
 
                 if (state == 3) { throw new TimeoutException(); }
