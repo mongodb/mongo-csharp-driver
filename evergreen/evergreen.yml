@@ -359,10 +359,6 @@ axes:
   - id: version
     display_name: MongoDB Version
     values:
-      - id: "latest"
-        display_name: "latest"
-        variables:
-           VERSION: "latest"
       - id: "4.2"
         display_name: "4.2"
         variables:
