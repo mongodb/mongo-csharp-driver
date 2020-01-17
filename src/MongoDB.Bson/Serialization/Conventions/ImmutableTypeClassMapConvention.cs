@@ -29,25 +29,28 @@ namespace MongoDB.Bson.Serialization.Conventions
         public void Apply(BsonClassMap classMap)
         {
             var typeInfo = classMap.ClassType.GetTypeInfo();
-            if (typeInfo.IsAbstract)
-            {
-                return;
-            }
 
             if (typeInfo.GetConstructor(Type.EmptyTypes) != null)
             {
                 return;
             }
 
-            var properties = typeInfo.GetProperties(BindingFlags.Instance | BindingFlags.Public );
-            if (properties.Any(p => p.CanWrite))
+            var propertyBindingFlags = BindingFlags.Public | BindingFlags.Instance;
+            var properties = typeInfo.GetProperties(propertyBindingFlags);
+            if (properties.Any(CanWrite))
             {
                 return; // a type that has any writable properties is not immutable
             }
 
-            var anyConstructorsWereMapped = false;
-            foreach (var ctor in typeInfo.GetConstructors())
+            var anyConstructorsWereFound = false;
+            var constructorBindingFlags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance;
+            foreach (var ctor in typeInfo.GetConstructors(constructorBindingFlags))
             {
+                if (ctor.IsPrivate)
+                {
+                    continue; // do not consider private constructors
+                }
+
                 var parameters = ctor.GetParameters();
                 if (parameters.Length != properties.Length)
                 {
@@ -66,16 +69,26 @@ namespace MongoDB.Bson.Serialization.Conventions
                     continue;
                 }
 
-                classMap.MapConstructor(ctor);
+                if (ctor.IsPublic && !typeInfo.IsAbstract)
+                {
+                    // we need to save constructorInfo only for public constructors in non abstract classes
+                    classMap.MapConstructor(ctor);
+                }
 
-                anyConstructorsWereMapped = true;
+                anyConstructorsWereFound = true;
             }
 
-            if (anyConstructorsWereMapped)
+            if (anyConstructorsWereFound)
             {
-                // if any constructors were mapped by this convention then map all the properties also
+                // if any constructors were found by this convention
+                // then map all the properties from the ClassType inheritance level also
                 foreach (var property in properties)
                 {
+                    if (property.DeclaringType != classMap.ClassType)
+                    {
+                        continue;
+                    }
+
                     var memberMap = classMap.MapMember(property);
                     if (classMap.IsAnonymous)
                     {
@@ -84,6 +97,13 @@ namespace MongoDB.Bson.Serialization.Conventions
                     }
                 }
             }
+        }
+
+        // private methods
+        private bool CanWrite(PropertyInfo propertyInfo)
+        {
+            // CanWrite gets true even if a property has only a private setter
+            return propertyInfo.CanWrite && (propertyInfo.SetMethod?.IsPublic ?? false);
         }
     }
 }
