@@ -214,7 +214,9 @@ namespace MongoDB.Driver
                     MaxTime = args.MaxTime,
                     ReadConcern = _settings.ReadConcern,
                     RetryRequested = _server.Settings.RetryReads,
+#pragma warning disable 618
                     UseCursor = args.OutputMode == AggregateOutputMode.Cursor
+#pragma warning restore 618
                 };
                 return new AggregateEnumerable(this, operation, _settings.ReadPreference);
             }

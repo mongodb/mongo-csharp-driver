@@ -124,7 +124,9 @@ namespace MongoDB.Driver.Tests
                     {
                         new BsonDocument("$group", new BsonDocument { { "_id", "$x" }, { "count", new BsonDocument("$sum", 1) } })
                     },
+#pragma warning disable 618
                     OutputMode = AggregateOutputMode.Cursor,
+#pragma warning disable 618
                     BatchSize = 1
                 });
                 var results = query.ToList();

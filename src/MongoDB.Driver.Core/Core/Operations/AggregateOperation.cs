@@ -253,6 +253,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <value>
         /// A value indicating whether the server should use a cursor to return the results.
         /// </value>
+        [Obsolete("Server versions 3.6 and newer always use a cursor.")]
         public bool? UseCursor
         {
             get { return _useCursor; }
@@ -345,7 +346,7 @@ namespace MongoDB.Driver.Core.Operations
 
             if (Feature.AggregateCursorResult.IsSupported(connectionDescription.ServerVersion))
             {
-                var useCursor = _useCursor.GetValueOrDefault(true) || connectionDescription.ServerVersion >= new SemanticVersion(3, 5, 0);
+                var useCursor = _useCursor.GetValueOrDefault(true) || connectionDescription.ServerVersion >= new SemanticVersion(3, 6, 0);
                 if (useCursor)
                 {
                     command["cursor"] = new BsonDocument

@@ -82,7 +82,9 @@ namespace MongoDB.Driver
                 Hint = new BsonDocument("x", 1),
                 MaxAwaitTime = TimeSpan.FromSeconds(4),
                 MaxTime = TimeSpan.FromSeconds(3),
+#pragma warning disable 618
                 UseCursor = false
+#pragma warning restore 618
             };
             var cancellationToken = new CancellationTokenSource().Token;
             var renderedPipeline = RenderPipeline(subject, pipeline);
@@ -127,7 +129,9 @@ namespace MongoDB.Driver
             operation.ReadConcern.Should().Be(subject.Settings.ReadConcern);
             operation.RetryRequested.Should().BeTrue();
             operation.ResultSerializer.Should().BeSameAs(renderedPipeline.OutputSerializer);
+#pragma warning disable 618
             operation.UseCursor.Should().Be(options.UseCursor);
+#pragma warning restore 618
         }
 
         [Theory]
@@ -151,7 +155,9 @@ namespace MongoDB.Driver
                 Comment = "test",
                 Hint = new BsonDocument("x", 1),
                 MaxTime = TimeSpan.FromSeconds(3),
-                UseCursor = false,
+#pragma warning disable 618
+                UseCursor = false
+#pragma warning restore 618
             };
             var cancellationToken1 = new CancellationTokenSource().Token;
             var cancellationToken2 = new CancellationTokenSource().Token;

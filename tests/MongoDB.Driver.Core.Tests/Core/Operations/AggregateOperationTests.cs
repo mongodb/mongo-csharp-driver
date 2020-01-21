@@ -51,7 +51,9 @@ namespace MongoDB.Driver.Core.Operations
             subject.MaxAwaitTime.Should().NotHaveValue();
             subject.MaxTime.Should().NotHaveValue();
             subject.ReadConcern.IsServerDefault.Should().BeTrue();
+#pragma warning disable 618
             subject.UseCursor.Should().NotHaveValue();
+#pragma warning restore 618
             subject.RetryRequested.Should().BeFalse();
         }
 
@@ -108,7 +110,9 @@ namespace MongoDB.Driver.Core.Operations
             subject.MaxAwaitTime.Should().NotHaveValue();
             subject.MaxTime.Should().NotHaveValue();
             subject.ReadConcern.IsServerDefault.Should().BeTrue();
+#pragma warning disable 618
             subject.UseCursor.Should().NotHaveValue();
+#pragma warning restore 618
             subject.RetryRequested.Should().BeFalse();
         }
 
@@ -276,8 +280,10 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings);
 
+#pragma warning disable 618
             subject.UseCursor = true;
             var result = subject.UseCursor;
+#pragma warning restore 618
 
             result.Should().BeTrue();
         }
@@ -575,7 +581,9 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
             {
+#pragma warning disable 618
                 UseCursor = useCursor
+#pragma warning restore 618
             };
             var serverVersion = Feature.AggregateCursorResult.SupportedOrNotSupportedVersion(useServerVersionSupportingAggregateCursorResult);
 
@@ -901,7 +909,9 @@ namespace MongoDB.Driver.Core.Operations
             EnsureTestData();
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
             {
+#pragma warning disable 618
                 UseCursor = useCursor
+#pragma warning restore 618
             };
 
             var cursor = ExecuteOperation(subject, async);

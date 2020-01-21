@@ -121,6 +121,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets a value indicating whether to use a cursor.
         /// </summary>
+        [Obsolete("Server versions 3.6 and newer always use a cursor.")]
         public bool? UseCursor
         {
             get { return _useCursor; }

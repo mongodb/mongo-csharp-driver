@@ -470,7 +470,9 @@ namespace MongoDB.Driver
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
                 RetryRequested = _client.Settings.RetryReads,
+#pragma warning disable 618
                 UseCursor = options.UseCursor
+#pragma warning restore 618
             };
         }
 

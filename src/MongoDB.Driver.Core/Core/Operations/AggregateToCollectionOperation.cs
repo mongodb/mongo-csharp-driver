@@ -267,7 +267,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "collation", () => _collation.ToBsonDocument(), _collation != null },
                 { "readConcern", readConcern, readConcern != null },
                 { "writeConcern", writeConcern, writeConcern != null },
-                { "cursor", new BsonDocument(), serverVersion >= new SemanticVersion(3, 5, 0) },
+                { "cursor", new BsonDocument(), serverVersion >= new SemanticVersion(3, 6, 0) },
                 { "hint", () => _hint, _hint != null },
                 { "comment", () => _comment, _comment != null }
             };
