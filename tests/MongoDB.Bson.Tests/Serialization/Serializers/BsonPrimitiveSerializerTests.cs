@@ -15,7 +15,6 @@
 
 using System;
 using System.Linq;
-using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using Xunit;
@@ -39,6 +38,19 @@ namespace MongoDB.Bson.Tests.Serialization
             public bool L;
             [BsonRepresentation(BsonType.String)]
             public bool S;
+        }
+
+        public class TestClassWithPrivate
+        {
+            [BsonRepresentation(BsonType.String)]
+            private bool _b;
+
+            public TestClassWithPrivate(bool b)
+            {
+                _b = b;
+            }
+
+            public bool GetPrivateB() => _b;
         }
 
         [Fact]
@@ -72,6 +84,16 @@ namespace MongoDB.Bson.Tests.Serialization
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
+
+        [Fact]
+        public void TestPrivateFieldWithBsonRepresentation()
+        {
+            var testValue = true;
+            var json = $"{{ _b : '{testValue}' }}";
+
+            var deserialized = BsonSerializer.Deserialize<TestClassWithPrivate>(json);
+            Assert.Equal(testValue, deserialized.GetPrivateB());
+        }
     }
 
     public class DateTimeSerializerTests
@@ -93,6 +115,19 @@ namespace MongoDB.Bson.Tests.Serialization
             public DateTime DateOnlyString;
             [BsonDateTimeOptions(Representation = BsonType.Document)]
             public DateTime Document;
+        }
+
+        public class TestClassWithPrivateField
+        {
+            [BsonDateTimeOptions(Representation = BsonType.String)]
+            private DateTime _d;
+
+            public TestClassWithPrivateField(DateTime d)
+            {
+                _d = d;
+            }
+
+            public DateTime GetPrivateD() => _d;
         }
 
         private static string __expectedTemplate =
@@ -543,6 +578,16 @@ namespace MongoDB.Bson.Tests.Serialization
             Assert.Equal(DateTimeKind.Utc, rehydrated.DateOnlyString.Kind);
             Assert.Equal(DateTimeKind.Utc, rehydrated.Document.Kind);
         }
+
+        [Fact]
+        public void TestPrivateFieldWithBsonRepresentation()
+        {
+            var testValue = new DateTime(2020, 01, 01);
+            var json = $"{{ '_d' : '{testValue:yyyy-MM-ddTHH:mm:ss.FFFZ}' }}";
+
+            var deserialized = BsonSerializer.Deserialize<TestClassWithPrivateField>(json);
+            Assert.Equal(testValue, deserialized.GetPrivateD());
+        }
     }
 
     public class DoubleSerializerTests
@@ -556,6 +601,19 @@ namespace MongoDB.Bson.Tests.Serialization
             public double L;
             [BsonRepresentation(BsonType.String)]
             public double S;
+        }
+
+        public class TestClassWithPrivateField
+        {
+            [BsonRepresentation(BsonType.String)]
+            private double _d;
+
+            public TestClassWithPrivateField(double d)
+            {
+                _d = d;
+            }
+
+            public double GetPrivateD() => _d;
         }
 
         [Fact]
@@ -738,6 +796,16 @@ namespace MongoDB.Bson.Tests.Serialization
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
+
+        [Fact]
+        public void TestPrivateFieldWithBsonRepresentation()
+        {
+            var testValue = 5;
+            var json = $"{{ '_d' : '{testValue}' }}";
+
+            var deserialized = BsonSerializer.Deserialize<TestClassWithPrivateField>(json);
+            Assert.Equal(testValue, deserialized.GetPrivateD());
+        }
     }
 
     public class GuidSerializerTests
@@ -747,6 +815,19 @@ namespace MongoDB.Bson.Tests.Serialization
             public Guid Binary { get; set; }
             [BsonRepresentation(BsonType.String)]
             public Guid String { get; set; }
+        }
+
+        public class TestClassWithPrivate
+        {
+            [BsonRepresentation(BsonType.String)]
+            private Guid _b;
+
+            public TestClassWithPrivate(Guid b)
+            {
+                _b = b;
+            }
+
+            public Guid GetPrivateB() => _b;
         }
 
         [Fact]
@@ -791,6 +872,16 @@ namespace MongoDB.Bson.Tests.Serialization
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
+
+        [Fact]
+        public void TestPrivateFieldWithBsonRepresentation()
+        {
+            var testValue = new Guid("01020304-0506-0708-090a-0b0c0d0e0f10");
+            var json = $"{{ '_b' : '{testValue}' }}";
+
+            var deserialized = BsonSerializer.Deserialize<TestClassWithPrivate>(json);
+            Assert.Equal(testValue, deserialized.GetPrivateB());
+        }
     }
 
     public class Int32SerializerTests
@@ -807,6 +898,19 @@ namespace MongoDB.Bson.Tests.Serialization
             public int L;
             [BsonRepresentation(BsonType.String)]
             public int S;
+        }
+
+        public class TestClassWithPrivate
+        {
+            [BsonRepresentation(BsonType.String)]
+            private int _i;
+
+            public TestClassWithPrivate(int i)
+            {
+                _i = i;
+            }
+
+            public int GetPrivateI() => _i;
         }
 
         [Fact]
@@ -912,6 +1016,16 @@ namespace MongoDB.Bson.Tests.Serialization
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
+
+        [Fact]
+        public void TestPrivateFieldWithBsonRepresentation()
+        {
+            var testValue = 3;
+            var json = $"{{ '_i' : '{testValue}' }}";
+
+            var deserialized = BsonSerializer.Deserialize<TestClassWithPrivate>(json);
+            Assert.Equal(testValue, deserialized.GetPrivateI());
+        }
     }
 
     public class Int64SerializerTests
@@ -928,6 +1042,19 @@ namespace MongoDB.Bson.Tests.Serialization
             public long L;
             [BsonRepresentation(BsonType.String)]
             public long S;
+        }
+
+        public class TestClassWithPrivate
+        {
+            [BsonRepresentation(BsonType.String)]
+            private long _i;
+
+            public TestClassWithPrivate(long i)
+            {
+                _i = i;
+            }
+
+            public long GetPrivateI() => _i;
         }
 
         [Fact]
@@ -1033,6 +1160,16 @@ namespace MongoDB.Bson.Tests.Serialization
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
+
+        [Fact]
+        public void TestPrivateFieldWithBsonRepresentation()
+        {
+            var testValue = long.MaxValue;
+            var json = $"{{ '_i' : '{testValue}' }}";
+
+            var deserialized = BsonSerializer.Deserialize<TestClassWithPrivate>(json);
+            Assert.Equal(testValue, deserialized.GetPrivateI());
+        }
     }
 
     public class ObjectIdSerializerTests
@@ -1042,6 +1179,19 @@ namespace MongoDB.Bson.Tests.Serialization
             public ObjectId ObjectId { get; set; }
             [BsonRepresentation(BsonType.String)]
             public ObjectId String { get; set; }
+        }
+
+        public class TestClassWithPrivate
+        {
+            [BsonRepresentation(BsonType.String)]
+            private ObjectId _o;
+
+            public TestClassWithPrivate(ObjectId o)
+            {
+                _o = o;
+            }
+
+            public ObjectId GetPrivateO() => _o;
         }
 
         [Fact]
@@ -1066,6 +1216,18 @@ namespace MongoDB.Bson.Tests.Serialization
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
+
+        [Fact]
+        public void TestPrivateFieldWithBsonRepresentation()
+        {
+#pragma warning disable 618
+            var testValue = new ObjectId(1, 2, 3, 4);
+#pragma warning restore 618
+            var json = "{ '_o' : '000000010000020003000004' }";
+
+            var deserialized = BsonSerializer.Deserialize<TestClassWithPrivate>(json);
+            Assert.Equal(testValue, deserialized.GetPrivateO());
+        }
     }
 
     public class StringSerializerTests
@@ -1073,6 +1235,19 @@ namespace MongoDB.Bson.Tests.Serialization
         public class TestClass
         {
             public String String { get; set; }
+        }
+
+        public class TestClassWithPrivate
+        {
+            [BsonRepresentation(BsonType.String)]
+            private string _s;
+
+            public TestClassWithPrivate(string s)
+            {
+                _s = s;
+            }
+
+            public string GetPrivateS() => _s;
         }
 
         [Fact]
@@ -1121,6 +1296,16 @@ namespace MongoDB.Bson.Tests.Serialization
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Fact]
+        public void TestPrivateFieldWithBsonRepresentation()
+        {
+            var testValue = "test";
+            var json = $"{{ '_s' : '{testValue}' }}";
+
+            var deserialized = BsonSerializer.Deserialize<TestClassWithPrivate>(json);
+            Assert.Equal(testValue, deserialized.GetPrivateS());
         }
     }
 }

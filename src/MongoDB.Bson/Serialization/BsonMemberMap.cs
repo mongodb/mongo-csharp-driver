@@ -16,7 +16,6 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Reflection.Emit;
 using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization
@@ -580,18 +579,14 @@ namespace MongoDB.Bson.Serialization
                 throw new BsonSerializationException(message);
             }
 
-            var sourceType = fieldInfo.DeclaringType;
-            var method = new DynamicMethod("Set" + fieldInfo.Name, null, new[] { typeof(object), typeof(object) }, true);
-            var gen = method.GetILGenerator();
+            var objParameter = Expression.Parameter(typeof(object), "obj");
+            var valueParameter = Expression.Parameter(typeof(object), "value");
+            var field = Expression.Field(Expression.Convert(objParameter, fieldInfo.DeclaringType), fieldInfo);
+            var value = Expression.Convert(valueParameter, fieldInfo.FieldType);
+            var body = Expression.Assign(field, value);
 
-            gen.Emit(OpCodes.Ldarg_0);
-            gen.Emit(OpCodes.Castclass, sourceType);
-            gen.Emit(OpCodes.Ldarg_1);
-            gen.Emit(OpCodes.Unbox_Any, fieldInfo.FieldType);
-            gen.Emit(OpCodes.Stfld, fieldInfo);
-            gen.Emit(OpCodes.Ret);
-
-            return (Action<object, object>)method.CreateDelegate(typeof(Action<object, object>));
+            var lambda = Expression.Lambda<Action<object, object>>(body, objParameter, valueParameter);
+            return lambda.Compile();
         }
 
         private Func<object, object> GetGetter()

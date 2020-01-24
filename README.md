@@ -91,6 +91,7 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Bar Arnon                 https://github.com/I3arnon
 * Wan Bachtiar              https://github.com/sindbach
 * Mark Benvenuto            https://github.com/markbenvenuto
+* Jimmy Bogard              https://github.com/jbogard
 * Ross Buggins              https://github.com/rbugginsvia
 * Ethan Celletti            https://github.com/Gekctek
 * Bit Diffusion Limited     code@bitdiff.com
