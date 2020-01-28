@@ -15,8 +15,6 @@ var gitVersion = GitVersion();
 var solutionDirectory = MakeAbsolute(Directory("./"));
 var artifactsDirectory = solutionDirectory.Combine("artifacts");
 var artifactsBinDirectory = artifactsDirectory.Combine("bin");
-var artifactsBinNet452Directory = artifactsBinDirectory.Combine("net452");
-var artifactsBinNetStandard15Directory = artifactsBinDirectory.Combine("netstandard1.5");
 var artifactsDocsDirectory = artifactsDirectory.Combine("docs");
 var artifactsDocsApiDocsDirectory = artifactsDocsDirectory.Combine("ApiDocs-" + gitVersion.LegacySemVer);
 var artifactsDocsRefDocsDirectory = artifactsDocsDirectory.Combine("RefDocs-" + gitVersion.LegacySemVer);
@@ -75,7 +73,7 @@ Task("BuildArtifacts")
     .IsDependentOn("Build")
     .Does(() =>
     {
-        foreach (var targetFramework in new[] { "net452", "netstandard1.5" })
+        foreach (var targetFramework in new[] { "net452", "netstandard1.5", "netstandard2.0" })
         {
             var toDirectory = artifactsBinDirectory.Combine(targetFramework);
             CleanDirectory(toDirectory);

@@ -226,9 +226,11 @@ namespace MongoDB.Driver.Core.Connections
             {
             }
 
+#if !NETCOREAPP1_1
             public TestSocket(SocketInformation socketInformation) : base(socketInformation)
             {
             }
+#endif
 
             protected override void Dispose(bool disposing)
             {

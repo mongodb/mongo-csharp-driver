@@ -16,7 +16,9 @@
 using System;
 using FluentAssertions;
 using System.Globalization;
+#if !NETCOREAPP1_1
 using System.Threading;
+#endif
 using Xunit;
 
 namespace MongoDB.Bson.Tests
@@ -122,6 +124,7 @@ namespace MongoDB.Bson.Tests
             exception.Should().BeOfType<OverflowException>();
         }
 
+#if !NETCOREAPP1_1
         [Theory]
         [InlineData("123.456", 123.456)]
         public void ToDouble_should_not_depend_on_current_culture(string valueString, double expectedDouble)
@@ -161,6 +164,7 @@ namespace MongoDB.Bson.Tests
                 Thread.CurrentThread.CurrentCulture = currentCulture;
             }
         }
+#endif
 
         [Theory]
         [InlineData((byte)0, "0")]
