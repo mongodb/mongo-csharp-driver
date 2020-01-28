@@ -40,6 +40,8 @@ documentation.
 
 ## Examples
 
+### Automatic client-side encryption
+
 The following is a sample app that assumes the **key** and **schema** have
 already been created in MongoDB. The example uses a local key, however using AWS
 Key Management Service is also an option. The data in the `encryptedField` field
@@ -132,11 +134,13 @@ namespace MongoDB.Driver.Examples
                 keyVaultNamespace,
                 kmsProviders);
 
-            var clientEncryption = new ClientEncryption(clientEncryptionSettings);
-            var dataKeyId = clientEncryption.CreateDataKey("local", new DataKeyOptions(), CancellationToken.None);
-            var base64DataKeyId = Convert.ToBase64String(GuidConverter.ToBytes(dataKeyId, GuidRepresentation.Standard));
-            clientEncryption.Dispose();
+            Guid dataKeyId;
+            using (var clientEncryption = new ClientEncryption(clientEncryptionSettings))
+            {
+                dataKeyId = clientEncryption.CreateDataKey("local", new DataKeyOptions(), CancellationToken.None);
+            }
 
+            var base64DataKeyId = Convert.ToBase64String(GuidConverter.ToBytes(dataKeyId, GuidRepresentation.Standard));
             var collectionNamespace = CollectionNamespace.FromFullName("test.coll");
 
             var schemaMap = $@"{{
@@ -181,4 +185,149 @@ namespace MongoDB.Driver.Examples
 }
 ```
 
-**Coming soon:** An example using the community version and demonstrating explicit encryption/decryption.
+### Explicit Encryption and Decryption
+
+Explicit encryption and decryption is a **MongoDB Community Server** feature and does not use the `mongocryptd` process. Explicit encryption is provided by the `ClientEncryption` class. The following example has been adapted from [`ExplicitEncryptionExamples.cs`](https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Examples/ExplicitEncryptionExamples.cs):
+
+```csharp
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using MongoDB.Driver.Encryption;
+using MongoDB.Libmongocrypt;
+
+namespace MongoDB.Driver.Examples
+{
+    public class ExplicitEncryptionExamples
+    {
+        private const string LocalMasterKey = "Mng0NCt4ZHVUYUJCa1kxNkVyNUR1QURhZ2h2UzR2d2RrZzh0cFBwM3R6NmdWMDFBMUN3YkQ5aXRRMkhGRGdQV09wOGVNYUMxT2k3NjZKelhaQmRCZGJkTXVyZG9uSjFk";
+
+        public static void Main(string[] args)
+        {
+            var localMasterKey = Convert.FromBase64String(LocalMasterKey);
+            var kmsProviders = new Dictionary<string, IReadOnlyDictionary<string, object>>();
+            var localKey = new Dictionary<string, object>
+            {
+                { "key", localMasterKey }
+            };
+            kmsProviders.Add("local", localKey);
+
+            var keyVaultNamespace = CollectionNamespace.FromFullName("admin.datakeys");
+            var keyVaultClient = new MongoClient("mongodb://localhost");
+            var keyVaultDatabase = keyVaultClient.GetDatabase(keyVaultNamespace.DatabaseNamespace.DatabaseName);
+            keyVaultDatabase.DropCollection(keyVaultNamespace.CollectionName);
+
+            // Create the ClientEncryption instance
+            var clientEncryptionSettings = new ClientEncryptionOptions(
+                keyVaultClient,
+                keyVaultNamespace,
+                kmsProviders);
+            using (var clientEncryption = new ClientEncryption(clientEncryptionSettings))
+            {
+                var dataKeyId = clientEncryption.CreateDataKey(
+                    "local",
+                    new DataKeyOptions(),
+                    CancellationToken.None);
+
+                var originalString = "123456789";
+                Console.WriteLine($"Original string {originalString}.");
+
+                // Explicitly encrypt a field
+                var encryptOptions = new EncryptOptions(
+                    EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic.ToString(),
+                    keyId: dataKeyId);
+                var encryptedFieldValue = clientEncryption.Encrypt(
+                    originalString,
+                    encryptOptions,
+                    CancellationToken.None);
+                Console.WriteLine($"Encrypted value {encryptedFieldValue}.");
+
+                // Explicitly decrypt the field
+                var decryptedValue = clientEncryption.Decrypt(encryptedFieldValue, CancellationToken.None);
+                Console.WriteLine($"Decrypted value {decryptedValue}.");
+            }
+        }
+    }
+}
+```
+
+### Explicit Encryption and Auto Decryption
+
+Although automatic encryption requires MongoDB 4.2 Enterprise Server or a MongoDB 4.2 Atlas cluster, automatic decryption is supported for all users. To configure automatic decryption without automatic encryption set `bypassAutoEncryption=true`. The following example has been adapted from [`ExplicitEncryptionExamples.cs`](https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Examples/ExplicitEncryptionExamples.cs):
+
+```csharp
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using MongoDB.Bson;
+using MongoDB.Driver.Encryption;
+using MongoDB.Libmongocrypt;
+
+namespace MongoDB.Driver.Examples
+{
+    public class ExplicitEncryptionAndAutoDecryptionExamples
+    {
+        private const string LocalMasterKey = "Mng0NCt4ZHVUYUJCa1kxNkVyNUR1QURhZ2h2UzR2d2RrZzh0cFBwM3R6NmdWMDFBMUN3YkQ5aXRRMkhGRGdQV09wOGVNYUMxT2k3NjZKelhaQmRCZGJkTXVyZG9uSjFk";
+
+        public static void Main(string[] args)
+        {
+            var localMasterKey = Convert.FromBase64String(LocalMasterKey);
+            var kmsProviders = new Dictionary<string, IReadOnlyDictionary<string, object>>();
+            var localKey = new Dictionary<string, object>
+            {
+                { "key", localMasterKey }
+            };
+            kmsProviders.Add("local", localKey);
+
+            var keyVaultNamespace = CollectionNamespace.FromFullName("admin.datakeys");
+            var collectionNamespace = CollectionNamespace.FromFullName("test.coll");
+            var autoEncryptionOptions = new AutoEncryptionOptions(
+                keyVaultNamespace,
+                kmsProviders,
+                bypassAutoEncryption: true);
+            var clientSettings = MongoClientSettings.FromConnectionString("mongodb://localhost");
+            clientSettings.AutoEncryptionOptions = autoEncryptionOptions;
+            var mongoClient = new MongoClient(clientSettings);
+            var database = mongoClient.GetDatabase(collectionNamespace.DatabaseNamespace.DatabaseName);
+            database.DropCollection(collectionNamespace.CollectionName);
+            var collection = database.GetCollection<BsonDocument>(collectionNamespace.CollectionName);
+
+            var keyVaultClient = new MongoClient("mongodb://localhost");
+            var keyVaultDatabase = keyVaultClient.GetDatabase(keyVaultNamespace.DatabaseNamespace.DatabaseName);
+            keyVaultDatabase.DropCollection(keyVaultNamespace.CollectionName);
+
+            // Create the ClientEncryption instance
+            var clientEncryptionSettings = new ClientEncryptionOptions(
+                keyVaultClient,
+                keyVaultNamespace,
+                kmsProviders);
+            using (var clientEncryption = new ClientEncryption(clientEncryptionSettings))
+            {
+                var dataKeyId = clientEncryption.CreateDataKey(
+                    "local",
+                    new DataKeyOptions(),
+                    CancellationToken.None);
+
+                var originalString = "123456789";
+                Console.WriteLine($"Original string {originalString}.");
+
+                // Explicitly encrypt a field
+                var encryptOptions = new EncryptOptions(
+                    EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic.ToString(),
+                    keyId: dataKeyId);
+                var encryptedFieldValue = clientEncryption.Encrypt(
+                    originalString,
+                    encryptOptions,
+                    CancellationToken.None);
+                Console.WriteLine($"Encrypted value {encryptedFieldValue}.");
+
+                collection.InsertOne(new BsonDocument("encryptedField", encryptedFieldValue));
+
+                // Automatically decrypts the encrypted field.
+                var decryptedValue = collection.Find(FilterDefinition<BsonDocument>.Empty).First();
+                Console.WriteLine($"Decrypted document {decryptedValue.ToJson()}.");
+            }
+        }
+    }
+}
+```
