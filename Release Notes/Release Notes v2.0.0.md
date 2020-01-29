@@ -8,7 +8,7 @@ https://github.com/mongodb/mongo-csharp-driver/blob/master/Release%20Notes/Relea
 
 The full list of JIRA issues resolved in this release is available at:
 
-https://jira.mongodb.org/issues/?filter=16826
+https://jira.mongodb.org/issues/?jql=project%20%3D%20CSHARP%20AND%20fixVersion%20%3D%202.0%20ORDER%20BY%20key%20ASC
 
 Documentation on the .NET driver can be found at:
 
@@ -21,7 +21,7 @@ Notable new features are listed below. For a full list, see the full list of JIR
 ### Async
 
 As has been requested for a while now, the driver now offers a full async stack. Since it uses Tasks, it is fully usable
-with async and await. 
+with async and await.
 
 While we offer a mostly backwards-compatible sync API, it is calling into the async stack underneath. Until you are ready
 to move to async, you should measure against the 1.x versions to ensure performance regressions don't enter your codebase.
@@ -31,7 +31,7 @@ All new applications should utilize the New API.
 
 ### New API
 
-Because of our async nature, we have rebuilt our entire API. The new API is accessible via MongoClient.GetDatabase. 
+Because of our async nature, we have rebuilt our entire API. The new API is accessible via MongoClient.GetDatabase.
 
 - Interfaces are used (`IMongoClient`, `IMongoDatabase`, `IMongoCollection<TDocument>`) to support easier testing.
 
@@ -94,7 +94,7 @@ As 2.0 is a major revision, there are some breaking changes when coming from the
 - [CSHARP-979](https://jira.mongodb.org/browse/CSHARP-979): `MongoConnectionStringBuilder` has been removed. Use the documented mongodb connection string format and/or `MongoUrlBuilder`.
 - `MongoServer` is a deprecated class. Anyone using `MongoClient.GetServer()` will encounter a deprecation warning and, depending on how your build is setup, may receive an error. It is still safe to use this API until your code is ported to the new API. *Note that this API requires the use of the [mongocsharpdriver](http://nuget.org/packages/mongocsharpdriver) to include the legacy API.
 - [CSHARP-1043](https://jira.mongodb.org/browse/CSHARP-1043) and [CSHARP-1044](https://jira.mongodb.org/browse/CSHARP-1044): `ReadPreference` and `WriteConcern` were rewritten. These classes are now immutable. Any current application code that sets values on these classes will no longer function. Instead, you should use the With method to alter a `ReadPreference` or `WriteConcern`.
-	
+
 	``` csharp
 	var writeConcern = myCurrentWriteConcern.With(journal: true);
 	```
