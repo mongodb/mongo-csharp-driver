@@ -218,7 +218,9 @@ functions:
           export FLE_AWS_ACCESS_KEY_ID=${FLE_AWS_ACCESS_KEY_ID}
           export FLE_AWS_SECRET_ACCESS_KEY=${FLE_AWS_SECRET_ACCESS_KEY}
           ${PREPARE_SHELL}
+          evergreen/add-certs.sh
           AUTH=${AUTH} SSL=${SSL} MONGODB_URI="${MONGODB_URI}" TOPOLOGY=${TOPOLOGY} OS=${OS} COMPRESSOR=${COMPRESSOR} evergreen/run-tests.sh
+          evergreen/remove-certs.sh
 
   run-atlas-connectivity-tests:
     - command: shell.exec
@@ -309,7 +311,7 @@ pre:
   - func: fix-absolute-paths
   - func: init-test-results
   - func: make-files-executable
-  
+
 post:
   # Removed, causing timeouts
   # - func: upload-working-dir
@@ -366,7 +368,7 @@ axes:
       - id: "4.2"
         display_name: "4.2"
         variables:
-           VERSION: "4.2"       
+           VERSION: "4.2"
       - id: "4.0"
         display_name: "4.0"
         variables:

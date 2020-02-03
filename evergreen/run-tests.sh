@@ -7,7 +7,7 @@ set -o errexit  # Exit the script with error if any of the commands fail
 #       AUTH                    Set to enable authentication. Values are: "auth" / "noauth" (default)
 #       SSL                     Set to enable SSL. Values are "ssl" / "nossl" (default)
 #       MONGODB_URI             Set the suggested connection MONGODB_URI (including credentials and topology info)
-#       TOPOLOGY                Allows you to modify variables and the MONGODB_URI based on test topology 
+#       TOPOLOGY                Allows you to modify variables and the MONGODB_URI based on test topology
 #                               Supported values: "server", "replica_set", "sharded_cluster"
 
 AUTH=${AUTH:-noauth}
@@ -25,9 +25,9 @@ provision_ssl () {
   uri_environment_variable_name=$1
   # Arguments for auth + SSL
   if [ "$AUTH" != "noauth" ] || [ "$TOPOLOGY" == "replica_set" ]; then
-    export $uri_environment_variable_name="${!uri_environment_variable_name}&ssl=true&sslVerifyCertificate=false"
+    export $uri_environment_variable_name="${!uri_environment_variable_name}&ssl=true"
   else
-    export $uri_environment_variable_name="${!uri_environment_variable_name}/?ssl=true&sslVerifyCertificate=false"
+    export $uri_environment_variable_name="${!uri_environment_variable_name}/?ssl=true"
   fi
 }
 
@@ -57,7 +57,7 @@ fi
 if [ "$SSL" != "nossl" ]; then
    provision_ssl MONGODB_URI
    if [ "$TOPOLOGY" == "sharded_cluster" ]; then
-     provision_ssl MONGODB_URI_WITH_MULTIPLE_MONGOSES  
+     provision_ssl MONGODB_URI_WITH_MULTIPLE_MONGOSES
    fi
 fi
 
@@ -80,7 +80,7 @@ echo "Final MongoDB_URI: $MONGODB_URI"
 if [ "$TOPOLOGY" == "sharded_cluster" ]; then
   echo "Final MongoDB URI with multiple mongoses: $MONGODB_URI_WITH_MULTIPLE_MONGOSES"
 fi
-for var in TMP TEMP NUGET_PACKAGES NUGET_HTTP_CACHE_PATH APPDATA; do 
-  export $var=z:\\data\\tmp; 
+for var in TMP TEMP NUGET_PACKAGES NUGET_HTTP_CACHE_PATH APPDATA; do
+  export $var=z:\\data\\tmp;
 done
 powershell.exe .\\build.ps1 -target ${TARGET}
