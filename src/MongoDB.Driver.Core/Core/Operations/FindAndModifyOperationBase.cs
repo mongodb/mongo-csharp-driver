@@ -204,9 +204,14 @@ namespace MongoDB.Driver.Core.Operations
         {
             var binaryReaderSettings = new BsonBinaryReaderSettings
             {
-                Encoding = _messageEncoderSettings.GetOrDefault<UTF8Encoding>(MessageEncoderSettingsName.ReadEncoding, Utf8Encodings.Strict),
-                GuidRepresentation = _messageEncoderSettings.GetOrDefault<GuidRepresentation>(MessageEncoderSettingsName.GuidRepresentation, GuidRepresentation.CSharpLegacy)
+                Encoding = _messageEncoderSettings.GetOrDefault<UTF8Encoding>(MessageEncoderSettingsName.ReadEncoding, Utf8Encodings.Strict)
             };
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                binaryReaderSettings.GuidRepresentation = _messageEncoderSettings.GetOrDefault<GuidRepresentation>(MessageEncoderSettingsName.GuidRepresentation, GuidRepresentation.CSharpLegacy);
+            }
+#pragma warning restore 618
 
             using (var stream = new ByteBufferStream(rawBsonDocument.Slice, ownsBuffer: false))
             using (var reader = new BsonBinaryReader(stream, binaryReaderSettings))

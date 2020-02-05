@@ -163,8 +163,7 @@ namespace MongoDB.Bson.IO
             {
 #pragma warning disable 618
                 Encoding = _encoding,
-#pragma warning restore
-                GuidRepresentation = GuidRepresentation,
+#pragma warning restore 618
                 Indent = _indent,
                 IndentChars = _indentChars,
                 MaxSerializationDepth = MaxSerializationDepth,
@@ -172,6 +171,12 @@ namespace MongoDB.Bson.IO
                 OutputMode = _outputMode,
                 ShellVersion = _shellVersion
             };
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                clone.GuidRepresentation = GuidRepresentation;
+            }
+#pragma warning restore
             return clone;
         }
     }

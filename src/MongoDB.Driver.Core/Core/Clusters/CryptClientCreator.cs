@@ -95,7 +95,13 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 var schemaMapElements = _schemaMap.Select(c => new BsonElement(c.Key, c.Value));
                 var schemaDocument = new BsonDocument(schemaMapElements);
-                var writerSettings = new BsonBinaryWriterSettings { GuidRepresentation = GuidRepresentation.Unspecified };
+#pragma warning disable 618
+                var writerSettings = new BsonBinaryWriterSettings();
+                if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+                {
+                    writerSettings.GuidRepresentation = GuidRepresentation.Unspecified;
+                }
+#pragma warning restore 618
                 schemaBytes = schemaDocument.ToBson(writerSettings: writerSettings);
             }
 

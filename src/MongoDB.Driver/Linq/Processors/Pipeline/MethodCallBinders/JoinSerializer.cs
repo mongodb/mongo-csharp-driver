@@ -148,6 +148,16 @@ namespace MongoDB.Driver.Linq.Processors.Pipeline.MethodCallBinders
                 return _parent.IsAtEndOfFile();
             }
 
+            public void PopSettings()
+            {
+                _parent.PopSettings();
+            }
+
+            public void PushSettings(Action<BsonReaderSettings> configurator)
+            {
+                _parent.PushSettings(configurator);
+            }
+
             public BsonBinaryData ReadBinaryData()
             {
                 return _parent.ReadBinaryData();

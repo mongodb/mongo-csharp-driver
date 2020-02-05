@@ -52,7 +52,6 @@ namespace MongoDB.Driver.Tests
                 ConnectTimeout = TimeSpan.FromSeconds(1),
                 DatabaseName = "database",
                 FSync = true,
-                GuidRepresentation = GuidRepresentation.PythonLegacy,
                 HeartbeatInterval = TimeSpan.FromMinutes(1),
                 HeartbeatTimeout = TimeSpan.FromMinutes(2),
                 IPv6 = true,
@@ -86,6 +85,12 @@ namespace MongoDB.Driver.Tests
                 WaitQueueTimeout = TimeSpan.FromSeconds(8),
                 WTimeout = TimeSpan.FromSeconds(9)
             };
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                built.GuidRepresentation = GuidRepresentation.PythonLegacy;
+            }
+#pragma warning restore 618
 
             var connectionString = "mongodb://username:password@host/database?" + string.Join(";", new[] {
                 "authMechanism=GSSAPI",
@@ -117,10 +122,16 @@ namespace MongoDB.Driver.Tests
                 "socketTimeout=7s",
                 "waitQueueSize=123",
                 "waitQueueTimeout=8s",
-                "uuidRepresentation=pythonLegacy",
                 "retryReads=false",
                 "retryWrites=true"
             });
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                var index = connectionString.IndexOf("retryReads=false;");
+                connectionString = connectionString.Insert(index, "uuidRepresentation=pythonLegacy;");
+            }
+#pragma warning restore 618
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
@@ -139,7 +150,12 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(TimeSpan.FromSeconds(1), builder.ConnectTimeout);
                 Assert.Equal("database", builder.DatabaseName);
                 Assert.Equal(true, builder.FSync);
-                Assert.Equal(GuidRepresentation.PythonLegacy, builder.GuidRepresentation);
+#pragma warning disable 618
+                if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+                {
+                    Assert.Equal(GuidRepresentation.PythonLegacy, builder.GuidRepresentation);
+                }
+#pragma warning restore 618
                 Assert.Equal(TimeSpan.FromMinutes(1), builder.HeartbeatInterval);
                 Assert.Equal(TimeSpan.FromMinutes(2), builder.HeartbeatTimeout);
                 Assert.Equal(true, builder.IPv6);
@@ -174,7 +190,18 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore 618
                 Assert.Equal(TimeSpan.FromSeconds(8), builder.WaitQueueTimeout);
                 Assert.Equal(TimeSpan.FromSeconds(9), builder.WTimeout);
-                Assert.Equal(connectionString, builder.ToString());
+                var expectedConnectionString = connectionString;
+#pragma warning disable 618
+                if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+                {
+                    var defaultGuidRepresentation = BsonDefaults.GuidRepresentation;
+                    if (builder.GuidRepresentation == defaultGuidRepresentation)
+                    {
+                        expectedConnectionString = expectedConnectionString.Replace("uuidRepresentation=pythonLegacy;", "");
+                    }
+                }
+#pragma warning restore 618
+                Assert.Equal(expectedConnectionString, builder.ToString());
             }
         }
 
@@ -426,7 +453,12 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(MongoDefaults.ConnectTimeout, builder.ConnectTimeout);
                 Assert.Equal(null, builder.DatabaseName);
                 Assert.Equal(null, builder.FSync);
-                Assert.Equal(MongoDefaults.GuidRepresentation, builder.GuidRepresentation);
+#pragma warning disable 618
+                if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+                {
+                    Assert.Equal(MongoDefaults.GuidRepresentation, builder.GuidRepresentation);
+                }
+#pragma warning restore 618
                 Assert.Equal(ServerSettings.DefaultHeartbeatInterval, builder.HeartbeatInterval);
                 Assert.Equal(ServerSettings.DefaultHeartbeatTimeout, builder.HeartbeatTimeout);
                 Assert.Equal(false, builder.IPv6);
@@ -566,15 +598,26 @@ namespace MongoDB.Driver.Tests
         [InlineData(GuidRepresentation.Unspecified, "mongodb://localhost/?{1}={0}", new[] { "unspecified", "Unspecified" }, new[] { "uuidRepresentation", "guids" })]
         public void TestGuidRepresentation(GuidRepresentation? guidRepresentation, string formatString, string[] values, string[] uuidAliases)
         {
-            var built = new MongoUrlBuilder { Server = _localhost };
-            if (guidRepresentation != null) { built.GuidRepresentation = guidRepresentation.Value; }
-
-            var canonicalConnectionString = string.Format(formatString, values[0], "uuidRepresentation").Replace("/?uuidRepresentation=csharpLegacy", "");
-            foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values, uuidAliases))
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
             {
-                Assert.Equal(guidRepresentation ?? MongoDefaults.GuidRepresentation, builder.GuidRepresentation);
-                Assert.Equal(canonicalConnectionString, builder.ToString());
+                var built = new MongoUrlBuilder { Server = _localhost };
+                if (guidRepresentation != null) { built.GuidRepresentation = guidRepresentation.Value; }
+
+                var canonicalConnectionString = "mongodb://localhost";
+                var defaultGuidRepresentation = BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2 ? BsonDefaults.GuidRepresentation : GuidRepresentation.Unspecified;
+                if (built.GuidRepresentation != defaultGuidRepresentation)
+                {
+                    canonicalConnectionString += $"/?uuidRepresentation={(guidRepresentation == GuidRepresentation.CSharpLegacy ? "csharpLegacy" : MongoUtils.ToCamelCase(guidRepresentation.ToString()))}";
+                }
+
+                foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values, uuidAliases))
+                {
+                    Assert.Equal(guidRepresentation ?? MongoDefaults.GuidRepresentation, builder.GuidRepresentation);
+                    Assert.Equal(canonicalConnectionString, builder.ToString());
+                }
             }
+#pragma warning restore 618
         }
 
         [Theory]

@@ -70,7 +70,13 @@ namespace MongoDB.Bson.TestHelpers.JsonDrivenTests
         // private methods
         private BsonDocument DeserializeBsonDocument(string value)
         {
-            var jsonReaderSettings = new JsonReaderSettings { GuidRepresentation = GuidRepresentation.Unspecified };
+            var jsonReaderSettings = new JsonReaderSettings();
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                jsonReaderSettings.GuidRepresentation = GuidRepresentation.Unspecified;
+            }
+#pragma warning restore 618
             using (var jsonReader = new JsonReader(value, jsonReaderSettings))
             {
                 var context = BsonDeserializationContext.CreateRoot(jsonReader);
@@ -80,7 +86,13 @@ namespace MongoDB.Bson.TestHelpers.JsonDrivenTests
 
         private string SerializeBsonDocument(BsonDocument value)
         {
-            var jsonWriterSettings = new JsonWriterSettings { GuidRepresentation = GuidRepresentation.Unspecified };
+            var jsonWriterSettings = new JsonWriterSettings();
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                jsonWriterSettings.GuidRepresentation = GuidRepresentation.Unspecified;
+            }
+#pragma warning restore 618
             using (var stringWriter = new StringWriter())
             using (var jsonWriter = new JsonWriter(stringWriter, jsonWriterSettings))
             {

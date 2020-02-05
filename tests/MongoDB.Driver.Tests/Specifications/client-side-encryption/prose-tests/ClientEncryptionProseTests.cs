@@ -733,7 +733,12 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             Action<ClusterBuilder> clusterConfigurator = null)
         {
             var mongoClientSettings = DriverTestConfiguration.GetClientSettings().Clone();
-            mongoClientSettings.GuidRepresentation = GuidRepresentation.Unspecified;
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                mongoClientSettings.GuidRepresentation = GuidRepresentation.Unspecified;
+            }
+#pragma warning restore 618
             mongoClientSettings.ClusterConfigurator = clusterConfigurator;
 
             if (keyVaultNamespace != null || schemaMapDocument != null || kmsProviders != null || withExternalKeyVault)

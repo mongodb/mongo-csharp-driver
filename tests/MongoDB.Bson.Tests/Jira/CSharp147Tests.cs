@@ -14,8 +14,11 @@
 */
 
 using System;
-using MongoDB.Bson;
+using FluentAssertions;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.TestHelpers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira.CSharp147
@@ -33,13 +36,28 @@ namespace MongoDB.Bson.Tests.Jira.CSharp147
             public int A { get; set; }
         }
 
-        [Fact]
-        public void Test()
+        [Theory]
+        [ParameterAttributeData]
+        [ResetGuidModeAfterTest]
+        public void Test(
+            [ClassValues(typeof(GuidModeValues))] GuidMode mode)
         {
+            mode.Set();
+
+#pragma warning disable 618
             var p = new Parent { Child = new Child() };
             p.Child.A = 1;
-            var json = p.ToJson();
-            BsonSerializer.Deserialize<Parent>(json); // throws Unexpected element exception
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2 && BsonDefaults.GuidRepresentation != GuidRepresentation.Unspecified)
+            {
+                var json = p.ToJson(new JsonWriterSettings());
+                BsonSerializer.Deserialize<Parent>(json); // throws Unexpected element exception
+            }
+            else
+            {
+                var exception = Record.Exception(() => p.ToJson(new JsonWriterSettings()));
+                exception.Should().BeOfType<BsonSerializationException>();
+            }
+#pragma warning restore 618
         }
     }
 }

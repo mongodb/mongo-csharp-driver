@@ -2012,7 +2012,13 @@ namespace MongoDB.Driver
             // since we can't determine for sure whether it's a new document or not upsert it
             // the only safe way to get the serialized _id value needed for the query is to serialize the entire document
             var bsonDocument = new BsonDocument();
-            var writerSettings = new BsonDocumentWriterSettings { GuidRepresentation = _settings.GuidRepresentation };
+#pragma warning disable 618
+            var writerSettings = new BsonDocumentWriterSettings();
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                writerSettings.GuidRepresentation = _settings.GuidRepresentation;
+            }
+#pragma warning restore 618
             using (var bsonWriter = new BsonDocumentWriter(bsonDocument, writerSettings))
             {
                 var context = BsonSerializationContext.CreateRoot(bsonWriter);
@@ -2202,12 +2208,18 @@ namespace MongoDB.Driver
         // internal methods
         internal MessageEncoderSettings GetMessageEncoderSettings()
         {
-            return new MessageEncoderSettings
+            var messageEncoderSettings = new MessageEncoderSettings
             {
-                { MessageEncoderSettingsName.GuidRepresentation, _settings.GuidRepresentation },
                 { MessageEncoderSettingsName.ReadEncoding, _settings.ReadEncoding ?? Utf8Encodings.Strict },
                 { MessageEncoderSettingsName.WriteEncoding, _settings.WriteEncoding ?? Utf8Encodings.Strict }
             };
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                messageEncoderSettings.Add(MessageEncoderSettingsName.GuidRepresentation, _settings.GuidRepresentation);
+            }
+#pragma warning restore 618
+            return messageEncoderSettings;
         }
 
         // private methods

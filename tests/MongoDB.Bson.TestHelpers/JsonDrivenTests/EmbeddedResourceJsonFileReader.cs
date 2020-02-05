@@ -34,7 +34,13 @@ namespace MongoDB.Bson.TestHelpers.JsonDrivenTests
 
         protected virtual BsonDocument ReadJsonDocument(string path)
         {
-            var jsonReaderSettings = new JsonReaderSettings { GuidRepresentation = GuidRepresentation.Unspecified };
+            var jsonReaderSettings = new JsonReaderSettings();
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                jsonReaderSettings.GuidRepresentation = GuidRepresentation.Unspecified;
+            }
+#pragma warning restore 618
             using (var stream = Assembly.GetManifestResourceStream(path))
             using (var streamReader = new StreamReader(stream))
             using (var jsonReader = new JsonReader(streamReader, jsonReaderSettings))

@@ -124,10 +124,15 @@ namespace MongoDB.Bson.IO
             {
                 Encoding = _encoding,
                 FixOldBinarySubTypeOnOutput = _fixOldBinarySubTypeOnOutput,
-                GuidRepresentation = GuidRepresentation,
                 MaxDocumentSize = _maxDocumentSize,
                 MaxSerializationDepth = MaxSerializationDepth
             };
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                clone.GuidRepresentation = GuidRepresentation;
+            }
+#pragma warning restore 618
             return clone;
         }
     }

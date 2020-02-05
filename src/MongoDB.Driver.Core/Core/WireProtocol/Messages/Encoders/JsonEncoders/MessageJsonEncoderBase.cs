@@ -61,7 +61,12 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             var readerSettings = new JsonReaderSettings();
             if (_encoderSettings != null)
             {
-                readerSettings.GuidRepresentation = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.GuidRepresentation, GuidRepresentation.CSharpLegacy);
+#pragma warning disable 618
+                if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+                {
+                    readerSettings.GuidRepresentation = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.GuidRepresentation, GuidRepresentation.CSharpLegacy);
+                }
+#pragma warning restore 618
             }
             return new JsonReader(_textReader, readerSettings);
         }
@@ -80,7 +85,12 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             var writerSettings = new JsonWriterSettings();
             if (_encoderSettings != null)
             {
-                writerSettings.GuidRepresentation = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.GuidRepresentation, GuidRepresentation.CSharpLegacy);
+#pragma warning disable 618
+                if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+                {
+                    writerSettings.GuidRepresentation = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.GuidRepresentation, GuidRepresentation.CSharpLegacy);
+                }
+#pragma warning restore 618
                 writerSettings.Indent = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.Indent, false);
                 writerSettings.IndentChars = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.IndentChars, "");
                 writerSettings.MaxSerializationDepth = _encoderSettings.GetOrDefault(MessageEncoderSettingsName.MaxSerializationDepth, BsonDefaults.MaxSerializationDepth);

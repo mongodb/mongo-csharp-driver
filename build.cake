@@ -115,6 +115,17 @@ Task("Test")
         .Where(name => !name.ToString().Contains("Atlas")),
         testProject => 
     {
+        var testWithDefaultGuidRepresentationMode = Environment.GetEnvironmentVariable("TEST_WITH_DEFAULT_GUID_REPRESENTATION_MODE");
+        if (testWithDefaultGuidRepresentationMode != null)
+        {
+            Console.WriteLine($"TEST_WITH_DEFAULT_GUID_REPRESENTATION_MODE={testWithDefaultGuidRepresentationMode}");
+        }
+        var testWithDefaultGuidRepresentation = Environment.GetEnvironmentVariable("TEST_WITH_DEFAULT_GUID_REPRESENTATION");
+        if (testWithDefaultGuidRepresentation != null)
+        {
+            Console.WriteLine($"TEST_WITH_DEFAULT_GUID_REPRESENTATION={testWithDefaultGuidRepresentation}");
+        }
+
         DotNetCoreTest(
             testProject.FullPath,
             new DotNetCoreTestSettings {
@@ -124,6 +135,49 @@ Task("Test")
                 ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64")
             }
         );
+    });
+
+// currently we are not running this Task on Evergreen (only locally occassionally)
+Task("TestAllGuidRepresentations")
+    .IsDependentOn("Build")
+    .DoesForEach(
+        GetFiles("./**/*.Tests.csproj")
+        // .Where(name => name.ToString().Contains("Bson.Tests")) // uncomment to only test Bson
+        .Where(name => !name.ToString().Contains("Atlas")),
+        testProject => 
+    {
+        var modes = new string[][]
+        {
+            new[] { "V2", "Unspecified" },
+            new[] { "V2", "JavaLegacy" },
+            new[] { "V2", "Standard" },
+            new[] { "V2", "PythonLegacy" },
+            new[] { "V2", "CSharpLegacy" },
+            new[] { "V3", "Unspecified" }
+        };
+
+        foreach (var mode in modes)
+        {
+            var testWithGuidRepresentationMode = mode[0];
+            var testWithGuidRepresentation = mode[1];
+            Console.WriteLine($"TEST_WITH_DEFAULT_GUID_REPRESENTATION_MODE={testWithGuidRepresentationMode}");
+            Console.WriteLine($"TEST_WITH_DEFAULT_GUID_REPRESENTATION={testWithGuidRepresentation}");
+
+            DotNetCoreTest(
+                testProject.FullPath,
+                new DotNetCoreTestSettings {
+                    NoBuild = true,
+                    NoRestore = true,
+                    Configuration = configuration,
+                    ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
+                    EnvironmentVariables = new Dictionary<string, string>
+                    {
+                        { "TEST_WITH_DEFAULT_GUID_REPRESENTATION_MODE", testWithGuidRepresentationMode },
+                        { "TEST_WITH_DEFAULT_GUID_REPRESENTATION", testWithGuidRepresentation }
+                    }
+                }
+            );
+        }
     });
     
 Task("TestAtlasConnectivity")

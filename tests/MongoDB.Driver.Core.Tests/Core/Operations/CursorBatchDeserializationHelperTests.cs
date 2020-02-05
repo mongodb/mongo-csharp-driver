@@ -79,7 +79,13 @@ namespace MongoDB.Driver.Core.Operations
         public void DeserializeBatch_should_return_expected_result_when_GuidRepresentation_is_Standard()
         {
             var document = BsonDocument.Parse("{ batch : [ { a : HexData(4, \"0102030405060708090a0b0c0d0e0f10\") } ] }");
-            var writerSettings = new BsonBinaryWriterSettings { GuidRepresentation = GuidRepresentation.Standard };
+#pragma warning disable 618
+            var writerSettings = new BsonBinaryWriterSettings();
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                writerSettings.GuidRepresentation = GuidRepresentation.Standard;
+            }
+#pragma warning restore 618
             var bson = document.ToBson(writerSettings: writerSettings);
             var rawDocument = new RawBsonDocument(bson);
             var batch = (RawBsonArray)rawDocument["batch"];

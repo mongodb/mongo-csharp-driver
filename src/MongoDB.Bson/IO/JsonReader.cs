@@ -951,14 +951,23 @@ namespace MongoDB.Bson.IO
             VerifyToken(")");
             var bytes = Convert.FromBase64String(bytesToken.StringValue);
             var subType = (BsonBinarySubType)subTypeToken.Int32Value;
-            GuidRepresentation guidRepresentation;
-            switch (subType)
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
             {
-                case BsonBinarySubType.UuidLegacy: guidRepresentation = _jsonReaderSettings.GuidRepresentation; break;
-                case BsonBinarySubType.UuidStandard: guidRepresentation = GuidRepresentation.Standard; break;
-                default: guidRepresentation = GuidRepresentation.Unspecified; break;
+                GuidRepresentation guidRepresentation;
+                switch (subType)
+                {
+                    case BsonBinarySubType.UuidLegacy: guidRepresentation = _jsonReaderSettings.GuidRepresentation; break;
+                    case BsonBinarySubType.UuidStandard: guidRepresentation = GuidRepresentation.Standard; break;
+                    default: guidRepresentation = GuidRepresentation.Unspecified; break;
+                }
+                return new BsonBinaryData(bytes, subType, guidRepresentation);
             }
-            return new BsonBinaryData(bytes, subType, guidRepresentation);
+            else
+            {
+                return new BsonBinaryData(bytes, subType);
+            }
+#pragma warning restore 618
         }
 
         private BsonValue ParseBinDataExtendedJson()
@@ -980,15 +989,24 @@ namespace MongoDB.Bson.IO
 
             VerifyToken("}");
 
-            GuidRepresentation guidRepresentation;
-            switch (subType)
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
             {
-                case BsonBinarySubType.UuidLegacy: guidRepresentation = _jsonReaderSettings.GuidRepresentation; break;
-                case BsonBinarySubType.UuidStandard: guidRepresentation = GuidRepresentation.Standard; break;
-                default: guidRepresentation = GuidRepresentation.Unspecified; break;
-            }
+                GuidRepresentation guidRepresentation;
+                switch (subType)
+                {
+                    case BsonBinarySubType.UuidLegacy: guidRepresentation = _jsonReaderSettings.GuidRepresentation; break;
+                    case BsonBinarySubType.UuidStandard: guidRepresentation = GuidRepresentation.Standard; break;
+                    default: guidRepresentation = GuidRepresentation.Unspecified; break;
+                }
 
-            return new BsonBinaryData(bytes, subType, guidRepresentation);
+                return new BsonBinaryData(bytes, subType, guidRepresentation);
+            }
+            else
+            {
+                return new BsonBinaryData(bytes, subType);
+            }
+#pragma warning restore 618
         }
 
         private void ParseBinDataExtendedJsonCanonical(out byte[] bytes, out BsonBinarySubType subType)
@@ -1111,14 +1129,24 @@ namespace MongoDB.Bson.IO
             VerifyToken(")");
             var bytes = BsonUtils.ParseHexString(bytesToken.StringValue);
             var subType = (BsonBinarySubType)subTypeToken.Int32Value;
-            GuidRepresentation guidRepresentation;
-            switch (subType)
+
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
             {
-                case BsonBinarySubType.UuidLegacy: guidRepresentation = _jsonReaderSettings.GuidRepresentation; break;
-                case BsonBinarySubType.UuidStandard: guidRepresentation = GuidRepresentation.Standard; break;
-                default: guidRepresentation = GuidRepresentation.Unspecified; break;
+                GuidRepresentation guidRepresentation;
+                switch (subType)
+                {
+                    case BsonBinarySubType.UuidLegacy: guidRepresentation = _jsonReaderSettings.GuidRepresentation; break;
+                    case BsonBinarySubType.UuidStandard: guidRepresentation = GuidRepresentation.Standard; break;
+                    default: guidRepresentation = GuidRepresentation.Unspecified; break;
+                }
+                return new BsonBinaryData(bytes, subType, guidRepresentation);
             }
-            return new BsonBinaryData(bytes, subType, guidRepresentation);
+            else
+            {
+                return new BsonBinaryData(bytes, subType);
+            }
+#pragma warning restore 618
         }
 
         private BsonType ParseJavaScriptExtendedJson(out BsonValue value)
@@ -2066,8 +2094,18 @@ namespace MongoDB.Bson.IO
                     throw new BsonInternalException("Unexpected uuidConstructorName");
             }
             bytes = GuidConverter.ToBytes(guid, guidRepresentation);
-            var subType = (guidRepresentation == GuidRepresentation.Standard) ? BsonBinarySubType.UuidStandard : BsonBinarySubType.UuidLegacy;
-            return new BsonBinaryData(bytes, subType, guidRepresentation);
+            var subType = GuidConverter.GetSubType(guidRepresentation);
+
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                return new BsonBinaryData(bytes, subType, guidRepresentation);
+            }
+            else
+            {
+                return new BsonBinaryData(bytes, subType);
+            }
+#pragma warning restore 618
         }
 
         private JsonToken PopToken()

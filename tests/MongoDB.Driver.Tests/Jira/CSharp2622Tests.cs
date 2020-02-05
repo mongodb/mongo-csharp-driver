@@ -15,6 +15,7 @@
 
 using System;
 using FluentAssertions;
+using MongoDB.Bson;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira
@@ -41,14 +42,14 @@ namespace MongoDB.Driver.Tests.Jira
             insertedDocuments.Count.Should().Be(1);
             insertedDocuments[0].Should().BeOfType<D>();
             var insertedDocument = (D)insertedDocuments[0];
-            insertedDocument.Id.Should().NotBeEmpty();
+            insertedDocument.Id.Should().NotBe(ObjectId.Empty);
             insertedDocument.X.Should().Be(1);
         }
 
         // nested types
         public class C
         {
-            public Guid Id { get; set; }
+            public ObjectId Id { get; set; }
         }
 
         public class D : C

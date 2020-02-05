@@ -893,12 +893,18 @@ namespace MongoDB.Driver
 
         private MessageEncoderSettings GetMessageEncoderSettings()
         {
-            return new MessageEncoderSettings
+            var messageEncoderSettings = new MessageEncoderSettings
             {
-                { MessageEncoderSettingsName.GuidRepresentation, _settings.GuidRepresentation },
                 { MessageEncoderSettingsName.ReadEncoding, _settings.ReadEncoding ?? Utf8Encodings.Strict },
                 { MessageEncoderSettingsName.WriteEncoding, _settings.WriteEncoding ?? Utf8Encodings.Strict }
             };
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                messageEncoderSettings.Add(MessageEncoderSettingsName.GuidRepresentation, _settings.GuidRepresentation);
+            }
+#pragma warning restore 618
+            return messageEncoderSettings;
         }
 
         private void OnClusterDescriptionChanged(object sender, EventArgs args)

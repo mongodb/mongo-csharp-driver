@@ -74,6 +74,28 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
+        /// Gets the sub type that corresponds to the guidRepresentation.
+        /// </summary>
+        /// <param name="guidRepresentation">The Guid representation.</param>
+        /// <returns>The sub type.</returns>
+        public static BsonBinarySubType GetSubType(GuidRepresentation guidRepresentation)
+        {
+            switch (guidRepresentation)
+            {
+                case GuidRepresentation.Standard:
+                    return BsonBinarySubType.UuidStandard;
+
+                case GuidRepresentation.CSharpLegacy:
+                case GuidRepresentation.JavaLegacy:
+                case GuidRepresentation.PythonLegacy:
+                    return BsonBinarySubType.UuidLegacy;
+
+                default:
+                    throw new ArgumentException("Invalid GuidRepresentation.", nameof(guidRepresentation));
+            }
+        }
+
+        /// <summary>
         /// Converts a Guid to a byte array.
         /// </summary>
         /// <param name="guid">The Guid.</param>

@@ -89,26 +89,32 @@ namespace MongoDB.Driver.Tests.Jira.CSharp378
         [Fact]
         public void TestSaveD()
         {
-            var collectionSettings = new MongoCollectionSettings { GuidRepresentation = GuidRepresentation.Standard };
-            var collection = _database.GetCollection<D>("test", collectionSettings);
-            collection.Drop();
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                var collectionSettings = new MongoCollectionSettings { GuidRepresentation = GuidRepresentation.Standard };
 
-            var id = new Guid("00112233-4455-6677-8899-aabbccddeeff");
-            var doc = new D { Id = id, X = 1 };
-            collection.Insert(doc);
+                var collection = _database.GetCollection<D>("test", collectionSettings);
+                collection.Drop();
 
-            Assert.Equal(1, collection.Count());
-            var fetched = collection.FindOne();
-            Assert.Equal(id, fetched.Id);
-            Assert.Equal(1, fetched.X);
+                var id = new Guid("00112233-4455-6677-8899-aabbccddeeff");
+                var doc = new D { Id = id, X = 1 };
+                collection.Insert(doc);
 
-            doc.X = 2;
-            collection.Save(doc);
+                Assert.Equal(1, collection.Count());
+                var fetched = collection.FindOne();
+                Assert.Equal(id, fetched.Id);
+                Assert.Equal(1, fetched.X);
 
-            Assert.Equal(1, collection.Count());
-            fetched = collection.FindOne();
-            Assert.Equal(id, fetched.Id);
-            Assert.Equal(2, fetched.X);
+                doc.X = 2;
+                collection.Save(doc);
+
+                Assert.Equal(1, collection.Count());
+                fetched = collection.FindOne();
+                Assert.Equal(id, fetched.Id);
+                Assert.Equal(2, fetched.X);
+            }
+#pragma warning restore 618
         }
     }
 }

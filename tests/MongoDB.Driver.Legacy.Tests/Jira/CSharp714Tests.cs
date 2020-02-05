@@ -39,23 +39,34 @@ namespace MongoDB.Driver.Tests.Jira.CSharp714
         public CSharp714Tests()
         {
             _database = LegacyTestConfiguration.Database;
-            var collectionSettings = new MongoCollectionSettings() { GuidRepresentation = GuidRepresentation.Standard };
+            var collectionSettings = new MongoCollectionSettings();
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                collectionSettings.GuidRepresentation = GuidRepresentation.Standard;
+            }
+#pragma warning restore 618
             _collection = _database.GetCollection<C>("csharp714", collectionSettings);
             _collection.Drop();
         }
-        
+
         [Fact]
         public void TestGuidsAreAscending()
         {
-            _collection.RemoveAll();
-            CreateTestData();
-            // sort descending just so we are not retrieving in insertion order
-            var cursor = _collection.FindAll().SetSortOrder(SortBy.Descending("Guid"));
-            var id = __maxNoOfDocuments - 1;
-            foreach (var c in cursor) 
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
             {
-                Assert.Equal(id--, c.Id);
+                _collection.RemoveAll();
+                CreateTestData();
+                // sort descending just so we are not retrieving in insertion order
+                var cursor = _collection.FindAll().SetSortOrder(SortBy.Descending("Guid"));
+                var id = __maxNoOfDocuments - 1;
+                foreach (var c in cursor)
+                {
+                    Assert.Equal(id--, c.Id);
+                }
             }
+#pragma warning restore 618
         }
 
         private void CreateTestData()

@@ -85,6 +85,12 @@ namespace MongoDB.Bson.Serialization.IdGenerators
             get { return __unspecifiedInstance; }
         }
 
+        // public properties
+        /// <summary>
+        /// Gets the Guid representation.
+        /// </summary>
+        public GuidRepresentation GuidRepresentation => _guidRepresentation;
+
         // public static methods
         /// <summary>
         /// Gets the instance of BsonBinaryDataGuidGenerator for a GuidRepresentation.

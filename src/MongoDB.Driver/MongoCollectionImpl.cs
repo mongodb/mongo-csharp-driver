@@ -1079,10 +1079,15 @@ namespace MongoDB.Driver
         {
             var messageEncoderSettings = new MessageEncoderSettings
             {
-                { MessageEncoderSettingsName.GuidRepresentation, _settings.GuidRepresentation },
                 { MessageEncoderSettingsName.ReadEncoding, _settings.ReadEncoding ?? Utf8Encodings.Strict },
                 { MessageEncoderSettingsName.WriteEncoding, _settings.WriteEncoding ?? Utf8Encodings.Strict }
             };
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                messageEncoderSettings.Add(MessageEncoderSettingsName.GuidRepresentation, _settings.GuidRepresentation);
+            }
+#pragma warning restore 618
 
             if (_database.Client is MongoClient mongoClient)
             {

@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using MongoDB.Bson.Serialization;
@@ -32,6 +33,7 @@ namespace MongoDB.Bson.IO
         private BsonReaderState _state;
         private BsonType _currentBsonType;
         private string _currentName;
+        private readonly Stack<BsonReaderSettings> _settingsStack = new Stack<BsonReaderSettings>();
 
         // constructors
         /// <summary>
@@ -142,6 +144,22 @@ namespace MongoDB.Bson.IO
         /// Whether this reader is at end of file.
         /// </returns>
         public abstract bool IsAtEndOfFile();
+
+        /// <inherited/>
+        public void PopSettings()
+        {
+            _settings = _settingsStack.Pop();
+        }
+
+        /// <inherited/>
+        public void PushSettings(Action<BsonReaderSettings> configurator)
+        {
+            var newSettings = _settings.Clone();
+            configurator(newSettings);
+            newSettings.Freeze();
+            _settingsStack.Push(_settings);
+            _settings = newSettings;
+        }
 
         /// <summary>
         /// Reads BSON binary data from the reader.

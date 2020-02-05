@@ -14,14 +14,19 @@
 */
 
 using System;
+using System.IO;
 using System.Linq;
+using FluentAssertions;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.TestHelpers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using Xunit;
 
-namespace MongoDB.Bson.Tests.Serialization
+namespace MongoDB.Bson.Tests.Serialization.Serializers
 {
-    public class BooleanSerializerTests
+    public class ClassWithBooleanSerializerTests
     {
         public class TestClass
         {
@@ -96,7 +101,7 @@ namespace MongoDB.Bson.Tests.Serialization
         }
     }
 
-    public class DateTimeSerializerTests
+    public class ClassWithDateTimeSerializerTests
     {
         public class TestClass
         {
@@ -590,7 +595,7 @@ namespace MongoDB.Bson.Tests.Serialization
         }
     }
 
-    public class DoubleSerializerTests
+    public class ClassWithDoubleSerializerTests
     {
         public class TestClass
         {
@@ -808,7 +813,7 @@ namespace MongoDB.Bson.Tests.Serialization
         }
     }
 
-    public class GuidSerializerTests
+    public class ClassWithGuidSerializerTests
     {
         public class TestClass
         {
@@ -830,30 +835,60 @@ namespace MongoDB.Bson.Tests.Serialization
             public Guid GetPrivateB() => _b;
         }
 
-        [Fact]
-        public void TestEmpty()
+        [Theory]
+        [ParameterAttributeData]
+        [ResetGuidModeAfterTest]
+        public void TestEmpty(
+            [ClassValues(typeof(GuidModeValues))] GuidMode mode)
         {
+            mode.Set();
+
+#pragma warning disable 618
             var guid = Guid.Empty;
             var obj = new TestClass
             {
                 Binary = guid,
                 String = guid
             };
-            var json = obj.ToJson();
-            var expected = "{ 'Binary' : CSUUID('#B'), 'String' : '#S' }";
-            expected = expected.Replace("#B", "00000000-0000-0000-0000-000000000000");
-            expected = expected.Replace("#S", "00000000-0000-0000-0000-000000000000");
-            expected = expected.Replace("'", "\"");
-            Assert.Equal(expected, json);
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2 && BsonDefaults.GuidRepresentation != GuidRepresentation.Unspecified)
+            {
+                var json = obj.ToJson(new JsonWriterSettings());
+                string expectedGuidJson;
+                var guidRepresentation = BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2 ? BsonDefaults.GuidRepresentation : GuidRepresentation.Unspecified;
+                switch (guidRepresentation)
+                {
+                    case GuidRepresentation.CSharpLegacy: expectedGuidJson = "CSUUID('00000000-0000-0000-0000-000000000000')"; break;
+                    case GuidRepresentation.JavaLegacy: expectedGuidJson = "JUUID('00000000-0000-0000-0000-000000000000')"; break;
+                    case GuidRepresentation.PythonLegacy: expectedGuidJson = "PYUUID('00000000-0000-0000-0000-000000000000')"; break;
+                    case GuidRepresentation.Standard: expectedGuidJson = "UUID('00000000-0000-0000-0000-000000000000')"; break;
+                    case GuidRepresentation.Unspecified: expectedGuidJson = null; break;
+                    default: throw new Exception("Unexpected GuidRepresentation.");
+                }
+                var expected = $"{{ 'Binary' : {expectedGuidJson}, 'String' : '00000000-0000-0000-0000-000000000000' }}";
+                expected = expected.Replace("'", "\"");
+                Assert.Equal(expected, json);
 
-            var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
-            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+                var bson = obj.ToBson(writerSettings: new BsonBinaryWriterSettings());
+                var rehydrated = BsonSerializer.Deserialize<TestClass>(new BsonBinaryReader(new MemoryStream(bson), new BsonBinaryReaderSettings()));
+                Assert.True(bson.SequenceEqual(rehydrated.ToBson(writerSettings: new BsonBinaryWriterSettings())));
+            }
+            else
+            {
+                var exception = Record.Exception(() => obj.ToJson(new JsonWriterSettings()));
+                exception.Should().BeOfType<BsonSerializationException>();
+            }
+#pragma warning restore 618
         }
 
-        [Fact]
-        public void TestGuidRepresentation()
+        [Theory]
+        [ParameterAttributeData]
+        [ResetGuidModeAfterTest]
+        public void TestGuidRepresentation(
+            [ClassValues(typeof(GuidModeValues))] GuidMode mode)
         {
+            mode.Set();
+
+#pragma warning disable 618
             var s = "01020304-0506-0708-090a-0b0c0d0e0f10";
             var guid = new Guid(s);
             var obj = new TestClass
@@ -861,16 +896,34 @@ namespace MongoDB.Bson.Tests.Serialization
                 Binary = guid,
                 String = guid
             };
-            var json = obj.ToJson();
-            var expected = "{ 'Binary' : CSUUID('#B'), 'String' : '#S' }";
-            expected = expected.Replace("#B", s);
-            expected = expected.Replace("#S", s);
-            expected = expected.Replace("'", "\"");
-            Assert.Equal(expected, json);
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2 && BsonDefaults.GuidRepresentation != GuidRepresentation.Unspecified)
+            {
+                var json = obj.ToJson(new JsonWriterSettings());
+                string expectedGuidJson;
+                var guidRepresentation = BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2 ? BsonDefaults.GuidRepresentation : GuidRepresentation.Unspecified;
+                switch (guidRepresentation)
+                {
+                    case GuidRepresentation.CSharpLegacy: expectedGuidJson = $"CSUUID('{s}')"; break;
+                    case GuidRepresentation.JavaLegacy: expectedGuidJson = $"JUUID('{s}')"; break;
+                    case GuidRepresentation.PythonLegacy: expectedGuidJson = $"PYUUID('{s}')"; break;
+                    case GuidRepresentation.Standard: expectedGuidJson = $"UUID('{s}')"; break;
+                    case GuidRepresentation.Unspecified: expectedGuidJson = null; break;
+                    default: throw new Exception("Unexpected GuidRepresentation.");
+                }
+                var expected = $"{{ 'Binary' : {expectedGuidJson}, 'String' : '{s}' }}";
+                expected = expected.Replace("'", "\"");
+                Assert.Equal(expected, json);
 
-            var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
-            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+                var bson = obj.ToBson(writerSettings: new BsonBinaryWriterSettings());
+                var rehydrated = BsonSerializer.Deserialize<TestClass>(new BsonBinaryReader(new MemoryStream(bson), new BsonBinaryReaderSettings()));
+                Assert.True(bson.SequenceEqual(rehydrated.ToBson(writerSettings: new BsonBinaryWriterSettings())));
+            }
+            else
+            {
+                var exception = Record.Exception(() => obj.ToJson(new JsonWriterSettings()));
+                exception.Should().BeOfType<BsonSerializationException>();
+            }
+#pragma warning restore 618
         }
 
         [Fact]
@@ -884,7 +937,7 @@ namespace MongoDB.Bson.Tests.Serialization
         }
     }
 
-    public class Int32SerializerTests
+    public class ClassWithInt32SerializerTests
     {
         public class TestClass
         {
@@ -1028,7 +1081,7 @@ namespace MongoDB.Bson.Tests.Serialization
         }
     }
 
-    public class Int64SerializerTests
+    public class ClassWithInt64SerializerTests
     {
         public class TestClass
         {
@@ -1172,7 +1225,7 @@ namespace MongoDB.Bson.Tests.Serialization
         }
     }
 
-    public class ObjectIdSerializerTests
+    public class ClassWithObjectIdSerializerTests
     {
         public class TestClass
         {
@@ -1230,7 +1283,7 @@ namespace MongoDB.Bson.Tests.Serialization
         }
     }
 
-    public class StringSerializerTests
+    public class ClassWithStringSerializerTests
     {
         public class TestClass
         {

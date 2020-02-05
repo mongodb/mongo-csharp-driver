@@ -15,6 +15,7 @@
 
 using System;
 using System.Linq;
+using MongoDB.Bson;
 using MongoDB.Driver.Linq;
 using Xunit;
 
@@ -42,37 +43,42 @@ namespace MongoDB.Driver.Tests.Jira
         [Fact]
         public void CastTest()
         {
-            var db = LegacyTestConfiguration.Database;
-            var collection = db.GetCollection<Base>("castTest");
-            collection.Drop();
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2 && BsonDefaults.GuidRepresentation != GuidRepresentation.Unspecified)
+            {
+                var db = LegacyTestConfiguration.Database;
+                var collection = db.GetCollection<Base>("castTest");
+                collection.Drop();
 
-            var t1 = new T1 { Id = Guid.NewGuid(), A = "T1.A", B = "T1.B" };
-            var t2 = new T2 { Id = Guid.NewGuid(), A = "T2.A" };
-            collection.Insert(t1);
-            collection.Insert(t2);
+                var t1 = new T1 { Id = Guid.NewGuid(), A = "T1.A", B = "T1.B" };
+                var t2 = new T2 { Id = Guid.NewGuid(), A = "T2.A" };
+                collection.Insert(t1);
+                collection.Insert(t2);
 
-            var query = from t in collection.AsQueryable()
-                        where t is T1 && ((T1)t).B == "T1.B" 
-                        select t;
+                var query = from t in collection.AsQueryable()
+                            where t is T1 && ((T1)t).B == "T1.B"
+                            select t;
 
-            var translatedQuery = MongoQueryTranslator.Translate(query);
-            Assert.IsType<SelectQuery>(translatedQuery);
-            Assert.Same(collection, translatedQuery.Collection);
-            Assert.Same(typeof(Base), translatedQuery.DocumentType);
+                var translatedQuery = MongoQueryTranslator.Translate(query);
+                Assert.IsType<SelectQuery>(translatedQuery);
+                Assert.Same(collection, translatedQuery.Collection);
+                Assert.Same(typeof(Base), translatedQuery.DocumentType);
 
-            var selectQuery = (SelectQuery)translatedQuery;
-            Assert.Equal("(Base t) => ((t is T1) && ((T1)t.B == \"T1.B\"))", ExpressionFormatter.ToString(selectQuery.Where));
-            Assert.Null(selectQuery.OrderBy);
-            Assert.Null(selectQuery.Projection);
-            Assert.Null(selectQuery.Skip);
-            Assert.Null(selectQuery.Take);
+                var selectQuery = (SelectQuery)translatedQuery;
+                Assert.Equal("(Base t) => ((t is T1) && ((T1)t.B == \"T1.B\"))", ExpressionFormatter.ToString(selectQuery.Where));
+                Assert.Null(selectQuery.OrderBy);
+                Assert.Null(selectQuery.Projection);
+                Assert.Null(selectQuery.Skip);
+                Assert.Null(selectQuery.Take);
 
-            Assert.Equal("{ \"_t\" : \"T1\", \"B\" : \"T1.B\" }", selectQuery.BuildQuery().ToString());
+                Assert.Equal("{ \"_t\" : \"T1\", \"B\" : \"T1.B\" }", selectQuery.BuildQuery().ToString());
 
-            var results = query.ToList();
-            Assert.Equal(1, results.Count);
-            Assert.IsType<T1>(results[0]);
-            Assert.Equal("T1.A", results[0].A);
+                var results = query.ToList();
+                Assert.Equal(1, results.Count);
+                Assert.IsType<T1>(results[0]);
+                Assert.Equal("T1.A", results[0].A);
+            }
+#pragma warning restore 618
         }
     }
 }

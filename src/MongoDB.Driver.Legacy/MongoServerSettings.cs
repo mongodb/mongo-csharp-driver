@@ -84,7 +84,12 @@ namespace MongoDB.Driver
             _connectionMode = ConnectionMode.Automatic;
             _connectTimeout = MongoDefaults.ConnectTimeout;
             _credentials = new MongoCredentialStore(new MongoCredential[0]);
-            _guidRepresentation = MongoDefaults.GuidRepresentation;
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                _guidRepresentation = MongoDefaults.GuidRepresentation;
+            }
+#pragma warning restore 618
             _heartbeatInterval = ServerSettings.DefaultHeartbeatInterval;
             _heartbeatTimeout = ServerSettings.DefaultHeartbeatTimeout;
             _ipv6 = false;
@@ -244,12 +249,24 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the representation to use for Guids.
         /// </summary>
+        [Obsolete("Configure serializers instead.")]
         public GuidRepresentation GuidRepresentation
         {
-            get { return _guidRepresentation; }
+            get
+            {
+                if (BsonDefaults.GuidRepresentationMode != GuidRepresentationMode.V2)
+                {
+                    throw new InvalidOperationException("MongoServerSettings.GuidRepresentation can only be used when GuidRepresentationMode is V2.");
+                }
+                return _guidRepresentation;
+            }
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
+                if (BsonDefaults.GuidRepresentationMode != GuidRepresentationMode.V2)
+                {
+                    throw new InvalidOperationException("MongoServerSettings.GuidRepresentation can only be used when GuidRepresentationMode is V2.");
+                }
                 _guidRepresentation = value;
             }
         }
@@ -706,8 +723,11 @@ namespace MongoDB.Driver
             serverSettings.ConnectTimeout = clientSettings.ConnectTimeout;
 #pragma warning disable 618
             serverSettings.Credentials = clientSettings.Credentials;
-#pragma warning restore
-            serverSettings.GuidRepresentation = clientSettings.GuidRepresentation;
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                serverSettings.GuidRepresentation = clientSettings.GuidRepresentation;
+            }
+#pragma warning restore 618
             serverSettings.HeartbeatInterval = clientSettings.HeartbeatInterval;
             serverSettings.HeartbeatTimeout = clientSettings.HeartbeatTimeout;
             serverSettings.IPv6 = clientSettings.IPv6;
@@ -768,7 +788,12 @@ namespace MongoDB.Driver
                 }
                 serverSettings.Credential = credential;
             }
-            serverSettings.GuidRepresentation = url.GuidRepresentation;
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                serverSettings.GuidRepresentation = url.GuidRepresentation;
+            }
+#pragma warning restore 618
             serverSettings.HeartbeatInterval = url.HeartbeatInterval;
             serverSettings.HeartbeatTimeout = url.HeartbeatTimeout;
             serverSettings.IPv6 = url.IPv6;

@@ -301,7 +301,13 @@ namespace MongoDB.Driver.Core.WireProtocol
             {
                 AddIfNotAlreadyAdded("$clusterTime", _session.ClusterTime);
             }
-            Action<BsonWriterSettings> writerSettingsConfigurator = s => s.GuidRepresentation = GuidRepresentation.Unspecified;
+#pragma warning disable 618
+            Action<BsonWriterSettings> writerSettingsConfigurator = null;
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                writerSettingsConfigurator = s => s.GuidRepresentation = GuidRepresentation.Unspecified;
+            }
+#pragma warning restore 618
 
             _session.AboutToSendCommand();
             if (_session.IsInTransaction)
@@ -380,7 +386,12 @@ namespace MongoDB.Driver.Core.WireProtocol
                 if (_messageEncoderSettings != null)
                 {
                     binaryReaderSettings.Encoding = _messageEncoderSettings.GetOrDefault<UTF8Encoding>(MessageEncoderSettingsName.ReadEncoding, Utf8Encodings.Strict);
-                    binaryReaderSettings.GuidRepresentation = _messageEncoderSettings.GetOrDefault<GuidRepresentation>(MessageEncoderSettingsName.GuidRepresentation, GuidRepresentation.CSharpLegacy);
+#pragma warning disable 618
+                    if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+                    {
+                        binaryReaderSettings.GuidRepresentation = _messageEncoderSettings.GetOrDefault<GuidRepresentation>(MessageEncoderSettingsName.GuidRepresentation, GuidRepresentation.CSharpLegacy);
+                    }
+#pragma warning restore 618
                 };
 
                 BsonValue clusterTime;

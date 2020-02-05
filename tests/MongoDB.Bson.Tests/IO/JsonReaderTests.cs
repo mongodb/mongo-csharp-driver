@@ -18,12 +18,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using FluentAssertions;
-using Xunit;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Bson.TestHelpers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.IO
 {
@@ -672,9 +672,15 @@ namespace MongoDB.Bson.Tests.IO
             Assert.Equal(json, BsonSerializer.Deserialize<double>(json).ToJson());
         }
 
-        [Fact]
-        public void TestGuid()
+        [Theory]
+        [ParameterAttributeData]
+        [ResetGuidModeAfterTest]
+        public void TestGuid(
+            [ClassValues(typeof(GuidModeValues))] GuidMode mode)
         {
+            mode.Set();
+
+#pragma warning disable 618
             var guid = new Guid("B5F21E0C2A0D42D6AD03D827008D8AB6");
             var json = "CSUUID(\"B5F21E0C2A0D42D6AD03D827008D8AB6\")";
             using (_bsonReader = new JsonReader(json))
@@ -683,12 +689,33 @@ namespace MongoDB.Bson.Tests.IO
                 var binaryData = _bsonReader.ReadBinaryData();
                 Assert.True(binaryData.Bytes.SequenceEqual(guid.ToByteArray()));
                 Assert.Equal(BsonBinarySubType.UuidLegacy, binaryData.SubType);
-                Assert.Equal(GuidRepresentation.CSharpLegacy, binaryData.GuidRepresentation);
+                if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+                {
+                    Assert.Equal(GuidRepresentation.CSharpLegacy, binaryData.GuidRepresentation);
+                }
                 Assert.Equal(BsonReaderState.Initial, _bsonReader.State);
                 Assert.True(_bsonReader.IsAtEndOfFile());
             }
-            var expected = "CSUUID(\"b5f21e0c-2a0d-42d6-ad03-d827008d8ab6\")";
-            Assert.Equal(expected, BsonSerializer.Deserialize<Guid>(json).ToJson());
+            var guidRepresentation = BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2 ? BsonDefaults.GuidRepresentation : GuidRepresentation.Unspecified;
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2 && guidRepresentation != GuidRepresentation.Unspecified)
+            {
+                string expected;
+                switch (guidRepresentation)
+                {
+                    case GuidRepresentation.CSharpLegacy: expected = "CSUUID(\"b5f21e0c-2a0d-42d6-ad03-d827008d8ab6\")"; break;
+                    case GuidRepresentation.JavaLegacy: expected = "JUUID(\"b5f21e0c-2a0d-42d6-ad03-d827008d8ab6\")"; break;
+                    case GuidRepresentation.PythonLegacy: expected = "PYUUID(\"b5f21e0c-2a0d-42d6-ad03-d827008d8ab6\")"; break;
+                    case GuidRepresentation.Standard: expected = "UUID(\"b5f21e0c-2a0d-42d6-ad03-d827008d8ab6\")"; break;
+                    default: throw new Exception("Unexpected GuidRepresentation.");
+                }
+                Assert.Equal(expected, BsonSerializer.Deserialize<Guid>(json).ToJson(new JsonWriterSettings()));
+            }
+            else
+            {
+                var exception = Record.Exception(() => guid.ToJson(new JsonWriterSettings()));
+                exception.Should().BeOfType<BsonSerializationException>();
+            }
+#pragma warning restore 618
         }
 
         [Fact]

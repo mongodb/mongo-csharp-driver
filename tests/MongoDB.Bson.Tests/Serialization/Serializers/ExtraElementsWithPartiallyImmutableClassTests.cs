@@ -16,9 +16,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.TestHelpers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization
@@ -196,11 +198,17 @@ namespace MongoDB.Bson.Tests.Serialization
             Assert.Equal(json, c.ToJson());
         }
 
-        [Fact]
-        public void TestExtraElementsOfAllTypes()
+        [Theory]
+        [ParameterAttributeData]
+        [ResetGuidModeAfterTest]
+        public void TestExtraElementsOfAllTypes(
+            [ClassValues(typeof(GuidModeValues))] GuidMode mode)
         {
+            mode.Set();
+
+#pragma warning disable 618
             var json = "{ '_id' : 1, 'A' : 2, 'B' : 3, #X }";
-            var extraElements = new string[][]
+            var extraElements = new List<string[]>
             {
                 new string[] { "XArray", "[1, 2.0]" },
                 new string[] { "XBinary", "HexData(2, '1234')" },
@@ -209,8 +217,6 @@ namespace MongoDB.Bson.Tests.Serialization
                 new string[] { "XDateTime", "ISODate('2012-03-16T11:19:00Z')" },
                 new string[] { "XDocument", "{ 'a' : 1 }" },
                 new string[] { "XDouble", "1.0" },
-                new string[] { "XGuidLegacy", "HexData(3, '33221100554477668899aabbccddeeff')" },
-                new string[] { "XGuidStandard", "HexData(4, '00112233445566778899aabbccddeeff')" },
                 new string[] { "XInt32", "1" },
                 new string[] { "XInt64", "NumberLong(1)" },
                 new string[] { "XJavaScript", "{ '$code' : 'abc' }" },
@@ -225,13 +231,32 @@ namespace MongoDB.Bson.Tests.Serialization
                 new string[] { "XTimestamp", "{ '$timestamp' : NumberLong(1234) }" },
                 new string[] { "XUndefined", "undefined" },
             };
+            var hasXGuidLegacy = false;
+            var hasXGuidStandard = false;
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                switch (BsonDefaults.GuidRepresentation)
+                {
+                    case GuidRepresentation.CSharpLegacy:
+                    case GuidRepresentation.JavaLegacy:
+                    case GuidRepresentation.PythonLegacy:
+                        extraElements.Add(new string[] { "XGuidLegacy", "HexData(3, '00112233445566778899aabbccddeeff')" });
+                        hasXGuidLegacy = true;
+                        break;
+
+                    case GuidRepresentation.Standard:
+                        extraElements.Add(new string[] { "XGuidStandard", "HexData(4, '00112233445566778899aabbccddeeff')" });
+                        hasXGuidStandard = true;
+                        break;
+                }
+            }
             var extraElementsRepresentation = string.Join(", ", extraElements.Select(e => string.Format("'{0}' : {1}", e[0], e[1])).ToArray());
             json = json.Replace("#X", extraElementsRepresentation).Replace("'", "\"");
-            var c = BsonSerializer.Deserialize<C>(json);
+            var c = BsonSerializer.Deserialize<C>(new JsonReader(json, new JsonReaderSettings()));
 
             // round trip it both ways before checking individual values
-            json = c.ToJson();
-            c = BsonSerializer.Deserialize<C>(json);
+            json = c.ToJson(new JsonWriterSettings());
+            c = BsonSerializer.Deserialize<C>(new JsonReader(json, new JsonReaderSettings()));
 
             Assert.IsType<List<object>>(c.X["XArray"]);
             Assert.IsType<BsonBinaryData>(c.X["XBinary"]);
@@ -240,8 +265,14 @@ namespace MongoDB.Bson.Tests.Serialization
             Assert.IsType<DateTime>(c.X["XDateTime"]);
             Assert.IsType<Dictionary<string, object>>(c.X["XDocument"]);
             Assert.IsType<double>(c.X["XDouble"]);
-            Assert.IsType<Guid>(c.X["XGuidLegacy"]);
-            Assert.IsType<Guid>(c.X["XGuidStandard"]);
+            if (hasXGuidLegacy)
+            {
+                Assert.IsType<Guid>(c.X["XGuidLegacy"]);
+            }
+            if (hasXGuidStandard)
+            {
+                Assert.IsType<Guid>(c.X["XGuidStandard"]);
+            }
             Assert.IsType<int>(c.X["XInt32"]);
             Assert.IsType<long>(c.X["XInt64"]);
             Assert.IsType<BsonJavaScript>(c.X["XJavaScript"]);
@@ -256,11 +287,9 @@ namespace MongoDB.Bson.Tests.Serialization
             Assert.IsType<BsonTimestamp>(c.X["XTimestamp"]);
             Assert.IsType<BsonUndefined>(c.X["XUndefined"]);
 
-            Assert.Equal(22, c.X.Count);
+            Assert.Equal(extraElements.Count, c.X.Count);
             Assert.True(new object[] { 1, 2.0 }.SequenceEqual((List<object>)c.X["XArray"]));
-#pragma warning disable 618 // OldBinary is obsolete
             Assert.Equal(BsonBinarySubType.OldBinary, ((BsonBinaryData)c.X["XBinary"]).SubType);
-#pragma warning restore 618
             Assert.True(new byte[] { 0x12, 0x34 }.SequenceEqual(((BsonBinaryData)c.X["XBinary"]).Bytes));
             Assert.Equal(true, c.X["XBoolean"]);
             Assert.True(new byte[] { 0x12, 0x34 }.SequenceEqual((byte[])c.X["XByteArray"]));
@@ -268,8 +297,21 @@ namespace MongoDB.Bson.Tests.Serialization
             Assert.Equal(1, ((IDictionary<string, object>)c.X["XDocument"]).Count);
             Assert.Equal(1, ((IDictionary<string, object>)c.X["XDocument"])["a"]);
             Assert.Equal(1.0, c.X["XDouble"]);
-            Assert.Equal(new Guid("00112233-4455-6677-8899-aabbccddeeff"), c.X["XGuidLegacy"]);
-            Assert.Equal(new Guid("00112233-4455-6677-8899-aabbccddeeff"), c.X["XGuidStandard"]);
+            if (hasXGuidLegacy)
+            {
+                var expectedLegacyGuid = Guid.Empty;
+                switch (BsonDefaults.GuidRepresentation)
+                {
+                    case GuidRepresentation.CSharpLegacy: expectedLegacyGuid = new Guid("33221100554477668899aabbccddeeff"); break;
+                    case GuidRepresentation.JavaLegacy: expectedLegacyGuid = new Guid("7766554433221100ffeeddccbbaa9988"); break;
+                    case GuidRepresentation.PythonLegacy: expectedLegacyGuid = new Guid("00112233445566778899aabbccddeeff"); break;
+                }
+                Assert.Equal(expectedLegacyGuid, c.X["XGuidLegacy"]);
+            }
+            if (hasXGuidStandard)
+            {
+                Assert.Equal(new Guid("00112233-4455-6677-8899-aabbccddeeff"), c.X["XGuidStandard"]);
+            }
             Assert.Equal(1, c.X["XInt32"]);
             Assert.Equal(1L, c.X["XInt64"]);
             Assert.Equal("abc", ((BsonJavaScript)c.X["XJavaScript"]).Code);
@@ -285,6 +327,7 @@ namespace MongoDB.Bson.Tests.Serialization
             Assert.Same(BsonSymbolTable.Lookup("abc"), c.X["XSymbol"]);
             Assert.Equal(new BsonTimestamp(1234), c.X["XTimestamp"]);
             Assert.Same(BsonUndefined.Value, c.X["XUndefined"]);
+#pragma warning restore 618
         }
     }
 }

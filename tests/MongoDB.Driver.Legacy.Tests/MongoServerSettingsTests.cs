@@ -87,11 +87,17 @@ namespace MongoDB.Driver.Tests
             // set everything to non default values to test that all settings are cloned
             var connectionString =
                 "mongodb://user1:password1@somehost/?appname=app;" +
-                "connect=direct;connectTimeout=123;uuidRepresentation=pythonLegacy;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;localThreshold=128;" +
+                "connect=direct;connectTimeout=123;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;localThreshold=128;" +
                 "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;" +
                 "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;socketTimeout=129;" +
                 "serverSelectionTimeout=20s;ssl=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
                 "w=1;fsync=true;journal=true;w=2;wtimeout=131;gssapiServiceName=other";
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                connectionString += ";uuidRepresentation=pythonLegacy";
+            }
+#pragma warning restore 618
             var builder = new MongoUrlBuilder(connectionString);
             var url = builder.ToMongoUrl();
             var settings = MongoServerSettings.FromUrl(url);
@@ -163,8 +169,11 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(MongoDefaults.ConnectTimeout, settings.ConnectTimeout);
 #pragma warning disable 618
             Assert.Equal(0, settings.Credentials.Count());
-#pragma warning restore
-            Assert.Equal(MongoDefaults.GuidRepresentation, settings.GuidRepresentation);
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                Assert.Equal(MongoDefaults.GuidRepresentation, settings.GuidRepresentation);
+            }
+#pragma warning restore 618
             Assert.Equal(ServerSettings.DefaultHeartbeatInterval, settings.HeartbeatInterval);
             Assert.Equal(ServerSettings.DefaultHeartbeatTimeout, settings.HeartbeatTimeout);
             Assert.Equal(false, settings.IPv6);
@@ -234,9 +243,14 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore 618
             Assert.False(clone.Equals(settings));
 
-            clone = settings.Clone();
-            clone.GuidRepresentation = GuidRepresentation.PythonLegacy;
-            Assert.False(clone.Equals(settings));
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                clone = settings.Clone();
+                clone.GuidRepresentation = settings.GuidRepresentation == GuidRepresentation.CSharpLegacy ? GuidRepresentation.PythonLegacy : GuidRepresentation.CSharpLegacy;
+                Assert.False(clone.Equals(settings));
+            }
+#pragma warning restore 618
 
             clone = settings.Clone();
             clone.HeartbeatInterval = new TimeSpan(1, 2, 3);
@@ -366,11 +380,17 @@ namespace MongoDB.Driver.Tests
             // set everything to non default values to test that all settings are converted
             var connectionString =
                 "mongodb://user1:password1@somehost/?authSource=db;authMechanismProperties=CANONICALIZE_HOST_NAME:true;" +
-                "appname=app;connect=direct;connectTimeout=123;uuidRepresentation=pythonLegacy;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;localThreshold=128;" +
+                "appname=app;connect=direct;connectTimeout=123;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;localThreshold=128;" +
                 "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;" +
                 "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;retryReads=false;retryWrites=true;socketTimeout=129;" +
                 "serverSelectionTimeout=20s;ssl=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
                 "w=1;fsync=true;journal=true;w=2;wtimeout=131;gssapiServiceName=other";
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                connectionString += ";uuidRepresentation=pythonLegacy";
+            }
+#pragma warning restore
             var builder = new MongoUrlBuilder(connectionString);
             var url = builder.ToMongoUrl();
             var clientSettings = MongoClientSettings.FromUrl(url);
@@ -390,7 +410,12 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(true, settings.Credential.GetMechanismProperty<bool>("CANONICALIZE_HOST_NAME", false));
             Assert.Equal(url.AuthenticationSource, settings.Credential.Source);
             Assert.Equal(new PasswordEvidence(builder.Password), settings.Credential.Evidence);
-            Assert.Equal(url.GuidRepresentation, settings.GuidRepresentation);
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                Assert.Equal(url.GuidRepresentation, settings.GuidRepresentation);
+            }
+#pragma warning restore 618
             Assert.Equal(url.HeartbeatInterval, settings.HeartbeatInterval);
             Assert.Equal(url.HeartbeatTimeout, settings.HeartbeatTimeout);
             Assert.Equal(url.IPv6, settings.IPv6);
@@ -429,11 +454,17 @@ namespace MongoDB.Driver.Tests
             // set everything to non default values to test that all settings are converted
             var connectionString =
                 "mongodb://user1:password1@somehost/?authSource=db;appname=app;" +
-                "connect=direct;connectTimeout=123;uuidRepresentation=pythonLegacy;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;localThreshold=128;" +
+                "connect=direct;connectTimeout=123;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;localThreshold=128;" +
                 "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;" +
                 "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;retryReads=false;retryWrites=true;socketTimeout=129;" +
                 "serverSelectionTimeout=20s;ssl=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
                 "w=1;fsync=true;journal=true;w=2;wtimeout=131";
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                connectionString += ";uuidRepresentation=pythonLegacy";
+            }
+#pragma warning restore 618
             var builder = new MongoUrlBuilder(connectionString);
             var url = builder.ToMongoUrl();
 
@@ -449,7 +480,12 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(url.AuthenticationMechanism, settings.Credential.Mechanism);
             Assert.Equal(url.AuthenticationSource, settings.Credential.Source);
             Assert.Equal(new PasswordEvidence(url.Password), settings.Credential.Evidence);
-            Assert.Equal(url.GuidRepresentation, settings.GuidRepresentation);
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                Assert.Equal(url.GuidRepresentation, settings.GuidRepresentation);
+            }
+#pragma warning restore 618
             Assert.Equal(url.HeartbeatInterval, settings.HeartbeatInterval);
             Assert.Equal(url.HeartbeatTimeout, settings.HeartbeatTimeout);
             Assert.Equal(url.IPv6, settings.IPv6);
@@ -497,16 +533,21 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestGuidRepresentation()
         {
-            var settings = new MongoServerSettings();
-            Assert.Equal(MongoDefaults.GuidRepresentation, settings.GuidRepresentation);
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                var settings = new MongoServerSettings();
+                Assert.Equal(MongoDefaults.GuidRepresentation, settings.GuidRepresentation);
 
-            var guidRepresentation = GuidRepresentation.PythonLegacy;
-            settings.GuidRepresentation = guidRepresentation;
-            Assert.Equal(guidRepresentation, settings.GuidRepresentation);
+                var guidRepresentation = GuidRepresentation.PythonLegacy;
+                settings.GuidRepresentation = guidRepresentation;
+                Assert.Equal(guidRepresentation, settings.GuidRepresentation);
 
-            settings.Freeze();
-            Assert.Equal(guidRepresentation, settings.GuidRepresentation);
-            Assert.Throws<InvalidOperationException>(() => { settings.GuidRepresentation = guidRepresentation; });
+                settings.Freeze();
+                Assert.Equal(guidRepresentation, settings.GuidRepresentation);
+                Assert.Throws<InvalidOperationException>(() => { settings.GuidRepresentation = guidRepresentation; });
+            }
+#pragma warning restore 618
         }
 
         [Fact]
@@ -957,7 +998,6 @@ namespace MongoDB.Driver.Tests
                 ConnectionMode = ConnectionMode.Direct,
                 ConnectTimeout = TimeSpan.FromSeconds(1),
                 Credential = credential,
-                GuidRepresentation = GuidRepresentation.Standard,
                 HeartbeatInterval = TimeSpan.FromMinutes(1),
                 HeartbeatTimeout = TimeSpan.FromMinutes(2),
                 IPv6 = true,
@@ -979,6 +1019,12 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore 618
                 WaitQueueTimeout = TimeSpan.FromSeconds(5)
             };
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                subject.GuidRepresentation = GuidRepresentation.Standard;
+            }
+#pragma warning restore 618
 
             var result = subject.ToClusterKey();
 

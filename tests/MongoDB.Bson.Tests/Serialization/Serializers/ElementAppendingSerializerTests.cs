@@ -21,6 +21,8 @@ using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Bson.Tests.IO;
 using Moq;
 using Xunit;
@@ -151,10 +153,14 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Serialize_should_not_convert_Uuids_in_elements(bool useGenericInterface)
+        [ParameterAttributeData]
+        [ResetGuidModeAfterTest]
+        public void Serialize_should_not_convert_Uuids_in_elements(
+            [ClassValues(typeof(GuidModeValues))] GuidMode mode,
+            [Values(false, true)] bool useGenericInterface)
         {
+            mode.Set();
+
             var guid = Guid.Parse("01020304-0506-0708-090a-0b0c0d0e0f10");
             var value = new BsonDocument { { "_id", new BsonBinaryData(guid, GuidRepresentation.Standard) }, { "x", 1 } };
             var elements = new BsonDocument("b", new BsonBinaryData(guid, GuidRepresentation.Standard));
@@ -162,7 +168,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             string result;
             using (var textWriter = new StringWriter())
-            using (var writer = new JsonWriter(textWriter))
+            using (var writer = new JsonWriter(textWriter, new JsonWriterSettings()))
             {
                 var context = BsonSerializationContext.CreateRoot(writer);
                 var args = new BsonSerializationArgs { NominalType = typeof(BsonDocument) };
@@ -179,46 +185,68 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 result = textWriter.ToString();
             }
 
-            // note that "_id" was converted to a CSUUID but "b" was not
-            result.Should().Be("{ \"_id\" : CSUUID(\"01020304-0506-0708-090a-0b0c0d0e0f10\"), \"x\" : 1, \"b\" : UUID(\"01020304-0506-0708-090a-0b0c0d0e0f10\") }");
+            // note that "_id" was converted but "b" was not
+            string expectedIdJson;
+#pragma warning disable 618
+            var guidRepresentation = BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2 ? BsonDefaults.GuidRepresentation : GuidRepresentation.Unspecified;
+            switch (guidRepresentation)
+            {
+                case GuidRepresentation.CSharpLegacy: expectedIdJson = "CSUUID(\"01020304-0506-0708-090a-0b0c0d0e0f10\")"; break;
+                case GuidRepresentation.JavaLegacy: expectedIdJson = "JUUID(\"01020304-0506-0708-090a-0b0c0d0e0f10\")"; break;
+                case GuidRepresentation.PythonLegacy: expectedIdJson = "PYUUID(\"01020304-0506-0708-090a-0b0c0d0e0f10\")"; break;
+                case GuidRepresentation.Standard: expectedIdJson = "UUID(\"01020304-0506-0708-090a-0b0c0d0e0f10\")"; break;
+                case GuidRepresentation.Unspecified: expectedIdJson = "UUID(\"01020304-0506-0708-090a-0b0c0d0e0f10\")"; break;
+                default: throw new Exception("Unexpected GuidRepresentation.");
+            }
+#pragma warning restore 618
+            result.Should().Be($"{{ \"_id\" : {expectedIdJson}, \"x\" : 1, \"b\" : UUID(\"01020304-0506-0708-090a-0b0c0d0e0f10\") }}");
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Serialize_should_configure_GuidRepresentation(bool useGenericInterface)
+        [ParameterAttributeData]
+        [ResetGuidModeAfterTest]
+        public void Serialize_should_configure_GuidRepresentation(
+            [ClassValues(typeof(GuidModeValues))] GuidMode mode,
+            [Values(false, true)] bool useGenericInterface)
         {
-            var mockDocumentSerializer = new Mock<IBsonSerializer<BsonDocument>>();
-            var writerSettingsConfigurator = (Action<BsonWriterSettings>)(s => s.GuidRepresentation = GuidRepresentation.Unspecified);
-            var subject = new ElementAppendingSerializer<BsonDocument>(mockDocumentSerializer.Object, new BsonElement[0], writerSettingsConfigurator);
-            var stream = new MemoryStream();
-            var settings = new BsonBinaryWriterSettings { GuidRepresentation = GuidRepresentation.CSharpLegacy };
-            var writer = new BsonBinaryWriter(stream, settings);
-            var context = BsonSerializationContext.CreateRoot(writer);
-            var args = new BsonSerializationArgs { NominalType = typeof(BsonDocument) };
-            var value = new BsonDocument();
-            GuidRepresentation? capturedGuidRepresentation = null;
-            mockDocumentSerializer
-                .Setup(m => m.Serialize(It.IsAny<BsonSerializationContext>(), args, value))
-                .Callback((BsonSerializationContext c, BsonSerializationArgs a, BsonDocument v) =>
+            mode.Set();
+
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                var mockDocumentSerializer = new Mock<IBsonSerializer<BsonDocument>>();
+                var writerSettingsConfigurator = (Action<BsonWriterSettings>)(s => s.GuidRepresentation = GuidRepresentation.Unspecified);
+                var subject = new ElementAppendingSerializer<BsonDocument>(mockDocumentSerializer.Object, new BsonElement[0], writerSettingsConfigurator);
+                var stream = new MemoryStream();
+                var settings = new BsonBinaryWriterSettings { GuidRepresentation = GuidRepresentation.CSharpLegacy };
+                var writer = new BsonBinaryWriter(stream, settings);
+                var context = BsonSerializationContext.CreateRoot(writer);
+                var args = new BsonSerializationArgs { NominalType = typeof(BsonDocument) };
+                var value = new BsonDocument();
+                GuidRepresentation? capturedGuidRepresentation = null;
+                mockDocumentSerializer
+                    .Setup(m => m.Serialize(It.IsAny<BsonSerializationContext>(), args, value))
+                    .Callback((BsonSerializationContext c, BsonSerializationArgs a, BsonDocument v) =>
+                    {
+                        var elementAppendingWriter = (ElementAppendingBsonWriter)c.Writer;
+                        var configurator = elementAppendingWriter._settingsConfigurator();
+                        var configuredSettings = new BsonBinaryWriterSettings { GuidRepresentation = GuidRepresentation.CSharpLegacy };
+                        configurator(configuredSettings);
+                        capturedGuidRepresentation = configuredSettings.GuidRepresentation;
+                    });
+
+                if (useGenericInterface)
                 {
-                    var elementAppendingWriter = (ElementAppendingBsonWriter)c.Writer;
-                    var configurator = elementAppendingWriter._settingsConfigurator();
-                    var configuredSettings = new BsonBinaryWriterSettings { GuidRepresentation = GuidRepresentation.CSharpLegacy };
-                    configurator(configuredSettings);
-                    capturedGuidRepresentation = configuredSettings.GuidRepresentation;
-                });
+                    subject.Serialize(context, args, value);
+                }
+                else
+                {
+                    ((IBsonSerializer)subject).Serialize(context, args, value);
+                }
 
-            if (useGenericInterface)
-            {
-                subject.Serialize(context, args, value);
+                capturedGuidRepresentation.Should().Be(GuidRepresentation.Unspecified);
             }
-            else
-            {
-                ((IBsonSerializer)subject).Serialize(context, args, value);
-            }
-
-            capturedGuidRepresentation.Should().Be(GuidRepresentation.Unspecified);
+#pragma warning restore 618
         }
 
         [Theory]
@@ -262,7 +290,12 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             var documentSerializer = BsonDocumentSerializer.Instance;
             elements = elements ?? new BsonElement[0];
-            writerSettingsConfigurator = writerSettingsConfigurator ?? (s => s.GuidRepresentation = GuidRepresentation.Unspecified);
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2 && writerSettingsConfigurator == null)
+            {
+                writerSettingsConfigurator = s => s.GuidRepresentation = GuidRepresentation.Unspecified;
+            }
+#pragma warning restore 618
             return new ElementAppendingSerializer<BsonDocument>(documentSerializer, elements, writerSettingsConfigurator);
         }
     }

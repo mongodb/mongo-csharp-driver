@@ -15,6 +15,7 @@
 
 using System;
 using System.Linq;
+using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
@@ -160,20 +161,41 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestGuidRefId()
         {
-            var id = ObjectId.GenerateNewId();
+#pragma warning disable 618
             var guid = Guid.NewGuid();
-            var dbRef = new MongoDBRef("collection", guid);
-            var obj = new C { Id = id, DBRef = dbRef };
-            var json = obj.ToJson();
-            var expected = "{ '_id' : ObjectId('#id'), 'DBRef' : { '$ref' : 'collection', '$id' : CSUUID('#guid') } }";
-            expected = expected.Replace("#id", id.ToString());
-            expected = expected.Replace("#guid", guid.ToString());
-            expected = expected.Replace("'", "\"");
-            Assert.Equal(expected, json);
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2 && BsonDefaults.GuidRepresentation == GuidRepresentation.Unspecified ||
+                BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V3)
+            {
+                var exception = Record.Exception(() => new MongoDBRef("collection", guid));
+                exception.Should().BeOfType<InvalidOperationException>();
+            }
+            else
+            {
+                var id = ObjectId.GenerateNewId();
+                var dbRef = new MongoDBRef("collection", guid);
+                var obj = new C { Id = id, DBRef = dbRef };
+                var json = obj.ToJson();
+                var expected = "{ '_id' : ObjectId('#id'), 'DBRef' : { '$ref' : 'collection', '$id' : #uuidConstructorName('#guid') } }";
+                expected = expected.Replace("#id", id.ToString());
+                string uuidConstructorName;
+                switch (BsonDefaults.GuidRepresentation)
+                {
+                    case GuidRepresentation.CSharpLegacy: uuidConstructorName = "CSUUID"; break;
+                    case GuidRepresentation.JavaLegacy: uuidConstructorName = "JUUID"; break;
+                    case GuidRepresentation.PythonLegacy: uuidConstructorName = "PYUUID"; break;
+                    case GuidRepresentation.Standard: uuidConstructorName = "UUID"; break;
+                    default: throw new Exception("Invalid GuidRepresentation.");
+                };
+                expected = expected.Replace("#uuidConstructorName", uuidConstructorName);
+                expected = expected.Replace("#guid", guid.ToString());
+                expected = expected.Replace("'", "\"");
+                Assert.Equal(expected, json);
 
-            var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+                var bson = obj.ToBson();
+                var rehydrated = BsonSerializer.Deserialize<C>(bson);
+                Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+            }
+#pragma warning restore 618
         }
 
         [Fact]

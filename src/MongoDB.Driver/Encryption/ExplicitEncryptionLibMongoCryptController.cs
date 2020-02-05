@@ -253,7 +253,12 @@ namespace MongoDB.Driver.Encryption
         {
             var wrappedValue = new BsonDocument("v", value);
             var writerSettings = BsonBinaryWriterSettings.Defaults.Clone();
-            writerSettings.GuidRepresentation = GuidRepresentation.Unspecified;
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                writerSettings.GuidRepresentation = GuidRepresentation.Unspecified;
+            }
+#pragma warning restore 618
             return wrappedValue.ToBson(writerSettings: writerSettings);
         }
 

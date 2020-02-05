@@ -97,7 +97,12 @@ namespace MongoDB.Driver
             _connectTimeout = builder.ConnectTimeout;
             _databaseName = builder.DatabaseName;
             _fsync = builder.FSync;
-            _guidRepresentation = builder.GuidRepresentation;
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                _guidRepresentation = builder.GuidRepresentation;
+            }
+#pragma warning restore 618
             _heartbeatInterval = builder.HeartbeatInterval;
             _heartbeatTimeout = builder.HeartbeatTimeout;
             _ipv6 = builder.IPv6;
@@ -241,9 +246,17 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the representation to use for Guids.
         /// </summary>
+        [Obsolete("Configure serializers instead.")]
         public GuidRepresentation GuidRepresentation
         {
-            get { return _guidRepresentation; }
+            get
+            {
+                if (BsonDefaults.GuidRepresentationMode != GuidRepresentationMode.V2)
+                {
+                    throw new InvalidOperationException("MongoUrl.GuidRepresentation can only be used when BsonDefaults.GuidRepresentationMode is V2.");
+                }
+                return _guidRepresentation;
+            }
         }
 
         /// <summary>
@@ -258,7 +271,7 @@ namespace MongoDB.Driver
                     _password != null ||
                     _authenticationMechanism != null ||
                     _authenticationSource != null;
-            }              
+            }
         }
 
         /// <summary>
@@ -372,7 +385,7 @@ namespace MongoDB.Driver
         {
             get { return _replicaSetName; }
         }
-        
+
         /// <summary>
         /// Gets whether reads will be retried.
         /// </summary>

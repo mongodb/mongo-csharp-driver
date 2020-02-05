@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -52,6 +53,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
         /// <summary>
         /// The name of the GuidRepresentation setting.
         /// </summary>
+        [Obsolete("Configure serializers instead.")]
         public const string GuidRepresentation = "GuidRepresentation";
 
         /// <summary>

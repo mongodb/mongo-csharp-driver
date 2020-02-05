@@ -120,7 +120,17 @@ namespace MongoDB.Bson.IO
 
             var subType = binaryData.SubType;
             var bytes = binaryData.Bytes;
-            var guidRepresentation = binaryData.GuidRepresentation;
+#pragma warning disable 618
+            GuidRepresentation guidRepresentation;
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                guidRepresentation = binaryData.GuidRepresentation;
+            }
+            else
+            {
+                guidRepresentation = subType == BsonBinarySubType.UuidStandard ? GuidRepresentation.Standard : GuidRepresentation.Unspecified;
+            }
+#pragma warning disable 618
 
             WriteNameHelper(Name);
             switch (Settings.OutputMode)

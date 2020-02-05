@@ -51,7 +51,13 @@ namespace MongoDB.Driver.Encryption
         // protected methods
         protected void FeedResult(CryptContext context, BsonDocument document)
         {
-            var writerSettings = new BsonBinaryWriterSettings { GuidRepresentation = GuidRepresentation.Unspecified };
+#pragma warning disable 618
+            var writerSettings = new BsonBinaryWriterSettings();
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                writerSettings.GuidRepresentation = GuidRepresentation.Unspecified;
+            }
+#pragma warning restore 618
             var documentBytes = document.ToBson(writerSettings: writerSettings);
             context.Feed(documentBytes);
             context.MarkDone();
@@ -59,7 +65,13 @@ namespace MongoDB.Driver.Encryption
 
         protected void FeedResults(CryptContext context, IEnumerable<BsonDocument> documents)
         {
-            var writerSettings = new BsonBinaryWriterSettings { GuidRepresentation = GuidRepresentation.Unspecified };
+#pragma warning disable 618
+            var writerSettings = new BsonBinaryWriterSettings();
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                writerSettings.GuidRepresentation = GuidRepresentation.Unspecified;
+            }
+#pragma warning restore 618
             foreach (var document in documents)
             {
                 var documentBytes = document.ToBson(writerSettings: writerSettings);

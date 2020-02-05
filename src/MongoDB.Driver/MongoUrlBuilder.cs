@@ -91,7 +91,12 @@ namespace MongoDB.Driver
             _connectTimeout = MongoDefaults.ConnectTimeout;
             _databaseName = null;
             _fsync = null;
-            _guidRepresentation = MongoDefaults.GuidRepresentation;
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                _guidRepresentation = MongoDefaults.GuidRepresentation;
+            }
+#pragma warning restore 618
             _heartbeatInterval = ServerSettings.DefaultHeartbeatInterval;
             _heartbeatTimeout = ServerSettings.DefaultHeartbeatTimeout;
             _ipv6 = false;
@@ -263,10 +268,25 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the representation to use for Guids.
         /// </summary>
+        [Obsolete("Configure serializers instead.")]
         public GuidRepresentation GuidRepresentation
         {
-            get { return _guidRepresentation; }
-            set { _guidRepresentation = value; }
+            get
+            {
+                if (BsonDefaults.GuidRepresentationMode != GuidRepresentationMode.V2)
+                {
+                    throw new InvalidOperationException("MongoUrlBuilder.GuidRepresentation can only be used when BsonDefaults.GuidRepresentationMode is V2.");
+                }
+                return _guidRepresentation;
+            }
+            set
+            {
+                if (BsonDefaults.GuidRepresentationMode != GuidRepresentationMode.V2)
+                {
+                    throw new InvalidOperationException("MongoUrlBuilder.GuidRepresentation can only be used when BsonDefaults.GuidRepresentationMode is V2.");
+                }
+                _guidRepresentation = value;
+            }
         }
 
         /// <summary>
@@ -447,7 +467,7 @@ namespace MongoDB.Driver
             get { return _replicaSetName; }
             set { _replicaSetName = value; }
         }
-        
+
         /// <summary>
         /// Gets or sets whether to retry reads.
         /// </summary>
@@ -693,7 +713,19 @@ namespace MongoDB.Driver
             _connectTimeout = connectionString.ConnectTimeout.GetValueOrDefault(MongoDefaults.ConnectTimeout);
             _databaseName = connectionString.DatabaseName;
             _fsync = connectionString.FSync;
-            _guidRepresentation = connectionString.UuidRepresentation.GetValueOrDefault(MongoDefaults.GuidRepresentation);
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                _guidRepresentation = connectionString.UuidRepresentation.GetValueOrDefault(MongoDefaults.GuidRepresentation);
+            }
+            else
+            {
+                if (connectionString.UuidRepresentation.HasValue)
+                {
+                    throw new InvalidOperationException("ConnectionString.UuidRepresentation can only be used when BsonDefaults.GuidRepresentationMode is V2.");
+                }
+            }
+#pragma warning restore 618
             _heartbeatInterval = connectionString.HeartbeatInterval ?? ServerSettings.DefaultHeartbeatInterval;
             _heartbeatTimeout = connectionString.HeartbeatTimeout ?? ServerSettings.DefaultHeartbeatTimeout;
             _ipv6 = connectionString.Ipv6.GetValueOrDefault(false);
@@ -970,10 +1002,13 @@ namespace MongoDB.Driver
             {
                 query.AppendFormat("waitQueueTimeout={0};", FormatTimeSpan(WaitQueueTimeout));
             }
-            if (_guidRepresentation != MongoDefaults.GuidRepresentation)
+#pragma warning disable 618
+            var defaultGuidRepresentation = BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2 ? BsonDefaults.GuidRepresentation : GuidRepresentation.Unspecified;
+            if (_guidRepresentation != defaultGuidRepresentation)
             {
                 query.AppendFormat("uuidRepresentation={0};", (_guidRepresentation == GuidRepresentation.CSharpLegacy) ? "csharpLegacy" : MongoUtils.ToCamelCase(_guidRepresentation.ToString()));
             }
+#pragma warning restore 618
             if (!_retryReads.GetValueOrDefault(true))
             {
                 query.AppendFormat("retryReads=false;");

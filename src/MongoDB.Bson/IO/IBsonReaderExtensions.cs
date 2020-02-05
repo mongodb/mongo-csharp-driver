@@ -89,6 +89,34 @@ namespace MongoDB.Bson.IO
         }
 
         /// <summary>
+        /// Reads a BSON binary data element from the reader temporarily setting the GuidRepresentation to Unspecified.
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <returns></returns>
+        [Obsolete("In V3 mode use ReadBinaryData instead.")]
+        public static BsonBinaryData ReadBinaryDataWithGuidRepresentationUnspecified(this IBsonReader reader)
+        {
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                reader.PushSettings(s => s.GuidRepresentation = GuidRepresentation.Unspecified);
+                try
+                {
+                    return reader.ReadBinaryData();
+                }
+                finally
+                {
+                    reader.PopSettings();
+                }
+            }
+            else
+            {
+                return reader.ReadBinaryData();
+            }
+#pragma warning restore 618
+        }
+
+        /// <summary>
         /// Reads a BSON boolean element from the reader.
         /// </summary>
         /// <param name="reader">The reader.</param>

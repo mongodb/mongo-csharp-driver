@@ -729,6 +729,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">A Guid.</param>
         /// <returns>A BsonValue.</returns>
+        [Obsolete("Use the BsonBinaryData constructor instead and specify a Guid representation.")]
         public static implicit operator BsonValue(Guid value)
         {
             return new BsonBinaryData(value);
@@ -739,6 +740,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">A Guid?.</param>
         /// <returns>A BsonValue.</returns>
+        [Obsolete("Use the BsonBinaryData constructor instead and specify a Guid representation.")]
         public static implicit operator BsonValue(Guid? value)
         {
             return value.HasValue ? (BsonValue)new BsonBinaryData(value.Value) : BsonNull.Value;

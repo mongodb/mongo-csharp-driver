@@ -246,7 +246,12 @@ namespace MongoDB.Driver.Core.WireProtocol
                 if (_messageEncoderSettings != null)
                 {
                     binaryReaderSettings.Encoding = _messageEncoderSettings.GetOrDefault<UTF8Encoding>(MessageEncoderSettingsName.ReadEncoding, Utf8Encodings.Strict);
-                    binaryReaderSettings.GuidRepresentation = _messageEncoderSettings.GetOrDefault<GuidRepresentation>(MessageEncoderSettingsName.GuidRepresentation, GuidRepresentation.CSharpLegacy);
+#pragma warning disable 618
+                    if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+                    {
+                        binaryReaderSettings.GuidRepresentation = _messageEncoderSettings.GetOrDefault<GuidRepresentation>(MessageEncoderSettingsName.GuidRepresentation, GuidRepresentation.CSharpLegacy);
+                    }
+#pragma warning restore 618
                 };
 
                 BsonValue clusterTime;
@@ -348,7 +353,13 @@ namespace MongoDB.Driver.Core.WireProtocol
                 var clusterTime = new BsonElement("$clusterTime", _session.ClusterTime);
                 extraElements.Add(clusterTime);
             }
-            Action<BsonWriterSettings> writerSettingsConfigurator = s => s.GuidRepresentation = GuidRepresentation.Unspecified;
+#pragma warning disable 618
+            Action<BsonWriterSettings> writerSettingsConfigurator = null;
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                writerSettingsConfigurator = s => s.GuidRepresentation = GuidRepresentation.Unspecified;
+            }
+#pragma warning restore 618
             var appendExtraElementsSerializer = new ElementAppendingSerializer<BsonDocument>(BsonDocumentSerializer.Instance, extraElements, writerSettingsConfigurator);
             var commandWithExtraElements = new BsonDocumentWrapper(command, appendExtraElementsSerializer);
 

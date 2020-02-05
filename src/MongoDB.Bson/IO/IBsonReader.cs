@@ -60,6 +60,17 @@ namespace MongoDB.Bson.IO
         bool IsAtEndOfFile();
 
         /// <summary>
+        /// Pops the settings.
+        /// </summary>
+        void PopSettings();
+
+        /// <summary>
+        /// Pushes new settings for the reader.
+        /// </summary>
+        /// <param name="configurator">The settings configurator.</param>
+        void PushSettings(Action<BsonReaderSettings> configurator);
+
+        /// <summary>
         /// Reads BSON binary data from the reader.
         /// </summary>
         /// <returns>A BsonBinaryData.</returns>
