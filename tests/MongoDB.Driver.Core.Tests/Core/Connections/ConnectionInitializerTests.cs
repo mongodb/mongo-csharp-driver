@@ -41,6 +41,34 @@ namespace MongoDB.Driver.Core.Connections
 
         [Theory]
         [ParameterAttributeData]
+        public void InitializeConnection_should_acquire_connectionId_from_isMaster_response([Values(false, true)] bool async)
+        {
+            var isMasterReply = MessageHelper.BuildReply(
+                RawBsonDocumentHelper.FromJson("{ ok : 1, connectionId : 1 }"));
+            var buildInfoReply = MessageHelper.BuildReply(
+                RawBsonDocumentHelper.FromJson("{ ok : 1, version : \"4.2.0\" }"));
+
+            var connection = new MockConnection(__serverId);
+            connection.EnqueueReplyMessage(isMasterReply);
+            connection.EnqueueReplyMessage(buildInfoReply);
+
+            ConnectionDescription result;
+            if (async)
+            {
+                result = _subject.InitializeConnectionAsync(connection, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                result = _subject.InitializeConnection(connection, CancellationToken.None);
+            }
+
+            var sentMessages = connection.GetSentMessages();
+            sentMessages.Should().HaveCount(2);
+            result.ConnectionId.ServerValue.Should().Be(1);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void InitializeConnection_should_throw_an_ArgumentNullException_if_the_connection_is_null(
             [Values(false, true)]
             bool async)

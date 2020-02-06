@@ -53,16 +53,24 @@ namespace MongoDB.Driver.Core.Connections
 
             AuthenticationHelper.Authenticate(connection, description, cancellationToken);
 
-            try
+            var connectionIdServerValue = isMasterResult.ConnectionIdServerValue;
+            if (connectionIdServerValue.HasValue)
             {
-                var getLastErrorProtocol = CreateGetLastErrorProtocol();
-                var getLastErrorResult = getLastErrorProtocol.Execute(connection, cancellationToken);
-
-                description = UpdateConnectionIdWithServerValue(description, getLastErrorResult);
+                description = UpdateConnectionIdWithServerValue(description, connectionIdServerValue.Value);
             }
-            catch
+            else
             {
-                // if we couldn't get the server's connection id, so be it.
+                try
+                {
+                    var getLastErrorProtocol = CreateGetLastErrorProtocol();
+                    var getLastErrorResult = getLastErrorProtocol.Execute(connection, cancellationToken);
+
+                    description = UpdateConnectionIdWithServerValue(description, getLastErrorResult);
+                }
+                catch
+                {
+                    // if we couldn't get the server's connection id, so be it.
+                }
             }
 
             return description;
@@ -82,16 +90,26 @@ namespace MongoDB.Driver.Core.Connections
 
             await AuthenticationHelper.AuthenticateAsync(connection, description, cancellationToken).ConfigureAwait(false);
 
-            try
+            var connectionIdServerValue = isMasterResult.ConnectionIdServerValue;
+            if (connectionIdServerValue.HasValue)
             {
-                var getLastErrorProtocol = CreateGetLastErrorProtocol();
-                var getLastErrorResult = await getLastErrorProtocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
-
-                description = UpdateConnectionIdWithServerValue(description, getLastErrorResult);
+                description = UpdateConnectionIdWithServerValue(description, connectionIdServerValue.Value);
             }
-            catch
+            else
             {
-                // if we couldn't get the server's connection id, so be it.
+                try
+                {
+                    var getLastErrorProtocol = CreateGetLastErrorProtocol();
+                    var getLastErrorResult = await getLastErrorProtocol
+                        .ExecuteAsync(connection, cancellationToken)
+                        .ConfigureAwait(false);
+
+                    description = UpdateConnectionIdWithServerValue(description, getLastErrorResult);
+                }
+                catch
+                {
+                    // if we couldn't get the server's connection id, so be it.
+                }
             }
 
             return description;
@@ -132,12 +150,18 @@ namespace MongoDB.Driver.Core.Connections
 
         private ConnectionDescription UpdateConnectionIdWithServerValue(ConnectionDescription description, BsonDocument getLastErrorResult)
         {
-            BsonValue connectionIdBsonValue;
-            if (getLastErrorResult.TryGetValue("connectionId", out connectionIdBsonValue))
+            if (getLastErrorResult.TryGetValue("connectionId", out var connectionIdBsonValue))
             {
-                var connectionId = description.ConnectionId.WithServerValue(connectionIdBsonValue.ToInt32());
-                description = description.WithConnectionId(connectionId);
+                description = UpdateConnectionIdWithServerValue(description, connectionIdBsonValue.ToInt32());
             }
+
+            return description;
+        }
+
+        private ConnectionDescription UpdateConnectionIdWithServerValue(ConnectionDescription description, int serverValue)
+        {
+            var connectionId = description.ConnectionId.WithServerValue(serverValue);
+            description = description.WithConnectionId(connectionId);
 
             return description;
         }

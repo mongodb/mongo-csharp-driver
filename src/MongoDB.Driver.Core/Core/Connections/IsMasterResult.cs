@@ -70,6 +70,22 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         /// <summary>
+        /// Gets the connection id server value.
+        /// </summary>
+        public int? ConnectionIdServerValue
+        {
+            get
+            {
+                if (_wrapped.TryGetValue("connectionId", out var connectionIdBsonValue))
+                {
+                    return connectionIdBsonValue.ToInt32();
+                }
+
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Gets the election identifier.
         /// </summary>
         public ElectionId ElectionId
