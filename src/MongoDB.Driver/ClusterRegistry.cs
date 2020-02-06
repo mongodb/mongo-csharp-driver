@@ -85,10 +85,10 @@ namespace MongoDB.Driver
                 connectionMode: clusterKey.ConnectionMode.ToCore(),
                 endPoints: Optional.Enumerable(endPoints),
                 kmsProviders: Optional.Create(clusterKey.KmsProviders),
+                localThreshold: clusterKey.LocalThreshold,
                 replicaSetName: clusterKey.ReplicaSetName,
                 maxServerSelectionWaitQueueSize: clusterKey.WaitQueueSize,
                 serverSelectionTimeout: clusterKey.ServerSelectionTimeout,
-                postServerSelector: new LatencyLimitingServerSelector(clusterKey.LocalThreshold),
                 schemaMap: Optional.Create(clusterKey.SchemaMap),
                 scheme: clusterKey.Scheme);
         }

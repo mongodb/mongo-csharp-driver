@@ -67,6 +67,7 @@ namespace MongoDB.Driver.Core.Clusters
         private ClusterDescription _description;
         private TaskCompletionSource<bool> _descriptionChangedTaskCompletionSource;
         private readonly object _descriptionLock = new object();
+        private readonly LatencyLimitingServerSelector _latencyLimitingServerSelector;
         private Timer _rapidHeartbeatTimer;
         private readonly object _serverSelectionWaitQueueLock = new object();
         private int _serverSelectionWaitQueueSize;
@@ -91,6 +92,7 @@ namespace MongoDB.Driver.Core.Clusters
             _clusterId = new ClusterId();
             _description = ClusterDescription.CreateInitial(_clusterId, _settings.ConnectionMode);
             _descriptionChangedTaskCompletionSource = new TaskCompletionSource<bool>();
+            _latencyLimitingServerSelector = new LatencyLimitingServerSelector(settings.LocalThreshold);
 
             _rapidHeartbeatTimer = new Timer(RapidHeartbeatTimerCallback, null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
 
@@ -507,25 +509,23 @@ namespace MongoDB.Driver.Core.Clusters
             private IServerSelector DecorateSelector(IServerSelector selector)
             {
                 var settings = _cluster.Settings;
-                if (settings.PreServerSelector != null || settings.PostServerSelector != null)
+                var allSelectors = new List<IServerSelector>();
+
+                if (settings.PreServerSelector != null)
                 {
-                    var allSelectors = new List<IServerSelector>();
-                    if (settings.PreServerSelector != null)
-                    {
-                        allSelectors.Add(settings.PreServerSelector);
-                    }
-
-                    allSelectors.Add(selector);
-
-                    if (settings.PostServerSelector != null)
-                    {
-                        allSelectors.Add(settings.PostServerSelector);
-                    }
-
-                    return new CompositeServerSelector(allSelectors);
+                    allSelectors.Add(settings.PreServerSelector);
                 }
 
-                return selector;
+                allSelectors.Add(selector);
+
+                if (settings.PostServerSelector != null)
+                {
+                    allSelectors.Add(settings.PostServerSelector);
+                }
+
+                allSelectors.Add(_cluster._latencyLimitingServerSelector);
+
+                return new CompositeServerSelector(allSelectors);
             }
         }
 

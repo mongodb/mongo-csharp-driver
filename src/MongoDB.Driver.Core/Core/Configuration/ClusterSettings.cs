@@ -38,6 +38,7 @@ namespace MongoDB.Driver.Core.Configuration
         private readonly ClusterConnectionMode _connectionMode;
         private readonly IReadOnlyList<EndPoint> _endPoints;
         private readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> _kmsProviders;
+        private readonly TimeSpan _localThreshold;
         private readonly int _maxServerSelectionWaitQueueSize;
         private readonly string _replicaSetName;
         private readonly IReadOnlyDictionary<string, BsonDocument> _schemaMap;
@@ -53,6 +54,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="connectionMode">The connection mode.</param>
         /// <param name="endPoints">The end points.</param>
         /// <param name="kmsProviders">The kms providers.</param>
+        /// <param name="localThreshold">The local threshold.</param>
         /// <param name="maxServerSelectionWaitQueueSize">Maximum size of the server selection wait queue.</param>
         /// <param name="replicaSetName">Name of the replica set.</param>
         /// <param name="serverSelectionTimeout">The server selection timeout.</param>
@@ -64,6 +66,7 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<ClusterConnectionMode> connectionMode = default(Optional<ClusterConnectionMode>),
             Optional<IEnumerable<EndPoint>> endPoints = default(Optional<IEnumerable<EndPoint>>),
             Optional<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>>> kmsProviders = default(Optional<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>>>),
+            Optional<TimeSpan> localThreshold = default,
             Optional<int> maxServerSelectionWaitQueueSize = default(Optional<int>),
             Optional<string> replicaSetName = default(Optional<string>),
             Optional<TimeSpan> serverSelectionTimeout = default(Optional<TimeSpan>),
@@ -75,6 +78,7 @@ namespace MongoDB.Driver.Core.Configuration
             _connectionMode = connectionMode.WithDefault(ClusterConnectionMode.Automatic);
             _endPoints = Ensure.IsNotNull(endPoints.WithDefault(__defaultEndPoints), "endPoints").ToList();
             _kmsProviders = kmsProviders.WithDefault(null);
+            _localThreshold = Ensure.IsGreaterThanOrEqualToZero(localThreshold.WithDefault(TimeSpan.FromMilliseconds(15)), "localThreshold");
             _maxServerSelectionWaitQueueSize = Ensure.IsGreaterThanOrEqualToZero(maxServerSelectionWaitQueueSize.WithDefault(500), "maxServerSelectionWaitQueueSize");
             _replicaSetName = replicaSetName.WithDefault(null);
             _serverSelectionTimeout = Ensure.IsGreaterThanOrEqualToZero(serverSelectionTimeout.WithDefault(TimeSpan.FromSeconds(30)), "serverSelectionTimeout");
@@ -116,6 +120,17 @@ namespace MongoDB.Driver.Core.Configuration
         public IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> KmsProviders
         {
             get { return _kmsProviders; }
+        }
+
+        /// <summary>
+        /// Gets the local threshold.
+        /// </summary>
+        /// <value>
+        /// The local threshold.
+        /// </value>
+        public TimeSpan LocalThreshold
+        {
+            get { return _localThreshold; }
         }
 
         /// <summary>
@@ -202,6 +217,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="connectionMode">The connection mode.</param>
         /// <param name="endPoints">The end points.</param>
         /// <param name="kmsProviders">The kms providers.</param>
+        /// <param name="localThreshold">The local threshold.</param>
         /// <param name="maxServerSelectionWaitQueueSize">Maximum size of the server selection wait queue.</param>
         /// <param name="replicaSetName">Name of the replica set.</param>
         /// <param name="serverSelectionTimeout">The server selection timeout.</param>
@@ -214,6 +230,7 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<ClusterConnectionMode> connectionMode = default(Optional<ClusterConnectionMode>),
             Optional<IEnumerable<EndPoint>> endPoints = default(Optional<IEnumerable<EndPoint>>),
             Optional<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>>> kmsProviders = default(Optional<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>>>),
+            Optional<TimeSpan> localThreshold = default(Optional<TimeSpan>),
             Optional<int> maxServerSelectionWaitQueueSize = default(Optional<int>),
             Optional<string> replicaSetName = default(Optional<string>),
             Optional<TimeSpan> serverSelectionTimeout = default(Optional<TimeSpan>),
@@ -226,6 +243,7 @@ namespace MongoDB.Driver.Core.Configuration
                 connectionMode: connectionMode.WithDefault(_connectionMode),
                 endPoints: Optional.Enumerable(endPoints.WithDefault(_endPoints)),
                 kmsProviders: Optional.Create(kmsProviders.WithDefault(_kmsProviders)),
+                localThreshold: localThreshold.WithDefault(_localThreshold),
                 maxServerSelectionWaitQueueSize: maxServerSelectionWaitQueueSize.WithDefault(_maxServerSelectionWaitQueueSize),
                 replicaSetName: replicaSetName.WithDefault(_replicaSetName),
                 serverSelectionTimeout: serverSelectionTimeout.WithDefault(_serverSelectionTimeout),
