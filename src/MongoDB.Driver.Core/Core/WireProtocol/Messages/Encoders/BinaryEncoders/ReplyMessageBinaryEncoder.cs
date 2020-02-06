@@ -16,9 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -62,7 +59,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             stream.ReadInt32(); // messageSize
             var requestId = stream.ReadInt32();
             var responseTo = stream.ReadInt32();
-            stream.ReadInt32(); // opcode
+            var opcode = (Opcode)stream.ReadInt32();
+            EnsureOpcodeIsValid(opcode);
             var flags = (ResponseFlags)stream.ReadInt32();
             var cursorId = stream.ReadInt64();
             var startingFrom = stream.ReadInt32();
@@ -156,6 +154,15 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 }
             }
             stream.BackpatchSize(startPosition);
+        }
+
+        // private methods
+        private void EnsureOpcodeIsValid(Opcode opcode)
+        {
+            if (opcode != Opcode.Reply)
+            {
+                throw new FormatException("Reply message opcode is not OP_REPLY.");
+            }
         }
 
         // explicit interface implementations

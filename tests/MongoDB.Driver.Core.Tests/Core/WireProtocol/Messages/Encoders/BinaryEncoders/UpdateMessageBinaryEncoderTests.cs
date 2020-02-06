@@ -19,8 +19,6 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Operations.ElementNameValidators;
-using MongoDB.Driver.Core.WireProtocol.Messages;
-using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
 using Xunit;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
@@ -112,6 +110,21 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 message.Query.Should().Be(__query);
                 message.RequestId.Should().Be(__requestId);
                 message.Update.Should().Be(__update);
+            }
+        }
+
+        [Fact]
+        public void ReadMessage_should_throw_when_opcode_is_invalid()
+        {
+            var bytes = (byte[])__testMessageBytes.Clone();
+            bytes[12]++;
+
+            using (var stream = new MemoryStream(bytes))
+            {
+                var subject = new UpdateMessageBinaryEncoder(stream, __messageEncoderSettings);
+                var exception = Record.Exception(() => subject.ReadMessage());
+                exception.Should().BeOfType<FormatException>();
+                exception.Message.Should().Be("Update message opcode is not OP_UPDATE.");
             }
         }
 

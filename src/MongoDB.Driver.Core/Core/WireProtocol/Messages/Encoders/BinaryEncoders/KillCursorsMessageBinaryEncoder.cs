@@ -15,7 +15,6 @@
 
 using System;
 using System.IO;
-using System.Text;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Misc;
 
@@ -50,7 +49,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             stream.ReadInt32(); // messageSize
             var requestId = stream.ReadInt32();
             stream.ReadInt32(); // responseTo
-            stream.ReadInt32(); // opcode
+            var opcode = (Opcode)stream.ReadInt32();
+            EnsureOpcodeIsValid(opcode);
             stream.ReadInt32(); // reserved
             var count = stream.ReadInt32();
             var cursorIds = new long[count];
@@ -87,6 +87,15 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 stream.WriteInt64(cursorId);
             }
             stream.BackpatchSize(startPosition);
+        }
+
+        // private methods
+        private void EnsureOpcodeIsValid(Opcode opcode)
+        {
+            if (opcode != Opcode.KillCursors)
+            {
+                throw new FormatException("KillCursors message opcode is not OP_KILL_CURSORS.");
+            }
         }
 
         // explicit interface implementations

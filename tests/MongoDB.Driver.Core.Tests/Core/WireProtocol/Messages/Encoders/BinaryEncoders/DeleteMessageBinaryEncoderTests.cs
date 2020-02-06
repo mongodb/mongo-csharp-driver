@@ -17,9 +17,6 @@ using System;
 using System.IO;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
-using MongoDB.Driver.Core.WireProtocol.Messages;
-using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
 using Xunit;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
@@ -102,6 +99,21 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 message.IsMulti.Should().Be(__isMulti);
                 message.Query.Should().Be(__query);
                 message.RequestId.Should().Be(__requestId);
+            }
+        }
+
+        [Fact]
+        public void ReadMessage_should_throw_when_opcode_is_invalid()
+        {
+            var bytes = (byte[])__testMessageBytes.Clone();
+            bytes[12]++;
+
+            using (var stream = new MemoryStream(bytes))
+            {
+                var subject = new DeleteMessageBinaryEncoder(stream, __messageEncoderSettings);
+                var exception = Record.Exception(() => subject.ReadMessage());
+                exception.Should().BeOfType<FormatException>();
+                exception.Message.Should().Be("Delete message opcode is not OP_DELETE.");
             }
         }
 

@@ -173,6 +173,21 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
+        [Fact]
+        public void ReadMessage_should_throw_when_opcode_is_invalid()
+        {
+            var bytes = (byte[]) __testMessageBytes.Clone();
+            bytes[12]++;
+
+            using (var stream = new MemoryStream(bytes))
+            {
+                var subject = new ReplyMessageBinaryEncoder<BsonDocument>(stream, __messageEncoderSettings, __serializer);
+                var exception = Record.Exception(() => subject.ReadMessage());
+                exception.Should().BeOfType<FormatException>();
+                exception.Message.Should().Be("Reply message opcode is not OP_REPLY.");
+            }
+        }
+
         [Theory]
         [InlineData(0, false, false, false)]
         [InlineData(1, true, false, false)]

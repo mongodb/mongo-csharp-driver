@@ -16,9 +16,6 @@
 using System;
 using System.IO;
 using FluentAssertions;
-using MongoDB.Bson.IO;
-using MongoDB.Driver.Core.WireProtocol.Messages;
-using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
 using Xunit;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
@@ -83,6 +80,21 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 message.CollectionNamespace.Should().Be(__collectionNamespace);
                 message.CursorId.Should().Be(__cursorId);
                 message.RequestId.Should().Be(__requestId);
+            }
+        }
+
+        [Fact]
+        public void ReadMessage_should_throw_when_opcode_is_invalid()
+        {
+            var bytes = (byte[])__testMessageBytes.Clone();
+            bytes[12]++;
+
+            using (var stream = new MemoryStream(bytes))
+            {
+                var subject = new GetMoreMessageBinaryEncoder(stream, __messageEncoderSettings);
+                var exception = Record.Exception(() => subject.ReadMessage());
+                exception.Should().BeOfType<FormatException>();
+                exception.Message.Should().Be("GetMore message opcode is not OP_GET_MORE.");
             }
         }
 

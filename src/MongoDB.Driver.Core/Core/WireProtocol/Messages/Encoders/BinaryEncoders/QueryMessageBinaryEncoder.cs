@@ -89,7 +89,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var messageSize = stream.ReadInt32();
             var requestId = stream.ReadInt32();
             stream.ReadInt32(); // responseTo
-            stream.ReadInt32(); // opcode
+            var opcode = (Opcode)stream.ReadInt32();
+            EnsureOpcodeIsValid(opcode);
             var flags = (QueryFlags)stream.ReadInt32();
             var fullCollectionName = stream.ReadCString(Encoding);
             var skip = stream.ReadInt32();
@@ -153,6 +154,14 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         }
 
         // private methods
+        private void EnsureOpcodeIsValid(Opcode opcode)
+        {
+            if (opcode != Opcode.Query)
+            {
+                throw new FormatException("Query message opcode is not OP_QUERY.");
+            }
+        }
+
         private void WriteOptionalFields(BsonBinaryWriter binaryWriter, BsonDocument fields)
         {
             if (fields != null)

@@ -15,7 +15,6 @@
 
 using System;
 using System.IO;
-using System.Text;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Misc;
 
@@ -50,7 +49,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             stream.ReadInt32(); // messageSize
             var requestId = stream.ReadInt32();
             stream.ReadInt32(); // responseTo
-            stream.ReadInt32(); // opcode
+            var opcode = (Opcode)stream.ReadInt32();
+            EnsureOpcodeIsValid(opcode);
             stream.ReadInt32(); // reserved
             var fullCollectionName = stream.ReadCString(Encoding);
             var batchSize = stream.ReadInt32();
@@ -84,6 +84,15 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             stream.WriteInt32(message.BatchSize);
             stream.WriteInt64(message.CursorId);
             stream.BackpatchSize(startPosition);
+        }
+
+        // private methods
+        private void EnsureOpcodeIsValid(Opcode opcode)
+        {
+            if (opcode != Opcode.GetMore)
+            {
+                throw new FormatException("GetMore message opcode is not OP_GET_MORE.");
+            }
         }
 
         // explicit interface implementations

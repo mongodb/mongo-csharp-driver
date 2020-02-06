@@ -14,11 +14,7 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -77,7 +73,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             stream.ReadInt32(); // messageSize
             var requestId = stream.ReadInt32();
             stream.ReadInt32(); // responseTo
-            stream.ReadInt32(); // opcode
+            var opcode = (Opcode)stream.ReadInt32();
+            EnsureOpcodeIsValid(opcode);
             stream.ReadInt32(); // reserved
             var fullCollectionName = stream.ReadCString(Encoding);
             var flags = (UpdateFlags)stream.ReadInt32();
@@ -120,6 +117,15 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             WriteQuery(binaryWriter, message.Query);
             WriteUpdate(binaryWriter, message.Update, message.UpdateValidator);
             stream.BackpatchSize(startPosition);
+        }
+
+        // private methods
+        private void EnsureOpcodeIsValid(Opcode opcode)
+        {
+            if (opcode != Opcode.Update)
+            {
+                throw new FormatException("Update message opcode is not OP_UPDATE.");
+            }
         }
 
         private void WriteQuery(BsonBinaryWriter binaryWriter, BsonDocument query)
