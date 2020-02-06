@@ -13,16 +13,12 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Servers;
-using MongoDB.Driver.Core.TestHelpers;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {
@@ -50,8 +46,9 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
             return TestRunner.ConfigureFailPointAsync(pinnedServer, NoCoreSession.NewHandle(), _failCommand);
         }
 
-        public override void Assert()
+        protected override void AssertResult()
         {
+            // do nothing
         }
 
         protected override void SetArgument(string name, BsonValue value)

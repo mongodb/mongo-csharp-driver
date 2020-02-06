@@ -20,6 +20,7 @@ using MongoDB.Driver.Core.Events;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {
@@ -38,7 +39,13 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
             // do nothing
         }
 
-        public override void Assert()
+        public override Task ActAsync(CancellationToken cancellationToken)
+        {
+            // do nothing
+            return Task.FromResult(true);
+        }
+
+        protected override void AssertResult()
         {
             var lastTwoCommands = _eventCapturer
                 .Events

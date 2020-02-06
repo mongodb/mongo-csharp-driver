@@ -15,6 +15,7 @@
 
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
@@ -31,7 +32,13 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
             // do nothing
         }
 
-        public override void Assert()
+        public override Task ActAsync(CancellationToken cancellationToken)
+        {
+            // do nothing
+            return Task.FromResult(true);
+        }
+
+        protected override void AssertResult()
         {
             CoreSession.IsDirty.Should().BeTrue();
         }

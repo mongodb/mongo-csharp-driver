@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
             return Task.FromResult(true);
         }
 
-        public override void Assert()
+        protected override void AssertResult()
         {
             CoreSession.CurrentTransaction.State.Should().Be(_state);
         }

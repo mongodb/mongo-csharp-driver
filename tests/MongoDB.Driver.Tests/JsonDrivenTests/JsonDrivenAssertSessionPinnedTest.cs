@@ -15,10 +15,8 @@
 
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
-using MongoDB.Bson;
-using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {
@@ -31,9 +29,16 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
 
         public override void Act(CancellationToken cancellationToken)
         {
+            // do nothing
         }
 
-        public override void Assert()
+        public override Task ActAsync(CancellationToken cancellationToken)
+        {
+            // do nothing
+            return Task.FromResult(true);
+        }
+
+        protected override void AssertResult()
         {
             GetPinnedServer().Should().NotBeNull();
         }
