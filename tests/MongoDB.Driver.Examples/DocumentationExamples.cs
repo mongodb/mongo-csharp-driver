@@ -1251,7 +1251,7 @@ namespace MongoDB.Driver.Examples
         [Fact]
         public void Aggregation_Example_1()
         {
-            RequireServer.Check().Supports(Feature.Aggregate);
+            RequireServer.Check();
 
             //db.sales.aggregate([ 
             //    { $match : { "items.fruit":"banana" } },
@@ -1272,7 +1272,7 @@ namespace MongoDB.Driver.Examples
         [Fact]
         public void Aggregation_Example_2()
         {
-            RequireServer.Check().Supports(Feature.Aggregate);
+            RequireServer.Check();
 
             //db.sales.aggregate([
             //{
@@ -1334,7 +1334,7 @@ namespace MongoDB.Driver.Examples
         [Fact]
         public void Aggregation_Example_3()
         {
-            RequireServer.Check().Supports(Feature.Aggregate);
+            RequireServer.Check();
 
             //db.sales.aggregate([
             //{
@@ -1531,8 +1531,7 @@ namespace MongoDB.Driver.Examples
         [Fact]
         public void Index_Example_1()
         {
-            RequireServer.Check().Supports(Feature.CreateIndexesCommand);
-
+            RequireServer.Check();
             //db.records.createIndex( { score: 1 } )
 
             // Start Index Example 1

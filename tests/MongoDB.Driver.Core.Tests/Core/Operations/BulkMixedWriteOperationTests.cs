@@ -651,7 +651,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.WriteCommands);
+            RequireServer.Check();
             EnsureTestData();
             var smallDocument = new BsonDocument { { "_id", 7 }, { "x", "" } };
             var smallDocumentSize = smallDocument.ToBson().Length;
@@ -1352,7 +1352,7 @@ namespace MongoDB.Driver.Core.Operations
         [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999888 }, new[] { 4, 1 })]
         public void Execute_with_multiple_deletes_should_split_batches_as_expected_when_using_write_commands_via_opmessage(int[] requestSizes, int[] expectedBatchCounts)
         {
-            RequireServer.Check().Supports(Feature.WriteCommands, Feature.CommandMessage);
+            RequireServer.Check().Supports(Feature.CommandMessage);
             DropCollection();
 
             using (EventContext.BeginOperation())
@@ -1384,7 +1384,7 @@ namespace MongoDB.Driver.Core.Operations
         [InlineData(new[] { 16777216, 16777216 }, new[] { 1, 1 })]
         public void Execute_with_multiple_deletes_should_split_batches_as_expected_when_using_write_commands_via_opquery(int[] requestSizes, int[] expectedBatchCounts)
         {
-            RequireServer.Check().Supports(Feature.WriteCommands).DoesNotSupport(Feature.CommandMessage);
+            RequireServer.Check().DoesNotSupport(Feature.CommandMessage);
             DropCollection();
 
             using (EventContext.BeginOperation())
@@ -1415,7 +1415,7 @@ namespace MongoDB.Driver.Core.Operations
         [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999886 }, new[] { 4, 1 })]
         public void Execute_with_multiple_inserts_should_split_batches_as_expected_when_using_write_commands_via_opmessage(int[] documentSizes, int[] expectedBatchCounts)
         {
-            RequireServer.Check().Supports(Feature.WriteCommands, Feature.CommandMessage);
+            RequireServer.Check().Supports(Feature.CommandMessage);
             DropCollection();
 
             using (EventContext.BeginOperation())
@@ -1449,7 +1449,7 @@ namespace MongoDB.Driver.Core.Operations
         [InlineData(new[] { 16777216, 16777216 }, new[] { 1, 1 })]
         public void Execute_with_multiple_inserts_should_split_batches_as_expected_when_using_write_commands_via_opquery(int[] documentSizes, int[] expectedBatchCounts)
         {
-            RequireServer.Check().Supports(Feature.WriteCommands).DoesNotSupport(Feature.CommandMessage);
+            RequireServer.Check().DoesNotSupport(Feature.CommandMessage);
             DropCollection();
 
             using (EventContext.BeginOperation())
@@ -1481,7 +1481,7 @@ namespace MongoDB.Driver.Core.Operations
         [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999888 }, new[] { 4, 1 })]
         public void Execute_with_multiple_updates_should_split_batches_as_expected_when_using_write_commands_via_opmessage(int[] requestSizes, int[] expectedBatchCounts)
         {
-            RequireServer.Check().Supports(Feature.WriteCommands, Feature.CommandMessage);
+            RequireServer.Check().Supports(Feature.CommandMessage);
             DropCollection();
 
             using (EventContext.BeginOperation())
@@ -1513,7 +1513,7 @@ namespace MongoDB.Driver.Core.Operations
         [InlineData(new[] { 16777216, 16777216 }, new[] { 1, 1 })]
         public void Execute_with_multiple_updates_should_split_batches_as_expected_when_using_write_commands_via_opquery(int[] requestSizes, int[] expectedBatchCounts)
         {
-            RequireServer.Check().Supports(Feature.WriteCommands).DoesNotSupport(Feature.CommandMessage);
+            RequireServer.Check().DoesNotSupport(Feature.CommandMessage);
             DropCollection();
 
             using (EventContext.BeginOperation())

@@ -652,7 +652,7 @@ namespace MongoDB.Driver.Core.Operations
         public void Execute_should_throw_when_maxTime_is_exceeded(
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.FailPoints, Feature.GeoNearCommand).ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
+            RequireServer.Check().Supports(Feature.GeoNearCommand).ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
             var subject = new GeoNearOperation<BsonDocument>(_collectionNamespace, _near, _resultSerializer, _messageEncoderSettings);
             subject.MaxTime = TimeSpan.FromSeconds(9001);
 

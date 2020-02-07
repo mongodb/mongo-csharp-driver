@@ -288,15 +288,11 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().BeTrue();
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void CreateCommand_should_return_the_expected_result(
-            [Values(false, true)]
-            bool useServerVersionSupportingAggregateCursorResult)
+        [Fact]
+        public void CreateCommand_should_return_the_expected_result()
         {
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings);
-            var serverVersion = Feature.AggregateCursorResult.SupportedOrNotSupportedVersion(useServerVersionSupportingAggregateCursorResult);
-
+            var serverVersion = Feature.AggregateCursorResult.FirstSupportedVersion;
             var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion);
             var session = OperationTestHelper.CreateSession();
 
@@ -306,7 +302,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 { "aggregate", _collectionNamespace.CollectionName },
                 { "pipeline", new BsonArray(__pipeline) },
-                { "cursor", () => new BsonDocument(), Feature.AggregateCursorResult.IsSupported(serverVersion) }
+                { "cursor", new BsonDocument() }
             };
             result.Should().Be(expectedResult);
         }
@@ -322,7 +318,9 @@ namespace MongoDB.Driver.Core.Operations
                 AllowDiskUse = allowDiskUse
             };
 
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.AggregateCursorResult.FirstSupportedVersion);
+            var serverVersion = Feature.AggregateCursorResult.FirstSupportedVersion;
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion);
+
             var session = OperationTestHelper.CreateSession();
 
             var result = subject.CreateCommand(connectionDescription, session);
@@ -341,34 +339,27 @@ namespace MongoDB.Driver.Core.Operations
         [ParameterAttributeData]
         public void CreateCommand_should_return_the_expected_result_when_BatchSize_is_set(
             [Values(null, 1)]
-            int? batchSize,
-            [Values(false, true)]
-            bool useServerVersionSupportingAggregateCursorResult)
+            int? batchSize)
         {
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
             {
                 BatchSize = batchSize
             };
-            var serverVersion = Feature.AggregateCursorResult.SupportedOrNotSupportedVersion(useServerVersionSupportingAggregateCursorResult);
-
+            var serverVersion = Feature.AggregateCursorResult.FirstSupportedVersion;
             var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion);
             var session = OperationTestHelper.CreateSession();
 
             var result = subject.CreateCommand(connectionDescription, session);
 
-            BsonDocument cursor = null;
-            if (Feature.AggregateCursorResult.IsSupported(serverVersion))
+            var cursor = new BsonDocument
             {
-                cursor = new BsonDocument
-                {
-                    { "batchSize", () => batchSize.Value, batchSize != null }
-                };
-            }
+                {"batchSize", () => batchSize.Value, batchSize != null}
+            };
             var expectedResult = new BsonDocument
             {
                 { "aggregate", _collectionNamespace.CollectionName },
                 { "pipeline", new BsonArray(__pipeline) },
-                { "cursor", () => cursor, cursor != null }
+                { "cursor", cursor }
             };
             result.Should().Be(expectedResult);
         }
@@ -482,7 +473,8 @@ namespace MongoDB.Driver.Core.Operations
             {
                 MaxTime = TimeSpan.FromTicks(maxTimeTicks)
             };
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.AggregateCursorResult.FirstSupportedVersion);
+            var serverVersion = Feature.AggregateCursorResult.FirstSupportedVersion;
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion);
             var session = OperationTestHelper.CreateSession();
 
             var result = subject.CreateCommand(connectionDescription, session);
@@ -575,9 +567,7 @@ namespace MongoDB.Driver.Core.Operations
         [ParameterAttributeData]
         public void CreateCommand_should_return_the_expected_result_when_UseCursor_is_set(
             [Values(null, false, true)]
-            bool? useCursor,
-            [Values(false, true)]
-            bool useServerVersionSupportingAggregateCursorResult)
+            bool? useCursor)
         {
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
             {
@@ -585,8 +575,7 @@ namespace MongoDB.Driver.Core.Operations
                 UseCursor = useCursor
 #pragma warning restore 618
             };
-            var serverVersion = Feature.AggregateCursorResult.SupportedOrNotSupportedVersion(useServerVersionSupportingAggregateCursorResult);
-
+            var serverVersion = Feature.AggregateCursorResult.FirstSupportedVersion;
             var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion);
             var session = OperationTestHelper.CreateSession();
 
@@ -596,7 +585,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 { "aggregate", _collectionNamespace.CollectionName },
                 { "pipeline", new BsonArray(__pipeline) },
-                { "cursor", () => new BsonDocument(), useCursor.GetValueOrDefault(true) && Feature.AggregateCursorResult.IsSupported(serverVersion) }
+                { "cursor", () => new BsonDocument(), useCursor.GetValueOrDefault(true) }
             };
             result.Should().Be(expectedResult);
         }
@@ -607,7 +596,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.Aggregate);
+            RequireServer.Check();
             EnsureTestData();
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings);
 
@@ -645,7 +634,7 @@ namespace MongoDB.Driver.Core.Operations
         public void Execute_should_throw_when_maxTime_is_exceeded(
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.Aggregate, Feature.FailPoints).ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
 
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings) { MaxTime = TimeSpan.FromSeconds(9001) };
 
@@ -682,7 +671,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.Aggregate, Feature.AggregateAllowDiskUse);
+            RequireServer.Check();
             EnsureTestData();
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
             {
@@ -704,7 +693,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.Aggregate);
+            RequireServer.Check();
             EnsureTestData();
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
             {
@@ -728,7 +717,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.Aggregate, Feature.Collation);
+            RequireServer.Check().Supports(Feature.Collation);
             EnsureTestData();
             var collation = new Collation("en_US", caseLevel: caseSensitive, strength: CollationStrength.Primary);
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
@@ -749,7 +738,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.Aggregate).DoesNotSupport(Feature.Collation);
+            RequireServer.Check().DoesNotSupport(Feature.Collation);
             var collation = new Collation("en_US");
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
             {
@@ -769,7 +758,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             RequireServer.Check()
                 .ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet)
-                .Supports(Feature.Aggregate, Feature.AggregateComment);
+                .Supports(Feature.AggregateComment);
             EnsureTestData();
 
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
@@ -796,7 +785,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.Aggregate, Feature.AggregateHint);
+            RequireServer.Check().Supports(Feature.AggregateHint);
             EnsureTestData();
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
             {
@@ -841,7 +830,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.Aggregate, Feature.MaxTime);
+            RequireServer.Check();
             EnsureTestData();
             var maxTime = milliseconds == null ? (TimeSpan?)null : TimeSpan.FromMilliseconds(milliseconds.Value);
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
@@ -864,7 +853,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.Aggregate, Feature.ReadConcern);
+            RequireServer.Check().Supports(Feature.ReadConcern);
             EnsureTestData();
             var readConcern = new ReadConcern(level);
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
@@ -885,7 +874,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.Aggregate).DoesNotSupport(Feature.ReadConcern);
+            RequireServer.Check().DoesNotSupport(Feature.ReadConcern);
             var readConcern = new ReadConcern(ReadConcernLevel.Linearizable);
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
             {
@@ -905,7 +894,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.Aggregate);
+            RequireServer.Check();
             EnsureTestData();
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
             {
@@ -926,7 +915,7 @@ namespace MongoDB.Driver.Core.Operations
         public void Execute_should_send_session_id_when_supported(
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.Aggregate);
+            RequireServer.Check();
             EnsureTestData();
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings);
 

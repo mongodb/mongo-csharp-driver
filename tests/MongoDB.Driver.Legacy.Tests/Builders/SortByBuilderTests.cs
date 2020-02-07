@@ -98,47 +98,44 @@ namespace MongoDB.Driver.Tests.Builders
         [Fact]
         public void TestMetaText()
         {
-            if (LegacyTestConfiguration.Server.Primary.Supports(FeatureId.TextSearchQuery))
+            var collection = LegacyTestConfiguration.Database.GetCollection<BsonDocument>("test_meta_text_sort");
+            collection.Drop();
+            collection.CreateIndex(IndexKeys.Text("textfield"));
+            collection.Insert(new BsonDocument
             {
-                var collection = LegacyTestConfiguration.Database.GetCollection<BsonDocument>("test_meta_text_sort");
-                collection.Drop();
-                collection.CreateIndex(IndexKeys.Text("textfield"));
-                collection.Insert(new BsonDocument
-                {
-                    { "_id", 1 },
-                    { "textfield", "The quick brown fox jumped" },
-                    { "z", 1 }
-                });
-                collection.Insert(new BsonDocument
-                {
-                    { "_id", 2 },
-                    { "textfield", "over the lazy brown dog and brown cat" },
-                    { "z", 2 }
-                });
-                collection.Insert(new BsonDocument
-                {
-                    { "_id", 3 },
-                    { "textfield", "over the lazy brown dog and brown cat" },
-                    { "z", 4 }
-                });
-                collection.Insert(new BsonDocument
-                {
-                    { "_id", 4 },
-                    { "textfield", "over the lazy brown dog and brown cat" },
-                    { "z", 3 }
-                });
+                { "_id", 1 },
+                { "textfield", "The quick brown fox jumped" },
+                { "z", 1 }
+            });
+            collection.Insert(new BsonDocument
+            {
+                { "_id", 2 },
+                { "textfield", "over the lazy brown dog and brown cat" },
+                { "z", 2 }
+            });
+            collection.Insert(new BsonDocument
+            {
+                { "_id", 3 },
+                { "textfield", "over the lazy brown dog and brown cat" },
+                { "z", 4 }
+            });
+            collection.Insert(new BsonDocument
+            {
+                { "_id", 4 },
+                { "textfield", "over the lazy brown dog and brown cat" },
+                { "z", 3 }
+            });
 
-                var query = Query.Text("brown");
-                var fields = Fields.MetaTextScore("relevance");
-                var sortBy = SortBy.MetaTextScore("relevance").Descending("z");
-                var cursor = collection.FindAs<BsonDocument>(query).SetFields(fields).SetSortOrder(sortBy);
-                var result = cursor.ToArray();
-                Assert.Equal(4, result.Length);
-                Assert.Equal(3, result[0]["_id"].AsInt32);
-                Assert.Equal(4, result[1]["_id"].AsInt32);
-                Assert.Equal(2, result[2]["_id"].AsInt32);
-                Assert.Equal(1, result[3]["_id"].AsInt32);
-            }
+            var query = Query.Text("brown");
+            var fields = Fields.MetaTextScore("relevance");
+            var sortBy = SortBy.MetaTextScore("relevance").Descending("z");
+            var cursor = collection.FindAs<BsonDocument>(query).SetFields(fields).SetSortOrder(sortBy);
+            var result = cursor.ToArray();
+            Assert.Equal(4, result.Length);
+            Assert.Equal(3, result[0]["_id"].AsInt32);
+            Assert.Equal(4, result[1]["_id"].AsInt32);
+            Assert.Equal(2, result[2]["_id"].AsInt32);
+            Assert.Equal(1, result[3]["_id"].AsInt32);
         }
     }
 }

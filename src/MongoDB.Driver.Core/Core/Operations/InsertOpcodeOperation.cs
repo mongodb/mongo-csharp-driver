@@ -231,7 +231,7 @@ namespace MongoDB.Driver.Core.Operations
             using (EventContext.BeginOperation())
             using (var context = RetryableWriteContext.Create(binding, false, cancellationToken))
             {
-                if (Feature.WriteCommands.IsSupported(context.Channel.ConnectionDescription.ServerVersion) && _writeConcern.IsAcknowledged)
+                if (_writeConcern.IsAcknowledged)
                 {
                     var emulator = CreateEmulator();
                     var result = emulator.Execute(context, cancellationToken);
@@ -252,7 +252,7 @@ namespace MongoDB.Driver.Core.Operations
             using (EventContext.BeginOperation())
             using (var context = await RetryableWriteContext.CreateAsync(binding, false, cancellationToken).ConfigureAwait(false))
             {
-                if (Feature.WriteCommands.IsSupported(context.Channel.ConnectionDescription.ServerVersion) && _writeConcern.IsAcknowledged)
+                if (_writeConcern.IsAcknowledged)
                 {
                     var emulator = CreateEmulator();
                     var result = await emulator.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);

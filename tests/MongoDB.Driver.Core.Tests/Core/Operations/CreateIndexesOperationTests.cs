@@ -70,7 +70,6 @@ namespace MongoDB.Driver.Core.Operations
         [Theory]
         [ParameterAttributeData]
         public void CreateOperation_should_return_expected_result(
-            [Values(false, true)] bool isCommandSupported,
             [Values(null, -10000, 0, 1, 42, 9000, 10000, 10001)] int? maxTimeTicks)
         {
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) };
@@ -81,28 +80,16 @@ namespace MongoDB.Driver.Core.Operations
                 MaxTime = maxTime,
                 WriteConcern = writeConcern
             };
-            var serverVersion = Feature.CreateIndexesCommand.SupportedOrNotSupportedVersion(isCommandSupported);
 
-            var result = subject.CreateOperation(serverVersion);
+            var result = subject.CreateOperation();
 
-            if (isCommandSupported)
-            {
-                result.Should().BeOfType<CreateIndexesUsingCommandOperation>();
-                var operation = (CreateIndexesUsingCommandOperation)result;
-                operation.CollectionNamespace.Should().BeSameAs(_collectionNamespace);
-                operation.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
-                operation.Requests.Should().Equal(requests);
-                operation.WriteConcern.Should().BeSameAs(writeConcern);
-                operation.MaxTime.Should().Be(maxTime);
-            }
-            else
-            {
-                result.Should().BeOfType<CreateIndexesUsingInsertOperation>();
-                var operation = (CreateIndexesUsingInsertOperation)result;
-                operation.CollectionNamespace.Should().BeSameAs(_collectionNamespace);
-                operation.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
-                operation.Requests.Should().Equal(requests);
-            }
+            result.Should().BeOfType<CreateIndexesUsingCommandOperation>();
+            var operation = (CreateIndexesUsingCommandOperation)result;
+            operation.CollectionNamespace.Should().BeSameAs(_collectionNamespace);
+            operation.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
+            operation.Requests.Should().Equal(requests);
+            operation.WriteConcern.Should().BeSameAs(writeConcern);
+            operation.MaxTime.Should().Be(maxTime);
         }
 
         [SkippableTheory]
@@ -274,7 +261,7 @@ namespace MongoDB.Driver.Core.Operations
         public void Execute_should_send_session_id_when_supported(
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.CreateIndexesCommand);
+            RequireServer.Check();
             DropCollection();
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) };
             var subject = new CreateIndexesOperation(_collectionNamespace, requests, _messageEncoderSettings);

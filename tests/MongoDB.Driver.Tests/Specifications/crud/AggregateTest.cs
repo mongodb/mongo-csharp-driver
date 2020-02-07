@@ -31,10 +31,6 @@ namespace MongoDB.Driver.Tests.Specifications.crud
         {
             var lastStage = arguments["pipeline"].AsBsonArray.Last().AsBsonDocument;
             var lastStageName = lastStage.GetElement(0).Name;
-            if (lastStageName == "$out")
-            {
-                RequireServer.Check().Supports(Feature.AggregateOut);
-            }
             if (lastStageName == "$merge")
             {
                 RequireServer.Check().Supports(Feature.AggregateMerge);

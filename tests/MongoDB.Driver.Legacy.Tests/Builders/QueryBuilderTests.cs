@@ -958,109 +958,97 @@ namespace MongoDB.Driver.Tests.Builders
         [Fact]
         public void TestNearWithGeoJsonWithMaxDistance()
         {
-            if (_primary.Supports(FeatureId.GeoJson))
-            {
-                var point = GeoJson.Point(GeoJson.Geographic(40, 18));
-                var query = Query.Near("loc", point, 42);
-                var expected = "{ 'loc' : { '$near' : { '$geometry' : { 'type' : 'Point', 'coordinates' : [40.0, 18.0] }, '$maxDistance' : 42.0 } } }".Replace("'", "\"");
-                Assert.Equal(expected, query.ToJson());
+            var point = GeoJson.Point(GeoJson.Geographic(40, 18));
+            var query = Query.Near("loc", point, 42);
+            var expected = "{ 'loc' : { '$near' : { '$geometry' : { 'type' : 'Point', 'coordinates' : [40.0, 18.0] }, '$maxDistance' : 42.0 } } }".Replace("'", "\"");
+            Assert.Equal(expected, query.ToJson());
 
-                var collection = LegacyTestConfiguration.Collection;
-                collection.Drop();
-                collection.CreateIndex(IndexKeys.GeoSpatialSpherical("loc"));
-                collection.Insert(new BsonDocument { { "_id", 1 }, { "loc", GeoJson.Point(GeoJson.Geographic(1, 1)).ToBsonDocument() } });
-                collection.Insert(new BsonDocument { { "_id", 2 }, { "loc", GeoJson.Point(GeoJson.Geographic(2, 2)).ToBsonDocument() } });
+            var collection = LegacyTestConfiguration.Collection;
+            collection.Drop();
+            collection.CreateIndex(IndexKeys.GeoSpatialSpherical("loc"));
+            collection.Insert(new BsonDocument { { "_id", 1 }, { "loc", GeoJson.Point(GeoJson.Geographic(1, 1)).ToBsonDocument() } });
+            collection.Insert(new BsonDocument { { "_id", 2 }, { "loc", GeoJson.Point(GeoJson.Geographic(2, 2)).ToBsonDocument() } });
 
-                var circumferenceOfTheEarth = 40075000; // meters at the equator, approx
-                var metersPerDegree = circumferenceOfTheEarth / 360.0;
-                query = Query.Near("loc", GeoJson.Point(GeoJson.Geographic(0, 0)), 2.0 * metersPerDegree);
-                var results = collection.Find(query).ToList();
-                Assert.Equal(1, results.Count);
-                Assert.Equal(1, results[0]["_id"].ToInt32());
-            }
+            var circumferenceOfTheEarth = 40075000; // meters at the equator, approx
+            var metersPerDegree = circumferenceOfTheEarth / 360.0;
+            query = Query.Near("loc", GeoJson.Point(GeoJson.Geographic(0, 0)), 2.0 * metersPerDegree);
+            var results = collection.Find(query).ToList();
+            Assert.Equal(1, results.Count);
+            Assert.Equal(1, results[0]["_id"].ToInt32());
         }
 
         [Fact]
         public void TestNearWithGeoJsonWithSpherical()
         {
-            if (_primary.Supports(FeatureId.GeoJson))
-            {
-                var point = GeoJson.Point(GeoJson.Geographic(40, 18));
-                var query = Query.Near("loc", point, 42, true);
-                var expected = "{ 'loc' : { '$nearSphere' : { '$geometry' : { 'type' : 'Point', 'coordinates' : [40.0, 18.0] }, '$maxDistance' : 42.0 } } }".Replace("'", "\"");
-                Assert.Equal(expected, query.ToJson());
+            var point = GeoJson.Point(GeoJson.Geographic(40, 18));
+            var query = Query.Near("loc", point, 42, true);
+            var expected = "{ 'loc' : { '$nearSphere' : { '$geometry' : { 'type' : 'Point', 'coordinates' : [40.0, 18.0] }, '$maxDistance' : 42.0 } } }".Replace("'", "\"");
+            Assert.Equal(expected, query.ToJson());
 
-                var collection = LegacyTestConfiguration.Collection;
-                collection.Drop();
-                collection.CreateIndex(IndexKeys.GeoSpatialSpherical("loc"));
-                collection.Insert(new BsonDocument { { "_id", 1 }, { "loc", GeoJson.Point(GeoJson.Geographic(1, 1)).ToBsonDocument() } });
-                collection.Insert(new BsonDocument { { "_id", 2 }, { "loc", GeoJson.Point(GeoJson.Geographic(2, 2)).ToBsonDocument() } });
+            var collection = LegacyTestConfiguration.Collection;
+            collection.Drop();
+            collection.CreateIndex(IndexKeys.GeoSpatialSpherical("loc"));
+            collection.Insert(new BsonDocument { { "_id", 1 }, { "loc", GeoJson.Point(GeoJson.Geographic(1, 1)).ToBsonDocument() } });
+            collection.Insert(new BsonDocument { { "_id", 2 }, { "loc", GeoJson.Point(GeoJson.Geographic(2, 2)).ToBsonDocument() } });
 
-                var circumferenceOfTheEarth = 40075000; // meters at the equator, approx
-                var metersPerDegree = circumferenceOfTheEarth / 360.0;
-                query = Query.Near("loc", GeoJson.Point(GeoJson.Geographic(0, 0)), 2.0 * metersPerDegree, true);
-                var results = collection.Find(query).ToList();
-                Assert.Equal(1, results.Count);
-                Assert.Equal(1, results[0]["_id"].ToInt32());
-            }
+            var circumferenceOfTheEarth = 40075000; // meters at the equator, approx
+            var metersPerDegree = circumferenceOfTheEarth / 360.0;
+            query = Query.Near("loc", GeoJson.Point(GeoJson.Geographic(0, 0)), 2.0 * metersPerDegree, true);
+            var results = collection.Find(query).ToList();
+            Assert.Equal(1, results.Count);
+            Assert.Equal(1, results[0]["_id"].ToInt32());
         }
 
 
         [Fact]
         public void TestText()
         {
-            if (_primary.Supports(FeatureId.TextSearchQuery))
+            var collection = _database.GetCollection<BsonDocument>("test_text");
+            collection.Drop();
+            collection.CreateIndex(IndexKeys.Text("textfield"));
+            collection.Insert(new BsonDocument
             {
-                var collection = _database.GetCollection<BsonDocument>("test_text");
-                collection.Drop();
-                collection.CreateIndex(IndexKeys.Text("textfield"));
-                collection.Insert(new BsonDocument
-                {
-                    { "_id", 1 },
-                    { "textfield", "The quick brown fox" }
-                });
-                collection.Insert(new BsonDocument
-                {
-                    { "_id", 2 },
-                    { "textfield", "over the lazy brown dog" }
-                });
-                var query = Query.Text("fox");
-                var results = collection.Find(query).ToArray();
-                Assert.Equal(1, results.Length);
-                Assert.Equal(1, results[0]["_id"].AsInt32);
-            }
+                { "_id", 1 },
+                { "textfield", "The quick brown fox" }
+            });
+            collection.Insert(new BsonDocument
+            {
+                { "_id", 2 },
+                { "textfield", "over the lazy brown dog" }
+            });
+            var query = Query.Text("fox");
+            var results = collection.Find(query).ToArray();
+            Assert.Equal(1, results.Length);
+            Assert.Equal(1, results[0]["_id"].AsInt32);
         }
 
         [Fact]
         public void TestTextWithLanguage()
         {
-            if (_primary.Supports(FeatureId.TextSearchQuery))
+            var collection = _database.GetCollection<BsonDocument>("test_text_spanish");
+            collection.Drop();
+            collection.CreateIndex(IndexKeys.Text("textfield"), IndexOptions.SetTextDefaultLanguage("spanish"));
+            collection.Insert(new BsonDocument
             {
-                var collection = _database.GetCollection<BsonDocument>("test_text_spanish");
-                collection.Drop();
-                collection.CreateIndex(IndexKeys.Text("textfield"), IndexOptions.SetTextDefaultLanguage("spanish"));
-                collection.Insert(new BsonDocument
-                {
-                    { "_id", 1 },
-                    { "textfield", "este es mi tercer blog stemmed" }
-                });
-                collection.Insert(new BsonDocument
-                {
-                    { "_id", 2 },
-                    { "textfield", "This stemmed blog is in english" },
-                    { "language", "english" }
-                });
+                { "_id", 1 },
+                { "textfield", "este es mi tercer blog stemmed" }
+            });
+            collection.Insert(new BsonDocument
+            {
+                { "_id", 2 },
+                { "textfield", "This stemmed blog is in english" },
+                { "language", "english" }
+            });
 
-                var query = Query.Text("stemmed");
-                var results = collection.Find(query).ToArray();
-                Assert.Equal(1, results.Length);
-                Assert.Equal(1, results[0]["_id"].AsInt32);
+            var query = Query.Text("stemmed");
+            var results = collection.Find(query).ToArray();
+            Assert.Equal(1, results.Length);
+            Assert.Equal(1, results[0]["_id"].AsInt32);
 
-                query = Query.Text("stemmed", "english");
-                results = collection.Find(query).ToArray();
-                Assert.Equal(1, results.Length);
-                Assert.Equal(2, results[0]["_id"].AsInt32);
-            }
+            query = Query.Text("stemmed", "english");
+            results = collection.Find(query).ToArray();
+            Assert.Equal(1, results.Length);
+            Assert.Equal(2, results[0]["_id"].AsInt32);
         }
     }
 }

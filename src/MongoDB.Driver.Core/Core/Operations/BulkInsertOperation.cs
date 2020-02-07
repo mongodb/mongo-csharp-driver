@@ -46,17 +46,6 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        protected override IExecutableInRetryableWriteContext<BulkWriteOperationResult> CreateEmulator()
-        {
-            return new BulkInsertOperationEmulator(CollectionNamespace, Requests, MessageEncoderSettings)
-            {
-                IsOrdered = IsOrdered,
-                MaxBatchCount = MaxBatchCount,
-                MaxBatchLength = MaxBatchLength,
-                WriteConcern = WriteConcern
-            };
-        }
-
         protected override bool RequestHasCollation(InsertRequest request)
         {
             return false;

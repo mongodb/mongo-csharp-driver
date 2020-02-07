@@ -137,36 +137,33 @@ namespace MongoDB.Driver.Tests.Builders
         [Fact]
         public void TestMetaText()
         {
-            if (LegacyTestConfiguration.Server.Primary.Supports(FeatureId.TextSearchQuery))
+            var collection = LegacyTestConfiguration.Database.GetCollection<TestClass>("test_meta_text");
+            collection.Drop();
+            collection.CreateIndex(IndexKeys<TestClass>.Text(x => x.textfield));
+            collection.Insert(new TestClass
             {
-                var collection = LegacyTestConfiguration.Database.GetCollection<TestClass>("test_meta_text");
-                collection.Drop();
-                collection.CreateIndex(IndexKeys<TestClass>.Text(x => x.textfield));
-                collection.Insert(new TestClass
-                {
-                    _id = 1,
-                    textfield = "The quick brown fox jumped",
-                    x = 1
-                });
-                collection.Insert(new TestClass
-                {
-                    _id = 2,
-                    textfield = "over the lazy brown dog",
-                    x = 1
-                });
+                _id = 1,
+                textfield = "The quick brown fox jumped",
+                x = 1
+            });
+            collection.Insert(new TestClass
+            {
+                _id = 2,
+                textfield = "over the lazy brown dog",
+                x = 1
+            });
 
-                var query = Query.Text("fox");
-                var result = collection.FindOneAs<BsonDocument>(query);
-                Assert.Equal(1, result["_id"].AsInt32);
-                Assert.False(result.Contains("relevance"));
-                Assert.True(result.Contains("x"));
+            var query = Query.Text("fox");
+            var result = collection.FindOneAs<BsonDocument>(query);
+            Assert.Equal(1, result["_id"].AsInt32);
+            Assert.False(result.Contains("relevance"));
+            Assert.True(result.Contains("x"));
 
-                var fields = Fields<TestClass>.MetaTextScore(y => y.relevance).Exclude(y => y.x);
-                result = collection.FindOneAs<BsonDocument>(new FindOneArgs() { Query = query, Fields = fields });
-                Assert.Equal(1, result["_id"].AsInt32);
-                Assert.True(result.Contains("relevance"));
-                Assert.False(result.Contains("x"));
-            }
+            var fields = Fields<TestClass>.MetaTextScore(y => y.relevance).Exclude(y => y.x);
+            result = collection.FindOneAs<BsonDocument>(new FindOneArgs() { Query = query, Fields = fields });
+            Assert.Equal(1, result["_id"].AsInt32);
+            Assert.True(result.Contains("relevance"));
+            Assert.False(result.Contains("x"));
         }
     }
 }

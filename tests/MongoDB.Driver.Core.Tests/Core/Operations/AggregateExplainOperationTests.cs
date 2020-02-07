@@ -302,7 +302,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.AggregateExplain);
+            RequireServer.Check();
             var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings);
 
             var result = ExecuteOperation(subject, async);
@@ -316,7 +316,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.AggregateExplain);
+            RequireServer.Check();
             var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings)
             {
                 AllowDiskUse = true
@@ -333,7 +333,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.AggregateExplain, Feature.Collation);
+            RequireServer.Check().Supports(Feature.Collation);
             var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings)
             {
                 Collation = new Collation("en_US")
@@ -350,7 +350,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.AggregateExplain).DoesNotSupport(Feature.Collation);
+            RequireServer.Check().DoesNotSupport(Feature.Collation);
 
             var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings)
             {
@@ -367,7 +367,7 @@ namespace MongoDB.Driver.Core.Operations
         public void Execute_should_throw_when_maxTime_is_exceeded(
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.AggregateExplain, Feature.FailPoints).ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
             
             var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings) { MaxTime = TimeSpan.FromSeconds(9001) };
 
@@ -387,7 +387,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             RequireServer.Check()
                 .ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet)
-                .Supports(Feature.AggregateExplain, Feature.AggregateComment);
+                .Supports(Feature.AggregateComment);
             var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings)
             {
                 Comment = "test"
@@ -411,7 +411,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.AggregateExplain, Feature.AggregateHint);
+            RequireServer.Check().Supports(Feature.AggregateHint);
             var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings)
             {
                 Hint = "_id_"
@@ -428,7 +428,7 @@ namespace MongoDB.Driver.Core.Operations
            [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.AggregateExplain);
+            RequireServer.Check();
             var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings)
             {
                 MaxTime = TimeSpan.FromSeconds(1)
@@ -444,7 +444,7 @@ namespace MongoDB.Driver.Core.Operations
         public void Execute_should_send_session_id_when_supported(
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.AggregateExplain);
+            RequireServer.Check();
             var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings);
             var cancellationToken = new CancellationTokenSource().Token;
 

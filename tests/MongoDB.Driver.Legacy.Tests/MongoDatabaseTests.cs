@@ -238,20 +238,17 @@ namespace MongoDB.Driver.Tests
 #pragma warning disable 618
             if (!DriverTestConfiguration.Client.Settings.Credentials.Any())
             {
-                if (_primary.Supports(FeatureId.MaxTime))
+                using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
                 {
-                    using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
+                    if (failpoint.IsSupported())
                     {
-                        if (failpoint.IsSupported())
+                        failpoint.SetAlwaysOn();
+                        var args = new EvalArgs
                         {
-                            failpoint.SetAlwaysOn();
-                            var args = new EvalArgs
-                            {
-                                Code = "return 0;",
-                                MaxTime = TimeSpan.FromMilliseconds(1)
-                            };
-                            Assert.Throws<MongoExecutionTimeoutException>(() => _adminDatabase.Eval(args));
-                        }
+                            Code = "return 0;",
+                            MaxTime = TimeSpan.FromMilliseconds(1)
+                        };
+                        Assert.Throws<MongoExecutionTimeoutException>(() => _adminDatabase.Eval(args));
                     }
                 }
             }
@@ -516,52 +513,28 @@ namespace MongoDB.Driver.Tests
             RequireServer.Check().VersionLessThan("3.7.0");
 
 #pragma warning disable 618
-            bool usesCommands = _primary.Supports(FeatureId.UserManagementCommands);
-            if (usesCommands)
-            {
-                _database.RunCommand("dropAllUsersFromDatabase");
-            }
-            else
-            {
-                var collection = _database.GetCollection("system.users");
-                collection.RemoveAll();
-            }
+            _database.RunCommand("dropAllUsersFromDatabase");
 
             _database.AddUser(new MongoUser(username, new PasswordEvidence(password), isReadOnly));
 
             var user = _database.FindUser(username);
             Assert.NotNull(user);
             Assert.Equal(username, user.Username);
-            if (!usesCommands)
-            {
-                Assert.Equal(MongoUtils.Hash(string.Format("{0}:mongo:{1}", username, password)), user.PasswordHash);
-                Assert.Equal(isReadOnly, user.IsReadOnly);
-            }
 
             var users = _database.FindAllUsers();
             Assert.Equal(1, users.Length);
             Assert.Equal(username, users[0].Username);
-            if (!usesCommands)
-            {
-                Assert.Equal(MongoUtils.Hash(string.Format("{0}:mongo:{1}", username, password)), users[0].PasswordHash);
-                Assert.Equal(isReadOnly, users[0].IsReadOnly);
-            }
 
             // test updating existing user
             _database.AddUser(new MongoUser(username, new PasswordEvidence("newpassword"), !isReadOnly));
             user = _database.FindUser(username);
             Assert.NotNull(user);
             Assert.Equal(username, user.Username);
-            if (!usesCommands)
-            {
-                Assert.Equal(MongoUtils.Hash(string.Format("{0}:mongo:{1}", username, "newpassword")), user.PasswordHash);
-                Assert.Equal(!isReadOnly, user.IsReadOnly);
-            }
 
             _database.RemoveUser(user);
             user = _database.FindUser(username);
             Assert.Null(user);
-#pragma warning restore
+#pragma warning restore 618
         }
 
         [Fact]

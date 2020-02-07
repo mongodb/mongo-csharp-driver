@@ -17,7 +17,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
@@ -48,15 +47,10 @@ namespace MongoDB.Driver.Operations
             using (var channel = channelSource.GetChannel(cancellationToken))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                IWriteOperation<bool> operation;
-                if (Feature.UserManagementCommands.IsSupported(channel.ConnectionDescription.ServerVersion))
-                {
-                    operation = new DropUserUsingUserManagementCommandsOperation(_databaseNamespace, _username, _messageEncoderSettings);
-                }
-                else
-                {
-                    operation = new DropUserUsingSystemUsersCollectionOperation(_databaseNamespace, _username, _messageEncoderSettings);
-                }
+                var operation = new DropUserUsingUserManagementCommandsOperation(
+                    _databaseNamespace,
+                    _username,
+                    _messageEncoderSettings);
 
                 return operation.Execute(channelBinding, cancellationToken);
             }

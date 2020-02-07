@@ -116,15 +116,8 @@ namespace MongoDB.Driver.Core.Operations
         public BulkWriteOperationResult Execute(RetryableWriteContext context, CancellationToken cancellationToken)
         {
             EnsureCollationIsSupportedIfAnyRequestHasCollation(context, _requests);
-            if (Feature.WriteCommands.IsSupported(context.Channel.ConnectionDescription.ServerVersion))
-            {
-                return ExecuteBatches(context, cancellationToken);
-            }
-            else
-            {
-                var emulator = CreateEmulator();
-                return emulator.Execute(context, cancellationToken);
-            }
+
+            return ExecuteBatches(context, cancellationToken);
         }
 
         public BulkWriteOperationResult Execute(IWriteBinding binding, CancellationToken cancellationToken)
@@ -140,15 +133,8 @@ namespace MongoDB.Driver.Core.Operations
         public Task<BulkWriteOperationResult> ExecuteAsync(RetryableWriteContext context, CancellationToken cancellationToken)
         {
             EnsureCollationIsSupportedIfAnyRequestHasCollation(context, _requests);
-            if (Feature.WriteCommands.IsSupported(context.Channel.ConnectionDescription.ServerVersion))
-            {
-                return ExecuteBatchesAsync(context, cancellationToken);
-            }
-            else
-            {
-                var emulator = CreateEmulator();
-                return emulator.ExecuteAsync(context, cancellationToken);
-            }
+
+            return ExecuteBatchesAsync(context, cancellationToken);
         }
 
         public async Task<BulkWriteOperationResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
@@ -163,8 +149,6 @@ namespace MongoDB.Driver.Core.Operations
 
         // protected methods
         protected abstract IRetryableWriteOperation<BsonDocument> CreateBatchOperation(Batch batch);
-
-        protected abstract IExecutableInRetryableWriteContext<BulkWriteOperationResult> CreateEmulator();
 
         protected abstract bool RequestHasCollation(TWriteRequest request);
 

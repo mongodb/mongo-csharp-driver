@@ -16,11 +16,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
@@ -124,7 +122,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var channel = channelSource.GetChannel(cancellationToken))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
+                var operation = CreateOperation();
                 return operation.Execute(channelBinding, cancellationToken);
             }
         }
@@ -137,26 +135,19 @@ namespace MongoDB.Driver.Core.Operations
             using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
+                var operation = CreateOperation();
                 return await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
             }
         }
 
-        // private methods
-        internal IWriteOperation<BsonDocument> CreateOperation(SemanticVersion serverVersion)
+        // internal methods
+        internal IWriteOperation<BsonDocument> CreateOperation()
         {
-            if (Feature.CreateIndexesCommand.IsSupported(serverVersion))
+            return new CreateIndexesUsingCommandOperation(_collectionNamespace, _requests, _messageEncoderSettings)
             {
-                return new CreateIndexesUsingCommandOperation(_collectionNamespace, _requests, _messageEncoderSettings)
-                {
-                    MaxTime = _maxTime,
-                    WriteConcern = _writeConcern
-                };
-            }
-            else
-            {
-                return new CreateIndexesUsingInsertOperation(_collectionNamespace, _requests, _messageEncoderSettings);
-            }
+                MaxTime = _maxTime,
+                WriteConcern = _writeConcern
+            };
         }
-   }
+    }
 }

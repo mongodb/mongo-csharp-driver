@@ -19,7 +19,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
@@ -50,16 +49,10 @@ namespace MongoDB.Driver.Operations
             using (var channel = channelSource.GetChannel(cancellationToken))
             using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
             {
-                IReadOperation<IEnumerable<BsonDocument>> operation;
-
-                if (Feature.UserManagementCommands.IsSupported(channel.ConnectionDescription.ServerVersion))
-                {
-                    operation = new FindUsersUsingUserManagementCommandsOperation(_databaseNamespace, _username, _messageEncoderSettings);
-                }
-                else
-                {
-                    operation = new FindUsersUsingSystemUsersCollectionOperation(_databaseNamespace, _username, _messageEncoderSettings);
-                }
+                var operation = new FindUsersUsingUserManagementCommandsOperation(
+                    _databaseNamespace,
+                    _username,
+                    _messageEncoderSettings);
 
                 return operation.Execute(channelBinding, cancellationToken);
             }

@@ -176,15 +176,8 @@ namespace MongoDB.Driver.Tests.Operations
             }
             var result = bulk.Execute();
 
-            if (_primary.Supports(FeatureId.WriteCommands))
-            {
-                Assert.Equal(true, result.IsModifiedCountAvailable);
-                Assert.Equal(count, result.ModifiedCount);
-            }
-            else
-            {
-                Assert.Equal(false, result.IsModifiedCountAvailable);
-            }
+            Assert.Equal(true, result.IsModifiedCountAvailable);
+            Assert.Equal(count, result.ModifiedCount);
             Assert.Equal(count, _collection.Count());
             Assert.Equal(count, _collection.Count(Query.EQ("n", 1)));
         }
@@ -350,7 +343,7 @@ namespace MongoDB.Driver.Tests.Operations
                 ModifiedCount = 1,
                 RequestCount = 5,
                 UpsertsCount = 1,
-                IsModifiedCountAvailable = _primary.Supports(FeatureId.WriteCommands)
+                IsModifiedCountAvailable = true
             };
             CheckExpectedResult(expectedResult, result);
 
@@ -389,7 +382,7 @@ namespace MongoDB.Driver.Tests.Operations
                 ModifiedCount = 1,
                 RequestCount = 4,
                 UpsertsCount = 1,
-                IsModifiedCountAvailable = _primary.Supports(FeatureId.WriteCommands)
+                IsModifiedCountAvailable = true
             };
             CheckExpectedResult(expectedResult, result);
 
@@ -426,7 +419,7 @@ namespace MongoDB.Driver.Tests.Operations
                 DeletedCount = 2,
                 RequestCount = 5,
                 UpsertsCount = 3,
-                IsModifiedCountAvailable = _primary.Supports(FeatureId.WriteCommands)
+                IsModifiedCountAvailable = true
             };
             CheckExpectedResult(expectedResult, result);
 
@@ -453,7 +446,7 @@ namespace MongoDB.Driver.Tests.Operations
                 MatchedCount = 2,
                 RequestCount = 5,
                 UpsertsCount = 1,
-                IsModifiedCountAvailable = _primary.Supports(FeatureId.WriteCommands)
+                IsModifiedCountAvailable = true
             };
             CheckExpectedResult(expectedResult, result);
 
@@ -511,7 +504,7 @@ namespace MongoDB.Driver.Tests.Operations
                 InsertedCount = 1,
                 ProcessedRequestsCount = 2,
                 RequestCount = 6,
-                IsModifiedCountAvailable = _primary.Supports(FeatureId.WriteCommands)
+                IsModifiedCountAvailable = true
             };
             CheckExpectedResult(expectedResult, result);
 
@@ -654,7 +647,7 @@ namespace MongoDB.Driver.Tests.Operations
             {
                 MatchedCount = 1,
                 ModifiedCount = 1,
-                IsModifiedCountAvailable = _primary.Supports(FeatureId.WriteCommands)
+                IsModifiedCountAvailable = true
             };
             CheckExpectedResult(expectedResult, result);
 
@@ -687,7 +680,7 @@ namespace MongoDB.Driver.Tests.Operations
                 InsertedCount = 2,
                 RequestCount = 6,
                 UpsertsCount = 1,
-                IsModifiedCountAvailable = _primary.Supports(FeatureId.WriteCommands)
+                IsModifiedCountAvailable = true
             };
             CheckExpectedResult(expectedResult, result);
 
@@ -747,7 +740,7 @@ namespace MongoDB.Driver.Tests.Operations
             {
                 MatchedCount = 1,
                 ModifiedCount = 1,
-                IsModifiedCountAvailable = _primary.Supports(FeatureId.WriteCommands)
+                IsModifiedCountAvailable = true
             };
             CheckExpectedResult(expectedResult, result);
 
@@ -799,7 +792,7 @@ namespace MongoDB.Driver.Tests.Operations
                 MatchedCount = 2,
                 ModifiedCount = 2,
                 RequestCount = 2,
-                IsModifiedCountAvailable = _primary.Supports(FeatureId.WriteCommands)
+                IsModifiedCountAvailable = true
             };
             CheckExpectedResult(expectedResult, result);
 
@@ -829,7 +822,7 @@ namespace MongoDB.Driver.Tests.Operations
             {
                 MatchedCount = 2,
                 ModifiedCount = 2,
-                IsModifiedCountAvailable = _primary.Supports(FeatureId.WriteCommands)
+                IsModifiedCountAvailable = true
             };
             CheckExpectedResult(expectedResult, result);
 
@@ -858,7 +851,7 @@ namespace MongoDB.Driver.Tests.Operations
                 var expectedResult = new ExpectedResult
                 {
                     UpsertsCount = 1,
-                    IsModifiedCountAvailable = _primary.Supports(FeatureId.WriteCommands)
+                    IsModifiedCountAvailable = true
                 };
                 CheckExpectedResult(expectedResult, result);
 
@@ -886,7 +879,7 @@ namespace MongoDB.Driver.Tests.Operations
             {
                 RequestCount = 2,
                 UpsertsCount = 1,
-                IsModifiedCountAvailable = _primary.Supports(FeatureId.WriteCommands)
+                IsModifiedCountAvailable = true
             };
             CheckExpectedResult(expectedResult, result);
 
@@ -911,7 +904,7 @@ namespace MongoDB.Driver.Tests.Operations
             {
                 MatchedCount = 1,
                 ModifiedCount = 1,
-                IsModifiedCountAvailable = _primary.Supports(FeatureId.WriteCommands)
+                IsModifiedCountAvailable = true
             };
             CheckExpectedResult(expectedResult, result);
 
@@ -940,7 +933,7 @@ namespace MongoDB.Driver.Tests.Operations
             {
                 RequestCount = 2,
                 UpsertsCount = 1,
-                IsModifiedCountAvailable = _primary.Supports(FeatureId.WriteCommands)
+                IsModifiedCountAvailable = true
             };
             CheckExpectedResult(expectedResult, result);
 
@@ -957,7 +950,7 @@ namespace MongoDB.Driver.Tests.Operations
             {
                 MatchedCount = 1,
                 RequestCount = 2,
-                IsModifiedCountAvailable = _primary.Supports(FeatureId.WriteCommands)
+                IsModifiedCountAvailable = true
             };
             CheckExpectedResult(expectedResult2, result2);
             _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
@@ -980,7 +973,7 @@ namespace MongoDB.Driver.Tests.Operations
             {
                 MatchedCount = 1,
                 ModifiedCount = 1,
-                IsModifiedCountAvailable = _primary.Supports(FeatureId.WriteCommands)
+                IsModifiedCountAvailable = true
             };
             CheckExpectedResult(expectedResult, result);
 
@@ -1008,7 +1001,7 @@ namespace MongoDB.Driver.Tests.Operations
             {
                 RequestCount = 2,
                 UpsertsCount = 1,
-                IsModifiedCountAvailable = _primary.Supports(FeatureId.WriteCommands)
+                IsModifiedCountAvailable = true
             };
             CheckExpectedResult(expectedResult, result);
 
@@ -1025,7 +1018,7 @@ namespace MongoDB.Driver.Tests.Operations
             {
                 MatchedCount = 1,
                 RequestCount = 2,
-                IsModifiedCountAvailable = _primary.Supports(FeatureId.WriteCommands)
+                IsModifiedCountAvailable = true
             };
             CheckExpectedResult(expectedResult2, result2);
             _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
@@ -1050,7 +1043,7 @@ namespace MongoDB.Driver.Tests.Operations
             {
                 MatchedCount = 2,
                 ModifiedCount = 2,
-                IsModifiedCountAvailable = _primary.Supports(FeatureId.WriteCommands)
+                IsModifiedCountAvailable = true
             };
             CheckExpectedResult(expectedResult, result);
 
@@ -1081,7 +1074,7 @@ namespace MongoDB.Driver.Tests.Operations
             var expectedResult = new ExpectedResult
             {
                 UpsertsCount = 1,
-                IsModifiedCountAvailable = _primary.Supports(FeatureId.WriteCommands)
+                IsModifiedCountAvailable = true
             };
             CheckExpectedResult(expectedResult, result);
 
@@ -1112,7 +1105,7 @@ namespace MongoDB.Driver.Tests.Operations
             {
                 MatchedCount = 1,
                 ModifiedCount = 1,
-                IsModifiedCountAvailable = _primary.Supports(FeatureId.WriteCommands)
+                IsModifiedCountAvailable = true
             };
             CheckExpectedResult(expectedResult, result);
 
@@ -1170,27 +1163,8 @@ namespace MongoDB.Driver.Tests.Operations
                 var bulk = InitializeBulkOperation(_collection, ordered);
                 bulk.Insert(documents[0]);
 
-                if (_primary.Supports(FeatureId.WriteCommands))
-                {
-                    Assert.Throws<MongoCommandException>(() => { bulk.Execute(WriteConcern.W2); });
-                    Assert.Equal(0, _collection.Count());
-                }
-                else
-                {
-                    var exception = Assert.Throws<MongoBulkWriteException<BsonDocument>>(() => { bulk.Execute(WriteConcern.W2); });
-                    var result = exception.Result;
-
-                    var expectedResult = new ExpectedResult { InsertedCount = 1, RequestCount = 1 };
-                    CheckExpectedResult(expectedResult, result);
-
-                    Assert.Equal(0, exception.UnprocessedRequests.Count);
-                    Assert.Equal(0, exception.WriteErrors.Count);
-
-                    var writeConcernError = exception.WriteConcernError;
-                    Assert.NotNull(writeConcernError);
-
-                    _collection.FindAll().Should().BeEquivalentTo(documents);
-                }
+                Assert.Throws<MongoCommandException>(() => { bulk.Execute(WriteConcern.W2); });
+                Assert.Equal(0, _collection.Count());
             }
         }
 
@@ -1198,7 +1172,7 @@ namespace MongoDB.Driver.Tests.Operations
         public void TestWTimeoutPlusDuplicateKeyError()
         {
             RequireEnvironment.Check().EnvironmentVariable("EXPLICIT");
-            RequireServer.Check().Supports(Feature.FailPoints).ClusterType(ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
             _collection.Drop();
 
             var secondary = LegacyTestConfiguration.Server.Secondaries.First();
