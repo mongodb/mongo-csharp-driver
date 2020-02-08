@@ -14,12 +14,12 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using MongoDB.Bson.IO;
+#if NET452
 using MongoDB.Driver.Core.Authentication.Vendored;
+#endif
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 
@@ -168,7 +168,6 @@ namespace MongoDB.Driver.Core.Authentication
         
         private class ClientFirst : ISaslStep
         {
-
             private readonly byte[] _bytesToSendToServer;
             private readonly string _clientFirstMessageBare;
             private readonly UsernamePasswordCredential _credential;
@@ -211,7 +210,7 @@ namespace MongoDB.Driver.Core.Authentication
                 var map = SaslMapParser.Parse(serverFirstMessage);
 
                 var r = map['r'];
-                if (!r.StartsWith(_rPrefix))
+                if (!r.StartsWith(_rPrefix, StringComparison.Ordinal))
                 {
                     throw new MongoAuthenticationException(conversation.ConnectionId, message: "Server sent an invalid nonce.");
                 }
