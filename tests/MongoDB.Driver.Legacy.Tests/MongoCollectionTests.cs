@@ -2247,12 +2247,16 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Fact]
-        public void TestInsertBatchMultipleBatchesWriteConcernDisabledContinueOnErrorFalse()
+        [Theory]
+        [ParameterAttributeData]
+        public void TestInsertBatchMultipleBatchesWriteConcernDisabledContinueOnErrorFalse(
+            [Values(false, true)] bool retryWrites)
         {
+            var server = LegacyTestConfiguration.GetServer(retryWrites);
+            var database = server.GetDatabase(LegacyTestConfiguration.Database.Name);
             var collectionName = LegacyTestConfiguration.Collection.Name;
             var collectionSettings = new MongoCollectionSettings { WriteConcern = WriteConcern.Unacknowledged };
-            var collection = LegacyTestConfiguration.Database.GetCollection<BsonDocument>(collectionName, collectionSettings);
+            var collection = database.GetCollection<BsonDocument>(collectionName, collectionSettings);
             collection.Drop();
 
             var maxMessageLength = _primary.MaxMessageLength;
@@ -2282,12 +2286,16 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(0, collection.Count(Query.EQ("_id", 5)));
         }
 
-        [Fact]
-        public void TestInsertBatchMultipleBatchesWriteConcernDisabledContinueOnErrorTrue()
+        [Theory]
+        [ParameterAttributeData]
+        public void TestInsertBatchMultipleBatchesWriteConcernDisabledContinueOnErrorTrue(
+            [Values(false, true)] bool retryWrites)
         {
+            var server = LegacyTestConfiguration.GetServer(retryWrites);
+            var database = server.GetDatabase(LegacyTestConfiguration.Database.Name);
             var collectionName = LegacyTestConfiguration.Collection.Name;
             var collectionSettings = new MongoCollectionSettings { WriteConcern = WriteConcern.Unacknowledged };
-            var collection = LegacyTestConfiguration.Database.GetCollection<BsonDocument>(collectionName, collectionSettings);
+            var collection = database.GetCollection<BsonDocument>(collectionName, collectionSettings);
             collection.Drop();
 
             var maxMessageLength = _primary.MaxMessageLength;
@@ -2982,17 +2990,22 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(0, _collection.Count());
         }
 
-        [Fact]
-        public void TestRemoveUnacknowledeged()
+        [Theory]
+        [ParameterAttributeData]
+        public void TestRemoveUnacknowledeged(
+            [Values(false, true)] bool retryWrites)
         {
-            using (_server.RequestStart())
+            var server = LegacyTestConfiguration.GetServer(retryWrites);
+            using (server.RequestStart())
             {
-                _collection.Drop();
-                _collection.Insert(new BsonDocument("x", 1));
-                var result = _collection.Remove(Query.EQ("x", 1), WriteConcern.Unacknowledged);
+                var database = server.GetDatabase(LegacyTestConfiguration.Database.Name);
+                var collection = database.GetCollection(GetType().Name);
+                collection.Drop();
+                collection.Insert(new BsonDocument("x", 1));
+                var result = collection.Remove(Query.EQ("x", 1), WriteConcern.Unacknowledged);
 
                 Assert.Equal(null, result);
-                Assert.Equal(0, _collection.Count());
+                Assert.Equal(0, collection.Count());
             }
         }
 
@@ -3254,20 +3267,25 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(2, _collection.Count());
         }
 
-        [Fact]
-        public void TestUpdateUnacknowledged()
+        [Theory]
+        [ParameterAttributeData]
+        public void TestUpdateUnacknowledged(
+            [Values(false, true)] bool retryWrites)
         {
-            using (_server.RequestStart())
+            var server = LegacyTestConfiguration.GetServer(retryWrites);
+            using (server.RequestStart())
             {
-                _collection.Drop();
-                _collection.Insert(new BsonDocument("x", 1));
-                var result = _collection.Update(Query.EQ("x", 1), Update.Set("x", 2), WriteConcern.Unacknowledged);
+                var database = server.GetDatabase(LegacyTestConfiguration.Database.Name);
+                var collection = database.GetCollection(GetType().Name);
+                collection.Drop();
+                collection.Insert(new BsonDocument("x", 1));
+                var result = collection.Update(Query.EQ("x", 1), Update.Set("x", 2), WriteConcern.Unacknowledged);
 
                 Assert.Equal(null, result);
 
-                var document = _collection.FindOne();
+                var document = collection.FindOne();
                 Assert.Equal(2, document["x"].AsInt32);
-                Assert.Equal(1, _collection.Count());
+                Assert.Equal(1, collection.Count());
             }
         }
 

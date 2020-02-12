@@ -59,6 +59,16 @@ namespace MongoDB.Bson.TestHelpers
             return Be(expected, because, reasonArgs);
         }
 
+        public AndConstraint<BsonDocumentAssertions> Contain(string name, string because = "", params object[] reasonArgs)
+        {
+            Execute.Assertion
+                .BecauseOf(because, reasonArgs)
+                .ForCondition(Subject.Contains(name))
+                .FailWith("Expected {context:object} to contain element {0}{reason}.", name);
+
+            return new AndConstraint<BsonDocumentAssertions>(this);
+        }
+
         public AndConstraint<BsonDocumentAssertions> NotBe(BsonDocument unexpected, string because = "", params object[] reasonArgs)
         {
             Execute.Assertion
@@ -73,6 +83,16 @@ namespace MongoDB.Bson.TestHelpers
         {
             var expected = json == null ? null : BsonDocument.Parse(json);
             return NotBe(expected, because, reasonArgs);
+        }
+
+        public AndConstraint<BsonDocumentAssertions> NotContain(string name, string because = "", params object[] reasonArgs)
+        {
+            Execute.Assertion
+                .BecauseOf(because, reasonArgs)
+                .ForCondition(!Subject.Contains(name))
+                .FailWith("Expected {context:object} to not contain element {0}{reason}.", name);
+
+            return new AndConstraint<BsonDocumentAssertions>(this);
         }
 
         protected override string Context

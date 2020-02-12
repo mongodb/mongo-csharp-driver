@@ -1118,11 +1118,12 @@ namespace MongoDB.Driver.Tests.Operations
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void TestW0DoesNotReportErrors(bool ordered)
+        [ParameterAttributeData]
+        public void TestW0DoesNotReportErrors(
+            [Values(false, true)] bool retryWrites,
+            [Values(false, true)] bool ordered)
         {
-            var server = LegacyTestConfiguration.GetServer(retryWrites: false);
+            var server = LegacyTestConfiguration.GetServer(retryWrites);
             var collection = GetCollection(server);
 
             // use a request so we can read our own writes even with older servers

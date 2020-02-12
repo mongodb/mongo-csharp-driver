@@ -98,6 +98,11 @@ namespace MongoDB.Driver.Core.Operations
     public interface IRetryableWriteOperation<TResult> : IExecutableInRetryableWriteContext<TResult>
     {
         /// <summary>
+        /// Gets the write concern for the operation.
+        /// </summary>
+        WriteConcern WriteConcern { get; }
+
+        /// <summary>
         /// Executes the first attempt.
         /// </summary>
         /// <param name="context">The context.</param>

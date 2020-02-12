@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Core.Operations
 
         public static TResult Execute<TResult>(IRetryableWriteOperation<TResult> operation, RetryableWriteContext context, CancellationToken cancellationToken)
         {
-            if (!context.RetryRequested || !AreRetryableWritesSupported(context.Channel.ConnectionDescription) || context.Binding.Session.IsInTransaction)
+            if (!AreRetriesAllowed(operation, context))
             {
                 return operation.ExecuteAttempt(context, 1, null, cancellationToken);
             }
@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Core.Operations
 
         public static async Task<TResult> ExecuteAsync<TResult>(IRetryableWriteOperation<TResult> operation, RetryableWriteContext context, CancellationToken cancellationToken)
         {
-            if (!context.RetryRequested || !AreRetryableWritesSupported(context.Channel.ConnectionDescription) || context.Binding.Session.IsInTransaction)
+            if (!AreRetriesAllowed(operation, context))
             {
                 return await operation.ExecuteAttemptAsync(context, 1, null, cancellationToken).ConfigureAwait(false);
             }
@@ -128,11 +128,32 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // privates static methods
+        private static bool AreRetriesAllowed<TResult>(IRetryableWriteOperation<TResult> operation, RetryableWriteContext context)
+        {
+            return IsOperationAcknowledged(operation) && DoesContextAllowRetries(context);
+        }
+
         private static bool AreRetryableWritesSupported(ConnectionDescription connectionDescription)
         {
             return
                 connectionDescription.IsMasterResult.LogicalSessionTimeout != null &&
                 connectionDescription.IsMasterResult.ServerType != ServerType.Standalone;
+        }
+
+        private static bool DoesContextAllowRetries(RetryableWriteContext context)
+        {
+            return
+                context.RetryRequested &&
+                AreRetryableWritesSupported(context.Channel.ConnectionDescription) &&
+                !context.Binding.Session.IsInTransaction;
+        }
+
+        private static bool IsOperationAcknowledged<TResult>(IRetryableWriteOperation<TResult> operation)
+        {
+            var writeConcern = operation.WriteConcern;
+            return 
+                writeConcern == null || // null means use server default write concern which implies acknowledged
+                writeConcern.IsAcknowledged;
         }
 
         private static bool ShouldThrowOriginalException(Exception retryException)
