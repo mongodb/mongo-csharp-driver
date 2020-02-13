@@ -10,6 +10,10 @@ title = "What's New"
 
 ## What's New in 2.10.0
 
+{{% note %}}
+If you are using unacknowledged writes (also known as w:0 writes) with versions 2.10.0 or 2.10.1 of the driver, we strongly recommend you upgrade to version 2.10.2 as soon as possible, to obtain the fix for a critical issue: https://jira.mongodb.org/browse/CSHARP-2960
+{{% /note %}}
+
 Some of the changes in 2.10.0 include:
 
 * [Client-side field level encryption support]({{< relref "reference\driver\crud\client_side_encryption.md" >}}) for Windows

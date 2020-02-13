@@ -1,5 +1,9 @@
 # .NET Driver Version 2.10.0 Release Notes
 
+> IMPORTANT:
+>
+> If you are using unacknowledged writes (also known as w:0 writes) with versions 2.10.0 or 2.10.1 of the driver, we strongly recommend you upgrade to version 2.10.2 as soon as possible, to obtain the fix for a critical issue: https://jira.mongodb.org/browse/CSHARP-2960.
+
 The main changes in 2.10.0 are:
 
 1. A number of minor bug fixes
