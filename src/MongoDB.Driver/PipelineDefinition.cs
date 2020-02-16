@@ -352,8 +352,8 @@ namespace MongoDB.Driver
             {
                 var message = string.Format(
                     "The output type to the last stage was expected to be {0}, but was {1}.",
-                    nextInputType,
-                    stages.Last().OutputType);
+                    typeof(TOutput),
+                    nextInputType);
                 throw new ArgumentException(message, "stages");
             }
 
