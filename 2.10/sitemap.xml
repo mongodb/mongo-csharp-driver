@@ -103,6 +103,11 @@
   </url>
   
   <url>
+    <loc>/mongo-csharp-driver/2.10/examples/</loc>
+    <lastmod>2015-03-17T15:36:56+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/mongo-csharp-driver/2.10/examples/importing_json/</loc>
     <lastmod>2015-03-17T15:36:56+00:00</lastmod>
   </url>
@@ -113,7 +118,7 @@
   </url>
   
   <url>
-    <loc>/mongo-csharp-driver/2.10/examples/</loc>
+    <loc>/mongo-csharp-driver/2.10/getting_started/admin_quick_tour/</loc>
     <lastmod>2015-03-17T15:36:56+00:00</lastmod>
   </url>
   
@@ -123,7 +128,12 @@
   </url>
   
   <url>
-    <loc>/mongo-csharp-driver/2.10/getting_started/admin_quick_tour/</loc>
+    <loc>/mongo-csharp-driver/2.10/</loc>
+    <lastmod>2015-03-17T15:36:56+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/mongo-csharp-driver/2.10/getting_started/quick_tour/</loc>
     <lastmod>2015-03-17T15:36:56+00:00</lastmod>
   </url>
   
@@ -133,17 +143,7 @@
   </url>
   
   <url>
-    <loc>/mongo-csharp-driver/2.10/</loc>
-    <lastmod>2015-03-17T15:36:56+00:00</lastmod>
-  </url>
-  
-  <url>
     <loc>/mongo-csharp-driver/2.10/reference/bson/bson/</loc>
-    <lastmod>2015-03-17T15:36:56+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/mongo-csharp-driver/2.10/getting_started/quick_tour/</loc>
     <lastmod>2015-03-17T15:36:56+00:00</lastmod>
   </url>
   
@@ -168,12 +168,12 @@
   </url>
   
   <url>
-    <loc>/mongo-csharp-driver/2.10/reference/bson/mapping/schema_changes/</loc>
+    <loc>/mongo-csharp-driver/2.10/reference/bson/mapping/polymorphism/</loc>
     <lastmod>2015-03-17T15:36:56+00:00</lastmod>
   </url>
   
   <url>
-    <loc>/mongo-csharp-driver/2.10/reference/bson/mapping/polymorphism/</loc>
+    <loc>/mongo-csharp-driver/2.10/reference/bson/mapping/schema_changes/</loc>
     <lastmod>2015-03-17T15:36:56+00:00</lastmod>
   </url>
   
@@ -188,17 +188,12 @@
   </url>
   
   <url>
-    <loc>/mongo-csharp-driver/2.10/reference/driver/crud/</loc>
-    <lastmod>2015-03-17T15:36:56+00:00</lastmod>
-  </url>
-  
-  <url>
     <loc>/mongo-csharp-driver/2.10/reference/driver/crud/reading/</loc>
     <lastmod>2015-03-17T15:36:56+00:00</lastmod>
   </url>
   
   <url>
-    <loc>/mongo-csharp-driver/2.10/reference/driver/definitions/</loc>
+    <loc>/mongo-csharp-driver/2.10/reference/driver/crud/</loc>
     <lastmod>2015-03-17T15:36:56+00:00</lastmod>
   </url>
   
@@ -208,22 +203,27 @@
   </url>
   
   <url>
-    <loc>/mongo-csharp-driver/2.10/reference/driver/error_handling/</loc>
-    <lastmod>2015-03-17T15:36:56+00:00</lastmod>
-  </url>
-  
-  <url>
     <loc>/mongo-csharp-driver/2.10/reference/driver/</loc>
     <lastmod>2015-03-17T15:36:56+00:00</lastmod>
   </url>
   
   <url>
-    <loc>/mongo-csharp-driver/2.10/reference/driver_core/</loc>
+    <loc>/mongo-csharp-driver/2.10/reference/driver/definitions/</loc>
+    <lastmod>2015-03-17T15:36:56+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/mongo-csharp-driver/2.10/reference/driver/error_handling/</loc>
     <lastmod>2015-03-17T15:36:56+00:00</lastmod>
   </url>
   
   <url>
     <loc>/mongo-csharp-driver/2.10/reference/driver/expressions/</loc>
+    <lastmod>2015-03-17T15:36:56+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/mongo-csharp-driver/2.10/reference/driver_core/</loc>
     <lastmod>2015-03-17T15:36:56+00:00</lastmod>
   </url>
   
