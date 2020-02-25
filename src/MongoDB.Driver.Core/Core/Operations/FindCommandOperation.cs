@@ -45,6 +45,7 @@ namespace MongoDB.Driver.Core.Operations
         #endregion
 
         // fields
+        private bool? _allowDiskUse;
         private bool? _allowPartialResults;
         private int? _batchSize;
         private Collation _collation;
@@ -93,6 +94,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets a value indicating whether the server is allowed to write to disk while executing the Find operation.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if the server is allowed to write to disk while executing the Find operation; otherwise, <c>false</c>.
+        /// </value>
+        public bool? AllowDiskUse
+        {
+            get { return _allowDiskUse; }
+            set { _allowDiskUse = value; }
+        }
+
         /// <summary>
         /// Gets or sets a value indicating whether the server is allowed to return partial results if any shards are unavailable.
         /// </summary>
@@ -459,6 +472,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "oplogReplay", () => _oplogReplay.Value, _oplogReplay.HasValue },
                 { "noCursorTimeout", () => _noCursorTimeout.Value, _noCursorTimeout.HasValue },
                 { "awaitData", true, _cursorType == CursorType.TailableAwait },
+                { "allowDiskUse", () => _allowDiskUse.Value, _allowDiskUse.HasValue },
                 { "allowPartialResults", () => _allowPartialResults.Value, _allowPartialResults.HasValue && isShardRouter },
                 { "collation", () => _collation.ToBsonDocument(), _collation != null },
                 { "readConcern", readConcern, readConcern != null }

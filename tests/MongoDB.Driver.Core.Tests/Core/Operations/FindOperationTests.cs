@@ -34,6 +34,20 @@ namespace MongoDB.Driver.Core.Operations
         // public methods
         [Theory]
         [ParameterAttributeData]
+        public void AllowDiskUse_get_and_set_should_work(
+            [Values(null, false, true)]
+            bool? value)
+        {
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+
+            subject.AllowDiskUse = value;
+            var result = subject.AllowDiskUse;
+
+            result.Should().Be(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void AllowPartialResults_get_and_set_should_work(
             [Values(null, false, true)]
             bool? value)
@@ -127,6 +141,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.ResultSerializer.Should().BeSameAs(BsonDocumentSerializer.Instance);
             subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
 
+            subject.AllowDiskUse.Should().NotHaveValue();
             subject.AllowPartialResults.Should().NotHaveValue();
             subject.BatchSize.Should().NotHaveValue();
             subject.Collation.Should().BeNull();
@@ -239,6 +254,7 @@ namespace MongoDB.Driver.Core.Operations
 #pragma warning disable 618
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
+                AllowDiskUse = true,
                 AllowPartialResults = true,
                 BatchSize = 1,
                 Collation = new Collation("en_US"),
@@ -269,6 +285,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = subject.CreateFindCommandOperation();
 
+            result.AllowDiskUse.Should().Be(subject.AllowDiskUse);
             result.AllowPartialResults.Should().Be(subject.AllowPartialResults);
             result.BatchSize.Should().Be(subject.BatchSize);
             result.Collation.Should().BeSameAs(subject.Collation);

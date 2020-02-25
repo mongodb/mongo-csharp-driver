@@ -838,6 +838,7 @@ namespace MongoDB.Driver
             {
                 genericOptions = new FindOptions<TDocument>
                 {
+                    AllowDiskUse = options.AllowDiskUse,
                     AllowPartialResults = options.AllowPartialResults,
                     BatchSize = options.BatchSize,
                     Collation = options.Collation,

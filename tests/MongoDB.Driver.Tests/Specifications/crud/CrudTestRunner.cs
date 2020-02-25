@@ -43,8 +43,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             "authenticate",
             "saslStart",
             "saslContinue",
-            "getnonce",
-            "find"
+            "getnonce"
         };
         #endregion
 
@@ -106,6 +105,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             {
                 var actualEvents = eventCapturer.Events;
                 var expectedEvents = expectations.AsBsonArray.Cast<BsonDocument>().ToList();
+                RemoveExtraFindCommandsFromActualEvents(actualEvents, expectedEvents.Count);
 
                 var minCount = Math.Min(actualEvents.Count, expectedEvents.Count);
                 for (var i = 0; i < minCount; i++)
@@ -258,6 +258,23 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                         .GetDatabase(databaseName)
                         .GetCollection<BsonDocument>(collectionName, new MongoCollectionSettings { WriteConcern = WriteConcern.WMajority })
                         .InsertMany(documents);
+                }
+            }
+        }
+
+        private void RemoveExtraFindCommandsFromActualEvents(List<object> actualEvents, int expectedCount)
+        {
+            while (actualEvents.Count > expectedCount)
+            {
+                var lastEvent = actualEvents[actualEvents.Count - 1];
+                if (lastEvent is CommandStartedEvent commandStartedEvent &&
+                    commandStartedEvent.CommandName == "find")
+                {
+                    actualEvents.RemoveAt(actualEvents.Count - 1);
+                }
+                else
+                {
+                    return;
                 }
             }
         }

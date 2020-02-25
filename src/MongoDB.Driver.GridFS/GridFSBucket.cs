@@ -637,6 +637,7 @@ namespace MongoDB.Driver.GridFS
                 _fileInfoSerializer,
                 messageEncoderSettings)
             {
+                AllowDiskUse = options.AllowDiskUse,
                 BatchSize = options.BatchSize,
                 Filter = renderedFilter,
                 Limit = options.Limit,

@@ -33,6 +33,20 @@ namespace MongoDB.Driver.Core.Operations
         // public methods
         [Theory]
         [ParameterAttributeData]
+        public void AllowDiskUse_get_and_set_should_work(
+            [Values(null, false, true)]
+            bool? value)
+        {
+            var subject = new FindCommandOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+
+            subject.AllowDiskUse = value;
+            var result = subject.AllowDiskUse;
+
+            result.Should().Be(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void AllowPartialResults_get_and_set_should_work(
             [Values(null, false, true)]
             bool? value)
@@ -112,6 +126,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.ResultSerializer.Should().BeSameAs(BsonDocumentSerializer.Instance);
             subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
 
+            subject.AllowDiskUse.Should().NotHaveValue();
             subject.AllowPartialResults.Should().NotHaveValue();
             subject.BatchSize.Should().NotHaveValue();
             subject.Collation.Should().BeNull();
@@ -183,6 +198,32 @@ namespace MongoDB.Driver.Core.Operations
             var expectedResult = new BsonDocument
             {
                 { "find", _collectionNamespace.CollectionName }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_AllowDiskUse_is_set(
+            [Values(null, false, true)]
+            bool? allowDiskUse,
+            [Values(ServerType.Standalone, ServerType.ShardRouter)]
+            ServerType serverType)
+        {
+            var subject = new FindCommandOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            {
+                AllowDiskUse = allowDiskUse
+            };
+
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverType: serverType);
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
+
+            var expectedResult = new BsonDocument
+            {
+                { "find", _collectionNamespace.CollectionName },
+                { "allowDiskUse", () => allowDiskUse.Value, allowDiskUse.HasValue }
             };
             result.Should().Be(expectedResult);
         }

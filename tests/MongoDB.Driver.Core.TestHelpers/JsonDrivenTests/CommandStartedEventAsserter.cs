@@ -110,6 +110,7 @@ namespace MongoDB.Driver.Core.TestHelpers.JsonDrivenTests
             {
                 switch (name)
                 {
+                    case "allowDiskUse":
                     case "autocommit":
                     case "readConcern":
                     case "recoveryToken":

@@ -123,6 +123,7 @@ namespace MongoDB.Driver
         {
             var newOptions = new FindOptions<TDocument, TNewProjection>
             {
+                AllowDiskUse = _options.AllowDiskUse,
                 AllowPartialResults = _options.AllowPartialResults,
                 BatchSize = _options.BatchSize,
                 Collation = _options.Collation,

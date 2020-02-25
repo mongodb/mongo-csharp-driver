@@ -435,6 +435,7 @@ namespace MongoDB.Driver.Tests
             var filterExpression = (Expression<Func<Person, bool>>)(x => x.FirstName == "Jack");
             var options = new FindOptions
             {
+                AllowDiskUse = true,
                 AllowPartialResults = true,
                 BatchSize = 123,
                 Collation = new Collation("en-us"),
@@ -485,6 +486,7 @@ namespace MongoDB.Driver.Tests
             fluent._session().Should().BeSameAs(session);
 
             var actualOptions = fluent._options();
+            actualOptions.AllowDiskUse.Should().Be(options.AllowDiskUse);
             actualOptions.AllowPartialResults.Should().Be(options.AllowPartialResults);
             actualOptions.BatchSize.Should().Be(options.BatchSize);
             actualOptions.Collation.Should().Be(options.Collation);

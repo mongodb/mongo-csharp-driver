@@ -277,6 +277,14 @@ Note that in the case of result objects for some CRUD operations, ``expected``
 may condition additional, optional fields (see:
 `Optional Fields in Expected Result Objects`_).
 
+Fields that must NOT be present in Actual Documents
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Some command-started events in ``expectations`` include ``null`` values for
+optional fields such as ``allowDiskUse``.
+Tests MUST assert that the actual command **omits** any field that has a
+``null`` value in the expected command.
+
 Optional Fields in Expected Result Objects
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

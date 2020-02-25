@@ -25,6 +25,7 @@ namespace MongoDB.Driver
     public abstract class FindOptionsBase
     {
         // fields
+        private bool? _allowDiskUse;
         private bool? _allowPartialResults;
         private int? _batchSize;
         private Collation _collation;
@@ -51,6 +52,15 @@ namespace MongoDB.Driver
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets a value indicating whether the server is allowed to write to disk while executing the Find operation.
+        /// </summary>
+        public bool? AllowDiskUse
+        {
+            get { return _allowDiskUse; }
+            set { _allowDiskUse = value; }
+        }
+
         /// <summary>
         /// Gets or sets a value indicating whether to allow partial results when some shards are unavailable.
         /// </summary>

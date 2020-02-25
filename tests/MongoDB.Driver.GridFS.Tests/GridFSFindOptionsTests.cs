@@ -27,6 +27,26 @@ namespace MongoDB.Driver.GridFS.Tests
     public class GridFSFindOptionsTests
     {
         [Fact]
+        public void AllowDiskUse_get_should_return_expected_result()
+        {
+            var subject = new GridFSFindOptions { AllowDiskUse = true };
+
+            var result = subject.AllowDiskUse;
+
+            result.Should().Be(true);
+        }
+
+        [Fact]
+        public void AllowDiskUse_set_should_have_expected_result()
+        {
+            var subject = new GridFSFindOptions();
+
+            subject.AllowDiskUse = true;
+
+            subject.AllowDiskUse.Should().Be(true);
+        }
+
+        [Fact]
         public void BatchSize_get_should_return_expected_result()
         {
             var subject = new GridFSFindOptions { BatchSize = 123 };
@@ -64,6 +84,7 @@ namespace MongoDB.Driver.GridFS.Tests
         {
             var result = new GridFSFindOptions();
 
+            result.AllowDiskUse.Should().NotHaveValue();
             result.BatchSize.Should().NotHaveValue();
             result.Limit.Should().NotHaveValue();
             result.MaxTime.Should().NotHaveValue();

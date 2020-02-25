@@ -225,6 +225,7 @@ namespace MongoDB.Driver
             VerifySessionAndCancellationToken(findCall, session, cancellationToken2);
 
             var findOperation = findCall.Operation.Should().BeOfType<FindOperation<BsonDocument>>().Subject;
+            findOperation.AllowDiskUse.Should().NotHaveValue();
             findOperation.AllowPartialResults.Should().NotHaveValue();
             findOperation.BatchSize.Should().Be(options.BatchSize);
             findOperation.Collation.Should().BeSameAs(options.Collation);
@@ -1068,6 +1069,7 @@ namespace MongoDB.Driver
             var sortDefinition = (SortDefinition<BsonDocument>)sortDocument;
             var options = new FindOptions<BsonDocument, BsonDocument>
             {
+                AllowDiskUse = true,
                 AllowPartialResults = true,
                 BatchSize = 20,
                 Collation = new Collation("en_US"),
@@ -1115,6 +1117,7 @@ namespace MongoDB.Driver
 
             call.Operation.Should().BeOfType<FindOperation<BsonDocument>>();
             var operation = (FindOperation<BsonDocument>)call.Operation;
+            operation.AllowDiskUse.Should().Be(options.AllowDiskUse);
             operation.AllowPartialResults.Should().Be(options.AllowPartialResults);
             operation.BatchSize.Should().Be(options.BatchSize);
             operation.Collation.Should().BeSameAs(options.Collation);
@@ -1153,6 +1156,7 @@ namespace MongoDB.Driver
             var sortDefinition = (SortDefinition<BsonDocument>)sortDocument;
             var options = new FindOptions<BsonDocument, BsonDocument>
             {
+                AllowDiskUse = true,
                 AllowPartialResults = true,
                 BatchSize = 20,
                 Collation = new Collation("en_US"),
@@ -1199,6 +1203,7 @@ namespace MongoDB.Driver
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
             var operation = call.Operation.Should().BeOfType<FindOperation<BsonDocument>>().Subject;
+            operation.AllowDiskUse.Should().Be(options.AllowDiskUse);
             operation.AllowPartialResults.Should().Be(options.AllowPartialResults);
             operation.BatchSize.Should().Be(options.BatchSize);
             operation.Collation.Should().BeSameAs(options.Collation);

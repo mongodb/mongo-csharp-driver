@@ -218,6 +218,7 @@ namespace MongoDB.Driver
             VerifySessionAndCancellationToken(findCall, session, cancellationToken2);
 
             var findOperation = findCall.Operation.Should().BeOfType<FindOperation<BsonDocument>>().Subject;
+            findOperation.AllowDiskUse.Should().NotHaveValue();
             findOperation.AllowPartialResults.Should().NotHaveValue();
             findOperation.BatchSize.Should().Be(options.BatchSize);
             findOperation.Collation.Should().BeSameAs(options.Collation);
