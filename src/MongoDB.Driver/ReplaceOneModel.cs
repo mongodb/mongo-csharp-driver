@@ -14,12 +14,8 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver
 {
@@ -35,6 +31,7 @@ namespace MongoDB.Driver
         // fields
         private Collation _collation;
         private readonly FilterDefinition<TDocument> _filter;
+        private BsonValue _hint;
         private bool _isUpsert;
         private readonly TDocument _replacement;
 
@@ -66,6 +63,15 @@ namespace MongoDB.Driver
         public FilterDefinition<TDocument> Filter
         {
             get { return _filter; }
+        }
+
+        /// <summary>
+        /// Gets or sets the hint.
+        /// </summary>
+        public BsonValue Hint
+        {
+            get { return _hint; }
+            set { _hint = value; }
         }
 
         /// <summary>

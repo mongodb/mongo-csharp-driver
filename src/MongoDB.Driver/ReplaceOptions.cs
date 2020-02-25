@@ -14,6 +14,7 @@
  */
 
 using System;
+using MongoDB.Bson;
 
 namespace MongoDB.Driver
 {
@@ -46,6 +47,7 @@ namespace MongoDB.Driver
                 {
                     BypassDocumentValidation = updateOptions.BypassDocumentValidation,
                     Collation = updateOptions.Collation,
+                    Hint = updateOptions.Hint,
                     IsUpsert = updateOptions.IsUpsert
                 };
             }
@@ -55,6 +57,7 @@ namespace MongoDB.Driver
         // fields
         private bool? _bypassDocumentValidation;
         private Collation _collation;
+        private BsonValue _hint;
         private bool _isUpsert;
 
         // properties
@@ -74,6 +77,15 @@ namespace MongoDB.Driver
         {
             get { return _collation; }
             set { _collation = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the hint.
+        /// </summary>
+        public BsonValue Hint
+        {
+            get { return _hint; }
+            set { _hint = value; }
         }
 
         /// <summary>

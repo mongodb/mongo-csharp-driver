@@ -586,6 +586,7 @@ namespace MongoDB.Driver
             var model = new ReplaceOneModel<TDocument>(filter, replacement)
             {
                 Collation = options.Collation,
+                Hint = options.Hint,
                 IsUpsert = options.IsUpsert
             };
 
@@ -639,6 +640,7 @@ namespace MongoDB.Driver
             var model = new ReplaceOneModel<TDocument>(filter, replacement)
             {
                 Collation = options.Collation,
+                Hint = options.Hint,
                 IsUpsert = options.IsUpsert
             };
 
@@ -679,6 +681,7 @@ namespace MongoDB.Driver
             {
                 ArrayFilters = options.ArrayFilters,
                 Collation = options.Collation,
+                Hint = options.Hint,
                 IsUpsert = options.IsUpsert
             };
 
@@ -719,6 +722,7 @@ namespace MongoDB.Driver
             {
                 ArrayFilters = options.ArrayFilters,
                 Collation = options.Collation,
+                Hint = options.Hint,
                 IsUpsert = options.IsUpsert
             };
 
@@ -759,6 +763,7 @@ namespace MongoDB.Driver
             {
                 ArrayFilters = options.ArrayFilters,
                 Collation = options.Collation,
+                Hint = options.Hint,
                 IsUpsert = options.IsUpsert
             };
 
@@ -799,6 +804,7 @@ namespace MongoDB.Driver
             {
                 ArrayFilters = options.ArrayFilters,
                 Collation = options.Collation,
+                Hint = options.Hint,
                 IsUpsert = options.IsUpsert
             };
 

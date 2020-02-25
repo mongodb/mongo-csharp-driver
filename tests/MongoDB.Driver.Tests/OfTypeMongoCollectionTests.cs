@@ -197,7 +197,11 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject();
             var replacement = new B();
-            var model = new ReplaceOneModel<B>(_providedFilter, replacement) { IsUpsert = true };
+            var model = new ReplaceOneModel<B>(_providedFilter, replacement)
+            {
+                Hint = new BsonDocument("_id", 1),
+                IsUpsert = true
+            };
             var options = new BulkWriteOptions();
 
             if (async)
@@ -209,6 +213,7 @@ namespace MongoDB.Driver.Tests
                         It.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<ReplaceOneModel<B>>()
                             .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
                                 m.Replacement == model.Replacement &&
+                                m.Hint == model.Hint &&
                                 m.IsUpsert == model.IsUpsert).Count() == 1),
                         options,
                         CancellationToken.None),
@@ -223,6 +228,7 @@ namespace MongoDB.Driver.Tests
                         It.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<ReplaceOneModel<B>>()
                             .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
                                 m.Replacement == model.Replacement &&
+                                m.Hint == model.Hint &&
                                 m.IsUpsert == model.IsUpsert).Count() == 1),
                         options,
                         CancellationToken.None),
@@ -237,7 +243,12 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject();
             var collation = new Collation("en_US");
-            var model = new UpdateManyModel<B>(_providedFilter, "{$set: {x: 1}}") { Collation = collation, IsUpsert = true };
+            var model = new UpdateManyModel<B>(_providedFilter, "{$set: {x: 1}}")
+            {
+                Collation = collation,
+                Hint = new BsonDocument("_id", 1),
+                IsUpsert = true
+            };
             var options = new BulkWriteOptions();
 
             if (async)
@@ -250,6 +261,7 @@ namespace MongoDB.Driver.Tests
                             .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
                                 RenderUpdate(m.Update).Equals(BsonDocument.Parse("{$set: {x: 1}}")) &&
                                 m.Collation == model.Collation &&
+                                m.Hint == model.Hint &&
                                 m.IsUpsert == model.IsUpsert).Count() == 1),
                         options,
                         CancellationToken.None),
@@ -265,6 +277,7 @@ namespace MongoDB.Driver.Tests
                             .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
                                 RenderUpdate(m.Update).Equals(BsonDocument.Parse("{$set: {x: 1}}")) &&
                                 m.Collation == model.Collation &&
+                                m.Hint == model.Hint &&
                                 m.IsUpsert == model.IsUpsert).Count() == 1),
                         options,
                         CancellationToken.None),
@@ -279,7 +292,12 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject();
             var collation = new Collation("en_US");
-            var model = new UpdateOneModel<B>(_providedFilter, "{$set: {x: 1}}") { Collation = collation, IsUpsert = true };
+            var model = new UpdateOneModel<B>(_providedFilter, "{$set: {x: 1}}")
+            {
+                Collation = collation,
+                Hint = new BsonDocument("_id", 1),
+                IsUpsert = true
+            };
             var options = new BulkWriteOptions();
 
             if (async)
@@ -292,6 +310,7 @@ namespace MongoDB.Driver.Tests
                             .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
                                 RenderUpdate(m.Update).Equals(BsonDocument.Parse("{$set: {x: 1}}")) &&
                                 m.Collation == model.Collation &&
+                                m.Hint == model.Hint &&
                                 m.IsUpsert == model.IsUpsert).Count() == 1),
                         options,
                         CancellationToken.None),
@@ -307,6 +326,7 @@ namespace MongoDB.Driver.Tests
                             .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
                                 RenderUpdate(m.Update).Equals(BsonDocument.Parse("{$set: {x: 1}}")) &&
                                 m.Collation == model.Collation &&
+                                m.Hint == model.Hint &&
                                 m.IsUpsert == model.IsUpsert).Count() == 1),
                         options,
                         CancellationToken.None),

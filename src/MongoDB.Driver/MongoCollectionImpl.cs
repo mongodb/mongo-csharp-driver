@@ -674,6 +674,7 @@ namespace MongoDB.Driver
                     {
                         Collation = replaceOneModel.Collation,
                         CorrelationId = index,
+                        Hint = replaceOneModel.Hint,
                         IsMulti = false,
                         IsUpsert = replaceOneModel.IsUpsert
                     };
@@ -687,6 +688,7 @@ namespace MongoDB.Driver
                         ArrayFilters = RenderArrayFilters(updateManyModel.ArrayFilters),
                         Collation = updateManyModel.Collation,
                         CorrelationId = index,
+                        Hint = updateManyModel.Hint,
                         IsMulti = true,
                         IsUpsert = updateManyModel.IsUpsert
                     };
@@ -700,6 +702,7 @@ namespace MongoDB.Driver
                         ArrayFilters = RenderArrayFilters(updateOneModel.ArrayFilters),
                         Collation = updateOneModel.Collation,
                         CorrelationId = index,
+                        Hint = updateOneModel.Hint,
                         IsMulti = false,
                         IsUpsert = updateOneModel.IsUpsert
                     };

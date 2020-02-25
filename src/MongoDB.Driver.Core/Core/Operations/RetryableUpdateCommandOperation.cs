@@ -108,6 +108,13 @@ namespace MongoDB.Driver.Core.Operations
                     throw new NotSupportedException($"Server version {serverVersion} does not support arrayFilters.");
                 }
             }
+            if (Feature.HintForUpdateAndReplaceOperations.DriverMustThrowIfNotSupported(serverVersion))
+            {
+                if (_updates.Items.Skip(_updates.Offset).Take(_updates.Count).Any(u => u.Hint != null))
+                {
+                    throw new NotSupportedException($"Server version {serverVersion} does not support hints.");
+                }
+            }
 
             var writeConcern = WriteConcernHelper.GetWriteConcernForWriteCommand(session, WriteConcern);
             return new BsonDocument
@@ -175,6 +182,11 @@ namespace MongoDB.Driver.Core.Operations
                         BsonDocumentSerializer.Instance.Serialize(context, arrayFilter);
                     }
                     writer.WriteEndArray();
+                }
+                if (value.Hint != null)
+                {
+                    writer.WriteName("hint");
+                    BsonValueSerializer.Instance.Serialize(context, value.Hint);
                 }
                 writer.WriteEndDocument();
             }

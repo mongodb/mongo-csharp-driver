@@ -47,5 +47,10 @@ namespace MongoDB.Driver.Core.Operations
         {
             return request.Collation != null;
         }
+
+        protected override bool RequestHasHint(DeleteRequest request)
+        {
+            return false;
+        }
     }
 }

@@ -341,6 +341,7 @@ namespace MongoDB.Driver
                         return new ReplaceOneModel<TDocument>(CombineFilters(replaceOneModel.Filter), replaceOneModel.Replacement)
                         {
                             Collation = replaceOneModel.Collation,
+                            Hint = replaceOneModel.Hint,
                             IsUpsert = replaceOneModel.IsUpsert
                         };
                     case WriteModelType.UpdateMany:
@@ -349,6 +350,7 @@ namespace MongoDB.Driver
                         {
                             ArrayFilters = updateManyModel.ArrayFilters,
                             Collation = updateManyModel.Collation,
+                            Hint = updateManyModel.Hint,
                             IsUpsert = updateManyModel.IsUpsert
                         };
                     case WriteModelType.UpdateOne:
@@ -357,6 +359,7 @@ namespace MongoDB.Driver
                         {
                             ArrayFilters = updateOneModel.ArrayFilters,
                             Collation = updateOneModel.Collation,
+                            Hint = updateOneModel.Hint,
                             IsUpsert = updateOneModel.IsUpsert
                         };
                     default:

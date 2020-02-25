@@ -214,6 +214,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var context = RetryableWriteContext.Create(binding, _retryRequested, cancellationToken))
             {
                 EnsureCollationIsSupportedIfAnyRequestHasCollation(context);
+                EnsureHintIsSupportedIfAnyRequestHasHint(context);
                 context.DisableRetriesIfAnyWriteRequestIsNotRetryable(_requests);
                 var helper = new BatchHelper(_requests, _isOrdered, _writeConcern);
                 foreach (var batch in helper.GetBatches())
@@ -231,6 +232,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var context = await RetryableWriteContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
             {
                 EnsureCollationIsSupportedIfAnyRequestHasCollation(context);
+                EnsureHintIsSupportedIfAnyRequestHasHint(context);
                 context.DisableRetriesIfAnyWriteRequestIsNotRetryable(_requests);
                 var helper = new BatchHelper(_requests, _isOrdered, _writeConcern);
                 foreach (var batch in helper.GetBatches())
@@ -309,6 +311,21 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
+        private void EnsureHintIsSupportedIfAnyRequestHasHint(RetryableWriteContext context)
+        {
+            var serverVersion = context.Channel.ConnectionDescription.ServerVersion;
+            if (Feature.HintForUpdateAndReplaceOperations.DriverMustThrowIfNotSupported(serverVersion))
+            {
+                foreach (var request in _requests)
+                {
+                    if (RequestHasHint(request))
+                    {
+                        throw new NotSupportedException($"Server version {serverVersion} does not support hints.");
+                    }
+                }
+            }
+        }
+
         private BulkWriteBatchResult ExecuteBatch(RetryableWriteContext context, Batch batch, CancellationToken cancellationToken)
         {
             BulkWriteOperationResult result;
@@ -360,6 +377,11 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             return false;
+        }
+
+        private bool RequestHasHint(WriteRequest request)
+        {
+            return request is UpdateRequest updateRequest && updateRequest.Hint != null;
         }
 
         // nested types

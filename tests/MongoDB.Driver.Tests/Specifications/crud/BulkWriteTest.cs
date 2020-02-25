@@ -221,11 +221,13 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             out FilterDefinition<BsonDocument> filter,
             out BsonDocument replacement,
             out Collation collation,
+            out BsonValue hint,
             out bool isUpsert)
         {
             filter = null;
             replacement = null;
             collation = null;
+            hint = null;
             isUpsert = false;
 
             foreach (BsonElement argument in value["arguments"].AsBsonDocument)
@@ -237,6 +239,9 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                         break;
                     case "filter":
                         filter = ParseFilter(argument.Value.AsBsonDocument);
+                        break;
+                    case "hint":
+                        hint = argument.Value;
                         break;
                     case "replacement":
                         replacement = argument.Value.AsBsonDocument;
@@ -252,8 +257,8 @@ namespace MongoDB.Driver.Tests.Specifications.crud
 
         private WriteModel<BsonDocument> ParseReplaceOneModel(BsonDocument value)
         {
-            ParseReplaceArguments(value, out var filter, out var replacement, out var collation, out var isUpsert);
-            return new ReplaceOneModel<BsonDocument>(filter, replacement) { Collation = collation, IsUpsert = isUpsert };
+            ParseReplaceArguments(value, out var filter, out var replacement, out var collation, out var hint, out var isUpsert);
+            return new ReplaceOneModel<BsonDocument>(filter, replacement) { Collation = collation, Hint = hint, IsUpsert = isUpsert };
         }
 
         private void ParseRequests(BsonArray value)
@@ -278,12 +283,14 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             out UpdateDefinition<BsonDocument> update,
             out List<ArrayFilterDefinition> arrayFilters,
             out Collation collation,
+            out BsonValue hint,
             out bool isUpsert)
         {
             arrayFilters = null;
             filter = null;
             update = null;
             collation = null;
+            hint = null;
             isUpsert = false;
 
             foreach (BsonElement argument in value["arguments"].AsBsonDocument)
@@ -299,6 +306,9 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                     case "filter":
                         filter = ParseFilter(argument.Value.AsBsonDocument);
                         break;
+                    case "hint":
+                        hint = argument.Value;
+                        break;
                     case "update":
                         update = ParseUpdate(argument.Value.AsBsonDocument);
                         break;
@@ -313,14 +323,14 @@ namespace MongoDB.Driver.Tests.Specifications.crud
 
         private WriteModel<BsonDocument> ParseUpdateManyModel(BsonDocument value)
         {
-            ParseUpdateArguments(value, out var filter, out var update, out var arrayFilters, out var collation, out var isUpsert);
-            return new UpdateManyModel<BsonDocument>(filter, update) { ArrayFilters = arrayFilters, Collation = collation, IsUpsert = isUpsert };
+            ParseUpdateArguments(value, out var filter, out var update, out var arrayFilters, out var collation, out var hint, out var isUpsert);
+            return new UpdateManyModel<BsonDocument>(filter, update) { ArrayFilters = arrayFilters, Collation = collation, Hint = hint, IsUpsert = isUpsert };
         }
 
         private WriteModel<BsonDocument> ParseUpdateOneModel(BsonDocument value)
         {
-            ParseUpdateArguments(value, out var filter, out var update, out var arrayFilters, out var collation, out var isUpsert);
-            return new UpdateOneModel<BsonDocument>(filter, update) { ArrayFilters = arrayFilters, Collation = collation, IsUpsert = isUpsert };
+            ParseUpdateArguments(value, out var filter, out var update, out var arrayFilters, out var collation, out var hint, out var isUpsert);
+            return new UpdateOneModel<BsonDocument>(filter, update) { ArrayFilters = arrayFilters, Collation = collation, Hint = hint, IsUpsert = isUpsert };
         }
 
         private WriteModel<BsonDocument> ParseWriteModel(BsonDocument value)

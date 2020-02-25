@@ -17,6 +17,7 @@ using MongoDB.Driver.Core.Misc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MongoDB.Bson;
 
 namespace MongoDB.Driver
 {
@@ -33,6 +34,7 @@ namespace MongoDB.Driver
         private IEnumerable<ArrayFilterDefinition> _arrayFilters;
         private Collation _collation;
         private readonly FilterDefinition<TDocument> _filter;
+        private BsonValue _hint;
         private bool _isUpsert;
         private readonly UpdateDefinition<TDocument> _update;
 
@@ -76,6 +78,15 @@ namespace MongoDB.Driver
         public FilterDefinition<TDocument> Filter
         {
             get { return _filter; }
+        }
+
+        /// <summary>
+        /// Gets or sets the hint.
+        /// </summary>
+        public BsonValue Hint
+        {
+            get { return _hint; }
+            set { _hint = value; }
         }
 
         /// <summary>

@@ -116,6 +116,7 @@ namespace MongoDB.Driver.Core.Operations
         public BulkWriteOperationResult Execute(RetryableWriteContext context, CancellationToken cancellationToken)
         {
             EnsureCollationIsSupportedIfAnyRequestHasCollation(context, _requests);
+            EnsureHintIsSupportedIfAnyRequestHasHint(context, _requests);
 
             return ExecuteBatches(context, cancellationToken);
         }
@@ -133,6 +134,7 @@ namespace MongoDB.Driver.Core.Operations
         public Task<BulkWriteOperationResult> ExecuteAsync(RetryableWriteContext context, CancellationToken cancellationToken)
         {
             EnsureCollationIsSupportedIfAnyRequestHasCollation(context, _requests);
+            EnsureHintIsSupportedIfAnyRequestHasHint(context, _requests);
 
             return ExecuteBatchesAsync(context, cancellationToken);
         }
@@ -151,6 +153,8 @@ namespace MongoDB.Driver.Core.Operations
         protected abstract IRetryableWriteOperation<BsonDocument> CreateBatchOperation(Batch batch);
 
         protected abstract bool RequestHasCollation(TWriteRequest request);
+
+        protected abstract bool RequestHasHint(TWriteRequest request);
 
         // private methods
         private BulkWriteBatchResult CreateBatchResult(Batch batch, BsonDocument writeCommandResult)
@@ -179,6 +183,22 @@ namespace MongoDB.Driver.Core.Operations
                 }
             }
         }
+
+        private void EnsureHintIsSupportedIfAnyRequestHasHint(RetryableWriteContext context, IEnumerable<TWriteRequest> requests)
+        {
+            var serverVersion = context.Channel.ConnectionDescription.ServerVersion;
+            if (Feature.HintForUpdateAndReplaceOperations.DriverMustThrowIfNotSupported(serverVersion))
+            {
+                foreach (var request in requests)
+                {
+                    if (RequestHasHint(request))
+                    {
+                        throw new NotSupportedException($"Server version {serverVersion} does not support hints.");
+                    }
+                }
+            }
+        }
+
         private BulkWriteBatchResult ExecuteBatch(RetryableWriteContext context, Batch batch, CancellationToken cancellationToken)
         {
             var operation = CreateBatchOperation(batch);

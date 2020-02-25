@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Core.Operations
         private IEnumerable<BsonDocument> _arrayFilters;
         private Collation _collation;
         private readonly BsonDocument _filter;
+        private BsonValue _hint;
         private bool _isMulti;
         private bool _isUpsert;
         private readonly BsonValue _update;
@@ -78,6 +79,15 @@ namespace MongoDB.Driver.Core.Operations
         public BsonDocument Filter
         {
             get { return _filter; }
+        }
+
+        /// <summary>
+        /// Gets or sets the hint.
+        /// </summary>
+        public BsonValue Hint
+        {
+            get { return _hint; }
+            set { _hint = value; }
         }
 
         /// <summary>

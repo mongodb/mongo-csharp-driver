@@ -48,5 +48,10 @@ namespace MongoDB.Driver.Core.Operations
         {
             return request.Collation != null;
         }
+
+        protected override bool RequestHasHint(UpdateRequest request)
+        {
+            return request.Hint != null;
+        }
     }
 }

@@ -86,6 +86,7 @@ namespace MongoDB.Driver
                 {
                     ArrayFilters = request.ArrayFilters == null ? null : new List<ArrayFilterDefinition>(request.ArrayFilters.Select(f => new BsonDocumentArrayFilterDefinition<BsonValue>(f))),
                     Collation = request.Collation,
+                    Hint = request.Hint,
                     IsUpsert = request.IsUpsert
                 };
             }
@@ -96,6 +97,7 @@ namespace MongoDB.Driver
                 {
                     ArrayFilters = request.ArrayFilters == null ? null : new List<ArrayFilterDefinition>(request.ArrayFilters.Select(f => new BsonDocumentArrayFilterDefinition<BsonValue>(f))),
                     Collation = request.Collation,
+                    Hint = request.Hint,
                     IsUpsert = request.IsUpsert
                 };
             }
@@ -114,6 +116,7 @@ namespace MongoDB.Driver
             return new ReplaceOneModel<TDocument>(UnwrapFilter(request.Filter), document)
             {
                 Collation = request.Collation,
+                Hint = request.Hint,
                 IsUpsert = request.IsUpsert
             };
         }
