@@ -1,4 +1,4 @@
-﻿/* Copyright 2018-present MongoDB Inc.
+﻿/* Copyright 2020-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,33 +23,8 @@ using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class BulkUpdateOperationTests : OperationTestBase
+    public class RetryableUpdateCommandOperationTests : OperationTestBase
     {
-        [Theory]
-        [ParameterAttributeData]
-        public void Execute_with_collation_should_throw_when_collation_is_not_supported(
-            [Values(false, true)] bool async)
-        {
-            var collation = new Collation("en_US");
-            var requests = new List<UpdateRequest>
-            {
-                new UpdateRequest(UpdateType.Update, new BsonDocument("x", 1), new BsonDocument("$set", new BsonDocument("x", 2))),
-                new UpdateRequest(UpdateType.Update, new BsonDocument("x", 1), new BsonDocument("$set", new BsonDocument("x", 2))) { Collation = collation }
-            };
-            var subject = new BulkUpdateOperation(_collectionNamespace, requests, _messageEncoderSettings);
-
-            var exception = Record.Exception(() => ExecuteOperation(subject, async));
-
-            if (Feature.Collation.IsSupported(CoreTestConfiguration.ServerVersion))
-            {
-                exception.Should().BeNull();
-            }
-            else
-            {
-                exception.Should().BeOfType<NotSupportedException>();
-            }
-        }
-
         [Theory]
         [ParameterAttributeData]
         public void Execute_with_hint_should_throw_when_hint_is_not_supported(
@@ -68,7 +43,8 @@ namespace MongoDB.Driver.Core.Operations
                     Hint = new BsonDocument("_id", 1)
                 }
             };
-            var subject = new BulkUpdateOperation(_collectionNamespace, requests, _messageEncoderSettings)
+            var batch = new BatchableSource<UpdateRequest>(requests);
+            var subject = new RetryableUpdateCommandOperation(_collectionNamespace, batch, _messageEncoderSettings)
             {
                 WriteConcern = writeConcern
             };

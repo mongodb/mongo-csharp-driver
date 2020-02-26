@@ -167,24 +167,24 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        protected TResult ExecuteOperation<TResult>(IWriteOperation<TResult> operation)
+        protected TResult ExecuteOperation<TResult>(IWriteOperation<TResult> operation, bool useImplicitSession = false)
         {
-            using (var binding = CreateReadWriteBinding())
+            using (var binding = CreateReadWriteBinding(useImplicitSession))
             using (var bindingHandle = new ReadWriteBindingHandle(binding))
             {
                 return operation.Execute(bindingHandle, CancellationToken.None);
             }
         }
 
-        protected TResult ExecuteOperation<TResult>(IWriteOperation<TResult> operation, bool async)
+        protected TResult ExecuteOperation<TResult>(IWriteOperation<TResult> operation, bool async, bool useImplicitSession = false)
         {
             if (async)
             {
-                return ExecuteOperationAsync(operation).GetAwaiter().GetResult();
+                return ExecuteOperationAsync(operation, useImplicitSession).GetAwaiter().GetResult();
             }
             else
             {
-                return ExecuteOperation(operation);
+                return ExecuteOperation(operation, useImplicitSession);
             }
         }
 
@@ -214,9 +214,9 @@ namespace MongoDB.Driver.Core.Operations
             return await operation.ExecuteAsync(binding, CancellationToken.None);
         }
 
-        protected async Task<TResult> ExecuteOperationAsync<TResult>(IWriteOperation<TResult> operation)
+        protected async Task<TResult> ExecuteOperationAsync<TResult>(IWriteOperation<TResult> operation, bool useImplicitSession = false)
         {
-            using (var binding = CreateReadWriteBinding())
+            using (var binding = CreateReadWriteBinding(useImplicitSession))
             using (var bindingHandle = new ReadWriteBindingHandle(binding))
             {
                 return await operation.ExecuteAsync(bindingHandle, CancellationToken.None);

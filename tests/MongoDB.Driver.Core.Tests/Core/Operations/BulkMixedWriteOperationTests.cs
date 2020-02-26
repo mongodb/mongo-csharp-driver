@@ -201,8 +201,10 @@ namespace MongoDB.Driver.Core.Operations
         [Theory]
         [ParameterAttributeData]
         public void Execute_with_hint_should_throw_when_hint_is_not_supported(
+            [Values(0, 1)] int w,
             [Values(false, true)] bool async)
         {
+            var writeConcern = new WriteConcern(w);
             var serverVersion = CoreTestConfiguration.ServerVersion;
             var requests = new List<WriteRequest>
             {
@@ -214,13 +216,20 @@ namespace MongoDB.Driver.Core.Operations
                     Hint = new BsonDocument("_id", 1)
                 }
             };
-            var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
+            var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings)
+            {
+                WriteConcern = writeConcern
+            };
 
-            var exception = Record.Exception(() => ExecuteOperation(subject, async));
+            var exception = Record.Exception(() => ExecuteOperation(subject, async, useImplicitSession: true));
 
             if (Feature.HintForUpdateAndReplaceOperations.IsSupported(serverVersion))
             {
                 exception.Should().BeNull();
+            }
+            else if (!writeConcern.IsAcknowledged)
+            {
+                exception.Should().BeOfType<NotSupportedException>();
             }
             else if (Feature.HintForUpdateAndReplaceOperations.DriverMustThrowIfNotSupported(serverVersion))
             {
