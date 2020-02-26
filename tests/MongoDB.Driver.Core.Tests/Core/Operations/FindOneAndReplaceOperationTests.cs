@@ -98,6 +98,7 @@ namespace MongoDB.Driver.Core.Operations
 
             subject.BypassDocumentValidation.Should().NotHaveValue();
             subject.Collation.Should().BeNull();
+            subject.Hint.Should().BeNull();
             subject.IsUpsert.Should().BeFalse();
             subject.MaxTime.Should().NotHaveValue();
             subject.Projection.Should().BeNull();
@@ -133,6 +134,20 @@ namespace MongoDB.Driver.Core.Operations
             var result = subject.Collation;
 
             result.Should().BeSameAs(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Hint_get_and_set_should_work(
+            [Values(null, "_id_")] string hintString)
+        {
+            var subject = new FindOneAndReplaceOperation<BsonDocument>(_collectionNamespace, _filter, _replacement, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var value = (BsonValue)hintString;
+
+            subject.Hint = value;
+            var result = subject.Hint;
+
+            result.Should().Be(value);
         }
 
         [Theory]
@@ -307,6 +322,31 @@ namespace MongoDB.Driver.Core.Operations
                 { "query", _filter },
                 { "update", _replacement },
                 { "collation", () => collation.ToBsonDocument(), collation != null }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_Hint_is_set(
+            [Values(null, "_id_")] string hintString)
+        {
+            var hint = (BsonValue)hintString;
+            var subject = new FindOneAndReplaceOperation<BsonDocument>(_collectionNamespace, _filter, _replacement, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            {
+                Hint = hint
+            };
+            var session = OperationTestHelper.CreateSession();
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: Feature.HintForFindAndModifyFeature.FirstSupportedVersion);
+
+            var result = subject.CreateCommand(session, connectionDescription, null);
+
+            var expectedResult = new BsonDocument
+            {
+                { "findAndModify", _collectionNamespace.CollectionName },
+                { "query", _filter },
+                { "update", _replacement },
+                { "hint", () => hint, hint != null }
             };
             result.Should().Be(expectedResult);
         }
@@ -669,6 +709,33 @@ namespace MongoDB.Driver.Core.Operations
                 BsonDocument.Parse("{ _id : 10, a : 1 }"),
                 BsonDocument.Parse("{ _id : 11, x : 2, y : 'A' }")
             );
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_with_hint_should_throw_when_hint_is_not_supported(
+            [Values(false, true)] bool async)
+        {
+            var serverVersion = CoreTestConfiguration.ServerVersion;
+            var subject = new FindOneAndReplaceOperation<BsonDocument>(_collectionNamespace, _filter, _replacement, _findAndModifyValueDeserializer, _messageEncoderSettings)
+            {
+                Hint = new BsonDocument("_id", 1)
+            };
+
+            var exception = Record.Exception(() => ExecuteOperation(subject, async));
+
+            if (Feature.HintForFindAndModifyFeature.IsSupported(serverVersion))
+            {
+                exception.Should().BeNull();
+            }
+            else if (Feature.HintForFindAndModifyFeature.DriverMustThrowIfNotSupported(serverVersion))
+            {
+                exception.Should().BeOfType<NotSupportedException>();
+            }
+            else
+            {
+                exception.Should().BeOfType<MongoCommandException>();
+            }
         }
 
         private void EnsureTestData()

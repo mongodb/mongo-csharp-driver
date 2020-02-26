@@ -14,6 +14,7 @@
 */
 
 using System;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
@@ -28,6 +29,7 @@ namespace MongoDB.Driver
         // fields
         private bool? _bypassDocumentValidation;
         private Collation _collation;
+        private BsonValue _hint;
         private bool _isUpsert;
         private TimeSpan? _maxTime;
         private ProjectionDefinition<TDocument, TProjection> _projection;
@@ -45,6 +47,15 @@ namespace MongoDB.Driver
 
         // properties
         /// <summary>
+        /// Gets or sets a value indicating whether to bypass document validation.
+        /// </summary>
+        public bool? BypassDocumentValidation
+        {
+            get { return _bypassDocumentValidation; }
+            set { _bypassDocumentValidation = value; }
+        }
+
+        /// <summary>
         /// Gets or sets the collation.
         /// </summary>
         public Collation Collation
@@ -54,12 +65,12 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to bypass document validation.
+        /// Gets or sets the hint.
         /// </summary>
-        public bool? BypassDocumentValidation
+        public BsonValue Hint
         {
-            get { return _bypassDocumentValidation; }
-            set { _bypassDocumentValidation = value; }
+            get { return _hint; }
+            set { _hint = value; }
         }
 
         /// <summary>

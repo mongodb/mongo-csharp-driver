@@ -75,6 +75,10 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
                         _options.ArrayFilters = arrayFilters;
                         break;
 
+                    case "hint":
+                        _options.Hint = argument.Value;
+                        break;
+
                     default:
                         throw new ArgumentException($"Unexpected argument: {argument.Name}.");
                 }

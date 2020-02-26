@@ -67,6 +67,10 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
                         _options.Collation = Collation.FromBsonDocument(argument.Value.AsBsonDocument);
                         break;
 
+                    case "hint":
+                        _options.Hint = argument.Value;
+                        break;
+
                     default:
                         throw new ArgumentException($"Unexpected argument: {argument.Name}.");
                 }

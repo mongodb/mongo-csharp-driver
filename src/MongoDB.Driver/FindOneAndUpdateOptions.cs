@@ -15,7 +15,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
@@ -31,6 +31,7 @@ namespace MongoDB.Driver
         private IEnumerable<ArrayFilterDefinition> _arrayFilters;
         private bool? _bypassDocumentValidation;
         private Collation _collation;
+        private BsonValue _hint;
         private bool _isUpsert;
         private TimeSpan? _maxTime;
         private ProjectionDefinition<TDocument, TProjection> _projection;
@@ -75,6 +76,15 @@ namespace MongoDB.Driver
         {
             get { return _collation; }
             set { _collation = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the hint.
+        /// </summary>
+        public BsonValue Hint
+        {
+            get { return _hint; }
+            set { _hint = value; }
         }
 
         /// <summary>

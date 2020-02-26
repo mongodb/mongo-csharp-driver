@@ -61,6 +61,9 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                     }
                     _options.ArrayFilters = arrayFilters;
                     return true;
+                case "hint":
+                    _options.Hint = value;
+                    return true;
             }
 
             return false;

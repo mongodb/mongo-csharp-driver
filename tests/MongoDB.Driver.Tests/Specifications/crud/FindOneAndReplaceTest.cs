@@ -15,7 +15,6 @@
 
 using System;
 using System.Linq;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
@@ -52,6 +51,9 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                     return true;
                 case "collation":
                     _options.Collation = Collation.FromBsonDocument(value.AsBsonDocument);
+                    return true;
+                case "hint":
+                    _options.Hint = value;
                     return true;
             }
 

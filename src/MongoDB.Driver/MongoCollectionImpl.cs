@@ -921,6 +921,7 @@ namespace MongoDB.Driver
             {
                 BypassDocumentValidation = options.BypassDocumentValidation,
                 Collation = options.Collation,
+                Hint = options.Hint,
                 IsUpsert = options.IsUpsert,
                 MaxTime = options.MaxTime,
                 Projection = renderedProjection.Document,
@@ -946,6 +947,7 @@ namespace MongoDB.Driver
                 ArrayFilters = RenderArrayFilters(options.ArrayFilters),
                 BypassDocumentValidation = options.BypassDocumentValidation,
                 Collation = options.Collation,
+                Hint = options.Hint,
                 IsUpsert = options.IsUpsert,
                 MaxTime = options.MaxTime,
                 Projection = renderedProjection.Document,

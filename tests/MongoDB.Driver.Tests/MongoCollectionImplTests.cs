@@ -1404,6 +1404,7 @@ namespace MongoDB.Driver
             {
                 BypassDocumentValidation = bypassDocumentValidation,
                 Collation = new Collation("en_US"),
+                Hint = new BsonDocument("_id", 1),
                 IsUpsert = isUpsert,
                 MaxTime = TimeSpan.FromSeconds(2),
                 Projection = projectionDefinition,
@@ -1442,6 +1443,7 @@ namespace MongoDB.Driver
             operation.BypassDocumentValidation.Should().Be(bypassDocumentValidation);
             operation.Collation.Should().BeSameAs(options.Collation);
             operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
+            operation.Hint.Should().Be(options.Hint);
             operation.Filter.Should().Be(filterDocument);
             operation.IsUpsert.Should().Be(isUpsert);
             operation.MaxTime.Should().Be(options.MaxTime);
@@ -1528,6 +1530,7 @@ namespace MongoDB.Driver
                 ArrayFilters = new[] { arrayFilterDefinition },
                 BypassDocumentValidation = bypassDocumentValidation,
                 Collation = new Collation("en_US"),
+                Hint = new BsonDocument("_id", 1),
                 IsUpsert = isUpsert,
                 MaxTime = TimeSpan.FromSeconds(2),
                 Projection = projectionDefinition,
@@ -1567,6 +1570,7 @@ namespace MongoDB.Driver
             operation.BypassDocumentValidation.Should().Be(bypassDocumentValidation);
             operation.Collation.Should().BeSameAs(options.Collation);
             operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
+            operation.Hint.Should().Be(options.Hint);
             operation.Filter.Should().Be(filterDocument);
             operation.IsUpsert.Should().Be(isUpsert);
             operation.MaxTime.Should().Be(options.MaxTime);
