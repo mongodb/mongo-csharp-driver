@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             var result = Cluster.SupportedWireVersionRange;
 
-            result.Should().Be(new Range<int>(2, 8));
+            result.Should().Be(new Range<int>(2, 9));
         }
 
         [Fact]
