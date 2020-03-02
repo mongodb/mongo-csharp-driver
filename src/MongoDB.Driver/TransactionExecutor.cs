@@ -26,7 +26,7 @@ namespace MongoDB.Driver
         // constants
         private const string TransientTransactionErrorLabel = "TransientTransactionError";
         private const string UnknownTransactionCommitResultLabel = "UnknownTransactionCommitResult";
-        private const int ExceededTimeLimitErrorCode = 50;
+        private const int MaxTimeMSExpiredErrorCode = 50;
         private static readonly TimeSpan __transactionTimeout = TimeSpan.FromSeconds(120);
 
         public static TResult ExecuteWithRetries<TResult>(
@@ -207,10 +207,10 @@ namespace MongoDB.Driver
             }
         }
 
-        private static bool IsExceededTimeLimitException(Exception ex)
+        private static bool IsMaxTimeMSExpiredException(Exception ex)
         {
             if (ex is MongoExecutionTimeoutException timeoutException && 
-                timeoutException.Code == ExceededTimeLimitErrorCode)
+                timeoutException.Code == MaxTimeMSExpiredErrorCode)
             {
                 return true;
             }
@@ -221,7 +221,7 @@ namespace MongoDB.Driver
                 if (writeConcernError != null)
                 {
                     var code = writeConcernError.GetValue("code", -1).ToInt32();
-                    if (code == ExceededTimeLimitErrorCode)
+                    if (code == MaxTimeMSExpiredErrorCode)
                     {
                         return true;
                     }
@@ -250,7 +250,7 @@ namespace MongoDB.Driver
             return
                 HasErrorLabel(ex, UnknownTransactionCommitResultLabel) &&
                 !HasTimedOut(startTime, now) &&
-                !IsExceededTimeLimitException(ex);
+                !IsMaxTimeMSExpiredException(ex);
         }
 
         // nested types

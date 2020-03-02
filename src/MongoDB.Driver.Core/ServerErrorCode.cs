@@ -18,7 +18,7 @@ namespace MongoDB.Driver
     internal enum ServerErrorCode
     {
         // this is not a complete list, more will be added as needed
-        // see: https://github.com/mongodb/mongo/blob/master/src/mongo/base/error_codes.err
+        // see: https://github.com/mongodb/mongo/blob/master/src/mongo/base/error_codes.yml
         CappedPositionLost = 136,
         CursorKilled = 237,
         ElectionInProgress = 216,
