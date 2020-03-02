@@ -301,17 +301,28 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
 
         protected virtual void VerifyCollectionData(IEnumerable<BsonDocument> expectedDocuments)
         {
-            VerifyCollectionData(expectedDocuments, null);
+            VerifyCollectionData(expectedDocuments, DatabaseName, CollectionName);
+        }
+
+        protected virtual void VerifyCollectionData(IEnumerable<BsonDocument> expectedDocuments, string databaseName, string collectionName)
+        {
+            VerifyCollectionData(expectedDocuments, databaseName, collectionName, prepareExpectedResult: null);
         }
 
         protected virtual void VerifyCollectionOutcome(BsonDocument outcome)
         {
+            var collectionName = CollectionName;
+
             foreach (var aspect in outcome)
             {
                 switch (aspect.Name)
                 {
+                    case "name":
+                        collectionName = aspect.Value.AsString;
+                        break;
+
                     case "data":
-                        VerifyCollectionData(aspect.Value.AsBsonArray.Cast<BsonDocument>());
+                        VerifyCollectionData(aspect.Value.AsBsonArray.Cast<BsonDocument>(), DatabaseName, collectionName);
                         break;
 
                     default:
@@ -356,10 +367,14 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
             SetupAndRunTest(testCase.Shared, testCase.Test);
         }
 
-        protected void VerifyCollectionData(IEnumerable<BsonDocument> expectedDocuments, Action<BsonDocument, BsonDocument> prepareExpectedResult)
+        protected void VerifyCollectionData(
+            IEnumerable<BsonDocument> expectedDocuments,
+            string databaseName,
+            string collectionName,
+            Action<BsonDocument, BsonDocument> prepareExpectedResult)
         {
-            var database = DriverTestConfiguration.Client.GetDatabase(DatabaseName).WithReadConcern(ReadConcern.Local);
-            var collection = database.GetCollection<BsonDocument>(CollectionName);
+            var database = DriverTestConfiguration.Client.GetDatabase(databaseName).WithReadConcern(ReadConcern.Default);
+            var collection = database.GetCollection<BsonDocument>(collectionName);
             var actualDocuments = collection.Find("{}").ToList();
             if (prepareExpectedResult != null)
             {

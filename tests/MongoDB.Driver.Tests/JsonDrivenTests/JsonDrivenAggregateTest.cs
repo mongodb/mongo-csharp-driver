@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         // public methods
         public override void Arrange(BsonDocument document)
         {
-            JsonDrivenHelper.EnsureAllFieldsAreValid(document, "name", "object", "collectionOptions", "arguments", "result", "error");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(document, "name", "object", "collectionOptions", "databaseOptions", "arguments", "result", "error");
             base.Arrange(document);
         }
 
@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                 cursor = _collection.Aggregate(_pipeline, _options, cancellationToken);
             }
             else
-            { 
+            {
                 cursor = _collection.Aggregate(_session, _pipeline, _options, cancellationToken);
             }
             _result = cursor.ToList();
