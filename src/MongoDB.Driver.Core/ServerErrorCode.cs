@@ -22,7 +22,7 @@ namespace MongoDB.Driver
         CappedPositionLost = 136,
         CursorKilled = 237,
         ElectionInProgress = 216,
-        ExceededTimeLimit = 50,
+        ExceededTimeLimit = 262,
         HostNotFound = 7,
         HostUnreachable = 6,
         Interrupted = 11601,
@@ -38,6 +38,7 @@ namespace MongoDB.Driver
         SocketException = 9001,
         UnknownReplWriteConcern = 79,
         UnsatisfiableWriteConcern = 100,
-        WriteConcernFailed = 64
+        WriteConcernFailed = 64,
+        MaxTimeMSExpired = 50
     }
 }

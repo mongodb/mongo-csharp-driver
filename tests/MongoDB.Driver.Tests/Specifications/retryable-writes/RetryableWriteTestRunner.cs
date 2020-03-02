@@ -80,7 +80,12 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
             var collection = database.GetCollection<BsonDocument>(_collectionName);
 
             database.DropCollection(collection.CollectionNamespace.CollectionName);
-            collection.InsertMany(definition["data"].AsBsonArray.Cast<BsonDocument>());
+            if (definition.TryGetValue("data", out var data) && 
+                data is BsonArray dataArray &&
+                dataArray.Count > 0)
+            {
+                collection.InsertMany(dataArray.Cast<BsonDocument>());
+            }
         }
 
         private void RunTest(BsonDocument test, bool async)

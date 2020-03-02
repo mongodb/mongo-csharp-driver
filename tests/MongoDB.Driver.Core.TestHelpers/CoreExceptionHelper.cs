@@ -92,5 +92,22 @@ namespace MongoDB.Driver.Core.TestHelpers
 
             return commandException;
         }
+
+        public static MongoCommandException CreateMongoWriteConcernException(BsonDocument writeConcernResultDocument, string label = null)
+        {
+            var clusterId = new ClusterId(1);
+            var endPoint = new DnsEndPoint("localhost", 27017);
+            var serverId = new ServerId(clusterId, endPoint);
+            var connectionId = new ConnectionId(serverId);
+            var message = "Fake MongoWriteConcernException";
+            var writeConcernResult = new WriteConcernResult(writeConcernResultDocument);
+            var writeConcernException = new MongoWriteConcernException(connectionId, message, writeConcernResult);
+            if (label != null)
+            {
+                writeConcernException.AddErrorLabel(label);
+            }
+
+            return writeConcernException;
+        }
     }
 }

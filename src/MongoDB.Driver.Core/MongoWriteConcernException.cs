@@ -13,15 +13,12 @@
 * limitations under the License.
 */
 
-using System;
 #if NET452
+using System;
 using System.Runtime.Serialization;
 #endif
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver
 {
@@ -33,6 +30,21 @@ namespace MongoDB.Driver
 #endif
     public class MongoWriteConcernException : MongoCommandException
     {
+        #region static
+        private static void AddErrorLabelsFromWriteConcernResult(MongoWriteConcernException exception, WriteConcernResult writeConcernResult)
+        {
+            // note: make a best effort to extract the error labels from the writeConcernResult, but never throw an exception
+            if (writeConcernResult != null && writeConcernResult.Response != null)
+            {
+                if (writeConcernResult.Response.TryGetValue("writeConcernError", out var writeConcernError) &&
+                    writeConcernError.IsBsonDocument)
+                {
+                    AddErrorLabelsFromCommandResult(exception, writeConcernError.AsBsonDocument);
+                }
+            }
+        }
+        #endregion
+
         // fields
         private readonly WriteConcernResult _writeConcernResult;
 
@@ -47,6 +59,8 @@ namespace MongoDB.Driver
             : base(connectionId, message, null, writeConcernResult.Response)
         {
             _writeConcernResult = Ensure.IsNotNull(writeConcernResult, nameof(writeConcernResult));
+
+            AddErrorLabelsFromWriteConcernResult(this, _writeConcernResult);
         }
 
 #if NET452
@@ -59,6 +73,8 @@ namespace MongoDB.Driver
             : base(info, context)
         {
             _writeConcernResult = (WriteConcernResult)info.GetValue("_writeConcernResult", typeof(WriteConcernResult));
+
+            AddErrorLabelsFromWriteConcernResult(this, _writeConcernResult);
         }
 #endif
 

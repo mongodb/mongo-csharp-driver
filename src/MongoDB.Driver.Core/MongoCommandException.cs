@@ -31,7 +31,12 @@ namespace MongoDB.Driver
     public class MongoCommandException : MongoServerException
     {
         #region static
-        private static void AddErrorLabelsFromCommandResult(MongoCommandException exception, BsonDocument result)
+        /// <summary>
+        /// Adds error labels from a command result document into the top-level label list.
+        /// </summary>
+        /// <param name="exception">The exception.</param>
+        /// <param name="result">The result document.</param>
+        protected static void AddErrorLabelsFromCommandResult(MongoCommandException exception, BsonDocument result)
         {
             // note: make a best effort to extract the error labels from the result, but never throw an exception
             if (result != null)

@@ -16,11 +16,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MongoDB.Bson;
 
 namespace MongoDB.Driver.Core.Operations
 {
     internal static class RetryabilityHelper
     {
+        // private constants
+        private const string RetryableWriteErrorLabel = "RetryableWriteError";
+
         // private static fields
         private static readonly HashSet<ServerErrorCode> __notResumableChangeStreamErrorCodes;
         private static readonly HashSet<string> __notResumableChangeStreamErrorLabels;
@@ -45,7 +49,6 @@ namespace MongoDB.Driver.Core.Operations
                 typeof(MongoCursorNotFoundException)
             };
 
-
             __retryableReadExceptions = new HashSet<Type>(resumableAndRetryableExceptions);
 
             __retryableWriteExceptions = new HashSet<Type>(resumableAndRetryableExceptions);
@@ -62,7 +65,7 @@ namespace MongoDB.Driver.Core.Operations
 
             __retryableWriteErrorCodes = new HashSet<ServerErrorCode>(resumableAndRetryableErrorCodes)
             {
-                ServerErrorCode.WriteConcernFailed
+                ServerErrorCode.ExceededTimeLimit
             };
 
             __notResumableChangeStreamErrorCodes = new HashSet<ServerErrorCode>()
@@ -79,6 +82,14 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // public static methods
+        public static void AddRetryableWriteErrorLabelIfRequired(MongoException exception)
+        {
+            if (ShouldRetryableWriteExceptionLabelBeAdded(exception))
+            {
+                exception.AddErrorLabel(RetryableWriteErrorLabel);
+            }
+        }
+
         public static bool IsResumableChangeStreamException(Exception exception)
         {
             var commandException = exception as MongoCommandException;
@@ -118,6 +129,12 @@ namespace MongoDB.Driver.Core.Operations
 
         public static bool IsRetryableWriteException(Exception exception)
         {
+            return exception is MongoException mongoException ? mongoException.HasErrorLabel(RetryableWriteErrorLabel) : false;
+        }
+
+        // private static methods
+        private static bool ShouldRetryableWriteExceptionLabelBeAdded(Exception exception)
+        {
             if (__retryableWriteExceptions.Contains(exception.GetType()))
             {
                 return true;
@@ -153,14 +170,8 @@ namespace MongoDB.Driver.Core.Operations
                         case ServerErrorCode.HostUnreachable:
                         case ServerErrorCode.NetworkTimeout:
                         case ServerErrorCode.SocketException:
+                        case ServerErrorCode.ExceededTimeLimit:
                             return true;
-                    }
-
-                    var message = writeConcernError.GetValue("errmsg", null)?.AsString;
-                    if (message.IndexOf("not master", StringComparison.OrdinalIgnoreCase) != -1 ||
-                        message.IndexOf("node is recovering", StringComparison.OrdinalIgnoreCase) != -1)
-                    {
-                        return true;
                     }
                 }
             }

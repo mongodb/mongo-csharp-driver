@@ -122,10 +122,8 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
             catch (Exception exception)
             {
-                if (exception is MongoException mongoException && ShouldAddTransientTransactionError(mongoException))
-                {
-                    mongoException.AddErrorLabel("TransientTransactionError");
-                }
+                AddErrorLabelIfRequired(exception, connection.Description.ServerVersion);
+
                 TransactionHelper.UnpinServerIfNeededOnCommandException(_session, exception);
                 throw;
             }
@@ -164,16 +162,32 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
             catch (Exception exception)
             {
-                if (exception is MongoException mongoException && ShouldAddTransientTransactionError(mongoException))
-                {
-                    mongoException.AddErrorLabel("TransientTransactionError");
-                }
+                AddErrorLabelIfRequired(exception, connection.Description.ServerVersion);
+
                 TransactionHelper.UnpinServerIfNeededOnCommandException(_session, exception);
                 throw;
             }
         }
 
         // private methods
+        private void AddErrorLabelIfRequired(Exception exception, SemanticVersion serverVersion)
+        {
+            if (exception is MongoException mongoException)
+            {
+                if (ShouldAddTransientTransactionError(mongoException))
+                {
+                    mongoException.AddErrorLabel("TransientTransactionError");
+                }
+
+                if ((exception is MongoConnectionException) || // network error
+                    (Feature.RetryableWrites.IsSupported(serverVersion) &&
+                    !Feature.ServerReturnsRetryableWriteErrorLabel.IsSupported(serverVersion)))
+                {
+                    RetryabilityHelper.AddRetryableWriteErrorLabelIfRequired(mongoException);
+                }
+            }
+        }
+
         private CommandResponseMessage AutoDecryptFieldsIfNecessary(CommandResponseMessage encryptedResponseMessage, CancellationToken cancellationToken)
         {
             if (_documentFieldDecryptor == null)
