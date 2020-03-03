@@ -1009,7 +1009,9 @@ namespace MongoDB.Driver.Core.Connections
                 { "noCursorTimeout", message.NoCursorTimeout, message.NoCursorTimeout },
                 { "allowPartialResults", message.PartialOk, message.PartialOk },
                 { "tailable", message.TailableCursor, message.TailableCursor },
+#pragma warning disable 618
                 { "oplogReplay", message.OplogReplay, message.OplogReplay }
+#pragma warning restore 618
             };
 
             var query = message.Query;

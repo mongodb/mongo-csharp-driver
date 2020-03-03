@@ -232,7 +232,9 @@ namespace MongoDB.Driver
             findOperation.Modifiers.Should().BeNull();
 #pragma warning restore 618
             findOperation.NoCursorTimeout.Should().NotHaveValue();
+#pragma warning disable 618
             findOperation.OplogReplay.Should().NotHaveValue();
+#pragma warning restore 618
             findOperation.Projection.Should().BeNull();
             findOperation.RetryRequested.Should().BeTrue();
             findOperation.Skip.Should().Be(null);

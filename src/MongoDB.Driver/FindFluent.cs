@@ -139,7 +139,9 @@ namespace MongoDB.Driver
                 Modifiers = _options.Modifiers,
 #pragma warning restore 618
                 NoCursorTimeout = _options.NoCursorTimeout,
+#pragma warning disable 618
                 OplogReplay = _options.OplogReplay,
+#pragma warning restore 618
                 Projection = projection,
                 ReturnKey = _options.ReturnKey,
                 ShowRecordId = _options.ShowRecordId,

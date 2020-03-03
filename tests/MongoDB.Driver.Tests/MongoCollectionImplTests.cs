@@ -239,7 +239,9 @@ namespace MongoDB.Driver
             findOperation.Modifiers.Should().BeNull();
 #pragma warning restore 618
             findOperation.NoCursorTimeout.Should().NotHaveValue();
+#pragma warning disable 618
             findOperation.OplogReplay.Should().NotHaveValue();
+#pragma warning restore 618
             findOperation.Projection.Should().BeNull();
             findOperation.RetryRequested.Should().BeTrue();
             findOperation.Skip.Should().Be(null);
@@ -1082,7 +1084,9 @@ namespace MongoDB.Driver
                 Modifiers = BsonDocument.Parse("{ $snapshot : true }"),
 #pragma warning restore 618
                 NoCursorTimeout = true,
+#pragma warning disable 618
                 OplogReplay = true,
+#pragma warning restore 618
                 Projection = projectionDefinition,
                 Skip = 40,
                 Sort = sortDefinition
@@ -1132,7 +1136,9 @@ namespace MongoDB.Driver
             operation.Modifiers.Should().Be(options.Modifiers);
 #pragma warning restore 618
             operation.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
+#pragma warning disable 618
             operation.OplogReplay.Should().Be(options.OplogReplay);
+#pragma warning restore 618
             operation.Projection.Should().Be(projectionDocument);
             operation.ReadConcern.Should().Be(_readConcern);
             operation.ResultSerializer.ValueType.Should().Be(typeof(BsonDocument));
@@ -1169,7 +1175,9 @@ namespace MongoDB.Driver
                 Modifiers = BsonDocument.Parse("{ $snapshot : true }"),
 #pragma warning restore 618
                 NoCursorTimeout = true,
+#pragma warning disable 618
                 OplogReplay = true,
+#pragma warning restore 618
                 Projection = projectionDefinition,
                 Skip = 40,
                 Sort = sortDefinition
@@ -1218,7 +1226,9 @@ namespace MongoDB.Driver
             operation.Modifiers.Should().Be(options.Modifiers);
 #pragma warning restore 618
             operation.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
+#pragma warning disable 618
             operation.OplogReplay.Should().Be(options.OplogReplay);
+#pragma warning restore 618
             operation.Projection.Should().Be(projectionDocument);
             operation.ReadConcern.Should().Be(_readConcern);
             operation.ResultSerializer.ValueType.Should().Be(typeof(BsonDocument));

@@ -387,7 +387,6 @@ namespace MongoDB.Driver.Core.Bindings
         /// <param name="slaveOk">if set to <c>true</c> sets the SlaveOk bit to true in the query message sent to the server.</param>
         /// <param name="partialOk">if set to <c>true</c> the server is allowed to return partial results if any shards are unavailable.</param>
         /// <param name="noCursorTimeout">if set to <c>true</c> the server will not timeout the cursor.</param>
-        /// <param name="oplogReplay">if set to <c>true</c> the OplogReplay bit will be set.</param>
         /// <param name="tailableCursor">if set to <c>true</c> the query should return a tailable cursor.</param>
         /// <param name="awaitData">if set to <c>true</c> the server should await awhile before returning an empty batch for a tailable cursor.</param>
         /// <param name="serializer">The serializer.</param>
@@ -404,7 +403,79 @@ namespace MongoDB.Driver.Core.Bindings
             bool slaveOk,
             bool partialOk,
             bool noCursorTimeout,
-            bool oplogReplay,
+            bool tailableCursor,
+            bool awaitData,
+            IBsonSerializer<TDocument> serializer,
+            MessageEncoderSettings messageEncoderSettings,
+            CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Executes a Query protocol.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="query">The query.</param>
+        /// <param name="fields">The fields.</param>
+        /// <param name="queryValidator">The query validator.</param>
+        /// <param name="skip">The number of documents to skip.</param>
+        /// <param name="batchSize">The size of a batch.</param>
+        /// <param name="slaveOk">if set to <c>true</c> sets the SlaveOk bit to true in the query message sent to the server.</param>
+        /// <param name="partialOk">if set to <c>true</c> the server is allowed to return partial results if any shards are unavailable.</param>
+        /// <param name="noCursorTimeout">if set to <c>true</c> the server will not timeout the cursor.</param>
+        /// <param name="oplogReplay">if set to <c>true</c> the OplogReplay bit will be set.</param>
+        /// <param name="tailableCursor">if set to <c>true</c> the query should return a tailable cursor.</param>
+        /// <param name="awaitData">if set to <c>true</c> the server should await awhile before returning an empty batch for a tailable cursor.</param>
+        /// <param name="serializer">The serializer.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The result of the Insert protocol.</returns>
+        [Obsolete("Use an overload that does not have an oplogReplay parameter instead.")]
+        CursorBatch<TDocument> Query<TDocument>(
+            CollectionNamespace collectionNamespace,
+            BsonDocument query,
+            BsonDocument fields,
+            IElementNameValidator queryValidator,
+            int skip,
+            int batchSize,
+            bool slaveOk,
+            bool partialOk,
+            bool noCursorTimeout,
+            bool oplogReplay, // obsolete: OplogReplay is ignored by server versions 4.4.0 and newer
+            bool tailableCursor,
+            bool awaitData,
+            IBsonSerializer<TDocument> serializer,
+            MessageEncoderSettings messageEncoderSettings,
+            CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Executes a Query protocol.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="query">The query.</param>
+        /// <param name="fields">The fields.</param>
+        /// <param name="queryValidator">The query validator.</param>
+        /// <param name="skip">The number of documents to skip.</param>
+        /// <param name="batchSize">The size of a batch.</param>
+        /// <param name="slaveOk">if set to <c>true</c> sets the SlaveOk bit to true in the query message sent to the server.</param>
+        /// <param name="partialOk">if set to <c>true</c> the server is allowed to return partial results if any shards are unavailable.</param>
+        /// <param name="noCursorTimeout">if set to <c>true</c> the server will not timeout the cursor.</param>
+        /// <param name="tailableCursor">if set to <c>true</c> the query should return a tailable cursor.</param>
+        /// <param name="awaitData">if set to <c>true</c> the server should await awhile before returning an empty batch for a tailable cursor.</param>
+        /// <param name="serializer">The serializer.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task whose result is the result of the Insert protocol.</returns>
+        Task<CursorBatch<TDocument>> QueryAsync<TDocument>(
+            CollectionNamespace collectionNamespace,
+            BsonDocument query,
+            BsonDocument fields,
+            IElementNameValidator queryValidator,
+            int skip,
+            int batchSize,
+            bool slaveOk,
+            bool partialOk,
+            bool noCursorTimeout,
             bool tailableCursor,
             bool awaitData,
             IBsonSerializer<TDocument> serializer,
@@ -431,6 +502,7 @@ namespace MongoDB.Driver.Core.Bindings
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result is the result of the Insert protocol.</returns>
+        [Obsolete("Use an overload that does not have an oplogReplay parameter instead.")]
         Task<CursorBatch<TDocument>> QueryAsync<TDocument>(
             CollectionNamespace collectionNamespace,
             BsonDocument query,
@@ -441,7 +513,7 @@ namespace MongoDB.Driver.Core.Bindings
             bool slaveOk,
             bool partialOk,
             bool noCursorTimeout,
-            bool oplogReplay,
+            bool oplogReplay, // obsolete: OplogReplay is ignored by server versions 4.4.0 and newer
             bool tailableCursor,
             bool awaitData,
             IBsonSerializer<TDocument> serializer,

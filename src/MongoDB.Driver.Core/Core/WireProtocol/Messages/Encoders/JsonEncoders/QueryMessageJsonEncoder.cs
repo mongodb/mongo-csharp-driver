@@ -71,6 +71,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             var tailableCursor = messageDocument.GetValue("tailableCursor", false).ToBoolean();
             var awaitData = messageDocument.GetValue("awaitData", false).ToBoolean();
 
+#pragma warning disable 618
             return new QueryMessage(
                 requestId,
                 new CollectionNamespace(databaseName, collectionName),
@@ -85,6 +86,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 oplogReplay,
                 tailableCursor,
                 awaitData);
+#pragma warning restore 618
         }
 
         /// <summary>
@@ -107,7 +109,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 { "slaveOk", true, message.SlaveOk },
                 { "partialOk", true, message.PartialOk },
                 { "noCursorTimeout", true, message.NoCursorTimeout },
+#pragma warning disable 618
                 { "oplogReplay", true, message.OplogReplay },
+#pragma warning restore 618
                 { "tailableCursor", true, message.TailableCursor },
                 { "awaitData", true, message.AwaitData },
                 { "query", message.Query }

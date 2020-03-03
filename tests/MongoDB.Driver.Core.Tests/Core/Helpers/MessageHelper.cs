@@ -57,6 +57,7 @@ namespace MongoDB.Driver.Core.Helpers
             bool awaitData = false,
             bool oplogReplay = false)
         {
+#pragma warning disable 618
             return new QueryMessage(
                 requestId: requestId,
                 collectionNamespace: collectionNamespace ?? __defaultCollectionNamespace,
@@ -71,6 +72,7 @@ namespace MongoDB.Driver.Core.Helpers
                 tailableCursor: tailableCursor,
                 awaitData: awaitData,
                 oplogReplay: oplogReplay);
+#pragma warning restore 618
         }
 
         public static QueryMessage BuildCommand(
@@ -83,6 +85,7 @@ namespace MongoDB.Driver.Core.Helpers
                 databaseNamespace = __defaultDatabaseNamespace;
             }
 
+#pragma warning disable 618
             return new QueryMessage(
                 requestId: requestId,
                 collectionNamespace: databaseNamespace.CommandCollection,
@@ -97,6 +100,7 @@ namespace MongoDB.Driver.Core.Helpers
                 oplogReplay: false,
                 tailableCursor: false,
                 awaitData: false);
+#pragma warning restore 618
         }
 
         public static DeleteMessage BuildDelete(

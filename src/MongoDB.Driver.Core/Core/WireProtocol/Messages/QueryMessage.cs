@@ -57,7 +57,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <param name="slaveOk">if set to <c>true</c> it is OK if the server is not the primary.</param>
         /// <param name="partialOk">if set to <c>true</c> the server is allowed to return partial results if any shards are unavailable.</param>
         /// <param name="noCursorTimeout">if set to <c>true</c> the server should not timeout the cursor.</param>
-        /// <param name="oplogReplay">if set to <c>true</c> the OplogReplay bit will be set.</param>
         /// <param name="tailableCursor">if set to <c>true</c> the query should return a tailable cursor.</param>
         /// <param name="awaitData">if set to <c>true</c> the server should await data (used with tailable cursors).</param>
         /// <param name="shouldBeSent">A delegate that determines whether this message should be sent.</param>
@@ -72,7 +71,59 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             bool slaveOk,
             bool partialOk,
             bool noCursorTimeout,
-            bool oplogReplay,
+            bool tailableCursor,
+            bool awaitData,
+            Func<bool> shouldBeSent = null)
+#pragma warning disable 618
+            : this(
+                  requestId,
+                  collectionNamespace,
+                  query,
+                  fields,
+                  queryValidator,
+                  skip,
+                  batchSize,
+                  slaveOk,
+                  partialOk,
+                  noCursorTimeout,
+                  oplogReplay: false,
+                  tailableCursor,
+                  awaitData,
+                  shouldBeSent)
+#pragma warning restore 618
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="QueryMessage" /> class.
+        /// </summary>
+        /// <param name="requestId">The request identifier.</param>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="query">The query.</param>
+        /// <param name="fields">The fields.</param>
+        /// <param name="queryValidator">The query validator.</param>
+        /// <param name="skip">The number of documents to skip.</param>
+        /// <param name="batchSize">The size of a batch.</param>
+        /// <param name="slaveOk">if set to <c>true</c> it is OK if the server is not the primary.</param>
+        /// <param name="partialOk">if set to <c>true</c> the server is allowed to return partial results if any shards are unavailable.</param>
+        /// <param name="noCursorTimeout">if set to <c>true</c> the server should not timeout the cursor.</param>
+        /// <param name="oplogReplay">if set to <c>true</c> the OplogReplay bit will be set.</param>
+        /// <param name="tailableCursor">if set to <c>true</c> the query should return a tailable cursor.</param>
+        /// <param name="awaitData">if set to <c>true</c> the server should await data (used with tailable cursors).</param>
+        /// <param name="shouldBeSent">A delegate that determines whether this message should be sent.</param>
+        [Obsolete("Use a constructor that does not have an oplogReplay parameter instead.")]
+        public QueryMessage(
+            int requestId,
+            CollectionNamespace collectionNamespace,
+            BsonDocument query,
+            BsonDocument fields,
+            IElementNameValidator queryValidator,
+            int skip,
+            int batchSize,
+            bool slaveOk,
+            bool partialOk,
+            bool noCursorTimeout,
+            bool oplogReplay, // obsolete: OplogReplay is ignored by server versions 4.4.0 and newer
             bool tailableCursor,
             bool awaitData,
             Func<bool> shouldBeSent = null)
@@ -145,6 +196,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <value>
         ///   <c>true</c> if the OplogReplay bit will be set; otherwise, <c>false</c>.
         /// </value>
+        [Obsolete("OplogReplay is ignored by server versions 4.4.0 and newer.")]
         public bool OplogReplay
         {
             get { return _oplogReplay; }

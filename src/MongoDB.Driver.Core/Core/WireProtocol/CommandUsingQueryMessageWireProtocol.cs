@@ -88,6 +88,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             var wrappedCommand = WrapCommandForQueryMessage(commandWithPayloads, connectionDescription, out messageContainsSessionId);
             var slaveOk = _readPreference != null && _readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
 
+#pragma warning disable 618
             return new QueryMessage(
                 RequestMessage.GetNextRequestId(),
                 _databaseNamespace.CommandCollection,
@@ -106,6 +107,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 PostWriteAction = _postWriteAction,
                 ResponseHandling = _responseHandling
             };
+#pragma warning restore 618
         }
 
         public TCommandResult Execute(IConnection connection, CancellationToken cancellationToken)

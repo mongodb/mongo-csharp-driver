@@ -447,7 +447,9 @@ namespace MongoDB.Driver.Tests
                 Modifiers = new BsonDocument("modifier", 1),
 #pragma warning restore 618
                 NoCursorTimeout = true,
+#pragma warning disable 618
                 OplogReplay = true
+#pragma warning restore 618
             };
 
             FindFluent<Person, Person> fluent;
@@ -498,7 +500,9 @@ namespace MongoDB.Driver.Tests
             actualOptions.Modifiers.Should().Be(options.Modifiers);
 #pragma warning restore 618
             actualOptions.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
+#pragma warning disable 618
             actualOptions.OplogReplay.Should().Be(options.OplogReplay);
+#pragma warning restore 618
         }
 
         [Theory]

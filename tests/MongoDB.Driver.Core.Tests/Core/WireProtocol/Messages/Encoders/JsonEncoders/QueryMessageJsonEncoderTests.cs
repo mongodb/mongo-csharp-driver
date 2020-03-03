@@ -48,7 +48,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         // static constructor
         static QueryMessageJsonEncoderTests()
         {
+#pragma warning disable 618
             __testMessage = new QueryMessage(__requestId, __collectionNamespace, __query, __fields, __queryValidator, __skip, __batchSize, __slaveOk, __partialOk, __noCursorTimeout, __oplogReplay, __tailableCursor, __awaitData);
+#pragma warning restore 618
 
             __testMessageJson =
                 "{ " +
@@ -120,7 +122,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 message.BatchSize.Should().Be(__batchSize);
                 message.Fields.Should().Be(__fields);
                 message.NoCursorTimeout.Should().Be(__noCursorTimeout);
+#pragma warning disable 618
                 message.OplogReplay.Should().Be(__oplogReplay);
+#pragma warning restore 618
                 message.PartialOk.Should().Be(__partialOk);
                 message.Query.Should().Be(__query);
                 message.RequestId.Should().Be(__requestId);

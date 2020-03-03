@@ -70,6 +70,7 @@ namespace MongoDB.Driver.Core.WireProtocol
 
         private QueryMessage CreateGetLastErrorMessage(BsonDocument getLastErrorCommand)
         {
+#pragma warning disable 618
             return new QueryMessage(
                RequestMessage.GetNextRequestId(),
                _collectionNamespace.DatabaseNamespace.CommandCollection,
@@ -85,6 +86,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                false,
                false,
                _shouldSendGetLastError);
+#pragma warning restore 618
         }
 
         private List<RequestMessage> CreateMessages(IConnection connection, out QueryMessage getLastErrorMessage)

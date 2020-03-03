@@ -173,6 +173,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets whether the OplogReplay bit will be set.
         /// </summary>
+        [Obsolete("OplogReplay is ignored by server versions 4.4.0 and newer.")]
         public bool? OplogReplay
         {
             get { return _oplogReplay; }

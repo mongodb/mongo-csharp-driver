@@ -55,7 +55,42 @@ namespace MongoDB.Driver.Core.WireProtocol
             bool slaveOk,
             bool partialOk,
             bool noCursorTimeout,
-            bool oplogReplay,
+            bool tailableCursor,
+            bool awaitData,
+            IBsonSerializer<TDocument> serializer,
+            MessageEncoderSettings messageEncoderSettings)
+#pragma warning disable 618
+            : this(
+                  collectionNamespace,
+                  query,
+                  fields,
+                  queryValidator,
+                  skip,
+                  batchSize,
+                  slaveOk,
+                  partialOk,
+                  noCursorTimeout,
+                  oplogReplay : false,
+                  tailableCursor,
+                  awaitData,
+                  serializer,
+                  messageEncoderSettings)
+#pragma warning restore 618
+        {
+        }
+
+        [Obsolete("Use a constructor that does not have an oplogReplay parameter instead.")]
+        public QueryWireProtocol(
+            CollectionNamespace collectionNamespace,
+            BsonDocument query,
+            BsonDocument fields,
+            IElementNameValidator queryValidator,
+            int skip,
+            int batchSize,
+            bool slaveOk,
+            bool partialOk,
+            bool noCursorTimeout,
+            bool oplogReplay, // obsolete: OplogReplay is ignored by server versions 4.4.0 and newer
             bool tailableCursor,
             bool awaitData,
             IBsonSerializer<TDocument> serializer,
@@ -80,6 +115,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         // methods
         private QueryMessage CreateMessage()
         {
+#pragma warning disable 618
             return new QueryMessage(
                 RequestMessage.GetNextRequestId(),
                 _collectionNamespace,
@@ -94,6 +130,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 _oplogReplay,
                 _tailableCursor,
                 _awaitData);
+#pragma warning restore 618
         }
 
         public CursorBatch<TDocument> Execute(IConnection connection, CancellationToken cancellationToken)

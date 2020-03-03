@@ -162,7 +162,9 @@ namespace MongoDB.Driver.Core.Operations
             subject.Modifiers.Should().BeNull();
 #pragma warning restore 618
             subject.NoCursorTimeout.Should().NotHaveValue();
+#pragma warning disable 618
             subject.OplogReplay.Should().NotHaveValue();
+#pragma warning restore 618
             subject.Projection.Should().BeNull();
             subject.ReadConcern.Should().Be(ReadConcern.Default);
             subject.RetryRequested.Should().BeFalse();
@@ -305,7 +307,9 @@ namespace MongoDB.Driver.Core.Operations
             result.MessageEncoderSettings.Should().BeSameAs(subject.MessageEncoderSettings);
             result.Min.Should().BeSameAs(subject.Min);
             result.NoCursorTimeout.Should().Be(subject.NoCursorTimeout);
+#pragma warning disable 618
             result.OplogReplay.Should().Be(subject.OplogReplay);
+#pragma warning restore 618
             result.Projection.Should().BeSameAs(subject.Projection);
             result.ReadConcern.Should().BeSameAs(subject.ReadConcern);
             result.ResultSerializer.Should().BeSameAs(subject.ResultSerializer);
@@ -411,7 +415,9 @@ namespace MongoDB.Driver.Core.Operations
             result.Modifiers.Should().Be(subject.Modifiers);
 #pragma warning restore 618
             result.NoCursorTimeout.Should().Be(subject.NoCursorTimeout);
+#pragma warning disable 618
             result.OplogReplay.Should().Be(subject.OplogReplay);
+#pragma warning restore 618
             result.Projection.Should().Be(subject.Projection);
             result.ResultSerializer.Should().Be(subject.ResultSerializer);
             result.ShowRecordId.Should().Be(subject.ShowRecordId);
@@ -900,8 +906,10 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
+#pragma warning disable 618
             subject.OplogReplay = value;
             var result = subject.OplogReplay;
+#pragma warning restore 618
 
             result.Should().Be(value);
         }

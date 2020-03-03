@@ -706,6 +706,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private IReadOnlyList<BsonDocument> GetFirstBatchUsingQueryMessage(IChannelHandle channel, BsonDocument query, int batchSize, CancellationToken cancellationToken, out long cursorId)
         {
+#pragma warning disable 618
             var result = channel.Query(
                 _collectionNamespace,
                 query,
@@ -722,6 +723,7 @@ namespace MongoDB.Driver.Core.Operations
                 BsonDocumentSerializer.Instance,
                 _messageEncoderSettings,
                 cancellationToken);
+#pragma warning restore 618
 
             cursorId = result.CursorId;
             return result.Documents;

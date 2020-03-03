@@ -278,6 +278,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <value>
         ///   <c>true</c> if the OplogReplay bit will be set; otherwise, <c>false</c>.
         /// </value>
+        [Obsolete("OplogReplay is ignored by server versions 4.4.0 and newer.")]
         public bool? OplogReplay
         {
             get { return _oplogReplay; }
@@ -361,6 +362,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var firstBatchSize = QueryHelper.CalculateFirstBatchSize(_limit, _firstBatchSize ?? _batchSize);
 
+#pragma warning disable 618
             return channel.Query<TDocument>(
                 _collectionNamespace,
                 wrappedQuery,
@@ -377,12 +379,14 @@ namespace MongoDB.Driver.Core.Operations
                 _resultSerializer,
                 _messageEncoderSettings,
                 cancellationToken);
+#pragma warning restore 618
         }
 
         private Task<CursorBatch<TDocument>> ExecuteProtocolAsync(IChannelHandle channel, BsonDocument wrappedQuery, bool slaveOk, CancellationToken cancellationToken)
         {
             var firstBatchSize = QueryHelper.CalculateFirstBatchSize(_limit, _firstBatchSize ?? _batchSize);
 
+#pragma warning disable 618
             return channel.QueryAsync<TDocument>(
                 _collectionNamespace,
                 wrappedQuery,
@@ -399,6 +403,7 @@ namespace MongoDB.Driver.Core.Operations
                 _resultSerializer,
                 _messageEncoderSettings,
                 cancellationToken);
+#pragma warning restore 618
         }
 
         internal BsonDocument CreateWrappedQuery(ServerType serverType, ReadPreference readPreference)

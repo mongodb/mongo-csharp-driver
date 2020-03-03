@@ -985,7 +985,9 @@ namespace MongoDB.Driver
                 Modifiers = options.Modifiers,
 #pragma warning restore 618
                 NoCursorTimeout = options.NoCursorTimeout,
+#pragma warning disable 618
                 OplogReplay = options.OplogReplay,
+#pragma warning restore 618
                 Projection = renderedProjection.Document,
                 ReadConcern = _settings.ReadConcern,
                 RetryRequested = _database.Client.Settings.RetryReads,

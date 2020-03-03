@@ -315,6 +315,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <value>
         ///   <c>true</c> if the OplogReplay bit will be set; otherwise, <c>false</c>.
         /// </value>
+        [Obsolete("OplogReplay is ignored by server versions 4.4.0 and newer.")]
         public bool? OplogReplay
         {
             get { return _oplogReplay; }

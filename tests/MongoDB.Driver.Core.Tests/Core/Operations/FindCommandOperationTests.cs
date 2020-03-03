@@ -144,7 +144,9 @@ namespace MongoDB.Driver.Core.Operations
             subject.MaxTime.Should().NotHaveValue();
             subject.Min.Should().BeNull();
             subject.NoCursorTimeout.Should().NotHaveValue();
+#pragma warning disable 618
             subject.OplogReplay.Should().NotHaveValue();
+#pragma warning restore 618
             subject.Projection.Should().BeNull();
             subject.ReadConcern.Should().BeSameAs(ReadConcern.Default);
             subject.RetryRequested.Should().BeFalse();
@@ -565,7 +567,9 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new FindCommandOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
+#pragma warning disable 618
                 OplogReplay = oplogReplay
+#pragma warning restore 618
             };
 
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
@@ -1170,8 +1174,10 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new FindCommandOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
+#pragma warning disable 618
             subject.OplogReplay = value;
             var result = subject.OplogReplay;
+#pragma warning restore 618
 
             result.Should().Be(value);
         }

@@ -820,6 +820,43 @@ namespace MongoDB.Driver.Core.Servers
                 bool slaveOk,
                 bool partialOk,
                 bool noCursorTimeout,
+                bool tailableCursor,
+                bool awaitData,
+                IBsonSerializer<TDocument> serializer,
+                MessageEncoderSettings messageEncoderSettings,
+                CancellationToken cancellationToken)
+            {
+#pragma warning disable 618
+                return Query(
+                    collectionNamespace,
+                    query,
+                    fields,
+                    queryValidator,
+                    skip,
+                    batchSize,
+                    slaveOk,
+                    partialOk,
+                    noCursorTimeout,
+                    oplogReplay: false,
+                    tailableCursor,
+                    awaitData,
+                    serializer,
+                    messageEncoderSettings,
+                    cancellationToken);
+#pragma warning restore 618
+            }
+
+            [Obsolete("Use the newest overload instead.")]
+            public CursorBatch<TDocument> Query<TDocument>(
+                CollectionNamespace collectionNamespace,
+                BsonDocument query,
+                BsonDocument fields,
+                IElementNameValidator queryValidator,
+                int skip,
+                int batchSize,
+                bool slaveOk,
+                bool partialOk,
+                bool noCursorTimeout,
                 bool oplogReplay,
                 bool tailableCursor,
                 bool awaitData,
@@ -828,6 +865,7 @@ namespace MongoDB.Driver.Core.Servers
                 CancellationToken cancellationToken)
             {
                 slaveOk = GetEffectiveSlaveOk(slaveOk);
+#pragma warning disable 618
                 var protocol = new QueryWireProtocol<TDocument>(
                     collectionNamespace,
                     query,
@@ -843,28 +881,67 @@ namespace MongoDB.Driver.Core.Servers
                     awaitData,
                     serializer,
                     messageEncoderSettings);
+#pragma warning restore 618
 
                 return ExecuteProtocol(protocol, cancellationToken);
             }
 
             public Task<CursorBatch<TDocument>> QueryAsync<TDocument>(
-             CollectionNamespace collectionNamespace,
-             BsonDocument query,
-             BsonDocument fields,
-             IElementNameValidator queryValidator,
-             int skip,
-             int batchSize,
-             bool slaveOk,
-             bool partialOk,
-             bool noCursorTimeout,
-             bool oplogReplay,
-             bool tailableCursor,
-             bool awaitData,
-             IBsonSerializer<TDocument> serializer,
-             MessageEncoderSettings messageEncoderSettings,
-             CancellationToken cancellationToken)
+                CollectionNamespace collectionNamespace,
+                BsonDocument query,
+                BsonDocument fields,
+                IElementNameValidator queryValidator,
+                int skip,
+                int batchSize,
+                bool slaveOk,
+                bool partialOk,
+                bool noCursorTimeout,
+                bool tailableCursor,
+                bool awaitData,
+                IBsonSerializer<TDocument> serializer,
+                MessageEncoderSettings messageEncoderSettings,
+                CancellationToken cancellationToken)
+            {
+#pragma warning disable 618
+                return QueryAsync(
+                    collectionNamespace,
+                    query,
+                    fields,
+                    queryValidator,
+                    skip,
+                    batchSize,
+                    slaveOk,
+                    partialOk,
+                    noCursorTimeout,
+                    oplogReplay: false,
+                    tailableCursor,
+                    awaitData,
+                    serializer,
+                    messageEncoderSettings,
+                    cancellationToken);
+#pragma warning restore 618
+            }
+
+            [Obsolete("Use the newest overload instead.")]
+            public Task<CursorBatch<TDocument>> QueryAsync<TDocument>(
+                CollectionNamespace collectionNamespace,
+                BsonDocument query,
+                BsonDocument fields,
+                IElementNameValidator queryValidator,
+                int skip,
+                int batchSize,
+                bool slaveOk,
+                bool partialOk,
+                bool noCursorTimeout,
+                bool oplogReplay,
+                bool tailableCursor,
+                bool awaitData,
+                IBsonSerializer<TDocument> serializer,
+                MessageEncoderSettings messageEncoderSettings,
+                CancellationToken cancellationToken)
             {
                 slaveOk = GetEffectiveSlaveOk(slaveOk);
+#pragma warning disable 618
                 var protocol = new QueryWireProtocol<TDocument>(
                     collectionNamespace,
                     query,
@@ -880,6 +957,7 @@ namespace MongoDB.Driver.Core.Servers
                     awaitData,
                     serializer,
                     messageEncoderSettings);
+#pragma warning restore 618
 
                 return ExecuteProtocolAsync(protocol, cancellationToken);
             }
@@ -1002,7 +1080,7 @@ namespace MongoDB.Driver.Core.Servers
                     throw;
                 }
             }
-            
+
             private async Task<TResult> ExecuteProtocolAsync<TResult>(IWireProtocol<TResult> protocol, ICoreSession session, CancellationToken cancellationToken)
             {
                 try
