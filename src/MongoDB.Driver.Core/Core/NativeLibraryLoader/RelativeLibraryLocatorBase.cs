@@ -53,6 +53,7 @@ namespace MongoDB.Driver.Core.NativeLibraryLoader
             var absolutePathsToCheck = new[]
             {
                 Path.Combine(libraryBasePath, libraryName),  // look in the current assembly folder
+                Path.Combine(libraryBasePath, @"..\..\", relativePath),
                 Path.Combine(libraryBasePath, relativePath)
             };
 
