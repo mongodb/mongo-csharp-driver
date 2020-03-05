@@ -221,10 +221,10 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
-        public void Invalidate()
+        public void Invalidate(string reasonInvalidated)
         {
             ThrowIfNotOpen();
-            Invalidate(clearConnectionPool: true);
+            Invalidate(reasonInvalidated, clearConnectionPool: true);
         }
 
         public void RequestHeartbeat()
@@ -279,7 +279,7 @@ namespace MongoDB.Driver.Core.Servers
             if (ShouldInvalidateServer(ex))
             {
                 var shouldClearConnectionPool = ShouldClearConnectionPoolForChannelException(ex, connection.Description.ServerVersion);
-                Invalidate(shouldClearConnectionPool);
+                Invalidate($"ChannelException:{ex}", shouldClearConnectionPool);
             }
             else
             {
@@ -287,13 +287,13 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
-        private void Invalidate(bool clearConnectionPool)
+        private void Invalidate(string reasonInvalidated, bool clearConnectionPool)
         {
             if (clearConnectionPool)
             {
                 _connectionPool.Clear();
             }
-            _monitor.Invalidate();
+            _monitor.Invalidate(reasonInvalidated);
         }
 
         private bool IsNotMaster(ServerErrorCode code, string message)

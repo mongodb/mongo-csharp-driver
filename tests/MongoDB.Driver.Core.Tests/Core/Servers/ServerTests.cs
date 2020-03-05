@@ -284,9 +284,9 @@ namespace MongoDB.Driver.Core.Servers
             _subject.Initialize();
             _capturedEvents.Clear();
 
-            _subject.Invalidate();
+            _subject.Invalidate("Test");
             _mockConnectionPool.Verify(p => p.Clear(), Times.Once);
-            _mockServerMonitor.Verify(m => m.Invalidate(), Times.Once);
+            _mockServerMonitor.Verify(m => m.Invalidate("Test"), Times.Once);
         }
 
         [Fact]
