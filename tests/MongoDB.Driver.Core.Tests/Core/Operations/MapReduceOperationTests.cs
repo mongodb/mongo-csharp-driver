@@ -42,10 +42,10 @@ namespace MongoDB.Driver.Core.Operations
             _mapFunction = "function() { emit(this.x, this.v); }";
             _reduceFunction = "function(key, values) { var sum = 0; for (var i = 0; i < values.length; i++) { sum += values[i]; }; return sum; }";
             _resultSerializer = BsonDocumentSerializer.Instance;
-    }
+        }
 
-    // test methods
-    [Fact]
+        // test methods
+        [Fact]
         public void constructor_should_initialize_instance()
         {
             var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings);
@@ -59,7 +59,9 @@ namespace MongoDB.Driver.Core.Operations
             subject.Collation.Should().BeNull();
             subject.Filter.Should().BeNull();
             subject.FinalizeFunction.Should().BeNull();
+#pragma warning disable 618
             subject.JavaScriptMode.Should().NotHaveValue();
+#pragma warning restore 618
             subject.Limit.Should().NotHaveValue();
             subject.MaxTime.Should().NotHaveValue();
             subject.ReadConcern.Should().BeSameAs(ReadConcern.Default);
@@ -137,7 +139,7 @@ namespace MongoDB.Driver.Core.Operations
             var cursor = ExecuteOperation(subject, async);
             var results = ReadCursorToEnd(cursor, async);
 
-            results.Should().Equal(
+            results.Should().BeEquivalentTo(
                 BsonDocument.Parse("{ _id : 1, value : 3 }"),
                 BsonDocument.Parse("{ _id : 2, value : 4 }"));
         }
@@ -180,7 +182,7 @@ namespace MongoDB.Driver.Core.Operations
                     BsonDocument.Parse("{ _id : 2, value : 4 }")
                 };
             }
-            results.Should().Equal(expectedResults);
+            results.Should().BeEquivalentTo(expectedResults);
         }
 
         [SkippableTheory]
@@ -200,7 +202,7 @@ namespace MongoDB.Driver.Core.Operations
             var cursor = ExecuteOperation(subject, async);
             var results = ReadCursorToEnd(cursor, async);
 
-            results.Should().Equal(
+            results.Should().BeEquivalentTo(
                 BsonDocument.Parse("{ _id : 1, value : 1 }"),
                 BsonDocument.Parse("{ _id : 2, value : 4 }"));
         }
@@ -222,7 +224,7 @@ namespace MongoDB.Driver.Core.Operations
             var cursor = ExecuteOperation(subject, async);
             var results = ReadCursorToEnd(cursor, async);
 
-            results.Should().Equal(
+            results.Should().BeEquivalentTo(
                 BsonDocument.Parse("{ _id : 1, value : -3 }"),
                 BsonDocument.Parse("{ _id : 2, value : -4 }"));
         }
@@ -298,7 +300,7 @@ namespace MongoDB.Driver.Core.Operations
             var results = ReadCursorToEnd(cursor, async);
 
             // results should be the same whether MaxTime was used or not
-            results.Should().Equal(
+            results.Should().BeEquivalentTo(
                 BsonDocument.Parse("{ _id : 1, value : 3 }"),
                 BsonDocument.Parse("{ _id : 2, value : 4 }"));
         }
@@ -323,7 +325,7 @@ namespace MongoDB.Driver.Core.Operations
             var cursor = ExecuteOperation(subject, async);
             var results = ReadCursorToEnd(cursor, async);
 
-            results.Should().Equal(
+            results.Should().BeEquivalentTo(
                 BsonDocument.Parse("{ _id : 1, value : 3 }"),
                 BsonDocument.Parse("{ _id : 2, value : 4 }"));
         }
@@ -342,6 +344,7 @@ namespace MongoDB.Driver.Core.Operations
             var cursor = ExecuteOperation(subject, async);
             var results = ReadCursorToEnd(cursor, async);
 
+            results.Sort();
             results.Should().Equal(3, 4);
         }
 
@@ -364,7 +367,7 @@ namespace MongoDB.Driver.Core.Operations
             var cursor = ExecuteOperation(subject, async);
             var results = ReadCursorToEnd(cursor, async);
 
-            results.Should().Equal(
+            results.Should().BeEquivalentTo(
                 BsonDocument.Parse("{ _id : 1, value : 3 }"),
                 BsonDocument.Parse("{ _id : 2, value : 4 }"));
         }
@@ -405,7 +408,7 @@ namespace MongoDB.Driver.Core.Operations
                     BsonDocument.Parse("{ _id : 2, value : 4 }")
                 };
             }
-            results.Should().Equal(expectedResults);
+            results.Should().BeEquivalentTo(expectedResults);
         }
 
         [Theory]

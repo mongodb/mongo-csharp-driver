@@ -1010,7 +1010,9 @@ namespace MongoDB.Driver
                 Collation = options.Collation,
                 Filter = options.Filter == null ? null : options.Filter.Render(_documentSerializer, _settings.SerializerRegistry),
                 FinalizeFunction = options.Finalize,
+#pragma warning disable 618
                 JavaScriptMode = options.JavaScriptMode,
+#pragma warning restore 618
                 Limit = options.Limit,
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
@@ -1039,13 +1041,19 @@ namespace MongoDB.Driver
                 Collation = options.Collation,
                 Filter = options.Filter == null ? null : options.Filter.Render(_documentSerializer, _settings.SerializerRegistry),
                 FinalizeFunction = options.Finalize,
+#pragma warning disable 618
                 JavaScriptMode = options.JavaScriptMode,
+#pragma warning restore 618
                 Limit = options.Limit,
                 MaxTime = options.MaxTime,
+#pragma warning disable 618
                 NonAtomicOutput = collectionOutputOptions.NonAtomic,
+#pragma warning restore 618
                 Scope = options.Scope,
                 OutputMode = collectionOutputOptions.OutputMode,
+#pragma warning disable 618
                 ShardedOutput = collectionOutputOptions.Sharded,
+#pragma warning restore 618
                 Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry),
                 Verbose = options.Verbose,
                 WriteConcern = _settings.WriteConcern

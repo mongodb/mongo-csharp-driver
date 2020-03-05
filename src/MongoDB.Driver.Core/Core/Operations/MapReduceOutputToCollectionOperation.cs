@@ -82,6 +82,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <value>
         ///   <c>true</c> if the server should not lock the database for merge and reduce output modes; otherwise, <c>false</c>.
         /// </value>
+        [Obsolete("NonAtomicOutput is rejected by server versions 4.4.0 and newer.")]
         public bool? NonAtomicOutput
         {
             get { return _nonAtomicOutput; }
@@ -117,6 +118,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <value>
         ///   <c>true</c> if the output collection should be sharded; otherwise, <c>false</c>.
         /// </value>
+        [Obsolete("ShardedOutput is rejected by server versions 4.4.0 and newer.")]
         public bool? ShardedOutput
         {
             get { return _shardedOutput; }

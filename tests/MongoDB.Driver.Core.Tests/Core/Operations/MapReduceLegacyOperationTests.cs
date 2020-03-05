@@ -16,8 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -81,8 +79,9 @@ namespace MongoDB.Driver.Core.Operations
             };
 
             var result = ExecuteOperation(subject, async);
+            var results = result["results"].AsBsonArray.ToList();
 
-            result["results"].Should().Be(new BsonArray(expectedResults));
+            results.Should().BeEquivalentTo(new BsonArray(expectedResults));
         }
 
         [SkippableTheory]

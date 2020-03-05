@@ -72,7 +72,9 @@ namespace MongoDB.Driver.Core.Operations
             subject.Collation.Should().BeNull();
             subject.Filter.Should().BeNull();
             subject.FinalizeFunction.Should().BeNull();
+#pragma warning disable 618
             subject.JavaScriptMode.Should().NotHaveValue();
+#pragma warning restore 618
             subject.Limit.Should().NotHaveValue();
             subject.MaxTime.Should().NotHaveValue();
             subject.Scope.Should().BeNull();
@@ -240,7 +242,9 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings)
             {
+#pragma warning disable 618
                 JavaScriptMode = javaScriptMode
+#pragma warning restore 618
             };
             var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
@@ -432,8 +436,10 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
 
+#pragma warning disable 618
             subject.JavaScriptMode = value;
             var result = subject.JavaScriptMode;
+#pragma warning restore 618
 
             result.Should().Be(value);
         }

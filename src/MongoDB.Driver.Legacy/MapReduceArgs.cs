@@ -122,6 +122,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the JavaScript mode (if true all intermediate values are kept in memory as JavaScript objects).
         /// </summary>
+        [Obsolete("JsMode is ignored by server versions 4.4.0 and newer.")]
         public bool? JsMode
         {
             get { return _jsMode; }
@@ -176,6 +177,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets a value indicating whether Merge and Reduce output should not be atomic.
         /// </summary>
+        [Obsolete("OutputIsNonAtomic is rejected by server versions 4.4.0 and newer.")]
         public bool? OutputIsNonAtomic
         {
             get { return _outputIsNonAtomic; }
@@ -185,6 +187,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets a value indicating whether the output is sharded.
         /// </summary>
+        [Obsolete("OutputIsSharded is rejected by server versions 4.4.0 and newer.")]
         public bool? OutputIsSharded
         {
             get { return _outputIsSharded; }

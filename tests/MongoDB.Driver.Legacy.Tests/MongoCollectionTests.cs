@@ -37,6 +37,10 @@ namespace MongoDB.Driver.Tests
 {
     public class MongoCollectionTests
     {
+        #region static
+        private static readonly SemanticVersion __mapReduceNewServerImplementationServerVersion = new SemanticVersion(4, 3, 0);
+        #endregion
+
         private class TestClass
         {
             public ObjectId Id { get; set; }
@@ -2614,10 +2618,15 @@ namespace MongoDB.Driver.Tests
             });
 
             Assert.True(result.Ok);
-            Assert.True(result.Duration >= TimeSpan.Zero);
-            Assert.Equal(9, result.EmitCount);
-            Assert.Equal(5, result.OutputCount);
-            Assert.Equal(3, result.InputCount);
+            if (CoreTestConfiguration.ServerVersion < __mapReduceNewServerImplementationServerVersion)
+            {
+#pragma warning disable 618
+                Assert.True(result.Duration >= TimeSpan.Zero);
+                Assert.Equal(9, result.EmitCount);
+                Assert.Equal(5, result.OutputCount);
+                Assert.Equal(3, result.InputCount);
+#pragma warning restore 618
+            }
             result.CollectionName.Should().NotBeNullOrEmpty();
 
             var expectedCounts = new Dictionary<string, int>
@@ -2688,10 +2697,15 @@ namespace MongoDB.Driver.Tests
                 });
 
                 Assert.True(result.Ok);
-                Assert.True(result.Duration >= TimeSpan.Zero);
-                Assert.Equal(9, result.EmitCount);
-                Assert.Equal(5, result.OutputCount);
-                Assert.Equal(3, result.InputCount);
+                if (CoreTestConfiguration.ServerVersion < __mapReduceNewServerImplementationServerVersion)
+                {
+#pragma warning disable 618
+                    Assert.True(result.Duration >= TimeSpan.Zero);
+                    Assert.Equal(9, result.EmitCount);
+                    Assert.Equal(5, result.OutputCount);
+                    Assert.Equal(3, result.InputCount);
+#pragma warning restore 618
+                }
                 result.CollectionName.Should().BeNullOrEmpty();
 
                 var expectedCounts = new Dictionary<string, int>
@@ -2796,10 +2810,15 @@ namespace MongoDB.Driver.Tests
                 });
 
                 Assert.True(result.Ok);
-                Assert.True(result.Duration >= TimeSpan.Zero);
-                Assert.Equal(9, result.EmitCount);
-                Assert.Equal(5, result.OutputCount);
-                Assert.Equal(3, result.InputCount);
+                if (CoreTestConfiguration.ServerVersion < __mapReduceNewServerImplementationServerVersion)
+                {
+#pragma warning disable 618
+                    Assert.True(result.Duration >= TimeSpan.Zero);
+                    Assert.Equal(9, result.EmitCount);
+                    Assert.Equal(5, result.OutputCount);
+                    Assert.Equal(3, result.InputCount);
+#pragma warning restore 618
+                }
                 result.CollectionName.Should().BeNullOrEmpty();
 
                 var expectedCounts = new Dictionary<string, int>

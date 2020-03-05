@@ -1686,7 +1686,9 @@ namespace MongoDB.Driver
                     Collation = args.Collation,
                     Filter = query,
                     FinalizeFunction = args.FinalizeFunction,
+#pragma warning disable 618
                     JavaScriptMode = args.JsMode,
+#pragma warning restore 618
                     Limit = args.Limit,
                     MaxTime = args.MaxTime,
                     ReadConcern = _settings.ReadConcern,
@@ -1714,13 +1716,19 @@ namespace MongoDB.Driver
                     Collation = args.Collation,
                     Filter = query,
                     FinalizeFunction = args.FinalizeFunction,
+#pragma warning disable 618
                     JavaScriptMode = args.JsMode,
+#pragma warning restore 618
                     Limit = args.Limit,
                     MaxTime = args.MaxTime,
+#pragma warning disable 618
                     NonAtomicOutput = args.OutputIsNonAtomic,
+#pragma warning restore 618
                     OutputMode = outputMode,
                     Scope = scope,
+#pragma warning disable 618
                     ShardedOutput = args.OutputIsSharded,
+#pragma warning restore 618
                     Sort = sort,
                     Verbose = args.Verbose,
                     WriteConcern = _settings.WriteConcern
