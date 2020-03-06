@@ -32,55 +32,58 @@ namespace MongoDB.Driver.Tests
             [Values(false, true)] bool async)
         {
             var indexKeyDocument = BsonDocument.Parse(key);
-            var collection = GetEmptyCollection();
-            var subject = collection.Indexes;
-
-            subject.CreateOne(new CreateIndexModel<BsonDocument>(indexKeyDocument, new CreateIndexOptions() { Unique = unique }));
-
-            var indexesCursor =
-                async
-                    ? subject.ListAsync().GetAwaiter().GetResult()
-                    : subject.List();
-            var indexes = indexesCursor.ToList();
-
-            indexes.Count.Should().Be(2);
-            AssertIndex(collection.CollectionNamespace, indexes[0], "_id_");
-            var indexName = IndexNameHelper.GetIndexName(indexKeyDocument);
-            AssertIndex(collection.CollectionNamespace, indexes[1], indexName, expectedUnique: unique);
-
-            void AssertIndex(CollectionNamespace collectionNamespace, BsonDocument index, string expectedName, bool expectedUnique = false)
-            {
-                index["name"].AsString.Should().Be(expectedName);
-
-                if (expectedUnique)
-                {
-                    index["unique"].AsBoolean.Should().BeTrue();
-                }
-                else
-                {
-                    index.Contains("unique").Should().BeFalse();
-                }
-
-                if (CoreTestConfiguration.ServerVersion < new SemanticVersion(4, 3, 0))
-                {
-                    index["ns"].AsString.Should().Be(collectionNamespace.ToString());
-                }
-                else
-                {
-                    // the server doesn't return ns anymore
-                    index.Contains("ns").Should().BeFalse();
-                }
-            }
-        }
-
-        // private methods
-        private IMongoCollection<BsonDocument> GetEmptyCollection()
-        {
             var collectionName = DriverTestConfiguration.CollectionNamespace.CollectionName;
             var client = DriverTestConfiguration.Client;
             var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             database.DropCollection(collectionName);
-            return database.GetCollection<BsonDocument>(collectionName);
+            var collection = database.GetCollection<BsonDocument>(collectionName);
+
+            var subject = collection.Indexes;
+
+            try
+            {
+                subject.CreateOne(new CreateIndexModel<BsonDocument>(indexKeyDocument, new CreateIndexOptions() { Unique = unique }));
+
+                var indexesCursor =
+                    async
+                        ? subject.ListAsync().GetAwaiter().GetResult()
+                        : subject.List();
+                var indexes = indexesCursor.ToList();
+
+                indexes.Count.Should().Be(2);
+                AssertIndex(collection.CollectionNamespace, indexes[0], "_id_");
+                var indexName = IndexNameHelper.GetIndexName(indexKeyDocument);
+                AssertIndex(collection.CollectionNamespace, indexes[1], indexName, expectedUnique: unique);
+
+                void AssertIndex(CollectionNamespace collectionNamespace, BsonDocument index, string expectedName, bool expectedUnique = false)
+                {
+                    index["name"].AsString.Should().Be(expectedName);
+
+                    if (expectedUnique)
+                    {
+                        index["unique"].AsBoolean.Should().BeTrue();
+                    }
+                    else
+                    {
+                        index.Contains("unique").Should().BeFalse();
+                    }
+
+                    if (CoreTestConfiguration.ServerVersion < new SemanticVersion(4, 3, 0))
+                    {
+                        index["ns"].AsString.Should().Be(collectionNamespace.ToString());
+                    }
+                    else
+                    {
+                        // the server doesn't return ns anymore
+                        index.Contains("ns").Should().BeFalse();
+                    }
+                }
+            }
+            finally
+            {
+                // make sure that index has been removed
+                database.DropCollection(collectionName);
+            }
         }
     }
 }
