@@ -140,6 +140,22 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Combines an existing projection with a meta projection.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="projection">The projection.</param>
+        /// <param name="field">The field.</param>
+        /// <param name="metaFieldName">The meta field name.</param>
+        /// <returns>
+        /// A combined projection.
+        /// </returns>
+        public static ProjectionDefinition<TDocument> Meta<TDocument>(this ProjectionDefinition<TDocument> projection, string field, string metaFieldName)
+        {
+            var builder = Builders<TDocument>.Projection;
+            return builder.Combine(projection, builder.Meta(field, metaFieldName));
+        }
+
+        /// <summary>
         /// Combines an existing projection with a text score projection.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
@@ -334,6 +350,19 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Creates a meta projection.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="metaFieldName">The meta field name.</param>
+        /// <returns>
+        /// A text score projection.
+        /// </returns>
+        public ProjectionDefinition<TSource> Meta(string field, string metaFieldName)
+        {
+            return new SingleFieldProjectionDefinition<TSource>(field, new BsonDocument("$meta", metaFieldName));
+        }
+
+        /// <summary>
         /// Creates a text score projection.
         /// </summary>
         /// <param name="field">The field.</param>
@@ -342,7 +371,7 @@ namespace MongoDB.Driver
         /// </returns>
         public ProjectionDefinition<TSource> MetaTextScore(string field)
         {
-            return new SingleFieldProjectionDefinition<TSource>(field, new BsonDocument("$meta", "textScore"));
+            return Meta(field, "textScore");
         }
 
         /// <summary>
