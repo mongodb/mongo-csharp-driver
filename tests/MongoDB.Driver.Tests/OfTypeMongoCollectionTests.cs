@@ -122,6 +122,104 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
+        public void AggregateToCollection_should_add_match_to_beginning_of_pipeline(
+            [Values(false, true)] bool usingSession,
+            [Values(false, true)] bool async)
+        {
+            var subject = CreateSubject();
+            var session = CreateSession(usingSession);
+            var options = new AggregateOptions();
+
+            if (async)
+            {
+                if (usingSession)
+                {
+                    subject.AggregateToCollectionAsync<B>(session, new[] { new BsonDocument("$skip", 10) }, options, CancellationToken.None);
+
+                    _mockDerivedCollection.Verify(
+                        c => c.AggregateToCollectionAsync(
+                            session,
+                            It.Is<PipelineDefinition<B, B>>(p => RenderPipeline(p)[0].Equals(new BsonDocument("$match", _ofTypeFilter))),
+                            options,
+                            CancellationToken.None),
+                        Times.Once);
+                }
+                else
+                {
+                    subject.AggregateToCollectionAsync<B>(new[] { new BsonDocument("$skip", 10) }, options, CancellationToken.None);
+
+                    _mockDerivedCollection.Verify(
+                        c => c.AggregateToCollectionAsync(
+                            It.Is<PipelineDefinition<B, B>>(p => RenderPipeline(p)[0].Equals(new BsonDocument("$match", _ofTypeFilter))),
+                            options,
+                            CancellationToken.None),
+                        Times.Once);
+                }
+            }
+            else
+            {
+                if (usingSession)
+                {
+                    subject.AggregateToCollection<B>(session, new[] { new BsonDocument("$skip", 10) }, options, CancellationToken.None);
+
+                    _mockDerivedCollection.Verify(
+                        c => c.AggregateToCollection(
+                            session,
+                            It.Is<PipelineDefinition<B, B>>(p => RenderPipeline(p)[0].Equals(new BsonDocument("$match", _ofTypeFilter))),
+                            options,
+                            CancellationToken.None),
+                        Times.Once);
+                }
+                else
+                {
+                    subject.AggregateToCollection<B>(new[] { new BsonDocument("$skip", 10) }, options, CancellationToken.None);
+
+                    _mockDerivedCollection.Verify(
+                        c => c.AggregateToCollection(
+                            It.Is<PipelineDefinition<B, B>>(p => RenderPipeline(p)[0].Equals(new BsonDocument("$match", _ofTypeFilter))),
+                            options,
+                            CancellationToken.None),
+                        Times.Once);
+                }
+            }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void AggregateToCollection_should_combine_match_statements_at_the_beginning_of_a_pipeline(
+            [Values(false, true)] bool async)
+        {
+            var subject = CreateSubject();
+            var options = new AggregateOptions();
+
+            if (async)
+            {
+                subject.AggregateToCollectionAsync<B>(new[] { new BsonDocument("$match", new BsonDocument("x", 1)) }, options, CancellationToken.None);
+
+                var expectedFilter = new BsonDocument(_ofTypeFilter).Add("x", 1);
+                _mockDerivedCollection.Verify(
+                    c => c.AggregateToCollectionAsync(
+                        It.Is<PipelineDefinition<B, B>>(p => RenderPipeline(p)[0].Equals(new BsonDocument("$match", expectedFilter))),
+                        options,
+                        CancellationToken.None),
+                    Times.Once);
+            }
+            else
+            {
+                subject.AggregateToCollection<B>(new[] { new BsonDocument("$match", new BsonDocument("x", 1)) }, options, CancellationToken.None);
+
+                var expectedFilter = new BsonDocument(_ofTypeFilter).Add("x", 1);
+                _mockDerivedCollection.Verify(
+                    c => c.AggregateToCollection(
+                        It.Is<PipelineDefinition<B, B>>(p => RenderPipeline(p)[0].Equals(new BsonDocument("$match", expectedFilter))),
+                        options,
+                        CancellationToken.None),
+                    Times.Once);
+            }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void BulkWrite_with_DeleteOne(
             [Values(false, true)] bool async)
         {

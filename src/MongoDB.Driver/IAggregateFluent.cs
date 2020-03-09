@@ -327,6 +327,19 @@ namespace MongoDB.Driver
         IAggregateFluent<AggregateSortByCountResult<TId>> SortByCount<TId>(AggregateExpressionDefinition<TResult, TId> id);
 
         /// <summary>
+        /// Executes an aggregation pipeline that writes the results to a collection.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        void ToCollection(CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Executes an aggregation pipeline that writes the results to a collection.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task.</returns>
+        Task ToCollectionAsync(CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
         /// Appends an unwind stage to the pipeline.
         /// </summary>
         /// <typeparam name="TNewResult">The type of the result of the stage.</typeparam>

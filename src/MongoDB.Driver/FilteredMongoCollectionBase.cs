@@ -98,6 +98,30 @@ namespace MongoDB.Driver
             return _wrappedCollection.AggregateAsync(session, filteredPipeline, options, cancellationToken);
         }
 
+        public override void AggregateToCollection<TResult>(PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var filteredPipeline = CreateFilteredPipeline(pipeline);
+            _wrappedCollection.AggregateToCollection(filteredPipeline, options, cancellationToken);
+        }
+
+        public override void AggregateToCollection<TResult>(IClientSessionHandle session, PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var filteredPipeline = CreateFilteredPipeline(pipeline);
+            _wrappedCollection.AggregateToCollection(session, filteredPipeline, options, cancellationToken);
+        }
+
+        public override Task AggregateToCollectionAsync<TResult>(PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var filteredPipeline = CreateFilteredPipeline(pipeline);
+            return _wrappedCollection.AggregateToCollectionAsync(filteredPipeline, options, cancellationToken);
+        }
+
+        public override Task AggregateToCollectionAsync<TResult>(IClientSessionHandle session, PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var filteredPipeline = CreateFilteredPipeline(pipeline);
+            return _wrappedCollection.AggregateToCollectionAsync(session, filteredPipeline, options, cancellationToken);
+        }
+
         public override BulkWriteResult<TDocument> BulkWrite(IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return _wrappedCollection.BulkWrite(CombineModelFilters(requests), options, cancellationToken);

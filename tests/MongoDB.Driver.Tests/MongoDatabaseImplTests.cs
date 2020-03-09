@@ -243,6 +243,119 @@ namespace MongoDB.Driver
 
         [Theory]
         [ParameterAttributeData]
+        public void AggregateToCollection_should_execute_an_AggregateToCollectionOperation(
+            [Values(false, true)] bool usingSession,
+            [Values("$out", "$merge")] string lastStageName,
+            [Values(false, true)] bool async)
+        {
+            var writeConcern = new WriteConcern(1);
+            var subject = CreateSubject(null).WithWriteConcern(writeConcern);
+            var session = CreateSession(usingSession);
+            var pipeline = new EmptyPipelineDefinition<NoPipelineInput>()
+                .AppendStage<NoPipelineInput, NoPipelineInput, BsonDocument>("{ $currentOp : { } }");
+            switch (lastStageName)
+            {
+                case "$out": pipeline = pipeline.AppendStage<NoPipelineInput, BsonDocument, BsonDocument>("{ $out : \"output\" }"); break;
+                case "$merge": pipeline = pipeline.AppendStage<NoPipelineInput, BsonDocument, BsonDocument>("{ $merge : { into : \"output\" } }"); break;
+                default: throw new Exception($"Unexpected lastStageName: {lastStageName}.");
+            }
+            var options = new AggregateOptions()
+            {
+                AllowDiskUse = true,
+                BatchSize = 10,
+                BypassDocumentValidation = true,
+                Collation = new Collation("en_US"),
+                Comment = "test",
+                Hint = new BsonDocument("x", 1),
+                MaxTime = TimeSpan.FromSeconds(3),
+#pragma warning disable 618
+                UseCursor = false
+#pragma warning restore 618
+            };
+            var cancellationToken = new CancellationTokenSource().Token;
+            var renderedPipeline = RenderPipeline(subject, pipeline);
+
+            if (async)
+            {
+                if (usingSession)
+                {
+                    subject.AggregateToCollectionAsync(session, pipeline, options, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    subject.AggregateToCollectionAsync(pipeline, options, cancellationToken).GetAwaiter().GetResult();
+                }
+            }
+            else
+            {
+                if (usingSession)
+                {
+                    subject.AggregateToCollection(session, pipeline, options, cancellationToken);
+                }
+                else
+                {
+                    subject.AggregateToCollection(pipeline, options, cancellationToken);
+                }
+            }
+
+            var aggregateCall = _operationExecutor.GetWriteCall<BsonDocument>();
+            VerifySessionAndCancellationToken(aggregateCall, session, cancellationToken);
+
+            var aggregateOperation = aggregateCall.Operation.Should().BeOfType<AggregateToCollectionOperation>().Subject;
+            aggregateOperation.AllowDiskUse.Should().Be(options.AllowDiskUse);
+            aggregateOperation.BypassDocumentValidation.Should().Be(options.BypassDocumentValidation);
+            aggregateOperation.Collation.Should().BeSameAs(options.Collation);
+            aggregateOperation.CollectionNamespace.Should().BeNull();
+            aggregateOperation.Comment.Should().Be(options.Comment);
+            aggregateOperation.DatabaseNamespace.Should().BeSameAs(subject.DatabaseNamespace);
+            aggregateOperation.Hint.Should().Be(options.Hint);
+            aggregateOperation.MaxTime.Should().Be(options.MaxTime);
+            aggregateOperation.Pipeline.Should().Equal(renderedPipeline.Documents);
+            aggregateOperation.WriteConcern.Should().BeSameAs(writeConcern);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void AggregateToCollection_should_throw_when_last_stage_is_not_an_output_stage(
+            [Values(false, true)] bool usingSession,
+            [Values(false, true)] bool async)
+        {
+            var subject = CreateSubject(null);
+            var session = CreateSession(usingSession);
+            var pipeline = new EmptyPipelineDefinition<NoPipelineInput>()
+                .AppendStage<NoPipelineInput, NoPipelineInput, BsonDocument>("{ $currentOp : { } }");
+            var options = new AggregateOptions();
+            var cancellationToken = new CancellationTokenSource().Token;
+
+            Exception exception;
+            if (async)
+            {
+                if (usingSession)
+                {
+                    exception = Record.Exception(() => subject.AggregateToCollectionAsync(session, pipeline, options, cancellationToken).GetAwaiter().GetResult());
+                }
+                else
+                {
+                    exception = Record.Exception(() => subject.AggregateToCollectionAsync(pipeline, options, cancellationToken).GetAwaiter().GetResult());
+                }
+            }
+            else
+            {
+                if (usingSession)
+                {
+                    exception = Record.Exception(() => subject.AggregateToCollection(session, pipeline, options, cancellationToken));
+                }
+                else
+                {
+                    exception = Record.Exception(() => subject.AggregateToCollection(pipeline, options, cancellationToken));
+                }
+            }
+
+            exception.Should().BeOfType<InvalidOperationException>();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void CreateCollection_should_execute_a_CreateCollectionOperation_when_options_is_generic(
             [Values(false, true)] bool usingSession,
             [Values(false, true)] bool async)

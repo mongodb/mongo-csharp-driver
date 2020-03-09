@@ -250,6 +250,114 @@ namespace MongoDB.Driver
 
         [Theory]
         [ParameterAttributeData]
+        public void AggregateToCollection_should_execute_an_AggregateToCollectionOperation(
+            [Values(false, true)] bool usingSession,
+            [Values(false, true)] bool async)
+        {
+            var writeConcern = new WriteConcern(1);
+            var readConcern = new ReadConcern(ReadConcernLevel.Majority);
+            var subject = CreateSubject<BsonDocument>().WithWriteConcern(writeConcern);
+            var session = CreateSession(usingSession);
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>()
+                .Match("{ x : 2 }")
+                .Out(subject.Database.GetCollection<BsonDocument>("funny"));
+            var options = new AggregateOptions()
+            {
+                AllowDiskUse = true,
+                BatchSize = 10,
+                BypassDocumentValidation = true,
+                Collation = new Collation("en_US"),
+                Comment = "test",
+                Hint = new BsonDocument("x", 1),
+                MaxTime = TimeSpan.FromSeconds(3),
+#pragma warning disable 618
+                UseCursor = false
+#pragma warning restore 618
+            };
+            var cancellationToken = new CancellationTokenSource().Token;
+            var renderedPipeline = RenderPipeline(subject, pipeline);
+
+            if (async)
+            {
+                if (usingSession)
+                {
+                    subject.AggregateToCollectionAsync(session, pipeline, options, cancellationToken).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    subject.AggregateToCollectionAsync(pipeline, options, cancellationToken).GetAwaiter().GetResult();
+                }
+            }
+            else
+            {
+                if (usingSession)
+                {
+                    subject.AggregateToCollection(session, pipeline, options, cancellationToken);
+                }
+                else
+                {
+                    subject.AggregateToCollection(pipeline, options, cancellationToken);
+                }
+            }
+
+            var aggregateCall = _operationExecutor.GetWriteCall<BsonDocument>();
+            VerifySessionAndCancellationToken(aggregateCall, session, cancellationToken);
+
+            var aggregateOperation = aggregateCall.Operation.Should().BeOfType<AggregateToCollectionOperation>().Subject;
+            aggregateOperation.AllowDiskUse.Should().Be(options.AllowDiskUse);
+            aggregateOperation.BypassDocumentValidation.Should().Be(options.BypassDocumentValidation);
+            aggregateOperation.Collation.Should().BeSameAs(options.Collation);
+            aggregateOperation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
+            aggregateOperation.Comment.Should().Be(options.Comment);
+            aggregateOperation.Hint.Should().Be(options.Hint);
+            aggregateOperation.MaxTime.Should().Be(options.MaxTime);
+            aggregateOperation.Pipeline.Should().Equal(renderedPipeline.Documents);
+            aggregateOperation.ReadConcern.Should().Be(readConcern);
+            aggregateOperation.WriteConcern.Should().BeSameAs(writeConcern);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void AggregateToCollection_should_throw_when_last_stage_is_not_an_output_stage(
+            [Values(false, true)] bool usingSession,
+            [Values(false, true)] bool async)
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var session = CreateSession(usingSession);
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>()
+                .Match("{ x : 2 }");
+            var options = new AggregateOptions();
+            var cancellationToken = new CancellationTokenSource().Token;
+
+            Exception exception;
+            if (async)
+            {
+                if (usingSession)
+                {
+                    exception = Record.Exception(() => subject.AggregateToCollectionAsync(session, pipeline, options, cancellationToken).GetAwaiter().GetResult());
+                }
+                else
+                {
+                    exception = Record.Exception(() => subject.AggregateToCollectionAsync(pipeline, options, cancellationToken).GetAwaiter().GetResult());
+                }
+            }
+            else
+            {
+                if (usingSession)
+                {
+                    exception = Record.Exception(() => subject.AggregateToCollection(session, pipeline, options, cancellationToken));
+                }
+                else
+                {
+                    exception = Record.Exception(() => subject.AggregateToCollection(pipeline, options, cancellationToken));
+                }
+            }
+
+            exception.Should().BeOfType<InvalidOperationException>();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void BulkWrite_should_execute_a_BulkMixedWriteOperation(
             [Values(false, true)] bool usingSession,
             [Values(null, false, true)] bool? bypassDocumentValidation,

@@ -205,7 +205,8 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
                 RequireServer.Check().Supports(Feature.AggregateMerge);
             }
 
-            DropCollection();
+            DropAndCreateCollection();
+
             var eventCapturer = CreateEventCapturer();
             using (var client = CreateDisposableClient(eventCapturer))
             {
@@ -446,6 +447,14 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
             return
                 new EventCapturer()
                 .Capture<CommandStartedEvent>(e => !commandsToNotCapture.Contains(e.CommandName));
+        }
+
+        private void DropAndCreateCollection()
+        {
+            var client = DriverTestConfiguration.Client;
+            var database = client.GetDatabase(_databaseName);
+            database.DropCollection(_collectionName);
+            database.CreateCollection(_collectionName);
         }
 
         private void DropCollection()

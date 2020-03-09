@@ -155,6 +155,50 @@ namespace MongoDB.Driver
             }
         }
 
+        public override void AggregateToCollection<TResult>(PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            UsingImplicitSession(session => AggregateToCollection(session, pipeline, options, cancellationToken), cancellationToken);
+        }
+
+        public override void AggregateToCollection<TResult>(IClientSessionHandle session, PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(session, nameof(session));
+            var renderedPipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).Render(_documentSerializer, _settings.SerializerRegistry);
+            options = options ?? new AggregateOptions();
+
+            var lastStage = renderedPipeline.Documents.LastOrDefault();
+            var lastStageName = lastStage?.GetElement(0).Name;
+            if (lastStage == null || (lastStageName != "$out" && lastStageName != "$merge"))
+            {
+                throw new InvalidOperationException("AggregateToCollection requires that the last stage be $out or $merge.");
+            }
+
+            var aggregateOperation = CreateAggregateToCollectionOperation(renderedPipeline, options);
+            ExecuteWriteOperation(session, aggregateOperation, cancellationToken);
+        }
+
+        public override Task AggregateToCollectionAsync<TResult>(PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return UsingImplicitSessionAsync(session => AggregateToCollectionAsync(session, pipeline, options, cancellationToken), cancellationToken);
+        }
+
+        public override async Task AggregateToCollectionAsync<TResult>(IClientSessionHandle session, PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(session, nameof(session));
+            var renderedPipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).Render(_documentSerializer, _settings.SerializerRegistry);
+            options = options ?? new AggregateOptions();
+
+            var lastStage = renderedPipeline.Documents.LastOrDefault();
+            var lastStageName = lastStage?.GetElement(0).Name;
+            if (lastStage == null || (lastStageName != "$out" && lastStageName != "$merge"))
+            {
+                throw new InvalidOperationException("AggregateToCollectionAsync requires that the last stage be $out or $merge.");
+            }
+
+            var aggregateOperation = CreateAggregateToCollectionOperation(renderedPipeline, options);
+            await ExecuteWriteOperationAsync(session, aggregateOperation, cancellationToken).ConfigureAwait(false);
+        }
+
         public override BulkWriteResult<TDocument> BulkWrite(IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             return UsingImplicitSession(session => BulkWrite(session, requests, options, cancellationToken), cancellationToken);

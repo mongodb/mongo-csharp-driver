@@ -149,6 +149,54 @@ namespace MongoDB.Driver
             }
         }
 
+        public override void AggregateToCollection<TResult>(PipelineDefinition<NoPipelineInput, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            UsingImplicitSession(session => AggregateToCollection(session, pipeline, options, cancellationToken), cancellationToken);
+        }
+
+        public override void AggregateToCollection<TResult>(IClientSessionHandle session, PipelineDefinition<NoPipelineInput, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(session, nameof(session));
+            var renderedPipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).Render(NoPipelineInputSerializer.Instance, _settings.SerializerRegistry);
+            options = options ?? new AggregateOptions();
+
+            var lastStage = renderedPipeline.Documents.LastOrDefault();
+            var lastStageName = lastStage?.GetElement(0).Name;
+            if (lastStage == null || (lastStageName != "$out" && lastStageName != "$merge"))
+            {
+                throw new InvalidOperationException("AggregateToCollection requires that the last stage be $out or $merge.");
+            }
+            else
+            {
+                var aggregateOperation = CreateAggregateToCollectionOperation(renderedPipeline, options);
+                ExecuteWriteOperation(session, aggregateOperation, cancellationToken);
+            }
+        }
+
+        public override Task AggregateToCollectionAsync<TResult>(PipelineDefinition<NoPipelineInput, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return UsingImplicitSessionAsync(session => AggregateToCollectionAsync(session, pipeline, options, cancellationToken), cancellationToken);
+        }
+
+        public override async Task AggregateToCollectionAsync<TResult>(IClientSessionHandle session, PipelineDefinition<NoPipelineInput, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(session, nameof(session));
+            var renderedPipeline = Ensure.IsNotNull(pipeline, nameof(pipeline)).Render(NoPipelineInputSerializer.Instance, _settings.SerializerRegistry);
+            options = options ?? new AggregateOptions();
+
+            var lastStage = renderedPipeline.Documents.LastOrDefault();
+            var lastStageName = lastStage?.GetElement(0).Name;
+            if (lastStage == null || (lastStageName != "$out" && lastStageName != "$merge"))
+            {
+                throw new InvalidOperationException("AggregateToCollectionAsync requires that the last stage be $out or $merge.");
+            }
+            else
+            {
+                var aggregateOperation = CreateAggregateToCollectionOperation(renderedPipeline, options);
+                await ExecuteWriteOperationAsync(session, aggregateOperation, cancellationToken).ConfigureAwait(false);
+            }
+        }
+
         public override void CreateCollection(string name, CreateCollectionOptions options, CancellationToken cancellationToken)
         {
             UsingImplicitSession(session => CreateCollection(session, name, options, cancellationToken), cancellationToken);
@@ -706,10 +754,10 @@ namespace MongoDB.Driver
             ChangeStreamOptions options)
         {
             return ChangeStreamHelper.CreateChangeStreamOperation(
-                this, 
-                pipeline, 
-                options, 
-                _settings.ReadConcern, 
+                this,
+                pipeline,
+                options,
+                _settings.ReadConcern,
                 GetMessageEncoderSettings(),
                 _client.Settings.RetryReads);
         }

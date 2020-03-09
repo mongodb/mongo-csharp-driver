@@ -274,6 +274,30 @@ namespace MongoDB.Driver
         public override IMongoDatabase Database => _collection.Database;
 
         // public methods
+        public override void ToCollection(CancellationToken cancellationToken)
+        {
+            if (_session == null)
+            {
+                _collection.AggregateToCollection(_pipeline, _options, cancellationToken);
+            }
+            else
+            {
+                _collection.AggregateToCollection(_session, _pipeline, _options, cancellationToken);
+            }
+        }
+
+        public override Task ToCollectionAsync(CancellationToken cancellationToken)
+        {
+            if (_session == null)
+            {
+                return _collection.AggregateToCollectionAsync(_pipeline, _options, cancellationToken);
+            }
+            else
+            {
+                return _collection.AggregateToCollectionAsync(_session, _pipeline, _options, cancellationToken);
+            }
+        }
+
         public override IAsyncCursor<TResult> ToCursor(CancellationToken cancellationToken)
         {
             if (_session == null)
@@ -325,6 +349,30 @@ namespace MongoDB.Driver
         public override IMongoDatabase Database => _database;
 
         // public methods
+        public override void ToCollection(CancellationToken cancellationToken)
+        {
+            if (_session == null)
+            {
+                _database.AggregateToCollection(_pipeline, _options, cancellationToken);
+            }
+            else
+            {
+                _database.AggregateToCollection(_session, _pipeline, _options, cancellationToken);
+            }
+        }
+
+        public override Task ToCollectionAsync(CancellationToken cancellationToken)
+        {
+            if (_session == null)
+            {
+                return _database.AggregateToCollectionAsync(_pipeline, _options, cancellationToken);
+            }
+            else
+            {
+                return _database.AggregateToCollectionAsync(_session, _pipeline, _options, cancellationToken);
+            }
+        }
+
         public override IAsyncCursor<TResult> ToCursor(CancellationToken cancellationToken)
         {
             if (_session == null)

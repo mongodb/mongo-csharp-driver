@@ -213,6 +213,18 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
+        public virtual void ToCollection(CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public virtual Task ToCollectionAsync(CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
         public virtual IAsyncCursor<TResult> ToCursor(CancellationToken cancellationToken)
         {
             throw new NotImplementedException();

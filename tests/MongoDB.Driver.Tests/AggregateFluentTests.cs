@@ -34,13 +34,14 @@ namespace MongoDB.Driver.Tests
     public class AggregateFluentTests
     {
         private Mock<IMongoCollection<C>> _mockCollection;
+        private Mock<IMongoDatabase> _mockDatabase;
 
         [Theory]
         [ParameterAttributeData]
         public void As_should_add_the_expected_stage(
             [Values(false, true)] bool async)
         {
-            var subject = CreateSubject();
+            var subject = CreateCollectionSubject();
 
             var result = subject
                 .Match("{ X : 1 }")
@@ -91,7 +92,7 @@ namespace MongoDB.Driver.Tests
         {
             var resumeAfter = resumeAfterString == null ? null : BsonDocument.Parse(resumeAfterString);
 
-            var subject = CreateSubject();
+            var subject = CreateCollectionSubject();
             var options = new ChangeStreamStageOptions
             {
                 FullDocument = fullDocument,
@@ -110,7 +111,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void ChangeStream_should_add_the_expected_stage_when_options_is_null()
         {
-            var subject = CreateSubject();
+            var subject = CreateCollectionSubject();
             ChangeStreamStageOptions options = null;
 
             var result = subject.ChangeStream(options);
@@ -128,7 +129,7 @@ namespace MongoDB.Driver.Tests
             [Values(false, true)]
             bool async)
         {
-            var subject = CreateSubject();
+            var subject = CreateCollectionSubject();
 
             var result = subject.Count();
 
@@ -175,7 +176,7 @@ namespace MongoDB.Driver.Tests
             var client = DriverTestConfiguration.Client;
             var databaseNamespace = CoreTestConfiguration.DatabaseNamespace;
             var collectionNamespace = CoreTestConfiguration.GetCollectionNamespaceForTestMethod(
-                className: GetType().Name, 
+                className: GetType().Name,
                 methodName: nameof(Count_should_return_the_expected_result));
             var database = client.GetDatabase(databaseNamespace.DatabaseName);
             database.DropCollection(collectionNamespace.CollectionName);
@@ -498,7 +499,7 @@ namespace MongoDB.Driver.Tests
             [Values(false, true)] bool async)
         {
             var subject =
-                CreateSubject()
+                CreateCollectionSubject()
                 .Match(Builders<C>.Filter.Eq(c => c.X, 1));
             var outputDatabase = subject.Database;
             var outputCollection = outputDatabase.GetCollection<C>("collection");
@@ -544,7 +545,7 @@ namespace MongoDB.Driver.Tests
         public void OfType_should_add_the_expected_stage(
             [Values(false, true)] bool async)
         {
-            var subject = CreateSubject();
+            var subject = CreateCollectionSubject();
 
             var result = subject
                 .SortBy(c => c.X)
@@ -591,8 +592,8 @@ namespace MongoDB.Driver.Tests
         public void Out_should_add_the_expected_stage_and_call_Aggregate(
             [Values(false, true)] bool async)
         {
-            var subject = 
-                CreateSubject()
+            var subject =
+                CreateCollectionSubject()
                 .Match(Builders<C>.Filter.Eq(c => c.X, 1));
             var collectionName = "test";
 
@@ -637,7 +638,7 @@ namespace MongoDB.Driver.Tests
             [Values(false, true)]
             bool async)
         {
-            var subject = CreateSubject();
+            var subject = CreateCollectionSubject();
 
             var result = subject
                 .ReplaceRoot<BsonDocument>("$X");
@@ -679,7 +680,7 @@ namespace MongoDB.Driver.Tests
         [ParameterAttributeData]
         public void ReplaceWith_should_add_the_expected_stage([Values(false, true)] bool async)
         {
-            var subject = CreateSubject();
+            var subject = CreateCollectionSubject();
 
             var result = subject.ReplaceWith<BsonDocument>("$X");
 
@@ -722,7 +723,7 @@ namespace MongoDB.Driver.Tests
             [Values(false, true)]
             bool async)
         {
-            var subject = CreateSubject();
+            var subject = CreateCollectionSubject();
 
             var result = subject
                 .SortByCount<int>("$X");
@@ -762,13 +763,155 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
+        public void ToCollection_should_call_collection_AggregateToCollection_with_expected_arguments(
+            [Values(false, true)] bool usingSession,
+            [Values("$out", "$merge")] string lastStageName,
+            [Values(false, true)] bool async)
+        {
+            var session = usingSession ? new Mock<IClientSessionHandle>().Object : null;
+            var subject =
+                CreateCollectionSubject(session)
+                .Match(Builders<C>.Filter.Eq(c => c.X, 1));
+            switch (lastStageName)
+            {
+                case "$out": subject = subject.AppendStage(new BsonDocumentPipelineStageDefinition<C, C>(BsonDocument.Parse("{ $out : \"output\" }"))); break;
+                case "$merge": subject = subject.AppendStage(new BsonDocumentPipelineStageDefinition<C, C>(BsonDocument.Parse("{ $merge : { into : \"output\" } }"))); break;
+                default: throw new Exception($"Unexpected lastStageName: {lastStageName}.");
+            }
+            var expectedPipeline = ((AggregateFluent<C, C>)subject)._pipeline();
+            var expectedOptions = subject.Options;
+            var cancellationToken = new CancellationTokenSource().Token;
+
+            if (async)
+            {
+                subject.ToCollectionAsync(cancellationToken).GetAwaiter().GetResult();
+
+                if (usingSession)
+                {
+                    _mockCollection.Verify(
+                        c => c.AggregateToCollectionAsync<C>(
+                            session,
+                            expectedPipeline,
+                            expectedOptions,
+                            cancellationToken),
+                        Times.Once);
+                }
+                else
+                {
+                    _mockCollection.Verify(
+                        c => c.AggregateToCollectionAsync<C>(
+                            expectedPipeline,
+                            expectedOptions,
+                            cancellationToken),
+                        Times.Once);
+                }
+            }
+            else
+            {
+                subject.ToCollection(cancellationToken);
+
+                if (usingSession)
+                {
+                    _mockCollection.Verify(
+                        c => c.AggregateToCollection<C>(
+                            session,
+                            expectedPipeline,
+                            expectedOptions,
+                            cancellationToken),
+                        Times.Once);
+                }
+                else
+                {
+                    _mockCollection.Verify(
+                        c => c.AggregateToCollection<C>(
+                            expectedPipeline,
+                            expectedOptions,
+                            cancellationToken),
+                        Times.Once);
+                }
+            }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void ToCollection_should_call_database_AggregateToCollection_with_expected_arguments(
+            [Values(false, true)] bool usingSession,
+            [Values("$out", "$merge")] string lastStageName,
+            [Values(false, true)] bool async)
+        {
+            var session = usingSession ? new Mock<IClientSessionHandle>().Object : null;
+            var subject =
+                CreateDatabaseSubject(session)
+                .AppendStage<BsonDocument>("{ $currentOp : { } }");
+            switch (lastStageName)
+            {
+                case "$out": subject = subject.AppendStage<BsonDocument>("{ $out : \"output\" }"); break;
+                case "$merge": subject = subject.AppendStage<BsonDocument>("{ $merge : { into : \"output\" } }"); break;
+                default: throw new Exception($"Unexpected lastStageName: {lastStageName}.");
+            }
+            var expectedPipeline = ((AggregateFluent<NoPipelineInput, BsonDocument>)subject)._pipeline();
+            var expectedOptions = subject.Options;
+            var cancellationToken = new CancellationTokenSource().Token;
+
+            if (async)
+            {
+                subject.ToCollectionAsync(cancellationToken).GetAwaiter().GetResult();
+
+                if (usingSession)
+                {
+                    _mockDatabase.Verify(
+                        c => c.AggregateToCollectionAsync<BsonDocument>(
+                            session,
+                            expectedPipeline,
+                            expectedOptions,
+                            cancellationToken),
+                        Times.Once);
+                }
+                else
+                {
+                    _mockDatabase.Verify(
+                        c => c.AggregateToCollectionAsync<BsonDocument>(
+                            expectedPipeline,
+                            expectedOptions,
+                            cancellationToken),
+                        Times.Once);
+                }
+            }
+            else
+            {
+                subject.ToCollection(cancellationToken);
+
+                if (usingSession)
+                {
+                    _mockDatabase.Verify(
+                        c => c.AggregateToCollection<BsonDocument>(
+                            session,
+                            expectedPipeline,
+                            expectedOptions,
+                            cancellationToken),
+                        Times.Once);
+                }
+                else
+                {
+                    _mockDatabase.Verify(
+                        c => c.AggregateToCollection<BsonDocument>(
+                            expectedPipeline,
+                            expectedOptions,
+                            cancellationToken),
+                        Times.Once);
+                }
+            }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void ToCursor_should_call_collection_Aggregate_with_expected_arguments(
             [Values(false, true)] bool usingSession,
             [Values(false, true)] bool async)
         {
             var session = usingSession ? new Mock<IClientSessionHandle>().Object : null;
             var subject =
-                CreateSubject(session)
+                CreateCollectionSubject(session)
                 .Match(Builders<C>.Filter.Eq(c => c.X, 1));
             var expectedPipeline = ((AggregateFluent<C, C>)subject)._pipeline();
             var expectedOptions = subject.Options;
@@ -824,30 +967,108 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        // private methods
-        private IAggregateFluent<C> CreateSubject(IClientSessionHandle session = null)
+        [Theory]
+        [ParameterAttributeData]
+        public void ToCursor_should_call_database_Aggregate_with_expected_arguments(
+            [Values(false, true)] bool usingSession,
+            [Values(false, true)] bool async)
         {
-            var mockDatabase = new Mock<IMongoDatabase>();
-            SetupDatabaseGetCollectionMethod<C>(mockDatabase);
+            var session = usingSession ? new Mock<IClientSessionHandle>().Object : null;
+            var subject =
+                CreateDatabaseSubject(session)
+                .AppendStage<BsonDocument>("{ $currentOp : { } }");
+            var expectedPipeline = ((AggregateFluent<NoPipelineInput, BsonDocument>)subject)._pipeline();
+            var expectedOptions = subject.Options;
+            var cancellationToken = new CancellationTokenSource().Token;
+
+            if (async)
+            {
+                var _ = subject.ToCursorAsync(cancellationToken).GetAwaiter().GetResult();
+
+                if (usingSession)
+                {
+                    _mockDatabase.Verify(
+                        c => c.AggregateAsync<BsonDocument>(
+                            session,
+                            expectedPipeline,
+                            expectedOptions,
+                            cancellationToken),
+                        Times.Once);
+                }
+                else
+                {
+                    _mockDatabase.Verify(
+                        c => c.AggregateAsync<BsonDocument>(
+                            expectedPipeline,
+                            expectedOptions,
+                            cancellationToken),
+                        Times.Once);
+                }
+            }
+            else
+            {
+                var _ = subject.ToCursor(cancellationToken);
+
+                if (usingSession)
+                {
+                    _mockDatabase.Verify(
+                        c => c.Aggregate<BsonDocument>(
+                            session,
+                            expectedPipeline,
+                            expectedOptions,
+                            cancellationToken),
+                        Times.Once);
+                }
+                else
+                {
+                    _mockDatabase.Verify(
+                        c => c.Aggregate<BsonDocument>(
+                            expectedPipeline,
+                            expectedOptions,
+                            cancellationToken),
+                        Times.Once);
+                }
+            }
+        }
+
+        // private methods
+        private IAggregateFluent<C> CreateCollectionSubject(IClientSessionHandle session = null)
+        {
+            CreateMockCollection();
+
+            var emptyPipeline = new EmptyPipelineDefinition<C>();
+            var options = new AggregateOptions();
+            return new CollectionAggregateFluent<C, C>(session, _mockCollection.Object, emptyPipeline, options);
+        }
+
+        private IAggregateFluent<NoPipelineInput> CreateDatabaseSubject(IClientSessionHandle session = null)
+        {
+            CreateMockDatabase();
+
+            var emptyPipeline = new EmptyPipelineDefinition<NoPipelineInput>(NoPipelineInputSerializer.Instance);
+            var options = new AggregateOptions();
+            return new DatabaseAggregateFluent<NoPipelineInput>(session, _mockDatabase.Object, emptyPipeline, options);
+        }
+
+        private void CreateMockCollection()
+        {
+            CreateMockDatabase();
 
             var settings = new MongoCollectionSettings();
             _mockCollection = new Mock<IMongoCollection<C>>();
-            _mockCollection.SetupGet(c => c.Database).Returns(mockDatabase.Object);
+            _mockCollection.SetupGet(c => c.Database).Returns(_mockDatabase.Object);
             _mockCollection.SetupGet(c => c.DocumentSerializer).Returns(settings.SerializerRegistry.GetSerializer<C>());
             _mockCollection.SetupGet(c => c.Settings).Returns(settings);
-            var options = new AggregateOptions();
-            var subject = new CollectionAggregateFluent<C, C>(session, _mockCollection.Object, new EmptyPipelineDefinition<C>(), options);
-
-            return subject;
         }
 
-        private void SetupDatabaseGetCollectionMethod<TDocument>(Mock<IMongoDatabase> mockDatabase)
+        private void CreateMockDatabase()
         {
-            mockDatabase
-                .Setup(d => d.GetCollection<TDocument>(It.IsAny<string>(), It.IsAny<MongoCollectionSettings>()))
+            _mockDatabase = new Mock<IMongoDatabase>();
+            _mockDatabase
+                .Setup(d => d.GetCollection<C>(It.IsAny<string>(), It.IsAny<MongoCollectionSettings>()))
                 .Returns((string collectionName, MongoCollectionSettings settings) =>
                 {
-                    var mockCollection = new Mock<IMongoCollection<TDocument>>();
+                    var mockCollection = new Mock<IMongoCollection<C>>();
                     mockCollection.SetupGet(c => c.CollectionNamespace).Returns(new CollectionNamespace(new DatabaseNamespace("test"), collectionName));
                     return mockCollection.Object;
                 });
@@ -861,8 +1082,8 @@ namespace MongoDB.Driver.Tests
         }
 
         private List<IRenderedPipelineStageDefinition> RenderStages(
-            IList<IPipelineStageDefinition> stages, 
-            IBsonSerializer inputSerializer, 
+            IList<IPipelineStageDefinition> stages,
+            IBsonSerializer inputSerializer,
             IBsonSerializerRegistry serializerRegistry)
         {
             var renderedStages = new List<IRenderedPipelineStageDefinition>();
