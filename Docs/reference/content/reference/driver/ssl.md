@@ -93,11 +93,10 @@ when a server has a Must-Staple certificate and does not staple.
 #### Hard-fail vs. soft-fail
 On Windows, due .NET's implementation of TLS, the driver utilizes
 "hard-fail" behavior in contrast to the "soft-fail" behavior exhibited
-by the mongo shell and MongoDB drivers such as Python and Go. This
-means that in the case that an OCSP responder is unavailable, the
-driver will fail to connect (i.e. hard-fail) instead of allowing the
-connection to continue (i.e. soft-fail).
-
+by the Linux/macOS mongo shell and MongoDB drivers such as Python and
+Go. This means that in the case that an OCSP responder is unavailable,
+the driver will fail to connect (i.e. hard-fail) instead of allowing
+the connection to continue (i.e. soft-fail).
 
 ## TLS support
 ### Overview
