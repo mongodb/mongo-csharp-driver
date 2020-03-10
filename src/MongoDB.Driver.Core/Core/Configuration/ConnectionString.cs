@@ -95,6 +95,7 @@ namespace MongoDB.Driver.Core.Configuration
         private TimeSpan? _serverSelectionTimeout;
         private TimeSpan? _socketTimeout;
         private bool? _tls;
+        private bool? _tlsDisableCertificateRevocationCheck;
         private bool? _tlsInsecure;
         private string _username;
         private GuidRepresentation? _uuidRepresentation;
@@ -426,6 +427,11 @@ namespace MongoDB.Driver.Core.Configuration
         /// Gets whether to use TLS.
         /// </summary>
         public bool? Tls => _tls;
+
+        /// <summary>
+        ///  Get whether or not certificate revocation checking is disabled during the TLS handshake.
+        /// </summary>
+        public bool? TlsDisableCertificateRevocationCheck => _tlsDisableCertificateRevocationCheck;
 
         /// <summary>
         /// Gets whether to relax TLS constraints as much as possible.
@@ -803,6 +809,12 @@ namespace MongoDB.Driver.Core.Configuration
                 throw new MongoConfigurationException("This is an invalid w and journal pair.");
             }
 
+            if (_tlsInsecure.HasValue && _tlsDisableCertificateRevocationCheck.HasValue)
+            {
+                throw new MongoConfigurationException(
+                    "Specifying both tlsInsecure and tlsDisableCertificateRevocationCheck is invalid.");
+            }
+
             string protectConnectionString(string connectionString)
             {
                 var protectedString = Regex.Replace(connectionString, @"(?<=://)[^/]*(?=@)", "<hidden>");
@@ -973,6 +985,11 @@ namespace MongoDB.Driver.Core.Configuration
                 case "sslverifycertificate": // Obsolete
                     var sslVerifyCertificateValue = ParseBoolean(name, value);
                     _tlsInsecure = EnsureTlsInsecureIsValid(!sslVerifyCertificateValue);
+                    break;
+                case "tlsdisablecertificaterevocationcheck":
+                    var tlsDisableCertificateRevocationCheckValue = ParseBoolean(name, value);
+                    _tlsDisableCertificateRevocationCheck =
+                        EnsureTlsDisableCertificateRevocationCheckIsValid(tlsDisableCertificateRevocationCheckValue);
                     break;
                 case "tlsinsecure":
                     var tlsInsecureValue = ParseBoolean(name, value);
@@ -1156,6 +1173,17 @@ namespace MongoDB.Driver.Core.Configuration
             {
                 throw new MongoConfigurationException(string.Format("{0} has an invalid TimeSpan value of {1}.", name, value), ex);
             }
+        }
+
+        private bool EnsureTlsDisableCertificateRevocationCheckIsValid(bool value)
+        {
+            if (_tlsDisableCertificateRevocationCheck.HasValue && _tlsDisableCertificateRevocationCheck.Value != value)
+            {
+                var name = nameof(_tlsDisableCertificateRevocationCheck).Substring(1);
+                throw new MongoConfigurationException($"{name} has already been configured with a different value.");
+            }
+
+            return value;
         }
 
         private bool EnsureTlsInsecureIsValid(bool value)

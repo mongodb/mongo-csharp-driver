@@ -132,6 +132,7 @@ namespace MongoDB.Driver
 
         /// <summary>
         /// Gets or sets whether to relax TLS constraints as much as possible.
+        /// Setting this variable to true will also set SslSettings.CheckCertificateRevocation to false.
         /// </summary>
         public bool AllowInsecureTls
         {
@@ -139,6 +140,12 @@ namespace MongoDB.Driver
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
+                if (value)
+                {
+                    _sslSettings = _sslSettings ?? new SslSettings();
+                    // Otherwise, the user will have to manually set CheckCertificateRevocation to false
+                    _sslSettings.CheckCertificateRevocation = false;
+                }
                 _allowInsecureTls = value;
             }
         }
@@ -618,7 +625,8 @@ namespace MongoDB.Driver
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
-                _allowInsecureTls = !value;
+                // use property instead of private field because setter has additional side effects
+                AllowInsecureTls = !value;
             }
         }
 
@@ -813,7 +821,11 @@ namespace MongoDB.Driver
             serverSettings.Servers = new List<MongoServerAddress>(url.Servers);
             serverSettings.ServerSelectionTimeout = url.ServerSelectionTimeout;
             serverSettings.SocketTimeout = url.SocketTimeout;
-            serverSettings.SslSettings = null; // SSL settings must be provided in code
+            serverSettings.SslSettings = null;
+            if (url.TlsDisableCertificateRevocationCheck)
+            {
+                serverSettings.SslSettings = new SslSettings { CheckCertificateRevocation = false };
+            }
             serverSettings.UseTls = url.UseTls;
 #pragma warning disable 618
             serverSettings.WaitQueueSize = url.ComputedWaitQueueSize;
@@ -937,6 +949,7 @@ namespace MongoDB.Driver
         {
             if (!_isFrozen)
             {
+                ThrowIfSettingsAreInvalid();
                 _frozenHashCode = GetHashCode();
                 _frozenStringRepresentation = ToString();
                 _isFrozen = true;
@@ -1113,6 +1126,16 @@ namespace MongoDB.Driver
                 _useTls,
                 _waitQueueSize,
                 _waitQueueTimeout);
+        }
+
+        private void ThrowIfSettingsAreInvalid()
+        {
+            if (_allowInsecureTls && _sslSettings != null && _sslSettings.CheckCertificateRevocation)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(AllowInsecureTls)} and {nameof(SslSettings)}" +
+                    $".{nameof(_sslSettings.CheckCertificateRevocation)} cannot both be true.");
+            }
         }
     }
 }

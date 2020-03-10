@@ -98,6 +98,11 @@ namespace MongoDB.Driver.Core.Configuration
                     {
                         ssl = ssl.With(serverCertificateValidationCallback: new RemoteCertificateValidationCallback(AcceptAnySslCertificate));
                     }
+                    if (connectionString.TlsDisableCertificateRevocationCheck.HasValue)
+                    {
+                        ssl = ssl.With(
+                            checkCertificateRevocation: !connectionString.TlsDisableCertificateRevocationCheck.Value);
+                    }
 
                     return ssl;
                 });
@@ -269,7 +274,7 @@ namespace MongoDB.Driver.Core.Configuration
             return builder.Subscribe(subscriber);
         }
 #endif
-        
+
         /// <summary>
         /// Configures the cluster to trace events to the specified <paramref name="traceSource"/>.
         /// </summary>

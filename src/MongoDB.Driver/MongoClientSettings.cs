@@ -123,6 +123,7 @@ namespace MongoDB.Driver
         // public properties
         /// <summary>
         /// Gets or sets whether to relax TLS constraints as much as possible.
+        /// Setting this variable to true will also set SslSettings.CheckCertificateRevocation to false.
         /// </summary>
         public bool AllowInsecureTls
         {
@@ -130,6 +131,12 @@ namespace MongoDB.Driver
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                if (value)
+                {
+                    _sslSettings = _sslSettings ?? new SslSettings();
+                    // Otherwise, the user will have to manually set CheckCertificateRevocation to false
+                    _sslSettings.CheckCertificateRevocation = false;
+                }
                 _allowInsecureTls = value;
             }
         }
@@ -444,7 +451,7 @@ namespace MongoDB.Driver
                 _replicaSetName = value;
             }
         }
-        
+
         /// <summary>
         /// Gets or sets whether to retry reads.
         /// </summary>
@@ -610,7 +617,8 @@ namespace MongoDB.Driver
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
-                _allowInsecureTls = !value;
+                // use property instead of private field because setter has additional side effects
+                AllowInsecureTls = !value;
             }
         }
 
@@ -771,7 +779,11 @@ namespace MongoDB.Driver
             clientSettings.Servers = new List<MongoServerAddress>(url.Servers);
             clientSettings.ServerSelectionTimeout = url.ServerSelectionTimeout;
             clientSettings.SocketTimeout = url.SocketTimeout;
-            clientSettings.SslSettings = null; // SSL settings must be provided in code
+            clientSettings.SslSettings = null;
+            if (url.TlsDisableCertificateRevocationCheck)
+            {
+                clientSettings.SslSettings = new SslSettings { CheckCertificateRevocation = false };
+            }
             clientSettings.UseTls = url.UseTls;
 #pragma warning disable 618
             clientSettings.WaitQueueSize = url.ComputedWaitQueueSize;
@@ -895,6 +907,7 @@ namespace MongoDB.Driver
         {
             if (!_isFrozen)
             {
+                ThrowIfSettingsAreInvalid();
                 _frozenHashCode = GetHashCode();
                 _frozenStringRepresentation = ToString();
                 _isFrozen = true;
@@ -1072,6 +1085,16 @@ namespace MongoDB.Driver
                 _useTls,
                 _waitQueueSize,
                 _waitQueueTimeout);
+        }
+
+        private void ThrowIfSettingsAreInvalid()
+        {
+            if (_allowInsecureTls && _sslSettings != null && _sslSettings.CheckCertificateRevocation)
+            {
+                throw new InvalidOperationException(
+                        $"{nameof(AllowInsecureTls)} and {nameof(SslSettings)}" +
+                        $".{nameof(_sslSettings.CheckCertificateRevocation)} cannot both be true.");
+            }
         }
     }
 }

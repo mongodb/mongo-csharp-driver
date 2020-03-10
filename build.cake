@@ -44,10 +44,10 @@ Task("Release")
     .IsDependentOn("Build")
     .IsDependentOn("Test")
     .IsDependentOn("Docs")
-    .IsDependentOn("Package");    
-   
+    .IsDependentOn("Package");
+
 Task("Restore")
-    .Does(() => 
+    .Does(() =>
     {
         DotNetCoreRestore(solutionFullPath);
     });
@@ -113,7 +113,7 @@ Task("Test")
     .DoesForEach(
         GetFiles("./**/*.Tests.csproj")
         .Where(name => !name.ToString().Contains("Atlas")),
-        testProject => 
+        testProject =>
     {
         var testWithDefaultGuidRepresentationMode = Environment.GetEnvironmentVariable("TEST_WITH_DEFAULT_GUID_REPRESENTATION_MODE");
         if (testWithDefaultGuidRepresentationMode != null)
@@ -144,7 +144,7 @@ Task("TestAllGuidRepresentations")
         GetFiles("./**/*.Tests.csproj")
         // .Where(name => name.ToString().Contains("Bson.Tests")) // uncomment to only test Bson
         .Where(name => !name.ToString().Contains("Atlas")),
-        testProject => 
+        testProject =>
     {
         var modes = new string[][]
         {
@@ -179,12 +179,12 @@ Task("TestAllGuidRepresentations")
             );
         }
     });
-    
+
 Task("TestAtlasConnectivity")
     .IsDependentOn("Build")
     .DoesForEach(
         GetFiles("./**/AtlasConnectivity.Tests.csproj"),
-        testProject => 
+        testProject =>
 {
     DotNetCoreTest(
         testProject.FullPath,
@@ -193,6 +193,26 @@ Task("TestAtlasConnectivity")
             NoRestore = true,
             Configuration = configuration,
             ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64")
+        }
+    );
+});
+
+Task("TestOcsp")
+    .IsDependentOn("Build")
+    .DoesForEach(
+        GetFiles("./**/MongoDB.Driver.Tests.csproj"),
+        testProject =>
+{
+    DotNetCoreTest(
+        testProject.FullPath,
+        new DotNetCoreTestSettings {
+            NoBuild = true,
+            NoRestore = true,
+            Configuration = configuration,
+
+            ArgumentCustomization = args => args
+                .Append("--filter FullyQualifiedName~OcspIntegrationTests")
+                .Append("-- RunConfiguration.TargetPlatform=x64")
         }
     );
 });

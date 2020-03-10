@@ -67,6 +67,7 @@ namespace MongoDB.Driver
         private IEnumerable<MongoServerAddress> _servers;
         private TimeSpan _serverSelectionTimeout;
         private TimeSpan _socketTimeout;
+        private bool _tlsDisableCertificateRevocationCheck;
         private string _username;
         private bool _useTls;
         private WriteConcern.WValue _w;
@@ -546,6 +547,15 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets whether to disable certificate revocation checking during the TLS handshake.
+        /// </summary>
+        public bool TlsDisableCertificateRevocationCheck
+        {
+            get => _tlsDisableCertificateRevocationCheck;
+            set => _tlsDisableCertificateRevocationCheck = value;
+        }
+
+        /// <summary>
         /// Gets or sets the username.
         /// </summary>
         public string Username
@@ -773,6 +783,8 @@ namespace MongoDB.Driver
             });
             _serverSelectionTimeout = connectionString.ServerSelectionTimeout.GetValueOrDefault(MongoDefaults.ServerSelectionTimeout);
             _socketTimeout = connectionString.SocketTimeout.GetValueOrDefault(MongoDefaults.SocketTimeout);
+            _tlsDisableCertificateRevocationCheck =
+                connectionString.TlsDisableCertificateRevocationCheck.GetValueOrDefault(false);
             _username = connectionString.Username;
             _useTls = connectionString.Tls.GetValueOrDefault(false);
             _w = connectionString.W;
@@ -893,6 +905,11 @@ namespace MongoDB.Driver
             if (_allowInsecureTls)
             {
                 query.AppendFormat("tlsInsecure=true;");
+            }
+
+            if (_tlsDisableCertificateRevocationCheck)
+            {
+                query.AppendFormat("tlsDisableCertificateRevocationCheck=true;");
             }
 
             if (_compressors?.Any() ?? false)

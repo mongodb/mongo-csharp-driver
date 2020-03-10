@@ -41,6 +41,7 @@ namespace MongoDB.Driver.Tests
             var allowInsecureTls = true;
             settings.AllowInsecureTls = allowInsecureTls;
             Assert.Equal(allowInsecureTls, settings.AllowInsecureTls);
+            settings.SslSettings.CheckCertificateRevocation.Should().BeFalse();
 
             settings.Freeze();
             Assert.Equal(allowInsecureTls, settings.AllowInsecureTls);
@@ -84,7 +85,7 @@ namespace MongoDB.Driver.Tests
                 "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;readConcernLevel=majority;" +
                 "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;socketTimeout=129;" +
                 "serverSelectionTimeout=20s;ssl=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
-                "w=1;fsync=true;journal=true;w=2;wtimeout=131;gssapiServiceName=other";
+                "w=1;fsync=true;journal=true;w=2;wtimeout=131;gssapiServiceName=other;tlsInsecure=true";
 #pragma warning disable 618
             if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
             {
@@ -194,7 +195,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(1, settings.Servers.Count());
             Assert.Equal(MongoDefaults.ServerSelectionTimeout, settings.ServerSelectionTimeout);
             Assert.Equal(MongoDefaults.SocketTimeout, settings.SocketTimeout);
-            Assert.Equal(null, settings.SslSettings);
+            Assert.Null(settings.SslSettings);
 #pragma warning disable 618
             Assert.Equal(false, settings.UseSsl);
 #pragma warning restore 618
@@ -382,6 +383,18 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void TestFreezeInvalid()
+        {
+            var settings = new MongoClientSettings();
+            settings.AllowInsecureTls = true;
+            settings.SslSettings.CheckCertificateRevocation = true;
+
+            var exception = Record.Exception(() => settings.Freeze());
+
+            exception.Should().BeOfType<InvalidOperationException>();
+        }
+
+        [Fact]
         public void TestFromUrl()
         {
             // set everything to non default values to test that all settings are converted
@@ -439,8 +452,8 @@ namespace MongoDB.Driver.Tests
             Assert.True(url.Servers.SequenceEqual(settings.Servers));
             Assert.Equal(url.ServerSelectionTimeout, settings.ServerSelectionTimeout);
             Assert.Equal(url.SocketTimeout, settings.SocketTimeout);
-            Assert.Equal(null, settings.SslSettings);
 #pragma warning disable 618
+            settings.SslSettings.Should().BeNull();
             Assert.Equal(url.UseSsl, settings.UseSsl);
 #pragma warning restore 618
             Assert.Equal(url.UseTls, settings.UseTls);
@@ -875,7 +888,7 @@ namespace MongoDB.Driver.Tests
         public void TestSslSettings()
         {
             var settings = new MongoClientSettings();
-            Assert.Equal(null, settings.SslSettings);
+            settings.SslSettings.Should().BeNull();
 
             var sslSettings = new SslSettings { CheckCertificateRevocation = false };
             settings.SslSettings = sslSettings;
@@ -928,6 +941,7 @@ namespace MongoDB.Driver.Tests
             var verifySslCertificate = false;
             settings.VerifySslCertificate = verifySslCertificate;
             Assert.Equal(verifySslCertificate, settings.VerifySslCertificate);
+            settings.SslSettings.CheckCertificateRevocation.Should().BeFalse();
 
             settings.Freeze();
             Assert.Equal(verifySslCertificate, settings.VerifySslCertificate);

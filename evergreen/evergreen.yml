@@ -202,8 +202,28 @@ functions:
       params:
         script: |
           ${PREPARE_SHELL}
-          MONGODB_VERSION=${VERSION} TOPOLOGY=${TOPOLOGY} AUTH=${AUTH} SSL=${SSL} sh ${DRIVERS_TOOLS}/.evergreen/run-orchestration.sh
+          MONGODB_VERSION=${VERSION} \
+          TOPOLOGY=${TOPOLOGY} \
+          AUTH=${AUTH} \
+          SSL=${SSL} \
+          ORCHESTRATION_FILE=${ORCHESTRATION_FILE} \
+            sh ${DRIVERS_TOOLS}/.evergreen/run-orchestration.sh
     # run-orchestration generates expansion file with the MONGODB_URI for the cluster
+    - command: expansions.update
+      params:
+        file: mo-expansion.yml
+
+  ocsp-bootstrap-mongo-orchestration:
+    - command: shell.exec
+      params:
+        script: |
+          ${PREPARE_SHELL}
+          MONGODB_VERSION=${VERSION} \
+            TOPOLOGY=${TOPOLOGY} \
+            AUTH=${AUTH} \
+            SSL=${SSL} \
+            ORCHESTRATION_FILE=${ORCHESTRATION_FILE} \
+            sh ${DRIVERS_TOOLS}/.evergreen/run-orchestration.sh
     - command: expansions.update
       params:
         file: mo-expansion.yml
@@ -240,6 +260,101 @@ functions:
         script: |
           ${PREPARE_SHELL}
           MONGODB_URI="${plain_auth_mongodb_uri}" evergreen/run-plain-auth-tests.sh
+
+  run-ocsp-test:
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: mongo-csharp-driver
+        script: |
+          ${PREPARE_SHELL}
+          OCSP_TLS_SHOULD_SUCCEED="${OCSP_TLS_SHOULD_SUCCEED}" \
+            OCSP_ALGORITHM=${OCSP_ALGORITHM} \
+            evergreen/add-certs.sh
+          set +o xtrace
+          AUTH="${AUTH}" \
+            SSL="ssl" \
+            TOPOLOGY="${TOPOLOGY}" \
+            MONGODB_URI="${MONGODB_URI}" \
+            OCSP_TLS_SHOULD_SUCCEED="${OCSP_TLS_SHOULD_SUCCEED}" \
+              evergreen/run-tests.sh
+          evergreen/remove-certs.sh
+
+  run-valid-ocsp-server-ca-responder:
+    - command: shell.exec
+      params:
+        script: |
+          cd ${DRIVERS_TOOLS}/.evergreen/ocsp
+          /cygdrive/c/python/python38/python.exe -m venv ./venv
+          ./venv/Scripts/pip3 install asn1crypto oscrypto bottle
+    - command: shell.exec
+      params:
+        background: true
+        script: |
+          cd ${DRIVERS_TOOLS}/.evergreen/ocsp
+          nohup ./venv/Scripts/python ocsp_mock.py \
+            --ca_file ${OCSP_ALGORITHM}/ca.pem \
+            --ocsp_responder_cert ${OCSP_ALGORITHM}/ca.crt \
+            --ocsp_responder_key ${OCSP_ALGORITHM}/ca.key \
+            -p 8100 -v
+
+  run-valid-ocsp-server-delegate-responder:
+    - command: shell.exec
+      params:
+        script: |
+          cd ${DRIVERS_TOOLS}/.evergreen/ocsp
+          /cygdrive/c/python/python38/python.exe -m venv ./venv
+          ./venv/Scripts/pip3 install asn1crypto oscrypto bottle
+    - command: shell.exec
+      params:
+        background: true
+        script: |
+          cd ${DRIVERS_TOOLS}/.evergreen/ocsp
+          nohup ./venv/Scripts/python ocsp_mock.py \
+            --ca_file ${OCSP_ALGORITHM}/ca.pem \
+            --ocsp_responder_cert ${OCSP_ALGORITHM}/ocsp-responder.crt \
+            --ocsp_responder_key ${OCSP_ALGORITHM}/ocsp-responder.key \
+            -p 8100 -v
+
+  run-revoked-ocsp-server-ca-responder:
+    - command: shell.exec
+      params:
+        script: |
+          cd ${DRIVERS_TOOLS}/.evergreen/ocsp
+          /cygdrive/c/python38/python.exe -m venv ./venv
+          ./venv/Scripts/pip3 install asn1crypto oscrypto bottle
+    - command: shell.exec
+      params:
+        background: true
+        script: |
+          cd ${DRIVERS_TOOLS}/.evergreen/ocsp
+          nohup ./venv/Scripts/python.exe ocsp_mock.py \
+            --ca_file ${OCSP_ALGORITHM}/ca.pem \
+            --ocsp_responder_cert ${OCSP_ALGORITHM}/ca.crt \
+            --ocsp_responder_key ${OCSP_ALGORITHM}/ca.key \
+            -p 8100 \
+            -v \
+            --fault revoked
+
+  run-revoked-ocsp-server-delegate-responder:
+    - command: shell.exec
+      params:
+        script: |
+          cd ${DRIVERS_TOOLS}/.evergreen/ocsp
+          /cygdrive/c/python38/python.exe -m venv ./venv
+          ./venv/Scripts/pip3 install asn1crypto oscrypto bottle
+    - command: shell.exec
+      params:
+        background: true
+        script: |
+          cd ${DRIVERS_TOOLS}/.evergreen/ocsp
+          nohup ./venv/Scripts/python.exe ocsp_mock.py \
+            --ca_file ${OCSP_ALGORITHM}/ca.pem \
+            --ocsp_responder_cert ${OCSP_ALGORITHM}/ocsp-responder.crt \
+            --ocsp_responder_key ${OCSP_ALGORITHM}/ocsp-responder.key \
+            -p 8100 \
+            -v \
+            --fault revoked
 
   publish-snapshot:
     - command: shell.exec
@@ -356,6 +471,332 @@ tasks:
           name: test
       commands:
         - func: publish-snapshot
+
+    - name: test-ocsp-rsa-valid-cert-server-staples-ca-responder
+      tags: ["ocsp"]
+      commands:
+        - func: run-valid-ocsp-server-ca-responder
+          vars:
+            OCSP_ALGORITHM: "rsa"
+        - func: ocsp-bootstrap-mongo-orchestration
+          vars:
+            ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-mustStaple.json"
+        - func: run-ocsp-test
+          vars:
+            OCSP_ALGORITHM: "rsa"
+            OCSP_TLS_SHOULD_SUCCEED: "true"
+
+    - name: test-ocsp-rsa-invalid-cert-server-staples-ca-responder
+      tags: ["ocsp"]
+      commands:
+        - func: run-revoked-ocsp-server-ca-responder
+          vars:
+            OCSP_ALGORITHM: "rsa"
+        - func: ocsp-bootstrap-mongo-orchestration
+          vars:
+            ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-mustStaple.json"
+        - func: run-ocsp-test
+          vars:
+            OCSP_ALGORITHM: "rsa"
+            OCSP_TLS_SHOULD_SUCCEED: "false"
+
+    - name: test-ocsp-rsa-valid-cert-server-does-not-staple-ca-responder
+      tags: ["ocsp"]
+      commands:
+        - func: run-valid-ocsp-server-ca-responder
+          vars:
+            OCSP_ALGORITHM: "rsa"
+        - func: ocsp-bootstrap-mongo-orchestration
+          vars:
+            ORCHESTRATION_FILE: "windows/rsa-basic-tls-ocsp-disableStapling.json"
+        - func: run-ocsp-test
+          vars:
+            OCSP_ALGORITHM: "rsa"
+            OCSP_TLS_SHOULD_SUCCEED: "true"
+
+    - name: test-ocsp-rsa-invalid-cert-server-does-not-staple-ca-responder
+      tags: ["ocsp"]
+      commands:
+        - func: run-revoked-ocsp-server-ca-responder
+          vars:
+            OCSP_ALGORITHM: "rsa"
+        - func: ocsp-bootstrap-mongo-orchestration
+          vars:
+            ORCHESTRATION_FILE: "windows/rsa-basic-tls-ocsp-disableStapling.json"
+        - func: run-ocsp-test
+          vars:
+            OCSP_ALGORITHM: "rsa"
+            OCSP_TLS_SHOULD_SUCCEED: "false"
+
+    - name: test-ocsp-rsa-soft-fail
+      tags: ["ocsp"]
+      commands:
+        - func: ocsp-bootstrap-mongo-orchestration
+          vars:
+            ORCHESTRATION_FILE: "windows/rsa-basic-tls-ocsp-disableStapling.json"
+        - func: run-ocsp-test
+          vars:
+            OCSP_ALGORITHM: "rsa"
+            OCSP_TLS_SHOULD_SUCCEED: "false" # Spec mandates true, but .NET on Windows hard fails in this case
+
+    - name: test-ocsp-rsa-malicious-invalid-cert-mustStaple-server-does-not-staple-ca-responder
+      tags: ["ocsp"]
+      commands:
+        - func: run-revoked-ocsp-server-ca-responder
+          vars:
+            OCSP_ALGORITHM: "rsa"
+        - func: ocsp-bootstrap-mongo-orchestration
+          vars:
+            ORCHESTRATION_FILE: "windows/rsa-basic-tls-ocsp-mustStaple-disableStapling.json"
+        - func: run-ocsp-test
+          vars:
+            OCSP_ALGORITHM: "rsa"
+            OCSP_TLS_SHOULD_SUCCEED: "false"
+
+    - name: test-ocsp-rsa-malicious-no-responder-mustStaple-server-does-not-staple
+      tags: ["ocsp"]
+      commands:
+        - func: ocsp-bootstrap-mongo-orchestration
+          vars:
+            ORCHESTRATION_FILE: "windows/rsa-basic-tls-ocsp-mustStaple-disableStapling.json"
+        - func: run-ocsp-test
+          vars:
+            OCSP_ALGORITHM: "rsa"
+            OCSP_TLS_SHOULD_SUCCEED: "false"
+
+    - name: test-ocsp-rsa-valid-cert-server-staples-delegate-responder
+      tags: ["ocsp"]
+      commands:
+        - func: run-valid-ocsp-server-delegate-responder
+          vars:
+            OCSP_ALGORITHM: "rsa"
+        - func: ocsp-bootstrap-mongo-orchestration
+          vars:
+            ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-mustStaple.json"
+        - func: run-ocsp-test
+          vars:
+            OCSP_ALGORITHM: "rsa"
+            OCSP_TLS_SHOULD_SUCCEED: "true"
+
+    - name: test-ocsp-rsa-invalid-cert-server-staples-delegate-responder
+      tags: ["ocsp"]
+      commands:
+        - func: run-revoked-ocsp-server-delegate-responder
+          vars:
+            OCSP_ALGORITHM: "rsa"
+        - func: ocsp-bootstrap-mongo-orchestration
+          vars:
+            ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-mustStaple.json"
+        - func: run-ocsp-test
+          vars:
+            OCSP_ALGORITHM: "rsa"
+            OCSP_TLS_SHOULD_SUCCEED: "false"
+
+    - name: test-ocsp-rsa-valid-cert-server-does-not-staple-delegate-responder
+      tags: ["ocsp"]
+      commands:
+        - func: run-valid-ocsp-server-delegate-responder
+          vars:
+            OCSP_ALGORITHM: "rsa"
+        - func: ocsp-bootstrap-mongo-orchestration
+          vars:
+            ORCHESTRATION_FILE: "windows/rsa-basic-tls-ocsp-disableStapling.json"
+        - func: run-ocsp-test
+          vars:
+            OCSP_ALGORITHM: "rsa"
+            OCSP_TLS_SHOULD_SUCCEED: "true"
+
+    - name: test-ocsp-rsa-invalid-cert-server-does-not-staple-delegate-responder
+      tags: ["ocsp"]
+      commands:
+        - func: run-revoked-ocsp-server-delegate-responder
+          vars:
+            OCSP_ALGORITHM: "rsa"
+        - func: ocsp-bootstrap-mongo-orchestration
+          vars:
+            ORCHESTRATION_FILE: "windows/rsa-basic-tls-ocsp-disableStapling.json"
+        - func: run-ocsp-test
+          vars:
+            OCSP_ALGORITHM: "rsa"
+            OCSP_TLS_SHOULD_SUCCEED: "false"
+
+    - name: test-ocsp-rsa-malicious-invalid-cert-mustStaple-server-does-not-staple-delegate-responder
+      tags: ["ocsp"]
+      commands:
+        - func: run-revoked-ocsp-server-delegate-responder
+          vars:
+            OCSP_ALGORITHM: "rsa"
+        - func: ocsp-bootstrap-mongo-orchestration
+          vars:
+            ORCHESTRATION_FILE: "windows/rsa-basic-tls-ocsp-mustStaple-disableStapling.json"
+        - func: run-ocsp-test
+          vars:
+            OCSP_ALGORITHM: "rsa"
+            OCSP_TLS_SHOULD_SUCCEED: "false"
+
+    # ECDSA tests
+    # Disabled until https://jira.mongodb.org/browse/SPEC-1589 is resolved
+    # - name: test-ocsp-ecdsa-valid-cert-server-staples-ca-responder
+    #   tags: ["ocsp"]
+    #   commands:
+    #     - func: run-valid-ocsp-server-ca-responder
+    #       vars:
+    #         OCSP_ALGORITHM: "ecdsa"
+    #     - func: ocsp-bootstrap-mongo-orchestration
+    #       vars:
+    #         ORCHESTRATION_FILE: "ecdsa-basic-tls-ocsp-mustStaple.json"
+    #     - func: run-ocsp-test
+    #       vars:
+    #         OCSP_ALGORITHM: "ecdsa"
+    #         OCSP_TLS_SHOULD_SUCCEED: "true"
+
+    # - name: test-ocsp-ecdsa-invalid-cert-server-staples-ca-responder
+    #   tags: ["ocsp"]
+    #   commands:
+    #     - func: run-revoked-ocsp-server-ca-responder
+    #       vars:
+    #         OCSP_ALGORITHM: "ecdsa"
+    #     - func: ocsp-bootstrap-mongo-orchestration
+    #       vars:
+    #         ORCHESTRATION_FILE: "ecdsa-basic-tls-ocsp-mustStaple.json"
+    #     - func: run-ocsp-test
+    #       vars:
+    #         OCSP_ALGORITHM: "ecdsa"
+    #         OCSP_TLS_SHOULD_SUCCEED: "false"
+
+    # - name: test-ocsp-ecdsa-valid-cert-server-does-not-staple-ca-responder
+    #   tags: ["ocsp"]
+    #   commands:
+    #     - func: run-valid-ocsp-server-ca-responder
+    #       vars:
+    #         OCSP_ALGORITHM: "ecdsa"
+    #     - func: ocsp-bootstrap-mongo-orchestration
+    #       vars:
+    #         ORCHESTRATION_FILE: "windows/ecdsa-basic-tls-ocsp-disableStapling.json"
+    #     - func: run-ocsp-test
+    #       vars:
+    #         OCSP_ALGORITHM: "ecdsa"
+    #         OCSP_TLS_SHOULD_SUCCEED: "true"
+
+    # - name: test-ocsp-ecdsa-invalid-cert-server-does-not-staple-ca-responder
+    #   tags: ["ocsp"]
+    #   commands:
+    #     - func: run-revoked-ocsp-server-ca-responder
+    #       vars:
+    #         OCSP_ALGORITHM: "ecdsa"
+    #     - func: ocsp-bootstrap-mongo-orchestration
+    #       vars:
+    #         ORCHESTRATION_FILE: "windows/ecdsa-basic-tls-ocsp-disableStapling.json"
+    #     - func: run-ocsp-test
+    #       vars:
+    #         OCSP_ALGORITHM: "ecdsa"
+    #         OCSP_TLS_SHOULD_SUCCEED: "false"
+
+    # - name: test-ocsp-ecdsa-soft-fail
+    #   tags: ["ocsp"]
+    #   commands:
+    #     - func: ocsp-bootstrap-mongo-orchestration
+    #       vars:
+    #         ORCHESTRATION_FILE: "windows/ecdsa-basic-tls-ocsp-disableStapling.json"
+    #     - func: run-ocsp-test
+    #       vars:
+    #         OCSP_ALGORITHM: "ecdsa"
+    #         OCSP_TLS_SHOULD_SUCCEED: "false" # Spec mandates true but .NET on Windows hard fails in this case
+
+    # - name: test-ocsp-ecdsa-malicious-invalid-cert-mustStaple-server-does-not-staple-ca-responder
+    #   tags: ["ocsp"]
+    #   commands:
+    #     - func: run-revoked-ocsp-server-ca-responder
+    #       vars:
+    #         OCSP_ALGORITHM: "ecdsa"
+    #     - func: ocsp-bootstrap-mongo-orchestration
+    #       vars:
+    #         ORCHESTRATION_FILE: "windows/ecdsa-basic-tls-ocsp-mustStaple-disableStapling.json"
+    #     - func: run-ocsp-test
+    #       vars:
+    #         OCSP_ALGORITHM: "ecdsa"
+    #         OCSP_TLS_SHOULD_SUCCEED: "false"
+
+    # - name: test-ocsp-ecdsa-malicious-no-responder-mustStaple-server-does-not-staple
+    #   tags: ["ocsp"]
+    #   commands:
+    #     - func: ocsp-bootstrap-mongo-orchestration
+    #       vars:
+    #         ORCHESTRATION_FILE: "windows/ecdsa-basic-tls-ocsp-mustStaple-disableStapling.json"
+    #     - func: run-ocsp-test
+    #       vars:
+    #         OCSP_ALGORITHM: "ecdsa"
+    #         OCSP_TLS_SHOULD_SUCCEED: "false"
+
+    # - name: test-ocsp-ecdsa-valid-cert-server-staples-delegate-responder
+    #   tags: ["ocsp"]
+    #   commands:
+    #     - func: run-valid-ocsp-server-delegate-responder
+    #       vars:
+    #         OCSP_ALGORITHM: "ecdsa"
+    #     - func: ocsp-bootstrap-mongo-orchestration
+    #       vars:
+    #         ORCHESTRATION_FILE: "ecdsa-basic-tls-ocsp-mustStaple.json"
+    #     - func: run-ocsp-test
+    #       vars:
+    #         OCSP_ALGORITHM: "ecdsa"
+    #         OCSP_TLS_SHOULD_SUCCEED: "true"
+
+    # - name: test-ocsp-ecdsa-invalid-cert-server-staples-delegate-responder
+    #   tags: ["ocsp"]
+    #   commands:
+    #     - func: run-revoked-ocsp-server-delegate-responder
+    #       vars:
+    #         OCSP_ALGORITHM: "ecdsa"
+    #     - func: ocsp-bootstrap-mongo-orchestration
+    #       vars:
+    #         ORCHESTRATION_FILE: "ecdsa-basic-tls-ocsp-mustStaple.json"
+    #     - func: run-ocsp-test
+    #       vars:
+    #         OCSP_ALGORITHM: "ecdsa"
+    #         OCSP_TLS_SHOULD_SUCCEED: "false"
+
+    # - name: test-ocsp-ecdsa-valid-cert-server-does-not-staple-delegate-responder
+    #   tags: ["ocsp"]
+    #   commands:
+    #     - func: run-valid-ocsp-server-delegate-responder
+    #       vars:
+    #         OCSP_ALGORITHM: "ecdsa"
+    #     - func: ocsp-bootstrap-mongo-orchestration
+    #       vars:
+    #         ORCHESTRATION_FILE: "windows/ecdsa-basic-tls-ocsp-disableStapling.json"
+    #     - func: run-ocsp-test
+    #       vars:
+    #         OCSP_ALGORITHM: "ecdsa"
+    #         OCSP_TLS_SHOULD_SUCCEED: "true"
+
+    # - name: test-ocsp-ecdsa-invalid-cert-server-does-not-staple-delegate-responder
+    #   tags: ["ocsp"]
+    #   commands:
+    #     - func: run-revoked-ocsp-server-delegate-responder
+    #       vars:
+    #         OCSP_ALGORITHM: "ecdsa"
+    #     - func: ocsp-bootstrap-mongo-orchestration
+    #       vars:
+    #         ORCHESTRATION_FILE: "windows/ecdsa-basic-tls-ocsp-disableStapling.json"
+    #     - func: run-ocsp-test
+    #       vars:
+    #         OCSP_ALGORITHM: "ecdsa"
+    #         OCSP_TLS_SHOULD_SUCCEED: "false"
+
+    # - name: test-ocsp-ecdsa-malicious-invalid-cert-mustStaple-server-does-not-staple-delegate-responder
+    #   tags: ["ocsp"]
+    #   commands:
+    #     - func: run-revoked-ocsp-server-delegate-responder
+    #       vars:
+    #         OCSP_ALGORITHM: "ecdsa"
+    #     - func: ocsp-bootstrap-mongo-orchestration
+    #       vars:
+    #         ORCHESTRATION_FILE: "windows/ecdsa-basic-tls-ocsp-mustStaple-disableStapling.json"
+    #     - func: run-ocsp-test
+    #       vars:
+    #         OCSP_ALGORITHM: "ecdsa"
+    #         OCSP_TLS_SHOULD_SUCCEED: "false"
 
 axes:
   - id: version
@@ -491,6 +932,13 @@ buildvariants:
   tags: ["tests-variant"]
   tasks:
      - name: "test"
+
+- matrix_name: "ocsp-tests"
+  matrix_spec: { version: ["latest"], auth: "noauth", ssl: "ssl", topology: "standalone", os: "*" } # matrix_spec: { version: ["latest"], os-ssl-32: ["ubuntu1604-64-go-1-12"] }
+  display_name: "OCSP ${version} ${os}" #  display_name: "OCSP ${version} ${os-ssl-32}"
+  batchtime: 20160 # 14 days
+  tasks:
+    - name: ".ocsp"
 
 - name: atlas-connectivity-tests
   display_name: "Atlas Connectivity Tests"

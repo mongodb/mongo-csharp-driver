@@ -143,6 +143,9 @@ namespace MongoDB.Driver.Specifications.connection_string
                         case "tls":
                             AssertBoolean(connectionString.Tls, expectedOption.Value);
                             break;
+                        case "tlsdisablecertificaterevocationcheck":
+                            AssertBoolean(connectionString.TlsDisableCertificateRevocationCheck, expectedOption.Value);
+                            break;
                         case "tlsinsecure":
                             AssertBoolean(connectionString.TlsInsecure, expectedOption.Value);
                             break;
@@ -331,6 +334,46 @@ namespace MongoDB.Driver.Specifications.connection_string
                 "tls-options.json:tlsAllowInvalidHostnames is parsed correctly",
                 // tlsCAFile, tlsCertificateKeyFile and tlsCertificateKeyFilePassword=hunter are not supported",
                 "tls-options.json:Valid required tls options are parsed correctly",
+                "tls-options.json:Valid tlsCertificateKeyFilePassword is parsed correctly",
+                // tlsDisableOCSPEndpointCheck not supported
+                "tls-options.json:tlsDisableOCSPEndpointCheck can be set to true",
+                "tls-options.json:tlsDisableOCSPEndpointCheck can be set to false",
+                 // tlsAllowInvalidCertificateNames and tlsDisableOCSPEndpointCheck not supported in any order
+                 "tls-options.json:tlsDisableOCSPEndpointCheck and tlsAllowInvalidCertificates both present (and true) raises an error",
+                 "tls-options.json:tlsDisableOCSPEndpointCheck=true and tlsAllowInvalidCertificates=false raises an error",
+                 "tls-options.json:tlsDisableOCSPEndpointCheck=false and tlsAllowInvalidCertificates=true raises an error",
+                 "tls-options.json:tlsDisableOCSPEndpointCheck and tlsAllowInvalidCertificates both present (and false) raises an error",
+                 "tls-options.json:tlsAllowInvalidCertificates and tlsDisableOCSPEndpointCheck both present (and true) raises an error",
+                 "tls-options.json:tlsAllowInvalidCertificates=true and tlsDisableOCSPEndpointCheck=false raises an error",
+                 "tls-options.json:tlsAllowInvalidCertificates=false and tlsDisableOCSPEndpointCheck=true raises an error",
+                 "tls-options.json:tlsAllowInvalidCertificates and tlsDisableOCSPEndpointCheck both present (and false) raises an error",
+                 // tlsDisableOCSPEndpointCheck and tlsInsecure not supported together in any order
+                 "tls-options.json:tlsDisableOCSPEndpointCheck and tlsInsecure both present (and true) raises an error",
+                 "tls-options.json:tlsDisableOCSPEndpointCheck=true and tlsInsecure=false raises an error",
+                 "tls-options.json:tlsDisableOCSPEndpointCheck=false and tlsInsecure=true raises an error",
+                 "tls-options.json:tlsDisableOCSPEndpointCheck and tlsInsecure both present (and false) raises an error",
+                 "tls-options.json:tlsInsecure and tlsDisableOCSPEndpointCheck both present (and true) raises an error",
+                 "tls-options.json:tlsInsecure=true and tlsDisableOCSPEndpointCheck=false raises an error",
+                 "tls-options.json:tlsInsecure=false and tlsDisableOCSPEndpointCheck=true raises an error",
+                 "tls-options.json:tlsInsecure and tlsDisableOCSPEndpointCheck both present (and false) raises an error",
+                 // tlsDisableOCSPEndpointCheck and tlsDisableCertificateRevocationCheck not supported together in any order
+                "tls-options.json:tlsDisableOCSPEndpointCheck and tlsDisableCertificateRevocationCheck both present (and true) raises an error",
+                "tls-options.json:tlsDisableOCSPEndpointCheck=true and tlsDisableCertificateRevocationCheck=false raises an error",
+                "tls-options.json:tlsDisableOCSPEndpointCheck=false and tlsDisableCertificateRevocationCheck=true raises an error",
+                "tls-options.json:tlsDisableOCSPEndpointCheck and tlsDisableCertificateRevocationCheck both present (and false) raises an error",
+                "tls-options.json:tlsDisableCertificateRevocationCheck and tlsDisableOCSPEndpointCheck both present (and true) raises an error",
+                "tls-options.json:tlsDisableCertificateRevocationCheck=true and tlsDisableOCSPEndpointCheck=false raises an error",
+                "tls-options.json:tlsDisableCertificateRevocationCheck=false and tlsDisableOCSPEndpointCheck=true raises an error",
+                "tls-options.json:tlsDisableCertificateRevocationCheck and tlsDisableOCSPEndpointCheck both present (and false) raises an error",
+                // tlsAllowInvalidCertificates and tlsDisableCertificateRevocationCheck not supported in any order
+                "tls-options.json:tlsAllowInvalidCertificates and tlsDisableCertificateRevocationCheck both present (and true) raises an error",
+                "tls-options.json:tlsAllowInvalidCertificates=true and tlsDisableCertificateRevocationCheck=false raises an error",
+                "tls-options.json:tlsAllowInvalidCertificates=false and tlsDisableCertificateRevocationCheck=true raises an error",
+                "tls-options.json:tlsAllowInvalidCertificates and tlsDisableCertificateRevocationCheck both present (and false) raises an error",
+                "tls-options.json:tlsDisableCertificateRevocationCheck and tlsAllowInvalidCertificates both present (and true) raises an error",
+                "tls-options.json:tlsDisableCertificateRevocationCheck=true and tlsAllowInvalidCertificates=false raises an error",
+                "tls-options.json:tlsDisableCertificateRevocationCheck=false and tlsAllowInvalidCertificates=true raises an error",
+                "tls-options.json:tlsDisableCertificateRevocationCheck and tlsAllowInvalidCertificates both present (and false) raises an error",
                 // the .Net driver is not single-threaded. serverSelectionTryOnce is not supported
                 "single-threaded-options.json:Valid options specific to single-threaded drivers are parsed correctly"
             };

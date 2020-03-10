@@ -22,6 +22,7 @@ using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using MongoDB.Driver;
 using Xunit;
+using FluentAssertions;
 
 namespace MongoDB.Driver.Tests
 {
@@ -50,7 +51,7 @@ namespace MongoDB.Driver.Tests
         public void TestCheckCertificateRevocation()
         {
             var settings = new SslSettings();
-            Assert.Equal(false, settings.CheckCertificateRevocation);
+            settings.CheckCertificateRevocation.Should().BeTrue();
 
             var checkCertificateRevocation = !settings.CheckCertificateRevocation;
             settings.CheckCertificateRevocation = checkCertificateRevocation;
@@ -115,7 +116,7 @@ namespace MongoDB.Driver.Tests
         public void TestDefaults()
         {
             var settings = new SslSettings();
-            Assert.Equal(false, settings.CheckCertificateRevocation);
+            settings.CheckCertificateRevocation.Should().BeTrue();
             Assert.Equal(null, settings.ClientCertificates);
             Assert.Equal(null, settings.ClientCertificateSelectionCallback);
             Assert.Equal(SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls, settings.EnabledSslProtocols);

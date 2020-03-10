@@ -245,6 +245,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(new MongoServerAddress("host", 27017), url.Server);
                 Assert.Equal(TimeSpan.FromSeconds(10), url.ServerSelectionTimeout);
                 Assert.Equal(TimeSpan.FromSeconds(7), url.SocketTimeout);
+                url.TlsDisableCertificateRevocationCheck.Should().Be(false);
                 Assert.Equal("username", url.Username);
 #pragma warning disable 618
                 Assert.Equal(true, url.UseSsl);
@@ -329,6 +330,18 @@ namespace MongoDB.Driver.Tests
             var resolved = await subject.ResolveAsync();
 
             Assert.Equal("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc/funny?authSource=thisDB;tls=true;replicaSet=rs0", resolved.ToString());
+        }
+
+        [Fact]
+        public void TestTlsDisableCertificateRevocationCheck()
+        {
+            var built = new MongoUrlBuilder { TlsDisableCertificateRevocationCheck = true };
+            var connectionString = "mongodb://aincrad/?tlsDisableCertificateRevocationCheck=true";
+
+            foreach (var url in EnumerateBuiltAndParsedUrls(built, connectionString))
+            {
+                url.TlsDisableCertificateRevocationCheck.Should().Be(true);
+            }
         }
 
         // private methods

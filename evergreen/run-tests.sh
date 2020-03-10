@@ -9,12 +9,14 @@ set -o errexit  # Exit the script with error if any of the commands fail
 #       MONGODB_URI             Set the suggested connection MONGODB_URI (including credentials and topology info)
 #       TOPOLOGY                Allows you to modify variables and the MONGODB_URI based on test topology
 #                               Supported values: "server", "replica_set", "sharded_cluster"
+#       OCSP_TLS_SHOULD_SUCCEED Set to test OCSP. Values are true/false/nil
 
 AUTH=${AUTH:-noauth}
 SSL=${SSL:-nossl}
 MONGODB_URI=${MONGODB_URI:-}
 TOPOLOGY=${TOPOLOGY:-server}
 COMPRESSOR=${COMPRESSOR:-none}
+OCSP_TLS_SHOULD_SUCCEED=${OCSP_TLS_SHOULD_SUCCEED:-nil}
 
 ############################################
 #            Functions                     #
@@ -25,9 +27,17 @@ provision_ssl () {
   uri_environment_variable_name=$1
   # Arguments for auth + SSL
   if [ "$AUTH" != "noauth" ] || [ "$TOPOLOGY" == "replica_set" ]; then
-    export $uri_environment_variable_name="${!uri_environment_variable_name}&ssl=true"
+    if [ "$OCSP_TLS_SHOULD_SUCCEED" != "nil" ]; then
+      export $uri_environment_variable_name="${!uri_environment_variable_name}&ssl=true"
+    else
+      export $uri_environment_variable_name="${!uri_environment_variable_name}&ssl=true&tlsDisableCertificateRevocationCheck=true"
+    fi
   else
-    export $uri_environment_variable_name="${!uri_environment_variable_name}/?ssl=true"
+    if [ "$OCSP_TLS_SHOULD_SUCCEED" != "nil" ]; then
+      export $uri_environment_variable_name="${!uri_environment_variable_name}/?ssl=true"
+    else
+      export $uri_environment_variable_name="${!uri_environment_variable_name}/?ssl=true&tlsDisableCertificateRevocationCheck=true"
+    fi
   fi
 }
 
@@ -70,8 +80,12 @@ fi
 
 echo "Running $AUTH tests over $SSL for $TOPOLOGY with $COMPRESSOR compressor and connecting to $MONGODB_URI"
 
-if [ "$OS" == "windows-64" ]; then
+if [[ "$OS" =~ Windows|windows ]]; then
   export TARGET="Test"
+  if [ "$OCSP_TLS_SHOULD_SUCCEED" != "nil" ]; then
+    export TARGET="TestOcsp"
+    certutil.exe -urlcache localhost delete # clear the OS-level cache of all entries with the URL "localhost"
+  fi
 else
   export TARGET="Test"
 fi

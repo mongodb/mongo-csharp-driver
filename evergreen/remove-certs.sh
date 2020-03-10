@@ -8,4 +8,12 @@ if [[ "$OS" =~ Windows|windows ]]; then
     `openssl x509 -noout -text -in ${DRIVERS_TOOLS}/.evergreen/x509gen/ca.pem\
         | grep Serial\
         | sed 's/.*(0x\(.*\))/\1/'`
+    certutil.exe -delstore "Root" \
+    `openssl x509 -noout -text -in ${DRIVERS_TOOLS}/.evergreen/ocsp/rsa/ca.pem\
+        | grep Serial\
+        | sed 's/.*(0x\(.*\))/\1/'`
+    certutil.exe -delstore "Root" \
+    `openssl x509 -noout -text -in ${DRIVERS_TOOLS}/.evergreen/ocsp/ecdsa/ca.pem\
+        | grep Serial\
+        | sed 's/.*(0x\(.*\))/\1/'`
 fi
