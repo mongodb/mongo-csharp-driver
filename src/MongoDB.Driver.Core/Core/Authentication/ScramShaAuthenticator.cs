@@ -125,7 +125,7 @@ namespace MongoDB.Driver.Core.Authentication
                 _h = h;
                 _hi = hi;
                 _hmac = hmac;
-                if (!hashAlgorithmName.ToString().StartsWith("SHA"))
+                if (!hashAlgorithmName.ToString().StartsWith("SHA", StringComparison.Ordinal))
                 {
                     throw new ArgumentException("Must specify a SHA algorithm.");
                 }

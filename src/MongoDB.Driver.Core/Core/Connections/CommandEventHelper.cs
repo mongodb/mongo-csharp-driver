@@ -1038,7 +1038,7 @@ namespace MongoDB.Driver.Core.Connections
                             // explain is special and gets handled elsewhere
                             break;
                         default:
-                            if (element.Name.StartsWith("$"))
+                            if (element.Name.StartsWith("$", StringComparison.Ordinal))
                             {
                                 // should we actually remove the $ or not?
                                 command[element.Name.Substring(1)] = element.Value;

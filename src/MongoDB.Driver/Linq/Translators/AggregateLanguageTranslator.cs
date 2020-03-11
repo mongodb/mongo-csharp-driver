@@ -242,7 +242,7 @@ namespace MongoDB.Driver.Linq.Translators
         {
             var value = BsonValue.Create(((ConstantExpression)node).Value);
             var stringValue = value as BsonString;
-            if (stringValue != null && stringValue.Value.StartsWith("$"))
+            if (stringValue != null && stringValue.Value.StartsWith("$", StringComparison.Ordinal))
             {
                 value = new BsonDocument("$literal", value);
             }

@@ -61,7 +61,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         private static string GetName(Type type)
         {
             var name = type.Name;
-            if (name.EndsWith("Convention"))
+            if (name.EndsWith("Convention", StringComparison.Ordinal))
             {
                 return name.Substring(0, name.Length - 10);
             }

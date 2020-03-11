@@ -371,7 +371,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 exception.Result.TryGetValue("code", out var errorCode) &&
                 errorCode.ToInt32() == 20 &&
                 exception.Result.TryGetValue("errmsg", out var errmsg) &&
-                errmsg.AsString.StartsWith("Transaction numbers");
+                errmsg.AsString.StartsWith("Transaction numbers", StringComparison.Ordinal);
         }
 
 

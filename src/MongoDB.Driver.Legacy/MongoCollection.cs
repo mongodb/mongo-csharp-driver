@@ -665,7 +665,7 @@ namespace MongoDB.Driver
             var sort = args.SortBy == null ? null : new BsonDocumentWrapper(args.SortBy);
 
             FindAndModifyOperationBase<BsonDocument> operation;
-            if (updateDocument.ElementCount > 0 && updateDocument.GetElement(0).Name.StartsWith("$"))
+            if (updateDocument.ElementCount > 0 && updateDocument.GetElement(0).Name.StartsWith("$", StringComparison.Ordinal))
             {
                 operation = new FindOneAndUpdateOperation<BsonDocument>(_collectionNamespace, filter, updateDocument, resultSerializer, messageEncoderSettings)
                 {

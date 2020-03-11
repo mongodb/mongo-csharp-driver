@@ -1202,7 +1202,7 @@ namespace MongoDB.Driver.Core.Configuration
             foreach (var srvRecord in response.Answers.SrvRecords())
             {
                 var h = srvRecord.Target.ToString();
-                if (h.EndsWith("."))
+                if (h.EndsWith(".", StringComparison.Ordinal))
                 {
                     h = h.Substring(0, h.Length - 1);
                 }

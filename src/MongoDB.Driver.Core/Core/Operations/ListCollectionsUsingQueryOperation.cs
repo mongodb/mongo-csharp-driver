@@ -177,7 +177,7 @@ namespace MongoDB.Driver.Core.Operations
             foreach (var collection in collections)
             {
                 var name = (string)collection["name"];
-                if (name.StartsWith(prefix))
+                if (name.StartsWith(prefix, StringComparison.Ordinal))
                 {
                     var collectionName = name.Substring(prefix.Length);
                     if (!collectionName.Contains('$'))

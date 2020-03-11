@@ -1289,11 +1289,11 @@ namespace MongoDB.Driver.Linq
             }
 
             pattern = "^" + pattern + "$";
-            if (pattern.StartsWith("^.*"))
+            if (pattern.StartsWith("^.*", StringComparison.Ordinal))
             {
                 pattern = pattern.Substring(3);
             }
-            if (pattern.EndsWith(".*$"))
+            if (pattern.EndsWith(".*$", StringComparison.Ordinal))
             {
                 pattern = pattern.Substring(0, pattern.Length - 3);
             }

@@ -126,7 +126,7 @@ namespace MongoDB.Driver
             if (update is BsonDocument updateDocument)
             {
                 var firstElementName = updateDocument.GetElement(0).Name;
-                return !firstElementName.StartsWith("$");
+                return !firstElementName.StartsWith("$", StringComparison.Ordinal);
             }
 
             if (update is BsonArray)

@@ -219,7 +219,7 @@ namespace MongoDB.Bson.IO
             }
             catch (FormatException ex)
             {
-                if (ex.Message.StartsWith("Detected unknown BSON type"))
+                if (ex.Message.StartsWith("Detected unknown BSON type", StringComparison.Ordinal))
                 {
                     // insert the element name into the error message
                     var periodIndex = ex.Message.IndexOf('.');

@@ -219,7 +219,7 @@ namespace MongoDB.Driver.Linq.Translators
                 if (!skippedFields.Contains(referenceGroup.Key))
                 {
                     var prefix = referenceGroup.Key + '.';
-                    var hierarchicalReferenceGroups = referenceGroups.Where(x => x.Key.StartsWith(prefix));
+                    var hierarchicalReferenceGroups = referenceGroups.Where(x => x.Key.StartsWith(prefix, StringComparison.Ordinal));
                     uniqueFields.AddRange(referenceGroup);
                     skippedFields.AddRange(hierarchicalReferenceGroups.Select(x => x.Key));
                 }
@@ -261,7 +261,7 @@ namespace MongoDB.Driver.Linq.Translators
                 if (source != null)
                 {
                     var fields = Gather(node.Arguments[1]);
-                    if (fields.Any(x => x.FieldName.StartsWith(source.FieldName)))
+                    if (fields.Any(x => x.FieldName.StartsWith(source.FieldName, StringComparison.Ordinal)))
                     {
                         _fieldExpressions.AddRange(fields);
                         return node;
@@ -296,7 +296,7 @@ namespace MongoDB.Driver.Linq.Translators
 
                 var currentKey = (string)((ConstantExpression)node.Arguments[0]).Value;
 
-                if (!currentKey.StartsWith(_keyPrefix))
+                if (!currentKey.StartsWith(_keyPrefix, StringComparison.Ordinal))
                 {
                     return base.VisitMethodCall(node);
                 }

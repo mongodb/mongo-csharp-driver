@@ -128,7 +128,7 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 var endPoint = srvRecord.EndPoint;
                 var host = endPoint.Host;
-                if (host.EndsWith("."))
+                if (host.EndsWith(".", StringComparison.Ordinal))
                 {
                     host = host.Substring(0, host.Length - 1);
                     endPoint = new DnsEndPoint(host, endPoint.Port);
