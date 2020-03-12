@@ -508,7 +508,7 @@ tasks:
             OCSP_ALGORITHM: "rsa"
         - func: ocsp-bootstrap-mongo-orchestration
           vars:
-            ORCHESTRATION_FILE: "windows/rsa-basic-tls-ocsp-disableStapling.json"
+            ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-disableStapling.json"
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -522,7 +522,7 @@ tasks:
             OCSP_ALGORITHM: "rsa"
         - func: ocsp-bootstrap-mongo-orchestration
           vars:
-            ORCHESTRATION_FILE: "windows/rsa-basic-tls-ocsp-disableStapling.json"
+            ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-disableStapling.json"
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -533,7 +533,7 @@ tasks:
       commands:
         - func: ocsp-bootstrap-mongo-orchestration
           vars:
-            ORCHESTRATION_FILE: "windows/rsa-basic-tls-ocsp-disableStapling.json"
+            ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-disableStapling.json"
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -547,7 +547,7 @@ tasks:
             OCSP_ALGORITHM: "rsa"
         - func: ocsp-bootstrap-mongo-orchestration
           vars:
-            ORCHESTRATION_FILE: "windows/rsa-basic-tls-ocsp-mustStaple-disableStapling.json"
+            ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-mustStaple-disableStapling.json"
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -558,7 +558,7 @@ tasks:
       commands:
         - func: ocsp-bootstrap-mongo-orchestration
           vars:
-            ORCHESTRATION_FILE: "windows/rsa-basic-tls-ocsp-mustStaple-disableStapling.json"
+            ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-mustStaple-disableStapling.json"
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -600,7 +600,7 @@ tasks:
             OCSP_ALGORITHM: "rsa"
         - func: ocsp-bootstrap-mongo-orchestration
           vars:
-            ORCHESTRATION_FILE: "windows/rsa-basic-tls-ocsp-disableStapling.json"
+            ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-disableStapling.json"
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -614,7 +614,7 @@ tasks:
             OCSP_ALGORITHM: "rsa"
         - func: ocsp-bootstrap-mongo-orchestration
           vars:
-            ORCHESTRATION_FILE: "windows/rsa-basic-tls-ocsp-disableStapling.json"
+            ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-disableStapling.json"
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -628,7 +628,7 @@ tasks:
             OCSP_ALGORITHM: "rsa"
         - func: ocsp-bootstrap-mongo-orchestration
           vars:
-            ORCHESTRATION_FILE: "windows/rsa-basic-tls-ocsp-mustStaple-disableStapling.json"
+            ORCHESTRATION_FILE: "rsa-basic-tls-ocsp-mustStaple-disableStapling.json"
         - func: run-ocsp-test
           vars:
             OCSP_ALGORITHM: "rsa"
@@ -672,7 +672,7 @@ tasks:
     #         OCSP_ALGORITHM: "ecdsa"
     #     - func: ocsp-bootstrap-mongo-orchestration
     #       vars:
-    #         ORCHESTRATION_FILE: "windows/ecdsa-basic-tls-ocsp-disableStapling.json"
+    #         ORCHESTRATION_FILE: "ecdsa-basic-tls-ocsp-disableStapling.json"
     #     - func: run-ocsp-test
     #       vars:
     #         OCSP_ALGORITHM: "ecdsa"
@@ -686,7 +686,7 @@ tasks:
     #         OCSP_ALGORITHM: "ecdsa"
     #     - func: ocsp-bootstrap-mongo-orchestration
     #       vars:
-    #         ORCHESTRATION_FILE: "windows/ecdsa-basic-tls-ocsp-disableStapling.json"
+    #         ORCHESTRATION_FILE: "ecdsa-basic-tls-ocsp-disableStapling.json"
     #     - func: run-ocsp-test
     #       vars:
     #         OCSP_ALGORITHM: "ecdsa"
@@ -697,7 +697,7 @@ tasks:
     #   commands:
     #     - func: ocsp-bootstrap-mongo-orchestration
     #       vars:
-    #         ORCHESTRATION_FILE: "windows/ecdsa-basic-tls-ocsp-disableStapling.json"
+    #         ORCHESTRATION_FILE: "ecdsa-basic-tls-ocsp-disableStapling.json"
     #     - func: run-ocsp-test
     #       vars:
     #         OCSP_ALGORITHM: "ecdsa"
@@ -711,7 +711,7 @@ tasks:
     #         OCSP_ALGORITHM: "ecdsa"
     #     - func: ocsp-bootstrap-mongo-orchestration
     #       vars:
-    #         ORCHESTRATION_FILE: "windows/ecdsa-basic-tls-ocsp-mustStaple-disableStapling.json"
+    #         ORCHESTRATION_FILE: "ecdsa-basic-tls-ocsp-mustStaple-disableStapling.json"
     #     - func: run-ocsp-test
     #       vars:
     #         OCSP_ALGORITHM: "ecdsa"
@@ -722,7 +722,7 @@ tasks:
     #   commands:
     #     - func: ocsp-bootstrap-mongo-orchestration
     #       vars:
-    #         ORCHESTRATION_FILE: "windows/ecdsa-basic-tls-ocsp-mustStaple-disableStapling.json"
+    #         ORCHESTRATION_FILE: "ecdsa-basic-tls-ocsp-mustStaple-disableStapling.json"
     #     - func: run-ocsp-test
     #       vars:
     #         OCSP_ALGORITHM: "ecdsa"
@@ -764,7 +764,7 @@ tasks:
     #         OCSP_ALGORITHM: "ecdsa"
     #     - func: ocsp-bootstrap-mongo-orchestration
     #       vars:
-    #         ORCHESTRATION_FILE: "windows/ecdsa-basic-tls-ocsp-disableStapling.json"
+    #         ORCHESTRATION_FILE: "ecdsa-basic-tls-ocsp-disableStapling.json"
     #     - func: run-ocsp-test
     #       vars:
     #         OCSP_ALGORITHM: "ecdsa"
@@ -778,7 +778,7 @@ tasks:
     #         OCSP_ALGORITHM: "ecdsa"
     #     - func: ocsp-bootstrap-mongo-orchestration
     #       vars:
-    #         ORCHESTRATION_FILE: "windows/ecdsa-basic-tls-ocsp-disableStapling.json"
+    #         ORCHESTRATION_FILE: "ecdsa-basic-tls-ocsp-disableStapling.json"
     #     - func: run-ocsp-test
     #       vars:
     #         OCSP_ALGORITHM: "ecdsa"
@@ -792,7 +792,7 @@ tasks:
     #         OCSP_ALGORITHM: "ecdsa"
     #     - func: ocsp-bootstrap-mongo-orchestration
     #       vars:
-    #         ORCHESTRATION_FILE: "windows/ecdsa-basic-tls-ocsp-mustStaple-disableStapling.json"
+    #         ORCHESTRATION_FILE: "ecdsa-basic-tls-ocsp-mustStaple-disableStapling.json"
     #     - func: run-ocsp-test
     #       vars:
     #         OCSP_ALGORITHM: "ecdsa"
