@@ -75,7 +75,21 @@ namespace MongoDB.Driver
         /// <value>
         /// The full document.
         /// </value>
-        public TDocument FullDocument => GetValue<TDocument>(nameof(FullDocument), default(TDocument));
+        public TDocument FullDocument
+        {
+            get
+            {
+                // if TDocument is BsonDocument avoid deserializing it again to prevent possible duplicate element name errors
+                if (typeof(TDocument) == typeof(BsonDocument) && BackingDocument.TryGetValue("fullDocument", out var fullDocument))
+                {
+                    return (TDocument)(object)fullDocument.AsBsonDocument;
+                }
+                else
+                {
+                    return GetValue<TDocument>(nameof(FullDocument), default(TDocument));
+                }
+            }
+        }
 
         /// <summary>
         /// Gets the type of the operation.

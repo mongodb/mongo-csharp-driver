@@ -89,6 +89,29 @@ namespace MongoDB.Driver
         }
 
         [Fact]
+        public void Deserialize_should_support_duplicate_element_names_in_full_document()
+        {
+            var json = "{ fullDocument : { x : 1, x : 2 } }";
+            var subject = CreateSubject();
+
+            ChangeStreamDocument<BsonDocument> result;
+            using (var reader = new JsonReader(json))
+            {
+                var context = BsonDeserializationContext.CreateRoot(reader);
+                result = subject.Deserialize(context);
+            }
+
+            var fullDocument = result.FullDocument;
+            fullDocument.ElementCount.Should().Be(2);
+            var firstElement = fullDocument.GetElement(0);
+            firstElement.Name.Should().Be("x");
+            firstElement.Value.Should().Be(1);
+            var secondElement = fullDocument.GetElement(1);
+            secondElement.Name.Should().Be("x");
+            secondElement.Value.Should().Be(2);
+        }
+
+        [Fact]
         public void Serialize_should_have_expected_result()
         {
             var subject = CreateSubject();

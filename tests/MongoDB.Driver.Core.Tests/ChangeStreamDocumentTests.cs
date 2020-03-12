@@ -72,6 +72,18 @@ namespace MongoDB.Driver
             result.Should().BeSameAs(backingDocument);
         }
 
+        [Fact]
+        public void BackingDocument_should_allow_duplicate_elements_in_full_document()
+        {
+            var fullDocument = new BsonDocument(allowDuplicateNames: true) { { "x", 1 }, { "x", 2 } };
+            var backingDocument = new BsonDocument("fullDocument", fullDocument);
+            var subject = CreateSubject(backingDocument: backingDocument);
+
+            var result = subject.BackingDocument;
+
+            result.Should().BeSameAs(backingDocument);
+        }
+
         [Theory]
         [InlineData(1, 2)]
         [InlineData(3, 4)]
@@ -157,6 +169,24 @@ namespace MongoDB.Driver
             var result = subject.FullDocument;
 
             result.Should().Be(value);
+        }
+
+        [Fact]
+        public void FullDocument_should_allow_duplicate_elements()
+        {
+            var fullDocument = new BsonDocument(allowDuplicateNames: true) { { "x", 1 }, { "x", 2 } };
+            var backingDocument = new BsonDocument { { "other", 1 }, { "fullDocument", fullDocument } };
+            var subject = CreateSubject(backingDocument: backingDocument);
+
+            var result = subject.FullDocument;
+
+            result.ElementCount.Should().Be(2);
+            var firstElement = result.GetElement(0);
+            firstElement.Name.Should().Be("x");
+            firstElement.Value.Should().Be(1);
+            var secondElement = result.GetElement(1);
+            secondElement.Name.Should().Be("x");
+            secondElement.Value.Should().Be(2);
         }
 
         [Fact]

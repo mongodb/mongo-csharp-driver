@@ -28,8 +28,10 @@ using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Tests;
 using Moq;
 using Xunit;
@@ -3417,6 +3419,42 @@ namespace MongoDB.Driver
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("pipeline");
+        }
+
+        [SkippableFact]
+        public void Watch_should_support_full_document_with_duplicate_elements()
+        {
+            RequireServer.Check().Supports(Feature.ChangeStreamStage).ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded);
+
+            var client = DriverTestConfiguration.Client;
+            var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+            var collection = database.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+            database.DropCollection(collection.CollectionNamespace.CollectionName);
+
+            try
+            {
+                var cursor = collection.Watch();
+
+                ChangeStreamDocument<BsonDocument> changeStreamDocument = null;
+                var document = new BsonDocument(allowDuplicateNames: true) { { "_id", 1 }, { "x", 2 }, { "x", 3 } };
+                collection.InsertOne(document);
+                SpinWait.SpinUntil(() => cursor.MoveNext() && (changeStreamDocument = cursor.Current.FirstOrDefault()) != null, TimeSpan.FromSeconds(5)).Should().BeTrue();
+                var fullDocument = changeStreamDocument.FullDocument;
+                fullDocument.ElementCount.Should().Be(3);
+                var firstElement = fullDocument.GetElement(0);
+                firstElement.Name.Should().Be("_id");
+                firstElement.Value.Should().Be(1);
+                var secondElement = fullDocument.GetElement(1);
+                secondElement.Name.Should().Be("x");
+                secondElement.Value.Should().Be(2);
+                var thirdElement = fullDocument.GetElement(2);
+                thirdElement.Name.Should().Be("x");
+                thirdElement.Value.Should().Be(3);
+            }
+            finally
+            {
+                database.DropCollection(collection.CollectionNamespace.CollectionName);
+            }
         }
 
         [Fact]

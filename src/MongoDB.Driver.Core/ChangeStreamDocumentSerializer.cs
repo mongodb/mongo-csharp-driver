@@ -50,6 +50,14 @@ namespace MongoDB.Driver
             RegisterMember("UpdateDescription", "updateDescription", ChangeStreamUpdateDescriptionSerializer.Instance);
         }
 
+        // public methods
+        /// <inheritdoc />
+        public override ChangeStreamDocument<TDocument> Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+        {
+            context = context.With(b => b.AllowDuplicateElementNames = true);
+            return base.Deserialize(context, args);
+        }
+
         // protected methods
         /// <inheritdoc />
         protected override ChangeStreamDocument<TDocument> CreateInstance(BsonDocument backingDocument)
