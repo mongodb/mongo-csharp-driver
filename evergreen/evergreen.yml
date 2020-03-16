@@ -806,6 +806,10 @@ axes:
         display_name: "latest"
         variables:
            VERSION: "latest"
+      - id: "4.4"
+        display_name: "4.4"
+        variables:
+           VERSION: "4.4"
       - id: "4.2"
         display_name: "4.2"
         variables:
@@ -920,21 +924,21 @@ buildvariants:
      - name: test
 
 - matrix_name: "tests-zlib-compression"
-  matrix_spec: { compressor : "zlib", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "latest"], topology: "standalone", os: "*" }
+  matrix_spec: { compressor : "zlib", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "latest"], topology: "standalone", os: "*" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
      - name: "test"
 
 - matrix_name: "tests-snappy-compression"
-  matrix_spec: { compressor : "snappy", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "latest"], topology: "standalone", os: "*" }
+  matrix_spec: { compressor : "snappy", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "latest"], topology: "standalone", os: "*" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
      - name: "test"
 
 - matrix_name: "ocsp-tests"
-  matrix_spec: { version: ["latest"], auth: "noauth", ssl: "ssl", topology: "standalone", os: "*" } # matrix_spec: { version: ["latest"], os-ssl-32: ["ubuntu1604-64-go-1-12"] }
+  matrix_spec: { version: ["4.4", "latest"], auth: "noauth", ssl: "ssl", topology: "standalone", os: "*" } # matrix_spec: { version: ["latest"], os-ssl-32: ["ubuntu1604-64-go-1-12"] }
   display_name: "OCSP ${version} ${os}" #  display_name: "OCSP ${version} ${os-ssl-32}"
   batchtime: 20160 # 14 days
   tasks:
