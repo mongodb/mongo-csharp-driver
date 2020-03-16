@@ -10,8 +10,7 @@ title = "Issues & Help"
 
 ## Questions
 
-- [Discussion Forum](http://groups.google.com/group/mongodb-user)
-- [Stackoverflow](http://stackoverflow.com/questions/tagged/mongodb)
+- [MongoDB Community Forum](https://community.mongodb.com)
 
 ## Bug Reports
 
