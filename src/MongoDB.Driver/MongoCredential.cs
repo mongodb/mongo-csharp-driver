@@ -104,7 +104,7 @@ namespace MongoDB.Driver
                 var passwordEvidence = _evidence as PasswordEvidence;
                 if (passwordEvidence != null)
                 {
-                    return MongoUtils.ToInsecureString(passwordEvidence.SecurePassword);
+                    return SecureStringHelper.ToInsecureString(passwordEvidence.SecurePassword);
                 }
 
                 return null;
@@ -418,36 +418,43 @@ namespace MongoDB.Driver
             var passwordEvidence = _evidence as PasswordEvidence;
             if (passwordEvidence != null)
             {
-                var insecurePassword = MongoUtils.ToInsecureString(passwordEvidence.SecurePassword);
+                var insecurePassword = SecureStringHelper.ToInsecureString(passwordEvidence.SecurePassword);
                 var credential = new UsernamePasswordCredential(
                     _identity.Source,
                     _identity.Username,
                     insecurePassword);
+
                 if (_mechanism == null)
                 {
                     return new DefaultAuthenticator(credential);
                 }
 #pragma warning disable 618
-                else if (_mechanism == MongoDBCRAuthenticator.MechanismName)
+                if (_mechanism == MongoDBCRAuthenticator.MechanismName)
                 {
                     return new MongoDBCRAuthenticator(credential);
 #pragma warning restore 618
                 }
-                else if (_mechanism == ScramSha1Authenticator.MechanismName)
+                if (_mechanism == ScramSha1Authenticator.MechanismName)
                 {
                     return new ScramSha1Authenticator(credential);
                 }
-                else if (_mechanism == ScramSha256Authenticator.MechanismName)
+                if (_mechanism == ScramSha256Authenticator.MechanismName)
                 {
                     return new ScramSha256Authenticator(credential);
                 }
-                else if (_mechanism == PlainAuthenticator.MechanismName)
+                if (_mechanism == PlainAuthenticator.MechanismName)
                 {
                     return new PlainAuthenticator(credential);
                 }
-                else if (_mechanism == GssapiAuthenticator.MechanismName)
+                if (_mechanism == GssapiAuthenticator.MechanismName)
                 {
                     return new GssapiAuthenticator(
+                        credential,
+                        _mechanismProperties.Select(x => new KeyValuePair<string, string>(x.Key, x.Value.ToString())));
+                }
+                if (_mechanism == MongoAWSAuthenticator.MechanismName)
+                {
+                    return new MongoAWSAuthenticator(
                         credential,
                         _mechanismProperties.Select(x => new KeyValuePair<string, string>(x.Key, x.Value.ToString())));
                 }
@@ -458,9 +465,15 @@ namespace MongoDB.Driver
                 {
                     return new MongoDBX509Authenticator(_identity.Username);
                 }
-                else if (_mechanism == GssapiAuthenticator.MechanismName)
+                if (_mechanism == GssapiAuthenticator.MechanismName)
                 {
                     return new GssapiAuthenticator(
+                        _identity.Username,
+                        _mechanismProperties.Select(x => new KeyValuePair<string, string>(x.Key, x.Value.ToString())));
+                }
+                if (_mechanism == MongoAWSAuthenticator.MechanismName)
+                {
+                    return new MongoAWSAuthenticator(
                         _identity.Username,
                         _mechanismProperties.Select(x => new KeyValuePair<string, string>(x.Key, x.Value.ToString())));
                 }
@@ -523,6 +536,30 @@ namespace MongoDB.Driver
                     return new MongoCredential(
                         mechanism,
                         new MongoInternalIdentity(source, username),
+                        evidence);
+                case "MONGODB-AWS":
+                    // MUST be "$external". Defaults to $external.
+                    EnsureNullOrExternalSource(mechanism, source);
+                    if (username == null)
+                    {
+                        if (evidence is PasswordEvidence)
+                        {
+                            throw new ArgumentException("A MONGODB-AWS credential must have an access key id.");
+                        }
+
+                        return new MongoCredential(
+                            mechanism,
+                            new MongoExternalAwsIdentity(),
+                            evidence);
+                    }
+                    if (evidence == null || evidence is ExternalEvidence)
+                    {
+                        throw new ArgumentException("A MONGODB-AWS credential must have a secret access key.");
+                    }
+
+                    return new MongoCredential(
+                        mechanism,
+                        new MongoExternalIdentity(username),
                         evidence);
                 case "MONGODB-X509":
                     // MUST be "$external". Defaults to $external.

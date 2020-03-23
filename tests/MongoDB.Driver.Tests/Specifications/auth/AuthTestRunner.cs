@@ -14,6 +14,8 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
@@ -128,7 +130,22 @@ namespace MongoDB.Driver.Tests.Specifications.auth
         // nested types
         private class TestCaseFactory : JsonDrivenTestCaseFactory
         {
+            #region static
+            private static readonly string[] __ignoredTestNames =
+            {
+                // Auth tests create auth mechanism which this test does not expect. Altering this behavior would break GSSAPI tests.
+                "should recognise the mechanism (MONGODB-AWS)"
+            };
+            #endregion
+
+            // protected properties
             protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.auth.tests.";
+
+            // protected methods
+            protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)
+            {
+                return base.CreateTestCases(document).Where(test => !__ignoredTestNames.Any(ignoredName => test.Name.EndsWith(ignoredName)));
+            }
         }
     }
 

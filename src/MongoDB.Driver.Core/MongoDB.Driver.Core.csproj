@@ -99,6 +99,7 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
     <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.5'">
@@ -119,6 +120,7 @@
     <Compile Include="..\MongoDB.Shared\ApplicationNameHelper.cs" Link="Core\Configuration\ApplicationNameHelper.cs" />
     <Compile Include="..\MongoDB.Shared\Hasher.cs" Link="Core\Misc\Hasher.cs" />
     <Compile Include="..\MongoDB.Shared\MaxTimeHelper.cs" Link="Core\Operations\MaxTimeHelper.cs" />
+    <Compile Include="..\MongoDB.Shared\SecureStringHelper.cs" Link="Core\Misc\SecureStringHelper.cs" />
   </ItemGroup>
 
   <ItemGroup>

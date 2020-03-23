@@ -190,14 +190,37 @@ namespace MongoDB.Driver.Core.Configuration
             return true;
         }
 
+        private static string GetAuthSource(ConnectionString connectionString)
+        {
+            var defaultSource = GetDefaultAuthSource(connectionString);
+
+            if (connectionString.AuthMechanism != null && connectionString.AuthMechanism == MongoAWSAuthenticator.MechanismName)
+            {
+                return connectionString.AuthSource ?? defaultSource;
+            }
+            
+            return connectionString.AuthSource ?? connectionString.DatabaseName ?? defaultSource;
+        }
+
+        private static string GetDefaultAuthSource(ConnectionString connectionString)
+        {
+            if (connectionString.AuthMechanism != null && (
+                connectionString.AuthMechanism == GssapiAuthenticator.MechanismName ||
+                connectionString.AuthMechanism == MongoAWSAuthenticator.MechanismName))
+            {
+                return "$external";
+            }
+
+            return "admin";
+        }
+
         private static IAuthenticator CreateAuthenticator(ConnectionString connectionString)
         {
             if (connectionString.Password != null)
             {
-                var defaultSource = GetDefaultSource(connectionString);
 
                 var credential = new UsernamePasswordCredential(
-                        connectionString.AuthSource ?? connectionString.DatabaseName ?? defaultSource,
+                        GetAuthSource(connectionString),
                         connectionString.Username,
                         connectionString.Password);
 
@@ -227,6 +250,10 @@ namespace MongoDB.Driver.Core.Configuration
                 {
                     return new GssapiAuthenticator(credential, connectionString.AuthMechanismProperties);
                 }
+                else if (connectionString.AuthMechanism == MongoAWSAuthenticator.MechanismName)
+                {
+                    return new MongoAWSAuthenticator(credential, connectionString.AuthMechanismProperties);
+                }
             }
             else
             {
@@ -238,19 +265,13 @@ namespace MongoDB.Driver.Core.Configuration
                 {
                     return new GssapiAuthenticator(connectionString.Username, connectionString.AuthMechanismProperties);
                 }
+                else if (connectionString.AuthMechanism == MongoAWSAuthenticator.MechanismName)
+                {
+                    return new MongoAWSAuthenticator(connectionString.Username, connectionString.AuthMechanismProperties);
+                }
             }
 
             throw new NotSupportedException("Unable to create an authenticator.");
-        }
-
-        private static string GetDefaultSource(ConnectionString connectionString)
-        {
-            if (connectionString.AuthMechanism != null && connectionString.AuthMechanism.Equals("GSSAPI", StringComparison.OrdinalIgnoreCase))
-            {
-                return "$external";
-            }
-
-            return "admin";
         }
 
 #if NET452

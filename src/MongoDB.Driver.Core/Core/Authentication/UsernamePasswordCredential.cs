@@ -17,6 +17,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Security;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Authentication
 {
@@ -39,12 +40,12 @@ namespace MongoDB.Driver.Core.Authentication
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
         public UsernamePasswordCredential(string source, string username, string password)
-            : this(source, username, ConvertPasswordToSecureString(password))
+            : this(source, username, SecureStringHelper.ToSecureString(password))
         {
             // Compute saslPreppedPassword immediately and store it securely while the password is already in
             // managed memory. We don't create a closure over the password so that it will hopefully get 
             // garbage-collected sooner rather than later.
-            var saslPreppedPassword = ConvertPasswordToSecureString(SaslPrepHelper.SaslPrepStored(password));
+            var saslPreppedPassword = SecureStringHelper.ToSecureString(SaslPrepHelper.SaslPrepStored(password));
             _saslPreppedPassword = new Lazy<SecureString>(() => saslPreppedPassword);
         }
 
@@ -66,7 +67,7 @@ namespace MongoDB.Driver.Core.Authentication
             // defer computing the saslPreppedPassword until we need to since this will leak the password into managed
             // memory
             _saslPreppedPassword = new Lazy<SecureString>(
-                () => ConvertPasswordToSecureString(SaslPrepHelper.SaslPrepStored(GetInsecurePassword())));
+                () => SecureStringHelper.ToSecureString(SaslPrepHelper.SaslPrepStored(GetInsecurePassword())));
         }
 
         // properties
@@ -121,37 +122,7 @@ namespace MongoDB.Driver.Core.Authentication
         /// <returns>The password.</returns>
         public string GetInsecurePassword()
         {
-            if (_password.Length == 0)
-            {
-                return "";
-            }
-            else
-            {
-#if NET452
-                var passwordIntPtr = Marshal.SecureStringToGlobalAllocUnicode(_password);
-#else
-                var passwordIntPtr = SecureStringMarshal.SecureStringToGlobalAllocUnicode(_password);
-#endif
-                try
-                {
-                    return Marshal.PtrToStringUni(passwordIntPtr, _password.Length);
-                }
-                finally
-                {
-                    Marshal.ZeroFreeGlobalAllocUnicode(passwordIntPtr);
-                }
-            }
-        }
-
-        private static SecureString ConvertPasswordToSecureString(string password)
-        {
-            var secureString = new SecureString();
-            foreach (var c in password)
-            {
-                secureString.AppendChar(c);
-            }
-            secureString.MakeReadOnly();
-            return secureString;
+            return SecureStringHelper.ToInsecureString(_password);
         }
     }
 }

@@ -61,36 +61,5 @@ namespace MongoDB.Driver
         {
             return value.Length == 0 ? "" : value.Substring(0, 1).ToLower() + value.Substring(1);
         }
-
-        // internal methods
-        /// <summary>
-        /// Should only be used when the safety of the data cannot be guaranteed.  For instance,
-        /// when the secure string is a password used in a plain text protocol.
-        /// </summary>
-        /// <param name="secureString">The secure string.</param>
-        /// <returns>The CLR string.</returns>
-        internal static string ToInsecureString(SecureString secureString)
-        {
-            if (secureString == null || secureString.Length == 0)
-            {
-                return "";
-            }
-            else
-            {
-#if NET452
-                var secureStringIntPtr = Marshal.SecureStringToGlobalAllocUnicode(secureString);
-#else
-                var secureStringIntPtr = SecureStringMarshal.SecureStringToGlobalAllocUnicode(secureString);
-#endif
-                try
-                {
-                    return Marshal.PtrToStringUni(secureStringIntPtr, secureString.Length);
-                }
-                finally
-                {
-                    Marshal.ZeroFreeGlobalAllocUnicode(secureStringIntPtr);
-                }
-            }
-        }
     }
 }
