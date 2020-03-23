@@ -35,7 +35,11 @@ namespace MongoDB.Driver.Core.Compression
         /// <summary>
         /// The content of the message is compressed using zlib. 
         /// </summary>
-        Zlib = 2
+        Zlib = 2,
+        /// <summary>
+        /// The content of the message is compressed using zstandard. 
+        /// </summary>
+        ZStandard = 3
     }
 
     /// <summary>

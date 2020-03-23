@@ -21,6 +21,9 @@ namespace MongoDB.Driver.Core.NativeLibraryLoader
 {
     internal abstract class RelativeLibraryLocatorBase : ILibraryLocator
     {
+        // public properties
+        public virtual bool IsX32ModeSupported => false;
+
         // public methods
         public string GetLibraryAbsolutePath(SupportedPlatform currentPlatform)
         {

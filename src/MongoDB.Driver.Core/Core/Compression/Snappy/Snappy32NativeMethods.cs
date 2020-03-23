@@ -105,6 +105,8 @@ namespace MongoDB.Driver.Core.Compression.Snappy
 
         private class SnappyLocator : RelativeLibraryLocatorBase
         {
+            public override bool IsX32ModeSupported => true;
+
             public override string GetLibraryRelativePath(SupportedPlatform currentPlatform)
             {
                 switch (currentPlatform)

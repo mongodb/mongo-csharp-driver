@@ -5,6 +5,7 @@
       <CompressionRuntimesPath>runtimes/win/native</CompressionRuntimesPath>
     </PropertyGroup>
 
+    <!--snappy-->
     <ItemGroup Condition="$([MSBuild]::IsOsPlatform('Windows'))">
         <Content Include="$(MSBuildThisFileDirectory)../$(CompressionRuntimesPath)/snappy32.dll">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -13,6 +14,14 @@
         <Content Include="$(MSBuildThisFileDirectory)../$(CompressionRuntimesPath)/snappy64.dll">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Link>snappy64.dll</Link>
+        </Content>
+    </ItemGroup>
+
+    <!--zstd-->
+    <ItemGroup Condition="$([MSBuild]::IsOsPlatform('Windows'))">
+        <Content Include="$(MSBuildThisFileDirectory)../$(CompressionRuntimesPath)/libzstd.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>libzstd.dll</Link>
         </Content>
     </ItemGroup>
 </Project>

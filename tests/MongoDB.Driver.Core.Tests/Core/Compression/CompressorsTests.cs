@@ -31,6 +31,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
 
         [Theory]
         [InlineData(CompressorType.Snappy)]
+        [InlineData(CompressorType.ZStandard)]
         public void Compressor_should_read_the_previously_written_message(CompressorType compressorType)
         {
             var bytes = Encoding.ASCII.GetBytes(__testMessage);
@@ -152,6 +153,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
                     return new SnappyCompressor();
                 case CompressorType.Zlib:
                     return new ZlibCompressor((int)option);
+                case CompressorType.ZStandard:
+                    return new ZstandardCompressor();
                 default:
                     throw new NotSupportedException();
             }

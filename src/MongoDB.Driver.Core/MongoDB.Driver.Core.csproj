@@ -47,16 +47,16 @@
   </PropertyGroup>
 
   <!--Compression-->
+  <PropertyGroup>
+    <CompressionRuntimesPath>runtimes/win/native</CompressionRuntimesPath>
+  </PropertyGroup>
+
+  <!--Snappy-->
   <ItemGroup>
     <None Remove="snappy32.dll" />
     <None Remove="snappy64.dll" />
   </ItemGroup>
 
-  <PropertyGroup>
-    <CompressionRuntimesPath>runtimes/win/native</CompressionRuntimesPath>
-  </PropertyGroup>
-
-  <!--snappy-->
   <PropertyGroup>
     <SnappyBinaries>Core/Compression/Snappy/lib/win</SnappyBinaries>
   </PropertyGroup>
@@ -83,6 +83,29 @@
     </Content>
   </ItemGroup>
 
+  <!--Zstd-->
+  <ItemGroup>
+    <None Remove="libzstd.dll" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <ZstdBinaries>Core/Compression/Zstandard/lib/win</ZstdBinaries>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="$(ZstdBinaries)/libzstd.dll">
+      <Pack>true</Pack>
+      <PackagePath>$(CompressionRuntimesPath)</PackagePath>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="$(ZstdBinaries)/libzstd.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>libzstd.dll</Link>
+    </Content>
+  </ItemGroup>
+
   <ItemGroup>
     <Content Include="MongoDB.Driver.Core.targets">
       <Pack>true</Pack>
@@ -95,6 +118,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.2" PrivateAssets="All" />
     <PackageReference Include="MongoDB.Libmongocrypt" Version="1.0.0" />
     <PackageReference Include="SharpCompress" Version="0.23.0" />
+    <PackageReference Include="System.Buffers" Version="4.4.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'">

@@ -47,6 +47,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
         [Theory]
         [InlineData(CompressorType.Zlib)]
         [InlineData(CompressorType.Noop)]
+        [InlineData(CompressorType.ZStandard)]
         public void Get_should_return_expected_result(CompressorType compressorType)
         {
             var subject = CreateSubject(compressorType);

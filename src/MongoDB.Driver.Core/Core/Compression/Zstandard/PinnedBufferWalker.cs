@@ -1,4 +1,4 @@
-﻿/* Copyright 2019–present MongoDB Inc.
+﻿/* Copyright 2020–present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,23 +15,39 @@
 
 using System;
 using System.Runtime.InteropServices;
+using MongoDB.Driver.Core.Misc;
 
-namespace MongoDB.Driver.Core.NativeLibraryLoader
+namespace MongoDB.Driver.Core.Compression.Zstandard
 {
-    internal class PinnedBuffer : IDisposable
+    internal class PinnedBufferWalker : IDisposable
     {
+        private readonly byte[] _bytes;
         private GCHandle _handle; // not readonly to prevent a temporary copy from being created when calling Free
-        private readonly IntPtr _intPtr;
+        private IntPtr _intPtr;
+        private int _offset;
 
-        public PinnedBuffer(byte[] bytes, int offset)
+        public PinnedBufferWalker(byte[] bytes, int offset)
         {
+            _bytes = Ensure.IsNotNull(bytes, nameof(bytes));
             // The array must be pinned by using a GCHandle before it is passed to UnsafeAddrOfPinnedArrayElement.
             // For maximum performance, this method does not validate the array passed to it; this can result in unexpected behavior.
-            _handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
-            _intPtr = Marshal.UnsafeAddrOfPinnedArrayElement(bytes, offset);
+            _handle = GCHandle.Alloc(_bytes, GCHandleType.Pinned);
+            _offset = offset;
+
+            RefreshIntPtr();
         }
 
         public IntPtr IntPtr => _intPtr;
+
+        public int Offset
+        {
+            get => _offset;
+            set
+            {
+                _offset = value;
+                RefreshIntPtr();
+            }
+        }
 
         // public methods
         public void Dispose()
@@ -44,6 +60,12 @@ namespace MongoDB.Driver.Core.NativeLibraryLoader
             {
                 // ignore exceptions
             }
+        }
+
+        // private methods
+        private void RefreshIntPtr()
+        {
+            _intPtr = Marshal.UnsafeAddrOfPinnedArrayElement(_bytes, _offset);
         }
     }
 }
