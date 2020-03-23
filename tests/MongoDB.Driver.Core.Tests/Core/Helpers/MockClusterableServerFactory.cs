@@ -15,15 +15,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Events;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using Moq;
 
@@ -43,7 +39,7 @@ namespace MongoDB.Driver.Core.Helpers
         public IClusterableServer CreateServer(ClusterId clusterId, IClusterClock clusterClock, EndPoint endPoint)
         {
             ServerTuple result;
-            if (!_servers.TryGetValue(endPoint, out result))
+            if (!_servers.TryGetValue(endPoint, out result) || result.HasBeenRemoved)
             {
                 var description = new ServerDescription(new ServerId(clusterId, endPoint), endPoint);
 
@@ -53,6 +49,13 @@ namespace MongoDB.Driver.Core.Helpers
                     mockServer.SetupGet(s => s.Description).Returns(description);
                     mockServer.SetupGet(s => s.EndPoint).Returns(endPoint);
                     mockServer.SetupGet(s => s.ServerId).Returns(new ServerId(clusterId, endPoint));
+                    mockServer
+                        .Setup(s => s.Dispose())
+                        .Callback(
+                            () =>
+                            {
+                                _servers[mockServer.Object.EndPoint].HasBeenRemoved = true;
+                            });
                     result = new ServerTuple
                     {
                         Server = mockServer.Object
@@ -64,6 +67,13 @@ namespace MongoDB.Driver.Core.Helpers
                     var mockMonitor = new Mock<IServerMonitor>() { DefaultValue = DefaultValue.Mock };
                     mockMonitorFactory.Setup(f => f.Create(It.IsAny<ServerId>(), It.IsAny<EndPoint>())).Returns(mockMonitor.Object);
                     mockMonitor.SetupGet(m => m.Description).Returns(description);
+                    mockMonitor
+                        .Setup(s => s.Dispose())
+                        .Callback(
+                            () =>
+                            {
+                                _servers[mockMonitor.Object.Description.EndPoint].HasBeenRemoved = true;
+                            });
 
                     result = new ServerTuple
                     {
@@ -118,7 +128,6 @@ namespace MongoDB.Driver.Core.Helpers
                 var mockServer = Mock.Get(result.Server);
                 mockServer.SetupGet(s => s.Description).Returns(description);
                 mockServer.Raise(s => s.DescriptionChanged += null, new ServerDescriptionChangedEventArgs(oldDescription, description));
-
             }
             else
             {
@@ -130,6 +139,7 @@ namespace MongoDB.Driver.Core.Helpers
 
         private class ServerTuple
         {
+            public bool HasBeenRemoved;
             public IClusterableServer Server;
             public IServerMonitor Monitor;
         }
