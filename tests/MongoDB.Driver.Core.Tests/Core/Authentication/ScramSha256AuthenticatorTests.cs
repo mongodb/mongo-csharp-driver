@@ -27,6 +27,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages;
 using Xunit;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
+using System.Linq;
 
 namespace MongoDB.Driver.Core.Authentication
 {
@@ -49,19 +50,21 @@ namespace MongoDB.Driver.Core.Authentication
 
         /*
          * This is a simple example of a SCRAM-SHA-256 authentication exchange. The username
-         * 'user' and password 'pencil' are being used, with a client nonce of "rOprNGfwEbeRWgbNEkqO" 
+         * 'user' and password 'pencil' are being used, with a client nonce of "rOprNGfwEbeRWgbNEkqO"
          * C: n,,n=user,r=rOprNGfwEbeRWgbNEkqO
          * S: r=rOprNGfwEbeRWgbNEkqO%hvYDpWUa2RaTCAfuxFIlj)hNlF$k0,s=W22ZaJ0SNY7soEsUEjb6gQ==,i=4096
          * C: c=biws,r=rOprNGfwEbeRWgbNEkqO%hvYDpWUa2RaTCAfuxFIlj)hNlF$k0,p=dHzbZapWIk4jUhN+Ute9ytag9zjfMHgsqmmiz7AndVQ=
          * S: v=6rriTRBi23WpRR/wtup+mMhUZUn/dB5nLTJRsjl95G4=
         */
 
-        private static readonly string _clientRequest1 = $"n,,n=user,r={_clientNonce}";
-        private static readonly string _serverResponse1 =
+        private static readonly string __clientRequest1 = $"n,,n=user,r={_clientNonce}";
+        private static readonly string __serverResponse1 =
             $"r={_clientNonce}{_serverNonce},s={_serverSalt},i={_iterationCount}";
-        private static readonly string _clientRequest2 =
+        private static readonly string __clientRequest2 =
             $"c=biws,r={_clientNonce}{_serverNonce},p=dHzbZapWIk4jUhN+Ute9ytag9zjfMHgsqmmiz7AndVQ=";
-        private static readonly string _serverReponse2 = "v=6rriTRBi23WpRR/wtup+mMhUZUn/dB5nLTJRsjl95G4=";
+        private static readonly string __serverResponse2 = "v=6rriTRBi23WpRR/wtup+mMhUZUn/dB5nLTJRsjl95G4=";
+        private static readonly string __clientOptionalFinalRequest = "";
+        private static readonly string __serverOptionalFinalResponse = "";
 
         private static void Authenticate(
             ScramSha256Authenticator authenticator,
@@ -140,7 +143,7 @@ namespace MongoDB.Driver.Core.Authentication
         {
             var randomStringGenerator = new ConstantRandomStringGenerator(_clientNonce);
             var subject = new ScramSha256Authenticator(__credential, randomStringGenerator);
-            var poisonedSaslStart = PoisonSaslMessage(message: _clientRequest1, poison: "bluePill");
+            var poisonedSaslStart = PoisonSaslMessage(message: __clientRequest1, poison: "bluePill");
             var poisonedSaslStartReply = CreateSaslStartReply(poisonedSaslStart, _serverNonce, _serverSalt, _iterationCount);
             var poisonedSaslStartReplyMessage = MessageHelper.BuildReply(RawBsonDocumentHelper.FromJson(
                 @"{conversationId: 1, " +
@@ -168,17 +171,17 @@ namespace MongoDB.Driver.Core.Authentication
             var randomStringGenerator = new ConstantRandomStringGenerator(_clientNonce);
             var subject = new ScramSha256Authenticator(__credential, randomStringGenerator);
 
-            var saslStartReply = CreateSaslStartReply(_clientRequest1, _serverNonce, _serverSalt, _iterationCount);
-            var poisonedSaslContinueReply = PoisonSaslMessage(message: _serverReponse2, poison: "redApple");
+            var saslStartReply = CreateSaslStartReply(__clientRequest1, _serverNonce, _serverSalt, _iterationCount);
+            var poisonedSaslContinueReply = PoisonSaslMessage(message: __serverResponse2, poison: "redApple");
             var saslStartReplyMessage = MessageHelper.BuildReply(RawBsonDocumentHelper.FromJson(
                 @"{conversationId: 1, " +
                 $" payload: BinData(0,\"{ToUtf8Base64(saslStartReply)}\")," +
-                @" done: false, 
+                @" done: false,
                    ok: 1}"));
             var poisonedSaslContinueReplyMessage = MessageHelper.BuildReply(RawBsonDocumentHelper.FromJson(
                 @"{conversationId: 1, " +
                 $" payload: BinData(0,\"{ToUtf8Base64(poisonedSaslContinueReply)}\")," +
-                @" done: true, 
+                @" done: true,
                    ok: 1}"));
 
             var connection = new MockConnection(__serverId);
@@ -203,6 +206,7 @@ namespace MongoDB.Driver.Core.Authentication
         [Theory]
         [ParameterAttributeData]
         public void Authenticate_should_not_throw_when_authentication_succeeds(
+            [Values(false, true)] bool useLongAuthentication,
             [Values(false, true)] bool async)
         {
             var randomStringGenerator = new ConstantRandomStringGenerator(_clientNonce);
@@ -210,18 +214,27 @@ namespace MongoDB.Driver.Core.Authentication
 
             var saslStartReply = MessageHelper.BuildReply<RawBsonDocument>(RawBsonDocumentHelper.FromJson(
                 @"{conversationId: 1," +
-                $" payload: BinData(0,\"{ToUtf8Base64(_serverResponse1)}\")," +
-                @" done: false, 
+                $" payload: BinData(0,\"{ToUtf8Base64(__serverResponse1)}\")," +
+                @" done: false,
                    ok: 1}"));
             var saslContinueReply = MessageHelper.BuildReply<RawBsonDocument>(RawBsonDocumentHelper.FromJson(
                 @"{conversationId: 1," +
-                $" payload: BinData(0,\"{ToUtf8Base64(_serverReponse2)}\")," +
-                @" done: true, 
+                $" payload: BinData(0,\"{ToUtf8Base64(__serverResponse2)}\")," +
+                $" done: {new BsonBoolean(!useLongAuthentication)}," +
+                @"   ok: 1}"));
+            var saslLastStepReply = MessageHelper.BuildReply<RawBsonDocument>(RawBsonDocumentHelper.FromJson(
+                @"{conversationId: 1," +
+                $" payload: BinData(0,\"{ToUtf8Base64(__serverOptionalFinalResponse)}\")," +
+                @" done: true,
                    ok: 1}"));
 
             var connection = new MockConnection(__serverId);
             connection.EnqueueReplyMessage(saslStartReply);
             connection.EnqueueReplyMessage(saslContinueReply);
+            if (useLongAuthentication)
+            {
+                connection.EnqueueReplyMessage(saslLastStepReply);
+            }
 
             var expectedRequestId = RequestMessage.CurrentGlobalRequestId + 1;
 
@@ -237,36 +250,55 @@ namespace MongoDB.Driver.Core.Authentication
 
             var exception = Record.Exception(act);
             exception.Should().BeNull();
-            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
+            var expectedSentMessageCount = useLongAuthentication ? 3 : 2;
+            SpinWait.SpinUntil(
+                () => connection.GetSentMessages().Count >= expectedSentMessageCount,
+                TimeSpan.FromSeconds(5)
+                ).Should().BeTrue();
 
             var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
-            sentMessages.Count.Should().Be(2);
+            sentMessages.Count.Should().Be(expectedSentMessageCount);
 
-            var actualRequestId0 = sentMessages[0]["requestId"].AsInt32;
-            var actualRequestId1 = sentMessages[1]["requestId"].AsInt32;
-            actualRequestId0.Should().BeInRange(expectedRequestId, expectedRequestId + 10);
-            actualRequestId1.Should().BeInRange(actualRequestId0 + 1, actualRequestId0 + 11);
+            var actualRequestIds = sentMessages.Select(m => m["requestId"].AsInt32).ToList();
+            for (var i = 0; i != actualRequestIds.Count; ++i)
+            {
+                actualRequestIds[i].Should().BeInRange(expectedRequestId + i, expectedRequestId + 10 + i);
+            }
 
             sentMessages[0].Should().Be(
                 @"{opcode: ""query""," +
-                $" requestId: {actualRequestId0}," +
-                @" database: ""source"", 
-                   collection: ""$cmd"", 
-                   batchSize: -1, 
-                   slaveOk: true, 
-                   query: {saslStart: 1, 
+                $" requestId: {actualRequestIds[0]}," +
+                @" database: ""source"",
+                   collection: ""$cmd"",
+                   batchSize: -1,
+                   slaveOk: true,
+                   query: {saslStart: 1,
                            mechanism: ""SCRAM-SHA-256""," +
-                $"         payload: new BinData(0, \"{ToUtf8Base64(_clientRequest1)}\")}}}}");
+                $"         payload: new BinData(0, \"{ToUtf8Base64(__clientRequest1)}\")" +
+                @"         options: { skipEmptyExchange: true }}}");
             sentMessages[1].Should().Be(
                 @"{opcode: ""query""," +
-                $" requestId: {actualRequestId1}," +
-                @" database: ""source"", 
-                   collection: ""$cmd"", 
-                   batchSize: -1, 
-                   slaveOk: true, 
-                   query: {saslContinue: 1, 
+                $" requestId: {actualRequestIds[1]}," +
+                @" database: ""source"",
+                   collection: ""$cmd"",
+                   batchSize: -1,
+                   slaveOk: true,
+                   query: {saslContinue: 1,
                            conversationId: 1, " +
-                $"         payload: new BinData(0, \"{ToUtf8Base64(_clientRequest2)}\")}}}}");
+                $"         payload: new BinData(0, \"{ToUtf8Base64(__clientRequest2)}\")}}}}");
+            if (useLongAuthentication)
+            {
+                sentMessages[2].Should().Be(
+                    @"{opcode: ""query""," +
+                    $" requestId: {actualRequestIds[2]}," +
+                    @" database: ""source"",
+                       collection: ""$cmd"",
+                       batchSize: -1,
+                       slaveOk: true,
+                       query: {saslContinue: 1,
+                               conversationId: 1, " +
+                    $"         payload: new BinData(0, \"{ToUtf8Base64(__clientOptionalFinalRequest)}\")}}}}");
+            }
         }
 
         [Theory]
@@ -279,12 +311,12 @@ namespace MongoDB.Driver.Core.Authentication
 
             var saslStartReply = MessageHelper.BuildReply<RawBsonDocument>(RawBsonDocumentHelper.FromJson(
                 @"{conversationId: 1," +
-                $" payload: BinData(0,\"{ToUtf8Base64(_serverResponse1)}\")," +
+                $" payload: BinData(0,\"{ToUtf8Base64(__serverResponse1)}\")," +
                 @" done: false,
                    ok: 1}"));
             var saslContinueReply = MessageHelper.BuildReply<RawBsonDocument>(RawBsonDocumentHelper.FromJson(
                 @"{conversationId: 1," +
-                $" payload: BinData(0,\"{ToUtf8Base64(_serverReponse2)}\")," +
+                $" payload: BinData(0,\"{ToUtf8Base64(__serverResponse2)}\")," +
                 @" done: true,
                    ok: 1}"));
 

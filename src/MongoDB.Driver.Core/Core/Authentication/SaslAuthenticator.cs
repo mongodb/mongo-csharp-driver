@@ -132,7 +132,7 @@ namespace MongoDB.Driver.Core.Authentication
         /// <inheritdoc/>
         public BsonDocument CustomizeInitialIsMasterCommand(BsonDocument isMasterCommand)
         {
-            return isMasterCommand; 
+            return isMasterCommand;
         }
 
         private CommandWireProtocol<BsonDocument> CreateCommandProtocol(BsonDocument command)
@@ -163,12 +163,19 @@ namespace MongoDB.Driver.Core.Authentication
 
         private BsonDocument CreateStartCommand(ISaslStep currentStep)
         {
-            return new BsonDocument
+            var startCommand = new BsonDocument
             {
                 { "saslStart", 1 },
                 { "mechanism", _mechanism.Name },
                 { "payload", currentStep.BytesToSendToServer }
             };
+
+            if (_mechanism.Name.StartsWith("SCRAM", StringComparison.OrdinalIgnoreCase))
+            {
+                startCommand.Add("options", new BsonDocument("skipEmptyExchange", true));
+            }
+
+            return startCommand;
         }
 
         private ISaslStep Transition(SaslConversation conversation, ISaslStep currentStep, BsonDocument result)
