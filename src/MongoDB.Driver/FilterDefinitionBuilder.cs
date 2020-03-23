@@ -1586,7 +1586,7 @@ namespace MongoDB.Driver
 
         public ArrayOperatorFilterDefinition(string operatorName, FieldDefinition<TDocument> field, IEnumerable<TItem> values)
         {
-            _operatorName = Ensure.IsNotNull(operatorName, operatorName);
+            _operatorName = Ensure.IsNotNull(operatorName, nameof(operatorName));
             _field = Ensure.IsNotNull(field, nameof(field));
             _values = values;
         }
@@ -2011,7 +2011,7 @@ namespace MongoDB.Driver
 
         public OperatorFilterDefinition(string operatorName, FieldDefinition<TDocument> field, BsonValue value)
         {
-            _operatorName = Ensure.IsNotNull(operatorName, operatorName);
+            _operatorName = Ensure.IsNotNull(operatorName, nameof(operatorName));
             _field = Ensure.IsNotNull(field, nameof(field));
             _value = value;
         }
@@ -2036,7 +2036,7 @@ namespace MongoDB.Driver
             TField value,
             bool allowScalarValueForArrayField = false)
         {
-            _operatorName = Ensure.IsNotNull(operatorName, operatorName);
+            _operatorName = Ensure.IsNotNull(operatorName, nameof(operatorName));
             _field = Ensure.IsNotNull(field, nameof(field));
             _value = value;
             _allowScalarValueForArrayField = allowScalarValueForArrayField;
@@ -2166,7 +2166,7 @@ namespace MongoDB.Driver
             IEnumerable<TField> values,
             bool allowScalarValueForArrayField = false)
         {
-            _operatorName = Ensure.IsNotNull(operatorName, operatorName);
+            _operatorName = Ensure.IsNotNull(operatorName, nameof(operatorName));
             _field = Ensure.IsNotNull(field, nameof(field));
             _values = Ensure.IsNotNull(values, nameof(values));
             _allowScalarValueForArrayField = allowScalarValueForArrayField;
@@ -2206,7 +2206,7 @@ namespace MongoDB.Driver
 
         public ArrayAsSingleItemOperatorFilterDefinition(string operatorName, FieldDefinition<TDocument> field, TItem value)
         {
-            _operatorName = Ensure.IsNotNull(operatorName, operatorName);
+            _operatorName = Ensure.IsNotNull(operatorName, nameof(operatorName));
             _field = Ensure.IsNotNull(field, nameof(field));
             _value = value;
         }
@@ -2324,7 +2324,7 @@ namespace MongoDB.Driver
 
         public UInt32GreaterThanFilterDefinition(string operatorName, FieldDefinition<TDocument, uint> field, uint value)
         {
-            _operatorName = Ensure.IsNotNull(operatorName, operatorName);
+            _operatorName = Ensure.IsNotNull(operatorName, nameof(operatorName));
             _field = Ensure.IsNotNull(field, nameof(field));
             _value = value;
         }
@@ -2376,7 +2376,7 @@ namespace MongoDB.Driver
 
         public UInt32LessThanFilterDefinition(string operatorName, FieldDefinition<TDocument, uint> field, uint value)
         {
-            _operatorName = Ensure.IsNotNull(operatorName, operatorName);
+            _operatorName = Ensure.IsNotNull(operatorName, nameof(operatorName));
             _field = Ensure.IsNotNull(field, nameof(field));
             _value = value;
         }
@@ -2428,7 +2428,7 @@ namespace MongoDB.Driver
 
         public UInt64GreaterThanFilterDefinition(string operatorName, FieldDefinition<TDocument, ulong> field, ulong value)
         {
-            _operatorName = Ensure.IsNotNull(operatorName, operatorName);
+            _operatorName = Ensure.IsNotNull(operatorName, nameof(operatorName));
             _field = Ensure.IsNotNull(field, nameof(field));
             _value = value;
         }
@@ -2480,7 +2480,7 @@ namespace MongoDB.Driver
 
         public UInt64LessThanFilterDefinition(string operatorName, FieldDefinition<TDocument, ulong> field, ulong value)
         {
-            _operatorName = Ensure.IsNotNull(operatorName, operatorName);
+            _operatorName = Ensure.IsNotNull(operatorName, nameof(operatorName));
             _field = Ensure.IsNotNull(field, nameof(field));
             _value = value;
         }
