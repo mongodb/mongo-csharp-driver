@@ -736,6 +736,8 @@ namespace MongoDB.Driver.Core.Clusters
             var description = subject.Description;
             description.Servers.Should().BeEquivalentToWithComparer(GetDescriptions(_firstEndPoint, _thirdEndPoint), _serverDescriptionComparer);
 
+            _capturedEvents.Next().Should().BeOfType<ClusterRemovingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterRemovedServerEvent>();
             _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
             _capturedEvents.Any().Should().BeFalse();
         }
@@ -762,6 +764,8 @@ namespace MongoDB.Driver.Core.Clusters
             _capturedEvents.Next().Should().BeOfType<ClusterAddingServerEvent>();
             _capturedEvents.Next().Should().BeOfType<ClusterAddedServerEvent>();
             _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterRemovingServerEvent>();
+            _capturedEvents.Next().Should().BeOfType<ClusterRemovedServerEvent>();
             _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
             _capturedEvents.Any().Should().BeFalse();
         }

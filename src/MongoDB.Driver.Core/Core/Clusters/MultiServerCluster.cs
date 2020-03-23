@@ -318,7 +318,8 @@ namespace MongoDB.Driver.Core.Clusters
                     }
                     else
                     {
-                        newClusterDescription = newClusterDescription.WithoutServerDescription(newServerDescription.EndPoint);
+                        var reason = $"The server {newServerDescription.EndPoint} with type {newServerDescription.Type} is not valid for cluster type {newClusterDescription.Type}.";
+                        newClusterDescription = RemoveServer(newClusterDescription, newServerDescription.EndPoint, reason);
                     }
                 }
 
