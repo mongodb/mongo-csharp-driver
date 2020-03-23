@@ -199,7 +199,7 @@ namespace MongoDB.Bson.IO
                 // in JSON the top level value can be of any type so fall through
                 State = BsonReaderState.Type;
             }
-            if (State != BsonReaderState.Type)
+            if (State != BsonReaderState.Type && State != BsonReaderState.Value)
             {
                 ThrowInvalidState("ReadBsonType", BsonReaderState.Type);
             }
