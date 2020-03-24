@@ -82,6 +82,7 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 ### Maintainers:
 * Vincent Kam               vincent.kam@mongodb.com
 * Dmitry Lukyanov           dmitry.lukyanov@mongodb.com
+* Mikalai Maruzenka         mikalai.mazurenka@mongodb.com
 * Robert Stam               robert@mongodb.com
 * Craig Wilson              craig.wilson@mongodb.com
 
@@ -90,13 +91,13 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Bar Arnon                 https://github.com/I3arnon
 * Wan Bachtiar              https://github.com/sindbach
 * Mark Benvenuto            https://github.com/markbenvenuto
+* Bit Diffusion Limited     code@bitdiff.com
 * Jimmy Bogard              https://github.com/jbogard
 * Ross Buggins              https://github.com/rbugginsvia
-* Ethan Celletti            https://github.com/Gekctek
-* Bit Diffusion Limited     code@bitdiff.com
 * Nima Boscarino            https://github.com/NimaBoscarino
 * Oscar Bralo               https://github.com/Oscarbralo
 * Alex Brown                https://github.com/alexjamesbrown
+* Ethan Celletti            https://github.com/Gekctek
 * Chris Cho                 https://github.com/ccho-mongodb
 * Adam Avery Cole           https://github.com/adamaverycole
 * Nate Contino              https://github.com/nathan-contino-mongo
@@ -116,7 +117,7 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Danny Kendrick            https://github.com/dkendrick
 * Ruslan Khasanbaev         https://github.com/flaksirus
 * Konstantin Khitrykh       https://github.com/KonH
-* Brian Knight              brianknight10@gmail.com  
+* Brian Knight              brianknight10@gmail.com
 * John Knoop                https://github.com/johnknoop
 * Andrey Kondratyev         https://github.com/byTimo
 * Anatoly Koperin           https://github.com/ExM
@@ -145,7 +146,7 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Pete Smith                roysvork@gmail.com
 * staywellandy              https://github.com/staywellandy
 * Vyacheslav Stroy          https://github.com/kreig
-* Testo                     test1@doramail.com   
+* Testo                     test1@doramail.com
 * Zhmayev Yaroslav          https://github.com/salaros
 * Aristarkh Zagorodnikov    https://github.com/onyxmaster
 
