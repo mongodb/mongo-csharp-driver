@@ -433,11 +433,12 @@ functions:
         script: |
           cd ${DRIVERS_TOOLS}/.evergreen/ocsp
           /cygdrive/c/python/python38/python.exe -m venv ./venv
-          ./venv/Scripts/pip3 install asn1crypto oscrypto bottle
+          ./venv/Scripts/pip3 install -r ${DRIVERS_TOOLS}/.evergreen/ocsp/mock-ocsp-responder-requirements.txt
     - command: shell.exec
       params:
         background: true
         script: |
+          set -o xtrace
           cd ${DRIVERS_TOOLS}/.evergreen/ocsp
           nohup ./venv/Scripts/python ocsp_mock.py \
             --ca_file ${OCSP_ALGORITHM}/ca.pem \
@@ -451,11 +452,12 @@ functions:
         script: |
           cd ${DRIVERS_TOOLS}/.evergreen/ocsp
           /cygdrive/c/python/python38/python.exe -m venv ./venv
-          ./venv/Scripts/pip3 install asn1crypto oscrypto bottle
+          ./venv/Scripts/pip3 install -r ${DRIVERS_TOOLS}/.evergreen/ocsp/mock-ocsp-responder-requirements.txt
     - command: shell.exec
       params:
         background: true
         script: |
+          set -o xtrace
           cd ${DRIVERS_TOOLS}/.evergreen/ocsp
           nohup ./venv/Scripts/python ocsp_mock.py \
             --ca_file ${OCSP_ALGORITHM}/ca.pem \
@@ -469,11 +471,12 @@ functions:
         script: |
           cd ${DRIVERS_TOOLS}/.evergreen/ocsp
           /cygdrive/c/python38/python.exe -m venv ./venv
-          ./venv/Scripts/pip3 install asn1crypto oscrypto bottle
+          ./venv/Scripts/pip3 install -r ${DRIVERS_TOOLS}/.evergreen/ocsp/mock-ocsp-responder-requirements.txt
     - command: shell.exec
       params:
         background: true
         script: |
+          set -o xtrace
           cd ${DRIVERS_TOOLS}/.evergreen/ocsp
           nohup ./venv/Scripts/python.exe ocsp_mock.py \
             --ca_file ${OCSP_ALGORITHM}/ca.pem \
@@ -489,11 +492,12 @@ functions:
         script: |
           cd ${DRIVERS_TOOLS}/.evergreen/ocsp
           /cygdrive/c/python38/python.exe -m venv ./venv
-          ./venv/Scripts/pip3 install asn1crypto oscrypto bottle
+          ./venv/Scripts/pip3 install -r ${DRIVERS_TOOLS}/.evergreen/ocsp/mock-ocsp-responder-requirements.txt
     - command: shell.exec
       params:
         background: true
         script: |
+          set -o xtrace
           cd ${DRIVERS_TOOLS}/.evergreen/ocsp
           nohup ./venv/Scripts/python.exe ocsp_mock.py \
             --ca_file ${OCSP_ALGORITHM}/ca.pem \
