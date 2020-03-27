@@ -239,9 +239,9 @@ functions:
           export FLE_AWS_ACCESS_KEY_ID=${FLE_AWS_ACCESS_KEY_ID}
           export FLE_AWS_SECRET_ACCESS_KEY=${FLE_AWS_SECRET_ACCESS_KEY}
           ${PREPARE_SHELL}
-          evergreen/add-certs.sh
+          SSL=${SSL} evergreen/add-certs-if-needed.sh
           AUTH=${AUTH} SSL=${SSL} MONGODB_URI="${MONGODB_URI}" TOPOLOGY=${TOPOLOGY} OS=${OS} COMPRESSOR=${COMPRESSOR} evergreen/run-tests.sh
-          evergreen/remove-certs.sh
+          echo "Skipping certificate removal..."
 
   run-atlas-connectivity-tests:
     - command: shell.exec
@@ -417,7 +417,8 @@ functions:
           ${PREPARE_SHELL}
           OCSP_TLS_SHOULD_SUCCEED="${OCSP_TLS_SHOULD_SUCCEED}" \
             OCSP_ALGORITHM=${OCSP_ALGORITHM} \
-            evergreen/add-certs.sh
+            SSL="ssl" \
+            evergreen/add-certs-if-needed.sh
           set +o xtrace
           AUTH="${AUTH}" \
             SSL="ssl" \
@@ -425,7 +426,7 @@ functions:
             MONGODB_URI="${MONGODB_URI}" \
             OCSP_TLS_SHOULD_SUCCEED="${OCSP_TLS_SHOULD_SUCCEED}" \
               evergreen/run-tests.sh
-          evergreen/remove-certs.sh
+          echo "Skipping certificate removal..."
 
   run-valid-ocsp-server-ca-responder:
     - command: shell.exec
