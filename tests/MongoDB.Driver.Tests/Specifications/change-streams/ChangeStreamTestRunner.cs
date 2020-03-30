@@ -22,7 +22,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.TestHelpers;
@@ -54,24 +53,14 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
         private void Run(BsonDocument shared, BsonDocument test)
         {
             JsonDrivenHelper.EnsureAllFieldsAreValid(shared, "_path", "database_name", "database2_name", "collection_name", "collection2_name", "tests");
-            JsonDrivenHelper.EnsureAllFieldsAreValid(test, "description", "minServerVersion", "topology", "target", "changeStreamPipeline", "changeStreamOptions", "operations", "expectations", "result", "async", "failPoint");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(test, "description", "minServerVersion", "maxServerVersion", "topology", "target", "changeStreamPipeline", "changeStreamOptions", "operations", "expectations", "result", "async", "failPoint");
 
-            if (test.Contains("minServerVersion"))
-            {
-                var minServerVersion = test["minServerVersion"].AsString;
-                RequireServer.Check().VersionGreaterThanOrEqualTo(minServerVersion);
-            }
-
-            if (test.Contains("topology"))
-            {
-                var clusterTypes = MapTopologyToClusterTypes(test["topology"].AsBsonArray);
-                RequireServer.Check().ClusterTypes(clusterTypes);
-            }
+            RequireServer.Check().RunOn(EmulateRunOn());
 
             _databaseName = shared["database_name"].AsString;
-            _database2Name = shared["database2_name"].AsString;
+            _database2Name = shared.GetValue("database2_name", null)?.AsString;
             _collectionName = shared["collection_name"].AsString;
-            _collection2Name = shared["collection2_name"].AsString;
+            _collection2Name = shared.GetValue("collection2_name", null)?.AsString;
 
             CreateCollections();
 
@@ -112,6 +101,25 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
                 var expectedResult = test["result"].AsBsonDocument;
                 AssertResult(actualResult, actualException, expectedResult);
             }
+
+            BsonArray EmulateRunOn()
+            {
+                var condition = new BsonDocument();
+                if (test.TryGetElement("minServerVersion", out var minServerVersion))
+                {
+                    condition.Add(minServerVersion);
+                }
+                if (test.TryGetElement("maxServerVersion", out var maxServerVersion))
+                {
+                    condition.Add(maxServerVersion);
+                }
+                if (test.TryGetElement("topology", out var topology))
+                {
+                    condition.Add(topology);
+                }
+
+                return new BsonArray { condition };
+            }
         }
 
         // private methods
@@ -127,22 +135,6 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
             }
 
             return null;
-        }
-
-        private ClusterType[] MapTopologyToClusterTypes(BsonArray topologies)
-        {
-            var clusterTypes = new List<ClusterType>();
-            foreach (var topology in topologies.Select(i => i.AsString))
-            {
-                switch (topology)
-                {
-                    case "single": clusterTypes.Add(ClusterType.Standalone); break;
-                    case "replicaset": clusterTypes.Add(ClusterType.ReplicaSet); break;
-                    case "sharded": clusterTypes.Add(ClusterType.Sharded); break;
-                    default: throw new FormatException($"Invalid topology: \"{topology}\".");
-                }
-            }
-            return clusterTypes.ToArray();
         }
 
         private ChangeStreamOptions ParseChangeStreamOptions(BsonDocument document)
@@ -166,9 +158,15 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
         {
             var client = DriverTestConfiguration.Client;
             client.DropDatabase(_databaseName);
-            client.DropDatabase(_database2Name);
+            if (_database2Name != null)
+            {
+                client.DropDatabase(_database2Name);
+            }
             client.GetDatabase(_databaseName).CreateCollection(_collectionName);
-            client.GetDatabase(_database2Name).CreateCollection(_collection2Name);
+            if (_collection2Name != null)
+            {
+                client.GetDatabase(_database2Name).CreateCollection(_collection2Name);
+            }
         }
 
         private EventCapturer CreateEventCapturer()
@@ -310,13 +308,13 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
                 return;
             }
 
-            // filter out getMore and killCursors commands
-            actualEvents = actualEvents.Where(e => e.CommandName != "getMore" && e.CommandName != "killCursors").ToList();
+            // filter out killCursors commands
+            actualEvents = actualEvents.Where(e => e.CommandName != "killCursors").ToList();
 
             var n = Math.Min(actualEvents.Count, expectedEvents.Count);
             for (var i = 0; i < n; i++)
             {
-                var actualEvent = actualEvents[i];
+                var actualEvent = MassageActualEvent(actualEvents[i]);
                 var expectedEvent = expectedEvents[i];
                 AssertEvent(i, actualEvent, expectedEvent);
             }
@@ -330,6 +328,23 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
             {
                 // the tests assume that a number of actual events can be bigger than expected.
                 // So, skip this asserting
+            }
+
+            CommandStartedEvent MassageActualEvent(CommandStartedEvent commandStartedEvent)
+            {
+                var command = commandStartedEvent.Command;
+                if (command.TryGetValue("pipeline", out var pipeline) &&
+                    pipeline is BsonArray pipelineArray &&
+                    pipelineArray.Count == 1 &&
+                    pipelineArray[0].IsBsonDocument)
+                {
+                    if (pipelineArray[0].AsBsonDocument.TryGetValue("$changeStream", out var changeStream))
+                    {
+                        // this value is not a target of the tests, so it was skipped in the expectations
+                        changeStream.AsBsonDocument.Remove("resumeAfter");
+                    }
+                }
+                return commandStartedEvent;
             }
         }
 
@@ -511,8 +526,8 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
                 throw new Exception("Expected an exception to be thrown but none was.");
             }
 
-            var actualMongoCommandException = actualException as MongoCommandException;
-            if (actualMongoCommandException == null)
+            var actualMongoException = actualException as MongoException;
+            if (actualMongoException == null)
             {
                 throw new Exception($"Expected a MongoCommandException to be thrown but instead a ${actualException.GetType().Name} was.");
             }
@@ -521,14 +536,25 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
             var expectedError = expectedResult["error"].AsBsonDocument;
 
             JsonDrivenHelper.EnsureAllFieldsAreValid(expectedError, "code", "errorLabels");
-            var code = expectedError["code"].ToInt32();
-            actualMongoCommandException.Code.Should().Be(code);
+            var expectedCode = expectedError["code"].ToInt32();
+
+            int? actualCode = null;
+            if (actualMongoException is MongoCommandException mongoCommandException)
+            {
+                actualCode = mongoCommandException.Code;
+            }
+            if (actualMongoException is MongoExecutionTimeoutException mongoExecutionTimeoutException)
+            {
+                actualCode = mongoExecutionTimeoutException.Code;
+            }
+            actualCode.Should().HaveValue();
+            actualCode.Value.Should().Be(expectedCode);
 
             if (expectedError.TryGetValue("errorLabels", out var expectedLabels))
             {
                 foreach (var expectedLabel in expectedLabels.AsBsonArray)
                 {
-                    actualMongoCommandException.HasErrorLabel(expectedLabel.ToString()).Should().BeTrue();
+                    actualMongoException.HasErrorLabel(expectedLabel.ToString()).Should().BeTrue();
                 }
             }
         }

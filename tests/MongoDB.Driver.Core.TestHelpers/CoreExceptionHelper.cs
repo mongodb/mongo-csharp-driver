@@ -42,6 +42,14 @@ namespace MongoDB.Driver.Core.TestHelpers
                         return new MongoConnectionException(connectionId, message, innerException);
                     }
 
+                case "MongoConnectionClosedException":
+                    {
+                        var clusterId = new ClusterId(1);
+                        var serverId = new ServerId(clusterId, new DnsEndPoint("localhost", 27017));
+                        var connectionId = new ConnectionId(serverId, 1);
+                        return new MongoConnectionClosedException(connectionId);
+                    }
+
                 case "MongoCursorNotFoundException":
                     {
                         var clusterId = new ClusterId(1);

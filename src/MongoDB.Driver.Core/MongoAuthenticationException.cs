@@ -62,5 +62,8 @@ namespace MongoDB.Driver
         {
         }
 #endif
+
+        /// <inheritdoc/>
+        public override bool IsNetworkException => false;
     }
 }

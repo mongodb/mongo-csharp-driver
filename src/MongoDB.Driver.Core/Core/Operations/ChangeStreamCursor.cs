@@ -45,6 +45,7 @@ namespace MongoDB.Driver.Core.Operations
         private readonly BsonDocument _initialResumeAfter;
         private readonly BsonDocument _initialStartAfter;
         private readonly BsonTimestamp _initialStartAtOperationTime;
+        private readonly SemanticVersion _serverVersion;
 
         // public properties
         /// <inheritdoc />
@@ -63,6 +64,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="initialStartAfter">The start after value.</param>
         /// <param name="initialResumeAfter">The resume after value.</param>
         /// <param name="initialStartAtOperationTime">The start at operation time value.</param>
+        /// <param name="serverVersion">The server version.</param>
         public ChangeStreamCursor(
             IAsyncCursor<RawBsonDocument> cursor,
             IBsonSerializer<TDocument> documentSerializer,
@@ -72,7 +74,8 @@ namespace MongoDB.Driver.Core.Operations
             BsonTimestamp initialOperationTime,
             BsonDocument initialStartAfter,
             BsonDocument initialResumeAfter,
-            BsonTimestamp initialStartAtOperationTime)
+            BsonTimestamp initialStartAtOperationTime,
+            SemanticVersion serverVersion)
         {
             _cursor = Ensure.IsNotNull(cursor, nameof(cursor));
             _documentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
@@ -84,6 +87,7 @@ namespace MongoDB.Driver.Core.Operations
             _initialStartAfter = initialStartAfter;
             _initialResumeAfter = initialResumeAfter;
             _initialStartAtOperationTime = initialStartAtOperationTime;
+            _serverVersion = Ensure.IsNotNull(serverVersion, nameof(serverVersion));
         }
 
         // public methods
@@ -119,7 +123,7 @@ namespace MongoDB.Driver.Core.Operations
                     hasMore = _cursor.MoveNext(cancellationToken);
                     break;
                 }
-                catch (Exception ex) when (RetryabilityHelper.IsResumableChangeStreamException(ex))
+                catch (Exception ex) when (RetryabilityHelper.IsResumableChangeStreamException(ex, _serverVersion))
                 {
                     var newCursor = Resume(cancellationToken);
                     _cursor.Dispose();
@@ -142,7 +146,7 @@ namespace MongoDB.Driver.Core.Operations
                     hasMore = await _cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false);
                     break;
                 }
-                catch (Exception ex) when (RetryabilityHelper.IsResumableChangeStreamException(ex))
+                catch (Exception ex) when (RetryabilityHelper.IsResumableChangeStreamException(ex, _serverVersion))
                 {
                     var newCursor = await ResumeAsync(cancellationToken).ConfigureAwait(false);
                     _cursor.Dispose();

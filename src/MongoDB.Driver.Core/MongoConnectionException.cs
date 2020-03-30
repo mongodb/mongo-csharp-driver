@@ -78,6 +78,11 @@ namespace MongoDB.Driver
             get { return _connectionId; }
         }
 
+        /// <summary>
+        /// Determines whether the exception is network error or no.
+        /// </summary>
+        public virtual bool IsNetworkException => true; // true in subclasses, only if they can be considered as a network error
+
         // methods
 #if NET452
         /// <inheritdoc/>

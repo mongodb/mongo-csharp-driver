@@ -300,20 +300,21 @@ namespace MongoDB.Driver.Core.Operations
                 cursor = ExecuteAggregateOperation(context, cancellationToken);
                 cursorBatchInfo = (ICursorBatchInfo)cursor;
                 initialOperationTime = GetInitialOperationTimeIfRequired(context, cursorBatchInfo);
+
+                var postBatchResumeToken = GetInitialPostBatchResumeTokenIfRequired(cursorBatchInfo);
+
+                return new ChangeStreamCursor<TResult>(
+                    cursor,
+                    _resultSerializer,
+                    bindingHandle.Fork(),
+                    this,
+                    postBatchResumeToken,
+                    initialOperationTime,
+                    _startAfter,
+                    _resumeAfter,
+                    _startAtOperationTime,
+                    context.Channel.ConnectionDescription.ServerVersion);
             }
-
-            var postBatchResumeToken = GetInitialPostBatchResumeTokenIfRequired(cursorBatchInfo);
-
-            return new ChangeStreamCursor<TResult>(
-                cursor,
-                _resultSerializer,
-                bindingHandle.Fork(),
-                this,
-                postBatchResumeToken,
-                initialOperationTime,
-                _startAfter,
-                _resumeAfter,
-                _startAtOperationTime);
         }
 
         /// <inheritdoc />
@@ -334,20 +335,21 @@ namespace MongoDB.Driver.Core.Operations
                 cursor = await ExecuteAggregateOperationAsync(context, cancellationToken).ConfigureAwait(false);
                 cursorBatchInfo = (ICursorBatchInfo)cursor;
                 initialOperationTime = GetInitialOperationTimeIfRequired(context, cursorBatchInfo);
+
+                var postBatchResumeToken = GetInitialPostBatchResumeTokenIfRequired(cursorBatchInfo);
+
+                return new ChangeStreamCursor<TResult>(
+                    cursor,
+                    _resultSerializer,
+                    bindingHandle.Fork(),
+                    this,
+                    postBatchResumeToken,
+                    initialOperationTime,
+                    _startAfter,
+                    _resumeAfter,
+                    _startAtOperationTime,
+                    context.Channel.ConnectionDescription.ServerVersion);
             }
-
-            var postBatchResumeToken = GetInitialPostBatchResumeTokenIfRequired(cursorBatchInfo);
-
-            return new ChangeStreamCursor<TResult>(
-                cursor,
-                _resultSerializer,
-                bindingHandle.Fork(),
-                this,
-                postBatchResumeToken,
-                initialOperationTime,
-                _startAfter,
-                _resumeAfter,
-                _startAtOperationTime);
         }
 
         /// <inheritdoc />

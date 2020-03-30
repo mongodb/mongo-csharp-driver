@@ -14,6 +14,7 @@
 */
 
 using System;
+using MongoDB.Bson;
 #if NET452
 using System.Runtime.Serialization;
 #endif
@@ -30,6 +31,32 @@ namespace MongoDB.Driver
 #endif
     public class MongoServerException : MongoException
     {
+        #region static
+        /// <summary>
+        /// Adds error labels from a command result document into the top-level label list.
+        /// </summary>
+        /// <param name="exception">The exception.</param>
+        /// <param name="result">The result document.</param>
+        protected static void AddErrorLabelsFromCommandResult(MongoServerException exception, BsonDocument result)
+        {
+            // note: make a best effort to extract the error labels from the result, but never throw an exception
+            if (result != null)
+            {
+                BsonValue errorLabels;
+                if (result.TryGetValue("errorLabels", out errorLabels) && errorLabels.IsBsonArray)
+                {
+                    foreach (var errorLabel in errorLabels.AsBsonArray)
+                    {
+                        if (errorLabel.IsString)
+                        {
+                            exception.AddErrorLabel(errorLabel.AsString);
+                        }
+                    }
+                }
+            }
+        }
+        #endregion
+
         // fields
         private readonly ConnectionId _connectionId;
 

@@ -76,6 +76,7 @@ namespace MongoDB.Driver
             : base(connectionId, message, innerException)
         {
             _result = result;
+            AddErrorLabelsFromCommandResult(this, result);
         }
 
 #if NET452
