@@ -143,6 +143,7 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Sam558                    https://github.com/Sam558
 * Sergey Shushlyapin        https://github.com/sergeyshushlyapin
 * Alexey Skalozub           pieceofsummer@gmail.com
+* Kevin Smith               https://github.com/kevbite
 * Pete Smith                roysvork@gmail.com
 * staywellandy              https://github.com/staywellandy
 * Vyacheslav Stroy          https://github.com/kreig
