@@ -176,7 +176,8 @@ namespace MongoDB.Driver.Tests
                 }, 
                 useMultipleShardRouters);
             var timeOut = TimeSpan.FromSeconds(60);
-            SpinWait.SpinUntil(() => client.Cluster.Description.Type != ClusterType.Unknown, timeOut).Should().BeTrue();
+            bool AllServersConnected() => client.Cluster.Description.Servers.All(s => s.State == ServerState.Connected);
+            SpinWait.SpinUntil(AllServersConnected, timeOut).Should().BeTrue();
             return client;
         }
 
