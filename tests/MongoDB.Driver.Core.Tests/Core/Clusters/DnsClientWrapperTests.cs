@@ -105,7 +105,7 @@ namespace MongoDB.Driver.Core.Clusters
                 exception = Record.Exception(() => subject.ResolveSrvRecordsAsync(service, cts.Token).GetAwaiter().GetResult());
             }
 
-            exception.Should().BeOfType<OperationCanceledException>();
+            exception.Should().Match<Exception>(e => e is OperationCanceledException || e.InnerException is OperationCanceledException);
         }
 
         [Theory]
@@ -171,7 +171,7 @@ namespace MongoDB.Driver.Core.Clusters
                 exception = Record.Exception(() => subject.ResolveTxtRecordsAsync(domainName, cts.Token).GetAwaiter().GetResult());
             }
 
-            exception.Should().BeOfType<OperationCanceledException>();
+            exception.Should().Match<Exception>(e => e is OperationCanceledException || e.InnerException is OperationCanceledException);
         }
     }
 }
