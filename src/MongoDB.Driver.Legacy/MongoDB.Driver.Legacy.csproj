@@ -16,7 +16,7 @@
     <Description>Legacy MongoDB supported driver for MongoDB.  See http://www.mongodb.org/display/DOCS/CSharp+Language+Center for more details.</Description>
     <Authors>vincentkam;dmitry_lukyanov;rstam;craiggwilson</Authors>
     <PackageId>mongocsharpdriver</PackageId>
-    <PackageIconUrl>http://jobs.mongodb.org/files/logos/889002/889002.png</PackageIconUrl>
+    <PackageIcon>icon.png</PackageIcon>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageDescription>This package contains the legacy driver. The new driver's package name is MongoDB.Driver</PackageDescription>
     <PackageProjectUrl>http://www.mongodb.org/display/DOCS/CSharp+Language+Center</PackageProjectUrl>
@@ -56,6 +56,7 @@
 
   <ItemGroup>
     <None Include="..\..\License.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
+    <None Include="..\..\icon.png" Pack="true" PackagePath=""/>
   </ItemGroup>
 
 </Project>
