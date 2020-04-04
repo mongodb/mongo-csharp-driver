@@ -185,23 +185,66 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Fact]
-        public void TestAggregateOutputToCollection()
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void TestAggregateOutputToCollection(
+            [Values("$out", "$merge")] string lastStageName,
+            [Values(false, true)] bool usingDifferentOutputDatabase)
         {
+            RequireServer.Check();
+
+            var inputDatabaseName = _collection.Database.Name;
+            var inputCollectionName = _collection.Name;
+            var outputDatabaseName = usingDifferentOutputDatabase ? $"{inputDatabaseName}-output" : inputDatabaseName;
+            var outputCollectionName = $"{inputCollectionName}-output";
+
             _collection.Drop();
             _collection.Insert(new BsonDocument("x", 1));
             _collection.Insert(new BsonDocument("x", 2));
             _collection.Insert(new BsonDocument("x", 3));
             _collection.Insert(new BsonDocument("x", 3));
+            EnsureDatabaseExists(outputDatabaseName);
+
+            var pipeline = new List<BsonDocument> { new BsonDocument("$group", new BsonDocument { { "_id", "$x" }, { "count", new BsonDocument("$sum", 1) } }) };
+            switch (lastStageName)
+            {
+                case "$out":
+                    RequireServer.Check().Supports(Feature.AggregateOut);
+                    BsonValue outValue;
+                    if (usingDifferentOutputDatabase)
+                    {
+                        RequireServer.Check().Supports(Feature.AggregateOutToDifferentDatabase);
+                        outValue = new BsonDocument { { "db", outputDatabaseName }, { "coll", outputCollectionName } };
+                    }
+                    else
+                    {
+                        outValue = outputCollectionName;
+                    }
+                    pipeline.Add(new BsonDocument("$out", outValue));
+                    break;
+
+                case "$merge":
+                    RequireServer.Check().Supports(Feature.AggregateMerge);
+                    BsonValue intoValue;
+                    if (usingDifferentOutputDatabase)
+                    {
+                        intoValue = new BsonDocument { { "db", outputDatabaseName }, { "coll", outputCollectionName } };
+                    }
+                    else
+                    {
+                        intoValue = outputCollectionName;
+                    }
+                    pipeline.Add(new BsonDocument("$merge", new BsonDocument("into", intoValue)));
+                    break;
+
+                default:
+                    throw new Exception($"Invalid lastStageName: \"{lastStageName}\".");
+            }
 
             var query = _collection.Aggregate(new AggregateArgs
             {
                 BypassDocumentValidation = true,
-                Pipeline = new BsonDocument[]
-                {
-                    new BsonDocument("$group", new BsonDocument { { "_id", "$x" }, { "count", new BsonDocument("$sum", 1) } }),
-                    new BsonDocument("$out", "temp")
-                }
+                Pipeline = pipeline
             });
             var results = query.ToList();
 
@@ -3551,6 +3594,16 @@ namespace MongoDB.Driver.Tests
         {
             _database.DropCollection(collectionName);
             _database.CreateCollection(collectionName);
+        }
+
+        private void EnsureDatabaseExists(string databaseName)
+        {
+            var server = _database.Server;
+            var database = server.GetDatabase(databaseName);
+            var tempCollectionName = Guid.NewGuid().ToString();
+            var tempCollection = database.GetCollection(tempCollectionName);
+            tempCollection.Insert(new BsonDocument("_id", 1));
+            tempCollection.Drop();
         }
 
         private MongoCollection<BsonDocument> GetCollection(MongoServer server)

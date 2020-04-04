@@ -786,8 +786,20 @@ namespace MongoDB.Driver
             {
                 case "$out":
                     {
-                        var outputCollectionName = outStage[0].AsString;
-                        outputCollectionNamespace = new CollectionNamespace(_collectionNamespace.DatabaseNamespace, outputCollectionName);
+                        var outValue = outStage[0];
+                        DatabaseNamespace outputDatabaseNamespace;
+                        string outputCollectionName;
+                        if (outValue.IsString)
+                        {
+                            outputDatabaseNamespace = _collectionNamespace.DatabaseNamespace;
+                            outputCollectionName = outValue.AsString;
+                        }
+                        else
+                        {
+                            outputDatabaseNamespace = new DatabaseNamespace(outValue["db"].AsString);
+                            outputCollectionName = outValue["coll"].AsString;
+                        }
+                        outputCollectionNamespace = new CollectionNamespace(outputDatabaseNamespace, outputCollectionName);
                     }
                     break;
                 case "$merge":

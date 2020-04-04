@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using FluentAssertions;
@@ -34,14 +35,16 @@ namespace MongoDB.Driver
 {
     public class MongoDatabaseImplTests
     {
+        private IMongoClient _client;
         private MockOperationExecutor _operationExecutor;
         private MongoDatabaseImpl _subject;
 
         public MongoDatabaseImplTests()
         {
+            _client = CreateMockClient().Object;
             _operationExecutor = new MockOperationExecutor();
-            _subject = CreateSubject(_operationExecutor);
-            _operationExecutor.Client = _subject.Client;
+            _operationExecutor.Client = _client;
+            _subject = CreateSubject();
         }
 
         [Fact]
@@ -138,14 +141,17 @@ namespace MongoDB.Driver
         [ParameterAttributeData]
         public void Aggregate_should_execute_an_AggregateToCollectionOperation_and_a_FindOperation_when_out_is_specified(
             [Values(false, true)] bool usingSession,
+            [Values(false, true)] bool usingDifferentOutputDatabase,
             [Values(false, true)] bool async)
         {
             var writeConcern = new WriteConcern(1);
-            var subject = CreateSubject(null).WithWriteConcern(writeConcern);
+            var subject = CreateSubject(databaseName: "inputDatabaseName").WithWriteConcern(writeConcern);
             var session = CreateSession(usingSession);
+            var outputDatabase = usingDifferentOutputDatabase ? subject.Client.GetDatabase("outputDatabaseName") : subject;
+            var outputCollection = outputDatabase.GetCollection<BsonDocument>("outputCollectionName");
             var pipeline = new EmptyPipelineDefinition<NoPipelineInput>()
                 .AppendStage<NoPipelineInput, NoPipelineInput, BsonDocument>("{ $currentOp : { } }")
-                .Out(subject.GetCollection<BsonDocument>("funny"));
+                .Out(outputCollection);
             var options = new AggregateOptions()
             {
                 AllowDiskUse = true,
@@ -161,7 +167,11 @@ namespace MongoDB.Driver
             };
             var cancellationToken1 = new CancellationTokenSource().Token;
             var cancellationToken2 = new CancellationTokenSource().Token;
-            var renderedPipeline = RenderPipeline(subject, pipeline);
+            var expectedPipeline = new List<BsonDocument>(RenderPipeline(subject, pipeline).Documents); // top level clone
+            if (!usingDifferentOutputDatabase)
+            {
+                expectedPipeline[1] = new BsonDocument("$out", outputCollection.CollectionNamespace.CollectionName);
+            }
 
             IAsyncCursor<BsonDocument> result;
             if (usingSession)
@@ -199,7 +209,7 @@ namespace MongoDB.Driver
             aggregateOperation.DatabaseNamespace.Should().BeSameAs(subject.DatabaseNamespace);
             aggregateOperation.Hint.Should().Be(options.Hint);
             aggregateOperation.MaxTime.Should().Be(options.MaxTime);
-            aggregateOperation.Pipeline.Should().Equal(renderedPipeline.Documents);
+            aggregateOperation.Pipeline.Should().Equal(expectedPipeline);
             aggregateOperation.WriteConcern.Should().BeSameAs(writeConcern);
 
             var mockCursor = new Mock<IAsyncCursor<BsonDocument>>();
@@ -222,7 +232,7 @@ namespace MongoDB.Driver
             findOperation.AllowPartialResults.Should().NotHaveValue();
             findOperation.BatchSize.Should().Be(options.BatchSize);
             findOperation.Collation.Should().BeSameAs(options.Collation);
-            findOperation.CollectionNamespace.FullName.Should().Be("foo.funny");
+            findOperation.CollectionNamespace.FullName.Should().Be(outputCollection.CollectionNamespace.FullName);
             findOperation.Comment.Should().BeNull();
             findOperation.CursorType.Should().Be(Core.Operations.CursorType.NonTailable);
             findOperation.Filter.Should().BeNull();
@@ -246,17 +256,20 @@ namespace MongoDB.Driver
         public void AggregateToCollection_should_execute_an_AggregateToCollectionOperation(
             [Values(false, true)] bool usingSession,
             [Values("$out", "$merge")] string lastStageName,
+            [Values(false, true)] bool usingDifferentOutputDatabase,
             [Values(false, true)] bool async)
         {
             var writeConcern = new WriteConcern(1);
-            var subject = CreateSubject(null).WithWriteConcern(writeConcern);
+            var subject = CreateSubject(databaseName: "inputDatabaseName").WithWriteConcern(writeConcern);
             var session = CreateSession(usingSession);
+            var outputDatabase = usingDifferentOutputDatabase ? subject.Client.GetDatabase("outputDatabaseName") : subject;
+            var outputCollection = outputDatabase.GetCollection<BsonDocument>("outputCollectionName");
             var pipeline = new EmptyPipelineDefinition<NoPipelineInput>()
                 .AppendStage<NoPipelineInput, NoPipelineInput, BsonDocument>("{ $currentOp : { } }");
             switch (lastStageName)
             {
-                case "$out": pipeline = pipeline.AppendStage<NoPipelineInput, BsonDocument, BsonDocument>("{ $out : \"output\" }"); break;
-                case "$merge": pipeline = pipeline.AppendStage<NoPipelineInput, BsonDocument, BsonDocument>("{ $merge : { into : \"output\" } }"); break;
+                case "$out": pipeline = pipeline.Out(outputCollection); break;
+                case "$merge": pipeline = pipeline.Merge(outputCollection, new MergeStageOptions<BsonDocument>()); break;
                 default: throw new Exception($"Unexpected lastStageName: {lastStageName}.");
             }
             var options = new AggregateOptions()
@@ -273,7 +286,11 @@ namespace MongoDB.Driver
 #pragma warning restore 618
             };
             var cancellationToken = new CancellationTokenSource().Token;
-            var renderedPipeline = RenderPipeline(subject, pipeline);
+            var expectedPipeline = new List<BsonDocument>(RenderPipeline(subject, pipeline).Documents);
+            if (!usingDifferentOutputDatabase && lastStageName == "$out")
+            {
+                expectedPipeline[1] = new BsonDocument("$out", outputCollection.CollectionNamespace.CollectionName);
+            }
 
             if (async)
             {
@@ -310,7 +327,7 @@ namespace MongoDB.Driver
             aggregateOperation.DatabaseNamespace.Should().BeSameAs(subject.DatabaseNamespace);
             aggregateOperation.Hint.Should().Be(options.Hint);
             aggregateOperation.MaxTime.Should().Be(options.MaxTime);
-            aggregateOperation.Pipeline.Should().Equal(renderedPipeline.Documents);
+            aggregateOperation.Pipeline.Should().Equal(expectedPipeline);
             aggregateOperation.WriteConcern.Should().BeSameAs(writeConcern);
         }
 
@@ -320,7 +337,7 @@ namespace MongoDB.Driver
             [Values(false, true)] bool usingSession,
             [Values(false, true)] bool async)
         {
-            var subject = CreateSubject(null);
+            var subject = CreateSubject();
             var session = CreateSession(usingSession);
             var pipeline = new EmptyPipelineDefinition<NoPipelineInput>()
                 .AppendStage<NoPipelineInput, NoPipelineInput, BsonDocument>("{ $currentOp : { } }");
@@ -1349,7 +1366,7 @@ namespace MongoDB.Driver
         public void WithReadConcern_should_return_expected_result()
         {
             var originalReadConcern = new ReadConcern(ReadConcernLevel.Linearizable);
-            var subject = CreateSubject(_operationExecutor).WithReadConcern(originalReadConcern);
+            var subject = CreateSubject().WithReadConcern(originalReadConcern);
             var newReadConcern = new ReadConcern(ReadConcernLevel.Majority);
 
             var result = subject.WithReadConcern(newReadConcern);
@@ -1363,7 +1380,7 @@ namespace MongoDB.Driver
         public void WithReadPreference_should_return_expected_result()
         {
             var originalReadPreference = new ReadPreference(ReadPreferenceMode.Secondary);
-            var subject = CreateSubject(_operationExecutor).WithReadPreference(originalReadPreference);
+            var subject = CreateSubject().WithReadPreference(originalReadPreference);
             var newReadPreference = new ReadPreference(ReadPreferenceMode.SecondaryPreferred);
 
             var result = subject.WithReadPreference(newReadPreference);
@@ -1377,7 +1394,7 @@ namespace MongoDB.Driver
         public void WithWriteConcern_should_return_expected_result()
         {
             var originalWriteConcern = new WriteConcern(2);
-            var subject = CreateSubject(_operationExecutor).WithWriteConcern(originalWriteConcern);
+            var subject = CreateSubject().WithWriteConcern(originalWriteConcern);
             var newWriteConcern = new WriteConcern(3);
 
             var result = subject.WithWriteConcern(newWriteConcern);
@@ -1388,17 +1405,38 @@ namespace MongoDB.Driver
         }
 
         // private methods
+        private Mock<IMongoClient> CreateMockClient()
+        {
+            var mockCluster = new Mock<ICluster>();
+            var clientSettings = new MongoClientSettings();
+
+            var mockClient = new Mock<IMongoClient>();
+            mockClient.SetupGet(m => m.Cluster).Returns(mockCluster.Object);
+            mockClient.SetupGet(m => m.Settings).Returns(clientSettings);
+            mockClient
+                .Setup(m => m.GetDatabase(It.IsAny<string>(), It.IsAny<MongoDatabaseSettings>()))
+                .Returns((string databaseName, MongoDatabaseSettings settings) =>
+                {
+                    var databaseNamespace = new DatabaseNamespace(databaseName);
+                    settings = settings ?? new MongoDatabaseSettings();
+                    settings.ApplyDefaultValues(mockClient.Object.Settings);
+                    var cluster = new Mock<ICluster>().Object;
+                    return new MongoDatabaseImpl(mockClient.Object, databaseNamespace, settings, cluster, _operationExecutor);
+                });
+
+            return mockClient;
+        }
+
         private IClientSessionHandle CreateSession(bool usingSession)
         {
             if (usingSession)
             {
-                var client = new Mock<IMongoClient>().Object;
                 var cluster = Mock.Of<ICluster>();
                 var options = new ClientSessionOptions();
                 var coreServerSession = new CoreServerSession();
                 var coreSession = new CoreSession(cluster, coreServerSession, options.ToCore());
                 var coreSessionHandle = new CoreSessionHandle(coreSession);
-                return new ClientSessionHandle(client, options, coreSessionHandle);
+                return new ClientSessionHandle(_client, options, coreSessionHandle);
             }
             else
             {
@@ -1406,18 +1444,13 @@ namespace MongoDB.Driver
             }
         }
 
-        private MongoDatabaseImpl CreateSubject(IOperationExecutor operationExecutor)
+        private MongoDatabaseImpl CreateSubject(string databaseName = "foo", IOperationExecutor operationExecutor = null)
         {
-            var mockClient = new Mock<IMongoClient>();
-            var clientSettings = new MongoClientSettings();
-            mockClient.SetupGet(m => m.Settings).Returns(clientSettings);
-            var mockCluster = new Mock<ICluster>();
-            mockClient.SetupGet(m => m.Cluster).Returns(mockCluster.Object);
             var settings = new MongoDatabaseSettings();
             settings.ApplyDefaultValues(new MongoClientSettings());
             return new MongoDatabaseImpl(
-                mockClient.Object,
-                new DatabaseNamespace("foo"),
+                _client,
+                new DatabaseNamespace(databaseName),
                 settings,
                 new Mock<ICluster>().Object,
                 operationExecutor ?? _operationExecutor);

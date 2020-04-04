@@ -61,6 +61,7 @@ namespace MongoDB.Driver.Core.Operations
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
 
             EnsureIsOutputToCollectionPipeline();
+            _pipeline = SimplifyOutStageIfOutputDatabaseIsSameAsInputDatabase(_pipeline);
         }
 
         /// <summary>
@@ -287,6 +288,29 @@ namespace MongoDB.Driver.Core.Operations
             {
                 throw new ArgumentException("The last stage of the pipeline for an AggregateOutputToCollectionOperation must have a $out or $merge operator.", "pipeline");
             }
+        }
+
+        private IReadOnlyList<BsonDocument> SimplifyOutStageIfOutputDatabaseIsSameAsInputDatabase(IReadOnlyList<BsonDocument> pipeline)
+        {
+            var lastStage = pipeline.Last();
+            var lastStageName = lastStage.GetElement(0).Name;
+            if (lastStageName == "$out" && lastStage["$out"] is BsonDocument outDocument)
+            {
+                var outputDatabaseName = outDocument["db"].AsString;
+                if (outputDatabaseName == _databaseNamespace.DatabaseName)
+                {
+                    var outputCollectionName = outDocument["coll"].AsString;
+                    var simplifiedOutStage = lastStage.Clone().AsBsonDocument;
+                    simplifiedOutStage["$out"] = outputCollectionName;
+
+                    var modifiedPipeline = new List<BsonDocument>(pipeline);
+                    modifiedPipeline[modifiedPipeline.Count - 1] = simplifiedOutStage;
+
+                    return modifiedPipeline;
+                }
+            }
+
+            return pipeline; // unchanged
         }
     }
 }

@@ -114,8 +114,13 @@ namespace MongoDB.Driver.Core.Operations
 
         protected void EnsureDatabaseExists()
         {
-            var collectionName = $"EnsureDatabaseExists-{_databaseNamespace.DatabaseName}";
-            var collectionNamespace = new CollectionNamespace(_databaseNamespace, collectionName);
+            EnsureDatabaseExists(_databaseNamespace.DatabaseName);
+        }
+
+        protected void EnsureDatabaseExists(string databaseName)
+        {
+            var collectionName = $"EnsureDatabaseExists-{databaseName}";
+            var collectionNamespace = new CollectionNamespace(new DatabaseNamespace(databaseName), collectionName);
             var filter = new BsonDocument("_id", 1);
             var update = new BsonDocument("$set", new BsonDocument("x", 1));
             var operation = new FindOneAndUpdateOperation<BsonDocument>(collectionNamespace, filter, update, BsonDocumentSerializer.Instance, new MessageEncoderSettings())

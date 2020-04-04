@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -485,15 +486,55 @@ namespace MongoDB.Driver.Core.Operations
         [SkippableTheory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result(
-            [Values(false, true)]
-            bool async)
+            [Values("$out", "$merge")] string lastStageName,
+            [Values(false, true)] bool usingDifferentOutputDatabase,
+            [Values(false, true)] bool async)
         {
             RequireServer.Check();
+            var pipeline = new List<BsonDocument> { BsonDocument.Parse("{ $match : { _id : 1 } }") };
+            var inputDatabaseName = _databaseNamespace.DatabaseName;
+            var inputCollectionName = _collectionNamespace.CollectionName;
+            var outputDatabaseName = usingDifferentOutputDatabase ? $"{inputDatabaseName}-outputdatabase" : inputDatabaseName;
+            var outputCollectionName = $"{inputCollectionName}-outputcollection";
+            switch (lastStageName)
+            {
+                case "$out":
+                    RequireServer.Check().Supports(Feature.AggregateOut);
+                    if (usingDifferentOutputDatabase)
+                    {
+                        RequireServer.Check().Supports(Feature.AggregateOutToDifferentDatabase);
+                        pipeline.Add(BsonDocument.Parse($"{{ $out : {{ db : '{outputDatabaseName}', coll : '{outputCollectionName}' }} }}"));
+                    }
+                    else
+                    {
+                        pipeline.Add(BsonDocument.Parse($"{{ $out : '{outputCollectionName}' }}"));
+                    }
+                    break;
+
+                case "$merge":
+                    RequireServer.Check().Supports(Feature.AggregateMerge);
+                    if (usingDifferentOutputDatabase)
+                    {
+                        pipeline.Add(BsonDocument.Parse($"{{ $merge : {{ into : {{ db : '{outputDatabaseName}', coll : '{outputCollectionName}' }} }} }}"));
+                    }
+                    else
+                    {
+                        pipeline.Add(BsonDocument.Parse($"{{ $merge : {{ into : '{outputDatabaseName}' }} }}"));
+                    }
+                    break;
+
+                default:
+                    throw new Exception($"Unexpected lastStageName: \"{lastStageName}\".");
+            }
             EnsureTestData();
-            var subject = new AggregateToCollectionOperation(_collectionNamespace, __pipeline, _messageEncoderSettings);
+            if (usingDifferentOutputDatabase)
+            {
+                EnsureDatabaseExists(outputDatabaseName);
+            }
+            var subject = new AggregateToCollectionOperation(_collectionNamespace, pipeline, _messageEncoderSettings);
 
             ExecuteOperation(subject, async);
-            var result = ReadAllFromCollection(new CollectionNamespace(_databaseNamespace, "awesome"), async);
+            var result = ReadAllFromCollection(new CollectionNamespace(new DatabaseNamespace(outputDatabaseName), outputCollectionName), async);
 
             result.Should().NotBeNull();
             result.Should().HaveCount(1);

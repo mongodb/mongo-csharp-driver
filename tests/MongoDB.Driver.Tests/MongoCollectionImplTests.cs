@@ -146,15 +146,19 @@ namespace MongoDB.Driver
         [ParameterAttributeData]
         public void Aggregate_should_execute_an_AggregateToCollectionOperation_and_a_FindOperation_when_out_is_specified(
             [Values(false, true)] bool usingSession,
+            [Values(false, true)] bool usingDifferentOutputDatabase,
             [Values(false, true)] bool async)
         {
             var writeConcern = new WriteConcern(1);
             var readConcern = new ReadConcern(ReadConcernLevel.Majority);
-            var subject = CreateSubject<BsonDocument>().WithWriteConcern(writeConcern);
+            var inputDatabase = CreateDatabase(databaseName: "inputDatabaseName");
+            var subject = CreateSubject<BsonDocument>(database: inputDatabase).WithWriteConcern(writeConcern);
             var session = CreateSession(usingSession);
+            var outputDatabase = usingDifferentOutputDatabase ? subject.Database.Client.GetDatabase("outputDatabaseName") : inputDatabase;
+            var outputCollection = outputDatabase.GetCollection<BsonDocument>("outputCollectionName");
             var pipeline = new EmptyPipelineDefinition<BsonDocument>()
                 .Match("{ x : 2 }")
-                .Out(subject.Database.GetCollection<BsonDocument>("funny"));
+                .Out(outputCollection);
             var options = new AggregateOptions()
             {
                 AllowDiskUse = true,
@@ -170,7 +174,11 @@ namespace MongoDB.Driver
             };
             var cancellationToken1 = new CancellationTokenSource().Token;
             var cancellationToken2 = new CancellationTokenSource().Token;
-            var renderedPipeline = RenderPipeline(subject, pipeline);
+            var expectedPipeline = new List<BsonDocument>(RenderPipeline(subject, pipeline).Documents);
+            if (!usingDifferentOutputDatabase)
+            {
+                expectedPipeline[1] = new BsonDocument("$out", outputCollection.CollectionNamespace.CollectionName);
+            }
 
             IAsyncCursor<BsonDocument> result;
             if (usingSession)
@@ -207,7 +215,7 @@ namespace MongoDB.Driver
             aggregateOperation.Comment.Should().Be(options.Comment);
             aggregateOperation.Hint.Should().Be(options.Hint);
             aggregateOperation.MaxTime.Should().Be(options.MaxTime);
-            aggregateOperation.Pipeline.Should().Equal(renderedPipeline.Documents);
+            aggregateOperation.Pipeline.Should().Equal(expectedPipeline);
             aggregateOperation.ReadConcern.Should().Be(readConcern);
             aggregateOperation.WriteConcern.Should().BeSameAs(writeConcern);
 
@@ -231,7 +239,7 @@ namespace MongoDB.Driver
             findOperation.AllowPartialResults.Should().NotHaveValue();
             findOperation.BatchSize.Should().Be(options.BatchSize);
             findOperation.Collation.Should().BeSameAs(options.Collation);
-            findOperation.CollectionNamespace.FullName.Should().Be("foo.funny");
+            findOperation.CollectionNamespace.FullName.Should().Be(outputCollection.CollectionNamespace.FullName);
             findOperation.Comment.Should().BeNull();
             findOperation.CursorType.Should().Be(Core.Operations.CursorType.NonTailable);
             findOperation.Filter.Should().BeNull();
@@ -254,15 +262,19 @@ namespace MongoDB.Driver
         [ParameterAttributeData]
         public void AggregateToCollection_should_execute_an_AggregateToCollectionOperation(
             [Values(false, true)] bool usingSession,
+            [Values(false, true)] bool usingDifferentOutputDatabase,
             [Values(false, true)] bool async)
         {
             var writeConcern = new WriteConcern(1);
             var readConcern = new ReadConcern(ReadConcernLevel.Majority);
-            var subject = CreateSubject<BsonDocument>().WithWriteConcern(writeConcern);
+            var inputDatabase = CreateDatabase(databaseName: "inputDatabaseName");
+            var subject = CreateSubject<BsonDocument>(database: inputDatabase).WithWriteConcern(writeConcern);
             var session = CreateSession(usingSession);
+            var outputDatabase = usingDifferentOutputDatabase ? subject.Database.Client.GetDatabase("outputDatabaseName") : inputDatabase;
+            var outputCollection = outputDatabase.GetCollection<BsonDocument>("outputCollectionName");
             var pipeline = new EmptyPipelineDefinition<BsonDocument>()
                 .Match("{ x : 2 }")
-                .Out(subject.Database.GetCollection<BsonDocument>("funny"));
+                .Out(outputCollection);
             var options = new AggregateOptions()
             {
                 AllowDiskUse = true,
@@ -277,7 +289,11 @@ namespace MongoDB.Driver
 #pragma warning restore 618
             };
             var cancellationToken = new CancellationTokenSource().Token;
-            var renderedPipeline = RenderPipeline(subject, pipeline);
+            var expectedPipeline = new List<BsonDocument>(RenderPipeline(subject, pipeline).Documents);
+            if (!usingDifferentOutputDatabase)
+            {
+                expectedPipeline[1] = new BsonDocument("$out", outputCollection.CollectionNamespace.CollectionName);
+            }
 
             if (async)
             {
@@ -313,7 +329,7 @@ namespace MongoDB.Driver
             aggregateOperation.Comment.Should().Be(options.Comment);
             aggregateOperation.Hint.Should().Be(options.Hint);
             aggregateOperation.MaxTime.Should().Be(options.MaxTime);
-            aggregateOperation.Pipeline.Should().Equal(renderedPipeline.Documents);
+            aggregateOperation.Pipeline.Should().Equal(expectedPipeline);
             aggregateOperation.ReadConcern.Should().Be(readConcern);
             aggregateOperation.WriteConcern.Should().BeSameAs(writeConcern);
         }
@@ -2323,7 +2339,7 @@ namespace MongoDB.Driver
             [Values(false, true)] bool async)
         {
             var settings = new MongoCollectionSettings { AssignIdOnInsert = assignIdOnInsert };
-            var subject = CreateSubject<BsonDocument>(settings);
+            var subject = CreateSubject<BsonDocument>(settings: settings);
             var session = CreateSession(usingSession);
             var document = BsonDocument.Parse("{ a : 1 }");
             var options = new InsertOneOptions();
@@ -2433,7 +2449,7 @@ namespace MongoDB.Driver
             [Values(false, true)] bool async)
         {
             var settings = new MongoCollectionSettings { AssignIdOnInsert = assignIdOnInsert };
-            var subject = CreateSubject<BsonDocument>(settings);
+            var subject = CreateSubject<BsonDocument>(settings: settings);
             var session = CreateSession(usingSession);
             var document = BsonDocument.Parse("{ a : 1 }");
             var options = new InsertManyOptions();
@@ -3476,17 +3492,27 @@ namespace MongoDB.Driver
         }
 
         // private methods
-        private IMongoDatabase CreateDatabase()
+        private IMongoDatabase CreateDatabase(string databaseName = "foo")
+        {
+            var mockClient = CreateMockClient();
+            return mockClient.Object.GetDatabase(databaseName);
+        }
+
+        private Mock<IMongoClient> CreateMockClient()
         {
             var mockClient = new Mock<IMongoClient>();
-            var client = mockClient.Object;
             mockClient.SetupGet(m => m.Settings).Returns(new MongoClientSettings());
-
-            var databaseNamespace = new DatabaseNamespace("foo");
-            var settings = new MongoDatabaseSettings();
-            settings.ApplyDefaultValues(client.Settings);
-            var cluster = new Mock<ICluster>().Object;
-            return new MongoDatabaseImpl(client, databaseNamespace, settings, cluster, _operationExecutor);
+            mockClient
+                .Setup(m => m.GetDatabase(It.IsAny<string>(), It.IsAny<MongoDatabaseSettings>()))
+                .Returns((string databaseName, MongoDatabaseSettings databaseSettings) =>
+                {
+                    var databaseNamespace = new DatabaseNamespace(databaseName);
+                    var settings = new MongoDatabaseSettings();
+                    settings.ApplyDefaultValues(mockClient.Object.Settings);
+                    var cluster = new Mock<ICluster>().Object;
+                    return new MongoDatabaseImpl(mockClient.Object, databaseNamespace, settings, cluster, _operationExecutor);
+                });
+            return mockClient;
         }
 
         private IClientSessionHandle CreateSession(bool usingSession)
@@ -3507,12 +3533,12 @@ namespace MongoDB.Driver
             }
         }
 
-        private IMongoCollection<TDocument> CreateSubject<TDocument>(MongoCollectionSettings settings = null)
+        private IMongoCollection<TDocument> CreateSubject<TDocument>(IMongoDatabase database = null, string collectionName = "bar", MongoCollectionSettings settings = null)
         {
-            var database = CreateDatabase();
+            database = database ?? CreateDatabase();
             settings = settings ?? new MongoCollectionSettings();
             settings.ReadConcern = _readConcern;
-            return database.GetCollection<TDocument>("bar", settings);
+            return database.GetCollection<TDocument>(collectionName, settings);
         }
 
         private RenderedPipelineDefinition<TOutput> RenderPipeline<TInput, TOutput>(IMongoCollection<TInput> collection, PipelineDefinition<TInput, TOutput> pipeline)

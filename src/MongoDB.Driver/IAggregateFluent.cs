@@ -265,10 +265,26 @@ namespace MongoDB.Driver
         /// <summary>
         /// Appends an out stage to the pipeline and executes it, and then returns a cursor to read the contents of the output collection.
         /// </summary>
+        /// <param name="outputCollection">The output collection.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A cursor.</returns>
+        IAsyncCursor<TResult> Out(IMongoCollection<TResult> outputCollection, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Appends an out stage to the pipeline and executes it, and then returns a cursor to read the contents of the output collection.
+        /// </summary>
         /// <param name="collectionName">Name of the collection.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A cursor.</returns>
         IAsyncCursor<TResult> Out(string collectionName, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Appends an out stage to the pipeline and executes it, and then returns a cursor to read the contents of the output collection.
+        /// </summary>
+        /// <param name="outputCollection">The output collection.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task whose result is a cursor.</returns>
+        Task<IAsyncCursor<TResult>> OutAsync(IMongoCollection<TResult> outputCollection, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Appends an out stage to the pipeline and executes it, and then returns a cursor to read the contents of the output collection.

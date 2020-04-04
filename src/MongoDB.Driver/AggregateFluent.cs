@@ -177,20 +177,32 @@ namespace MongoDB.Driver
             return WithPipeline(_pipeline.OfType(newResultSerializer));
         }
 
+        public override IAsyncCursor<TResult> Out(IMongoCollection<TResult> outputCollection, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(outputCollection, nameof(outputCollection));
+            var aggregate = WithPipeline(_pipeline.Out(outputCollection));
+            return aggregate.ToCursor(cancellationToken);
+        }
+
         public override IAsyncCursor<TResult> Out(string collectionName, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(collectionName, nameof(collectionName));
             var outputCollection = Database.GetCollection<TResult>(collectionName);
+            return Out(outputCollection, cancellationToken);
+        }
+
+        public override Task<IAsyncCursor<TResult>> OutAsync(IMongoCollection<TResult> outputCollection, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(outputCollection, nameof(outputCollection));
             var aggregate = WithPipeline(_pipeline.Out(outputCollection));
-            return aggregate.ToCursor(cancellationToken);
+            return aggregate.ToCursorAsync(cancellationToken);
         }
 
         public override Task<IAsyncCursor<TResult>> OutAsync(string collectionName, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(collectionName, nameof(collectionName));
             var outputCollection = Database.GetCollection<TResult>(collectionName);
-            var aggregate = WithPipeline(_pipeline.Out(outputCollection));
-            return aggregate.ToCursorAsync(cancellationToken);
+            return OutAsync(outputCollection, cancellationToken);
         }
 
         public override IAggregateFluent<TNewResult> Project<TNewResult>(ProjectionDefinition<TResult, TNewResult> projection)

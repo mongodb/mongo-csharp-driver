@@ -1074,7 +1074,10 @@ namespace MongoDB.Driver
             IMongoCollection<TInput> outputCollection)
         {
             Ensure.IsNotNull(outputCollection, nameof(outputCollection));
-            return new BsonDocumentPipelineStageDefinition<TInput, TInput>(new BsonDocument("$out", outputCollection.CollectionNamespace.CollectionName));
+            var outputDatabaseName = outputCollection.Database.DatabaseNamespace.DatabaseName;
+            var outputCollectionName = outputCollection.CollectionNamespace.CollectionName;
+            var outDocument = new BsonDocument { { "db", outputDatabaseName }, { "coll", outputCollectionName } };
+            return new BsonDocumentPipelineStageDefinition<TInput, TInput>(new BsonDocument("$out", outDocument));
         }
 
         /// <summary>
