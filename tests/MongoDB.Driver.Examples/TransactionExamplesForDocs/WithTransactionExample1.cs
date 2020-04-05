@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Examples.TransactionExamplesForDocs
             // string uri = "mongodb://mongos0.example.com:27017,mongos1.example.com:27017/";
             var client = new MongoClient(connectionString);
 
-            // Prereq: Create collections. CRUD operations in transactions must be on existing collections.
+            // Prereq: Create collections.
             var database1 = client.GetDatabase("mydb1");
             var collection1 = database1.GetCollection<BsonDocument>("foo").WithWriteConcern(WriteConcern.WMajority);
             collection1.InsertOne(new BsonDocument("abc", 0));
