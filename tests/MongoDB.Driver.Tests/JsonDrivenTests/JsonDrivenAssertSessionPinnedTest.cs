@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
             return Task.FromResult(true);
         }
 
-        protected override void AssertResult()
+        public override void Assert()
         {
             GetPinnedServer().Should().NotBeNull();
         }
