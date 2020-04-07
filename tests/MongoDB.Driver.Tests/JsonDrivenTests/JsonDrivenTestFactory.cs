@@ -64,7 +64,11 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                     switch (name)
                     {
                         case "targetedFailPoint": return new JsonDrivenTargetedFailPointTest(_testRunner, _objectMap);
+                        case "assertCollectionExists": return new JsonDrivenAssertCollectionExists(_testRunner, _objectMap);
+                        case "assertCollectionNotExists": return new JsonDrivenAssertCollectionNotExists(_testRunner, _objectMap);
                         case "assertDifferentLsidOnLastTwoCommands": return new JsonDrivenAssertDifferentLsidOnLastTwoCommandsTest(_testRunner, _eventCapturer, _objectMap);
+                        case "assertIndexExists": return new JsonDrivenAssertIndexExists(_testRunner, _objectMap);
+                        case "assertIndexNotExists": return new JsonDrivenAssertIndexNotExists(_testRunner, _objectMap);
                         case "assertSessionDirty": return new JsonDrivenAssertSessionDirtyTest(_testRunner, _objectMap);
                         case "assertSessionNotDirty": return new JsonDrivenAssertSessionNotDirtyTest(_testRunner, _objectMap);
                         case "assertSessionPinned": return new JsonDrivenAssertSessionPinnedTest(_testRunner, _objectMap);
@@ -99,6 +103,8 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                     switch (name)
                     {
                         case "aggregate": return new JsonDrivenDatabaseAggregateTest(database, _objectMap);
+                        case "createCollection": return new JsonDrivenCreateCollectionTest(database, _objectMap);
+                        case "dropCollection": return new JsonDrivenDropCollectionTest(database, _objectMap);
                         case "listCollectionNames": return new JsonDrivenListCollectionNamesTest(database, _objectMap);
                         case "listCollections": return new JsonDrivenListCollectionsTest(database, _objectMap);
                         case "runCommand": return new JsonDrivenRunCommandTest(database, _objectMap);
