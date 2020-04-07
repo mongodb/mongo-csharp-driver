@@ -187,15 +187,11 @@ namespace MongoDB.Driver.Core.Operations
         private void EnsureHintIsSupportedIfAnyRequestHasHint(RetryableWriteContext context)
         {
             var serverVersion = context.Channel.ConnectionDescription.ServerVersion;
-            if (Feature.HintForUpdateAndReplaceOperations.DriverMustThrowIfNotSupported(serverVersion) ||
-                (!_writeConcern.IsAcknowledged && !Feature.HintForUpdateAndReplaceOperations.IsSupported(serverVersion)))
+            foreach (var request in _requests)
             {
-                foreach (var request in _requests)
+                if (RequestHasHint(request) && !IsHintSupportedForRequestWithHint(request, serverVersion))
                 {
-                    if (RequestHasHint(request))
-                    {
-                        throw new NotSupportedException($"Server version {serverVersion} does not support hints.");
-                    }
+                    throw new NotSupportedException($"Server version {serverVersion} does not support hints.");
                 }
             }
         }
@@ -248,6 +244,25 @@ namespace MongoDB.Driver.Core.Operations
                 batch.Result = await ExecuteBatchAsync(context, batch, cancellationToken).ConfigureAwait(false);
             }
             return helper.CreateFinalResultOrThrow(context.Channel);
+        }
+
+        private bool IsHintSupportedForRequestWithHint(WriteRequest request, SemanticVersion serverVersion)
+        {
+            if (request is DeleteRequest &&
+                (Feature.HintForDeleteOperations.DriverMustThrowIfNotSupported(serverVersion) ||
+                (!_writeConcern.IsAcknowledged && !Feature.HintForDeleteOperations.IsSupported(serverVersion))))
+            {
+                return false;
+            }
+
+            if (request is UpdateRequest &&
+                (Feature.HintForUpdateAndReplaceOperations.DriverMustThrowIfNotSupported(serverVersion) ||
+                (!_writeConcern.IsAcknowledged && !Feature.HintForUpdateAndReplaceOperations.IsSupported(serverVersion))))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         // nested types

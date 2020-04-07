@@ -224,7 +224,11 @@ namespace MongoDB.Driver.Tests
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
-            var model = new DeleteOneModel<B>(_providedFilter) { Collation = new Collation("en_US") };
+            var model = new DeleteOneModel<B>(_providedFilter)
+            {
+                Collation = new Collation("en_US"),
+                Hint = new BsonDocument("_id", 1)
+            };
             var options = new BulkWriteOptions();
 
             if (async)
@@ -234,7 +238,9 @@ namespace MongoDB.Driver.Tests
                 _mockDerivedCollection.Verify(
                     c => c.BulkWriteAsync(
                         It.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<DeleteOneModel<B>>()
-                            .Where(m => m.Collation == model.Collation && RenderFilter(m.Filter).Equals(_expectedFilter)).Count() == 1),
+                            .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
+                                m.Collation == model.Collation &&
+                                m.Hint == model.Hint).Count() == 1),
                         options,
                         CancellationToken.None),
                     Times.Once);
@@ -246,7 +252,9 @@ namespace MongoDB.Driver.Tests
                 _mockDerivedCollection.Verify(
                     c => c.BulkWrite(
                         It.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<DeleteOneModel<B>>()
-                            .Where(m => m.Collation == model.Collation && RenderFilter(m.Filter).Equals(_expectedFilter)).Count() == 1),
+                            .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
+                                m.Collation == model.Collation &&
+                                m.Hint == model.Hint).Count() == 1),
                         options,
                         CancellationToken.None),
                     Times.Once);
@@ -259,7 +267,10 @@ namespace MongoDB.Driver.Tests
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
-            var model = new DeleteManyModel<B>(_providedFilter);
+            var model = new DeleteManyModel<B>(_providedFilter)
+            {
+                Hint = new BsonDocument("_id", 1)
+            };
             var options = new BulkWriteOptions();
 
             if (async)
@@ -269,7 +280,7 @@ namespace MongoDB.Driver.Tests
                 _mockDerivedCollection.Verify(
                     c => c.BulkWriteAsync(
                         It.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<DeleteManyModel<B>>()
-                            .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter)).Count() == 1),
+                            .Where(m => m.Hint == model.Hint && RenderFilter(m.Filter).Equals(_expectedFilter)).Count() == 1),
                         options,
                         CancellationToken.None),
                     Times.Once);
@@ -281,7 +292,7 @@ namespace MongoDB.Driver.Tests
                 _mockDerivedCollection.Verify(
                     c => c.BulkWrite(
                         It.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<DeleteManyModel<B>>()
-                            .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter)).Count() == 1),
+                            .Where(m => m.Hint == model.Hint && RenderFilter(m.Filter).Equals(_expectedFilter)).Count() == 1),
                         options,
                         CancellationToken.None),
                     Times.Once);

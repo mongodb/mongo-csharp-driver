@@ -390,16 +390,18 @@ namespace MongoDB.Driver
             {
                 new InsertOneModel<BsonDocument>(new BsonDocument("_id", 1).Add("a",1)),
                 new DeleteManyModel<BsonDocument>(new BsonDocument("b", 1)) { Collation = collation },
-                new DeleteOneModel<BsonDocument>(new BsonDocument("c", 1)) { Collation = collation },
-                new ReplaceOneModel<BsonDocument>(new BsonDocument("d", 1), new BsonDocument("e", 1)) { Collation = collation },
-                new ReplaceOneModel<BsonDocument>(new BsonDocument("f", 1), new BsonDocument("g", 1)) { Collation = collation, Hint = hint },
-                new ReplaceOneModel<BsonDocument>(new BsonDocument("h", 1), new BsonDocument("i", 1)) { Collation = collation, IsUpsert = true },
-                new UpdateManyModel<BsonDocument>(new BsonDocument("j", 1), new BsonDocument("$set", new BsonDocument("k", 1))) { Collation = collation },
-                new UpdateManyModel<BsonDocument>(new BsonDocument("l", 1), new BsonDocument("$set", new BsonDocument("m", 1))) { Collation = collation, Hint = hint },
-                new UpdateManyModel<BsonDocument>(new BsonDocument("n", 1), new BsonDocument("$set", new BsonDocument("o", 1))) { Collation = collation, IsUpsert = true },
-                new UpdateOneModel<BsonDocument>(new BsonDocument("p", 1), new BsonDocument("$set", new BsonDocument("q", 1))) { Collation = collation },
-                new UpdateOneModel<BsonDocument>(new BsonDocument("r", 1), new BsonDocument("$set", new BsonDocument("s", 1))) { Collation = collation, Hint = hint },
-                new UpdateOneModel<BsonDocument>(new BsonDocument("t", 1), new BsonDocument("$set", new BsonDocument("u", 1))) { Collation = collation, IsUpsert = true },
+                new DeleteManyModel<BsonDocument>(new BsonDocument("c", 1)) { Collation = collation, Hint = hint },
+                new DeleteOneModel<BsonDocument>(new BsonDocument("d", 1)) { Collation = collation },
+                new DeleteOneModel<BsonDocument>(new BsonDocument("e", 1)) { Collation = collation, Hint = hint },
+                new ReplaceOneModel<BsonDocument>(new BsonDocument("f", 1), new BsonDocument("g", 1)) { Collation = collation },
+                new ReplaceOneModel<BsonDocument>(new BsonDocument("h", 1), new BsonDocument("i", 1)) { Collation = collation, Hint = hint },
+                new ReplaceOneModel<BsonDocument>(new BsonDocument("j", 1), new BsonDocument("k", 1)) { Collation = collation, IsUpsert = true },
+                new UpdateManyModel<BsonDocument>(new BsonDocument("l", 1), new BsonDocument("$set", new BsonDocument("m", 1))) { Collation = collation },
+                new UpdateManyModel<BsonDocument>(new BsonDocument("n", 1), new BsonDocument("$set", new BsonDocument("o", 1))) { Collation = collation, Hint = hint },
+                new UpdateManyModel<BsonDocument>(new BsonDocument("p", 1), new BsonDocument("$set", new BsonDocument("q", 1))) { Collation = collation, IsUpsert = true },
+                new UpdateOneModel<BsonDocument>(new BsonDocument("r", 1), new BsonDocument("$set", new BsonDocument("s", 1))) { Collation = collation },
+                new UpdateOneModel<BsonDocument>(new BsonDocument("t", 1), new BsonDocument("$set", new BsonDocument("u", 1))) { Collation = collation, Hint = hint },
+                new UpdateOneModel<BsonDocument>(new BsonDocument("v", 1), new BsonDocument("$set", new BsonDocument("w", 1))) { Collation = collation, IsUpsert = true },
             };
             var options = new BulkWriteOptions
             {
@@ -408,7 +410,7 @@ namespace MongoDB.Driver
             };
             var cancellationToken = new CancellationTokenSource().Token;
 
-            var operationResult = new BulkWriteOperationResult.Unacknowledged(12, new[] { new InsertRequest(new BsonDocument("b", 1)) });
+            var operationResult = new BulkWriteOperationResult.Unacknowledged(14, new[] { new InsertRequest(new BsonDocument("b", 1)) });
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
             BulkWriteResult<BsonDocument> result;
@@ -443,7 +445,7 @@ namespace MongoDB.Driver
             operation.BypassDocumentValidation.Should().Be(bypassDocumentValidation);
             operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
             operation.IsOrdered.Should().Be(isOrdered);
-            operation.Requests.Count().Should().Be(12);
+            operation.Requests.Count().Should().Be(14);
 
             var convertedRequests = operation.Requests.ToList();
 
@@ -459,128 +461,148 @@ namespace MongoDB.Driver
             var convertedRequest1 = (DeleteRequest)convertedRequests[1];
             convertedRequest1.Collation.Should().BeSameAs(collation);
             convertedRequest1.Filter.Should().Be("{b:1}");
+            convertedRequest1.Hint.Should().BeNull();
             convertedRequest1.Limit.Should().Be(0);
 
-            // RemoveOneModel
+            // RemoveManyModel with hint
             convertedRequests[2].Should().BeOfType<DeleteRequest>();
             convertedRequests[2].CorrelationId.Should().Be(2);
             var convertedRequest2 = (DeleteRequest)convertedRequests[2];
             convertedRequest2.Collation.Should().BeSameAs(collation);
             convertedRequest2.Filter.Should().Be("{c:1}");
-            convertedRequest2.Limit.Should().Be(1);
+            convertedRequest2.Hint.Should().Be(hint);
+            convertedRequest2.Limit.Should().Be(0);
 
-            // ReplaceOneModel
-            convertedRequests[3].Should().BeOfType<UpdateRequest>();
+            // RemoveOneModel
+            convertedRequests[3].Should().BeOfType<DeleteRequest>();
             convertedRequests[3].CorrelationId.Should().Be(3);
-            var convertedRequest3 = (UpdateRequest)convertedRequests[3];
+            var convertedRequest3 = (DeleteRequest)convertedRequests[3];
             convertedRequest3.Collation.Should().BeSameAs(collation);
             convertedRequest3.Filter.Should().Be("{d:1}");
             convertedRequest3.Hint.Should().BeNull();
-            convertedRequest3.Update.Should().Be("{e:1}");
-            convertedRequest3.UpdateType.Should().Be(UpdateType.Replacement);
-            convertedRequest3.IsMulti.Should().BeFalse();
-            convertedRequest3.IsUpsert.Should().BeFalse();
+            convertedRequest3.Limit.Should().Be(1);
 
-            // ReplaceOneModel with hint
-            convertedRequests[4].Should().BeOfType<UpdateRequest>();
+            // RemoveOneModel with hint
+            convertedRequests[4].Should().BeOfType<DeleteRequest>();
             convertedRequests[4].CorrelationId.Should().Be(4);
-            var convertedRequest4 = (UpdateRequest)convertedRequests[4];
+            var convertedRequest4 = (DeleteRequest)convertedRequests[4];
             convertedRequest4.Collation.Should().BeSameAs(collation);
-            convertedRequest4.Filter.Should().Be("{f:1}");
+            convertedRequest4.Filter.Should().Be("{e:1}");
             convertedRequest4.Hint.Should().Be(hint);
-            convertedRequest4.Update.Should().Be("{g:1}");
-            convertedRequest4.UpdateType.Should().Be(UpdateType.Replacement);
-            convertedRequest4.IsMulti.Should().BeFalse();
-            convertedRequest4.IsUpsert.Should().BeFalse();
+            convertedRequest4.Limit.Should().Be(1);
 
-            // ReplaceOneModel with upsert
+            // ReplaceOneModel
             convertedRequests[5].Should().BeOfType<UpdateRequest>();
             convertedRequests[5].CorrelationId.Should().Be(5);
             var convertedRequest5 = (UpdateRequest)convertedRequests[5];
             convertedRequest5.Collation.Should().BeSameAs(collation);
-            convertedRequest5.Filter.Should().Be("{h:1}");
+            convertedRequest5.Filter.Should().Be("{f:1}");
             convertedRequest5.Hint.Should().BeNull();
-            convertedRequest5.Update.Should().Be("{i:1}");
+            convertedRequest5.Update.Should().Be("{g:1}");
             convertedRequest5.UpdateType.Should().Be(UpdateType.Replacement);
             convertedRequest5.IsMulti.Should().BeFalse();
-            convertedRequest5.IsUpsert.Should().BeTrue();
+            convertedRequest5.IsUpsert.Should().BeFalse();
 
-            // UpdateManyModel
+            // ReplaceOneModel with hint
             convertedRequests[6].Should().BeOfType<UpdateRequest>();
             convertedRequests[6].CorrelationId.Should().Be(6);
             var convertedRequest6 = (UpdateRequest)convertedRequests[6];
             convertedRequest6.Collation.Should().BeSameAs(collation);
-            convertedRequest6.Filter.Should().Be("{j:1}");
-            convertedRequest6.Hint.Should().BeNull();
-            convertedRequest6.Update.Should().Be("{$set:{k:1}}");
-            convertedRequest6.UpdateType.Should().Be(UpdateType.Update);
-            convertedRequest6.IsMulti.Should().BeTrue();
+            convertedRequest6.Filter.Should().Be("{h:1}");
+            convertedRequest6.Hint.Should().Be(hint);
+            convertedRequest6.Update.Should().Be("{i:1}");
+            convertedRequest6.UpdateType.Should().Be(UpdateType.Replacement);
+            convertedRequest6.IsMulti.Should().BeFalse();
             convertedRequest6.IsUpsert.Should().BeFalse();
 
-            // UpdateManyModel with hint
+            // ReplaceOneModel with upsert
             convertedRequests[7].Should().BeOfType<UpdateRequest>();
             convertedRequests[7].CorrelationId.Should().Be(7);
             var convertedRequest7 = (UpdateRequest)convertedRequests[7];
             convertedRequest7.Collation.Should().BeSameAs(collation);
-            convertedRequest7.Filter.Should().Be("{l:1}");
-            convertedRequest7.Hint.Should().Be(hint);
-            convertedRequest7.Update.Should().Be("{$set:{m:1}}");
-            convertedRequest7.UpdateType.Should().Be(UpdateType.Update);
-            convertedRequest7.IsMulti.Should().BeTrue();
-            convertedRequest7.IsUpsert.Should().BeFalse();
+            convertedRequest7.Filter.Should().Be("{j:1}");
+            convertedRequest7.Hint.Should().BeNull();
+            convertedRequest7.Update.Should().Be("{k:1}");
+            convertedRequest7.UpdateType.Should().Be(UpdateType.Replacement);
+            convertedRequest7.IsMulti.Should().BeFalse();
+            convertedRequest7.IsUpsert.Should().BeTrue();
 
-            // UpdateManyModel with upsert
+            // UpdateManyModel
             convertedRequests[8].Should().BeOfType<UpdateRequest>();
             convertedRequests[8].CorrelationId.Should().Be(8);
             var convertedRequest8 = (UpdateRequest)convertedRequests[8];
             convertedRequest8.Collation.Should().BeSameAs(collation);
-            convertedRequest8.Filter.Should().Be("{n:1}");
+            convertedRequest8.Filter.Should().Be("{l:1}");
             convertedRequest8.Hint.Should().BeNull();
-            convertedRequest8.Update.Should().Be("{$set:{o:1}}");
+            convertedRequest8.Update.Should().Be("{$set:{m:1}}");
             convertedRequest8.UpdateType.Should().Be(UpdateType.Update);
             convertedRequest8.IsMulti.Should().BeTrue();
-            convertedRequest8.IsUpsert.Should().BeTrue();
+            convertedRequest8.IsUpsert.Should().BeFalse();
 
-            // UpdateOneModel
+            // UpdateManyModel with hint
             convertedRequests[9].Should().BeOfType<UpdateRequest>();
             convertedRequests[9].CorrelationId.Should().Be(9);
             var convertedRequest9 = (UpdateRequest)convertedRequests[9];
             convertedRequest9.Collation.Should().BeSameAs(collation);
-            convertedRequest9.Filter.Should().Be("{p:1}");
-            convertedRequest9.Hint.Should().BeNull();
-            convertedRequest9.Update.Should().Be("{$set:{q:1}}");
+            convertedRequest9.Filter.Should().Be("{n:1}");
+            convertedRequest9.Hint.Should().Be(hint);
+            convertedRequest9.Update.Should().Be("{$set:{o:1}}");
             convertedRequest9.UpdateType.Should().Be(UpdateType.Update);
-            convertedRequest9.IsMulti.Should().BeFalse();
+            convertedRequest9.IsMulti.Should().BeTrue();
             convertedRequest9.IsUpsert.Should().BeFalse();
 
-            // UpdateOneModel with hint
+            // UpdateManyModel with upsert
             convertedRequests[10].Should().BeOfType<UpdateRequest>();
             convertedRequests[10].CorrelationId.Should().Be(10);
             var convertedRequest10 = (UpdateRequest)convertedRequests[10];
             convertedRequest10.Collation.Should().BeSameAs(collation);
-            convertedRequest10.Filter.Should().Be("{r:1}");
-            convertedRequest10.Hint.Should().Be(hint);
-            convertedRequest10.Update.Should().Be("{$set:{s:1}}");
+            convertedRequest10.Filter.Should().Be("{p:1}");
+            convertedRequest10.Hint.Should().BeNull();
+            convertedRequest10.Update.Should().Be("{$set:{q:1}}");
             convertedRequest10.UpdateType.Should().Be(UpdateType.Update);
-            convertedRequest10.IsMulti.Should().BeFalse();
-            convertedRequest10.IsUpsert.Should().BeFalse();
+            convertedRequest10.IsMulti.Should().BeTrue();
+            convertedRequest10.IsUpsert.Should().BeTrue();
 
-            // UpdateOneModel with upsert
+            // UpdateOneModel
             convertedRequests[11].Should().BeOfType<UpdateRequest>();
             convertedRequests[11].CorrelationId.Should().Be(11);
             var convertedRequest11 = (UpdateRequest)convertedRequests[11];
             convertedRequest11.Collation.Should().BeSameAs(collation);
-            convertedRequest11.Filter.Should().Be("{t:1}");
+            convertedRequest11.Filter.Should().Be("{r:1}");
             convertedRequest11.Hint.Should().BeNull();
-            convertedRequest11.Update.Should().Be("{$set:{u:1}}");
+            convertedRequest11.Update.Should().Be("{$set:{s:1}}");
             convertedRequest11.UpdateType.Should().Be(UpdateType.Update);
             convertedRequest11.IsMulti.Should().BeFalse();
-            convertedRequest11.IsUpsert.Should().BeTrue();
+            convertedRequest11.IsUpsert.Should().BeFalse();
+
+            // UpdateOneModel with hint
+            convertedRequests[12].Should().BeOfType<UpdateRequest>();
+            convertedRequests[12].CorrelationId.Should().Be(12);
+            var convertedRequest12 = (UpdateRequest)convertedRequests[12];
+            convertedRequest12.Collation.Should().BeSameAs(collation);
+            convertedRequest12.Filter.Should().Be("{t:1}");
+            convertedRequest12.Hint.Should().Be(hint);
+            convertedRequest12.Update.Should().Be("{$set:{u:1}}");
+            convertedRequest12.UpdateType.Should().Be(UpdateType.Update);
+            convertedRequest12.IsMulti.Should().BeFalse();
+            convertedRequest12.IsUpsert.Should().BeFalse();
+
+            // UpdateOneModel with upsert
+            convertedRequests[13].Should().BeOfType<UpdateRequest>();
+            convertedRequests[13].CorrelationId.Should().Be(13);
+            var convertedRequest13 = (UpdateRequest)convertedRequests[13];
+            convertedRequest13.Collation.Should().BeSameAs(collation);
+            convertedRequest13.Filter.Should().Be("{v:1}");
+            convertedRequest13.Hint.Should().BeNull();
+            convertedRequest13.Update.Should().Be("{$set:{w:1}}");
+            convertedRequest13.UpdateType.Should().Be(UpdateType.Update);
+            convertedRequest13.IsMulti.Should().BeFalse();
+            convertedRequest13.IsUpsert.Should().BeTrue();
 
             // Result
             result.Should().NotBeNull();
             result.IsAcknowledged.Should().BeFalse();
-            result.RequestCount.Should().Be(12);
+            result.RequestCount.Should().Be(14);
             result.ProcessedRequests.Should().BeEquivalentTo(requests);
             for (int i = 0; i < requests.Length; i++)
             {
@@ -763,10 +785,11 @@ namespace MongoDB.Driver
             var session = CreateSession(usingSession);
             var filter = new BsonDocument("a", 1);
             var collation = new Collation("en_US");
+            var hint = new BsonDocument("_id", 1);
             var options = new DeleteOptions { Collation = collation };
             var cancellationToken = new CancellationTokenSource().Token;
 
-            var processedRequest = new DeleteRequest(filter) { Collation = collation, CorrelationId = 0, Limit = 0 };
+            var processedRequest = new DeleteRequest(filter) { Collation = collation, CorrelationId = 0, Hint = hint, Limit = 0 };
             var operationResult = new BulkWriteOperationResult.Unacknowledged(9, new[] { processedRequest });
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
@@ -867,10 +890,17 @@ namespace MongoDB.Driver
             var session = CreateSession(usingSession);
             var filter = new BsonDocument("a", 1);
             var collation = new Collation("en_US");
+            var hint = new BsonDocument("_id", 1);
             var options = new DeleteOptions { Collation = collation };
             var cancellationToken = new CancellationTokenSource().Token;
 
-            var processedRequest = new DeleteRequest(filter) { Collation = collation, CorrelationId = 0, Limit = 1 };
+            var processedRequest = new DeleteRequest(filter)
+            {
+                Collation = collation,
+                CorrelationId = 0,
+                Hint = hint,
+                Limit = 1
+            };
             var operationResult = new BulkWriteOperationResult.Unacknowledged(9, new[] { processedRequest });
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
 
@@ -1482,6 +1512,7 @@ namespace MongoDB.Driver
             var options = new FindOneAndDeleteOptions<A, BsonDocument>
             {
                 Collation = new Collation("en_US"),
+                Hint = new BsonDocument("_id", 1),
                 Projection = Builders<A>.Projection.As<BsonDocument>()
             };
             var cancellationToken = new CancellationTokenSource().Token;
@@ -1514,6 +1545,7 @@ namespace MongoDB.Driver
 
             var operation = call.Operation.Should().BeOfType<FindOneAndDeleteOperation<BsonDocument>>().Subject;
             operation.Collation.Should().BeSameAs(options.Collation);
+            operation.Hint.Should().Be(operation.Hint);
             operation.Projection.Should().BeNull();
             operation.ResultSerializer.Should().BeOfType<FindAndModifyValueDeserializer<BsonDocument>>();
         }

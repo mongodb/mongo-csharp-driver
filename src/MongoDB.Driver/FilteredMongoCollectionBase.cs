@@ -350,13 +350,15 @@ namespace MongoDB.Driver
                         var deleteManyModel = (DeleteManyModel<TDocument>)x;
                         return new DeleteManyModel<TDocument>(CombineFilters(deleteManyModel.Filter))
                         {
-                            Collation = deleteManyModel.Collation
+                            Collation = deleteManyModel.Collation,
+                            Hint = deleteManyModel.Hint
                         };
                     case WriteModelType.DeleteOne:
                         var deleteOneModel = (DeleteOneModel<TDocument>)x;
                         return new DeleteOneModel<TDocument>(CombineFilters(deleteOneModel.Filter))
                         {
-                            Collation = deleteOneModel.Collation
+                            Collation = deleteOneModel.Collation,
+                            Hint = deleteOneModel.Hint
                         };
                     case WriteModelType.InsertOne:
                         return x; // InsertOneModel has no filter

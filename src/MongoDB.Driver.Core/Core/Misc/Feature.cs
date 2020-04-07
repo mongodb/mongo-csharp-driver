@@ -60,7 +60,8 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __findCommand = new Feature("FindCommand", new SemanticVersion(3, 2, 0));
         private static readonly Feature __geoNearCommand = new Feature("GeoNearCommand", new SemanticVersion(1, 0, 0), new SemanticVersion(4, 1, 0, ""));
         private static readonly Feature __groupCommand = new Feature("GroupCommand", new SemanticVersion(1, 0, 0), new SemanticVersion(4, 1, 1, ""));
-        private static readonly HintForFindAndModifyFeature __hintForFindAndModifyFeature = new HintForFindAndModifyFeature("HintForFindAndModify", new SemanticVersion(4, 3, 0, ""));
+        private static readonly HintForDeleteOperationsFeature __hintForDeleteOperations = new HintForDeleteOperationsFeature("HintForDeleteOperations", new SemanticVersion(4, 3, 4));
+        private static readonly HintForFindAndModifyFeature __hintForFindAndModifyFeature = new HintForFindAndModifyFeature("HintForFindAndModify", new SemanticVersion(4, 3, 4));
         private static readonly HintForUpdateAndReplaceOperationsFeature __hintForUpdateAndReplaceOperations = new HintForUpdateAndReplaceOperationsFeature("HintForUpdateAndReplaceOperations", new SemanticVersion(4, 2, 0));
         private static readonly Feature __keepConnectionPoolWhenNotMasterConnectionException = new Feature("KeepConnectionPoolWhenNotMasterConnectionException", new SemanticVersion(4, 1, 10));
         private static readonly Feature __keepConnectionPoolWhenReplSetStepDown = new Feature("KeepConnectionPoolWhenReplSetStepDown", new SemanticVersion(4, 1, 10));
@@ -276,12 +277,17 @@ namespace MongoDB.Driver.Core.Misc
         public static Feature GroupCommand => __groupCommand;
 
         /// <summary>
+        /// Gets the hint for delete operations feature.
+        /// </summary>
+        public static HintForDeleteOperationsFeature HintForDeleteOperations => __hintForDeleteOperations;
+
+        /// <summary>
         /// Gets the hint for find and modify operations feature.
         /// </summary>
         public static HintForFindAndModifyFeature HintForFindAndModifyFeature => __hintForFindAndModifyFeature;
 
         /// <summary>
-        /// Gets the hint for write operations feature.
+        /// Gets the hint for update and replace operations feature.
         /// </summary>
         public static HintForUpdateAndReplaceOperationsFeature HintForUpdateAndReplaceOperations => __hintForUpdateAndReplaceOperations;
 

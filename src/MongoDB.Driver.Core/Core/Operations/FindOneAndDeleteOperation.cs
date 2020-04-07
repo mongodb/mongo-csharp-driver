@@ -33,6 +33,7 @@ namespace MongoDB.Driver.Core.Operations
     {
         // fields
         private readonly BsonDocument _filter;
+        private BsonValue _hint;
         private TimeSpan? _maxTime;
         private BsonDocument _projection;
         private BsonDocument _sort;
@@ -61,6 +62,18 @@ namespace MongoDB.Driver.Core.Operations
         public BsonDocument Filter
         {
             get { return _filter; }
+        }
+
+        /// <summary>
+        /// Gets or sets the hint.
+        /// </summary>
+        /// <value>
+        /// The hint.
+        /// </value>
+        public BsonValue Hint
+        {
+            get { return _hint; }
+            set { _hint = value; }
         }
 
         /// <summary>
@@ -104,6 +117,14 @@ namespace MongoDB.Driver.Core.Operations
         {
             var serverVersion = connectionDescription.ServerVersion;
             Feature.Collation.ThrowIfNotSupported(serverVersion, Collation);
+            if (Feature.HintForFindAndModifyFeature.DriverMustThrowIfNotSupported(serverVersion) ||
+               (WriteConcern != null && !WriteConcern.IsAcknowledged && !Feature.HintForFindAndModifyFeature.IsSupported(serverVersion)))
+            {
+                if (_hint != null)
+                {
+                    throw new NotSupportedException($"Server version {serverVersion} does not support hints.");
+                }
+            }
 
             var writeConcern = WriteConcernHelper.GetWriteConcernForCommand(session, WriteConcern, serverVersion, Feature.FindAndModifyWriteConcern);
             return new BsonDocument
@@ -116,6 +137,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue },
                 { "writeConcern", writeConcern, writeConcern != null },
                 { "collation", () => Collation.ToBsonDocument(), Collation != null },
+                { "hint", _hint, _hint != null },
                 { "txnNumber", () => transactionNumber, transactionNumber.HasValue }
             };
         }

@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Core.Operations
 
         protected override bool RequestHasHint(DeleteRequest request)
         {
-            return false;
+            return request.Hint != null;
         }
     }
 }

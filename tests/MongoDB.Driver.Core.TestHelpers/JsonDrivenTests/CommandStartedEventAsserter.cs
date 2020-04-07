@@ -150,7 +150,7 @@ namespace MongoDB.Driver.Core.TestHelpers.JsonDrivenTests
                 AdaptExpectedUpdateModels(actualValue.AsBsonArray.Cast<BsonDocument>().ToList(), expectedValue.AsBsonArray.Cast<BsonDocument>().ToList());
             }
 
-            var namesToUseOrderInsensitiveComparisonWith = new[] { "writeConcern", "maxTimeMS", "updates", "indexes", "getMore" };
+            var namesToUseOrderInsensitiveComparisonWith = new[] { "writeConcern", "maxTimeMS", "updates", "indexes", "getMore", "deletes" };
             var useOrderInsensitiveComparison = namesToUseOrderInsensitiveComparisonWith.Contains(name);
 
             if (!(useOrderInsensitiveComparison ? BsonValueEquivalencyComparer.Compare(actualValue, expectedValue) : actualValue.Equals(expectedValue)))

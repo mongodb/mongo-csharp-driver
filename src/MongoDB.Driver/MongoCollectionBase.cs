@@ -185,7 +185,8 @@ namespace MongoDB.Driver
 
             var model = new DeleteManyModel<TDocument>(filter)
             {
-                Collation = options.Collation
+                Collation = options.Collation,
+                Hint = options.Hint
             };
             try
             {
@@ -223,7 +224,8 @@ namespace MongoDB.Driver
 
             var model = new DeleteManyModel<TDocument>(filter)
             {
-                Collation = options.Collation
+                Collation = options.Collation,
+                Hint = options.Hint
             };
             try
             {
@@ -261,7 +263,8 @@ namespace MongoDB.Driver
 
             var model = new DeleteOneModel<TDocument>(filter)
             {
-                Collation = options.Collation
+                Collation = options.Collation,
+                Hint = options.Hint
             };
             try
             {
@@ -299,7 +302,8 @@ namespace MongoDB.Driver
 
             var model = new DeleteOneModel<TDocument>(filter)
             {
-                Collation = options.Collation
+                Collation = options.Collation,
+                Hint = options.Hint
             };
             try
             {

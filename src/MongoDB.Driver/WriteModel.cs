@@ -62,13 +62,15 @@ namespace MongoDB.Driver
             {
                 return new DeleteOneModel<TDocument>(UnwrapFilter(request.Filter))
                 {
-                    Collation = request.Collation
+                    Collation = request.Collation,
+                    Hint = request.Hint
                 };
             }
 
             return new DeleteManyModel<TDocument>(UnwrapFilter(request.Filter))
             {
-                Collation = request.Collation
+                Collation = request.Collation,
+                Hint = request.Hint
             };
         }
 

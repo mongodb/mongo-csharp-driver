@@ -699,6 +699,7 @@ namespace MongoDB.Driver
                     {
                         CorrelationId = index,
                         Collation = deleteManyModel.Collation,
+                        Hint = deleteManyModel.Hint,
                         Limit = 0
                     };
                 case WriteModelType.DeleteOne:
@@ -707,6 +708,7 @@ namespace MongoDB.Driver
                     {
                         CorrelationId = index,
                         Collation = deleteOneModel.Collation,
+                        Hint = deleteOneModel.Hint,
                         Limit = 1
                     };
                 case WriteModelType.ReplaceOne:
@@ -955,6 +957,7 @@ namespace MongoDB.Driver
                 _messageEncoderSettings)
             {
                 Collation = options.Collation,
+                Hint = options.Hint,
                 MaxTime = options.MaxTime,
                 Projection = renderedProjection.Document,
                 Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry),

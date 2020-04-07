@@ -186,6 +186,10 @@ namespace MongoDB.Driver.Core.Operations
             {
                 throw new NotSupportedException("OP_DELETE does not support collations.");
             }
+            if (_request.Hint != null)
+            {
+                throw new NotSupportedException("OP_DELETE does not support hints.");
+            }
 
             return channel.Delete(
                 _collectionNamespace,
@@ -201,6 +205,10 @@ namespace MongoDB.Driver.Core.Operations
             if (_request.Collation != null)
             {
                 throw new NotSupportedException("OP_DELETE does not support collations.");
+            }
+            if (_request.Hint != null)
+            {
+                throw new NotSupportedException("OP_DELETE does not support hints.");
             }
 
             return channel.DeleteAsync(

@@ -138,10 +138,15 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             return arrayFilters;
         }
 
-        private void ParseDeleteArguments(BsonDocument value, out FilterDefinition<BsonDocument> filter, out Collation collation)
+        private void ParseDeleteArguments(
+            BsonDocument value,
+            out FilterDefinition<BsonDocument> filter,
+            out Collation collation,
+            out BsonValue hint)
         {
             filter = null;
             collation = null;
+            hint = null;
 
             foreach (BsonElement argument in value["arguments"].AsBsonDocument)
             {
@@ -153,6 +158,9 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                     case "filter":
                         filter = ParseFilter(argument.Value.AsBsonDocument);
                         break;
+                    case "hint":
+                        hint = argument.Value;
+                        break;
                     default:
                         throw new FormatException($"Unexpected argument: {argument.Name}.");
                 }
@@ -161,14 +169,22 @@ namespace MongoDB.Driver.Tests.Specifications.crud
 
         private WriteModel<BsonDocument> ParseDeleteManyModel(BsonDocument value)
         {
-            ParseDeleteArguments(value, out var filter, out var collation);
-            return new DeleteManyModel<BsonDocument>(filter) { Collation = collation };
+            ParseDeleteArguments(value, out var filter, out var collation, out var hint);
+            return new DeleteManyModel<BsonDocument>(filter)
+            {
+                Collation = collation,
+                Hint = hint
+            };
         }
 
         private WriteModel<BsonDocument> ParseDeleteOneModel(BsonDocument value)
         {
-            ParseDeleteArguments(value, out var filter, out var collation);
-            return new DeleteOneModel<BsonDocument>(filter) { Collation = collation };
+            ParseDeleteArguments(value, out var filter, out var collation, out var hint);
+            return new DeleteOneModel<BsonDocument>(filter)
+            {
+                Collation = collation,
+                Hint = hint
+            };
         }
 
         private FilterDefinition<BsonDocument> ParseFilter(BsonDocument value)

@@ -226,6 +226,9 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                     case "readConcern":
                         settings.ReadConcern = ReadConcern.FromBsonDocument(collectionOption.Value.AsBsonDocument);
                         break;
+                    case "writeConcern":
+                        settings.WriteConcern = WriteConcern.FromBsonDocument(collectionOption.Value.AsBsonDocument);
+                        break;
                     default:
                         throw new FormatException($"Unexpected collection option: {collectionOption.Name}");
                 }
