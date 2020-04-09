@@ -7,6 +7,35 @@ title = "What's New"
   identifier = "What's New"
   pre = "<i class='fa fa-star'></i>"
 +++
+## What's New in 2.11.0-beta1
+
+Some of the changes in 2.11.0-beta1 include:
+
+* Support for all new
+  [``$meta``](https://docs.mongodb.com/manual/reference/operator/projection/meta/)
+  projections: `randVal`, `searchScore`, `searchHighlights`,
+  `geoNearDistance`, `geoNearPoint`, `recordId`, `indexKey` and
+  `sortKey`
+* Support for passing a hint to update commands as well as
+  `findAndModify` update and replace operations
+* Support for `allowDiskUse` on find operations
+* Support for `MONGODB-AWS` authentication using Amazon Web Services
+  (AWS) Identity and Access Management (IAM) credentials
+* Support for stapled OCSP (Online Certificate Status Protocol) (macOS only)
+
+Other new additions and updates in this beta include:
+
+* A new target of .NET Standard 2.0
+* Support for Snappy compression on .NET Core on Windows (in addition
+  to existing support on .NET Framework)
+* Support for Zstandard compression on Windows on 64-bit platforms
+* A new default of enabling certificate revocation checking.
+* A new URI option `tlsDisableCertificateRevocationCheck` to disable
+  certificate revocation checking.
+* An expanded list of retryable write errors via the inclusion of
+  `ExceededTimeLimit`, `LockTimeout` and `ClientDisconnect`
+* A new GuidRepresentationMode setting to opt-in to the new V3 GuidRepresentation mode
+
 
 ## What's New in 2.10.0
 

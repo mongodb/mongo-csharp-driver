@@ -9,13 +9,11 @@ type = "index"
 
 The [Getting Started]({{< relref "getting_started\index.md" >}}) guide contains information about system requirements, installation, and a simple tutorial to get up and running quickly.
 
-## What's new in 2.10.0
-
-{{% note %}}
-If you are using unacknowledged writes (also known as w:0 writes) with versions 2.10.0 or 2.10.1 of the driver, we strongly recommend you upgrade to version 2.10.2 as soon as possible, to obtain the fix for a critical issue: https://jira.mongodb.org/browse/CSHARP-2960
-{{% /note %}}
+## What's new in 2.11.0
 
 The [What's New]({{< relref "what_is_new.md" >}}) section contains the major new features of the driver.
+
+The main new features in 2.11.0-beta1 support new features in MongoDB 4.4.0.
 
 ## Upgrading
 

@@ -11,7 +11,7 @@ title = "Upgrading"
 
 ## Breaking Changes
 
-# Backwards compatibility with driver version 2.7.0–2.10.x
+### Backwards compatibility with driver version 2.7.0–2.10.x
 An application that is unable to contact the OCSP endpoints and/or CRL
 distribution points specified in a server's certificate may experience
 connectivity issues (e.g. if the application is behind a firewall with
