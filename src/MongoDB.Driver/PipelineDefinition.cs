@@ -355,6 +355,7 @@ namespace MongoDB.Driver
 
             return stages;
         }
+    }
 
     internal class OptimizingPipelineDefinition<TInput, TOutput> : PipelineDefinition<TInput, TOutput>
     {
