@@ -197,6 +197,55 @@ namespace MongoDB.Driver.Tests
         }
 
         [SkippableFact]
+        public void Group_with_accumulator_should_return_expected_result()
+        {
+            RequireServer.Check().Supports(Feature.AggregateAccumulator);
+
+            var client = CreateClient();
+            var databaseName = "db";
+            var collectionName = "collection";
+            DropCollection(client, databaseName, collectionName);
+            var collection = client.GetDatabase(databaseName).GetCollection<BsonDocument>(collectionName);
+            var books = new[]
+            {
+                BsonDocument.Parse("{ _id : 8751, title : 'The Banquet', author : 'Dante', copies : 2 }"),
+                BsonDocument.Parse("{ _id : 8752, title : 'Divine Comedy', author : 'Dante', copies : 1 }"),
+                BsonDocument.Parse("{ _id : 8645, title : 'Eclogues', author : 'Dante', copies : 2 }"),
+                BsonDocument.Parse("{ _id : 7000, title : 'The Odyssey', author : 'Homer', copies : 10 }"),
+                BsonDocument.Parse("{ _id : 7020, title : 'Iliad', author : 'Homer', copies : 10 }")
+            };
+            collection.InsertMany(books);
+
+            var initFunction = "function() { return { count : 0, sum : 0 } }";
+            var accumulateFunction = "function(state, numCopies) { return { count : state.count + 1, sum : state.sum + numCopies } }";
+            var mergeFunction = "function(state1, state2) { return { count : state1.count + state2.count, sum : state1.sum + state2.sum } }";
+            var finalizeFunction = "function(state) { return (state.sum / state.count) }";
+            var accumulatorBody = new BsonDocument
+            {
+                { "init", initFunction },
+                { "accumulate", accumulateFunction },
+                { "accumulateArgs", new BsonArray { "$copies" } },
+                { "merge", mergeFunction },
+                { "finalize", finalizeFunction },
+                { "lang", "js" }
+            };
+            var accumulatorExpression = new BsonDocument("$accumulator", accumulatorBody);
+            var groupProjection = new BsonDocument
+            {
+                { "_id", "$author" },
+                { "minCopies", new BsonDocument("$min", "$copies") },
+                { "avgCopies", accumulatorExpression },
+                { "maxCopies", new BsonDocument("$max", "$copies") }
+            };
+
+            var result = collection.Aggregate().Group(groupProjection).ToList();
+
+            result.Count.Should().Be(2);
+            result[0].Should().Be("{ _id : 'Dante', minCopies : 1, avgCopies : 1.6666666666666667, maxCopies : 2 }");
+            result[1].Should().Be("{ _id : 'Homer', minCopies : 10, avgCopies : 10.0, maxCopies : 10 }");
+        }
+
+        [SkippableFact]
         public void Lookup_with_let_and_bsondocuments_params_should_return_the_expected_result()
         {
             RequireServer.Check().Supports(Feature.AggregateLet);
