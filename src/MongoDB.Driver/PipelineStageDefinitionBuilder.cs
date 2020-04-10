@@ -1290,6 +1290,52 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Creates a $unionWith stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TWith">The type of the with collection documents.</typeparam>
+        /// <param name="withCollection">The with collection.</param>
+        /// <param name="withPipeline">The with pipeline.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TInput> UnionWith<TInput, TWith>(
+            IMongoCollection<TWith> withCollection,
+            PipelineDefinition<TWith, TInput> withPipeline = null)
+        {
+            Ensure.IsNotNull(withCollection, nameof(withCollection));
+            if (withPipeline == null && typeof(TWith) != typeof(TInput))
+            {
+                throw new ArgumentException("The withPipeline cannot be null when TWith != TInput. A pipeline is required to transform the TWith documents to TInput documents.", nameof(withPipeline));
+            }
+
+            const string operatorName = "$unionWith";
+            var stage = new DelegatedPipelineStageDefinition<TInput, TInput>(
+                operatorName,
+                (inputSerializer, sr) =>
+                {
+                    BsonArray withPipelineDocuments;
+                    if (withPipeline != null)
+                    {
+                        var withSerializer = withCollection.DocumentSerializer ?? inputSerializer as IBsonSerializer<TWith> ?? sr.GetSerializer<TWith>();
+                        withPipelineDocuments = new BsonArray(withPipeline.Render(withSerializer, sr).Documents);
+                    }
+                    else
+                    {
+                        withPipelineDocuments = null;
+                    }
+
+                    var unionWithBody = new BsonDocument
+                    {
+                        { "coll", withCollection.CollectionNamespace.CollectionName },
+                        { "pipeline", withPipelineDocuments, withPipelineDocuments != null }
+                    };
+
+                    return new RenderedPipelineStageDefinition<TInput>(operatorName, new BsonDocument(operatorName, unionWithBody), inputSerializer);
+                });
+
+            return stage;
+        }
+
+        /// <summary>
         /// Creates an $unwind stage.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>

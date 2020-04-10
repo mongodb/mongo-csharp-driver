@@ -356,6 +356,17 @@ namespace MongoDB.Driver
         Task ToCollectionAsync(CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
+        /// Appends an $unionWith stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TWith">The type of the with collection documents.</typeparam>
+        /// <param name="withCollection">The with collection.</param>
+        /// <param name="withPipeline">The with pipeline.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        IAggregateFluent<TResult> UnionWith<TWith>(
+            IMongoCollection<TWith> withCollection,
+            PipelineDefinition<TWith, TResult> withPipeline = null);
+
+        /// <summary>
         /// Appends an unwind stage to the pipeline.
         /// </summary>
         /// <typeparam name="TNewResult">The type of the result of the stage.</typeparam>

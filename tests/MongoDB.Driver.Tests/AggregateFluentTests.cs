@@ -1138,6 +1138,73 @@ namespace MongoDB.Driver.Tests
             }
         }
 
+        public class Item1
+        {
+            public ObjectId Id { get; set; }
+            public string Name1 { get; set; }
+        }
+
+        public class Item2
+        {
+            public ObjectId Id { get; set; }
+            public string Name2 { get; set; }
+        }
+
+        public class ItemResult
+        {
+            public string Name { get; set; }
+        }
+
+        [SkippableFact]
+        public void UnionWith_with_different_schemas_and_projection_should_return_the_expected_result()
+        {
+            RequireServer.Check().Supports(Feature.AggregateUnionWith);
+
+            var databaseName = "test";
+            var items1CollectionName = "items1";
+            var items2CollectionName = "items2";
+
+            var client = CreateClient();
+            DropCollection(client, databaseName, items1CollectionName);
+            DropCollection(client, databaseName, items2CollectionName);
+
+            var database = client.GetDatabase(databaseName);
+            var items1Collection = database.GetCollection<Item1>(items1CollectionName);
+            var items2Collection = database.GetCollection<Item2>(items2CollectionName);
+
+            var item1Documents = new[]
+            {
+                new Item1 { Name1 = "almonds" },
+                new Item1 { Name1 = "cookies" }
+            };
+            items1Collection.InsertMany(item1Documents);
+
+            var item2Documents = new[]
+            {
+                new Item2 { Name2 = "cookies" },
+                new Item2 { Name2 = "cookies" },
+                new Item2 { Name2 = "pecans" }
+            };
+            items2Collection.InsertMany(item2Documents);
+
+            var withPipeline =
+                new EmptyPipelineDefinition<Item2>()
+                .Match(item2 => item2.Name2 == "cookies")
+                .Project(item2 => new ItemResult { Name = item2.Name2 });
+
+            var result = items1Collection
+                .Aggregate()
+                .Project(item1 => new ItemResult { Name = item1.Name1 })
+                .UnionWith(items2Collection, withPipeline)
+                .ToList();
+
+            result.Count.Should().Be(4);
+            result[0].Name.Should().Be("almonds");
+            result[1].Name.Should().Be("cookies");
+            result[2].Name.Should().Be("cookies");
+            result[3].Name.Should().Be("cookies");
+        }
+
         // private methods
         private IAggregateFluent<C> CreateCollectionSubject(IClientSessionHandle session = null, IMongoCollection<C> collection = null)
         {

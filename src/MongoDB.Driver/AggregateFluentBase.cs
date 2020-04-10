@@ -216,6 +216,14 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
+        public virtual IAggregateFluent<TResult> UnionWith<TWith>(
+            IMongoCollection<TWith> withCollection,
+            PipelineDefinition<TWith, TResult> withPipeline = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
         public abstract IAggregateFluent<TNewResult> Unwind<TNewResult>(FieldDefinition<TResult> field, IBsonSerializer<TNewResult> newResultSerializer);
 
         /// <inheritdoc />
