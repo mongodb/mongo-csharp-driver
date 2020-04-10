@@ -1,0 +1,2979 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+<meta name="author" content="">
+<meta name="keyword" content="">
+
+    <link rel="shortcut icon" href="/mongo-csharp-driver/2.11/img/favicon.png">
+
+    <title>Writing</title>
+
+    <link rel="stylesheet" href="/mongo-csharp-driver/2.11/lib/bootstrap.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/lib/font-awesome/css/font-awesome.min.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/css/mongodb-docs.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/css/overrides.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/lib/highlight/styles/idea.css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/lib/bootstrap-toggle/bootstrap-toggle.min.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/css/dn.css" type="text/css" />
+
+
+  </head>
+
+  <body>
+  
+  <section id="container" class="">
+      
+      <header id="header-db" class="row" role="navigation">
+  <div class="header-content">
+    <div class="toggle-nav pull-left">
+        <i class="fa fa-bars"></i>
+        <div class="icon-reorder tooltips" data-original-title="Toggle Navigation" data-placement="bottom"></div>
+    </div>
+    
+    <div class="logo pull-left">
+      <a href="/mongo-csharp-driver/2.11/../">
+        <img src="/mongo-csharp-driver/2.11/img/logo-mongodb-header.png", alt="MongoDB.org" />
+      </a>
+    </div>
+    
+    <div>
+<div class="nav-items pull-right">
+  <a href="http://try.mongodb.org/" data-toggle="tooltip" data-placement="bottom" title="Try MongoDB in the browser">Try it Out</a>
+  <a href="http://www.mongodb.org/downloads" data-toggle="tooltip" data-placement="bottom" title="Download MongoDB">Downloads</a>
+  <a href="http://www.mongodb.org/get-involved" data-toggle="tooltip" data-placement="bottom" title="Get involved with MongoDB">Community</a>
+  <a href="http://docs.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Documentation">Docs</a>
+  <a href="http://blog.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Blog">Blog</a>
+  <div id="search">
+<form method="get" action="//www.google.com/search" target="_blank">
+    <input type="text" name="searchQuery" size="20" value="" autocomplete="off" placeholder="Search docs">
+    <input type="hidden" name="site" value="/mongo-csharp-driver/2.11">
+    <input type="hidden" name="q" value="">
+    <label for="searchQuery"><i class="fa fa-search fa-1"></i></label>
+</form>
+</div>
+
+</div>
+</div>
+
+  </div>
+</header>
+
+      
+
+      
+<aside id="sidebar" class="sidebar">
+    <div class="ssidebar nav-collapse">
+      <div class="ssidebarwrapper">
+        <h3>
+          <a class="index-link" href="/mongo-csharp-driver/2.11/../">MongoDB .NET Driver</a>
+          <a class="version pull-right" href="/mongo-csharp-driver/2.11">2.11</a>
+        </h3>
+
+        
+        <ul class="sidebar-menu">
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+
+          
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+    
+    
+    
+      
+      
+      
+        
+        
+        
+          
+        
+      
+      
+    
+    
+  
+  
+
+
+        
+      
+    
+      
+      
+        
+      
+    
+      
+      
+    
+      
+      
+    
+    
+  
+
+
+        
+      
+    
+      
+      
+    
+      
+      
+    
+    
+  
+
+
+        
+      
+    
+      
+      
+    
+      
+      
+    
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+
+          
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l1 ">
+  <a href="/mongo-csharp-driver/2.11/getting_started/" class="">
+      <i class='fa fa-road'></i>
+      <span>Getting Started</span>
+      <span class="menu-arrow fa fa-angle-right"></span>
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/getting_started/installation/">
+        <i class='fa'></i>
+        Installation
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/getting_started/quick_tour/">
+        <i class='fa'></i>
+        Quick Tour
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/getting_started/admin_quick_tour/">
+        <i class='fa'></i>
+        Admin Quick Tour
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l1 ">
+  <a href="/mongo-csharp-driver/2.11/what_is_new/" class="">
+      <i class='fa fa-star'></i>
+      <span>What&#39;s New</span>
+      <span class="menu-arrow fa fa-angle-right"></span>
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/upgrading/">
+        <i class='fa'></i>
+        Upgrading
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+<li class="toctree-l1  current">
+  <a href="/mongo-csharp-driver/2.11/reference/" class="">
+      <i class='fa fa-book'></i>
+      <span>Reference</span>
+      <span class="menu-arrow fa fa-angle-down"></span>
+  </a>
+    <ul  class="current">
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l2 ">
+  <a href="/mongo-csharp-driver/2.11/reference/bson/" class="">
+      <i class='fa'></i>
+      <span>BSON</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/bson/">
+        <i class='fa'></i>
+        BSON/JSON
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/bson_document/">
+        <i class='fa'></i>
+        BsonDocument
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/serialization/">
+        <i class='fa'></i>
+        Serialization
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/" class="">
+      <i class='fa'></i>
+      <span>Mapping Classes</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/polymorphism/">
+        <i class='fa'></i>
+        Polymorphism
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/conventions/">
+        <i class='fa'></i>
+        Conventions
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/schema_changes/">
+        <i class='fa'></i>
+        Handling Schema Changes
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+<li class="toctree-l2  current">
+  <a href="/mongo-csharp-driver/2.11/reference/driver/" class="">
+      <i class='fa'></i>
+      <span>Driver</span>
+      
+  </a>
+    <ul  class="current">
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.11/reference/driver/connecting/" class="">
+      <i class='fa'></i>
+      <span>Connecting</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/ssl/">
+        <i class='fa'></i>
+        SSL
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/authentication/">
+        <i class='fa'></i>
+        Authentication
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.11/reference/driver/definitions/" class="">
+      <i class='fa'></i>
+      <span>Definitions and Builders</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/expressions/">
+        <i class='fa'></i>
+        Expressions
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/admin/">
+        <i class='fa'></i>
+        Administration
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+<li class="toctree-l3  current">
+  <a href="/mongo-csharp-driver/2.11/reference/driver/crud/" class="">
+      <i class='fa'></i>
+      <span>Reading and Writing</span>
+      
+  </a>
+    <ul  class="current">
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/reading/">
+        <i class='fa'></i>
+        Reading
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/linq/">
+        <i class='fa'></i>
+        LINQ
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/writing/">
+        <i class='fa'></i>
+        Writing
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/compression/">
+        <i class='fa'></i>
+        Compression
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/sessions_and_transactions/">
+        <i class='fa'></i>
+        Sessions and Transactions
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/client_side_encryption/">
+        <i class='fa fa-lock'></i>
+        Client-Side Encryption
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/change_streams/">
+        <i class='fa'></i>
+        Change Streams
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/error_handling/">
+        <i class='fa'></i>
+        Error Handling
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l2 ">
+  <a href="/mongo-csharp-driver/2.11/reference/driver_core/" class="">
+      <i class='fa'></i>
+      <span>Driver Core</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.11/reference/driver_core/events/" class="">
+      <i class='fa'></i>
+      <span>Eventing</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver_core/sdamevents/">
+        <i class='fa'></i>
+        SDAM Events
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l2 ">
+  <a href="/mongo-csharp-driver/2.11/reference/gridfs/" class="">
+      <i class='fa'></i>
+      <span>GridFS</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/gridfs/gettingstarted/">
+        <i class='fa'></i>
+        Getting Started
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/gridfs/uploadingfiles/">
+        <i class='fa'></i>
+        Uploading Files
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/gridfs/downloadingfiles/">
+        <i class='fa'></i>
+        Downloading Files
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/gridfs/findingfiles/">
+        <i class='fa'></i>
+        Finding Files
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/gridfs/deletingandrenamingfiles/">
+        <i class='fa'></i>
+        Deleting and Renaming Files
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l1 ">
+  <a href="/mongo-csharp-driver/2.11/examples/" class="">
+      <i class='fa fa-code'></i>
+      <span>Examples</span>
+      <span class="menu-arrow fa fa-angle-right"></span>
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/examples/exporting_json/">
+        <i class='fa'></i>
+        Exporting JSON
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/examples/importing_json/">
+        <i class='fa'></i>
+        Importing JSON
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/examples/mixing_static_and_dynamic/">
+        <i class='fa'></i>
+        Mixing Static and Dynamic Data
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/examples/tailable_cursor/">
+        <i class='fa'></i>
+        Using a Tailable Cursor
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/examples/user_management/">
+        <i class='fa'></i>
+        Managing Users
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="/mongo-csharp-driver/2.11/apidocs/">
+        <i class='fa fa-file-text-o'></i>
+        API Documentation
+    </a>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="https://github.com/mongodb/mongo-csharp-driver/tree/master">
+        <i class='fa fa-github'></i>
+        Source Code
+    </a>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="/mongo-csharp-driver/2.11/issues_help/">
+        <i class='fa fa-life-ring'></i>
+        Issues &amp; Help
+    </a>
+  </li>
+
+
+          
+        </ul>
+        
+    </div>
+  </div>
+  
+</aside>
+
+<div class="option-popup closed hidden" id="optionsVersionsPopup">
+<div class="option-header">
+  <i class="fa fa-gear"></i>
+  <span>OPTIONS</span>
+  <i class="fa fa-angle-up pull-right"></i>
+</div>
+<div class="option-body">
+  <ul>
+      
+      <li>
+        <label>Version</label>
+        <div class="btn-group btn-group-xs pull-right">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            Select Version <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu" id="optionsVersionsMenu">
+          </ul>
+        </div>
+      </li>
+
+   
+
+
+    
+
+  </ul>
+</div>
+</div>
+
+
+
+      
+      <section id="main-content" class="content">
+          <section class="main-column pull-left">
+            <div class="document">
+              <div class="documentwrapper">
+                <div class="bodywrapper">
+                  <div class="body">
+
+
+   
+<a class="edit-link" href="https://github.com/mongodb/mongo-csharp-driver/blob/master/docs/reference/content/reference%5cdriver%5ccrud%5cwriting.md" target="_blank" title="Edit reference\driver\crud\writing.md on GitHub"><i class="fa fa-pencil-square-o"></i></a>
+
+
+
+
+
+
+
+
+
+
+<div class="bc">
+<ul>
+  
+  
+  
+  <li><a href="/mongo-csharp-driver/2.11/reference/">Reference</a> <i class="fa fa-angle-right"></i></li>
+  <li><a href="/mongo-csharp-driver/2.11/reference/driver/">Driver</a> <i class="fa fa-angle-right"></i></li>
+  <li><a href="/mongo-csharp-driver/2.11/reference/driver/crud/">Reading and Writing</a> <i class="fa fa-angle-right"></i></li>
+  <li>Writing</li>
+</ul>
+</div>
+
+
+
+
+<h2 id="insert">Insert</h2>
+
+<p>Use the <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_InsertOne.htm
+"><code>InsertOne</code></a> or <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_InsertOneAsync.htm
+"><code>InsertOneAsync</code></a> methods to insert a document. For example, when working with an <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_IMongoCollection_1.htm
+"><code>IMongoCollection&lt;BsonDocument&gt;</code></a>., a <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
+"><code>BsonDocument</code></a> would be used.</p>
+
+<pre><code class="language-csharp">var document = new BsonDocument(&quot;x&quot;, 1);
+</code></pre>
+
+<pre><code class="language-csharp">collection.InsertOne(document);
+</code></pre>
+
+<pre><code class="language-csharp">await collection.InsertOneAsync(document);
+</code></pre>
+
+<p>Upon a successful insertion (no exception was thrown), <code>document</code> will contain an <code>_id</code> field. This identifer will be automatically generated if an <code>_id</code> is not already present in the document. This is also true for <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/">mapped classes</a> if they have an identifier property.</p>
+
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+For classes, it is possible to customize the Id generation process. See the reference on <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/#id-generators">mapping</a>.
+</div>
+</p>
+
+<p>To insert multiple documents at the same time, use the <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_InsertMany.htm
+"><code>InsertMany</code></a> or <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_InsertManyAsync.htm
+"><code>InsertManyAsync</code></a> methods.</p>
+
+<pre><code class="language-csharp">var documents = Enumerable.Range(0, 10).Select(i =&gt; new BsonDocument(&quot;x&quot;, i));
+</code></pre>
+
+<pre><code class="language-csharp">collection.InsertMany(documents);
+</code></pre>
+
+<pre><code class="language-csharp">await collection.InsertManyAsync(documents);
+</code></pre>
+
+<p>As before, each of the documents will have their <code>_id</code> field set.</p>
+
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+MongoDB reserves fields that start with <code>_</code> and <code>$</code> for internal use.
+</div>
+</p>
+
+<h2 id="update-and-replace">Update and Replace</h2>
+
+<p>There are 3 ways to update documents. You can replace an entire existing document, you can update an existing document, or you can update an existing document if it exists or insert a new one if no matching document is found (called an &ldquo;upsert&rdquo;).</p>
+
+<p>To replace an entire document, use the <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_ReplaceOne.htm
+"><code>ReplaceOne</code></a> or <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_ReplaceOneAsync.htm
+"><code>ReplaceOneAsync</code></a> methods.</p>
+
+<pre><code class="language-csharp">var filter = new BsonDocument(&quot;_id&quot;, 10);
+var replacement = new BsonDocument { { &quot;_id&quot;, 10 }, { &quot;x&quot;, 2 } };
+</code></pre>
+
+<pre><code class="language-csharp">var result = collection.ReplaceOne(filter, replacement);
+</code></pre>
+
+<pre><code class="language-csharp">var result = await collection.ReplaceOneAsync(filter, replacement);
+</code></pre>
+
+<p><div class="admonition important">
+<h5 class="admonition-title">important</h5>
+<code>_id</code> values in MongoDB documents are immutable. If you specify an <code>_id</code> in the replacement document, it must match the <code>_id</code> of the existing document.
+</div>
+</p>
+
+<p>When using a <a href="http://docs.mongodb.org/manual/reference/operator/update/
+">MongoDB update specification</a>, you can either update the first document that matches the filter or update all the documents that match the filter.</p>
+
+<p>To update the first document that matches a filter, use the <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_UpdateOne.htm
+"><code>UpdateOne</code></a> or <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_UpdateOneAsync.htm
+"><code>UpdateOneAsync</code></a> methods.</p>
+
+<pre><code class="language-csharp">var filter = new BsonDocument();
+var update = new BsonDocument(&quot;$set&quot;, new BsonDocument(&quot;x&quot;, 1));
+</code></pre>
+
+<pre><code class="language-csharp">var result = collection.UpdateOne(filter, update);
+</code></pre>
+
+<pre><code class="language-csharp">var result = await collection.UpdateOneAsync(filter, update);
+</code></pre>
+
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+Even if multiple documents match the filter (as would be true in the above example), only one will be updated because we used UpdateOneAsync.
+</div>
+</p>
+
+<p>To update all documents that match the filter use the <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_UpdateMany.htm
+"><code>UpdateMany</code></a> or <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_UpdateManyAsync.htm
+"><code>UpdateManyAsync</code></a> methods:</p>
+
+<pre><code class="language-csharp">var result = collection.UpdateMany(filter, update);
+</code></pre>
+
+<pre><code class="language-csharp">var result = await collection.UpdateManyAsync(filter, update);
+</code></pre>
+
+<h3 id="upserts">Upserts</h3>
+
+<p>To specify that you&rsquo;d like to upsert a document, each method provides an optional <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_UpdateOptions.htm
+"><code>UpdateOptions</code></a> parameter.</p>
+
+<pre><code class="language-csharp">var filter = new BsonDocument();
+var update = new BsonDocument(&quot;$set&quot;, new BsonDocument(&quot;x&quot;, 1));
+var options = new UpdateOptions { IsUpsert = true };
+</code></pre>
+
+<pre><code class="language-csharp">var result = collection.UpdateOne(filter, update, options);
+</code></pre>
+
+<pre><code class="language-csharp">var result = await collection.UpdateOneAsync(filter, update, options);
+</code></pre>
+
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+If an identifier is not specified in the filter, replacement, or update, the server will generate an <code>_id</code> of type ObjectId automatically if the upsert resulted in a new document being inserted.
+</div>
+</p>
+
+<h2 id="delete">Delete</h2>
+
+<p>When deleting documents, you can either delete the first document that matches a filter, or you can delete all documents that match a filter.</p>
+
+<p>To delete the first document that matches a filter, use the <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_DeleteOne.htm
+"><code>DeleteOne</code></a> or <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_DeleteOneAsync.htm
+"><code>DeleteOneAsync</code></a>  methods.</p>
+
+<pre><code class="language-csharp">var filter = new BsonDocument();
+</code></pre>
+
+<pre><code class="language-csharp">var result = collection.DeleteOne(filter);
+</code></pre>
+
+<pre><code class="language-csharp">var result = await collection.DeleteOneAsync(filter);
+</code></pre>
+
+<p>To delete all documents that match a filter, use the <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_DeleteMany.htm
+"><code>DeleteMany</code></a> or <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_DeleteManyAsync.htm
+"><code>DeleteManyAsync</code></a>  methods.</p>
+
+<pre><code class="language-csharp">var filter = new BsonDocument();
+</code></pre>
+
+<pre><code class="language-csharp">var result = collection.DeleteMany(filter);
+</code></pre>
+
+<pre><code class="language-csharp">var result = await collection.DeleteManyAsync(filter);
+</code></pre>
+
+<h2 id="find-and-modify">Find And Modify</h2>
+
+<p>There are a certain class of operations using the <a href="http://docs.mongodb.org/manual/reference/command/findAndModify/
+">findAndModify command</a> from the server. This command will perform some operation on the document and return either the original version of the document as it was before the operation, or the new version of the document as it became after the operation. By default, the original version of the document is returned.</p>
+
+<h3 id="findoneanddelete">FindOneAndDelete</h3>
+
+<p>A single document can be deleted atomically using the <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_FindOneAndDelete__1.htm
+"><code>FindOneAndDelete</code></a> or <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_FindOneAndDeleteAsync__1.htm
+"><code>FindOneAndDeleteAsync</code></a> methods.</p>
+
+<pre><code class="language-csharp">var filter = new BsonDocument(&quot;FirstName&quot;, &quot;Jack&quot;);
+</code></pre>
+
+<pre><code class="language-csharp">var result = collection.FindOneAndDelete(filter);
+
+if (result != null)
+{
+    Assert(result[&quot;FirstName&quot;] == &quot;Jack&quot;);
+}
+</code></pre>
+
+<pre><code class="language-csharp">var result = await collection.FindOneAndDeleteAsync(filter);
+
+if (result != null)
+{
+    Assert(result[&quot;FirstName&quot;] == &quot;Jack&quot;);
+}
+</code></pre>
+
+<p>The above will find a document where the <code>FirstName</code> is <code>Jack</code> and delete it. It will then return the document that was just deleted.</p>
+
+<h3 id="findoneandreplace">FindOneAndReplace</h3>
+
+<p>A single document can be replaced atomically using the <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_FindOneAndReplace__1.htm
+"><code>FindOneAndReplace</code></a> or <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_FindOneAndReplaceAsync__1.htm
+"><code>FindOneAndReplaceAsync</code></a> methods.</p>
+
+<pre><code class="language-csharp">var filter = new BsonDocument(&quot;FirstName&quot;, &quot;Jack&quot;);
+var replacementDocument = new BsonDocument(&quot;FirstName&quot;, &quot;John&quot;);
+</code></pre>
+
+<pre><code class="language-csharp">var result = collection.FindOneAndReplace(filter, doc);
+
+if (result != null)
+{
+    Assert(result[&quot;FirstName&quot;] == &quot;Jack&quot;);
+}
+</code></pre>
+
+<pre><code class="language-csharp">var result = await collection.FindOneAndReplaceAsync(filter, doc);
+
+if (result != null)
+{
+    Assert(result[&quot;FirstName&quot;] == &quot;Jack&quot;);
+}
+</code></pre>
+
+<p>The above will find a document where the <code>FirstName</code> is <code>Jack</code> and replace it with <code>replacementDocument</code>. It will then return the document that was replaced.</p>
+
+<h3 id="findoneandupdate">FindOneAndUpdate</h3>
+
+<p>A single document can be updated atomically using the <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_FindOneAndUpdate__1.htm
+"><code>FindOneAndUpdate</code></a> or <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_FindOneAndUpdateAsync__1.htm
+"><code>FindOneAndUpdateAsync</code></a> methods.</p>
+
+<pre><code class="language-csharp">var filter = new BsonDocument(&quot;FirstName&quot;, &quot;Jack&quot;);
+var update = Builders&lt;BsonDocument&gt;.Update.Set(&quot;FirstName&quot;, &quot;John&quot;);
+</code></pre>
+
+<pre><code class="language-csharp">var result = collection.FindOneAndUpdate(filter, update);
+
+if (result != null)
+{
+    Assert(result[&quot;FirstName&quot;] == &quot;Jack&quot;);
+}
+</code></pre>
+
+<pre><code class="language-csharp">var result = await collection.FindOneAndUpdateAsync(filter, update);
+
+if (result != null)
+{
+    Assert(result[&quot;FirstName&quot;] == &quot;Jack&quot;);
+}
+</code></pre>
+
+<p>The above will find a document where the <code>FirstName</code> is <code>Jack</code> and set its <code>FirstName</code> field to <code>John</code>. It will then return the document that was replaced.</p>
+
+<h3 id="options">Options</h3>
+
+<p>Each of the 3 operations has certain options available.</p>
+
+<h4 id="returndocument">ReturnDocument</h4>
+
+<p>For Replacing and Updating, the <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_ReturnDocument.htm
+"><code>ReturnDocument</code></a> enum can be provided. It allows you to choose which version of the document to return, either the original version as it was before the operation, or the modified version as it became after the operation.</p>
+
+<p>For example, to return the modified version of the document:</p>
+
+<pre><code class="language-csharp">var filter = new BsonDocument(&quot;FirstName&quot;, &quot;Jack&quot;);
+var update = Builders&lt;BsonDocument&gt;.Update.Set(&quot;FirstName&quot;, &quot;John&quot;);
+var options = new FindOneAndUpdateOptions&lt;BsonDocument&gt;
+{
+    ReturnDocument = ReturnDocument.After
+};
+</code></pre>
+
+<pre><code class="language-csharp">var result = collection.FindOneAndUpdate(filter, update, options);
+
+if (result != null)
+{
+    Assert(result[&quot;FirstName&quot;] == &quot;John&quot;);
+}
+</code></pre>
+
+<pre><code class="language-csharp">var result = await collection.FindOneAndUpdateAsync(filter, update, options);
+
+if (result != null)
+{
+    Assert(result[&quot;FirstName&quot;] == &quot;John&quot;);
+}
+</code></pre>
+
+<h4 id="projection">Projection</h4>
+
+<p>A projection can be provided to shape the result. The easiest way to build the projection is using a <a href="/mongo-csharp-driver/2.11/reference/driver/definitions/#projections">projection builder</a>.</p>
+
+<h4 id="sort">Sort</h4>
+
+<p>Since only a single document is selected, for filters that could result in multiple choices, a sort should be provided and the first document in the sort order will be the one modified.</p>
+
+<h4 id="isupsert">IsUpsert</h4>
+
+<p>For Replacing and Updating, <code>IsUpsert</code> can be specified such that, if the document isn&rsquo;t found, one will be inserted.</p>
+
+<h2 id="bulk-writes">Bulk Writes</h2>
+
+<p>The <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_BulkWrite.htm
+"><code>BulkWrite</code></a> and <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_BulkWriteAsync.htm
+"><code>BulkWriteAsync</code></a> methods take a variable number of <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_WriteModel_1.htm
+"><code>WriteModel&lt;&gt;</code></a> instances and send them to the server in the fewest possible number of batches. The size of a batch is limited by the maximum document size and each batch must consist of the same kind of write operations (i.e. deletes, inserts or updates).</p>
+
+<p>For example, to perform two delete operations with one call to the server:</p>
+
+<pre><code class="language-csharp">var models = new WriteModel&lt;BsonDocument&gt;[] 
+{
+    new DeleteManyModel&lt;BsonDocument&gt;(&quot;{ x: 10 }&quot;), // delete all documents where x == 10
+    new DeleteOneModel&lt;BsonDocument&gt;(&quot;{ x: 11 }&quot;) // delete 1 document where x == 11
+};
+</code></pre>
+
+<pre><code class="language-csharp">collection.BulkWrite(models);
+</code></pre>
+
+<pre><code class="language-csharp">await collection.BulkWriteAsync(models);
+</code></pre>
+
+<p>However, providing one insert and one delete would result in each getting sent in a different call to the server:</p>
+
+<pre><code class="language-csharp">var models = new WriteModel&lt;BsonDocument&gt;[] 
+{
+    new InsertOneModel&lt;BsonDocument&gt;(&quot;{ _id: 1}&quot;),
+    new DeleteOneModel&lt;BsonDocument&gt;(&quot;{ x: 11 }&quot;) // delete 1 document where x == 11
+};
+</code></pre>
+
+<pre><code class="language-csharp">collection.BulkWrite(models); // will send one batch with the insert and one with the delete
+</code></pre>
+
+<pre><code class="language-csharp">await collection.BulkWriteAsync(models); // will send one batch with the insert and one with the delete
+</code></pre>
+
+<h3 id="write-models">Write Models</h3>
+
+<p>There are 6 types of write models:</p>
+
+<ol>
+<li><a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_InsertOneModel_1.htm
+"><code>InsertOneModel</code></a></li>
+<li><a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_DeleteOneModel_1.htm
+"><code>DeleteOneModel</code></a></li>
+<li><a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_DeleteManyModel_1.htm
+"><code>DeleteManyModel</code></a></li>
+<li><a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_UpdateOneModel_1.htm
+"><code>UpdateOneModel</code></a></li>
+<li><a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_UpdateManyModel_1.htm
+"><code>UpdateManyModelModel</code></a></li>
+<li><a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_ReplaceOneModel_1.htm
+"><code>ReplaceOneModel</code></a></li>
+</ol>
+
+<h3 id="ordered-and-unordered">Ordered and Unordered</h3>
+
+<p>Bulk writes can be ordered or unordered. The default is ordered.</p>
+
+<ol>
+<li>Ordered bulk writes execute all the operations in order and stop on the first error.</li>
+<li>Unordered bulk writes execute all the operations and report any errors at the end. Because the writes are unordered, the driver and/or server may re-order the operations in order to gain better performance.</li>
+</ol>
+
+<pre><code class="language-csharp">var models = new WriteModel&lt;BsonDocument&gt;[] 
+{
+    new InsertOneModel&lt;BsonDocument&gt;(new BsonDocument(&quot;_id&quot;, 4)),
+    new InsertOneModel&lt;BsonDocument&gt;(new BsonDocument(&quot;_id&quot;, 5)),
+    new InsertOneModel&lt;BsonDocument&gt;(new BsonDocument(&quot;_id&quot;, 6)),
+    new UpdateOneModel&lt;BsonDocument&gt;(
+        new BsonDocument(&quot;_id&quot;, 1), 
+        new BsonDocument(&quot;$set&quot;, new BsonDocument(&quot;x&quot;, 2))),
+    new DeleteOneModel&lt;BsonDocument&gt;(new BsonDocument(&quot;_id&quot;, 3)),
+    new ReplaceOneModel&lt;BsonDocument&gt;(
+        new BsonDocument(&quot;_id&quot;, 3), 
+        new BsonDocument(&quot;_id&quot;, 3).Add(&quot;x&quot;, 4))
+};
+</code></pre>
+
+<pre><code class="language-csharp">// 1. Ordered bulk operation - order of operation is guaranteed
+collection.BulkWrite(models);
+
+// 2. Unordered bulk operation - no guarantee of order of operation
+collection.BulkWrite(models, new BulkWriteOptions { IsOrdered = false });
+</code></pre>
+
+<pre><code class="language-csharp">// 1. Ordered bulk operation - order of operation is guaranteed
+await collection.BulkWriteAsync(models);
+
+// 2. Unordered bulk operation - no guarantee of order of operation
+await collection.BulkWriteAsync(models, new BulkWriteOptions { IsOrdered = false });
+</code></pre>
+
+<p><div class="admonition important">
+<h5 class="admonition-title">important</h5>
+Use of the bulk write methods is not recommended when connected to pre-2.6 MongoDB servers, as this was the first server version to support bulk write commands for insert, update, and delete in a way that allows the driver to implement the correct semantics for BulkWriteResult and BulkWriteException. The methods will still work for pre-2.6 servers, but performance will suffer, as each write operation has to be executed one at a time.
+</div>
+</p>
+
+
+
+
+
+
+<div id="btnv">
+  
+  <div class="pull-left">
+  <a class="navigation prev" href="/mongo-csharp-driver/2.11/reference/driver/crud/linq/">
+      <i class="fa fa-long-arrow-left"> </i> LINQ
+  </a>
+  </div>
+  
+  
+  <div class="pull-right">
+  <a class="navigation next" href="/mongo-csharp-driver/2.11/reference/driver/crud/compression/">
+    Compression <i class="fa fa-long-arrow-right"> </i>
+  </a>
+  
+</div>
+</div>
+
+
+</div>
+<div class="right-column">
+<div class="wrapper">
+  
+  <div class="toc">
+    <span class="toc-header">On this page</span>
+    <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#insert">Insert</a></li>
+<li><a href="#update-and-replace">Update and Replace</a>
+<ul>
+<li><a href="#upserts">Upserts</a></li>
+</ul></li>
+<li><a href="#delete">Delete</a></li>
+<li><a href="#find-and-modify">Find And Modify</a>
+<ul>
+<li><a href="#findoneanddelete">FindOneAndDelete</a></li>
+<li><a href="#findoneandreplace">FindOneAndReplace</a></li>
+<li><a href="#findoneandupdate">FindOneAndUpdate</a></li>
+<li><a href="#options">Options</a>
+<ul>
+<li><a href="#returndocument">ReturnDocument</a></li>
+<li><a href="#projection">Projection</a></li>
+<li><a href="#sort">Sort</a></li>
+<li><a href="#isupsert">IsUpsert</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#bulk-writes">Bulk Writes</a>
+<ul>
+<li><a href="#write-models">Write Models</a></li>
+<li><a href="#ordered-and-unordered">Ordered and Unordered</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+  </div>
+  
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</section>
+</section>
+
+</section>
+
+
+<script type="text/javascript">
+  var DOCUMENTATION_OPTIONS = {
+   URL_ROOT:    "/mongo-csharp-driver/2.11",
+   VERSION:     "2.11",
+   COLLAPSE_INDEX: false,
+   FILE_SUFFIX: '.html',
+   HAS_SOURCE:  true
+  };
+</script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/js/jquery.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/lib/bootstrap.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/js/navbar.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/lib/highlight/highlight.pack.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/js/scripts.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/lib/bootstrap-toggle/bootstrap-toggle.min.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/js/dn.js"></script>
+
+
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-K75Z5Q"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push(
+{'gtm.start': new Date().getTime(),event:'gtm.js'}
+);var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-K75Z5Q');</script>
+
+
+<script type="text/javascript">
+var _elqQ = _elqQ || [];
+_elqQ.push(['elqSetSiteId', '413370795']);
+_elqQ.push(['elqTrackPageView']);
+(function () {
+function async_load()
+{ var s = document.createElement('script'); s.type = 'text/javascript'; s.async = true; s.src = '//img03.en25.com/i/elqCfg.min.js'; var x = document.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s, x); }
+if (window.addEventListener) window.addEventListener('DOMContentLoaded', async_load, false);
+else if (window.attachEvent) window.attachEvent('onload', async_load);
+})();
+</script>
+
+</body>
+</html>
+

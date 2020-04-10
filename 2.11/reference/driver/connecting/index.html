@@ -1,0 +1,2469 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+<meta name="author" content="">
+<meta name="keyword" content="">
+
+    <link rel="shortcut icon" href="/mongo-csharp-driver/2.11/img/favicon.png">
+
+    <title>Connecting</title>
+
+    <link rel="stylesheet" href="/mongo-csharp-driver/2.11/lib/bootstrap.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/lib/font-awesome/css/font-awesome.min.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/css/mongodb-docs.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/css/overrides.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/lib/highlight/styles/idea.css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/lib/bootstrap-toggle/bootstrap-toggle.min.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/css/dn.css" type="text/css" />
+
+
+  </head>
+
+  <body>
+  
+  <section id="container" class="">
+      
+      <header id="header-db" class="row" role="navigation">
+  <div class="header-content">
+    <div class="toggle-nav pull-left">
+        <i class="fa fa-bars"></i>
+        <div class="icon-reorder tooltips" data-original-title="Toggle Navigation" data-placement="bottom"></div>
+    </div>
+    
+    <div class="logo pull-left">
+      <a href="/mongo-csharp-driver/2.11/../">
+        <img src="/mongo-csharp-driver/2.11/img/logo-mongodb-header.png", alt="MongoDB.org" />
+      </a>
+    </div>
+    
+    <div>
+<div class="nav-items pull-right">
+  <a href="http://try.mongodb.org/" data-toggle="tooltip" data-placement="bottom" title="Try MongoDB in the browser">Try it Out</a>
+  <a href="http://www.mongodb.org/downloads" data-toggle="tooltip" data-placement="bottom" title="Download MongoDB">Downloads</a>
+  <a href="http://www.mongodb.org/get-involved" data-toggle="tooltip" data-placement="bottom" title="Get involved with MongoDB">Community</a>
+  <a href="http://docs.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Documentation">Docs</a>
+  <a href="http://blog.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Blog">Blog</a>
+  <div id="search">
+<form method="get" action="//www.google.com/search" target="_blank">
+    <input type="text" name="searchQuery" size="20" value="" autocomplete="off" placeholder="Search docs">
+    <input type="hidden" name="site" value="/mongo-csharp-driver/2.11">
+    <input type="hidden" name="q" value="">
+    <label for="searchQuery"><i class="fa fa-search fa-1"></i></label>
+</form>
+</div>
+
+</div>
+</div>
+
+  </div>
+</header>
+
+      
+
+      
+<aside id="sidebar" class="sidebar">
+    <div class="ssidebar nav-collapse">
+      <div class="ssidebarwrapper">
+        <h3>
+          <a class="index-link" href="/mongo-csharp-driver/2.11/../">MongoDB .NET Driver</a>
+          <a class="version pull-right" href="/mongo-csharp-driver/2.11">2.11</a>
+        </h3>
+
+        
+        <ul class="sidebar-menu">
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+
+          
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+    
+    
+    
+      
+      
+      
+        
+      
+    
+    
+  
+  
+
+
+        
+      
+    
+      
+      
+        
+      
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+    
+  
+
+
+        
+      
+    
+      
+      
+    
+      
+      
+    
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+
+          
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l1 ">
+  <a href="/mongo-csharp-driver/2.11/getting_started/" class="">
+      <i class='fa fa-road'></i>
+      <span>Getting Started</span>
+      <span class="menu-arrow fa fa-angle-right"></span>
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/getting_started/installation/">
+        <i class='fa'></i>
+        Installation
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/getting_started/quick_tour/">
+        <i class='fa'></i>
+        Quick Tour
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/getting_started/admin_quick_tour/">
+        <i class='fa'></i>
+        Admin Quick Tour
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l1 ">
+  <a href="/mongo-csharp-driver/2.11/what_is_new/" class="">
+      <i class='fa fa-star'></i>
+      <span>What&#39;s New</span>
+      <span class="menu-arrow fa fa-angle-right"></span>
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/upgrading/">
+        <i class='fa'></i>
+        Upgrading
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+<li class="toctree-l1  current">
+  <a href="/mongo-csharp-driver/2.11/reference/" class="">
+      <i class='fa fa-book'></i>
+      <span>Reference</span>
+      <span class="menu-arrow fa fa-angle-down"></span>
+  </a>
+    <ul  class="current">
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l2 ">
+  <a href="/mongo-csharp-driver/2.11/reference/bson/" class="">
+      <i class='fa'></i>
+      <span>BSON</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/bson/">
+        <i class='fa'></i>
+        BSON/JSON
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/bson_document/">
+        <i class='fa'></i>
+        BsonDocument
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/serialization/">
+        <i class='fa'></i>
+        Serialization
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/" class="">
+      <i class='fa'></i>
+      <span>Mapping Classes</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/polymorphism/">
+        <i class='fa'></i>
+        Polymorphism
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/conventions/">
+        <i class='fa'></i>
+        Conventions
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/schema_changes/">
+        <i class='fa'></i>
+        Handling Schema Changes
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+<li class="toctree-l2  current">
+  <a href="/mongo-csharp-driver/2.11/reference/driver/" class="">
+      <i class='fa'></i>
+      <span>Driver</span>
+      
+  </a>
+    <ul  class="current">
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+<li class="toctree-l3  current">
+  <a href="/mongo-csharp-driver/2.11/reference/driver/connecting/" class="">
+      <i class='fa'></i>
+      <span>Connecting</span>
+      
+  </a>
+    <ul  class="current">
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/ssl/">
+        <i class='fa'></i>
+        SSL
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/authentication/">
+        <i class='fa'></i>
+        Authentication
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.11/reference/driver/definitions/" class="">
+      <i class='fa'></i>
+      <span>Definitions and Builders</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/expressions/">
+        <i class='fa'></i>
+        Expressions
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/admin/">
+        <i class='fa'></i>
+        Administration
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.11/reference/driver/crud/" class="">
+      <i class='fa'></i>
+      <span>Reading and Writing</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/reading/">
+        <i class='fa'></i>
+        Reading
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/linq/">
+        <i class='fa'></i>
+        LINQ
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/writing/">
+        <i class='fa'></i>
+        Writing
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/compression/">
+        <i class='fa'></i>
+        Compression
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/sessions_and_transactions/">
+        <i class='fa'></i>
+        Sessions and Transactions
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/client_side_encryption/">
+        <i class='fa fa-lock'></i>
+        Client-Side Encryption
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/change_streams/">
+        <i class='fa'></i>
+        Change Streams
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/error_handling/">
+        <i class='fa'></i>
+        Error Handling
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l2 ">
+  <a href="/mongo-csharp-driver/2.11/reference/driver_core/" class="">
+      <i class='fa'></i>
+      <span>Driver Core</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.11/reference/driver_core/events/" class="">
+      <i class='fa'></i>
+      <span>Eventing</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver_core/sdamevents/">
+        <i class='fa'></i>
+        SDAM Events
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l2 ">
+  <a href="/mongo-csharp-driver/2.11/reference/gridfs/" class="">
+      <i class='fa'></i>
+      <span>GridFS</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/gridfs/gettingstarted/">
+        <i class='fa'></i>
+        Getting Started
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/gridfs/uploadingfiles/">
+        <i class='fa'></i>
+        Uploading Files
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/gridfs/downloadingfiles/">
+        <i class='fa'></i>
+        Downloading Files
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/gridfs/findingfiles/">
+        <i class='fa'></i>
+        Finding Files
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/gridfs/deletingandrenamingfiles/">
+        <i class='fa'></i>
+        Deleting and Renaming Files
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l1 ">
+  <a href="/mongo-csharp-driver/2.11/examples/" class="">
+      <i class='fa fa-code'></i>
+      <span>Examples</span>
+      <span class="menu-arrow fa fa-angle-right"></span>
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/examples/exporting_json/">
+        <i class='fa'></i>
+        Exporting JSON
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/examples/importing_json/">
+        <i class='fa'></i>
+        Importing JSON
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/examples/mixing_static_and_dynamic/">
+        <i class='fa'></i>
+        Mixing Static and Dynamic Data
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/examples/tailable_cursor/">
+        <i class='fa'></i>
+        Using a Tailable Cursor
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/examples/user_management/">
+        <i class='fa'></i>
+        Managing Users
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="/mongo-csharp-driver/2.11/apidocs/">
+        <i class='fa fa-file-text-o'></i>
+        API Documentation
+    </a>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="https://github.com/mongodb/mongo-csharp-driver/tree/master">
+        <i class='fa fa-github'></i>
+        Source Code
+    </a>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="/mongo-csharp-driver/2.11/issues_help/">
+        <i class='fa fa-life-ring'></i>
+        Issues &amp; Help
+    </a>
+  </li>
+
+
+          
+        </ul>
+        
+    </div>
+  </div>
+  
+</aside>
+
+<div class="option-popup closed hidden" id="optionsVersionsPopup">
+<div class="option-header">
+  <i class="fa fa-gear"></i>
+  <span>OPTIONS</span>
+  <i class="fa fa-angle-up pull-right"></i>
+</div>
+<div class="option-body">
+  <ul>
+      
+      <li>
+        <label>Version</label>
+        <div class="btn-group btn-group-xs pull-right">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            Select Version <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu" id="optionsVersionsMenu">
+          </ul>
+        </div>
+      </li>
+
+   
+
+
+    
+
+  </ul>
+</div>
+</div>
+
+
+
+      
+      <section id="main-content" class="content">
+          <section class="main-column pull-left">
+            <div class="document">
+              <div class="documentwrapper">
+                <div class="bodywrapper">
+                  <div class="body">
+
+
+   
+<a class="edit-link" href="https://github.com/mongodb/mongo-csharp-driver/blob/master/docs/reference/content/reference%5cdriver%5cconnecting.md" target="_blank" title="Edit reference\driver\connecting.md on GitHub"><i class="fa fa-pencil-square-o"></i></a>
+
+
+
+
+
+
+
+
+
+
+<div class="bc">
+<ul>
+  
+  
+  
+  
+  <li><a href="/mongo-csharp-driver/2.11/reference/">Reference</a> <i class="fa fa-angle-right"></i></li>
+  <li><a href="/mongo-csharp-driver/2.11/reference/driver/">Driver</a> <i class="fa fa-angle-right"></i></li>
+  <li>Connecting</li>
+</ul>
+</div>
+
+
+
+
+<h2 id="connection-string">Connection String</h2>
+
+<p>The <a href="http://docs.mongodb.org/manual/reference/connection-string/">connection string</a> is the simplest way to connect to one or more MongoDB servers. A connection string mostly follows <a href="http://tools.ietf.org/html/rfc3986">RFC 3986</a> with the exception of the domain name. For MongoDB, it is possible to list multiple domain names separated by a comma. Below are some example connection strings</p>
+
+<ul>
+<li><p>For a standalone mongod, mongos, or a direct connection to a member of a replica set:</p>
+
+<pre><code>mongodb://host:27017
+</code></pre></li>
+
+<li><p>To connect to multiple mongos or a replica set:</p>
+
+<pre><code>mongodb://host1:27017,host2:27017
+</code></pre></li>
+</ul>
+
+<p>The <a href="/mongo-csharp-driver/2.11/reference/driver/authentication/">authentication guide</a> contains information on how to provide credentials.</p>
+
+<p><div class="admonition important">
+<h5 class="admonition-title">important</h5>
+When connecting to a replica set, it is highly suggested that you include the replica set name as a connection string option. This will allow the driver to skip the cluster discovery step and ensure that all hosts on the seedlist are connecting to the intended replica set.
+</div>
+</p>
+
+<h3 id="the-database-component">The Database Component</h3>
+
+<p>The database component is optional and is used to indicate which database to authenticate against. When the database component is not provided, the &ldquo;admin&rdquo; database is used.</p>
+
+<pre><code>mongodb://host:27017/mydb
+</code></pre>
+
+<p>Above, the database by the name of &ldquo;mydb&rdquo; is where the credentials are stored for the application.</p>
+
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+Some drivers utilize the database component to indicate which database to work with by default. The .NET driver, while it parses the database component, does not use the database component for anything other than authentication.
+</div>
+</p>
+
+<h3 id="options">Options</h3>
+
+<p>Many options can be provided via the connection string. The ones that cannot may be provided in a <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_MongoClientSettings.htm
+"><code>MongoClientSettings</code></a> object. To provide an option on the connection string, append a <code>?</code> and separate multiple options by an <code>&amp;</code>.</p>
+
+<pre><code>mongodb://host:27017/?replicaSet=rs0&amp;uuidRepresentation=standard
+</code></pre>
+
+<p>The above connection string sets the <code>replicaSet</code> value to <code>rs0</code> and the <code>uuidRepresentation</code> to <code>standard</code>.</p>
+
+<p>For a comprehensive list of the available options, see the MongoDB <a href="http://docs.mongodb.org/manual/reference/connection-string/">connection string</a> documentation.</p>
+
+<h2 id="mongo-client">Mongo Client</h2>
+
+<p>A <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_MongoClient.htm
+"><code>MongoClient</code></a> object will be the root object. It is thread-safe and is all that is needed to handle connecting to servers, monitoring servers, and performing operations against those servers. Without any arguments, constructing a <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_MongoClient.htm
+"><code>MongoClient</code></a> instance will connect to &ldquo;localhost&rdquo; port 27017.</p>
+
+<pre><code>var client = new MongoClient();
+</code></pre>
+
+<p>Alternatively, a connection string may be provided:</p>
+
+<pre><code>var client = new MongoClient(&quot;mongodb://host:27017,host2:27017/?replicaSet=rs0&quot;);
+</code></pre>
+
+<p>Finally, <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_MongoClientSettings.htm
+"><code>MongoClientSettings</code></a> provides an in code way to set the same options.</p>
+
+<pre><code>var settings = new MongoClientSettings { ReplicaSetName = &quot;rs0&quot; };
+var client = new MongoClient(settings);
+</code></pre>
+
+<h3 id="low-level-customization">Low-Level Customization</h3>
+
+<p>There are a number of settings that are not configurable directly from <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_MongoClientSettings.htm
+"><code>MongoClientSettings</code></a>. These settings are able to be configured through the <a href="/mongo-csharp-driver/2.11/apidocs/html/P_MongoDB_Driver_MongoClientSettings_ClusterConfigurator.htm
+"><code>ClusterConfigurator</code></a> property which provides a <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_Core_Configuration_ClusterBuilder.htm
+"><code>ClusterBuilder</code></a> to manipulate. An example of these is adding a logger using the <a href="/mongo-csharp-driver/2.11/reference/driver_core/events/">eventing infrastructure</a>.</p>
+
+<h3 id="re-use">Re-use</h3>
+
+<p>It is recommended to store a <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_MongoClient.htm
+"><code>MongoClient</code></a> instance in a global place, either as a static variable or in an IoC container with a singleton lifetime.</p>
+
+<p>However, multiple <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_MongoClient.htm
+"><code>MongoClient</code></a> instances created with the same settings will utilize the same connection pools underneath. Unfortunately, certain types of settings are not able to be compared for equality. For instance, the <a href="/mongo-csharp-driver/2.11/apidocs/html/P_MongoDB_Driver_MongoClientSettings_ClusterConfigurator.htm
+"><code>ClusterConfigurator</code></a> property is a delegate and only its address is known for comparison. If you wish to construct multiple <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_MongoClient.htm
+"><code>MongoClients</code></a>, ensure that your delegates are all using the same address if the intent is to share connection pools.</p>
+
+<h3 id="monitoring">Monitoring</h3>
+
+<p><a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_MongoClient.htm
+"><code>MongoClient</code></a> utilizes an <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_Core_Clusters_ICluster.htm
+"><code>ICluster</code></a> from <a href="/mongo-csharp-driver/2.11/reference/driver_core/">MongoDB.Driver.Core</a> which handles monitoring the cluster.</p>
+
+<h2 id="mongo-database">Mongo Database</h2>
+
+<p>An <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_IMongoDatabase.htm
+"><code>IMongoDatabase</code></a> represents a database in a MongoDB server. Databases are retrieved from an <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_IMongoClient.htm
+"><code>IMongoClient</code></a> instance using the <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_IMongoClient_GetDatabase.htm
+"><code>GetDatabase</code></a> method:</p>
+
+<pre><code class="language-csharp">var db = client.GetDatabase(&quot;hr&quot;);
+</code></pre>
+
+<p>Above, we have gotten the &ldquo;hr&rdquo; database. If the database does not exist on the server, it will be created automatically upon first use. If you want to use more than one database, call <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_IMongoClient_GetDatabase.htm
+"><code>GetDatabase</code></a> once for each database you&rsquo;d like to work with.</p>
+
+<h3 id="re-use-1">Re-use</h3>
+
+<p>The implementation of <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_IMongoDatabase.htm
+"><code>IMongoDatabase</code></a> provided by a <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_MongoClient.htm
+"><code>MongoClient</code></a> is thread-safe and is safe to be stored globally or in an IoC container.</p>
+
+<h3 id="mongo-collection">Mongo Collection</h3>
+
+<p>An <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_IMongoCollection_1.htm
+"><code>IMongoCollection&lt;TDocument&gt;</code></a> represents a collection in a MongoDB database. Collections are retrieved from an <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_IMongoDatabase.htm
+"><code>IMongoDatabase</code></a> with the <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_IMongoDatabase_GetCollection__1.htm
+"><code>GetCollection&lt;TDocument&gt;</code></a> method:</p>
+
+<pre><code class="language-csharp">var collection = db.GetCollection&lt;BsonDocument&gt;(&quot;people&quot;);
+</code></pre>
+
+<p>Above, we have gotten the &ldquo;people&rdquo; collection. IF the collection does not exist on the server, it will be created automatically upon first use. If you want to use more than one database, call <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_IMongoDatabase_GetCollection__1.htm
+"><code>GetCollection&lt;TDocument&gt;</code></a> once for each database you&rsquo;d like to work with.</p>
+
+<p>The generic parameter <code>TDocument</code> is the type of document that is stored in your collection. It can, effectively, be any type that can be mapped to and from BSON. The driver utilizes the <a href="/mongo-csharp-driver/2.11/reference/bson/">BSON library</a> to handle this mapping. The most common types you will use are:</p>
+
+<ol>
+<li>Custom Class - useful for representing known schemas. See the <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/">mapping section</a> for more information. The majority of applications will not work with dynamic schemas, but rather with something more rigid. In addition, if you work in a static language, it is nice to work with static types that provide compile time type checking.</li>
+<li><a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
+"><code>BsonDocument</code></a> - useful for representing dynamic schemas.</li>
+</ol>
+
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+<p>It is possible to mix both these models by utilizing a <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_BsonDocument.htm"><code>BsonDocument</code></a> inside your custom class.</p>
+
+</div>
+</p>
+
+<p>A majority of the methods and extension methods for an <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_IMongoCollection_1.htm
+"><code>IMongoCollection&lt;TDocument&gt;</code></a> utilize the <code>TDocument</code> generic parameter in some fashion.</p>
+
+<h3 id="re-use-2">Re-use</h3>
+
+<p>The implementation of <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_IMongoCollection_1.htm
+"><code>IMongoCollection&lt;TDocument&gt;</code></a> ultimately provided by a <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_MongoClient.htm
+"><code>MongoClient</code></a> is thread-safe and is safe to be stored globally or in an IoC container.</p>
+
+
+
+
+
+
+<div id="btnv">
+  
+  <div class="pull-left">
+  <a class="navigation prev" href="/mongo-csharp-driver/2.11/reference/bson/">
+      <i class="fa fa-long-arrow-left"> </i> BSON
+  </a>
+  </div>
+  
+  
+  <div class="pull-right">
+  <a class="navigation next" href="/mongo-csharp-driver/2.11/reference/driver/definitions/">
+    Definitions and Builders <i class="fa fa-long-arrow-right"> </i>
+  </a>
+  
+</div>
+</div>
+
+
+</div>
+<div class="right-column">
+<div class="wrapper">
+  
+  <div class="toc">
+    <span class="toc-header">On this page</span>
+    <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#connection-string">Connection String</a>
+<ul>
+<li><a href="#the-database-component">The Database Component</a></li>
+<li><a href="#options">Options</a></li>
+</ul></li>
+<li><a href="#mongo-client">Mongo Client</a>
+<ul>
+<li><a href="#low-level-customization">Low-Level Customization</a></li>
+<li><a href="#re-use">Re-use</a></li>
+<li><a href="#monitoring">Monitoring</a></li>
+</ul></li>
+<li><a href="#mongo-database">Mongo Database</a>
+<ul>
+<li><a href="#re-use-1">Re-use</a></li>
+<li><a href="#mongo-collection">Mongo Collection</a></li>
+<li><a href="#re-use-2">Re-use</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+  </div>
+  
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</section>
+</section>
+
+</section>
+
+
+<script type="text/javascript">
+  var DOCUMENTATION_OPTIONS = {
+   URL_ROOT:    "/mongo-csharp-driver/2.11",
+   VERSION:     "2.11",
+   COLLAPSE_INDEX: false,
+   FILE_SUFFIX: '.html',
+   HAS_SOURCE:  true
+  };
+</script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/js/jquery.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/lib/bootstrap.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/js/navbar.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/lib/highlight/highlight.pack.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/js/scripts.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/lib/bootstrap-toggle/bootstrap-toggle.min.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/js/dn.js"></script>
+
+
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-K75Z5Q"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push(
+{'gtm.start': new Date().getTime(),event:'gtm.js'}
+);var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-K75Z5Q');</script>
+
+
+<script type="text/javascript">
+var _elqQ = _elqQ || [];
+_elqQ.push(['elqSetSiteId', '413370795']);
+_elqQ.push(['elqTrackPageView']);
+(function () {
+function async_load()
+{ var s = document.createElement('script'); s.type = 'text/javascript'; s.async = true; s.src = '//img03.en25.com/i/elqCfg.min.js'; var x = document.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s, x); }
+if (window.addEventListener) window.addEventListener('DOMContentLoaded', async_load, false);
+else if (window.attachEvent) window.attachEvent('onload', async_load);
+})();
+</script>
+
+</body>
+</html>
+

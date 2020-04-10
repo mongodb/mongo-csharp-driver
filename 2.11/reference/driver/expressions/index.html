@@ -1,0 +1,3689 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+<meta name="author" content="">
+<meta name="keyword" content="">
+
+    <link rel="shortcut icon" href="/mongo-csharp-driver/2.11/img/favicon.png">
+
+    <title>Expressions</title>
+
+    <link rel="stylesheet" href="/mongo-csharp-driver/2.11/lib/bootstrap.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/lib/font-awesome/css/font-awesome.min.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/css/mongodb-docs.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/css/overrides.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/lib/highlight/styles/idea.css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/lib/bootstrap-toggle/bootstrap-toggle.min.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/css/dn.css" type="text/css" />
+
+
+  </head>
+
+  <body>
+  
+  <section id="container" class="">
+      
+      <header id="header-db" class="row" role="navigation">
+  <div class="header-content">
+    <div class="toggle-nav pull-left">
+        <i class="fa fa-bars"></i>
+        <div class="icon-reorder tooltips" data-original-title="Toggle Navigation" data-placement="bottom"></div>
+    </div>
+    
+    <div class="logo pull-left">
+      <a href="/mongo-csharp-driver/2.11/../">
+        <img src="/mongo-csharp-driver/2.11/img/logo-mongodb-header.png", alt="MongoDB.org" />
+      </a>
+    </div>
+    
+    <div>
+<div class="nav-items pull-right">
+  <a href="http://try.mongodb.org/" data-toggle="tooltip" data-placement="bottom" title="Try MongoDB in the browser">Try it Out</a>
+  <a href="http://www.mongodb.org/downloads" data-toggle="tooltip" data-placement="bottom" title="Download MongoDB">Downloads</a>
+  <a href="http://www.mongodb.org/get-involved" data-toggle="tooltip" data-placement="bottom" title="Get involved with MongoDB">Community</a>
+  <a href="http://docs.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Documentation">Docs</a>
+  <a href="http://blog.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Blog">Blog</a>
+  <div id="search">
+<form method="get" action="//www.google.com/search" target="_blank">
+    <input type="text" name="searchQuery" size="20" value="" autocomplete="off" placeholder="Search docs">
+    <input type="hidden" name="site" value="/mongo-csharp-driver/2.11">
+    <input type="hidden" name="q" value="">
+    <label for="searchQuery"><i class="fa fa-search fa-1"></i></label>
+</form>
+</div>
+
+</div>
+</div>
+
+  </div>
+</header>
+
+      
+
+      
+<aside id="sidebar" class="sidebar">
+    <div class="ssidebar nav-collapse">
+      <div class="ssidebarwrapper">
+        <h3>
+          <a class="index-link" href="/mongo-csharp-driver/2.11/../">MongoDB .NET Driver</a>
+          <a class="version pull-right" href="/mongo-csharp-driver/2.11">2.11</a>
+        </h3>
+
+        
+        <ul class="sidebar-menu">
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+
+          
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+    
+    
+    
+      
+      
+      
+        
+        
+        
+          
+        
+      
+      
+    
+    
+  
+  
+
+
+        
+      
+    
+    
+  
+
+
+        
+      
+    
+      
+      
+        
+      
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+    
+  
+
+
+        
+      
+    
+      
+      
+    
+      
+      
+    
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+
+          
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l1 ">
+  <a href="/mongo-csharp-driver/2.11/getting_started/" class="">
+      <i class='fa fa-road'></i>
+      <span>Getting Started</span>
+      <span class="menu-arrow fa fa-angle-right"></span>
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/getting_started/installation/">
+        <i class='fa'></i>
+        Installation
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/getting_started/quick_tour/">
+        <i class='fa'></i>
+        Quick Tour
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/getting_started/admin_quick_tour/">
+        <i class='fa'></i>
+        Admin Quick Tour
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l1 ">
+  <a href="/mongo-csharp-driver/2.11/what_is_new/" class="">
+      <i class='fa fa-star'></i>
+      <span>What&#39;s New</span>
+      <span class="menu-arrow fa fa-angle-right"></span>
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/upgrading/">
+        <i class='fa'></i>
+        Upgrading
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+<li class="toctree-l1  current">
+  <a href="/mongo-csharp-driver/2.11/reference/" class="">
+      <i class='fa fa-book'></i>
+      <span>Reference</span>
+      <span class="menu-arrow fa fa-angle-down"></span>
+  </a>
+    <ul  class="current">
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l2 ">
+  <a href="/mongo-csharp-driver/2.11/reference/bson/" class="">
+      <i class='fa'></i>
+      <span>BSON</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/bson/">
+        <i class='fa'></i>
+        BSON/JSON
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/bson_document/">
+        <i class='fa'></i>
+        BsonDocument
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/serialization/">
+        <i class='fa'></i>
+        Serialization
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/" class="">
+      <i class='fa'></i>
+      <span>Mapping Classes</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/polymorphism/">
+        <i class='fa'></i>
+        Polymorphism
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/conventions/">
+        <i class='fa'></i>
+        Conventions
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/schema_changes/">
+        <i class='fa'></i>
+        Handling Schema Changes
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+<li class="toctree-l2  current">
+  <a href="/mongo-csharp-driver/2.11/reference/driver/" class="">
+      <i class='fa'></i>
+      <span>Driver</span>
+      
+  </a>
+    <ul  class="current">
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.11/reference/driver/connecting/" class="">
+      <i class='fa'></i>
+      <span>Connecting</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/ssl/">
+        <i class='fa'></i>
+        SSL
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/authentication/">
+        <i class='fa'></i>
+        Authentication
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+<li class="toctree-l3  current">
+  <a href="/mongo-csharp-driver/2.11/reference/driver/definitions/" class="">
+      <i class='fa'></i>
+      <span>Definitions and Builders</span>
+      
+  </a>
+    <ul  class="current">
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/expressions/">
+        <i class='fa'></i>
+        Expressions
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/admin/">
+        <i class='fa'></i>
+        Administration
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.11/reference/driver/crud/" class="">
+      <i class='fa'></i>
+      <span>Reading and Writing</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/reading/">
+        <i class='fa'></i>
+        Reading
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/linq/">
+        <i class='fa'></i>
+        LINQ
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/writing/">
+        <i class='fa'></i>
+        Writing
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/compression/">
+        <i class='fa'></i>
+        Compression
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/sessions_and_transactions/">
+        <i class='fa'></i>
+        Sessions and Transactions
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/client_side_encryption/">
+        <i class='fa fa-lock'></i>
+        Client-Side Encryption
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/change_streams/">
+        <i class='fa'></i>
+        Change Streams
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/error_handling/">
+        <i class='fa'></i>
+        Error Handling
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l2 ">
+  <a href="/mongo-csharp-driver/2.11/reference/driver_core/" class="">
+      <i class='fa'></i>
+      <span>Driver Core</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.11/reference/driver_core/events/" class="">
+      <i class='fa'></i>
+      <span>Eventing</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver_core/sdamevents/">
+        <i class='fa'></i>
+        SDAM Events
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l2 ">
+  <a href="/mongo-csharp-driver/2.11/reference/gridfs/" class="">
+      <i class='fa'></i>
+      <span>GridFS</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/gridfs/gettingstarted/">
+        <i class='fa'></i>
+        Getting Started
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/gridfs/uploadingfiles/">
+        <i class='fa'></i>
+        Uploading Files
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/gridfs/downloadingfiles/">
+        <i class='fa'></i>
+        Downloading Files
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/gridfs/findingfiles/">
+        <i class='fa'></i>
+        Finding Files
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/gridfs/deletingandrenamingfiles/">
+        <i class='fa'></i>
+        Deleting and Renaming Files
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l1 ">
+  <a href="/mongo-csharp-driver/2.11/examples/" class="">
+      <i class='fa fa-code'></i>
+      <span>Examples</span>
+      <span class="menu-arrow fa fa-angle-right"></span>
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/examples/exporting_json/">
+        <i class='fa'></i>
+        Exporting JSON
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/examples/importing_json/">
+        <i class='fa'></i>
+        Importing JSON
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/examples/mixing_static_and_dynamic/">
+        <i class='fa'></i>
+        Mixing Static and Dynamic Data
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/examples/tailable_cursor/">
+        <i class='fa'></i>
+        Using a Tailable Cursor
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/examples/user_management/">
+        <i class='fa'></i>
+        Managing Users
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="/mongo-csharp-driver/2.11/apidocs/">
+        <i class='fa fa-file-text-o'></i>
+        API Documentation
+    </a>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="https://github.com/mongodb/mongo-csharp-driver/tree/master">
+        <i class='fa fa-github'></i>
+        Source Code
+    </a>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="/mongo-csharp-driver/2.11/issues_help/">
+        <i class='fa fa-life-ring'></i>
+        Issues &amp; Help
+    </a>
+  </li>
+
+
+          
+        </ul>
+        
+    </div>
+  </div>
+  
+</aside>
+
+<div class="option-popup closed hidden" id="optionsVersionsPopup">
+<div class="option-header">
+  <i class="fa fa-gear"></i>
+  <span>OPTIONS</span>
+  <i class="fa fa-angle-up pull-right"></i>
+</div>
+<div class="option-body">
+  <ul>
+      
+      <li>
+        <label>Version</label>
+        <div class="btn-group btn-group-xs pull-right">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            Select Version <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu" id="optionsVersionsMenu">
+          </ul>
+        </div>
+      </li>
+
+   
+
+
+    
+
+  </ul>
+</div>
+</div>
+
+
+
+      
+      <section id="main-content" class="content">
+          <section class="main-column pull-left">
+            <div class="document">
+              <div class="documentwrapper">
+                <div class="bodywrapper">
+                  <div class="body">
+
+
+   
+<a class="edit-link" href="https://github.com/mongodb/mongo-csharp-driver/blob/master/docs/reference/content/reference%5cdriver%5cexpressions.md" target="_blank" title="Edit reference\driver\expressions.md on GitHub"><i class="fa fa-pencil-square-o"></i></a>
+
+
+
+
+
+
+
+
+
+
+<div class="bc">
+<ul>
+  
+  
+  
+  <li><a href="/mongo-csharp-driver/2.11/reference/">Reference</a> <i class="fa fa-angle-right"></i></li>
+  <li><a href="/mongo-csharp-driver/2.11/reference/driver/">Driver</a> <i class="fa fa-angle-right"></i></li>
+  <li><a href="/mongo-csharp-driver/2.11/reference/driver/definitions/">Definitions and Builders</a> <i class="fa fa-angle-right"></i></li>
+  <li>Expressions</li>
+</ul>
+</div>
+
+
+
+
+<h2 id="expressions">Expressions</h2>
+
+<p>Many methods in the driver accept expressions as an argument.</p>
+
+<p>For the rest of this page, we&rsquo;ll use the following class:</p>
+
+<pre><code class="language-csharp">class Person
+{
+    public string Name { get; set; }
+
+    public int Age { get; set; }
+
+    public IEnumerable&lt;Pet&gt; Pets { get; set; }
+
+    public int[] FavoriteNumbers { get; set; }
+
+    public HashSet&lt;string&gt; FavoriteNames { get; set; }
+
+    public DateTime CreatedAtUtc { get; set; }
+
+    public int PermissionFlags { get; set; }
+}
+
+class Pet
+{
+    public string Name { get; set; }
+}
+</code></pre>
+
+<h2 id="filters">Filters</h2>
+
+<p>We&rsquo;ll walk through the supported expressions below. The <a href="https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Tests/Linq/Translators/PredicateTranslatorTests.cs
+">tests</a> are also a good reference.</p>
+
+<h3 id="comparison">Comparison</h3>
+
+<p>See the <a href="http://docs.mongodb.org/manual/reference/operator/query/#comparison
+">MongoDB documentation</a> for more information on each operator.</p>
+
+<h4 id="eq">$eq</h4>
+
+<pre><code class="language-csharp">Find(p =&gt; p.Name == &quot;Jack&quot;)
+</code></pre>
+
+<p>becomes:</p>
+
+<pre><code class="language-json">{ Name: 'Jack' }
+</code></pre>
+
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+This is the short form for equality. Depending on context, this might generate <code>{ Name: { $eq: 'Jack' } }</code>.
+</div>
+</p>
+
+<h4 id="gt">$gt</h4>
+
+<pre><code class="language-csharp">Find(p =&gt; p.Age &gt; 10);
+</code></pre>
+
+<pre><code class="language-json">{ Age: { $gt: 10 } }
+</code></pre>
+
+<h4 id="gte">$gte</h4>
+
+<pre><code class="language-csharp">Find(p =&gt; p.Age &gt;= 10);
+</code></pre>
+
+<pre><code class="language-json">{ Age: { $gte: 10 } }
+</code></pre>
+
+<h4 id="lt">$lt</h4>
+
+<pre><code class="language-csharp">Find(p =&gt; p.Age &lt; 10);
+</code></pre>
+
+<pre><code class="language-json">{ Age: { $lt: 10 } }
+</code></pre>
+
+<h4 id="lte">$lte</h4>
+
+<pre><code class="language-csharp">Find(p =&gt; p.Age &lt;= 10);
+</code></pre>
+
+<pre><code class="language-json">{ Age: { $lte: 10 } }
+</code></pre>
+
+<h4 id="ne">$ne</h4>
+
+<pre><code class="language-csharp">Find(p =&gt; p.Age != 10);
+</code></pre>
+
+<pre><code class="language-json">{ Age: { $ne: 10 } }
+</code></pre>
+
+<h4 id="in">$in</h4>
+
+<pre><code class="language-csharp">int[] localAges = new [] { 10, 20, 30 };
+Find(p =&gt; localAges.Contains(p.Age));
+</code></pre>
+
+<pre><code class="language-json">{ Age: { $in: [10, 20, 30] } }
+</code></pre>
+
+<pre><code class="language-csharp">int[] localNames = new [] { &quot;Fluffy&quot;, &quot;Scruffy&quot; };
+Find(p =&gt; p.Pets.Any(i =&gt; localNames.Contains(i.Name));
+</code></pre>
+
+<pre><code class="language-json">{ &quot;Pets.Name&quot;: { $in: [&quot;Fluffy&quot;, &quot;Scruffy&quot;] } }
+</code></pre>
+
+<pre><code class="language-csharp">int[] localNumbers = new [] { 30, 40 };
+Find(p =&gt; localNumbers.Any(i =&gt; p.FavoriteNumbers.Contains(i));
+</code></pre>
+
+<pre><code class="language-json">{ FavoriteNumbers: { $in: [30, 40] } } 
+</code></pre>
+
+<h4 id="nin">$nin</h4>
+
+<pre><code class="language-csharp">int[] localAges = new [] { 10, 20, 30 };
+Find(p =&gt; !localAges.Contains(p.Age));
+</code></pre>
+
+<pre><code class="language-json">{ Age: { $nin: [10, 20, 30] } }
+</code></pre>
+
+<h4 id="bitsallclear">$bitsAllClear</h4>
+
+<pre><code class="language-csharp">Find(p =&gt; (p.PermissionFlags &amp; 7) == 0);
+</code></pre>
+
+<pre><code class="language-json">{ PermissionFlags: { $bitsAllClear: 7 } }
+</code></pre>
+
+<h4 id="bitsallset">$bitsAllSet</h4>
+
+<pre><code class="language-csharp">Find(p =&gt; (p.PermissionFlags &amp; 7) == 7);
+</code></pre>
+
+<pre><code class="language-json">{ PermissionFlags: { $bitsAllSet: 7 } }
+</code></pre>
+
+<h4 id="bitsanyclear">$bitsAnyClear</h4>
+
+<pre><code class="language-csharp">Find(p =&gt; (p.PermissionFlags &amp; 7) != 7);
+</code></pre>
+
+<pre><code class="language-json">{ PermissionFlags: { $bitsAnyClear: 7 } }
+</code></pre>
+
+<h4 id="bitsanyset">$bitsAnySet</h4>
+
+<pre><code class="language-csharp">Find(p =&gt; (p.PermissionFlags &amp; 7) != 0);
+</code></pre>
+
+<pre><code class="language-json">{ PermissionFlags: { $bitsAnySet: 7 } }
+</code></pre>
+
+<h3 id="logical">Logical</h3>
+
+<p>See the <a href="http://docs.mongodb.org/manual/reference/operator/query/#logical
+">MongoDB documentation</a> for more information on each operator.</p>
+
+<h4 id="or">$or</h4>
+
+<pre><code class="language-csharp">Find(p =&gt; p.Name == &quot;Jack&quot; || p.Age == 10);
+</code></pre>
+
+<pre><code class="language-json">{ $or: [{ Name: 'Jack' }, { Age: 10 }] }
+</code></pre>
+
+<h4 id="and">$and</h4>
+
+<pre><code class="language-csharp">Find(p =&gt; p.Name == &quot;Jack&quot; &amp;&amp; p.Age &lt; 40);
+</code></pre>
+
+<pre><code class="language-json">{ Name: 'Jack', Age: { $lt: 40 } }
+</code></pre>
+
+<hr />
+
+<pre><code class="language-csharp">Find(p =&gt; p.Age &gt; 30 &amp;&amp; p.Age &lt; 40);
+</code></pre>
+
+<pre><code class="language-json">{ Age: { $gt: 30, $lt: 40 }
+</code></pre>
+
+<hr />
+
+<pre><code class="language-csharp">Find(p =&gt; p.Name != &quot;Jack&quot; &amp;&amp; p.Name != &quot;Jim&quot;);
+</code></pre>
+
+<pre><code class="language-json">{ $and: [{ Name: { $ne: 'Jack' } }, { Name: { $ne: 'Jim' } }] }
+</code></pre>
+
+<h4 id="not">$not</h4>
+
+<pre><code class="language-csharp">// no example yet
+</code></pre>
+
+<h4 id="nor">$nor</h4>
+
+<pre><code class="language-csharp">// no example yet
+</code></pre>
+
+<h3 id="element">Element</h3>
+
+<p>See the <a href="http://docs.mongodb.org/manual/reference/operator/query/#element
+">MongoDB documentation</a> for more information on each operator.</p>
+
+<h4 id="exists">$exists</h4>
+
+<pre><code class="language-csharp">// no example yet
+</code></pre>
+
+<h4 id="type">$type</h4>
+
+<pre><code class="language-csharp">// no example yet
+</code></pre>
+
+<h3 id="evaluation">Evaluation</h3>
+
+<p>See the <a href="http://docs.mongodb.org/manual/reference/operator/query/#evaluation
+">MongoDB documentation</a> for more information on each operator.</p>
+
+<h4 id="mod">$mod</h4>
+
+<pre><code class="language-csharp">// no example yet
+</code></pre>
+
+<h4 id="regex">$regex</h4>
+
+<pre><code class="language-csharp">// no example yet
+</code></pre>
+
+<h4 id="text">$text</h4>
+
+<pre><code class="language-csharp">// no example yet
+</code></pre>
+
+<h4 id="where">$where</h4>
+
+<pre><code class="language-csharp">// no example yet
+</code></pre>
+
+<h3 id="geospatial">Geospatial</h3>
+
+<p>See the <a href="http://docs.mongodb.org/manual/reference/operator/query/#geospatial
+">MongoDB documentation</a> for more information on each operator.</p>
+
+<h4 id="geowithin">$geoWithin</h4>
+
+<pre><code class="language-csharp">// no example yet
+</code></pre>
+
+<h4 id="geointersects">$geoIntersects</h4>
+
+<pre><code class="language-csharp">// no example yet
+</code></pre>
+
+<h4 id="near">$near</h4>
+
+<pre><code class="language-csharp">// no example yet
+</code></pre>
+
+<h4 id="nearsphere">$nearSphere</h4>
+
+<pre><code class="language-csharp">// no example yet
+</code></pre>
+
+<h3 id="array">Array</h3>
+
+<p>See the <a href="http://docs.mongodb.org/manual/reference/operator/query/#array
+">MongoDB documentation</a> for more information on each operator.</p>
+
+<h4 id="all">$all</h4>
+
+<pre><code class="language-csharp">var local = new [] { 10, 20 };
+Find(x =&gt; local.All(i =&gt; FavoriteNumbers.Contains(i));
+</code></pre>
+
+<pre><code class="language-json">{ FavoriteNumbers: { $all: [10, 20] } }
+</code></pre>
+
+<h4 id="elemmatch">$elemMatch</h4>
+
+<pre><code class="language-csharp">Find(x =&gt; x.Pets.Any(p =&gt; p.Name == &quot;Fluffy&quot; &amp;&amp; p.Age &gt; 21);
+</code></pre>
+
+<pre><code class="language-json">{ Pets: { $elemMatch: { Name: 'Fluffy', Age: { $gt: 21 } } } }
+</code></pre>
+
+<hr />
+
+<pre><code class="language-csharp">Find(x =&gt; x.FavoriteNumbers.Any(n =&gt; n &lt; 42 &amp;&amp; n &gt; 21));
+</code></pre>
+
+<pre><code class="language-json">{ FavoriteNumbers: { $elemMatch: { $lt: 42, $gt: 21 } } }
+</code></pre>
+
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+<p>Depending on the complexity and the operators involved in the Any method call, the driver might eliminate the $elemMatch completely. For instance,</p>
+
+<pre><code class="language-csharp">Find(x =&gt; x.Pets.Any(p =&gt; p.Name == &quot;Fluffy&quot;))
+</code></pre>
+
+<pre><code class="language-json">{ Pets: { Name: &quot;Fluffy&quot; } }
+</code></pre>
+
+</div>
+</p>
+
+<h4 id="size">$size</h4>
+
+<pre><code class="language-csharp">Find(x =&gt; x.FavoriteNumbers.Length == 3);
+</code></pre>
+
+<pre><code class="language-json">{ FavoriteNumbers: { $size: 3 } }
+</code></pre>
+
+<hr />
+
+<pre><code class="language-csharp">Find(x =&gt; x.FavoriteNumbers.Length != 3);
+</code></pre>
+
+<pre><code class="language-json">{ FavoriteNumbers: { $not: { $size: 3 } } }
+</code></pre>
+
+<hr />
+
+<pre><code class="language-csharp">Find(x =&gt; x.FavoriteNumbers.Any());
+</code></pre>
+
+<pre><code class="language-json">{ FavoriteNumbers: { $ne: null, $not: { $size: 0 } } }
+</code></pre>
+
+<hr />
+
+<pre><code class="language-csharp">Find(x =&gt; x.FavoriteNumbers.Count() == 3);
+</code></pre>
+
+<pre><code class="language-json">{ FavoriteNumbers: { $size: 3 } }
+</code></pre>
+
+<h2 id="aggregation-projections">Aggregation Projections</h2>
+
+<p>We&rsquo;ll walk through the supported expressions below. The <a href="https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Tests/Linq/Translators/AggregateProjectTranslatorTests.cs
+">tests</a> are also a good reference.</p>
+
+<h3 id="boolean-expressions">Boolean Expressions</h3>
+
+<p>See the <a href="http://docs.mongodb.org/manual/meta/aggregation-quick-reference/#boolean-expressions
+">MongoDB documentation</a> for more information on each operator.</p>
+
+<h4 id="and-1">$and</h4>
+
+<pre><code class="language-csharp">p =&gt; p.Name == &quot;Jack&quot; &amp;&amp; p.Age &lt; 40
+</code></pre>
+
+<pre><code class="language-json">{ $and: [{ $eq: ['$Name', 'Jack'] }, { $lt: ['$Age', 40] }] }
+</code></pre>
+
+<h4 id="or-1">$or</h4>
+
+<pre><code class="language-csharp">p =&gt; p.Name == &quot;Jack&quot; || p.Age &lt; 40
+</code></pre>
+
+<pre><code class="language-json">{ $or: [{ $eq: ['$Name', 'Jack'] }, { $lt: ['$Age', 40] }] }
+</code></pre>
+
+<h4 id="not-1">$not</h4>
+
+<pre><code class="language-csharp">p =&gt; !(p.Name == &quot;Jack&quot;)
+</code></pre>
+
+<pre><code class="language-json">{ $not: [{ $eq: ['$Name', 'Jack'] }]] }
+</code></pre>
+
+<h3 id="set-expressions">Set Expressions</h3>
+
+<p>See the <a href="http://docs.mongodb.org/manual/meta/aggregation-quick-reference/#set-expressions
+">MongoDB documentation</a> for more information on each operator.</p>
+
+<h4 id="setequals">$setEquals</h4>
+
+<pre><code class="language-csharp">p =&gt; p.FavoriteNames.SetEquals(new [] { &quot;Jack&quot;, &quot;Jane&quot; });
+</code></pre>
+
+<pre><code class="language-json">{ $setEquals: ['$FavoriteNames', [ 'Jack', 'Jane'] ] }
+</code></pre>
+
+<hr />
+
+<pre><code class="language-csharp">var localSet = new HashSet&lt;int&gt;(new [] { 1, 3, 5 });
+
+p =&gt; localSet.SetEquals(p.FavoriteNumbers);
+</code></pre>
+
+<pre><code class="language-json">{ $setEquals: [ [1, 3, 5], '$FavoriteNumbers' ] }
+</code></pre>
+
+<h4 id="setintersection">$setIntersection</h4>
+
+<pre><code class="language-csharp">p =&gt; p.FavoriteNumbers.Intersect(new [] { 1, 3 });
+</code></pre>
+
+<pre><code class="language-json">{ $setIntersection: [ '$FavoriteNumbers', [ 1, 3 ] ] }
+</code></pre>
+
+<hr />
+
+<pre><code class="language-csharp">p =&gt; new [] { 1, 3 }.Intersect(p.FavoriteNumbers);
+</code></pre>
+
+<pre><code class="language-json">{ $setIntersection: [ [ 1, 3 ], '$FavoriteNumbers' ] }
+</code></pre>
+
+<h4 id="setunion">$setUnion</h4>
+
+<pre><code class="language-csharp">p =&gt; p.FavoriteNumbers.Union(new [] { 1, 3 });
+</code></pre>
+
+<pre><code class="language-json">{ $setUnion: [ '$FavoriteNumbers', [ 1, 3 ] ] }
+</code></pre>
+
+<hr />
+
+<pre><code class="language-csharp">p =&gt; new [] { 1, 3 }.Union(p.FavoriteNumbers);
+</code></pre>
+
+<pre><code class="language-json">{ $setUnion: [ [ 1, 3 ], '$FavoriteNumbers' ] }
+</code></pre>
+
+<h4 id="setdifference">$setDifference</h4>
+
+<pre><code class="language-csharp">p =&gt; p.FavoriteNumbers.Except(new [] { 1, 3 });
+</code></pre>
+
+<pre><code class="language-json">{ $setDifference: [ '$FavoriteNumbers', [ 1, 3 ] ] }
+</code></pre>
+
+<hr />
+
+<pre><code class="language-csharp">p =&gt; new [] { 1, 3 }.Except(p.FavoriteNumbers);
+</code></pre>
+
+<pre><code class="language-json">{ $setDifference: [ [ 1, 3 ], '$FavoriteNumbers' ] }
+</code></pre>
+
+<h4 id="setissubset">$setIsSubset</h4>
+
+<pre><code class="language-csharp">p =&gt; p.FavoriteNames.IsSubsetOf(new [] { &quot;Jack&quot;, &quot;Jane&quot; });
+</code></pre>
+
+<pre><code class="language-json">{ $setIsSubset: ['$FavoriteNames', [ 'Jack', 'Jane'] ] }
+</code></pre>
+
+<hr />
+
+<pre><code class="language-csharp">var localSet = new HashSet&lt;int&gt;(new [] { 1, 3, 5 });
+
+p =&gt; localSet.IsSubsetOf(p.FavoriteNumbers);
+</code></pre>
+
+<pre><code class="language-json">{ $setIsSubset: [ [1, 3, 5], '$FavoriteNumbers' ] }
+</code></pre>
+
+<h4 id="anyelementtrue">$anyElementTrue</h4>
+
+<pre><code class="language-csharp">p =&gt; p.FavoriteNumbers.Any(x =&gt; x &gt; 20);
+</code></pre>
+
+<pre><code class="language-json">{ $anyElementTrue: { $map: { input: '$FavoriteNumbers', as: 'x', in: { $gt: [ '$$x', 20 ] } } } }
+</code></pre>
+
+<h4 id="allelementstrue">$allElementsTrue</h4>
+
+<pre><code class="language-csharp">p =&gt; p.FavoriteNumbers.All(x =&gt; x &gt; 20);
+</code></pre>
+
+<pre><code class="language-json">{ $allElementsTrue: { $map: { input: '$FavoriteNumbers', as: 'x', in: { $gt: [ '$$x', 20 ] } } } }
+</code></pre>
+
+<h3 id="comparison-expressions">Comparison Expressions</h3>
+
+<p>See the <a href="http://docs.mongodb.org/manual/meta/aggregation-quick-reference/#comparison-expressions
+">MongoDB documentation</a> for more information on each operator.</p>
+
+<h4 id="cmp">$cmp</h4>
+
+<pre><code class="language-csharp">p =&gt; p.Name.CompareTo(&quot;Jimmy&quot;);
+</code></pre>
+
+<pre><code class="language-json">{ $cmp: [ '$Name', 'Jimmy' ] }
+</code></pre>
+
+<h4 id="eq-1">$eq</h4>
+
+<pre><code class="language-csharp">p =&gt; p.Name == &quot;Jimmy&quot;;
+</code></pre>
+
+<pre><code class="language-json">{ $eq: [ '$Name', 'Jimmy' ] }
+</code></pre>
+
+<h4 id="gt-1">$gt</h4>
+
+<pre><code class="language-csharp">p =&gt; p.Age &gt; 20;
+</code></pre>
+
+<pre><code class="language-json">{ $gt: [ '$Age', 20 ] }
+</code></pre>
+
+<h4 id="gte-1">$gte</h4>
+
+<pre><code class="language-csharp">p =&gt; p.Age &gt;= 20;
+</code></pre>
+
+<pre><code class="language-json">{ $gte: [ '$Age', 20 ] }
+</code></pre>
+
+<h4 id="lt-1">$lt</h4>
+
+<pre><code class="language-csharp">p =&gt; p.Age &lt; 20;
+</code></pre>
+
+<pre><code class="language-json">{ $lt: [ '$Age', 20 ] }
+</code></pre>
+
+<h4 id="lte-1">$lte</h4>
+
+<pre><code class="language-csharp">p =&gt; p.Age &lt;= 20;
+</code></pre>
+
+<pre><code class="language-json">{ $lte: [ '$Age', 20 ] }
+</code></pre>
+
+<h4 id="ne-1">$ne</h4>
+
+<pre><code class="language-csharp">p =&gt; p.Age != 20;
+</code></pre>
+
+<pre><code class="language-json">{ $ne: [ '$Age', 20 ] }
+</code></pre>
+
+<h3 id="arithmetic-expressions">Arithmetic Expressions</h3>
+
+<p>See the <a href="http://docs.mongodb.org/manual/meta/aggregation-quick-reference/#arithmetic-expressions
+">MongoDB documentation</a> for more information on each operator.</p>
+
+<h4 id="abs">$abs</h4>
+
+<pre><code class="language-csharp">p =&gt; Math.Abs(p.Age);
+</code></pre>
+
+<pre><code class="language-json">{ $abs: &quot;$Age&quot; }
+</code></pre>
+
+<h4 id="add">$add</h4>
+
+<pre><code class="language-csharp">p =&gt; p.Age + 2;
+</code></pre>
+
+<pre><code class="language-json">{ $add: [ '$Age', 2 ] }
+</code></pre>
+
+<h4 id="ceil">$ceil</h4>
+
+<pre><code class="language-csharp">p =&gt; Math.Ceiling(p.Age);
+</code></pre>
+
+<pre><code class="language-json">{ $ceil: &quot;$Age&quot; }
+</code></pre>
+
+<h4 id="divide">$divide</h4>
+
+<pre><code class="language-csharp">p =&gt; p.Age / 2;
+</code></pre>
+
+<pre><code class="language-json">{ $divide: [ '$Age', 2 ] }
+</code></pre>
+
+<h4 id="exp">$exp</h4>
+
+<pre><code class="language-csharp">p =&gt; Math.Exp(p.Age);
+</code></pre>
+
+<pre><code class="language-json">{ $exp: [&quot;$Age&quot;] }
+</code></pre>
+
+<h4 id="floor">$floor</h4>
+
+<pre><code class="language-csharp">p =&gt; Math.Floor(p.Age);
+</code></pre>
+
+<pre><code class="language-json">{ $floor: &quot;$Age&quot; }
+</code></pre>
+
+<h4 id="ln">$ln</h4>
+
+<pre><code class="language-csharp">p =&gt; Math.Log(p.Age);
+</code></pre>
+
+<pre><code class="language-json">{ $ln: [&quot;$Age&quot;] }
+</code></pre>
+
+<h4 id="log">$log</h4>
+
+<pre><code class="language-csharp">p =&gt; Math.Log(p.Age, 10);
+</code></pre>
+
+<pre><code class="language-json">{ $log: [&quot;$Age&quot;, 10] }
+</code></pre>
+
+<h4 id="log10">$log10</h4>
+
+<pre><code class="language-csharp">p =&gt; Math.Log10(p.Age);
+</code></pre>
+
+<pre><code class="language-json">{ $log10: [&quot;$Age&quot;] }
+</code></pre>
+
+<h4 id="mod-1">$mod</h4>
+
+<pre><code class="language-csharp">p =&gt; p.Age % 2;
+</code></pre>
+
+<pre><code class="language-json">{ $mod: [ '$Age', 2 ] }
+</code></pre>
+
+<h4 id="multiply">$multiply</h4>
+
+<pre><code class="language-csharp">p =&gt; p.Age * 2;
+</code></pre>
+
+<pre><code class="language-json">{ $multiply: [ '$Age', 2 ] }
+</code></pre>
+
+<h4 id="pow">$pow</h4>
+
+<pre><code class="language-csharp">p =&gt; Math.Pow(p.Age, 10);
+</code></pre>
+
+<pre><code class="language-json">{ $pow: [&quot;$Age&quot;, 10] }
+</code></pre>
+
+<h4 id="sqrt">$sqrt</h4>
+
+<pre><code class="language-csharp">p =&gt; Math.Sqrt(p.Age);
+</code></pre>
+
+<pre><code class="language-json">{ $sqrt: [&quot;$Age&quot;] }
+</code></pre>
+
+<h4 id="subtract">$subtract</h4>
+
+<pre><code class="language-csharp">p =&gt; p.Age - 2;
+</code></pre>
+
+<pre><code class="language-json">{ $subtract: [ '$Age', 2 ] }
+</code></pre>
+
+<h4 id="trunc">$trunc</h4>
+
+<pre><code class="language-csharp">p =&gt; Math.Truncate(p.Age);
+</code></pre>
+
+<pre><code class="language-json">{ $trunc: &quot;$Age&quot; }
+</code></pre>
+
+<h3 id="string-expressions">String Expressions</h3>
+
+<p>See the <a href="http://docs.mongodb.org/manual/meta/aggregation-quick-reference/#string-expressions
+">MongoDB documentation</a> for more information on each operator.</p>
+
+<h4 id="concat">$concat</h4>
+
+<pre><code class="language-csharp">p =&gt; p.Name + &quot;Awesome&quot;;
+</code></pre>
+
+<pre><code class="language-json">{ $concat: [ '$Name', 'Awesome' ] }
+</code></pre>
+
+<h4 id="substr">$substr</h4>
+
+<pre><code class="language-csharp">p =&gt; p.Name.Substring(3, 20)
+</code></pre>
+
+<pre><code class="language-json">{ $substr: [ '$Name', 3, 20 ] }
+</code></pre>
+
+<h4 id="tolower">$toLower</h4>
+
+<pre><code class="language-csharp">p =&gt; p.Name.ToLower()
+</code></pre>
+
+<pre><code class="language-json">{ $toLower: '$Name' }
+</code></pre>
+
+<h4 id="toupper">$toUpper</h4>
+
+<pre><code class="language-csharp">p =&gt; p.Name.ToUpper()
+</code></pre>
+
+<pre><code class="language-json">{ $toUpper: '$Name' }
+</code></pre>
+
+<h4 id="strcasecmp">$strcasecmp</h4>
+
+<p>You must use <code>StringComparison.OrdinalIgnoreCase</code> for this method.</p>
+
+<pre><code class="language-csharp">p =&gt; p.Name.Equals(&quot;balloon&quot;, StringComparison.OrdinalIgnoreCase);
+</code></pre>
+
+<pre><code class="language-json">{ $strcasecmp: ['$Name', 'balloon' ] }
+</code></pre>
+
+<h3 id="text-search-expressions">Text Search Expressions</h3>
+
+<p>See the <a href="http://docs.mongodb.org/manual/meta/aggregation-quick-reference/#text-search-expressions
+">MongoDB documentation</a> for more information on each operator.</p>
+
+<h4 id="meta">$meta</h4>
+
+<pre><code class="language-csharp">// no example yet
+</code></pre>
+
+<h3 id="array-expressions">Array Expressions</h3>
+
+<p>See the <a href="http://docs.mongodb.org/manual/meta/aggregation-quick-reference/#array-expressions
+">MongoDB documentation</a> for more information on each operator.</p>
+
+<h4 id="arrayelemat">$arrayElemAt</h4>
+
+<pre><code class="language-csharp">p =&gt; p.FavoriteNumbers.First()
+</code></pre>
+
+<pre><code class="language-json">{ $arrayElemAt: ['$FavoriteNumbers', 0] }
+</code></pre>
+
+<pre><code class="language-csharp">p =&gt; p.FavoriteNumbers.Last()
+</code></pre>
+
+<pre><code class="language-json">{ $arrayElemAt: ['$FavoriteNumbers', -1] }
+</code></pre>
+
+<h4 id="avg">$avg</h4>
+
+<pre><code class="language-csharp">p =&gt; p.FavoriteNumbers.Average()
+</code></pre>
+
+<pre><code class="language-json">{ $avg: '$FavoriteNumbers' }
+</code></pre>
+
+<h4 id="concatarrays">$concatArrays</h4>
+
+<pre><code class="language-csharp">p =&gt; p.FavoriteNumbers.Concat(new [] { 1, 2, 3 })
+</code></pre>
+
+<pre><code class="language-json">{ $concatArrays: ['$FavoriteNumbers', [1, 2, 3]] }
+</code></pre>
+
+<h4 id="filter">$filter</h4>
+
+<pre><code class="language-csharp">p =&gt; p.FavoriteNumbers.Where(x =&gt; x &gt; 10)
+</code></pre>
+
+<pre><code class="language-json">{ $filter: { input: '$FavoriteNumbers', as: 'x', cond: { $gt: ['$$x', 10] } } }
+</code></pre>
+
+<h4 id="map">$map</h4>
+
+<pre><code class="language-csharp">p =&gt; p.FavoriteNumbers.Select(x =&gt; x + 10)
+</code></pre>
+
+<pre><code class="language-json">{ $map: { input: '$FavoriteNumbers', as: 'x', in: { $add: ['$$x', 10] } } }
+</code></pre>
+
+<h4 id="max">$max</h4>
+
+<pre><code class="language-csharp">p =&gt; p.FavoriteNumbers.Max()
+</code></pre>
+
+<pre><code class="language-json">{ $max: '$FavoriteNumbers' }
+</code></pre>
+
+<h4 id="min">$min</h4>
+
+<pre><code class="language-csharp">p =&gt; p.FavoriteNumbers.Min()
+</code></pre>
+
+<pre><code class="language-json">{ $min: '$FavoriteNumbers' }
+</code></pre>
+
+<h4 id="size-1">$size</h4>
+
+<pre><code class="language-csharp">p =&gt; p.FavoriteNumbers.Length;
+</code></pre>
+
+<pre><code class="language-json">{ $size: '$FavoriteNumbers' }
+</code></pre>
+
+<hr />
+
+<pre><code class="language-csharp">p =&gt; p.FavoriteNumbers.Count();
+</code></pre>
+
+<pre><code class="language-json">{ $size: '$FavoriteNumbers' }
+</code></pre>
+
+<h4 id="slice">$slice</h4>
+
+<pre><code class="language-csharp">p =&gt; p.FavoriteNumbers.Take(2)
+</code></pre>
+
+<pre><code class="language-json">{ $slice: ['$FavoriteNumbers', 2] }
+</code></pre>
+
+<pre><code class="language-csharp">p =&gt; p.FavoriteNumbers.Skip(3).Take(2)
+</code></pre>
+
+<pre><code class="language-json">{ $slice: ['$FavoriteNumbers', 3, 2] }
+</code></pre>
+
+<h4 id="stddevpop">$stdDevPop</h4>
+
+<pre><code class="language-csharp">p =&gt; p.FavoriteNumbers.StandardDeviationPopulation()
+</code></pre>
+
+<pre><code class="language-json">{ $stdDevPop: '$FavoriteNumbers' }
+</code></pre>
+
+<h4 id="stddevsamp">$stdDevSamp</h4>
+
+<pre><code class="language-csharp">p =&gt; p.FavoriteNumbers.StandardDeviationSample()
+</code></pre>
+
+<pre><code class="language-json">{ $stdDevPop: '$FavoriteNumbers' }
+</code></pre>
+
+<h4 id="sum">$sum</h4>
+
+<pre><code class="language-csharp">p =&gt; p.FavoriteNumbers.Sum()
+</code></pre>
+
+<pre><code class="language-json">{ $sum: '$FavoriteNumbers' }
+</code></pre>
+
+<h3 id="variable-expressions">Variable Expressions</h3>
+
+<p>See the <a href="http://docs.mongodb.org/manual/meta/aggregation-quick-reference/#variable-expressions
+">MongoDB documentation</a> for more information on each operator.</p>
+
+<h4 id="map-1">$map</h4>
+
+<pre><code class="language-csharp">p =&gt; p.Pets.Select(x =&gt; x.Name + &quot; is awesome&quot;);
+</code></pre>
+
+<pre><code class="language-json">{ $map: { input: '$Name', as: 'x', in: { $concat: [ '$$x', ' is awesome' ] } } }
+</code></pre>
+
+<h4 id="let">$let</h4>
+
+<pre><code class="language-csharp">// no example yet
+</code></pre>
+
+<h3 id="literal-expressions">Literal Expressions</h3>
+
+<p>See the <a href="http://docs.mongodb.org/manual/meta/aggregation-quick-reference/#literal-expressions
+">MongoDB documentation</a> for more information on each operator.</p>
+
+<h4 id="literal">$literal</h4>
+
+<p>The only time <code>$literal</code> will be used from the driver is if the constant starts with a <code>$</code>.</p>
+
+<pre><code class="language-csharp">p =&gt; p.Name == &quot;$1&quot;);
+</code></pre>
+
+<pre><code class="language-json">{ $eq: [ '$Name', { $literal: '$1' } ] }
+</code></pre>
+
+<h3 id="date-expressions">Date Expressions</h3>
+
+<p>See the <a href="http://docs.mongodb.org/manual/meta/aggregation-quick-reference/#date-expressions
+">MongoDB documentation</a> for more information on each operator.</p>
+
+<h4 id="dayofyear">$dayOfYear</h4>
+
+<pre><code class="language-csharp">p =&gt; p.CreatedAtUtc.DayOfYear);
+</code></pre>
+
+<pre><code class="language-json">{ $dayOfYear: '$CreatedAtUtc' }
+</code></pre>
+
+<h4 id="dayofmonth">$dayOfMonth</h4>
+
+<pre><code class="language-csharp">p =&gt; p.CreatedAtUtc.Day);
+</code></pre>
+
+<pre><code class="language-json">{ $dayOfMonth: '$CreatedAtUtc' }
+</code></pre>
+
+<h4 id="dayofweek">$dayOfWeek</h4>
+
+<p>The .NET constant for day of week is 1 less than that in MongoDB. As such, we must subtract 1 from the MongoDB version in order for mapping back to the .NET type to be accurate.</p>
+
+<pre><code class="language-csharp">p =&gt; p.CreatedAtUtc.DayOfWeek);
+</code></pre>
+
+<pre><code class="language-json">{ $subtract: [ { $dayOfWeek: '$CreatedAtUtc' }, 1 ] }
+</code></pre>
+
+<h4 id="year">$year</h4>
+
+<pre><code class="language-csharp">p =&gt; p.CreatedAtUtc.Year);
+</code></pre>
+
+<pre><code class="language-json">{ $year: '$CreatedAtUtc' }
+</code></pre>
+
+<h4 id="month">$month</h4>
+
+<pre><code class="language-csharp">p =&gt; p.CreatedAtUtc.Month);
+</code></pre>
+
+<pre><code class="language-json">{ $month: '$CreatedAtUtc' }
+</code></pre>
+
+<h4 id="week">$week</h4>
+
+<pre><code class="language-csharp">// no example yet
+</code></pre>
+
+<h4 id="hour">$hour</h4>
+
+<pre><code class="language-csharp">p =&gt; p.CreatedAtUtc.Hour);
+</code></pre>
+
+<pre><code class="language-json">{ $hour: '$CreatedAtUtc' }
+</code></pre>
+
+<h4 id="minute">$minute</h4>
+
+<pre><code class="language-csharp">p =&gt; p.CreatedAtUtc.Minute);
+</code></pre>
+
+<pre><code class="language-json">{ $minute: '$CreatedAtUtc' }
+</code></pre>
+
+<h4 id="second">$second</h4>
+
+<pre><code class="language-csharp">p =&gt; p.CreatedAtUtc.Second);
+</code></pre>
+
+<pre><code class="language-json">{ $second: '$CreatedAtUtc' }
+</code></pre>
+
+<h4 id="millisecond">$millisecond</h4>
+
+<pre><code class="language-csharp">p =&gt; p.CreatedAtUtc.Millisecond);
+</code></pre>
+
+<pre><code class="language-json">{ $millisecond: '$CreatedAtUtc' }
+</code></pre>
+
+<h4 id="datetostring">$dateToString</h4>
+
+<pre><code class="language-csharp">// no example yet
+</code></pre>
+
+<h3 id="conditional-expressions">Conditional Expressions</h3>
+
+<p>See the <a href="http://docs.mongodb.org/manual/meta/aggregation-quick-reference/#conditional-expressions
+">MongoDB documentation</a> for more information on each operator.</p>
+
+<h4 id="cond">$cond</h4>
+
+<pre><code class="language-csharp">p =&gt; p.Name == &quot;Jack&quot; ? &quot;a&quot; : &quot;b&quot;;
+</code></pre>
+
+<pre><code class="language-json">{ $cond: [ { $eq: [ '$Name', 'Jack' ] }, 'a', 'b' ] }
+</code></pre>
+
+<h4 id="ifnull">$ifNull</h4>
+
+<pre><code class="language-csharp">p =&gt; p.Name ?? &quot;awesome&quot;;
+</code></pre>
+
+<pre><code class="language-json">{ $ifNull: [ '$Name', 'awesome' ] }
+</code></pre>
+
+<h3 id="accumulators">Accumulators</h3>
+
+<p>See the <a href="http://docs.mongodb.org/manual/meta/aggregation-quick-reference/#accumulators
+">MongoDB documentation</a> for more information on each operator.</p>
+
+<p>Also, the <a href="https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Tests/Linq/Translators/AggregateGroupTranslatorTests.cs
+">tests</a> are a good reference.</p>
+
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+These are only supported in a grouping expression.
+</div>
+</p>
+
+<p>In the examples below, it should be assumed that <code>g</code> is of type <a href="https://msdn.microsoft.com/en-us/library/bb344977.aspx"><code>IGrouping&lt;TKey, TElement&gt;</code></a>.</p>
+
+<h4 id="sum-1">$sum</h4>
+
+<pre><code class="language-csharp">g =&gt; g.Sum(x =&gt; x.Age);
+</code></pre>
+
+<pre><code class="language-json">{ $sum: '$Age' }
+</code></pre>
+
+<hr />
+
+<pre><code class="language-csharp">g =&gt; g.Count()
+</code></pre>
+
+<pre><code class="language-json">{ $sum: 1 }
+</code></pre>
+
+<h4 id="avg-1">$avg</h4>
+
+<pre><code class="language-csharp">g =&gt; g.Average(x =&gt; x.Age);
+</code></pre>
+
+<pre><code class="language-json">{ $avg: '$Age' }
+</code></pre>
+
+<h4 id="first">$first</h4>
+
+<pre><code class="language-csharp">g =&gt; g.First().Age);
+</code></pre>
+
+<pre><code class="language-json">{ $first: '$Age' }
+</code></pre>
+
+<h4 id="last">$last</h4>
+
+<pre><code class="language-csharp">g =&gt; g.Last().Age);
+</code></pre>
+
+<pre><code class="language-json">{ $last: '$Age' }
+</code></pre>
+
+<h4 id="max-1">$max</h4>
+
+<pre><code class="language-csharp">g =&gt; g.Max(x =&gt; x.Age);
+</code></pre>
+
+<pre><code class="language-json">{ $max: '$Age' }
+</code></pre>
+
+<h4 id="min-1">$min</h4>
+
+<pre><code class="language-csharp">g =&gt; g.Min(x =&gt; x.Age);
+</code></pre>
+
+<pre><code class="language-json">{ $min: '$Age' }
+</code></pre>
+
+<h4 id="push">$push</h4>
+
+<pre><code class="language-csharp">g =&gt; g.Select(p =&gt; p.Name)
+</code></pre>
+
+<pre><code class="language-json">{ $push: '$Name' }
+</code></pre>
+
+<hr />
+
+<pre><code class="language-csharp">g =&gt; g.Select(p =&gt; p.Name).ToArray()
+</code></pre>
+
+<pre><code class="language-json">{ $push: '$Name' }
+</code></pre>
+
+<hr />
+
+<pre><code class="language-csharp">g =&gt; g.Select(p =&gt; p.Name).ToList()
+</code></pre>
+
+<pre><code class="language-json">{ $push: '$Name' }
+</code></pre>
+
+<h4 id="addtoset">$addToSet</h4>
+
+<pre><code class="language-csharp">g =&gt; new HashSet&lt;string&gt;(g.Select(p =&gt; p.Name));
+</code></pre>
+
+<pre><code class="language-json">{ $addToSet: '$Name' }
+</code></pre>
+
+<hr />
+
+<pre><code class="language-csharp">g =&gt; g.Select(p =&gt; p.Name).Distinct();
+</code></pre>
+
+<pre><code class="language-json">{ $addToSet: '$Name' }
+</code></pre>
+
+
+
+
+
+
+<div id="btnv">
+  
+  <div class="pull-left">
+  <a class="navigation prev" href="/mongo-csharp-driver/2.11/reference/driver/connecting/">
+      <i class="fa fa-long-arrow-left"> </i> Connecting
+  </a>
+  </div>
+  
+  
+  <div class="pull-right">
+  <a class="navigation next" href="/mongo-csharp-driver/2.11/reference/driver/admin/">
+    Administration <i class="fa fa-long-arrow-right"> </i>
+  </a>
+  
+</div>
+</div>
+
+
+</div>
+<div class="right-column">
+<div class="wrapper">
+  
+  <div class="toc">
+    <span class="toc-header">On this page</span>
+    <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#expressions">Expressions</a></li>
+<li><a href="#filters">Filters</a>
+<ul>
+<li><a href="#comparison">Comparison</a>
+<ul>
+<li><a href="#eq">$eq</a></li>
+<li><a href="#gt">$gt</a></li>
+<li><a href="#gte">$gte</a></li>
+<li><a href="#lt">$lt</a></li>
+<li><a href="#lte">$lte</a></li>
+<li><a href="#ne">$ne</a></li>
+<li><a href="#in">$in</a></li>
+<li><a href="#nin">$nin</a></li>
+<li><a href="#bitsallclear">$bitsAllClear</a></li>
+<li><a href="#bitsallset">$bitsAllSet</a></li>
+<li><a href="#bitsanyclear">$bitsAnyClear</a></li>
+<li><a href="#bitsanyset">$bitsAnySet</a></li>
+</ul></li>
+<li><a href="#logical">Logical</a>
+<ul>
+<li><a href="#or">$or</a></li>
+<li><a href="#and">$and</a></li>
+<li><a href="#not">$not</a></li>
+<li><a href="#nor">$nor</a></li>
+</ul></li>
+<li><a href="#element">Element</a>
+<ul>
+<li><a href="#exists">$exists</a></li>
+<li><a href="#type">$type</a></li>
+</ul></li>
+<li><a href="#evaluation">Evaluation</a>
+<ul>
+<li><a href="#mod">$mod</a></li>
+<li><a href="#regex">$regex</a></li>
+<li><a href="#text">$text</a></li>
+<li><a href="#where">$where</a></li>
+</ul></li>
+<li><a href="#geospatial">Geospatial</a>
+<ul>
+<li><a href="#geowithin">$geoWithin</a></li>
+<li><a href="#geointersects">$geoIntersects</a></li>
+<li><a href="#near">$near</a></li>
+<li><a href="#nearsphere">$nearSphere</a></li>
+</ul></li>
+<li><a href="#array">Array</a>
+<ul>
+<li><a href="#all">$all</a></li>
+<li><a href="#elemmatch">$elemMatch</a></li>
+<li><a href="#size">$size</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#aggregation-projections">Aggregation Projections</a>
+<ul>
+<li><a href="#boolean-expressions">Boolean Expressions</a>
+<ul>
+<li><a href="#and-1">$and</a></li>
+<li><a href="#or-1">$or</a></li>
+<li><a href="#not-1">$not</a></li>
+</ul></li>
+<li><a href="#set-expressions">Set Expressions</a>
+<ul>
+<li><a href="#setequals">$setEquals</a></li>
+<li><a href="#setintersection">$setIntersection</a></li>
+<li><a href="#setunion">$setUnion</a></li>
+<li><a href="#setdifference">$setDifference</a></li>
+<li><a href="#setissubset">$setIsSubset</a></li>
+<li><a href="#anyelementtrue">$anyElementTrue</a></li>
+<li><a href="#allelementstrue">$allElementsTrue</a></li>
+</ul></li>
+<li><a href="#comparison-expressions">Comparison Expressions</a>
+<ul>
+<li><a href="#cmp">$cmp</a></li>
+<li><a href="#eq-1">$eq</a></li>
+<li><a href="#gt-1">$gt</a></li>
+<li><a href="#gte-1">$gte</a></li>
+<li><a href="#lt-1">$lt</a></li>
+<li><a href="#lte-1">$lte</a></li>
+<li><a href="#ne-1">$ne</a></li>
+</ul></li>
+<li><a href="#arithmetic-expressions">Arithmetic Expressions</a>
+<ul>
+<li><a href="#abs">$abs</a></li>
+<li><a href="#add">$add</a></li>
+<li><a href="#ceil">$ceil</a></li>
+<li><a href="#divide">$divide</a></li>
+<li><a href="#exp">$exp</a></li>
+<li><a href="#floor">$floor</a></li>
+<li><a href="#ln">$ln</a></li>
+<li><a href="#log">$log</a></li>
+<li><a href="#log10">$log10</a></li>
+<li><a href="#mod-1">$mod</a></li>
+<li><a href="#multiply">$multiply</a></li>
+<li><a href="#pow">$pow</a></li>
+<li><a href="#sqrt">$sqrt</a></li>
+<li><a href="#subtract">$subtract</a></li>
+<li><a href="#trunc">$trunc</a></li>
+</ul></li>
+<li><a href="#string-expressions">String Expressions</a>
+<ul>
+<li><a href="#concat">$concat</a></li>
+<li><a href="#substr">$substr</a></li>
+<li><a href="#tolower">$toLower</a></li>
+<li><a href="#toupper">$toUpper</a></li>
+<li><a href="#strcasecmp">$strcasecmp</a></li>
+</ul></li>
+<li><a href="#text-search-expressions">Text Search Expressions</a>
+<ul>
+<li><a href="#meta">$meta</a></li>
+</ul></li>
+<li><a href="#array-expressions">Array Expressions</a>
+<ul>
+<li><a href="#arrayelemat">$arrayElemAt</a></li>
+<li><a href="#avg">$avg</a></li>
+<li><a href="#concatarrays">$concatArrays</a></li>
+<li><a href="#filter">$filter</a></li>
+<li><a href="#map">$map</a></li>
+<li><a href="#max">$max</a></li>
+<li><a href="#min">$min</a></li>
+<li><a href="#size-1">$size</a></li>
+<li><a href="#slice">$slice</a></li>
+<li><a href="#stddevpop">$stdDevPop</a></li>
+<li><a href="#stddevsamp">$stdDevSamp</a></li>
+<li><a href="#sum">$sum</a></li>
+</ul></li>
+<li><a href="#variable-expressions">Variable Expressions</a>
+<ul>
+<li><a href="#map-1">$map</a></li>
+<li><a href="#let">$let</a></li>
+</ul></li>
+<li><a href="#literal-expressions">Literal Expressions</a>
+<ul>
+<li><a href="#literal">$literal</a></li>
+</ul></li>
+<li><a href="#date-expressions">Date Expressions</a>
+<ul>
+<li><a href="#dayofyear">$dayOfYear</a></li>
+<li><a href="#dayofmonth">$dayOfMonth</a></li>
+<li><a href="#dayofweek">$dayOfWeek</a></li>
+<li><a href="#year">$year</a></li>
+<li><a href="#month">$month</a></li>
+<li><a href="#week">$week</a></li>
+<li><a href="#hour">$hour</a></li>
+<li><a href="#minute">$minute</a></li>
+<li><a href="#second">$second</a></li>
+<li><a href="#millisecond">$millisecond</a></li>
+<li><a href="#datetostring">$dateToString</a></li>
+</ul></li>
+<li><a href="#conditional-expressions">Conditional Expressions</a>
+<ul>
+<li><a href="#cond">$cond</a></li>
+<li><a href="#ifnull">$ifNull</a></li>
+</ul></li>
+<li><a href="#accumulators">Accumulators</a>
+<ul>
+<li><a href="#sum-1">$sum</a></li>
+<li><a href="#avg-1">$avg</a></li>
+<li><a href="#first">$first</a></li>
+<li><a href="#last">$last</a></li>
+<li><a href="#max-1">$max</a></li>
+<li><a href="#min-1">$min</a></li>
+<li><a href="#push">$push</a></li>
+<li><a href="#addtoset">$addToSet</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+  </div>
+  
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</section>
+</section>
+
+</section>
+
+
+<script type="text/javascript">
+  var DOCUMENTATION_OPTIONS = {
+   URL_ROOT:    "/mongo-csharp-driver/2.11",
+   VERSION:     "2.11",
+   COLLAPSE_INDEX: false,
+   FILE_SUFFIX: '.html',
+   HAS_SOURCE:  true
+  };
+</script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/js/jquery.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/lib/bootstrap.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/js/navbar.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/lib/highlight/highlight.pack.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/js/scripts.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/lib/bootstrap-toggle/bootstrap-toggle.min.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/js/dn.js"></script>
+
+
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-K75Z5Q"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push(
+{'gtm.start': new Date().getTime(),event:'gtm.js'}
+);var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-K75Z5Q');</script>
+
+
+<script type="text/javascript">
+var _elqQ = _elqQ || [];
+_elqQ.push(['elqSetSiteId', '413370795']);
+_elqQ.push(['elqTrackPageView']);
+(function () {
+function async_load()
+{ var s = document.createElement('script'); s.type = 'text/javascript'; s.async = true; s.src = '//img03.en25.com/i/elqCfg.min.js'; var x = document.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s, x); }
+if (window.addEventListener) window.addEventListener('DOMContentLoaded', async_load, false);
+else if (window.attachEvent) window.attachEvent('onload', async_load);
+})();
+</script>
+
+</body>
+</html>
+

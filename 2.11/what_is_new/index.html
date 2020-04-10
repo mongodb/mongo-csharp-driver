@@ -1,0 +1,2386 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+<meta name="author" content="">
+<meta name="keyword" content="">
+
+    <link rel="shortcut icon" href="/mongo-csharp-driver/2.11/img/favicon.png">
+
+    <title>What&#39;s New</title>
+
+    <link rel="stylesheet" href="/mongo-csharp-driver/2.11/lib/bootstrap.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/lib/font-awesome/css/font-awesome.min.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/css/mongodb-docs.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/css/overrides.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/lib/highlight/styles/idea.css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/lib/bootstrap-toggle/bootstrap-toggle.min.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/css/dn.css" type="text/css" />
+
+
+  </head>
+
+  <body>
+  
+  <section id="container" class="">
+      
+      <header id="header-db" class="row" role="navigation">
+  <div class="header-content">
+    <div class="toggle-nav pull-left">
+        <i class="fa fa-bars"></i>
+        <div class="icon-reorder tooltips" data-original-title="Toggle Navigation" data-placement="bottom"></div>
+    </div>
+    
+    <div class="logo pull-left">
+      <a href="/mongo-csharp-driver/2.11/../">
+        <img src="/mongo-csharp-driver/2.11/img/logo-mongodb-header.png", alt="MongoDB.org" />
+      </a>
+    </div>
+    
+    <div>
+<div class="nav-items pull-right">
+  <a href="http://try.mongodb.org/" data-toggle="tooltip" data-placement="bottom" title="Try MongoDB in the browser">Try it Out</a>
+  <a href="http://www.mongodb.org/downloads" data-toggle="tooltip" data-placement="bottom" title="Download MongoDB">Downloads</a>
+  <a href="http://www.mongodb.org/get-involved" data-toggle="tooltip" data-placement="bottom" title="Get involved with MongoDB">Community</a>
+  <a href="http://docs.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Documentation">Docs</a>
+  <a href="http://blog.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Blog">Blog</a>
+  <div id="search">
+<form method="get" action="//www.google.com/search" target="_blank">
+    <input type="text" name="searchQuery" size="20" value="" autocomplete="off" placeholder="Search docs">
+    <input type="hidden" name="site" value="/mongo-csharp-driver/2.11">
+    <input type="hidden" name="q" value="">
+    <label for="searchQuery"><i class="fa fa-search fa-1"></i></label>
+</form>
+</div>
+
+</div>
+</div>
+
+  </div>
+</header>
+
+      
+
+      
+<aside id="sidebar" class="sidebar">
+    <div class="ssidebar nav-collapse">
+      <div class="ssidebarwrapper">
+        <h3>
+          <a class="index-link" href="/mongo-csharp-driver/2.11/../">MongoDB .NET Driver</a>
+          <a class="version pull-right" href="/mongo-csharp-driver/2.11">2.11</a>
+        </h3>
+
+        
+        <ul class="sidebar-menu">
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+
+          
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+
+          
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l1 ">
+  <a href="/mongo-csharp-driver/2.11/getting_started/" class="">
+      <i class='fa fa-road'></i>
+      <span>Getting Started</span>
+      <span class="menu-arrow fa fa-angle-right"></span>
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/getting_started/installation/">
+        <i class='fa'></i>
+        Installation
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/getting_started/quick_tour/">
+        <i class='fa'></i>
+        Quick Tour
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/getting_started/admin_quick_tour/">
+        <i class='fa'></i>
+        Admin Quick Tour
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+<li class="toctree-l1  current">
+  <a href="/mongo-csharp-driver/2.11/what_is_new/" class="">
+      <i class='fa fa-star'></i>
+      <span>What&#39;s New</span>
+      <span class="menu-arrow fa fa-angle-down"></span>
+  </a>
+    <ul  class="current">
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/upgrading/">
+        <i class='fa'></i>
+        Upgrading
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l1 ">
+  <a href="/mongo-csharp-driver/2.11/reference/" class="">
+      <i class='fa fa-book'></i>
+      <span>Reference</span>
+      <span class="menu-arrow fa fa-angle-right"></span>
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l2 ">
+  <a href="/mongo-csharp-driver/2.11/reference/bson/" class="">
+      <i class='fa'></i>
+      <span>BSON</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/bson/">
+        <i class='fa'></i>
+        BSON/JSON
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/bson_document/">
+        <i class='fa'></i>
+        BsonDocument
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/serialization/">
+        <i class='fa'></i>
+        Serialization
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/" class="">
+      <i class='fa'></i>
+      <span>Mapping Classes</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/polymorphism/">
+        <i class='fa'></i>
+        Polymorphism
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/conventions/">
+        <i class='fa'></i>
+        Conventions
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/schema_changes/">
+        <i class='fa'></i>
+        Handling Schema Changes
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l2 ">
+  <a href="/mongo-csharp-driver/2.11/reference/driver/" class="">
+      <i class='fa'></i>
+      <span>Driver</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.11/reference/driver/connecting/" class="">
+      <i class='fa'></i>
+      <span>Connecting</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/ssl/">
+        <i class='fa'></i>
+        SSL
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/authentication/">
+        <i class='fa'></i>
+        Authentication
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.11/reference/driver/definitions/" class="">
+      <i class='fa'></i>
+      <span>Definitions and Builders</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/expressions/">
+        <i class='fa'></i>
+        Expressions
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/admin/">
+        <i class='fa'></i>
+        Administration
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.11/reference/driver/crud/" class="">
+      <i class='fa'></i>
+      <span>Reading and Writing</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/reading/">
+        <i class='fa'></i>
+        Reading
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/linq/">
+        <i class='fa'></i>
+        LINQ
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/writing/">
+        <i class='fa'></i>
+        Writing
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/compression/">
+        <i class='fa'></i>
+        Compression
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/sessions_and_transactions/">
+        <i class='fa'></i>
+        Sessions and Transactions
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/client_side_encryption/">
+        <i class='fa fa-lock'></i>
+        Client-Side Encryption
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/change_streams/">
+        <i class='fa'></i>
+        Change Streams
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/error_handling/">
+        <i class='fa'></i>
+        Error Handling
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l2 ">
+  <a href="/mongo-csharp-driver/2.11/reference/driver_core/" class="">
+      <i class='fa'></i>
+      <span>Driver Core</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.11/reference/driver_core/events/" class="">
+      <i class='fa'></i>
+      <span>Eventing</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver_core/sdamevents/">
+        <i class='fa'></i>
+        SDAM Events
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l2 ">
+  <a href="/mongo-csharp-driver/2.11/reference/gridfs/" class="">
+      <i class='fa'></i>
+      <span>GridFS</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/gridfs/gettingstarted/">
+        <i class='fa'></i>
+        Getting Started
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/gridfs/uploadingfiles/">
+        <i class='fa'></i>
+        Uploading Files
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/gridfs/downloadingfiles/">
+        <i class='fa'></i>
+        Downloading Files
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/gridfs/findingfiles/">
+        <i class='fa'></i>
+        Finding Files
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/gridfs/deletingandrenamingfiles/">
+        <i class='fa'></i>
+        Deleting and Renaming Files
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l1 ">
+  <a href="/mongo-csharp-driver/2.11/examples/" class="">
+      <i class='fa fa-code'></i>
+      <span>Examples</span>
+      <span class="menu-arrow fa fa-angle-right"></span>
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/examples/exporting_json/">
+        <i class='fa'></i>
+        Exporting JSON
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/examples/importing_json/">
+        <i class='fa'></i>
+        Importing JSON
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/examples/mixing_static_and_dynamic/">
+        <i class='fa'></i>
+        Mixing Static and Dynamic Data
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/examples/tailable_cursor/">
+        <i class='fa'></i>
+        Using a Tailable Cursor
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/examples/user_management/">
+        <i class='fa'></i>
+        Managing Users
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="/mongo-csharp-driver/2.11/apidocs/">
+        <i class='fa fa-file-text-o'></i>
+        API Documentation
+    </a>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="https://github.com/mongodb/mongo-csharp-driver/tree/master">
+        <i class='fa fa-github'></i>
+        Source Code
+    </a>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="/mongo-csharp-driver/2.11/issues_help/">
+        <i class='fa fa-life-ring'></i>
+        Issues &amp; Help
+    </a>
+  </li>
+
+
+          
+        </ul>
+        
+    </div>
+  </div>
+  
+</aside>
+
+<div class="option-popup closed hidden" id="optionsVersionsPopup">
+<div class="option-header">
+  <i class="fa fa-gear"></i>
+  <span>OPTIONS</span>
+  <i class="fa fa-angle-up pull-right"></i>
+</div>
+<div class="option-body">
+  <ul>
+      
+      <li>
+        <label>Version</label>
+        <div class="btn-group btn-group-xs pull-right">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            Select Version <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu" id="optionsVersionsMenu">
+          </ul>
+        </div>
+      </li>
+
+   
+
+
+    
+
+  </ul>
+</div>
+</div>
+
+
+
+      
+      <section id="main-content" class="content">
+          <section class="main-column pull-left">
+            <div class="document">
+              <div class="documentwrapper">
+                <div class="bodywrapper">
+                  <div class="body">
+
+
+   
+<a class="edit-link" href="https://github.com/mongodb/mongo-csharp-driver/blob/master/docs/reference/content/what_is_new.md" target="_blank" title="Edit what_is_new.md on GitHub"><i class="fa fa-pencil-square-o"></i></a>
+
+
+
+
+
+
+
+
+
+
+<div class="bc">
+<ul>
+  
+  
+  
+  
+  
+  
+  <li>What&#39;s New</li>
+</ul>
+</div>
+
+
+
+
+<h2 id="what-s-new-in-2-11-0-beta1">What&rsquo;s New in 2.11.0-beta1</h2>
+
+<p>Some of the changes in 2.11.0-beta1 include:</p>
+
+<ul>
+<li>Support for all new
+<a href="https://docs.mongodb.com/manual/reference/operator/projection/meta/"><code>$meta</code></a>
+projections: <code>randVal</code>, <code>searchScore</code>, <code>searchHighlights</code>,
+<code>geoNearDistance</code>, <code>geoNearPoint</code>, <code>recordId</code>, <code>indexKey</code> and
+<code>sortKey</code></li>
+<li>Support for passing a hint to update commands as well as
+<code>findAndModify</code> update and replace operations</li>
+<li>Support for <code>allowDiskUse</code> on find operations</li>
+<li>Support for <code>MONGODB-AWS</code> authentication using Amazon Web Services
+(AWS) Identity and Access Management (IAM) credentials</li>
+<li>Support for stapled OCSP (Online Certificate Status Protocol) (macOS only)</li>
+</ul>
+
+<p>Other new additions and updates in this beta include:</p>
+
+<ul>
+<li>A new target of .NET Standard 2.0</li>
+<li>Support for Snappy compression on .NET Core on Windows (in addition
+to existing support on .NET Framework)</li>
+<li>Support for Zstandard compression on Windows on 64-bit platforms</li>
+<li>A new default of enabling certificate revocation checking.</li>
+<li>A new URI option <code>tlsDisableCertificateRevocationCheck</code> to disable
+certificate revocation checking.</li>
+<li>An expanded list of retryable write errors via the inclusion of
+<code>ExceededTimeLimit</code>, <code>LockTimeout</code> and <code>ClientDisconnect</code></li>
+<li>A new GuidRepresentationMode setting to opt-in to the new V3 GuidRepresentation mode</li>
+</ul>
+
+<h2 id="what-s-new-in-2-10-0">What&rsquo;s New in 2.10.0</h2>
+
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+<p>If you are using unacknowledged writes (also known as w:0 writes) with versions 2.10.0 or 2.10.1 of the driver, we strongly recommend you upgrade to version 2.10.2 as soon as possible, to obtain the fix for a critical issue: <a href="https://jira.mongodb.org/browse/CSHARP-2960">https://jira.mongodb.org/browse/CSHARP-2960</a></p>
+
+</div>
+</p>
+
+<p>Some of the changes in 2.10.0 include:</p>
+
+<ul>
+<li><a href="/mongo-csharp-driver/2.11/reference/driver/crud/client_side_encryption/">Client-side field level encryption support</a> for Windows</li>
+<li>Added new ReplaceOptions parameter for the ReplaceOne CRUD methods</li>
+</ul>
+
+<h2 id="what-s-new-in-2-9-0">What&rsquo;s New in 2.9.0</h2>
+
+<p>Some of the changes in 2.9.0 include:</p>
+
+<ul>
+<li>Retryable writes are enabled by default</li>
+<li>Retryable reads support (enabled by default)</li>
+<li>Distributed transactions on sharded clusters</li>
+<li>Convenient API for transactions via <code>IClientSession.WithTransaction()</code></li>
+<li>Support for message compression</li>
+<li>SRV polling for <code>mongodb+srv</code> connection scheme</li>
+<li>Update specification using an aggregation framework pipeline</li>
+<li>SCRAM-SHA authentication caching</li>
+<li>Connections to the replica set primary are no longer closed after a step-down, allowing in progress read operations to complete</li>
+<li>New aggregate helper methods support running database-level aggregations</li>
+<li><code>$merge</code> support</li>
+<li>Change stream helpers now support the <code>startAfter</code> option</li>
+<li>Index creation helpers now support wildcard indexes</li>
+</ul>
+
+<h2 id="what-s-new-in-2-8-0">What&rsquo;s New in 2.8.0</h2>
+
+<p>Some of the changes in 2.8.0 include:</p>
+
+<ul>
+<li>A number of minor bug fixes</li>
+<li>Update dependency on System.Net.Security to 4.3.2</li>
+<li>Update dependency on System.Runtime.InteropServices.RuntimeInformation to 4.3.0</li>
+<li>Update dependency on DnsClient to 1.2.0 and work around breaking changes in the latest version of DnsClient</li>
+</ul>
+
+<h2 id="what-s-new-in-2-7-0">What&rsquo;s New in 2.7.0</h2>
+
+<p>The major new feature in 2.7.0 is support for new server 4.0 features including:</p>
+
+<ul>
+<li>Transactions</li>
+<li>ReadConcern Snapshot</li>
+<li>Change streams support extended to include all changes for an entire database or cluster</li>
+<li>SCRAM-SHA-256 authentication</li>
+</ul>
+
+<h2 id="what-s-new-in-2-6-0">What&rsquo;s New in 2.6.0</h2>
+
+<p>The 2.6.0 driver improves support for running with FIPS mode enabled in the operating system.</p>
+
+<h2 id="what-s-new-in-2-5-0">What&rsquo;s New in 2.5.0</h2>
+
+<p>The 2.5.0 driver adds support for many of the new features introduced by the 3.6.0 server.</p>
+
+<h3 id="change-streams">Change streams</h3>
+
+<p>The 2.5.0 driver adds support for <a href="http://dochub.mongodb.org/core/changestreams">change streams</a>.
+See the <code>Watch</code> and <code>WatchAsync</code> methods in <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_IMongoCollection_1.htm
+"><code>IMongoCollection</code></a>.</p>
+
+<h3 id="retryable-writes">Retryable writes</h3>
+
+<p>The 2.5.0 driver adds support for retryable writes using the <code>RetryWrites</code> setting in
+<a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_MongoClientSettings.htm
+"><code>MongoClientSettings</code></a>.</p>
+
+<h3 id="causal-consistency">Causal consistency</h3>
+
+<p>The 2.5.0 driver adds support for <a href="http://dochub.mongodb.org/core/causal-consistency">causal consistency</a> via the new
+<a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_IClientSession.htm
+"><code>IClientSession</code></a> API. To start a new causally consistent session
+set the <code>CausalConsistency</code> property to true in <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_ClientSessionOptions.htm
+"><code>ClientSessionOptions</code></a>
+when calling the <code>StartSession</code> or <code>StartSessionAsync</code> methods in <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_IMongoClient.htm
+"><code>IMongoClient</code></a>.</p>
+
+<h3 id="servers-older-than-2-6-0-are-no-longer-supported">Servers older than 2.6.0 are no longer supported</h3>
+
+<p>The 2.5.0 driver only supports versions 2.6.0 and newer of the server. Servers older than 2.6.0 are no longer supported.</p>
+
+<h2 id="what-s-new-in-2-4-0">What&rsquo;s New in 2.4.0</h2>
+
+<p>The 2.4.0 driver is a minor release that adds support for new features introduced in server 3.4 and fixes bugs reported since 2.3.0 was released.</p>
+
+<h3 id="decimal128-data-type">Decimal128 data type</h3>
+
+<p>Server 3.4 introduces the new decimal BSON data type. Version 2.4.0 of the .NET Driver adds support for the decimal BSON data type with the new BsonDecimal128
+and Decimal128 classes. BsonDecimal128 is the subclass of BsonValue for Decimal128 values, and the Decimal128 struct holds the actual value. This is the same
+relationship that exists between the BsonObjectId and ObjectId classes.</p>
+
+<p>There are no arithmetic operations provided on Decimal128 values, but Decimal128 values can be converted to C# decimal or double values and you can operate on those.</p>
+
+<h3 id="new-convention-for-automapping-immutable-classes-for-serialization">New convention for automapping immutable classes for serialization</h3>
+
+<p>The new ImmutableTypeClassMapConvention supports automapping immutable classes for automatic serialization using the BsonClassMapSerializer.</p>
+
+<h3 id="enumrepresentationconvention-now-applies-to-nullable-enums-also">EnumRepresentationConvention now applies to nullable enums also</h3>
+
+<p>The EnumRepresentationConvention can be used to specify the representation of enum values, but prior to 2.4.0 it did not apply to nullable enums.
+This convention has been enhanced to apply to both nullable and regular enums.</p>
+
+<h3 id="drivers-now-identify-themselves-to-the-server-when-connecting">Drivers now identify themselves to the server when connecting</h3>
+
+<p>Drivers now identify themselves to the server when they connect and this information is logged by the server. Applications can add an application name to the
+information sent to the server, either by adding &ldquo;applicationName=xyz&rdquo; to the connection string or by using the ApplicationName property of MongoClientSettings.</p>
+
+<h3 id="readpreference-support-for-maxstaleness">ReadPreference support for MaxStaleness</h3>
+
+<p>ReadPreference has a new MaxStaleness property that can be used when reading from secondaries to prevent reading from secondaries that are too far behind the primary.</p>
+
+<h3 id="new-linearizable-readconcernlevel">New Linearizable ReadConcernLevel</h3>
+
+<p>There is a new ReadConcernLevel called Linearizable in addition to the existing Local and Majority levels. You specify the read concern level by assigning a value to
+the ReadConcernLevel property of a ReadConcern value.</p>
+
+<h3 id="support-for-collations">Support for collations</h3>
+
+<p>The following database methods now support collations:</p>
+
+<ul>
+<li>CreateCollection/CreateCollectionAsync</li>
+</ul>
+
+<p>The following collection methods now support collations:</p>
+
+<ul>
+<li>Aggregate fluent API</li>
+<li>Aggregate/AggregateAsync</li>
+<li>BulkWrite/BulkWriteAsync</li>
+<li>Count/CountAsync</li>
+<li>DeleteMany/DeleteManyAsync</li>
+<li>DeleteOne/DeleteOneAsync</li>
+<li>Distinct/DistincAsync</li>
+<li>Find fluent API</li>
+<li>FindSync/FindAsync</li>
+<li>FindOneAndDelete/FindOneAndDeleteAsync</li>
+<li>FindOneAndReplace/FindOneAndReplaceAsync</li>
+<li>FindOneAndUpdate/FindOneAndUpdateAsync</li>
+<li>MapReduce/MapReduceAsync</li>
+<li>ReplaceOne/ReplaceOneAsync</li>
+<li>UpdateMany/UpdateManyAsync</li>
+<li>UpdateOne/UpdateOneAsync</li>
+</ul>
+
+<p>The following index management metods now support collations:</p>
+
+<ul>
+<li>CreateMany/CreateManyAsync</li>
+</ul>
+
+<p>All new methods support collations where appropriate as well.</p>
+
+<h3 id="support-for-creating-read-only-views">Support for creating read-only views</h3>
+
+<p>The IMongoDatabase interface has new CreateView/CreateViewAsync methods that support creating read-only views.</p>
+
+<h3 id="support-for-new-aggregation-framework-pipeline-operators">Support for new aggregation framework pipeline operators</h3>
+
+<p>The aggregate fluent API supports the following new aggregation pipeline operators:</p>
+
+<ul>
+<li>Bucket ($bucket)</li>
+<li>BucketAuto ($bucketAuto)</li>
+<li>Count ($count)</li>
+<li>Facet ($facet)</li>
+<li>GraphLookup ($graphLookup)</li>
+<li>ReplaceRoot ($replaceRoot)</li>
+<li>SortByCount ($sortByCount)</li>
+</ul>
+
+<p>LINQ now supports the following additional LINQ methods and maps them to equivalent aggregation pipeline operator(s):</p>
+
+<ul>
+<li>Aggregate ($reduce)</li>
+<li>Average ($avg)</li>
+<li>IndexOf ($indexOfBytes or $indexOfCP)</li>
+<li>Length ($strLenBytes or $strLenCP)</li>
+<li>Range ($range)</li>
+<li>Reverse ($reverseArray)</li>
+<li>Split ($split)</li>
+<li>Substr ($substr or $substrCP)</li>
+<li>Zip ($zip)</li>
+</ul>
+
+<h3 id="new-aggregate-pipeline-and-stage-builders">New Aggregate Pipeline and Stage builders</h3>
+
+<p>In earlier versions of the driver the aggregate fluent API had methods supporting creating a pipeline to be
+executed when the aggregate fluent object was executed, but there was no way to build a standalone pipeline value.</p>
+
+<p>With the introduction of the CreateView method and Facet pipeline operators there is now a need to create
+pipelines separately from the aggregate fluent API.</p>
+
+<p>The new PipelineDefinitionBuilder class can be used to create pipelines.</p>
+
+<h3 id="aggregate-and-linq-expressions-now-use-the-underlying-field-serializer-to-serialize-constant-values">Aggregate and LINQ expressions now use the underlying field serializer to serialize constant values</h3>
+
+<p>When building pipelines and converting LINQ expressions to pipelines constants are now serialized using the
+underlying field serializer so that the values are serialized the same way that they are stored in the database.</p>
+
+<h3 id="clusterregistry-has-a-new-unregisteranddisposecluster-method">ClusterRegistry has a new UnregisterAndDisposeCluster method</h3>
+
+<p>Normally the driver creates a pool of connections to a server the first time that server is used. This is
+advantageous because it speeds up subsequent uses of that server since there are already open connections
+that can be re-used.</p>
+
+<p>But sometimes users write applications that connect to hundreds of servers. If these applications only use
+these servers for a brief period of time and then don&rsquo;t use them anymore the resulting connection pool will
+continue to hold a number of open connections that are no longer needed.</p>
+
+<p>If you find yourself needing to shut down a connection pool you can use the new UnregisterAndDisposeCluster
+method of the ClusterRegistry class.</p>
+
+<h2 id="what-s-new-in-2-3-0">What&rsquo;s New in 2.3.0</h2>
+
+<p>The 2.3.0 driver is a minor release with few new features. The most notable is discussed below.</p>
+
+<h3 id="support-for-net-core">Support for .NET Core</h3>
+
+<p>You can now use the .NET driver with .NET Core.</p>
+
+<p>The Nuget packages target two versions of the .NET frameworks: net45 and netstandard1.5. The net45 target allows the driver to be used with the full .NET Framework
+version 4.5 and later, and the netstandard1.5 target allows the driver to be used with any framework that supports netstandard1.5, which includes .NET Core 1.0.</p>
+
+<h2 id="what-s-new-in-2-2-0">What&rsquo;s New in 2.2.0</h2>
+
+<p>The 2.2 driver ships with a number of new features. The most notable are discussed below.</p>
+
+<h3 id="sync-api">Sync API</h3>
+
+<p>The 2.0 and 2.1 versions of the .NET driver featured a new async-only API. Version 2.2 introduces sync versions of every async method.</p>
+
+<h3 id="support-for-server-3-2">Support for server 3.2</h3>
+
+<ul>
+<li>Support for bypassing document validation for write operations on collections where document validation has been enabled</li>
+<li>Support for write concern for FindAndModify methods</li>
+<li>Support for read concern</li>
+<li>Builder support for new aggregation stages and new accumulators in $group stage</li>
+<li>Support for version 3 text indexes</li>
+</ul>
+
+<h2 id="what-s-new-in-2-1-0">What&rsquo;s New in 2.1.0</h2>
+
+<p>The 2.1 driver ships with a number of new features. The most notable are discussed below.</p>
+
+<h3 id="gridfs">GridFS</h3>
+
+<p><a href="https://jira.mongodb.org/browse/CSHARP-1191">CSHARP-1191</a> - GridFS support has been implemented.</p>
+
+<h3 id="linq">LINQ</h3>
+
+<p><a href="https://jira.mongodb.org/browse/CSHARP-935">CSHARP-935</a> LINQ support has been rewritten and now targets the aggregation framework. It is a more natural translation and enables many features of LINQ that were previously not able to be translated.</p>
+
+<p>Simply use the new <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_IMongoCollectionExtensions_AsQueryable__1.htm
+"><code>AsQueryable</code></a> method to work with LINQ.</p>
+
+<h2 id="what-s-new-in-2-0-0">What&rsquo;s New in 2.0.0</h2>
+
+<p>The 2.0.0 driver ships with a host of new features. The most notable are discussed below.</p>
+
+<h3 id="async">Async</h3>
+
+<p>As has been requested for a while now, the driver now offers a full async stack. Since it uses Tasks, it is fully usable
+with async and await.</p>
+
+<p>While we offer a mostly backwards-compatible sync API, it is calling into the async stack underneath. Until you are ready
+to move to async, you should measure against the 1.x versions to ensure performance regressions don&rsquo;t enter your codebase.</p>
+
+<p>All new applications should utilize the New API.</p>
+
+<h3 id="new-api">New API</h3>
+
+<p>Because of our async nature, we have rebuilt our entire API. The new API is accessible via MongoClient.GetDatabase.</p>
+
+<ul>
+<li>Interfaces are used (<a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_IMongoClient.htm
+"><code>IMongoClient</code></a>, <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_IMongoDatabase.htm
+"><code>IMongoDatabase</code></a>, <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_IMongoCollection_1.htm
+"><code>IMongoCollection&lt;TDocument&gt;</code></a>) to support easier testing.</li>
+
+<li><p>A fluent Find API is available with full support for expression trees including projections.</p>
+
+<pre><code class="language-csharp">var names = await db.GetCollection&lt;Person&gt;(&quot;people&quot;)
+    .Find(x =&gt; x.FirstName == &quot;Jack&quot;)
+    .SortBy(x =&gt; x.Age)
+    .Project(x =&gt; x.FirstName + &quot; &quot; + x.LastName)
+    .ToListAsync();
+</code></pre></li>
+
+<li><p>A fluent Aggregation API is available with mostly-full support for expression trees.</p>
+
+<pre><code class="language-csharp">var totalAgeByLastName = await db.GetCollection&lt;Person&gt;(&quot;people&quot;)
+    .Aggregate()
+    .Match(x =&gt; x.FirstName == &quot;Jack&quot;)
+    .GroupBy(x =&gt; x.LastName, g =&gt; new { _id = g.Key, TotalAge = g.Sum(x =&gt; x.Age)})
+    .ToListAsync();
+</code></pre></li>
+
+<li><p>Support for dynamic.</p>
+
+<pre><code class="language-csharp">var person = new ExpandoObject();
+person.FirstName = &quot;Jane&quot;;
+person.Age = 12;
+person.PetNames = new List&lt;dynamic&gt; { &quot;Sherlock&quot;, &quot;Watson&quot; }
+await db.GetCollection&lt;dynamic&gt;(&quot;people&quot;).InsertOneAsync(person);
+</code></pre></li>
+</ul>
+
+<h3 id="experimental-features">Experimental Features</h3>
+
+<p>We&rsquo;ve also include some experimental features which are subject to change. These are both based on the Listener API.</p>
+
+<h4 id="logging">Logging</h4>
+
+<p>It is possible to see what is going on deep down in the driver by listening to core events. We&rsquo;ve included a simple text logger as an example:</p>
+
+<pre><code class="language-csharp">var settings = new MongoClientSettings
+{
+    ClusterConfigurator = cb =&gt;
+    {
+        var textWriter = TextWriter.Synchronized(new StreamWriter(&quot;mylogfile.txt&quot;));
+        cb.AddListener(new LogListener(textWriter));
+    }
+};
+</code></pre>
+
+<h4 id="performance-counters">Performance Counters</h4>
+
+<p>Windows Performance Counters can be enabled to track statistics like average message size, number of connections in the pool, etc&hellip;</p>
+
+<pre><code class="language-csharp">var settings = new MongoClientSettings
+{
+    ClusterConfigurator = cb =&gt;
+    {
+        cb.UsePeformanceCounters(&quot;MyApplicationName&quot;);
+    }
+};
+</code></pre>
+
+
+
+
+
+
+<div id="btnv">
+  
+  
+</div>
+</div>
+
+
+</div>
+<div class="right-column">
+<div class="wrapper">
+  
+  <div class="toc">
+    <span class="toc-header">On this page</span>
+    <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#what-s-new-in-2-11-0-beta1">What&rsquo;s New in 2.11.0-beta1</a></li>
+<li><a href="#what-s-new-in-2-10-0">What&rsquo;s New in 2.10.0</a></li>
+<li><a href="#what-s-new-in-2-9-0">What&rsquo;s New in 2.9.0</a></li>
+<li><a href="#what-s-new-in-2-8-0">What&rsquo;s New in 2.8.0</a></li>
+<li><a href="#what-s-new-in-2-7-0">What&rsquo;s New in 2.7.0</a></li>
+<li><a href="#what-s-new-in-2-6-0">What&rsquo;s New in 2.6.0</a></li>
+<li><a href="#what-s-new-in-2-5-0">What&rsquo;s New in 2.5.0</a>
+<ul>
+<li><a href="#change-streams">Change streams</a></li>
+<li><a href="#retryable-writes">Retryable writes</a></li>
+<li><a href="#causal-consistency">Causal consistency</a></li>
+<li><a href="#servers-older-than-2-6-0-are-no-longer-supported">Servers older than 2.6.0 are no longer supported</a></li>
+</ul></li>
+<li><a href="#what-s-new-in-2-4-0">What&rsquo;s New in 2.4.0</a>
+<ul>
+<li><a href="#decimal128-data-type">Decimal128 data type</a></li>
+<li><a href="#new-convention-for-automapping-immutable-classes-for-serialization">New convention for automapping immutable classes for serialization</a></li>
+<li><a href="#enumrepresentationconvention-now-applies-to-nullable-enums-also">EnumRepresentationConvention now applies to nullable enums also</a></li>
+<li><a href="#drivers-now-identify-themselves-to-the-server-when-connecting">Drivers now identify themselves to the server when connecting</a></li>
+<li><a href="#readpreference-support-for-maxstaleness">ReadPreference support for MaxStaleness</a></li>
+<li><a href="#new-linearizable-readconcernlevel">New Linearizable ReadConcernLevel</a></li>
+<li><a href="#support-for-collations">Support for collations</a></li>
+<li><a href="#support-for-creating-read-only-views">Support for creating read-only views</a></li>
+<li><a href="#support-for-new-aggregation-framework-pipeline-operators">Support for new aggregation framework pipeline operators</a></li>
+<li><a href="#new-aggregate-pipeline-and-stage-builders">New Aggregate Pipeline and Stage builders</a></li>
+<li><a href="#aggregate-and-linq-expressions-now-use-the-underlying-field-serializer-to-serialize-constant-values">Aggregate and LINQ expressions now use the underlying field serializer to serialize constant values</a></li>
+<li><a href="#clusterregistry-has-a-new-unregisteranddisposecluster-method">ClusterRegistry has a new UnregisterAndDisposeCluster method</a></li>
+</ul></li>
+<li><a href="#what-s-new-in-2-3-0">What&rsquo;s New in 2.3.0</a>
+<ul>
+<li><a href="#support-for-net-core">Support for .NET Core</a></li>
+</ul></li>
+<li><a href="#what-s-new-in-2-2-0">What&rsquo;s New in 2.2.0</a>
+<ul>
+<li><a href="#sync-api">Sync API</a></li>
+<li><a href="#support-for-server-3-2">Support for server 3.2</a></li>
+</ul></li>
+<li><a href="#what-s-new-in-2-1-0">What&rsquo;s New in 2.1.0</a>
+<ul>
+<li><a href="#gridfs">GridFS</a></li>
+<li><a href="#linq">LINQ</a></li>
+</ul></li>
+<li><a href="#what-s-new-in-2-0-0">What&rsquo;s New in 2.0.0</a>
+<ul>
+<li><a href="#async">Async</a></li>
+<li><a href="#new-api">New API</a></li>
+<li><a href="#experimental-features">Experimental Features</a>
+<ul>
+<li><a href="#logging">Logging</a></li>
+<li><a href="#performance-counters">Performance Counters</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+  </div>
+  
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</section>
+</section>
+
+</section>
+
+
+<script type="text/javascript">
+  var DOCUMENTATION_OPTIONS = {
+   URL_ROOT:    "/mongo-csharp-driver/2.11",
+   VERSION:     "2.11",
+   COLLAPSE_INDEX: false,
+   FILE_SUFFIX: '.html',
+   HAS_SOURCE:  true
+  };
+</script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/js/jquery.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/lib/bootstrap.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/js/navbar.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/lib/highlight/highlight.pack.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/js/scripts.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/lib/bootstrap-toggle/bootstrap-toggle.min.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/js/dn.js"></script>
+
+
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-K75Z5Q"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push(
+{'gtm.start': new Date().getTime(),event:'gtm.js'}
+);var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-K75Z5Q');</script>
+
+
+<script type="text/javascript">
+var _elqQ = _elqQ || [];
+_elqQ.push(['elqSetSiteId', '413370795']);
+_elqQ.push(['elqTrackPageView']);
+(function () {
+function async_load()
+{ var s = document.createElement('script'); s.type = 'text/javascript'; s.async = true; s.src = '//img03.en25.com/i/elqCfg.min.js'; var x = document.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s, x); }
+if (window.addEventListener) window.addEventListener('DOMContentLoaded', async_load, false);
+else if (window.attachEvent) window.attachEvent('onload', async_load);
+})();
+</script>
+
+</body>
+</html>
+

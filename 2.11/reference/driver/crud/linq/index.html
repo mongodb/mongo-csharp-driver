@@ -1,0 +1,3169 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+<meta name="author" content="">
+<meta name="keyword" content="">
+
+    <link rel="shortcut icon" href="/mongo-csharp-driver/2.11/img/favicon.png">
+
+    <title>LINQ</title>
+
+    <link rel="stylesheet" href="/mongo-csharp-driver/2.11/lib/bootstrap.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/lib/font-awesome/css/font-awesome.min.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/css/mongodb-docs.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/css/overrides.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/lib/highlight/styles/idea.css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/lib/bootstrap-toggle/bootstrap-toggle.min.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/css/dn.css" type="text/css" />
+
+
+  </head>
+
+  <body>
+  
+  <section id="container" class="">
+      
+      <header id="header-db" class="row" role="navigation">
+  <div class="header-content">
+    <div class="toggle-nav pull-left">
+        <i class="fa fa-bars"></i>
+        <div class="icon-reorder tooltips" data-original-title="Toggle Navigation" data-placement="bottom"></div>
+    </div>
+    
+    <div class="logo pull-left">
+      <a href="/mongo-csharp-driver/2.11/../">
+        <img src="/mongo-csharp-driver/2.11/img/logo-mongodb-header.png", alt="MongoDB.org" />
+      </a>
+    </div>
+    
+    <div>
+<div class="nav-items pull-right">
+  <a href="http://try.mongodb.org/" data-toggle="tooltip" data-placement="bottom" title="Try MongoDB in the browser">Try it Out</a>
+  <a href="http://www.mongodb.org/downloads" data-toggle="tooltip" data-placement="bottom" title="Download MongoDB">Downloads</a>
+  <a href="http://www.mongodb.org/get-involved" data-toggle="tooltip" data-placement="bottom" title="Get involved with MongoDB">Community</a>
+  <a href="http://docs.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Documentation">Docs</a>
+  <a href="http://blog.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Blog">Blog</a>
+  <div id="search">
+<form method="get" action="//www.google.com/search" target="_blank">
+    <input type="text" name="searchQuery" size="20" value="" autocomplete="off" placeholder="Search docs">
+    <input type="hidden" name="site" value="/mongo-csharp-driver/2.11">
+    <input type="hidden" name="q" value="">
+    <label for="searchQuery"><i class="fa fa-search fa-1"></i></label>
+</form>
+</div>
+
+</div>
+</div>
+
+  </div>
+</header>
+
+      
+
+      
+<aside id="sidebar" class="sidebar">
+    <div class="ssidebar nav-collapse">
+      <div class="ssidebarwrapper">
+        <h3>
+          <a class="index-link" href="/mongo-csharp-driver/2.11/../">MongoDB .NET Driver</a>
+          <a class="version pull-right" href="/mongo-csharp-driver/2.11">2.11</a>
+        </h3>
+
+        
+        <ul class="sidebar-menu">
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+
+          
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+    
+    
+    
+      
+      
+      
+        
+        
+        
+          
+        
+      
+      
+    
+    
+  
+  
+
+
+        
+      
+    
+      
+      
+        
+      
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+    
+  
+
+
+        
+      
+    
+      
+      
+    
+      
+      
+    
+    
+  
+
+
+        
+      
+    
+      
+      
+    
+      
+      
+    
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+
+          
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l1 ">
+  <a href="/mongo-csharp-driver/2.11/getting_started/" class="">
+      <i class='fa fa-road'></i>
+      <span>Getting Started</span>
+      <span class="menu-arrow fa fa-angle-right"></span>
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/getting_started/installation/">
+        <i class='fa'></i>
+        Installation
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/getting_started/quick_tour/">
+        <i class='fa'></i>
+        Quick Tour
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/getting_started/admin_quick_tour/">
+        <i class='fa'></i>
+        Admin Quick Tour
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l1 ">
+  <a href="/mongo-csharp-driver/2.11/what_is_new/" class="">
+      <i class='fa fa-star'></i>
+      <span>What&#39;s New</span>
+      <span class="menu-arrow fa fa-angle-right"></span>
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/upgrading/">
+        <i class='fa'></i>
+        Upgrading
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+<li class="toctree-l1  current">
+  <a href="/mongo-csharp-driver/2.11/reference/" class="">
+      <i class='fa fa-book'></i>
+      <span>Reference</span>
+      <span class="menu-arrow fa fa-angle-down"></span>
+  </a>
+    <ul  class="current">
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l2 ">
+  <a href="/mongo-csharp-driver/2.11/reference/bson/" class="">
+      <i class='fa'></i>
+      <span>BSON</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/bson/">
+        <i class='fa'></i>
+        BSON/JSON
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/bson_document/">
+        <i class='fa'></i>
+        BsonDocument
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/serialization/">
+        <i class='fa'></i>
+        Serialization
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/" class="">
+      <i class='fa'></i>
+      <span>Mapping Classes</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/polymorphism/">
+        <i class='fa'></i>
+        Polymorphism
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/conventions/">
+        <i class='fa'></i>
+        Conventions
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/schema_changes/">
+        <i class='fa'></i>
+        Handling Schema Changes
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+<li class="toctree-l2  current">
+  <a href="/mongo-csharp-driver/2.11/reference/driver/" class="">
+      <i class='fa'></i>
+      <span>Driver</span>
+      
+  </a>
+    <ul  class="current">
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.11/reference/driver/connecting/" class="">
+      <i class='fa'></i>
+      <span>Connecting</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/ssl/">
+        <i class='fa'></i>
+        SSL
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/authentication/">
+        <i class='fa'></i>
+        Authentication
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.11/reference/driver/definitions/" class="">
+      <i class='fa'></i>
+      <span>Definitions and Builders</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/expressions/">
+        <i class='fa'></i>
+        Expressions
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/admin/">
+        <i class='fa'></i>
+        Administration
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+<li class="toctree-l3  current">
+  <a href="/mongo-csharp-driver/2.11/reference/driver/crud/" class="">
+      <i class='fa'></i>
+      <span>Reading and Writing</span>
+      
+  </a>
+    <ul  class="current">
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/reading/">
+        <i class='fa'></i>
+        Reading
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/linq/">
+        <i class='fa'></i>
+        LINQ
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/writing/">
+        <i class='fa'></i>
+        Writing
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/compression/">
+        <i class='fa'></i>
+        Compression
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/sessions_and_transactions/">
+        <i class='fa'></i>
+        Sessions and Transactions
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/client_side_encryption/">
+        <i class='fa fa-lock'></i>
+        Client-Side Encryption
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/change_streams/">
+        <i class='fa'></i>
+        Change Streams
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/error_handling/">
+        <i class='fa'></i>
+        Error Handling
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l2 ">
+  <a href="/mongo-csharp-driver/2.11/reference/driver_core/" class="">
+      <i class='fa'></i>
+      <span>Driver Core</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.11/reference/driver_core/events/" class="">
+      <i class='fa'></i>
+      <span>Eventing</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver_core/sdamevents/">
+        <i class='fa'></i>
+        SDAM Events
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l2 ">
+  <a href="/mongo-csharp-driver/2.11/reference/gridfs/" class="">
+      <i class='fa'></i>
+      <span>GridFS</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/gridfs/gettingstarted/">
+        <i class='fa'></i>
+        Getting Started
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/gridfs/uploadingfiles/">
+        <i class='fa'></i>
+        Uploading Files
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/gridfs/downloadingfiles/">
+        <i class='fa'></i>
+        Downloading Files
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/gridfs/findingfiles/">
+        <i class='fa'></i>
+        Finding Files
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/gridfs/deletingandrenamingfiles/">
+        <i class='fa'></i>
+        Deleting and Renaming Files
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l1 ">
+  <a href="/mongo-csharp-driver/2.11/examples/" class="">
+      <i class='fa fa-code'></i>
+      <span>Examples</span>
+      <span class="menu-arrow fa fa-angle-right"></span>
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/examples/exporting_json/">
+        <i class='fa'></i>
+        Exporting JSON
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/examples/importing_json/">
+        <i class='fa'></i>
+        Importing JSON
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/examples/mixing_static_and_dynamic/">
+        <i class='fa'></i>
+        Mixing Static and Dynamic Data
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/examples/tailable_cursor/">
+        <i class='fa'></i>
+        Using a Tailable Cursor
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/examples/user_management/">
+        <i class='fa'></i>
+        Managing Users
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="/mongo-csharp-driver/2.11/apidocs/">
+        <i class='fa fa-file-text-o'></i>
+        API Documentation
+    </a>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="https://github.com/mongodb/mongo-csharp-driver/tree/master">
+        <i class='fa fa-github'></i>
+        Source Code
+    </a>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="/mongo-csharp-driver/2.11/issues_help/">
+        <i class='fa fa-life-ring'></i>
+        Issues &amp; Help
+    </a>
+  </li>
+
+
+          
+        </ul>
+        
+    </div>
+  </div>
+  
+</aside>
+
+<div class="option-popup closed hidden" id="optionsVersionsPopup">
+<div class="option-header">
+  <i class="fa fa-gear"></i>
+  <span>OPTIONS</span>
+  <i class="fa fa-angle-up pull-right"></i>
+</div>
+<div class="option-body">
+  <ul>
+      
+      <li>
+        <label>Version</label>
+        <div class="btn-group btn-group-xs pull-right">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            Select Version <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu" id="optionsVersionsMenu">
+          </ul>
+        </div>
+      </li>
+
+   
+
+
+    
+
+  </ul>
+</div>
+</div>
+
+
+
+      
+      <section id="main-content" class="content">
+          <section class="main-column pull-left">
+            <div class="document">
+              <div class="documentwrapper">
+                <div class="bodywrapper">
+                  <div class="body">
+
+
+   
+<a class="edit-link" href="https://github.com/mongodb/mongo-csharp-driver/blob/master/docs/reference/content/reference%5cdriver%5ccrud%5clinq.md" target="_blank" title="Edit reference\driver\crud\linq.md on GitHub"><i class="fa fa-pencil-square-o"></i></a>
+
+
+
+
+
+
+
+
+
+
+<div class="bc">
+<ul>
+  
+  
+  
+  <li><a href="/mongo-csharp-driver/2.11/reference/">Reference</a> <i class="fa fa-angle-right"></i></li>
+  <li><a href="/mongo-csharp-driver/2.11/reference/driver/">Driver</a> <i class="fa fa-angle-right"></i></li>
+  <li><a href="/mongo-csharp-driver/2.11/reference/driver/crud/">Reading and Writing</a> <i class="fa fa-angle-right"></i></li>
+  <li>LINQ</li>
+</ul>
+</div>
+
+
+
+
+<h2 id="linq">LINQ</h2>
+
+<p>The driver contains an implementation of <a href="https://msdn.microsoft.com/en-us/library/bb397926.aspx">LINQ</a> that targets the <a href="http://docs.mongodb.org/manual/aggregation
+">aggregation framework</a>. The aggregation framework holds a rich query language that maps very easily from a LINQ expression tree making it straightforward to understand the translation from a LINQ statement into an aggregation framework pipeline. To see a more complicated uses of LINQ from the driver, see the <a href="https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Tests/Samples/AggregationSample.cs
+">AggregationSample</a> source code.</p>
+
+<p>For the rest of this page, we&rsquo;ll use the following class:</p>
+
+<pre><code class="language-csharp">class Person
+{
+    public string Name { get; set; }
+
+    public int Age { get; set; }
+
+    public IEnumerable&lt;Pet&gt; Pets { get; set; }
+
+    public int[] FavoriteNumbers { get; set; }
+
+    public HashSet&lt;string&gt; FavoriteNames { get; set; }
+
+    public DateTime CreatedAtUtc { get; set; }
+}
+
+class Pet
+{
+    public string Name { get; set; }
+}
+</code></pre>
+
+<h3 id="queryable">Queryable</h3>
+
+<p>Hooking into the LINQ provider requires getting access to an <a href="https://msdn.microsoft.com/en-us/library/bb351562.aspx"><code>IQueryable</code></a> instance. The driver provides an <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_IMongoCollectionExtensions_AsQueryable.htm
+"><code>AsQueryable</code></a> extension method on <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_IMongoCollection_1.htm
+"><code>IMongoCollection</code></a>.</p>
+
+<pre><code class="language-csharp">var collection = db.GetCollection&lt;Person&gt;(&quot;people&quot;);
+var queryable = collection.AsQueryable();
+</code></pre>
+
+<p>Once you have an <a href="https://msdn.microsoft.com/en-us/library/bb351562.aspx"><code>IQueryable</code></a> instance, you can begin to compose a query:</p>
+
+<pre><code class="language-csharp">var query = from p in collection.AsQueryable()
+            where p.Age &gt; 21
+            select new { p.Name, p.Age };
+
+// or, using method syntax
+
+var query = collection.AsQueryable()
+    .Where(p =&gt; p.Age &gt; 21)
+    .Select(p =&gt; new { p.Name, p.Age });
+</code></pre>
+
+<p>&hellip; which maps to the following aggregation framework pipeline:</p>
+
+<pre><code class="language-json">[
+    { $match: { Age: { $gt: 21 } } },
+    { $project: { Name: 1, Age: 1, _id: 0 } }
+]
+</code></pre>
+
+<h3 id="stages">Stages</h3>
+
+<p>We&rsquo;ll walk through the supported stages below:</p>
+
+<h4 id="project">$project</h4>
+
+<p>To generate a <a href="http://docs.mongodb.org/manual/reference/operator/aggregation/project/
+"><code>$project</code></a> stage, use the <a href="https://msdn.microsoft.com/en-us/library/bb548743.aspx"><code>Select</code></a> method. To see the list of expressions supported in the <a href="https://msdn.microsoft.com/en-us/library/bb548743.aspx"><code>Select</code></a> method, see <a href="/mongo-csharp-driver/2.11/reference/driver/expressions/#aggregation-projections">Aggregation Projections</a>.</p>
+
+<pre><code class="language-csharp">var query = from p in collection.AsQueryable()
+            select new { p.Name, p.Age };
+
+// or
+
+var query = collection.AsQueryable()
+    .Select(p =&gt; new { p.Name, p.Age });
+</code></pre>
+
+<pre><code class="language-json">[
+    { $project: { Name: 1, Age: 1, _id: 0 } }
+]
+</code></pre>
+
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+<p>When projecting scalars, the driver will wrap the scalar into a document with a generated field name because MongoDB requires that output from an aggregation pipeline be documents.</p>
+
+<pre><code class="language-csharp">var query = from p in collection.AsQueryable()
+            select p.Name;
+
+var query = collection.AsQueryable()
+    .Select(p =&gt; p.Name);
+</code></pre>
+
+<pre><code class="language-json">[
+    { $project: { __fld0: &quot;$Name&quot;, _id: 0 } }
+]
+</code></pre>
+
+<p>The driver will know how to read the field out and transform the results properly.</p>
+
+</div>
+</p>
+
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+<p><a href="http://docs.mongodb.org/manual/reference/operator/aggregation/project/#suppress-the-id-field">By default</a>, MongoDB will include the <code>_id</code> field in the output unless explicitly excluded. The driver will automatically add this exclusion when necessary.</p>
+
+</div>
+</p>
+
+<h4 id="match">$match</h4>
+
+<p>The <a href="https://msdn.microsoft.com/en-us/library/bb535040.aspx"><code>Where</code></a> method is used to generate a <a href="http://docs.mongodb.org/manual/reference/operator/aggregation/match/
+"><code>$match</code></a> stage. To see the list of expressions supported inside a <a href="https://msdn.microsoft.com/en-us/library/bb535040.aspx"><code>Where</code></a>, see <a href="/mongo-csharp-driver/2.11/reference/driver/expressions/#filters">Filters</a>.</p>
+
+<pre><code class="language-csharp">var query = from p in collection.AsQueryable()
+            where p.Age &gt; 21
+            select p;
+
+// or
+
+var query = collection.AsQueryable()
+    .Where(p =&gt; p.Age &gt; 21);
+</code></pre>
+
+<pre><code class="language-json">[
+    { $match: { Age: { $gt: 21 } } }
+]
+</code></pre>
+
+<h4 id="redact">$redact</h4>
+
+<p>The <a href="http://docs.mongodb.org/manual/reference/operator/aggregation/redact/
+"><code>$redact</code></a> stage is not currently supported using LINQ.</p>
+
+<h4 id="limit">$limit</h4>
+
+<p>The <a href="https://msdn.microsoft.com/en-us/library/bb300906.aspx"><code>Take</code></a> method is used to generate a <a href="http://docs.mongodb.org/manual/reference/operator/aggregation/limit/
+"><code>$limit</code></a> stage.</p>
+
+<pre><code class="language-csharp">var query = collection.AsQueryable().Take(10);
+</code></pre>
+
+<pre><code class="language-json">[
+    { $limit: 10 }
+]
+</code></pre>
+
+<h4 id="skip">$skip</h4>
+
+<p>The <a href="https://msdn.microsoft.com/en-us/library/bb357513.aspx"><code>Skip</code></a> method is used to generate a <a href="http://docs.mongodb.org/manual/reference/operator/aggregation/skip/
+"><code>$skip</code></a> stage.</p>
+
+<pre><code class="language-csharp">var query = collection.AsQueryable().Skip(10);
+</code></pre>
+
+<pre><code class="language-json">[
+    { $skip: 10 }
+]
+</code></pre>
+
+<h4 id="unwind">$unwind</h4>
+
+<p>The <a href="https://msdn.microsoft.com/en-us/library/bb548748.aspx"><code>SelectMany</code></a> method is used to generate an <a href="http://docs.mongodb.org/manual/reference/operator/aggregation/unwind/
+"><code>$unwind</code></a> stage. In addition, because of how <a href="http://docs.mongodb.org/manual/reference/operator/aggregation/unwind/
+"><code>$unwind</code></a> works, a <a href="http://docs.mongodb.org/manual/reference/operator/aggregation/project/
+"><code>$project</code></a> stage will also be rendered. To see the list of expressions supported in the <a href="https://msdn.microsoft.com/en-us/library/bb548748.aspx"><code>SelectMany</code></a> method, see <a href="/mongo-csharp-driver/2.11/reference/driver/expressions/#aggregation-projections">Aggregation Projections</a>.</p>
+
+<pre><code class="language-csharp">var query = from p in collection.AsQueryable()
+            from pet in p.Pets
+            select pet;
+
+// or
+
+var query = collection.AsQueryable()
+    .SelectMany(p =&gt; p.Pets);
+</code></pre>
+
+<pre><code class="language-json">[
+    { $unwind: &quot;$Pets&quot; }
+    { $project: { Pets: 1, _id: 0 } }
+]
+</code></pre>
+
+<hr />
+
+<pre><code class="language-csharp">var query = from p in collection.AsQueryable()
+            from pet in p.Pets
+            select new { Name = pet.Name, Age = p.Age};
+
+// or
+
+var query = collection.AsQueryable()
+    .SelectMany(p =&gt; p.Pets, (p, pet) =&gt; new { Name = pet.Name, Age = p.Age});
+</code></pre>
+
+<pre><code class="language-json">[
+    { $unwind: &quot;$Pets&quot; }
+    { $project: { Name: &quot;$Pets.Name&quot;, Age: &quot;$Age&quot;, _id: 0 } }
+]
+</code></pre>
+
+<h4 id="group">$group</h4>
+
+<p>The <a href="https://msdn.microsoft.com/en-us/library/bb534492.aspx"><code>GroupBy</code></a> method is used to generate a <a href="http://docs.mongodb.org/manual/reference/operator/aggregation/group/
+"><code>$group</code></a> stage. In general, the <a href="https://msdn.microsoft.com/en-us/library/bb534492.aspx"><code>GroupBy</code></a> method will be followed by the <a href="https://msdn.microsoft.com/en-us/library/bb548743.aspx"><code>Select</code></a> containing the accumulators although that isn&rsquo;t required. To see the list of supported accumulators, see <a href="/mongo-csharp-driver/2.11/reference/driver/expressions/#accumulators">Accumulators</a>.</p>
+
+<pre><code class="language-csharp">var query = from p in collection.AsQueryable()
+            group p by p.Name into g
+            select new { Name = g.Key, Count = g.Count() };
+
+//or
+
+var query = collection.AsQueryable()
+    .GroupBy(p =&gt; p.Name)
+    .Select(g =&gt; new { Name = g.Key, Count = g.Count() });
+</code></pre>
+
+<pre><code class="language-json">[
+    { $group: { _id: &quot;$Name&quot;, __agg0: { $sum: 1 } } },
+    { $project: { Name: &quot;$_id&quot;, Count: &quot;$__agg0&quot;, _id: 0 } }
+]
+</code></pre>
+
+<hr />
+
+<pre><code class="language-csharp">var query = collection.AsQueryable()
+    .GroupBy(p =&gt; p.Name, (k, s) =&gt; new { Name = k, Count = s.Count()});
+</code></pre>
+
+<pre><code class="language-json">[
+    { $group: { _id: &quot;$Name&quot;, Count: { $sum: 1 } } },
+]
+</code></pre>
+
+<h4 id="sort">$sort</h4>
+
+<p>The <a href="https://msdn.microsoft.com/en-us/library/bb549264.aspx"><code>OrderBy</code></a> and <a href="https://msdn.microsoft.com/en-us/library/bb535112.aspx"><code>ThenBy</code></a> methods are used to generate a <a href="http://docs.mongodb.org/manual/reference/operator/aggregation/sort/
+"><code>$sort</code></a> stage.</p>
+
+<pre><code class="language-csharp">var query = from p in collection.AsQueryable()
+            orderby p.Name, p.Age descending
+            select p;
+
+//or
+
+var query = collection.AsQueryable()
+    .OrderBy(p =&gt; p.Name)
+    .ThenByDescending(p =&gt; p.Age);
+</code></pre>
+
+<pre><code class="language-json">[
+    { $sort: { Name: 1, Age: -1 } },
+]
+</code></pre>
+
+<h4 id="geonear">$geoNear</h4>
+
+<p>The <a href="http://docs.mongodb.org/manual/reference/operator/aggregation/geoNear/
+"><code>$geoNear</code></a> stage is not currently supported using LINQ.</p>
+
+<h4 id="out">$out</h4>
+
+<p>The <a href="http://docs.mongodb.org/manual/reference/operator/aggregation/out/
+"><code>$out</code></a> stage is not currently supported using LINQ.</p>
+
+<h4 id="lookup">$lookup</h4>
+
+<p>The <a href="https://msdn.microsoft.com/en-us/library/bb549264.aspx"><code>GroupJoin</code></a> method is used to generate a <a href="http://docs.mongodb.org/manual/reference/operator/aggregation/lookup/
+"><code>$lookup</code></a> stage.</p>
+
+<p>This operator can take on many forms, many of which are not supported by MongoDB. Therefore, only 2 forms are supported.</p>
+
+<p>First, you may project into most anything as long as it is supported by the <code>$project</code> operator and you do not project the original collection variable. Below is an example of a valid query:</p>
+
+<pre><code class="language-csharp">var query = from p in collection.AsQueryable()
+            join o in otherCollection on p.Name equals o.Key into joined
+            select new { p.Name, AgeSum: joined.Sum(x =&gt; x.Age) };
+</code></pre>
+
+<pre><code class="language-json">[
+    { $lookup: { from: &quot;other_collection&quot;, localField: 'Name', foreignField: 'Key', as: 'joined' } }&quot;,
+    { $project: { Name: &quot;$Name&quot;, AgeSum: { $sum: &quot;$joined.Age&quot; }, _id: 0 } }
+]
+</code></pre>
+
+<p>Second, you may project into a type with two constructor parameters, the first being the collection variable and the second being the joined variable. Below is an example of this:</p>
+
+<pre><code class="language-csharp">var query = from p in collection.AsQueryable()
+            join o in otherCollection on p.Name equals o.Key into joined
+            select new { p, joined };
+</code></pre>
+
+<pre><code class="language-json">[
+    { $lookup: { from: &quot;other_collection&quot;, localField: 'Name', foreignField: 'Key', as: 'joined' } }&quot;
+]
+</code></pre>
+
+<p>.. note::
+   An anonymous type, as above, has a constructor with two parameters as required.</p>
+
+<p>Sometimes, the compiler will also generate this two-parameter anonymous type transparently. Below is an example of this with a custom projection:</p>
+
+<pre><code class="language-csharp">var query = from p in collection.AsQueryable()
+            join o in otherCollection on p.Name equals o.Key into joined
+            from sub_o in joined.DefaultIfEmpty()
+            select new { p.Name, sub_o.Age };
+</code></pre>
+
+<pre><code class="language-json">[
+    { $lookup: { from: &quot;other_collection&quot;, localField: 'Name', foreignField: 'Key', as: 'joined' } }&quot;,
+    { $unwind: &quot;$joined&quot; },
+    { $project: { Name: &quot;$Name&quot;, Age: &quot;$joined.Age&quot;, _id: 0 }}
+]
+</code></pre>
+
+<h3 id="supported-methods">Supported Methods</h3>
+
+<p>The method examples are shown in isolation, but they can be used and combined with all the other methods as well. You can view the tests for each of these methods in the <a href="https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Tests/Linq/MongoQueryableTests.cs
+">MongoQueryableTests</a>.</p>
+
+<h4 id="any">Any</h4>
+
+<p>All forms of <a href="https://msdn.microsoft.com/en-us/library/system.linq.queryable.any.aspx"><code>Any</code></a> are supported.</p>
+
+<pre><code class="language-csharp">var result = collection.AsQueryable().Any();
+</code></pre>
+
+<pre><code class="language-json">[
+    { $limit: 1 }
+]
+</code></pre>
+
+<hr />
+
+<pre><code class="language-csharp">var result = collection.AsQueryable().Any(p =&gt; p.Age &gt; 21);
+</code></pre>
+
+<pre><code class="language-json">[
+    { $match: { Age: { $gt: 21 } },
+    { $limit: 1 }
+]
+</code></pre>
+
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+<code>Any</code> has a boolean return type. Since MongoDB doesn&rsquo;t support this, the driver will pull back at most 1 document. If one document was retrieved, then the result is true. Otherwise, it&rsquo;s false.
+</div>
+</p>
+
+<h4 id="average">Average</h4>
+
+<p>All forms of <a href="https://msdn.microsoft.com/en-us/library/system.linq.queryable.average.aspx"><code>Average</code></a> are supported.</p>
+
+<pre><code class="language-csharp">var result = collection.AsQueryable().Average(p =&gt; p.Age);
+
+// or
+
+var result = collection.AsQueryable().Select(p =&gt; p.Age).Average();
+</code></pre>
+
+<pre><code class="language-json">[
+    { $group: { _id: 1, __result: { $avg: &quot;$Age&quot; } } }
+]
+</code></pre>
+
+<h4 id="count-and-longcount">Count and LongCount</h4>
+
+<p>All forms of <a href="https://msdn.microsoft.com/en-us/library/system.linq.queryable.count.aspx"><code>Count</code></a> and <a href="https://msdn.microsoft.com/en-us/library/system.linq.queryable.longcount.aspx"><code>LongCount</code></a> are supported.</p>
+
+<pre><code class="language-csharp">var result = collection.AsQueryable().Count();
+
+// or
+
+var result = collection.AsQueryable().LongCount();
+</code></pre>
+
+<pre><code class="language-json">[
+    { $group: { _id: 1, __result: { $sum: 1 } } }
+]
+</code></pre>
+
+<hr />
+
+<pre><code class="language-csharp">var result = collection.AsQueryable().Count(p =&gt; p.Age &gt; 21);
+
+// or
+
+var result = collection.AsQueryable().LongCount(p =&gt; p.Age &gt; 21);
+</code></pre>
+
+<pre><code class="language-json">[
+    { $match : { Age { $gt: 21 } } },
+    { $group: { _id: 1, __result: { $sum: 1 } } }
+]
+</code></pre>
+
+<h4 id="distinct">Distinct</h4>
+
+<p><a href="https://msdn.microsoft.com/en-us/library/bb348456.aspx"><code>Distinct</code></a> without an equality comparer is supported.</p>
+
+<pre><code class="language-csharp">var query = collection.AsQueryable().Distinct();
+</code></pre>
+
+<pre><code class="language-json">[
+    { $group: { _id: &quot;$$ROOT&quot; } }
+]
+</code></pre>
+
+<p>Using a distinct in isolation as shown above is non-sensical. Since each document in a collection contains a unique _id field, then there will be as many groups as their are documents. To properly use distinct, it should follow some form of a projection like $project or $group.</p>
+
+<pre><code class="language-csharp">var query = collection.AsQueryable()
+    .Select(p =&gt; new { p.Name, p.Age })
+    .Distinct();
+</code></pre>
+
+<pre><code class="language-json">[
+    { $group: { _id: { Name: &quot;$Name&quot;, Age: &quot;$Age&quot; } } }
+]
+</code></pre>
+
+<h4 id="first-and-firstordefault">First and FirstOrDefault</h4>
+
+<p>All forms of <a href="https://msdn.microsoft.com/en-us/library/system.linq.queryable.first.aspx"><code>First</code></a> and <a href="https://msdn.microsoft.com/en-us/library/system.linq.queryable.firstordefault.aspx"><code>FirstOrDefault</code></a> are supported.</p>
+
+<pre><code class="language-csharp">var result = collection.AsQueryable().First();
+
+// or
+
+var result = collection.AsQueryable().FirstOrDefault();
+</code></pre>
+
+<pre><code class="language-json">[
+    { $limit: 1 }
+]
+</code></pre>
+
+<hr />
+
+<pre><code class="language-csharp">var result = collection.AsQueryable().First(p =&gt; p.Age &gt; 21);
+
+// or
+
+var result = collection.AsQueryable().FirstOrDefault(p =&gt; p.Age &gt; 21);
+</code></pre>
+
+<pre><code class="language-json">[
+    { $match : { Age { $gt: 21 } } },
+    { $limit: 1 }
+]
+</code></pre>
+
+<h4 id="groupby">GroupBy</h4>
+
+<p>See <a href="#group"><code>$group</code></a>.</p>
+
+<h4 id="groupjoin">GroupJoin</h4>
+
+<p>See <a href="#lookup"><code>$lookup</code></a>.</p>
+
+<h4 id="max">Max</h4>
+
+<p>All forms of <a href="https://msdn.microsoft.com/en-us/library/system.linq.queryable.max.aspx"><code>Max</code></a> are supported.</p>
+
+<pre><code class="language-csharp">var result = collection.AsQueryable().Max(p =&gt; p.Age);
+
+// or
+
+var result = collection.AsQueryable().Select(p =&gt; p.Age).Max();
+</code></pre>
+
+<pre><code class="language-json">[
+    { $group: { _id: 1, __result: { $max: &quot;$Age&quot; } } }
+]
+</code></pre>
+
+<h4 id="sum">Sum</h4>
+
+<p>All forms of <a href="https://msdn.microsoft.com/en-us/library/system.linq.queryable.Sum.aspx"><code>Sum</code></a> are supported.</p>
+
+<pre><code class="language-csharp">var result = collection.AsQueryable().Sum(p =&gt; p.Age);
+
+// or
+
+var result = collection.AsQueryable().Select(p =&gt; p.Age).Sum();
+</code></pre>
+
+<pre><code class="language-json">[
+    { $group: { _id: 1, __result: { $Sum: &quot;$Age&quot; } } }
+]
+</code></pre>
+
+<h4 id="oftype">OfType</h4>
+
+<p>All forms of <a href="https://msdn.microsoft.com/en-us/library/system.linq.queryable.oftype.aspx"><code>OfType</code></a> are supported.</p>
+
+<pre><code class="language-csharp">// assuSumg Customer inherits from Person
+var result = collection.AsQueryable().OfType&lt;Customer&gt;();
+</code></pre>
+
+<pre><code class="language-json">[
+    { $match: { _t: &quot;Customer&quot; } }
+]
+</code></pre>
+
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+Based on configuration, the discriminator name <code>_t</code> may be different as well as the value <code>&quot;Customer&quot;</code>.
+</div>
+</p>
+
+<h4 id="orderby-orderbydescending-thenby-and-thenbydescending">OrderBy, OrderByDescending, ThenBy, and ThenByDescending</h4>
+
+<p>See <a href="#sort"><code>$sort</code></a>.</p>
+
+<h4 id="select">Select</h4>
+
+<p>See <a href="#project"><code>$project</code></a>.</p>
+
+<h4 id="selectmany">SelectMany</h4>
+
+<p>See <a href="#unwind"><code>$unwind</code></a>.</p>
+
+<h4 id="single-and-singleordefault">Single and SingleOrDefault</h4>
+
+<p>All forms of <a href="https://msdn.microsoft.com/en-us/library/system.linq.queryable.single.aspx"><code>Single</code></a> and <a href="https://msdn.microsoft.com/en-us/library/system.linq.queryable.singleordefault.aspx"><code>SingleOrDefault</code></a> are supported.</p>
+
+<pre><code class="language-csharp">var result = collection.AsQueryable().Single();
+
+// or
+
+var result = collection.AsQueryable().SingleOrDefault();
+</code></pre>
+
+<pre><code class="language-json">[
+    { $limit: 2 }
+]
+</code></pre>
+
+<hr />
+
+<pre><code class="language-csharp">var result = collection.AsQueryable().Single(p =&gt; p.Age &gt; 21);
+
+// or
+
+var result = collection.AsQueryable().SingleOrDefault(p =&gt; p.Age &gt; 21);
+</code></pre>
+
+<pre><code class="language-json">[
+    { $match : { Age { $gt: 21 } } },
+    { $limit: 2 }
+]
+</code></pre>
+
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+The limit here is 2 because the behavior of <code>Single</code> is to throw when there is more than 1 result. Therefore, we pull back at most 2 documents and throw when 2 documents were retrieved. If this is not the behavior you wish, then <code>First</code> is the other choice.
+</div>
+</p>
+
+<h4 id="skip-1">Skip</h4>
+
+<p>See <a href="#skip"><code>$skip</code></a>.</p>
+
+<h4 id="sum-1">Sum</h4>
+
+<p>All forms of <a href="https://msdn.microsoft.com/en-us/library/system.linq.queryable.sum.aspx"><code>Sum</code></a> are supported.</p>
+
+<pre><code class="language-csharp">var result = collection.AsQueryable().Sum(p =&gt; p.Age);
+
+// or
+
+var result = collection.AsQueryable().Select(p =&gt; p.Age).Sum();
+</code></pre>
+
+<pre><code class="language-json">[
+    { $group: { _id: 1, __result: { $sum: &quot;$Age&quot; } } }
+]
+</code></pre>
+
+<h4 id="take">Take</h4>
+
+<p>See <a href="#limit"><code>$limit</code></a>.</p>
+
+<h4 id="where">Where</h4>
+
+<p>See <a href="#match"><code>$match</code></a>.</p>
+
+
+
+
+
+
+<div id="btnv">
+  
+  <div class="pull-left">
+  <a class="navigation prev" href="/mongo-csharp-driver/2.11/reference/driver/crud/reading/">
+      <i class="fa fa-long-arrow-left"> </i> Reading
+  </a>
+  </div>
+  
+  
+  <div class="pull-right">
+  <a class="navigation next" href="/mongo-csharp-driver/2.11/reference/driver/crud/writing/">
+    Writing <i class="fa fa-long-arrow-right"> </i>
+  </a>
+  
+</div>
+</div>
+
+
+</div>
+<div class="right-column">
+<div class="wrapper">
+  
+  <div class="toc">
+    <span class="toc-header">On this page</span>
+    <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#linq">LINQ</a>
+<ul>
+<li><a href="#queryable">Queryable</a></li>
+<li><a href="#stages">Stages</a>
+<ul>
+<li><a href="#project">$project</a></li>
+<li><a href="#match">$match</a></li>
+<li><a href="#redact">$redact</a></li>
+<li><a href="#limit">$limit</a></li>
+<li><a href="#skip">$skip</a></li>
+<li><a href="#unwind">$unwind</a></li>
+<li><a href="#group">$group</a></li>
+<li><a href="#sort">$sort</a></li>
+<li><a href="#geonear">$geoNear</a></li>
+<li><a href="#out">$out</a></li>
+<li><a href="#lookup">$lookup</a></li>
+</ul></li>
+<li><a href="#supported-methods">Supported Methods</a>
+<ul>
+<li><a href="#any">Any</a></li>
+<li><a href="#average">Average</a></li>
+<li><a href="#count-and-longcount">Count and LongCount</a></li>
+<li><a href="#distinct">Distinct</a></li>
+<li><a href="#first-and-firstordefault">First and FirstOrDefault</a></li>
+<li><a href="#groupby">GroupBy</a></li>
+<li><a href="#groupjoin">GroupJoin</a></li>
+<li><a href="#max">Max</a></li>
+<li><a href="#sum">Sum</a></li>
+<li><a href="#oftype">OfType</a></li>
+<li><a href="#orderby-orderbydescending-thenby-and-thenbydescending">OrderBy, OrderByDescending, ThenBy, and ThenByDescending</a></li>
+<li><a href="#select">Select</a></li>
+<li><a href="#selectmany">SelectMany</a></li>
+<li><a href="#single-and-singleordefault">Single and SingleOrDefault</a></li>
+<li><a href="#skip-1">Skip</a></li>
+<li><a href="#sum-1">Sum</a></li>
+<li><a href="#take">Take</a></li>
+<li><a href="#where">Where</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+  </div>
+  
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</section>
+</section>
+
+</section>
+
+
+<script type="text/javascript">
+  var DOCUMENTATION_OPTIONS = {
+   URL_ROOT:    "/mongo-csharp-driver/2.11",
+   VERSION:     "2.11",
+   COLLAPSE_INDEX: false,
+   FILE_SUFFIX: '.html',
+   HAS_SOURCE:  true
+  };
+</script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/js/jquery.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/lib/bootstrap.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/js/navbar.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/lib/highlight/highlight.pack.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/js/scripts.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/lib/bootstrap-toggle/bootstrap-toggle.min.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/js/dn.js"></script>
+
+
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-K75Z5Q"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push(
+{'gtm.start': new Date().getTime(),event:'gtm.js'}
+);var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-K75Z5Q');</script>
+
+
+<script type="text/javascript">
+var _elqQ = _elqQ || [];
+_elqQ.push(['elqSetSiteId', '413370795']);
+_elqQ.push(['elqTrackPageView']);
+(function () {
+function async_load()
+{ var s = document.createElement('script'); s.type = 'text/javascript'; s.async = true; s.src = '//img03.en25.com/i/elqCfg.min.js'; var x = document.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s, x); }
+if (window.addEventListener) window.addEventListener('DOMContentLoaded', async_load, false);
+else if (window.attachEvent) window.attachEvent('onload', async_load);
+})();
+</script>
+
+</body>
+</html>
+

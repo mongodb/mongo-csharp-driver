@@ -1,0 +1,2986 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>MongoDB .NET Driver</title>
+    <link>/mongo-csharp-driver/2.11/</link>
+    <description>Recent content on MongoDB .NET Driver</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 29 Jan 2020 22:05:03 -0400</lastBuildDate>
+    <atom:link href="/mongo-csharp-driver/2.11/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Compression</title>
+      <link>/mongo-csharp-driver/2.11/reference/driver/crud/compression/</link>
+      <pubDate>Wed, 29 Jan 2020 22:05:03 -0400</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.11/reference/driver/crud/compression/</guid>
+      <description>
+
+&lt;h2 id=&#34;compression&#34;&gt;Compression&lt;/h2&gt;
+
+&lt;p&gt;The C# driver supports compression of messages to and from MongoDB servers. The driver implements the three algorithms that are supported by MongoDB servers:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://google.github.io/snappy/&#34;&gt;Snappy&lt;/a&gt;: Snappy compression can be used when connecting to MongoDB servers starting with the 3.4 release.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://zlib.net/&#34;&gt;Zlib&lt;/a&gt;: Zlib compression can be used when connecting to MongoDB servers starting with the 3.6 release.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://facebook.github.io/zstd/&#34;&gt;Zstandard&lt;/a&gt;: Zstandard compression can be used when connecting to MongoDB servers starting with the 4.2 release.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The driver will negotiate which, if any, compression algorithm is used based on capabilities advertised by the server in the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/command/isMaster/
+&#34;&gt;ismaster&lt;/a&gt; command response.&lt;/p&gt;
+
+&lt;h3 id=&#34;specify-compression-via-connection-string&#34;&gt;Specify compression via &lt;code&gt;Connection String&lt;/code&gt;&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c#&#34;&gt;using MongoDB.Driver;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To specify compression with &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_Core_Configuration_ConnectionString.htm
+&#34;&gt;&lt;code&gt;ConnectionString&lt;/code&gt;&lt;/a&gt;, just add &lt;code&gt;compressors&lt;/code&gt; into the connection string, as in:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c#&#34;&gt;var connectionString = &amp;quot;mongodb://localhost/?compressors=snappy&amp;quot;;
+var client = new MongoClient(connectionString);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;for Snappy compression, or&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c#&#34;&gt;var connectionString = &amp;quot;mongodb://localhost/?compressors=zlib&amp;quot;;
+var client = new MongoClient(connectionString);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;for zlib compression, or&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c#&#34;&gt;var connectionString = &amp;quot;mongodb://localhost/?compressors=zstd&amp;quot;;
+var client = new MongoClient(connectionString);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;for Zstandard compression, or&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c#&#34;&gt;var connectionString = &amp;quot;mongodb://localhost/?compressors=snappy,zlib,zstd&amp;quot;;
+var client = new MongoClient(connectionString);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;to configure multiple compressors.&lt;/p&gt;
+
+&lt;p&gt;In all cases the driver will use the first compressor in the list for which the server advertises support.&lt;/p&gt;
+
+&lt;p&gt;Additionally, zlib compression allows specifying a compression level with supported values between -1 and 9:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c#&#34;&gt;var connectionString = &amp;quot;mongodb://localhost/?compressors=zlib;zlibcompressionlevel=6&amp;quot;;
+var client = new MongoClient(connectionString);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;specify-compression-via-mongoclientsettings&#34;&gt;Specify compression via &lt;code&gt;MongoClientSettings&lt;/code&gt;&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c#&#34;&gt;using MongoDB.Driver;
+using MongoDB.Driver.Core.Compression;
+using MongoDB.Driver.Core.Configuration;
+using System.Collections.Generic;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To specify compression with &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_MongoClientSettings.htm
+&#34;&gt;&lt;code&gt;MongoClientSettings&lt;/code&gt;&lt;/a&gt;, set the &lt;code&gt;Compressors&lt;/code&gt; property to a list of &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_Core_Configuration_CompressorConfiguration.htm
+&#34;&gt;&lt;code&gt;CompressorConfiguration&lt;/code&gt;&lt;/a&gt; instances:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c#&#34;&gt;var mongoClientSettings = new MongoClientSettings();
+mongoClientSettings.Compressors = new List&amp;lt;CompressorConfiguration&amp;gt;()
+{
+    new CompressorConfiguration(CompressorType.Snappy)
+};
+var client = new MongoClient(mongoClientSettings);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;for Snappy compression, or&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c#&#34;&gt;var mongoClientSettings = new MongoClientSettings();
+mongoClientSettings.Compressors = new List&amp;lt;CompressorConfiguration&amp;gt;()
+{
+    new CompressorConfiguration(CompressorType.Zlib)
+};
+var client = new MongoClient(mongoClientSettings);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;for zlib compression, or&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c#&#34;&gt;var mongoClientSettings = new MongoClientSettings();
+mongoClientSettings.Compressors = new List&amp;lt;CompressorConfiguration&amp;gt;()
+{
+    new CompressorConfiguration(CompressorType.Zstd)
+};
+var client = new MongoClient(mongoClientSettings);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;for Zstandard compression, or&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c#&#34;&gt;var mongoClientSettings = new MongoClientSettings();
+mongoClientSettings.Compressors = new List&amp;lt;CompressorConfiguration&amp;gt;()
+{
+    new CompressorConfiguration(CompressorType.Snappy),
+    new CompressorConfiguration(CompressorType.Zlib),
+    new CompressorConfiguration(CompressorType.Zstd)
+};
+var client = new MongoClient(mongoClientSettings);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;to configure multiple compressors.&lt;/p&gt;
+
+&lt;p&gt;As with configuration via connection string, the driver will use the first compressor in the list for which the server advertises support. Also, the driver allows specifying a compression level option for zlib compression:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c#&#34;&gt;    var mongoClientSettings = new MongoClientSettings();
+    var compressorConfiguration = new CompressorConfiguration(CompressorType.Zlib);
+    compressorConfiguration.Properties.Add(&amp;quot;Level&amp;quot;, 6);
+    mongoClientSettings.Compressors = new List&amp;lt;CompressorConfiguration&amp;gt;() { compressorConfiguration };
+    var client = new MongoClient(mongoClientSettings);
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Client-Side Encryption</title>
+      <link>/mongo-csharp-driver/2.11/reference/driver/crud/client_side_encryption/</link>
+      <pubDate>Mon, 30 Sep 2019 20:38:42 -0400</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.11/reference/driver/crud/client_side_encryption/</guid>
+      <description>
+
+&lt;h1 id=&#34;client-side-field-level-encryption&#34;&gt;Client-Side Field Level Encryption&lt;/h1&gt;
+
+&lt;p&gt;New in MongoDB 4.2, client-side field level encryption allows administrators and
+developers to encrypt specific data fields in addition to other MongoDB
+encryption features.&lt;/p&gt;
+
+&lt;p&gt;With client-side field level encryption, developers can encrypt fields
+client-side without any server-side configuration or directives. Client-side
+field level encryption supports workloads where applications must guarantee that
+unauthorized parties, including server administrators, cannot read the encrypted
+data.&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition important&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;important&lt;/h5&gt;
+&lt;p&gt;Client-side field level encryption is supported only on Windows.&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;h2 id=&#34;mongocryptd-configuration&#34;&gt;mongocryptd configuration&lt;/h2&gt;
+
+&lt;p&gt;Client-side field level encryption requires the &lt;code&gt;mongocryptd&lt;/code&gt; daemon / process
+to be running. If &lt;code&gt;mongocryptd&lt;/code&gt; isn&amp;rsquo;t running, the driver will atempt to spawn
+an instance, utilizing the &lt;code&gt;PATH&lt;/code&gt; environment variable. Alternatively, the path
+to &lt;code&gt;mongocryptd&lt;/code&gt; can be specified by setting &lt;code&gt;mongocryptdSpawnPath&lt;/code&gt; in
+&lt;code&gt;extraOptions&lt;/code&gt;. A specific daemon / process URI can also be configured in the
+&lt;code&gt;AutoEncryptionSettings&lt;/code&gt; class by setting &lt;code&gt;mongocryptdURI&lt;/code&gt; in &lt;code&gt;extraOptions&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;More information about &lt;code&gt;mongocryptd&lt;/code&gt; will soon be available from the official
+documentation.&lt;/p&gt;
+
+&lt;h2 id=&#34;examples&#34;&gt;Examples&lt;/h2&gt;
+
+&lt;h3 id=&#34;automatic-client-side-encryption&#34;&gt;Automatic client-side encryption&lt;/h3&gt;
+
+&lt;p&gt;The following is a sample app that assumes the &lt;strong&gt;key&lt;/strong&gt; and &lt;strong&gt;schema&lt;/strong&gt; have
+already been created in MongoDB. The example uses a local key, however using AWS
+Key Management Service is also an option. The data in the &lt;code&gt;encryptedField&lt;/code&gt; field
+is automatically encrypted on the insert and decrypted when using find on the
+client-side. The following example has been adapted from
+&lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Examples/ClientEncryptionExamples.cs&#34;&gt;&lt;code&gt;ClientSideEncryptionExamples.cs&lt;/code&gt;&lt;/a&gt;, which can be found on GitHub along with the driver source.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using System;
+using System.Collections.Generic;
+using MongoDB.Bson;
+using MongoDB.Driver.Encryption;
+
+namespace MongoDB.Driver.Examples
+{
+    public class ClientEncryptionExamples
+    {
+        private const string LocalMasterKey = &amp;quot;Mng0NCt4ZHVUYUJCa1kxNkVyNUR1QURhZ2h2UzR2d2RrZzh0cFBwM3R6NmdWMDFBMUN3YkQ5aXRRMkhGRGdQV09wOGVNYUMxT2k3NjZKelhaQmRCZGJkTXVyZG9uSjFk&amp;quot;;
+
+        public static void Main(string[] args)
+        {
+            var localMasterKey = Convert.FromBase64String(LocalMasterKey);
+
+            var kmsProviders = new Dictionary&amp;lt;string, IReadOnlyDictionary&amp;lt;string, object&amp;gt;&amp;gt;();
+            var localKey = new Dictionary&amp;lt;string, object&amp;gt;
+            {
+                { &amp;quot;key&amp;quot;, localMasterKey }
+            };
+            kmsProviders.Add(&amp;quot;local&amp;quot;, localKey);
+
+            var keyVaultNamespace = CollectionNamespace.FromFullName(&amp;quot;admin.datakeys&amp;quot;);
+            var autoEncryptionOptions = new AutoEncryptionOptions(keyVaultNamespace, kmsProviders);
+
+            var mongoClientSettings = new MongoClientSettings
+            {
+                AutoEncryptionOptions = autoEncryptionOptions
+            };
+            var client = new MongoClient(mongoClientSettings);
+            var database = client.GetDatabase(&amp;quot;test&amp;quot;);
+            database.DropCollection(&amp;quot;coll&amp;quot;);
+            var collection = database.GetCollection&amp;lt;BsonDocument&amp;gt;(&amp;quot;coll&amp;quot;);
+
+            collection.InsertOne(new BsonDocument(&amp;quot;encryptedField&amp;quot;, &amp;quot;123456789&amp;quot;));
+
+            var result = collection.Find(FilterDefinition&amp;lt;BsonDocument&amp;gt;.Empty).First();
+            Console.WriteLine(result.ToJson());
+        }
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+&lt;p&gt;Auto encryption is an &lt;strong&gt;enterprise&lt;/strong&gt; only feature.&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;The following example shows how to configure the &lt;code&gt;AutoEncryptionSettings&lt;/code&gt;
+instance to create a new key and how to set the json schema map. The following
+example has been adapted from
+&lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Examples/ClientEncryptionExamples.cs&#34;&gt;&lt;code&gt;ClientSideEncryptionExamples.cs&lt;/code&gt;&lt;/a&gt;,
+which can be found on Github along with the driver source.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using System;
+using System.Collections.Generic;
+using System.Threading;
+using MongoDB.Bson;
+using MongoDB.Driver.Encryption;
+
+namespace MongoDB.Driver.Examples
+{
+    public class ClientEncryptionExamples
+    {
+        private const string LocalMasterKey = &amp;quot;Mng0NCt4ZHVUYUJCa1kxNkVyNUR1QURhZ2h2UzR2d2RrZzh0cFBwM3R6NmdWMDFBMUN3YkQ5aXRRMkhGRGdQV09wOGVNYUMxT2k3NjZKelhaQmRCZGJkTXVyZG9uSjFk&amp;quot;;
+
+        public static void Main(string[] args)
+        {
+            var localMasterKey = Convert.FromBase64String(LocalMasterKey);
+
+            var kmsProviders = new Dictionary&amp;lt;string, IReadOnlyDictionary&amp;lt;string, object&amp;gt;&amp;gt;();
+            var localKey = new Dictionary&amp;lt;string, object&amp;gt;
+            {
+                { &amp;quot;key&amp;quot;, localMasterKey }
+            };
+            kmsProviders.Add(&amp;quot;local&amp;quot;, localKey);
+
+            var keyVaultNamespace = CollectionNamespace.FromFullName(&amp;quot;admin.datakeys&amp;quot;);
+            var keyVaultMongoClient = new MongoClient();
+            var clientEncryptionSettings = new ClientEncryptionOptions(
+                keyVaultMongoClient,
+                keyVaultNamespace,
+                kmsProviders);
+
+            Guid dataKeyId;
+            using (var clientEncryption = new ClientEncryption(clientEncryptionSettings))
+            {
+                dataKeyId = clientEncryption.CreateDataKey(&amp;quot;local&amp;quot;, new DataKeyOptions(), CancellationToken.None);
+            }
+
+            var base64DataKeyId = Convert.ToBase64String(GuidConverter.ToBytes(dataKeyId, GuidRepresentation.Standard));
+            var collectionNamespace = CollectionNamespace.FromFullName(&amp;quot;test.coll&amp;quot;);
+
+            var schemaMap = $@&amp;quot;{{
+                properties: {{
+                    encryptedField: {{
+                        encrypt: {{
+                            keyId: [{{
+                                &#39;$binary&#39; : {{
+                                    &#39;base64&#39; : &#39;{base64DataKeyId}&#39;,
+                                    &#39;subType&#39; : &#39;04&#39;
+                                }}
+                            }}],
+                        bsonType: &#39;string&#39;,
+                        algorithm: &#39;AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic&#39;
+                        }}
+                    }}
+                }},
+                &#39;bsonType&#39;: &#39;object&#39;
+            }}&amp;quot;;
+            var autoEncryptionSettings = new AutoEncryptionOptions(
+                keyVaultNamespace,
+                kmsProviders,
+                schemaMap: new Dictionary&amp;lt;string, BsonDocument&amp;gt;()
+                {
+                    { collectionNamespace.ToString(), BsonDocument.Parse(schemaMap) }
+                });
+            var clientSettings = new MongoClientSettings
+            {
+                AutoEncryptionOptions = autoEncryptionSettings
+            };
+            var client = new MongoClient(clientSettings);
+            var database = client.GetDatabase(&amp;quot;test&amp;quot;);
+            database.DropCollection(&amp;quot;coll&amp;quot;);
+            var collection = database.GetCollection&amp;lt;BsonDocument&amp;gt;(&amp;quot;coll&amp;quot;);
+
+            collection.InsertOne(new BsonDocument(&amp;quot;encryptedField&amp;quot;, &amp;quot;123456789&amp;quot;));
+
+            var result = collection.Find(FilterDefinition&amp;lt;BsonDocument&amp;gt;.Empty).First();
+            Console.WriteLine(result.ToJson());
+        }
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;explicit-encryption-and-decryption&#34;&gt;Explicit Encryption and Decryption&lt;/h3&gt;
+
+&lt;p&gt;Explicit encryption and decryption is a &lt;strong&gt;MongoDB Community Server&lt;/strong&gt; feature and does not use the &lt;code&gt;mongocryptd&lt;/code&gt; process. Explicit encryption is provided by the &lt;code&gt;ClientEncryption&lt;/code&gt; class. The following example has been adapted from &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Examples/ExplicitEncryptionExamples.cs&#34;&gt;&lt;code&gt;ExplicitEncryptionExamples.cs&lt;/code&gt;&lt;/a&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using System;
+using System.Collections.Generic;
+using System.Threading;
+using MongoDB.Driver.Encryption;
+using MongoDB.Libmongocrypt;
+
+namespace MongoDB.Driver.Examples
+{
+    public class ExplicitEncryptionExamples
+    {
+        private const string LocalMasterKey = &amp;quot;Mng0NCt4ZHVUYUJCa1kxNkVyNUR1QURhZ2h2UzR2d2RrZzh0cFBwM3R6NmdWMDFBMUN3YkQ5aXRRMkhGRGdQV09wOGVNYUMxT2k3NjZKelhaQmRCZGJkTXVyZG9uSjFk&amp;quot;;
+
+        public static void Main(string[] args)
+        {
+            var localMasterKey = Convert.FromBase64String(LocalMasterKey);
+            var kmsProviders = new Dictionary&amp;lt;string, IReadOnlyDictionary&amp;lt;string, object&amp;gt;&amp;gt;();
+            var localKey = new Dictionary&amp;lt;string, object&amp;gt;
+            {
+                { &amp;quot;key&amp;quot;, localMasterKey }
+            };
+            kmsProviders.Add(&amp;quot;local&amp;quot;, localKey);
+
+            var keyVaultNamespace = CollectionNamespace.FromFullName(&amp;quot;admin.datakeys&amp;quot;);
+            var keyVaultClient = new MongoClient(&amp;quot;mongodb://localhost&amp;quot;);
+            var keyVaultDatabase = keyVaultClient.GetDatabase(keyVaultNamespace.DatabaseNamespace.DatabaseName);
+            keyVaultDatabase.DropCollection(keyVaultNamespace.CollectionName);
+
+            // Create the ClientEncryption instance
+            var clientEncryptionSettings = new ClientEncryptionOptions(
+                keyVaultClient,
+                keyVaultNamespace,
+                kmsProviders);
+            using (var clientEncryption = new ClientEncryption(clientEncryptionSettings))
+            {
+                var dataKeyId = clientEncryption.CreateDataKey(
+                    &amp;quot;local&amp;quot;,
+                    new DataKeyOptions(),
+                    CancellationToken.None);
+
+                var originalString = &amp;quot;123456789&amp;quot;;
+                Console.WriteLine($&amp;quot;Original string {originalString}.&amp;quot;);
+
+                // Explicitly encrypt a field
+                var encryptOptions = new EncryptOptions(
+                    EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic.ToString(),
+                    keyId: dataKeyId);
+                var encryptedFieldValue = clientEncryption.Encrypt(
+                    originalString,
+                    encryptOptions,
+                    CancellationToken.None);
+                Console.WriteLine($&amp;quot;Encrypted value {encryptedFieldValue}.&amp;quot;);
+
+                // Explicitly decrypt the field
+                var decryptedValue = clientEncryption.Decrypt(encryptedFieldValue, CancellationToken.None);
+                Console.WriteLine($&amp;quot;Decrypted value {decryptedValue}.&amp;quot;);
+            }
+        }
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;explicit-encryption-and-auto-decryption&#34;&gt;Explicit Encryption and Auto Decryption&lt;/h3&gt;
+
+&lt;p&gt;Although automatic encryption requires MongoDB 4.2 Enterprise Server or a MongoDB 4.2 Atlas cluster, automatic decryption is supported for all users. To configure automatic decryption without automatic encryption set &lt;code&gt;bypassAutoEncryption=true&lt;/code&gt;. The following example has been adapted from &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Examples/ExplicitEncryptionExamples.cs&#34;&gt;&lt;code&gt;ExplicitEncryptionExamples.cs&lt;/code&gt;&lt;/a&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using System;
+using System.Collections.Generic;
+using System.Threading;
+using MongoDB.Bson;
+using MongoDB.Driver.Encryption;
+using MongoDB.Libmongocrypt;
+
+namespace MongoDB.Driver.Examples
+{
+    public class ExplicitEncryptionAndAutoDecryptionExamples
+    {
+        private const string LocalMasterKey = &amp;quot;Mng0NCt4ZHVUYUJCa1kxNkVyNUR1QURhZ2h2UzR2d2RrZzh0cFBwM3R6NmdWMDFBMUN3YkQ5aXRRMkhGRGdQV09wOGVNYUMxT2k3NjZKelhaQmRCZGJkTXVyZG9uSjFk&amp;quot;;
+
+        public static void Main(string[] args)
+        {
+            var localMasterKey = Convert.FromBase64String(LocalMasterKey);
+            var kmsProviders = new Dictionary&amp;lt;string, IReadOnlyDictionary&amp;lt;string, object&amp;gt;&amp;gt;();
+            var localKey = new Dictionary&amp;lt;string, object&amp;gt;
+            {
+                { &amp;quot;key&amp;quot;, localMasterKey }
+            };
+            kmsProviders.Add(&amp;quot;local&amp;quot;, localKey);
+
+            var keyVaultNamespace = CollectionNamespace.FromFullName(&amp;quot;admin.datakeys&amp;quot;);
+            var collectionNamespace = CollectionNamespace.FromFullName(&amp;quot;test.coll&amp;quot;);
+            var autoEncryptionOptions = new AutoEncryptionOptions(
+                keyVaultNamespace,
+                kmsProviders,
+                bypassAutoEncryption: true);
+            var clientSettings = MongoClientSettings.FromConnectionString(&amp;quot;mongodb://localhost&amp;quot;);
+            clientSettings.AutoEncryptionOptions = autoEncryptionOptions;
+            var mongoClient = new MongoClient(clientSettings);
+            var database = mongoClient.GetDatabase(collectionNamespace.DatabaseNamespace.DatabaseName);
+            database.DropCollection(collectionNamespace.CollectionName);
+            var collection = database.GetCollection&amp;lt;BsonDocument&amp;gt;(collectionNamespace.CollectionName);
+
+            var keyVaultClient = new MongoClient(&amp;quot;mongodb://localhost&amp;quot;);
+            var keyVaultDatabase = keyVaultClient.GetDatabase(keyVaultNamespace.DatabaseNamespace.DatabaseName);
+            keyVaultDatabase.DropCollection(keyVaultNamespace.CollectionName);
+
+            // Create the ClientEncryption instance
+            var clientEncryptionSettings = new ClientEncryptionOptions(
+                keyVaultClient,
+                keyVaultNamespace,
+                kmsProviders);
+            using (var clientEncryption = new ClientEncryption(clientEncryptionSettings))
+            {
+                var dataKeyId = clientEncryption.CreateDataKey(
+                    &amp;quot;local&amp;quot;,
+                    new DataKeyOptions(),
+                    CancellationToken.None);
+
+                var originalString = &amp;quot;123456789&amp;quot;;
+                Console.WriteLine($&amp;quot;Original string {originalString}.&amp;quot;);
+
+                // Explicitly encrypt a field
+                var encryptOptions = new EncryptOptions(
+                    EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic.ToString(),
+                    keyId: dataKeyId);
+                var encryptedFieldValue = clientEncryption.Encrypt(
+                    originalString,
+                    encryptOptions,
+                    CancellationToken.None);
+                Console.WriteLine($&amp;quot;Encrypted value {encryptedFieldValue}.&amp;quot;);
+
+                collection.InsertOne(new BsonDocument(&amp;quot;encryptedField&amp;quot;, encryptedFieldValue));
+
+                // Automatically decrypts the encrypted field.
+                var decryptedValue = collection.Find(FilterDefinition&amp;lt;BsonDocument&amp;gt;.Empty).First();
+                Console.WriteLine($&amp;quot;Decrypted document {decryptedValue.ToJson()}.&amp;quot;);
+            }
+        }
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>SDAM Events</title>
+      <link>/mongo-csharp-driver/2.11/reference/driver_core/sdamevents/</link>
+      <pubDate>Wed, 17 Apr 2019 21:21:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.11/reference/driver_core/sdamevents/</guid>
+      <description>
+
+&lt;h2 id=&#34;sdam-events&#34;&gt;SDAM Events&lt;/h2&gt;
+
+&lt;p&gt;Server Discovery and Monitoring (SDAM) is the process by which the driver discovers and monitors the set of servers that it is connected to. In
+the case of a standalone configuration the driver will only monitor a single server. In the case of a replica set configuration the driver
+will monitor each member of the replica set (primary, secondaries, etc.). In the case of a sharded configuration the driver will&lt;br /&gt;
+monitor the set of shard routers (mongos instances) that it is connected to.&lt;/p&gt;
+
+&lt;p&gt;As the driver monitors the health and state of each server in a configuration, it raises a number of events that report what it is finding and
+how it is reacting to that information. You can subscribe to any or all of these events if you want to observe what SDAM is doing.&lt;/p&gt;
+
+&lt;p&gt;See the general &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/reference/driver_core/events/&#34;&gt;Eventing&lt;/a&gt; page for information on how to subscribe to individual events.&lt;/p&gt;
+
+&lt;h3 id=&#34;logging-sdam-events-the-easy-way&#34;&gt;Logging SDAM Events the Easy Way&lt;/h3&gt;
+
+&lt;p&gt;Often all you want to do with SDAM events is log them. You can configure logging of SDAM events by setting the &lt;code&gt;SdamLogFilename&lt;/code&gt; property of &lt;code&gt;MongoClientSettings&lt;/code&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var clientSettings = new MongoClientSettings();
+clientSetting.SdamLogFilename = @&amp;quot;c:\sdam.log&amp;quot;;
+var client = new MongoClient(clientSettings);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;code&gt;SdamLogFilename&lt;/code&gt; is only configurable in code, not in the connection string. The way to combine using a connection string with SDAM logging is:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var connectionString = &amp;quot;mongodb://localhost&amp;quot;; // presumably loaded via some config mechanism
+var clientSettings = MongoClientSettings.FromConnectionString(connectionString);
+clientSetting.SdamLogFilename = @&amp;quot;c:\sdam.log&amp;quot;;
+var client = new MongoClient(clientSettings);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+&lt;p&gt;Logging SDAM events results in the file being opened in exclusive mode, so it is possible for multiple instances of &lt;code&gt;MongoClient&lt;/code&gt; to conflict
+over the use of the file. Whether the multiple &lt;code&gt;MongoClient&lt;/code&gt; instances actually conflict over the use of the file or not depends on how similar
+the &lt;code&gt;MongoClientSettings&lt;/code&gt; are. If they are different enough to result in the creation of separate underlying &lt;code&gt;Cluster&lt;/code&gt; instances then they will conflict.&lt;/p&gt;
+
+&lt;p&gt;The safest approach when logging SDAM events is to use a single instance of &lt;code&gt;MongoClient&lt;/code&gt; throughout
+your application. This differs from previous guidance which stated that it didn&amp;rsquo;t matter how many instances of &lt;code&gt;MongoClient&lt;/code&gt; you created.&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;h3 id=&#34;sdam-events-that-are-logged&#34;&gt;SDAM Events That Are Logged&lt;/h3&gt;
+
+&lt;p&gt;SDAM logging logs the following events which are raised in the course of monitoring the servers the driver is connected to.&lt;/p&gt;
+
+&lt;h4 id=&#34;clusteraddedserverevent&#34;&gt;ClusterAddedServerEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_Core_Events_ClusterAddedServerEvent.htm
+&#34;&gt;&lt;code&gt;ClusterAddedServerEvent&lt;/code&gt;&lt;/a&gt; is raised after a server has been added to the cluster.&lt;/p&gt;
+
+&lt;h4 id=&#34;clusteraddingserverevent&#34;&gt;ClusterAddingServerEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_Core_Events_ClusterAddingServerEvent.htm
+&#34;&gt;&lt;code&gt;ClusterAddingServerEvent&lt;/code&gt;&lt;/a&gt; is raised before a server is added to the cluster.&lt;/p&gt;
+
+&lt;h4 id=&#34;clusterclosedevent&#34;&gt;ClusterClosedEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_Core_Events_ClusterClosedEvent.htm
+&#34;&gt;&lt;code&gt;ClusterClosedEvent&lt;/code&gt;&lt;/a&gt; is raised after a cluster has been closed.&lt;/p&gt;
+
+&lt;h4 id=&#34;clusterclosingevent&#34;&gt;ClusterClosingEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_Core_Events_ClusterClosingEvent.htm
+&#34;&gt;&lt;code&gt;ClusterClosingEvent&lt;/code&gt;&lt;/a&gt; is raised before a cluster is closed.&lt;/p&gt;
+
+&lt;h4 id=&#34;clusterdescriptionchangedevent&#34;&gt;ClusterDescriptionChangedEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_Core_Events_ClusterDescriptionChangedEvent.htm
+&#34;&gt;&lt;code&gt;ClusterDescriptionChangedEvent&lt;/code&gt;&lt;/a&gt; is raised when the cluster description changes.&lt;/p&gt;
+
+&lt;h4 id=&#34;clusteropenedevent&#34;&gt;ClusterOpenedEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_Core_Events_ClusterOpenedEvent.htm
+&#34;&gt;&lt;code&gt;ClusterOpenedEvent&lt;/code&gt;&lt;/a&gt; is raised after a cluster has been opened.&lt;/p&gt;
+
+&lt;h4 id=&#34;clusteropeningevent&#34;&gt;ClusterOpeningEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_Core_Events_ClusterOpeningEvent.htm
+&#34;&gt;&lt;code&gt;ClusterOpeningEvent&lt;/code&gt;&lt;/a&gt; is raised before a cluster is opened.&lt;/p&gt;
+
+&lt;h4 id=&#34;clusterremovedserverevent&#34;&gt;ClusterRemovedServerEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_Core_Events_ClusterRemovedServerEvent.htm
+&#34;&gt;&lt;code&gt;ClusterRemovedServerEvent&lt;/code&gt;&lt;/a&gt; is raised after a server has been removed from the cluster.&lt;/p&gt;
+
+&lt;h4 id=&#34;clusterremovingserverevent&#34;&gt;ClusterRemovingServerEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_Core_Events_ClusterRemovingServerEvent.htm
+&#34;&gt;&lt;code&gt;ClusterRemovingServerEvent&lt;/code&gt;&lt;/a&gt; is raised before a server is removed from the cluster.&lt;/p&gt;
+
+&lt;h4 id=&#34;sdaminformationevent&#34;&gt;SdamInformationEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_Core_Events_SdamInformationEvent.htm
+&#34;&gt;&lt;code&gt;SdamInformationEvent&lt;/code&gt;&lt;/a&gt; is raised when something interesting happened that is not covered by a custom event type.&lt;/p&gt;
+
+&lt;h4 id=&#34;serverclosedevent&#34;&gt;ServerClosedEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_Core_Events_ServerClosedEvent.htm
+&#34;&gt;&lt;code&gt;ServerClosedEvent&lt;/code&gt;&lt;/a&gt; is raised after a server has been closed.&lt;/p&gt;
+
+&lt;h4 id=&#34;serverclosingevent&#34;&gt;ServerClosingEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_Core_Events_ServerClosingEvent.htm
+&#34;&gt;&lt;code&gt;ServerClosingEvent&lt;/code&gt;&lt;/a&gt; is raised before a server is closed.&lt;/p&gt;
+
+&lt;h4 id=&#34;serverdescriptionchangedevent&#34;&gt;ServerDescriptionChangedEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_Core_Events_ServerDescriptionChangedEvent.htm
+&#34;&gt;&lt;code&gt;ServerDescriptionChangedEvent&lt;/code&gt;&lt;/a&gt; is raised when the server description has changed.&lt;/p&gt;
+
+&lt;h4 id=&#34;serverheartbeatfailedevent&#34;&gt;ServerHeartbeatFailedEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_Core_Events_ServerHeartbeatFailedEvent.htm
+&#34;&gt;&lt;code&gt;ServerHeartbeatFailedEvent&lt;/code&gt;&lt;/a&gt; is raised after a heartbeat has failed.&lt;/p&gt;
+
+&lt;h4 id=&#34;serverheartbeatstartedevent&#34;&gt;ServerHeartbeatStartedEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_Core_Events_ServerHeartbeatStartedEvent.htm
+&#34;&gt;&lt;code&gt;ServerHeartbeatStartedEvent&lt;/code&gt;&lt;/a&gt; is raised after a heartbeat has started (but before the heartbeat is sent to the server).&lt;/p&gt;
+
+&lt;h4 id=&#34;serverheartbeatsucceededevent&#34;&gt;ServerHeartbeatSucceededEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_Core_Events_ServerHeartbeatSucceededEvent.htm
+&#34;&gt;&lt;code&gt;ServerHeartbeatSucceededEvent&lt;/code&gt;&lt;/a&gt; is raised after a heartbeat has succeeded.&lt;/p&gt;
+
+&lt;h4 id=&#34;serveropenedevent&#34;&gt;ServerOpenedEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_Core_Events_ServerOpenedEvent.htm
+&#34;&gt;&lt;code&gt;ServerOpenedEvent&lt;/code&gt;&lt;/a&gt; is raised after a server has been opened.&lt;/p&gt;
+
+&lt;h4 id=&#34;serveropeningevent&#34;&gt;ServerOpeningEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_Core_Events_ServerOpeningEvent.htm
+&#34;&gt;&lt;code&gt;ServerOpeningEvent&lt;/code&gt;&lt;/a&gt; is raised before a server is opened.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Change Streams</title>
+      <link>/mongo-csharp-driver/2.11/reference/driver/change_streams/</link>
+      <pubDate>Mon, 02 Jul 2018 20:36:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.11/reference/driver/change_streams/</guid>
+      <description>
+
+&lt;h2 id=&#34;change-streams&#34;&gt;Change Streams&lt;/h2&gt;
+
+&lt;p&gt;Change streams allow an application to receive a stream of events representing changes to documents in:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;A single collection&lt;/li&gt;
+&lt;li&gt;All collections in a single database&lt;/li&gt;
+&lt;li&gt;All collections in all databases&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;An application starts watching a change stream by calling one of the Watch methods.&lt;/p&gt;
+
+&lt;h3 id=&#34;watching-changes-in-a-single-collection&#34;&gt;Watching changes in a single collection&lt;/h3&gt;
+
+&lt;p&gt;To watch changes in a single collection call the Watch or WatchAsync method of IMongoCollection.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = collection.Watch())
+{
+    foreach (var change in cursor.ToEnumerable())
+    {
+        // process change event
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;or&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = await collection.WatchAsync())
+{
+    await cursor.ForEachAsync(change =&amp;gt;
+    {
+        // process change event
+    });
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;watching-changes-in-all-collections-in-a-single-database&#34;&gt;Watching changes in all collections in a single database&lt;/h3&gt;
+
+&lt;p&gt;To watch changes in all collections in a single database call the Watch or WatchAsync method of IMongoDatabase.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = database.Watch())
+{
+    foreach (var change in cursor.ToEnumerable())
+    {
+        // process change event
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;or&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = await database.WatchAsync())
+{
+    await cursor.ForEachAsync(change =&amp;gt;
+    {
+        // process change event
+    });
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;watching-changes-in-all-collections-in-all-databases&#34;&gt;Watching changes in all collections in all databases&lt;/h3&gt;
+
+&lt;p&gt;To watch changes in all collections in all databases call the Watch or WatchAsync method of IMongoClient.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = client.Watch())
+{
+    foreach (var change in cursor.ToEnumerable())
+    {
+        // process change event
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;or&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = await client.WatchAsync())
+{
+    await cursor.ForEachAsync(change =&amp;gt;
+    {
+        // process change event
+    });
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;strongly-typed-changestreamdocument-lt-tdocument-gt-class&#34;&gt;Strongly typed ChangeStreamDocument&amp;lt;TDocument&amp;gt; class&lt;/h3&gt;
+
+&lt;p&gt;The cursor returned from the Watch methods returns the change stream events wrapped in a strongly typed C# class called ChangeStreamDocument&amp;lt;TDocument&amp;gt; (unless you used a pipeline that changed the shape of the results). The underlying change stream events are documented in the server documentation &lt;a href=&#34;https://docs.mongodb.com/manual/reference/change-events/&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public class ChangeStreamDocument&amp;lt;TDocument&amp;gt;
+{
+    public BsonDocument ClusterTime { get; }
+    public CollectionNamespace CollectionNamespace { get; }
+    public BsonDocument DocumentKey { get; }
+    public TDocument FullDocument { get; }
+    public ChangeStreamOperationType OperationType { get; }
+    public BsonDocument ResumeToken { get; }
+    public ChangeStreamUpdateDescription UpdateDescription { get; }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;ClusterTime is the timestamp from the oplog entry associated with the event.&lt;/p&gt;
+
+&lt;p&gt;CollectionNamespace is the full namespace of the collection containing the changed document.&lt;/p&gt;
+
+&lt;p&gt;DocumentKey contains the _id of the document created or modified by the operation. For sharded collections it also contains the shard key of the document.&lt;/p&gt;
+
+&lt;p&gt;For Insert and Replace operations,  FullDocument is the new document created by the operation. For Delete operations FullDocument is null as the document no longer exists. For Update operations FullDocument is only present if you set the FullDocument option in the options passed to Watch to ChangeStreamFullDocumentOption.UpdateLookup, in which case it contains the most current majority-committed version of the document modified by the Update operation (see the server documentation for fullDocument &lt;a href=&#34;https://docs.mongodb.com/manual/reference/change-events/&#34;&gt;here&lt;/a&gt; for details).&lt;/p&gt;
+
+&lt;p&gt;OperationType is one of: Insert, Update, Replace, Delete or Invalidate.&lt;/p&gt;
+
+&lt;p&gt;ResumeToken is metadata identifying the change stream event. It can be passed to Watch in the ResumeAfter option to start a new change stream that will resume with the next change event after this one. This is useful when your application needs to restart a change stream after a network outage.&lt;/p&gt;
+
+&lt;p&gt;UpdateDescription is only present when the OperationType is Update. It describes the fields that were updated or removed by the Update operation.&lt;/p&gt;
+
+&lt;h3 id=&#34;using-an-optional-pipeline&#34;&gt;Using an optional pipeline&lt;/h3&gt;
+
+&lt;p&gt;All the Watch and WatchAsync methods have overloads that take a pipeline argument. An application can pass in a pipeline to filter or modify the change stream in some way.&lt;/p&gt;
+
+&lt;p&gt;Only certain modifications are valid in a change stream pipeline. See the server documentation &lt;a href=&#34;https://docs.mongodb.com/manual/changeStreams/#modify-change-stream-output&#34;&gt;here&lt;/a&gt; for details.&lt;/p&gt;
+
+&lt;p&gt;For example, if you are only interested in monitoring inserted documents, you could use a pipeline to filter the change stream to only include insert operations.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var pipeline = 
+    new EmptyPipelineDefinition&amp;lt;ChangeStreamDocument&amp;lt;BsonDocument&amp;gt;&amp;gt;()
+    .Match(x =&amp;gt; x.OperationType == ChangeStreamOperationType.Insert);
+using (var cursor = collection.Watch(pipeline))
+{
+    foreach (var change in cursor.ToEnumerable())
+    {
+        // process insert change event
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+&lt;p&gt;The implementation of Watch depends on the presence of a &amp;ldquo;resume token&amp;rdquo; in the change stream. The resume token is the value of the &amp;ldquo;_id&amp;rdquo; field in the change stream documents (represented as the ResumeToken property of the ChangeStreamDocument class). If you use a pipeline and the pipeline changes the shape of the change stream documents, the pipeline MUST preserve the presence of the &amp;ldquo;_id&amp;rdquo; field, and it MUST NOT change its value.&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;h3 id=&#34;passing-options-to-the-watch-and-watchasync-methods&#34;&gt;Passing options to the Watch and WatchAsync methods&lt;/h3&gt;
+
+&lt;p&gt;You can pass options to the Watch and WatchAsync methods in the optional options argument, which is of type ChangeStreamOptions.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public class ChangeStreamOptions
+{
+    public int? BatchSize { get; set; }
+    public Collation Collation { get; set; }
+    public ChangeStreamFullDocumentOption FullDocument { get; set; }
+    public TimeSpan? MaxAwaitTime { get; set; }
+    public BsonDocument ResumeAfter { get; set; }
+    public BsonTimestamp StartAtOperationTime { get; set; }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;BatchSize determines the maximum number of change events the server will return at one time. The server might return fewer.&lt;/p&gt;
+
+&lt;p&gt;FullDocument can be set to ChangeStreamFullDocumentOption.UpdateLookup if you want the change stream event for Update operations to include a copy of the full document (the full document might include additional changes that are the result of subsequent change events, see the server documentation &lt;a href=&#34;https://docs.mongodb.com/manual/reference/change-events/#update-event&#34;&gt;here&lt;/a&gt;).&lt;/p&gt;
+
+&lt;p&gt;ResumeAfter and StartAtOperationTime are useful when you want to resume or start a change stream from some point in time.&lt;/p&gt;
+
+&lt;p&gt;For example, if you want to monitor only updates, and you want each change event to include the full document, you would write:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var pipeline = 
+    new EmptyPipelineDefinition&amp;lt;ChangeStreamDocument&amp;lt;BsonDocument&amp;gt;&amp;gt;()
+    .Match(x =&amp;gt; x.OperationType == ChangeStreamOperationType.Update);
+
+var changeStreamOptions = new ChangeStreamOptions
+{
+    FullDocument = ChangeStreamFullDocumentOption.UpdateLookup
+};
+
+using (var cursor = collection.Watch(pipeline, changeStreamOptions))
+{
+    foreach (var change in cursor.ToEnumerable())
+    {
+        // process updated document in change.FullDocument
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Authentication</title>
+      <link>/mongo-csharp-driver/2.11/reference/driver/authentication/</link>
+      <pubDate>Mon, 02 Jul 2018 16:49:42 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.11/reference/driver/authentication/</guid>
+      <description>
+
+&lt;h2 id=&#34;authentication&#34;&gt;Authentication&lt;/h2&gt;
+
+&lt;p&gt;The .NET driver supports all &lt;a href=&#34;http://docs.mongodb.org/manual/core/authentication/
+&#34;&gt;MongoDB authentication mechanisms&lt;/a&gt; including those in the &lt;a href=&#34;http://docs.mongodb.org/manual/administration/install-enterprise/
+&#34;&gt;Enterprise Edition&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Authentication credentials are created by the application as instances of &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_MongoCredential.htm
+&#34;&gt;&lt;code&gt;MongoCredential&lt;/code&gt;&lt;/a&gt; which includes static factory methods for each of the supported authentication mechanisms. A list of these instances must be passed to the driver using the &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_MongoClient__ctor_1.htm
+&#34;&gt;&lt;code&gt;MongoClient constructor&lt;/code&gt;&lt;/a&gt; that takes a &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_MongoClientSettings.htm
+&#34;&gt;&lt;code&gt;MongoClientSettings&lt;/code&gt;&lt;/a&gt;. When only one credential is necessary, it is possible to specify via the &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/reference/driver/connecting/#connection-string&#34;&gt;connection string&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;default&#34;&gt;Default&lt;/h3&gt;
+
+&lt;p&gt;MongoDB 4.0 now uses &lt;a href=&#34;https://docs.mongodb.com/manual/core/security-scram/#authentication-scram&#34;&gt;SCRAM&lt;/a&gt; (Salted Challenge Response Authentication Mechanism) as the default mechanism and no longer supports &lt;a href=&#34;http://docs.mongodb.org/manual/core/authentication/#mongodb-cr-authentication&#34;&gt;MONGODB-CR&lt;/a&gt;. To create a credential that will authenticate properly regardless of server version, create a credential using the following static factory method.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var credential = MongoCredential.CreateCredential(databaseName, username, password);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Or via the connection string:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mongodb://username:password@myserver/databaseName
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;These are the recommended approaches as it will make upgrading from MongoDB 2.6 to MongoDB 3.0 seamless, before and after &lt;a href=&#34;http://docs.mongodb.org/manual/release-notes/3.0-scram/#upgrade-mongodb-cr-to-scram&#34;&gt;upgrading the authentication schema&lt;/a&gt;. For MongoDB 4.0, the above approaches will automatically determine which version of SCRAM should be used (SCRAM-SHA-1 or SCRAM-SHA-256).&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+The databaseName part of the connection string indicates which database the credentials are located in. See the &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/reference/driver/connecting/#connection-string&#34;&gt;connection string section&lt;/a&gt; for more information on connection strings.
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;h3 id=&#34;scram&#34;&gt;SCRAM&lt;/h3&gt;
+
+&lt;p&gt;When connecting to a MongoDB 4.0 server without specifying an authentication mechanism, the driver will negotiate with the server to determine whether SCRAM-SHA-1 or SCRAM-SHA-256 is the appropriate mechanism.&lt;/p&gt;
+
+&lt;h4 id=&#34;scram-sha-256&#34;&gt;SCRAM-SHA-256&lt;/h4&gt;
+
+&lt;p&gt;SCRAM-SHA-256 is the default authentication mechanism chosen as long as the user&amp;rsquo;s authentication mechanism supports it. (See the &lt;a href=&#34;https://docs.mongodb.com/manual/reference/method/db.createUser/#db.createUser&#34;&gt;mechanism parameter of createUser()&lt;/a&gt; and the &lt;a href=&#34;https://github.com/mongodb/specifications/blob/master/source/auth/auth.rst#defaults&#34;&gt;&amp;ldquo;Supported Authentication Methods: Defaults&amp;rdquo; section of the Driver Authentication Specification&lt;/a&gt; for additional information.&lt;/p&gt;
+
+&lt;h5 id=&#34;securestrings&#34;&gt;SecureStrings&lt;/h5&gt;
+
+&lt;p&gt;SecureStrings are slightly less secure when used in conjunction with SCRAM-SHA-256, due to the need to temporarily store the cleartext password in a managed memory string in order to SASLPrep it. This behavior is no different from other drivers in languages with managed memory. (SCRAM-SHA-1 is &lt;em&gt;not&lt;/em&gt; affected.)&lt;/p&gt;
+
+&lt;h5 id=&#34;net-standard-support&#34;&gt;.NET Standard support&lt;/h5&gt;
+
+&lt;p&gt;In .NET Standard, authenticating via SCRAM-SHA-256 may not work with non-ASCII passwords because SASLPrep is not fully implemented due to the lack of a string normalization function in .NET Standard 1.5. Normalizing the password into Unicode Normalization Form KC beforehand MAY help. SCRAM-SHA-1 is the recommended alternative for now. See &lt;a href=&#34;https://tools.ietf.org/html/rfc5802&#34;&gt;RFC5802&lt;/a&gt; and the &lt;a href=&#34;https://github.com/mongodb/specifications/blob/master/source/auth/auth.rst#scram-sha-256&#34;&gt;SCRAM-SHA-256 section of the Driver Authentication specification&lt;/a&gt; for additional information.&lt;/p&gt;
+
+&lt;h3 id=&#34;x-509-authentication&#34;&gt;x.509 Authentication&lt;/h3&gt;
+
+&lt;p&gt;The &lt;a href=&#34;http://docs.mongodb.org/manual/core/authentication/#x-509-certificate-authentication&#34;&gt;x.509&lt;/a&gt; mechanism authenticates a user whose name is derived from the distinguished subject name of the x.509 certificate presented by the driver during SSL negotiation. This authentication method requires the use of &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/reference/driver/ssl/&#34;&gt;SSL connections&lt;/a&gt; with certificate validation and is available in MongoDB 2.6 and newer.&lt;/p&gt;
+
+&lt;p&gt;There are two ways to create a credential of this type:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;Programmatically, using the following static factory method:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var credential = MongoCredential.CreateX509Credential(username);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;When configuring x.509 authentication programmatically, the &lt;code&gt;username&lt;/code&gt; parameter provided to &lt;code&gt;CreateX509Credential&lt;/code&gt; must match the distinguished subject name of your x.509 certificate &lt;em&gt;exactly&lt;/em&gt;. To determine the exact &lt;code&gt;username&lt;/code&gt; required for your x.509 connection, consult &lt;a href=&#34;http://docs.mongodb.org/manual/tutorial/configure-x509-client-authentication/#add-x-509-certificate-subject-as-a-user&#34;&gt;the MongoDB server x.509 tutorial&lt;/a&gt;. Alternatively, any &lt;code&gt;null&lt;/code&gt; &lt;code&gt;username&lt;/code&gt; parameter provided to &lt;code&gt;CreateX509Credential&lt;/code&gt; will cause the MongoDB server to infer a username based on the distinguished subject name of the x.509 certificate. Using a &lt;code&gt;null&lt;/code&gt; username value can help prevent issues when certificates are updated, since you can avoid managing a &lt;code&gt;username&lt;/code&gt; value and a certificate as separate entities in your environment.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Manually, using &lt;a href=&#34;https://docs.mongodb.com/manual/reference/connection-string/#connection-string-options&#34;&gt;connection string options&lt;/a&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mongodb://myserver/?authMechanism=MONGODB-X509
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;When configuring x.509 authentication from a connection string, you must still provide the certificate programmatically via &lt;code&gt;MongoClientSettings&lt;/code&gt;. Any connection string specifying x.509 authentication must be imported into a &lt;code&gt;MongoClientSettings&lt;/code&gt; object using &lt;code&gt;MongoClientSettings.FromConnectionString&lt;/code&gt; to add the certificate to the configuration.&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;You can use certificates via the trust stores on your computer, or a PKCS #12 (&lt;code&gt;.pfx&lt;/code&gt;) file. To be used with client authentication, the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.security.cryptography.x509certificates.x509certificate.aspx&#34;&gt;&lt;code&gt;X509Certificate&lt;/code&gt;&lt;/a&gt; provided to the driver must contain the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.security.cryptography.x509certificates.x509certificate2.privatekey.aspx&#34;&gt;&lt;code&gt;PrivateKey&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;For testing purposes, the &lt;code&gt;AllowInsecureTls&lt;/code&gt; field of your &lt;code&gt;MongoClientSettings&lt;/code&gt; can be set to &lt;code&gt;true&lt;/code&gt; to allow the use of self-signed certificates. Since this setting bypasses the validation of certificates entirely, it should never be used for production uses.&lt;/p&gt;
+
+&lt;p&gt;Connecting using a &lt;code&gt;MongoClientSettings&lt;/code&gt; object built from a connection string:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var connectionString = &amp;quot;mongodb://myserver/?authMechanism=MONGODB-X509&amp;quot;;
+var settings = MongoClientSettings.FromConnectionString(connectionString);
+
+settings.useTls = true;
+settings.SslSettings = new SslSettings
+{
+    ClientCertificates = new List&amp;lt;X509Certificate&amp;gt;()
+    {
+        new X509Certificate2(&amp;quot;client-certificate.pfx&amp;quot;, &amp;quot;password&amp;quot;)
+    }
+};
+
+// For testing using self-signed certs, use this option to skip validation.
+// DO NOT USE THIS OPTION FOR PRODUCTION USES
+settings.AllowInsecureTls = true;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Connecting using a &lt;code&gt;MongoClientSettings&lt;/code&gt; object built from scratch:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var settings = new MongoClientSettings 
+{
+    // if a username is null, the distinguished name from the certificate will be used
+    Credential =  MongoCredential.CreateMongoX509Credential(null),
+    SslSettings = new SslSettings
+    {
+        ClientCertificates = new List&amp;lt;X509Certificate&amp;gt;()
+        {
+            new X509Certificate2(&amp;quot;client-certificate.pfx&amp;quot;, &amp;quot;password&amp;quot;)
+        },
+    },
+    UseTls = true,
+    Server = new MongoServerAddress(&amp;quot;myserver&amp;quot;, 27017),
+
+    // For testing using self-signed certs, use this option to skip validation.
+    // DO NOT USE THIS OPTION FOR PRODUCTION USES
+    AllowInsecureTls = true
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;gssapi-kerberos&#34;&gt;GSSAPI/Kerberos&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://www.mongodb.com/products/mongodb-enterprise&#34;&gt;MongoDB Enterprise&lt;/a&gt; supports authentication using &lt;a href=&#34;http://docs.mongodb.org/manual/core/authentication/#kerberos-authentication&#34;&gt;Kerberos/GSSAPI&lt;/a&gt;. To create a Kerberos/GSSAPI credential, use the following method:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var credential = MongoCredential.CreateGssapiCredential(username, password);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Or via the connection string:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mongodb://username%40REALM.com:password@myserver/?authMechanism=GSSAPI
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+Note that the username will need to have a REALM associated with it. When used in a connection string, &lt;code&gt;%40&lt;/code&gt; is the escape character for the &lt;code&gt;@&lt;/code&gt; symbol.
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;If the process owner running your application is the same as the user needing authentication, you can omit the password:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var credential = MongoCredential.CreateGssapiCredential(username);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Or via the connection string:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mongodb://username%40REALM.com@myserver/?authMechanism=GSSAPI
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Depending on the kerberos setup, it may be required to specify some additional properties. These may be specified in the connection string or via code.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;CANONICALIZE_HOST_NAME&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Uses the DNS server to retrieve the fully qualified domain name (FQDN) of the host.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;credential = credential.WithMechanismProperty(&amp;quot;CANONICALIZE_HOST_NAME&amp;quot;, &amp;quot;true&amp;quot;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Or via the connection string:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mongodb://username@myserver/?authMechanism=GSSAPI&amp;amp;authMechanismProperties=CANONICALIZE_HOSTNAME:true
+&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;REALM&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;This is used when the user&amp;rsquo;s realm is different from the service&amp;rsquo;s realm.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;credential = credential.WithMechanismProperty(&amp;quot;REALM&amp;quot;, &amp;quot;otherrealm&amp;quot;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Or via the connection string:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mongodb://username%40REALM.com@myserver/?authMechanism=GSSAPI&amp;amp;authMechanismProperties=REALM:otherrealm
+&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;SERVICE_NAME&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;This is used when the service&amp;rsquo;s name is different that the default &lt;code&gt;mongodb&lt;/code&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;credential = credential.WithMechanismProperty(&amp;quot;SERVICE_NAME&amp;quot;, &amp;quot;othername&amp;quot;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Or via the connection string:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mongodb://username%40REALM.com@myserver/?authMechanism=GSSAPI&amp;amp;authMechanismProperties=SERVICE_NAME:othername
+&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;In addition, it is possible to use multiple authentication mechanism properties either via code or in the connection string. In code, call &lt;code&gt;WithMechanismProperty&lt;/code&gt; multiple times. In the connection string, separate the entries with a &lt;code&gt;,&lt;/code&gt; (comma).&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mongodb://username%40REALM.com@myserver/?authMechanism=GSSAPI&amp;amp;authMechanismProperties=SERVICE_NAME:othername,REALM:otherrealm
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;ldap-plain&#34;&gt;LDAP (PLAIN)&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://www.mongodb.com/products/mongodb-enterprise&#34;&gt;MongoDB Enterprise&lt;/a&gt; supports proxy authentication through a Lightweight Directory Access Protocol (LDAP) service. To create a credential of type LDAP use the following static factory method:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var credential = MongoCredential.CreatePlainCredential(&amp;quot;$external&amp;quot;, username, password);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Or via the connection string:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mongodb://username:password@myserver/?authSource=$external&amp;amp;authMechanism=PLAIN
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+Note that the method refers to the plain authentication mechanism instead of LDAP because technically the driver is authenticating via the PLAIN SASL mechanism. This means that your credentials are in plain text on the wire. Therefore, PLAIN should only be used in conjunction with SSL.
+&lt;/div&gt;
+&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>SSL</title>
+      <link>/mongo-csharp-driver/2.11/reference/driver/ssl/</link>
+      <pubDate>Mon, 02 Jul 2018 12:50:42 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.11/reference/driver/ssl/</guid>
+      <description>
+
+&lt;h2 id=&#34;ssl&#34;&gt;SSL&lt;/h2&gt;
+
+&lt;p&gt;The driver supports SSL connections to MongoDB servers using the underlying support for SSL provided by the .NET Framework. The driver takes a &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.net.sockets.networkstream.aspx&#34;&gt;&lt;code&gt;Network Stream&lt;/code&gt;&lt;/a&gt; and wraps it with an &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.net.security.sslstream.aspx&#34;&gt;&lt;code&gt;SslStream&lt;/code&gt;&lt;/a&gt;. You can configure the use of SSL with the &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/reference/driver/connecting/#connection-string&#34;&gt;connection string&lt;/a&gt; or with &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_MongoClientSettings.htm
+&#34;&gt;&lt;code&gt;MongoClientSettings&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&#34;connection-string&#34;&gt;Connection String&lt;/h2&gt;
+
+&lt;p&gt;The connection string provides 2 options:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;?ssl=true|false&lt;/code&gt;
+You can turn on SSL using this option, or explicitly turn it off. The default is &lt;code&gt;false&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;?sslVerifyCertificate=true|false&lt;/code&gt;
+You can turn off automatic certificate verification using this option. The default is &lt;code&gt;true&lt;/code&gt;.
+&lt;div class=&#34;admonition warning&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;warning&lt;/h5&gt;
+This option should not be set to &lt;code&gt;false&lt;/code&gt; in production. It is important that the server certificate is properly validated.
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&#34;mongoclientsettings&#34;&gt;MongoClientSettings&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_MongoClientSettings.htm
+&#34;&gt;&lt;code&gt;MongoClientSettings&lt;/code&gt;&lt;/a&gt; provides a much fuller and robust solution for configuring SSL. It contains the &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/P_MongoDB_Driver_MongoClientSettings_SslSettings.htm
+&#34;&gt;&lt;code&gt;SslSettings&lt;/code&gt;&lt;/a&gt; property which allows the setting of various values. Each of these values will map very strongly to their counterpart in the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/dd990420.aspx&#34;&gt;&lt;code&gt;SslStream constructor&lt;/code&gt;&lt;/a&gt; and the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/ms145061.aspx&#34;&gt;&lt;code&gt;AuthenticateAsClient&lt;/code&gt;&lt;/a&gt; method. For example, to authenticate with a client certificate called &amp;ldquo;client.pfx&amp;rdquo;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var cert = new X509Certificate2(&amp;quot;client.pfx&amp;quot;, &amp;quot;mySuperSecretPassword&amp;quot;);
+
+var settings = new MongoClientSettings
+{
+    SslSettings = new SslSettings
+    {
+        ClientCertificates = new[] { cert },
+    },
+    UseSsl = true
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition important&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;important&lt;/h5&gt;
+It is imperative that when loading a certificate with a password, the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.security.cryptography.x509certificates.x509certificate2.privatekey.aspx&#34;&gt;PrivateKey&lt;/a&gt; property not be null. If the property is null, it means that your certificate does not contain the private key and will not be passed to the server.
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;h3 id=&#34;certificate-revocation-checking&#34;&gt;Certificate Revocation Checking&lt;/h3&gt;
+
+&lt;h4 id=&#34;default-behavior&#34;&gt;Default behavior&lt;/h4&gt;
+
+&lt;p&gt;The .NET Driver now &lt;strong&gt;enables&lt;/strong&gt; certificate revocation checking by
+default, setting &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/P_MongoDB_Driver_SslSettings_CheckCertificateRevocation.htm
+&#34;&gt;&lt;code&gt;CheckCertificateRevocation&lt;/code&gt;&lt;/a&gt; in
+&lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_SslSettings.htm
+&#34;&gt;&lt;code&gt;SslSettings&lt;/code&gt;&lt;/a&gt; to
+&lt;code&gt;true&lt;/code&gt; by default. This is in contrast to .NET&amp;rsquo;s defaults for
+&lt;code&gt;SslStream&lt;/code&gt; (see .NET Framework documentation
+&lt;a href=&#34;https://docs.microsoft.com/en-us/dotnet/api/system.net.security.sslstream.authenticateasclient?view=netframework-4.7.2#System_Net_Security_SslStream_AuthenticateAsClient_System_String_&#34;&gt;here&lt;/a&gt;
+and .NET Standard documentation
+&lt;a href=&#34;https://docs.microsoft.com/en-us/dotnet/api/system.net.security.sslstream.authenticateasclient?view=netstandard-2.0#System_Net_Security_SslStream_AuthenticateAsClient_System_String_&#34;&gt;here&lt;/a&gt;).
+Any applications relying on the older default of &lt;code&gt;false&lt;/code&gt; now must
+explicitly set &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/P_MongoDB_Driver_SslSettings_CheckCertificateRevocation.htm
+&#34;&gt;&lt;code&gt;CheckCertificateRevocation&lt;/code&gt;&lt;/a&gt; to
+&lt;code&gt;false&lt;/code&gt; in &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_SslSettings.htm
+&#34;&gt;&lt;code&gt;SslSettings&lt;/code&gt;&lt;/a&gt; to disable certificate revocation checking. Alternatively,
+applications may also set &lt;code&gt;tlsDisableCertificateRevocationCheck=true&lt;/code&gt;
+in their connection string.  See
+&lt;a href=&#34;#tlsDisableCertificateRevocationCheck&#34;&gt;tlsDisableCertificateRevocationCheck&lt;/a&gt;
+for more information.&lt;/p&gt;
+
+&lt;p&gt;Prior to v2.7.0, the driver also enabled certificate revocation checking by
+default.&lt;/p&gt;
+
+&lt;h4 id=&#34;tlsdisablecertificaterevocationcheck&#34;&gt;tlsDisableCertificateRevocationCheck&lt;/h4&gt;
+
+&lt;p&gt;The URI option, &lt;code&gt;tlsDisableCertificateRevocationCheck&lt;/code&gt; controls
+whether or not to disable certificate revocation checking during a TLS
+handshake. Setting &lt;code&gt;tlsDisableCertificateRevocationCheck=true&lt;/code&gt; is
+equivalent to setting &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/P_MongoDB_Driver_SslSettings_CheckCertificateRevocation.htm
+&#34;&gt;&lt;code&gt;CheckCertificateRevocation&lt;/code&gt;&lt;/a&gt; in
+&lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_SslSettings.htm
+&#34;&gt;&lt;code&gt;SslSettings&lt;/code&gt;&lt;/a&gt; to
+&lt;code&gt;false&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;ocsp&#34;&gt;OCSP&lt;/h3&gt;
+
+&lt;h4 id=&#34;stapling&#34;&gt;Stapling&lt;/h4&gt;
+
+&lt;p&gt;Due to limitations in .NET, the driver currently only supports OCSP
+(Online Certificate Status Protocol) stapling on .NET Core ≥2.x on
+macOS.&lt;/p&gt;
+
+&lt;p&gt;On Windows, when a server has a Must-Staple certificate and does not
+staple, by default, the driver will continue to connect as long as the
+OCSP responder is still available and reports that the server&amp;rsquo;s
+certificate is valid. This behavior differs from the mongo shell and
+from the MongoDB Python and Go drivers, which will fail to connect in
+when a server has a Must-Staple certificate and does not staple.&lt;/p&gt;
+
+&lt;h4 id=&#34;hard-fail-vs-soft-fail&#34;&gt;Hard-fail vs. soft-fail&lt;/h4&gt;
+
+&lt;p&gt;On Windows, due .NET&amp;rsquo;s implementation of TLS, the driver utilizes
+&amp;ldquo;hard-fail&amp;rdquo; behavior in contrast to the &amp;ldquo;soft-fail&amp;rdquo; behavior exhibited
+by the Linux/macOS mongo shell and MongoDB drivers such as Python and
+Go. This means that in the case that an OCSP responder is unavailable,
+the driver will fail to connect (i.e. hard-fail) instead of allowing
+the connection to continue (i.e. soft-fail).&lt;/p&gt;
+
+&lt;h2 id=&#34;tls-support&#34;&gt;TLS support&lt;/h2&gt;
+
+&lt;h3 id=&#34;overview&#34;&gt;Overview&lt;/h3&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;OS&lt;/th&gt;
+&lt;th&gt;.NET Version&lt;/th&gt;
+&lt;th&gt;TLS1.1&lt;/th&gt;
+&lt;th&gt;TLS1.2&lt;/th&gt;
+&lt;th&gt;SNI&lt;/th&gt;
+&lt;th&gt;CRLs without OCSP&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Windows&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;.NET Framework 4.5&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;.NET Framework 4.6&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;.NET Framework 4.7&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;.NET Core 1.0&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;.NET Core 1.1&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;.NET Core 2.0&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;.NET Core 2.1&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Linux&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;.NET Core 1.0&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;No&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;.NET Core 1.1&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;No&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;.NET Core 2.0&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;No&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;.NET Core 2.1&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;macOS&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;.NET Core 1.0&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;No&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;.NET Core 1.1&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;No&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;.NET Core 2.0&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;No&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;.NET Core 2.1&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;No&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h4 id=&#34;notes&#34;&gt;Notes&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;SNI (Server Name Indication) is required for Atlas free tier.&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;.NET Core on macOS will fail to connect if &lt;strong&gt;both&lt;/strong&gt; of the following conditions are met: (1) &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/reference/driver/ssl/#certificate-revocation-checking&#34;&gt;certificate revocation checking&lt;/a&gt; is enabled, and (2) a server&amp;rsquo;s certificate includes Certificate Revocation List (CRL) Distribution Points but does not include an Online Certificate Status Protocol (OCSP) extension.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;This is due to a limitation of the Apple Security Framework (see &lt;a href=&#34;https://github.com/dotnet/corefx/issues/29064&#34;&gt;https://github.com/dotnet/corefx/issues/29064&lt;/a&gt;). Prior to version 2.0, .NET Core on macOS used OpenSSL, which does support CRLs without OCSP.&lt;/li&gt;
+&lt;li&gt;Connecting to Atlas on macOS with certificate revocation checking enabled will succeed since Atlas certificates include CRL Distribution Points as well as an OCSP extension.&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;support-for-tls-v1-1-and-newer&#34;&gt;Support for TLS v1.1 and newer&lt;/h3&gt;
+
+&lt;p&gt;Industry best practices recommend, and some regulations require, the use of TLS 1.1 or newer. No application changes are required
+for the driver to make use of the newest TLS protocols.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Sessions and Transactions</title>
+      <link>/mongo-csharp-driver/2.11/reference/driver/crud/sessions_and_transactions/</link>
+      <pubDate>Fri, 29 Jun 2018 13:45:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.11/reference/driver/crud/sessions_and_transactions/</guid>
+      <description>
+
+&lt;h2 id=&#34;sessions&#34;&gt;Sessions&lt;/h2&gt;
+
+&lt;p&gt;A session is used to group together a series of operations that are related to each other and should be executed with the same session options. Sessions are also used for transactions.&lt;/p&gt;
+
+&lt;p&gt;New overloaded methods that take a session parameter have been added for all operation methods in the driver. You execute multiple operations in the same session by passing the same session value to each operation.&lt;/p&gt;
+
+&lt;p&gt;When you call an older operation method that does not take a session parameter, the driver will start an implicit session to execute that one operation and then immediately end the implicit session.&lt;/p&gt;
+
+&lt;h3 id=&#34;startsession-and-startsessionasync&#34;&gt;StartSession and StartSessionAsync&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IClientSessionHandle StartSession(ClientSessionOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+Task&amp;lt;IClientSessionHandle&amp;gt; StartSessionAsync(ClientSessionOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;A session is started by calling the StartSession or StartSessionAsync methods of IMongoClient:&lt;/p&gt;
+
+&lt;p&gt;You must end a session when you no longer need it. You end a session by calling Dispose, which will happen automatically if you put the session inside a using statement.&lt;/p&gt;
+
+&lt;p&gt;The recommended way of using a session is:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var sessionOptions = new ClientSessionOptions { ... };
+using (var session = client.StartSession(sessionOptions, cancellationToken))
+{
+    // execute some operations passing the session as an argument to each operation
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;or&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var sessionOptions = new ClientSessionOptions { ... };
+using (var session = await client.StartSessionAsync(sessionOptions, cancellationToken))
+{
+    // execute some operations passing the session as an argument to each operation
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;A session is typically short lived. You start a session, execute some operations, and end the session.&lt;/p&gt;
+
+&lt;h3 id=&#34;clientsessionoptions&#34;&gt;ClientSessionOptions&lt;/h3&gt;
+
+&lt;p&gt;The ClientSessionOptions class is used to specify any desired options when calling StartSession.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public class ClientSessionOptions
+{
+    public bool? CausalConsistency { get; set; }
+    public TransactionOptions DefaultTransactionOptions { get; set; }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;causalconsistency&#34;&gt;CausalConsistency&lt;/h4&gt;
+
+&lt;p&gt;Set to true if you want all operations in a session to be causally consistent.&lt;/p&gt;
+
+&lt;h4 id=&#34;defaulttransactionoptions&#34;&gt;DefaultTransactionOptions&lt;/h4&gt;
+
+&lt;p&gt;You can provide default transaction options to be used for any options that are not provided when StartTransaction is called.&lt;/p&gt;
+
+&lt;h3 id=&#34;iclientsession-properties-and-methods&#34;&gt;IClientSession properties and methods&lt;/h3&gt;
+
+&lt;p&gt;The IClientSession interface defines the properties and methods available on a session.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public interface IClientSession : IDisposable
+{
+    IMongoClient Client { get; }
+    BsonDocument ClusterTime { get; }
+    bool IsInTransaction { get; }
+    BsonTimestamp OperationTime { get; }
+    ClientSessionOptions Options { get; }
+
+    void AdvanceClusterTime(BsonDocument newClusterTime);
+    void AdvanceOperationTime(BsonTimestamp newOperationTime);
+
+    // see also transaction related methods documented below
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Note: a few members of IClientSession have been deliberately omitted from this documentation, either because they are rarely used or because they are for internal use only.&lt;/p&gt;
+
+&lt;h4 id=&#34;client&#34;&gt;Client&lt;/h4&gt;
+
+&lt;p&gt;The Client property returns a reference to the IMongoClient instance that was used to start this session.&lt;/p&gt;
+
+&lt;h4 id=&#34;clustertime&#34;&gt;ClusterTime&lt;/h4&gt;
+
+&lt;p&gt;The ClusterTime property returns the highest cluster time that has been seen by this client. The value is an opaque BsonDocument containing a cluster time that has been returned by the server. While an application might never inspect the actual value, it might set this value (by calling AdvanceClusterTime) when initializing a causally consistent session.&lt;/p&gt;
+
+&lt;h3 id=&#34;isintransaction&#34;&gt;IsInTransaction&lt;/h3&gt;
+
+&lt;p&gt;Specifies whether the session is currently in a transaction. A session is in a transaction after StartTransaction has been called and until either AbortTransaction or CommitTransaction has been called.&lt;/p&gt;
+
+&lt;h3 id=&#34;operationtime&#34;&gt;OperationTime&lt;/h3&gt;
+
+&lt;p&gt;The operation time returned by the server for the most recent operation in this session. Operation times are used by the driver to ensure causal consistency when the ClientSessionOptions specify that causal consistency is desired. While an application might never use the actual value, it might set this value (by calling AdvanceOperationTime) when initializing a causally consistent session.&lt;/p&gt;
+
+&lt;h3 id=&#34;options&#34;&gt;Options&lt;/h3&gt;
+
+&lt;p&gt;Returns the options that were passed to StartSession.&lt;/p&gt;
+
+&lt;h3 id=&#34;advanceclustertime-and-advanceoperationtime&#34;&gt;AdvanceClusterTime and AdvanceOperationTime&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;void AdvanceClusterTime(BsonDocument newClusterTime);
+void AdvanceOperationTime(BsonTimestamp newOperationTime);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Call these methods to advance the cluster and operation times when you want subsequent operations in this session to be causally consistent with operations that have executed outside of this session. Typically the values you pass to AdvanceClusterTime and AdvanceOperation time will come from the ClusterTime and OperationTime properties of some other session.&lt;/p&gt;
+
+&lt;h3 id=&#34;transaction-methods&#34;&gt;Transaction methods&lt;/h3&gt;
+
+&lt;p&gt;The methods to start, abort or commit a transaction are documented in the next section.&lt;/p&gt;
+
+&lt;h2 id=&#34;transactions&#34;&gt;Transactions&lt;/h2&gt;
+
+&lt;p&gt;Transactions are started, committed or aborted using methods of IClientSession. A session can only execute one transaction at a time, but a session can execute more than one transaction as long as each transaction is committed or aborted before the next one is started.&lt;/p&gt;
+
+&lt;h3 id=&#34;starttransaction&#34;&gt;StartTransaction&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;void StartTransaction(TransactionOptions transactionOptions = null);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Start a transaction by calling StartTransaction, optionally specifying options for the transaction.&lt;/p&gt;
+
+&lt;p&gt;Each transaction option can be specified at any of the following levels:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;StartTransaction in the options parameter&lt;/li&gt;
+&lt;li&gt;StartSession in the defaultTransactionOptions parameter&lt;/li&gt;
+&lt;li&gt;Defaulted&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;You can specify different options at different levels. An option specified in StartTransaction overrides the same option specified in the defaultTransactionOptions passed to StartSession, which in turn overrides the default value.&lt;/p&gt;
+
+&lt;h4 id=&#34;transactionoptions&#34;&gt;TransactionOptions&lt;/h4&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public class TransactionOptions
+{
+    public ReadConcern ReadConcern { get; };
+    public ReadPreference ReadPreference { get; };
+    public WriteConcern WriteConcern { get; };
+
+    public TransactionOptions(
+        Optional&amp;lt;ReadConcern&amp;gt; readConcern = default(Optional&amp;lt;ReadConcern&amp;gt;),
+        Optional&amp;lt;ReadPreference&amp;gt; readPreference = default(Optional&amp;lt;ReadPreference&amp;gt;),
+        Optional&amp;lt;WriteConcern&amp;gt; writeConcern = default(Optional&amp;lt;WriteConcern&amp;gt;));
+
+    public TransactionOptions With(
+        Optional&amp;lt;ReadConcern&amp;gt; readConcern = default(Optional&amp;lt;ReadConcern&amp;gt;),
+        Optional&amp;lt;ReadPreference&amp;gt; readPreference = default(Optional&amp;lt;ReadPreference&amp;gt;),
+        Optional&amp;lt;WriteConcern&amp;gt; writeConcern = default(Optional&amp;lt;WriteConcern&amp;gt;))
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Create an instance of TransactionOptions either by calling the constructor with any desired optional arguments, or by calling the With method on an existing instance of TransactionOptions to create a new instance with some values changed.&lt;/p&gt;
+
+&lt;h5 id=&#34;readconcern&#34;&gt;ReadConcern&lt;/h5&gt;
+
+&lt;p&gt;The ReadConcern used while in the transaction. All operations in the transaction use the ReadConcern specified when StartTransaction is called.&lt;/p&gt;
+
+&lt;h5 id=&#34;readpreference&#34;&gt;ReadPreference&lt;/h5&gt;
+
+&lt;p&gt;The ReadPreference used while in the transaction. Currently, the ReadPreference for a transaction must be Primary.&lt;/p&gt;
+
+&lt;h5 id=&#34;writeconcern&#34;&gt;WriteConcern&lt;/h5&gt;
+
+&lt;p&gt;The WriteConcern used for this transaction. The WriteConcern only applies when committing the transaction, not to the individual operations executed while in the transaction.&lt;/p&gt;
+
+&lt;h3 id=&#34;committransaction-and-committransactionasync&#34;&gt;CommitTransaction and CommitTransactionAsync&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;void CommitTransaction(CancellationToken cancellationToken = default(CancellationToken));
+Task CommitTransactionAsync(CancellationToken cancellationToken = default(CancellationToken));
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You must call CommitTransaction or CommitTransactionAsync in order for a transaction to be committed. If a session is ended while a transaction is in progress the transaction will be automatically aborted.&lt;/p&gt;
+
+&lt;p&gt;The commit is executed with the WriteConcern specified by the transaction options.&lt;/p&gt;
+
+&lt;h3 id=&#34;aborttransaction-and-aborttransactionasync&#34;&gt;AbortTransaction and AbortTransactionAsync&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;void AbortTransaction(CancellationToken cancellationToken = default(CancellationToken));
+Task AbortTransactionAsync(CancellationToken cancellationToken = default(CancellationToken));
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Call AbortTransaction or AbortTransactionAsync to abort a transaction. Since any transaction in progress is automatically aborted when a session is ended, you can also implicitly abort an uncommitted transaction by simply ending the session.&lt;/p&gt;
+
+&lt;p&gt;In this example we rely on the implied transaction abort:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var session = client.StartSession())
+{
+    session.StartTransaction();
+    // execute operations using the session
+    session.CommitTransaction(); // if an exception is thrown before reaching here the transaction will be implicitly aborted
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;When writing an async program you may want to avoid using the implied abort transaction that occurs when Dispose is called on a session with a transaction in progress, because Dispose is a blocking operation. To be fully async, even in the case where the transaction needs to be aborted, you might instead write:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var session = await client.StartSessionAsync())
+{
+    try
+    {
+        // execute async operations using the session
+    }
+    catch
+    {
+        await session.AbortTransactionAsync(); // now Dispose on the session has nothing to do and won&#39;t block
+        throw;
+    }
+    await session.CommitTransactionAsync();
+}
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Deleting and Renaming Files</title>
+      <link>/mongo-csharp-driver/2.11/reference/gridfs/deletingandrenamingfiles/</link>
+      <pubDate>Mon, 14 Sep 2015 00:00:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.11/reference/gridfs/deletingandrenamingfiles/</guid>
+      <description>
+
+&lt;h2 id=&#34;deleting-and-renaming-files&#34;&gt;Deleting and Renaming Files&lt;/h2&gt;
+
+&lt;p&gt;These methods allow you to delete or rename GridFS files.&lt;/p&gt;
+
+&lt;h3 id=&#34;deleting-a-single-file&#34;&gt;Deleting a single file&lt;/h3&gt;
+
+&lt;p&gt;Use the &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_Delete.htm
+&#34;&gt;&lt;code&gt;Delete&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_DeleteAsync.htm
+&#34;&gt;&lt;code&gt;DeleteAsync&lt;/code&gt;&lt;/a&gt; methods to delete a single file identified by its Id.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
+ObjectId id;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;bucket.Delete(id);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;await bucket.DeleteAsync(id);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;dropping-an-entire-gridfs-bucket&#34;&gt;Dropping an entire GridFS bucket&lt;/h3&gt;
+
+&lt;p&gt;Use the &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_Drop.htm
+&#34;&gt;&lt;code&gt;Drop&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_DropAsync.htm
+&#34;&gt;&lt;code&gt;DropAsync&lt;/code&gt;&lt;/a&gt; methods to drop an entire GridFS bucket at once.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;bucket.Drop();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;await bucket.DropAsync();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+The &amp;ldquo;fs.files&amp;rdquo; collection will be dropped first, followed by the &amp;ldquo;fs.chunks&amp;rdquo; collection. This is the fastest way to delete all files stored in a GridFS bucket at once.
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;h3 id=&#34;renaming-a-single-file&#34;&gt;Renaming a single file&lt;/h3&gt;
+
+&lt;p&gt;Use the &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_Rename.htm
+&#34;&gt;&lt;code&gt;Rename&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_RenameAsync.htm
+&#34;&gt;&lt;code&gt;RenameAsync&lt;/code&gt;&lt;/a&gt; methods to rename a single file identified by its Id.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
+ObjectId id;
+string newFilename;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;bucket.Rename(id, newFilename);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;await bucket.RenameAsync(id, newFilename);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;renaming-all-revisions-of-a-file&#34;&gt;Renaming all revisions of a file&lt;/h3&gt;
+
+&lt;p&gt;To rename all revisions of a file you first use the &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/_MongoDB_Driver_GridFS_IGridFSBucket_Find.htm
+&#34;&gt;&lt;code&gt;Find&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/_MongoDB_Driver_GridFS_IGridFSBucket_FindAsync.htm
+&#34;&gt;&lt;code&gt;FindAsync&lt;/code&gt;&lt;/a&gt; method to find all the revisions, and then loop over the revisions and use the &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_Rename.htm
+&#34;&gt;&lt;code&gt;Rename&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_RenameAsync.htm
+&#34;&gt;&lt;code&gt;RenameAsync&lt;/code&gt;&lt;/a&gt; method to rename each revision one at a time.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
+string oldFilename;
+string newFilename;
+var filter = Builders&amp;lt;GridFSFileInfo&amp;gt;.Filter.EQ(x =&amp;gt; x.Filename, oldFilename);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var filesCursor = bucket.Find(filter);
+var files = filesCursor.ToList();
+
+foreach (var file in files)
+{
+    bucket.Rename(file.Id, newFilename);
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var filesCursor = await bucket.FindAsync(filter);
+var files = await filesCursor.ToListAsync();
+
+foreach (var file in files)
+{
+    await bucket.RenameAsync(file.Id, newFilename);
+}
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Downloading Files</title>
+      <link>/mongo-csharp-driver/2.11/reference/gridfs/downloadingfiles/</link>
+      <pubDate>Mon, 14 Sep 2015 00:00:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.11/reference/gridfs/downloadingfiles/</guid>
+      <description>
+
+&lt;h2 id=&#34;downloading-files&#34;&gt;Downloading Files&lt;/h2&gt;
+
+&lt;p&gt;There are several ways to download a file from GridFS. The two main approaches are:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;The driver downloads a file as a byte array or by writing the contents to a &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; provided by the application&lt;/li&gt;
+&lt;li&gt;The driver supplies a &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; object that the application can read the contents from&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&#34;downloading-as-a-byte-array&#34;&gt;Downloading as a byte array&lt;/h3&gt;
+
+&lt;p&gt;This is the easiest way to download a file from GridFS, assuming that the file is small enough for the entire contents to be held in memory at once.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
+ObjectId id;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var bytes = bucket.DownloadAsBytes(id);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var bytes = await bucket.DownloadAsBytesAsync(id);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;downloading-to-a-stream&#34;&gt;Downloading to a Stream&lt;/h3&gt;
+
+&lt;p&gt;If you don&amp;rsquo;t want to hold the entire contents of the downloaded file in memory at once, you can have the driver write the contents of the file to a &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; provided by the application.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
+ObjectId id;
+Stream destination;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;bucket.DownloadToStream(id, destination);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;await bucket.DownloadToStreamAsync(id, destination);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The driver will download the contents of the GridFS file and write them to the destination &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt;. The driver begins writing the contents at the current position of the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition important&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;important&lt;/h5&gt;
+The driver does &lt;strong&gt;not&lt;/strong&gt; close the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; when it is done. The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; is owned by the application and it is up to the application to close the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; when it is ready to do so.
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;h3 id=&#34;downloading-from-a-stream&#34;&gt;Downloading from a Stream&lt;/h3&gt;
+
+&lt;p&gt;In some cases the application might prefer to read the contents of the GridFS file from a &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
+ObjectId id;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var stream = bucket.OpenDownloadStream(id))
+{
+    // read from stream until end of file is reached
+    stream.Close();
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var stream = await bucket.OpenDownloadStreamAsync(id))
+{
+    // read from stream until end of file is reached
+    await stream.CloseAsync();
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; object returned by &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_OpenDownloadStream.htm
+&#34;&gt;&lt;code&gt;OpenDownloadStream&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_OpenDownloadStreamAsync.htm
+&#34;&gt;&lt;code&gt;OpenDownloadStreamAsync&lt;/code&gt;&lt;/a&gt; is actually a &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_GridFS_GridFSDownloadStream.htm
+&#34;&gt;&lt;code&gt;GridFSDownloadStream&lt;/code&gt;&lt;/a&gt; (a subclass of &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt;), which has the following additional members in addition to those found in &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public abstract class GridFSDownloadStream : Stream
+{
+    public abstract GridFSFileInfo FileInfo { get; }
+    public abstract Task CloseAsync(CancellationToken cancellationToken = default(CancellationToken));
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/P_MongoDB_Driver_GridFS_GridFSDownloadStream_FileInfo.htm
+&#34;&gt;&lt;code&gt;FileInfo&lt;/code&gt;&lt;/a&gt; property contains information about the GridFS file being dowloaded. See the &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_Find.htm
+&#34;&gt;&lt;code&gt;Find&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_FindAsync.htm
+&#34;&gt;&lt;code&gt;FindAsync&lt;/code&gt;&lt;/a&gt; method for details about the &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_GridFS_GridFSFileInfo.htm
+&#34;&gt;&lt;code&gt;GridFSFileInfo&lt;/code&gt;&lt;/a&gt; class.&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+&lt;p&gt;Calling &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_GridFSDownloadStream_CloseAsync..htm&#34;&gt;&lt;code&gt;CloseAsync&lt;/code&gt;&lt;/a&gt; is optional, but recommended. Since &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; is &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.idisposable.aspx&#34;&gt;&lt;code&gt;IDisposable&lt;/code&gt;&lt;/a&gt; and it is used inside a using statement, it would be closed automatically when &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.idisposable.dispose.aspx&#34;&gt;&lt;code&gt;Dispose&lt;/code&gt;&lt;/a&gt; is called. However, in async programming we want to avoid blocking and calling &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_GridFSDownloadStream_CloseAsync..htm&#34;&gt;&lt;code&gt;CloseAsync&lt;/code&gt;&lt;/a&gt; first allows the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; to be closed with an async call. If you call &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_GridFSDownloadStream_CloseAsync..htm&#34;&gt;&lt;code&gt;CloseAsync&lt;/code&gt;&lt;/a&gt; first then &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.idisposable.dispose.aspx&#34;&gt;&lt;code&gt;Dispose&lt;/code&gt;&lt;/a&gt; will no longer block.&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;By default the driver assumes that you want to read the entire contents of the file from beginning to end, and returns a &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; implementation that does not support seeking, which allows for a more efficient implementation.&lt;/p&gt;
+
+&lt;p&gt;If you do want to use &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.seek.aspx&#34;&gt;&lt;code&gt;Seek&lt;/code&gt;&lt;/a&gt; with the returned &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt;, you can use the options parameter to indicate that.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
+ObjectId id;
+
+var options = new GridFSDownloadOptions
+{
+    Seekable = true
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var stream = bucket.OpenDownloadStream(id, options))
+{
+    // this time the Stream returned supports seeking
+    stream.Close();
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var stream = await bucket.OpenDownloadStreamAsync(id, options))
+{
+    // this time the Stream returned supports seeking
+    await stream.CloseAsync();
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;downloading-by-filename&#34;&gt;Downloading by filename&lt;/h3&gt;
+
+&lt;p&gt;All the previous examples used an Id to specify which GridFS file to download. You can also use a filename to specify which GridFS file to download, but in this case you might need to indicate which &amp;ldquo;revision&amp;rdquo; of the file you want to download if there are multiple GridFS files with the same filename.&lt;/p&gt;
+
+&lt;p&gt;Revisions are identified using an integer, as follows:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;0 = the original version uploaded&lt;/li&gt;
+&lt;li&gt;1 = the first revision of the file&lt;/li&gt;
+&lt;li&gt;2 = the second revision of the file&lt;/li&gt;
+&lt;li&gt;&amp;hellip;&lt;/li&gt;
+&lt;li&gt;-2 the second newest revision of the file&lt;/li&gt;
+&lt;li&gt;-1 the newest revision of the file&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The default value for the revision is -1 (i.e. the newest revision).&lt;/p&gt;
+
+&lt;p&gt;The following examples all download the newest revision:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
+string filename;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var bytes = bucket.DownloadAsBytesByName(filename);
+
+// or
+
+Stream destination;
+bucket.DownloadToStreamByName(filename, destination);
+
+// or
+
+using (var stream = bucket.OpenDownloadStreamByName(filename))
+{
+    // read from stream until end of file is reached
+    stream.Close(); 
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var bytes = await bucket.DownloadAsBytesByNameAsync(filename);
+
+// or
+
+Stream destination;
+await bucket.DownloadToStreamByNameAsync(filename, destination);
+
+// or
+
+using (var stream = await bucket.OpenDownloadStreamByNameAsync(filename))
+{
+    // read from stream until end of file is reached
+    await stream.CloseAsync(); 
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If you want to download a different revision, you specify the desired revision using the options parameter.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
+string filename;
+
+var options = new GridFSDownloadByNameOptions
+{
+    Revision = 0
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var bytes = bucket.DownloadAsBytesByName(filename, options);
+
+// or
+
+Stream destination;
+bucket.DownloadToStreamByName(filename, destination, options);
+
+// or
+
+using (var stream = bucket.OpenDownloadStreamByName(filename, options))
+{
+    // read from stream until end of file is reached
+    stream.Close(); 
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var bytes = await bucket.DownloadAsBytesByNameAsync(filename, options);
+
+// or
+
+Stream destination;
+await bucket.DownloadToStreamByNameAsync(filename, destination, options);
+
+// or
+
+using (var stream = await bucket.OpenDownloadStreamByNameAsync(filename, options))
+{
+    // read from stream until end of file is reached
+    await stream.CloseAsync(); 
+}
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Finding Files</title>
+      <link>/mongo-csharp-driver/2.11/reference/gridfs/findingfiles/</link>
+      <pubDate>Mon, 14 Sep 2015 00:00:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.11/reference/gridfs/findingfiles/</guid>
+      <description>
+
+&lt;h2 id=&#34;finding-files&#34;&gt;Finding Files&lt;/h2&gt;
+
+&lt;p&gt;Each file stored in GridFS has a unique Id assigned to it, and that is the primary way of accessing the stored files.&lt;/p&gt;
+
+&lt;h3 id=&#34;find-and-findasync-methods&#34;&gt;Find and FindAsync methods&lt;/h3&gt;
+
+&lt;p&gt;If you don&amp;rsquo;t know the Id, you can use the &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_Find.htm
+&#34;&gt;&lt;code&gt;Find&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_FindAsync.htm
+&#34;&gt;&lt;code&gt;FindAsync&lt;/code&gt;&lt;/a&gt; method to find matching files using a filter. The filter must be of type &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_FilterDefinition_1.htm
+&#34;&gt;&lt;code&gt;FilterDefinition&amp;lt;GridFSFileInfo&amp;gt;&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;For example, to find the newest revision of the file named &amp;ldquo;securityvideo&amp;rdquo; uploaded in January 2015:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
+var filter = Builders&amp;lt;GridFSFileInfo&amp;gt;.Filter.And( 
+    Builders&amp;lt;GridFSFileInfo&amp;gt;.Filter.Eq(x =&amp;gt; x.Filename, &amp;quot;securityvideo&amp;quot;),
+    Builders&amp;lt;GridFSFileInfo&amp;gt;.Filter.Gte(x =&amp;gt; x.UploadDateTime, new DateTime(2015, 1, 1, 0, 0, 0, DateTimeKind.Utc)),
+    Builders&amp;lt;GridFSFileInfo&amp;gt;.Filter.Lt(x =&amp;gt; x.UploadDateTime, new DateTime(2015, 2, 1, 0, 0, 0, DateTimeKind.Utc)));
+var sort = Builders&amp;lt;GridFSFileInfo&amp;gt;.Sort.Descending(x =&amp;gt; x.UploadDateTime);
+var options = new GridFSFindOptions
+{
+    Limit = 1,
+    Sort = sort
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = bucket.Find(filter, options))
+{
+   var fileInfo = cursor.ToList().FirstOrDefault();
+   // fileInfo either has the matching file information or is null
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = await bucket.FindAsync(filter, options))
+{
+   var fileInfo = (await cursor.ToListAsync()).FirstOrDefault();
+   // fileInfo either has the matching file information or is null
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;gridfsfileinfo-class&#34;&gt;GridFSFileInfo class&lt;/h3&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_GridFS_GridFSFileInfo.htm
+&#34;&gt;&lt;code&gt;GridFSFileInfo&lt;/code&gt;&lt;/a&gt; is a strongly typed class that represents the information about a GridFS file stored in the &amp;ldquo;fs.files&amp;rdquo; collection.&lt;/p&gt;
+
+&lt;p&gt;This class is a strongly typed wrapper around a backing &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
+&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt;. It makes it easier to extract the information available in a files collection documents.&lt;/p&gt;
+
+&lt;p&gt;In older drivers it was possible to store arbitrary information at the root level of a files collection document. If you need to access that information you can use the &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/P_MongoDB_Driver_GridFS_GridFSFileInfo_BackingDocument.htm
+&#34;&gt;&lt;code&gt;BackingDocument&lt;/code&gt;&lt;/a&gt; property to get access to the complete backing document. When uploading new GridFS files you should store any additional information you want to associate with the uploaded file inside the &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/P_MongoDB_Driver_GridFS_GridFSFileInfo_Metadata.htm
+&#34;&gt;&lt;code&gt;Metadata&lt;/code&gt;&lt;/a&gt; document.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Getting Started</title>
+      <link>/mongo-csharp-driver/2.11/reference/gridfs/gettingstarted/</link>
+      <pubDate>Mon, 14 Sep 2015 00:00:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.11/reference/gridfs/gettingstarted/</guid>
+      <description>
+
+&lt;h2 id=&#34;getting-started&#34;&gt;Getting Started&lt;/h2&gt;
+
+&lt;p&gt;GridFS files are stored in the database using two collections, normally called &amp;ldquo;fs.files&amp;rdquo; and &amp;ldquo;fs.chunks&amp;rdquo;. Each file uploaded to GridFS has one document in the &amp;ldquo;fs.files&amp;rdquo; collection containing information about the file and as many chunks as necessary in the &amp;ldquo;fs.chunks&amp;rdquo; collection to store the contents of the file.&lt;/p&gt;
+
+&lt;p&gt;A GridFS &amp;ldquo;bucket&amp;rdquo; is the combination of an &amp;ldquo;fs.files&amp;rdquo; and &amp;ldquo;fs.chunks&amp;rdquo; collection which together represent a bucket where GridFS files can be stored.&lt;/p&gt;
+
+&lt;h3 id=&#34;gridfsbucket&#34;&gt;GridFSBucket&lt;/h3&gt;
+
+&lt;p&gt;A &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_GridFS_GridFSBucket.htm
+&#34;&gt;&lt;code&gt;GridFSBucket&lt;/code&gt;&lt;/a&gt; object is the root object representing a GridFS bucket.&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition warning&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;warning&lt;/h5&gt;
+&lt;p&gt;You should always use a &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_GridFS_GridFSBucket.htm&#34;&gt;&lt;code&gt;GridFSBucket&lt;/code&gt;&lt;/a&gt; object to interact with GridFS instead of directly referencing the underlying collections.&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;You create a &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_GridFS_GridFSBucket.htm
+&#34;&gt;&lt;code&gt;GridFSBucket&lt;/code&gt;&lt;/a&gt; instance by calling its constructor:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IMongoDatabase database;
+
+var bucket = new GridFSBucket(database);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You can also provide options when instantiating the &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_GridFS_GridFSBucket.htm
+&#34;&gt;&lt;code&gt;GridFSBucket&lt;/code&gt;&lt;/a&gt; object:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IMongoDatabase database;
+
+var bucket = new GridFSBucket(database, new GridFSBucketOptions
+{
+    BucketName = &amp;quot;videos&amp;quot;,
+    ChunkSizeBytes = 1048576, // 1MB
+    WriteConcern = WriteConcern.WMajority,
+    ReadPreference = ReadPreference.Secondary
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/P_MongoDB_Driver_GridFS_GridFSBucketOptions_BucketName.htm
+&#34;&gt;&lt;code&gt;BucketName&lt;/code&gt;&lt;/a&gt; value is the root part of the files and chunks collection names, so in this example the two collections would be named &amp;ldquo;videos.files&amp;rdquo; and &amp;ldquo;videos.chunks&amp;rdquo; instead of &amp;ldquo;fs.files&amp;rdquo; and &amp;ldquo;fs.chunks&amp;rdquo;.&lt;/p&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/P_MongoDB_Driver_GridFS_GridFSBucketOptions_ChunkSizeBytes.htm
+&#34;&gt;&lt;code&gt;ChunkSizeBytes&lt;/code&gt;&lt;/a&gt; value defines the size of each chunk, and in this example we are overriding the default value of 261120 (255kB).&lt;/p&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/P_MongoDB_Driver_GridFS_GridFSBucketOptions_WriteConcern.htm
+&#34;&gt;&lt;code&gt;WriteConcern&lt;/code&gt;&lt;/a&gt; is used when uploading files to GridFS, and the &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/P_MongoDB_Driver_GridFS_GridFSBucketOptions_ReadPreference.htm
+&#34;&gt;&lt;code&gt;ReadPreference&lt;/code&gt;&lt;/a&gt; is used when downloading files from GridFS.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Uploading Files</title>
+      <link>/mongo-csharp-driver/2.11/reference/gridfs/uploadingfiles/</link>
+      <pubDate>Mon, 14 Sep 2015 00:00:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.11/reference/gridfs/uploadingfiles/</guid>
+      <description>
+
+&lt;h2 id=&#34;uploading-files&#34;&gt;Uploading Files&lt;/h2&gt;
+
+&lt;p&gt;There are several ways to upload a file to GridFS. The two main approaches are:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;The driver uploads a file from a source provided by the application&lt;/li&gt;
+&lt;li&gt;The driver supplies a &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; object that the application can write the contents to&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Files uploaded to GridFS are identified either by Id or by Filename. Each uploaded file is assigned a unique Id of type &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_ObjectId.htm
+&#34;&gt;&lt;code&gt;ObjectId&lt;/code&gt;&lt;/a&gt;. If multiple files are uploaded to GridFS with the same Filename, they are considered to be &amp;ldquo;revisions&amp;rdquo; of the same file, and the &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/P_MongoDB_Driver_GridFS_GridFSFileInfo_UploadDateTime.htm
+&#34;&gt;&lt;code&gt;UploadDateTime&lt;/code&gt;&lt;/a&gt; is used to decide whether one revision is newer than another.&lt;/p&gt;
+
+&lt;h3 id=&#34;uploading-from-a-byte-array&#34;&gt;Uploading from a byte array&lt;/h3&gt;
+
+&lt;p&gt;This is the easiest way to upload a file to GridFS, assuming that you have, or can easily get, the contents of the file as a byte array.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
+bytes[] source;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var id = bucket.UploadFromBytes(&amp;quot;filename&amp;quot;, source);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var id = await bucket.UploadFromBytesAsync(&amp;quot;filename&amp;quot;, source);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The id returned is the unique &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_ObjectId.htm
+&#34;&gt;&lt;code&gt;ObjectId&lt;/code&gt;&lt;/a&gt; assigned by the driver to represent this revision of &amp;ldquo;filename&amp;rdquo; in the GridFS bucket.&lt;/p&gt;
+
+&lt;p&gt;When using the &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_UploadFromBytes.htm
+&#34;&gt;&lt;code&gt;UploadFromBytes&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_UploadFromBytesAsync.htm
+&#34;&gt;&lt;code&gt;UploadFromBytesAsync&lt;/code&gt;&lt;/a&gt; method you can also provide additional options.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
+bytes[] source;
+var options = new GridFSUploadOptions
+{
+    ChunkSizeBytes = 64512, // 63KB
+    Metadata = new BsonDocument
+    {
+        { &amp;quot;resolution&amp;quot;, &amp;quot;1080P&amp;quot; },
+        { &amp;quot;copyrighted&amp;quot;, true }
+    } 
+};  
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var id = bucket.UploadFromBytes(&amp;quot;filename&amp;quot;, source, options);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var id = await bucket.UploadFromBytesAsync(&amp;quot;filename&amp;quot;, source, options);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In this example we are overriding the &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/P_MongoDB_Driver_GridFS_GridFSUploadOptions_ChunkSizeBytes.htm
+&#34;&gt;&lt;code&gt;ChunkSizeBytes&lt;/code&gt;&lt;/a&gt; defined in the &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_GridFS_GridFSBucket.htm
+&#34;&gt;&lt;code&gt;GridFSBucket&lt;/code&gt;&lt;/a&gt; and providing additional metadata to be stored with the GridFS file.&lt;/p&gt;
+
+&lt;h3 id=&#34;uploading-from-a-stream&#34;&gt;Uploading from a Stream&lt;/h3&gt;
+
+&lt;p&gt;If the contents of the file you want to upload are more easily accessible using a &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; than a byte array (or are too large to load entirely into memory at once), you can use the &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_UploadFromStream.htm
+&#34;&gt;&lt;code&gt;UploadFromStream&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_UploadFromStreamAsync.htm
+&#34;&gt;&lt;code&gt;UploadFromStreamAsync&lt;/code&gt;&lt;/a&gt; method instead.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
+Stream source;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var id = bucket.UploadFromStream(&amp;quot;filename&amp;quot;, source);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var id = await bucket.UploadFromStreamAsync(&amp;quot;filename&amp;quot;, source);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The driver will read from the current position of the source &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; and upload everything read from the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; until the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; reaches end of file.&lt;/p&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_UploadFromStream.htm
+&#34;&gt;&lt;code&gt;UploadFromStream&lt;/code&gt;&lt;/a&gt; and &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_UploadFromStreamAsync.htm
+&#34;&gt;&lt;code&gt;UploadFromStreamAsync&lt;/code&gt;&lt;/a&gt; methods also support providing additional options, just like the example above for &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_UploadFromBytes.htm
+&#34;&gt;&lt;code&gt;UploadFromBytes&lt;/code&gt;&lt;/a&gt; and &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_UploadFromBytessAsync.htm
+&#34;&gt;&lt;code&gt;UploadFromBytesAsync&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;uploading-to-a-stream&#34;&gt;Uploading to a Stream&lt;/h3&gt;
+
+&lt;p&gt;Sometimes it is more convenient for an application to upload a file to GridFS by writing the contents to an output &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; rather than providing the contents to the driver either as a byte array or an input &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var stream = bucket.OpenUploadStream(&amp;quot;filename&amp;quot;))
+{
+    var id = stream.Id; // the unique Id of the file being uploaded
+    // write the contents of the file to stream using synchronous Stream methods
+    stream.Close(); // optional because Dispose calls Close
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var stream = await bucket.OpenUploadStreamAsync(&amp;quot;filename&amp;quot;))
+{
+    var id = stream.Id; // the unique Id of the file being uploaded
+    // write the contents of the file to stream using asynchronous Stream methods
+    await stream.CloseAsync(); // optional but recommended so Dispose does not block
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; object returned by &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_OpenUploadStream.htm
+&#34;&gt;&lt;code&gt;OpenUploadStream&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_OpenUploadStreamAsync.htm
+&#34;&gt;&lt;code&gt;OpenUploadStreamAsync&lt;/code&gt;&lt;/a&gt; is actually a &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_GridFS_GridFSUploadStream.htm
+&#34;&gt;&lt;code&gt;GridFSUploadStream&lt;/code&gt;&lt;/a&gt; (a subclass of &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt;), which has the following additional members in addition to those found in &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public abstract class GridFSUploadStream : Stream
+{
+    public abstract ObjectId Id { get; }
+    public abstract void Abort(CancellationToken cancellationToken = default(CancellationToken));
+    public abstract Task AbortAsync(CancellationToken cancellationToken = default(CancellationToken));
+    public abstract void Close(CancellationToken cancellationToken = default(CancellationToken));
+    public abstract Task CloseAsync(CancellationToken cancellationToken = default(CancellationToken));
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/P_MongoDB_Driver_GridFS_GridFSUploadStream_Id.htm
+&#34;&gt;&lt;code&gt;Id&lt;/code&gt;&lt;/a&gt; property allows the calling application to know the unique Id that was assigned to the file being uploaded. The application can call &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_GridFSDownloadStream_Abort..htm
+&#34;&gt;&lt;code&gt;Abort&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_GridFSDownloadStream_AbortAsync..htm
+&#34;&gt;&lt;code&gt;AbortAsync&lt;/code&gt;&lt;/a&gt; to abort the upload operation part-way through if it needs to. &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_GridFSUploadStream_CloseAsync..htm
+&#34;&gt;&lt;code&gt;CloseAsync&lt;/code&gt;&lt;/a&gt; can be called instead of &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.idisposable.dispose.aspx&#34;&gt;&lt;code&gt;Dispose&lt;/code&gt;&lt;/a&gt; to close the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; in an async way.&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+&lt;p&gt;Calling &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_GridFSUploadStream_CloseAsync..htm&#34;&gt;&lt;code&gt;CloseAsync&lt;/code&gt;&lt;/a&gt; is optional, but recommended. Since &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; is &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.idisposable.aspx&#34;&gt;&lt;code&gt;IDisposable&lt;/code&gt;&lt;/a&gt; and it is used inside a using statement, it would be closed automatically when &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.idisposable.dispose.aspx&#34;&gt;&lt;code&gt;Dispose&lt;/code&gt;&lt;/a&gt; is called. However, in async programming we want to avoid blocking and calling &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_GridFSUploadStream_CloseAsync..htm&#34;&gt;&lt;code&gt;CloseAsync&lt;/code&gt;&lt;/a&gt; first allows the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; to be closed with an async call. If you call &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_GridFSUploadStream_CloseAsync..htm&#34;&gt;&lt;code&gt;CloseAsync&lt;/code&gt;&lt;/a&gt; first then &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.idisposable.dispose.aspx&#34;&gt;&lt;code&gt;Dispose&lt;/code&gt;&lt;/a&gt; will no longer block.&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;When opening an upload stream using &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_OpenUploadStream.htm
+&#34;&gt;`OpenUploadStream&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_OpenUploadStreamAsync.htm
+&#34;&gt;&lt;code&gt;OpenUploadStreamAsync&lt;/code&gt;&lt;/a&gt; you can provide the same options that are supported by &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_UploadFromStream.htm
+&#34;&gt;&lt;code&gt;UploadFromStream&lt;/code&gt;&lt;/a&gt; and &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_UploadFromStreamAsync.htm
+&#34;&gt;&lt;code&gt;UploadFromStreamAsync&lt;/code&gt;&lt;/a&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
+var options = new GridFSUploadOptions
+{
+    ChunkSizeBytes = 64512, // 63KB
+    Metadata = new BsonDocument
+    {
+        { &amp;quot;resolution&amp;quot;, &amp;quot;1080P&amp;quot; },
+        { &amp;quot;copyrighted&amp;quot;, true }
+    }   
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var stream = bucket.OpenUploadStream(&amp;quot;filename&amp;quot;, options))
+{
+    var id = stream.Id; // the unique Id of the file being uploaded
+    // write the contents of the file to stream
+    stream.Close();
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var stream = await bucket.OpenUploadStreamAsync(&amp;quot;filename&amp;quot;, options))
+{
+    var id = stream.Id; // the unique Id of the file being uploaded
+    // write the contents of the file to stream
+    await stream.CloseAsync();
+}
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>GridFS</title>
+      <link>/mongo-csharp-driver/2.11/reference/gridfs/</link>
+      <pubDate>Fri, 11 Sep 2015 00:00:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.11/reference/gridfs/</guid>
+      <description>
+
+&lt;h2 id=&#34;gridfs&#34;&gt;GridFS&lt;/h2&gt;
+
+&lt;p&gt;GridFS is a way of storing binary information larger than the maximum document size (currently 16MB). When you upload a file to GridFS the file is broken into chunks and the individual chunks are uploaded. When you download a  file from GridFS the original content is reassembled from the chunks.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/reference/gridfs/gettingstarted/&#34;&gt;Getting Started&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/reference/gridfs/uploadingfiles/&#34;&gt;Uploading files&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/reference/gridfs/downloadingfiles/&#34;&gt;Downloading files&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/reference/gridfs/findingfiles/&#34;&gt;Finding files&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/reference/gridfs/deletingandrenamingfiles/&#34;&gt;Deleting and renaming files&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Eventing</title>
+      <link>/mongo-csharp-driver/2.11/reference/driver_core/events/</link>
+      <pubDate>Tue, 08 Sep 2015 15:36:56 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.11/reference/driver_core/events/</guid>
+      <description>
+
+&lt;h2 id=&#34;eventing&#34;&gt;Eventing&lt;/h2&gt;
+
+&lt;p&gt;The .NET Driver core provides a robust model for event publication and subscription. Each event is represented by a class or struct which contains all the information related to the particular event.&lt;/p&gt;
+
+&lt;h3 id=&#34;clusterbuilder&#34;&gt;ClusterBuilder&lt;/h3&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_Core_Configuration_ClusterBuilder.htm
+&#34;&gt;&lt;code&gt;ClusterBuilder&lt;/code&gt;&lt;/a&gt; class contains two methods for subscribing to events.&lt;/p&gt;
+
+&lt;h4 id=&#34;ieventsubscriber&#34;&gt;IEventSubscriber&lt;/h4&gt;
+
+&lt;p&gt;The first version of &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_Core_Configuration_ClusterBuilder_Subscribe.htm
+&#34;&gt;&lt;code&gt;Subscribe&lt;/code&gt;&lt;/a&gt; takes an &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_Core_Events_IEventSubscriber.htm
+&#34;&gt;&lt;code&gt;IEventSubscriber&lt;/code&gt;&lt;/a&gt;. &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_Core_Events_IEventSubscriber.htm
+&#34;&gt;&lt;code&gt;IEventSubscriber&lt;/code&gt;&lt;/a&gt; contains a single method to implement, &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_Core_Events_IEventSubscriber_TryGetEventHandler_1.htm
+&#34;&gt;&lt;code&gt;TryGetEventHandler&lt;/code&gt;&lt;/a&gt;. It takes a generic parameter indicating the type of event and sets an out parameter with the handler.&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+This method will be invoked once on each subscriber per event type. Therefore, performance of this method is not critical.
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;For instance, to handle the &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_Core_Events_ConnectionPoolAddedConnectionEvent.htm
+&#34;&gt;&lt;code&gt;ConnectionPoolAddedConnectionEvent&lt;/code&gt;&lt;/a&gt;, the following could be done:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public class MyEventSubscriber : IEventSubscriber
+{
+    public bool TryGetEventHandler&amp;lt;TEvent&amp;gt;(out Action&amp;lt;TEvent&amp;gt; handler)
+    {
+        if(typeof(TEvent)) == typeof(ConnectionPoolAddedConnectionEvent))
+        {
+            handler = (Action&amp;lt;TEvent&amp;gt;)HandleConnectionPoolAddedConnectionEvent;
+            return true;
+        }
+
+        handler = null;
+        return false;
+    }
+
+    private void HandleConnectionPoolAddedConnectionEvent(ConnectionPoolAddedConnectionEvent @event)
+    {
+        Console.WriteLine(&amp;quot;Added a connection to the pool.&amp;quot;);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This could quickly become unmaintainable with multiple events. To make this easier, we have implemented the &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_Core_Events_ReflectionEventSubscriber.htm
+&#34;&gt;&lt;code&gt;ReflectionEventSubscriber&lt;/code&gt;&lt;/a&gt;. It uses reflection to find all the event handler methods inside a class based on certain constructor parameters for the method name and the binding flags. For instance, we could change the above &lt;code&gt;MyEventSubscriber&lt;/code&gt; class as follows:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public class MyEventSubscriber : IEventSubscriber
+{
+    private readonly IEventSubscriber _subscriber;
+
+    public MyEventSubscriber()
+    {
+        _subscriber = new ReflectionEventSubscriber(this);
+    }
+
+    public bool TryGetEventHandler&amp;lt;TEvent&amp;gt;(out Action&amp;lt;TEvent&amp;gt; handler)
+    {
+        return _subscriber.TryGetEventHandler(out handler);
+    }
+
+    private void Handle(ConnectionPoolAddedConnectionEvent @event)
+    {
+        Console.WriteLine(&amp;quot;Added a connection to the pool.&amp;quot;);
+    }
+
+    private void Handle(ConnectionPoolRemovedConnectionEvent @event)
+    {
+        Console.WriteLine(&amp;quot;Removed a connection from the pool.&amp;quot;);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+The default method name is &amp;ldquo;Handle&amp;rdquo; and the default binding flags are for public instance methods.
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;The &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Events/Diagnostics/PerformanceCounterEventSubscriber.cs
+&#34;&gt;&lt;code&gt;PerformanceCounterEventSubscriber&lt;/code&gt;&lt;/a&gt; is a good example of utilizing the &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_Core_Events_ReflectionEventSubscriber.htm
+&#34;&gt;&lt;code&gt;ReflectionEventSubscriber&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h4 id=&#34;method&#34;&gt;Method&lt;/h4&gt;
+
+&lt;p&gt;The second version of &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_Core_Configuration_ClusterBuilder_Subscribe.htm
+&#34;&gt;&lt;code&gt;Subscribe&lt;/code&gt;&lt;/a&gt; takes an &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/018hxwa8.aspx&#34;&gt;&lt;code&gt;Action&amp;lt;TEvent&amp;gt;&lt;/code&gt;&lt;/a&gt;. For example, to use a static method:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;static void Main() 
+{
+    var builder = new ClusterBuilder();
+
+    builder.Subscribe&amp;lt;ConnectionPoolAddedConnectionEvent&amp;gt;(Handle);
+
+    // ... snip
+}
+
+private static void Handle(ConnectionPoolAddedConnectionEvent @event)
+{
+    Console.WriteLine(&amp;quot;Added a connection to the pool.&amp;quot;);
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Alternatively, a lambda expression could be used:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;static void Main() 
+{
+    var builder = new ClusterBuilder();
+
+    builder.Subscribe&amp;lt;ConnectionPoolAddedConnectionEvent&amp;gt;(x =&amp;gt; Console.WriteLine(&amp;quot;Added a connection to the pool.&amp;quot;));
+
+    // ... snip
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;operation-ids&#34;&gt;Operation Ids&lt;/h3&gt;
+
+&lt;p&gt;Any commands that could occur based on user initiation will contain an operation identifier. This identifer can be used to link together all events that occured due to the user initiated action.&lt;/p&gt;
+
+&lt;h3 id=&#34;clusterid-serverid-and-connectionid&#34;&gt;ClusterId, ServerId, and ConnectionId&lt;/h3&gt;
+
+&lt;p&gt;All events will contain at least one of these identifiers. They can be used to uniquely attribute a particular event to a cluster, a server, or a connection. In addition, the ConnectionId also contains a local value and a server value where the server value contains the same value that will show up in the server logs for its connection logging.&lt;/p&gt;
+
+&lt;h3 id=&#34;command-events&#34;&gt;Command Events&lt;/h3&gt;
+
+&lt;p&gt;There are three events related to monitoring data sent on the wire. These are the &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_Core_Events_CommandStartedEvent.htm
+&#34;&gt;&lt;code&gt;CommandStartedEvent&lt;/code&gt;&lt;/a&gt;, the &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_Core_Events_CommandSucceededEvent.htm
+&#34;&gt;&lt;code&gt;CommandSucceededEvent&lt;/code&gt;&lt;/a&gt;, and the &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_Core_Events_CommandFailedEvent.htm
+&#34;&gt;&lt;code&gt;CommandFailedEvent&lt;/code&gt;&lt;/a&gt;. For every started event, there will always be a succeeded or failed event.&lt;/p&gt;
+
+&lt;p&gt;In addition, any messages sent to the server that are not already commands will be upconverted for the sake of consumption. For instance, an &lt;code&gt;OP_DELETE&lt;/code&gt; wire protocol message on server 2.4 will appear as though it were a &lt;a href=&#34;http://docs.mongodb.org/manual/reference/command/delete/
+&#34;&gt;&lt;code&gt;delete&lt;/code&gt;&lt;/a&gt; command.&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition warning&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;warning&lt;/h5&gt;
+These are heavy events to generate. Do not subscribe to these unless they provide necessary information.
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+&lt;p&gt;Certain information has been removed for security reasons. For instance, the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/command/authenticate/&#34;&gt;&lt;code&gt;authenticate&lt;/code&gt;&lt;/a&gt; command will not contain the actual command or its reply. However, it will still contain the command name itself.&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;h4 id=&#34;commandstartedevent&#34;&gt;CommandStartedEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_Core_Events_CommandStartedEvent.htm
+&#34;&gt;&lt;code&gt;CommandStartedEvent&lt;/code&gt;&lt;/a&gt; contains, amongst other information, the command name as well as the command itself. While the command also contains the command name, the command is potentially heavy to access and will not live beyond the lifetime of the event. Any information necessary from the command should be pulled out and used immediately or stored.&lt;/p&gt;
+
+&lt;h4 id=&#34;commandsucceededevent&#34;&gt;CommandSucceededEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_Core_Events_CommandSucceededEvent.htm
+&#34;&gt;&lt;code&gt;CommandSucceededEvent&lt;/code&gt;&lt;/a&gt; contains, amongst other information, the command name, the duration of the command, and the reply. The reply is potentially heavy to access and will not live beyond the lifetime of the event.  Any information necessary from the reply should be pulled out and used immediately or stored.&lt;/p&gt;
+
+&lt;h4 id=&#34;commandfailedevent&#34;&gt;CommandFailedEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_Core_Events_CommandFailedEvent.htm
+&#34;&gt;&lt;code&gt;CommandFailedEvent&lt;/code&gt;&lt;/a&gt; contains, amongst other information, the command name, the duration of the command, and the exception. The exception is potentially heavy to access and will not live beyond the lifetime of the event.  Any information necessary from the exception should be pulled out and used immediately or stored.&lt;/p&gt;
+
+&lt;h3 id=&#34;sdam-events&#34;&gt;SDAM Events&lt;/h3&gt;
+
+&lt;p&gt;There are a number of events that are raised as part of Server Discovery and Monitoring (SDAM). See &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/reference/driver_core/sdamevents/&#34;&gt;SDAM Events&lt;/a&gt; for more information.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>LINQ</title>
+      <link>/mongo-csharp-driver/2.11/reference/driver/crud/linq/</link>
+      <pubDate>Tue, 25 Aug 2015 15:36:56 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.11/reference/driver/crud/linq/</guid>
+      <description>
+
+&lt;h2 id=&#34;linq&#34;&gt;LINQ&lt;/h2&gt;
+
+&lt;p&gt;The driver contains an implementation of &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb397926.aspx&#34;&gt;LINQ&lt;/a&gt; that targets the &lt;a href=&#34;http://docs.mongodb.org/manual/aggregation
+&#34;&gt;aggregation framework&lt;/a&gt;. The aggregation framework holds a rich query language that maps very easily from a LINQ expression tree making it straightforward to understand the translation from a LINQ statement into an aggregation framework pipeline. To see a more complicated uses of LINQ from the driver, see the &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Tests/Samples/AggregationSample.cs
+&#34;&gt;AggregationSample&lt;/a&gt; source code.&lt;/p&gt;
+
+&lt;p&gt;For the rest of this page, we&amp;rsquo;ll use the following class:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;class Person
+{
+    public string Name { get; set; }
+
+    public int Age { get; set; }
+
+    public IEnumerable&amp;lt;Pet&amp;gt; Pets { get; set; }
+
+    public int[] FavoriteNumbers { get; set; }
+
+    public HashSet&amp;lt;string&amp;gt; FavoriteNames { get; set; }
+
+    public DateTime CreatedAtUtc { get; set; }
+}
+
+class Pet
+{
+    public string Name { get; set; }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;queryable&#34;&gt;Queryable&lt;/h3&gt;
+
+&lt;p&gt;Hooking into the LINQ provider requires getting access to an &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb351562.aspx&#34;&gt;&lt;code&gt;IQueryable&lt;/code&gt;&lt;/a&gt; instance. The driver provides an &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_IMongoCollectionExtensions_AsQueryable.htm
+&#34;&gt;&lt;code&gt;AsQueryable&lt;/code&gt;&lt;/a&gt; extension method on &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_IMongoCollection_1.htm
+&#34;&gt;&lt;code&gt;IMongoCollection&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var collection = db.GetCollection&amp;lt;Person&amp;gt;(&amp;quot;people&amp;quot;);
+var queryable = collection.AsQueryable();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Once you have an &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb351562.aspx&#34;&gt;&lt;code&gt;IQueryable&lt;/code&gt;&lt;/a&gt; instance, you can begin to compose a query:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var query = from p in collection.AsQueryable()
+            where p.Age &amp;gt; 21
+            select new { p.Name, p.Age };
+
+// or, using method syntax
+
+var query = collection.AsQueryable()
+    .Where(p =&amp;gt; p.Age &amp;gt; 21)
+    .Select(p =&amp;gt; new { p.Name, p.Age });
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&amp;hellip; which maps to the following aggregation framework pipeline:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;[
+    { $match: { Age: { $gt: 21 } } },
+    { $project: { Name: 1, Age: 1, _id: 0 } }
+]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;stages&#34;&gt;Stages&lt;/h3&gt;
+
+&lt;p&gt;We&amp;rsquo;ll walk through the supported stages below:&lt;/p&gt;
+
+&lt;h4 id=&#34;project&#34;&gt;$project&lt;/h4&gt;
+
+&lt;p&gt;To generate a &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/project/
+&#34;&gt;&lt;code&gt;$project&lt;/code&gt;&lt;/a&gt; stage, use the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb548743.aspx&#34;&gt;&lt;code&gt;Select&lt;/code&gt;&lt;/a&gt; method. To see the list of expressions supported in the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb548743.aspx&#34;&gt;&lt;code&gt;Select&lt;/code&gt;&lt;/a&gt; method, see &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/reference/driver/expressions/#aggregation-projections&#34;&gt;Aggregation Projections&lt;/a&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var query = from p in collection.AsQueryable()
+            select new { p.Name, p.Age };
+
+// or
+
+var query = collection.AsQueryable()
+    .Select(p =&amp;gt; new { p.Name, p.Age });
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;[
+    { $project: { Name: 1, Age: 1, _id: 0 } }
+]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+&lt;p&gt;When projecting scalars, the driver will wrap the scalar into a document with a generated field name because MongoDB requires that output from an aggregation pipeline be documents.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var query = from p in collection.AsQueryable()
+            select p.Name;
+
+var query = collection.AsQueryable()
+    .Select(p =&amp;gt; p.Name);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;[
+    { $project: { __fld0: &amp;quot;$Name&amp;quot;, _id: 0 } }
+]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The driver will know how to read the field out and transform the results properly.&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+&lt;p&gt;&lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/project/#suppress-the-id-field&#34;&gt;By default&lt;/a&gt;, MongoDB will include the &lt;code&gt;_id&lt;/code&gt; field in the output unless explicitly excluded. The driver will automatically add this exclusion when necessary.&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;h4 id=&#34;match&#34;&gt;$match&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb535040.aspx&#34;&gt;&lt;code&gt;Where&lt;/code&gt;&lt;/a&gt; method is used to generate a &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/match/
+&#34;&gt;&lt;code&gt;$match&lt;/code&gt;&lt;/a&gt; stage. To see the list of expressions supported inside a &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb535040.aspx&#34;&gt;&lt;code&gt;Where&lt;/code&gt;&lt;/a&gt;, see &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/reference/driver/expressions/#filters&#34;&gt;Filters&lt;/a&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var query = from p in collection.AsQueryable()
+            where p.Age &amp;gt; 21
+            select p;
+
+// or
+
+var query = collection.AsQueryable()
+    .Where(p =&amp;gt; p.Age &amp;gt; 21);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;[
+    { $match: { Age: { $gt: 21 } } }
+]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;redact&#34;&gt;$redact&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/redact/
+&#34;&gt;&lt;code&gt;$redact&lt;/code&gt;&lt;/a&gt; stage is not currently supported using LINQ.&lt;/p&gt;
+
+&lt;h4 id=&#34;limit&#34;&gt;$limit&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb300906.aspx&#34;&gt;&lt;code&gt;Take&lt;/code&gt;&lt;/a&gt; method is used to generate a &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/limit/
+&#34;&gt;&lt;code&gt;$limit&lt;/code&gt;&lt;/a&gt; stage.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var query = collection.AsQueryable().Take(10);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;[
+    { $limit: 10 }
+]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;skip&#34;&gt;$skip&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb357513.aspx&#34;&gt;&lt;code&gt;Skip&lt;/code&gt;&lt;/a&gt; method is used to generate a &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/skip/
+&#34;&gt;&lt;code&gt;$skip&lt;/code&gt;&lt;/a&gt; stage.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var query = collection.AsQueryable().Skip(10);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;[
+    { $skip: 10 }
+]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;unwind&#34;&gt;$unwind&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb548748.aspx&#34;&gt;&lt;code&gt;SelectMany&lt;/code&gt;&lt;/a&gt; method is used to generate an &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/unwind/
+&#34;&gt;&lt;code&gt;$unwind&lt;/code&gt;&lt;/a&gt; stage. In addition, because of how &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/unwind/
+&#34;&gt;&lt;code&gt;$unwind&lt;/code&gt;&lt;/a&gt; works, a &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/project/
+&#34;&gt;&lt;code&gt;$project&lt;/code&gt;&lt;/a&gt; stage will also be rendered. To see the list of expressions supported in the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb548748.aspx&#34;&gt;&lt;code&gt;SelectMany&lt;/code&gt;&lt;/a&gt; method, see &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/reference/driver/expressions/#aggregation-projections&#34;&gt;Aggregation Projections&lt;/a&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var query = from p in collection.AsQueryable()
+            from pet in p.Pets
+            select pet;
+
+// or
+
+var query = collection.AsQueryable()
+    .SelectMany(p =&amp;gt; p.Pets);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;[
+    { $unwind: &amp;quot;$Pets&amp;quot; }
+    { $project: { Pets: 1, _id: 0 } }
+]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;hr /&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var query = from p in collection.AsQueryable()
+            from pet in p.Pets
+            select new { Name = pet.Name, Age = p.Age};
+
+// or
+
+var query = collection.AsQueryable()
+    .SelectMany(p =&amp;gt; p.Pets, (p, pet) =&amp;gt; new { Name = pet.Name, Age = p.Age});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;[
+    { $unwind: &amp;quot;$Pets&amp;quot; }
+    { $project: { Name: &amp;quot;$Pets.Name&amp;quot;, Age: &amp;quot;$Age&amp;quot;, _id: 0 } }
+]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;group&#34;&gt;$group&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb534492.aspx&#34;&gt;&lt;code&gt;GroupBy&lt;/code&gt;&lt;/a&gt; method is used to generate a &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/group/
+&#34;&gt;&lt;code&gt;$group&lt;/code&gt;&lt;/a&gt; stage. In general, the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb534492.aspx&#34;&gt;&lt;code&gt;GroupBy&lt;/code&gt;&lt;/a&gt; method will be followed by the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb548743.aspx&#34;&gt;&lt;code&gt;Select&lt;/code&gt;&lt;/a&gt; containing the accumulators although that isn&amp;rsquo;t required. To see the list of supported accumulators, see &lt;a href=&#34;/mongo-csharp-driver/2.11/mongo-csharp-driver/2.11/reference/driver/expressions/#accumulators&#34;&gt;Accumulators&lt;/a&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var query = from p in collection.AsQueryable()
+            group p by p.Name into g
+            select new { Name = g.Key, Count = g.Count() };
+
+//or
+
+var query = collection.AsQueryable()
+    .GroupBy(p =&amp;gt; p.Name)
+    .Select(g =&amp;gt; new { Name = g.Key, Count = g.Count() });
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;[
+    { $group: { _id: &amp;quot;$Name&amp;quot;, __agg0: { $sum: 1 } } },
+    { $project: { Name: &amp;quot;$_id&amp;quot;, Count: &amp;quot;$__agg0&amp;quot;, _id: 0 } }
+]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;hr /&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var query = collection.AsQueryable()
+    .GroupBy(p =&amp;gt; p.Name, (k, s) =&amp;gt; new { Name = k, Count = s.Count()});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;[
+    { $group: { _id: &amp;quot;$Name&amp;quot;, Count: { $sum: 1 } } },
+]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;sort&#34;&gt;$sort&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb549264.aspx&#34;&gt;&lt;code&gt;OrderBy&lt;/code&gt;&lt;/a&gt; and &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb535112.aspx&#34;&gt;&lt;code&gt;ThenBy&lt;/code&gt;&lt;/a&gt; methods are used to generate a &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/sort/
+&#34;&gt;&lt;code&gt;$sort&lt;/code&gt;&lt;/a&gt; stage.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var query = from p in collection.AsQueryable()
+            orderby p.Name, p.Age descending
+            select p;
+
+//or
+
+var query = collection.AsQueryable()
+    .OrderBy(p =&amp;gt; p.Name)
+    .ThenByDescending(p =&amp;gt; p.Age);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;[
+    { $sort: { Name: 1, Age: -1 } },
+]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;geonear&#34;&gt;$geoNear&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/geoNear/
+&#34;&gt;&lt;code&gt;$geoNear&lt;/code&gt;&lt;/a&gt; stage is not currently supported using LINQ.&lt;/p&gt;
+
+&lt;h4 id=&#34;out&#34;&gt;$out&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/out/
+&#34;&gt;&lt;code&gt;$out&lt;/code&gt;&lt;/a&gt; stage is not currently supported using LINQ.&lt;/p&gt;
+
+&lt;h4 id=&#34;lookup&#34;&gt;$lookup&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb549264.aspx&#34;&gt;&lt;code&gt;GroupJoin&lt;/code&gt;&lt;/a&gt; method is used to generate a &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/lookup/
+&#34;&gt;&lt;code&gt;$lookup&lt;/code&gt;&lt;/a&gt; stage.&lt;/p&gt;
+
+&lt;p&gt;This operator can take on many forms, many of which are not supported by MongoDB. Therefore, only 2 forms are supported.&lt;/p&gt;
+
+&lt;p&gt;First, you may project into most anything as long as it is supported by the &lt;code&gt;$project&lt;/code&gt; operator and you do not project the original collection variable. Below is an example of a valid query:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var query = from p in collection.AsQueryable()
+            join o in otherCollection on p.Name equals o.Key into joined
+            select new { p.Name, AgeSum: joined.Sum(x =&amp;gt; x.Age) };
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;[
+    { $lookup: { from: &amp;quot;other_collection&amp;quot;, localField: &#39;Name&#39;, foreignField: &#39;Key&#39;, as: &#39;joined&#39; } }&amp;quot;,
+    { $project: { Name: &amp;quot;$Name&amp;quot;, AgeSum: { $sum: &amp;quot;$joined.Age&amp;quot; }, _id: 0 } }
+]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Second, you may project into a type with two constructor parameters, the first being the collection variable and the second being the joined variable. Below is an example of this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var query = from p in collection.AsQueryable()
+            join o in otherCollection on p.Name equals o.Key into joined
+            select new { p, joined };
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;[
+    { $lookup: { from: &amp;quot;other_collection&amp;quot;, localField: &#39;Name&#39;, foreignField: &#39;Key&#39;, as: &#39;joined&#39; } }&amp;quot;
+]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;.. note::
+   An anonymous type, as above, has a constructor with two parameters as required.&lt;/p&gt;
+
+&lt;p&gt;Sometimes, the compiler will also generate this two-parameter anonymous type transparently. Below is an example of this with a custom projection:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var query = from p in collection.AsQueryable()
+            join o in otherCollection on p.Name equals o.Key into joined
+            from sub_o in joined.DefaultIfEmpty()
+            select new { p.Name, sub_o.Age };
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;[
+    { $lookup: { from: &amp;quot;other_collection&amp;quot;, localField: &#39;Name&#39;, foreignField: &#39;Key&#39;, as: &#39;joined&#39; } }&amp;quot;,
+    { $unwind: &amp;quot;$joined&amp;quot; },
+    { $project: { Name: &amp;quot;$Name&amp;quot;, Age: &amp;quot;$joined.Age&amp;quot;, _id: 0 }}
+]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;supported-methods&#34;&gt;Supported Methods&lt;/h3&gt;
+
+&lt;p&gt;The method examples are shown in isolation, but they can be used and combined with all the other methods as well. You can view the tests for each of these methods in the &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Tests/Linq/MongoQueryableTests.cs
+&#34;&gt;MongoQueryableTests&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h4 id=&#34;any&#34;&gt;Any&lt;/h4&gt;
+
+&lt;p&gt;All forms of &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.linq.queryable.any.aspx&#34;&gt;&lt;code&gt;Any&lt;/code&gt;&lt;/a&gt; are supported.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var result = collection.AsQueryable().Any();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;[
+    { $limit: 1 }
+]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;hr /&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var result = collection.AsQueryable().Any(p =&amp;gt; p.Age &amp;gt; 21);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;[
+    { $match: { Age: { $gt: 21 } },
+    { $limit: 1 }
+]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+&lt;code&gt;Any&lt;/code&gt; has a boolean return type. Since MongoDB doesn&amp;rsquo;t support this, the driver will pull back at most 1 document. If one document was retrieved, then the result is true. Otherwise, it&amp;rsquo;s false.
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;h4 id=&#34;average&#34;&gt;Average&lt;/h4&gt;
+
+&lt;p&gt;All forms of &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.linq.queryable.average.aspx&#34;&gt;&lt;code&gt;Average&lt;/code&gt;&lt;/a&gt; are supported.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var result = collection.AsQueryable().Average(p =&amp;gt; p.Age);
+
+// or
+
+var result = collection.AsQueryable().Select(p =&amp;gt; p.Age).Average();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;[
+    { $group: { _id: 1, __result: { $avg: &amp;quot;$Age&amp;quot; } } }
+]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;count-and-longcount&#34;&gt;Count and LongCount&lt;/h4&gt;
+
+&lt;p&gt;All forms of &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.linq.queryable.count.aspx&#34;&gt;&lt;code&gt;Count&lt;/code&gt;&lt;/a&gt; and &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.linq.queryable.longcount.aspx&#34;&gt;&lt;code&gt;LongCount&lt;/code&gt;&lt;/a&gt; are supported.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var result = collection.AsQueryable().Count();
+
+// or
+
+var result = collection.AsQueryable().LongCount();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;[
+    { $group: { _id: 1, __result: { $sum: 1 } } }
+]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;hr /&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var result = collection.AsQueryable().Count(p =&amp;gt; p.Age &amp;gt; 21);
+
+// or
+
+var result = collection.AsQueryable().LongCount(p =&amp;gt; p.Age &amp;gt; 21);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;[
+    { $match : { Age { $gt: 21 } } },
+    { $group: { _id: 1, __result: { $sum: 1 } } }
+]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;distinct&#34;&gt;Distinct&lt;/h4&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb348456.aspx&#34;&gt;&lt;code&gt;Distinct&lt;/code&gt;&lt;/a&gt; without an equality comparer is supported.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var query = collection.AsQueryable().Distinct();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;[
+    { $group: { _id: &amp;quot;$$ROOT&amp;quot; } }
+]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Using a distinct in isolation as shown above is non-sensical. Since each document in a collection contains a unique _id field, then there will be as many groups as their are documents. To properly use distinct, it should follow some form of a projection like $project or $group.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var query = collection.AsQueryable()
+    .Select(p =&amp;gt; new { p.Name, p.Age })
+    .Distinct();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;[
+    { $group: { _id: { Name: &amp;quot;$Name&amp;quot;, Age: &amp;quot;$Age&amp;quot; } } }
+]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;first-and-firstordefault&#34;&gt;First and FirstOrDefault&lt;/h4&gt;
+
+&lt;p&gt;All forms of &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.linq.queryable.first.aspx&#34;&gt;&lt;code&gt;First&lt;/code&gt;&lt;/a&gt; and &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.linq.queryable.firstordefault.aspx&#34;&gt;&lt;code&gt;FirstOrDefault&lt;/code&gt;&lt;/a&gt; are supported.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var result = collection.AsQueryable().First();
+
+// or
+
+var result = collection.AsQueryable().FirstOrDefault();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;[
+    { $limit: 1 }
+]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;hr /&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var result = collection.AsQueryable().First(p =&amp;gt; p.Age &amp;gt; 21);
+
+// or
+
+var result = collection.AsQueryable().FirstOrDefault(p =&amp;gt; p.Age &amp;gt; 21);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;[
+    { $match : { Age { $gt: 21 } } },
+    { $limit: 1 }
+]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;groupby&#34;&gt;GroupBy&lt;/h4&gt;
+
+&lt;p&gt;See &lt;a href=&#34;#group&#34;&gt;&lt;code&gt;$group&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h4 id=&#34;groupjoin&#34;&gt;GroupJoin&lt;/h4&gt;
+
+&lt;p&gt;See &lt;a href=&#34;#lookup&#34;&gt;&lt;code&gt;$lookup&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h4 id=&#34;max&#34;&gt;Max&lt;/h4&gt;
+
+&lt;p&gt;All forms of &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.linq.queryable.max.aspx&#34;&gt;&lt;code&gt;Max&lt;/code&gt;&lt;/a&gt; are supported.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var result = collection.AsQueryable().Max(p =&amp;gt; p.Age);
+
+// or
+
+var result = collection.AsQueryable().Select(p =&amp;gt; p.Age).Max();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;[
+    { $group: { _id: 1, __result: { $max: &amp;quot;$Age&amp;quot; } } }
+]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;sum&#34;&gt;Sum&lt;/h4&gt;
+
+&lt;p&gt;All forms of &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.linq.queryable.Sum.aspx&#34;&gt;&lt;code&gt;Sum&lt;/code&gt;&lt;/a&gt; are supported.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var result = collection.AsQueryable().Sum(p =&amp;gt; p.Age);
+
+// or
+
+var result = collection.AsQueryable().Select(p =&amp;gt; p.Age).Sum();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;[
+    { $group: { _id: 1, __result: { $Sum: &amp;quot;$Age&amp;quot; } } }
+]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;oftype&#34;&gt;OfType&lt;/h4&gt;
+
+&lt;p&gt;All forms of &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.linq.queryable.oftype.aspx&#34;&gt;&lt;code&gt;OfType&lt;/code&gt;&lt;/a&gt; are supported.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// assuSumg Customer inherits from Person
+var result = collection.AsQueryable().OfType&amp;lt;Customer&amp;gt;();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;[
+    { $match: { _t: &amp;quot;Customer&amp;quot; } }
+]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+Based on configuration, the discriminator name &lt;code&gt;_t&lt;/code&gt; may be different as well as the value &lt;code&gt;&amp;quot;Customer&amp;quot;&lt;/code&gt;.
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;h4 id=&#34;orderby-orderbydescending-thenby-and-thenbydescending&#34;&gt;OrderBy, OrderByDescending, ThenBy, and ThenByDescending&lt;/h4&gt;
+
+&lt;p&gt;See &lt;a href=&#34;#sort&#34;&gt;&lt;code&gt;$sort&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h4 id=&#34;select&#34;&gt;Select&lt;/h4&gt;
+
+&lt;p&gt;See &lt;a href=&#34;#project&#34;&gt;&lt;code&gt;$project&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h4 id=&#34;selectmany&#34;&gt;SelectMany&lt;/h4&gt;
+
+&lt;p&gt;See &lt;a href=&#34;#unwind&#34;&gt;&lt;code&gt;$unwind&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h4 id=&#34;single-and-singleordefault&#34;&gt;Single and SingleOrDefault&lt;/h4&gt;
+
+&lt;p&gt;All forms of &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.linq.queryable.single.aspx&#34;&gt;&lt;code&gt;Single&lt;/code&gt;&lt;/a&gt; and &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.linq.queryable.singleordefault.aspx&#34;&gt;&lt;code&gt;SingleOrDefault&lt;/code&gt;&lt;/a&gt; are supported.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var result = collection.AsQueryable().Single();
+
+// or
+
+var result = collection.AsQueryable().SingleOrDefault();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;[
+    { $limit: 2 }
+]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;hr /&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var result = collection.AsQueryable().Single(p =&amp;gt; p.Age &amp;gt; 21);
+
+// or
+
+var result = collection.AsQueryable().SingleOrDefault(p =&amp;gt; p.Age &amp;gt; 21);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;[
+    { $match : { Age { $gt: 21 } } },
+    { $limit: 2 }
+]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+The limit here is 2 because the behavior of &lt;code&gt;Single&lt;/code&gt; is to throw when there is more than 1 result. Therefore, we pull back at most 2 documents and throw when 2 documents were retrieved. If this is not the behavior you wish, then &lt;code&gt;First&lt;/code&gt; is the other choice.
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;h4 id=&#34;skip-1&#34;&gt;Skip&lt;/h4&gt;
+
+&lt;p&gt;See &lt;a href=&#34;#skip&#34;&gt;&lt;code&gt;$skip&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h4 id=&#34;sum-1&#34;&gt;Sum&lt;/h4&gt;
+
+&lt;p&gt;All forms of &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.linq.queryable.sum.aspx&#34;&gt;&lt;code&gt;Sum&lt;/code&gt;&lt;/a&gt; are supported.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var result = collection.AsQueryable().Sum(p =&amp;gt; p.Age);
+
+// or
+
+var result = collection.AsQueryable().Select(p =&amp;gt; p.Age).Sum();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-json&#34;&gt;[
+    { $group: { _id: 1, __result: { $sum: &amp;quot;$Age&amp;quot; } } }
+]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;take&#34;&gt;Take&lt;/h4&gt;
+
+&lt;p&gt;See &lt;a href=&#34;#limit&#34;&gt;&lt;code&gt;$limit&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h4 id=&#34;where&#34;&gt;Where&lt;/h4&gt;
+
+&lt;p&gt;See &lt;a href=&#34;#match&#34;&gt;&lt;code&gt;$match&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

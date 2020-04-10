@@ -1,0 +1,2892 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+<meta name="author" content="">
+<meta name="keyword" content="">
+
+    <link rel="shortcut icon" href="/mongo-csharp-driver/2.11/img/favicon.png">
+
+    <title>Definitions and Builders</title>
+
+    <link rel="stylesheet" href="/mongo-csharp-driver/2.11/lib/bootstrap.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/lib/font-awesome/css/font-awesome.min.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/css/mongodb-docs.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/css/overrides.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/lib/highlight/styles/idea.css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/lib/bootstrap-toggle/bootstrap-toggle.min.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/css/dn.css" type="text/css" />
+
+
+  </head>
+
+  <body>
+  
+  <section id="container" class="">
+      
+      <header id="header-db" class="row" role="navigation">
+  <div class="header-content">
+    <div class="toggle-nav pull-left">
+        <i class="fa fa-bars"></i>
+        <div class="icon-reorder tooltips" data-original-title="Toggle Navigation" data-placement="bottom"></div>
+    </div>
+    
+    <div class="logo pull-left">
+      <a href="/mongo-csharp-driver/2.11/../">
+        <img src="/mongo-csharp-driver/2.11/img/logo-mongodb-header.png", alt="MongoDB.org" />
+      </a>
+    </div>
+    
+    <div>
+<div class="nav-items pull-right">
+  <a href="http://try.mongodb.org/" data-toggle="tooltip" data-placement="bottom" title="Try MongoDB in the browser">Try it Out</a>
+  <a href="http://www.mongodb.org/downloads" data-toggle="tooltip" data-placement="bottom" title="Download MongoDB">Downloads</a>
+  <a href="http://www.mongodb.org/get-involved" data-toggle="tooltip" data-placement="bottom" title="Get involved with MongoDB">Community</a>
+  <a href="http://docs.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Documentation">Docs</a>
+  <a href="http://blog.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Blog">Blog</a>
+  <div id="search">
+<form method="get" action="//www.google.com/search" target="_blank">
+    <input type="text" name="searchQuery" size="20" value="" autocomplete="off" placeholder="Search docs">
+    <input type="hidden" name="site" value="/mongo-csharp-driver/2.11">
+    <input type="hidden" name="q" value="">
+    <label for="searchQuery"><i class="fa fa-search fa-1"></i></label>
+</form>
+</div>
+
+</div>
+</div>
+
+  </div>
+</header>
+
+      
+
+      
+<aside id="sidebar" class="sidebar">
+    <div class="ssidebar nav-collapse">
+      <div class="ssidebarwrapper">
+        <h3>
+          <a class="index-link" href="/mongo-csharp-driver/2.11/../">MongoDB .NET Driver</a>
+          <a class="version pull-right" href="/mongo-csharp-driver/2.11">2.11</a>
+        </h3>
+
+        
+        <ul class="sidebar-menu">
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+
+          
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+    
+    
+    
+      
+      
+      
+        
+      
+    
+    
+  
+  
+
+
+        
+      
+    
+      
+      
+        
+      
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+    
+  
+
+
+        
+      
+    
+      
+      
+    
+      
+      
+    
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+
+          
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l1 ">
+  <a href="/mongo-csharp-driver/2.11/getting_started/" class="">
+      <i class='fa fa-road'></i>
+      <span>Getting Started</span>
+      <span class="menu-arrow fa fa-angle-right"></span>
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/getting_started/installation/">
+        <i class='fa'></i>
+        Installation
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/getting_started/quick_tour/">
+        <i class='fa'></i>
+        Quick Tour
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/getting_started/admin_quick_tour/">
+        <i class='fa'></i>
+        Admin Quick Tour
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l1 ">
+  <a href="/mongo-csharp-driver/2.11/what_is_new/" class="">
+      <i class='fa fa-star'></i>
+      <span>What&#39;s New</span>
+      <span class="menu-arrow fa fa-angle-right"></span>
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/upgrading/">
+        <i class='fa'></i>
+        Upgrading
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+<li class="toctree-l1  current">
+  <a href="/mongo-csharp-driver/2.11/reference/" class="">
+      <i class='fa fa-book'></i>
+      <span>Reference</span>
+      <span class="menu-arrow fa fa-angle-down"></span>
+  </a>
+    <ul  class="current">
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l2 ">
+  <a href="/mongo-csharp-driver/2.11/reference/bson/" class="">
+      <i class='fa'></i>
+      <span>BSON</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/bson/">
+        <i class='fa'></i>
+        BSON/JSON
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/bson_document/">
+        <i class='fa'></i>
+        BsonDocument
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/serialization/">
+        <i class='fa'></i>
+        Serialization
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/" class="">
+      <i class='fa'></i>
+      <span>Mapping Classes</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/polymorphism/">
+        <i class='fa'></i>
+        Polymorphism
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/conventions/">
+        <i class='fa'></i>
+        Conventions
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/schema_changes/">
+        <i class='fa'></i>
+        Handling Schema Changes
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+<li class="toctree-l2  current">
+  <a href="/mongo-csharp-driver/2.11/reference/driver/" class="">
+      <i class='fa'></i>
+      <span>Driver</span>
+      
+  </a>
+    <ul  class="current">
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.11/reference/driver/connecting/" class="">
+      <i class='fa'></i>
+      <span>Connecting</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/ssl/">
+        <i class='fa'></i>
+        SSL
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/authentication/">
+        <i class='fa'></i>
+        Authentication
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+<li class="toctree-l3  current">
+  <a href="/mongo-csharp-driver/2.11/reference/driver/definitions/" class="">
+      <i class='fa'></i>
+      <span>Definitions and Builders</span>
+      
+  </a>
+    <ul  class="current">
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/expressions/">
+        <i class='fa'></i>
+        Expressions
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/admin/">
+        <i class='fa'></i>
+        Administration
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.11/reference/driver/crud/" class="">
+      <i class='fa'></i>
+      <span>Reading and Writing</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/reading/">
+        <i class='fa'></i>
+        Reading
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/linq/">
+        <i class='fa'></i>
+        LINQ
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/writing/">
+        <i class='fa'></i>
+        Writing
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/compression/">
+        <i class='fa'></i>
+        Compression
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/sessions_and_transactions/">
+        <i class='fa'></i>
+        Sessions and Transactions
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/client_side_encryption/">
+        <i class='fa fa-lock'></i>
+        Client-Side Encryption
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/change_streams/">
+        <i class='fa'></i>
+        Change Streams
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/error_handling/">
+        <i class='fa'></i>
+        Error Handling
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l2 ">
+  <a href="/mongo-csharp-driver/2.11/reference/driver_core/" class="">
+      <i class='fa'></i>
+      <span>Driver Core</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.11/reference/driver_core/events/" class="">
+      <i class='fa'></i>
+      <span>Eventing</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver_core/sdamevents/">
+        <i class='fa'></i>
+        SDAM Events
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l2 ">
+  <a href="/mongo-csharp-driver/2.11/reference/gridfs/" class="">
+      <i class='fa'></i>
+      <span>GridFS</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/gridfs/gettingstarted/">
+        <i class='fa'></i>
+        Getting Started
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/gridfs/uploadingfiles/">
+        <i class='fa'></i>
+        Uploading Files
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/gridfs/downloadingfiles/">
+        <i class='fa'></i>
+        Downloading Files
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/gridfs/findingfiles/">
+        <i class='fa'></i>
+        Finding Files
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/gridfs/deletingandrenamingfiles/">
+        <i class='fa'></i>
+        Deleting and Renaming Files
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l1 ">
+  <a href="/mongo-csharp-driver/2.11/examples/" class="">
+      <i class='fa fa-code'></i>
+      <span>Examples</span>
+      <span class="menu-arrow fa fa-angle-right"></span>
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/examples/exporting_json/">
+        <i class='fa'></i>
+        Exporting JSON
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/examples/importing_json/">
+        <i class='fa'></i>
+        Importing JSON
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/examples/mixing_static_and_dynamic/">
+        <i class='fa'></i>
+        Mixing Static and Dynamic Data
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/examples/tailable_cursor/">
+        <i class='fa'></i>
+        Using a Tailable Cursor
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/examples/user_management/">
+        <i class='fa'></i>
+        Managing Users
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="/mongo-csharp-driver/2.11/apidocs/">
+        <i class='fa fa-file-text-o'></i>
+        API Documentation
+    </a>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="https://github.com/mongodb/mongo-csharp-driver/tree/master">
+        <i class='fa fa-github'></i>
+        Source Code
+    </a>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="/mongo-csharp-driver/2.11/issues_help/">
+        <i class='fa fa-life-ring'></i>
+        Issues &amp; Help
+    </a>
+  </li>
+
+
+          
+        </ul>
+        
+    </div>
+  </div>
+  
+</aside>
+
+<div class="option-popup closed hidden" id="optionsVersionsPopup">
+<div class="option-header">
+  <i class="fa fa-gear"></i>
+  <span>OPTIONS</span>
+  <i class="fa fa-angle-up pull-right"></i>
+</div>
+<div class="option-body">
+  <ul>
+      
+      <li>
+        <label>Version</label>
+        <div class="btn-group btn-group-xs pull-right">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            Select Version <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu" id="optionsVersionsMenu">
+          </ul>
+        </div>
+      </li>
+
+   
+
+
+    
+
+  </ul>
+</div>
+</div>
+
+
+
+      
+      <section id="main-content" class="content">
+          <section class="main-column pull-left">
+            <div class="document">
+              <div class="documentwrapper">
+                <div class="bodywrapper">
+                  <div class="body">
+
+
+   
+<a class="edit-link" href="https://github.com/mongodb/mongo-csharp-driver/blob/master/docs/reference/content/reference%5cdriver%5cdefinitions.md" target="_blank" title="Edit reference\driver\definitions.md on GitHub"><i class="fa fa-pencil-square-o"></i></a>
+
+
+
+
+
+
+
+
+
+
+<div class="bc">
+<ul>
+  
+  
+  
+  
+  <li><a href="/mongo-csharp-driver/2.11/reference/">Reference</a> <i class="fa fa-angle-right"></i></li>
+  <li><a href="/mongo-csharp-driver/2.11/reference/driver/">Driver</a> <i class="fa fa-angle-right"></i></li>
+  <li>Definitions and Builders</li>
+</ul>
+</div>
+
+
+
+
+<h2 id="definitions-and-builders">Definitions and Builders</h2>
+
+<p>The driver has introduced a number of types related to the specification of filters, updates, projections, sorts, and index keys. These types are used throughout the <a href="/mongo-csharp-driver/2.11/reference/driver/crud/">API</a>.</p>
+
+<p>Most of the definitions also have builders to aid in their creation. Each builder has a generic type parameter <code>TDocument</code> which represents the type of document with which you are working. It will almost always match the generic <code>TDocument</code> parameter used in an <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_IMongoCollection_1.htm
+"><code>IMongoCollection&lt;TDocument&gt;</code></a>.</p>
+
+<h2 id="fields">Fields</h2>
+
+<p><a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_FieldDefinition_1.htm
+"><code>FieldDefinition&lt;TDocument&gt;</code></a> and <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_FieldDefinition_2.htm
+"><code>FieldDefinition&lt;TDocument, TField&gt;</code></a> define how to get a field name. They are implicitly convertible from a string, so that you can simply pass the field name you&rsquo;d like. For instance, to use the field named &ldquo;fn&rdquo; with a <code>TDocument</code> of <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
+"><code>BsonDocument</code></a>, do the following:</p>
+
+<pre><code class="language-csharp">FieldDefinition&lt;BsonDocument&gt; field = &quot;fn&quot;;
+</code></pre>
+
+<p>However, if you are working with a <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/">mapped class</a>, then we are able to translate a string that equals the property name. For instance, given the below <code>Person</code> class:</p>
+
+<pre><code class="language-csharp">class Person
+{
+    [BsonElement(&quot;fn&quot;)]
+    public string FirstName { get; set; }
+
+    [BsonElement(&quot;ln&quot;)]
+    public string LastName { get; set; }
+}
+</code></pre>
+
+<p>Since we know the type is <code>Person</code>, we can provide the property name, <code>FirstName</code>, from the class and &ldquo;fn&rdquo; will still be used.</p>
+
+<pre><code class="language-csharp">FieldDefinition&lt;Person&gt; field = &quot;FirstName&quot;;
+</code></pre>
+
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+<p>We don&rsquo;t validate that the provided string exists as a mapped field, so it is still possible to provide a field that hasn&rsquo;t been mapped:</p>
+
+<pre><code class="language-csharp">FieldDefinition&lt;Person&gt; field = &quot;fn&quot;;
+</code></pre>
+
+<p>And the output field name of this will be just &ldquo;fn&rdquo;.</p>
+
+</div>
+</p>
+
+<h2 id="filters">Filters</h2>
+
+<p><a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_FilterDefinition_1.htm
+"><code>FilterDefinition&lt;TDocument&gt;</code></a> defines a filter. It is implicity convertible from both a JSON string as well as a <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
+"><code>BsonDocument</code></a>.</p>
+
+<pre><code class="language-csharp">FilterDefinition&lt;BsonDocument&gt; filter = &quot;{ x: 1 }&quot;;
+
+// or
+
+FilterDefinition&lt;BsonDocument&gt; filter = new BsonDocument(&quot;x&quot;, 1);
+</code></pre>
+
+<p>Both of these will render the filter <code>{ x: 1 }</code>.</p>
+
+<h3 id="filter-definition-builder">Filter Definition Builder</h3>
+
+<p><em>See the <a href="https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Tests/FilterDefinitionBuilderTests.cs
+">tests</a> for examples.</em></p>
+
+<p>The <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_FilterDefinitionBuilder_1.htm
+"><code>FilterDefinitionBuilder&lt;TDocument&gt;</code></a> provides a type-safe API for building up both simple and complex <a href="http://docs.mongodb.org/manual/reference/operator/query/
+">MongoDB queries</a>.</p>
+
+<p>For example, to build up the filter <code>{ x: 10, y: { $lt: 20 } }</code>, the following calls are all equivalent.</p>
+
+<pre><code class="language-csharp">var builder = Builders&lt;BsonDocument&gt;.Filter;
+var filter = builder.Eq(&quot;x&quot;, 10) &amp; builder.Lt(&quot;y&quot;, 20);
+</code></pre>
+
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+The <code>&amp;</code> operator is overloaded. Other overloaded operators include the <code>|</code> operator for &ldquo;or&rdquo; and the <code>!</code> operator for &ldquo;not&rdquo;.
+</div>
+</p>
+
+<p>Given the following class:</p>
+
+<pre><code class="language-csharp">class Widget
+{
+    [BsonElement(&quot;x&quot;)]
+    public int X { get; set; }
+
+    [BsonElement(&quot;y&quot;)]
+    public int Y { get; set; }
+}
+</code></pre>
+
+<p>You can achieve the same result in the typed variant:</p>
+
+<pre><code class="language-csharp">var builder = Builders&lt;Widget&gt;.Filter;
+var filter = builder.Eq(widget =&gt; widget.X, 10) &amp; builder.Lt(widget =&gt; widget.Y, 20);
+</code></pre>
+
+<p>The benefits to this form is the compile-time safety inherent in using types. In addition, your IDE can provide refactoring support.</p>
+
+<p>Alternatively, you can elect to use a string-based field name instead.</p>
+
+<pre><code class="language-csharp">var filter = builder.Eq(&quot;X&quot;, 10) &amp; builder.Lt(&quot;Y&quot;, 20);
+
+// or
+
+var filter = builder.Eq(&quot;x&quot;, 10) &amp; builder.Lt(&quot;y&quot;, 20);
+</code></pre>
+
+<p>For more information on valid lambda expressions, see the <a href="/mongo-csharp-driver/2.11/reference/driver/expressions/">expressions documentation</a>.</p>
+
+<h4 id="array-operators">Array Operators</h4>
+
+<p>When using entities with properties or fields that serialize to arrays, you can use the methods prefixed with &ldquo;Any&rdquo; to compare the entire array against a single item.</p>
+
+<p>Given the following class:</p>
+
+<pre><code class="language-csharp">public class Post
+{
+    public IEnumerable&lt;string&gt; Tags { get; set; }
+}
+</code></pre>
+
+<p>To see if any of the tags equals &ldquo;mongodb&rdquo;:</p>
+
+<pre><code class="language-csharp">var filter = Builders&lt;Post&gt;.Filter.AnyEq(x =&gt; x.Tags, &quot;mongodb&quot;);
+
+// This will NOT compile:
+// var filter = Builders&lt;Post&gt;.Filter.Eq(x =&gt; x.Tags, &quot;mongodb&quot;);
+</code></pre>
+
+<h2 id="pipelines">Pipelines</h2>
+
+<p>A pipeline definition defines an entire aggregation pipeline. It is implicitly convertible from a <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
+"><code>List&lt;BsonDocument&gt;</code></a>, a <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
+"><code>BsonDocument</code></a>, a <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_IPipelineStageDefinition.htm
+"><code>List&lt;IPipelineStageDefinition&gt;</code></a> , and a <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_IPipelineStageDefinition.htm
+"><code>IPipelineStageDefinition[]</code></a>.</p>
+
+<p>For example:</p>
+
+<pre><code class="language-csharp">PipelineDefinition pipeline = new BsonDocument[] 
+{
+    new BsonDocument { { &quot;$match&quot;, new BsonDocument(&quot;x&quot;, 1) } },
+    new BsonDocument { { &quot;$sort&quot;, new BsonDocument(&quot;y&quot;, 1) } }
+};
+</code></pre>
+
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+<p>There is no builder for a PipelineDefinition. In most cases, the <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_IAggregateFluent_1.htm"><code>IAggregateFluent&lt;TDocument&gt;</code></a> interface would be used which is returned from the <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_IMongoCollectionExtensions_Aggregate__1.htm"><code>IMongoCollection&lt;TDocument&gt;.Aggregate</code></a> method.</p>
+
+</div>
+</p>
+
+<h2 id="projections">Projections</h2>
+
+<p>There are two forms of a projection definition: one where the type of the projection is known, <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_ProjectionDefinition_2.htm
+"><code>ProjectionDefinition&lt;TDocument, TProjection&gt;</code></a>, and one where the type of the projection is not yet known, <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_ProjectionDefinition_1.htm
+"><code>ProjectionDefinition&lt;TDocument&gt;</code></a>. The latter, while implicitly convertible to the first, is merely used as a building block. The <a href="/mongo-csharp-driver/2.11/reference/driver/crud/">high-level APIs</a> that take a projection will always take the former. This is because, when determining how to handle a projection client-side, it is not enough to know what fields and transformations will take place. It also requires that we know how to interpret the projected shape as a .NET type. Since the driver allows you to work with custom classes, it is imperative that any projection also include the &ldquo;interpretation instructions&rdquo; for projecting into a custom class.</p>
+
+<p>Each projection definition is implicity convertible from both a JSON string as well as a <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
+"><code>BsonDocument</code></a>.</p>
+
+<pre><code class="language-csharp">ProjectionDefinition&lt;BsonDocument&gt; projection = &quot;{ x: 1 }&quot;;
+
+// or
+
+ProjectionDefinition&lt;BsonDocument&gt; projection = new BsonDocument(&quot;x&quot;, 1);
+</code></pre>
+
+<p>Both of these will render the projection <code>{ x: 1 }</code>.</p>
+
+<h3 id="projection-definition-builder">Projection Definition Builder</h3>
+
+<p><em>See the <a href="https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Tests/ProjectionDefinitionBuilderTests.cs
+">tests</a> for examples.</em></p>
+
+<p>The <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_ProjectionDefinitionBuilder_1.htm
+"><code>ProjectionDefinitionBuilder&lt;TDocument&gt;</code></a> exists to make it easier to build up projections in MongoDB&rsquo;s syntax. For the projection <code>{ x: 1, y: 1, _id: 0 }</code>:</p>
+
+<pre><code class="language-csharp">var projection = Builders&lt;BsonDocument&gt;.Projection.Include(&quot;x&quot;).Include(&quot;y&quot;).Exclude(&quot;_id&quot;);
+</code></pre>
+
+<p>Using the <code>Widget</code> class:</p>
+
+<pre><code class="language-csharp">class Widget
+{
+    public ObjectId Id { get; set; }
+
+    [BsonElement(&quot;x&quot;)]
+    public int X { get; set; }
+
+    [BsonElement(&quot;y&quot;)]
+    public int Y { get; set; }
+}
+</code></pre>
+
+<p>We can render the same projection in a couple of ways:</p>
+
+<pre><code class="language-csharp">var projection = Builders&lt;Widget&gt;.Projection.Include(&quot;X&quot;).Include(&quot;Y&quot;).Exclude(&quot;Id&quot;);
+
+// or
+
+var projection = Builders&lt;Widget&gt;.Projection.Include(&quot;x&quot;).Include(&quot;y&quot;).Exclude(&quot;_id&quot;);
+
+// or
+
+var projection = Builders&lt;Widget&gt;.Projection.Include(x =&gt; x.X).Include(x =&gt; x.Y).Exclude(x =&gt; x.Id);
+
+// or
+
+var projection = Builders&lt;Widget&gt;.Projection.Expression(x =&gt; new { X = x.X, Y = x.Y });
+</code></pre>
+
+<p>This last projection where we&rsquo;ve used the <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_ProjectionDefinitionBuilder_1_Expression__1.htm
+"><code>Expression</code></a> method is subtly different as is explained below, and its return type is a (<a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_ProjectionDefinition_2.htm
+"><code>ProjectionDefinition&lt;TDocument, TProjection&gt;</code></a>) as opposed to the others which return a (<a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_ProjectionDefinition_1.htm
+"><code>ProjectionDefinition&lt;TDocument&gt;</code></a>).</p>
+
+<h4 id="lambda-expressions">Lambda Expressions</h4>
+
+<p>The driver supports using expression trees to render projections. The same expression tree will sometimes render differently when used in a Find operation versus when used in an Aggregate operation. Inherently, a lambda expression contains all the information necessary to form both the projection on the server as well as the client-side result and requires no further information.</p>
+
+<h5 id="find">Find</h5>
+
+<p><em>See the <a href="https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Tests/Linq/Translators/FindProjectionTranslatorTests.cs
+">tests</a> for examples.</em></p>
+
+<p>When a Find projection is defined using a lambda expression, it is run client-side. The driver inspects the lambda expression to determine which fields are referenced and automatically constructs a server-side projection to return only those fields.</p>
+
+<p>Given the following class:</p>
+
+<pre><code class="language-csharp">class Widget
+{
+    public ObjectId Id { get; set; }
+
+    [BsonElement(&quot;x&quot;)]
+    public int X { get; set; }
+
+    [BsonElement(&quot;y&quot;)]
+    public int Y { get; set; }
+}
+</code></pre>
+
+<p>The following lambda expressions will all result in the projection <code>{ x: 1, y: 1, _id: 0 }</code>. This is because we inspect the expression tree to discover all the fields that are used and tell the server to include them. We then run the lambda expression client-side. As such, Find projections support virtually the entire breadth of the C# language.</p>
+
+<pre><code class="language-csharp">var projection = Builders&lt;Widget&gt;.Projection.Expression(x =&gt; new { X = x.X, Y = x.Y });
+
+var projection = Builders&lt;Widget&gt;.Projection.Expression(x =&gt; new { Sum = x.X + x.Y });
+
+var projection = Builders&lt;Widget&gt;.Projection.Expression(x =&gt; new { Avg = (x.X + x.Y) / 2 });
+
+var projection = Builders&lt;Widget&gt;.Projection.Expression(x =&gt; (x.X + x.Y) / 2);
+</code></pre>
+
+<p>The <code>_id</code> field is excluded automatically when we know for certain that it isn&rsquo;t necessary, as is the case in all the above examples.</p>
+
+<h5 id="aggregate">Aggregate</h5>
+
+<p><em>See the <a href="https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Tests/Linq/Translators/AggregateProjectionTranslatorTests_Project.cs
+">tests</a> for examples.</em></p>
+
+<p>When an aggregate projection is defined using a lambda expression, a majority of the <a href="http://docs.mongodb.org/manual/reference/operator/aggregation/#expression-operators
+">aggregation expression operators</a> are supported and translated. Unlike a project for Find, no part of the lambda expression is run client-side. This means that all expressions in a projection for the <a href="http://docs.mongodb.org/manual/core/aggregation-pipeline/
+">Aggregation Framework</a> must be expressible on the server.</p>
+
+<h5 id="grouping">Grouping</h5>
+
+<p><em>See the <a href="https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Tests/Linq/Translators/AggregateProjectionTranslatorTests_Group.cs
+">tests</a> for examples.</em></p>
+
+<p>A projection is also used when performing grouping in the <a href="http://docs.mongodb.org/manual/core/aggregation-pipeline/
+">Aggregation Framework</a>. In addition to the expression operators used in an aggregate projection, the <a href="http://docs.mongodb.org/manual/reference/operator/aggregation/group/#accumulator-operator
+">aggregation accumulator operators</a> are also supported.</p>
+
+<h2 id="sorts">Sorts</h2>
+
+<p><a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_SortDefinition_1.htm
+"><code>SortDefinition&lt;TDocument&gt;</code></a> defines how to render a valid sort document. It is implicity convertible from both a JSON string as well as a <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
+"><code>BsonDocument</code></a>.</p>
+
+<pre><code class="language-csharp">SortDefinition&lt;BsonDocument&gt; sort = &quot;{ x: 1 }&quot;;
+
+// or
+
+SortDefinition&lt;BsonDocument&gt; sort = new BsonDocument(&quot;x&quot;, 1);
+</code></pre>
+
+<p>Both of these will render the sort <code>{ x: 1 }</code>.</p>
+
+<h3 id="sort-definition-builder">Sort Definition Builder</h3>
+
+<p><em>See the <a href="https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Tests/SortDefinitionBuilderTests.cs
+">tests</a> for examples.</em></p>
+
+<p>The <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_SortDefinitionBuilder_1.htm
+"><code>SortDefinitionBuilder&lt;TDocument&gt;</code></a> provides a type-safe API for building up <a href="http://docs.mongodb.org/manual/reference/method/cursor.sort/
+">MongoDB sort syntax</a>.</p>
+
+<p>For example, to build up the sort <code>{ x: 1, y: -1 }</code>, do the following:</p>
+
+<pre><code class="language-csharp">var builder = Builders&lt;BsonDocument&gt;.Sort;
+var sort = builder.Ascending(&quot;x&quot;).Descending(&quot;y&quot;);
+</code></pre>
+
+<p>Given the following class:</p>
+
+<pre><code class="language-csharp">class Widget
+{
+    [BsonElement(&quot;x&quot;)]
+    public int X { get; set; }
+
+    [BsonElement(&quot;y&quot;)]
+    public int Y { get; set; }
+}
+</code></pre>
+
+<p>We can achieve the same result in the typed variant:</p>
+
+<pre><code class="language-csharp">var builder = Builders&lt;Widget&gt;.Sort;
+var sort = builder.Ascending(x =&gt; x.X).Descending(x =&gt; x.Y);
+
+// or
+
+var sort = builder.Ascending(&quot;X&quot;).Descending(&quot;Y&quot;);
+
+// or
+
+var sort = builder.Ascending(&quot;x&quot;).Descending(&quot;y&quot;);
+</code></pre>
+
+<h2 id="updates">Updates</h2>
+
+<p><a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_UpdateDefinition_1.htm
+"><code>UpdateDefinition&lt;TDocument&gt;</code></a> defines how to render a valid update document. It is implicity convertible from both a JSON string as well as a <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
+"><code>BsonDocument</code></a>.</p>
+
+<pre><code class="language-csharp">// invocation
+UpdateDefinition&lt;BsonDocument&gt; update = &quot;{ $set: { x: 1 } }&quot;;
+
+// or
+
+UpdateDefinition&lt;BsonDocument&gt; update = new BsonDocument(&quot;$set&quot;, new BsonDocument(&quot;x&quot;, 1));
+</code></pre>
+
+<p>Both of these will render the update <code>{ $set: { x: 1 } }</code>.</p>
+
+<h3 id="update-definition-builder">Update Definition Builder</h3>
+
+<p><em>See the <a href="https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Tests/UpdateDefinitionBuilderTests.cs
+">tests</a> for examples.</em></p>
+
+<p>The <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_UpdateDefinitionBuilder_1.htm
+"><code>UpdateDefinitionBuilder&lt;TDocument&gt;</code></a> provides a type-safe API for building the <a href="http://docs.mongodb.org/manual/reference/operator/update/
+">MongoDB update specification</a>.</p>
+
+<p>For example, to build up the update <code>{ $set: { x: 1, y: 3 }, $inc: { z: 1 } }</code>, do the following:</p>
+
+<pre><code class="language-csharp">var builder = Builders&lt;BsonDocument&gt;.Update;
+var update = builder.Set(&quot;x&quot;, 1).Set(&quot;y&quot;, 3).Inc(&quot;z&quot;, 1);
+</code></pre>
+
+<p>Given the following class:</p>
+
+<pre><code class="language-csharp">class Widget
+{
+    [BsonElement(&quot;x&quot;)]
+    public int X { get; set; }
+
+    [BsonElement(&quot;y&quot;)]
+    public int Y { get; set; }
+
+    [BsonElement(&quot;z&quot;)]
+    public int Z { get; set; }
+}
+</code></pre>
+
+<p>We can achieve the same result in a typed variant:</p>
+
+<pre><code class="language-csharp">var builder = Builders&lt;Widget&gt;.Update;
+var update = builder.Set(widget =&gt; widget.X, 1).Set(widget =&gt; widget.Y, 3).Inc(widget =&gt; widget.Z, 1);
+
+// or
+
+var update = builder.Set(&quot;X&quot;, 1).Set(&quot;Y&quot;, 3).Inc(&quot;Z&quot;, 1);
+
+// or
+
+var update = builder.Set(&quot;x&quot;, 1).Set(&quot;y&quot;, 3).Inc(&quot;z&quot;, 1);
+</code></pre>
+
+<h2 id="index-keys">Index Keys</h2>
+
+<p><a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_IndexKeysDefinition_1.htm
+"><code>IndexKeysDefinition&lt;TDocument&gt;</code></a> defines the keys for index. It is implicity convertible from both a JSON string as well as a <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
+"><code>BsonDocument</code></a>.</p>
+
+<pre><code class="language-csharp">IndexKeysDefinition&lt;BsonDocument&gt; keys = &quot;{ x: 1 }&quot;;
+
+// or
+
+IndexKeysDefinition&lt;BsonDocument&gt; keys = new BsonDocument(&quot;x&quot;, 1);
+</code></pre>
+
+<p>Both of these will render the keys <code>{ x: 1 }</code>.</p>
+
+<h3 id="index-keys-definition-builder">Index Keys Definition Builder</h3>
+
+<p><em>See the <a href="https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Tests/IndexKeysDefinitionBuilderTests.cs
+">tests</a> for examples.</em></p>
+
+<p>The <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_IndexKeysDefinitionBuilder_1.htm
+"><code>IndexKeysDefinitionBuilder&lt;TDocument&gt;</code></a> provides a type-safe API to build an index keys definition.</p>
+
+<p>For example, to build up the keys <code>{ x: 1, y: -1 }</code>, do the following:</p>
+
+<pre><code class="language-csharp">var builder = Builders&lt;BsonDocument&gt;.IndexKeys;
+var keys = builder.Ascending(&quot;x&quot;).Descending(&quot;y&quot;);
+</code></pre>
+
+<p>Given the following class:</p>
+
+<pre><code class="language-csharp">class Widget
+{
+    [BsonElement(&quot;x&quot;)]
+    public int X { get; set; }
+
+    [BsonElement(&quot;y&quot;)]
+    public int Y { get; set; }
+}
+</code></pre>
+
+<p>We can achieve the same result in the typed variant:</p>
+
+<pre><code class="language-csharp">var builder = Builders&lt;Widget&gt;.IndexKeys;
+var keys = builder.Ascending(x =&gt; x.X).Descending(x =&gt; x.Y);
+
+// or
+
+var keys = builder.Ascending(&quot;X&quot;).Descending(&quot;Y&quot;);
+
+// or
+
+var keys = builder.Ascending(&quot;x&quot;).Descending(&quot;y&quot;);
+</code></pre>
+
+<p>Also, the builder provides API methods to build a wildcard index. There are two ways to do it: <code>All field paths</code> and <code>A single field path</code>.</p>
+
+<p>For example, to build up the <code>All field paths</code> key <code>{ &quot;$**&quot;: 1 }</code> or <code>A single field path</code> key <code>{ &quot;x.$**&quot;: 1 }</code>, do the following:</p>
+
+<pre><code class="language-csharp">var builder = Builders&lt;BsonDocument&gt;.IndexKeys;
+
+// All field paths
+var keys = builder.Wildcard();
+
+// A single field path
+var keys = builder.Wildcard(&quot;x&quot;);
+</code></pre>
+
+<p>We can achieve the same result in the typed variant:</p>
+
+<pre><code class="language-csharp">var builder = Builders&lt;Widget&gt;.IndexKeys;
+
+// All field paths
+var keys = builder.Wildcard();
+
+// A single field path
+var keys = builder.Wildcard(x =&gt; x.X);
+</code></pre>
+
+
+
+
+
+
+<div id="btnv">
+  
+  <div class="pull-left">
+  <a class="navigation prev" href="/mongo-csharp-driver/2.11/reference/driver/connecting/">
+      <i class="fa fa-long-arrow-left"> </i> Connecting
+  </a>
+  </div>
+  
+  
+  <div class="pull-right">
+  <a class="navigation next" href="/mongo-csharp-driver/2.11/reference/driver/admin/">
+    Administration <i class="fa fa-long-arrow-right"> </i>
+  </a>
+  
+</div>
+</div>
+
+
+</div>
+<div class="right-column">
+<div class="wrapper">
+  
+  <div class="toc">
+    <span class="toc-header">On this page</span>
+    <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#definitions-and-builders">Definitions and Builders</a></li>
+<li><a href="#fields">Fields</a></li>
+<li><a href="#filters">Filters</a>
+<ul>
+<li><a href="#filter-definition-builder">Filter Definition Builder</a>
+<ul>
+<li><a href="#array-operators">Array Operators</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#pipelines">Pipelines</a></li>
+<li><a href="#projections">Projections</a>
+<ul>
+<li><a href="#projection-definition-builder">Projection Definition Builder</a>
+<ul>
+<li><a href="#lambda-expressions">Lambda Expressions</a>
+<ul>
+<li><a href="#find">Find</a></li>
+<li><a href="#aggregate">Aggregate</a></li>
+<li><a href="#grouping">Grouping</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li><a href="#sorts">Sorts</a>
+<ul>
+<li><a href="#sort-definition-builder">Sort Definition Builder</a></li>
+</ul></li>
+<li><a href="#updates">Updates</a>
+<ul>
+<li><a href="#update-definition-builder">Update Definition Builder</a></li>
+</ul></li>
+<li><a href="#index-keys">Index Keys</a>
+<ul>
+<li><a href="#index-keys-definition-builder">Index Keys Definition Builder</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+  </div>
+  
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</section>
+</section>
+
+</section>
+
+
+<script type="text/javascript">
+  var DOCUMENTATION_OPTIONS = {
+   URL_ROOT:    "/mongo-csharp-driver/2.11",
+   VERSION:     "2.11",
+   COLLAPSE_INDEX: false,
+   FILE_SUFFIX: '.html',
+   HAS_SOURCE:  true
+  };
+</script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/js/jquery.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/lib/bootstrap.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/js/navbar.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/lib/highlight/highlight.pack.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/js/scripts.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/lib/bootstrap-toggle/bootstrap-toggle.min.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/js/dn.js"></script>
+
+
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-K75Z5Q"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push(
+{'gtm.start': new Date().getTime(),event:'gtm.js'}
+);var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-K75Z5Q');</script>
+
+
+<script type="text/javascript">
+var _elqQ = _elqQ || [];
+_elqQ.push(['elqSetSiteId', '413370795']);
+_elqQ.push(['elqTrackPageView']);
+(function () {
+function async_load()
+{ var s = document.createElement('script'); s.type = 'text/javascript'; s.async = true; s.src = '//img03.en25.com/i/elqCfg.min.js'; var x = document.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s, x); }
+if (window.addEventListener) window.addEventListener('DOMContentLoaded', async_load, false);
+else if (window.attachEvent) window.attachEvent('onload', async_load);
+})();
+</script>
+
+</body>
+</html>
+

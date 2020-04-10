@@ -1,0 +1,2835 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+<meta name="author" content="">
+<meta name="keyword" content="">
+
+    <link rel="shortcut icon" href="/mongo-csharp-driver/2.11/img/favicon.png">
+
+    <title>Mapping Classes</title>
+
+    <link rel="stylesheet" href="/mongo-csharp-driver/2.11/lib/bootstrap.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/lib/font-awesome/css/font-awesome.min.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/css/mongodb-docs.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/css/overrides.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/lib/highlight/styles/idea.css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/lib/bootstrap-toggle/bootstrap-toggle.min.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.11/css/dn.css" type="text/css" />
+
+
+  </head>
+
+  <body>
+  
+  <section id="container" class="">
+      
+      <header id="header-db" class="row" role="navigation">
+  <div class="header-content">
+    <div class="toggle-nav pull-left">
+        <i class="fa fa-bars"></i>
+        <div class="icon-reorder tooltips" data-original-title="Toggle Navigation" data-placement="bottom"></div>
+    </div>
+    
+    <div class="logo pull-left">
+      <a href="/mongo-csharp-driver/2.11/../">
+        <img src="/mongo-csharp-driver/2.11/img/logo-mongodb-header.png", alt="MongoDB.org" />
+      </a>
+    </div>
+    
+    <div>
+<div class="nav-items pull-right">
+  <a href="http://try.mongodb.org/" data-toggle="tooltip" data-placement="bottom" title="Try MongoDB in the browser">Try it Out</a>
+  <a href="http://www.mongodb.org/downloads" data-toggle="tooltip" data-placement="bottom" title="Download MongoDB">Downloads</a>
+  <a href="http://www.mongodb.org/get-involved" data-toggle="tooltip" data-placement="bottom" title="Get involved with MongoDB">Community</a>
+  <a href="http://docs.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Documentation">Docs</a>
+  <a href="http://blog.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Blog">Blog</a>
+  <div id="search">
+<form method="get" action="//www.google.com/search" target="_blank">
+    <input type="text" name="searchQuery" size="20" value="" autocomplete="off" placeholder="Search docs">
+    <input type="hidden" name="site" value="/mongo-csharp-driver/2.11">
+    <input type="hidden" name="q" value="">
+    <label for="searchQuery"><i class="fa fa-search fa-1"></i></label>
+</form>
+</div>
+
+</div>
+</div>
+
+  </div>
+</header>
+
+      
+
+      
+<aside id="sidebar" class="sidebar">
+    <div class="ssidebar nav-collapse">
+      <div class="ssidebarwrapper">
+        <h3>
+          <a class="index-link" href="/mongo-csharp-driver/2.11/../">MongoDB .NET Driver</a>
+          <a class="version pull-right" href="/mongo-csharp-driver/2.11">2.11</a>
+        </h3>
+
+        
+        <ul class="sidebar-menu">
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+
+          
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+    
+    
+    
+      
+      
+      
+        
+      
+    
+    
+  
+  
+
+
+        
+      
+    
+    
+  
+
+
+        
+      
+    
+      
+      
+        
+      
+    
+      
+      
+    
+      
+      
+    
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+      
+      
+    
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+
+          
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l1 ">
+  <a href="/mongo-csharp-driver/2.11/getting_started/" class="">
+      <i class='fa fa-road'></i>
+      <span>Getting Started</span>
+      <span class="menu-arrow fa fa-angle-right"></span>
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/getting_started/installation/">
+        <i class='fa'></i>
+        Installation
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/getting_started/quick_tour/">
+        <i class='fa'></i>
+        Quick Tour
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/getting_started/admin_quick_tour/">
+        <i class='fa'></i>
+        Admin Quick Tour
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l1 ">
+  <a href="/mongo-csharp-driver/2.11/what_is_new/" class="">
+      <i class='fa fa-star'></i>
+      <span>What&#39;s New</span>
+      <span class="menu-arrow fa fa-angle-right"></span>
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/upgrading/">
+        <i class='fa'></i>
+        Upgrading
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+<li class="toctree-l1  current">
+  <a href="/mongo-csharp-driver/2.11/reference/" class="">
+      <i class='fa fa-book'></i>
+      <span>Reference</span>
+      <span class="menu-arrow fa fa-angle-down"></span>
+  </a>
+    <ul  class="current">
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+<li class="toctree-l2  current">
+  <a href="/mongo-csharp-driver/2.11/reference/bson/" class="">
+      <i class='fa'></i>
+      <span>BSON</span>
+      
+  </a>
+    <ul  class="current">
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/bson/">
+        <i class='fa'></i>
+        BSON/JSON
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/bson_document/">
+        <i class='fa'></i>
+        BsonDocument
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/serialization/">
+        <i class='fa'></i>
+        Serialization
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+<li class="toctree-l3  current">
+  <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/" class="">
+      <i class='fa'></i>
+      <span>Mapping Classes</span>
+      
+  </a>
+    <ul  class="current">
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/polymorphism/">
+        <i class='fa'></i>
+        Polymorphism
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/conventions/">
+        <i class='fa'></i>
+        Conventions
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/schema_changes/">
+        <i class='fa'></i>
+        Handling Schema Changes
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l2 ">
+  <a href="/mongo-csharp-driver/2.11/reference/driver/" class="">
+      <i class='fa'></i>
+      <span>Driver</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.11/reference/driver/connecting/" class="">
+      <i class='fa'></i>
+      <span>Connecting</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/ssl/">
+        <i class='fa'></i>
+        SSL
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/authentication/">
+        <i class='fa'></i>
+        Authentication
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.11/reference/driver/definitions/" class="">
+      <i class='fa'></i>
+      <span>Definitions and Builders</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/expressions/">
+        <i class='fa'></i>
+        Expressions
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/admin/">
+        <i class='fa'></i>
+        Administration
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.11/reference/driver/crud/" class="">
+      <i class='fa'></i>
+      <span>Reading and Writing</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/reading/">
+        <i class='fa'></i>
+        Reading
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/linq/">
+        <i class='fa'></i>
+        LINQ
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/writing/">
+        <i class='fa'></i>
+        Writing
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/compression/">
+        <i class='fa'></i>
+        Compression
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/sessions_and_transactions/">
+        <i class='fa'></i>
+        Sessions and Transactions
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/crud/client_side_encryption/">
+        <i class='fa fa-lock'></i>
+        Client-Side Encryption
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/change_streams/">
+        <i class='fa'></i>
+        Change Streams
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/driver/error_handling/">
+        <i class='fa'></i>
+        Error Handling
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l2 ">
+  <a href="/mongo-csharp-driver/2.11/reference/driver_core/" class="">
+      <i class='fa'></i>
+      <span>Driver Core</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.11/reference/driver_core/events/" class="">
+      <i class='fa'></i>
+      <span>Eventing</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/driver_core/sdamevents/">
+        <i class='fa'></i>
+        SDAM Events
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l2 ">
+  <a href="/mongo-csharp-driver/2.11/reference/gridfs/" class="">
+      <i class='fa'></i>
+      <span>GridFS</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/gridfs/gettingstarted/">
+        <i class='fa'></i>
+        Getting Started
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/gridfs/uploadingfiles/">
+        <i class='fa'></i>
+        Uploading Files
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/gridfs/downloadingfiles/">
+        <i class='fa'></i>
+        Downloading Files
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/gridfs/findingfiles/">
+        <i class='fa'></i>
+        Finding Files
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.11/reference/gridfs/deletingandrenamingfiles/">
+        <i class='fa'></i>
+        Deleting and Renaming Files
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l1 ">
+  <a href="/mongo-csharp-driver/2.11/examples/" class="">
+      <i class='fa fa-code'></i>
+      <span>Examples</span>
+      <span class="menu-arrow fa fa-angle-right"></span>
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/examples/exporting_json/">
+        <i class='fa'></i>
+        Exporting JSON
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/examples/importing_json/">
+        <i class='fa'></i>
+        Importing JSON
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/examples/mixing_static_and_dynamic/">
+        <i class='fa'></i>
+        Mixing Static and Dynamic Data
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/examples/tailable_cursor/">
+        <i class='fa'></i>
+        Using a Tailable Cursor
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.11/examples/user_management/">
+        <i class='fa'></i>
+        Managing Users
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="/mongo-csharp-driver/2.11/apidocs/">
+        <i class='fa fa-file-text-o'></i>
+        API Documentation
+    </a>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="https://github.com/mongodb/mongo-csharp-driver/tree/master">
+        <i class='fa fa-github'></i>
+        Source Code
+    </a>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="/mongo-csharp-driver/2.11/issues_help/">
+        <i class='fa fa-life-ring'></i>
+        Issues &amp; Help
+    </a>
+  </li>
+
+
+          
+        </ul>
+        
+    </div>
+  </div>
+  
+</aside>
+
+<div class="option-popup closed hidden" id="optionsVersionsPopup">
+<div class="option-header">
+  <i class="fa fa-gear"></i>
+  <span>OPTIONS</span>
+  <i class="fa fa-angle-up pull-right"></i>
+</div>
+<div class="option-body">
+  <ul>
+      
+      <li>
+        <label>Version</label>
+        <div class="btn-group btn-group-xs pull-right">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            Select Version <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu" id="optionsVersionsMenu">
+          </ul>
+        </div>
+      </li>
+
+   
+
+
+    
+
+  </ul>
+</div>
+</div>
+
+
+
+      
+      <section id="main-content" class="content">
+          <section class="main-column pull-left">
+            <div class="document">
+              <div class="documentwrapper">
+                <div class="bodywrapper">
+                  <div class="body">
+
+
+   
+<a class="edit-link" href="https://github.com/mongodb/mongo-csharp-driver/blob/master/docs/reference/content/reference%5cbson%5cmapping%5cindex.md" target="_blank" title="Edit reference\bson\mapping\index.md on GitHub"><i class="fa fa-pencil-square-o"></i></a>
+
+
+
+
+
+
+
+
+
+
+<div class="bc">
+<ul>
+  
+  
+  
+  
+  <li><a href="/mongo-csharp-driver/2.11/reference/">Reference</a> <i class="fa fa-angle-right"></i></li>
+  <li><a href="/mongo-csharp-driver/2.11/reference/bson/">BSON</a> <i class="fa fa-angle-right"></i></li>
+  <li>Mapping Classes</li>
+</ul>
+</div>
+
+
+
+
+<h2 id="mapping-classes">Mapping Classes</h2>
+
+<p>Using a <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
+"><code>BsonDocument</code></a> will work when a schema is fluid and dynamic. However, most applications are built with a schema modeled in the application itself rather than the database. In these cases, it is likely that the application uses classes.</p>
+
+<p>The .NET BSON library supports mapping these classes to and from BSON/JSON using a <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_Serialization_BsonClassMap_1.htm
+"><code>BsonClassMap</code></a>.</p>
+
+<h2 id="creating-a-class-map">Creating a Class Map</h2>
+
+<p>In a majority of cases, the driver will be able to automatically map your class for you. This will happen if you begin to use a class for which no <a href="/mongo-csharp-driver/2.11/reference/bson/serialization/#serializers">serializer</a> has yet been registered in the <a href="/mongo-csharp-driver/2.11/reference/bson/serialization/#serializer-registry">serializer registry</a>.</p>
+
+<p>You can choose to register the class map using the <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Bson_Serialization_BsonClassMap_RegisterClassMap__1_1.htm
+"><code>RegisterClassMap</code></a> method:</p>
+
+<pre><code class="language-csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;();
+</code></pre>
+
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+It is very important that the registration of class maps occur prior to them being needed. The best place to register them is at app startup prior to initializing a connection with MongoDB.
+</div>
+</p>
+
+<p>If you want to control the creation of the class map, you can provide your own initialization code in the form of a lambda expression:</p>
+
+<pre><code class="language-csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;(cm =&gt; 
+{
+    cm.MapMember(c =&gt; c.SomeProperty);
+    cm.MapMember(c =&gt; c.AnotherProperty);
+});
+</code></pre>
+
+<p>When your lambda expression is executed, the <code>cm</code> (short for class map) parameter is passed an empty class map for you to fill in. In this example, two properties are added to the class map by calling the <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Bson_Serialization_BsonClassMap_1_MapMember__1.htm
+"><code>MapMember</code></a> method. The arguments to the method are themselves lambda expressions which identify the member of the class. The advantage of using a lambda expression instead of just a string parameter with the name of the property is that Intellisense and compile time checking ensure that you can’t misspell the name of the property.</p>
+
+<h2 id="automap">AutoMap</h2>
+
+<p>It is also possible to use automapping and then override some of the results using the <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Bson_Serialization_BsonClassMap_AutoMap.htm
+"><code>AutoMap</code></a> method. This method should be called first in the lambda expression.</p>
+
+<pre><code class="language-csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;(cm =&gt; 
+{
+    cm.AutoMap();
+    cm.MapMember(c =&gt; c.SomeProperty);
+    cm.MapMember(c =&gt; c.AnotherProperty);
+});
+</code></pre>
+
+<p><a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Bson_Serialization_BsonClassMap_AutoMap.htm
+"><code>AutoMap</code></a> uses conventions to map the class and its members. See the <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/conventions/">convention documentation</a> for more information.</p>
+
+<h2 id="class-customization">Class Customization</h2>
+
+<p>There are several serialization options that are related to the class itself instead of to any particular field or property. You can set these class level options either by decorating the class with serialization related attributes or by writing initialization code.</p>
+
+<h3 id="ignoring-extra-elements">Ignoring Extra Elements</h3>
+
+<p>When a BSON document is deserialized, the name of each element is used to look up a matching member in the class map. Normally, if no matching member is found, an exception will be thrown. If you want to ignore extra elements during deserialization, use a <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_Serialization_Attributes_BsonIgnoreExtraElementsAttribute.htm
+"><code>BsonIgnoreExtraElementsAttribute</code></a>:</p>
+
+<pre><code class="language-csharp">[BsonIgnoreExtraElements]
+public MyClass 
+{
+    // fields and properties
+}
+</code></pre>
+
+<p>Or via code:</p>
+
+<pre><code class="language-csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;(cm =&gt; 
+{
+    cm.AutoMap();
+    cm.SetIgnoreExtraElements(true);
+});
+</code></pre>
+
+<p><div class="admonition important">
+<h5 class="admonition-title">important</h5>
+When you ignore extra elements, if the class is rendered back to BSON, those extra elements will not exist and may be lost forever.
+</div>
+</p>
+
+<h3 id="supporting-extra-elements">Supporting Extra Elements</h3>
+
+<p>You can design your class to be capable of handling any extra elements that might be found in a BSON document during deserialization. To do so, you must have a property of type <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
+"><code>BsonDocument</code></a> (or <a href="https://msdn.microsoft.com/en-us/library/s4ys34ea.aspx"><code>IDictionary&lt;string, object&gt;</code></a>) and you must identify that property as the one that should hold any extra elements that are found. By <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/conventions/">convention</a>, the member may be named <code>ExtraElements</code>. For example:</p>
+
+<pre><code class="language-csharp">public MyClass 
+{
+    // fields and properties
+    [BsonExtraElements]
+    public BsonDocument CatchAll { get; set; }
+}
+</code></pre>
+
+<p>Or via code:</p>
+
+<pre><code class="language-csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;(cm =&gt; 
+{
+    cm.AutoMap();
+    cm.MapExtraElementsMember(c =&gt; c.CatchAll);
+});
+</code></pre>
+
+<p>When a BSON document is deserialized, any extra elements found will be stored in the extra elements property. When the class is serialized, the extra elements will be serialized also. One thing to note though is that the serialized class will probably not have the elements in exactly the same order as the original document. All extra elements will be serialized together when the extra elements member is serialized.</p>
+
+<h3 id="discriminators">Discriminators</h3>
+
+<p>See the <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/polymorphism/">polymorphism</a> section for documentation on discriminators and polymorphism.</p>
+
+<p>To specify a discriminator, use a <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_Serialization_Attributes_BsonDiscriminatorAttribute.htm
+"><code>BsonDiscriminatorAttribute</code></a>:</p>
+
+<pre><code class="language-csharp">[BsonDiscriminator(&quot;myclass&quot;)]
+public MyClass 
+{
+    // fields and properties
+}
+</code></pre>
+
+<pre><code class="language-csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;(cm =&gt; 
+{
+    cm.AutoMap();
+    cm.SetDiscriminator(&quot;myclass&quot;);
+});
+</code></pre>
+
+<h3 id="isupportinitialize">ISupportInitialize</h3>
+
+<p>If your class implements <a href="https://msdn.microsoft.com/en-us/library/system.componentmodel.isupportinitialize.aspx"><code>ISupportInitialize</code></a>, the driver will call the <a href="https://msdn.microsoft.com/en-us/library/system.componentmodel.isupportinitialize.begininit.aspx"><code>BeginInit</code></a> method before deserialization and the <a href="https://msdn.microsoft.com/en-us/library/system.componentmodel.isupportinitialize.endinit.aspx"><code>EndInit</code></a> method upon completion. It is useful for running operations before or after deserialization such as handling schema changes are pre-calculating some expensive operations.</p>
+
+<h2 id="creation-customization">Creation Customization</h2>
+
+<p>By default, classes must contain a no-argument constructor that will be used to instantiate the class to rehydrate. However, it is possible to configure a constructor whose arguments are correlated with mapped properties or fields. There are a couple of ways to do this.</p>
+
+<p>Using an expression, you can instruct the driver to use a creator map as follows:</p>
+
+<pre><code class="language-csharp">public class Person
+{
+    public string FirstName { get; private set; }
+    public string LastName { get; private set; }
+
+    public Person(string firstName, string lastName)
+    {
+        FirstName = firstName;
+        LastName = lastName;
+    }
+}
+
+// snip...
+
+BsonClassMap.RegisterClassMap&lt;Person&gt;(cm =&gt;
+{
+    cm.AutoMap();
+    cm.MapCreator(p =&gt; new Person(p.FirstName, p.LastName));
+});
+</code></pre>
+
+<p>Parsing the expression tree correlates the first constructor argument with the FirstName property and the second constructor argument with the LastName property. There are other, more complicated ways of handling this which can be explored on your own should the need arise.</p>
+
+<p>Using attributes instead:</p>
+
+<pre><code class="language-csharp">public class Person
+{
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+
+    [BsonConstructor]
+    public Person(string firstName, string lastName)
+    {
+        FirstName = firstName;
+        LastName = lastName;
+    }
+}
+</code></pre>
+
+<p>By default, a convention runs on every CreatorMap with no mapped arguments and attempts to correlate the names of the constructor arguments with the names of mapped members. If your names differ in more than just case, there are overloads of BsonConstructor which can be used to explicity tell the driver which members to use.</p>
+
+<p>When more than one constructor is found, we will use the constructor that has the most matching parameters. For example:</p>
+
+<pre><code class="language-csharp">public class Person
+{
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public DateTime? BirthDate { get; set; }
+
+    [BsonConstructor]
+    public Person(string firstName, string lastName)
+    {
+        // snip...
+    }
+
+    [BsonConstructor]
+    public Person(string firstName, string lastName, DateTime birthDate)
+    {
+        // snip...
+    }
+}
+</code></pre>
+
+<p>If the document in the database has a BirthDate element, we will choose to use the constructor with three parameters because it is more specific.</p>
+
+<h2 id="member-customization">Member Customization</h2>
+
+<p>You can also control serialization at the individual class or field or property level using code to configure the class and member maps or using attributes to decorate the class and members. For each aspect of serialization you can control, we will be showing both ways.</p>
+
+<h3 id="opt-in">Opt-In</h3>
+
+<p>A majority of classes will have their members <a href="#automap">mapped automatically</a>. There are some circumstances where this does not happen. For instance, if your property is read-only, it will not get included in the automapping of a class by default. In order to include the member, you can use the <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_Serialization_Attributes_BsonElementAttribute.htm
+"><code>BsonElementAttribute</code></a>.</p>
+
+<pre><code class="language-csharp">class MyClass
+{
+    private readonly string _someProperty;
+
+    [BsonElement]
+    public string SomeProperty
+    {
+        get { return _someProperty; }
+    }
+}
+</code></pre>
+
+<p>Or via code:</p>
+
+<pre><code class="language-csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;(cm =&gt; 
+{
+    cm.AutoMap();
+    cm.MapProperty(c =&gt; c.SomeProperty);
+});
+</code></pre>
+
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+When a readonly property is serialized, its value is persisted to the database, but never read back out. This is useful for storing “computed” properties.
+</div>
+</p>
+
+<h3 id="element-name">Element Name</h3>
+
+<p>To specify an element name using attributes, write:</p>
+
+<pre><code class="language-csharp">public class MyClass 
+{
+    [BsonElement(&quot;sp&quot;)]
+    public string SomeProperty { get; set; }
+}
+</code></pre>
+
+<p>Or via code:</p>
+
+<pre><code class="language-csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;(cm =&gt; 
+{
+    cm.AutoMap();
+    cm.MapMember(c =&gt; c.SomeProperty).SetElementName(&quot;sp&quot;);
+});
+</code></pre>
+
+<h3 id="element-order">Element Order</h3>
+
+<p>If you want precise control over the order of the elements in the BSON document, you can use the Order named parameter to the BsonElement attribute:</p>
+
+<pre><code class="language-csharp">public class MyClass 
+{
+    [BsonElement(&quot;sp&quot;, Order = 1)]
+    public string SomeProperty { get; set; }
+}
+</code></pre>
+
+<p>Or via code:</p>
+
+<pre><code class="language-csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;(cm =&gt; 
+{
+    cm.AutoMap();
+    cm.MapMember(c =&gt; c.SomeProperty).SetElementName(&quot;sp&quot;).SetOrder(1);
+});
+</code></pre>
+
+<p>Any fields or properties that do not have an explicit Order will occur after those that do have an Order.</p>
+
+<h3 id="the-id-member">The Id Member</h3>
+
+<p>By <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/conventions/">convention</a>, a public member called <code>Id</code>, <code>id</code>, or <code>_id</code> will be used as the identifier. You can be specific about this using the <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_Serialization_Attributes_BsonIdAttribute.htm
+"><code>BsonIdAttribute</code></a>.</p>
+
+<pre><code class="language-csharp">public class MyClass 
+{
+    [BsonId]
+    public string SomeProperty { get; set; }
+}
+</code></pre>
+
+<p>Or via code:</p>
+
+<pre><code class="language-csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;(cm =&gt; 
+{
+    cm.AutoMap();
+    cm.MapIdMember(c =&gt; c.SomeProperty);
+});
+</code></pre>
+
+<h4 id="id-generators">Id Generators</h4>
+
+<p>When you Insert a document, the driver checks to see if the <code>Id</code> member has been assigned a value and, if not, generates a new unique value for it. Since the <code>Id</code> member can be of any type, the driver requires the help of an <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_Serialization_IIdGenerator.htm
+"><code>IIdGenerator</code></a> to check whether the <code>Id</code> has a value assigned to it and to generate a new value if necessary. The driver has the following Id generators built-in:</p>
+
+<ul>
+<li><a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_Serialization_IdGenerators_ObjectIdGenerator.htm
+"><code>ObjectIdGenerator</code></a></li>
+<li><a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_Serialization_IdGenerators_StringObjectIdGenerator.htm
+"><code>StringObjectIdGenerator</code></a></li>
+<li><a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_Serialization_IdGenerators_GuidGenerator.htm
+"><code>GuidGenerator</code></a></li>
+<li><a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_Serialization_IdGenerators_CombGuidGenerator.htm
+"><code>CombGuidGenerator</code></a></li>
+<li><a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_Serialization_IdGenerators_NullIdChecker.htm
+"><code>NullIdChecker</code></a></li>
+<li><a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_Serialization_IdGenerators_ZeroIdChecker_1.htm
+"><code>ZeroIdChecker&lt;T&gt;</code></a></li>
+<li><a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_Serialization_IdGenerators_BsonObjectIdGenerator.htm
+"><code>BsonObjectIdGenerator</code></a></li>
+</ul>
+
+<p>Some of these Id generators are used automatically for commonly used <code>Id</code> types:</p>
+
+<ul>
+<li><a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_Serialization_IdGenerators_GuidGenerator.htm
+"><code>GuidGenerator</code></a> is used for a <a href="https://msdn.microsoft.com/en-us/library/system.guid.aspx"><code>Guid</code></a></li>
+<li><a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_Serialization_IdGenerators_ObjectIdGenerator.htm
+"><code>ObjectIdGenerator</code></a> is used for an <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_ObjectId.htm
+"><code>ObjectId</code></a></li>
+<li><a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_Serialization_IdGenerators_StringObjectIdGenerator.htm
+"><code>StringObjectIdGenerator</code></a> is used for a <a href="https://msdn.microsoft.com/en-us/library/system.string.aspx"><code>string</code></a> represented externally as <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_ObjectId.htm
+"><code>ObjectId</code></a></li>
+</ul>
+
+<p>To specify the Id generator via an attribute:</p>
+
+<pre><code class="language-csharp">public class MyClass 
+{
+    [BsonId(IdGenerator = typeof(CombGuidGenerator))]
+    public Guid Id { get; set; }
+}
+</code></pre>
+
+<p>Or via code:</p>
+
+<pre><code class="language-csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;(cm =&gt; 
+{
+    cm.AutoMap();
+    cm.MapIdMember(c =&gt; c.Id).SetIdGenerator(CombGuidGenerator.Instance);
+});
+</code></pre>
+
+<p>You could also say that you want to use the <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_Serialization_IdGenerators_CombGuidGenerator.htm
+"><code>CombGuidGenerator</code></a> for all Guids.</p>
+
+<pre><code class="language-csharp">BsonSerializer.RegisterIdGenerator(
+    typeof(Guid),
+    CombGuidGenerator.Instance
+);
+</code></pre>
+
+<h3 id="ignoring-a-member">Ignoring a Member</h3>
+
+<p>When constructing a class map manually, you can ignore a field or property simply by not adding it to the class map. When using AutoMap, you need a way to specify that a field or property should be ignored. Use the <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_Serialization_Attributes_BsonIgnoreAttribute.htm
+"><code>BsonIgnoreAttribute</code></a>:</p>
+
+<pre><code class="language-csharp">public class MyClass 
+{
+    [BsonIgnore]
+    public string SomeProperty { get; set; }
+}
+</code></pre>
+
+<p>Or via code:</p>
+
+<pre><code class="language-csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;(cm =&gt; 
+{
+    cm.AutoMap();
+    cm.UnmapMember(c =&gt; c.SomeProperty);
+});
+</code></pre>
+
+<p>When using code, <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Bson_Serialization_BsonClassMap_AutoMap.htm
+"><code>AutoMap</code></a> will have initially added the property to the class map automatically. <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Bson_Serialization_BsonClassMap_1_UnmapMember__1.htm
+"><code>UnmapMember</code></a> will remove it.</p>
+
+<h3 id="ignoring-default-values">Ignoring Default Values</h3>
+
+<p>By default, default values are serialized to the BSON document. An alternative is to serialize nothing to the BSON document when the member has a default value. For reference types, this value is <code>null</code> and for value types, the default is whatever the default is for the value type. Use a <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_Serialization_Attributes_BsonIgnoreIfDefaultAttribute.htm
+"><code>BsonIgnoreIfDefaultAttribute</code></a>:</p>
+
+<pre><code class="language-csharp">public class MyClass 
+{
+    [BsonIgnoreIfDefault]
+    public string SomeProperty { get; set; }
+}
+</code></pre>
+
+<p>Or via code:</p>
+
+<pre><code class="language-csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;(cm =&gt; 
+{
+    cm.AutoMap();
+    cm.MapMember(c =&gt; c.SomeProperty).SetIgnoreIfDefault(true);
+});
+</code></pre>
+
+<h3 id="specifying-the-default-value">Specifying the Default Value</h3>
+
+<p>You can specify a default value for a member using a <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_Serialization_Attributes_BsonDefaultValueAttribute.htm
+"><code>BsonDefaultValueAttribute</code></a>:</p>
+
+<pre><code class="language-csharp">public class MyClass 
+{
+    [BsonDefaultValue(&quot;abc&quot;)]
+    public string SomeProperty { get; set; }
+}
+</code></pre>
+
+<p>Or via code:</p>
+
+<pre><code class="language-csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;(cm =&gt; 
+{
+    cm.AutoMap();
+    cm.MapMember(c =&gt; c.SomeProperty).SetDefaultValue(&quot;abc&quot;);
+});
+</code></pre>
+
+<p>The default value and the ignoring of a default value work together. The following will serialize a <code>null</code> value, but not <code>abc</code>:</p>
+
+<pre><code class="language-csharp">public class MyClass 
+{
+    [BsonIgnoreIfDefault]
+    [BsonDefaultValue(&quot;abc&quot;)]
+    public string SomeProperty { get; set; }
+}
+</code></pre>
+
+<h3 id="ignoring-a-member-at-runtime">Ignoring a Member at Runtime</h3>
+
+<p>Sometimes the decision whether to serialize a member or not is more complicated than just whether the value is <code>null</code> or equal to the default value. In these cases, you can write a method that determines whether a value should be serialized. Usually the method for member Xyz is named ShouldSerializeXyz. If you follow this naming convention then <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Bson_Serialization_BsonClassMap_AutoMap.htm
+"><code>AutoMap</code></a> will automatically detect the method and use it. For example:</p>
+
+<pre><code class="language-csharp">public class Employee 
+{
+    public ObjectId Id { get; set; }
+
+    [BsonDateTimeOptions(DateOnly = true)]
+    public DateTime DateOfBirth { get; set; }
+
+    public bool ShouldSerializeDateOfBirth() 
+    {
+        return DateOfBirth &gt; new DateTime(1900, 1, 1);
+    }
+}
+</code></pre>
+
+<p>When using code, it can be specified as a lambda expression:</p>
+
+<pre><code class="language-csharp">BsonClassMap.RegisterClassMap&lt;Employee&gt;(cm =&gt; 
+{
+    cm.AutoMap();
+    cm.MapMember(c =&gt; c.DateOfBirth).SetShouldSerializeMethod(
+        obj =&gt; ((Employee) obj).DateOfBirth &gt; new DateTime(1900, 1, 1)
+    );
+});
+</code></pre>
+
+<h3 id="specifying-the-serializer">Specifying the Serializer</h3>
+
+<p>There are times when a specific serializer needs to be used rather than letting the BSON library choose. This can be done using a <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_Serialization_Attributes_BsonSerializerAttribute.htm
+"><code>BsonSerializerAttribute</code></a>:</p>
+
+<pre><code class="language-csharp">public class MyClass 
+{
+    public ObjectId Id { get; set; }
+
+    [BsonSerializer(typeof(MyCustomStringSerializer))]
+    public string X { get; set; }
+}
+</code></pre>
+
+<p>Or via code:</p>
+
+<pre><code class="language-csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;(cm =&gt; 
+{
+    cm.AutoMap();
+    cm.MapMember(c =&gt; c.X).SetSerializer(new MyCustomStringSerializer());
+});
+</code></pre>
+
+<h3 id="serialization-options">Serialization Options</h3>
+
+<p>Serialization of some classes can be more finely controlled using serialization options. Whether a class uses serialization options or not, and which ones, depends on the particular class involved. The following sections describe the available serialization option classes and the classes that use them.</p>
+
+<h4 id="datetime-serialization-options">DateTime Serialization Options</h4>
+
+<p>Using a <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_Serialization_Attributes_BsonDateTimeOptionsAttribute.htm
+"><code>BsonDateTimeOptionsAttribute</code></a>:</p>
+
+<pre><code class="language-csharp">public class MyClass 
+{
+    [BsonDateTimeOptions(DateOnly = true)]
+    public DateTime DateOfBirth { get; set; }
+
+    [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
+    public DateTime AppointmentTime { get; set; }
+}
+</code></pre>
+
+<p>When done via code, a <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_Serialization_Serializers_DateTimeSerializer.htm
+"><code>DateTimeSerializer</code></a> should be set:</p>
+
+<pre><code class="language-csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;(cm =&gt; 
+{
+    cm.AutoMap();
+    cm.MapMember(c =&gt; c.DateOfBirth).SetSerializer(new DateTimeSerializer(dateOnly: true));
+    cm.MapMember(c =&gt; c.AppointmentTime).SetSerializer(new DateTimeSerializer(DateTimeKind.Local));
+});
+</code></pre>
+
+<p>Here we are specifying that the <code>DateOfBirth</code> value holds a date only (so the TimeOfDay component will be zero). Additionally, because this is a date only, no timezone conversions at all will be performed. The <code>AppointmentTime</code> value is in local time and will be converted to UTC when it is serialized and converted back to local time when it is deserialized.</p>
+
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+DateTime values in MongoDB are always saved as UTC.
+</div>
+</p>
+
+<h4 id="dictionary-serialization-options">Dictionary Serialization Options</h4>
+
+<p>When serializing dictionaries, there are several alternative ways that the contents of the dictionary can be represented. The <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_Serialization_Options_DictionaryRepresentation.htm
+"><code>DictionaryRepresentation</code></a> enum indicates the supported methods. Using a <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_Serialization_Attributes_BsonDictionaryOptionsAttribute.htm
+"><code>BsonDictionaryOptionsAttribute</code></a>:</p>
+
+<pre><code class="language-csharp">public class C 
+{
+    public ObjectId Id;
+   
+    [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfDocuments)]
+    public Dictionary&lt;string, int&gt; Values;
+}
+</code></pre>
+
+<p>When done via code, a <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_Serialization_Serializers_DictionaryInterfaceImplementerSerializer_1.htm
+"><code>DictionaryInterfaceImplementerSerializer</code></a> should be set:</p>
+
+<pre><code class="language-csharp">BsonClassMap.RegisterClassMap&lt;C&gt;(cm =&gt; 
+{
+    cm.AutoMap();
+    cm.MapMember(c =&gt; c.Values).SetSerializer(new DictionaryInterfaceImplementerSerializer&lt;Dictionary&lt;string, int&gt;&gt;(DictionaryRepresentation.ArrayOfDocuments));
+});
+</code></pre>
+
+<p>The 3 options in the <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_Serialization_Options_DictionaryRepresentation.htm
+"><code>DictionaryRepresentation</code></a> enum are as follows:</p>
+
+<ul>
+<li><p><code>Document</code>: A dictionary represented as a Document will be stored as a BsonDocument, and each entry in the dictionary will be represented by a BsonElement with the name equal to the key of the dictionary entry and the value equal to the value of the dictionary entry. This representation can only be used when all the keys in a dictionary are strings that are valid element names.</p></li>
+
+<li><p><code>ArrayOfArrays</code>: A dictionary represented as an ArrayOfArrays will be stored as a BsonArray of key/value pairs, where each key/value pair is stored as a nested two-element BsonArray where the two elements are the key and the value of the dictionary entry. This representation can be used even when the keys of the dictionary are not strings. This representation is very general and compact, and is the default representation when Document does not apply. One problem with this representation is that it is difficult to write queries against it, which motivated the introduction in the 1.2 version of the driver of the ArrayOfDocuments representation.</p></li>
+
+<li><p><code>ArrayOfDocuments</code>: A dictionary represented as an ArrayOfDocuments will be stored as a BsonArray of key/value pairs, where each key/value pair is stored as a nested two-element BsonDocument of the form { k : key, v : value }. This representation is just as general as the ArrayOfArrays representation, but because the keys and values are tagged with element names it is much easier to write queries against it. For backward compatibility reasons this is not the default representation.</p></li>
+</ul>
+
+<h3 id="representation">Representation</h3>
+
+<p>For some .NET primitive types you can control what BSON type you want used to represent the value. For example, you can specify whether a char value should be represented as a BSON Int32 or as a one-character BSON String:</p>
+
+<pre><code class="language-csharp">public class MyClass 
+{
+    [BsonRepresentation(BsonType.Int32)]
+    public char RepresentAsInt32 { get; set; }
+
+    [BsonRepresentation(BsonType.String)]
+    public char RepresentAsString { get; set; }
+}
+</code></pre>
+
+<p>Or via code:</p>
+
+<pre><code class="language-csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;(cm =&gt; 
+{
+    cm.AutoMap();
+    cm.MapMember(c =&gt; c.RepresentAsInt32).SetSerializer(new CharSerializer(BsonType.Int32));
+    cm.MapMember(c =&gt; c.RepresentAsString).SetSerializer(new CharSerializer(BsonType.String));
+});
+</code></pre>
+
+<h4 id="objectids">ObjectIds</h4>
+
+<p>One case that deserves special mention is representing a string externally as an ObjectId. For example:</p>
+
+<pre><code class="language-csharp">public class Employee 
+{
+    [BsonRepresentation(BsonType.ObjectId)]
+    public string Id { get; set; }
+}
+</code></pre>
+
+<p>In this case, the serializer will convert the <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_ObjectId.htm
+"><code>ObjectId</code></a> to a <code>string</code> when reading data from the database and will convert the <code>string</code> back to an <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_ObjectId.htm
+"><code>ObjectId</code></a> when writing data to the database (the <code>string</code> value must be a valid <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_ObjectId.htm
+"><code>ObjectId</code></a>). Typically this is done when you want to keep your domain classes free of any dependencies on the driver. To keep your domain classes free of dependencies on the C# driver you also won’t want to use attributes, so you can accomplish the same thing using initialization code instead of attributes:</p>
+
+<pre><code class="language-csharp">BsonClassMap.RegisterClassMap&lt;Employee&gt;(cm =&gt; 
+{
+    cm.AutoMap();
+    cm.IdMemberMap.SetSerializer(new StringSerializer(BsonType.ObjectId));
+});
+</code></pre>
+
+<h4 id="enums">Enums</h4>
+
+<p>Another case that deserves mention is enums. Enums are, by default, represented as their underlying value. In other words, a plain enum will be represented as an integer value. However, it is possible to instruct the driver to represent an enum as a string.</p>
+
+<pre><code class="language-csharp">public enum Color
+{
+    Blue,
+    Other
+}
+
+public class Person 
+{
+    [BsonRepresentation(BsonType.String)]
+    public Color FavoriteColor { get; set; }
+}
+</code></pre>
+
+<p>Or via code:</p>
+
+<pre><code class="language-csharp">BsonClassMap.RegisterClassMap&lt;Person&gt;(cm =&gt; 
+{
+    cm.AutoMap();
+    cm.MapMember(c =&gt; c.FavoriteColor).SetSerializer(new EnumSerializer&lt;Color&gt;(BsonType.String));
+});
+</code></pre>
+
+<h2 id="custom-attributes">Custom Attributes</h2>
+
+<p>It is possible to implement custom attributes to contribute to the serialization infrastructure. There are 3 interfaces you might want to implement:</p>
+
+<ul>
+<li><a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_Serialization_IBsonClassMapAttribute.htm
+"><code>IBsonClassMapAttribute</code></a> is used to contribute to a class map.</li>
+<li><a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_Serialization_IBsonMemberMapAttribute.htm
+"><code>IBsonMemberMapAttribute</code></a> is used to contribute to a member map.</li>
+<li><a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_Serialization_IBsonCreatorMapAttribute.htm
+"><code>IBsonCreatorMapAttribute</code></a> is used to contribute to a creator map.</li>
+</ul>
+
+<p>All the provided attributes implement one or more of these interfaces, so they are good examples of how these interfaces function.</p>
+
+
+
+
+
+
+<div id="btnv">
+  
+  <div class="pull-left">
+  <a class="navigation prev" href="/mongo-csharp-driver/2.11/reference/bson/serialization/">
+      <i class="fa fa-long-arrow-left"> </i> Serialization
+  </a>
+  </div>
+  
+  
+  <div class="pull-right">
+  <a class="navigation next" href="/mongo-csharp-driver/2.11/reference/driver/">
+    Driver <i class="fa fa-long-arrow-right"> </i>
+  </a>
+  
+</div>
+</div>
+
+
+</div>
+<div class="right-column">
+<div class="wrapper">
+  
+  <div class="toc">
+    <span class="toc-header">On this page</span>
+    <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#mapping-classes">Mapping Classes</a></li>
+<li><a href="#creating-a-class-map">Creating a Class Map</a></li>
+<li><a href="#automap">AutoMap</a></li>
+<li><a href="#class-customization">Class Customization</a>
+<ul>
+<li><a href="#ignoring-extra-elements">Ignoring Extra Elements</a></li>
+<li><a href="#supporting-extra-elements">Supporting Extra Elements</a></li>
+<li><a href="#discriminators">Discriminators</a></li>
+<li><a href="#isupportinitialize">ISupportInitialize</a></li>
+</ul></li>
+<li><a href="#creation-customization">Creation Customization</a></li>
+<li><a href="#member-customization">Member Customization</a>
+<ul>
+<li><a href="#opt-in">Opt-In</a></li>
+<li><a href="#element-name">Element Name</a></li>
+<li><a href="#element-order">Element Order</a></li>
+<li><a href="#the-id-member">The Id Member</a>
+<ul>
+<li><a href="#id-generators">Id Generators</a></li>
+</ul></li>
+<li><a href="#ignoring-a-member">Ignoring a Member</a></li>
+<li><a href="#ignoring-default-values">Ignoring Default Values</a></li>
+<li><a href="#specifying-the-default-value">Specifying the Default Value</a></li>
+<li><a href="#ignoring-a-member-at-runtime">Ignoring a Member at Runtime</a></li>
+<li><a href="#specifying-the-serializer">Specifying the Serializer</a></li>
+<li><a href="#serialization-options">Serialization Options</a>
+<ul>
+<li><a href="#datetime-serialization-options">DateTime Serialization Options</a></li>
+<li><a href="#dictionary-serialization-options">Dictionary Serialization Options</a></li>
+</ul></li>
+<li><a href="#representation">Representation</a>
+<ul>
+<li><a href="#objectids">ObjectIds</a></li>
+<li><a href="#enums">Enums</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#custom-attributes">Custom Attributes</a></li>
+</ul></li>
+</ul>
+</nav>
+  </div>
+  
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</section>
+</section>
+
+</section>
+
+
+<script type="text/javascript">
+  var DOCUMENTATION_OPTIONS = {
+   URL_ROOT:    "/mongo-csharp-driver/2.11",
+   VERSION:     "2.11",
+   COLLAPSE_INDEX: false,
+   FILE_SUFFIX: '.html',
+   HAS_SOURCE:  true
+  };
+</script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/js/jquery.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/lib/bootstrap.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/js/navbar.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/lib/highlight/highlight.pack.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/js/scripts.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/lib/bootstrap-toggle/bootstrap-toggle.min.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/js/dn.js"></script>
+
+
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-K75Z5Q"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push(
+{'gtm.start': new Date().getTime(),event:'gtm.js'}
+);var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-K75Z5Q');</script>
+
+
+<script type="text/javascript">
+var _elqQ = _elqQ || [];
+_elqQ.push(['elqSetSiteId', '413370795']);
+_elqQ.push(['elqTrackPageView']);
+(function () {
+function async_load()
+{ var s = document.createElement('script'); s.type = 'text/javascript'; s.async = true; s.src = '//img03.en25.com/i/elqCfg.min.js'; var x = document.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s, x); }
+if (window.addEventListener) window.addEventListener('DOMContentLoaded', async_load, false);
+else if (window.attachEvent) window.attachEvent('onload', async_load);
+})();
+</script>
+
+</body>
+</html>
+
