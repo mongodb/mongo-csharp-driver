@@ -33,6 +33,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __aggregateCursorResult = new Feature("AggregateCursorResult", new SemanticVersion(2, 6, 0));
         private static readonly Feature __aggregateExplain = new Feature("AggregateExplain", new SemanticVersion(2, 6, 0));
         private static readonly Feature __aggregateFacetStage = new Feature("AggregateFacetStage", new SemanticVersion(3, 4, 0, "rc0"));
+        private static readonly Feature __aggregateFunction = new Feature("AggregateFunction", new SemanticVersion(4, 3, 4));
         private static readonly Feature __aggregateGraphLookupStage = new Feature("AggregateGraphLookupStage", new SemanticVersion(3, 4, 0, "rc0"));
         private static readonly Feature __aggregateHint = new Feature("AggregateHint", new SemanticVersion(3, 6, 0, "rc0"));
         private static readonly Feature __aggregateLet = new Feature("AggregateLet", new SemanticVersion(3, 6, 0));
@@ -142,6 +143,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the aggregate $facet stage feature.
         /// </summary>
         public static Feature AggregateFacetStage => __aggregateFacetStage;
+
+        /// <summary>
+        /// Gets the aggregate $function stage feature.
+        /// </summary>
+        public static Feature AggregateFunction => __aggregateFunction;
 
         /// <summary>
         /// Gets the aggregate $graphLookup stage feature.
