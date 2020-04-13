@@ -33,21 +33,30 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
     public class RetryableWriteOperationExecutorTests
     {
         [Theory]
-        [InlineData(false, false, false, false)]
-        [InlineData(false, false, true, false)]
-        [InlineData(false, true, false, false)]
-        [InlineData(false, true, true, false)]
-        [InlineData(true, false, false, false)]
-        [InlineData(true, false, true, false)]
-        [InlineData(true, true, false, true)]
-        [InlineData(true, true, true, false)]
+        [InlineData(false, false, false, false, false)]
+        [InlineData(false, false, false, true, false)]
+        [InlineData(false, false, true, false, false)]
+        [InlineData(false, false, true, true, false)]
+        [InlineData(false, true, false, false, false)]
+        [InlineData(false, true, false, true, false)]
+        [InlineData(false, true, true, false, false)]
+        [InlineData(false, true, true, true, false)]
+        [InlineData(true, false, false, false, false)]
+        [InlineData(true, false, false, true, false)]
+        [InlineData(true, false, true, false, false)]
+        [InlineData(true, false, true, true, false)]
+        [InlineData(true, true, false, false, false)]
+        [InlineData(true, true, false, true, false)]
+        [InlineData(true, true, true, false, true)]
+        [InlineData(true, true, true, false, true)]
         public void DoesContextAllowRetries_should_return_expected_result(
             bool retryRequested,
             bool areRetryableWritesSupported,
+            bool hasSessionId,
             bool isInTransaction,
             bool expectedResult)
         {
-            var context = CreateContext(retryRequested, areRetryableWritesSupported, isInTransaction);
+            var context = CreateContext(retryRequested, areRetryableWritesSupported, hasSessionId, isInTransaction);
 
             var result = RetryableWriteOperationExecutorReflector.DoesContextAllowRetries(context);
 
@@ -72,10 +81,10 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
         }
 
         // private methods
-        private IWriteBinding CreateBinding(bool areRetryableWritesSupported, bool isInTransaction)
+        private IWriteBinding CreateBinding(bool areRetryableWritesSupported, bool hasSessionId, bool isInTransaction)
         {
             var mockBinding = new Mock<IWriteBinding>();
-            var session = CreateSession(isInTransaction);
+            var session = CreateSession(hasSessionId, isInTransaction);
             var channelSource = CreateChannelSource(areRetryableWritesSupported);
             mockBinding.SetupGet(m => m.Session).Returns(session);
             mockBinding.Setup(m => m.GetWriteChannelSource(CancellationToken.None)).Returns(channelSource);
@@ -116,9 +125,9 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
             return connectionDescription;
         }
 
-        private RetryableWriteContext CreateContext(bool retryRequested, bool areRetryableWritesSupported, bool isInTransaction)
+        private RetryableWriteContext CreateContext(bool retryRequested, bool areRetryableWritesSupported, bool hasSessionId, bool isInTransaction)
         {
-            var binding = CreateBinding(areRetryableWritesSupported, isInTransaction);
+            var binding = CreateBinding(areRetryableWritesSupported, hasSessionId, isInTransaction);
             return RetryableWriteContext.Create(binding, retryRequested, CancellationToken.None);
         }
 
@@ -130,9 +139,10 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
             return mockOperation.Object;
         }
 
-        private ICoreSessionHandle CreateSession(bool isInTransaction)
+        private ICoreSessionHandle CreateSession(bool hasSessionId, bool isInTransaction)
         {
             var mockSession = new Mock<ICoreSessionHandle>();
+            mockSession.SetupGet(m => m.Id).Returns(hasSessionId ? new BsonDocument() : null);
             mockSession.SetupGet(m => m.IsInTransaction).Returns(isInTransaction);
             return mockSession.Object;
         }

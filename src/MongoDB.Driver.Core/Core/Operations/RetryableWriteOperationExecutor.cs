@@ -145,6 +145,7 @@ namespace MongoDB.Driver.Core.Operations
             return
                 context.RetryRequested &&
                 AreRetryableWritesSupported(context.Channel.ConnectionDescription) &&
+                context.Binding.Session.Id != null &&
                 !context.Binding.Session.IsInTransaction;
         }
 
