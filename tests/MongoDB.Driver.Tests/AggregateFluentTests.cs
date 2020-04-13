@@ -304,7 +304,11 @@ namespace MongoDB.Driver.Tests
                 { "maxCopies", new BsonDocument("$max", "$copies") }
             };
 
-            var result = collection.Aggregate().Group(groupProjection).ToList();
+            var result = collection
+                .Aggregate()
+                .Group(groupProjection)
+                .Sort("{ _id : 1 }")
+                .ToList();
 
             result.Count.Should().Be(2);
             result[0].Should().Be("{ _id : 'Dante', minCopies : 1, avgCopies : 1.6666666666666667, maxCopies : 2 }");
