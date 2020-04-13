@@ -21,20 +21,17 @@ namespace MongoDB.Driver.Core.Clusters
 {
     internal class DnsMonitorFactory : IDnsMonitorFactory
     {
-        private readonly IDnsResolver _dnsResolver;
         private readonly IEventSubscriber _eventSubscriber;
 
-        public DnsMonitorFactory(
-            IEventSubscriber eventSubscriber,
-            IDnsResolver dnsResolver = null)
+        public DnsMonitorFactory(IEventSubscriber eventSubscriber)
         {
             _eventSubscriber = Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
-            _dnsResolver = dnsResolver ?? new DnsClientWrapper();
         }
 
         public IDnsMonitor CreateDnsMonitor(IDnsMonitoringCluster cluster, string lookupDomainName, CancellationToken cancellationToken)
         {
-            return new DnsMonitor(cluster, _dnsResolver, lookupDomainName, _eventSubscriber, cancellationToken);
+            var dnsResolver = DnsClientWrapper.Instance;
+            return new DnsMonitor(cluster, dnsResolver, lookupDomainName, _eventSubscriber, cancellationToken);
         }
     }
 }

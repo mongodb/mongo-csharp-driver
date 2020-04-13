@@ -660,10 +660,11 @@ namespace MongoDB.Driver
         /// Resolves a connection string. If the connection string indicates more information is available
         /// in the DNS system, it will acquire that information as well.
         /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A resolved MongoURL.</returns>
-        public MongoUrl Resolve()
+        public MongoUrl Resolve(CancellationToken cancellationToken = default(CancellationToken))
         {
-            return Resolve(resolveHosts: true);
+            return Resolve(resolveHosts: true, cancellationToken);
         }
 
         /// <summary>
@@ -671,8 +672,9 @@ namespace MongoDB.Driver
         /// in the DNS system, it will acquire that information as well.
         /// </summary>
         /// <param name="resolveHosts">Whether to resolve hosts.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A resolved MongoURL.</returns>
-        public MongoUrl Resolve(bool resolveHosts)
+        public MongoUrl Resolve(bool resolveHosts, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (_isResolved)
             {
@@ -681,7 +683,7 @@ namespace MongoDB.Driver
 
             var connectionString = new ConnectionString(_originalUrl);
 
-            var resolved = connectionString.Resolve(resolveHosts);
+            var resolved = connectionString.Resolve(resolveHosts, cancellationToken);
 
             return new MongoUrl(resolved.ToString(), isResolved: true);
         }

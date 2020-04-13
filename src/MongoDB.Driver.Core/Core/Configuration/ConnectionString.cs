@@ -21,7 +21,6 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using DnsClient;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Clusters;
@@ -62,6 +61,7 @@ namespace MongoDB.Driver.Core.Configuration
         private readonly NameValueCollection _unknownOptions;
         private readonly Dictionary<string, string> _authMechanismProperties;
         private readonly CompressorsOptions _compressorsOptions;
+        private readonly IDnsResolver _dnsResolver;
 
         // these are all readonly, but since they are not assigned 
         // from the ctor, they cannot be marked as such.
@@ -110,7 +110,11 @@ namespace MongoDB.Driver.Core.Configuration
         /// Initializes a new instance of the <see cref="ConnectionString" /> class.
         /// </summary>
         /// <param name="connectionString">The connection string.</param>
-        public ConnectionString(string connectionString)
+        public ConnectionString(string connectionString) : this(connectionString, DnsClientWrapper.Instance)
+        {
+        }
+
+        internal ConnectionString(string connectionString, IDnsResolver dnsResolver)
         {
             _originalConnectionString = Ensure.IsNotNull(connectionString, nameof(connectionString));
 
@@ -118,6 +122,7 @@ namespace MongoDB.Driver.Core.Configuration
             _unknownOptions = new NameValueCollection(StringComparer.OrdinalIgnoreCase);
             _authMechanismProperties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             _compressorsOptions = new CompressorsOptions();
+            _dnsResolver = Ensure.IsNotNull(dnsResolver, nameof(dnsResolver));
             Parse();
 
             _isResolved = _scheme != ConnectionStringScheme.MongoDBPlusSrv;
@@ -511,10 +516,11 @@ namespace MongoDB.Driver.Core.Configuration
         /// Resolves a connection string. If the connection string indicates more information is available
         /// in the DNS system, it will acquire that information as well.
         /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A resolved ConnectionString.</returns>
-        public ConnectionString Resolve()
+        public ConnectionString Resolve(CancellationToken cancellationToken = default(CancellationToken))
         {
-            return Resolve(resolveHosts: true);
+            return Resolve(resolveHosts: true, cancellationToken);
         }
 
         /// <summary>
@@ -522,8 +528,9 @@ namespace MongoDB.Driver.Core.Configuration
         /// in the DNS system, it will acquire that information as well.
         /// </summary>
         /// <param name="resolveHosts">Whether to resolve hosts.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A resolved ConnectionString.</returns>
-        public ConnectionString Resolve(bool resolveHosts)
+        public ConnectionString Resolve(bool resolveHosts, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (_isResolved)
             {
@@ -532,15 +539,13 @@ namespace MongoDB.Driver.Core.Configuration
 
             var host = GetHostNameForDns();
 
-            var client = new LookupClient();
-
             ConnectionStringScheme resolvedScheme;
             List<string> hosts;
             if (resolveHosts)
             {
                 resolvedScheme = ConnectionStringScheme.MongoDB;
-                var srvResponse = client.Query(srvPrefix + host, QueryType.SRV, QueryClass.IN);
-                hosts = GetHostsFromResponse(srvResponse);
+                var srvRecords = _dnsResolver.ResolveSrvRecords(srvPrefix + host, cancellationToken);
+                hosts = GetHostsFromSrvRecords(srvRecords);
                 ValidateResolvedHosts(host, hosts);
             }
             else
@@ -549,8 +554,8 @@ namespace MongoDB.Driver.Core.Configuration
                 hosts = new List<string> { host };
             }
 
-            var txtResponse = client.Query(host, QueryType.TXT, QueryClass.IN);
-            var options = GetOptionsFromResponse(txtResponse);
+            var txtRecords = _dnsResolver.ResolveTxtRecords(host, cancellationToken);
+            var options = GetOptionsFromTxtRecords(txtRecords);
 
             var resolvedOptions = GetResolvedOptions(options);
 
@@ -584,15 +589,13 @@ namespace MongoDB.Driver.Core.Configuration
 
             var host = GetHostNameForDns();
 
-            var client = new LookupClient();
-
             ConnectionStringScheme resolvedScheme;
             List<string> hosts;
             if (resolveHosts)
             {
                 resolvedScheme = ConnectionStringScheme.MongoDB;
-                var srvResponse = await client.QueryAsync(srvPrefix + host, QueryType.SRV, QueryClass.IN).ConfigureAwait(false);
-                hosts = GetHostsFromResponse(srvResponse);
+                var srvRecords = await _dnsResolver.ResolveSrvRecordsAsync(srvPrefix + host, cancellationToken).ConfigureAwait(false);
+                hosts = GetHostsFromSrvRecords(srvRecords);
                 ValidateResolvedHosts(host, hosts);
             }
             else
@@ -601,8 +604,8 @@ namespace MongoDB.Driver.Core.Configuration
                 hosts = new List<string> { host };
             }
 
-            var txtResponse = await client.QueryAsync(host, QueryType.TXT, QueryClass.IN).ConfigureAwait(false);
-            var options = GetOptionsFromResponse(txtResponse);
+            var txtRecords = await _dnsResolver.ResolveTxtRecordsAsync(host, cancellationToken).ConfigureAwait(false);
+            var options = GetOptionsFromTxtRecords(txtRecords);
 
             var resolvedOptions = GetResolvedOptions(options);
 
@@ -1196,33 +1199,30 @@ namespace MongoDB.Driver.Core.Configuration
             return value;
         }
 
-        private List<string> GetHostsFromResponse(IDnsQueryResponse response)
+        private List<string> GetHostsFromSrvRecords(IEnumerable<SrvRecord> srvRecords)
         {
             var hosts = new List<string>();
-            foreach (var srvRecord in response.Answers.SrvRecords())
+            foreach (var srvRecord in srvRecords)
             {
-                var h = srvRecord.Target.ToString();
+                var h = srvRecord.EndPoint.Host;
                 if (h.EndsWith(".", StringComparison.Ordinal))
                 {
                     h = h.Substring(0, h.Length - 1);
                 }
-                hosts.Add(h + ":" + srvRecord.Port);
+                hosts.Add(h + ":" + srvRecord.EndPoint.Port);
             }
 
             return hosts;
         }
 
-        private List<string> GetOptionsFromResponse(IDnsQueryResponse response)
+        private List<string> GetOptionsFromTxtRecords(List<TxtRecord> txtRecords)
         {
-            var txtRecords = response.Answers
-                .TxtRecords().ToList();
-
             if (txtRecords.Count > 1)
             {
                 throw new MongoConfigurationException("Only 1 TXT record is allowed when using the SRV protocol.");
             }
 
-            return txtRecords.Select(tr => tr.Text.Aggregate("", (acc, s) => acc + Uri.UnescapeDataString(s))).ToList();
+            return txtRecords.Select(tr => tr.Strings.Aggregate("", (acc, s) => acc + Uri.UnescapeDataString(s))).ToList();
         }
 
         private NameValueCollection GetResolvedOptions(List<string> options)

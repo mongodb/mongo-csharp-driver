@@ -31,41 +31,26 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
         public void constructor_should_initialize_instance()
         {
             var eventSubscriber = Mock.Of<IEventSubscriber>();
-            var dnsResolver = Mock.Of<IDnsResolver>();
 
-            var result = new DnsMonitorFactory(eventSubscriber, dnsResolver);
+            var result = new DnsMonitorFactory(eventSubscriber);
 
-            result._dnsResolver().Should().BeSameAs(dnsResolver);
             result._eventSubscriber().Should().BeSameAs(eventSubscriber);
         }
 
         [Fact]
         public void constructor_should_throw_when_eventSubscriber_is_null()
         {
-            var dnsResolver = Mock.Of<IDnsResolver>();
-
-            var exception = Record.Exception(() => new DnsMonitorFactory(eventSubscriber: null, dnsResolver));
+            var exception = Record.Exception(() => new DnsMonitorFactory(eventSubscriber: null));
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("eventSubscriber");
         }
 
         [Fact]
-        public void constructor_should_use_DnsClientWrapper_when_dnsResolver_is_null()
-        {
-            var eventSubscriber = Mock.Of<IEventSubscriber>();
-
-            var result = new DnsMonitorFactory(eventSubscriber, dnsResolver: null);
-
-            result._dnsResolver().Should().BeOfType<DnsClientWrapper>();
-        }
-
-        [Fact]
         public void CreateDnsMonitor_should_return_expected_result()
         {
             var mockEventSubscriber = new Mock<IEventSubscriber>();
-            var dnsResolver = Mock.Of<IDnsResolver>();
-            var subject = new DnsMonitorFactory(mockEventSubscriber.Object, dnsResolver);
+            var subject = new DnsMonitorFactory(mockEventSubscriber.Object);
             var cluster = Mock.Of<IDnsMonitoringCluster>();
             var lookupDomainName = "a.b.com";
             var cancellationToken = new CancellationTokenSource().Token;
@@ -74,7 +59,6 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
 
             var dnsMonitor = result.Should().BeOfType<DnsMonitor>().Subject;
             dnsMonitor._cluster().Should().BeSameAs(cluster);
-            dnsMonitor._dnsResolver().Should().BeSameAs(dnsResolver);
             dnsMonitor._lookupDomainName().Should().Be(lookupDomainName);
             dnsMonitor._cancellationToken().Should().Be(cancellationToken);
 
