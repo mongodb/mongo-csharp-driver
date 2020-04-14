@@ -14,18 +14,22 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.Helpers;
 using Xunit;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.WireProtocol.Messages;
 
 namespace MongoDB.Driver.Core.Connections
 {
@@ -37,6 +41,28 @@ namespace MongoDB.Driver.Core.Connections
         public ConnectionInitializerTests()
         {
             _subject = new ConnectionInitializer("test", new [] { new CompressorConfiguration(CompressorType.Zlib) });
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateInitialIsMaster_should_return_isMaster_with_speculativeAuthenticate(
+            [Values("default", "SCRAM-SHA-256", "SCRAM-SHA-1")] string authenticatorType,
+            [Values(false, true)] bool async)
+        {
+            var credentials = new UsernamePasswordCredential(
+                source: "Pathfinder", username: "Barclay", password: "Barclay-Alpha-1-7-Gamma");
+            var authenticator = CreateAuthenticator(authenticatorType, credentials);
+            var connectionSettings = new ConnectionSettings(new[] { authenticator });
+
+            var isMasterDocument = _subject.CreateInitialIsMasterCommand(new[] { authenticator });
+
+            isMasterDocument.Should().Contain("speculativeAuthenticate");
+            var speculativeAuthenticateDocument = isMasterDocument["speculativeAuthenticate"].AsBsonDocument;
+            speculativeAuthenticateDocument.Should().Contain("mechanism");
+            var expectedMechanism = new BsonString(
+                authenticatorType == "default" ? "SCRAM-SHA-256" : authenticatorType);
+            speculativeAuthenticateDocument["mechanism"].Should().Be(expectedMechanism);
+            speculativeAuthenticateDocument["db"].Should().Be(new BsonString(credentials.Source));
         }
 
         [Theory]
@@ -65,6 +91,53 @@ namespace MongoDB.Driver.Core.Connections
             var sentMessages = connection.GetSentMessages();
             sentMessages.Should().HaveCount(2);
             result.ConnectionId.ServerValue.Should().Be(1);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void InitializeConnection_should_call_Authenticator_CustomizeInitialIsMasterCommand(
+            [Values("default", "SCRAM-SHA-256", "SCRAM-SHA-1")] string authenticatorType,
+            [Values(false, true)] bool async)
+        {
+            var isMasterReply = MessageHelper.BuildReply(
+                RawBsonDocumentHelper.FromJson("{ ok : 1, connectionId : 1 }"));
+            var buildInfoReply = MessageHelper.BuildReply(
+                RawBsonDocumentHelper.FromJson("{ ok : 1, version : \"4.2.0\" }"));
+            var credentials = new UsernamePasswordCredential(
+                source: "Voyager", username: "Seven of Nine", password: "Omega-Phi-9-3");
+            var authenticator = CreateAuthenticator(authenticatorType, credentials);
+            var connectionSettings = new ConnectionSettings(new[] { authenticator });
+            var connection = new MockConnection(__serverId, connectionSettings, eventSubscriber: null);
+            connection.EnqueueReplyMessage(isMasterReply);
+            connection.EnqueueReplyMessage(buildInfoReply);
+
+            // We expect authentication to fail since we have not enqueued the expected authentication replies
+            try
+            {
+                if (async)
+                {
+                    _subject.InitializeConnectionAsync(connection, CancellationToken.None).GetAwaiter().GetResult();
+                }
+                else
+                {
+                     _subject.InitializeConnection(connection, CancellationToken.None);
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+                ex.Message.Should().Be("Queue empty.");
+            }
+
+            var sentMessages = connection.GetSentMessages();
+            var isMasterQuery = (QueryMessage)sentMessages[0];
+            var isMasterDocument = isMasterQuery.Query;
+            isMasterDocument.Should().Contain("speculativeAuthenticate");
+            var speculativeAuthenticateDocument = isMasterDocument["speculativeAuthenticate"].AsBsonDocument;
+            speculativeAuthenticateDocument.Should().Contain("mechanism");
+            var expectedMechanism = new BsonString(
+                authenticatorType == "default" ? "SCRAM-SHA-256" : authenticatorType);
+            speculativeAuthenticateDocument["mechanism"].Should().Be(expectedMechanism);
+            speculativeAuthenticateDocument["db"].Should().Be(new BsonString(credentials.Source));
         }
 
         [Theory]
@@ -117,5 +190,28 @@ namespace MongoDB.Driver.Core.Connections
             result.AvailableCompressors.Count.Should().Be(1);
             result.AvailableCompressors.Should().Contain(CompressorType.Zlib);
         }
+
+        private IAuthenticator CreateAuthenticator(string authenticatorType, UsernamePasswordCredential credentials)
+        {
+            switch (authenticatorType)
+            {
+                case "SCRAM-SHA-1":
+                    return new ScramSha1Authenticator(credentials);
+                case "SCRAM-SHA-256":
+                    return new ScramSha256Authenticator(credentials);
+                case "default":
+                    return new DefaultAuthenticator(credentials);
+                default:
+                    throw new Exception("Invalid authenticator type.");
+            }
+        }
+    }
+
+    internal static class ConnectionInitializerReflector
+    {
+        public static BsonDocument CreateInitialIsMasterCommand(
+            this ConnectionInitializer initializer,
+            IReadOnlyList<IAuthenticator> authenticators) =>
+                (BsonDocument)Reflector.Invoke(initializer, nameof(CreateInitialIsMasterCommand), authenticators);
     }
 }

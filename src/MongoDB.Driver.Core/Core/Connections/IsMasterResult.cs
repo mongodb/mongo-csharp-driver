@@ -101,7 +101,7 @@ namespace MongoDB.Driver.Core.Connections
                 return null;
             }
         }
-        
+
         /// <summary>
         /// Get whether SaslSupportedMechs was part of the isMaster response.
         /// </summary>
@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Core.Connections
         /// </value>
         public bool HasSaslSupportedMechs
         {
-            get { return _wrapped.Contains("saslSupportedMechs"); }   
+            get { return _wrapped.Contains("saslSupportedMechs"); }
         }
 
         /// <summary>
@@ -319,6 +319,28 @@ namespace MongoDB.Driver.Core.Connections
                 }
 
                 return ServerType.Standalone;
+            }
+        }
+
+        /// <summary>
+        /// Get the SpeculativeAuthenticate reply.
+        /// </summary>
+        /// <value>
+        /// Null if isMaster["ok"] != 1 or if the SpeculativeAuthenticate reply was not included in the isMaster response.
+        /// </value>
+        public BsonDocument SpeculativeAuthenticate
+        {
+            get
+            {
+                if (_wrapped.TryGetValue("ok", out var ok) && ok.ToBoolean() &&
+                    _wrapped.TryGetValue("speculativeAuthenticate", out var speculativeAuthenticate))
+                {
+                    return (BsonDocument)speculativeAuthenticate;
+                }
+                else
+                {
+                    return null;
+                }
             }
         }
 

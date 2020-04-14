@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -32,18 +33,6 @@ namespace MongoDB.Driver.Core.Connections
     internal class CommandEventHelper
     {
         private static readonly string[] __writeConcernIndicators = new[] { "wtimeout", "jnote", "wnote" };
-        private static readonly HashSet<string> __securitySensitiveCommands = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        {
-            "authenticate",
-            "saslStart",
-            "saslContinue",
-            "getnonce",
-            "createUser",
-            "updateUser",
-            "copydbgetnonce",
-            "copydbsaslstart",
-            "copydb"
-        };
 
         private readonly ConcurrentDictionary<int, CommandState> _state;
         private readonly Action<CommandStartedEvent> _startedEvent;
@@ -282,7 +271,7 @@ namespace MongoDB.Driver.Core.Connections
                 var commandName = command.GetElement(0).Name;
                 var databaseName = command["$db"].AsString;
                 var databaseNamespace = new DatabaseNamespace(databaseName);
-                if (__securitySensitiveCommands.Contains(commandName))
+                if (ShouldRedactMessage(commandName, command))
                 {
                     command = new BsonDocument();
                 }
@@ -329,7 +318,7 @@ namespace MongoDB.Driver.Core.Connections
                 return;
             }
 
-            if (__securitySensitiveCommands.Contains(state.CommandName))
+            if (ShouldRedactMessage(state.CommandName, reply))
             {
                 reply = new BsonDocument();
             }
@@ -605,7 +594,7 @@ namespace MongoDB.Driver.Core.Connections
                     command = decodedMessage.Query;
                     var firstElement = command.GetElement(0);
                     commandName = firstElement.Name;
-                    if (__securitySensitiveCommands.Contains(commandName))
+                    if (ShouldRedactMessage(commandName, command))
                     {
                         command = new BsonDocument();
                     }
@@ -686,7 +675,7 @@ namespace MongoDB.Driver.Core.Connections
                     (state.ExpectedResponseType != ExpectedResponseType.Query && replyMessage.Documents.Count == 0))
                 {
                     var queryFailureDocument = replyMessage.QueryFailureDocument;
-                    if (__securitySensitiveCommands.Contains(state.CommandName))
+                    if (ShouldRedactMessage(state.CommandName, queryFailureDocument))
                     {
                         queryFailureDocument = new BsonDocument();
                     }
@@ -741,7 +730,7 @@ namespace MongoDB.Driver.Core.Connections
                 return;
             }
 
-            if (__securitySensitiveCommands.Contains(state.CommandName))
+            if (ShouldRedactMessage(state.CommandName, reply))
             {
                 reply = new BsonDocument();
             }
@@ -1097,6 +1086,29 @@ namespace MongoDB.Driver.Core.Connections
         private static bool IsCommand(CollectionNamespace collectionNamespace)
         {
             return collectionNamespace.Equals(collectionNamespace.DatabaseNamespace.CommandCollection);
+        }
+
+        private static bool ShouldRedactMessage(string commandName, BsonDocument command)
+        {
+            switch (commandName.ToLowerInvariant())
+            {
+                case "authenticate":
+                case "saslStart":
+                case "saslContinue":
+                case "getnonce":
+                case "createUser":
+                case "updateUser":
+                case "copydbgetnonce":
+                case "copydbsaslstart":
+                case "copydb":
+                    return true;
+
+                case "isMaster":
+                    return command.Contains("speculativeAuthenticate");
+
+                default:
+                    return false;
+            }
         }
 
         private enum ExpectedResponseType

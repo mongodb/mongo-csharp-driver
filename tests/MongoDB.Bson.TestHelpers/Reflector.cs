@@ -145,6 +145,22 @@ namespace MongoDB.Bson.TestHelpers
             }
         }
 
+        public static object InvokeStatic<T1, T2>(Type type, string name, T1 arg1, T2 arg2)
+        {
+            var parameterTypes = new[] { typeof(T1), typeof(T2) };
+            var methodInfo = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Static)
+                .Where(m => m.Name == name && m.GetParameters().Select(p => p.ParameterType).SequenceEqual(parameterTypes))
+                .Single();
+            try
+            {
+                return methodInfo.Invoke(null, new object[] { arg1, arg2 });
+            }
+            catch (TargetInvocationException exception)
+            {
+                throw exception.InnerException;
+            }
+        }
+
         public static object InvokeStatic<T1, T2, T3>(Type type, string name, T1 arg1, T2 arg2, T3 arg3)
         {
             var parameterTypes = new[] { typeof(T1), typeof(T2), typeof(T3) };

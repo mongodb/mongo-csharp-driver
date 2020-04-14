@@ -35,6 +35,7 @@ namespace MongoDB.Driver.Core.Authentication
         // fields
         private readonly UsernamePasswordCredential _credential;
         private readonly IRandomStringGenerator _randomStringGenerator;
+        private IAuthenticator _speculativeAuthenticator;
 
         // constructors
         /// <summary>
@@ -79,9 +80,8 @@ namespace MongoDB.Driver.Core.Authentication
                     description.BuildInfoResult);
             }
 
-            var authenticator = CreateAuthenticator(connection, description);
+            var authenticator = GetOrCreateAuthenticator(connection, description);
             authenticator.Authenticate(connection, description, cancellationToken);
-            
         }
 
         /// <inheritdoc/>
@@ -106,7 +106,7 @@ namespace MongoDB.Driver.Core.Authentication
                     description.BuildInfoResult);
             }  
             
-            var authenticator = CreateAuthenticator(connection, description);
+            var authenticator = GetOrCreateAuthenticator(connection, description);
             await authenticator.AuthenticateAsync(connection, description, cancellationToken).ConfigureAwait(false);
         }
 
@@ -114,7 +114,10 @@ namespace MongoDB.Driver.Core.Authentication
         /// <inheritdoc/>
         public BsonDocument CustomizeInitialIsMasterCommand(BsonDocument isMasterCommand)
         {
-            return isMasterCommand.Merge(CreateSaslSupportedMechsRequest(_credential.Source, _credential.Username)); 
+            var saslSupportedMechs = CreateSaslSupportedMechsRequest(_credential.Source, _credential.Username);
+            isMasterCommand = isMasterCommand.Merge(saslSupportedMechs);
+            _speculativeAuthenticator = new ScramSha256Authenticator(_credential, _randomStringGenerator);
+            return _speculativeAuthenticator.CustomizeInitialIsMasterCommand(isMasterCommand);
         }
 
         private static BsonDocument CreateSaslSupportedMechsRequest(string authenticationDatabaseName, string userName)
@@ -142,6 +145,15 @@ namespace MongoDB.Driver.Core.Authentication
                     ? (IAuthenticator) new ScramSha1Authenticator(_credential, _randomStringGenerator)
                     : new MongoDBCRAuthenticator(_credential);
 #pragma warning restore 618
+        }
+
+        private IAuthenticator GetOrCreateAuthenticator(IConnection connection, ConnectionDescription description)
+        {
+            /* It is possible to have for IsMaster["SpeculativeAuthenticate"] != null and for
+             * _speculativeScramSha256Authenticator to be null in the case of multiple authenticators */
+            var speculativeAuthenticateResult = description.IsMasterResult.SpeculativeAuthenticate;
+            var canUseSpeculativeAuthenticator = _speculativeAuthenticator != null && speculativeAuthenticateResult != null;
+            return canUseSpeculativeAuthenticator ? _speculativeAuthenticator : CreateAuthenticator(connection, description);
         }
     }
 }
