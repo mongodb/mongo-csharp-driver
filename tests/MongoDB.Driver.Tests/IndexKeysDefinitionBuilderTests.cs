@@ -134,8 +134,10 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<BsonDocument>();
 
+#pragma warning disable 618
             Assert(subject.GeoHaystack("a"), "{a: 'geoHaystack'}");
             Assert(subject.GeoHaystack("a", "b"), "{a: 'geoHaystack', b: 1 }");
+#pragma warning restore 618
         }
 
         [Fact]
@@ -143,9 +145,11 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
 
+#pragma warning disable 618
             Assert(subject.GeoHaystack(x => x.FirstName), "{fn: 'geoHaystack'}");
             Assert(subject.GeoHaystack(x => x.FirstName, x => x.LastName), "{fn: 'geoHaystack', ln: 1}");
             Assert(subject.GeoHaystack("FirstName", "LastName"), "{fn: 'geoHaystack', ln: 1}");
+#pragma warning restore 618
         }
 
         [Fact]

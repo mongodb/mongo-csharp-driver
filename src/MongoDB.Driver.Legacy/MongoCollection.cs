@@ -987,11 +987,13 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the found documents.</typeparam>
         /// <param name="args">The args.</param>
         /// <returns>A <see cref="GeoNearResult{TDocument}"/>.</returns>
+        [Obsolete("GeoHaystack indexes were deprecated in server version 4.4.")]
         public virtual GeoHaystackSearchResult<TDocument> GeoHaystackSearchAs<TDocument>(GeoHaystackSearchArgs args)
         {
             return UsingImplicitSession(session => GeoHaystackSearchAs<TDocument>(session, args));
         }
 
+#pragma warning disable 618
         private GeoHaystackSearchResult<TDocument> GeoHaystackSearchAs<TDocument>(IClientSessionHandle session, GeoHaystackSearchArgs args)
         {
             if (args == null) { throw new ArgumentNullException("args"); }
@@ -1018,6 +1020,7 @@ namespace MongoDB.Driver
 
             return ExecuteReadOperation(session, operation);
         }
+#pragma warning restore 618
 
         /// <summary>
         /// Runs a geoHaystack search command on this collection.
@@ -1045,6 +1048,7 @@ namespace MongoDB.Driver
         /// <param name="documentType">The type to deserialize the documents as.</param>
         /// <param name="args">The args.</param>
         /// <returns>A <see cref="GeoNearResult{TDocument}"/>.</returns>
+        [Obsolete("GeoHaystack indexes were deprecated in server version 4.4.")]
         public virtual GeoHaystackSearchResult GeoHaystackSearchAs(Type documentType, GeoHaystackSearchArgs args)
         {
             var methodDefinition = GetType().GetTypeInfo().GetMethod("GeoHaystackSearchAs", new Type[] { typeof(GeoHaystackSearchArgs) });
@@ -2410,6 +2414,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="args">The args.</param>
         /// <returns>A <see cref="GeoHaystackSearchResult{TDocument}"/>.</returns>
+        [Obsolete("GeoHaystack indexes were deprecated in server version 4.4.")]
         public virtual GeoHaystackSearchResult<TDefaultDocument> GeoHaystackSearch(GeoHaystackSearchArgs args)
         {
             return GeoHaystackSearchAs<TDefaultDocument>(args);

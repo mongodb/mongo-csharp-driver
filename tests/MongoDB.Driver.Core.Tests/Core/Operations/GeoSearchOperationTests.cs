@@ -15,8 +15,6 @@
 
 using System;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
@@ -29,6 +27,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
+#pragma warning disable 618
     public class GeoSearchOperationTests : OperationTestBase
     {
         [Fact]
@@ -258,4 +257,5 @@ namespace MongoDB.Driver.Core.Operations
             });
         }
     }
+#pragma warning restore 618
 }

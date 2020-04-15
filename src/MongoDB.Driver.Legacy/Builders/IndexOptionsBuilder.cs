@@ -63,6 +63,7 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         /// <param name="value">The bucket size.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
+        [Obsolete("GeoHaystack indexes were deprecated in server version 4.4.")]
         public static IndexOptionsBuilder SetBucketSize(double value)
         {
             return new IndexOptionsBuilder().SetBucketSize(value);
@@ -245,6 +246,7 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         /// <param name="value">The bucket size.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
+        [Obsolete("GeoHaystack indexes were deprecated in server version 4.4.")]
         public IndexOptionsBuilder SetBucketSize(double value)
         {
             _document["bucketSize"] = value;
@@ -463,6 +465,7 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         /// <param name="value">The bucket size.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
+        [Obsolete("GeoHaystack indexes were deprecated in server version 4.4.")]
         public static IndexOptionsBuilder<TDocument> SetBucketSize(double value)
         {
             return new IndexOptionsBuilder<TDocument>().SetBucketSize(value);
@@ -652,6 +655,7 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         /// <param name="value">The bucket size.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
+        [Obsolete("GeoHaystack indexes were deprecated in server version 4.4.")]
         public IndexOptionsBuilder<TDocument> SetBucketSize(double value)
         {
             _indexOptionsBuilder.SetBucketSize(value);

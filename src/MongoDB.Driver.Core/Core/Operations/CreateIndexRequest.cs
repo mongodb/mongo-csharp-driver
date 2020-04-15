@@ -100,6 +100,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <value>
         /// The size of the bucket for geo haystack indexes.
         /// </value>
+        [Obsolete("GeoHaystack indexes were deprecated in server version 4.4.")]
         public double? BucketSize
         {
             get { return _bucketSize; }

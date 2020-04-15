@@ -1629,6 +1629,7 @@ namespace MongoDB.Driver.Tests
                 _collection.Insert(new Place { Location = new[] { 34.2, 33.3 }, Type = "restaurant" });
                 _collection.Insert(new Place { Location = new[] { 34.2, 37.3 }, Type = "restaurant" });
                 _collection.Insert(new Place { Location = new[] { 59.1, 87.2 }, Type = "office" });
+#pragma warning disable 618
                 _collection.CreateIndex(IndexKeys.GeoSpatialHaystack("Location", "Type"), IndexOptions.SetBucketSize(1));
 
                 var args = new GeoHaystackSearchArgs
@@ -1640,6 +1641,7 @@ namespace MongoDB.Driver.Tests
                     MaxDistance = 6
                 };
                 var result = _collection.GeoHaystackSearchAs<Place>(args);
+#pragma warning restore 618
 
                 Assert.True(result.Ok);
                 Assert.True(result.Stats.Duration >= TimeSpan.Zero);
@@ -1667,6 +1669,7 @@ namespace MongoDB.Driver.Tests
                         _collection.Insert(new Place { Location = new[] { 34.2, 33.3 }, Type = "restaurant" });
                         _collection.Insert(new Place { Location = new[] { 34.2, 37.3 }, Type = "restaurant" });
                         _collection.Insert(new Place { Location = new[] { 59.1, 87.2 }, Type = "office" });
+#pragma warning disable 618
                         _collection.CreateIndex(IndexKeys.GeoSpatialHaystack("Location", "Type"), IndexOptions.SetBucketSize(1));
 
                         failpoint.SetAlwaysOn();
@@ -1680,6 +1683,7 @@ namespace MongoDB.Driver.Tests
                             MaxTime = TimeSpan.FromMilliseconds(1)
                         };
                         Assert.Throws<MongoExecutionTimeoutException>(() => _collection.GeoHaystackSearchAs<Place>(args));
+#pragma warning restore 618
                     }
                 }
             }
@@ -1694,6 +1698,7 @@ namespace MongoDB.Driver.Tests
                 _collection.Insert(new Place { Location = new[] { 34.2, 33.3 }, Type = "restaurant" });
                 _collection.Insert(new Place { Location = new[] { 34.2, 37.3 }, Type = "restaurant" });
                 _collection.Insert(new Place { Location = new[] { 59.1, 87.2 }, Type = "office" });
+#pragma warning disable 618
                 _collection.CreateIndex(IndexKeys<Place>.GeoSpatialHaystack(x => x.Location, x => x.Type), IndexOptions.SetBucketSize(1));
 
                 var args = new GeoHaystackSearchArgs
@@ -1704,6 +1709,7 @@ namespace MongoDB.Driver.Tests
                 }
                 .SetAdditionalField<Place, string>(x => x.Type, "restaurant");
                 var result = _collection.GeoHaystackSearchAs<Place>(args);
+#pragma warning restore 618
 
                 Assert.True(result.Ok);
                 Assert.True(result.Stats.Duration >= TimeSpan.Zero);

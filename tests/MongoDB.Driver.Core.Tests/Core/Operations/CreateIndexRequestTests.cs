@@ -75,8 +75,10 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new CreateIndexRequest(new BsonDocument("x", 1));
 
+#pragma warning disable 618
             subject.BucketSize = value;
             var result = subject.BucketSize;
+#pragma warning restore 618
 
             result.Should().Be(value);
         }
@@ -108,7 +110,9 @@ namespace MongoDB.Driver.Core.Operations
             subject.AdditionalOptions.Should().BeNull();
             subject.Background.Should().NotHaveValue();
             subject.Bits.Should().NotHaveValue();
+#pragma warning disable 618
             subject.BucketSize.Should().NotHaveValue();
+#pragma warning restore 618
             subject.Collation.Should().BeNull();
             subject.DefaultLanguage.Should().BeNull();
             subject.ExpireAfter.Should().NotHaveValue();
@@ -232,7 +236,9 @@ namespace MongoDB.Driver.Core.Operations
             var keys = new BsonDocument("x", 1);
             var subject = new CreateIndexRequest(keys)
             {
+#pragma warning disable 618
                 BucketSize = bucketSize
+#pragma warning restore 618
             };
 
             var result = subject.CreateIndexDocument(null);
