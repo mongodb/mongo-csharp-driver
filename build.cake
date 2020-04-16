@@ -126,22 +126,34 @@ Task("Test")
             Console.WriteLine($"TEST_WITH_DEFAULT_GUID_REPRESENTATION={testWithDefaultGuidRepresentation}");
         }
 
+        var settings = new DotNetCoreTestSettings
+        {
+            NoBuild = true,
+            NoRestore = true,
+            Configuration = configuration,
+            ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64")
+        };
+        switch (target.ToLowerInvariant())
+        {
+            case "testnet452": settings.Framework = "net452"; break;
+            case "testnetstandard15": settings.Framework = "netcoreapp1.1"; break;
+            case "testnetstandard20": settings.Framework = "netcoreapp2.1"; break;
+        }
         DotNetCoreTest(
             testProject.FullPath,
-            new DotNetCoreTestSettings {
-                NoBuild = true,
-                NoRestore = true,
-                Configuration = configuration,
-                ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64")
-            }
+            settings
         );
     });
+
+Task("TestNet452").IsDependentOn("Test");
+Task("TestNetStandard15").IsDependentOn("Test");
+Task("TestNetStandard20").IsDependentOn("Test");
 
 Task("TestAwsAuthentication")
     .IsDependentOn("Build")
     .DoesForEach(
         GetFiles("./**/MongoDB.Driver.Tests.csproj"),
-        testProject => 
+        testProject =>
         {
             DotNetCoreTest(
                 testProject.FullPath,
