@@ -17,7 +17,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
@@ -483,11 +482,13 @@ namespace MongoDB.Driver.Core.Operations
         private AsyncCursor<TDocument> CreateCursor(IChannelSourceHandle channelSource, BsonDocument commandResult)
         {
             var getMoreChannelSource = new ServerChannelSource(channelSource.Server, channelSource.Session.Fork());
-            var firstBatch = CreateCursorBatch(commandResult);
+            var cursorDocument = commandResult["cursor"].AsBsonDocument;
+            var collectionNamespace = CollectionNamespace.FromFullName(cursorDocument["ns"].AsString);
+            var firstBatch = CreateFirstCursorBatch(cursorDocument);
 
             return new AsyncCursor<TDocument>(
                 getMoreChannelSource,
-                _collectionNamespace,
+                collectionNamespace,
                 _filter ?? new BsonDocument(),
                 firstBatch.Documents,
                 firstBatch.CursorId,
@@ -498,9 +499,8 @@ namespace MongoDB.Driver.Core.Operations
                 _cursorType == CursorType.TailableAwait ? _maxAwaitTime : null);
         }
 
-        private CursorBatch<TDocument> CreateCursorBatch(BsonDocument commandResult)
+        private CursorBatch<TDocument> CreateFirstCursorBatch(BsonDocument cursorDocument)
         {
-            var cursorDocument = commandResult["cursor"].AsBsonDocument;
             var cursorId = cursorDocument["id"].ToInt64();
             var batch = (RawBsonArray)cursorDocument["firstBatch"];
 
