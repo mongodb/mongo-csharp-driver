@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Linq
             return sb.ToString();
         }
 
-        internal override object Execute<TInput>(IClientSessionHandle session, IMongoCollection<TInput> collection, AggregateOptions options)
+        internal override object Execute<TInput>(IMongoCollection<TInput> collection, IClientSessionHandle session, AggregateOptions options)
         {
             var pipeline = CreatePipeline<TInput>();
 
@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Linq
             }
         }
 
-        internal override Task ExecuteAsync<TInput>(IClientSessionHandle session, IMongoCollection<TInput> collection, AggregateOptions options, CancellationToken cancellationToken)
+        internal override Task ExecuteAsync<TInput>(IMongoCollection<TInput> collection, IClientSessionHandle session, AggregateOptions options, CancellationToken cancellationToken)
         {
             var pipeline = CreatePipeline<TInput>();
 

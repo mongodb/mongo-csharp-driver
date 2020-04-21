@@ -54,18 +54,30 @@ namespace MongoDB.Driver.Tests
             fluent._session().Should().BeSameAs(session);
         }
 
-        [Fact]
-        public void AsQueryable_should_return_expected_result()
+        [Theory]
+        [ParameterAttributeData]
+        public void AsQueryable_should_return_expected_result(
+            [Values(false, true)] bool withSession)
         {
             var collection = CreateMockCollection().Object;
+            var session = withSession ? Mock.Of<IClientSessionHandle>() : null;
             var options = new AggregateOptions();
 
-            var result = collection.AsQueryable(options);
+            IMongoQueryable<Person> result;
+            if (withSession)
+            {
+                result = collection.AsQueryable(session, options);
+            }
+            else
+            {
+                result = collection.AsQueryable(options);
+            }
 
             var queryable = result.Should().BeOfType<MongoQueryableImpl<Person, Person>>().Subject;
             var provider = queryable.Provider.Should().BeOfType<MongoQueryProviderImpl<Person>>().Subject;
             provider._collection().Should().BeSameAs(collection);
             provider._options().Should().BeSameAs(options);
+            provider._session().Should().BeSameAs(session);
         }
 
         [Theory]

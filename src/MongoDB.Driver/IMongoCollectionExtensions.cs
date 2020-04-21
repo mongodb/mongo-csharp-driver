@@ -70,11 +70,7 @@ namespace MongoDB.Driver
         /// <returns>A queryable source of documents.</returns>
         public static IMongoQueryable<TDocument> AsQueryable<TDocument>(this IMongoCollection<TDocument> collection, AggregateOptions aggregateOptions = null)
         {
-            Ensure.IsNotNull(collection, nameof(collection));
-
-            aggregateOptions = aggregateOptions ?? new AggregateOptions();
-            var provider = new MongoQueryProviderImpl<TDocument>(null, collection, aggregateOptions);
-            return new MongoQueryableImpl<TDocument, TDocument>(provider);
+            return AsQueryable(collection, session: null, aggregateOptions);
         }
 
         /// <summary>
@@ -90,7 +86,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(collection, nameof(collection));
 
             aggregateOptions = aggregateOptions ?? new AggregateOptions();
-            var provider = new MongoQueryProviderImpl<TDocument>(session, collection, aggregateOptions);
+            var provider = new MongoQueryProviderImpl<TDocument>(collection, session, aggregateOptions);
             return new MongoQueryableImpl<TDocument, TDocument>(provider);
         }
 
