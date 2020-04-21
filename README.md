@@ -130,6 +130,7 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Dow Liu                   redforks@gmail.com
 * Chuck Lu                  https://github.com/chucklu
 * Alex Lyman                mail.alex.lyman@gmail.com
+* Tomasz Masternak          https://github.com/tmasternak
 * John Murphy               https://github.com/jsmurphy
 * Alexander Nagy            optimiz3@gmail.com
 * Sridhar Nanjundeswaran    https://github.com/sridharn

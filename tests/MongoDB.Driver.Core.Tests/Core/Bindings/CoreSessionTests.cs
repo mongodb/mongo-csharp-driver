@@ -325,15 +325,14 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         [Theory]
-        [InlineData("NT")]
-        [InlineData("UT")]
-        [InlineData("PN")]
-        [InlineData("PN,ST")]
-        [InlineData("PT,SN")]
-        [InlineData("RN")]
-        [InlineData("RN,RT")]
-        [InlineData("RT,RN")]
-        public void EnsureTransactionsAreSupported_should_throw_when_any_connected_data_bearing_server_does_not_support_transactions(string scenarios)
+        [InlineData("NT", "Standalone servers do not support transactions.")]
+        [InlineData("PN", "Server version 3.99.99 does not support the Transactions feature.")]
+        [InlineData("PN,ST", "Server version 3.99.99 does not support the Transactions feature.")]
+        [InlineData("PT,SN", "Server version 3.99.99 does not support the Transactions feature.")]
+        [InlineData("RN", "Server version 4.1.5 does not support the ShardedTransactions feature.")]
+        [InlineData("RN,RT", "Server version 4.1.5 does not support the ShardedTransactions feature.")]
+        [InlineData("RT,RN", "Server version 4.1.5 does not support the ShardedTransactions feature.")]
+        public void EnsureTransactionsAreSupported_should_throw_when_any_connected_data_bearing_server_does_not_support_transactions(string scenarios, string expectedMesage)
         {
             var clusterId = new ClusterId(1);
             string unsupportedFeatureName = null;
@@ -360,11 +359,7 @@ namespace MongoDB.Driver.Core.Bindings
             var exception = Record.Exception(() => subject.EnsureTransactionsAreSupported());
 
             var e = exception.Should().BeOfType<NotSupportedException>().Subject;
-            e.Message.Should().Match<string>(
-                s => s.Contains($"does not support the {unsupportedFeatureName} feature.") || 
-                     s.Contains("Transactions are supported only in sharded cluster of replica set deployments.") ||
-                     s.Contains("StartTransaction cannot determine if transactions are supported because there are no connected servers.")
-            );
+            e.Message.Should().Be(expectedMesage);
         }
 
         // private methods
