@@ -135,6 +135,7 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Alexander Nagy            optimiz3@gmail.com
 * Sridhar Nanjundeswaran    https://github.com/sridharn
 * Nathan                    https://github.com/terakilobyte
+* Rachelle Palmer           https://github.com/techbelle
 * Rich Quackenbush          rich.quackenbush@captiveaire.com
 * Carl Reinke               https://github.com/mindless2112
 * Gian Maria Ricci          https://github.com/alkampfergit
