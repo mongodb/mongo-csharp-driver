@@ -596,31 +596,19 @@ tasks:
         # - func: upload-build
 
     - name: test
-      depends_on:
-        - variant: windows-64-compile
-          name: compile
       commands:
         - func: bootstrap-mongo-orchestration
         - func: run-tests
 
     - name: atlas-connectivity-tests
-      depends_on:
-        - variant: windows-64-compile
-          name: compile
       commands:
         - func: run-atlas-connectivity-tests
 
     - name: plain-auth-tests
-      depends_on:
-        - variant: windows-64-compile
-          name: compile
       commands:
         - func: run-plain-auth-tests
 
     - name: aws-auth-tests
-      depends_on:
-        - variant: windows-64-compile
-          name: compile
       commands:
         - func: bootstrap-mongo-orchestration
           vars:
