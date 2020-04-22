@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
     {
         #region static
         private static readonly CollectionNamespace __collCollectionNamespace = CollectionNamespace.FromFullName("db.coll");
-        private static readonly CollectionNamespace __keyVaultCollectionNamespace = CollectionNamespace.FromFullName("admin.datakeys");
+        private static readonly CollectionNamespace __keyVaultCollectionNamespace = CollectionNamespace.FromFullName("keyvault.datakeys");
         #endregion
 
         private const string LocalMasterKey = "Mng0NCt4ZHVUYUJCa1kxNkVyNUR1QURhZ2h2UzR2d2RrZzh0cFBwM3R6NmdWMDFBMUN3YkQ5aXRRMkhGRGdQV09wOGVNYUMxT2k3NjZKelhaQmRCZGJkTXVyZG9uSjFk";
@@ -629,8 +629,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             var client = CreateMongoClient();
             if (clearCollections)
             {
-                var clientAdminDatabase = client.GetDatabase(__keyVaultCollectionNamespace.DatabaseNamespace.DatabaseName);
-                clientAdminDatabase.DropCollection(__keyVaultCollectionNamespace.CollectionName);
+                var clientKeyVaultDatabase = client.GetDatabase(__keyVaultCollectionNamespace.DatabaseNamespace.DatabaseName);
+                clientKeyVaultDatabase.DropCollection(__keyVaultCollectionNamespace.CollectionName);
                 var clientDbDatabase = client.GetDatabase(__collCollectionNamespace.DatabaseNamespace.DatabaseName);
                 clientDbDatabase.DropCollection(__collCollectionNamespace.CollectionName);
             }

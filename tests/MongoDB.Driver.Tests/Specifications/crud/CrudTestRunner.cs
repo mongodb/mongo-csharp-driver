@@ -14,11 +14,8 @@
 */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
@@ -65,7 +62,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
 
             var databaseName = GetDatabaseName(definition);
             var collectionName = GetCollectionName(definition);
-            DropCollection(databaseName, collectionName);
+            RemoveCollectionData(databaseName, collectionName);
             PrepareData(databaseName, collectionName, definition);
 
             using (var client = CreateDisposableClient(_capturedEvents))
@@ -137,11 +134,6 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                         c.ConfigureServer(ss => ss.With(heartbeatInterval: Timeout.InfiniteTimeSpan));
                     };
                 });
-        }
-
-        private void DropCollection(string databaseName, string collectionName)
-        {
-            DriverTestConfiguration.Client.GetDatabase(databaseName).DropCollection(collectionName);
         }
 
         private void ExecuteOperation(IMongoClient client, IMongoDatabase database, IMongoCollection<BsonDocument> collection, BsonDocument operation, BsonDocument outcome, bool async)
@@ -263,6 +255,13 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                         .InsertMany(documents);
                 }
             }
+        }
+
+        private void RemoveCollectionData(string databaseName, string collectionName)
+        {
+            var database = DriverTestConfiguration.Client.GetDatabase(databaseName);
+            var collection = database.GetCollection<BsonDocument>(collectionName).WithWriteConcern(WriteConcern.WMajority);
+            collection.DeleteMany(FilterDefinition<BsonDocument>.Empty);
         }
 
         private void RemoveExtraFindCommandsFromActualEvents(List<object> actualEvents, int expectedCount)

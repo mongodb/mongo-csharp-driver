@@ -28,6 +28,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
 {
     public class ClientSideEncryptionTestRunner : MongoClientJsonDrivenTestRunnerBase
     {
+        #region static
+        private static readonly CollectionNamespace __keyVaultCollectionNamespace = CollectionNamespace.FromFullName("keyvault.datakeys");
+        #endregion
+
         [SkippableTheory]
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)
@@ -104,8 +108,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
 
             if (shared.Contains("key_vault_data"))
             {
-                var adminDatabase = client.GetDatabase("admin").WithWriteConcern(WriteConcern.WMajority);
-                adminDatabase.DropCollection("datakeys");
+                var keyVaultDatabase = client.GetDatabase(__keyVaultCollectionNamespace.DatabaseNamespace.DatabaseName).WithWriteConcern(WriteConcern.WMajority);
+                keyVaultDatabase.DropCollection(__keyVaultCollectionNamespace.CollectionName);
             }
         }
 
@@ -115,14 +119,14 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
 
             if (shared.TryGetValue("key_vault_data", out var keyVaultData))
             {
-                var adminDatabase = client.GetDatabase("admin");
+                var keyVaultDatabase = client.GetDatabase(__keyVaultCollectionNamespace.DatabaseNamespace.DatabaseName);
                 var collectionSettings = new MongoCollectionSettings
                 {
                     AssignIdOnInsert = false,
                     ReadConcern = ReadConcern.Majority,
                     WriteConcern = WriteConcern.WMajority
                 };
-                var keyVaultCollection = adminDatabase.GetCollection<BsonDocument>("datakeys", collectionSettings);
+                var keyVaultCollection = keyVaultDatabase.GetCollection<BsonDocument>(__keyVaultCollectionNamespace.CollectionName, collectionSettings);
                 var keyVaultDocuments = keyVaultData.AsBsonArray.Select(c => c.AsBsonDocument);
                 keyVaultCollection.InsertMany(keyVaultDocuments);
             }
@@ -159,7 +163,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
         // private methods
         private AutoEncryptionOptions ConfigureAutoEncryptionOptions(BsonDocument autoEncryptOpts)
         {
-            var keyVaultCollectionNamespace = new CollectionNamespace("admin", "datakeys");
             var extraOptions = new Dictionary<string, object>()
             {
                 { "mongocryptdSpawnPath", Environment.GetEnvironmentVariable("MONGODB_BINARIES") ?? string.Empty }
@@ -167,7 +170,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
 
             var kmsProviders = new ReadOnlyDictionary<string, IReadOnlyDictionary<string, object>>(new Dictionary<string, IReadOnlyDictionary<string, object>>());
             var autoEncryptionOptions = new AutoEncryptionOptions(
-                keyVaultNamespace: keyVaultCollectionNamespace,
+                keyVaultNamespace: __keyVaultCollectionNamespace,
                 kmsProviders: kmsProviders,
                 extraOptions: extraOptions);
 
