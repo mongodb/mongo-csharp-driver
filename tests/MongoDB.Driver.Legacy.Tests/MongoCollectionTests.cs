@@ -2989,7 +2989,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestReIndex()
         {
-            if (_primary.InstanceType != MongoServerInstanceType.ShardRouter)
+            if (_primary.InstanceType == MongoServerInstanceType.StandAlone)
             {
                 _collection.Drop();
                 _collection.Insert(new BsonDocument("x", 1));
@@ -2998,7 +2998,9 @@ namespace MongoDB.Driver.Tests
                 // note: prior to 1.8.1 the reIndex command was returning duplicate ok elements
                 try
                 {
+#pragma warning disable 618
                     var result = _collection.ReIndex();
+#pragma warning restore 618
                     Assert.Equal(2, result.Response["nIndexes"].ToInt32());
                     Assert.Equal(2, result.Response["nIndexesWas"].ToInt32());
                 }

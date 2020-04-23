@@ -1833,6 +1833,7 @@ namespace MongoDB.Driver
         /// Runs the ReIndex command on this collection.
         /// </summary>
         /// <returns>A CommandResult.</returns>
+        [Obsolete("This method will be removed in a later version of the driver.")]
         public virtual CommandResult ReIndex()
         {
             return UsingImplicitSession(session => ReIndex(session));
@@ -1840,7 +1841,9 @@ namespace MongoDB.Driver
 
         private CommandResult ReIndex(IClientSessionHandle session)
         {
+#pragma warning disable 618
             var operation = new ReIndexOperation(_collectionNamespace, GetMessageEncoderSettings());
+#pragma warning restore 618
             var result = ExecuteWriteOperation(session, operation);
             return new CommandResult(result);
         }

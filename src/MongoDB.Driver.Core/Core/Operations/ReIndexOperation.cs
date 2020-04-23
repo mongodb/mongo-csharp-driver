@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -26,6 +27,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents a reindex operation.
     /// </summary>
+    [Obsolete("This class will be removed in a later version of the driver.")]
     public class ReIndexOperation : IWriteOperation<BsonDocument>
     {
         // fields

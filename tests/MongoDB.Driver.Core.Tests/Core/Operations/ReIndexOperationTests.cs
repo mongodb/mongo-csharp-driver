@@ -25,6 +25,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
+#pragma warning disable 618
     public class ReIndexOperationTests : OperationTestBase
     {
         [Fact]
@@ -76,7 +77,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterTypes(ClusterType.Standalone);
             EnsureCollectionExists();
             var subject = new ReIndexOperation(_collectionNamespace, _messageEncoderSettings);
 
@@ -111,9 +112,11 @@ namespace MongoDB.Driver.Core.Operations
         public void Execute_should_send_session_id_when_supported(
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterTypes(ClusterType.Standalone);
             EnsureCollectionExists();
+#pragma warning disable 618
             var subject = new ReIndexOperation(_collectionNamespace, _messageEncoderSettings);
+#pragma warning restore 618
 
             VerifySessionIdWasSentWhenSupported(subject, "reIndex", async);
         }
@@ -121,7 +124,9 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void CreateCommand_should_return_expected_result()
         {
+#pragma warning disable 618
             var subject = new ReIndexOperation(_collectionNamespace, _messageEncoderSettings);
+#pragma warning restore 618
 
             var result = subject.CreateCommand(null);
 
@@ -141,4 +146,5 @@ namespace MongoDB.Driver.Core.Operations
             ExecuteOperation(operation);
         }
     }
+#pragma warning restore 618
 }
