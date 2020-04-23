@@ -28,6 +28,7 @@ using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
@@ -85,8 +86,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         private QueryMessage CreateMessage(ConnectionDescription connectionDescription, out bool messageContainsSessionId)
         {
             var commandWithPayloads = CombineCommandWithPayloads(connectionDescription);
-            var wrappedCommand = WrapCommandForQueryMessage(commandWithPayloads, connectionDescription, out messageContainsSessionId);
-            var slaveOk = _readPreference != null && _readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
+            var wrappedCommand = WrapCommandForQueryMessage(commandWithPayloads, connectionDescription, out messageContainsSessionId, out var slaveOk);
 
 #pragma warning disable 618
             return new QueryMessage(
@@ -329,7 +329,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
         }
 
-        private BsonDocument WrapCommandForQueryMessage(BsonDocument command, ConnectionDescription connectionDescription, out bool messageContainsSessionId)
+        private BsonDocument WrapCommandForQueryMessage(BsonDocument command, ConnectionDescription connectionDescription, out bool messageContainsSessionId, out bool slaveOk)
         {
             messageContainsSessionId = false;
             var extraElements = new List<BsonElement>();
@@ -365,12 +365,8 @@ namespace MongoDB.Driver.Core.WireProtocol
             var appendExtraElementsSerializer = new ElementAppendingSerializer<BsonDocument>(BsonDocumentSerializer.Instance, extraElements, writerSettingsConfigurator);
             var commandWithExtraElements = new BsonDocumentWrapper(command, appendExtraElementsSerializer);
 
-            BsonDocument readPreferenceDocument = null;
-            if (connectionDescription != null)
-            {
-                var serverType = connectionDescription.IsMasterResult.ServerType;
-                readPreferenceDocument = QueryHelper.CreateReadPreferenceDocument(serverType, _readPreference);
-            }
+            var serverType = connectionDescription != null ? connectionDescription.IsMasterResult.ServerType : ServerType.Unknown;
+            var readPreferenceDocument = QueryHelper.CreateReadPreferenceDocument(serverType, _readPreference, out slaveOk);
 
             var wrappedCommand = new BsonDocument
             {

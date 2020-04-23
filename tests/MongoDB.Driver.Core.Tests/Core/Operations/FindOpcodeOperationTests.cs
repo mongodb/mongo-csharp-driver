@@ -193,10 +193,11 @@ namespace MongoDB.Driver.Core.Operations
             };
 
 
-            var result = subject.CreateWrappedQuery(ServerType.ReplicaSetArbiter, ReadPreference.Secondary);
+            var result = subject.CreateWrappedQuery(ServerType.ReplicaSetArbiter, ReadPreference.Secondary, out var slaveOk);
 
             result.Should().Be(expectedResult);
             result["$maxTimeMS"].BsonType.Should().Be(BsonType.Int32);
+            slaveOk.Should().BeTrue();
         }
 
         [Theory]
@@ -228,10 +229,11 @@ namespace MongoDB.Driver.Core.Operations
                 { "$snapshot", true }
             };
 
-            var result = subject.CreateWrappedQuery(ServerType.ShardRouter, ReadPreference.Secondary);
+            var result = subject.CreateWrappedQuery(ServerType.ShardRouter, ReadPreference.Secondary, out var slaveOk);
 
             result.Should().Be(expectedResult);
             result["$maxTimeMS"].BsonType.Should().Be(BsonType.Int32);
+            slaveOk.Should().BeTrue();
         }
 
         [Theory]

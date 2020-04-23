@@ -406,9 +406,9 @@ namespace MongoDB.Driver.Core.Operations
 #pragma warning restore 618
         }
 
-        internal BsonDocument CreateWrappedQuery(ServerType serverType, ReadPreference readPreference)
+        internal BsonDocument CreateWrappedQuery(ServerType serverType, ReadPreference readPreference, out bool slaveOk)
         {
-            var readPreferenceDocument = QueryHelper.CreateReadPreferenceDocument(serverType, readPreference);
+            var readPreferenceDocument = QueryHelper.CreateReadPreferenceDocument(serverType, readPreference, out slaveOk);
 
             var wrappedQuery = new BsonDocument
             {
@@ -463,8 +463,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 var readPreference = context.Binding.ReadPreference;
                 var serverDescription = context.ChannelSource.ServerDescription;
-                var wrappedQuery = CreateWrappedQuery(serverDescription.Type, readPreference);
-                var slaveOk = readPreference != null && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
+                var wrappedQuery = CreateWrappedQuery(serverDescription.Type, readPreference, out var slaveOk);
 
                 var batch = ExecuteProtocol(context.Channel, wrappedQuery, slaveOk, cancellationToken);
                 return CreateCursor(context.ChannelSource, wrappedQuery, batch);
@@ -492,8 +491,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 var readPreference = context.Binding.ReadPreference;
                 var serverDescription = context.ChannelSource.ServerDescription;
-                var wrappedQuery = CreateWrappedQuery(serverDescription.Type, readPreference);
-                var slaveOk = readPreference != null && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
+                var wrappedQuery = CreateWrappedQuery(serverDescription.Type, readPreference, out var slaveOk);
 
                 var batch = await ExecuteProtocolAsync(context.Channel, wrappedQuery, slaveOk, cancellationToken).ConfigureAwait(false);
                 return CreateCursor(context.ChannelSource, wrappedQuery, batch);

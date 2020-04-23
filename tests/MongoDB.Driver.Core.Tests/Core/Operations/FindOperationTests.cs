@@ -24,6 +24,7 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Tests;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using Xunit;
 
@@ -524,6 +525,33 @@ namespace MongoDB.Driver.Core.Operations
             EnsureTestData();
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
             var readPreference = new ReadPreference(ReadPreferenceMode.SecondaryPreferred, maxStaleness: TimeSpan.FromSeconds(90));
+
+            // the count could be short temporarily until replication catches up
+            List<BsonDocument> result = null;
+            SpinWait.SpinUntil(() =>
+                {
+                    var cursor = ExecuteOperation(subject, readPreference, async);
+                    result = ReadCursorToEnd(cursor, async);
+                    return result.Count >= 5;
+                },
+                TimeSpan.FromSeconds(10));
+
+            result.Should().HaveCount(5);
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_find_all_the_documents_matching_the_query_when_hedge_is_used(
+            [Values(null, false, true)]
+            bool? isEnabled,
+            [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check().ClusterType(ClusterType.Sharded).Supports(Feature.HedgedReads);
+            EnsureTestData();
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var hedge = isEnabled.HasValue? new ReadPreferenceHedge(isEnabled.Value) : null;
+            var readPreference = new ReadPreference(ReadPreferenceMode.SecondaryPreferred, hedge: hedge);
 
             // the count could be short temporarily until replication catches up
             List<BsonDocument> result = null;
