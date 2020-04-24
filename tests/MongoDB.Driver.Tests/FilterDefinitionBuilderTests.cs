@@ -78,6 +78,32 @@ namespace MongoDB.Driver.Tests
             Assert(filter, "{a: {$gt: 1, $lt: 10}}");
         }
 
+        [Theory]
+        [InlineData("{ geoField : { $geoWithin : { $box : [ [ 1.0, 2.0 ], [ 3.0, 4.0 ] ] } } }", "{ geoField : { $near : [ 5.0, 6.0 ] } }")]
+        [InlineData("{ geoField : { $near : [ 5.0, 6.0 ] } }", "{ geoField : { $geoWithin : { $box : [ [ 1.0, 2.0 ], [ 3.0, 4.0 ] ] } } }")]
+        [InlineData("{ geoField : { $nearSphere : { $geometry : { type : 'Point', coordinates : [ 1, 2 ] } } } }", "{ geoField : { $geoIntersects : { $geometry : { type : 'Polygon', coordinates: [ [ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ], [ 7, 8 ] ] ] } } } }")]
+        [InlineData("{ geoField : { $geoIntersects : { $geometry : { type : 'Polygon', coordinates: [ [ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ], [ 7, 8 ] ] ] } } } }", "{ geoField : { $nearSphere : { $geometry : { type : 'Point', coordinates : [ 1, 2 ] } } } }")]
+        public void And_with_clashing_keys_and_different_operators_but_with_filters_that_support_only_dollar_form_should_get_promoted_to_dollar_form(string firstFilter, string secondFilter)
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            var combinedFilter = subject.And(firstFilter, secondFilter);
+
+            Assert(combinedFilter, $"{{ $and : [ {firstFilter}, {secondFilter} ] }}");
+        }
+
+        [Fact]
+        public void And_with_clashing_keys_and_different_operators_but_with_filters_that_support_only_dollar_form_and_empty_filter_should_ignore_empty_filter()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            var combinedFilter = subject.And(
+                "{ geoField : { $near : [ 5.0, 6.0 ] } }",
+                "{ geoField : { } }");
+
+            Assert(combinedFilter, "{ geoField : { $near : [ 5.0, 6.0 ] } }");
+        }
+
         [Fact]
         public void And_with_an_empty_filter()
         {
