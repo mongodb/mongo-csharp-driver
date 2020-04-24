@@ -45,18 +45,21 @@ namespace MongoDB.Driver.Core.Operations
         {
             var exception = CoreExceptionHelper.CreateMongoWriteConcernException(BsonDocument.Parse($"{{ writeConcernError : {{ code : {errorCode} }} }}"));
 
-            RetryabilityHelper.AddRetryableWriteErrorLabelIfRequired(exception);
+            RetryabilityHelper.AddRetryableWriteErrorLabelIfRequired(exception, Feature.ServerReturnsRetryableWriteErrorLabel.LastNotSupportedVersion);
 
             var hasRetryableWriteErrorLabel = exception.HasErrorLabel("RetryableWriteError");
             hasRetryableWriteErrorLabel.Should().Be(shouldAddErrorLabel);
         }
 
-        [Fact]
-        public void AddRetryableWriteErrorLabelIfRequired_should_add_RetryableWriteError_for_network_errors()
+        [Theory]
+        [ParameterAttributeData]
+        public void AddRetryableWriteErrorLabelIfRequired_should_add_RetryableWriteError_for_network_errors([Values(false, true)] bool serverReturnsRetryableWriteErrorLabel)
         {
             var exception = (MongoException)CoreExceptionHelper.CreateException(typeof(MongoConnectionException));
+            var feature = Feature.ServerReturnsRetryableWriteErrorLabel;
+            var serverVersion = serverReturnsRetryableWriteErrorLabel ? feature.FirstSupportedVersion : feature.LastNotSupportedVersion;
 
-            RetryabilityHelper.AddRetryableWriteErrorLabelIfRequired(exception);
+            RetryabilityHelper.AddRetryableWriteErrorLabelIfRequired(exception, serverVersion);
 
             var hasRetryableWriteErrorLabel = exception.HasErrorLabel("RetryableWriteError");
             hasRetryableWriteErrorLabel.Should().BeTrue();
@@ -86,10 +89,45 @@ namespace MongoDB.Driver.Core.Operations
                 exception = CoreExceptionHelper.CreateMongoCommandException((int)exceptionDescription);
             }
 
-            RetryabilityHelper.AddRetryableWriteErrorLabelIfRequired(exception);
+            RetryabilityHelper.AddRetryableWriteErrorLabelIfRequired(exception, Feature.ServerReturnsRetryableWriteErrorLabel.LastNotSupportedVersion);
 
             var hasRetryableWriteErrorLabel = exception.HasErrorLabel("RetryableWriteError");
             hasRetryableWriteErrorLabel.Should().Be(shouldAddErrorLabel);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void AddRetryableWriteErrorLabelIfRequired_should_not_add_error_label_for_non_retryWrites_server(
+            [Values(false, true)] bool isNetworkError)
+        {
+            MongoException exception = null;
+            if (isNetworkError)
+            {
+                exception = (MongoException)CoreExceptionHelper.CreateException(typeof(MongoConnectionException));
+            }
+            else
+            {
+                exception = CoreExceptionHelper.CreateMongoCommandException((int)ServerErrorCode.HostNotFound);
+            }
+
+            RetryabilityHelper.AddRetryableWriteErrorLabelIfRequired(exception, Feature.RetryableWrites.LastNotSupportedVersion);
+
+            var hasRetryableWriteErrorLabel = exception.HasErrorLabel("RetryableWriteError");
+            hasRetryableWriteErrorLabel.Should().BeFalse();
+        }
+
+        [Theory]
+        [InlineData("{ txnNumber : 1 }", true)]
+        [InlineData("{ commitTransaction : 1 }", true)]
+        [InlineData("{ abortTransaction : 1 }", true)]
+        [InlineData("{ ping : 1 }", false)]
+        public void IsCommandRetryable_should_return_expected_result(string command, bool isRetryable)
+        {
+            var commandDocument = BsonDocument.Parse(command);
+
+            var result = RetryabilityHelper.IsCommandRetryable(commandDocument);
+
+            result.Should().Be(isRetryable);
         }
 
         [Theory]

@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
@@ -86,17 +87,20 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // public static methods
-        public static void AddRetryableWriteErrorLabelIfRequired(MongoException exception)
+        public static void AddRetryableWriteErrorLabelIfRequired(MongoException exception, SemanticVersion serverVersion)
         {
-            if (ShouldRetryableWriteExceptionLabelBeAdded(exception))
+            if (ShouldRetryableWriteExceptionLabelBeAdded(exception, serverVersion))
             {
                 exception.AddErrorLabel(RetryableWriteErrorLabel);
             }
         }
 
-        public static bool IsNetworkException(Exception exception)
+        public static bool IsCommandRetryable(BsonDocument command)
         {
-            return exception is MongoConnectionException mongoConnectionException && mongoConnectionException.IsNetworkException;
+            return
+                command.Contains("txnNumber") || // retryWrites=true
+                command.Contains("commitTransaction") ||
+                command.Contains("abortTransaction");
         }
 
         public static bool IsResumableChangeStreamException(Exception exception, SemanticVersion serverVersion)
@@ -152,9 +156,29 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // private static methods
-        private static bool ShouldRetryableWriteExceptionLabelBeAdded(Exception exception)
+        private static bool IsNetworkException(Exception exception)
         {
-            if (__retryableWriteExceptions.Contains(exception.GetType()) || IsNetworkException(exception))
+            return exception is MongoConnectionException mongoConnectionException && mongoConnectionException.IsNetworkException;
+        }
+
+        private static bool ShouldRetryableWriteExceptionLabelBeAdded(Exception exception, SemanticVersion serverVersion)
+        {
+            if (!Feature.RetryableWrites.IsSupported(serverVersion))
+            {
+                return false;
+            }
+
+            if (IsNetworkException(exception))
+            {
+                return true;
+            }
+
+            if (Feature.ServerReturnsRetryableWriteErrorLabel.IsSupported(serverVersion))
+            {
+                return false;
+            }
+
+            if (__retryableWriteExceptions.Contains(exception.GetType()))
             {
                 return true;
             }

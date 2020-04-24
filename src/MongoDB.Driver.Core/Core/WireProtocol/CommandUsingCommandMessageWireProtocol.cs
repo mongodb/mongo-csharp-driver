@@ -179,11 +179,9 @@ namespace MongoDB.Driver.Core.WireProtocol
                     mongoException.AddErrorLabel("TransientTransactionError");
                 }
 
-                if ((exception is MongoConnectionException) || // network error
-                    (Feature.RetryableWrites.IsSupported(serverVersion) &&
-                    !Feature.ServerReturnsRetryableWriteErrorLabel.IsSupported(serverVersion)))
+                if (RetryabilityHelper.IsCommandRetryable(_command))
                 {
-                    RetryabilityHelper.AddRetryableWriteErrorLabelIfRequired(mongoException);
+                    RetryabilityHelper.AddRetryableWriteErrorLabelIfRequired(mongoException, serverVersion);
                 }
             }
         }
