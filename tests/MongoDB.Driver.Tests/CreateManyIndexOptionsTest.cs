@@ -22,6 +22,32 @@ namespace MongoDB.Driver.Tests
 {
     public class CreateManyIndexesOptionsTest
     {
+        [Theory]
+        [ParameterAttributeData]
+        public void CommitQuorum_get_should_return_expected_result(
+            [Values(null, 1, 2)] int? w)
+        {
+            var commitQuorum = w.HasValue ? CreateIndexCommitQuorum.Create(w.Value) : null;
+            var subject = new CreateManyIndexesOptions() { CommitQuorum = commitQuorum };
+
+            var result = subject.CommitQuorum;
+
+            result.Should().BeSameAs(commitQuorum);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CommitQuorum_set_should_have_expected_result(
+            [Values(null, 1, 2)] int? w)
+        {
+            var commitQuorum = w.HasValue ? CreateIndexCommitQuorum.Create(w.Value) : null;
+            var subject = new CreateManyIndexesOptions() { CommitQuorum = commitQuorum };
+
+            subject.CommitQuorum = commitQuorum;
+
+            subject.CommitQuorum.Should().Be(commitQuorum);
+        }
+
         [Fact]
         public void MaxTime_get_should_return_expected_result()
         {

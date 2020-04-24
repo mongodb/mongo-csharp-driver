@@ -1834,10 +1834,11 @@ namespace MongoDB.Driver
         [ParameterAttributeData]
         public void Indexes_CreateOne_should_execute_a_CreateIndexesOperation(
             [Values(false, true)] bool usingSession,
-            [Values(false, true)] bool usingCreateOneIndexOptions,
             [Values(false, true)] bool usingWildcardIndex,
-            [Values(false, true)] bool async,
-            [Values(null, -1, 0, 42, 9000)] int? milliseconds)
+            [Values(null, 1, 2)] int? commitQuorumW,
+            [Values(null, -1, 0, 42, 9000)] int? milliseconds,
+            [Values(false, true)] bool usingCreateOneIndexOptions,
+            [Values(false, true)] bool async)
         {
             var writeConcern = new WriteConcern(1);
             var subject = CreateSubject<BsonDocument>().WithWriteConcern(writeConcern);
@@ -1851,9 +1852,10 @@ namespace MongoDB.Driver
             var partialFilterDefinition = (FilterDefinition<BsonDocument>)partialFilterDocument;
             var weights = new BsonDocument("y", 1);
             var storageEngine = new BsonDocument("awesome", true);
+            var commitQuorum = commitQuorumW.HasValue ? CreateIndexCommitQuorum.Create(commitQuorumW.Value) : null;
             var maxTime = milliseconds != null ? TimeSpan.FromMilliseconds(milliseconds.Value) : (TimeSpan?)null;
+            var createOneIndexOptions = usingCreateOneIndexOptions ? new CreateOneIndexOptions { CommitQuorum = commitQuorum, MaxTime = maxTime } : null;
             var wildcardProjectionDefinition = Builders<BsonDocument>.Projection.Include("w");
-            var createOneIndexOptions = usingCreateOneIndexOptions ? new CreateOneIndexOptions { MaxTime = maxTime } : null;
             var options = new CreateIndexOptions<BsonDocument>
             {
                 Background = true,
@@ -1913,6 +1915,7 @@ namespace MongoDB.Driver
 
             var operation = call.Operation.Should().BeOfType<CreateIndexesOperation>().Subject;
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
+            operation.CommitQuorum.Should().BeSameAs(createOneIndexOptions?.CommitQuorum);
             operation.MaxTime.Should().Be(createOneIndexOptions?.MaxTime);
             operation.Requests.Count().Should().Be(1);
             operation.WriteConcern.Should().BeSameAs(writeConcern);
@@ -1960,10 +1963,11 @@ namespace MongoDB.Driver
         [ParameterAttributeData]
         public void Indexes_CreateMany_should_execute_a_CreateIndexesOperation(
             [Values(false, true)] bool usingSession,
-            [Values(false, true)] bool usingCreateManyIndexesOptions,
             [Values(false, true)] bool usingWildcardIndex,
-            [Values(false, true)] bool async,
-            [Values(null, -1, 0, 42, 9000)] int? milliseconds)
+            [Values(null, 1, 2)] int? commitQuorumW,
+            [Values(null, -1, 0, 42, 9000)] int? milliseconds,
+            [Values(false, true)] bool usingCreateManyIndexesOptions,
+            [Values(false, true)] bool async)
         {
             var writeConcern = new WriteConcern(1);
             var subject = CreateSubject<BsonDocument>().WithWriteConcern(writeConcern);
@@ -1980,8 +1984,9 @@ namespace MongoDB.Driver
             var weights = new BsonDocument("y", 1);
             var wildcardProjectionDefinition = Builders<BsonDocument>.Projection.Include("w");
             var storageEngine = new BsonDocument("awesome", true);
+            var commitQuorum = commitQuorumW.HasValue ? CreateIndexCommitQuorum.Create(commitQuorumW.Value) : null;
             var maxTime = milliseconds != null ? TimeSpan.FromMilliseconds(milliseconds.Value) : (TimeSpan?)null;
-            var createManyIndexesOptions = usingCreateManyIndexesOptions ? new CreateManyIndexesOptions { MaxTime = maxTime } : null;
+            var createManyIndexesOptions = usingCreateManyIndexesOptions ? new CreateManyIndexesOptions { CommitQuorum = commitQuorum, MaxTime = maxTime } : null;
 
             var options = new CreateIndexOptions<BsonDocument>
             {
@@ -2043,6 +2048,7 @@ namespace MongoDB.Driver
 
             var operation = call.Operation.Should().BeOfType<CreateIndexesOperation>().Subject;
             operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
+            operation.CommitQuorum.Should().BeSameAs(createManyIndexesOptions?.CommitQuorum);
             operation.MaxTime.Should().Be(createManyIndexesOptions?.MaxTime);
             operation.Requests.Count().Should().Be(2);
             operation.WriteConcern.Should().BeSameAs(writeConcern);

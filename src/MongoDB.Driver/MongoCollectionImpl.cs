@@ -1540,6 +1540,7 @@ namespace MongoDB.Driver
             {
                 return new CreateIndexesOperation(_collection._collectionNamespace, requests, _collection._messageEncoderSettings)
                 {
+                    CommitQuorum = options?.CommitQuorum,
                     MaxTime = options?.MaxTime,
                     WriteConcern = _collection.Settings.WriteConcern
                 };

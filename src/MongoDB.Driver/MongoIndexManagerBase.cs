@@ -292,7 +292,11 @@ namespace MongoDB.Driver
 
         private CreateManyIndexesOptions ToCreateManyIndexesOptions(CreateOneIndexOptions options)
         {
-            return new CreateManyIndexesOptions { MaxTime = options?.MaxTime };
+            return new CreateManyIndexesOptions
+            { 
+                CommitQuorum = options?.CommitQuorum,
+                MaxTime = options?.MaxTime
+            };
         }
     }
 }

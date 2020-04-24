@@ -33,6 +33,7 @@ namespace MongoDB.Driver.Core.Operations
     {
         // fields
         private readonly CollectionNamespace _collectionNamespace;
+        private CreateIndexCommitQuorum _commitQuorum;
         private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly IEnumerable<CreateIndexRequest> _requests;
@@ -65,6 +66,15 @@ namespace MongoDB.Driver.Core.Operations
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
+        }
+
+        /// <summary>
+        /// Gets or sets the commit quorum.
+        /// </summary>
+        public CreateIndexCommitQuorum CommitQuorum
+        {
+            get => _commitQuorum;
+            set => _commitQuorum = value;
         }
 
         /// <summary>
@@ -145,6 +155,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             return new CreateIndexesUsingCommandOperation(_collectionNamespace, _requests, _messageEncoderSettings)
             {
+                CommitQuorum = _commitQuorum,
                 MaxTime = _maxTime,
                 WriteConcern = _writeConcern
             };

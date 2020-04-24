@@ -67,16 +67,33 @@ namespace MongoDB.Driver.Core.Operations
             argumentNullException.ParamName.Should().Be("messageEncoderSettings");
         }
 
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void CommitQuorum_get_and_set_should_work(
+            [Values(null, 1, 2)] int? w)
+        {
+            var subject = new CreateIndexesOperation(_collectionNamespace, Enumerable.Empty<CreateIndexRequest>(), _messageEncoderSettings);
+            var value = w.HasValue ? CreateIndexCommitQuorum.Create(w.Value) : null;
+
+            subject.CommitQuorum = value;
+            var result = subject.CommitQuorum;
+
+            result.Should().BeSameAs(value);
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void CreateOperation_should_return_expected_result(
+            [Values(null, 1, 2)] int? w,
             [Values(null, -10000, 0, 1, 42, 9000, 10000, 10001)] int? maxTimeTicks)
         {
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) };
-            var writeConcern = new WriteConcern(1);
+            var commitQuorum = w.HasValue ? CreateIndexCommitQuorum.Create(w.Value) : null;
             var maxTime = maxTimeTicks == null ? (TimeSpan?)null : TimeSpan.FromTicks(maxTimeTicks.Value);
+            var writeConcern = new WriteConcern(1);
             var subject = new CreateIndexesOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
+                CommitQuorum = commitQuorum,
                 MaxTime = maxTime,
                 WriteConcern = writeConcern
             };
@@ -86,10 +103,11 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().BeOfType<CreateIndexesUsingCommandOperation>();
             var operation = (CreateIndexesUsingCommandOperation)result;
             operation.CollectionNamespace.Should().BeSameAs(_collectionNamespace);
+            operation.CommitQuorum.Should().BeSameAs(commitQuorum);
+            operation.MaxTime.Should().Be(maxTime);
             operation.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
             operation.Requests.Should().Equal(requests);
             operation.WriteConcern.Should().BeSameAs(writeConcern);
-            operation.MaxTime.Should().Be(maxTime);
         }
 
         [SkippableTheory]

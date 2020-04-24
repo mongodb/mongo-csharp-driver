@@ -50,6 +50,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly CollationFeature __collation = new CollationFeature("Collation", new SemanticVersion(3, 3, 11));
         private static readonly Feature __commandMessage = new Feature("CommandMessage", new SemanticVersion(3, 6, 0));
         private static readonly CommandsThatWriteAcceptWriteConcernFeature __commandsThatWriteAcceptWriteConcern = new CommandsThatWriteAcceptWriteConcernFeature("CommandsThatWriteAcceptWriteConcern", new SemanticVersion(3, 3, 11));
+        private static readonly Feature __createIndexCommitQuorum = new Feature("CreateIndexCommitQuorum", new SemanticVersion(4, 4, 0, ""));
         private static readonly Feature __createIndexesCommand = new Feature("CreateIndexesCommand", new SemanticVersion(2, 6, 0));
         private static readonly Feature __createIndexesUsingInsertOperations = new Feature("CreateIndexesUsingInsertOperations", new SemanticVersion(1, 0, 0), new SemanticVersion(4, 1, 1, ""));
         private static readonly Feature __currentOpCommand = new Feature("CurrentOpCommand", new SemanticVersion(3, 2, 0));
@@ -229,6 +230,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the commands that write accept write concern feature.
         /// </summary>
         public static CommandsThatWriteAcceptWriteConcernFeature CommandsThatWriteAcceptWriteConcern => __commandsThatWriteAcceptWriteConcern;
+
+        /// <summary>
+        /// Gets the create index commit quorum feature.
+        /// </summary>
+        public static Feature CreateIndexCommitQuorum => __createIndexCommitQuorum;
 
         /// <summary>
         /// Gets the create indexes command feature.
