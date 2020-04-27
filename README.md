@@ -69,7 +69,7 @@ Documentation
 
 Questions/Bug Reports
 ---------------------
-* [MongoDB Community Forum](https://community.mongodb.com)
+* [MongoDB Community Forum](https://developer.mongodb.com/community/forums/tags/c/drivers-odms-connectors/7/dot-net-driver)
 * [Jira](https://jira.mongodb.org/browse/CSHARP)
 
 If you’ve identified a security vulnerability in a driver or any other MongoDB project, please report it according to the [instructions here](http://docs.mongodb.org/manual/tutorial/create-a-vulnerability-report).
