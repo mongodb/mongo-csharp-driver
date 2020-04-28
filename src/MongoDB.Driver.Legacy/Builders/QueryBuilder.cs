@@ -216,7 +216,7 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentNullException("value");
             }
 
-            return Query.Create(name, value);
+            return Query.Create(name, new BsonDocument("$eq", value));
         }
 
         /// <summary>

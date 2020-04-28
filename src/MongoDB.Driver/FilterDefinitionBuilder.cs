@@ -423,7 +423,7 @@ namespace MongoDB.Driver
         /// <returns>An equality filter.</returns>
         public FilterDefinition<TDocument> Eq<TField>(FieldDefinition<TDocument, TField> field, TField value)
         {
-            return new SimpleFilterDefinition<TDocument, TField>(field, value, allowScalarValueForArrayField: true);
+            return new OperatorFilterDefinition<TDocument, TField>("$eq", field, value, allowScalarValueForArrayField: true);
         }
 
         /// <summary>
