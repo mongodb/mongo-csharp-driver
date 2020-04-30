@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
         /// </summary>
         /// <param name="errorCode">The error code.</param>
         /// <param name="defaultMessage">The default message.</param>
-        /// <returns></returns>
+        /// <returns>A Win32Exception.</returns>
         public static Win32Exception CreateException(long errorCode, string defaultMessage)
         {
             string message = defaultMessage;

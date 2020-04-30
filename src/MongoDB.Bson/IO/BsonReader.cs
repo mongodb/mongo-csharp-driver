@@ -145,13 +145,13 @@ namespace MongoDB.Bson.IO
         /// </returns>
         public abstract bool IsAtEndOfFile();
 
-        /// <inherited/>
+        /// <inheritdoc/>
         public void PopSettings()
         {
             _settings = _settingsStack.Pop();
         }
 
-        /// <inherited/>
+        /// <inheritdoc/>
         public void PushSettings(Action<BsonReaderSettings> configurator)
         {
             var newSettings = _settings.Clone();

@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Linq.Utils
         /// <param name="node">The node.</param>
         /// <param name="serializationInfoCache">The serialization information cache.</param>
         /// <param name="serializationInfo">The serialization information.</param>
-        /// <returns></returns>
+        /// <returns>True if the serialization info was found.</returns>
         public static bool TryGetSerializationInfo(Expression node, Dictionary<Expression, BsonSerializationInfo> serializationInfoCache, out BsonSerializationInfo serializationInfo)
         {
             var finder = new BsonSerializationInfoFinder(serializationInfoCache);

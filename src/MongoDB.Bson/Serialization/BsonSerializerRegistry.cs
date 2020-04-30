@@ -65,7 +65,7 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// Gets the serializer for the specified <typeparamref name="T" />.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">The value type of the serializer.</typeparam>
         /// <returns>
         /// The serializer.
         /// </returns>

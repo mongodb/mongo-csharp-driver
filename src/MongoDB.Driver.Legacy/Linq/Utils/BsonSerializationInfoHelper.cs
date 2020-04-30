@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Linq.Utils
         /// </summary>
         /// <param name="node">The node.</param>
         /// <param name="serializationInfo">The serialization information.</param>
-        /// <returns></returns>
+        /// <returns>True if the serialization info was found.</returns>
         public bool TryGetSerializationInfo(Expression node, out BsonSerializationInfo serializationInfo)
         {
             var evaluatedNode = PartialEvaluator.Evaluate(node);
@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Linq.Utils
         /// </summary>
         /// <param name="serializationInfo">The serialization information.</param>
         /// <param name="itemSerializationInfo">The item serialization information.</param>
-        /// <returns></returns>
+        /// <returns>True if the item serialization info was found.</returns>
         public bool TryGetItemSerializationInfo(BsonSerializationInfo serializationInfo, out BsonSerializationInfo itemSerializationInfo)
         {
             itemSerializationInfo = null;

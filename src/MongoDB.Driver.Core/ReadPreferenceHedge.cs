@@ -61,9 +61,9 @@ namespace MongoDB.Driver
 
         // public methods
         /// <inheritdoc/>
-        public override bool Equals(object other)
+        public override bool Equals(object obj)
         {
-            return Equals(other as ReadPreferenceHedge);
+            return Equals(obj as ReadPreferenceHedge);
         }
 
         /// <inheritdoc/>
@@ -78,7 +78,10 @@ namespace MongoDB.Driver
             return _isEnabled.GetHashCode();
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Converts the read preference hedge to a BsonDocument.
+        /// </summary>
+        /// <returns>A BsonDocument.</returns>
         public BsonDocument ToBsonDocument()
         {
             return new BsonDocument("enabled", _isEnabled);

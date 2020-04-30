@@ -136,7 +136,7 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
         /// <summary>
         /// To the byte array.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A byte array.</returns>
         /// <exception cref="System.InvalidOperationException">Object has already been disposed!!!</exception>
         public byte[] ToByteArray()
         {

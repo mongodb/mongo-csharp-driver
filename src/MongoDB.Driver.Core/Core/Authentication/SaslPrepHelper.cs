@@ -199,7 +199,7 @@ namespace MongoDB.Driver.Core.Authentication
         /// characters as defined by <a href="https://tools.ietf.org/html/rfc3454#appendix-C.7">RFC 3454, Appendix C.7</a>. 
         /// </summary>
         /// <param name="codepoint">The Unicode character's codepoint.</param>
-        /// <returns></returns>
+        /// <returns>True if the codepoint is inappropriate for canonical.</returns>
         private static bool InappropriateForCanonical(int codepoint)
         {
             return 0x2FF0 <= codepoint && codepoint <= 0x2FFB;
@@ -210,7 +210,7 @@ namespace MongoDB.Driver.Core.Authentication
         /// by <a href="https://tools.ietf.org/html/rfc3454#appendix-C.6">RFC 3454, Appendix C.6</a>.
         /// </summary>
         /// <param name="codepoint">The Unicode character's codepoint.</param>
-        /// <returns></returns>
+        /// <returns>True if the codepoint is inappropriate for plain text.</returns>
         private static bool InappropriateForPlainText(int codepoint)
         {
             return codepoint == 0xFFF9
@@ -795,7 +795,7 @@ namespace MongoDB.Driver.Core.Authentication
         /// <a href="https://tools.ietf.org/html/rfc3454#appendix-C.9">RFC 3454, Appendix C.9</a>.
         /// </summary>
         /// <param name="codepoint">The Unicode character's codepoint.</param>
-        /// <returns></returns>
+        /// <returns>True if the codepoint is a tagging character.</returns>
         private static bool Tagging(int codepoint)
         {
             return codepoint == 0xE0001

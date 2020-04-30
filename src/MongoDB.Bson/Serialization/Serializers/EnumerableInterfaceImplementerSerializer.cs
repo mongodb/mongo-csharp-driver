@@ -49,7 +49,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Initializes a new instance of the <see cref="EnumerableInterfaceImplementerSerializer{TValue}" /> class.
         /// </summary>
-        /// <param name="serializerRegistry"></param>
+        /// <param name="serializerRegistry">The serializer registry.</param>
         public EnumerableInterfaceImplementerSerializer(IBsonSerializerRegistry serializerRegistry)
             : base(serializerRegistry)
         {

@@ -37,7 +37,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Initializes a new instance of the <see cref="ReadOnlyCollectionSubclassSerializer{TValue, TItem}"/> class.
         /// </summary>
-        /// <param name="itemSerializer"></param>
+        /// <param name="itemSerializer">The item serializer.</param>
         public ReadOnlyCollectionSubclassSerializer(IBsonSerializer<TItem> itemSerializer)
             : base(itemSerializer)
         {

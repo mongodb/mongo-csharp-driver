@@ -32,9 +32,9 @@ namespace MongoDB.Driver.Core.Authentication
         /// <summary>
         /// Try to get a cached entry.
         /// </summary>
-        /// <param name="key"></param>
-        /// <param name="entry"></param>
-        /// <returns></returns>
+        /// <param name="key">The key.</param>
+        /// <param name="entry">The entry.</param>
+        /// <returns>True if the cache contained an entry for the key.</returns>
         public bool TryGet(ScramCacheKey key, out ScramCacheEntry entry)
         {
             if (key.Equals(_cacheKey))
@@ -52,8 +52,8 @@ namespace MongoDB.Driver.Core.Authentication
         /// <summary>
         /// Add a cached entry.
         /// </summary>
-        /// <param name="key"></param>
-        /// <param name="entry"></param>
+        /// <param name="key">The key.</param>
+        /// <param name="entry">The entry.</param>
         public void Add(ScramCacheKey key, ScramCacheEntry entry)
         {
             _cacheKey = key;
