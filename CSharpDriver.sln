@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27703.2042
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D2012971-32BB-4C5F-BFC4-30A9994AB152}"
 EndProject
@@ -43,6 +43,7 @@ Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "MongoDB.Driver.Legacy.VB.Te
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B071AF36-EED4-4CFF-A006-ECDAD0A87F99}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		MongoDB.ruleset = MongoDB.ruleset
 		MongoDBLegacy.ruleset = MongoDBLegacy.ruleset
 		MongoDBLegacyTest.ruleset = MongoDBLegacyTest.ruleset
