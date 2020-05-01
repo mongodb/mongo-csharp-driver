@@ -24,6 +24,7 @@ using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
@@ -107,14 +108,17 @@ namespace MongoDB.Driver
                 .ConfigureWithConnectionString(__connectionString.Value)
                 .ConfigureCluster(c => c.With(serverSelectionTimeout: TimeSpan.FromMilliseconds(int.Parse(serverSelectionTimeoutString))));
 
-            if (__connectionString.Value.Tls.HasValue && __connectionString.Value.Tls.Value)
+            if (__connectionString.Value.Tls.HasValue &&
+                __connectionString.Value.Tls.Value &&
+                __connectionString.Value.AuthMechanism != null &&
+                __connectionString.Value.AuthMechanism == MongoDBX509Authenticator.MechanismName)
             {
-                var certificateFilename = Environment.GetEnvironmentVariable("MONGO_SSL_CERT_FILE");
+                var certificateFilename = Environment.GetEnvironmentVariable("MONGO_X509_CLIENT_CERTIFICATE_PATH");
                 if (certificateFilename != null)
                 {
                     builder.ConfigureSsl(ssl =>
                     {
-                        var password = Environment.GetEnvironmentVariable("MONGO_SSL_CERT_PASS");
+                        var password = Environment.GetEnvironmentVariable("MONGO_X509_CLIENT_CERTIFICATE_PASSWORD");
                         X509Certificate cert;
                         if (password == null)
                         {

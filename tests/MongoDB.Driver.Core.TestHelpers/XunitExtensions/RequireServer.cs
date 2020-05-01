@@ -162,6 +162,18 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
             throw new SkipException($"Test skipped because storage engine is \"{actualStorageEngine}\" and not one of ({storageEnginesString}).");
         }
 
+        public RequireServer Tls(bool required = true)
+        {
+            var usingTls = CoreTestConfiguration.ConnectionString.Tls;
+            if (usingTls == required)
+            {
+                return this;
+            }
+            throw new SkipException(
+                $"Test skipped because the connection string specifies TLS={usingTls} " +
+                $"and this test requires TLS={required}.");
+        }
+
         public RequireServer VersionGreaterThanOrEqualTo(SemanticVersion version)
         {
             var actualVersion = CoreTestConfiguration.ServerVersion;

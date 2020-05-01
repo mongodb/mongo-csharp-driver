@@ -120,7 +120,7 @@ namespace MongoDB.Driver.Tests
                 useMultipleShardRouters = false;
             }
 
-            var connectionString = useMultipleShardRouters 
+            var connectionString = useMultipleShardRouters
                 ? CoreTestConfiguration.ConnectionStringWithMultipleShardRouters.ToString()
                 : CoreTestConfiguration.ConnectionString.ToString();
             var clientSettings = MongoClientSettings.FromUrl(new MongoUrl(connectionString));
@@ -132,6 +132,11 @@ namespace MongoDB.Driver.Tests
         public static DisposableMongoClient CreateDisposableClient(EventCapturer capturer)
         {
             return CreateDisposableClient((ClusterBuilder c) => c.Subscribe(capturer));
+        }
+
+        public static DisposableMongoClient CreateDisposableclient(MongoClientSettings settings)
+        {
+            return new DisposableMongoClient(new MongoClient(settings));
         }
 
         public static MongoClientSettings GetClientSettings()

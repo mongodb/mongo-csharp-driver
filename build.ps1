@@ -275,6 +275,11 @@ if ($Experimental) { $cakeArguments += "-experimental" }
 if ($Mono) { $cakeArguments += "-mono" }
 $cakeArguments += $ScriptArgs
 
+# Verify that the environment variables we care about have been passed in from bash
+Write-Host "Verifying environment variables values..."
+Write-Host "MONGO_X509_CLIENT_CERTIFICATE_PATH = " $env:MONGO_X509_CLIENT_CERTIFICATE_PATH
+Write-Host "MONGO_X509_CLIENT_CERTIFICATE_PASSWORD = " $env:MONGO_X509_CLIENT_CERTIFICATE_PASSWORD
+
 # Start Cake
 Write-Host "Running build script..."
 echo $CAKE_EXE $cakeArguments

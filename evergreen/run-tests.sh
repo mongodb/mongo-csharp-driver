@@ -3,13 +3,19 @@
 set -o xtrace   # Write all commands first to stderr
 set -o errexit  # Exit the script with error if any of the commands fail
 
-# Supported/used environment variables:
-#       AUTH                    Set to enable authentication. Values are: "auth" / "noauth" (default)
-#       SSL                     Set to enable SSL. Values are "ssl" / "nossl" (default)
-#       MONGODB_URI             Set the suggested connection MONGODB_URI (including credentials and topology info)
-#       TOPOLOGY                Allows you to modify variables and the MONGODB_URI based on test topology
-#                               Supported values: "server", "replica_set", "sharded_cluster"
-#       OCSP_TLS_SHOULD_SUCCEED Set to test OCSP. Values are true/false/nil
+# Environment variables used as input:
+#   AUTH                            Set to enable authentication. Values are: "auth" / "noauth" (default)
+#   SSL                             Set to enable SSL. Values are "ssl" / "nossl" (default)
+#   MONGODB_URI                     Set the suggested connection MONGODB_URI (including credentials and topology info)
+#   TOPOLOGY                        Allows you to modify variables and the MONGODB_URI based on test topology
+#                                   Supported values: "server", "replica_set", "sharded_cluster"
+#   OCSP_TLS_SHOULD_SUCCEED         Set to test OCSP. Values are true/false/nil
+#   MONGODB_X509_CLIENT_P12_PATH    Absolute path to client certificate in p12 format
+#   MONGO_X509_CLIENT_CERTIFICATE_PASSWORD  password for client certificate
+#
+# Environment variables produced as output:
+#   MONGODB_X509_CLIENT_P12_PATH            Absolute path to client certificate in p12 format
+#   MONGO_X509_CLIENT_CERTIFICATE_PASSWORD  Password for client certificate
 
 AUTH=${AUTH:-noauth}
 SSL=${SSL:-nossl}
@@ -17,6 +23,7 @@ MONGODB_URI=${MONGODB_URI:-}
 TOPOLOGY=${TOPOLOGY:-server}
 COMPRESSOR=${COMPRESSOR:-none}
 OCSP_TLS_SHOULD_SUCCEED=${OCSP_TLS_SHOULD_SUCCEED:-nil}
+CLIENT_PEM=${CLIENT_PEM:-nil}
 
 ############################################
 #            Functions                     #
@@ -97,4 +104,16 @@ fi
 for var in TMP TEMP NUGET_PACKAGES NUGET_HTTP_CACHE_PATH APPDATA; do
   export $var=z:\\data\\tmp;
 done
-powershell.exe .\\build.ps1 -target ${TARGET}
+
+if [[ "$CLIENT_PEM" != "nil" ]]; then
+  CLIENT_PEM=${CLIENT_PEM} source evergreen/convert-client-cert-to-pkcs12.sh
+fi
+
+if [[ -z "$MONGO_X509_CLIENT_CERTIFICATE_PATH" && -z "$MONGO_X509_CLIENT_CERTIFICATE_PASSWORD" ]]; then
+  powershell.exe '.\build.ps1 -target' $TARGET
+else
+  powershell.exe \
+    '$env:MONGO_X509_CLIENT_CERTIFICATE_PATH="'${MONGO_X509_CLIENT_CERTIFICATE_PATH}'";'\
+    '$env:MONGO_X509_CLIENT_CERTIFICATE_PASSWORD="'${MONGO_X509_CLIENT_CERTIFICATE_PASSWORD}'";'\
+    '.\build.ps1 -target' $TARGET
+fi

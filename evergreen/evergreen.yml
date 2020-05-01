@@ -240,7 +240,14 @@ functions:
           export FLE_AWS_SECRET_ACCESS_KEY=${FLE_AWS_SECRET_ACCESS_KEY}
           ${PREPARE_SHELL}
           SSL=${SSL} evergreen/add-certs-if-needed.sh
-          AUTH=${AUTH} SSL=${SSL} MONGODB_URI="${MONGODB_URI}" TOPOLOGY=${TOPOLOGY} OS=${OS} COMPRESSOR=${COMPRESSOR} evergreen/run-tests.sh
+          AUTH=${AUTH} \
+            SSL=${SSL} \
+            MONGODB_URI="${MONGODB_URI}" \
+            TOPOLOGY=${TOPOLOGY} \
+            OS=${OS} \
+            COMPRESSOR=${COMPRESSOR} \
+            CLIENT_PEM=${DRIVERS_TOOLS}/.evergreen/x509gen/client.pem \
+            evergreen/run-tests.sh
           echo "Skipping certificate removal..."
 
   run-atlas-connectivity-tests:
