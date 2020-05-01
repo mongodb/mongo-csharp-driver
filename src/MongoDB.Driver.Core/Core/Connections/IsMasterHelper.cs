@@ -26,10 +26,10 @@ using MongoDB.Driver.Core.WireProtocol;
 namespace MongoDB.Driver.Core.Connections
 {
     internal static class IsMasterHelper
-    {   
+    {
         internal static BsonDocument AddClientDocumentToCommand(BsonDocument command, BsonDocument clientDocument)
         {
-            return command.Add("client", clientDocument, clientDocument != null); 
+            return command.Add("client", clientDocument, clientDocument != null);
         }
 
         internal static BsonDocument AddCompressorsToCommand(BsonDocument command, IEnumerable<CompressorConfiguration> compressors)
@@ -43,14 +43,14 @@ namespace MongoDB.Driver.Core.Connections
         {
             return new BsonDocument { { "isMaster", 1 } };
         }
-        
+
         internal static BsonDocument CustomizeCommand(BsonDocument command, IReadOnlyList<IAuthenticator> authenticators)
         {
             return authenticators.Count == 1 ? authenticators[0].CustomizeInitialIsMasterCommand(command) : command;
         }
 
         internal static CommandWireProtocol<BsonDocument> CreateProtocol(BsonDocument isMasterCommand)
-        {    
+        {
             return new CommandWireProtocol<BsonDocument>(
                 databaseNamespace: DatabaseNamespace.Admin,
                 command: isMasterCommand,

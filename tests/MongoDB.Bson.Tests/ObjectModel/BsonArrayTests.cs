@@ -304,7 +304,7 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void TestCreateObjectArray()
         {
-            var values = new object[] { true, 1 , 1.5, null }; // null will be mapped to BsonNull.Value
+            var values = new object[] { true, 1, 1.5, null }; // null will be mapped to BsonNull.Value
             var array = new BsonArray(values);
             Assert.Equal(4, array.Count);
             Assert.IsType<BsonBoolean>(array[0]);

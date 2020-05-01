@@ -139,7 +139,7 @@ namespace MongoDB.Driver.Core.Connections
                 messageEncoderSettings: null);
             return getLastErrorProtocol;
         }
-        
+
         private BsonDocument CreateInitialIsMasterCommand(IReadOnlyList<IAuthenticator> authenticators)
         {
             var command = IsMasterHelper.CreateCommand();

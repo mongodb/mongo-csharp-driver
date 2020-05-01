@@ -281,7 +281,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             return WithDictionaryRepresentation(dictionaryRepresentation);
         }
-        
+
         /// <inheritdoc/>
         protected override ICollection<KeyValuePair<TKey, TValue>> CreateAccumulator()
         {

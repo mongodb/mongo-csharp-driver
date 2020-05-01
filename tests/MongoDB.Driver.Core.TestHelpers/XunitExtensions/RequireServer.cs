@@ -118,7 +118,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
             var clusterDescription = CoreTestConfiguration.Cluster.Description;
             if (clusterDescription.LogicalSessionTimeout != null)
             {
-               return this;
+                return this;
             }
             throw new SkipException($"Test skipped because the cluster does not support sessions.");
         }

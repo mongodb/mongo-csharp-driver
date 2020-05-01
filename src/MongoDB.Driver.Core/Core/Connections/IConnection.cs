@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Core.Connections
         /// <value>
         /// The connection identifier.
         /// </value>
-        ConnectionId ConnectionId { get;}
+        ConnectionId ConnectionId { get; }
 
         /// <summary>
         /// Gets the connection description.

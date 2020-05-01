@@ -1593,7 +1593,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var obj = new TestClass
             {
-                D128 =1 ,
+                D128 = 1,
                 D = 1,
                 I = 1,
                 L = 1,

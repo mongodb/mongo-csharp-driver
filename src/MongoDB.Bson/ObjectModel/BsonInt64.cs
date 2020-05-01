@@ -26,7 +26,7 @@ namespace MongoDB.Bson
 #endif
     public class BsonInt64 : BsonValue, IComparable<BsonInt64>, IEquatable<BsonInt64>
     {
-         #region static
+        #region static
         const long __minPrecreatedValue = -100L;
         const long __maxPrecreatedValue = 100L;
         private static readonly BsonInt64[] __precreatedInstances = new BsonInt64[__maxPrecreatedValue - __minPrecreatedValue + 1];
@@ -42,7 +42,7 @@ namespace MongoDB.Bson
         }
         #endregion
 
-       // private fields
+        // private fields
         private readonly long _value;
 
         // constructors
@@ -373,7 +373,7 @@ namespace MongoDB.Bson
             return Convert.ToUInt64(_value, provider);
         }
 #pragma warning restore
-       
+
         /// <summary>
         /// Compares this BsonInt32 against another BsonValue.
         /// </summary>

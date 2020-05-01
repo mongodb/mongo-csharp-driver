@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Tests
         private DisposableMongoClient CreateDisposableMongoClient(bool tlsInsecure)
         {
             var settings = DriverTestConfiguration.GetClientSettings().Clone();
-            settings.SslSettings = new SslSettings {CheckCertificateRevocation = true};
+            settings.SslSettings = new SslSettings { CheckCertificateRevocation = true };
             // setting AllowInsecureTls= true will automatically set CheckCertificateRevocation to false
             settings.AllowInsecureTls = tlsInsecure;
             /* We want the heartbeat to fire so that we can get the HeartBeat exception in the cluster description
@@ -106,9 +106,9 @@ namespace MongoDB.Driver.Tests
                 = Environment.GetEnvironmentVariable(_shouldSucceedEnvironmentVariableName);
             if (!Boolean.TryParse(ocspOutcomeEnvironmentVariableValue, out var successExpected))
             {
-               throw new Exception(
-                   $"Invalid value of {ocspOutcomeEnvironmentVariableValue} in {_shouldSucceedEnvironmentVariableName}."
-                   + $" Expected true/false.");
+                throw new Exception(
+                    $"Invalid value of {ocspOutcomeEnvironmentVariableValue} in {_shouldSucceedEnvironmentVariableName}."
+                    + $" Expected true/false.");
             }
             return successExpected;
         }

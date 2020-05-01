@@ -287,7 +287,7 @@ namespace MongoDB.Driver.Core.Operations
                 {
                     var batch = new Batch
                     {
-                        Requests = _requests                      
+                        Requests = _requests
                     };
 
                     yield return batch;

@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Core.Bindings
 
             var result = new CoreSessionHandle(session);
 
-            result._ownsWrapped().Should().BeFalse();               
+            result._ownsWrapped().Should().BeFalse();
             var referenceCounted = result.Wrapped.Should().BeOfType<ReferenceCountedCoreSession>().Subject;
             referenceCounted.Wrapped.Should().BeSameAs(session);
             referenceCounted._referenceCount().Should().Be(1);

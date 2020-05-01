@@ -1276,8 +1276,8 @@ namespace MongoDB.Driver.Core.Configuration
                     return false;
                 }
 
-            // loop from back to front making sure that all of b is at the back of a, in order.
-            for (int ai = a.Length - 1, bi = b.Length - 1; bi >= 0; ai--, bi--)
+                // loop from back to front making sure that all of b is at the back of a, in order.
+                for (int ai = a.Length - 1, bi = b.Length - 1; bi >= 0; ai--, bi--)
                 {
                     if (a[ai] != b[bi])
                     {

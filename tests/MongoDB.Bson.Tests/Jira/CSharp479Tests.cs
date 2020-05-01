@@ -25,7 +25,7 @@ namespace MongoDB.Bson.Tests.Jira
         public class Test
         {
             [BsonRepresentation(BsonType.ObjectId)]
-            public string[] OtherIds { get; set;}
+            public string[] OtherIds { get; set; }
         }
 
         [Fact]

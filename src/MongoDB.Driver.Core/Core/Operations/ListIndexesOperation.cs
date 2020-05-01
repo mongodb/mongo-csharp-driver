@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _messageEncoderSettings; }
         }
-        
+
         /// <summary>
         /// Gets or sets whether or not retry was requested.
         /// </summary>

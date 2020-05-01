@@ -568,7 +568,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             return (ICollection<KeyValuePair<TKey, TValue>>)CreateInstance();
 #pragma warning restore 618
         }
-        
+
         // protected methods
         /// <summary>
         /// Creates the instance.

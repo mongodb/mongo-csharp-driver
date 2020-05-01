@@ -48,10 +48,10 @@ using System.Text;
 
 namespace MongoDB.Driver.Core.Authentication.Vendored
 {
-    
+
     internal class Rfc2898DeriveBytes : DeriveBytes
     {
-        private static readonly string Cryptography_PasswordDerivedBytes_FewBytesSalt 
+        private static readonly string Cryptography_PasswordDerivedBytes_FewBytesSalt
             = "Salt is not at least eight bytes.";
         private static readonly string ArgumentOutOfRange_NeedPosNum
             = "Positive number required.";
@@ -270,7 +270,7 @@ namespace MongoDB.Driver.Core.Authentication.Vendored
         {
             Initialize();
         }
-        
+
         private static string Format(string resourceFormat, params object[] args)
         {
             return args != null ? string.Format(resourceFormat, args) : resourceFormat;

@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Tests
             __database.DropCollection(__airportsCollection.CollectionNamespace.CollectionName);
             __database.DropCollection(__travelersCollection.CollectionNamespace.CollectionName);
 
-            __jfk= new Airport { Id = 0, Name = "JFK", Connects = new[] { "BOS", "ORD" } };
+            __jfk = new Airport { Id = 0, Name = "JFK", Connects = new[] { "BOS", "ORD" } };
             __bos = new Airport { Id = 1, Name = "BOS", Connects = new[] { "JFK", "PWM" } };
             __ord = new Airport { Id = 2, Name = "ORD", Connects = new[] { "JFK" } };
             __pwm = new Airport { Id = 3, Name = "PWM", Connects = new[] { "BOS", "LHR" } };
@@ -174,7 +174,7 @@ namespace MongoDB.Driver.Tests
                 connectFromField: x => x.Connects,
                 connectToField: x => x.Name,
                 startWith: x => x.NearestAirport,
-                @as : (TravelerDestinations x) => x.Destinations,
+                @as: (TravelerDestinations x) => x.Destinations,
                 depthField: (Destination x) => x.NumConnections,
                 options: options);
 
@@ -375,7 +375,7 @@ namespace MongoDB.Driver.Tests
             [BsonElement("nearestAirport")]
             public string NearestAirport { get; set; }
             [BsonElement("destinations")]
-            public Destination[] Destinations {get;set;}
+            public Destination[] Destinations { get; set; }
         }
 
         private class AirportEqualityComparer : IEqualityComparer<Airport>

@@ -143,8 +143,8 @@ namespace MongoDB.Driver.Tests
                     Builders<BsonDocument>.Projection
                         .Exclude("_id")
                         .Exclude("stock_item"));
-            
-            var result = PipelineStageDefinitionBuilder.Lookup<BsonDocument,BsonDocument, BsonDocument, IEnumerable<BsonDocument>, BsonDocument>(
+
+            var result = PipelineStageDefinitionBuilder.Lookup<BsonDocument, BsonDocument, BsonDocument, IEnumerable<BsonDocument>, BsonDocument>(
                 warehousesCollection,
                 new BsonDocument
                 {
@@ -193,7 +193,7 @@ namespace MongoDB.Driver.Tests
 
             var lookupPipeline = new EmptyPipelineDefinition<BsonDocument>();
 
-            var result = PipelineStageDefinitionBuilder.Lookup<BsonDocument, BsonDocument, BsonDocument, IEnumerable<BsonDocument>, BsonDocument >(
+            var result = PipelineStageDefinitionBuilder.Lookup<BsonDocument, BsonDocument, BsonDocument, IEnumerable<BsonDocument>, BsonDocument>(
                 warehousesCollection,
                 null,
                 lookupPipeline,

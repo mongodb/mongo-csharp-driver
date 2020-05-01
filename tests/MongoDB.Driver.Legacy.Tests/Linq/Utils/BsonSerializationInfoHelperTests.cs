@@ -187,7 +187,7 @@ namespace MongoDB.Driver.Tests.Linq.Utils
         public void TestNestedConversion()
         {
             var query = Query<Test>.EQ(t => ((Test4)t.Complex.Complex).PrimitiveEnumerable, null);
-            
+
             Assert.Equal("{ \"c.c.pe\" : null }", query.ToString());
         }
     }

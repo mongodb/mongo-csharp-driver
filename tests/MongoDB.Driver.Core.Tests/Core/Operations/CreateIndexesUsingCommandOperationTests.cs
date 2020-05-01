@@ -202,12 +202,12 @@ namespace MongoDB.Driver.Core.Operations
             result["maxTimeMS"].BsonType.Should().Be(BsonType.Int32);
         }
 
-       [Theory]
-       [ParameterAttributeData]
+        [Theory]
+        [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_WriteConcern_is_set(
-            [Values(1, 2)]
+             [Values(1, 2)]
             int w,
-            [Values(false, true)]
+             [Values(false, true)]
             bool isWriteConcernSupported)
         {
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) };

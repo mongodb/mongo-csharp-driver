@@ -24,7 +24,7 @@ namespace MongoDB.Shared
         {
             string message;
             if (!IsApplicationNameValid(applicationName, out message))
-            { 
+            {
                 throw new ArgumentException(message, paramName);
             }
 

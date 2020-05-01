@@ -43,7 +43,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel
             {
                 throw new ArgumentNullException("polygons");
             }
-            
+
             var polygonsArray = polygons.ToArray();
             if (polygonsArray.Contains(null))
             {

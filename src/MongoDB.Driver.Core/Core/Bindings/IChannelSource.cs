@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core.Bindings
         /// <value>
         /// The server.
         /// </value>
-        IServer Server{ get; }
+        IServer Server { get; }
 
         /// <summary>
         /// Gets the server description.

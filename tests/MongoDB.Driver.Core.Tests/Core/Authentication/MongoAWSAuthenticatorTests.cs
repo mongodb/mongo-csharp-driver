@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication
         private static readonly ConnectionDescription __connectionDescription;
         private static readonly IRandomByteGenerator __randomByteGenerator = new DefaultRandomByteGenerator();
         private static readonly ServerId __serverId;
-        
+
         // static constructor
         static MongoAWSAuthenticatorTests()
         {

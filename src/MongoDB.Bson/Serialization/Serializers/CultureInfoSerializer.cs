@@ -74,7 +74,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                         }
                     });
 #if NETSTANDARD1_5 || NETSTANDARD1_6
-                                        if (!useUserOverride)
+                    if (!useUserOverride)
                     {
                         throw new FormatException("CultureInfo does not support useUserOverride on this version of the .NET Framework.");
                     }

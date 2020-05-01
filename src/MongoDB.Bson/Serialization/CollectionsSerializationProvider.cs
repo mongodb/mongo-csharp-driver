@@ -155,7 +155,7 @@ namespace MongoDB.Bson.Serialization
                     }
                 }
             }
-            
+
             // the order of the tests is important
             if (implementedGenericDictionaryInterface != null)
             {
@@ -253,16 +253,16 @@ namespace MongoDB.Bson.Serialization
 
         private List<Type> GetImplementedInterfaces(Type type)
         {
-            return type.GetTypeInfo().IsInterface 
-                ? type.GetTypeInfo().GetInterfaces().Concat(new Type[]{type}).ToList()
+            return type.GetTypeInfo().IsInterface
+                ? type.GetTypeInfo().GetInterfaces().Concat(new Type[] { type }).ToList()
                 : type.GetTypeInfo().GetInterfaces().ToList();
         }
-            
+
         private IBsonSerializer GetReadOnlyDictionarySerializer(Type type, IBsonSerializerRegistry serializerRegistry)
         {
-            var typeInfo = type.GetTypeInfo();            
-            if (!typeInfo.IsGenericType 
-                || typeInfo.IsGenericTypeDefinition 
+            var typeInfo = type.GetTypeInfo();
+            if (!typeInfo.IsGenericType
+                || typeInfo.IsGenericTypeDefinition
                 || typeInfo.GetGenericArguments().Length != 2)
             {
                 return null;
@@ -272,26 +272,26 @@ namespace MongoDB.Bson.Serialization
             var valueType = typeInfo.GetGenericArguments()[1];
             var typeIsIReadOnlyDictionary =
                 type == typeof(IReadOnlyDictionary<,>).MakeGenericType(keyType, valueType);
-            var typeIsOrIsChildOfReadOnlyDictionary = 
+            var typeIsOrIsChildOfReadOnlyDictionary =
                 IsOrIsChildOf(type, typeof(ReadOnlyDictionary<,>).MakeGenericType(keyType, valueType));
 
             var implementedInterfaces = GetImplementedInterfaces(type);
             var genericImplementedInterfaces = implementedInterfaces.Where(ii => ii.GetTypeInfo().IsGenericType);
-            var genericImplementedInterfaceDefinitions = 
+            var genericImplementedInterfaceDefinitions =
                 genericImplementedInterfaces.Select(i => i.GetGenericTypeDefinition()).ToArray();
             var implementsGenericReadOnlyDictionaryInterface =
                 genericImplementedInterfaceDefinitions.Contains(typeof(IReadOnlyDictionary<,>));
-            var implementsGenericDictionaryInterface = 
+            var implementsGenericDictionaryInterface =
                 genericImplementedInterfaceDefinitions.Contains(typeof(IDictionary<,>));
 
             if (typeIsIReadOnlyDictionary)
             {
                 return CreateGenericSerializer(
                     serializerTypeDefinition: typeof(ImpliedImplementationInterfaceSerializer<,>),
-                    typeArguments: new[] {type, typeof(ReadOnlyDictionary<,>).MakeGenericType(keyType, valueType)},
+                    typeArguments: new[] { type, typeof(ReadOnlyDictionary<,>).MakeGenericType(keyType, valueType) },
                     serializerRegistry: serializerRegistry);
             }
-                
+
             if (typeIsOrIsChildOfReadOnlyDictionary
                 || (!typeInfo.IsInterface
                     && implementsGenericReadOnlyDictionaryInterface
@@ -299,13 +299,13 @@ namespace MongoDB.Bson.Serialization
             {
                 return CreateGenericSerializer(
                     serializerTypeDefinition: typeof(ReadOnlyDictionaryInterfaceImplementerSerializer<,,>),
-                    typeArguments: new[] {type, keyType, valueType},
+                    typeArguments: new[] { type, keyType, valueType },
                     serializerRegistry: serializerRegistry);
             }
 
             return null;
 
         }
-        
+
     }
 }

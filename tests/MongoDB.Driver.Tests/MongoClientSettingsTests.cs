@@ -495,7 +495,7 @@ namespace MongoDB.Driver.Tests
         [Theory]
         [InlineData("mongodb+srv://username:password@test5.test.build.10gen.cc/?connect=direct", ConnectionStringScheme.MongoDB, "localhost.test.build.10gen.cc:27017")]
         [InlineData("mongodb+srv://username:password@test5.test.build.10gen.cc/?connect=standalone", ConnectionStringScheme.MongoDB, "localhost.test.build.10gen.cc:27017")]
-        [InlineData("mongodb+srv://username:password@test5.test.build.10gen.cc/?connect=automatic",  ConnectionStringScheme.MongoDBPlusSrv, "test5.test.build.10gen.cc:53")]
+        [InlineData("mongodb+srv://username:password@test5.test.build.10gen.cc/?connect=automatic", ConnectionStringScheme.MongoDBPlusSrv, "test5.test.build.10gen.cc:53")]
         [InlineData("mongodb+srv://username:password@test5.test.build.10gen.cc/?connect=replicaset", ConnectionStringScheme.MongoDBPlusSrv, "test5.test.build.10gen.cc:53")]
         [InlineData("mongodb+srv://username:password@test5.test.build.10gen.cc/?connect=shardrouter", ConnectionStringScheme.MongoDBPlusSrv, "test5.test.build.10gen.cc:53")]
         public void TestFromUrlResolving(string connectionString, ConnectionStringScheme expectedScheme, string expectedEndPoint)

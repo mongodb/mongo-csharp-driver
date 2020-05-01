@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Core.Configuration
     {
         // constants
         private const string __traceSourceName = "MongoDB-SDAM";
-        
+
         // fields
         private EventAggregator _eventAggregator;
         private ClusterSettings _clusterSettings;
@@ -112,7 +112,7 @@ namespace MongoDB.Driver.Core.Configuration
             _connectionPoolSettings = configurator(_connectionPoolSettings);
             return this;
         }
-        
+
         /// <summary>
         /// Configures the SDAM logging settings.
         /// </summary>

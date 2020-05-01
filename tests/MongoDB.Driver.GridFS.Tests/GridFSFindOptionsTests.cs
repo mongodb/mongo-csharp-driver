@@ -148,7 +148,7 @@ namespace MongoDB.Driver.GridFS.Tests
 
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("value");
         }
- 
+
         [Fact]
         public void NoCursorTimeout_get_should_return_expected_result()
         {

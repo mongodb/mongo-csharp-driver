@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
             using (var client = CreateDisposableClient(eventCapturer))
             {
                 var database = client.GetDatabase(_databaseName);
-                var collection =  database.GetCollection<BsonDocument>(_collectionName).WithWriteConcern(WriteConcern.Unacknowledged);
+                var collection = database.GetCollection<BsonDocument>(_collectionName).WithWriteConcern(WriteConcern.Unacknowledged);
 
                 switch (operation)
                 {

@@ -186,7 +186,7 @@ namespace MongoDB.Driver
         /// <param name="allowScalarValueForArrayField">Whether a scalar value is allowed for an array field.</param>
         /// <returns>A <see cref="RenderedFieldDefinition{TField}"/>.</returns>
         public virtual RenderedFieldDefinition<TField> Render(
-            IBsonSerializer<TDocument> documentSerializer, 
+            IBsonSerializer<TDocument> documentSerializer,
             IBsonSerializerRegistry serializerRegistry,
             bool allowScalarValueForArrayField)
         {
@@ -312,7 +312,7 @@ namespace MongoDB.Driver
 
         /// <inheritdoc />
         public override RenderedFieldDefinition<TField> Render(
-            IBsonSerializer<TDocument> documentSerializer, 
+            IBsonSerializer<TDocument> documentSerializer,
             IBsonSerializerRegistry serializerRegistry,
             bool allowScalarValueForArrayField)
         {
@@ -394,7 +394,7 @@ namespace MongoDB.Driver
 
         /// <inheritdoc />
         public override RenderedFieldDefinition<TField> Render(
-            IBsonSerializer<TDocument> documentSerializer, 
+            IBsonSerializer<TDocument> documentSerializer,
             IBsonSerializerRegistry serializerRegistry,
             bool allowScalarValueForArrayField)
         {

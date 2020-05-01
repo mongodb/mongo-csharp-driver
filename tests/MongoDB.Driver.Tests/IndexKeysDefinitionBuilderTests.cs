@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Tests
                 subject.Descending("a"));
 
             Action act = () => Render(combined);
-            
+
             act.ShouldThrow<MongoException>();
         }
 

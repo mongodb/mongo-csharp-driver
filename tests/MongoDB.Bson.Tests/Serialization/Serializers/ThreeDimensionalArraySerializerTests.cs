@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Tests.Serialization.ArraySerializer
     {
         private class C
         {
-            public int[, ,] A;
+            public int[,,] A;
         }
 
         [Fact]

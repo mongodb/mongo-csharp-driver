@@ -283,7 +283,7 @@ namespace MongoDB.Bson
         /// <returns>A string representation of the value.</returns>
         public override string ToString()
         {
-            var escaped = (_pattern == "") ? "(?:)" :_pattern.Replace("/", @"\/");
+            var escaped = (_pattern == "") ? "(?:)" : _pattern.Replace("/", @"\/");
             return string.Format("/{0}/{1}", escaped, _options);
         }
     }

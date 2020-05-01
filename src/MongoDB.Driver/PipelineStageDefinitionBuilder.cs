@@ -344,7 +344,7 @@ namespace MongoDB.Driver
                         { "fullDocument", () => MongoUtils.ToCamelCase(options.FullDocument.ToString()), options.FullDocument != ChangeStreamFullDocumentOption.Default },
                         { "allChangesForCluster", true, options.AllChangesForCluster ?? false },
                         { "resumeAfter", options.ResumeAfter, options.ResumeAfter != null },
-                        { "startAfter", options.StartAfter, options.StartAfter != null }, 
+                        { "startAfter", options.StartAfter, options.StartAfter != null },
                         { "startAtOperationTime", options.StartAtOperationTime, options.StartAtOperationTime != null }
                     };
                     var document = new BsonDocument(operatorName, renderedOptions);
@@ -889,7 +889,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(@as, nameof(@as));
 
             return Lookup<TInput, TForeignDocument, TAsElement, TAs, TOutput>(
-                foreignCollection, 
+                foreignCollection,
                 let,
                 lookupPipeline,
                 new ExpressionFieldDefinition<TOutput, TAs>(@as));

@@ -24,11 +24,11 @@ namespace MongoDB.Driver.Tests.Specifications.crud
         Exception ActualException { get; set; }
 
         void Execute(
-            ClusterDescription clusterDescription, 
-            IMongoDatabase database, 
-            IMongoCollection<BsonDocument> collection, 
-            BsonDocument arguments, 
-            BsonDocument outcome, 
+            ClusterDescription clusterDescription,
+            IMongoDatabase database,
+            IMongoCollection<BsonDocument> collection,
+            BsonDocument arguments,
+            BsonDocument outcome,
             bool isErrorExpected,
             bool async);
 

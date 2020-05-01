@@ -1087,13 +1087,13 @@ namespace MongoDB.Driver
             switch (compressorConfiguration.Type)
             {
                 case CompressorType.Zlib:
-                {
-                    if (compressorConfiguration.Properties.TryGetValue("Level", out var zlibCompressionLevel))
                     {
-                        builder.AppendFormat("zlibCompressionLevel={0};", zlibCompressionLevel);
+                        if (compressorConfiguration.Properties.TryGetValue("Level", out var zlibCompressionLevel))
+                        {
+                            builder.AppendFormat("zlibCompressionLevel={0};", zlibCompressionLevel);
+                        }
                     }
-                }
-                break;
+                    break;
             }
         }
     }

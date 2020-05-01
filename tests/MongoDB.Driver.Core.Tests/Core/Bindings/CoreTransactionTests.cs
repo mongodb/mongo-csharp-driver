@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Core.Bindings
         public void constructor_should_initialize_instance(
             [Values(1, 2)] long transactionNumber,
             [Values(false, true)] bool nullTransactionOptions)
-       {
+        {
             var transactionOptions = nullTransactionOptions ? null : new TransactionOptions();
 
             var result = new CoreTransaction(transactionNumber, transactionOptions);

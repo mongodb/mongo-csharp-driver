@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <inheritdoc/>
-         public override BsonDocument ToBsonDocument()
+        public override BsonDocument ToBsonDocument()
         {
             return _document;
         }

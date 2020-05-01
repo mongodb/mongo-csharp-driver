@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Core.Authentication
                         throw CreateException(connection, ex);
                     }
 
-                    currentStep = Transition(conversation, currentStep, result , out command);
+                    currentStep = Transition(conversation, currentStep, result, out command);
                 }
             }
         }

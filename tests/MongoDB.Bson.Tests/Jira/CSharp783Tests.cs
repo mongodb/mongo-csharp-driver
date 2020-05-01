@@ -95,7 +95,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
         {
             var c = new C { S = new HashSet<int> { x, y } };
             var json = c.ToJson();
-            var expected = new[] 
+            var expected = new[]
             {
                 "{ 'S' : { '_t' : 'System.Collections.Generic.HashSet`1[System.Int32]', '_v' : [1, 2] } }",
                 "{ 'S' : { '_t' : 'System.Collections.Generic.HashSet`1[System.Int32]', '_v' : [2, 1] } }"
@@ -213,7 +213,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
         {
             var c = new C { S = new HashSet<int> { x, y } };
             var json = c.ToJson();
-            var expected = new[] 
+            var expected = new[]
             {
                 "{ 'S' : [1, 2] }",
                 "{ 'S' : [2, 1] }"
@@ -332,7 +332,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
         {
             var c = new C { S = new HashSet<int> { x, y } };
             var json = c.ToJson();
-            var expected = new[] 
+            var expected = new[]
             {
                 "{ 'S' : [1, 2] }",
                 "{ 'S' : [2, 1] }"

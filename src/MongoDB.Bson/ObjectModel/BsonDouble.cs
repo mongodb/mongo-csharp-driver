@@ -28,7 +28,7 @@ namespace MongoDB.Bson
 #endif
     public class BsonDouble : BsonValue, IComparable<BsonDouble>, IEquatable<BsonDouble>
     {
-         #region static
+        #region static
         const int __minPrecreatedValue = -100;
         const int __maxPrecreatedValue = 100;
         private static readonly BsonDouble[] __precreatedInstances = new BsonDouble[__maxPrecreatedValue - __minPrecreatedValue + 1];

@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             get
             {
-                switch(_code)
+                switch (_code)
                 {
                     case 50:
                         return ServerErrorCategory.ExecutionTimeout;

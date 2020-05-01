@@ -118,7 +118,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
                         foreach (var readerGuidRepresentation in EnumHelper.GetValues<GuidRepresentation>())
                         {
-                            if (defaultGuidRepresentationMode == GuidRepresentationMode.V2 && 
+                            if (defaultGuidRepresentationMode == GuidRepresentationMode.V2 &&
                                 serializerGuidRepresentation != GuidRepresentation.Unspecified &&
                                 readerGuidRepresentation != GuidRepresentation.Unspecified &&
                                 GuidConverter.GetSubType(serializerGuidRepresentation) != GuidConverter.GetSubType(readerGuidRepresentation))

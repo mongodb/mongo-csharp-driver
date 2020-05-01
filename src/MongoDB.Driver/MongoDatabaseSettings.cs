@@ -295,7 +295,7 @@ namespace MongoDB.Driver
         internal void ApplyDefaultValues(IInheritableMongoClientSettings clientSettings)
         {
 #pragma warning disable 618
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2 &&  !_guidRepresentation.HasBeenSet)
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2 && !_guidRepresentation.HasBeenSet)
             {
                 GuidRepresentation = clientSettings.GuidRepresentation;
             }

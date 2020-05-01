@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Tests.Builders
             public DateTime DAsDateTime { get; set; }
 
             [BsonElement("dAsInt64")]
-            [BsonDateTimeOptions(Representation=BsonType.Int64)]
+            [BsonDateTimeOptions(Representation = BsonType.Int64)]
             public DateTime DAsInt64 { get; set; }
 
             [BsonElement("bdt")]
@@ -838,8 +838,8 @@ namespace MongoDB.Driver.Tests.Builders
             Assert.Equal(expected, update.ToJson());
         }
 
-// tests fail on .NET Core 2.1 with out of order key-value-pairs        
-#if !NETCOREAPP2_1        
+        // tests fail on .NET Core 2.1 with out of order key-value-pairs        
+#if !NETCOREAPP2_1
         [Fact]
         public void TestReplace()
         {
@@ -1138,7 +1138,7 @@ namespace MongoDB.Driver.Tests.Builders
             var expected = "{ \"$set\" : { \"x\" : 1 }, \"$unset\" : { \"name\" : 1 } }";
             Assert.Equal(expected, update.ToJson());
         }
- 
+
         [Fact]
         public void TestReplaceWithInvalidFieldName()
         {

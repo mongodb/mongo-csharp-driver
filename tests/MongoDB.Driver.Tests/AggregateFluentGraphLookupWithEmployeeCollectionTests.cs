@@ -192,7 +192,7 @@ namespace MongoDB.Driver.Tests
                 connectFromField: x => x.ReportsTo,
                 connectToField: x => x.Name,
                 startWith: x => x.ReportsTo,
-                @as: (EmployeeWithReportingHierarchy x) => x.ReportingHierarchy);               
+                @as: (EmployeeWithReportingHierarchy x) => x.ReportingHierarchy);
 
             var stage = result.Stages.Single();
             var renderedStage = stage.Render(__employeesCollection.DocumentSerializer, BsonSerializer.SerializerRegistry);

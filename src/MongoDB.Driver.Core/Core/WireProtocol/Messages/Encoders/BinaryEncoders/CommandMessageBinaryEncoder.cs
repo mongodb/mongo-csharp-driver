@@ -452,7 +452,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                     }
                 }
 
-                notFound:
+            notFound:
                 throw new InvalidOperationException("{ w : <Int32> } not found.");
             }
 

@@ -152,7 +152,7 @@ namespace MongoDB.Driver.Core.Operations
         private static bool IsOperationAcknowledged<TResult>(IRetryableWriteOperation<TResult> operation)
         {
             var writeConcern = operation.WriteConcern;
-            return 
+            return
                 writeConcern == null || // null means use server default write concern which implies acknowledged
                 writeConcern.IsAcknowledged;
         }

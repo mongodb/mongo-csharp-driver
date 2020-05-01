@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Linq
             throw new NotSupportedException("Array indexes must be int or long.");
         }
 
-        private static string FormatArrayIndex(long index) 
+        private static string FormatArrayIndex(long index)
         {
             switch (index)
             {

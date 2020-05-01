@@ -2533,7 +2533,7 @@ namespace MongoDB.Driver.Builders
             }
 
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
-             _updateBuilder.CurrentDate(serializationInfo.ElementName, UpdateCurrentDateType.Timestamp);
+            _updateBuilder.CurrentDate(serializationInfo.ElementName, UpdateCurrentDateType.Timestamp);
             return this;
         }
 

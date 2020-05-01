@@ -57,8 +57,8 @@ namespace MongoDB.Driver.Core.Clusters
 
         // constructors
         public MultiServerCluster(
-            ClusterSettings settings, 
-            IClusterableServerFactory serverFactory, 
+            ClusterSettings settings,
+            IClusterableServerFactory serverFactory,
             IEventSubscriber eventSubscriber,
             IDnsMonitorFactory dnsMonitorFactory = null)
             : base(settings, serverFactory, eventSubscriber)
@@ -435,7 +435,7 @@ namespace MongoDB.Driver.Core.Clusters
                                         args.NewServerDescription.ReplicaSetConfig.Name,
                                         args.NewServerDescription.EndPoint,
                                         args.NewServerDescription.ReplicaSetConfig.Version,
-                                        args.NewServerDescription.ElectionId))) ;
+                                        args.NewServerDescription.ElectionId)));
                             }
                             else // current primary is stale & setVersion is not stale ⇒ the electionId must be stale
                             {

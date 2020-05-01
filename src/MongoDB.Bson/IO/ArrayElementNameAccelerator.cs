@@ -116,7 +116,7 @@ namespace MongoDB.Bson.IO
 
             if (index < _cachedElementNames.Length)
             {
-                return  _cachedElementNames[index];
+                return _cachedElementNames[index];
             }
 
             return CreateElementNameBytes(index);

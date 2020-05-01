@@ -60,8 +60,8 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                 cursor = _collection.MapReduce(_map, _reduce, _options, cancellationToken);
             }
             else
-            { 
-                cursor = _collection.MapReduce(_session,_map, _reduce, _options, cancellationToken);
+            {
+                cursor = _collection.MapReduce(_session, _map, _reduce, _options, cancellationToken);
             }
 
             _result = cursor.ToList();
@@ -91,14 +91,14 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                     return;
 
                 case "reduce":
-                    _reduce =  BsonJavaScript.Create(value);
+                    _reduce = BsonJavaScript.Create(value);
                     return;
-                
+
                 case "out":
                     _options.OutputOptions = value is BsonString
                         ? new MapReduceOutputOptions.CollectionOutput(value.AsString, MapReduceOutputMode.Replace)
                         : MapReduceOutputOptions.Inline; // TODO: Clean this up.
-                    return; 
+                    return;
 
                 case "session":
                     _session = (IClientSessionHandle)_objectMap[value.AsString];

@@ -44,8 +44,8 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         public static ConnectionDescription CreateConnectionDescription(
-            SemanticVersion serverVersion = null, 
-            ServerType serverType = ServerType.Standalone, 
+            SemanticVersion serverVersion = null,
+            ServerType serverType = ServerType.Standalone,
             bool supportsSessions = true)
         {
             if (serverVersion == null)
@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         public static ICoreSessionHandle CreateSession(
-            bool isCausallyConsistent = false, 
+            bool isCausallyConsistent = false,
             BsonTimestamp operationTime = null,
             bool supportsSession = true)
         {

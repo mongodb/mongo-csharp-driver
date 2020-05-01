@@ -118,9 +118,9 @@ namespace MongoDB.Driver.Core.Authentication
             exception.Message.Should().Be("Character at position 3 is unassigned");
         }
 #endif
-        
+
         private static readonly Lazy<int> _unassignedCodePoint = new Lazy<int>(FindUnassignedCodePoint);
-        
+
         private static int FindUnassignedCodePoint()
         {
             for (var i = SaslPrepHelperReflector.MaxCodepoint; SaslPrepHelperReflector.MinCodepoint <= i; --i)
@@ -133,19 +133,19 @@ namespace MongoDB.Driver.Core.Authentication
             throw new Exception("Unable to find unassigned codepoint.");
         }
     }
-    
+
     public static class SaslPrepHelperReflector
     {
-        public static int MaxCodepoint => 
+        public static int MaxCodepoint =>
             (int)Reflector.GetStaticFieldValue(typeof(SaslPrepHelper), nameof(MaxCodepoint));
-            
-        public static int MinCodepoint => 
+
+        public static int MinCodepoint =>
             (int)Reflector.GetStaticFieldValue(typeof(SaslPrepHelper), nameof(MinCodepoint));
-            
-        public static bool IsDefined(int codepoint) => 
+
+        public static bool IsDefined(int codepoint) =>
             (bool)Reflector.InvokeStatic(typeof(SaslPrepHelper), nameof(IsDefined), codepoint);
-            
-        public static bool Prohibited(int codepoint) => 
+
+        public static bool Prohibited(int codepoint) =>
             (bool)Reflector.InvokeStatic(typeof(SaslPrepHelper), nameof(Prohibited), codepoint);
     }
 }

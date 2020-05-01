@@ -30,7 +30,7 @@ namespace MongoDB.Driver.GridFS
 #endif
     public class GridFSChunkException : GridFSException
     {
-#region static
+        #region static
         private static string FormatMessage(BsonValue id, long n, string reason)
         {
             Ensure.IsNotNull(id, nameof(id));
@@ -38,7 +38,7 @@ namespace MongoDB.Driver.GridFS
             Ensure.IsNotNull(reason, nameof(reason));
             return string.Format("GridFS chunk {0} of file id {1} is {2}.", n, id, reason);
         }
-#endregion
+        #endregion
 
         // constructors
         /// <summary>

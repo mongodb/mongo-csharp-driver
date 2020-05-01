@@ -169,7 +169,7 @@ namespace MongoDB.Driver
         [InlineData(false, true, false)]
         [InlineData(true, false, false)]
         [InlineData(true, true, true)]
-        public void Equals_should_compare_hedge_fields(bool? lhsEnabled, bool ?rhsEnabled, bool expectedResult)
+        public void Equals_should_compare_hedge_fields(bool? lhsEnabled, bool? rhsEnabled, bool expectedResult)
         {
             var lhsHedge = lhsEnabled.HasValue ? new ReadPreferenceHedge(lhsEnabled.Value) : null;
             var rhsHedge = rhsEnabled.HasValue ? new ReadPreferenceHedge(rhsEnabled.Value) : null;
@@ -313,7 +313,7 @@ namespace MongoDB.Driver
             int seconds)
         {
             var maxStaleness = TimeSpan.FromSeconds(seconds);
-            var subject = new ReadPreference(ReadPreferenceMode.Secondary, maxStaleness: maxStaleness );
+            var subject = new ReadPreference(ReadPreferenceMode.Secondary, maxStaleness: maxStaleness);
 
             var result = subject.ToString();
 
@@ -326,7 +326,7 @@ namespace MongoDB.Driver
         [InlineData(true, "{ Mode : Secondary, Hedge : { \"enabled\" : true } }")]
         public void ToString_should_return_expected_result_when_hedge_is_set(bool? isEnabled, string expectedResult)
         {
-            var hedge =  isEnabled.HasValue ? new  ReadPreferenceHedge(isEnabled.Value) : null;
+            var hedge = isEnabled.HasValue ? new ReadPreferenceHedge(isEnabled.Value) : null;
             var subject = new ReadPreference(ReadPreferenceMode.Secondary, hedge: hedge);
 
             var result = subject.ToString();

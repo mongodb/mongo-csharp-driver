@@ -14,7 +14,8 @@
 */
 
 using System;
-using System.Linq;using MongoDB.Bson;
+using System.Linq;
+using MongoDB.Bson;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Linq;
 using Xunit;

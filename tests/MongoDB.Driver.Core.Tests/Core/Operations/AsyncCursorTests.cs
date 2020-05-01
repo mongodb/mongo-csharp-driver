@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Core.Operations
 
             VerifyHowManyTimesKillCursorsWasCalled(
                 mockChannelHandle,
-                isKillCursorsCommandSupported ? Times.Never() : Times.Once(), 
+                isKillCursorsCommandSupported ? Times.Never() : Times.Once(),
                 async);
             VerifyHowManyTimesKillCursorsCommandWasCalled(
                 mockChannelHandle,
@@ -592,9 +592,9 @@ namespace MongoDB.Driver.Core.Operations
                         It.IsAny<IBsonSerializer<BsonDocument>>(),
                         It.IsAny<MessageEncoderSettings>(),
                         It.IsAny<CancellationToken>()),
-                    times);                    
-                 
-                
+                    times);
+
+
             }
             else
             {

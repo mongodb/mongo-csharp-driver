@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Tests
         public void TestCollectionExists()
         {
             var collectionName = "testcollectionexists";
-            EnsureCollectionDoesNotExist(collectionName);            
+            EnsureCollectionDoesNotExist(collectionName);
             Assert.False(_database.CollectionExists(collectionName));
 
             _database.GetCollection(collectionName).Insert(new BsonDocument());
@@ -196,7 +196,7 @@ namespace MongoDB.Driver.Tests
             var subject = _database;
             var writeConcern = new WriteConcern(9);
             var collectionName = "MacGuffins";
-            EnsureCollectionExists(collectionName);;
+            EnsureCollectionExists(collectionName); ;
 
             var exception = Record.Exception(() => subject.WithWriteConcern(writeConcern).DropCollection(collectionName));
 

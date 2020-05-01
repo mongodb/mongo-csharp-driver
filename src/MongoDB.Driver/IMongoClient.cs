@@ -100,7 +100,7 @@ namespace MongoDB.Driver
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The database names.</returns>
         IAsyncCursor<string> ListDatabaseNames(
-            IClientSessionHandle session,                                              
+            IClientSessionHandle session,
             CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
@@ -118,7 +118,7 @@ namespace MongoDB.Driver
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The database names.</returns>
         Task<IAsyncCursor<string>> ListDatabaseNamesAsync(
-            IClientSessionHandle session,                                              
+            IClientSessionHandle session,
             CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
@@ -127,8 +127,8 @@ namespace MongoDB.Driver
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A cursor.</returns>
         IAsyncCursor<BsonDocument> ListDatabases(
-            CancellationToken cancellationToken = default(CancellationToken));        
-        
+            CancellationToken cancellationToken = default(CancellationToken));
+
         /// <summary>
         /// Lists the databases on the server.
         /// </summary>

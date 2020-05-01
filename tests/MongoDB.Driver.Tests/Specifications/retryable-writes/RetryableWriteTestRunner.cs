@@ -80,7 +80,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
             var collection = database.GetCollection<BsonDocument>(_collectionName);
 
             database.DropCollection(collection.CollectionNamespace.CollectionName);
-            if (definition.TryGetValue("data", out var data) && 
+            if (definition.TryGetValue("data", out var data) &&
                 data is BsonArray dataArray &&
                 dataArray.Count > 0)
             {

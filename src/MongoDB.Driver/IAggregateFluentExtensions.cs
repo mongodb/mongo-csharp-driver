@@ -390,9 +390,9 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(aggregate, nameof(aggregate));
             Ensure.IsNotNull(foreignCollection, nameof(foreignCollection));
             return aggregate.AppendStage(PipelineStageDefinitionBuilder.Lookup<TResult, BsonDocument, BsonDocument, IEnumerable<BsonDocument>, BsonDocument>(
-                foreignCollection, 
-                let, 
-                lookupPipeline, 
+                foreignCollection,
+                let,
+                lookupPipeline,
                 @as));
         }
 
@@ -422,10 +422,10 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
             return aggregate.AppendStage(PipelineStageDefinitionBuilder.Lookup<TResult, TForeignDocument, TAsElement, TAs, TNewResult>(
-                foreignCollection, 
+                foreignCollection,
                 let,
-                lookupPipeline, 
-                @as, 
+                lookupPipeline,
+                @as,
                 options));
         }
 

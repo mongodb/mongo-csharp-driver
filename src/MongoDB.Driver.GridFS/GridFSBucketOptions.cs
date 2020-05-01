@@ -102,7 +102,7 @@ namespace MongoDB.Driver.GridFS
                 _chunkSizeBytes = value;
             }
         }
-        
+
         /// <summary>
         /// Gets or sets whether to disable MD5 checksum computation when uploading a GridFS file.
         /// </summary>
@@ -229,7 +229,7 @@ namespace MongoDB.Driver.GridFS
         {
             get { return _chunkSizeBytes; }
         }
-        
+
         /// <summary>
         /// Gets or sets whether to disable MD5 checksum computation when uploading a GridFS file.
         /// </summary>

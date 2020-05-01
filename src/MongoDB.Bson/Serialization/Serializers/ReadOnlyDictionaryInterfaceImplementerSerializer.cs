@@ -69,8 +69,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The reconfigured serializer.</returns>
         public ReadOnlyDictionaryInterfaceImplementerSerializer<TDictionary, TKey, TValue> WithDictionaryRepresentation(DictionaryRepresentation dictionaryRepresentation)
         {
-            return dictionaryRepresentation == DictionaryRepresentation 
-                ? this 
+            return dictionaryRepresentation == DictionaryRepresentation
+                ? this
                 : new ReadOnlyDictionaryInterfaceImplementerSerializer<TDictionary, TKey, TValue>(dictionaryRepresentation, KeySerializer, ValueSerializer);
         }
 
@@ -95,8 +95,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The reconfigured serializer.</returns>
         public ReadOnlyDictionaryInterfaceImplementerSerializer<TDictionary, TKey, TValue> WithKeySerializer(IBsonSerializer<TKey> keySerializer)
         {
-            return keySerializer == KeySerializer 
-                ? this 
+            return keySerializer == KeySerializer
+                ? this
                 : new ReadOnlyDictionaryInterfaceImplementerSerializer<TDictionary, TKey, TValue>(DictionaryRepresentation, keySerializer, ValueSerializer);
         }
 
@@ -107,14 +107,14 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The reconfigured serializer.</returns>
         public ReadOnlyDictionaryInterfaceImplementerSerializer<TDictionary, TKey, TValue> WithValueSerializer(IBsonSerializer<TValue> valueSerializer)
         {
-            return valueSerializer == ValueSerializer 
-                ? this 
+            return valueSerializer == ValueSerializer
+                ? this
                 : new ReadOnlyDictionaryInterfaceImplementerSerializer<TDictionary, TKey, TValue>(DictionaryRepresentation, KeySerializer, valueSerializer);
         }
 
         // explicit interface implementations
         IBsonSerializer IChildSerializerConfigurable.ChildSerializer => ValueSerializer;
-        
+
         IBsonSerializer IChildSerializerConfigurable.WithChildSerializer(IBsonSerializer childSerializer)
         {
             return WithValueSerializer((IBsonSerializer<TValue>)childSerializer);
@@ -124,7 +124,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             return WithDictionaryRepresentation(dictionaryRepresentation);
         }
-        
+
         /// <inheritdoc/>
         protected override ICollection<KeyValuePair<TKey, TValue>> CreateAccumulator()
         {
@@ -136,7 +136,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             try
             {
-                return (TDictionary) Activator.CreateInstance(typeof(TDictionary), new object[] {accumulator});
+                return (TDictionary)Activator.CreateInstance(typeof(TDictionary), new object[] { accumulator });
             }
             catch (MissingMethodException exception)
             {

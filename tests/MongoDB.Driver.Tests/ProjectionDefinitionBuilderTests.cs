@@ -204,7 +204,7 @@ namespace MongoDB.Driver.Tests
         {
             [BsonElement("fn")]
             public string FirstName { get; set; }
-        
+
             [BsonElement("pets")]
             public Pet[] Pets { get; set; }
         }
@@ -213,6 +213,6 @@ namespace MongoDB.Driver.Tests
         {
             [BsonElement("name")]
             public string Name { get; set; }
-        }    
+        }
     }
 }

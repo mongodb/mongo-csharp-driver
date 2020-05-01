@@ -38,7 +38,7 @@ namespace MongoDB.Bson.Tests.Jira
         {
             var json = "{ _id : 1, N : 'should be a document, not a string' }";
             var ex = Assert.Throws<FormatException>(() => BsonSerializer.Deserialize<C>(json));
-            
+
             Assert.IsType<FormatException>(ex.InnerException);
             var expected = "An error occurred while deserializing the N property of class MongoDB.Bson.Tests.Jira.CSharp351Tests+C: Expected a nested document representing the serialized form of a MongoDB.Bson.Tests.Jira.CSharp351Tests+N value, but found a value of type String instead.";
             Assert.Equal(expected, ex.Message);

@@ -43,7 +43,7 @@ namespace MongoDB.Driver.GridFS
             : this(database, new MongoGridFSSettings())
         {
         }
-        
+
         /// <summary>
         /// Initializes a new instance of the MongoGridFS class.
         /// </summary>
@@ -1062,7 +1062,7 @@ namespace MongoDB.Driver.GridFS
                     md5Server = md5Result.Response["md5"].AsString;
                 }
 
-                if ( _settings.VerifyMD5 && !md5Client.Equals(md5Server, StringComparison.OrdinalIgnoreCase))
+                if (_settings.VerifyMD5 && !md5Client.Equals(md5Server, StringComparison.OrdinalIgnoreCase))
                 {
                     throw new MongoGridFSException(connectionId, "Upload client and server MD5 hashes are not equal.");
                 }

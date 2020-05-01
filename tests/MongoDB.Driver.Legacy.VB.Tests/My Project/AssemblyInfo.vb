@@ -10,15 +10,15 @@ Imports System.Runtime.InteropServices
 
 <Assembly: AssemblyTitle("MongoDB.Driver.Legacy.VB.Tests")>
 <Assembly: AssemblyDescription("")>
-<Assembly: AssemblyCompany("MongoDB Inc.")> 
+<Assembly: AssemblyCompany("MongoDB Inc.")>
 <Assembly: AssemblyProduct("MongoDB.Driver.Legacy.VB.Tests")>
-<Assembly: AssemblyCopyright("Copyright © 2010-present MongoDB Inc.")> 
+<Assembly: AssemblyCopyright("Copyright © 2010-present MongoDB Inc.")>
 <Assembly: AssemblyTrademark("")>
 
 <Assembly: ComVisible(False)>
 
 'The following GUID is for the ID of the typelib if this project is exposed to COM
-<Assembly: Guid("22bcd0b4-ed00-4cb0-8567-5961b3173b88")> 
+<Assembly: Guid("22bcd0b4-ed00-4cb0-8567-5961b3173b88")>
 
 ' Version information for an assembly consists of the following four values:
 '

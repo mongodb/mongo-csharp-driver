@@ -124,8 +124,8 @@ namespace MongoDB.Driver.Linq.Processors.Pipeline.MethodCallBinders
             // or the result of previous steps (the `Document` type is `FieldExpression`).
             var parentFieldExpression = collectionField.Document as FieldExpression;
 
-            return parentFieldExpression == null 
-                ? new FieldExpression(collectionField.FieldName, serializer) 
+            return parentFieldExpression == null
+                ? new FieldExpression(collectionField.FieldName, serializer)
                 : new FieldExpression(new FieldExpression(parentFieldExpression.FieldName, parentFieldExpression.Serializer), collectionField.FieldName, serializer);
         }
     }

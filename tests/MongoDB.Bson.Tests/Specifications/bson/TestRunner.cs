@@ -156,7 +156,7 @@ namespace MongoDB.Bson.Specifications.bson
 
         private class TestCaseFactory : IEnumerable<object[]>
         {
-            public  IEnumerator<object[]> GetEnumerator()
+            public IEnumerator<object[]> GetEnumerator()
             {
                 const string prefix = "MongoDB.Bson.Tests.Specifications.bson.tests.";
                 var executingAssembly = typeof(TestCaseFactory).GetTypeInfo().Assembly;

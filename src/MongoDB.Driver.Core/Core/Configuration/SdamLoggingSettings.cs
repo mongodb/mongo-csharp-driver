@@ -19,9 +19,9 @@ namespace MongoDB.Driver.Core.Configuration
     /// Represents settings for SDAM logging.
     /// </summary>
     public class SdamLoggingSettings
-    {   
+    {
         private readonly string _logFilename;
-        
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SdamLoggingSettings"/> class.
         /// </summary>
@@ -31,12 +31,12 @@ namespace MongoDB.Driver.Core.Configuration
         {
             _logFilename = logFilename.WithDefault(null);
         }
-        
+
         /// <summary>
         /// The filename to log to.
         /// </summary>
         public string LogFilename => _logFilename;
-        
+
         // methods
         /// <summary>
         /// Returns a new SdamLoggingSettings instance with some settings changed.
@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Core.Configuration
         {
             return new SdamLoggingSettings(logFilename: logFilename.WithDefault(_logFilename));
         }
-        
+
         /// <summary>
         /// Whether or not SDAM logging is enabled.
         /// </summary>

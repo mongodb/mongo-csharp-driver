@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Tests
             result.IsCausallyConsistent.Should().Be(causalConsistency ?? true);
             result.IsImplicit.Should().Be(isImplicit);
         }
-    
+
         // private methods
         private ClientSessionOptions CreateSubject(
             bool? causalConsistency = null,

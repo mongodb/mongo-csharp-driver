@@ -237,7 +237,7 @@ namespace MongoDB.Driver.Core.Operations
                 exception.Should().BeOfType<MongoExecutionTimeoutException>();
             }
         }
-        
+
         // helper methods
         private void EnsureTestData()
         {

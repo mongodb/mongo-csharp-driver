@@ -28,11 +28,11 @@ namespace MongoDB.Driver.Core.Events
         /// Initializes a new instance of the <see cref="SdamInformationEvent"/> struct.
         /// </summary>
         /// <param name="createMessage">Function that creates the message to log.</param>
-        public SdamInformationEvent(Func<string> createMessage) 
+        public SdamInformationEvent(Func<string> createMessage)
             : this(new Lazy<string>(createMessage))
         {
         }
-        
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SdamInformationEvent"/> struct.
         /// </summary>
@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Core.Events
         {
             _message = message;
         }
-        
+
         /// <summary>
         /// Gets the message.
         /// </summary>

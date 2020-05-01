@@ -125,7 +125,7 @@ namespace MongoDB.Driver.GridFS
             return _wrappedStream.CopyToAsync(destination, bufferSize, cancellationToken);
         }
 
- #if NET452
+#if NET452
        /// <inheritdoc/>
         public override ObjRef CreateObjRef(Type requestedType)
         {
@@ -191,7 +191,7 @@ namespace MongoDB.Driver.GridFS
             return _wrappedStream.GetHashCode();
         }
 
- #if NET452
+#if NET452
        /// <inheritdoc/>
         public override object InitializeLifetimeService()
         {

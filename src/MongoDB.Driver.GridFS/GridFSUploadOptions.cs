@@ -32,7 +32,7 @@ namespace MongoDB.Driver.GridFS
         private string _contentType;
         private bool _disableMD5 = false;
         private BsonDocument _metadata;
-        
+
 
         // properties
         /// <summary>
@@ -87,7 +87,7 @@ namespace MongoDB.Driver.GridFS
             get { return _contentType; }
             set { _contentType = Ensure.IsNullOrNotEmpty(value, nameof(value)); }
         }
-        
+
         /// <summary>
         /// Gets or sets whether to disable MD5 checksum computation when uploading a GridFS file.
         /// </summary>

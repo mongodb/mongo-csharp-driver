@@ -107,17 +107,17 @@ namespace MongoDB.Driver.Core.Bindings
         {
             var subject = new WritableServerBinding(_mockCluster.Object, NoCoreSession.NewHandle());
             var selectedServer = new Mock<IServer>().Object;
-            
+
             var clusterId = new ClusterId();
             var endPoint = new DnsEndPoint("localhost", 27017);
             var initialClusterDescription = new ClusterDescription(
-                clusterId, 
+                clusterId,
                 ClusterConnectionMode.Automatic,
-                ClusterType.Unknown, 
+                ClusterType.Unknown,
                 new[] { new ServerDescription(new ServerId(clusterId, endPoint), endPoint) });
             var finalClusterDescription = initialClusterDescription.WithType(ClusterType.Standalone);
             _mockCluster.SetupSequence(c => c.Description).Returns(initialClusterDescription).Returns(finalClusterDescription);
-            
+
 
             if (async)
             {
@@ -167,13 +167,13 @@ namespace MongoDB.Driver.Core.Bindings
         {
             var subject = new WritableServerBinding(_mockCluster.Object, NoCoreSession.NewHandle());
             var selectedServer = new Mock<IServer>().Object;
-            
+
             var clusterId = new ClusterId();
             var endPoint = new DnsEndPoint("localhost", 27017);
             var initialClusterDescription = new ClusterDescription(
-                clusterId, 
+                clusterId,
                 ClusterConnectionMode.Automatic,
-                ClusterType.Unknown, 
+                ClusterType.Unknown,
                 new[] { new ServerDescription(new ServerId(clusterId, endPoint), endPoint) });
             var finalClusterDescription = initialClusterDescription.WithType(ClusterType.Standalone);
             _mockCluster.SetupSequence(c => c.Description).Returns(initialClusterDescription).Returns(finalClusterDescription);

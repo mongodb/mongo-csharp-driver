@@ -180,7 +180,7 @@ namespace MongoDB.Driver.Tests.Linq
         [Fact]
         public void TestAggregateWithAccumulator()
         {
-            var exception = Record.Exception(() => 
+            var exception = Record.Exception(() =>
                 (from c in __collection.AsQueryable<C>()
                  select c).Aggregate<C, int>(0, (a, c) => 0));
 
@@ -5999,13 +5999,13 @@ namespace MongoDB.Driver.Tests.Linq
             Assert.Same(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;                  
-    #if NET452 || NETCOREAPP1_0
+#if NET452 || NETCOREAPP1_0
             var expectedExpression =
                 "(C c) => c.S.TrimStart(Char[]:{ ' ', '.', '-', '\t' }).TrimEnd(Char[]:{ }).ToLower().Contains(\"xyz\")";
-    #else
+#else
             var expectedExpression =
                 "(C c) => c.S.TrimStart(Char[]:{ ' ', '.', '-', '\t' }).TrimEnd().ToLower().Contains(\"xyz\")";
-    #endif
+#endif
             Assert.Equal(expectedExpression, ExpressionFormatter.ToString(selectQuery.Where));
             Assert.Null(selectQuery.OrderBy);
             Assert.Null(selectQuery.Projection);
@@ -6308,13 +6308,13 @@ namespace MongoDB.Driver.Tests.Linq
 
             var selectQuery = (SelectQuery)translatedQuery;
             
-    #if NET452 || NETCOREAPP1_0
+#if NET452 || NETCOREAPP1_0
             var expectedExpression =
                 "(C c) => c.S.TrimStart(Char[]:{ ' ', '.', '-', '\t' }).TrimEnd(Char[]:{ }).ToLowerInvariant().Contains(\"xyz\")";
-    #else
+#else
             var expectedExpression =
                 "(C c) => c.S.TrimStart(Char[]:{ ' ', '.', '-', '\t' }).TrimEnd().ToLowerInvariant().Contains(\"xyz\")";
-    #endif
+#endif
             Assert.Equal(expectedExpression, ExpressionFormatter.ToString(selectQuery.Where));      
             Assert.Null(selectQuery.OrderBy);
             Assert.Null(selectQuery.Projection);
@@ -6324,7 +6324,7 @@ namespace MongoDB.Driver.Tests.Linq
             Assert.Equal("{ \"s\" : /^[\\ \\.\\-\\t]*.*xyz.*\\s*$/is }", selectQuery.BuildQuery().ToJson());
             Assert.Equal(1, Consume(query));
         }
- #endif       
+#endif
 
         [Fact]
         public void TestWhereSToLowerInvariantEqualsConstantLowerCaseValue()

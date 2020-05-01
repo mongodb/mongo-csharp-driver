@@ -147,25 +147,25 @@ namespace MongoDB.Driver.Core.Operations
                 switch (update)
                 {
                     case BsonDocument document:
-                    {
-                        if (document.ElementCount == 0)
                         {
-                            throw new ArgumentException("Updates must have at least 1 update operator.",
-                                nameof(update));
-                        }
+                            if (document.ElementCount == 0)
+                            {
+                                throw new ArgumentException("Updates must have at least 1 update operator.",
+                                    nameof(update));
+                            }
 
-                        break;
-                    }
+                            break;
+                        }
                     case BsonArray array:
-                    {
-                        if (array.Count == 0)
                         {
-                            throw new ArgumentException("Updates must have at least 1 update operator in a pipeline.",
-                                nameof(update));
-                        }
+                            if (array.Count == 0)
+                            {
+                                throw new ArgumentException("Updates must have at least 1 update operator in a pipeline.",
+                                    nameof(update));
+                            }
 
-                        break;
-                    }
+                            break;
+                        }
                     default:
                         throw new ArgumentException("Updates must be BsonDocument or BsonArray.", nameof(update));
                 }

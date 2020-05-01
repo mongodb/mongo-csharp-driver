@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         {
             __testMessage = new GetMoreMessage(__requestId, __collectionNamespace, __cursorId, __batchSize);
 
-            __testMessageJson = 
+            __testMessageJson =
                 "{ " +
                     "\"opcode\" : \"getMore\", " +
                     "\"requestId\" : 1, " +

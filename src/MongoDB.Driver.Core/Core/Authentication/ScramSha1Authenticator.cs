@@ -55,10 +55,10 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         internal ScramSha1Authenticator(UsernamePasswordCredential credential, IRandomStringGenerator randomStringGenerator)
-            : base(credential, HashAlgorithmName.SHA1, randomStringGenerator, H1, Hi1, Hmac1, new ScramCache()) 
+            : base(credential, HashAlgorithmName.SHA1, randomStringGenerator, H1, Hi1, Hmac1, new ScramCache())
         {
         }
-        
+
         private static byte[] H1(byte[] data)
         {
             using (var sha1 = SHA1.Create())
@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Core.Authentication
 #if NET452
             using (var hmac = new HMACSHA1(data, useManagedSha1: true))
 #else
-                using (var hmac = new HMACSHA1(data))
+            using (var hmac = new HMACSHA1(data))
 #endif
             {
                 return hmac.ComputeHash(encoding.GetBytes(key));

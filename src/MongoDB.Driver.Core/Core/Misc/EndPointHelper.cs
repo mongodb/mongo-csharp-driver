@@ -180,7 +180,7 @@ namespace MongoDB.Driver.Core.Misc
         {
             return TryParse(value, 27017, out result);
         }
-        
+
         internal static bool TryParse(string value, int defaultPort, out EndPoint result)
         {
             result = null;

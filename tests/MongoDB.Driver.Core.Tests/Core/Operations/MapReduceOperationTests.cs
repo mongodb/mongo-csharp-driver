@@ -312,7 +312,7 @@ namespace MongoDB.Driver.Core.Operations
             ReadConcernLevel? readConcernLevel,
             [Values(false, true)]
             bool async)
-       {
+        {
             RequireServer.Check().Supports(Feature.ReadConcern);
             EnsureTestData();
             var readConcern = new ReadConcern(readConcernLevel);

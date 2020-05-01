@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Support
         }
 
         // public properties
-        public abstract bool IsIdentityMap { get;  }
+        public abstract bool IsIdentityMap { get; }
 
         // public methods
         public abstract IndexMap Add(int index, int originalIndex);

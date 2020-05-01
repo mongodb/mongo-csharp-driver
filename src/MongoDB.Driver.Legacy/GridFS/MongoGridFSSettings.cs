@@ -237,7 +237,8 @@ namespace MongoDB.Driver.GridFS
         public bool UpdateMD5
         {
             get { return _updateMD5.Value; }
-            set {
+            set
+            {
                 if (_isFrozen) { ThrowFrozen(); }
                 _updateMD5.Value = value;
             }
@@ -249,7 +250,8 @@ namespace MongoDB.Driver.GridFS
         public bool VerifyMD5
         {
             get { return _verifyMD5.Value; }
-            set {
+            set
+            {
                 if (_isFrozen) { ThrowFrozen(); }
                 _verifyMD5.Value = value;
             }

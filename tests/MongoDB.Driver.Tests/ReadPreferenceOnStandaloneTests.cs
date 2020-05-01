@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Tests
                     var _ = collection.FindSync("{ x : 2 }");
                 }
 
-                CommandStartedEvent sentCommand = ((CommandStartedEvent) eventCapturer.Events[0]);
+                CommandStartedEvent sentCommand = ((CommandStartedEvent)eventCapturer.Events[0]);
                 var serverVersion = client.Cluster.Description.Servers[0].Version;
                 var clusterType = client.Cluster.Description.Type;
 

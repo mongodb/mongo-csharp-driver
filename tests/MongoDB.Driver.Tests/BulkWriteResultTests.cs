@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Tests
                 processedRequests: new[] { new InsertRequest(new BsonDocument("b", 1)) },
                 upserts: new List<BulkWriteOperationUpsert>());
 
-            var models = new[] 
+            var models = new[]
             {
                 new InsertOneModel<BsonDocument>(new BsonDocument("a", 1))
             };
@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Tests
             mapped.DeletedCount.Should().Be(core.DeletedCount);
             mapped.InsertedCount.Should().Be(core.InsertedCount);
             mapped.IsModifiedCountAvailable.Should().Be(core.IsModifiedCountAvailable);
-            if(mapped.IsModifiedCountAvailable)
+            if (mapped.IsModifiedCountAvailable)
             {
                 mapped.ModifiedCount.Should().Be(core.ModifiedCount);
             }
@@ -70,7 +70,7 @@ namespace MongoDB.Driver.Tests
                 requestCount: 1,
                 processedRequests: new[] { new InsertRequest(new BsonDocument("b", 1)) });
 
-            var models = new[] 
+            var models = new[]
             {
                 new InsertOneModel<BsonDocument>(new BsonDocument("a", 1))
             };

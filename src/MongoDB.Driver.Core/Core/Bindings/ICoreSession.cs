@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Core.Bindings
         ///   <c>true</c> if the session is causally consistent.
         /// </value>
         bool IsCausallyConsistent { get; }
-        
+
         /// <summary>
         /// Gets a value indicate whether this session is dirty.
         /// </summary>

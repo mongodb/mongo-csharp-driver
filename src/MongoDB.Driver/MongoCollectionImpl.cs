@@ -1459,7 +1459,7 @@ namespace MongoDB.Driver
 
             public override void DropOne(IClientSessionHandle session, string name, CancellationToken cancellationToken = default(CancellationToken))
             {
-               DropOne(session, name, null, cancellationToken);
+                DropOne(session, name, null, cancellationToken);
             }
 
             public override void DropOne(
@@ -1486,7 +1486,7 @@ namespace MongoDB.Driver
 
             public override Task DropOneAsync(string name, DropIndexOptions options, CancellationToken cancellationToken = default(CancellationToken))
             {
-                return _collection.UsingImplicitSessionAsync(session => DropOneAsync(session, name,options, cancellationToken), cancellationToken);
+                return _collection.UsingImplicitSessionAsync(session => DropOneAsync(session, name, options, cancellationToken), cancellationToken);
             }
 
             public override Task DropOneAsync(IClientSessionHandle session, string name, CancellationToken cancellationToken = default(CancellationToken))

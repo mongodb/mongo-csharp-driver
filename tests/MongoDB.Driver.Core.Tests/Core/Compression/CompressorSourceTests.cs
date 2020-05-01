@@ -62,7 +62,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
         {
             var subject = CreateSubject();
 
-            var exception =  Record.Exception(() => subject.Get(CompressorType.Snappy));
+            var exception = Record.Exception(() => subject.Get(CompressorType.Snappy));
 
             exception.Should().BeOfType<NotSupportedException>();
         }
@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
             CompressorConfiguration[] allowedCompressors = null;
             if (requestedCompressors != null)
             {
-                allowedCompressors = 
+                allowedCompressors =
                     requestedCompressors
                         .Select(c => new CompressorConfiguration(c))
                         .ToArray();

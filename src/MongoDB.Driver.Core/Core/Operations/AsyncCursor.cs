@@ -413,7 +413,7 @@ namespace MongoDB.Driver.Core.Operations
                 if (!_disposed)
                 {
                     CloseIfNotAlreadyClosedFromDispose();
-                    
+
                     if (_channelSource != null)
                     {
                         _channelSource.Dispose();

@@ -156,7 +156,7 @@ namespace MongoDB.Driver.Core.Operations
             var indexName = "x_1";
             var maxTime = TimeSpan.FromTicks(maxTimeTicks);
             var subject = new DropIndexOperation(_collectionNamespace, indexName, _messageEncoderSettings);
-            subject.MaxTime= maxTime;
+            subject.MaxTime = maxTime;
             var expectedResult = new BsonDocument
             {
                 { "dropIndexes", _collectionNamespace.CollectionName },
@@ -170,7 +170,7 @@ namespace MongoDB.Driver.Core.Operations
 
             result.Should().Be(expectedResult);
             result["maxTimeMS"].BsonType.Should().Be(BsonType.Int32);
-            
+
         }
 
         [Theory]
@@ -350,7 +350,7 @@ namespace MongoDB.Driver.Core.Operations
 
             result.Should().BeSameAs(_messageEncoderSettings);
         }
-        
+
         [Theory]
         [ParameterAttributeData]
         public void WriteConcern_get_and_set_should_work(

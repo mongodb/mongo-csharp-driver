@@ -271,7 +271,7 @@ namespace MongoDB.Driver.Core.Misc
         [InlineData(1, 1, 0, new int[] { })]
         [InlineData(2, 0, 0, new int[] { })]
         [InlineData(2, 0, 1, new int[] { 0 })]
-        [InlineData(2, 0, 2, new int[] { 0, 1})]
+        [InlineData(2, 0, 2, new int[] { 0, 1 })]
         [InlineData(2, 1, 0, new int[] { })]
         [InlineData(2, 1, 1, new int[] { 1 })]
         [InlineData(2, 2, 0, new int[] { })]

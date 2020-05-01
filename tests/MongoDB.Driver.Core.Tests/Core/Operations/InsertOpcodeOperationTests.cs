@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core.Operations
         public InsertOpcodeOperationTests()
         {
             _documents = new[]
-            { 
+            {
                 BsonDocument.Parse("{_id: 1, x: 1}")
             };
         }
@@ -167,7 +167,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             RequireServer.Check();
             DropCollection();
-            var documents = new[] 
+            var documents = new[]
             {
                 BsonDocument.Parse("{_id: 1, x: 1}"),
                 BsonDocument.Parse("{_id: 2, x: 2}"),

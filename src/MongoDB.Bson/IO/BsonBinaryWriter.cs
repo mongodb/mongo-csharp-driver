@@ -97,7 +97,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public new BsonBinaryWriterSettings Settings
         {
-            get {  return (BsonBinaryWriterSettings)base.Settings; }
+            get { return (BsonBinaryWriterSettings)base.Settings; }
         }
 
         // public methods

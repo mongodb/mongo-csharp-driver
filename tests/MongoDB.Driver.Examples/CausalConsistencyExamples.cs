@@ -38,12 +38,14 @@ namespace MongoDB.Driver.Examples
             using (var session1 = client.StartSession(new ClientSessionOptions { CausalConsistency = true }))
             {
                 var currentDate = DateTime.UtcNow.Date;
-                var items = client.GetDatabase("test", new MongoDatabaseSettings
+                var items = client.GetDatabase(
+                    "test",
+                    new MongoDatabaseSettings
                     {
                         ReadConcern = ReadConcern.Majority,
                         WriteConcern = new WriteConcern(
-                            WriteConcern.WMode.Majority,
-                            TimeSpan.FromMilliseconds(1000))
+                                WriteConcern.WMode.Majority,
+                                TimeSpan.FromMilliseconds(1000))
                     })
                     .GetCollection<BsonDocument>("items");
 
@@ -66,7 +68,7 @@ namespace MongoDB.Driver.Examples
             RemoveIds(new[] { result });
             result["start"].Should().NotBeNull();
             result.Remove("start");
-            result.Should().Be("{ \"sku\" : \"nuts-111\", \"name\" : \"Pecans\" }");           
+            result.Should().Be("{ \"sku\" : \"nuts-111\", \"name\" : \"Pecans\" }");
         }
 
         [Fact]
@@ -89,7 +91,9 @@ namespace MongoDB.Driver.Examples
                     session2.AdvanceClusterTime(session1.ClusterTime);
                     session2.AdvanceOperationTime(session1.OperationTime);
 
-                    var items = client.GetDatabase("test", new MongoDatabaseSettings
+                    var items = client.GetDatabase(
+                        "test",
+                        new MongoDatabaseSettings
                         {
                             ReadPreference = ReadPreference.Secondary,
                             ReadConcern = ReadConcern.Majority,
@@ -106,7 +110,7 @@ namespace MongoDB.Driver.Examples
                 // End Causal Consistency Example 2
             }
         }
-        
+
         [Fact]
         public void Causal_Consistency_Example_3()
         {

@@ -146,7 +146,7 @@ namespace MongoDB.Driver
 
             var lastStage = args.Pipeline.LastOrDefault();
             var lastStageName = lastStage?.GetElement(0).Name;
-            if (lastStage != null && (lastStageName == "$out" || lastStageName== "$merge"))
+            if (lastStage != null && (lastStageName == "$out" || lastStageName == "$merge"))
             {
                 var aggregateOperation = new AggregateToCollectionOperation(_collectionNamespace, args.Pipeline, messageEncoderSettings)
                 {

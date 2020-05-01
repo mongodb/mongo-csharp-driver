@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Core.Authentication
         private const int MaxCodepoint = 0x10FFFF;
         private const int SurrogateMinCodepoint = 0x00d800;
         private const int SurrogateMaxCodePoint = 0x00dfff;
-        
+
         /// <summary>
         /// Return the SASLPrep-canonicalised version of the given <paramref name="str"/> for use as a query string.                          
         /// This implements the {@code SASLPrep} algorithm defined in <a href="https://tools.ietf.org/html/rfc4013">RFC 4013</a>.          
@@ -76,7 +76,8 @@ namespace MongoDB.Driver.Core.Authentication
             return SaslPrep(str, false);
         }
 
-        private static string SaslPrep(string str, bool allowUnassigned) {
+        private static string SaslPrep(string str, bool allowUnassigned)
+        {
             var chars = str.ToCharArray();
 
             // 1. Map
@@ -84,7 +85,7 @@ namespace MongoDB.Driver.Core.Authentication
             for (var i = 0; i < str.Length; i++)
             {
                 var ch = str[i];
-                if (NonAsciiSpace(ch)) 
+                if (NonAsciiSpace(ch))
                 {
                     chars[i] = ' ';
                 }
@@ -100,7 +101,7 @@ namespace MongoDB.Driver.Core.Authentication
                 }
             }
 
-            var mappedString = new string(chars.Take(length).ToArray()); 
+            var mappedString = new string(chars.Take(length).ToArray());
             // 2. Normalize
 #if NET452
             var normalized = mappedString.Normalize(NormalizationForm.FormKC);
@@ -130,24 +131,24 @@ namespace MongoDB.Driver.Core.Authentication
                 if (!allowUnassigned && !IsDefined(codepoint))
                 {
                     throw new ArgumentException("Character at position " + i + " is unassigned");
-                }   
+                }
 
                 i += CharCount(codepoint);
 
                 if (initialRandALCat && i >= normalized.Length && !isRandALcat)
                 {
                     throw new ArgumentException("First character is RandALCat, but last character is not");
-                }      
+                }
             }
 
             if (containsRandALCat && containsLCat)
             {
                 throw new ArgumentException("Contains both RandALCat characters and LCat characters");
             }
-                
+
             return normalized;
         }
-        
+
         /// <summary>
         /// Return true if the given <paramref name="ch"/> is an ASCII control character as defined by
         /// <a href="https://tools.ietf.org/html/rfc3454#appendix-C.2.1">RFC 3454, Appendix C.2.1</a>. 
@@ -158,7 +159,7 @@ namespace MongoDB.Driver.Core.Authentication
         {
             return ch <= '\u001F' || ch == '\u007F';
         }
-        
+
         /// <summary>
         /// Return true if the given <paramref name="codepoint"/> is a "change display properties" or a deprecated
         /// character as defined by <a href="https://tools.ietf.org/html/rfc3454#appendix-C.8">RFC 3454, Appendix C.8</a>.
@@ -193,7 +194,7 @@ namespace MongoDB.Driver.Core.Authentication
         {
             return codepoint >= 0x10000 ? 2 : 1;
         }
-        
+
         /// <summary>
         /// Return true if the given <paramref name="codepoint"/> is inappropriate for canonical representation
         /// characters as defined by <a href="https://tools.ietf.org/html/rfc3454#appendix-C.7">RFC 3454, Appendix C.7</a>. 
@@ -228,8 +229,8 @@ namespace MongoDB.Driver.Core.Authentication
         /// <param name="codepoint">The Unicode character's codepoint.</param>
         /// <returns>Whether or not the Unicode character represnted by codepoint is defined in Unicode.</returns>
         private static bool IsDefined(int codepoint)
-        {   
-            return IsSurrogateCodepoint(codepoint) || 
+        {
+            return IsSurrogateCodepoint(codepoint) ||
                   CharUnicodeInfo.GetUnicodeCategory(char.ConvertFromUtf32(codepoint), 0) != UnicodeCategory.OtherNotAssigned;
         }
 
@@ -603,7 +604,7 @@ namespace MongoDB.Driver.Core.Authentication
                 0xF0000 <= codepoint && codepoint <= 0xFFFFD ||
                 0x100000 <= codepoint && codepoint <= 0x10FFFD;
         }
-  
+
         /// <summary>
         /// Returns whether or not a Unicode character represented by a codepoint is an "RandALCat" character.
         /// See <a href="https://tools.ietf.org/html/rfc3454#section-6">RFC 3454: Section 6</a> and
@@ -613,7 +614,7 @@ namespace MongoDB.Driver.Core.Authentication
         /// <returns>Whether or not the character is an "RandALCat" character.</returns>
         private static bool IsRandALcat(int codepoint)
         {
-            return codepoint == 0x05BE || 
+            return codepoint == 0x05BE ||
                 codepoint == 0x05C0 ||
                 codepoint == 0x05C3 ||
                 0x05D0 <= codepoint && codepoint <= 0x05EA ||
@@ -645,7 +646,7 @@ namespace MongoDB.Driver.Core.Authentication
                 0xFD50 <= codepoint && codepoint <= 0xFD8F ||
                 0xFD92 <= codepoint && codepoint <= 0xFDC7 ||
                 0xFDF0 <= codepoint && codepoint <= 0xFDFC ||
-                0xFE70 <= codepoint && codepoint <= 0xFE74 || 
+                0xFE70 <= codepoint && codepoint <= 0xFE74 ||
                 0xFE76 <= codepoint && codepoint <= 0xFEFC;
         }
 
@@ -653,7 +654,7 @@ namespace MongoDB.Driver.Core.Authentication
         {
             return SurrogateMinCodepoint <= codepoint && codepoint <= SurrogateMaxCodePoint;
         }
-        
+
         /// <summary>
         ///  Return true if the given <paramref name="ch"/> is a "commonly mapped to nothing" character as defined by
         ///  <a href="https://tools.ietf.org/html/rfc3454#appendix-B.1">RFC 3454, Appendix B.1</a>. 
@@ -675,7 +676,7 @@ namespace MongoDB.Driver.Core.Authentication
                 || '\uFE00' <= ch && ch <= '\uFE0F'
                 || ch == '\uFEFF';
         }
-        
+
         /// <summary>
         /// Return true if the given <paramref name="codepoint"/> is a non-ASCII control character as defined by
         /// <a href="https://tools.ietf.org/html/rfc3454#appendix-C.2.2">RFC 3454, Appendix C.2.2</a>. 
@@ -701,7 +702,7 @@ namespace MongoDB.Driver.Core.Authentication
                 || 0xFFF9 <= codepoint && codepoint <= 0xFFFC
                 || 0x1D173 <= codepoint && codepoint <= 0x1D17A;
         }
-        
+
         /// <summary>
         /// Return true if the given <paramref name="ch"/> is a non-ASCII space character as defined by
         /// <a href="https://tools.ietf.org/html/rfc3454#appendix-C.1.2">RFC 3454, Appendix C.1.2</a>. 
@@ -745,7 +746,7 @@ namespace MongoDB.Driver.Core.Authentication
                 || 0xFFFFE <= codepoint && codepoint <= 0xFFFFF
                 || 0x10FFFE <= codepoint && codepoint <= 0x10FFFF;
         }
-        
+
         /// <summary>
         /// Return true if the given <paramref name="codepoint"/> is a private use character as defined by
         /// <a href="https://tools.ietf.org/html/rfc3454#appendix-C.3">RFC 3454, Appendix C.3</a>.
@@ -758,7 +759,7 @@ namespace MongoDB.Driver.Core.Authentication
                 || 0xF000 <= codepoint && codepoint <= 0xFFFFD
                 || 0x100000 <= codepoint && codepoint <= 0x10FFFD;
         }
-        
+
         /// <summary>
         /// Return true if the given <paramref name="codepoint"/> is a prohibited character as defined by
         ///<a href="https://tools.ietf.org/html/rfc4013#section-2.3">RFC 4013, Section 2.3</a>. 
@@ -767,8 +768,8 @@ namespace MongoDB.Driver.Core.Authentication
         /// <returns>Whether the codepoint is a prohibited character.</returns>
         private static bool Prohibited(int codepoint)
         {
-            return NonAsciiSpace((char) codepoint)
-                || AsciiControl((char) codepoint)
+            return NonAsciiSpace((char)codepoint)
+                || AsciiControl((char)codepoint)
                 || NonAsciiControl(codepoint)
                 || PrivateUse(codepoint)
                 || NonCharacterCodepoint(codepoint)
@@ -789,7 +790,7 @@ namespace MongoDB.Driver.Core.Authentication
         {
             return 0xD800 <= codepoint && codepoint <= 0xDFFF;
         }
-        
+
         /// <summary>
         /// Return true if the given <paramref name="codepoint"/> is a tagging character as defined by
         /// <a href="https://tools.ietf.org/html/rfc3454#appendix-C.9">RFC 3454, Appendix C.9</a>.

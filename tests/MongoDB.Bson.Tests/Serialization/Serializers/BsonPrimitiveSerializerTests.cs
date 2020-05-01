@@ -63,7 +63,13 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             var obj = new TestClass
             {
-                N = false, B = false, D128 = false, D = false, I = false, L = false, S = false
+                N = false,
+                B = false,
+                D128 = false,
+                D = false,
+                I = false,
+                L = false,
+                S = false
             };
             var json = obj.ToJson();
             var expected = "{ 'N' : false, 'B' : false, 'D128' : NumberDecimal('0'), 'D' : 0.0, 'I' : 0, 'L' : NumberLong(0), 'S' : 'false' }".Replace("'", "\"");
@@ -79,7 +85,13 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             var obj = new TestClass
             {
-                N = true, B = true, D128 = true, D = true, I = true, L = true, S = true
+                N = true,
+                B = true,
+                D128 = true,
+                D = true,
+                I = true,
+                L = true,
+                S = true
             };
             var json = obj.ToJson();
             var expected = "{ 'N' : true, 'B' : true, 'D128' : NumberDecimal('1'), 'D' : 1.0, 'I' : 1, 'L' : NumberLong(1), 'S' : 'true' }".Replace("'", "\"");

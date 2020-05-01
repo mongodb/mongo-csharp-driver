@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         [Fact]
         public void Constructor_should_initialize_instance()
         {
-            var subject = new InsertMessage<BsonDocument>(_requestId,  _collectionNamespace, _serializer, _documentSource, _maxBatchCount, _maxMessageSize, _continueOnError);
+            var subject = new InsertMessage<BsonDocument>(_requestId, _collectionNamespace, _serializer, _documentSource, _maxBatchCount, _maxMessageSize, _continueOnError);
             subject.CollectionNamespace.Should().Be(_collectionNamespace);
             subject.ContinueOnError.Should().Be(_continueOnError);
             subject.DocumentSource.Should().BeSameAs(_documentSource);

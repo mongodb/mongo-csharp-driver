@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Examples.TransactionExamplesForDocs
                     else
                     {
                         throw;
-                    }  
+                    }
                 }
             }
         }

@@ -93,12 +93,12 @@ namespace MongoDB.Driver.Tests.Specifications.crud
 
             if (ClusterDescription.Servers[0].Version < new SemanticVersion(2, 6, 0) && _options.IsUpsert)
             {
-                foreach(var doc in data)
+                foreach (var doc in data)
                 {
                     doc.Remove("_id");
                 }
 
-                foreach(var doc in expectedData.Cast<BsonDocument>())
+                foreach (var doc in expectedData.Cast<BsonDocument>())
                 {
                     doc.Remove("_id");
                 }

@@ -31,7 +31,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         {
             var stopwatch = new Stopwatch();
             _pack = new ConventionPack();
-            _pack.AddRange(new IConvention[] 
+            _pack.AddRange(new IConvention[]
             {
                 new TrackingBeforeConvention(stopwatch) { Name = "1" },
                 new TrackingMemberConvention(stopwatch) { Name = "3" },

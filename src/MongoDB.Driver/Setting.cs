@@ -32,7 +32,8 @@ namespace MongoDB.Driver
         public T Value
         {
             get { return _value; }
-            set { 
+            set
+            {
                 _value = value;
                 _hasBeenSet = true;
             }

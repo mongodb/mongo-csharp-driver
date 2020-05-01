@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Core.Authentication
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task.</returns>
         Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken);
-        
+
         /// <summary>
         /// Optionally customizes isMaster command.
         /// </summary>

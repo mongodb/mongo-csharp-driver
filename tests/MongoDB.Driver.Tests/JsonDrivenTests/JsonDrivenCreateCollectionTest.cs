@@ -55,7 +55,6 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
 
         protected override async Task CallMethodAsync(CancellationToken cancellationToken)
         {
-            
             if (_session == null)
             {
                 await _database.CreateCollectionAsync(_collectionName, cancellationToken: cancellationToken).ConfigureAwait(false);

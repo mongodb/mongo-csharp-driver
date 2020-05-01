@@ -97,7 +97,7 @@ namespace MongoDB.Bson.Serialization
         /// A root context.
         /// </returns>
         public static BsonDeserializationContext CreateRoot(
-            IBsonReader reader, 
+            IBsonReader reader,
             Action<Builder> configurator = null)
         {
             var builder = new Builder(null, reader);

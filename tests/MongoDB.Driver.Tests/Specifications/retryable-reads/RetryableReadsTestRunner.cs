@@ -62,7 +62,8 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
         }
 
         // private methods
-        private void Run(BsonDocument shared, BsonDocument test) {
+        private void Run(BsonDocument shared, BsonDocument test)
+        {
             JsonDrivenHelper.EnsureAllFieldsAreValid(
                 shared,
                 "_path",

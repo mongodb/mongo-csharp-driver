@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
             {
                 case "in_progress": return CoreTransactionState.InProgress;
                 default:
-                    return (CoreTransactionState) Enum.Parse(typeof(CoreTransactionState), value, true);
+                    return (CoreTransactionState)Enum.Parse(typeof(CoreTransactionState), value, true);
             }
         }
     }

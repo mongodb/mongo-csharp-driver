@@ -426,7 +426,7 @@ namespace MongoDB.Driver.Core.Operations
                 };
             }
             else
-            { 
+            {
                 expectedResult = new[]
                 {
                     BsonDocument.Parse("{ x : 1, count : 2 }"),
@@ -572,7 +572,7 @@ namespace MongoDB.Driver.Core.Operations
                 exception.Should().BeOfType<MongoExecutionTimeoutException>();
             }
         }
-        
+
         // helper methods
         private void EnsureTestData()
         {

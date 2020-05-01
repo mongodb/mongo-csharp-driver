@@ -61,7 +61,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
         [Fact]
         public void TestNull()
         {
-            var obj = new T { D = null, ID = null, IROD = null,  ROD = null,SD = null, SL = null };
+            var obj = new T { D = null, ID = null, IROD = null, ROD = null, SD = null, SL = null };
             var json = obj.ToJson();
             var rep = "null";
 

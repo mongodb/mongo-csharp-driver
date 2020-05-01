@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
 
         // protected methods
         protected override void AssertResult()
-        {    
+        {
         }
 
         protected override void CallMethod(CancellationToken cancellationToken)

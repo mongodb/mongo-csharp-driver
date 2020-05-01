@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
 
         // protected methods
         protected override void AssertResult()
-        {    
+        {
         }
 
         protected override void CallMethod(CancellationToken cancellationToken)
@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         protected override async Task CallMethodAsync(CancellationToken cancellationToken)
         {
             var bucket = new GridFSBucket(_database, _bucketOptions);
-            await bucket.DownloadAsBytesByNameAsync(_fileName, _downloadOptions, cancellationToken).ConfigureAwait(false);           
+            await bucket.DownloadAsBytesByNameAsync(_fileName, _downloadOptions, cancellationToken).ConfigureAwait(false);
         }
 
         protected override void SetArgument(string name, BsonValue value)
@@ -70,7 +70,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
 
                 case "filename":
                     _fileName = value.AsString;
-                    return; 
+                    return;
             }
 
             base.SetArgument(name, value);

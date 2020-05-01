@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Encryption
             Optional<bool> bypassAutoEncryption = default,
             Optional<IReadOnlyDictionary<string, object>> extraOptions = default,
             Optional<IMongoClient> keyVaultClient = default,
-            Optional<IReadOnlyDictionary<string, BsonDocument>> schemaMap = default) 
+            Optional<IReadOnlyDictionary<string, BsonDocument>> schemaMap = default)
         {
             _keyVaultNamespace = Ensure.IsNotNull(keyVaultNamespace, nameof(keyVaultNamespace));
             _kmsProviders = Ensure.IsNotNull(kmsProviders, nameof(kmsProviders));

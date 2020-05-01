@@ -101,7 +101,7 @@ namespace MongoDB.Driver.Core.Authentication
         /// <inheritdoc/>
         public BsonDocument CustomizeInitialIsMasterCommand(BsonDocument isMasterCommand)
         {
-            return isMasterCommand; 
+            return isMasterCommand;
         }
 
         // private methods

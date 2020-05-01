@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Core.Clusters
     {
         public static ClusterType ToClusterType(this ClusterConnectionMode connectionMode)
         {
-            switch(connectionMode)
+            switch (connectionMode)
             {
                 case ClusterConnectionMode.ReplicaSet:
                     return ClusterType.ReplicaSet;

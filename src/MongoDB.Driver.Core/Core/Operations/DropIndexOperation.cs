@@ -114,7 +114,7 @@ namespace MongoDB.Driver.Core.Operations
             get { return _writeConcern; }
             set { _writeConcern = value; }
         }
-        
+
         /// <summary>
         /// Gets or sets the maximum time.
         /// </summary>

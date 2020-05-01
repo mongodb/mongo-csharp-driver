@@ -176,7 +176,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         [Fact]
         public void ReadMessage_should_throw_when_opcode_is_invalid()
         {
-            var bytes = (byte[]) __testMessageBytes.Clone();
+            var bytes = (byte[])__testMessageBytes.Clone();
             bytes[12]++;
 
             using (var stream = new MemoryStream(bytes))

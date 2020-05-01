@@ -80,7 +80,7 @@ namespace MongoDB.Bson.TestHelpers
             string because = "",
             params object[] becauseArgs)
         {
-            assertions.Subject.WithComparer(comparer).Should().BeEquivalentTo(expected.WithComparer(comparer), because, becauseArgs);         
+            assertions.Subject.WithComparer(comparer).Should().BeEquivalentTo(expected.WithComparer(comparer), because, becauseArgs);
         }
     }
 }

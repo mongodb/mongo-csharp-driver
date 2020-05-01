@@ -409,7 +409,7 @@ namespace MongoDB.Driver.Tests
             result.CategorizedByYears.WithComparer(new CategorizedByYearComparer()).Should().BeEquivalentTo(
                 new CategorizedByYear { Id = 1900, Count = 1 },
                 new CategorizedByYear { Id = 1920, Count = 2 });
-       }
+        }
 
         [Fact]
         public void Facet_typed_with_3_facets_should_add_the_expected_stage()

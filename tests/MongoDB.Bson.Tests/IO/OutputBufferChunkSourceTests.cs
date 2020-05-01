@@ -254,9 +254,9 @@ namespace MongoDB.Bson.Tests.IO
             subject.Dispose();
 
             Action action = () => subject.GetChunk(1);
- 
+
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("OutputBufferChunkSource");
-       }
+        }
 
         [Fact]
         public void InitialUnpooledChunkSize_get_should_return_expected_result()

@@ -32,17 +32,17 @@ namespace MongoDB.Driver.Core.Compression
         /// <param name="output">The output stream.</param>
         public void Compress(Stream input, Stream output)
         {
-            var uncompressedSize = (int) (input.Length - input.Position);
+            var uncompressedSize = (int)(input.Length - input.Position);
             var uncompressedBytes = new byte[uncompressedSize]; // does not include uncompressed message headers
             input.ReadBytes(uncompressedBytes, offset: 0, count: uncompressedSize, CancellationToken.None);
             var maxCompressedSize = SnappyCodec.GetMaxCompressedLength(uncompressedSize);
             var compressedBytes = new byte[maxCompressedSize];
             var compressedSize = SnappyCodec.Compress(
-                input: uncompressedBytes, 
-                inputOffset: 0, 
-                inputLength: uncompressedSize, 
-                output: compressedBytes, 
-                outputOffset: 0, 
+                input: uncompressedBytes,
+                inputOffset: 0,
+                inputLength: uncompressedSize,
+                output: compressedBytes,
+                outputOffset: 0,
                 outputLength: compressedBytes.Length); // output.Length - outputOffset
             output.Write(compressedBytes, 0, compressedSize);
         }
@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Core.Compression
         /// <param name="output">The output stream.</param>
         public void Decompress(Stream input, Stream output)
         {
-            var compressedSize = (int) (input.Length - input.Position);
+            var compressedSize = (int)(input.Length - input.Position);
             var compressedBytes = new byte[compressedSize];
             input.ReadBytes(compressedBytes, offset: 0, count: compressedSize, CancellationToken.None);
             var decompressedBytes = SnappyCodec.Uncompress(compressedBytes);

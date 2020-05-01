@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
 
             return false;
         }
-        
+
         // private methods
         private BulkWriteOptions ParseOptions(BsonDocument value)
         {

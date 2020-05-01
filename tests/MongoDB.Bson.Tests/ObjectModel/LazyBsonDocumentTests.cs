@@ -862,7 +862,7 @@ namespace MongoDB.Bson.Tests
             var noOfDoubleFields = 200000;
             for (var i = 0; i < noOfDoubleFields; i++)
             {
-                bsonDocument.Add("doublefield_"+i, i*1.0);
+                bsonDocument.Add("doublefield_" + i, i * 1.0);
             }
             var bson = bsonDocument.ToBson();
             using (var lazyBsonDocument = BsonSerializer.Deserialize<LazyBsonDocument>(bson))

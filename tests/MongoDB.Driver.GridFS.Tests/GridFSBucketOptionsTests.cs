@@ -144,7 +144,7 @@ namespace MongoDB.Driver.GridFS.Tests
         public void DisableMD5_get_and_set_should_return_expected_result(
             [Values(false, true)] bool disabled)
         {
-            var subject = new GridFSBucketOptions { DisableMD5 = disabled};
+            var subject = new GridFSBucketOptions { DisableMD5 = disabled };
 
             var result = subject.DisableMD5;
 
@@ -239,11 +239,11 @@ namespace MongoDB.Driver.GridFS.Tests
         {
             var mutable = new GridFSBucketOptions
             {
-                BucketName = "bucket", 
-                ChunkSizeBytes = 123, 
+                BucketName = "bucket",
+                ChunkSizeBytes = 123,
                 DisableMD5 = true,
-                ReadConcern = ReadConcern.Majority, 
-                ReadPreference = ReadPreference.Secondary, 
+                ReadConcern = ReadConcern.Majority,
+                ReadPreference = ReadPreference.Secondary,
                 WriteConcern = WriteConcern.WMajority
             };
 
@@ -295,13 +295,13 @@ namespace MongoDB.Driver.GridFS.Tests
         [Theory]
         [ParameterAttributeData]
         public void DisableMD5_get_and_set_should_return_expected_result(
-            [Values(false,true)] bool disabled)
+            [Values(false, true)] bool disabled)
         {
             var subject = new ImmutableGridFSBucketOptions(new GridFSBucketOptions { DisableMD5 = disabled });
 
             var result = subject.DisableMD5;
 
-            result.Should().Be(disabled);    
+            result.Should().Be(disabled);
         }
 
         [Fact]

@@ -44,12 +44,12 @@ namespace MongoDB.Driver
         /// <param name="client">The client.</param>
         /// <param name="options">The options.</param>
         /// <param name="coreSession">The wrapped session.</param>
-        public ClientSessionHandle(IMongoClient client, ClientSessionOptions options, ICoreSessionHandle coreSession) 
+        public ClientSessionHandle(IMongoClient client, ClientSessionOptions options, ICoreSessionHandle coreSession)
             : this(client, options, coreSession, SystemClock.Instance)
         {
         }
 
-        internal ClientSessionHandle(IMongoClient client, ClientSessionOptions options, ICoreSessionHandle coreSession, IClock clock) 
+        internal ClientSessionHandle(IMongoClient client, ClientSessionOptions options, ICoreSessionHandle coreSession, IClock clock)
         {
             _client = client;
             _options = options;

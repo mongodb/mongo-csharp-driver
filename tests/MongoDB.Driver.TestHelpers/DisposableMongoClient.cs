@@ -115,7 +115,6 @@ namespace MongoDB.Driver.TestHelpers
         {
             return wrapped.ListDatabases(session, options, cancellationToken);
         }
-        
 
         public Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {

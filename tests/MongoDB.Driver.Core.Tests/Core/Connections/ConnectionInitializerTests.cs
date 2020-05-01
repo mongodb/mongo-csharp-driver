@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.Connections
 
         public ConnectionInitializerTests()
         {
-            _subject = new ConnectionInitializer("test", new [] { new CompressorConfiguration(CompressorType.Zlib) });
+            _subject = new ConnectionInitializer("test", new[] { new CompressorConfiguration(CompressorType.Zlib) });
         }
 
         [Theory]
@@ -120,7 +120,7 @@ namespace MongoDB.Driver.Core.Connections
                 }
                 else
                 {
-                     _subject.InitializeConnection(connection, CancellationToken.None);
+                    _subject.InitializeConnection(connection, CancellationToken.None);
                 }
             }
             catch (InvalidOperationException ex)

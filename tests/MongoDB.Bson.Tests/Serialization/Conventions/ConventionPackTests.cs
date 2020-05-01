@@ -64,7 +64,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [Fact]
         public void TestAddRange()
         {
-            _pack.AddRange(new IConvention[] 
+            _pack.AddRange(new IConvention[]
             {
                 new TestConvention { Name = "One" },
                 new TestConvention { Name = "Two" }
@@ -76,14 +76,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [Fact]
         public void TestAppend()
         {
-            _pack.AddRange(new IConvention[] 
+            _pack.AddRange(new IConvention[]
             {
                 new TestConvention { Name = "One" },
                 new TestConvention { Name = "Two" }
             });
 
             var newPack = new ConventionPack();
-            newPack.AddRange(new IConvention[] 
+            newPack.AddRange(new IConvention[]
             {
                 new TestConvention { Name = "Three" },
                 new TestConvention { Name = "Four" }
@@ -101,7 +101,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [Fact]
         public void TestInsertAfter()
         {
-            _pack.AddRange(new IConvention[] 
+            _pack.AddRange(new IConvention[]
             {
                 new TestConvention { Name = "One" },
                 new TestConvention { Name = "Two" }
@@ -116,7 +116,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [Fact]
         public void TestInsertBefore()
         {
-            _pack.AddRange(new IConvention[] 
+            _pack.AddRange(new IConvention[]
             {
                 new TestConvention { Name = "One" },
                 new TestConvention { Name = "Two" }
@@ -130,7 +130,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [Fact]
         public void TestRemove()
         {
-            _pack.AddRange(new IConvention[] 
+            _pack.AddRange(new IConvention[]
             {
                 new TestConvention { Name = "One" },
                 new TestConvention { Name = "Two" }

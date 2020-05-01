@@ -129,7 +129,7 @@ namespace MongoDB.Bson
         [Obsolete("Use the constructor that also takes a GuidRepresentation instead.")]
         public BsonBinaryData(Guid guid)
             : this(
-                guid, 
+                guid,
                 BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2
                     ? BsonDefaults.GuidRepresentation
                     : throw new InvalidOperationException("This constructor can only be used when BsonDefaults.GuidRepresentationMode is V2."))

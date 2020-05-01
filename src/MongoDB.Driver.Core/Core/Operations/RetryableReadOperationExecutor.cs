@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 throw originalException;
             }
-            
+
             if (!AreRetryableReadsSupported(context))
             {
                 throw originalException;
@@ -117,7 +117,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 throw originalException;
             }
-            
+
             if (context.Channel.ConnectionDescription.ServerVersion < initialServerVersion)
             {
                 throw originalException;

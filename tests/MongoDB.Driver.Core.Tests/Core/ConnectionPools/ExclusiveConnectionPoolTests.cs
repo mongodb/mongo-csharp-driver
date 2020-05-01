@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _serverId = new ServerId(new ClusterId(), _endPoint);
             _mockConnectionFactory
                 .Setup(c => c.CreateConnection(It.IsAny<ServerId>(), It.IsAny<EndPoint>()))
-                .Returns(()=>
+                .Returns(() =>
                 {
                     var connectionMock = new Mock<IConnection>();
                     connectionMock
@@ -362,8 +362,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
             IConnectionHandle connection2;
             if (async)
             {
-               connection1 = _subject.AcquireConnectionAsync(CancellationToken.None).GetAwaiter().GetResult();
-               connection2 = _subject.AcquireConnectionAsync(CancellationToken.None).GetAwaiter().GetResult();
+                connection1 = _subject.AcquireConnectionAsync(CancellationToken.None).GetAwaiter().GetResult();
+                connection2 = _subject.AcquireConnectionAsync(CancellationToken.None).GetAwaiter().GetResult();
             }
             else
             {
@@ -487,7 +487,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         [Fact]
         public void MaintainSizeAsync_should_not_try_new_attempt_after_failing_without_delay()
         {
-            var settings =_settings.With(maintenanceInterval: TimeSpan.FromSeconds(10));
+            var settings = _settings.With(maintenanceInterval: TimeSpan.FromSeconds(10));
 
             using (var subject = CreateSubject(settings))
             {

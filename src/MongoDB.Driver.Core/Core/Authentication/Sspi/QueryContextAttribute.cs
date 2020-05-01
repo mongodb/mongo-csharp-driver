@@ -27,6 +27,6 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
         /// <summary>
         /// SECPKG_ATTR_SIZES
         /// </summary>
-        Sizes = 0x0 
+        Sizes = 0x0
     }
 }

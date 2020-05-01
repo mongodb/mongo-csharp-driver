@@ -250,7 +250,7 @@ namespace MongoDB.Driver
 
             return string.Format("{{{0}}}", string.Join(",", parts.ToArray()));
         }
-        
+
         // nested classes
         private class X509CertificateCollectionEqualityComparer : IEqualityComparer<X509CertificateCollection>
         {

@@ -21,7 +21,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Options for creating a single index.
     /// </summary>
-    public class CreateOneIndexOptions 
+    public class CreateOneIndexOptions
     {
         // private fields
         private CreateIndexCommitQuorum _commitQuorum;

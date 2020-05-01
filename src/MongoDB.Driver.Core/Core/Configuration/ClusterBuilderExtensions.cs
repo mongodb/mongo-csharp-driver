@@ -198,7 +198,7 @@ namespace MongoDB.Driver.Core.Configuration
             {
                 return connectionString.AuthSource ?? defaultSource;
             }
-            
+
             return connectionString.AuthSource ?? connectionString.DatabaseName ?? defaultSource;
         }
 

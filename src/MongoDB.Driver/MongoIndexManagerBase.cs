@@ -49,13 +49,13 @@ namespace MongoDB.Driver
             return result.Single();
         }
 
-         /// <inheritdoc />
+        /// <inheritdoc />
         public virtual string CreateOne(
             CreateIndexModel<TDocument> model,
             CreateOneIndexOptions options = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            var createManyIndexOptions = ToCreateManyIndexesOptions(options); 
+            var createManyIndexOptions = ToCreateManyIndexesOptions(options);
             var result = CreateMany(new[] { model }, createManyIndexOptions, cancellationToken);
             return result.Single();
         }
@@ -68,15 +68,15 @@ namespace MongoDB.Driver
             var result = CreateMany(session, new[] { model }, cancellationToken);
             return result.Single();
         }
-        
+
         /// <inheritdoc />
         public virtual string CreateOne(
             IClientSessionHandle session,
-            CreateIndexModel<TDocument> model, 
+            CreateIndexModel<TDocument> model,
             CreateOneIndexOptions options = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            var createManyIndexOptions = ToCreateManyIndexesOptions(options); 
+            var createManyIndexOptions = ToCreateManyIndexesOptions(options);
             var result = CreateMany(session, new[] { model }, createManyIndexOptions, cancellationToken);
             return result.Single();
         }
@@ -96,9 +96,9 @@ namespace MongoDB.Driver
             CreateOneIndexOptions options = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-             var createManyIndexOptions = ToCreateManyIndexesOptions(options);
-             var result = await CreateManyAsync(new[] { model }, createManyIndexOptions, cancellationToken).ConfigureAwait(false);
-             return result.Single();
+            var createManyIndexOptions = ToCreateManyIndexesOptions(options);
+            var result = await CreateManyAsync(new[] { model }, createManyIndexOptions, cancellationToken).ConfigureAwait(false);
+            return result.Single();
         }
 
         /// <inheritdoc />
@@ -276,7 +276,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public virtual IAsyncCursor<BsonDocument> List( IClientSessionHandle session, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual IAsyncCursor<BsonDocument> List(IClientSessionHandle session, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
@@ -293,7 +293,7 @@ namespace MongoDB.Driver
         private CreateManyIndexesOptions ToCreateManyIndexesOptions(CreateOneIndexOptions options)
         {
             return new CreateManyIndexesOptions
-            { 
+            {
                 CommitQuorum = options?.CommitQuorum,
                 MaxTime = options?.MaxTime
             };

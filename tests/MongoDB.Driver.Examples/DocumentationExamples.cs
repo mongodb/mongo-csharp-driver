@@ -1517,7 +1517,7 @@ namespace MongoDB.Driver.Examples
                 database.DropCollection(collectionName);
             }
             database.CreateCollection(collectionName);
-            
+
             // Start runCommand Example 2
             var command = new JsonCommand<BsonDocument>("{ collStats : 'restaurants' }");
             var result = database.RunCommand(command);

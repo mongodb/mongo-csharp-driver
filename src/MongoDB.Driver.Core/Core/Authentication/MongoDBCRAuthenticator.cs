@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Core.Authentication
             {
                 var getNonceProtocol = CreateGetNonceProtocol();
                 var getNonceReply = await getNonceProtocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
-                var authenticateProtocol =  CreateAuthenticateProtocol(getNonceReply);
+                var authenticateProtocol = CreateAuthenticateProtocol(getNonceReply);
                 await authenticateProtocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
             }
             catch (MongoCommandException ex)

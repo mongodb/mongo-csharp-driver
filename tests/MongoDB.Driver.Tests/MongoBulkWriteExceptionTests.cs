@@ -92,11 +92,11 @@ namespace MongoDB.Driver.Tests
                 writeConcernError: new BulkWriteConcernError(11, "funny", new BsonDocument("c", 1)),
                 unprocessedRequests: new[] { new InsertRequest(new BsonDocument("a", 1)) { CorrelationId = 0 } });
 
-            var models = new [] 
+            var models = new[]
             {
                 new InsertOneModel<BsonDocument>(new BsonDocument("a", 1)),
                 new InsertOneModel<BsonDocument>(new BsonDocument("b", 1))
-            }; 
+            };
             var mapped = MongoBulkWriteException<BsonDocument>.FromCore(exception, models);
 
             mapped.Result.ProcessedRequests.Count.Should().Be(1);

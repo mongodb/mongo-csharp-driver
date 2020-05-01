@@ -27,7 +27,7 @@ using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
-{ 
+{
     public class CausalConsistencyTests
     {
         [SkippableFact]

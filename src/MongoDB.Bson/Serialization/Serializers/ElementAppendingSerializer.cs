@@ -40,8 +40,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="elements">The elements to append.</param>
         /// <param name="writerSettingsConfigurator">The writer settings configurator.</param>
         public ElementAppendingSerializer(
-            IBsonSerializer<TDocument> documentSerializer, 
-            IEnumerable<BsonElement> elements, 
+            IBsonSerializer<TDocument> documentSerializer,
+            IEnumerable<BsonElement> elements,
             Action<BsonWriterSettings> writerSettingsConfigurator = null)
         {
             if (documentSerializer == null) { throw new ArgumentNullException(nameof(documentSerializer)); }

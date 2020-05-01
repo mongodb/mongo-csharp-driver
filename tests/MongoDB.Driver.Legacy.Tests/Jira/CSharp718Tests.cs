@@ -39,27 +39,31 @@ namespace MongoDB.Driver.Tests.Jira
         [Fact]
         public void TestLinqNullEquality()
         {
-            var postsWithFoo = (from d in _collection.AsQueryable<C>()
-                where d.Foo == null
-                select d).Count();
+            var postsWithFoo =
+                (from d in _collection.AsQueryable<C>()
+                 where d.Foo == null
+                 select d)
+                .Count();
             Assert.Equal(2, postsWithFoo);
         }
 
         [Fact]
         public void TestLinqNullInequality()
         {
-            var postsWithFoo = (from d in _collection.AsQueryable<C>()
-                where d.Foo != null
-                select d).Count();
+            var postsWithFoo =
+                (from d in _collection.AsQueryable<C>()
+                 where d.Foo != null
+                 select d)
+                .Count();
             Assert.Equal(3, postsWithFoo);
         }
 
         private void TestSetup()
         {
             _collection.RemoveAll();
-            _collection.Insert(new C() { Id = 1});
-            _collection.Insert(new C() { Id = 2, Foo = null});
-            _collection.Insert(new C() { Id = 3, Foo = new int[] {1}});
+            _collection.Insert(new C() { Id = 1 });
+            _collection.Insert(new C() { Id = 2, Foo = null });
+            _collection.Insert(new C() { Id = 3, Foo = new int[] { 1 } });
             _collection.Insert(new C() { Id = 4, Foo = new int[] { 1, 2 } });
             _collection.Insert(new C() { Id = 5, Foo = new int[] { 1, 2, 3 } });
         }

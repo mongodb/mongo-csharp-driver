@@ -149,28 +149,28 @@ namespace MongoDB.Driver.Core.Servers
             _capturedEvents.Next().Should().BeOfType<ServerClosedEvent>();
             _capturedEvents.Any().Should().BeFalse();
         }
-        
+
         [Theory]
         [ParameterAttributeData]
         public void GetChannel_should_clear_connection_pool_when_opening_connection_throws_MongoAuthenticationException(
             [Values(false, true)] bool async)
-        {      
+        {
             var connectionId = new ConnectionId(new ServerId(_clusterId, _endPoint));
-            var mockConnectionHandle  = new Mock<IConnectionHandle>();
-            mockConnectionHandle 
+            var mockConnectionHandle = new Mock<IConnectionHandle>();
+            mockConnectionHandle
                 .Setup(c => c.Open(It.IsAny<CancellationToken>()))
                 .Throws(new MongoAuthenticationException(connectionId, "Invalid login."));
-            mockConnectionHandle 
+            mockConnectionHandle
                 .Setup(c => c.OpenAsync(It.IsAny<CancellationToken>()))
                 .Throws(new MongoAuthenticationException(connectionId, "Invalid login."));
 
             var mockConnectionPool = new Mock<IConnectionPool>();
             mockConnectionPool
                 .Setup(p => p.AcquireConnection(It.IsAny<CancellationToken>()))
-                .Returns(mockConnectionHandle .Object);
+                .Returns(mockConnectionHandle.Object);
             mockConnectionPool
                 .Setup(p => p.AcquireConnectionAsync(It.IsAny<CancellationToken>()))
-                .Returns(Task.FromResult(mockConnectionHandle .Object));
+                .Returns(Task.FromResult(mockConnectionHandle.Object));
             mockConnectionPool.Setup(p => p.Clear());
 
             var mockConnectionPoolFactory = new Mock<IConnectionPoolFactory>();
@@ -179,13 +179,13 @@ namespace MongoDB.Driver.Core.Servers
                 .Returns(mockConnectionPool.Object);
 
             var server = new Server(
-                _clusterId, 
-                _clusterClock, 
-                _clusterConnectionMode, 
-                _settings, 
-                _endPoint, 
-                mockConnectionPoolFactory.Object, 
-                _mockServerMonitorFactory.Object, 
+                _clusterId,
+                _clusterClock,
+                _clusterConnectionMode,
+                _settings,
+                _endPoint,
+                mockConnectionPoolFactory.Object,
+                _mockServerMonitorFactory.Object,
                 _capturedEvents);
             server.Initialize();
 
@@ -202,7 +202,7 @@ namespace MongoDB.Driver.Core.Servers
             });
 
             exception.Should().BeOfType<MongoAuthenticationException>();
-            mockConnectionPool.Verify(p=>p.Clear(), Times.Once());
+            mockConnectionPool.Verify(p => p.Clear(), Times.Once());
         }
 
         [Theory]

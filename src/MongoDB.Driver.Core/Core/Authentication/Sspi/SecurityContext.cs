@@ -230,7 +230,7 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
             outBytes = null;
 
             var outputBuffer = new SecurityBufferDescriptor(__maxTokenSize);
-            
+
             bool credentialAddRefSuccess = false;
             bool contextAddRefSuccess = false;
 
@@ -359,7 +359,7 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
 #if NET452
                     var package = (SecurityPackageInfo)Marshal.PtrToStructure(current, typeof(SecurityPackageInfo));
 #else
-                    var package = Marshal.PtrToStructure< SecurityPackageInfo>(current);
+                    var package = Marshal.PtrToStructure<SecurityPackageInfo>(current);
 #endif
                     if (package.Name != null && package.Name.Equals(SspiPackage.Kerberos.ToString(), StringComparison.OrdinalIgnoreCase))
                     {

@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
         {
             var lengths = new List<int>();
             // note: some close compression levels can give the same results for not huge text sizes
-            foreach (var compressionLevel in new [] { 1, 5, 10, 15, 22 })
+            foreach (var compressionLevel in new[] { 1, 5, 10, 15, 22 })
             {
                 var compressedBytes = Compress(__bigMessage, compressionLevel);
                 lengths.Add(compressedBytes.Length);

@@ -95,7 +95,7 @@ namespace MongoDB.Bson.Serialization.Attributes
             {
                 if (_representation == BsonType.Array || _representation == BsonType.Document)
                 {
-                    var dictionaryRepresentation = (_representation == BsonType.Array) ? DictionaryRepresentation.ArrayOfArrays: DictionaryRepresentation.Document;
+                    var dictionaryRepresentation = (_representation == BsonType.Array) ? DictionaryRepresentation.ArrayOfArrays : DictionaryRepresentation.Document;
                     return dictionaryRepresentationConfigurable.WithDictionaryRepresentation(dictionaryRepresentation);
                 }
             }

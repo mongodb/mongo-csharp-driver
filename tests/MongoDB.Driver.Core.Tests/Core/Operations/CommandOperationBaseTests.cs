@@ -226,7 +226,7 @@ namespace MongoDB.Driver.Core.Operations
                 BsonDocument command,
                 IBsonSerializer<TCommandResult> resultSerializer,
                 MessageEncoderSettings messageEncoderSettings)
-                : base (databaseNamespace, command, resultSerializer, messageEncoderSettings)
+                : base(databaseNamespace, command, resultSerializer, messageEncoderSettings)
             {
             }
         }

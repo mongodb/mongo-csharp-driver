@@ -67,7 +67,8 @@ namespace MongoDB.Bson
         public static BsonTypeMapperOptions Defaults
         {
             get { return __defaults; }
-            set {
+            set
+            {
                 if (value.IsFrozen)
                 {
                     __defaults = value;
@@ -86,7 +87,8 @@ namespace MongoDB.Bson
         public DuplicateNameHandling DuplicateNameHandling
         {
             get { return _duplicateNameHandling; }
-            set {
+            set
+            {
                 if (_isFrozen) { throw new InvalidOperationException("BsonTypeMapperOptions is frozen."); }
                 _duplicateNameHandling = value;
             }
@@ -106,7 +108,8 @@ namespace MongoDB.Bson
         public Type MapBsonArrayTo
         {
             get { return _mapBsonArrayTo; }
-            set {
+            set
+            {
                 if (_isFrozen) { throw new InvalidOperationException("BsonTypeMapperOptions is frozen."); }
                 _mapBsonArrayTo = value;
             }
@@ -118,7 +121,8 @@ namespace MongoDB.Bson
         public Type MapBsonDocumentTo
         {
             get { return _mapBsonDocumentTo; }
-            set {
+            set
+            {
                 if (_isFrozen) { throw new InvalidOperationException("BsonTypeMapperOptions is frozen."); }
                 _mapBsonDocumentTo = value;
             }
@@ -130,7 +134,8 @@ namespace MongoDB.Bson
         public bool MapOldBinaryToByteArray
         {
             get { return _mapOldBinaryToByteArray; }
-            set {
+            set
+            {
                 if (_isFrozen) { throw new InvalidOperationException("BsonTypeMapperOptions is frozen."); }
                 _mapOldBinaryToByteArray = value;
             }

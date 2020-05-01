@@ -436,7 +436,7 @@ namespace MongoDB.Driver.Core.Authentication
                 {
                     throw new MongoAuthenticationException(conversation.ConnectionId, "Server returned an invalid sts host.");
                 }
-                var unexpectedNames = serverFirstMessageDocument.Names.Except(new [] { "h", "s" });
+                var unexpectedNames = serverFirstMessageDocument.Names.Except(new[] { "h", "s" });
                 if (unexpectedNames.Any())
                 {
                     throw new MongoAuthenticationException(

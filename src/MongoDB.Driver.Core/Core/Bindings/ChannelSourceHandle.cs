@@ -101,7 +101,7 @@ namespace MongoDB.Driver.Core.Bindings
 
         private void ThrowIfDisposed()
         {
-            if(_disposed)
+            if (_disposed)
             {
                 throw new ObjectDisposedException(GetType().Name);
             }

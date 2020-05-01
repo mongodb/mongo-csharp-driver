@@ -84,7 +84,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 { "c", new BsonDocument("x", 3) }
             };
             var bson = document.ToBson();
-            var subject = new PartiallyRawBsonDocumentSerializer("b", 
+            var subject = new PartiallyRawBsonDocumentSerializer("b",
                 new PartiallyRawBsonDocumentSerializer("e", RawBsonDocumentSerializer.Instance));
 
             var result = Deserialize(bson, subject);

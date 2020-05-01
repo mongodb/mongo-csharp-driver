@@ -28,7 +28,7 @@ namespace MongoDB.Bson.Tests.Serialization
     public interface IC
     {
         int Id { get; set; }
-        TimeSpan T { get; set; }        
+        TimeSpan T { get; set; }
     }
 
     public static class TimeSpanSerializerTestsHelper<C> where C : IC, new()
@@ -54,7 +54,7 @@ namespace MongoDB.Bson.Tests.Serialization
         }
 
         public static void TestUnderflow(long ticks, string jsonValue)
-        { 
+        {
             var c = new C { Id = 1, T = TimeSpan.FromTicks(ticks) };
             var json = c.ToJson();
             var expected = "{ '_id' : 1, 'T' : # }".Replace("#", jsonValue).Replace("'", "\"");

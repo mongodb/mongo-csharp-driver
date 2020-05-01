@@ -166,7 +166,7 @@ namespace MongoDB.Driver.Core.Authentication
             /* set buildInfoResult to 3.4 to force authenticator to use Query Message Wire Protocol because MockConnection
              * does not support OP_MSG */
             connection.Description = new ConnectionDescription(
-                __description.ConnectionId, new IsMasterResult(isMasterResult), new BuildInfoResult(new BsonDocument("version","3.4")));
+                __description.ConnectionId, new IsMasterResult(isMasterResult), new BuildInfoResult(new BsonDocument("version", "3.4")));
 
             BsonDocument isMasterCommand = null;
             if (useSpeculativeAuthenticate)

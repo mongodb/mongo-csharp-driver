@@ -43,10 +43,10 @@ namespace MongoDB.Driver.Core.Misc
         /// <param name="maxItemSize">The maximum size of a serialized item.</param>
         /// <param name="maxBatchSize">The maximum size of the batch.</param>
         public SizeLimitingBatchableSourceSerializer(
-            IBsonSerializer<TItem> itemSerializer, 
-            IElementNameValidator itemElementNameValidator, 
+            IBsonSerializer<TItem> itemSerializer,
+            IElementNameValidator itemElementNameValidator,
             int maxBatchCount,
-            int maxItemSize, 
+            int maxItemSize,
             int maxBatchSize)
         {
             _itemSerializer = Ensure.IsNotNull(itemSerializer, nameof(itemSerializer));

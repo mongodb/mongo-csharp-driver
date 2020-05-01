@@ -244,7 +244,7 @@ namespace MongoDB.Driver.Core.Connections
                     _mockStreamFactory.Setup(f => f.CreateStream(_endPoint, CancellationToken.None))
                         .Returns(stream);
                     _subject.Open(CancellationToken.None);
-                    exception = Record.Exception( () =>  _subject.ReceiveMessage(10, encoderSelector, _messageEncoderSettings, CancellationToken.None));
+                    exception = Record.Exception(() => _subject.ReceiveMessage(10, encoderSelector, _messageEncoderSettings, CancellationToken.None));
                 }
 
                 exception.Should().BeOfType<MongoConnectionException>();

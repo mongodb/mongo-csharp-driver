@@ -81,8 +81,8 @@ namespace MongoDB.Driver.Linq
 
             // VB introduces a Convert on the LHS with a Nothing comparison, so we make it look like C# which does not have
             // any with a comparison to null
-            if ((node.NodeType == ExpressionType.Equal || node.NodeType == ExpressionType.NotEqual) && 
-                node.Left.NodeType == ExpressionType.Convert && 
+            if ((node.NodeType == ExpressionType.Equal || node.NodeType == ExpressionType.NotEqual) &&
+                node.Left.NodeType == ExpressionType.Convert &&
                 node.Right.NodeType == ExpressionType.Constant)
             {
                 var left = (UnaryExpression)node.Left;

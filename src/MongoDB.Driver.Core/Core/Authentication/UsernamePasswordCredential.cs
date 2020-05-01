@@ -92,7 +92,7 @@ namespace MongoDB.Driver.Core.Authentication
         {
             get { return _saslPreppedPassword.Value; }
         }
-        
+
         /// <summary>
         /// Gets the source.
         /// </summary>

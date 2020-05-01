@@ -645,7 +645,7 @@ namespace MongoDB.Driver
 
             var exception = Record.Exception(() =>
             {
-                if(usingSession)
+                if (usingSession)
                 {
                     if (async)
                     {

@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                     "\"opcode\" : \"delete\", " +
                     "\"requestId\" : 1, " +
                     "\"database\" : \"d\", " +
-                    "\"collection\" : \"c\", "+
+                    "\"collection\" : \"c\", " +
                     "\"query\" : { \"x\" : 1 }, " +
                     "\"isMulti\" : false" +
                 " }";

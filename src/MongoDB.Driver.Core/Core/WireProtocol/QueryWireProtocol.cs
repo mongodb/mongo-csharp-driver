@@ -70,7 +70,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                   slaveOk,
                   partialOk,
                   noCursorTimeout,
-                  oplogReplay : false,
+                  oplogReplay: false,
                   tailableCursor,
                   awaitData,
                   serializer,

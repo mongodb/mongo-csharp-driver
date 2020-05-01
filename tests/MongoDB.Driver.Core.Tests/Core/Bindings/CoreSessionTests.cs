@@ -247,7 +247,7 @@ namespace MongoDB.Driver.Core.Bindings
 
             Mock.Get(subject.ServerSession).Verify(m => m.WasUsed(), Times.Once);
         }
-        
+
         [Theory]
         [ParameterAttributeData]
         public void EnsureTransactionsAreSupported_should_throw_when_there_are_no_connected_servers(

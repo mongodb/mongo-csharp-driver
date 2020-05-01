@@ -96,7 +96,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                 case "filter":
                     _filter = new BsonDocumentFilterDefinition<BsonDocument>(value.AsBsonDocument);
                     return;
-                
+
                 case "limit":
                     _options.Limit = value.ToInt32();
                     return;
@@ -108,7 +108,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                 case "session":
                     _session = (IClientSessionHandle)_objectMap[value.AsString];
                     return;
-                
+
                 case "sort":
                     _options.Sort = (SortDefinition<BsonDocument>)value;
                     return;

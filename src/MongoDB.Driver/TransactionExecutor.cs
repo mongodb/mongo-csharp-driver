@@ -209,7 +209,7 @@ namespace MongoDB.Driver
 
         private static bool IsMaxTimeMSExpiredException(Exception ex)
         {
-            if (ex is MongoExecutionTimeoutException timeoutException && 
+            if (ex is MongoExecutionTimeoutException timeoutException &&
                 timeoutException.Code == MaxTimeMSExpiredErrorCode)
             {
                 return true;

@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Linq
         /// </summary>
         public ReadOnlyCollection<OrderByClause> OrderBy
         {
-            get { return (_orderBy == null) ? null :_orderBy.AsReadOnly(); }
+            get { return (_orderBy == null) ? null : _orderBy.AsReadOnly(); }
         }
 
         /// <summary>

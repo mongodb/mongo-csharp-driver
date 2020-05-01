@@ -654,7 +654,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            var pipeline = new [] { BsonDocument.Parse($"{{ {operatorName} : \"xyz\" }}") };
+            var pipeline = new[] { BsonDocument.Parse($"{{ {operatorName} : \"xyz\" }}") };
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, pipeline, __resultSerializer, _messageEncoderSettings);
 
             var exception = Record.Exception(() => ExecuteOperation(subject, async));

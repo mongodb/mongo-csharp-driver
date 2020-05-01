@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void constructor_should_throw_when_messageEncoderSettings_is_null()
         {
-            var exception = Record.Exception(() => new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction,  null));
+            var exception = Record.Exception(() => new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, null));
 
             var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
             argumentNullException.ParamName.Should().Be("messageEncoderSettings");
@@ -420,7 +420,7 @@ namespace MongoDB.Driver.Core.Operations
             string code)
         {
             var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
-            var value = code == null ? null : new BsonJavaScript(code );
+            var value = code == null ? null : new BsonJavaScript(code);
 
             subject.FinalizeFunction = value;
             var result = subject.FinalizeFunction;

@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
             : this(null, client, databaseName, collectionName, bucketName, objectMap)
         {
         }
-        
+
         public JsonDrivenTestFactory(IMongoClient client, string databaseName, string collectionName, string bucketName, Dictionary<string, object> objectMap, EventCapturer eventCapturer)
             : this(client, databaseName, collectionName, bucketName, objectMap)
         {
@@ -153,7 +153,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                     }
 
                 default:
-                     throw new FormatException($"Invalid receiver: \"{receiver}\".");
+                    throw new FormatException($"Invalid receiver: \"{receiver}\".");
             }
         }
     }

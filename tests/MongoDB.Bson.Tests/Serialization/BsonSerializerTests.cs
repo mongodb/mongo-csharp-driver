@@ -67,7 +67,7 @@ namespace MongoDB.Bson.Tests.Serialization
                 {
                     DateTime now = DateTime.Today;
                     int age = now.Year - DateOfBirth.Year;
-                    if (DateOfBirth > now.AddYears(-age)) 
+                    if (DateOfBirth > now.AddYears(-age))
                         age--;
 
                     return age;

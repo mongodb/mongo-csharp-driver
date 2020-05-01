@@ -20,7 +20,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Servers
 {
-    internal  sealed class ClusterClockAdvancingCoreSession : WrappingCoreSession
+    internal sealed class ClusterClockAdvancingCoreSession : WrappingCoreSession
     {
         private readonly IClusterClock _clusterClock;
 

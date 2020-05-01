@@ -69,7 +69,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => _map.GetEnumerator();
 
-            IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable) _map).GetEnumerator();
+            IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_map).GetEnumerator();
 
             public int Count => _map.Count;
 

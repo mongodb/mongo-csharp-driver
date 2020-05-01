@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Linq.Translators
             return AggregateLanguageTranslator.Translate(boundExpression, translationOptions);
         }
 
-        private static Expression BindResult<TSource,TResult>(
+        private static Expression BindResult<TSource, TResult>(
             PipelineBindingContext bindingContext,
             Expression<Func<TSource, TResult>> expression,
             IBsonSerializer<TSource> sourceSerializer)

@@ -67,7 +67,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             return new StackSerializer(itemSerializer);
         }
 
-       // protected methods
+        // protected methods
         /// <summary>
         /// Adds the item.
         /// </summary>

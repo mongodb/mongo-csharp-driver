@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
         public const long SEC_E_INCOMPLETE_MESSAGE = 0x80090318;
         public const long SEC_E_BUFFER_TOO_SMALL = 0x80090321;
         public const long SEC_E_CRYPTO_SYSTEM_INVALID = 0x80090337;
-        
+
         public const long SEC_I_CONTINUE_NEEDED = 0x00090312;
         public const long SEC_I_CONTEXT_EXPIRED = 0x00090317;
         public const long SEC_I_RENEGOTIATE = 0x00090321;

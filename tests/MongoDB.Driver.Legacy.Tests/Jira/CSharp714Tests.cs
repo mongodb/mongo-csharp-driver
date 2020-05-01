@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp714
         private MongoCollection<C> _collection;
         private IIdGenerator _generator = new AscendingGuidGenerator();
         private static int __maxNoOfDocuments = 100;
-        
+
         public CSharp714Tests()
         {
             _database = LegacyTestConfiguration.Database;
@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp714
 
         private void CreateTestData()
         {
-            for (var i=0; i<__maxNoOfDocuments; i++) 
+            for (var i = 0; i < __maxNoOfDocuments; i++)
             {
                 _collection.Insert(new C { Id = i, Guid = (Guid)_generator.GenerateId(null, null) });
             }

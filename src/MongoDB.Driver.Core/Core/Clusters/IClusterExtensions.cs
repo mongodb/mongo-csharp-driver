@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Core.Clusters
             PinServerIfNeeded(cluster, session, server);
             return server;
         }
-        
+
         public static async Task<IServer> SelectServerAndPinIfNeededAsync(
             this ICluster cluster,
             ICoreSessionHandle session,
@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             return server;
         }
-        
+
         private static void PinServerIfNeeded(ICluster cluster, ICoreSessionHandle session, IServer server)
         {
             if (cluster.Description.Type == ClusterType.Sharded && session.IsInTransaction)
@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Core.Clusters
 
         private static IServer GetPinnedServerIfValid(ICluster cluster, ICoreSessionHandle session)
         {
-            if (cluster.Description.Type == ClusterType.Sharded 
+            if (cluster.Description.Type == ClusterType.Sharded
                 && session.IsInTransaction
                 && session.CurrentTransaction.State != CoreTransactionState.Starting)
             {

@@ -135,7 +135,7 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         public override BsonDocument Render(IBsonSerializer itemSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            return Render((IBsonSerializer<TItem>) itemSerializer, serializerRegistry);
+            return Render((IBsonSerializer<TItem>)itemSerializer, serializerRegistry);
         }
 
         /// <inheritdoc />

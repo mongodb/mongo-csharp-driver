@@ -38,7 +38,7 @@ namespace MongoDB.Driver
                 renderedPipeline.OutputSerializer,
                 messageEncoderSettings)
             {
-                RetryRequested = retryRequested    
+                RetryRequested = retryRequested
             };
             SetOperationOptions(operation, options, readConcern);
 
@@ -59,9 +59,9 @@ namespace MongoDB.Driver
                 database.DatabaseNamespace,
                 renderedPipeline.Documents,
                 renderedPipeline.OutputSerializer,
-                messageEncoderSettings) 
+                messageEncoderSettings)
             {
-                RetryRequested = retryRequested    
+                RetryRequested = retryRequested
             };
             SetOperationOptions(operation, options, readConcern);
 
@@ -83,9 +83,9 @@ namespace MongoDB.Driver
                 collection.CollectionNamespace,
                 renderedPipeline.Documents,
                 renderedPipeline.OutputSerializer,
-                messageEncoderSettings) 
+                messageEncoderSettings)
             {
-                RetryRequested = retryRequested    
+                RetryRequested = retryRequested
             };
             SetOperationOptions(operation, options, readConcern);
 

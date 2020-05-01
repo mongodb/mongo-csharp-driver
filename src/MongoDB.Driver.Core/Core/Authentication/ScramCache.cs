@@ -86,10 +86,10 @@ namespace MongoDB.Driver.Core.Authentication
                 return false;
             }
 
-            ScramCacheKey other = (ScramCacheKey) obj;
+            ScramCacheKey other = (ScramCacheKey)obj;
 
             return
-                Equals(_password,other._password) &&
+                Equals(_password, other._password) &&
                 _iterationCount == other._iterationCount &&
                 _salt.SequenceEqual(other._salt);
         }

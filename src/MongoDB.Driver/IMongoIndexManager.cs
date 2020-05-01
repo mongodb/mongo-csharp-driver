@@ -97,7 +97,7 @@ namespace MongoDB.Driver
             IEnumerable<CreateIndexModel<TDocument>> models,
             CreateManyIndexesOptions options,
             CancellationToken cancellationToken = default(CancellationToken));
-        
+
         /// <summary>
         /// Creates multiple indexes.
         /// </summary>

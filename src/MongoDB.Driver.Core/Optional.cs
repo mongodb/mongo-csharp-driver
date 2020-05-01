@@ -96,7 +96,7 @@ namespace MongoDB.Driver
                 {
                     throw new InvalidOperationException("This instance does not have a value.");
                 }
-                return _value;                
+                return _value;
             }
         }
 

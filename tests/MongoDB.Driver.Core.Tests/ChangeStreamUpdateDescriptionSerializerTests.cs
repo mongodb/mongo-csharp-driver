@@ -83,7 +83,7 @@ namespace MongoDB.Driver
             var subject = CreateSubject();
             var value = new ChangeStreamUpdateDescription(
                 new BsonDocument("f", 1),
-                new [] { "f" });
+                new[] { "f" });
             var expectedResult = "{ \"updatedFields\" : { \"f\" : 1 }, \"removedFields\" : [\"f\"] }";
 
             string result;

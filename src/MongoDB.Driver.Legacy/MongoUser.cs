@@ -81,7 +81,8 @@ namespace MongoDB.Driver
         public string Username
         {
             get { return _username; }
-            set {
+            set
+            {
                 if (value == null)
                 {
                     throw new ArgumentNullException("value");
@@ -96,7 +97,8 @@ namespace MongoDB.Driver
         public string PasswordHash
         {
             get { return _passwordHash; }
-            set {
+            set
+            {
                 if (value == null)
                 {
                     throw new ArgumentNullException("value");

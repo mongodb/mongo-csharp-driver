@@ -130,7 +130,7 @@ namespace MongoDB.Driver
         public override int GetHashCode()
         {
             var hash = 17;
-            hash += 37 * (_username == null ? 0 :_username.GetHashCode());
+            hash += 37 * (_username == null ? 0 : _username.GetHashCode());
             hash += 37 * _source.GetHashCode();
             return hash;
         }

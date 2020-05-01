@@ -76,7 +76,7 @@ namespace MongoDB.Bson.IO
             {
                 throw new ArgumentNullException("stream");
             }
-            
+
             var b = stream.ReadByte();
             if (b == -1)
             {
@@ -96,7 +96,7 @@ namespace MongoDB.Bson.IO
             {
                 throw new ArgumentNullException("stream");
             }
-            
+
             var b = stream.ReadByte();
             if (b == -1)
             {
@@ -213,7 +213,7 @@ namespace MongoDB.Bson.IO
             {
                 throw new ArgumentNullException("stream");
             }
-            
+
             stream.WriteByte((byte)value);
         }
 
@@ -228,7 +228,7 @@ namespace MongoDB.Bson.IO
             {
                 throw new ArgumentNullException("stream");
             }
-            
+
             stream.WriteByte(value ? (byte)1 : (byte)0);
         }
 
@@ -243,7 +243,7 @@ namespace MongoDB.Bson.IO
             {
                 throw new ArgumentNullException("stream");
             }
-            
+
             stream.WriteByte((byte)value);
         }
 

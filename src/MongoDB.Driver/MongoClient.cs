@@ -83,7 +83,7 @@ namespace MongoDB.Driver
             if (settings.AutoEncryptionOptions != null)
             {
                 _libMongoCryptController = new AutoEncryptionLibMongoCryptController(
-                    this, 
+                    this,
                     _cluster.CryptClient,
                     settings.AutoEncryptionOptions);
             }
@@ -139,7 +139,7 @@ namespace MongoDB.Driver
         // internal properties
         internal AutoEncryptionLibMongoCryptController LibMongoCryptController => _libMongoCryptController;
         internal IOperationExecutor OperationExecutor => _operationExecutor;
-        
+
         // internal methods
         internal void ConfigureAutoEncryptionMessageEncoderSettings(MessageEncoderSettings messageEncoderSettings)
         {

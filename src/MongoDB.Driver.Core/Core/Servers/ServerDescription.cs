@@ -204,7 +204,7 @@ namespace MongoDB.Driver.Core.Servers
         /// </value>
         public bool IsCompatibleWithDriver =>
             _type == ServerType.Unknown ||
-            _wireVersionRange == null || 
+            _wireVersionRange == null ||
             _wireVersionRange.Overlaps(Cluster.SupportedWireVersionRange);
 
         /// <summary>

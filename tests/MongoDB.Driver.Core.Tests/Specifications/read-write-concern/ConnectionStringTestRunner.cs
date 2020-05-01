@@ -73,7 +73,7 @@ namespace MongoDB.Driver.Specifications.read_write_concern.tests
             if (definition.TryGetValue("writeConcern", out writeConcernValue))
             {
                 var writeConcern =
-                    WriteConcern.FromBsonDocument(MassageWriteConcernDocument((BsonDocument) writeConcernValue));
+                    WriteConcern.FromBsonDocument(MassageWriteConcernDocument((BsonDocument)writeConcernValue));
                 connectionString.W.Should().Be(writeConcern.W);
                 connectionString.WTimeout.Should().Be(writeConcern.WTimeout);
                 connectionString.Journal.Should().Be(writeConcern.Journal);

@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             {
                 throw new InvalidOperationException("No TextReader was provided.");
             }
-            
+
             var readerSettings = new JsonReaderSettings();
             if (_encoderSettings != null)
             {

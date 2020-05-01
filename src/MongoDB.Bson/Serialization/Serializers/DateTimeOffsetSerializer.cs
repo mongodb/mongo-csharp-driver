@@ -112,7 +112,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     bsonReader.ReadEndArray();
                     return new DateTimeOffset(ticks, offset);
 
-                case BsonType.Document:                 
+                case BsonType.Document:
                     ticks = 0;
                     offset = TimeSpan.Zero;
                     _helper.DeserializeMembers(context, (elementName, flag) =>

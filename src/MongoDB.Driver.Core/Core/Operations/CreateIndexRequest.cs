@@ -303,7 +303,7 @@ namespace MongoDB.Driver.Core.Operations
         /// </value>
         public BsonDocument WildcardProjection
         {
-            get { return _wildcardProjection;  }
+            get { return _wildcardProjection; }
             set { _wildcardProjection = value; }
         }
 
@@ -318,7 +318,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 return _name;
             }
-            
+
             if (_additionalOptions != null)
             {
                 BsonValue name;

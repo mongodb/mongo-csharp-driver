@@ -42,11 +42,11 @@ namespace MongoDB.Bson.Serialization.Conventions
             {
                 return "";
             }
-            else if(memberName.Length == 1)
+            else if (memberName.Length == 1)
             {
                 return Char.ToLowerInvariant(memberName[0]).ToString();
             }
-            else 
+            else
             {
                 return Char.ToLowerInvariant(memberName[0]) + memberName.Substring(1);
             }

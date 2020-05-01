@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Tests
             var filter = __subject.Where(x => values.Contains(x.P));
 
             var result = filter.Render(__serializer, __registry);
-            
+
             result.Should().Be("{ P : { $in : [ null, 'A', 'B' ] } }");
         }
     }

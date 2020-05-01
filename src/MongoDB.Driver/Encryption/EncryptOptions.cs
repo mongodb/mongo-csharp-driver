@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Encryption
         /// <value>
         /// The algorithm.
         /// </value>
-        public string Algorithm=> _algorithm;
+        public string Algorithm => _algorithm;
 
         /// <summary>
         /// Gets the alternate key name.

@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Tests
             var e = exception.Should().BeOfType<ArgumentException>().Subject;
             e.ParamName.Should().Be("stages");
             e.Message.Should().Contain($"The output type to the last stage was expected to be {typeof(Person)}, but was {typeof(BsonDocument)}.");
-       }
+        }
 
         [Fact]
         public void Constructor_should_verify_the_inputs_and_outputs_of_the_stages()

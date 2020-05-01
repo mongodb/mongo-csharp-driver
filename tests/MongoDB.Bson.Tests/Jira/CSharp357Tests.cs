@@ -100,7 +100,7 @@ namespace MongoDB.Bson.Tests.Jira
         [Fact]
         public void TestMillisecondsSinceEpochValues()
         {
-            var values = new long[] 
+            var values = new long[]
             {
                 long.MinValue,
                 long.MinValue + 1,

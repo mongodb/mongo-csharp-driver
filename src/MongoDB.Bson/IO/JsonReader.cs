@@ -1082,7 +1082,7 @@ namespace MongoDB.Bson.IO
         }
 
         private void ParseBinDataExtendedJsonLegacy(JsonToken nextToken, out byte[] bytes, out BsonBinarySubType subType)
-        { 
+        {
             if (nextToken.Type != JsonTokenType.String)
             {
                 var message = string.Format("JSON reader expected a string but found '{0}'.", nextToken.Lexeme);

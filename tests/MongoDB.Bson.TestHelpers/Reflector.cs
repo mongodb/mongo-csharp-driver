@@ -32,7 +32,7 @@ namespace MongoDB.Bson.TestHelpers
             var propertyInfo = obj.GetType().GetProperty(name, flags);
             return propertyInfo.GetValue(obj);
         }
-        
+
         public static object GetStaticFieldValue(Type type, string name, BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Static)
         {
             var fieldInfo = GetDeclaredOrInheritedField(type, name, flags);
@@ -94,8 +94,8 @@ namespace MongoDB.Bson.TestHelpers
             var methodInfo = obj
                 .GetType()
                 .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(m => 
-                    m.Name == name && 
+                .Where(m =>
+                    m.Name == name &&
                     m.GetParameters()
                         .Select(p => p.ParameterType.FullName.TrimEnd('&'))
                         .SequenceEqual(parameterTypes))

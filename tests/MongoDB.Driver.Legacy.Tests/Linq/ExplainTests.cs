@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Tests.Linq
         public void TestDistinctQueryCannotBeExplained()
         {
             EnsureCollectionExists();
-            Assert.Throws<NotSupportedException>(()=> _collection.AsQueryable<C>().Select(c=>c.X).Distinct().Explain());
+            Assert.Throws<NotSupportedException>(() => _collection.AsQueryable<C>().Select(c => c.X).Distinct().Explain());
         }
 
         [Fact]

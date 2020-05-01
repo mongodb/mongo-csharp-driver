@@ -267,7 +267,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (units == TimeSpanUnits.Nanoseconds)
             {
-                return (int)(timeSpan.Ticks * 100); 
+                return (int)(timeSpan.Ticks * 100);
             }
             else
             {

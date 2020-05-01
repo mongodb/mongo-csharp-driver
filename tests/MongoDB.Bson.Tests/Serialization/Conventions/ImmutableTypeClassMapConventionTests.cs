@@ -152,7 +152,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             Assert.True(classMap.HasCreatorMaps);
             Assert.Equal(1, classMap.CreatorMaps.Count());
         }
-                
+
         [Fact]
         public void TestNoDefaultConstructorClassMapConventionWithTestClassD()
         {

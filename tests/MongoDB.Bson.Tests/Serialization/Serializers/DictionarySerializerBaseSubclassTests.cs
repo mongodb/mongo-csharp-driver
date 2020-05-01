@@ -23,29 +23,29 @@ using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization.Serializers
 {
-    
+
     public class DictionarySerializerBaseSubclassTests
     {
-        private class CustomDictionarySerializer<TKey, TValue> 
+        private class CustomDictionarySerializer<TKey, TValue>
             : DictionarySerializerBase<Dictionary<TKey, TValue>, TKey, TValue>
         {
             [Obsolete]
             protected override Dictionary<TKey, TValue> CreateInstance()
             {
-                return new Dictionary<TKey,TValue>();
+                return new Dictionary<TKey, TValue>();
             }
         }
-        
+
         // Tests to ensure that subclasses of DictionarySerializeBase that override the obselete "CreateInstance" work
         [Fact]
         public void TestCustomDictionarySerializerSerializeAndDeserialize()
         {
             var map = new Dictionary<object, object> { { "power", 9001 } };
-            var serializer = new CustomDictionarySerializer<object,object>();
+            var serializer = new CustomDictionarySerializer<object, object>();
             var expected = @"{ ""power"" : 9001 }";
 
             var json = map.ToJson(writerSettings: null, serializer: serializer);
-            
+
             Assert.Equal(expected, json);
 
             var bson = map.ToBson(serializer: serializer);
@@ -54,12 +54,12 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             using (var bsonReader = new BsonBinaryReader(stream))
             {
                 var context = BsonDeserializationContext.CreateRoot(reader: bsonReader, configurator: null);
-                
+
                 var rehydrated = serializer.Deserialize(context);
-                
+
                 Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
             }
         }
-        
+
     }
 }

@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
                             local2.Any(e => c.Collection3.Contains(e))
                         ));
             AssertWhere(
-                expr, 
+                expr,
                 @"
                 {
                     $match : { 

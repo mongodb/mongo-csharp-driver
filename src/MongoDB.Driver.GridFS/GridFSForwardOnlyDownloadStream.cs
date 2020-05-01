@@ -96,7 +96,7 @@ namespace MongoDB.Driver.GridFS
             get => _retryReads;
             set => _retryReads = value;
         }
-    
+
         // methods
         public override int Read(byte[] buffer, int offset, int count)
         {

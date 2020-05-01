@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
         [Fact]
         public void Test2DLineStringGeographic()
         {
-            var lineString = GeoJson. LineString(
+            var lineString = GeoJson.LineString(
                 GeoJson.Geographic(1.0, 2.0),
                 GeoJson.Geographic(3.0, 4.0));
 

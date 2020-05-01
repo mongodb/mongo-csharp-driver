@@ -273,7 +273,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             if (actualType == typeof(object))
             {
                 var type = bsonReader.GetCurrentBsonType();
-                switch(type)
+                switch (type)
                 {
                     case BsonType.Document:
                         if (context.DynamicDocumentSerializer != null)

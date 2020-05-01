@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Core.Misc
         {
             var wrappedSrvRecords = response.Answers.SrvRecords().ToList();
             var srvRecords = new List<SrvRecord>();
-            
+
             foreach (var wrappedSrvRecord in wrappedSrvRecords)
             {
                 var host = wrappedSrvRecord.Target.ToString();

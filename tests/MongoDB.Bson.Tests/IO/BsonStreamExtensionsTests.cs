@@ -506,7 +506,7 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-         [Fact]
+        [Fact]
         public void WriteBinarySubType_should_throw_when_stream_is_null()
         {
             BsonStream stream = null;

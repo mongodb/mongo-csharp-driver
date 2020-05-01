@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         // public methods
         public override void Arrange(BsonDocument document)
         {
-            var expectedNames = new[] {"name", "object", "command_name", "arguments", "result", "databaseOptions"};
+            var expectedNames = new[] { "name", "object", "command_name", "arguments", "result", "databaseOptions" };
             JsonDrivenHelper.EnsureAllFieldsAreValid(document, expectedNames);
             base.Arrange(document);
 
@@ -102,7 +102,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                 case "command":
                     _command = value.AsBsonDocument;
                     return;
-                
+
                 case "databaseOptions":
                     if (value.AsBsonDocument.TryGetValue("readConcern", out var readConcernValue))
                     {

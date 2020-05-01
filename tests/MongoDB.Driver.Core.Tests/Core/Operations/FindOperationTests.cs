@@ -550,7 +550,7 @@ namespace MongoDB.Driver.Core.Operations
             RequireServer.Check().ClusterType(ClusterType.Sharded).Supports(Feature.HedgedReads);
             EnsureTestData();
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-            var hedge = isEnabled.HasValue? new ReadPreferenceHedge(isEnabled.Value) : null;
+            var hedge = isEnabled.HasValue ? new ReadPreferenceHedge(isEnabled.Value) : null;
             var readPreference = new ReadPreference(ReadPreferenceMode.SecondaryPreferred, hedge: hedge);
 
             // the count could be short temporarily until replication catches up

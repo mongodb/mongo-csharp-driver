@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var writeConcernException = exception as MongoWriteConcernException;
             if (writeConcernException != null)
-            { 
+            {
                 writeConcernException.Data["results"] = new List<WriteConcernResult>(new[] { writeConcernResult });
             }
 

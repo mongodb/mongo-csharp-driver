@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Linq
     /// Represents a projector that does nothing.
     /// </summary>
     /// <typeparam name="T">The type being projected.</typeparam>
-    internal class IdentityProjector<T> : IProjector<T,T>
+    internal class IdentityProjector<T> : IProjector<T, T>
     {
         // private fields
         private readonly MongoCursor _cursor;

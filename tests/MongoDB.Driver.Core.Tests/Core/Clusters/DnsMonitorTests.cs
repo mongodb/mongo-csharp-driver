@@ -267,7 +267,7 @@ namespace MongoDB.Driver.Core.Clusters
         [InlineData(new[] { "x.b.com", "y.c.com" }, new[] { "x.b.com" })]
         [InlineData(new[] { "x.c.com", "y.b.com" }, new[] { "y.b.com" })]
         [InlineData(new[] { "x.c.com", "y.c.com" }, new string[0])]
-        public void GetValidEndPoints_should_return_expected_results(string[] srvEndPoints, string[]validEndPoints)
+        public void GetValidEndPoints_should_return_expected_results(string[] srvEndPoints, string[] validEndPoints)
         {
             var lookupDomainName = "a.b.com";
             var subject = CreateSubject(lookupDomainName: lookupDomainName);
@@ -335,7 +335,7 @@ namespace MongoDB.Driver.Core.Clusters
         public void Monitor_should_return_when_ShouldDnsMonitorStop_returns_true()
         {
             var mockDnsResolver = new Mock<IDnsResolver>();
-            var srvRecords = CreateSrvRecords(new []{ "oneserver.test.com" });
+            var srvRecords = CreateSrvRecords(new[] { "oneserver.test.com" });
             mockDnsResolver
                 .Setup(m => m.ResolveSrvRecords(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .Returns(srvRecords);

@@ -103,7 +103,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(TValue));
             return discriminatorConvention.GetActualType(context.Reader, typeof(TValue));
         }
-        
+
         /// <summary>
         /// Serializes a value of type {TValue}.
         /// </summary>

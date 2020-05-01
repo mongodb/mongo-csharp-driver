@@ -671,10 +671,10 @@ namespace MongoDB.Driver.Tests.GridFS
         public void TestUploadWithSecondaryReadPreference()
         {
             _gridFS.Delete(Query.Null);
-            var settings = new MongoGridFSSettings 
+            var settings = new MongoGridFSSettings
             {
                 ReadPreference = ReadPreference.Secondary,
-                VerifyMD5 = true 
+                VerifyMD5 = true
             };
             var gridFS = _database.GetGridFS(settings);
             var bytes = Encoding.UTF8.GetBytes("Hello World");

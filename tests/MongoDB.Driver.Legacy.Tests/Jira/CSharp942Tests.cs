@@ -29,5 +29,5 @@ namespace MongoDB.Driver.Tests.Jira
             var cursor = collection.FindAll().SetFlags(QueryFlags.Exhaust);
             Assert.Throws<NotSupportedException>(() => cursor.ToList());
         }
-   }
+    }
 }

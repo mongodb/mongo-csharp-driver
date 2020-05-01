@@ -30,7 +30,7 @@ namespace MongoDB.Bson.TestHelpers.EqualityComparers
             {
                 return comparer.Equals(x, y);
             };
-          
+
             return assertions.Equal(expectation, predicate, because, reasonArgs);
         }
 

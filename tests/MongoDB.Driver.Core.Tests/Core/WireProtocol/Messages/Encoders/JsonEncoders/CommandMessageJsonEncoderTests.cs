@@ -328,7 +328,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             int requestId = 1,
             int responseTo = 2,
             IEnumerable<CommandMessageSection> sections = null,
-            bool moreToCome = false)          
+            bool moreToCome = false)
         {
             sections = sections ?? new[] { CreateType0Section() };
             return new CommandMessage(requestId, responseTo, sections, moreToCome);
@@ -413,7 +413,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         private CommandMessageJsonEncoder CreateSubject(
             TextReader textReader = null,
             TextWriter textWriter = null,
-            MessageEncoderSettings encoderSettings = null)            
+            MessageEncoderSettings encoderSettings = null)
         {
             textReader = textReader ?? new StringReader("");
             textWriter = textWriter ?? new StringWriter();

@@ -62,10 +62,10 @@ namespace MongoDB.Driver.Core.Operations
         [Theory]
         [ParameterAttributeData]
         public void NameOnly_get_and_set_should_work(
-            [Values(false,true)] bool nameOnly)
+            [Values(false, true)] bool nameOnly)
         {
             var subject = new ListDatabasesOperation(_messageEncoderSettings);
-   
+
             subject.NameOnly = nameOnly;
             var result = subject.NameOnly;
 
@@ -100,14 +100,14 @@ namespace MongoDB.Driver.Core.Operations
                 NameOnly = nameOnly,
                 Filter = filter
             };
-            
+
             var expectedResult = new BsonDocument
             {
                 { "listDatabases", 1 },
                 { "filter", filter, filterString != null },
                 { "nameOnly", nameOnly, nameOnly != null }
             };
-            
+
 
             var result = subject.CreateCommand();
 
@@ -135,7 +135,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ListDatabasesFilter);
-            
+
             var filterString = $"{{ name : \"{_databaseNamespace.DatabaseName}\" }}";
             var filter = BsonDocument.Parse(filterString);
             var subject = new ListDatabasesOperation(_messageEncoderSettings) { Filter = filter };
@@ -160,7 +160,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 NameOnly = nameOnly
             };
-            
+
             EnsureDatabaseExists(async);
 
             var result = ExecuteOperation(subject, async);
@@ -176,7 +176,7 @@ namespace MongoDB.Driver.Core.Operations
                 else
                 {
                     database.ElementCount.Should().BeGreaterThan(1);
-                }       
+                }
             }
         }
 

@@ -42,10 +42,10 @@ namespace MongoDB.Driver.Tests
             "saslContinue",
             "getnonce"
         };
-        
+
         private string _collectionName = "test";
         private string _databaseName = "test";
-        
+
         /// <summary>
         /// Test that starting a new transaction on a pinned ClientSession unpins the
         /// session and normal server selection is performed for the next operation.
@@ -56,11 +56,11 @@ namespace MongoDB.Driver.Tests
         {
             RequireServer.Check().Supports(Feature.ShardedTransactions).ClusterType(ClusterType.Sharded);
             RequireMultipleShardRouters();
-            
+
             DropCollection();
             var eventCapturer = CreateEventCapturer();
             var listOfFindResults = new List<List<BsonDocument>>();
-            using (var client = CreateDisposableClient(eventCapturer, useMultipleShardRouters:true))
+            using (var client = CreateDisposableClient(eventCapturer, useMultipleShardRouters: true))
             using (var session = client.StartSession())
             {
                 // Session is pinned to mongos.
@@ -96,9 +96,9 @@ namespace MongoDB.Driver.Tests
                     }
                 }
             }
-            
+
             listOfFindResults.Should().OnlyContain(findResult => findResult.Count > 0);
-            var servers = new HashSet<ServerId>(eventCapturer.Events.Select(e => ((CommandStartedEvent) e).ConnectionId.ServerId));
+            var servers = new HashSet<ServerId>(eventCapturer.Events.Select(e => ((CommandStartedEvent)e).ConnectionId.ServerId));
             servers.Count.Should().BeGreaterThan(1);
 
         }
@@ -113,11 +113,11 @@ namespace MongoDB.Driver.Tests
         {
             RequireServer.Check().Supports(Feature.ShardedTransactions).ClusterType(ClusterType.Sharded);
             RequireMultipleShardRouters();
-            
+
             DropCollection();
             var eventCapturer = CreateEventCapturer();
             var listOfFindResults = new List<List<BsonDocument>>();
-            using (var client = CreateDisposableClient(eventCapturer, useMultipleShardRouters:true))
+            using (var client = CreateDisposableClient(eventCapturer, useMultipleShardRouters: true))
             using (var session = client.StartSession())
             {
                 CreateCollection();
@@ -135,10 +135,10 @@ namespace MongoDB.Driver.Tests
                     {
                         var cursor = await collection.FindAsync(session, filter: new BsonDocument()).ConfigureAwait(false);
                         listOfFindResults.Add(cursor.ToList());
-                    }    
+                    }
                 }
                 else
-                { 
+                {
                     session.CommitTransaction();
                     for (var i = 0; i < 50; i++)
                     {
@@ -148,7 +148,7 @@ namespace MongoDB.Driver.Tests
             }
 
             listOfFindResults.Should().OnlyContain(findResult => findResult.Count > 0);
-            var servers = new HashSet<ServerId>(eventCapturer.Events.Select(e => ((CommandStartedEvent) e).ConnectionId.ServerId));
+            var servers = new HashSet<ServerId>(eventCapturer.Events.Select(e => ((CommandStartedEvent)e).ConnectionId.ServerId));
             servers.Count.Should().BeGreaterThan(1);
         }
 
@@ -173,7 +173,7 @@ namespace MongoDB.Driver.Tests
                 {
                     settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
                     settings.LocalThreshold = TimeSpan.FromMilliseconds(1000);
-                }, 
+                },
                 useMultipleShardRouters);
             var timeOut = TimeSpan.FromSeconds(60);
             bool AllServersConnected() => client.Cluster.Description.Servers.All(s => s.State == ServerState.Connected);
@@ -187,7 +187,7 @@ namespace MongoDB.Driver.Tests
             var database = client.GetDatabase(_databaseName).WithWriteConcern(WriteConcern.WMajority);
             database.DropCollection(_collectionName);
         }
-        
+
         private void RequireMultipleShardRouters()
         {
             var connectionString = CoreTestConfiguration.ConnectionStringWithMultipleShardRouters.ToString();

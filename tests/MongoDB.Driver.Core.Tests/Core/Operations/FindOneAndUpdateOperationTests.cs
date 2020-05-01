@@ -136,7 +136,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(null, "_id_")] string hintString)
         {
             var subject = new FindOneAndUpdateOperation<BsonDocument>(_collectionNamespace, _filter, _update, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-            var value = (BsonValue) hintString;
+            var value = (BsonValue)hintString;
 
             subject.Hint = value;
             var result = subject.Hint;
@@ -325,7 +325,7 @@ namespace MongoDB.Driver.Core.Operations
         public void CreateCommand_should_return_expected_result_when_Hint_is_set(
             [Values(null, "_id_")] string hintString)
         {
-            var hint = (BsonValue) hintString;
+            var hint = (BsonValue)hintString;
             var subject = new FindOneAndUpdateOperation<BsonDocument>(_collectionNamespace, _filter, _update, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
                 Hint = hint

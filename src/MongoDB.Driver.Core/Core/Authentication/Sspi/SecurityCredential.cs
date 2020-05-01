@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
                 }
                 else
                 {
-                    using(var authIdentity = new AuthIdentity(username, password))
+                    using (var authIdentity = new AuthIdentity(username, password))
                     {
                         // TODO: make this secure by using SecurePassword
                         result = NativeMethods.AcquireCredentialsHandle(

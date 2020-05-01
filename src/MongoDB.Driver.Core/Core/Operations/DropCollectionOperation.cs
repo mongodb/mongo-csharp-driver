@@ -98,7 +98,7 @@ namespace MongoDB.Driver.Core.Operations
                 BsonDocument result;
                 try
                 {
-                     result = operation.Execute(channelBinding, cancellationToken);
+                    result = operation.Execute(channelBinding, cancellationToken);
                 }
                 catch (MongoCommandException ex)
                 {

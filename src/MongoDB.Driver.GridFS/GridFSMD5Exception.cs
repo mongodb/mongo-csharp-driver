@@ -30,13 +30,13 @@ namespace MongoDB.Driver.GridFS
 #endif
     public class GridFSMD5Exception : GridFSException
     {
-#region static
+        #region static
         private static string FormatMessage(BsonValue id)
         {
             Ensure.IsNotNull(id, nameof(id));
             return string.Format("GridFS MD5 check failed: file id {0}.", id);
         }
-#endregion
+        #endregion
 
         // constructors
         /// <summary>

@@ -42,8 +42,8 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
         /// </summary>
         /// <param name="errorCode">The error code.</param>
         /// <param name="message">The message.</param>
-        public Win32Exception(long errorCode, string message) 
-            : base(message) 
+        public Win32Exception(long errorCode, string message)
+            : base(message)
         {
             HResult = (int)errorCode;
         }

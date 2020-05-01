@@ -36,7 +36,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// </summary>
         /// <param name="name">The name of the extra elements member.</param>
         public NamedExtraElementsMemberConvention(string name)
-            : this(new [] { name })
+            : this(new[] { name })
         { }
 
         /// <summary>

@@ -323,7 +323,7 @@ namespace MongoDB.Driver.Core.Authentication
                 $"            payload : new BinData(0, \"{ToUtf8Base64(__clientRequest2)}\")}}}}");
             expectedMessages.Add(saslContinueMessage);
 
-            if (useLongAuthentication )
+            if (useLongAuthentication)
             {
                 var saslOptionalFinalMessage = BsonDocument.Parse(
                     @"{ opcode : 'query'," +

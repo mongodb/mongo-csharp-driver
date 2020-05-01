@@ -1239,7 +1239,7 @@ namespace Tests.MongoDB.Driver.Linq
 
             cQuery = CreateQuery()
                 .SelectMany(g => g.G, (x, c) => c)
-                .SelectMany(s => s.S, (x ,c) => c);
+                .SelectMany(s => s.S, (x, c) => c);
 
             Assert(cQuery,
                 1,
@@ -1337,10 +1337,12 @@ namespace Tests.MongoDB.Driver.Linq
         [Fact]
         public void SelectMany_with_collection_selector_syntax_computed_scalar_which_is_called_from_SelectMany()
         {
-            var selectMany1 = from x in CreateQuery()
+            var selectMany1 =
+                from x in CreateQuery()
                 from g in x.G
                 select g;
-            var selectMany2 = from g in selectMany1
+            var selectMany2 =
+                from g in selectMany1
                 from s in g.S
                 select (int?)(g.E.F + s.E.F + s.E.H);
 
@@ -1395,10 +1397,12 @@ namespace Tests.MongoDB.Driver.Linq
         [Fact]
         public void SelectMany_with_collection_selector_syntax_anonymous_type_which_is_called_from_SelectMany()
         {
-            var selectMany1 = from x in CreateQuery()
+            var selectMany1 =
+                from x in CreateQuery()
                 from g in x.G
                 select g;
-            var selectMany2 = from g in selectMany1
+            var selectMany2 =
+                from g in selectMany1
                 from s in g.S
                 select new { g.E.F, Other = s.D };
 
@@ -1413,17 +1417,19 @@ namespace Tests.MongoDB.Driver.Linq
         [Fact]
         public void SelectMany_followed_by_a_group()
         {
-            var first = from x in CreateQuery()
-                        from y in x.G
-                        select y;
+            var first =
+                from x in CreateQuery()
+                from y in x.G
+                select y;
 
-            var query = from f in first
-                        group f by f.D into g
-                        select new
-                        {
-                            g.Key,
-                            SumF = g.Sum(x => x.E.F)
-                        };
+            var query =
+                from f in first
+                group f by f.D into g
+                select new
+                {
+                    g.Key,
+                    SumF = g.Sum(x => x.E.F)
+                };
 
             Assert(query,
                 4,
@@ -1436,13 +1442,16 @@ namespace Tests.MongoDB.Driver.Linq
         [Fact]
         public void SelectMany_followed_by_a_group_which_is_called_from_SelectMany()
         {
-            var selectMany1 = from x in CreateQuery()
+            var selectMany1 =
+                from x in CreateQuery()
                 from g in x.G
                 select g;
-            var selectMany2 = from g in selectMany1
+            var selectMany2 =
+                from g in selectMany1
                 from s in g.S
                 select s;
-            var query = from s in selectMany2
+            var query =
+                from s in selectMany2
                 group s by s.D into g
                 select new
                 {
@@ -1686,9 +1695,10 @@ namespace Tests.MongoDB.Driver.Linq
         [Fact]
         public void Where_syntax()
         {
-            var query = from x in CreateQuery()
-                        where x.A == "Awesome"
-                        select x;
+            var query =
+                from x in CreateQuery()
+                where x.A == "Awesome"
+                select x;
 
             Assert(query,
                 1,

@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Core.Bindings
         {
             ThrowIfDisposed();
             var server = _cluster.SelectServerAndPinIfNeeded(_session, WritableServerSelector.Instance, cancellationToken);
-            
+
             return GetChannelSourceHelper(server);
         }
 

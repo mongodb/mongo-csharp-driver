@@ -642,7 +642,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.Snapshot = value;
             var result = subject.Snapshot;
 #pragma warning restore
-        
+
             result.Should().Be(value);
         }
 

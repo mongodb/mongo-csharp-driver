@@ -32,8 +32,8 @@ namespace MongoDB.Driver.Examples.TransactionExamplesForDocs
 
             var connectionString = CoreTestConfiguration.ConnectionString.ToString();
             DropCollections(
-                connectionString, 
-                CollectionNamespace.FromFullName("mydb1.foo"), 
+                connectionString,
+                CollectionNamespace.FromFullName("mydb1.foo"),
                 CollectionNamespace.FromFullName("mydb2.bar"));
             string result = null;
 
