@@ -14,7 +14,7 @@ command_type: system
 
 # Protect ourself against rogue test case, or curl gone wild, that runs forever
 # 12 minutes is the longest we'll ever run
-exec_timeout_secs: 3600 # 12 minutes is the longest we'll ever run
+exec_timeout_secs: 1800
 
 # What to do when evergreen hits the timeout (`post:` tasks are run automatically)
 timeout:
@@ -247,6 +247,7 @@ functions:
             OS=${OS} \
             COMPRESSOR=${COMPRESSOR} \
             CLIENT_PEM=${DRIVERS_TOOLS}/.evergreen/x509gen/client.pem \
+            FRAMEWORK=${FRAMEWORK} \
             evergreen/run-tests.sh
           echo "Skipping certificate removal..."
 
@@ -606,6 +607,27 @@ tasks:
       commands:
         - func: bootstrap-mongo-orchestration
         - func: run-tests
+
+    - name: test-net452
+      commands:
+        - func: bootstrap-mongo-orchestration
+        - func: run-tests
+          vars:
+            FRAMEWORK: net452
+
+    - name: test-netstandard15
+      commands:
+        - func: bootstrap-mongo-orchestration
+        - func: run-tests
+          vars:
+            FRAMEWORK: netstandard15
+
+    - name: test-netstandard20
+      commands:
+        - func: bootstrap-mongo-orchestration
+        - func: run-tests
+          vars:
+            FRAMEWORK: netstandard20
 
     - name: atlas-connectivity-tests
       commands:
@@ -1083,35 +1105,45 @@ buildvariants:
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
-     - name: test
+     - name: test-net452
+     - name: test-netstandard15
+     - name: test-netstandard20
 
 - matrix_name: "unsecure-tests"
   matrix_spec: { version: "*", topology: "*", auth: "noauth", ssl: "nossl", os: "*" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
-     - name: test
+     - name: test-net452
+     - name: test-netstandard15
+     - name: test-netstandard20
 
 - matrix_name: "tests-zlib-compression"
   matrix_spec: { compressor : "zlib", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "latest"], topology: "standalone", os: "*" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
-     - name: "test"
+     - name: test-net452
+     - name: test-netstandard15
+     - name: test-netstandard20
 
 - matrix_name: "tests-snappy-compression"
   matrix_spec: { compressor : "snappy", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "latest"], topology: "standalone", os: "*" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
-     - name: "test"
+     - name: test-net452
+     - name: test-netstandard15
+     - name: test-netstandard20
 
 - matrix_name: "tests-zstandard-compression"
   matrix_spec: { compressor : "zstandard", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "latest"], topology: "standalone", os: "*" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
-     - name: "test"
+     - name: test-net452
+     - name: test-netstandard15
+     - name: test-netstandard20
 
 - matrix_name: "ocsp-tests"
   matrix_spec: { version: ["4.4", "latest"], auth: "noauth", ssl: "ssl", topology: "standalone", os: "*" } # matrix_spec: { version: ["latest"], os-ssl-32: ["ubuntu1604-64-go-1-12"] }

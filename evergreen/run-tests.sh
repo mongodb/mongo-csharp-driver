@@ -9,9 +9,12 @@ set -o errexit  # Exit the script with error if any of the commands fail
 #   MONGODB_URI                     Set the suggested connection MONGODB_URI (including credentials and topology info)
 #   TOPOLOGY                        Allows you to modify variables and the MONGODB_URI based on test topology
 #                                   Supported values: "server", "replica_set", "sharded_cluster"
+#   CLIENT_PEM                      Path to mongo-orchestration's client.pem
 #   OCSP_TLS_SHOULD_SUCCEED         Set to test OCSP. Values are true/false/nil
 #   MONGODB_X509_CLIENT_P12_PATH    Absolute path to client certificate in p12 format
 #   MONGO_X509_CLIENT_CERTIFICATE_PASSWORD  password for client certificate
+#   FRAMEWORK                       Set to specify .NET framework to test against. Values: "Net452", "NetStandard15",
+#                                   "NetStandard20", "nil"
 #
 # Environment variables produced as output:
 #   MONGODB_X509_CLIENT_P12_PATH            Absolute path to client certificate in p12 format
@@ -24,6 +27,7 @@ TOPOLOGY=${TOPOLOGY:-server}
 COMPRESSOR=${COMPRESSOR:-none}
 OCSP_TLS_SHOULD_SUCCEED=${OCSP_TLS_SHOULD_SUCCEED:-nil}
 CLIENT_PEM=${CLIENT_PEM:-nil}
+PLATFORM=${PLATFORM:-nil}
 
 ############################################
 #            Functions                     #
@@ -88,7 +92,11 @@ fi
 echo "Running $AUTH tests over $SSL for $TOPOLOGY with $COMPRESSOR compressor and connecting to $MONGODB_URI"
 
 if [[ "$OS" =~ Windows|windows ]]; then
-  export TARGET="Test"
+  if [[ "$FRAMEWORK" == "nil" ]]; then
+    export TARGET="Test"
+  else
+    export TARGET="Test${FRAMEWORK}"
+  fi
   if [ "$OCSP_TLS_SHOULD_SUCCEED" != "nil" ]; then
     export TARGET="TestOcsp"
     certutil.exe -urlcache localhost delete # clear the OS-level cache of all entries with the URL "localhost"
