@@ -69,6 +69,11 @@ namespace MongoDB.Driver.Core.Authentication
             Ensure.IsNotNull(description, nameof(description));
             EnsureUsernameIsNotNullOrNullIsSupported(connection, description);
 
+            if (description.IsMasterResult.SpeculativeAuthenticate != null)
+            {
+                return;
+            }
+
             try
             {
                 var protocol = CreateAuthenticateProtocol();
@@ -87,6 +92,11 @@ namespace MongoDB.Driver.Core.Authentication
             Ensure.IsNotNull(description, nameof(description));
             EnsureUsernameIsNotNullOrNullIsSupported(connection, description);
 
+            if (description.IsMasterResult.SpeculativeAuthenticate != null)
+            {
+                return;
+            }
+
             try
             {
                 var protocol = CreateAuthenticateProtocol();
@@ -101,18 +111,25 @@ namespace MongoDB.Driver.Core.Authentication
         /// <inheritdoc/>
         public BsonDocument CustomizeInitialIsMasterCommand(BsonDocument isMasterCommand)
         {
+            isMasterCommand.Add("speculativeAuthenticate", CreateAuthenticateCommand());
             return isMasterCommand;
         }
 
         // private methods
-        private CommandWireProtocol<BsonDocument> CreateAuthenticateProtocol()
+
+        private BsonDocument CreateAuthenticateCommand()
         {
-            var command = new BsonDocument
+            return new BsonDocument
             {
                 { "authenticate", 1 },
                 { "mechanism", Name },
                 { "user", _username, _username != null }
             };
+        }
+
+        private CommandWireProtocol<BsonDocument> CreateAuthenticateProtocol()
+        {
+            var command = CreateAuthenticateCommand();
 
             var protocol = new CommandWireProtocol<BsonDocument>(
                 new DatabaseNamespace("$external"),

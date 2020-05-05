@@ -16,19 +16,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
-using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -144,7 +140,7 @@ namespace MongoDB.Driver.Tests
             settings.Credential = MongoCredential
                 .FromComponents(mechanism: null, source: null, username: userName, password: password);
 
-            AssertAuthenticationSucceeds(settings, async);
+            AssertAuthenticationSucceeds(settings, async, speculativeAuthenticatationShouldSucceedIfPossible: false);
         }
 
         [SkippableTheory]
@@ -352,10 +348,13 @@ namespace MongoDB.Driver.Tests
             settings.SslSettings = settings.SslSettings.Clone();
             settings.SslSettings.ClientCertificates = new[] { clientCertificate };
 
-            AssertAuthenticationSucceeds(settings, async);
+            AssertAuthenticationSucceeds(settings, async, speculativeAuthenticatationShouldSucceedIfPossible: true);
         }
 
-        private void AssertAuthenticationSucceeds(MongoClientSettings settings, bool async)
+        private void AssertAuthenticationSucceeds(
+            MongoClientSettings settings,
+            bool async,
+            bool speculativeAuthenticatationShouldSucceedIfPossible = true)
         {
             // If we don't use a DisposableClient, the second run of AuthenticationSucceedsWithMongoDB_X509_mechanism
             // will fail because the backing Cluster's connections will be associated with a dropped user
@@ -370,6 +369,17 @@ namespace MongoDB.Driver.Tests
                 else
                 {
                     _ = client.ListDatabaseNames().ToList();
+                }
+                if (Feature.SpeculativeAuthentication.IsSupported(CoreTestConfiguration.ServerVersion) &&
+                    speculativeAuthenticatationShouldSucceedIfPossible &&
+                    Driver.CoreTestConfiguration.Cluster.Description.Type != Core.Clusters.ClusterType.Sharded) // Until https://jira.mongodb.org/browse/SERVER-47908 is resolved
+                {
+                    var cancellationToken = CancellationToken.None;
+                    var serverSelector = new ReadPreferenceServerSelector(settings.ReadPreference);
+                    var server = client.Cluster.SelectServer(serverSelector, cancellationToken);
+                    var channel = server.GetChannel(cancellationToken);
+                    var isMasterResult = channel.ConnectionDescription.IsMasterResult;
+                    isMasterResult.SpeculativeAuthenticate.Should().NotBeNull();
                 }
             }
         }
@@ -453,9 +463,10 @@ namespace MongoDB.Driver.Tests
         private string GetRfc2253FormattedUsernameFromX509ClientCertificate(X509Certificate2 certificate)
         {
             var distinguishedName = certificate.SubjectName.Name;
-            // Authentication will fail if we don't remove the spaces, even if we add the username WITH the spaces.
-            var nameWithNoSpaces = string.Join(",", distinguishedName.Split(',').Select(s => s.Trim()));
-            return nameWithNoSpaces.Replace("S=", "ST=");
+            // Authentication will fail if we don't remove the delimiting spaces, even if we add the username WITH the
+            // delimiting spaces.
+            var nameWithoutDelimitingSpaces = string.Join(",", distinguishedName.Split(',').Select(s => s.Trim()));
+            return nameWithoutDelimitingSpaces.Replace("S=", "ST=");
         }
     }
 }
