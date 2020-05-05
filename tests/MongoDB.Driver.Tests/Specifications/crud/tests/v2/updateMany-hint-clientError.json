@@ -1,4 +1,9 @@
 {
+  "runOn": [
+    {
+      "maxServerVersion": "3.3.99"
+    }
+  ],
   "data": [
     {
       "_id": 1,
@@ -7,24 +12,30 @@
     {
       "_id": 2,
       "x": 22
+    },
+    {
+      "_id": 3,
+      "x": 33
     }
   ],
-  "collection_name": "findOneAndDelete_hint",
+  "collection_name": "test_updatemany_hint",
   "tests": [
     {
-      "description": "Unacknowledged findOneAndDelete with hint string fails with client-side error",
+      "description": "UpdateMany with hint string unsupported (client-side error)",
       "operations": [
         {
           "object": "collection",
-          "collectionOptions": {
-            "writeConcern": {
-              "w": 0
-            }
-          },
-          "name": "findOneAndDelete",
+          "name": "updateMany",
           "arguments": {
             "filter": {
-              "_id": 1
+              "_id": {
+                "$gt": 1
+              }
+            },
+            "update": {
+              "$inc": {
+                "x": 1
+              }
             },
             "hint": "_id_"
           },
@@ -42,25 +53,31 @@
             {
               "_id": 2,
               "x": 22
+            },
+            {
+              "_id": 3,
+              "x": 33
             }
           ]
         }
       }
     },
     {
-      "description": "Unacknowledged findOneAndDelete with hint document fails with client-side error",
+      "description": "UpdateMany with hint document unsupported (client-side error)",
       "operations": [
         {
           "object": "collection",
-          "collectionOptions": {
-            "writeConcern": {
-              "w": 0
-            }
-          },
-          "name": "findOneAndDelete",
+          "name": "updateMany",
           "arguments": {
             "filter": {
-              "_id": 1
+              "_id": {
+                "$gt": 1
+              }
+            },
+            "update": {
+              "$inc": {
+                "x": 1
+              }
             },
             "hint": {
               "_id": 1
@@ -80,6 +97,10 @@
             {
               "_id": 2,
               "x": 22
+            },
+            {
+              "_id": 3,
+              "x": 33
             }
           ]
         }

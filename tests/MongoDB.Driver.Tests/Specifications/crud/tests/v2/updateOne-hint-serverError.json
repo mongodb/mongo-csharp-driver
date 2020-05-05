@@ -1,7 +1,8 @@
 {
   "runOn": [
     {
-      "minServerVersion": "4.2.0"
+      "minServerVersion": "3.4.0",
+      "maxServerVersion": "4.1.9"
     }
   ],
   "data": [
@@ -17,7 +18,7 @@
   "collection_name": "test_updateone_hint",
   "tests": [
     {
-      "description": "UpdateOne with hint string",
+      "description": "UpdateOne with hint string unsupported (server-side error)",
       "operations": [
         {
           "object": "collection",
@@ -35,11 +36,7 @@
             },
             "hint": "_id_"
           },
-          "result": {
-            "matchedCount": 1,
-            "modifiedCount": 1,
-            "upsertedCount": 0
-          }
+          "error": true
         }
       ],
       "expectations": [
@@ -75,14 +72,14 @@
             },
             {
               "_id": 2,
-              "x": 23
+              "x": 22
             }
           ]
         }
       }
     },
     {
-      "description": "UpdateOne with hint document",
+      "description": "UpdateOne with hint document unsupported (server-side error)",
       "operations": [
         {
           "object": "collection",
@@ -102,11 +99,7 @@
               "_id": 1
             }
           },
-          "result": {
-            "matchedCount": 1,
-            "modifiedCount": 1,
-            "upsertedCount": 0
-          }
+          "error": true
         }
       ],
       "expectations": [
@@ -144,7 +137,7 @@
             },
             {
               "_id": 2,
-              "x": 23
+              "x": 22
             }
           ]
         }

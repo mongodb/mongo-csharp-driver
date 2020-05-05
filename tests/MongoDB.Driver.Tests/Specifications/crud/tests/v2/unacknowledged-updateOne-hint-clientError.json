@@ -9,10 +9,10 @@
       "x": 22
     }
   ],
-  "collection_name": "findOneAndDelete_hint",
+  "collection_name": "UpdateOne_hint",
   "tests": [
     {
-      "description": "Unacknowledged findOneAndDelete with hint string fails with client-side error",
+      "description": "Unacknowledged updateOne with hint string fails with client-side error",
       "operations": [
         {
           "object": "collection",
@@ -21,10 +21,17 @@
               "w": 0
             }
           },
-          "name": "findOneAndDelete",
+          "name": "updateOne",
           "arguments": {
             "filter": {
-              "_id": 1
+              "_id": {
+                "$gt": 1
+              }
+            },
+            "update": {
+              "$inc": {
+                "x": 1
+              }
             },
             "hint": "_id_"
           },
@@ -48,7 +55,7 @@
       }
     },
     {
-      "description": "Unacknowledged findOneAndDelete with hint document fails with client-side error",
+      "description": "Unacknowledged updateOne with hint document fails with client-side error",
       "operations": [
         {
           "object": "collection",
@@ -57,10 +64,17 @@
               "w": 0
             }
           },
-          "name": "findOneAndDelete",
+          "name": "updateOne",
           "arguments": {
             "filter": {
-              "_id": 1
+              "_id": {
+                "$gt": 1
+              }
+            },
+            "update": {
+              "$inc": {
+                "x": 1
+              }
             },
             "hint": {
               "_id": 1

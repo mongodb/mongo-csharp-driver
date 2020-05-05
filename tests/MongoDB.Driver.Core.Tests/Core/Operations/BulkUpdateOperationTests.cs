@@ -75,17 +75,17 @@ namespace MongoDB.Driver.Core.Operations
 
             var exception = Record.Exception(() => ExecuteOperation(subject, async, useImplicitSession: true));
 
-            if (Feature.HintForUpdateAndReplaceOperations.IsSupported(serverVersion))
-            {
-                exception.Should().BeNull();
-            }
-            else if (!writeConcern.IsAcknowledged)
+            if (!writeConcern.IsAcknowledged)
             {
                 exception.Should().BeOfType<NotSupportedException>();
             }
             else if (Feature.HintForUpdateAndReplaceOperations.DriverMustThrowIfNotSupported(serverVersion))
             {
                 exception.Should().BeOfType<NotSupportedException>();
+            }
+            else if (Feature.HintForUpdateAndReplaceOperations.IsSupported(serverVersion))
+            {
+                exception.Should().BeNull();
             }
             else
             {

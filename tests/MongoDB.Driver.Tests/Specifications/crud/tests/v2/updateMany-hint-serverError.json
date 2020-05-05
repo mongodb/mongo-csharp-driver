@@ -1,7 +1,8 @@
 {
   "runOn": [
     {
-      "minServerVersion": "4.2.0"
+      "minServerVersion": "3.4.0",
+      "maxServerVersion": "4.1.9"
     }
   ],
   "data": [
@@ -12,16 +13,20 @@
     {
       "_id": 2,
       "x": 22
+    },
+    {
+      "_id": 3,
+      "x": 33
     }
   ],
-  "collection_name": "test_updateone_hint",
+  "collection_name": "test_updatemany_hint",
   "tests": [
     {
-      "description": "UpdateOne with hint string",
+      "description": "UpdateMany with hint string unsupported (server-side error)",
       "operations": [
         {
           "object": "collection",
-          "name": "updateOne",
+          "name": "updateMany",
           "arguments": {
             "filter": {
               "_id": {
@@ -35,18 +40,14 @@
             },
             "hint": "_id_"
           },
-          "result": {
-            "matchedCount": 1,
-            "modifiedCount": 1,
-            "upsertedCount": 0
-          }
+          "error": true
         }
       ],
       "expectations": [
         {
           "command_started_event": {
             "command": {
-              "update": "test_updateone_hint",
+              "update": "test_updatemany_hint",
               "updates": [
                 {
                   "q": {
@@ -59,6 +60,7 @@
                       "x": 1
                     }
                   },
+                  "multi": true,
                   "hint": "_id_"
                 }
               ]
@@ -75,18 +77,22 @@
             },
             {
               "_id": 2,
-              "x": 23
+              "x": 22
+            },
+            {
+              "_id": 3,
+              "x": 33
             }
           ]
         }
       }
     },
     {
-      "description": "UpdateOne with hint document",
+      "description": "UpdateMany with hint document unsupported (server-side error)",
       "operations": [
         {
           "object": "collection",
-          "name": "updateOne",
+          "name": "updateMany",
           "arguments": {
             "filter": {
               "_id": {
@@ -102,18 +108,14 @@
               "_id": 1
             }
           },
-          "result": {
-            "matchedCount": 1,
-            "modifiedCount": 1,
-            "upsertedCount": 0
-          }
+          "error": true
         }
       ],
       "expectations": [
         {
           "command_started_event": {
             "command": {
-              "update": "test_updateone_hint",
+              "update": "test_updatemany_hint",
               "updates": [
                 {
                   "q": {
@@ -126,6 +128,7 @@
                       "x": 1
                     }
                   },
+                  "multi": true,
                   "hint": {
                     "_id": 1
                   }
@@ -144,7 +147,11 @@
             },
             {
               "_id": 2,
-              "x": 23
+              "x": 22
+            },
+            {
+              "_id": 3,
+              "x": 33
             }
           ]
         }

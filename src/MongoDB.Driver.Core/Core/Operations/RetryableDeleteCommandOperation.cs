@@ -89,8 +89,7 @@ namespace MongoDB.Driver.Core.Operations
                     throw new NotSupportedException($"Server version {serverVersion} does not support collations.");
                 }
             }
-            if (Feature.HintForDeleteOperations.DriverMustThrowIfNotSupported(serverVersion) ||
-                (!WriteConcern.IsAcknowledged && !Feature.HintForDeleteOperations.IsSupported(serverVersion)))
+            if (Feature.HintForDeleteOperations.DriverMustThrowIfNotSupported(serverVersion) || (WriteConcern != null && !WriteConcern.IsAcknowledged))
             {
                 if (_deletes.Items.Skip(_deletes.Offset).Take(_deletes.Count).Any(u => u.Hint != null))
                 {

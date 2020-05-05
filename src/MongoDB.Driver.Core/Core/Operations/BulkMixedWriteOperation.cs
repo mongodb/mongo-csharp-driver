@@ -361,16 +361,12 @@ namespace MongoDB.Driver.Core.Operations
 
         private bool IsHintSupportedForRequestWithHint(WriteRequest request, SemanticVersion serverVersion)
         {
-            if (request is DeleteRequest &&
-                (Feature.HintForDeleteOperations.DriverMustThrowIfNotSupported(serverVersion) ||
-                (!_writeConcern.IsAcknowledged && !Feature.HintForDeleteOperations.IsSupported(serverVersion))))
+            if (request is DeleteRequest && (Feature.HintForDeleteOperations.DriverMustThrowIfNotSupported(serverVersion) || !_writeConcern.IsAcknowledged))
             {
                 return false;
             }
 
-            if (request is UpdateRequest &&
-                (Feature.HintForUpdateAndReplaceOperations.DriverMustThrowIfNotSupported(serverVersion) ||
-                (!_writeConcern.IsAcknowledged && !Feature.HintForUpdateAndReplaceOperations.IsSupported(serverVersion))))
+            if (request is UpdateRequest && (Feature.HintForUpdateAndReplaceOperations.DriverMustThrowIfNotSupported(serverVersion) || !_writeConcern.IsAcknowledged))
             {
                 return false;
             }

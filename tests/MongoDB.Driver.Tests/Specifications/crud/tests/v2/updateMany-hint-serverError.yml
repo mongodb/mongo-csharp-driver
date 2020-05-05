@@ -1,5 +1,9 @@
 runOn:
-  - { minServerVersion: "4.2.0" }
+  # These tests assert that the driver does not raise client-side errors and
+  # instead relies on the server to raise an error. Server versions >= 3.4.0
+  # raise errors for unknown updateMany options, and server versions >= 4.2.0
+  # support the hint option in updateMany.
+  - { minServerVersion: "3.4.0", maxServerVersion: "4.1.9" }
 
 data:
   - {_id: 1, x: 11}
@@ -10,7 +14,7 @@ collection_name: &collection_name 'test_updatemany_hint'
 
 tests:
   -
-    description: "UpdateMany with hint string"
+    description: "UpdateMany with hint string unsupported (server-side error)"
     operations:
       -
         object: collection
@@ -19,10 +23,7 @@ tests:
           filter: &filter { _id: { $gt: 1 } }
           update: &update { $inc: { x: 1 } }
           hint: "_id_"
-        result: &result
-          matchedCount: 2
-          modifiedCount: 2
-          upsertedCount: 0
+        error: true
     expectations:
       -
         command_started_event:
@@ -37,20 +38,20 @@ tests:
     outcome: &outcome
       collection:
         data:
-          - { _id: 1, x: 11 }
-          - { _id: 2, x: 23 }
-          - { _id: 3, x: 34 }
+          - {_id: 1, x: 11}
+          - {_id: 2, x: 22}
+          - {_id: 3, x: 33}
   -
-    description: "UpdateMany with hint document"
+    description: "UpdateMany with hint document unsupported (server-side error)"
     operations:
       -
         object: collection
         name: updateMany
-        arguments: 
+        arguments:
           filter: *filter
           update: *update
           hint: { _id: 1 }
-        result: *result
+        error: true
     expectations:
       -
         command_started_event:

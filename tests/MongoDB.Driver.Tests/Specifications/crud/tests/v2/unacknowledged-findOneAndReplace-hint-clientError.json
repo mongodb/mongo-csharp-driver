@@ -9,10 +9,10 @@
       "x": 22
     }
   ],
-  "collection_name": "findOneAndDelete_hint",
+  "collection_name": "FindOneAndReplace_hint",
   "tests": [
     {
-      "description": "Unacknowledged findOneAndDelete with hint string fails with client-side error",
+      "description": "Unacknowledged findOneAndReplace with hint string fails with client-side error",
       "operations": [
         {
           "object": "collection",
@@ -21,10 +21,13 @@
               "w": 0
             }
           },
-          "name": "findOneAndDelete",
+          "name": "findOneAndReplace",
           "arguments": {
             "filter": {
               "_id": 1
+            },
+            "replacement": {
+              "x": 33
             },
             "hint": "_id_"
           },
@@ -48,7 +51,7 @@
       }
     },
     {
-      "description": "Unacknowledged findOneAndDelete with hint document fails with client-side error",
+      "description": "Unacknowledged findOneAndReplace with hint document fails with client-side error",
       "operations": [
         {
           "object": "collection",
@@ -57,10 +60,13 @@
               "w": 0
             }
           },
-          "name": "findOneAndDelete",
+          "name": "findOneAndReplace",
           "arguments": {
             "filter": {
               "_id": 1
+            },
+            "replacement": {
+              "x": 33
             },
             "hint": {
               "_id": 1

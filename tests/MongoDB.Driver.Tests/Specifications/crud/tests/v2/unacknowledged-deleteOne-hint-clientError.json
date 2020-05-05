@@ -1,9 +1,4 @@
 {
-  "runOn": [
-    {
-      "maxServerVersion": "4.3.3"
-    }
-  ],
   "data": [
     {
       "_id": 1,
@@ -17,7 +12,7 @@
   "collection_name": "DeleteOne_hint",
   "tests": [
     {
-      "description": "Unacknowledged deleteOne with hint string fails with client-side error on server < 4.4",
+      "description": "Unacknowledged deleteOne with hint string fails with client-side error",
       "operations": [
         {
           "object": "collection",
@@ -53,7 +48,7 @@
       }
     },
     {
-      "description": "Unacknowledged deleteOne with hint document fails with client-side error on server < 4.4",
+      "description": "Unacknowledged deleteOne with hint document fails with client-side error",
       "operations": [
         {
           "object": "collection",

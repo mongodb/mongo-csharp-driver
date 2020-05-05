@@ -172,7 +172,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var serverVersion = connectionDescription.ServerVersion;
             Feature.Collation.ThrowIfNotSupported(serverVersion, Collation);
-            if (Feature.HintForFindAndModifyFeature.DriverMustThrowIfNotSupported(serverVersion))
+            if (Feature.HintForFindAndModifyFeature.DriverMustThrowIfNotSupported(serverVersion) || (WriteConcern != null && !WriteConcern.IsAcknowledged))
             {
                 if (_hint != null)
                 {

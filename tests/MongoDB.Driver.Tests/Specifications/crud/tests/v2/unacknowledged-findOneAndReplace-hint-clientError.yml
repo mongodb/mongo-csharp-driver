@@ -2,19 +2,20 @@ data:
   - { _id: 1, x: 11 }
   - { _id: 2, x: 22 }
 
-collection_name: &collection_name 'DeleteOne_hint'
+collection_name: &collection_name 'FindOneAndReplace_hint'
 
 tests:
   -
-    description: "Unacknowledged deleteOne with hint string fails with client-side error"
+    description: "Unacknowledged findOneAndReplace with hint string fails with client-side error"
     operations:
       -
         object: collection
         collectionOptions: &collection_options
           writeConcern: { w: 0 }
-        name: deleteOne
+        name: findOneAndReplace
         arguments:
           filter: &filter { _id: 1 }
+          replacement: &replacement { x: 33 }
           hint: "_id_"
         error: true
     expectations: []
@@ -24,14 +25,15 @@ tests:
           - { _id: 1, x: 11 }
           - { _id: 2, x: 22 }
   -
-    description: "Unacknowledged deleteOne with hint document fails with client-side error"
+    description: "Unacknowledged findOneAndReplace with hint document fails with client-side error"
     operations:
       -
         object: collection
         collectionOptions: *collection_options
-        name: deleteOne
+        name: findOneAndReplace
         arguments:
           filter: *filter
+          replacement: *replacement
           hint: { _id: 1 }
         error: true
     expectations: []
