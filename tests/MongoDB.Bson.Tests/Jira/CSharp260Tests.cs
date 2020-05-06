@@ -39,7 +39,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp260
             Assert.Equal(BsonType.RegularExpression, document["rx"].BsonType);
             var rx = document["rx"].AsBsonRegularExpression;
             Assert.Equal("abc", rx.Pattern);
-            Assert.Equal("imxs", rx.Options);
+            Assert.Equal("imsx", rx.Options);
         }
 
         [Fact]
@@ -61,7 +61,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp260
             Assert.Equal(BsonType.RegularExpression, document["rx"].BsonType);
             var rx = document["rx"].AsBsonRegularExpression;
             Assert.Equal("abc", rx.Pattern);
-            Assert.Equal("imxs", rx.Options);
+            Assert.Equal("imsx", rx.Options);
         }
 
         [Fact]
@@ -83,7 +83,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp260
             Assert.Equal(BsonType.RegularExpression, document["rx"].BsonType);
             var rx = document["rx"].AsBsonRegularExpression;
             Assert.Equal("abc", rx.Pattern);
-            Assert.Equal("imxs", rx.Options);
+            Assert.Equal("imsx", rx.Options);
         }
 
         [Fact]
@@ -105,7 +105,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp260
             Assert.Equal(BsonType.RegularExpression, document["rx"].BsonType);
             var rx = document["rx"].AsBsonRegularExpression;
             Assert.Equal("abc", rx.Pattern);
-            Assert.Equal("imxs", rx.Options);
+            Assert.Equal("imsx", rx.Options);
         }
     }
 }

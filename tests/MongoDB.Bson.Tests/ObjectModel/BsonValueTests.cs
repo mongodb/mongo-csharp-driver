@@ -238,11 +238,11 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void TestAsBsonRegularExpression()
         {
-            BsonValue v = new BsonRegularExpression("pattern", "options");
+            BsonValue v = new BsonRegularExpression("pattern", "imxs");
             BsonValue s = "";
             var r = v.AsBsonRegularExpression;
             Assert.Equal("pattern", r.Pattern);
-            Assert.Equal("options", r.Options);
+            Assert.Equal("imsx", r.Options);
             Assert.Throws<InvalidCastException>(() => { var x = s.AsBsonRegularExpression; });
         }
 
@@ -602,7 +602,7 @@ namespace MongoDB.Bson.Tests
             regex = new BsonRegularExpression(new Regex("pattern", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace | RegexOptions.Singleline));
             Assert.IsType<BsonRegularExpression>(regex);
             Assert.Equal("pattern", regex.Pattern);
-            Assert.Equal("imxs", regex.Options);
+            Assert.Equal("imsx", regex.Options);
 
             regex = new BsonRegularExpression(new Regex("pattern", RegexOptions.IgnoreCase));
             Assert.IsType<BsonRegularExpression>(regex);
@@ -1016,7 +1016,7 @@ namespace MongoDB.Bson.Tests
             Assert.Null(n);
             var r = (BsonRegularExpression)v;
             Assert.Equal("xyz", r.Pattern);
-            Assert.Equal("imxs", r.Options);
+            Assert.Equal("imsx", r.Options);
         }
 
         [Fact]

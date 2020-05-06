@@ -98,11 +98,18 @@ namespace MongoDB.Bson.IO
             }
 
             var b = stream.ReadByte();
-            if (b == -1)
+
+            switch (b)
             {
-                throw new EndOfStreamException();
+                case -1:
+                    throw new EndOfStreamException();
+                case 0:
+                    return false;
+                case 1:
+                    return true;
+                default:
+                    throw new FormatException($"Invalid BsonBoolean value: {b}.");
             }
-            return b != 0;
         }
 
         /// <summary>

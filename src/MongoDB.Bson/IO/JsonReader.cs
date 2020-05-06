@@ -1330,7 +1330,9 @@ namespace MongoDB.Bson.IO
 
         private BsonType ParseExtendedJson()
         {
+            var bookmark = GetBookmark();
             var nameToken = PopToken();
+
             if (nameToken.Type == JsonTokenType.String || nameToken.Type == JsonTokenType.UnquotedString)
             {
                 switch (nameToken.StringValue)
@@ -1345,14 +1347,20 @@ namespace MongoDB.Bson.IO
                     case "$numberInt": _currentValue = ParseNumberIntExtendedJson(); return BsonType.Int32;
                     case "$numberLong": _currentValue = ParseNumberLongExtendedJson(); return BsonType.Int64;
                     case "$oid": _currentValue = ParseObjectIdExtendedJson(); return BsonType.ObjectId;
-                    case "$regex": _currentValue = ParseRegularExpressionExtendedJsonLegacy(); return BsonType.RegularExpression;
+                    case "$regex":
+                        if (TryParseRegularExpressionExtendedJsonLegacy(out _currentValue))
+                        {
+                            return BsonType.RegularExpression;
+                        }
+                        break;
                     case "$regularExpression": _currentValue = ParseRegularExpressionExtendedJsonCanonical(); return BsonType.RegularExpression;
                     case "$symbol": _currentValue = ParseSymbolExtendedJson(); return BsonType.Symbol;
                     case "$timestamp": _currentValue = ParseTimestampExtendedJson(); return BsonType.Timestamp;
                     case "$undefined": _currentValue = ParseUndefinedExtendedJson(); return BsonType.Undefined;
                 }
             }
-            PushToken(nameToken);
+            ReturnToBookmark(bookmark);
+
             return BsonType.Document;
         }
 
@@ -1873,15 +1881,23 @@ namespace MongoDB.Bson.IO
             return new BsonRegularExpression(patternToken.StringValue, options);
         }
 
-        private BsonValue ParseRegularExpressionExtendedJsonLegacy()
+        private bool TryParseRegularExpressionExtendedJsonLegacy(out BsonValue value)
         {
             VerifyToken(":");
             var patternToken = PopToken();
+
+            if (patternToken.Type == JsonTokenType.BeginObject)
+            {
+                value = null;
+                return false;
+            }
+
             if (patternToken.Type != JsonTokenType.String)
             {
                 var message = string.Format("JSON reader expected a string but found '{0}'.", patternToken.Lexeme);
                 throw new FormatException(message);
             }
+
             var options = "";
             var commaToken = PopToken();
             if (commaToken.Lexeme == ",")
@@ -1901,7 +1917,10 @@ namespace MongoDB.Bson.IO
                 PushToken(commaToken);
             }
             VerifyToken("}");
-            return new BsonRegularExpression(patternToken.StringValue, options);
+
+            value = new BsonRegularExpression(patternToken.StringValue, options);
+
+            return true;
         }
 
         private BsonValue ParseSymbolExtendedJson()
@@ -1982,20 +2001,20 @@ namespace MongoDB.Bson.IO
                 }
 
                 token = PopToken();
-                if (token.Type != JsonTokenType.Int32)
+                if (token.Type != JsonTokenType.Int64 && token.Type != JsonTokenType.Int32)
                 {
                     throw new FormatException($"JSON reader expected an integer but found '{token.Lexeme}'.");
                 }
-                var value = token.Int32Value;
+                var value = token.Int64Value;
 
                 switch (name)
                 {
                     case "t":
-                        timestamp = value;
+                        timestamp = (int)value;
                         break;
 
                     case "i":
-                        increment = value;
+                        increment = (int)value;
                         break;
 
                     default:

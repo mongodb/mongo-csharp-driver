@@ -1342,7 +1342,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var obj = new TestClass(new BsonRegularExpression("abc", "imxs"));
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "/abc/imxs").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "/abc/imsx").Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = obj.ToBson();
@@ -1542,7 +1542,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var obj = new TestClass(new BsonTimestamp(long.MinValue));
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "Timestamp(-2147483648, 0)").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "Timestamp(2147483648, 0)").Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = obj.ToBson();
@@ -1555,7 +1555,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var obj = new TestClass(new BsonTimestamp(-1));
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "Timestamp(-1, -1)").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "Timestamp(4294967295, 4294967295)").Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = obj.ToBson();
@@ -1607,7 +1607,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var obj = new TestClass(new BsonTimestamp(long.MaxValue));
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "Timestamp(2147483647, -1)").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "Timestamp(2147483647, 4294967295)").Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = obj.ToBson();

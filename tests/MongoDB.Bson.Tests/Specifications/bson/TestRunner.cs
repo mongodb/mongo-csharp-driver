@@ -134,7 +134,9 @@ namespace MongoDB.Bson.Specifications.bson
 
         private string EncodeExtjson(BsonDocument document)
         {
+#pragma warning disable 618
             var json = document.ToJson(new JsonWriterSettings { OutputMode = JsonOutputMode.Strict });
+#pragma warning restore 618
             return json.Replace(" ", "");
         }
 
