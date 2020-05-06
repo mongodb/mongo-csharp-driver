@@ -489,8 +489,8 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(connectToField, nameof(connectToField));
             Ensure.IsNotNull(startWith, nameof(startWith));
             Ensure.IsNotNull(@as, nameof(@as));
-            Ensure.That(IsTConnectToOrEnumerableTConnectTo<TConnectFrom, TConnectTo>(), "TConnectFrom must be either TConnectTo or a type that implements IEnumerable<TConnectTo>.", nameof(TConnectFrom));
-            Ensure.That(IsTConnectToOrEnumerableTConnectTo<TStartWith, TConnectTo>(), "TStartWith must be either TConnectTo or a type that implements IEnumerable<TConnectTo>.", nameof(TStartWith));
+            Ensure.That(IsTConnectToEnumerableTConnectToOrViceVersa<TConnectFrom, TConnectTo>(), "TConnectFrom must be either TConnectTo or a type that implements IEnumerable<TConnectTo> unless TConnectTo is a type that implements IEnumerable<TConnectFrom>.", nameof(TConnectFrom));
+            Ensure.That(IsTConnectToEnumerableTConnectToOrViceVersa<TStartWith, TConnectTo>(), "TStartWith must be either TConnectTo or a type that implements IEnumerable<TConnectTo> unless TConnectTo is a type that implements IEnumerable<TConnectStart>.", nameof(TStartWith));
 
             const string operatorName = "$graphLookup";
             var stage = new DelegatedPipelineStageDefinition<TInput, TOutput>(
@@ -1429,20 +1429,11 @@ namespace MongoDB.Driver
         }
 
         // private methods
-        private static bool IsTConnectToOrEnumerableTConnectTo<TConnectFrom, TConnectTo>()
+        private static bool IsTConnectToEnumerableTConnectToOrViceVersa<TConnectFrom, TConnectTo>()
         {
-            if (typeof(TConnectFrom) == typeof(TConnectTo))
-            {
-                return true;
-            }
-
-            var ienumerableTConnectTo = typeof(IEnumerable<>).MakeGenericType(typeof(TConnectTo));
-            if (typeof(TConnectFrom).GetTypeInfo().GetInterfaces().Contains(ienumerableTConnectTo))
-            {
-                return true;
-            }
-
-            return false;
+            return typeof(TConnectFrom) == typeof(TConnectTo) ||
+                typeof(TConnectFrom).GetTypeInfo().GetInterfaces().Contains(typeof(IEnumerable<>).MakeGenericType(typeof(TConnectTo)))) ||
+                typeof(TConnectTo).GetTypeInfo().GetInterfaces().Contains(typeof(IEnumerable<>).MakeGenericType(typeof(TConnectFrom))));
         }
     }
 
