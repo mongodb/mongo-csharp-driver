@@ -14,9 +14,10 @@
 */
 
 using System;
+using System.Linq;
 using System.Net;
 using FluentAssertions;
-using MongoDB.Driver.Core.Clusters;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Servers;
@@ -148,18 +149,44 @@ namespace MongoDB.Driver.Core.Clusters
             _capturedEvents.Any().Should().BeFalse();
         }
 
+        [Theory]
+        [ParameterAttributeData]
+        public void ServerDescription_type_should_be_replaced_with_Unknown_when_isMaster_setName_is_different(
+            [Values(null, "wrong")] string isMasterSetName)
+        {
+            _settings = _settings.With(
+                connectionMode: ClusterConnectionMode.Direct,
+                replicaSetName: "rs");
+
+            var subject = CreateSubject();
+            subject.Initialize();
+            _capturedEvents.Clear();
+
+            var replicaSetConfig = new ReplicaSetConfig(new[] { _endPoint }, name: isMasterSetName, _endPoint, 1);
+            PublishDescription(_endPoint, ServerType.Standalone, replicaSetConfig);
+
+            subject.Description.Type.Should().Be(ClusterType.Unknown);
+            var resultServers = subject.Description.Servers;
+            resultServers.Count.Should().Be(1);
+            resultServers.First().Type.Should().Be(ServerType.Unknown);
+            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
+            _capturedEvents.Any().Should().BeFalse();
+        }
+
+        // private methods
         private SingleServerCluster CreateSubject()
         {
             return new SingleServerCluster(_settings, _mockServerFactory, _capturedEvents);
         }
 
-        private void PublishDescription(EndPoint endPoint, ServerType serverType)
+        private void PublishDescription(EndPoint endPoint, ServerType serverType, ReplicaSetConfig replicaSetConfig = null)
         {
             var current = _mockServerFactory.GetServerDescription(endPoint);
 
             var description = current.With(
                 state: ServerState.Connected,
-                type: serverType);
+                type: serverType,
+                replicaSetConfig: replicaSetConfig);
 
             _mockServerFactory.PublishDescription(description);
         }

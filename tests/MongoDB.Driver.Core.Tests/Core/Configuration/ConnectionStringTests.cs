@@ -21,6 +21,7 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
 using Xunit;
@@ -512,6 +513,57 @@ namespace MongoDB.Driver.Core.Configuration
             var subject = new ConnectionString(connectionString);
 
             subject.DatabaseName.Should().Be(db);
+        }
+
+        [Theory]
+        [InlineData("mongodb://localhost/?directConnection=true&replicaSet=yeah", true, ClusterConnectionMode.Direct)]
+        [InlineData("mongodb://localhost/?directConnection=true", true, ClusterConnectionMode.Direct)]
+        [InlineData("mongodb://localhost/?directConnection=false&replicaSet=yeah", false, ClusterConnectionMode.ReplicaSet)]
+        [InlineData("mongodb://localhost/?directConnection=false", false, ClusterConnectionMode.Automatic)]
+        public void When_a_directConenction_is_specified(string connectionString, bool directConnection, ClusterConnectionMode connect)
+        {
+            var subject = new ConnectionString(connectionString);
+
+            subject.Connect.Should().Be(connect);
+            subject._directConnection().Should().Be(directConnection);
+        }
+
+        [Theory]
+        [InlineData("mongodb+srv://localhost/?directConnection=false", false)]
+        [InlineData("mongodb+srv://localhost/?directConnection=true", true)]
+        public void When_a_directConnection_is_specified_with_a_srv_scheme(string connectionString, bool shouldThrow)
+        {
+            ConnectionString subject = null;
+            var exception = Record.Exception(() => subject = new ConnectionString(connectionString));
+
+            if (shouldThrow)
+            {
+                exception.Should().BeOfType<MongoConfigurationException>();
+            }
+            else
+            {
+                exception.Should().BeNull();
+                subject._directConnection().Should().BeFalse();
+            }
+        }
+
+        [Theory]
+        [InlineData("mongodb://localhost1,localhost2/?directConnection=false", false)]
+        [InlineData("mongodb://localhost1,localhost2/?directConnection=true", true)]
+        public void When_a_directConnection_is_specified_with_multiple_hosts(string connectionString, bool shouldThrow)
+        {
+            ConnectionString subject = null;
+            var exception = Record.Exception(() => subject = new ConnectionString(connectionString));
+
+            if (shouldThrow)
+            {
+                exception.Should().BeOfType<MongoConfigurationException>();
+            }
+            else
+            {
+                exception.Should().BeNull();
+                subject._directConnection().Should().BeFalse();
+            }
         }
 
         [Theory]
@@ -1056,5 +1108,10 @@ namespace MongoDB.Driver.Core.Configuration
 
             resolved.Should().BeSameAs(subject);
         }
+    }
+
+    public static class ConnectionStringReflector
+    {
+        public static bool _directConnection(this ConnectionString obj) => (bool)Reflector.GetFieldValue(obj, nameof(_directConnection));
     }
 }

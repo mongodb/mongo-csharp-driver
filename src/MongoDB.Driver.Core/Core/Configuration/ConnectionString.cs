@@ -68,9 +68,10 @@ namespace MongoDB.Driver.Core.Configuration
         private string _applicationName;
         private string _authMechanism;
         private string _authSource;
-        private ClusterConnectionMode _connect;
+        private ClusterConnectionMode? _connect;
         private TimeSpan? _connectTimeout;
         private string _databaseName;
+        private bool? _directConnection; // this option covers several cases from _connect. It won't be available outside of this class
         private bool? _fsync;
         private TimeSpan? _heartbeatInterval;
         private TimeSpan? _heartbeatTimeout;
@@ -206,7 +207,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// </summary>
         public ClusterConnectionMode Connect
         {
-            get { return _connect; }
+            get { return _connect.GetValueOrDefault(); }
         }
 
         /// <summary>
@@ -807,6 +808,12 @@ namespace MongoDB.Driver.Core.Configuration
             ExtractScheme(match);
             ExtractHosts(match);
 
+            if (_connect.HasValue && _directConnection.HasValue)
+            {
+                throw new MongoConfigurationException("Connect and directConnection cannot both be specified.");
+            }
+            _connect = GetEffectiveConnectionMode(_connect, _directConnection, _replicaSet);
+
             if (_journal.HasValue && _journal.Value && _w != null && _w.Equals(0))
             {
                 throw new MongoConfigurationException("This is an invalid w and journal pair.");
@@ -816,6 +823,16 @@ namespace MongoDB.Driver.Core.Configuration
             {
                 throw new MongoConfigurationException(
                     "Specifying both tlsInsecure and tlsDisableCertificateRevocationCheck is invalid.");
+            }
+
+            if (_scheme == ConnectionStringScheme.MongoDBPlusSrv && _connect == ClusterConnectionMode.Direct)
+            {
+                throw new MongoConfigurationException("Direct connect cannot be used with SRV.");
+            }
+
+            if (_hosts.Count > 1 && _connect == ClusterConnectionMode.Direct)
+            {
+                throw new MongoConfigurationException("Direct connect cannot be used with multiple host names.");
             }
 
             string protectConnectionString(string connectionString)
@@ -858,6 +875,9 @@ namespace MongoDB.Driver.Core.Configuration
                 case "connecttimeout":
                 case "connecttimeoutms":
                     _connectTimeout = ParseTimeSpan(name, value);
+                    break;
+                case "directconnection":
+                    _directConnection = ParseBoolean(name, value);
                     break;
                 case "fsync":
                     _fsync = ParseBoolean(name, value);
@@ -1197,6 +1217,25 @@ namespace MongoDB.Driver.Core.Configuration
             }
 
             return value;
+        }
+
+        private ClusterConnectionMode? GetEffectiveConnectionMode(ClusterConnectionMode? connect, bool? directConnection, string replicaSet)
+        {
+            if (directConnection.HasValue)
+            {
+                if (directConnection.Value)
+                {
+                    return ClusterConnectionMode.Direct;
+                }
+                else
+                {
+                    return replicaSet != null ? ClusterConnectionMode.ReplicaSet : ClusterConnectionMode.Automatic;
+                }
+            }
+            else
+            {
+                return connect;
+            }
         }
 
         private List<string> GetHostsFromSrvRecords(IEnumerable<SrvRecord> srvRecords)
