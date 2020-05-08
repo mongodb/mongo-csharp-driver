@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestCreateMongoX509Credential_without_username()
         {
-            var credential = MongoCredential.CreateMongoX509Credential(null);
+            var credential = MongoCredential.CreateMongoX509Credential();
             Assert.Equal("MONGODB-X509", credential.Mechanism);
             Assert.Equal(null, credential.Username);
             Assert.IsType<ExternalEvidence>(credential.Evidence);

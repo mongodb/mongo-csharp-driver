@@ -341,10 +341,14 @@ namespace MongoDB.Driver.Tests
 
             var settings = DriverTestConfiguration.GetClientSettings().Clone();
             var serverVersion = CoreTestConfiguration.ServerVersion;
-            var serverExtractsUsernameFromCertificate =
-                serverVersion >= Feature.ServerExtractsUsernameFromX509Certificate.FirstSupportedVersion;
-            settings.Credential = MongoCredential.CreateMongoX509Credential(
-                username: serverExtractsUsernameFromCertificate ? null : userName);
+            if (Feature.ServerExtractsUsernameFromX509Certificate.IsSupported(serverVersion))
+            {
+                settings.Credential = MongoCredential.CreateMongoX509Credential();
+            }
+            else
+            {
+                settings.Credential = MongoCredential.CreateMongoX509Credential(userName);
+            }
             settings.SslSettings = settings.SslSettings.Clone();
             settings.SslSettings.ClientCertificates = new[] { clientCertificate };
 

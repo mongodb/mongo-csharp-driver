@@ -284,7 +284,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="username">The username.</param>
         /// <returns>A credential for MONGODB-X509.</returns>
-        public static MongoCredential CreateMongoX509Credential(string username)
+        public static MongoCredential CreateMongoX509Credential(string username = null)
         {
             return FromComponents(
                 mechanism: "MONGODB-X509",
