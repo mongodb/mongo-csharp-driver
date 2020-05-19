@@ -375,8 +375,7 @@ namespace MongoDB.Driver.Tests
                     _ = client.ListDatabaseNames().ToList();
                 }
                 if (Feature.SpeculativeAuthentication.IsSupported(CoreTestConfiguration.ServerVersion) &&
-                    speculativeAuthenticatationShouldSucceedIfPossible &&
-                    Driver.CoreTestConfiguration.Cluster.Description.Type != Core.Clusters.ClusterType.Sharded) // Until https://jira.mongodb.org/browse/SERVER-47908 is resolved
+                    speculativeAuthenticatationShouldSucceedIfPossible)
                 {
                     var cancellationToken = CancellationToken.None;
                     var serverSelector = new ReadPreferenceServerSelector(settings.ReadPreference);
