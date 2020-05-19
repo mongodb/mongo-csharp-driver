@@ -130,7 +130,7 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
 
         private void VerifyOutcome(BsonDocument outcome)
         {
-            JsonDrivenHelper.EnsureAllFieldsAreValid(outcome, "compatible", "logicalSessionTimeoutMinutes", "servers", "setName", "topologyType");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(outcome, "compatible", "logicalSessionTimeoutMinutes", "servers", "setName", "topologyType", "maxSetVersion", "maxElectionId");
 
             var expectedTopologyType = (string)outcome["topologyType"];
             VerifyTopology(_cluster, expectedTopologyType);
@@ -149,6 +149,29 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
             {
                 var expectedServer = expectedServers.Single(x => EndPointHelper.EndPointEqualityComparer.Equals(x.EndPoint, actualServer.EndPoint));
                 VerifyServerDescription(actualServer, expectedServer.Description);
+            }
+
+            if (outcome.TryGetValue("maxSetVersion", out var maxSetVersion))
+            {
+                if (_cluster is MultiServerCluster multiServerCluster)
+                {
+                    multiServerCluster._maxElectionInfo_setVersion().Should().Be(maxSetVersion.AsInt32);
+                }
+                else
+                {
+                    throw new Exception($"Expected MultiServerCluster but got {_cluster.GetType()}");
+                }
+            }
+            if (outcome.TryGetValue("maxElectionId", out var maxElectionId))
+            {
+                if (_cluster is MultiServerCluster multiServerCluster)
+                {
+                    multiServerCluster._maxElectionInfo_electionId().Should().Be(new ElectionId((ObjectId)maxElectionId));
+                }
+                else
+                {
+                    throw new Exception($"Expected MultiServerCluster but got {_cluster.GetType()}");
+                }
             }
 
             if (outcome.Contains("setName"))
@@ -288,6 +311,26 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
             {
                 return base.ShouldReadJsonDocument(path) && !path.StartsWith(MonitoringPrefix);
             }
+        }
+    }
+
+    internal static class MultiServerClusterReflector
+    {
+        public static int _maxElectionInfo_setVersion(this MultiServerCluster obj)
+        {
+            var maxElectionInfo = _maxElectionInfo(obj);
+            return (int)Reflector.GetFieldValue(maxElectionInfo, "_setVersion");
+        }
+
+        public static ElectionId _maxElectionInfo_electionId(this MultiServerCluster obj)
+        {
+            var maxElectionInfo = _maxElectionInfo(obj);
+            return (ElectionId)Reflector.GetFieldValue(maxElectionInfo, "_electionId");
+        }
+
+        private static object _maxElectionInfo(MultiServerCluster obj)
+        {
+            return Reflector.GetFieldValue(obj, nameof(_maxElectionInfo));
         }
     }
 }

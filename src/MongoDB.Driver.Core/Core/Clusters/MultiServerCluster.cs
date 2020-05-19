@@ -417,11 +417,16 @@ namespace MongoDB.Driver.Core.Clusters
                                     args.NewServerDescription.ReplicaSetConfig.Name,
                                     args.NewServerDescription.EndPoint,
                                     args.NewServerDescription.ReplicaSetConfig.Name)));
+
+                            _maxElectionInfo = new ElectionInfo(
+                                args.NewServerDescription.ReplicaSetConfig.Version.Value,
+                                args.NewServerDescription.ElectionId);
                         }
                         else
                         {
                             if (_maxElectionInfo.SetVersion < args.NewServerDescription.ReplicaSetConfig.Version.Value)
                             {
+                                var electionId = args.NewServerDescription.ElectionId ?? _maxElectionInfo.ElectionId;
                                 _sdamInformationEventHandler?.Invoke(new SdamInformationEvent(() =>
                                     string.Format(
                                         @"Updating stale setVersion: Updating the current " +
@@ -431,11 +436,15 @@ namespace MongoDB.Driver.Core.Clusters
                                         _maxElectionInfo.SetVersion,
                                         _maxElectionInfo.ElectionId,
                                         args.NewServerDescription.ReplicaSetConfig.Version,
-                                        args.NewServerDescription.ElectionId,
+                                        electionId,
                                         args.NewServerDescription.ReplicaSetConfig.Name,
                                         args.NewServerDescription.EndPoint,
                                         args.NewServerDescription.ReplicaSetConfig.Version,
                                         args.NewServerDescription.ElectionId)));
+
+                                _maxElectionInfo = new ElectionInfo(
+                                    args.NewServerDescription.ReplicaSetConfig.Version.Value,
+                                    electionId);
                             }
                             else // current primary is stale & setVersion is not stale ⇒ the electionId must be stale
                             {
@@ -453,12 +462,12 @@ namespace MongoDB.Driver.Core.Clusters
                                         args.NewServerDescription.EndPoint,
                                         args.NewServerDescription.ReplicaSetConfig.Version,
                                         args.NewServerDescription.ElectionId)));
+
+                                _maxElectionInfo = new ElectionInfo(
+                                    args.NewServerDescription.ReplicaSetConfig.Version.Value,
+                                    args.NewServerDescription.ElectionId);
                             }
                         }
-
-                        _maxElectionInfo = new ElectionInfo(
-                            args.NewServerDescription.ReplicaSetConfig.Version.Value,
-                            args.NewServerDescription.ElectionId);
                     }
                 }
 
