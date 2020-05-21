@@ -16,6 +16,7 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Net.Sockets;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
@@ -116,6 +117,19 @@ namespace MongoDB.Driver.Core.TestHelpers
             }
 
             return writeConcernException;
+        }
+
+        public static SocketException CreateSocketException(string errorType)
+        {
+            switch (errorType)
+            {
+                case "timedout":
+                    return new SocketException((int)SocketError.TimedOut);
+                case "networkunreachable":
+                    return new SocketException((int)SocketError.NetworkUnreachable);
+                default:
+                    throw new ArgumentException("Unknown error type.");
+            }
         }
     }
 }

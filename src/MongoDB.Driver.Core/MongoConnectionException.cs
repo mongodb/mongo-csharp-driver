@@ -14,6 +14,8 @@
 */
 
 using System;
+using System.IO;
+using System.Net.Sockets;
 #if NET452
 using System.Runtime.Serialization;
 #endif
@@ -76,6 +78,25 @@ namespace MongoDB.Driver
         public ConnectionId ConnectionId
         {
             get { return _connectionId; }
+        }
+
+        /// <summary>
+        /// Whether or not this exception contains a socket timeout exception.
+        /// </summary>
+        public bool ContainsSocketTimeoutException
+        {
+            get
+            {
+                for (var exception = InnerException; exception != null; exception = exception.InnerException)
+                {
+                    if (exception is SocketException socketException &&
+                        socketException.SocketErrorCode == SocketError.TimedOut)
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
         }
 
         /// <summary>

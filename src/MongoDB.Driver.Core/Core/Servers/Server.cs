@@ -144,23 +144,14 @@ namespace MongoDB.Driver.Core.Servers
                 // wanted to cancel their operation. It will be better for the
                 // collective to complete opening the connection than the throw
                 // it away.
-                connection.Open(CancellationToken.None);
+
+                connection.Open(CancellationToken.None); // This results in the initial isMaster being sent
                 return new ServerChannel(this, connection);
             }
             catch (Exception ex)
             {
-                if (ShouldClearConnectionPool(ex))
-                {
-                    try
-                    {
-                        _connectionPool.Clear();
-                    }
-                    catch
-                    {
-                        // ignore exceptions
-                    }
+                HandleBeforeHandshakeCompletesException(ex);
 
-                }
                 connection.Dispose();
                 throw;
             }
@@ -183,17 +174,8 @@ namespace MongoDB.Driver.Core.Servers
             }
             catch (Exception ex)
             {
-                if (ShouldClearConnectionPool(ex))
-                {
-                    try
-                    {
-                        _connectionPool.Clear();
-                    }
-                    catch
-                    {
-                        // ignore exceptions
-                    }
-                }
+                HandleBeforeHandshakeCompletesException(ex);
+
                 connection.Dispose();
                 throw;
             }
@@ -287,6 +269,21 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
+        private void HandleBeforeHandshakeCompletesException(Exception ex)
+        {
+            if (ex is MongoAuthenticationException)
+            {
+                _connectionPool.Clear();
+                return;
+            }
+
+            if (ex is MongoConnectionException connectionException &&
+                (connectionException.IsNetworkException || connectionException.ContainsSocketTimeoutException))
+            {
+                Invalidate($"ChannelException during handshake: {ex}.", clearConnectionPool: true);
+            }
+        }
+
         private void Invalidate(string reasonInvalidated, bool clearConnectionPool)
         {
             if (clearConnectionPool)
@@ -346,11 +343,6 @@ namespace MongoDB.Driver.Core.Servers
             return false;
         }
 
-        private bool ShouldClearConnectionPool(Exception ex)
-        {
-            return ex is MongoAuthenticationException;
-        }
-
         private bool ShouldClearConnectionPoolForChannelException(Exception ex, SemanticVersion serverVersion)
         {
             if (ex is MongoNotPrimaryException mongoNotPrimaryException && mongoNotPrimaryException.Code == (int)ServerErrorCode.NotMaster)
@@ -363,6 +355,12 @@ namespace MongoDB.Driver.Core.Servers
 
         private bool ShouldInvalidateServer(Exception exception)
         {
+            if (exception is MongoConnectionException mongoConnectionException &&
+                mongoConnectionException.ContainsSocketTimeoutException)
+            {
+                return false;
+            }
+
             if (__invalidatingExceptions.Contains(exception.GetType()))
             {
                 return true;

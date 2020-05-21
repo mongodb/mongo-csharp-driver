@@ -24,6 +24,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
@@ -32,6 +33,7 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -266,6 +268,133 @@ namespace MongoDB.Driver.Core.Servers
             channel.Should().NotBeNull();
         }
 
+        [Theory]
+        [ParameterAttributeData]
+        public void GetChannel_should_update_topology_and_clear_connection_pool_on_network_error_or_timeout(
+            [Values("timedout", "networkunreachable")] string errorType,
+            [Values(false, true)] bool async)
+        {
+            var serverId = new ServerId(_clusterId, _endPoint);
+            var connectionId = new ConnectionId(serverId);
+            var innerMostException = CoreExceptionHelper.CreateSocketException(errorType);
+
+            var openConnectionException = new MongoConnectionException(connectionId, "Oops", new IOException("Cry", innerMostException));
+            var mockConnection = new Mock<IConnectionHandle>();
+            mockConnection.Setup(c => c.Open(It.IsAny<CancellationToken>())).Throws(openConnectionException);
+            mockConnection.Setup(c => c.OpenAsync(It.IsAny<CancellationToken>())).ThrowsAsync(openConnectionException);
+            var mockConnectionPool = new Mock<IConnectionPool>();
+            mockConnectionPool.Setup(p => p.AcquireConnection(It.IsAny<CancellationToken>())).Returns(mockConnection.Object);
+            mockConnectionPool.Setup(p => p.AcquireConnectionAsync(It.IsAny<CancellationToken>())).ReturnsAsync(mockConnection.Object);
+            var mockConnectionPoolFactory = new Mock<IConnectionPoolFactory>();
+            mockConnectionPoolFactory
+                .Setup(f => f.CreateConnectionPool(It.IsAny<ServerId>(), _endPoint))
+                .Returns(mockConnectionPool.Object);
+            var mockMonitorServerDescription = new ServerDescription(serverId, _endPoint);
+            var mockServerMonitor = new Mock<IServerMonitor>();
+            mockServerMonitor.SetupGet(m => m.Description).Returns(mockMonitorServerDescription);
+            mockServerMonitor
+                .Setup(m => m.Invalidate(It.IsAny<string>()))
+                .Callback((string reason) => MockMonitorInvalidate(reason));
+            var mockServerMonitorFactory = new Mock<IServerMonitorFactory>();
+            mockServerMonitorFactory.Setup(f => f.Create(It.IsAny<ServerId>(), _endPoint)).Returns(mockServerMonitor.Object);
+
+            var subject = new Server(_clusterId, _clusterClock, _clusterConnectionMode, _settings, _endPoint, mockConnectionPoolFactory.Object, mockServerMonitorFactory.Object, _capturedEvents);
+            subject.Initialize();
+
+            IChannelHandle channel = null;
+            Exception exception;
+            if (async)
+            {
+                exception = Record.Exception(() => channel = subject.GetChannelAsync(CancellationToken.None).GetAwaiter().GetResult());
+            }
+            else
+            {
+                exception  = Record.Exception(() => channel = subject.GetChannel(CancellationToken.None));
+            }
+
+            channel.Should().BeNull();
+            exception.Should().Be(openConnectionException);
+            subject.Description.Type.Should().Be(ServerType.Unknown);
+            subject.Description.ReasonChanged.Should().Contain("ChannelException during handshake");
+            mockServerMonitor.Verify(m => m.Invalidate(It.IsAny<string>()), Times.Once);
+            mockConnectionPool.Verify(p => p.Clear(), Times.Once);
+
+            void MockMonitorInvalidate(string reason)
+            {
+                var currentDescription = mockServerMonitor.Object.Description;
+                mockServerMonitor.SetupGet(m => m.Description).Returns(currentDescription.With(reason));
+            }
+        }
+
+        [Theory]
+        [InlineData(nameof(MongoConnectionException), true)]
+        [InlineData("MongoConnectionExceptionWithSocketTimeout", false)]
+        public void HandleChannelException_should_update_topology_as_expected_on_network_error_or_timeout(
+            string errorType, bool shouldUpdateTopology)
+        {
+            var serverId = new ServerId(_clusterId, _endPoint);
+            var connectionId = new ConnectionId(serverId);
+            Exception innerMostException;
+            switch (errorType)
+            {
+                case "MongoConnectionExceptionWithSocketTimeout":
+                    innerMostException = new SocketException((int)SocketError.TimedOut);
+                    break;
+                case nameof(MongoConnectionException):
+                    innerMostException = new SocketException((int)SocketError.NetworkUnreachable);
+                    break;
+                default: throw new ArgumentException("Unknown error type.");
+            }
+
+            var operationUsingChannelException = new MongoConnectionException(connectionId, "Oops", new IOException("Cry", innerMostException));
+            var mockConnection = new Mock<IConnectionHandle>();
+            var isMasterResult = new IsMasterResult(new BsonDocument { {"compressors", new BsonArray()}});
+            // the server version doesn't matter when we're not testing MongoNotPrimaryExceptions, but is needed when
+            // Server calls ShouldClearConnectionPoolForException
+            var buildInfoResult = new BuildInfoResult(new BsonDocument { {"version", "4.4.0"} });
+            mockConnection.SetupGet(c => c.Description)
+                .Returns(new ConnectionDescription(new ConnectionId(serverId, 0), isMasterResult, buildInfoResult));
+            var mockConnectionPool = new Mock<IConnectionPool>();
+            mockConnectionPool.Setup(p => p.AcquireConnection(It.IsAny<CancellationToken>())).Returns(mockConnection.Object);
+            mockConnectionPool.Setup(p => p.AcquireConnectionAsync(It.IsAny<CancellationToken>())).ReturnsAsync(mockConnection.Object);
+            var mockConnectionPoolFactory = new Mock<IConnectionPoolFactory>();
+            mockConnectionPoolFactory
+                .Setup(f => f.CreateConnectionPool(It.IsAny<ServerId>(), _endPoint))
+                .Returns(mockConnectionPool.Object);
+            var mockMonitorServerInitialDescription = new ServerDescription(serverId, _endPoint).With(reasonChanged: "Initial D", type: ServerType.Standalone);
+            var mockServerMonitor = new Mock<IServerMonitor>();
+            mockServerMonitor.SetupGet(m => m.Description).Returns(mockMonitorServerInitialDescription);
+            mockServerMonitor
+                .Setup(m => m.Invalidate(It.IsAny<string>()))
+                .Callback((string reason) => MockMonitorInvalidate(reason));
+            var mockServerMonitorFactory = new Mock<IServerMonitorFactory>();
+            mockServerMonitorFactory.Setup(f => f.Create(It.IsAny<ServerId>(), _endPoint)).Returns(mockServerMonitor.Object);
+            var subject = new Server(_clusterId, _clusterClock, _clusterConnectionMode, _settings, _endPoint, mockConnectionPoolFactory.Object, mockServerMonitorFactory.Object, _capturedEvents);
+            subject.Initialize();
+
+            subject.HandleChannelException(mockConnection.Object, operationUsingChannelException);
+
+            if (shouldUpdateTopology)
+            {
+                mockServerMonitor.Verify(m => m.Invalidate(It.IsAny<string>()), Times.Once);
+                subject.Description.Type.Should().Be(ServerType.Unknown);
+                subject.Description.ReasonChanged.Should().Contain("ChannelException");
+            }
+            else
+            {
+                mockServerMonitor.Verify(m => m.Invalidate(It.IsAny<string>()), Times.Never);
+                subject.Description.Should().Be(mockMonitorServerInitialDescription);
+            }
+
+            void MockMonitorInvalidate(string reason)
+            {
+                var currentDescription = mockServerMonitor.Object.Description;
+                mockServerMonitor
+                    .SetupGet(m => m.Description)
+                    .Returns(currentDescription.With(reason, type: ServerType.Unknown));
+            }
+        }
+
         [Fact]
         public void Initialize_should_initialize_the_server()
         {
@@ -407,6 +536,7 @@ namespace MongoDB.Driver.Core.Servers
         [InlineData(nameof(MongoNotPrimaryException), true)]
         [InlineData(nameof(SocketException), true)]
         [InlineData(nameof(TimeoutException), false)]
+        [InlineData("MongoConnectionExceptionWithSocketTimeout", false)]
         [InlineData(nameof(MongoExecutionTimeoutException), false)]
         internal void ShouldInvalidateServer_should_return_expected_result_for_exceptionType(string exceptionTypeName, bool expectedResult)
         {
@@ -426,6 +556,11 @@ namespace MongoDB.Driver.Core.Servers
                 case nameof(MongoNodeIsRecoveringException): exception = new MongoNodeIsRecoveringException(connectionId, command, commandResult); break;
                 case nameof(MongoNotPrimaryException): exception = new MongoNotPrimaryException(connectionId, command, commandResult); break;
                 case nameof(SocketException): exception = new SocketException(); break;
+                case "MongoConnectionExceptionWithSocketTimeout":
+                    var innermostException =  new SocketException((int)SocketError.TimedOut);
+                    var innerException = new IOException("Execute Order 66", innermostException);
+                    exception = new MongoConnectionException(connectionId, "Yes, Lord Sidious", innerException);
+                    break;
                 case nameof(TimeoutException): exception = new TimeoutException(); break;
                 case nameof(MongoExecutionTimeoutException): exception = new MongoExecutionTimeoutException(connectionId, "message"); break;
                 default: throw new Exception($"Invalid exceptionTypeName: {exceptionTypeName}.");
@@ -595,6 +730,11 @@ namespace MongoDB.Driver.Core.Servers
 
     internal static class ServerReflector
     {
+        public static void HandleChannelException(this Server server, IConnection connection, Exception ex)
+        {
+            Reflector.Invoke(server, nameof(HandleChannelException), connection, ex);
+        }
+
         public static bool IsNotMaster(this Server server, ServerErrorCode code, string message)
         {
             var methodInfo = typeof(Server).GetMethod(nameof(IsNotMaster), BindingFlags.NonPublic | BindingFlags.Instance);
