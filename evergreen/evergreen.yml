@@ -300,6 +300,7 @@ functions:
     - command: shell.exec
       type: test
       params:
+        silent: true
         working_dir: mongo-csharp-driver
         script: |
           ${PREPARE_SHELL}
@@ -322,6 +323,7 @@ functions:
     - command: shell.exec
       type: test
       params:
+        silent: true
         working_dir: mongo-csharp-driver
         script: |
           ${PREPARE_SHELL}
@@ -354,6 +356,7 @@ functions:
     - command: shell.exec
       type: test
       params:
+        silent: true
         working_dir: mongo-csharp-driver
         script: |
           ${PREPARE_SHELL}
@@ -378,6 +381,7 @@ functions:
     - command: shell.exec
       type: test
       params:
+        silent: true
         working_dir: mongo-csharp-driver
         script: |
           # DO NOT ECHO WITH XTRACE (which PREPARE_SHELL does)
@@ -398,6 +402,7 @@ functions:
     - command: shell.exec
       type: test
       params:
+        silent: true
         working_dir: mongo-csharp-driver
         script: |
           # DO NOT ECHO WITH XTRACE (which PREPARE_SHELL does)
