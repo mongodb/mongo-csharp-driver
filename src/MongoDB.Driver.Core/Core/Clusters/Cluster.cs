@@ -222,9 +222,9 @@ namespace MongoDB.Driver.Core.Clusters
 
         protected abstract void RequestHeartbeat();
 
-        protected void OnDescriptionChanged(ClusterDescription oldDescription, ClusterDescription newDescription)
+        protected void OnDescriptionChanged(ClusterDescription oldDescription, ClusterDescription newDescription, bool shouldClusterDescriptionChangedEventBePublished)
         {
-            if (_descriptionChangedEventHandler != null)
+            if (shouldClusterDescriptionChangedEventBePublished && _descriptionChangedEventHandler != null)
             {
                 _descriptionChangedEventHandler(new ClusterDescriptionChangedEvent(oldDescription, newDescription));
             }
@@ -305,7 +305,7 @@ namespace MongoDB.Driver.Core.Clusters
 
         protected abstract bool TryGetServer(EndPoint endPoint, out IClusterableServer server);
 
-        protected void UpdateClusterDescription(ClusterDescription newClusterDescription)
+        protected void UpdateClusterDescription(ClusterDescription newClusterDescription, bool shouldClusterDescriptionChangedEventBePublished = true)
         {
             ClusterDescription oldClusterDescription = null;
             TaskCompletionSource<bool> oldDescriptionChangedTaskCompletionSource = null;
@@ -319,7 +319,7 @@ namespace MongoDB.Driver.Core.Clusters
                 _descriptionChangedTaskCompletionSource = new TaskCompletionSource<bool>();
             }
 
-            OnDescriptionChanged(oldClusterDescription, newClusterDescription);
+            OnDescriptionChanged(oldClusterDescription, newClusterDescription, shouldClusterDescriptionChangedEventBePublished);
 
             // TODO: use RunContinuationsAsynchronously instead once we require a new enough .NET Framework
             Task.Run(() => oldDescriptionChangedTaskCompletionSource.TrySetResult(true));

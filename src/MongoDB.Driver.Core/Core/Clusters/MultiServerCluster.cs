@@ -323,7 +323,8 @@ namespace MongoDB.Driver.Core.Clusters
                     }
                 }
 
-                UpdateClusterDescription(newClusterDescription);
+                var shouldClusterDescriptionChangedEventBePublished = !args.OldServerDescription.SdamEquals(args.NewServerDescription);
+                UpdateClusterDescription(newClusterDescription, shouldClusterDescriptionChangedEventBePublished);
             }
 
             foreach (var server in newServers)

@@ -14,15 +14,13 @@
 */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
+using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters;
@@ -44,9 +42,11 @@ namespace MongoDB.Driver.Specifications.sdam_monitoring
 
         [Theory]
         [ClassData(typeof(TestCaseFactory))]
-        public void RunTestDefinition(BsonDocument definition)
+        public void RunTestDefinition(JsonDrivenTestCase testCase)
         {
-            VerifyFields(definition, "description", "path", "phases", "uri");
+            var definition = testCase.Test;
+
+            VerifyFields(definition, "description", "_path", "phases", "uri");
 
             _cluster = BuildCluster(definition);
             _cluster.Initialize();
@@ -348,36 +348,15 @@ namespace MongoDB.Driver.Specifications.sdam_monitoring
                 .CreateCluster();
         }
 
-        private class TestCaseFactory : IEnumerable<object[]>
+        // nested types
+        private class TestCaseFactory : JsonDrivenTestCaseFactory
         {
-            public IEnumerator<object[]> GetEnumerator()
-            {
-                const string prefix = "MongoDB.Driver.Core.Tests.Specifications.server_discovery_and_monitoring.tests.monitoring.";
-                var executingAssembly = typeof(TestCaseFactory).GetTypeInfo().Assembly;
-                var enumerable = executingAssembly
-                    .GetManifestResourceNames()
-                    .Where(path => path.StartsWith(prefix) && path.EndsWith(".json"))
-                    .Select(path => ReadDefinition(path))
-                    .Select(definition => new object[] { definition });
-                return enumerable.GetEnumerator();
-            }
+            protected override string PathPrefix => "MongoDB.Driver.Core.Tests.Specifications.server_discovery_and_monitoring.tests.monitoring.";
 
-            IEnumerator IEnumerable.GetEnumerator()
+            protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)
             {
-                return GetEnumerator();
-            }
-
-            private static BsonDocument ReadDefinition(string path)
-            {
-                var executingAssembly = typeof(TestCaseFactory).GetTypeInfo().Assembly;
-                using (var definitionStream = executingAssembly.GetManifestResourceStream(path))
-                using (var definitionStreamReader = new StreamReader(definitionStream))
-                {
-                    var definitionString = definitionStreamReader.ReadToEnd();
-                    var definition = BsonDocument.Parse(definitionString);
-                    definition.InsertAt(0, new BsonElement("path", path));
-                    return definition;
-                }
+                var name = GetTestCaseName(document, document, 0);
+                yield return new JsonDrivenTestCase(name, document, document);
             }
         }
     }

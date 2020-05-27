@@ -472,6 +472,27 @@ namespace MongoDB.Driver.Core.Servers
                 .GetHashCode();
         }
 
+        /// <summary>
+        /// Determines whether the specified <see cref="ServerDescription" /> can be considered as equal to decide should we publish sdam events or not.
+        /// </summary>
+        /// <param name="other">The other server description.</param>
+        /// <returns><c>true</c>, if sdam events should be suppressed, otherwise <c>false</c>.</returns>
+        public bool SdamEquals(ServerDescription other)
+        {
+            return
+                EndPointHelper.Equals(_endPoint, other._endPoint) &&
+                _type == other.Type &&
+                object.Equals(_wireVersionRange, other._wireVersionRange) &&
+                EndPointHelper.Equals(_canonicalEndPoint, other._canonicalEndPoint) && // me
+                EndPointHelper.SequenceEquals(_replicaSetConfig?.Members, other._replicaSetConfig?.Members) && // hosts, passives, arbiters
+                object.Equals(_tags, other._tags) &&
+                _replicaSetConfig?.Name == other._replicaSetConfig?.Name && // setName
+                _replicaSetConfig?.Version == other._replicaSetConfig?.Version && // setVersion
+                object.Equals(_electionId, other._electionId) &&
+                EndPointHelper.Equals(_replicaSetConfig?.Primary, other._replicaSetConfig?.Primary) && // primary
+                _logicalSessionTimeout == other._logicalSessionTimeout;
+        }
+
         /// <inheritdoc/>
         public override string ToString()
         {

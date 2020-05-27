@@ -683,7 +683,6 @@ namespace MongoDB.Driver.Core.Clusters
             description.Servers.Should().BeEquivalentToWithComparer(GetDescriptions(_firstEndPoint, _secondEndPoint, _thirdEndPoint), _serverDescriptionComparer);
 
             _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
-            _capturedEvents.Next().Should().BeOfType<ClusterDescriptionChangedEvent>();
             _capturedEvents.Any().Should().BeFalse();
         }
 
