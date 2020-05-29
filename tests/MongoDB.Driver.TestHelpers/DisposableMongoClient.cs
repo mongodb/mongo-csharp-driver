@@ -69,10 +69,25 @@ namespace MongoDB.Driver.TestHelpers
         }
 
         public IAsyncCursor<string> ListDatabaseNames(
+            ListDatabaseNamesOptions options,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return wrapped.ListDatabaseNames(options, cancellationToken);
+        }
+
+        public IAsyncCursor<string> ListDatabaseNames(
             IClientSessionHandle session,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             return wrapped.ListDatabaseNames(session, cancellationToken);
+        }
+
+        public IAsyncCursor<string> ListDatabaseNames(
+            IClientSessionHandle session,
+            ListDatabaseNamesOptions options,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return wrapped.ListDatabaseNames(session, options, cancellationToken);
         }
 
         public Task<IAsyncCursor<string>> ListDatabaseNamesAsync(
@@ -82,10 +97,25 @@ namespace MongoDB.Driver.TestHelpers
         }
 
         public Task<IAsyncCursor<string>> ListDatabaseNamesAsync(
+            ListDatabaseNamesOptions options,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return wrapped.ListDatabaseNamesAsync(options, cancellationToken);
+        }
+
+        public Task<IAsyncCursor<string>> ListDatabaseNamesAsync(
             IClientSessionHandle session,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             return wrapped.ListDatabaseNamesAsync(session, cancellationToken);
+        }
+
+        public Task<IAsyncCursor<string>> ListDatabaseNamesAsync(
+            IClientSessionHandle session,
+            ListDatabaseNamesOptions options,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return wrapped.ListDatabaseNamesAsync(session, options, cancellationToken);
         }
 
         public IAsyncCursor<BsonDocument> ListDatabases(

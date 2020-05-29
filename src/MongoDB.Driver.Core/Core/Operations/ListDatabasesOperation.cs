@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Core.Operations
     public class ListDatabasesOperation : IReadOperation<IAsyncCursor<BsonDocument>>
     {
         // fields
+        private bool? _authorizedDatabases;
         private BsonDocument _filter;
         private MessageEncoderSettings _messageEncoderSettings;
         private bool? _nameOnly;
@@ -46,6 +47,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets the AuthorizedDatabases flag.
+        /// </summary>
+        /// <value>
+        /// The AuthorizedDatabases flag.
+        /// </value>
+        public bool? AuthorizedDatabases
+        {
+            get { return _authorizedDatabases; }
+            set { _authorizedDatabases = value; }
+        }
+
         /// <summary>
         /// Gets or sets the filter.
         /// </summary>
@@ -119,7 +132,8 @@ namespace MongoDB.Driver.Core.Operations
             {
                 { "listDatabases", 1 },
                 { "filter", _filter, _filter != null },
-                { "nameOnly", _nameOnly, _nameOnly != null }
+                { "nameOnly", _nameOnly, _nameOnly != null },
+                { "authorizedDatabases", _authorizedDatabases, _authorizedDatabases != null }
             };
         }
 

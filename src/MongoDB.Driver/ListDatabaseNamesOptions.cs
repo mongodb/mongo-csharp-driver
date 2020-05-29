@@ -1,4 +1,4 @@
-/* Copyright 2017-present MongoDB Inc.
+﻿/* Copyright 2020-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,14 +18,13 @@ using MongoDB.Bson;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Options for a list databases operation.
+    /// Options for a list database names operation.
     /// </summary>
-    public sealed class ListDatabasesOptions
+    public sealed class ListDatabaseNamesOptions
     {
         // fields
         private bool? _authorizedDatabases;
         private FilterDefinition<BsonDocument> _filter;
-        private bool? _nameOnly;
 
         // properties
         /// <summary>
@@ -44,15 +43,6 @@ namespace MongoDB.Driver
         {
             get { return _filter; }
             set { _filter = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the NameOnly flag.
-        /// </summary>
-        public bool? NameOnly
-        {
-            get { return _nameOnly; }
-            set { _nameOnly = value; }
         }
     }
 }

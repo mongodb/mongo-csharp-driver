@@ -66,7 +66,24 @@ namespace MongoDB.Driver
 
         /// <inheritdoc />
         public virtual IAsyncCursor<string> ListDatabaseNames(
+            ListDatabaseNamesOptions options,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public virtual IAsyncCursor<string> ListDatabaseNames(
             IClientSessionHandle session,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public virtual IAsyncCursor<string> ListDatabaseNames(
+            IClientSessionHandle session,
+            ListDatabaseNamesOptions options,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
@@ -81,7 +98,24 @@ namespace MongoDB.Driver
 
         /// <inheritdoc />
         public virtual Task<IAsyncCursor<string>> ListDatabaseNamesAsync(
+            ListDatabaseNamesOptions options,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public virtual Task<IAsyncCursor<string>> ListDatabaseNamesAsync(
             IClientSessionHandle session,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public virtual Task<IAsyncCursor<string>> ListDatabaseNamesAsync(
+            IClientSessionHandle session,
+            ListDatabaseNamesOptions options,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();

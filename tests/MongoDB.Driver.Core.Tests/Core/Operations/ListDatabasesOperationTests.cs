@@ -14,15 +14,12 @@
 */
 
 using System;
-using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
@@ -42,9 +39,23 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new ListDatabasesOperation(_messageEncoderSettings);
 
             subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
+            subject.AuthorizedDatabases.Should().NotHaveValue();
             subject.Filter.Should().BeNull();
             subject.NameOnly.Should().NotHaveValue();
             subject.RetryRequested.Should().BeFalse();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void AuthorizedDatabases_get_and_set_should_work(
+            [Values(null, false, true)] bool? authorizedDatabases)
+        {
+            var subject = new ListDatabasesOperation(_messageEncoderSettings);
+
+            subject.AuthorizedDatabases = authorizedDatabases;
+            var result = subject.AuthorizedDatabases;
+
+            result.Should().Be(authorizedDatabases);
         }
 
         [Fact]
@@ -88,6 +99,7 @@ namespace MongoDB.Driver.Core.Operations
         [Theory]
         [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result(
+            [Values(null, false, true)] bool? authorizedDatabases,
             [Values(null, "cake")] string filterString,
             [Values(null, false, true)] bool? nameOnly)
         {
@@ -97,6 +109,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var subject = new ListDatabasesOperation(_messageEncoderSettings)
             {
+                AuthorizedDatabases = authorizedDatabases,
                 NameOnly = nameOnly,
                 Filter = filter
             };
@@ -105,7 +118,8 @@ namespace MongoDB.Driver.Core.Operations
             {
                 { "listDatabases", 1 },
                 { "filter", filter, filterString != null },
-                { "nameOnly", nameOnly, nameOnly != null }
+                { "nameOnly", nameOnly, nameOnly != null },
+                { "authorizedDatabases", authorizedDatabases, authorizedDatabases != null }
             };
 
 
