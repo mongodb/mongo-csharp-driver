@@ -61,7 +61,7 @@ namespace MongoDB.Driver.GridFS
         /// <returns>A Task.</returns>
         public abstract Task AbortAsync(CancellationToken cancellationToken = default(CancellationToken));
 
-#if NETSTANDARD1_5 || NETSTANDARD1_6
+#if NETSTANDARD1_5
         /// <summary>
         /// Closes the GridFS stream.
         /// </summary>
