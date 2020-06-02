@@ -65,7 +65,11 @@ namespace MongoDB.Driver.Tests.Specifications.auth
             }
 
             var expectedCredential = definition["credential"] as BsonDocument;
-            if (expectedCredential != null)
+            if (expectedCredential == null)
+            {
+                mongoCredential.Should().BeNull();
+            }
+            else
             {
                 JsonDrivenHelper.EnsureAllFieldsAreValid(expectedCredential, "username", "password", "source", "mechanism", "mechanism_properties");
                 mongoCredential.Username.Should().Be(ValueToString(expectedCredential["username"]));
@@ -75,10 +79,10 @@ namespace MongoDB.Driver.Tests.Specifications.auth
                 mongoCredential.Source.Should().Be(ValueToString(expectedCredential["source"]));
                 mongoCredential.Mechanism.Should().Be(ValueToString(expectedCredential["mechanism"]));
 
-                var authenticator = mongoCredential.ToAuthenticator();
-                if (authenticator is GssapiAuthenticator gssapiAuthenticator)
+                var expectedMechanismProperties = expectedCredential["mechanism_properties"];
+                if (mongoCredential.Mechanism == GssapiAuthenticator.MechanismName)
                 {
-                    expectedCredential.TryGetValue("mechanism_properties", out var expectedMechanismProperties);
+                    var gssapiAuthenticator = (GssapiAuthenticator)mongoCredential.ToAuthenticator();
                     if (expectedMechanismProperties.IsBsonNull)
                     {
                         var serviceName = gssapiAuthenticator._mechanism_serviceName();
@@ -109,7 +113,16 @@ namespace MongoDB.Driver.Tests.Specifications.auth
                 }
                 else
                 {
-                    // Other authenticators do not contain mechanism properties
+                    var actualMechanismProperties = mongoCredential._mechanismProperties();
+                    if (expectedMechanismProperties.IsBsonNull)
+                    {
+                        actualMechanismProperties.Should().BeEmpty();
+                    }
+                    else
+                    {
+                        var authMechanismProperties = new BsonDocument(actualMechanismProperties.Select(kv => new BsonElement(kv.Key, BsonValue.Create(kv.Value))));
+                        authMechanismProperties.Should().BeEquivalentTo(expectedMechanismProperties.AsBsonDocument);
+                    }
                 }
             }
         }
@@ -130,22 +143,7 @@ namespace MongoDB.Driver.Tests.Specifications.auth
         // nested types
         private class TestCaseFactory : JsonDrivenTestCaseFactory
         {
-            #region static
-            private static readonly string[] __ignoredTestNames =
-            {
-                // Auth tests create auth mechanism which this test does not expect. Altering this behavior would break GSSAPI tests.
-                "should recognise the mechanism (MONGODB-AWS)"
-            };
-            #endregion
-
-            // protected properties
             protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.auth.tests.";
-
-            // protected methods
-            protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)
-            {
-                return base.CreateTestCases(document).Where(test => !__ignoredTestNames.Any(ignoredName => test.Name.EndsWith(ignoredName)));
-            }
         }
     }
 
@@ -166,6 +164,14 @@ namespace MongoDB.Driver.Tests.Specifications.auth
         private static object _mechanism(GssapiAuthenticator obj)
         {
             return Reflector.GetFieldValue(obj, nameof(_mechanism));
+        }
+    }
+
+    internal static class MongoCredentialReflector
+    {
+        public static Dictionary<string, object> _mechanismProperties(this MongoCredential obj)
+        {
+            return (Dictionary<string, object>)Reflector.GetFieldValue(obj, nameof(_mechanismProperties));
         }
     }
 }

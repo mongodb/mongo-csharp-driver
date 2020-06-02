@@ -271,8 +271,7 @@ namespace MongoDB.Driver
                 return
                     _username != null ||
                     _password != null ||
-                    _authenticationMechanism != null ||
-                    _authenticationSource != null;
+                    _authenticationMechanism != null;
             }
         }
 
