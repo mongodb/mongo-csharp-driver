@@ -103,7 +103,15 @@ namespace MongoDB.Driver.Core.Servers
         /// Invalidates this instance (sets the server type to Unknown and clears the connection pool).
         /// </summary>
         /// <param name="reasonInvalidated">The reason the instance was invalidated.</param>
+        [Obsolete("Use Invalidate with TopologyVersion instead.")]
         void Invalidate(string reasonInvalidated);
+
+        /// <summary>
+        /// Invalidates this instance (sets the server type to Unknown and clears the connection pool).
+        /// </summary>
+        /// <param name="reasonInvalidated">The reason the instance was invalidated.</param>
+        /// <param name="responseTopologyVersion">The topology of the version of the response that invalidated this instance.</param>
+        void Invalidate(string reasonInvalidated, TopologyVersion responseTopologyVersion);
 
         /// <summary>
         /// Requests a heartbeat as soon as possible.

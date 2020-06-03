@@ -47,6 +47,7 @@ namespace MongoDB.Driver.Core.Servers
         private readonly ServerId _serverId;
         private readonly ServerState _state;
         private readonly TagSet _tags;
+        private readonly TopologyVersion _topologyVersion;
         private readonly ServerType _type;
         private readonly SemanticVersion _version;
         private readonly Range<int> _wireVersionRange;
@@ -74,6 +75,7 @@ namespace MongoDB.Driver.Core.Servers
         /// <param name="replicaSetConfig">The replica set configuration.</param>
         /// <param name="state">The server state.</param>
         /// <param name="tags">The replica set tags.</param>
+        /// <param name="topologyVersion">The topology version.</param>
         /// <param name="type">The server type.</param>
         /// <param name="version">The server version.</param>
         /// <param name="wireVersionRange">The wire version range.</param>
@@ -98,6 +100,7 @@ namespace MongoDB.Driver.Core.Servers
             Optional<ReplicaSetConfig> replicaSetConfig = default(Optional<ReplicaSetConfig>),
             Optional<ServerState> state = default(Optional<ServerState>),
             Optional<TagSet> tags = default(Optional<TagSet>),
+            Optional<TopologyVersion> topologyVersion = default(Optional<TopologyVersion>),
             Optional<ServerType> type = default(Optional<ServerType>),
             Optional<SemanticVersion> version = default(Optional<SemanticVersion>),
             Optional<Range<int>> wireVersionRange = default(Optional<Range<int>>))
@@ -128,6 +131,7 @@ namespace MongoDB.Driver.Core.Servers
             _serverId = serverId;
             _state = state.WithDefault(ServerState.Disconnected);
             _tags = tags.WithDefault(null);
+            _topologyVersion = topologyVersion.WithDefault(null);
             _type = type.WithDefault(ServerType.Unknown);
             _version = version.WithDefault(null);
             _wireVersionRange = wireVersionRange.WithDefault(null);
@@ -146,7 +150,7 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         /// <summary>
-        /// Gets the canonical end point. This is the endpoint that the cluster knows this 
+        /// Gets the canonical end point. This is the endpoint that the cluster knows this
         /// server by. Currently, it only applies to a replica set config and will match
         /// what is in the replica set configuration.
         /// </summary>
@@ -381,6 +385,17 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         /// <summary>
+        /// Gets the topology version.
+        /// </summary>
+        /// <value>
+        /// The server topology version.
+        /// </value>
+        public TopologyVersion TopologyVersion
+        {
+            get { return _topologyVersion; }
+        }
+
+        /// <summary>
         /// Gets the server version.
         /// </summary>
         /// <value>
@@ -466,6 +481,7 @@ namespace MongoDB.Driver.Core.Servers
                 .Hash(_serverId)
                 .Hash(_state)
                 .Hash(_tags)
+                .Hash(_topologyVersion)
                 .Hash(_type)
                 .Hash(_version)
                 .Hash(_wireVersionRange)
@@ -502,6 +518,7 @@ namespace MongoDB.Driver.Core.Servers
                 .AppendFormat(", EndPoint: \"{0}\"", _endPoint)
                 .AppendFormat(", ReasonChanged: \"{0}\"", _reasonChanged)
                 .AppendFormat(", State: \"{0}\"", _state)
+                .Append($", TopologyVersion: {_topologyVersion}")
                 .AppendFormat(", Type: \"{0}\"", _type)
                 .AppendFormatIf(_tags != null && !_tags.IsEmpty, ", Tags: \"{0}\"", _tags)
                 .AppendFormatIf(_state == ServerState.Connected, ", WireVersionRange: \"{0}\"", _wireVersionRange)
@@ -533,6 +550,7 @@ namespace MongoDB.Driver.Core.Servers
         /// <param name="replicaSetConfig">The replica set configuration.</param>
         /// <param name="state">The server state.</param>
         /// <param name="tags">The replica set tags.</param>
+        /// <param name="topologyVersion">The topology version.</param>
         /// <param name="type">The server type.</param>
         /// <param name="version">The server version.</param>
         /// <param name="wireVersionRange">The wire version range.</param>
@@ -557,6 +575,7 @@ namespace MongoDB.Driver.Core.Servers
             Optional<ReplicaSetConfig> replicaSetConfig = default(Optional<ReplicaSetConfig>),
             Optional<ServerState> state = default(Optional<ServerState>),
             Optional<TagSet> tags = default(Optional<TagSet>),
+            Optional<TopologyVersion> topologyVersion = default(Optional<TopologyVersion>),
             Optional<ServerType> type = default(Optional<ServerType>),
             Optional<SemanticVersion> version = default(Optional<SemanticVersion>),
             Optional<Range<int>> wireVersionRange = default(Optional<Range<int>>))
@@ -581,6 +600,7 @@ namespace MongoDB.Driver.Core.Servers
                 replicaSetConfig: replicaSetConfig.WithDefault(_replicaSetConfig),
                 state: state.WithDefault(_state),
                 tags: tags.WithDefault(_tags),
+                topologyVersion: topologyVersion.WithDefault(_topologyVersion),
                 type: type.WithDefault(_type),
                 version: version.WithDefault(_version),
                 wireVersionRange: wireVersionRange.WithDefault(_wireVersionRange));
@@ -615,6 +635,7 @@ namespace MongoDB.Driver.Core.Servers
                 replicaSetConfig: _replicaSetConfig,
                 state: _state,
                 tags: _tags,
+                topologyVersion: _topologyVersion,
                 type: _type,
                 version: _version,
                 wireVersionRange: _wireVersionRange);

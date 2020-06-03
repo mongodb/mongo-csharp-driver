@@ -16,9 +16,13 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading;
+using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.ConnectionPools;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Servers;
 using Moq;
@@ -41,7 +45,8 @@ namespace MongoDB.Driver.Core.Helpers
             ServerTuple result;
             if (!_servers.TryGetValue(endPoint, out result) || result.HasBeenRemoved)
             {
-                var description = new ServerDescription(new ServerId(clusterId, endPoint), endPoint);
+                var serverId = new ServerId(clusterId, endPoint);
+                var description = new ServerDescription(serverId, endPoint, reasonChanged: "Initial D");
 
                 if (_eventSubscriber == null)
                 {
@@ -74,6 +79,28 @@ namespace MongoDB.Driver.Core.Helpers
                             {
                                 _servers[mockMonitor.Object.Description.EndPoint].HasBeenRemoved = true;
                             });
+                    var mockConnection = new Mock<IConnectionHandle>();
+                    var mockConnectionPool = new Mock<IConnectionPool>();
+                    var poolGeneration = 0;
+                    var connectionGeneration = 0;
+                    // need to use a func to close over connectionGeneration
+                    mockConnection.Setup(c => c.Generation).Returns(valueFunction: () => connectionGeneration);
+                    // need to use a func to close over poolGeneration
+                    mockConnectionPool.Setup(p => p.Generation).Returns(valueFunction: () => poolGeneration);
+                    Action acquireConnectionCallback = () => { connectionGeneration = poolGeneration; };
+                    mockConnectionPool
+                        .Setup(p => p.AcquireConnection(It.IsAny<CancellationToken>()))
+                        .Callback(acquireConnectionCallback)
+                        .Returns(mockConnection.Object);
+                    mockConnectionPool
+                        .Setup(p => p.AcquireConnectionAsync(It.IsAny<CancellationToken>()))
+                        .Callback(acquireConnectionCallback)
+                        .ReturnsAsync(mockConnection.Object);
+                    mockConnectionPool.Setup(p => p.Clear()).Callback(() => { ++poolGeneration; });
+                    var mockConnectionPoolFactory = new Mock<IConnectionPoolFactory> { DefaultValue = DefaultValue.Mock };
+                    mockConnectionPoolFactory
+                        .Setup(f => f.CreateConnectionPool(It.IsAny<ServerId>(), endPoint))
+                        .Returns(mockConnectionPool.Object);
 
                     result = new ServerTuple
                     {
@@ -83,7 +110,7 @@ namespace MongoDB.Driver.Core.Helpers
                             ClusterConnectionMode.Automatic,
                             new ServerSettings(),
                             endPoint,
-                            (new Mock<IConnectionPoolFactory> { DefaultValue = DefaultValue.Mock }).Object,
+                            mockConnectionPoolFactory.Object,
                             mockMonitorFactory.Object,
                             _eventSubscriber),
                         Monitor = mockMonitor.Object
@@ -131,6 +158,17 @@ namespace MongoDB.Driver.Core.Helpers
             }
             else
             {
+                if (description.Version != null || description.WireVersionRange != null)
+                {
+                    var version = description.Version?.ToString() ??
+                        WireVersionHelper.MapWireVersionToServerVersion(description.WireVersionRange.Max);
+                    var server = (Server)result.Server;
+                    var isMasterResult = new IsMasterResult(new BsonDocument { { "compressors", new BsonArray() } });
+                    var buildInfoResult = new BuildInfoResult(new BsonDocument { { "version", version } });
+                    var mockConnection = Mock.Get(server._connectionPool().AcquireConnection(CancellationToken.None));
+                    mockConnection.SetupGet(c => c.Description)
+                        .Returns(new ConnectionDescription(new ConnectionId(description.ServerId, 0), isMasterResult, buildInfoResult));
+                }
                 var mockMonitor = Mock.Get(result.Monitor);
                 mockMonitor.SetupGet(m => m.Description).Returns(description);
                 mockMonitor.Raise(m => m.DescriptionChanged += null, new ServerDescriptionChangedEventArgs(oldDescription, description));
@@ -142,6 +180,37 @@ namespace MongoDB.Driver.Core.Helpers
             public bool HasBeenRemoved;
             public IClusterableServer Server;
             public IServerMonitor Monitor;
+        }
+
+    }
+    internal static class ServerReflector
+    {
+        public static IConnectionPool _connectionPool(this Server server)
+        {
+            return (IConnectionPool)Reflector.GetFieldValue(server, nameof(_connectionPool));
+        }
+    }
+
+    internal static class WireVersionHelper
+    {
+        public static string MapWireVersionToServerVersion(int wireVersion)
+        {
+            // loose mapping via https://github.com/mongodb/specifications/blob/master/source/wireversion-featurelist.rst
+            switch (wireVersion)
+            {
+                case 0:
+                case 1:
+                case 2: return "2.6.0";
+                case 3: return "3.0.0";
+                case 4: return "3.2.0";
+                case 5: return "3.4.0";
+                case 6: return "3.6.0";
+                case 7: return "4.0.0";
+                case 8: return "4.2.0";
+                case 9: return "4.4.0";
+                case 1000: return "9001.0.0";
+                default: throw new ArgumentException($"Unknown wire version: {wireVersion}");
+            }
         }
     }
 }

@@ -318,7 +318,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                     var stopwatch = Stopwatch.StartNew();
                     var connection = CreateNewConnection();
-                    // when adding in a connection, we need to open it because 
+                    // when adding in a connection, we need to open it because
                     // the whole point of having a min pool size is to have
                     // them available and ready...
                     try
@@ -563,6 +563,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 get { return _connection.EndPoint; }
             }
 
+            public int Generation
+            {
+                get { return _generation; }
+            }
+
             public bool IsExpired
             {
                 get { return _generation < _connectionPool.Generation || _connection.IsExpired; }
@@ -634,6 +639,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
             public EndPoint EndPoint
             {
                 get { return _reference.Instance.EndPoint; }
+            }
+
+            public int Generation
+            {
+                get { return _reference.Instance.Generation; }
             }
 
             public bool IsExpired

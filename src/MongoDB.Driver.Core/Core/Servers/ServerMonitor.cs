@@ -68,6 +68,7 @@ namespace MongoDB.Driver.Core.Servers
             eventSubscriber.TryGetEventHandler(out _sdamInformationEventHandler);
         }
 
+        /// <inheritdoc />
         public ServerDescription Description => Interlocked.CompareExchange(ref _currentDescription, null, null);
 
         public void Dispose()
@@ -89,12 +90,6 @@ namespace MongoDB.Driver.Core.Servers
             {
                 MonitorServerAsync().ConfigureAwait(false);
             }
-        }
-
-        public void Invalidate(string reasonInvalidated)
-        {
-            SetDescription(_baseDescription.With($"InvalidatedBecause:{reasonInvalidated}", lastUpdateTimestamp: DateTime.UtcNow));
-            RequestHeartbeat();
         }
 
         public void RequestHeartbeat()
@@ -226,6 +221,7 @@ namespace MongoDB.Driver.Core.Servers
                     replicaSetConfig: isMasterResult.GetReplicaSetConfig(),
                     state: ServerState.Connected,
                     tags: isMasterResult.Tags,
+                    topologyVersion: isMasterResult.TopologyVersion,
                     type: isMasterResult.ServerType,
                     version: buildInfoResult.ServerVersion,
                     wireVersionRange: new Range<int>(isMasterResult.MinWireVersion, isMasterResult.MaxWireVersion));
@@ -237,7 +233,12 @@ namespace MongoDB.Driver.Core.Servers
 
             if (heartbeatException != null)
             {
-                newDescription = newDescription.With(heartbeatException: heartbeatException);
+                var topologyVersion = default(Optional<TopologyVersion>);
+                if (heartbeatException is MongoCommandException heartbeatCommandException)
+                {
+                    topologyVersion = TopologyVersion.FromMongoCommandException(heartbeatCommandException);
+                }
+                newDescription = newDescription.With(heartbeatException: heartbeatException, topologyVersion: topologyVersion);
             }
 
             newDescription = newDescription.With(reasonChanged: "Heartbeat", lastHeartbeatTimestamp: DateTime.UtcNow);

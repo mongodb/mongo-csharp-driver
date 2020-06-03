@@ -79,6 +79,11 @@ namespace MongoDB.Driver.Core.Helpers
             get { return _connectionId.ServerId.EndPoint; }
         }
 
+        public int Generation
+        {
+            get => throw new NotSupportedException();
+        }
+
         public bool IsExpired
         {
             get

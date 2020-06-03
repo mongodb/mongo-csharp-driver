@@ -383,7 +383,7 @@ namespace MongoDB.Driver.Core.Clusters
                             lock (_serversLock)
                             {
                                 var server = _servers.SingleOrDefault(x => EndPointHelper.Equals(args.NewServerDescription.EndPoint, x.EndPoint));
-                                server.Invalidate("ReportedPrimaryIsStale");
+                                server.Invalidate("ReportedPrimaryIsStale", args.NewServerDescription.TopologyVersion);
 
                                 _sdamInformationEventHandler?.Invoke(new SdamInformationEvent(() =>
                                     string.Format(
@@ -487,7 +487,7 @@ namespace MongoDB.Driver.Core.Clusters
                         foreach (var currentPrimary in currentPrimaries)
                         {
                             // kick off the server to invalidate itself
-                            currentPrimary.Invalidate("NoLongerPrimary");
+                            currentPrimary.Invalidate("NoLongerPrimary", args.NewServerDescription.TopologyVersion);
                             // set it to disconnected in the cluster
                             clusterDescription = clusterDescription.WithServerDescription(
                                 new ServerDescription(currentPrimary.ServerId, currentPrimary.EndPoint, "NoLongerPrimary"));

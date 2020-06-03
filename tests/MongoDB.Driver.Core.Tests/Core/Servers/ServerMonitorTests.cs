@@ -165,31 +165,6 @@ namespace MongoDB.Driver.Core.Servers
             _capturedEvents.Any().Should().BeFalse();
         }
 
-        [Fact]
-        public void Invalidate_should_do_everything_invalidate_is_supposed_to_do()
-        {
-            SetupHeartbeatConnection();
-            _subject.Initialize();
-            SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Connected, TimeSpan.FromSeconds(5)).Should().BeTrue();
-            _capturedEvents.Clear();
-
-            _subject.Invalidate("Test");
-
-            _subject.Description.Type.Should().Be(ServerType.Unknown);
-
-            // the next requests down heartbeat connection will fail, so the state should
-            // go back to disconnected
-            SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Disconnected, TimeSpan.FromSeconds(5)).Should().BeTrue();
-            SpinWait.SpinUntil(() => _capturedEvents.Count >= 4, TimeSpan.FromSeconds(5)).Should().BeTrue();
-
-            // when heart fails, we immediately attempt a second, hence the multiple events...
-            _capturedEvents.Next().Should().BeOfType<ServerHeartbeatStartedEvent>();
-            _capturedEvents.Next().Should().BeOfType<ServerHeartbeatFailedEvent>();
-            _capturedEvents.Next().Should().BeOfType<ServerHeartbeatStartedEvent>();
-            _capturedEvents.Next().Should().BeOfType<ServerHeartbeatFailedEvent>();
-            _capturedEvents.Any().Should().BeFalse();
-        }
-
         private void SetupHeartbeatConnection()
         {
             var isMasterReply = MessageHelper.BuildReply<RawBsonDocument>(

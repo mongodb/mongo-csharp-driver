@@ -365,6 +365,25 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         /// <summary>
+        /// Get the TopologyVersion.
+        /// </summary>
+        /// <value>
+        /// Null if TopologyVersion was not included in the isMaster response.
+        /// </value>
+        public TopologyVersion TopologyVersion
+        {
+            get
+            {
+                if (_wrapped.TryGetValue("topologyVersion", out var topologyVersionValue) &&
+                    topologyVersionValue is BsonDocument topologyVersion)
+                {
+                    return Servers.TopologyVersion.FromBsonDocument(topologyVersion);
+                }
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Gets the maximum wire version.
         /// </summary>
         /// <value>
