@@ -72,9 +72,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(collection, nameof(collection));
 
-            aggregateOptions = aggregateOptions ?? new AggregateOptions();
-            var provider = new MongoQueryProviderImpl<TDocument>(null, collection, aggregateOptions);
-            return new MongoQueryableImpl<TDocument, TDocument>(provider);
+            return AsQueryableHelper(collection, session: null, aggregateOptions);
         }
 
         /// <summary>
@@ -88,10 +86,9 @@ namespace MongoDB.Driver
         public static IMongoQueryable<TDocument> AsQueryable<TDocument>(this IMongoCollection<TDocument> collection, IClientSessionHandle session, AggregateOptions aggregateOptions = null)
         {
             Ensure.IsNotNull(collection, nameof(collection));
+            Ensure.IsNotNull(session, nameof(session));
 
-            aggregateOptions = aggregateOptions ?? new AggregateOptions();
-            var provider = new MongoQueryProviderImpl<TDocument>(session, collection, aggregateOptions);
-            return new MongoQueryableImpl<TDocument, TDocument>(provider);
+            return AsQueryableHelper(collection, session, aggregateOptions);
         }
 
         /// <summary>
@@ -2325,6 +2322,14 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(session, nameof(session));
             var emptyPipeline = new EmptyPipelineDefinition<ChangeStreamDocument<TDocument>>();
             return collection.WatchAsync(session, emptyPipeline, options, cancellationToken);
+        }
+
+        // private static methods
+        private static IMongoQueryable<TDocument> AsQueryableHelper<TDocument>(IMongoCollection<TDocument> collection, IClientSessionHandle session, AggregateOptions aggregateOptions)
+        {
+            aggregateOptions = aggregateOptions ?? new AggregateOptions();
+            var provider = new MongoQueryProviderImpl<TDocument>(collection, session, aggregateOptions);
+            return new MongoQueryableImpl<TDocument, TDocument>(provider);
         }
     }
 }

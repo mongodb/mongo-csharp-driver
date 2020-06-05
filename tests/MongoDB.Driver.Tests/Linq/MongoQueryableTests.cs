@@ -20,6 +20,8 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Tests;
@@ -1717,9 +1719,15 @@ namespace Tests.MongoDB.Driver.Linq
                 "{ $match : { 'G' : { '$elemMatch' : { 'D' : \"Don't\" } } } }");
         }
 
-        [Fact]
+        [SkippableFact]
         public void AsQueryable_in_transaction()
         {
+            RequireServer.Check().ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded).Supports(Feature.Transactions);
+            if (CoreTestConfiguration.Cluster.Description.Type == ClusterType.Sharded)
+            {
+                RequireServer.Check().Supports(Feature.ShardedTransactions);
+            }
+
             using (var session = DriverTestConfiguration.Client.StartSession())
             {
                 session.StartTransaction();

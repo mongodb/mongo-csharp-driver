@@ -35,8 +35,8 @@ namespace MongoDB.Driver.Linq
         {
         }
 
-        internal abstract Task ExecuteAsync<TInput>(IClientSessionHandle session, IMongoCollection<TInput> collection, AggregateOptions options, CancellationToken cancellationToken);
+        internal abstract Task ExecuteAsync<TInput>(IMongoCollection<TInput> collection, IClientSessionHandle session, AggregateOptions options, CancellationToken cancellationToken);
 
-        internal abstract object Execute<TInput>(IClientSessionHandle session, IMongoCollection<TInput> collection, AggregateOptions options);
+        internal abstract object Execute<TInput>(IMongoCollection<TInput> collection, IClientSessionHandle session, AggregateOptions options);
     }
 }
