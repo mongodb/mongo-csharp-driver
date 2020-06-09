@@ -1735,7 +1735,7 @@ namespace Tests.MongoDB.Driver.Linq
                 {
                     __collection.InsertOne(session, new Root());
 
-                    var result_not_in_transaction = CreateQuery(null).Count(); // checks AsQueryable with null session (outside transaction)
+                    var result_not_in_transaction = CreateQuery().Count(); // checks AsQueryable with no session (outside transaction)
 
                     result_not_in_transaction.Should().Be(2);
 
