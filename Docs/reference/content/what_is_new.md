@@ -7,9 +7,9 @@ title = "What's New"
   identifier = "What's New"
   pre = "<i class='fa fa-star'></i>"
 +++
-## What's New in 2.11.0-beta1
+## What's New in 2.11.0-beta2
 
-Some of the changes in 2.11.0-beta1 include:
+The main new features in 2.11.0-beta2 support new features in MongoDB 4.4.0. These features include:
 
 * Support for all new
   [``$meta``](https://docs.mongodb.com/manual/reference/operator/projection/meta/)
@@ -22,6 +22,10 @@ Some of the changes in 2.11.0-beta1 include:
 * Support for `MONGODB-AWS` authentication using Amazon Web Services
   (AWS) Identity and Access Management (IAM) credentials
 * Support for stapled OCSP (Online Certificate Status Protocol) (macOS only)
+* Support for shorter SCRAM (Salted Challenge Response Authentication Mechanism) conversations
+* Support for speculative SCRAM and MONGODB-X509 authentication
+* Support for the `CommitQuorum` option in `createIndexes`
+* Support for [hedged reads](https://docs.mongodb.com/master/core/read-preference-hedge-option/index.html)
 
 Other new additions and updates in this beta include:
 
@@ -35,7 +39,9 @@ Other new additions and updates in this beta include:
 * An expanded list of retryable write errors via the inclusion of
   `ExceededTimeLimit`, `LockTimeout` and `ClientDisconnect`
 * A new GuidRepresentationMode setting to opt-in to the new V3 GuidRepresentation mode
-
+* Improved SDAM (Server Discovery and Monitoring) error handling
+* Support for the `AuthorizedDatabases` option in `ListDatabases`
+* Session support for `AsQueryable`
 
 ## What's New in 2.10.0
 
