@@ -15,7 +15,7 @@
     <Copyright>Copyright © 2010-present MongoDB Inc.</Copyright>
     <Description>Official MongoDB supported BSON library. See http://www.mongodb.org/display/DOCS/CSharp+Language+Center for more details.</Description>
     <Authors>vincentkam;dmitry_lukyanov;rstam;craiggwilson</Authors>
-    <PackageIcon>packageIcon.jpg</PackageIcon>
+    <PackageIcon>packageIcon.png</PackageIcon>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageDescription>MongoDB's Official Bson Library.</PackageDescription>
     <PackageProjectUrl>http://www.mongodb.org/display/DOCS/CSharp+Language+Center</PackageProjectUrl>
@@ -59,7 +59,7 @@
 
   <ItemGroup>
     <None Include="..\..\License.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
-    <None Include="..\..\packageIcon.jpg" Pack="true" PackagePath=""/>
+    <None Include="..\..\packageIcon.png" Pack="true" PackagePath=""/>
 
   </ItemGroup>
 
