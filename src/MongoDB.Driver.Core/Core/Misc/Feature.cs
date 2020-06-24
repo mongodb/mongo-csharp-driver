@@ -60,6 +60,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __failPoints = new Feature("FailPoints", new SemanticVersion(2, 4, 0));
         private static readonly Feature __failPointsFailCommand = new Feature("FailPointsFailCommand", new SemanticVersion(4, 0, 0));
         private static readonly Feature __failPointsFailCommandForSharded = new Feature("FailPointsFailCommandForSharded", new SemanticVersion(4, 1, 5));
+        private static readonly FindAllowDiskUseFeature __findAllowDiskUse = new FindAllowDiskUseFeature("FindAllowDiskUse", new SemanticVersion(4, 4, 0, ""));
         private static readonly Feature __findAndModifyWriteConcern = new Feature("FindAndModifyWriteConcern", new SemanticVersion(3, 2, 0));
         private static readonly Feature __findCommand = new Feature("FindCommand", new SemanticVersion(3, 2, 0));
         private static readonly Feature __geoNearCommand = new Feature("GeoNearCommand", new SemanticVersion(1, 0, 0), new SemanticVersion(4, 1, 0, ""));
@@ -282,6 +283,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the fail points fail command for sharded feature.
         /// </summary>
         public static Feature FailPointsFailCommandForSharded => __failPointsFailCommandForSharded;
+
+        /// <summary>
+        /// Gets the find allowDiskUse feature.
+        /// </summary>
+        public static FindAllowDiskUseFeature FindAllowDiskUse => __findAllowDiskUse;
 
         /// <summary>
         /// Gets the find and modify write concern feature.

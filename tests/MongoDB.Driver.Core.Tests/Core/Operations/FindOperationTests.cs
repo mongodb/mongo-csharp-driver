@@ -444,6 +444,19 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Fact]
+        public void CreateFindOpcodeOperation_should_throw_when_AllowDiskUse_is_set()
+        {
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            {
+                AllowDiskUse = true
+            };
+
+            var exception = Record.Exception(() => { subject.CreateFindOpcodeOperation(); });
+
+            exception.Should().BeOfType<NotSupportedException>();
+        }
+
+        [Fact]
         public void CreateFindOpcodeOperation_should_throw_when_Collation_is_set()
         {
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
@@ -630,6 +643,38 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = ReadCursorToEnd(cursor);
             result.Should().HaveCount(2);
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_throw_when_AllowDiskUse_is_not_supported(
+            [Values(false, true)] bool async,
+            [Values(null, false, true)] bool? allowDiskUse)
+        {
+            var serverVersion = CoreTestConfiguration.ServerVersion;
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            {
+                AllowDiskUse = allowDiskUse
+            };
+
+            var exception = Record.Exception(() => { ExecuteOperation(subject, async); });
+
+            if (!allowDiskUse.HasValue)
+            {
+                exception.Should().BeNull();
+            }
+            else if (Feature.FindAllowDiskUse.DriverMustThrowIfNotSupported(serverVersion))
+            {
+                exception.Should().BeOfType<NotSupportedException>();
+            }
+            else if (Feature.FindAllowDiskUse.IsSupported(serverVersion))
+            {
+                exception.Should().BeNull();
+            }
+            else
+            {
+                exception.Should().BeOfType<MongoCommandException>();
+            }
         }
 
         [SkippableTheory]

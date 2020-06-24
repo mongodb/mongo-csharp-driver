@@ -567,6 +567,10 @@ namespace MongoDB.Driver.Core.Operations
             {
                 throw new NotSupportedException($"OP_QUERY does not support collations.");
             }
+            if (_allowDiskUse.HasValue)
+            {
+                throw new NotSupportedException($"OP_QUERY does not support allowDiskUse.");
+            }
 
 #pragma warning disable 618
             var operation = new FindOpcodeOperation<TDocument>(
@@ -574,7 +578,6 @@ namespace MongoDB.Driver.Core.Operations
                 _resultSerializer,
                 _messageEncoderSettings)
             {
-                // note: FindOpcodeOperation does not support AllowDiskUse
                 AllowPartialResults = _allowPartialResults,
                 BatchSize = _batchSize,
                 Comment = _comment,
