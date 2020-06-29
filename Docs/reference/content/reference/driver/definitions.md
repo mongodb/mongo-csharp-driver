@@ -11,7 +11,7 @@ title = "Definitions and Builders"
 
 ## Definitions and Builders
 
-The driver has introduced a number of types related to the specification of filters, updates, projections, sorts, and index keys. These types are used throughout the [API]({{< relref "reference\driver\crud\index.md" >}}). 
+The driver has introduced a number of types related to the specification of filters, updates, projections, sorts, and index keys. These types are used throughout the [API]({{< relref "reference\driver\crud\index.md" >}}).
 
 Most of the definitions also have builders to aid in their creation. Each builder has a generic type parameter `TDocument` which represents the type of document with which you are working. It will almost always match the generic `TDocument` parameter used in an [`IMongoCollection<TDocument>`]({{< apiref "T_MongoDB_Driver_IMongoCollection_1" >}}).
 
@@ -29,11 +29,11 @@ However, if you are working with a [mapped class]({{< relref "reference\bson\map
 ```csharp
 class Person
 {
-	[BsonElement("fn")]
-	public string FirstName { get; set; }
+    [BsonElement("fn")]
+    public string FirstName { get; set; }
 
-	[BsonElement("ln")]
-	public string LastName { get; set; }
+    [BsonElement("ln")]
+    public string LastName { get; set; }
 }
 ```
 
@@ -65,7 +65,7 @@ FilterDefinition<BsonDocument> filter = new BsonDocument("x", 1);
 Both of these will render the filter `{ x: 1 }`.
 
 
-### Filter Definition Builder 
+### Filter Definition Builder
 
 _See the [tests]({{< testref "MongoDB.Driver.Tests/FilterDefinitionBuilderTests.cs" >}}) for examples._
 
@@ -85,11 +85,11 @@ Given the following class:
 ```csharp
 class Widget
 {
-	[BsonElement("x")]
-	public int X { get; set; }
+    [BsonElement("x")]
+    public int X { get; set; }
 
-	[BsonElement("y")]
-	public int Y { get; set; }
+    [BsonElement("y")]
+    public int Y { get; set; }
 }
 ```
 
@@ -114,7 +114,7 @@ var filter = builder.Eq("x", 10) & builder.Lt("y", 20);
 
 For more information on valid lambda expressions, see the [expressions documentation]({{< relref "reference\driver\expressions.md" >}}).
 
-#### Array Operators 
+#### Array Operators
 
 When using entities with properties or fields that serialize to arrays, you can use the methods prefixed with "Any" to compare the entire array against a single item.
 
@@ -123,7 +123,7 @@ Given the following class:
 ```csharp
 public class Post
 {
-	public IEnumerable<string> Tags { get; set; }
+    public IEnumerable<string> Tags { get; set; }
 }
 ```
 
@@ -138,15 +138,15 @@ var filter = Builders<Post>.Filter.AnyEq(x => x.Tags, "mongodb");
 
 ## Pipelines
 
-A pipeline definition defines an entire aggregation pipeline. It is implicitly convertible from a [`List<BsonDocument>`]({{< apiref "T_MongoDB_Bson_BsonDocument" >}}), a [`BsonDocument`]({{< apiref "T_MongoDB_Bson_BsonDocument" >}}), a [`List<IPipelineStageDefinition>`]({{< apiref "T_MongoDB_Driver_IPipelineStageDefinition" >}}) , and a [`IPipelineStageDefinition[]`]({{< apiref "T_MongoDB_Driver_IPipelineStageDefinition" >}}).
+A pipeline definition defines an entire aggregation pipeline. It is implicitly convertible from a [`List<BsonDocument>`]({{< apiref "T_MongoDB_Bson_BsonDocument" >}}), a [`BsonDocument[]`]({{< apiref "T_MongoDB_Bson_BsonDocument" >}}), a [`List<IPipelineStageDefinition>`]({{< apiref "T_MongoDB_Driver_IPipelineStageDefinition" >}}) , and a [`IPipelineStageDefinition[]`]({{< apiref "T_MongoDB_Driver_IPipelineStageDefinition" >}}).
 
 For example:
 
 ```csharp
-PipelineDefinition pipeline = new BsonDocument[] 
+PipelineDefinition<BsonDocument, BsonDocument> pipeline = new BsonDocument[]
 {
-	new BsonDocument { { "$match", new BsonDocument("x", 1) } },
-	new BsonDocument { { "$sort", new BsonDocument("y", 1) } }
+    new BsonDocument { { "$match", new BsonDocument("x", 1) } },
+    new BsonDocument { { "$sort", new BsonDocument("y", 1) } }
 };
 ```
 
@@ -170,7 +170,7 @@ ProjectionDefinition<BsonDocument> projection = new BsonDocument("x", 1);
 Both of these will render the projection `{ x: 1 }`.
 
 
-### Projection Definition Builder 
+### Projection Definition Builder
 
 _See the [tests]({{< testref "MongoDB.Driver.Tests/ProjectionDefinitionBuilderTests.cs" >}}) for examples._
 
@@ -185,13 +185,13 @@ Using the `Widget` class:
 ```csharp
 class Widget
 {
-	public ObjectId Id { get; set; }
+    public ObjectId Id { get; set; }
 
-	[BsonElement("x")]
-	public int X { get; set; }
+    [BsonElement("x")]
+    public int X { get; set; }
 
-	[BsonElement("y")]
-	public int Y { get; set; }
+    [BsonElement("y")]
+    public int Y { get; set; }
 }
 ```
 
@@ -221,7 +221,7 @@ This last projection where we've used the [`Expression`]({{< apiref "M_MongoDB_D
 The driver supports using expression trees to render projections. The same expression tree will sometimes render differently when used in a Find operation versus when used in an Aggregate operation. Inherently, a lambda expression contains all the information necessary to form both the projection on the server as well as the client-side result and requires no further information.
 
 
-##### Find 
+##### Find
 
 _See the [tests]({{< testref "MongoDB.Driver.Tests/Linq/Translators/FindProjectionTranslatorTests.cs" >}}) for examples._
 
@@ -232,13 +232,13 @@ Given the following class:
 ```csharp
 class Widget
 {
-	public ObjectId Id { get; set; }
+    public ObjectId Id { get; set; }
 
-	[BsonElement("x")]
-	public int X { get; set; }
+    [BsonElement("x")]
+    public int X { get; set; }
 
-	[BsonElement("y")]
-	public int Y { get; set; }
+    [BsonElement("y")]
+    public int Y { get; set; }
 }
 ```
 
@@ -257,18 +257,18 @@ var projection = Builders<Widget>.Projection.Expression(x => (x.X + x.Y) / 2);
 The `_id` field is excluded automatically when we know for certain that it isn't necessary, as is the case in all the above examples.
 
 
-##### Aggregate 
+##### Aggregate
 
 _See the [tests]({{< testref "MongoDB.Driver.Tests/Linq/Translators/AggregateProjectionTranslatorTests_Project.cs" >}}) for examples._
 
 When an aggregate projection is defined using a lambda expression, a majority of the [aggregation expression operators]({{< docsref "reference/operator/aggregation/#expression-operators" >}}) are supported and translated. Unlike a project for Find, no part of the lambda expression is run client-side. This means that all expressions in a projection for the [Aggregation Framework]({{< docsref "core/aggregation-pipeline/" >}}) must be expressible on the server.
 
 
-##### Grouping 
+##### Grouping
 
 _See the [tests]({{< testref "MongoDB.Driver.Tests/Linq/Translators/AggregateProjectionTranslatorTests_Group.cs" >}}) for examples._
 
-A projection is also used when performing grouping in the [Aggregation Framework]({{< docsref "core/aggregation-pipeline/" >}}). In addition to the expression operators used in an aggregate projection, the [aggregation accumulator operators]({{< docsref "reference/operator/aggregation/group/#accumulator-operator" >}}) are also supported. 
+A projection is also used when performing grouping in the [Aggregation Framework]({{< docsref "core/aggregation-pipeline/" >}}). In addition to the expression operators used in an aggregate projection, the [aggregation accumulator operators]({{< docsref "reference/operator/aggregation/group/#accumulator-operator" >}}) are also supported.
 
 
 ## Sorts
@@ -285,7 +285,7 @@ SortDefinition<BsonDocument> sort = new BsonDocument("x", 1);
 
 Both of these will render the sort `{ x: 1 }`.
 
-### Sort Definition Builder 
+### Sort Definition Builder
 
 _See the [tests]({{< testref "MongoDB.Driver.Tests/SortDefinitionBuilderTests.cs" >}}) for examples._
 
@@ -303,11 +303,11 @@ Given the following class:
 ```csharp
 class Widget
 {
-	[BsonElement("x")]
-	public int X { get; set; }
+    [BsonElement("x")]
+    public int X { get; set; }
 
-	[BsonElement("y")]
-	public int Y { get; set; }
+    [BsonElement("y")]
+    public int Y { get; set; }
 }
 ```
 
@@ -329,7 +329,7 @@ var sort = builder.Ascending("x").Descending("y");
 
 ## Updates
 
-[`UpdateDefinition<TDocument>`]({{< apiref "T_MongoDB_Driver_UpdateDefinition_1" >}}) defines how to render a valid update document. It is implicity convertible from both a JSON string as well as a [`BsonDocument`]({{< apiref "T_MongoDB_Bson_BsonDocument" >}}). 
+[`UpdateDefinition<TDocument>`]({{< apiref "T_MongoDB_Driver_UpdateDefinition_1" >}}) defines how to render a valid update document. It is implicity convertible from both a JSON string as well as a [`BsonDocument`]({{< apiref "T_MongoDB_Bson_BsonDocument" >}}).
 
 ```csharp
 // invocation
@@ -343,7 +343,7 @@ UpdateDefinition<BsonDocument> update = new BsonDocument("$set", new BsonDocumen
 Both of these will render the update `{ $set: { x: 1 } }`.
 
 
-### Update Definition Builder 
+### Update Definition Builder
 
 _See the [tests]({{< testref "MongoDB.Driver.Tests/UpdateDefinitionBuilderTests.cs" >}}) for examples._
 
@@ -403,7 +403,7 @@ IndexKeysDefinition<BsonDocument> keys = new BsonDocument("x", 1);
 Both of these will render the keys `{ x: 1 }`.
 
 
-### Index Keys Definition Builder 
+### Index Keys Definition Builder
 
 _See the [tests]({{< testref "MongoDB.Driver.Tests/IndexKeysDefinitionBuilderTests.cs" >}}) for examples._
 
@@ -421,11 +421,11 @@ Given the following class:
 ```csharp
 class Widget
 {
-	[BsonElement("x")]
-	public int X { get; set; }
+    [BsonElement("x")]
+    public int X { get; set; }
 
-	[BsonElement("y")]
-	public int Y { get; set; }
+    [BsonElement("y")]
+    public int Y { get; set; }
 }
 ```
 
