@@ -150,6 +150,7 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * staywellandy              https://github.com/staywellandy
 * Vyacheslav Stroy          https://github.com/kreig
 * Testo                     test1@doramail.com
+* TimTim                    https://github.com/wegylexy
 * Zhmayev Yaroslav          https://github.com/salaros
 * Aristarkh Zagorodnikov    https://github.com/onyxmaster
 

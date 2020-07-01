@@ -125,6 +125,84 @@ namespace MongoDB.Driver.Tests
         }
 
         [SkippableFact]
+        public void GraphLookup_with_many_to_one_parameters_should_return_expected_result()
+        {
+            RequireServer.Check().Supports(Feature.AggregateGraphLookupStage);
+            var database = GetDatabase();
+            var collection = database.GetCollection<ManyToOne>("collectionManyToOne");
+
+            var result = PipelineStageDefinitionBuilder.GraphLookup(
+                from: collection,
+                connectFromField: x => x.From,
+                connectToField: x => x.To,
+                startWith: (ManyToOne x) => x.From,
+                @as: (ManyToOneResult x) => x.Matches);
+
+            RenderStage(result).Document.Should().Be(
+                @"{
+                    $graphLookup : {
+                        from : 'collectionManyToOne',
+                        connectFromField : 'From',
+                        connectToField : 'To',
+                        startWith : '$From',
+                        as : 'Matches'
+                    }
+                }");
+        }
+
+        [SkippableFact]
+        public void GraphLookup_with_one_to_many_parameters_should_return_expected_result()
+        {
+            RequireServer.Check().Supports(Feature.AggregateGraphLookupStage);
+            var database = GetDatabase();
+            var collection = database.GetCollection<OneToMany>("collectionOneToMany");
+
+            var result = PipelineStageDefinitionBuilder.GraphLookup(
+                from: collection,
+                connectFromField: x => x.From,
+                connectToField: x => x.To,
+                startWith: (OneToMany x) => x.From,
+                @as: (OneToManyResult x) => x.Matches);
+
+            RenderStage(result).Document.Should().Be(
+                @"{
+                    $graphLookup : {
+                        from : 'collectionOneToMany',
+                        connectFromField : 'From',
+                        connectToField : 'To',
+                        startWith : '$From',
+                        as : 'Matches'
+                    }
+                }");
+        }
+        
+        [SkippableFact]
+        public void GraphLookup_with_one_to_one_parameters_should_return_expected_result()
+        {
+            RequireServer.Check().Supports(Feature.AggregateGraphLookupStage);
+            var database = GetDatabase();
+            var collection = database.GetCollection<OneToOne>("collectionOneToOne");
+
+            var result = PipelineStageDefinitionBuilder.GraphLookup(
+                from: collection,
+                connectFromField: x => x.From,
+                connectToField: x => x.To,
+                startWith: (OneToOne x) => x.From,
+                @as: (OneToOneResult x) => x.Matches);
+
+            RenderStage(result).Document.Should().Be(
+                @"{
+                    $graphLookup : {
+                        from : 'collectionOneToOne',
+                        connectFromField : 'From',
+                        connectToField : 'To',
+                        startWith : '$From',
+                        as : 'Matches'
+                    }
+                }");
+        }
+
+        [SkippableFact]
         public void Lookup_with_let_should_return_the_expected_result()
         {
             RequireServer.Check().Supports(Feature.AggregateLet);
@@ -426,6 +504,13 @@ namespace MongoDB.Driver.Tests
         }
 
         // private methods
+        private IMongoDatabase GetDatabase()
+        {
+            var client = DriverTestConfiguration.Client;
+            var databaseName = CoreTestConfiguration.DatabaseNamespace.DatabaseName;
+            return client.GetDatabase(databaseName);
+        }
+
         private RenderedPipelineStageDefinition<ChangeStreamDocument<BsonDocument>> RenderStage(PipelineStageDefinition<BsonDocument, ChangeStreamDocument<BsonDocument>> stage)
         {
             return stage.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry);
@@ -436,6 +521,52 @@ namespace MongoDB.Driver.Tests
             var registry = BsonSerializer.SerializerRegistry;
             var serializer = registry.GetSerializer<TInput>();
             return stage.Render(serializer, registry);
+        }
+
+        // nested types
+        private class ManyToOne
+        {
+            public int Id { get; set; }
+            public IEnumerable<int> From { get; set; }
+            public int To { get; set; }
+        }
+
+        private class ManyToOneResult
+        {
+            public int Id { get; set; }
+            public IEnumerable<int> From { get; set; }
+            public int To { get; set; }
+            public List<ManyToOne> Matches { get; set; }
+        }
+
+        private class OneToMany
+        {
+            public int Id { get; set; }
+            public int From { get; set; }
+            public IEnumerable<int> To { get; set; }
+        }
+
+        private class OneToManyResult
+        {
+            public int Id { get; set; }
+            public int From { get; set; }
+            public IEnumerable<int> To { get; set; }
+            public List<OneToMany> Matches { get; set; }
+        }
+
+        private class OneToOne
+        {
+            public int Id { get; set; }
+            public int From { get; set; }
+            public int To { get; set; }
+        }
+
+        private class OneToOneResult
+        {
+            public int Id { get; set; }
+            public int From { get; set; }
+            public int To { get; set; }
+            public List<OneToOne> Matches { get; set; }
         }
     }
 }
