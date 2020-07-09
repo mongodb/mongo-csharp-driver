@@ -236,6 +236,67 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
         [SkippableTheory]
         [ParameterAttributeData]
+        public void BypassSpawningMongocryptdViaMongocryptdBypassSpawnTest(
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.ClientSideEncryption);
+
+            var extraOptions = new Dictionary<string, object>
+            {
+                { "mongocryptdBypassSpawn", true },
+                { "mongocryptdURI", "mongodb://localhost:27021/db?serverSelectionTimeoutMS=1000" },
+                { "mongocryptdSpawnArgs", new [] { "--pidfilepath=bypass-spawning-mongocryptd.pid", "--port=27021" } },
+            };
+            var clientEncryptedSchema = new BsonDocument("db.coll", JsonFileReader.Instance.Documents["external.external-schema.json"]);
+            using (var client = ConfigureClient())
+            using (var clientEncrypted = ConfigureClientEncrypted(
+                schemaMap: clientEncryptedSchema,
+                kmsProviderFilter: "local",
+                extraOptions: extraOptions))
+            {
+                var datakeys = GetCollection(client, __keyVaultCollectionNamespace);
+                var externalKey = JsonFileReader.Instance.Documents["external.external-key.json"];
+                Insert(datakeys, async, externalKey);
+
+                var coll = GetCollection(clientEncrypted, __collCollectionNamespace);
+                var exception = Record.Exception(() => Insert(coll, async, new BsonDocument("encrypted", "test")));
+
+                exception.Should().BeOfType<MongoEncryptionException>();
+                exception.Message.Should().Contain("A timeout occured after 1000ms selecting a server");
+            }
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void BypassSpawningMongocryptdViaBypassAutoEncryptionTest(
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.ClientSideEncryption);
+
+            var extraOptions = new Dictionary<string, object>
+            {
+                { "mongocryptdSpawnArgs", new [] { "--pidfilepath=bypass-spawning-mongocryptd.pid", "--port=27021" } },
+            };
+            using (var mongocryptdClient = new DisposableMongoClient(new MongoClient("mongodb://localhost:27021/?serverSelectionTimeoutMS=1000")))
+            using (var clientEncrypted = ConfigureClientEncrypted(
+                kmsProviderFilter: "local",
+                bypassAutoEncryption: true,
+                extraOptions: extraOptions))
+            {
+                var coll = GetCollection(clientEncrypted, __collCollectionNamespace);
+                Insert(coll, async, new BsonDocument("unencrypted", "test"));
+
+                var adminDatabase = mongocryptdClient.GetDatabase(DatabaseNamespace.Admin.DatabaseName);
+                var isMasterCommand = new BsonDocument("ismaster", 1);
+                var exception = Record.Exception(() => adminDatabase.RunCommand<BsonDocument>(isMasterCommand));
+
+                exception.Should().BeOfType<TimeoutException>();
+                exception.Message.Should().Contain("A timeout occured after 1000ms selecting a server");
+            }
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void CorpusTest(
             [Values(false, true)] bool useLocalSchema,
             [Values(false, true)] bool async)
@@ -641,7 +702,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             BsonDocument schemaMap = null,
             bool withExternalKeyVault = false,
             string kmsProviderFilter = null,
-            EventCapturer eventCapturer = null)
+            EventCapturer eventCapturer = null,
+            Dictionary<string, object> extraOptions = null,
+            bool bypassAutoEncryption = false)
         {
             var kmsProviders = GetKmsProviders();
 
@@ -659,7 +722,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     clusterConfigurator:
                         eventCapturer != null
                             ? c => c.Subscribe(eventCapturer)
-                            : (Action<ClusterBuilder>)null);
+                            : (Action<ClusterBuilder>)null,
+                    extraOptions: extraOptions,
+                    bypassAutoEncryption: bypassAutoEncryption);
             return clientEncrypted;
         }
 
@@ -730,7 +795,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             BsonDocument schemaMapDocument = null,
             IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders = null,
             bool withExternalKeyVault = false,
-            Action<ClusterBuilder> clusterConfigurator = null)
+            Action<ClusterBuilder> clusterConfigurator = null,
+            Dictionary<string, object> extraOptions = null,
+            bool bypassAutoEncryption = false)
         {
             var mongoClientSettings = DriverTestConfiguration.GetClientSettings().Clone();
 #pragma warning disable 618
@@ -743,10 +810,13 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
             if (keyVaultNamespace != null || schemaMapDocument != null || kmsProviders != null || withExternalKeyVault)
             {
-                var extraOptions = new Dictionary<string, object>()
+                if (extraOptions == null)
                 {
-                    { "mongocryptdSpawnPath", Environment.GetEnvironmentVariable("MONGODB_BINARIES") ?? string.Empty }
-                };
+                    extraOptions = new Dictionary<string, object>()
+                    {
+                        { "mongocryptdSpawnPath", Environment.GetEnvironmentVariable("MONGODB_BINARIES") ?? string.Empty }
+                    };
+                }
 
                 var schemaMap = GetSchemaMapIfNotNull(schemaMapDocument);
 
@@ -759,7 +829,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     keyVaultNamespace: keyVaultNamespace,
                     kmsProviders: kmsProviders,
                     schemaMap: schemaMap,
-                    extraOptions: extraOptions);
+                    extraOptions: extraOptions,
+                    bypassAutoEncryption: bypassAutoEncryption);
 
                 if (withExternalKeyVault)
                 {
