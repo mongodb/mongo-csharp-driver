@@ -579,7 +579,7 @@ namespace MongoDB.Driver
         public abstract IFilteredMongoCollection<TDerivedDocument> OfType<TDerivedDocument>() where TDerivedDocument : TDocument;
 
         /// <inheritdoc />
-        public ReplaceOneResult ReplaceOne(FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual ReplaceOneResult ReplaceOne(FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return ReplaceOne(filter, replacement, options, (requests, bulkWriteOptions) => BulkWrite(requests, bulkWriteOptions, cancellationToken));
         }
@@ -593,7 +593,7 @@ namespace MongoDB.Driver
 
 
         /// <inheritdoc />
-        public ReplaceOneResult ReplaceOne(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual ReplaceOneResult ReplaceOne(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return ReplaceOne(filter, replacement, options, (requests, bulkWriteOptions) => BulkWrite(session, requests, bulkWriteOptions, cancellationToken));
         }
@@ -634,7 +634,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public Task<ReplaceOneResult> ReplaceOneAsync(FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<ReplaceOneResult> ReplaceOneAsync(FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return ReplaceOneAsync(filter, replacement, options, (requests, bulkWriteOptions) => BulkWriteAsync(requests, bulkWriteOptions, cancellationToken));
         }
@@ -647,7 +647,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public Task<ReplaceOneResult> ReplaceOneAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<ReplaceOneResult> ReplaceOneAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return ReplaceOneAsync(filter, replacement, options, (requests, bulkWriteOptions) => BulkWriteAsync(session, requests, bulkWriteOptions, cancellationToken));
         }
