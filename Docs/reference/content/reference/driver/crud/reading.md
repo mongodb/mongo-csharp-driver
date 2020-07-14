@@ -45,26 +45,26 @@ Finding all the documents in a collection is done with an empty filter and the m
 var filter = new BsonDocument();
 using (var cursor = collection.Find(filter).ToCursor())
 {
-	while (cursor.MoveNext())
-	{
-		foreach (var doc in cursor.Current)
-		{
-			// do something with the documents
-		}
-	}
+    while (cursor.MoveNext())
+    {
+        foreach (var doc in cursor.Current)
+        {
+            // do something with the documents
+        }
+    }
 }
 ```
 ```csharp
 var filter = new BsonDocument();
 using (var cursor = await collection.Find(filter).ToCursorAsync())
 {
-	while (await cursor.MoveNextAsync())
-	{
-		foreach (var doc in cursor.Current)
-		{
-			// do something with the documents
-		}
-	}
+    while (await cursor.MoveNextAsync())
+    {
+        foreach (var doc in cursor.Current)
+        {
+            // do something with the documents
+        }
+    }
 }
 ```
 
@@ -76,19 +76,19 @@ Some options are available in the optional [`FindOptions`]({{< apiref "T_MongoDB
 var filter = new BsonDocument();
 var options = new FindOptions
 {
-	MaxTime = TimeSpan.FromMilliseconds(20)
+    MaxTime = TimeSpan.FromMilliseconds(20)
 };
 ```
 ```csharp
 using (var cursor = collection.Find(filter, options).Skip(10).Limit(20).ToCursor())
 {
-	// etc...
+    // etc...
 }
 ```
 ```csharp
 using (var cursor = await collection.Find(filter, options).Skip(10).Limit(20).ToCursorAsync())
 {
-	// etc...
+    // etc...
 }
 ```
 
@@ -103,41 +103,41 @@ First, the [`ToList`]({{< apiref "M_MongoDB_Driver_IAsyncCursorSourceExtensions_
 
 ```csharp
 var list = collection.Find(filter)
-	.Skip(10)
-	.ToList();
+    .Skip(10)
+    .ToList();
 ```
 
 ```csharp
 var list = await collection.Find(filter)
-	.Skip(10)
-	.ToListAsync();
+    .Skip(10)
+    .ToListAsync();
 ```
 
 Second, [`ForEachAsync`]({{< apiref "Overload_MongoDB_Driver_IAsyncCursorSourceExtensions_ForEachAsync" >}}) is available. This method is useful when you just need to process each document and don't need to keep them around.
 
 ```csharp
 await collection.Find(filter)
-	.Skip(10)
-	.ForEachAsync(doc => Console.WriteLine(doc));
+    .Skip(10)
+    .ForEachAsync(doc => Console.WriteLine(doc));
 ```
 
 To avoid blocking while processing each document you can use an async lambda with `ForEachAsync`:
 
 ```csharp
 await collection.Find(filter)
-	.Skip(10)
-	.ForEachAsync(async (doc) => await Console.WriteLineAsync(doc));
+    .Skip(10)
+    .ForEachAsync(async (doc) => await Console.WriteLineAsync(doc));
 ```
 
 When using the synchronous API you can use the C# foreach statement to iterate over the documents in a cursor.
 
 ```csharp
 var cursor = collection.Find(filter)
-	.Skip(10)
-	.ToCursor();
+    .Skip(10)
+    .ToCursor();
 foreach (var doc in cursor.ToEnumerable())
 {
-	Console.WriteLine(doc);	
+    Console.WriteLine(doc);
 }
 ```
 
@@ -149,13 +149,13 @@ When you only want to find one document, the [`First`]({{< apiref "M_MongoDB_Dri
 
 ```csharp
 var result = collection.Find(filter)
-	.Skip(10)
-	.FirstOrDefault();
+    .Skip(10)
+    .FirstOrDefault();
 ```
 ```csharp
 var result = await collection.Find(filter)
-	.Skip(10)
-	.FirstOrDefaultAsync();
+    .Skip(10)
+    .FirstOrDefaultAsync();
 ```
 
 ## Aggregation
@@ -183,22 +183,22 @@ class ZipEntry
 ```
 ```csharp
 var results = db.GetCollection<ZipEntry>.Aggregate()
-	.Group(x => x.State, g => new { State = g.Key, TotalPopulation = g.Sum(x => x.Population) })
-	.Match(x => x.TotalPopulation > 20000)
-	.ToList();
+    .Group(x => x.State, g => new { State = g.Key, TotalPopulation = g.Sum(x => x.Population) })
+    .Match(x => x.TotalPopulation > 20000)
+    .ToList();
 ```
 ```csharp
 var results = await db.GetCollection<ZipEntry>.Aggregate()
-	.Group(x => x.State, g => new { State = g.Key, TotalPopulation = g.Sum(x => x.Population) })
-	.Match(x => x.TotalPopulation > 20000)
-	.ToListAsync();
+    .Group(x => x.State, g => new { State = g.Key, TotalPopulation = g.Sum(x => x.Population) })
+    .Match(x => x.TotalPopulation > 20000)
+    .ToListAsync();
 ```
 
 This will result in the following aggregation pipeline getting sent to the server:
 
 ```json
-[{ group: { _id: '$state', TotalPopulation: { $sum : '$pop' } } },
-{ $match: { TotalPopulation: { $gt: 20000 } } }]
+[{ group : { _id : '$state', TotalPopulation: { $sum : '$pop' } } },
+{ $match : { TotalPopulation : { $gt : 20000 } } }]
 ```
 
 {{% note %}}You can call `ToString` on the pipeline to see what would be sent to the server.{{% /note %}}
@@ -219,7 +219,7 @@ A `$project` is defined using the [`Project`]({{< apiref "M_MongoDB_Driver_IAggr
 Project(x => new { Name = x.FirstName + " " + x.LastName });
 ```
 ```json
-{ $project: { Name: { $concat: ['$FirstName', ' ', '$LastName'] } } }
+{ $project : { Name : { $concat : ['$FirstName', ' ', '$LastName'] } } }
 ```
 
 {{% note %}}In an aggregation framework projection, a new type, either anonymous or named, must be used.{{% /note %}}
@@ -232,7 +232,7 @@ A `$match` stage is defined using the [`Match`]({{< apiref "M_MongoDB_Driver_IAg
 Match(x => x.Age > 21);
 ```
 ```json
-{ $match: { Age: { $gt: 21 } } }
+{ $match : { Age : { $gt : 21 } } }
 ```
 
 #### $redact
@@ -247,7 +247,7 @@ A `$limit` stage is defined using the [`Limit`]({{< apiref "M_MongoDB_Driver_IAg
 Limit(20);
 ```
 ```json
-{ $limit: 20 }
+{ $limit : 20 }
 ```
 
 #### $skip
@@ -258,7 +258,7 @@ A `$skip` stage is defined using the [`Skip`]({{< apiref "M_MongoDB_Driver_IAggr
 Skip(20);
 ```
 ```json
-{ $skip: 20 }
+{ $skip : 20 }
 ```
 
 #### $unwind
@@ -269,7 +269,7 @@ An `$unwind` stage is defined using the [`Unwind`]({{< apiref "M_MongoDB_Driver_
 Unwind(x => x.ArrayFieldToUnwind);
 ```
 ```json
-{ $unwind: 'ArrayFieldToUnwind' }
+{ $unwind : 'ArrayFieldToUnwind' }
 ```
 
 #### $group
@@ -280,20 +280,20 @@ A `$group` stage is defined using the [`Group`]({{< apiref "M_MongoDB_Driver_IAg
 Group(x => x.Name, g => new { Name = g.Key, AverageAge = g.Average(x = x.Age) });
 ```
 ```json
-{ $group: { _id: '$Name', AverageAge: { $avg: '$Age'} } }
+{ $group : { _id : '$Name', AverageAge : { $avg : '$Age'} } }
 ```
 
 As in project, it is required that the result of the grouping be a new type, either anonymous or named. If the `Key` of the grouping is not used, an `_id` will still be inserted as this is required by the `$group` operator.
 
 #### $sort
 
-A `$sort` stage is defined using the [`Sort`]({{< apiref "M_MongoDB_Driver_IAggregateFluent_1_Sort" >}}) method. However, `SortBy`, `SortByDescending`, `ThenBy`, and `ThenByDescending` are also available. 
+A `$sort` stage is defined using the [`Sort`]({{< apiref "M_MongoDB_Driver_IAggregateFluent_1_Sort" >}}) method. However, `SortBy`, `SortByDescending`, `ThenBy`, and `ThenByDescending` are also available.
 
 ```csharp
 SortBy(x => x.LastName).ThenByDescending(x => x.Age);
 ```
 ```json
-{ $sort: { LastName: 1, Age: -1 } }
+{ $sort : { LastName : 1, Age : -1 } }
 ```
 
 #### $geoNear
@@ -311,5 +311,254 @@ Out("myNewCollection");
 await OutAsync("myNewCollection");
 ```
 ```json
-{ $out: 'myNewCollection' }
+{ $out : 'myNewCollection' }
+```
+
+### Text Search
+[Atlas Search](https://docs.atlas.mongodb.com/atlas-search) makes it easy to build fast, relevance-based search capabilities on top of your MongoDB data. Try it today on [MongoDB Atlas](https://www.mongodb.com/cloud/atlas), our fully managed database as a service.
+
+The following examples can be used alongside the [Atlas Search Tutorial](https://docs.atlas.mongodb.com/reference/atlas-search/tutorial/)
+
+```csharp
+var collection = client.GetDatabase("sample_mflix").GetCollection<BsonDocument>("movies");
+
+// Simple search example
+var searchStage = @"
+{
+    $search : {
+        text : {
+            query : 'baseball',
+            path : 'plot'
+        }
+    }
+}";
+var projection = @"
+{
+    _id : 0,
+    title : 1,
+    plot : 1
+}";
+var pipeline = new EmptyPipelineDefinition<BsonDocument>()
+    .AppendStage<BsonDocument, BsonDocument, BsonDocument>(searchStage)
+    .Limit(5)
+    .Project(projection);
+var moviesAboutBaseball = collection.Aggregate(pipeline).ToList();
+
+Console.WriteLine("Movies about baseball:");
+foreach (var movie in moviesAboutBaseball)
+{
+    Console.WriteLine($"  {movie}");
+}
+Console.WriteLine();
+
+// Complex search example
+string complexSearch = @"
+{
+    $search : {
+        compound : {
+            must : [ {
+                text : {
+                    query : ['Hawaii', 'Alaska'],
+                    path : 'plot'
+                },
+            },
+            {
+                regex : {
+                    query : '([0-9]{4})',
+                    path : 'plot',
+                    allowAnalyzedField : true
+                }
+            } ],
+            mustNot : [ {
+                text : {
+                    query : ['Comedy', 'Romance'],
+                    path : 'genres'
+                }
+            },
+            {
+                term : {
+                    query : ['Beach', 'Snow'],
+                    path : 'title'
+                }
+            } ]
+        }
+    }
+}";
+var projectionWithGenre = @"
+{
+    title : 1,
+    plot : 1,
+    genres : 1,
+    _id : 0
+}";
+var complexPipeline = new EmptyPipelineDefinition<BsonDocument>()
+    .AppendStage<BsonDocument, BsonDocument, BsonDocument>(complexSearch)
+    .Project(projectionWithGenre);
+var complexQueryResults = collection.Aggregate<BsonDocument>(complexPipeline).ToList();
+
+Console.WriteLine("Complex query results: ");
+foreach (var movie in complexQueryResults)
+{
+    Console.WriteLine($"  {movie}");
+}
+Console.WriteLine();
+
+// Search using a multi analyzer
+var queryUsingKeywordAnalyzer = @"
+{
+    $search : {
+        text : {
+            query : 'The Count of Monte Cristo',
+            path : { 'value' : 'title', 'multi' : 'keywordAnalyzer' }
+        }
+    }
+}";
+var pipelineUsingKeywordAnalyzer = new EmptyPipelineDefinition<BsonDocument>()
+    .AppendStage<BsonDocument, BsonDocument, BsonDocument>(queryUsingKeywordAnalyzer)
+    .Project(projection);
+var moviesNamedTheCountOfMonteCristo = collection
+    .Aggregate<BsonDocument>(pipelineUsingKeywordAnalyzer)
+    .ToList();
+
+Console.WriteLine(@"Movies named ""The Count of Monte Cristo"":");
+foreach (var movie in moviesNamedTheCountOfMonteCristo)
+{
+    Console.WriteLine($"  {movie}");
+}
+Console.WriteLine();
+```
+
+Below is the version which utilizes [BsonDocument]({{< apiref "T_MongoDB_Bson_BsonDocument" >}}) class.
+
+```csharp
+var collection = client.GetDatabase("sample_mflix").GetCollection<BsonDocument>("movies");
+
+// Simple search example
+var searchStage = new BsonDocument
+{
+    {
+        "$search", new BsonDocument
+        {
+            {
+                "text", new BsonDocument
+                {
+                    { "query", "baseball" },
+                    { "path", "plot" }
+                }
+            }
+        }
+    }
+};
+var projection = new BsonDocument
+{
+    { "_id", 0 },
+    { "title", 1 },
+    { "plot", 1 }
+};
+var pipeline = new EmptyPipelineDefinition<BsonDocument>()
+    .AppendStage<BsonDocument, BsonDocument, BsonDocument>(searchStage)
+    .Limit(5)
+    .Project(projection);
+var moviesAboutBaseball = collection.Aggregate(pipeline).ToList();
+
+Console.WriteLine("Movies about baseball:");
+foreach (var movie in moviesAboutBaseball)
+{
+    Console.WriteLine($"  {movie}");
+}
+Console.WriteLine();
+
+// Complex search example
+var complexSearch = new BsonDocument
+{
+    {
+        "$search", new BsonDocument
+        {
+            {
+                "compound", new BsonDocument
+                {
+                    {
+                        "must", new BsonArray
+                        {
+                            new BsonDocument("text", new BsonDocument
+                            {
+                                { "query", new BsonArray { "Hawaii", "Alaska" } },
+                                { "path", "plot" }
+                            }),
+                            new BsonDocument("regex", new BsonDocument
+                            {
+                                { "query", "([0-9]{4})" },
+                                { "path", "plot" },
+                                { "allowAnalyzedField", true }
+                            })
+                        }
+                    },
+                    {
+                        "mustNot", new BsonArray
+                        {
+                            new BsonDocument("text", new BsonDocument
+                            {
+                                { "query", new BsonArray { "Comedy", "Romance" } },
+                                { "path", "genres" }
+                            }),
+                            new BsonDocument("term", new BsonDocument
+                            {
+                                { "query", new BsonArray { "Beach", "Snow" } },
+                                { "path", "title" }
+                            })
+                        }
+                    }
+                }
+            }
+        }
+    }
+};
+var projectionWithGenre = new BsonDocument
+{
+    { "title", 1 },
+    { "plot", 1 },
+    { "genres", 1 },
+    { "_id", 0 }
+};
+var complexPipeline = new EmptyPipelineDefinition<BsonDocument>()
+    .AppendStage<BsonDocument, BsonDocument, BsonDocument>(complexSearch)
+    .Project(projectionWithGenre);
+var complexQueryResults = collection.Aggregate<BsonDocument>(complexPipeline).ToList();
+
+Console.WriteLine("Complex query results: ");
+foreach (var movie in complexQueryResults)
+{
+    Console.WriteLine($"  {movie}");
+}
+Console.WriteLine();
+
+// Search using a multi analyzer
+var queryUsingKeywordAnalyzer = new BsonDocument
+{
+    {
+        "$search", new BsonDocument
+        {
+            {
+                "text", new BsonDocument
+                {
+                    { "query", "The Count of Monte Cristo" },
+                    { "path", new BsonDocument { { "value", "title" }, { "multi", "keywordAnalyzer" } } }
+                }
+            }
+        }
+    }
+};
+var pipelineUsingKeywordAnalyzer = new EmptyPipelineDefinition<BsonDocument>()
+    .AppendStage<BsonDocument, BsonDocument, BsonDocument>(queryUsingKeywordAnalyzer)
+    .Project(projection);
+var moviesNamedTheCountOfMonteCristo = collection
+    .Aggregate<BsonDocument>(pipelineUsingKeywordAnalyzer)
+    .ToList();
+
+Console.WriteLine(@"Movies named ""The Count of Monte Cristo"":");
+foreach (var movie in moviesNamedTheCountOfMonteCristo)
+{
+    Console.WriteLine($"  {movie}");
+}
+Console.WriteLine();
 ```
