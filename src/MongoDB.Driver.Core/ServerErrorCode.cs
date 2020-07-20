@@ -21,6 +21,7 @@ namespace MongoDB.Driver
         // see: https://github.com/mongodb/mongo/blob/master/src/mongo/base/error_codes.yml
         CappedPositionLost = 136,
         CursorKilled = 237,
+        CursorNotFound = 43,
         ElectionInProgress = 216,
         ExceededTimeLimit = 262,
         FailedToSatisfyReadPreference = 133,

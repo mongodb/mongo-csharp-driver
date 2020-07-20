@@ -109,6 +109,10 @@ namespace MongoDB.Driver.Core.Operations
             {
                 return true;
             }
+            if (exception is MongoCursorNotFoundException)
+            {
+                return true;
+            }
 
             if (Feature.ServerReturnsResumableChangeStreamErrorLabel.IsSupported(serverVersion))
             {

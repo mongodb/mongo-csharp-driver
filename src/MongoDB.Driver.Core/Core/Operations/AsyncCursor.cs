@@ -273,19 +273,27 @@ namespace MongoDB.Driver.Core.Operations
         private CursorBatch<TDocument> ExecuteGetMoreCommand(IChannelHandle channel, CancellationToken cancellationToken)
         {
             var command = CreateGetMoreCommand();
-            var result = channel.Command<BsonDocument>(
-                _channelSource.Session,
-                null, // readPreference
-                _collectionNamespace.DatabaseNamespace,
-                command,
-                null, // commandPayloads
-                NoOpElementNameValidator.Instance,
-                null, // additionalOptions
-                null, // postWriteAction
-                CommandResponseHandling.Return,
-                __getMoreCommandResultSerializer,
-                _messageEncoderSettings,
-                cancellationToken);
+            BsonDocument result;
+            try
+            {
+                result = channel.Command<BsonDocument>(
+                    _channelSource.Session,
+                    null, // readPreference
+                    _collectionNamespace.DatabaseNamespace,
+                    command,
+                    null, // commandPayloads
+                    NoOpElementNameValidator.Instance,
+                    null, // additionalOptions
+                    null, // postWriteAction
+                    CommandResponseHandling.Return,
+                    __getMoreCommandResultSerializer,
+                    _messageEncoderSettings,
+                    cancellationToken);
+            }
+            catch (MongoCommandException ex) when (IsMongoCursorNotFoundException(ex))
+            {
+                throw new MongoCursorNotFoundException(channel.ConnectionDescription.ConnectionId, _cursorId, command);
+            }
 
             return CreateCursorBatch(result);
         }
@@ -293,19 +301,27 @@ namespace MongoDB.Driver.Core.Operations
         private async Task<CursorBatch<TDocument>> ExecuteGetMoreCommandAsync(IChannelHandle channel, CancellationToken cancellationToken)
         {
             var command = CreateGetMoreCommand();
-            var result = await channel.CommandAsync<BsonDocument>(
-                _channelSource.Session,
-                null, // readPreference
-                _collectionNamespace.DatabaseNamespace,
-                command,
-                null, // commandPayloads
-                NoOpElementNameValidator.Instance,
-                null, // additionalOptions
-                null, // postWriteAction
-                CommandResponseHandling.Return,
-                __getMoreCommandResultSerializer,
-                _messageEncoderSettings,
-                cancellationToken).ConfigureAwait(false);
+            BsonDocument result;
+            try
+            {
+                result = await channel.CommandAsync<BsonDocument>(
+                    _channelSource.Session,
+                    null, // readPreference
+                    _collectionNamespace.DatabaseNamespace,
+                    command,
+                    null, // commandPayloads
+                    NoOpElementNameValidator.Instance,
+                    null, // additionalOptions
+                    null, // postWriteAction
+                    CommandResponseHandling.Return,
+                    __getMoreCommandResultSerializer,
+                    _messageEncoderSettings,
+                    cancellationToken).ConfigureAwait(false);
+            }
+            catch (MongoCommandException ex) when (IsMongoCursorNotFoundException(ex))
+            {
+                throw new MongoCursorNotFoundException(channel.ConnectionDescription.ConnectionId, _cursorId, command);
+            }
 
             return CreateCursorBatch(result);
         }
@@ -513,6 +529,11 @@ namespace MongoDB.Driver.Core.Operations
                     return await ExecuteGetMoreProtocolAsync(channel, cancellationToken).ConfigureAwait(false);
                 }
             }
+        }
+
+        private bool IsMongoCursorNotFoundException(MongoCommandException exception)
+        {
+            return exception.Code == (int)ServerErrorCode.CursorNotFound;
         }
 
         private void KillCursors(CancellationToken cancellationToken)
