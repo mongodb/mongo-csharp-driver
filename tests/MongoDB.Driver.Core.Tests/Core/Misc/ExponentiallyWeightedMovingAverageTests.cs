@@ -62,5 +62,19 @@ namespace MongoDB.Driver.Core.Misc
 
             subject.Average.TotalMilliseconds.Should().Be(result);
         }
+
+        [Fact]
+        public void Reset_should_clear_average()
+        {
+            var subject = new ExponentiallyWeightedMovingAverage(1);
+
+            subject.AddSample(TimeSpan.FromSeconds(10));
+
+            subject.Average.Should().NotBe(default);
+
+            subject.Reset();
+
+            subject.Average.Should().Be(default);
+        }
     }
 }

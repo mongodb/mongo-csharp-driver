@@ -22,6 +22,7 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -36,8 +37,9 @@ namespace MongoDB.Driver.Core.Helpers
         private bool? _isExpired;
         private DateTime _lastUsedAtUtc;
         private DateTime _openedAtUtc;
-        private readonly Queue<MongoDBMessage> _replyMessages;
+        private readonly Queue<ActionQueueItem> _replyActions;
         private readonly List<RequestMessage> _sentMessages;
+        private bool? _wasReadTimeoutChanged;
 
         private readonly Action<ConnectionClosingEvent> _closingEventHandler;
         private readonly Action<ConnectionClosedEvent> _closedEventHandler;
@@ -54,7 +56,7 @@ namespace MongoDB.Driver.Core.Helpers
 
         public MockConnection(ServerId serverId, ConnectionSettings connectionSettings, IEventSubscriber eventSubscriber)
         {
-            _replyMessages = new Queue<MongoDBMessage>();
+            _replyActions = new Queue<ActionQueueItem>();
             _sentMessages = new List<RequestMessage>();
             _connectionSettings = connectionSettings;
             _connectionId = new ConnectionId(serverId);
@@ -122,6 +124,8 @@ namespace MongoDB.Driver.Core.Helpers
 
         public ConnectionSettings Settings => _connectionSettings;
 
+        public bool? WasReadTimeoutChanged => _wasReadTimeoutChanged;
+
         // methods
         public void Dispose()
         {
@@ -130,9 +134,24 @@ namespace MongoDB.Driver.Core.Helpers
             _closedEventHandler?.Invoke(new ConnectionClosedEvent(_connectionId, TimeSpan.Zero, EventContext.OperationId));
         }
 
+        public void EnqueueCommandResponseMessage(Exception exception)
+        {
+            _replyActions.Enqueue(new ActionQueueItem(message: null, exception: exception));
+        }
+
+        public void EnqueueCommandResponseMessage(CommandResponseMessage replyMessage)
+        {
+            _replyActions.Enqueue(new ActionQueueItem(replyMessage));
+        }
+
+        public void EnqueueCommandResponseMessage(CommandResponseMessage replyMessage, TimeSpan? delay)
+        {
+            _replyActions.Enqueue(new ActionQueueItem(replyMessage, delay: delay));
+        }
+
         public void EnqueueReplyMessage<TDocument>(ReplyMessage<TDocument> replyMessage)
         {
-            _replyMessages.Enqueue(replyMessage);
+            _replyActions.Enqueue(new ActionQueueItem(replyMessage));
         }
 
         public IConnection Fork()
@@ -164,12 +183,20 @@ namespace MongoDB.Driver.Core.Helpers
 
         public ResponseMessage ReceiveMessage(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
         {
-            return (ResponseMessage)_replyMessages.Dequeue();
+            var action = _replyActions.Dequeue();
+            action.ThrowIfException();
+            var message = (ResponseMessage)action.Message;
+            action.DelayIfRequired();
+            return message;
         }
 
-        public Task<ResponseMessage> ReceiveMessageAsync(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
+        public async Task<ResponseMessage> ReceiveMessageAsync(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
         {
-            return Task.FromResult((ResponseMessage)_replyMessages.Dequeue());
+            var action = _replyActions.Dequeue();
+            action.ThrowIfException();
+            var message = (ResponseMessage)action.Message;
+            await action.DelayIfRequiredAsync().ConfigureAwait(false);
+            return message;
         }
 
         public void SendMessages(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
@@ -181,6 +208,55 @@ namespace MongoDB.Driver.Core.Helpers
         {
             _sentMessages.AddRange(messages);
             return Task.FromResult<object>(null);
+        }
+
+        public void SetReadTimeout(TimeSpan timeout)
+        {
+            _wasReadTimeoutChanged = true;
+        }
+
+        // nested type
+        private class ActionQueueItem
+        {
+            public ActionQueueItem(MongoDBMessage message, Exception exception = null, TimeSpan? delay = null)
+            {
+                Ensure.That(
+                    (message != null || exception != null) &&
+                    (message == null || exception == null),
+                    "At least one a message or an exception is required and they are mutually exclusive.");
+
+                Message = message;
+                Exception = exception;
+                Delay = delay;
+            }
+
+            public MongoDBMessage Message { get; }
+            public Exception Exception { get; }
+            public TimeSpan? Delay { get; }
+
+            public void ThrowIfException()
+            {
+                if (Exception != null)
+                {
+                    throw Exception;
+                }
+            }
+
+            public void DelayIfRequired()
+            {
+                if (Delay.HasValue)
+                {
+                    Thread.Sleep(Delay.Value);
+                }
+            }
+
+            public async Task DelayIfRequiredAsync()
+            {
+                if (Delay.HasValue)
+                {
+                    await Task.Delay(Delay.Value).ConfigureAwait(false);
+                }
+            }
         }
     }
 }

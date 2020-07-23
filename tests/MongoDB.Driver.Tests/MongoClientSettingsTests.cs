@@ -848,9 +848,13 @@ namespace MongoDB.Driver.Tests
             settings.ClusterConfigurator = cb => cb.ConfigureTcp(tcp => tcp.With(socketConfigurator: socketConfigurator));
             var subject = new MongoClient(settings);
 
-            SpinWait.SpinUntil(() => subject.Cluster.Description.State == ClusterState.Connected, TimeSpan.FromSeconds(5)).Should().BeTrue();
+            var isConnected = SpinWait.SpinUntil(() => subject.Cluster.Description.State == ClusterState.Connected, TimeSpan.FromSeconds(5));
+            if (!isConnected)
+            {
+                throw new Exception($"The cluster connecting exceeded the timeout 5sec. ClusterDescription is {subject.Cluster.Description}.");
+            }
 
-            Assert.True(socketConfiguratorWasCalled);
+            Assert.True(socketConfiguratorWasCalled, "socketConfigurator must be called.");
         }
 
         [Fact]

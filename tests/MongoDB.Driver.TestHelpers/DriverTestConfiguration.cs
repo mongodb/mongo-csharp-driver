@@ -134,7 +134,7 @@ namespace MongoDB.Driver.Tests
             return CreateDisposableClient((ClusterBuilder c) => c.Subscribe(capturer));
         }
 
-        public static DisposableMongoClient CreateDisposableclient(MongoClientSettings settings)
+        public static DisposableMongoClient CreateDisposableClient(MongoClientSettings settings)
         {
             return new DisposableMongoClient(new MongoClient(settings));
         }

@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Core.Events
     /// </summary>
     public struct ServerHeartbeatFailedEvent
     {
+        private readonly bool _awaited;
         private readonly ConnectionId _connectionId;
         private readonly Exception _exception;
 
@@ -33,11 +34,18 @@ namespace MongoDB.Driver.Core.Events
         /// </summary>
         /// <param name="connectionId">The connection identifier.</param>
         /// <param name="exception">The exception.</param>
-        public ServerHeartbeatFailedEvent(ConnectionId connectionId, Exception exception)
+        /// <param name="awaited">The awaited flag.</param>
+        public ServerHeartbeatFailedEvent(ConnectionId connectionId, Exception exception, bool awaited)
         {
+            _awaited = awaited;
             _connectionId = connectionId;
             _exception = exception;
         }
+
+        /// <summary>
+        /// Determines if this heartbeat event is for an awaitable isMaster.
+        /// </summary>
+        public bool Awaited => _awaited;
 
         /// <summary>
         /// Gets the cluster identifier.

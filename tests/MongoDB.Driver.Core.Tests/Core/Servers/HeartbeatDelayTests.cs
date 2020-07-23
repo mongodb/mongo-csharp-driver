@@ -14,7 +14,10 @@
 */
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Servers
@@ -28,6 +31,20 @@ namespace MongoDB.Driver.Core.Servers
 
             subject.Dispose();
             subject.Dispose();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void RequestHeartbeat_should_respect_to_minHeartbeatInterval([Values(10, -1)]int heartbeatIntervalInMinutes)
+        {
+            var heartbeatInterval = heartbeatIntervalInMinutes == -1 ? Timeout.InfiniteTimeSpan : TimeSpan.FromMinutes(heartbeatIntervalInMinutes);
+            var subject = new HeartbeatDelay(heartbeatInterval, TimeSpan.FromSeconds(2));
+
+            subject.RequestHeartbeat();
+
+            SpinWait.SpinUntil(() => subject.Task.Status != TaskStatus.WaitingForActivation, TimeSpan.FromMilliseconds(1500)).Should().BeFalse();
+            Thread.Sleep(TimeSpan.FromMilliseconds(700));
+            subject.Task.Status.Should().Be(TaskStatus.RanToCompletion);
         }
 
         [Fact]

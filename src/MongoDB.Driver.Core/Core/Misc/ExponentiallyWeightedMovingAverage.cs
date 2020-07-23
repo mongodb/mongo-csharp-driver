@@ -51,5 +51,10 @@ namespace MongoDB.Driver.Core.Misc
 
             return _average.Value;
         }
+
+        public void Reset()
+        {
+            _average = null;
+        }
     }
 }

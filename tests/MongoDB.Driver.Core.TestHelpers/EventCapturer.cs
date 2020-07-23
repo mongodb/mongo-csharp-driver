@@ -106,6 +106,21 @@ namespace MongoDB.Driver.Core
             return notifier.Initialize();
         }
 
+        public void WaitForOrThrowIfTimeout(Func<IEnumerable<object>, bool> condition, TimeSpan timeout, Func<TimeSpan, string> message = null)
+        {
+            var notifyTask = NotifyWhen(condition);
+            var index = Task.WaitAny(notifyTask, Task.Delay(timeout));
+            if (index != 0)
+            {
+                throw new Exception(message != null ? message(timeout) : $"Waiting for the expected event exceeded the timeout {timeout}.") ;
+            }
+        }
+
+        public void WaitForOrThrowIfTimeout(Func<IEnumerable<object>, bool> condition, TimeSpan timeout, string message)
+        {
+            WaitForOrThrowIfTimeout(condition, timeout, (t) => Ensure.IsNotNull(message, nameof(message)));
+        }
+
         public bool TryGetEventHandler<TEvent>(out Action<TEvent> handler)
         {
             if (_eventsToCapture.Count > 0 && !_eventsToCapture.ContainsKey(typeof(TEvent)))

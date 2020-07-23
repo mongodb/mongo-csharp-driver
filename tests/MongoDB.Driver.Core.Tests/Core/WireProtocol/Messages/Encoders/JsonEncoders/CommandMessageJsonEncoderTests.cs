@@ -125,14 +125,16 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
 
         [Theory]
         [ParameterAttributeData]
-        public void ReadMessage_should_read_moreToCome(
+        public void ReadMessage_should_read_flags(
+            [Values(false, true)] bool exhaustAllowed,
             [Values(false, true)] bool moreToCome)
         {
-            var message = CreateMessage(moreToCome: moreToCome);
+            var message = CreateMessage(moreToCome: moreToCome, exhaustAllowed: exhaustAllowed);
             var subject = CreateSubject(message);
 
             var result = subject.ReadMessage();
 
+            result.ExhaustAllowed.Should().Be(exhaustAllowed);
             result.MoreToCome.Should().Be(moreToCome);
         }
 
@@ -243,24 +245,31 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
 
         [Theory]
         [ParameterAttributeData]
-        public void WriteMessage_should_write_moreToCome(
+        public void WriteMessage_should_write_flags(
+            [Values(false, true)] bool exhaustAllowed,
             [Values(false, true)] bool moreToCome)
         {
             var writer = new StringWriter();
             var subject = CreateSubject(textWriter: writer);
-            var message = CreateMessage(moreToCome: moreToCome);
+            var message = CreateMessage(moreToCome: moreToCome, exhaustAllowed: exhaustAllowed);
 
             subject.WriteMessage(message);
             var result = writer.ToString();
 
             var resultDocument = BsonDocument.Parse(result);
-            if (moreToCome)
+            AssertField("moreToCome", moreToCome);
+            AssertField("exhaustAllowed", exhaustAllowed);
+
+            void AssertField(string key, bool expectedValue)
             {
-                resultDocument["moreToCome"].AsBoolean.Should().BeTrue();
-            }
-            else
-            {
-                resultDocument.Contains("moreToCome").Should().BeFalse();
+                if (expectedValue)
+                {
+                    resultDocument[key].AsBoolean.Should().BeTrue();
+                }
+                else
+                {
+                    resultDocument.Contains(key).Should().BeFalse();
+                }
             }
         }
 
@@ -328,10 +337,14 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             int requestId = 1,
             int responseTo = 2,
             IEnumerable<CommandMessageSection> sections = null,
-            bool moreToCome = false)
+            bool moreToCome = false,
+            bool exhaustAllowed = false)
         {
             sections = sections ?? new[] { CreateType0Section() };
-            return new CommandMessage(requestId, responseTo, sections, moreToCome);
+            return new CommandMessage(requestId, responseTo, sections, moreToCome)
+            {
+                ExhaustAllowed = exhaustAllowed
+            };
         }
 
         private BsonDocument CreateMessageDocument(CommandMessage message)
@@ -341,6 +354,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 { "opcode", "opmsg" },
                 { "requestId", message.RequestId },
                 { "responseTo", message.ResponseTo },
+                { "exhaustAllowed", true, message.ExhaustAllowed },
                 { "moreToCome", true, message.MoreToCome },
                 { "sections", new BsonArray(message.Sections.Select(s => CreateSectionDocument(s))) }
             };

@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Connections;
@@ -22,12 +21,14 @@ namespace MongoDB.Driver.Core.WireProtocol
 {
     internal interface IWireProtocol
     {
+        bool MoreToCome { get; }
         void Execute(IConnection connection, CancellationToken cancellationToken = default(CancellationToken));
         Task ExecuteAsync(IConnection connection, CancellationToken cancellationToken = default(CancellationToken));
     }
 
     internal interface IWireProtocol<TResult>
     {
+        bool MoreToCome { get; }
         TResult Execute(IConnection connection, CancellationToken cancellationToken = default(CancellationToken));
         Task<TResult> ExecuteAsync(IConnection connection, CancellationToken cancellationToken = default(CancellationToken));
     }

@@ -14,7 +14,6 @@
 */
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -23,15 +22,14 @@ using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {
-    public class JsonDrivenAssertIndexNotExists : JsonDrivenTestRunnerTest
+    public class JsonDrivenAssertCollectionExistsTest : JsonDrivenTestRunnerTest
     {
         // private fields
         private string _collectionName;
         private string _databaseName;
-        private string _indexName;
 
         // public constructors
-        public JsonDrivenAssertIndexNotExists(IJsonDrivenTestRunner testRunner, Dictionary<string, object> objectMap)
+        public JsonDrivenAssertCollectionExistsTest(IJsonDrivenTestRunner testRunner, Dictionary<string, object> objectMap)
             : base(testRunner, objectMap)
         {
         }
@@ -57,9 +55,8 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         public override void Assert()
         {
             var client = DriverTestConfiguration.Client;
-            var indexes = client.GetDatabase(_databaseName).GetCollection<BsonDocument>(_collectionName).Indexes.List().ToList();
-            var indexNames = indexes.Select(i => i["name"].AsString);
-            indexNames.Should().NotContain(_indexName);
+            var collectionNames = client.GetDatabase(_databaseName).ListCollectionNames().ToList();
+            collectionNames.Should().Contain(_collectionName);
         }
 
         // protected methods
@@ -72,9 +69,6 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                     return;
                 case "database":
                     _databaseName = value.AsString;
-                    return;
-                case "index":
-                    _indexName = value.AsString;
                     return;
             }
 

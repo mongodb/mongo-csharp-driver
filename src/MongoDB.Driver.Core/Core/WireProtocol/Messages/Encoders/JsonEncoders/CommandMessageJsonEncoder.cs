@@ -59,12 +59,16 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             {
                 throw new FormatException($"Command message invalid opcode: \"{opcode}\".");
             }
+            var exhaustAllowed = messageDocument.GetValue("exhaustAllowed", false).ToBoolean();
             var requestId = messageDocument["requestId"].ToInt32();
             var responseTo = messageDocument["responseTo"].ToInt32();
             var moreToCome = messageDocument.GetValue("moreToCome", false).ToBoolean();
             var sections = ReadSections(messageDocument["sections"].AsBsonArray.Cast<BsonDocument>());
 
-            return new CommandMessage(requestId, responseTo, sections, moreToCome);
+            return new CommandMessage(requestId, responseTo, sections, moreToCome)
+            {
+                ExhaustAllowed = exhaustAllowed
+            };
         }
 
         /// <summary>
@@ -84,6 +88,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             if (message.MoreToCome)
             {
                 writer.WriteBoolean("moreToCome", true);
+            }
+            if (message.ExhaustAllowed)
+            {
+                writer.WriteBoolean("exhaustAllowed", true);
             }
             writer.WriteName("sections");
             WriteSections(writer, message.Sections);

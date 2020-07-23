@@ -66,11 +66,15 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var flags = (OpMsgFlags)stream.ReadInt32();
             EnsureFlagsAreValid(flags);
             var moreToCome = (flags & OpMsgFlags.MoreToCome) != 0;
+            var exhaustAllowed = (flags & OpMsgFlags.ExhaustAllowed) != 0;
             var sections = ReadSections(reader, messageEndPosition);
             EnsureExactlyOneType0SectionIsPresent(sections);
             EnsureMessageEndedAtEndPosition(stream, messageEndPosition);
 
-            return new CommandMessage(requestId, responseTo, sections, moreToCome);
+            return new CommandMessage(requestId, responseTo, sections, moreToCome)
+            {
+                ExhaustAllowed = exhaustAllowed
+            };
         }
 
         /// <summary>
@@ -114,6 +118,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             if (message.MoreToCome)
             {
                 flags |= OpMsgFlags.MoreToCome;
+            }
+            if (message.ExhaustAllowed)
+            {
+                flags |= OpMsgFlags.ExhaustAllowed;
             }
             return flags;
         }

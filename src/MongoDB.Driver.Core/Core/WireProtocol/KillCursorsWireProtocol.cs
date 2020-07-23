@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -38,6 +37,9 @@ namespace MongoDB.Driver.Core.WireProtocol
             _cursorIds = (cursorIds as IReadOnlyList<long>) ?? cursorIds.ToList();
             _messageEncoderSettings = messageEncoderSettings;
         }
+
+        // public properties
+        public bool MoreToCome => false;
 
         // methods
         private KillCursorsMessage CreateMessage()

@@ -112,6 +112,9 @@ namespace MongoDB.Driver.Core.WireProtocol
             _messageEncoderSettings = messageEncoderSettings;
         }
 
+        // public properties
+        public bool MoreToCome => false;
+
         // methods
         private QueryMessage CreateMessage()
         {

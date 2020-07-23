@@ -58,12 +58,12 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
 
                 if (actualErrorCodeName == null)
                 {
-                    throw new Exception("Exception was missing \"errorCodeName\".");
+                    throw new Exception("Exception was missing \"errorCodeName\".", _actualException);
                 }
 
                 if (actualErrorCodeName != expectedErrorCodeName)
                 {
-                    throw new Exception($"Exception errorCodeName was \"{actualErrorCodeName}\", expected \"{expectedErrorCodeName}\".");
+                    throw new Exception($"Exception errorCodeName was \"{actualErrorCodeName}\", expected \"{expectedErrorCodeName}\".", _actualException);
                 }
             }
 
@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
 
                 if (actualMessage.IndexOf(expectedContains, StringComparison.OrdinalIgnoreCase) == -1)
                 {
-                    throw new Exception($"Exception message \"{actualMessage}\" does not contain \"{expectedContains}\".");
+                    throw new Exception($"Exception message \"{actualMessage}\" does not contain \"{expectedContains}\".", _actualException);
                 }
             }
 
@@ -83,14 +83,14 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                 var mongoException = _actualException as MongoException;
                 if (mongoException == null)
                 {
-                    throw new Exception($"Exception was of type {_actualException.GetType().FullName}, expected a MongoException.");
+                    throw new Exception($"Exception was of type {_actualException.GetType().FullName}, expected a MongoException.", _actualException);
                 }
 
                 foreach (var expectedLabel in _expectedException["errorLabelsContain"].AsBsonArray.OfType<BsonString>().Select(x => x.AsString))
                 {
                     if (!mongoException.HasErrorLabel(expectedLabel))
                     {
-                        throw new Exception($"Exception should contain ErrorLabel: \"{expectedLabel}\".");
+                        throw new Exception($"Exception should contain ErrorLabel: \"{expectedLabel}\".", _actualException);
                     }
                 }
             }
@@ -100,14 +100,14 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                 var mongoException = _actualException as MongoException;
                 if (mongoException == null)
                 {
-                    throw new Exception($"Exception was of type {_actualException.GetType().FullName}, expected a MongoException.");
+                    throw new Exception($"Exception was of type {_actualException.GetType().FullName}, expected a MongoException.", _actualException);
                 }
 
                 foreach (var omittedLabel in _expectedException["errorLabelsOmit"].AsBsonArray.OfType<BsonString>().Select(x => x.AsString))
                 {
                     if (mongoException.HasErrorLabel(omittedLabel))
                     {
-                        throw new Exception($"Exception should not contain ErrorLabel: \"{omittedLabel}\".");
+                        throw new Exception($"Exception should not contain ErrorLabel: \"{omittedLabel}\".", _actualException);
                     }
                 }
             }

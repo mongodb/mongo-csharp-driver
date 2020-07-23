@@ -15,10 +15,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net.Sockets;
-using System.Reflection;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -39,7 +36,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
 {
-    public class TestRunner
+    public class ServerDiscoveryAndMonitoringTestRunner
     {
         private ICluster _cluster;
         private IEventSubscriber _eventSubscriber;
@@ -91,18 +88,17 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
                     Ensure.IsNotNull(simulatedException, nameof(simulatedException));
                     break;
                 case "network":
-                {
-                    var innerException = CoreExceptionHelper.CreateException("IOExceptionWithNetworkUnreachableSocketException");
-                    simulatedException = new MongoConnectionException(connectionId, "Ignorance, yet knowledge.", innerException);
-                    break;
-                }
+                    {
+                        var innerException = CoreExceptionHelper.CreateException("IOExceptionWithNetworkUnreachableSocketException");
+                        simulatedException = new MongoConnectionException(connectionId, "Ignorance, yet knowledge.", innerException);
+                        break;
+                    }
                 case "timeout":
-                {
-                    var innerException = CoreExceptionHelper.CreateException("IOExceptionWithTimedOutSocketException");
-                    simulatedException = new MongoConnectionException(connectionId, "Chaos, yet harmony.", innerException);
-                    break;
-
-                }
+                    {
+                        var innerException = CoreExceptionHelper.CreateException("IOExceptionWithTimedOutSocketException");
+                        simulatedException = new MongoConnectionException(connectionId, "Chaos, yet harmony.", innerException);
+                        break;
+                    }
                 default:
                     throw new ArgumentException($"Unsupported value of {type} for type");
             }
@@ -272,7 +268,7 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
                 VerifyServerDescription(actualServerDescription, expectedServer.Description, phaseDescription);
                 VerifyServerPropertiesNotInServerDescription(_serverFactory.GetServer(actualServerDescription.EndPoint), expectedServer.Description, phaseDescription);
             }
-			if (outcome.TryGetValue("maxSetVersion", out var maxSetVersion))
+            if (outcome.TryGetValue("maxSetVersion", out var maxSetVersion))
             {
                 if (_cluster is MultiServerCluster multiServerCluster)
                 {
@@ -402,7 +398,7 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
 
             if (expectedDescription.TryGetValue("topologyVersion", out var topologyVersionValue))
             {
-                switch(topologyVersionValue)
+                switch (topologyVersionValue)
                 {
                     case BsonDocument topologyVersion:
                         TopologyVersion expectedTopologyType = TopologyVersion.FromBsonDocument(topologyVersion);
@@ -482,7 +478,8 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
             }
         }
     }
-	internal static class MultiServerClusterReflector
+
+    internal static class MultiServerClusterReflector
     {
         public static int _maxElectionInfo_setVersion(this MultiServerCluster obj)
         {

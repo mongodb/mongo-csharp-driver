@@ -362,7 +362,7 @@ namespace MongoDB.Driver.Tests
         {
             // If we don't use a DisposableClient, the second run of AuthenticationSucceedsWithMongoDB_X509_mechanism
             // will fail because the backing Cluster's connections will be associated with a dropped user
-            using (var client = DriverTestConfiguration.CreateDisposableclient(settings))
+            using (var client = DriverTestConfiguration.CreateDisposableClient(settings))
             {
                 // The first command executed with the MongoClient triggers either the sync or async variation of the
                 // MongoClient's IAuthenticator
@@ -389,7 +389,7 @@ namespace MongoDB.Driver.Tests
 
         private void AssertAuthenticationFails(MongoClientSettings settings, bool async)
         {
-            using (var client = DriverTestConfiguration.CreateDisposableclient(settings))
+            using (var client = DriverTestConfiguration.CreateDisposableClient(settings))
             {
                 Exception exception;
                 if (async)

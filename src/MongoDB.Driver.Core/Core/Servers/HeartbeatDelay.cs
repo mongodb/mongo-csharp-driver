@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -30,7 +31,10 @@ namespace MongoDB.Driver.Core.Servers
         // constructors
         public HeartbeatDelay(TimeSpan heartbeatInterval, TimeSpan minHeartbeatInterval)
         {
-            if (minHeartbeatInterval > heartbeatInterval) { minHeartbeatInterval = heartbeatInterval; }
+            if (heartbeatInterval != Timeout.InfiniteTimeSpan && minHeartbeatInterval > heartbeatInterval)
+            {
+                minHeartbeatInterval = heartbeatInterval;
+            }
             _timer = new Timer(TimerCallback, null, heartbeatInterval, Timeout.InfiniteTimeSpan);
             _earlyHeartbeatAt = DateTime.UtcNow + minHeartbeatInterval;
         }

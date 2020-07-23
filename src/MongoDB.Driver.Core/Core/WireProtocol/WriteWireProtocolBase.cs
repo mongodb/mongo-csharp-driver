@@ -60,6 +60,9 @@ namespace MongoDB.Driver.Core.WireProtocol
             get { return _writeConcern; }
         }
 
+        // public properties
+        public bool MoreToCome => false;
+
         // methods
         private BsonDocument CreateGetLastErrorCommand()
         {

@@ -49,6 +49,9 @@ namespace MongoDB.Driver.Core.WireProtocol
         private readonly CommandResponseHandling _responseHandling;
         private readonly IBsonSerializer<TCommandResult> _resultSerializer;
         private readonly ICoreSession _session;
+        // streamable fields
+        private bool _moreToCome = false; // MoreToCome from the previous response
+        private int _previousRequestId; // RequestId from the previous response
 
         // constructors
         public CommandUsingCommandMessageWireProtocol(
@@ -64,9 +67,11 @@ namespace MongoDB.Driver.Core.WireProtocol
             MessageEncoderSettings messageEncoderSettings,
             Action<IMessageEncoderPostProcessor> postWriteAction)
         {
-            if (responseHandling != CommandResponseHandling.Return && responseHandling != CommandResponseHandling.NoResponseExpected)
+            if (responseHandling != CommandResponseHandling.Return &&
+                responseHandling != CommandResponseHandling.NoResponseExpected &&
+                responseHandling != CommandResponseHandling.ExhaustAllowed)
             {
-                throw new ArgumentException("CommandResponseHandling must be Return or NoneExpected.", nameof(responseHandling));
+                throw new ArgumentException("CommandResponseHandling must be Return, NoneExpected or ExhaustAllowed.", nameof(responseHandling));
             }
 
             _session = Ensure.IsNotNull(session, nameof(session));
@@ -88,30 +93,47 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
         }
 
+        // public properties
+        public bool MoreToCome => _moreToCome;
+
         // public methods
         public TCommandResult Execute(IConnection connection, CancellationToken cancellationToken)
         {
             try
             {
-                var message = CreateCommandMessage(connection.Description);
-                message = AutoEncryptFieldsIfNecessary(message, connection, cancellationToken);
-
-                try
+                bool responseExpected;
+                int responseTo;
+                if (_moreToCome)
                 {
-                    connection.SendMessage(message, _messageEncoderSettings, cancellationToken);
+                    responseExpected = true;
+                    responseTo = _previousRequestId;
                 }
-                finally
+                else
                 {
-                    if (message.WasSent)
+                    var message = CreateCommandMessage(connection.Description);
+                    message = AutoEncryptFieldsIfNecessary(message, connection, cancellationToken);
+
+                    try
                     {
-                        MessageWasProbablySent(message);
+                        connection.SendMessage(message, _messageEncoderSettings, cancellationToken);
                     }
+                    finally
+                    {
+                        if (message.WasSent)
+                        {
+                            MessageWasProbablySent(message);
+                        }
+                    }
+
+                    responseExpected = message.WrappedMessage.ResponseExpected;
+                    responseTo = message.RequestId;
                 }
 
-                if (message.WrappedMessage.ResponseExpected)
+                if (responseExpected)
                 {
                     var encoderSelector = new CommandResponseMessageEncoderSelector();
-                    var response = (CommandResponseMessage)connection.ReceiveMessage(message.RequestId, encoderSelector, _messageEncoderSettings, cancellationToken);
+                    var response = (CommandResponseMessage)connection.ReceiveMessage(responseTo, encoderSelector, _messageEncoderSettings, cancellationToken);
+                    SaveResponseInfo(response);
                     response = AutoDecryptFieldsIfNecessary(response, cancellationToken);
                     return ProcessResponse(connection.ConnectionId, response.WrappedMessage);
                 }
@@ -133,25 +155,39 @@ namespace MongoDB.Driver.Core.WireProtocol
         {
             try
             {
-                var message = CreateCommandMessage(connection.Description);
-                message = await AutoEncryptFieldsIfNecessaryAsync(message, connection, cancellationToken).ConfigureAwait(false);
-
-                try
+                bool responseExpected;
+                int responseTo;
+                if (_moreToCome)
                 {
-                    await connection.SendMessageAsync(message, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
+                    responseExpected = true;
+                    responseTo = _previousRequestId;
                 }
-                finally
+                else
                 {
-                    if (message.WasSent)
+                    var message = CreateCommandMessage(connection.Description);
+                    message = await AutoEncryptFieldsIfNecessaryAsync(message, connection, cancellationToken).ConfigureAwait(false);
+
+                    try
                     {
-                        MessageWasProbablySent(message);
+                        await connection.SendMessageAsync(message, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
                     }
+                    finally
+                    {
+                        if (message.WasSent)
+                        {
+                            MessageWasProbablySent(message);
+                        }
+                    }
+
+                    responseExpected = message.WrappedMessage.ResponseExpected;
+                    responseTo = message.RequestId;
                 }
 
-                if (message.WrappedMessage.ResponseExpected)
+                if (responseExpected)
                 {
                     var encoderSelector = new CommandResponseMessageEncoderSelector();
-                    var response = (CommandResponseMessage)await connection.ReceiveMessageAsync(message.RequestId, encoderSelector, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
+                    var response = (CommandResponseMessage)await connection.ReceiveMessageAsync(responseTo, encoderSelector, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
+                    SaveResponseInfo(response);
                     response = await AutoDecryptFieldsIfNecessaryAsync(response, cancellationToken).ConfigureAwait(false);
                     return ProcessResponse(connection.ConnectionId, response.WrappedMessage);
                 }
@@ -253,10 +289,13 @@ namespace MongoDB.Driver.Core.WireProtocol
             var requestId = RequestMessage.GetNextRequestId();
             var responseTo = 0;
             var sections = CreateSections(connectionDescription);
-            var moreToCome = _responseHandling == CommandResponseHandling.NoResponseExpected;
-            var wrappedMessage = new CommandMessage(requestId, responseTo, sections, moreToCome)
+
+            var moreToComeRequest = _responseHandling == CommandResponseHandling.NoResponseExpected;
+
+            var wrappedMessage = new CommandMessage(requestId, responseTo, sections, moreToComeRequest)
             {
-                PostWriteAction = _postWriteAction
+                PostWriteAction = _postWriteAction,
+                ExhaustAllowed = _responseHandling == CommandResponseHandling.ExhaustAllowed,
             };
             var shouldBeSent = (Func<bool>)(() => true);
 
@@ -494,6 +533,12 @@ namespace MongoDB.Driver.Core.WireProtocol
                     }
                 }
             }
+        }
+
+        private void SaveResponseInfo(CommandResponseMessage response)
+        {
+            _previousRequestId = response.RequestId;
+            _moreToCome = response.WrappedMessage.MoreToCome;
         }
 
         private bool ShouldAddTransientTransactionError(MongoException exception)

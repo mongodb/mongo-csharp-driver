@@ -20,8 +20,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
     [Flags]
     internal enum OpMsgFlags
     {
-        ChecksumPresent = 1,
-        MoreToCome = 2,
-        All = 3
+        ChecksumPresent = 1 << 0,
+        MoreToCome = 1 << 1,
+        ExhaustAllowed = 1 << 16,
+        All = ChecksumPresent | MoreToCome | ExhaustAllowed
     }
 }

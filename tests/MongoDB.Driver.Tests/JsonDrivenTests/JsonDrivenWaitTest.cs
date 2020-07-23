@@ -1,4 +1,4 @@
-﻿/* Copyright 2019–present MongoDB Inc.
+﻿/* Copyright 2020-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,50 +13,39 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Bindings;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {
-    public sealed class JsonDrivenTargetedFailPointTest : JsonDrivenTestRunnerTest
+    public sealed class JsonDrivenWaitTest : JsonDrivenTestRunnerTest
     {
-        private BsonDocument _failCommand;
+        private TimeSpan _delay;
 
-
-        public JsonDrivenTargetedFailPointTest(IJsonDrivenTestRunner testRunner, Dictionary<string, object> objectMap)
+        public JsonDrivenWaitTest(IJsonDrivenTestRunner testRunner, Dictionary<string, object> objectMap)
             : base(testRunner, objectMap)
         {
         }
 
         protected override void CallMethod(CancellationToken cancellationToken)
         {
-            var pinnedServer = GetPinnedServer();
-            pinnedServer.Should().NotBeNull();
-            TestRunner.ConfigureFailPoint(pinnedServer, NoCoreSession.NewHandle(), _failCommand);
+            Thread.Sleep(_delay);
         }
 
         protected override Task CallMethodAsync(CancellationToken cancellationToken)
         {
-            var pinnedServer = GetPinnedServer();
-            pinnedServer.Should().NotBeNull();
-            return TestRunner.ConfigureFailPointAsync(pinnedServer, NoCoreSession.NewHandle(), _failCommand);
-        }
-
-        protected override void AssertResult()
-        {
-            // do nothing
+            return Task.Delay(_delay);
         }
 
         protected override void SetArgument(string name, BsonValue value)
         {
             switch (name)
             {
-                case "failPoint":
-                    _failCommand = (BsonDocument)value;
+                case "ms":
+                    _delay = TimeSpan.FromMilliseconds(value.ToInt32());
                     return;
             }
 

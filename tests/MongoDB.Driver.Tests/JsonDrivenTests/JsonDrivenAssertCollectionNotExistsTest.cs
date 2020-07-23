@@ -22,14 +22,14 @@ using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {
-    public class JsonDrivenAssertCollectionExists : JsonDrivenTestRunnerTest
+    public class JsonDrivenAssertCollectionNotExistsTest : JsonDrivenTestRunnerTest
     {
         // private fields
         private string _collectionName;
         private string _databaseName;
 
         // public constructors
-        public JsonDrivenAssertCollectionExists(IJsonDrivenTestRunner testRunner, Dictionary<string, object> objectMap)
+        public JsonDrivenAssertCollectionNotExistsTest(IJsonDrivenTestRunner testRunner, Dictionary<string, object> objectMap)
             : base(testRunner, objectMap)
         {
         }
@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         {
             var client = DriverTestConfiguration.Client;
             var collectionNames = client.GetDatabase(_databaseName).ListCollectionNames().ToList();
-            collectionNames.Should().Contain(_collectionName);
+            collectionNames.Should().NotContain(_collectionName);
         }
 
         // protected methods

@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
@@ -20,6 +21,7 @@ using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
 
@@ -49,7 +51,12 @@ namespace MongoDB.Driver.Tests
                 }
 
                 CommandStartedEvent sentCommand = ((CommandStartedEvent)eventCapturer.Events[0]);
-                var serverVersion = client.Cluster.Description.Servers[0].Version;
+                var serverVersion = client
+                    .Cluster
+                    .Description
+                    .Servers
+                    .First(s => s.State == ServerState.Connected) // some of nodes may not be initialized yet. So, we need to take only the connected one
+                    .Version;
                 var clusterType = client.Cluster.Description.Type;
 
                 var expectedContainsReadPreference = clusterType == ClusterType.Standalone ||

@@ -293,6 +293,7 @@ namespace MongoDB.Driver.Core.Servers
             var mockMonitorServerDescription = new ServerDescription(serverId, _endPoint);
             var mockServerMonitor = new Mock<IServerMonitor>();
             mockServerMonitor.SetupGet(m => m.Description).Returns(mockMonitorServerDescription);
+            mockServerMonitor.SetupGet(m => m.Lock).Returns(new object());
             var mockServerMonitorFactory = new Mock<IServerMonitorFactory>();
             mockServerMonitorFactory.Setup(f => f.Create(It.IsAny<ServerId>(), _endPoint)).Returns(mockServerMonitor.Object);
 
@@ -307,7 +308,7 @@ namespace MongoDB.Driver.Core.Servers
             }
             else
             {
-                exception  = Record.Exception(() => channel = subject.GetChannel(CancellationToken.None));
+                exception = Record.Exception(() => channel = subject.GetChannel(CancellationToken.None));
             }
 
             channel.Should().BeNull();
@@ -339,10 +340,10 @@ namespace MongoDB.Driver.Core.Servers
 
             var operationUsingChannelException = new MongoConnectionException(connectionId, "Oops", new IOException("Cry", innerMostException));
             var mockConnection = new Mock<IConnectionHandle>();
-            var isMasterResult = new IsMasterResult(new BsonDocument { {"compressors", new BsonArray()}});
+            var isMasterResult = new IsMasterResult(new BsonDocument { { "compressors", new BsonArray() } });
             // the server version doesn't matter when we're not testing MongoNotPrimaryExceptions, but is needed when
             // Server calls ShouldClearConnectionPoolForException
-            var buildInfoResult = new BuildInfoResult(new BsonDocument { {"version", "4.4.0"} });
+            var buildInfoResult = new BuildInfoResult(new BsonDocument { { "version", "4.4.0" } });
             mockConnection.SetupGet(c => c.Description)
                 .Returns(new ConnectionDescription(new ConnectionId(serverId, 0), isMasterResult, buildInfoResult));
             var mockConnectionPool = new Mock<IConnectionPool>();
@@ -355,6 +356,7 @@ namespace MongoDB.Driver.Core.Servers
             var mockMonitorServerInitialDescription = new ServerDescription(serverId, _endPoint).With(reasonChanged: "Initial D", type: ServerType.Unknown);
             var mockServerMonitor = new Mock<IServerMonitor>();
             mockServerMonitor.SetupGet(m => m.Description).Returns(mockMonitorServerInitialDescription);
+            mockServerMonitor.SetupGet(m => m.Lock).Returns(new object());
             var mockServerMonitorFactory = new Mock<IServerMonitorFactory>();
             mockServerMonitorFactory.Setup(f => f.Create(It.IsAny<ServerId>(), _endPoint)).Returns(mockServerMonitor.Object);
             var subject = new Server(_clusterId, _clusterClock, _clusterConnectionMode, _settings, _endPoint, mockConnectionPoolFactory.Object, mockServerMonitorFactory.Object, _capturedEvents);
@@ -529,7 +531,7 @@ namespace MongoDB.Driver.Core.Servers
             var serverId = new ServerId(clusterId, new DnsEndPoint("localhost", 27017));
             var connectionId = new ConnectionId(serverId);
             var command = new BsonDocument("command", 1);
-            var notMasterResult = new BsonDocument {{ "code", ServerErrorCode.NotMaster}};
+            var notMasterResult = new BsonDocument { { "code", ServerErrorCode.NotMaster } };
             var nodeIsRecoveringResult = new BsonDocument("code", ServerErrorCode.InterruptedAtShutdown);
 
             switch (exceptionTypeName)
@@ -542,7 +544,7 @@ namespace MongoDB.Driver.Core.Servers
                 case nameof(MongoNotPrimaryException): exception = new MongoNotPrimaryException(connectionId, command, nodeIsRecoveringResult); break;
                 case nameof(SocketException): exception = new SocketException(); break;
                 case "MongoConnectionExceptionWithSocketTimeout":
-                    var innermostException =  new SocketException((int)SocketError.TimedOut);
+                    var innermostException = new SocketException((int)SocketError.TimedOut);
                     var innerException = new IOException("Execute Order 66", innermostException);
                     exception = new MongoConnectionException(connectionId, "Yes, Lord Sidious", innerException);
                     break;
@@ -745,7 +747,7 @@ namespace MongoDB.Driver.Core.Servers
             out TopologyVersion responseTopologyVersion)
         {
             var methodInfo = typeof(Server).GetMethod(nameof(ShouldInvalidateServer), BindingFlags.NonPublic | BindingFlags.Instance);
-            var parameters = new object[] {connection, exception, description, null};
+            var parameters = new object[] { connection, exception, description, null };
             int outParameterIndex = Array.IndexOf(parameters, null);
             var shouldInvalidate = (bool)methodInfo.Invoke(server, parameters);
             responseTopologyVersion = (TopologyVersion)parameters[outParameterIndex];

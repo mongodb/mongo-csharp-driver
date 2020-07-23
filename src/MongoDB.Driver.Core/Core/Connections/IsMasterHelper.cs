@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -21,6 +22,8 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol;
 
 namespace MongoDB.Driver.Core.Connections
@@ -39,9 +42,19 @@ namespace MongoDB.Driver.Core.Connections
             return command.Add("compression", compressorsArray);
         }
 
-        internal static BsonDocument CreateCommand()
+        internal static BsonDocument CreateCommand(TopologyVersion topologyVersion = null, TimeSpan? maxAwaitTime = null)
         {
-            return new BsonDocument { { "isMaster", 1 } };
+            Ensure.That(
+                (topologyVersion == null && !maxAwaitTime.HasValue) ||
+                (topologyVersion != null && maxAwaitTime.HasValue),
+                $"Both {nameof(topologyVersion)} and {nameof(maxAwaitTime)} must be filled or null.");
+
+            return new BsonDocument
+            {
+                { "isMaster", 1 },
+                { "topologyVersion", () => topologyVersion.ToBsonDocument(), topologyVersion != null },
+                { "maxAwaitTimeMS", () => (long)maxAwaitTime.Value.TotalMilliseconds, maxAwaitTime.HasValue }
+            };
         }
 
         internal static BsonDocument CustomizeCommand(BsonDocument command, IReadOnlyList<IAuthenticator> authenticators)
@@ -49,12 +62,13 @@ namespace MongoDB.Driver.Core.Connections
             return authenticators.Count == 1 ? authenticators[0].CustomizeInitialIsMasterCommand(command) : command;
         }
 
-        internal static CommandWireProtocol<BsonDocument> CreateProtocol(BsonDocument isMasterCommand)
+        internal static CommandWireProtocol<BsonDocument> CreateProtocol(BsonDocument isMasterCommand, CommandResponseHandling commandResponseHandling = CommandResponseHandling.Return)
         {
             return new CommandWireProtocol<BsonDocument>(
                 databaseNamespace: DatabaseNamespace.Admin,
                 command: isMasterCommand,
                 slaveOk: true,
+                commandResponseHandling: commandResponseHandling,
                 resultSerializer: BsonDocumentSerializer.Instance,
                 messageEncoderSettings: null);
         }
@@ -66,7 +80,8 @@ namespace MongoDB.Driver.Core.Connections
         {
             try
             {
-                return new IsMasterResult(isMasterProtocol.Execute(connection, cancellationToken));
+                var isMasterResultDocument = isMasterProtocol.Execute(connection, cancellationToken);
+                return new IsMasterResult(isMasterResultDocument);
             }
             catch (MongoCommandException ex) when (ex.Code == 11)
             {
@@ -84,8 +99,8 @@ namespace MongoDB.Driver.Core.Connections
         {
             try
             {
-                var isMasterResult = await isMasterProtocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
-                return new IsMasterResult(isMasterResult);
+                var isMasterResultDocument = await isMasterProtocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
+                return new IsMasterResult(isMasterResultDocument);
             }
             catch (MongoCommandException ex) when (ex.Code == 11)
             {

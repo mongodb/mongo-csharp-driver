@@ -33,6 +33,8 @@ namespace MongoDB.Driver.Core.WireProtocol
     {
         // private fields
         private readonly BsonDocument _additionalOptions;
+        private IWireProtocol<TCommandResult> _cachedWireProtocol;
+        private ConnectionId _cachedConnectionId;
         private readonly BsonDocument _command;
         private readonly List<Type1CommandMessageSection> _commandPayloads;
         private readonly IElementNameValidator _commandValidator;
@@ -52,6 +54,23 @@ namespace MongoDB.Driver.Core.WireProtocol
             IBsonSerializer<TCommandResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings)
             : this(
+                databaseNamespace,
+                command,
+                slaveOk,
+                CommandResponseHandling.Return,
+                resultSerializer,
+                messageEncoderSettings)
+        {
+        }
+
+        public CommandWireProtocol(
+            DatabaseNamespace databaseNamespace,
+            BsonDocument command,
+            bool slaveOk,
+            CommandResponseHandling commandResponseHandling,
+            IBsonSerializer<TCommandResult> resultSerializer,
+            MessageEncoderSettings messageEncoderSettings)
+            : this(
                 NoCoreSession.Instance,
                 slaveOk ? ReadPreference.PrimaryPreferred : ReadPreference.Primary,
                 databaseNamespace,
@@ -60,7 +79,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 NoOpElementNameValidator.Instance,
                 null, // additionalOptions
                 null, // postWriteAction
-                CommandResponseHandling.Return,
+                commandResponseHandling,
                 resultSerializer,
                 messageEncoderSettings)
         {
@@ -79,9 +98,11 @@ namespace MongoDB.Driver.Core.WireProtocol
             IBsonSerializer<TCommandResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings)
         {
-            if (responseHandling != CommandResponseHandling.Return && responseHandling != CommandResponseHandling.NoResponseExpected)
+            if (responseHandling != CommandResponseHandling.Return &&
+                responseHandling != CommandResponseHandling.NoResponseExpected &&
+                responseHandling != CommandResponseHandling.ExhaustAllowed)
             {
-                throw new ArgumentException("CommandResponseHandling must be Return or NoneExpected.", nameof(responseHandling));
+                throw new ArgumentException("CommandResponseHandling must be Return, NoneExpected or ExhaustAllowed.", nameof(responseHandling));
             }
 
             _session = Ensure.IsNotNull(session, nameof(session));
@@ -96,6 +117,9 @@ namespace MongoDB.Driver.Core.WireProtocol
             _messageEncoderSettings = messageEncoderSettings;
             _postWriteAction = postWriteAction; // can be null
         }
+
+        // public properties
+        public bool MoreToCome => _cachedWireProtocol?.MoreToCome ?? false;
 
         // public methods
         public TCommandResult Execute(IConnection connection, CancellationToken cancellationToken)
@@ -147,14 +171,22 @@ namespace MongoDB.Driver.Core.WireProtocol
 
         private IWireProtocol<TCommandResult> CreateSupportedWireProtocol(IConnection connection)
         {
-            var serverVersion = connection.Description?.ServerVersion;
-            if (serverVersion != null && Feature.CommandMessage.IsSupported(serverVersion))
+            if (_cachedWireProtocol != null && _cachedConnectionId == connection.ConnectionId)
             {
-                return CreateCommandUsingCommandMessageWireProtocol();
+                return _cachedWireProtocol;
             }
             else
             {
-                return CreateCommandUsingQueryMessageWireProtocol();
+                _cachedConnectionId = connection.ConnectionId;
+                var serverVersion = connection.Description?.ServerVersion;
+                if (serverVersion != null && Feature.CommandMessage.IsSupported(serverVersion))
+                {
+                    return _cachedWireProtocol = CreateCommandUsingCommandMessageWireProtocol();
+                }
+                else
+                {
+                    return _cachedWireProtocol = CreateCommandUsingQueryMessageWireProtocol();
+                }
             }
         }
     }

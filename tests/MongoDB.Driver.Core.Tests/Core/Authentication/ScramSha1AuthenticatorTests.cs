@@ -186,8 +186,6 @@ namespace MongoDB.Driver.Core.Authentication
                 connection.EnqueueReplyMessage(saslLastStepReply);
             }
 
-            var expectedRequestId = RequestMessage.CurrentGlobalRequestId + 1;
-
             Exception exception;
             if (async)
             {
@@ -212,10 +210,6 @@ namespace MongoDB.Driver.Core.Authentication
             sentMessages.Count.Should().Be(expectedSentMessageCount);
 
             var actualRequestIds = sentMessages.Select(m => m["requestId"].AsInt32).ToList();
-            for (var i = 0; i != actualRequestIds.Count; ++i)
-            {
-                actualRequestIds[i].Should().BeInRange(expectedRequestId + i, expectedRequestId + 10 + i);
-            }
 
             var expectedMessages = new List<BsonDocument>();
 

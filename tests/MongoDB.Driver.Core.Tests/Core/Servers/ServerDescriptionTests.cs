@@ -14,9 +14,11 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Net;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using Xunit;
@@ -100,6 +102,46 @@ namespace MongoDB.Driver.Core.Servers
             subject.State.Should().Be(state);
             subject.Tags.Should().Be(tags);
             subject.Type.Should().Be(type);
+        }
+
+        [Theory]
+        [MemberData(nameof(Exception_equals_test_cases))]
+        public void Equals_for_exceptions_should_return_expected_result(Exception x, Exception y, bool expectedResult)
+        {
+            var result = ServerDescriptionReflector.Equals(x, y);
+            result.Should().Be(expectedResult);
+        }
+
+        public static IEnumerable<object[]> Exception_equals_test_cases()
+        {
+            yield return new object[] { null, null, true };
+
+            var exception = new Exception();
+            yield return new object[] { exception, exception, true };
+
+            yield return new object[] { null, exception, false };
+            yield return new object[] { exception, null, false };
+
+            yield return new object[] { exception, new ArgumentException(), false };
+            yield return new object[] { new ArgumentException(), exception, false };
+
+            var exceptionWithInnerException = new Exception("WithInnerException", exception);
+            yield return new object[] { exceptionWithInnerException, exception, false };
+            yield return new object[] { exception, exceptionWithInnerException, false };
+
+            var exceptionWithDifferentInnerException = new Exception("WithInnerException", new ArgumentException());
+            yield return new object[] { exceptionWithInnerException, exceptionWithDifferentInnerException, false };
+            yield return new object[] { exceptionWithDifferentInnerException, exceptionWithInnerException, false };
+
+            var exceptionWithALotInnerException = new Exception("main", new Exception("inner1", new Exception("inner3", new Exception())));
+            var exceptionWithALotInnerExceptionAndDifferentLastMessage = new Exception("main", new Exception("inner1", new Exception("differentInner3", new Exception())));
+            yield return new object[] { exceptionWithALotInnerException, exceptionWithALotInnerExceptionAndDifferentLastMessage, false };
+            yield return new object[] { exceptionWithALotInnerExceptionAndDifferentLastMessage, exceptionWithALotInnerException, false };
+
+            var exceptionWithStackTrace = new TestException("ex", "stack");
+            var exceptionWithDifferentStackTrace = new TestException("ex", "stackDiff");
+            yield return new object[] { exceptionWithStackTrace, exceptionWithDifferentStackTrace, false };
+            yield return new object[] { exceptionWithDifferentStackTrace, exceptionWithStackTrace, false };
         }
 
         [Theory]
@@ -299,7 +341,7 @@ namespace MongoDB.Driver.Core.Servers
                 case "AverageRoundTripTime": averageRoundTripTime = averageRoundTripTime.Add(TimeSpan.FromSeconds(1)); break;
                 case "CanonicalEndPoint": canonicalEndPoint = new DnsEndPoint("localhost", 27018); break;
                 case "ElectionId": electionId = new ElectionId(ObjectId.Empty); break;
-                case "HeartbeatException": heartbeatException = new Exception(); break;
+                case "HeartbeatException": heartbeatException = new Exception("NewMessage"); break;
                 case "HeartbeatInterval": heartbeatInterval = TimeSpan.FromSeconds(11); break;
                 case "LastUpdateTimestamp": lastUpdateTimestamp = lastUpdateTimestamp.Add(TimeSpan.FromSeconds(1)); break;
                 case "LastWriteTimestamp": lastWriteTimestamp = lastWriteTimestamp.Add(TimeSpan.FromSeconds(1)); break;
@@ -381,6 +423,35 @@ namespace MongoDB.Driver.Core.Servers
                 wireVersionRange: wireVersionRange);
 
             result.ShouldBeEquivalentTo(subject);
+        }
+
+        // nested types
+#pragma warning disable CA1064 // Exceptions should be public
+        private class TestException : Exception
+#pragma warning restore CA1064 // Exceptions should be public
+        {
+            private string _emulatedStackTrace;
+
+            public TestException(string message, string stackTrace) : base(message)
+            {
+                _emulatedStackTrace = stackTrace;
+            }
+
+            public override string StackTrace
+            {
+                get
+                {
+                    return _emulatedStackTrace;
+                }
+            }
+        }
+    }
+
+    internal static class ServerDescriptionReflector
+    {
+        public static bool Equals(this ServerDescription serverDescription, Exception x, Exception y)
+        {
+            return (bool)Reflector.InvokeStatic(typeof(ServerDescription), nameof(Equals), x, y);
         }
     }
 }

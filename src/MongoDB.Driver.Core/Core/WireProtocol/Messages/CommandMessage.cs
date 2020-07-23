@@ -44,6 +44,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         };
 
         // fields
+        private bool _exhaustAllowed;
         private bool _moreToCome;
         private Action<IMessageEncoderPostProcessor> _postWriteAction;
         private readonly int _requestId;
@@ -76,6 +77,18 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         }
 
         // public properties
+        /// <summary>
+        /// Gets or sets a value indicating whether multiple responses might be returned from the server or not.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if the server might return multiple responses; otherwise, <c>false</c>.
+        /// </value>
+        public bool ExhaustAllowed
+        {
+            get { return _exhaustAllowed; }
+            set { _exhaustAllowed = value; }
+        }
+
         /// <inheritdoc />
         public override bool MayBeCompressed
         {

@@ -122,14 +122,16 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 
         [Theory]
         [ParameterAttributeData]
-        public void ReadMessage_should_read_moreToCome(
+        public void ReadMessage_should_read_flags(
+            [Values(false, true)] bool exhaustAllowed,
             [Values(false, true)] bool moreToCome)
         {
-            var bytes = CreateMessageBytes(moreToCome: moreToCome);
+            var bytes = CreateMessageBytes(moreToCome: moreToCome, exhaustAllowed: exhaustAllowed);
             var subject = CreateSubject(bytes);
 
             var result = subject.ReadMessage();
 
+            result.ExhaustAllowed.Should().Be(exhaustAllowed);
             result.MoreToCome.Should().Be(moreToCome);
         }
 
@@ -322,17 +324,19 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         [Theory]
         [ParameterAttributeData]
         public void WriteMessage_should_write_flags(
-            [Values(false, true)] bool moreToCome)
+            [Values(false, true)] bool moreToCome,
+            [Values(false, true)] bool exhaustAllowed)
         {
-            var message = CreateMessage(moreToCome: moreToCome);
+            var message = CreateMessage(moreToCome: moreToCome, exhaustAllowed: exhaustAllowed);
             var stream = new MemoryStream();
             var subject = CreateSubject(stream);
 
             subject.WriteMessage(message);
-            var result = stream.ToArray();
 
-            var flags = BitConverter.ToInt32(result, 16);
-            flags.Should().Be(moreToCome ? 2 : 0);
+            var result = stream.ToArray();
+            var flags = (OpMsgFlags)BitConverter.ToInt32(result, 16);
+            flags.HasFlag(OpMsgFlags.MoreToCome).Should().Be(moreToCome);
+            flags.HasFlag(OpMsgFlags.ExhaustAllowed).Should().Be(exhaustAllowed);
         }
 
         [Theory]
@@ -414,7 +418,16 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         // private methods
         private int CreateFlags(CommandMessage message)
         {
-            return message.MoreToCome ? (int)OpMsgFlags.MoreToCome : 0;
+            var flags = (OpMsgFlags)0;
+            if (message.MoreToCome)
+            {
+                flags |= OpMsgFlags.MoreToCome;
+            }
+            if (message.ExhaustAllowed)
+            {
+                flags |= OpMsgFlags.ExhaustAllowed;
+            }
+            return (int)flags;
         }
 
         private byte[] CreateHeaderBytes(int messageLength, int requestId, int responseTo, int flags)
@@ -435,10 +448,14 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             int requestId = 0,
             int responseTo = 0,
             IEnumerable<CommandMessageSection> sections = null,
-            bool moreToCome = false)
+            bool moreToCome = false,
+            bool exhaustAllowed = false)
         {
             sections = sections ?? new[] { CreateType0Section() };
-            return new CommandMessage(requestId, responseTo, sections, moreToCome);
+            return new CommandMessage(requestId, responseTo, sections, moreToCome)
+            {
+                ExhaustAllowed = exhaustAllowed
+            };
         }
 
         private byte[] CreateMessageBytes(byte[] header, byte[][] sections)
@@ -467,9 +484,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             int requestId = 0,
             int responseTo = 0,
             IEnumerable<CommandMessageSection> sections = null,
-            bool moreToCome = false)
+            bool moreToCome = false,
+            bool exhaustAllowed = false)
         {
-            var message = CreateMessage(requestId, responseTo, sections, moreToCome);
+            var message = CreateMessage(requestId, responseTo, sections, moreToCome, exhaustAllowed);
             return CreateMessageBytes(message);
         }
 

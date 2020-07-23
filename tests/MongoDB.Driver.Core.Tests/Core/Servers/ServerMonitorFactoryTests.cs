@@ -24,6 +24,6 @@ namespace MongoDB.Driver.Core.Servers
     {
         internal static IConnectionFactory _connectionFactory(this ServerMonitorFactory obj) => (IConnectionFactory)Reflector.GetFieldValue(obj, nameof(_connectionFactory));
         internal static IEventSubscriber _eventSubscriber(this ServerMonitorFactory obj) => (IEventSubscriber)Reflector.GetFieldValue(obj, nameof(_eventSubscriber));
-        internal static ServerSettings _settings(this ServerMonitorFactory obj) => (ServerSettings)Reflector.GetFieldValue(obj, nameof(_settings));
+        internal static ServerMonitorSettings _serverMonitorSettings(this ServerMonitorFactory obj) => (ServerMonitorSettings)Reflector.GetFieldValue(obj, nameof(_serverMonitorSettings));
     }
 }

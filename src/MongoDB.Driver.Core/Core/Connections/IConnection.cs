@@ -15,12 +15,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -80,6 +77,12 @@ namespace MongoDB.Driver.Core.Connections
         /// The connection settings.
         /// </value>
         ConnectionSettings Settings { get; }
+
+        /// <summary>
+        /// Set read timeout value.
+        /// </summary>
+        /// <param name="timeout">The timeout.</param>
+        void SetReadTimeout(TimeSpan timeout);
 
         // methods
         /// <summary>

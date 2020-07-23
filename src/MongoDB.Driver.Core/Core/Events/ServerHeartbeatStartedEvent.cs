@@ -24,16 +24,24 @@ namespace MongoDB.Driver.Core.Events
     /// </summary>
     public struct ServerHeartbeatStartedEvent
     {
+        private readonly bool _awaited;
         private readonly ConnectionId _connectionId;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ServerHeartbeatStartedEvent"/> struct.
         /// </summary>
         /// <param name="connectionId">The connection identifier.</param>
-        public ServerHeartbeatStartedEvent(ConnectionId connectionId)
+        /// <param name="awaited">The awaited flag.</param>
+        public ServerHeartbeatStartedEvent(ConnectionId connectionId, bool awaited)
         {
+            _awaited = awaited;
             _connectionId = connectionId;
         }
+
+        /// <summary>
+        /// Determines if this heartbeat event is for an awaitable isMaster.
+        /// </summary>
+        public bool Awaited => _awaited;
 
         /// <summary>
         /// Gets the cluster identifier.

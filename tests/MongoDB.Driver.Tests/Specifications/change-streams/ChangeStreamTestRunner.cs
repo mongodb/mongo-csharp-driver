@@ -192,6 +192,7 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
         {
             return DriverTestConfiguration.CreateDisposableClient((MongoClientSettings settings) =>
             {
+                settings.HeartbeatInterval = TimeSpan.FromMilliseconds(5); // the default value for spec tests
                 settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
             });
         }

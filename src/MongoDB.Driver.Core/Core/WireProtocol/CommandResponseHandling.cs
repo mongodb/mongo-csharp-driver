@@ -38,6 +38,10 @@ namespace MongoDB.Driver.Core.WireProtocol
         /// <summary>
         /// No response is expected from the server.
         /// </summary>
-        NoResponseExpected
+        NoResponseExpected,
+        /// <summary>
+        /// Multiple responses might be returned from the server (the ExhaustAllowed flag will be set).
+        /// </summary>
+        ExhaustAllowed
     }
 }

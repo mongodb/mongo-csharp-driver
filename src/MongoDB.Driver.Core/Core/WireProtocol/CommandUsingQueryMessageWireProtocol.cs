@@ -82,6 +82,9 @@ namespace MongoDB.Driver.Core.WireProtocol
             _postWriteAction = postWriteAction; // can be null
         }
 
+        // public properties
+        public bool MoreToCome => false;
+
         // methods
         private QueryMessage CreateMessage(ConnectionDescription connectionDescription, out bool messageContainsSessionId)
         {
