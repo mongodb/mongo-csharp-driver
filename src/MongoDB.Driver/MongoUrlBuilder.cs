@@ -67,7 +67,7 @@ namespace MongoDB.Driver
         private IEnumerable<MongoServerAddress> _servers;
         private TimeSpan _serverSelectionTimeout;
         private TimeSpan _socketTimeout;
-        private bool _tlsDisableCertificateRevocationCheck;
+        private bool? _tlsDisableCertificateRevocationCheck;
         private string _username;
         private bool _useTls;
         private WriteConcern.WValue _w;
@@ -551,7 +551,7 @@ namespace MongoDB.Driver
         /// </summary>
         public bool TlsDisableCertificateRevocationCheck
         {
-            get => _tlsDisableCertificateRevocationCheck;
+            get => _tlsDisableCertificateRevocationCheck.GetValueOrDefault(true);
             set => _tlsDisableCertificateRevocationCheck = value;
         }
 
@@ -783,8 +783,7 @@ namespace MongoDB.Driver
             });
             _serverSelectionTimeout = connectionString.ServerSelectionTimeout.GetValueOrDefault(MongoDefaults.ServerSelectionTimeout);
             _socketTimeout = connectionString.SocketTimeout.GetValueOrDefault(MongoDefaults.SocketTimeout);
-            _tlsDisableCertificateRevocationCheck =
-                connectionString.TlsDisableCertificateRevocationCheck.GetValueOrDefault(false);
+            _tlsDisableCertificateRevocationCheck = connectionString.TlsDisableCertificateRevocationCheck;
             _username = connectionString.Username;
             _useTls = connectionString.Tls.GetValueOrDefault(false);
             _w = connectionString.W;
@@ -907,9 +906,9 @@ namespace MongoDB.Driver
                 query.AppendFormat("tlsInsecure=true;");
             }
 
-            if (_tlsDisableCertificateRevocationCheck)
+            if (_tlsDisableCertificateRevocationCheck != null)
             {
-                query.AppendFormat("tlsDisableCertificateRevocationCheck=true;");
+                query.AppendFormat("tlsDisableCertificateRevocationCheck={0};", JsonConvert.ToString(_tlsDisableCertificateRevocationCheck.Value));
             }
 
             if (_compressors?.Any() ?? false)

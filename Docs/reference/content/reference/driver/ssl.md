@@ -45,21 +45,21 @@ var settings = new MongoClientSettings
 ### Certificate Revocation Checking
 
 #### Default behavior
-The .NET Driver now **enables** certificate revocation checking by
+The .NET Driver now **disables** certificate revocation checking by
 default, setting [`CheckCertificateRevocation`]({{< apiref
 "P_MongoDB_Driver_SslSettings_CheckCertificateRevocation">}}) in
 [`SslSettings`]({{< apiref "T_MongoDB_Driver_SslSettings" >}}) to
-`true` by default. This is in contrast to .NET's defaults for
+`false` by default. This correlates to .NET's defaults for
 `SslStream` (see .NET Framework documentation
 [here](https://docs.microsoft.com/en-us/dotnet/api/system.net.security.sslstream.authenticateasclient?view=netframework-4.7.2#System_Net_Security_SslStream_AuthenticateAsClient_System_String_)
 and .NET Standard documentation
 [here](https://docs.microsoft.com/en-us/dotnet/api/system.net.security.sslstream.authenticateasclient?view=netstandard-2.0#System_Net_Security_SslStream_AuthenticateAsClient_System_String_)).
-Any applications relying on the older default of `false` now must
+Applications relying on the intermediate default of `true` (introduced in beta driver releases 2.11.0-beta1 and 2.11.0-beta2) must
 explicitly set [`CheckCertificateRevocation`]({{< apiref
 "P_MongoDB_Driver_SslSettings_CheckCertificateRevocation">}}) to
-`false` in [`SslSettings`]({{< apiref "T_MongoDB_Driver_SslSettings"
->}}) to disable certificate revocation checking. Alternatively,
-applications may also set `tlsDisableCertificateRevocationCheck=true`
+`true` in [`SslSettings`]({{< apiref "T_MongoDB_Driver_SslSettings"
+>}}) to enable certificate revocation checking. Alternatively,
+applications may also set `tlsDisableCertificateRevocationCheck=false`
 in their connection string.  See
 [tlsDisableCertificateRevocationCheck](#tlsDisableCertificateRevocationCheck)
 for more information.

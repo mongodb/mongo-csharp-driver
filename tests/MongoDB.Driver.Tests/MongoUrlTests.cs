@@ -245,7 +245,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(new MongoServerAddress("host", 27017), url.Server);
                 Assert.Equal(TimeSpan.FromSeconds(10), url.ServerSelectionTimeout);
                 Assert.Equal(TimeSpan.FromSeconds(7), url.SocketTimeout);
-                url.TlsDisableCertificateRevocationCheck.Should().Be(false);
+                Assert.Equal(true, url.TlsDisableCertificateRevocationCheck);
                 Assert.Equal("username", url.Username);
 #pragma warning disable 618
                 Assert.Equal(true, url.UseSsl);

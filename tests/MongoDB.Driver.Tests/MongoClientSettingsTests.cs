@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Tests
                 "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;readConcernLevel=majority;" +
                 "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;socketTimeout=129;" +
                 "serverSelectionTimeout=20s;ssl=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
-                "w=1;fsync=true;journal=true;w=2;wtimeout=131;gssapiServiceName=other;tlsInsecure=true";
+                "w=1;fsync=true;journal=true;w=2;wtimeout=131;gssapiServiceName=other";
 #pragma warning disable 618
             if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
             {
@@ -95,7 +95,6 @@ namespace MongoDB.Driver.Tests
             var builder = new MongoUrlBuilder(connectionString);
             var url = builder.ToMongoUrl();
             var settings = MongoClientSettings.FromUrl(url);
-
             // a few settings can only be made in code
 #pragma warning disable 618
             settings.Credential = MongoCredential.CreateMongoCRCredential("database", "username", "password").WithMechanismProperty("SERVICE_NAME", "other");
@@ -104,7 +103,34 @@ namespace MongoDB.Driver.Tests
             settings.SdamLogFilename = "stdout";
 
             var clone = settings.Clone();
+
             Assert.Equal(settings, clone);
+        }
+
+        [Fact]
+        public void TestCloneTlsDisableCertificateRevocationCheck()
+        {
+            var connectionString = "mongodb://somehost/?tlsDisableCertificateRevocationCheck=true";
+            var builder = new MongoUrlBuilder(connectionString);
+            var url = builder.ToMongoUrl();
+            var settings = MongoClientSettings.FromUrl(url);
+
+            var clone = settings.Clone();
+
+            clone.Should().Be(settings);
+        }
+
+        [Fact]
+        public void TestCloneTlsInsecure()
+        {
+            var connectionString = "mongodb://somehost/?tlsInsecure=true";
+            var builder = new MongoUrlBuilder(connectionString);
+            var url = builder.ToMongoUrl();
+            var settings = MongoClientSettings.FromUrl(url);
+
+            var clone = settings.Clone();
+
+            clone.Should().Be(settings);
         }
 
         [Fact]
@@ -398,12 +424,14 @@ namespace MongoDB.Driver.Tests
         public void TestFromUrl()
         {
             // set everything to non default values to test that all settings are converted
+            // with the exception of tlsDisableCertificateRevocationCheck because setting that with tlsInsecure is
+            // not allowed in a connection string
             var connectionString =
                 "mongodb://user1:password1@somehost/?appname=app1;authSource=db;authMechanismProperties=CANONICALIZE_HOST_NAME:true;" +
                 "compressors=zlib,snappy;zlibCompressionLevel=9;connect=direct;connectTimeout=123;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;localThreshold=128;" +
                 "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;readConcernLevel=majority;" +
                 "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;retryReads=false;retryWrites=true;socketTimeout=129;" +
-                "serverSelectionTimeout=20s;tls=true;tlsInsecure=true;waitqueuesize=130;waitQueueTimeout=131;" +
+                "serverSelectionTimeout=20s;tls=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
                 "w=1;fsync=true;journal=true;w=2;wtimeout=131;gssapiServiceName=other";
 #pragma warning disable 618
             if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
@@ -415,6 +443,7 @@ namespace MongoDB.Driver.Tests
             var url = builder.ToMongoUrl();
 
             var settings = MongoClientSettings.FromUrl(url);
+
             Assert.Equal(url.AllowInsecureTls, settings.AllowInsecureTls);
             Assert.Equal(url.ApplicationName, settings.ApplicationName);
             Assert.Equal(url.Compressors, settings.Compressors);
@@ -453,19 +482,42 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(url.ServerSelectionTimeout, settings.ServerSelectionTimeout);
             Assert.Equal(url.SocketTimeout, settings.SocketTimeout);
 #pragma warning disable 618
-            settings.SslSettings.Should().BeNull();
+            Assert.Equal(url.TlsDisableCertificateRevocationCheck, !settings.SslSettings.CheckCertificateRevocation);
             Assert.Equal(url.UseSsl, settings.UseSsl);
 #pragma warning restore 618
             Assert.Equal(url.UseTls, settings.UseTls);
 #pragma warning disable 618
             Assert.Equal(url.VerifySslCertificate, settings.VerifySslCertificate);
 #pragma warning restore 618
-
 #pragma warning disable 618
             Assert.Equal(url.ComputedWaitQueueSize, settings.WaitQueueSize);
 #pragma warning restore 618
             Assert.Equal(url.WaitQueueTimeout, settings.WaitQueueTimeout);
             Assert.Equal(url.GetWriteConcern(true), settings.WriteConcern);
+        }
+
+        [Fact]
+        public void TestFromUrlTlsDisableCertificateRevocationCheck()
+        {
+            var connectionString = "mongodb://the-next-generation/?tlsDisableCertificateRevocationCheck=true";
+            var builder = new MongoUrlBuilder(connectionString);
+            var url = builder.ToMongoUrl();
+
+            var settings = MongoClientSettings.FromUrl(url);
+
+            settings.SslSettings.Should().Be(new SslSettings { CheckCertificateRevocation = !url.TlsDisableCertificateRevocationCheck });
+        }
+
+        [Fact]
+        public void TestFromUrlTlsInsecure()
+        {
+            var connectionString = "mongodb://the-next-generation/?tlsInsecure=true";
+            var builder = new MongoUrlBuilder(connectionString);
+            var url = builder.ToMongoUrl();
+
+            var settings = MongoClientSettings.FromUrl(url);
+
+            settings.AllowInsecureTls.Should().Be(url.AllowInsecureTls);
         }
 
         [Fact]

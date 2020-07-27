@@ -113,7 +113,34 @@ namespace MongoDB.Driver.Tests
             settings.SdamLogFilename = "unimatrix-zero";
 
             var clone = settings.Clone();
+
             Assert.Equal(settings, clone);
+        }
+
+        [Fact]
+        public void TestCloneTlsDisableCertificateRevocationCheck()
+        {
+            var connectionString = "mongodb://somehost/?tlsDisableCertificateRevocationCheck=true";
+            var builder = new MongoUrlBuilder(connectionString);
+            var url = builder.ToMongoUrl();
+            var settings = MongoServerSettings.FromUrl(url);
+
+            var clone = settings.Clone();
+
+            clone.Should().Be(settings);
+        }
+
+        [Fact]
+        public void TestCloneTlsInsecure()
+        {
+            var connectionString = "mongodb://somehost/?tlsInsecure=true";
+            var builder = new MongoUrlBuilder(connectionString);
+            var url = builder.ToMongoUrl();
+            var settings = MongoServerSettings.FromUrl(url);
+
+            var clone = settings.Clone();
+
+            clone.Should().Be(settings);
         }
 
         [Fact]
@@ -414,6 +441,7 @@ namespace MongoDB.Driver.Tests
             clientSettings.SdamLogFilename = "section-31";
 
             var settings = MongoServerSettings.FromClientSettings(clientSettings);
+
             Assert.Equal(url.AllowInsecureTls, settings.AllowInsecureTls);
             Assert.Equal(url.ApplicationName, settings.ApplicationName);
             Assert.Equal(url.ConnectionMode, settings.ConnectionMode);
@@ -450,7 +478,7 @@ namespace MongoDB.Driver.Tests
             Assert.True(url.Servers.SequenceEqual(settings.Servers));
             Assert.Equal(url.ServerSelectionTimeout, settings.ServerSelectionTimeout);
             Assert.Equal(url.SocketTimeout, settings.SocketTimeout);
-            settings.SslSettings.Should().BeNull();
+            Assert.Equal(url.TlsDisableCertificateRevocationCheck, !settings.SslSettings.CheckCertificateRevocation);
 #pragma warning disable 618
             Assert.Equal(url.UseSsl, settings.UseSsl);
 #pragma warning restore 618
@@ -472,11 +500,23 @@ namespace MongoDB.Driver.Tests
             var builder = new MongoUrlBuilder(connectionString);
             var url = builder.ToMongoUrl();
             var clientSettings = MongoClientSettings.FromUrl(url);
-            clientSettings.SdamLogFilename = "section-31";
 
             var settings = MongoServerSettings.FromClientSettings(clientSettings);
-            settings.SslSettings.Should().Be(
-                new SslSettings { CheckCertificateRevocation = !url.TlsDisableCertificateRevocationCheck });
+
+            settings.SslSettings.Should().Be(new SslSettings { CheckCertificateRevocation = !url.TlsDisableCertificateRevocationCheck });
+        }
+
+        [Fact]
+        public void TestFromClientSettingsTlsInsecure()
+        {
+            var connectionString = "mongodb://lcars/?tlsInsecure=true";
+            var builder = new MongoUrlBuilder(connectionString);
+            var url = builder.ToMongoUrl();
+            var clientSettings = MongoClientSettings.FromUrl(url);
+
+            var settings = MongoServerSettings.FromClientSettings(clientSettings);
+
+            settings.AllowInsecureTls.Should().BeTrue();
         }
 
         [Fact]
@@ -502,6 +542,7 @@ namespace MongoDB.Driver.Tests
             var url = builder.ToMongoUrl();
 
             var settings = MongoServerSettings.FromUrl(url);
+
             Assert.Equal(url.AllowInsecureTls, settings.AllowInsecureTls);
             Assert.Equal(url.ApplicationName, settings.ApplicationName);
             Assert.Equal(url.ConnectionMode, settings.ConnectionMode);
@@ -535,12 +576,14 @@ namespace MongoDB.Driver.Tests
             Assert.True(url.Servers.SequenceEqual(settings.Servers));
             Assert.Equal(url.ServerSelectionTimeout, settings.ServerSelectionTimeout);
             Assert.Equal(url.SocketTimeout, settings.SocketTimeout);
-            settings.SslSettings.Should().BeNull();
+            Assert.Equal(url.TlsDisableCertificateRevocationCheck, !settings.SslSettings.CheckCertificateRevocation);
 #pragma warning disable 618
             Assert.Equal(url.UseSsl, settings.UseSsl);
-            Assert.Equal(url.VerifySslCertificate, settings.VerifySslCertificate);
 #pragma warning restore 618
             Assert.Equal(url.UseTls, settings.UseTls);
+#pragma warning disable 618
+            Assert.Equal(url.VerifySslCertificate, settings.VerifySslCertificate);
+#pragma warning restore 618
 #pragma warning disable 618
             Assert.Equal(url.ComputedWaitQueueSize, settings.WaitQueueSize);
 #pragma warning restore 618
@@ -556,7 +599,20 @@ namespace MongoDB.Driver.Tests
             var url = builder.ToMongoUrl();
 
             var settings = MongoServerSettings.FromUrl(url);
+
             settings.SslSettings.Should().Be(new SslSettings { CheckCertificateRevocation = !url.TlsDisableCertificateRevocationCheck });
+        }
+
+        [Fact]
+        public void TestFromUrlTlsInsecure()
+        {
+            var connectionString = "mongodb://unimatrix-zero/?tlsInsecure=true";
+            var builder = new MongoUrlBuilder(connectionString);
+            var url = builder.ToMongoUrl();
+
+            var settings = MongoServerSettings.FromUrl(url);
+
+            settings.AllowInsecureTls.Should().Be(url.AllowInsecureTls);
         }
 
         [Fact]

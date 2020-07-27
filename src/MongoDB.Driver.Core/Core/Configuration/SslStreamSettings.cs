@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<SslProtocols> enabledProtocols = default(Optional<SslProtocols>),
             Optional<RemoteCertificateValidationCallback> serverCertificateValidationCallback = default(Optional<RemoteCertificateValidationCallback>))
         {
-            _checkCertificateRevocation = checkCertificateRevocation.WithDefault(true);
+            _checkCertificateRevocation = checkCertificateRevocation.WithDefault(false);
             _clientCertificates = Ensure.IsNotNull(clientCertificates.WithDefault(Enumerable.Empty<X509Certificate>()), "clientCertificates").ToList();
             _clientCertificateSelectionCallback = clientCertificateSelectionCallback.WithDefault(null);
             _enabledSslProtocols = enabledProtocols.WithDefault(SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls);
