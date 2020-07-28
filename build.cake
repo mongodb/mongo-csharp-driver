@@ -1,6 +1,6 @@
-#addin "nuget:?package=Cake.FileHelpers&version=3.1.0"
-#addin "nuget:?package=Cake.Git&version=0.19.0"
-#addin "nuget:?package=Cake.Incubator&version=3.1.0"
+#addin "nuget:?package=Cake.FileHelpers&version=3.3.0"
+#addin "nuget:?package=Cake.Git&version=0.22.0"
+#addin "nuget:?package=Cake.Incubator&version=5.1.0"
 #tool "nuget:?package=GitVersion.CommandLine&version=4.0.0"
 #tool "nuget:?package=xunit.runner.console"
 
@@ -173,6 +173,42 @@ Task("TestAwsAuthentication")
                     Configuration = configuration,
                     ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
                     Filter = "Category=\"AwsMechanism\""
+                }
+            );
+        });
+
+Task("TestPlainAuthentication")
+    .IsDependentOn("Build")
+    .DoesForEach(
+        GetFiles("./**/MongoDB.Driver.Tests.csproj"),
+        testProject =>
+        {
+            DotNetCoreTest(
+                testProject.FullPath,
+                new DotNetCoreTestSettings {
+                    NoBuild = true,
+                    NoRestore = true,
+                    Configuration = configuration,
+                    ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
+                    Filter = "Category=\"PlainMechanism\""
+                }
+            );
+        });
+
+Task("TestGSSAPIAuthentication")
+    .IsDependentOn("Build")
+    .DoesForEach(
+        GetFiles("./**/MongoDB.Driver.Tests.csproj"),
+        testProject =>
+        {
+            DotNetCoreTest(
+                testProject.FullPath,
+                new DotNetCoreTestSettings {
+                    NoBuild = true,
+                    NoRestore = true,
+                    Configuration = configuration,
+                    ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
+                    Filter = "Category=\"GssapiMechanism\""
                 }
             );
         });

@@ -97,5 +97,9 @@ fi
 if $SHOW_VERSION; then
     exec mono "$CAKE_EXE" -version
 else
+    echo "Installing .NET Core"
+    ./dotnet-install.sh --channel 1.0
+    ./dotnet-install.sh --channel 2.0
+    echo "Executing build."
     exec mono "$CAKE_EXE" $SCRIPT -verbosity=$VERBOSITY -configuration=$CONFIGURATION -target=$TARGET $DRYRUN "${SCRIPT_ARGUMENTS[@]}"
 fi

@@ -110,18 +110,34 @@ if [ "$TOPOLOGY" == "sharded_cluster" ]; then
   echo "Final MongoDB URI with multiple mongoses: $MONGODB_URI_WITH_MULTIPLE_MONGOSES"
 fi
 for var in TMP TEMP NUGET_PACKAGES NUGET_HTTP_CACHE_PATH APPDATA; do
-  export $var=z:\\data\\tmp;
+  if [ "$OSTYPE" = "cygwin" ]; then
+    export $var=z:\\data\\tmp;
+  else
+    export $var=/data/tmp;
+  fi
 done
 
 if [[ "$CLIENT_PEM" != "nil" ]]; then
   CLIENT_PEM=${CLIENT_PEM} source evergreen/convert-client-cert-to-pkcs12.sh
 fi
 
-if [[ -z "$MONGO_X509_CLIENT_CERTIFICATE_PATH" && -z "$MONGO_X509_CLIENT_CERTIFICATE_PASSWORD" ]]; then
-  powershell.exe '.\build.ps1 -target' $TARGET
+if [ "$OSTYPE" = "cygwin" ]; then
+  export DRIVERS_TOOLS=$(cygpath -m $DRIVERS_TOOLS)
+  if [[ -z "$MONGO_X509_CLIENT_CERTIFICATE_PATH" && -z "$MONGO_X509_CLIENT_CERTIFICATE_PASSWORD" ]]; then
+    powershell.exe '.\build.ps1 -target' $TARGET
+  else
+    powershell.exe \
+      '$env:MONGO_X509_CLIENT_CERTIFICATE_PATH="'${MONGO_X509_CLIENT_CERTIFICATE_PATH}'";'\
+      '$env:MONGO_X509_CLIENT_CERTIFICATE_PASSWORD="'${MONGO_X509_CLIENT_CERTIFICATE_PASSWORD}'";'\
+      '.\build.ps1 -target' $TARGET
+  fi
 else
-  powershell.exe \
-    '$env:MONGO_X509_CLIENT_CERTIFICATE_PATH="'${MONGO_X509_CLIENT_CERTIFICATE_PATH}'";'\
-    '$env:MONGO_X509_CLIENT_CERTIFICATE_PASSWORD="'${MONGO_X509_CLIENT_CERTIFICATE_PASSWORD}'";'\
-    '.\build.ps1 -target' $TARGET
+  mono --version
+  if [[ -z "$MONGO_X509_CLIENT_CERTIFICATE_PATH" && -z "$MONGO_X509_CLIENT_CERTIFICATE_PASSWORD" ]]; then
+    ./build.sh -target=$TARGET
+  else
+    MONGO_X509_CLIENT_CERTIFICATE_PATH="'${MONGO_X509_CLIENT_CERTIFICATE_PATH}'" \
+    MONGO_X509_CLIENT_CERTIFICATE_PASSWORD="'${MONGO_X509_CLIENT_CERTIFICATE_PASSWORD}'" \
+    ./build.sh -target=$TARGET
+  fi
 fi
