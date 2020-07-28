@@ -29,6 +29,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
+#if WINDOWS
     public class EncryptionTests
     {
         #region static
@@ -271,4 +272,5 @@ namespace MongoDB.Driver.Tests
             return (IMongoClient)Reflector.GetFieldValue(libMongoCryptController, nameof(_mongocryptdClient));
         }
     }
+#endif
 }

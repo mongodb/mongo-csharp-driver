@@ -118,6 +118,7 @@ namespace MongoDB.Driver.Core.Servers
             description.State.Should().Be(ServerState.Disconnected);
         }
 
+#if WINDOWS
         [Fact]
         public void DescriptionChanged_should_be_raised_during_initial_handshake()
         {
@@ -143,6 +144,7 @@ namespace MongoDB.Driver.Core.Servers
 
             capturedEvents.Any().Should().BeFalse();
         }
+#endif
 
         [Fact]
         public void Description_should_be_connected_after_successful_heartbeat()

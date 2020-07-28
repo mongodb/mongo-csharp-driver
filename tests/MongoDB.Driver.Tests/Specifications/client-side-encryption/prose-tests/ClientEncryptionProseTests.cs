@@ -70,6 +70,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             _cluster = CoreTestConfiguration.Cluster;
         }
 
+#if WINDOWS
         [SkippableTheory]
         [ParameterAttributeData]
         public void BsonSizeLimitAndBatchSizeSplittingTest(
@@ -1194,5 +1195,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 }
             }
         }
+#endif
     }
 }

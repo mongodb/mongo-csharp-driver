@@ -91,18 +91,12 @@ fi
 
 echo "Running $AUTH tests over $SSL for $TOPOLOGY with $COMPRESSOR compressor and connecting to $MONGODB_URI"
 
+export TARGET="Test${FRAMEWORK}"
 if [[ "$OS" =~ Windows|windows ]]; then
-  if [[ "$FRAMEWORK" == "nil" ]]; then
-    export TARGET="Test"
-  else
-    export TARGET="Test${FRAMEWORK}"
-  fi
   if [ "$OCSP_TLS_SHOULD_SUCCEED" != "nil" ]; then
     export TARGET="TestOcsp"
     certutil.exe -urlcache localhost delete # clear the OS-level cache of all entries with the URL "localhost"
   fi
-else
-  export TARGET="Test"
 fi
 
 echo "Final MongoDB_URI: $MONGODB_URI"
@@ -110,18 +104,33 @@ if [ "$TOPOLOGY" == "sharded_cluster" ]; then
   echo "Final MongoDB URI with multiple mongoses: $MONGODB_URI_WITH_MULTIPLE_MONGOSES"
 fi
 for var in TMP TEMP NUGET_PACKAGES NUGET_HTTP_CACHE_PATH APPDATA; do
-  export $var=z:\\data\\tmp;
+  if [[ "$OS" =~ Windows|windows ]]; then
+    export $var=z:\\data\\tmp;
+  else
+    export $var=/data/tmp;
+  fi
 done
 
 if [[ "$CLIENT_PEM" != "nil" ]]; then
   CLIENT_PEM=${CLIENT_PEM} source evergreen/convert-client-cert-to-pkcs12.sh
 fi
 
-if [[ -z "$MONGO_X509_CLIENT_CERTIFICATE_PATH" && -z "$MONGO_X509_CLIENT_CERTIFICATE_PASSWORD" ]]; then
-  powershell.exe '.\build.ps1 -target' $TARGET
+if [[ "$OS" =~ Windows|windows ]]; then
+  export DRIVERS_TOOLS=$(cygpath -m $DRIVERS_TOOLS)
+  if [[ -z "$MONGO_X509_CLIENT_CERTIFICATE_PATH" && -z "$MONGO_X509_CLIENT_CERTIFICATE_PASSWORD" ]]; then
+    powershell.exe '.\build.ps1 -target' $TARGET
+  else
+    powershell.exe \
+      '$env:MONGO_X509_CLIENT_CERTIFICATE_PATH="'${MONGO_X509_CLIENT_CERTIFICATE_PATH}'";'\
+      '$env:MONGO_X509_CLIENT_CERTIFICATE_PASSWORD="'${MONGO_X509_CLIENT_CERTIFICATE_PASSWORD}'";'\
+      '.\build.ps1 -target' $TARGET
+  fi
 else
-  powershell.exe \
-    '$env:MONGO_X509_CLIENT_CERTIFICATE_PATH="'${MONGO_X509_CLIENT_CERTIFICATE_PATH}'";'\
-    '$env:MONGO_X509_CLIENT_CERTIFICATE_PASSWORD="'${MONGO_X509_CLIENT_CERTIFICATE_PASSWORD}'";'\
-    '.\build.ps1 -target' $TARGET
+  if [[ -z "$MONGO_X509_CLIENT_CERTIFICATE_PATH" && -z "$MONGO_X509_CLIENT_CERTIFICATE_PASSWORD" ]]; then
+    ./build.sh -target=$TARGET
+  else
+    MONGO_X509_CLIENT_CERTIFICATE_PATH="'${MONGO_X509_CLIENT_CERTIFICATE_PATH}'" \
+    MONGO_X509_CLIENT_CERTIFICATE_PASSWORD="'${MONGO_X509_CLIENT_CERTIFICATE_PASSWORD}'" \
+    ./build.sh -target=$TARGET
+  fi
 fi

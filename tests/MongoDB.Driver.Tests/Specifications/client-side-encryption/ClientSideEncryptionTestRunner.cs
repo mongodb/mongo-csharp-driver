@@ -36,7 +36,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)
         {
+#if WINDOWS
             SetupAndRunTest(testCase);
+#endif
         }
 
         protected override string[] ExpectedTestColumns => new[] { "description", "clientOptions", "operations", "expectations", "skipReason", "async", "outcome" };

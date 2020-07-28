@@ -39,6 +39,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
 {
     public class CSharp3173Tests
     {
+#if WINDOWS
 #pragma warning disable CS0618 // Type or member is obsolete
         private readonly static ClusterConnectionMode __clusterConnectionMode = ClusterConnectionMode.Sharded;
         private readonly static ConnectionModeSwitch __connectionModeSwitch = ConnectionModeSwitch.UseConnectionMode;
@@ -364,5 +365,6 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 throw new Exception($"The waiting for {testTarget} is exceeded timeout {timeout}.");
             }
         }
+#endif
     }
 }

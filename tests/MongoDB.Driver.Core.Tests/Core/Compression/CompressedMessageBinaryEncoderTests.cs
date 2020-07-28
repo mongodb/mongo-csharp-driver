@@ -31,6 +31,7 @@ namespace MongoDB.Driver.Core.Compression
 {
     public class CompressedMessageBinaryEncoderTests
     {
+#if WINDOWS
         private readonly MessageEncoderSettings _messageEncoderSettings = new MessageEncoderSettings();
 
         [Fact]
@@ -149,5 +150,6 @@ namespace MongoDB.Driver.Core.Compression
             }
             return new CompressorSource(compressors);
         }
+#endif
     }
 }

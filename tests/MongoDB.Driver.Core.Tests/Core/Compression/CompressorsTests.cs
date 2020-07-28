@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
     public class CompressorsTests
     {
         private static string __testMessage = "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz";
-
+#if WINDOWS
         [Theory]
         [InlineData(CompressorType.Snappy)]
         [InlineData(CompressorType.ZStandard)]
@@ -54,6 +54,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
                     result.Should().Be(__testMessage);
                 });
         }
+#endif
 
         [Fact]
         public void Zlib_should_generate_expected_compressed_bytes()

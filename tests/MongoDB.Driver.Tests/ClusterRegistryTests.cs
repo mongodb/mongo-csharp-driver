@@ -31,6 +31,7 @@ namespace MongoDB.Driver.Tests
 {
     public class ClusterRegistryTests
     {
+#if WINDOWS
         [Fact]
         public void Instance_should_return_the_same_instance_every_time()
         {
@@ -166,6 +167,7 @@ namespace MongoDB.Driver.Tests
             subject._registry().Count.Should().Be(0);
             cluster._state().Should().Be(2);
         }
+#endif
     }
 
     internal static class ClusterRegistryReflector

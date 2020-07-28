@@ -1,8 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+  <PropertyGroup>
+    <IsWindows Condition="$([MSBuild]::IsOSPlatform('Windows'))">true</IsWindows>
+  </PropertyGroup>
+  
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>netcoreapp2.1;netcoreapp3.0;net452</TargetFrameworks>
+    <TargetFrameworks Condition="'$(IsWindows)'!='true'">netcoreapp2.1;netcoreapp3.0</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -16,6 +20,10 @@
   <PropertyGroup Condition="'$(Version)'==''">
     <Version>0.0.0-local</Version>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" PrivateAssets="All" Version="1.0.0" />
+  </ItemGroup>
 
   <PropertyGroup>
     <NoWarn>

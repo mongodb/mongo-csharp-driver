@@ -1,11 +1,14 @@
-#addin "nuget:?package=Cake.FileHelpers&version=3.1.0"
-#addin "nuget:?package=Cake.Git&version=0.19.0"
-#addin "nuget:?package=Cake.Incubator&version=3.1.0"
-#tool "nuget:?package=GitVersion.CommandLine&version=4.0.0"
-#tool "nuget:?package=xunit.runner.console"
+#module nuget:?package=Cake.DotNetTool.Module&version=0.4.0
+#addin nuget:?package=Cake.FileHelpers&version=3.3.0
+#addin nuget:?package=Cake.Git&version=0.22.0
+#addin nuget:?package=Cake.Incubator&version=5.1.0
+#tool dotnet:?package=GitVersion.Tool&version=5.3.7
+#tool nuget:?package=xunit.runner.console
 
+using System;
 using System.Text.RegularExpressions;
 using System.Linq;
+using Cake.Common.Tools.DotNetCore.DotNetCoreVerbosity;
 
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");

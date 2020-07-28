@@ -1,7 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+  <PropertyGroup>
+    <IsWindows Condition="$([MSBuild]::IsOSPlatform('Windows'))">true</IsWindows>
+  </PropertyGroup>
+  
   <PropertyGroup>
     <TargetFrameworks>netcoreapp1.1;netcoreapp2.1;netcoreapp3.0;net452</TargetFrameworks>
+    <TargetFrameworks Condition="'$(IsWindows)'!='true'">netcoreapp1.1;netcoreapp2.1;netcoreapp3.0</TargetFrameworks>
     <LangVersion>7.3</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
@@ -31,6 +35,10 @@
       xUnit1026 <!--Theory methods should use all of their parameters (https://xunit.github.io/xunit.analyzers/rules/xUnit1026.html)-->
     </NoWarn>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" PrivateAssets="All" Version="1.0.0" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="4.12.0" />

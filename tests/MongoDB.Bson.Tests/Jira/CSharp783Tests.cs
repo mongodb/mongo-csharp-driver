@@ -23,6 +23,7 @@ using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira.CSharp783
 {
+#if WINDOWS
     public class CSharp783DiscriminatedInterfaceTests
     {
         // nested types
@@ -141,6 +142,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
             Assert.Equal(c.S, r.S);
         }
     }
+#endif
 
     public class CSharp783ImpliedHashSetImplementationTests
     {

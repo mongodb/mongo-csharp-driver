@@ -17,9 +17,15 @@ if [[ "$SSL" != "ssl" ]]; then
 fi
 
 if [[ "$OS" =~ Windows|windows ]]; then
-    certutil.exe -addstore "Root" ${DRIVERS_TOOLS}/.evergreen/x509gen/ca.pem
+  certutil.exe -addstore "Root" ${DRIVERS_TOOLS}/.evergreen/x509gen/ca.pem
 
   if [[ "$OCSP_TLS_SHOULD_SUCCEED" != "nil" && "$OCSP_ALGORITHM" != "nil" ]]; then
     certutil.exe -addstore "Root" ${DRIVERS_TOOLS}/.evergreen/ocsp/${OCSP_ALGORITHM}/ca.pem
+  fi
+else
+  keytool -import -trustcacerts -file ${DRIVERS_TOOLS}/.evergreen/x509gen/ca.pem -keystore Root -storepass changeit -noprompt -alias x509
+
+  if [[ "$OCSP_TLS_SHOULD_SUCCEED" != "nil" && "$OCSP_ALGORITHM" != "nil" ]]; then
+    keytool -import -trustcacerts -file ${DRIVERS_TOOLS}/.evergreen/ocsp/${OCSP_ALGORITHM}/ca.pem -keystore Root -storepass changeit -noprompt -alias ${OCSP_ALGORITHM}
   fi
 fi
