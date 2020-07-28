@@ -17,6 +17,10 @@
     <Version>0.0.0-local</Version>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" PrivateAssets="All" Version="1.0.0" />
+  </ItemGroup>
+
   <PropertyGroup>
     <NoWarn>
       1701;1702; <!--https://github.com/dotnet/roslyn/issues/19640-->

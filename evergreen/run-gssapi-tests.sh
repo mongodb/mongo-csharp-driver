@@ -10,7 +10,7 @@ set -o errexit  # Exit the script with error if any of the commands fail
 #            Main Program                  #
 ############################################
 
-echo "Running PLAIN authentication tests"
+echo "Running GSSAPI authentication tests"
 if [ -z ${MONGODB_URI+x} ]; then
     echo "MONGODB_URI is not set";
     exit 1
@@ -18,4 +18,4 @@ fi
 export MONGODB_URI="${MONGODB_URI}&authSource=\$external"
 powershell.exe \
   '$env:EXPLICIT="true";' \
-  '.\\build.ps1 -target TestPlainAuthentication'
+  '.\\build.ps1 -target TestGSSAPIAuthentication'

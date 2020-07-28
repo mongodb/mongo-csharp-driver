@@ -36,7 +36,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)
         {
+#if Windows
             SetupAndRunTest(testCase);
+#endif
         }
 
         protected override string[] ExpectedTestColumns => new[] { "description", "clientOptions", "operations", "expectations", "skipReason", "async", "outcome" };
@@ -316,13 +318,13 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
     // nested types
     public class TestCaseFactory : JsonDrivenTestCaseFactory
     {
-        #region static
+#region static
         private static readonly string[] __ignoredTestNames =
         {
             // https://jira.mongodb.org/browse/SPEC-1403
             "maxWireVersion.json:operation fails with maxWireVersion < 8"
         };
-        #endregion
+#endregion
 
         // protected properties
         protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.client_side_encryption.tests.";

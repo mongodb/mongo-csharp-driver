@@ -14,7 +14,7 @@ command_type: system
 
 # Protect ourself against rogue test case, or curl gone wild, that runs forever
 # 12 minutes is the longest we'll ever run
-exec_timeout_secs: 1800
+exec_timeout_secs: 4800
 
 # What to do when evergreen hits the timeout (`post:` tasks are run automatically)
 timeout:
@@ -48,7 +48,7 @@ functions:
            export DRIVERS_TOOLS="$(pwd)/../drivers-tools"
 
            # Python has cygwin path problems on Windows. Detect prospective mongo-orchestration home directory
-           if [ "Windows_NT" == "$OS" ]; then # Magic variable in cygwin
+           if [ "$OSTYPE" = "cygwin" ]; then # Magic variable in cygwin
               export DRIVERS_TOOLS=$(cygpath -m $DRIVERS_TOOLS)
            fi
 
@@ -195,7 +195,7 @@ functions:
   upload-test-results:
     - command: attach.xunit_results
       params:
-        file: ./mongo-csharp-driver/*/build/test-results/TEST-*.xml
+        file: mongo-csharp-driver/build/test-results/*.trx
 
   bootstrap-mongo-orchestration:
     - command: shell.exec
@@ -220,10 +220,10 @@ functions:
         script: |
           ${PREPARE_SHELL}
           MONGODB_VERSION=${VERSION} \
-            TOPOLOGY=${TOPOLOGY} \
-            AUTH=${AUTH} \
-            SSL=${SSL} \
-            ORCHESTRATION_FILE=${ORCHESTRATION_FILE} \
+          TOPOLOGY=${TOPOLOGY} \
+          AUTH=${AUTH} \
+          SSL=${SSL} \
+          ORCHESTRATION_FILE=${ORCHESTRATION_FILE} \
             sh ${DRIVERS_TOOLS}/.evergreen/run-orchestration.sh
     - command: expansions.update
       params:
@@ -268,6 +268,7 @@ functions:
             FRAMEWORK=${FRAMEWORK} \
             evergreen/run-tests.sh
           echo "Skipping certificate removal..."
+          ls -la build/test-results
 
   run-atlas-connectivity-tests:
     - command: shell.exec
@@ -287,6 +288,15 @@ functions:
         script: |
           ${PREPARE_SHELL}
           MONGODB_URI="${plain_auth_mongodb_uri}" evergreen/run-plain-auth-tests.sh
+
+  run-gssapi-auth-tests:
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: mongo-csharp-driver
+        script: |
+          ${PREPARE_SHELL}
+          MONGODB_URI="${gssapi_mongodb_uri}" evergreen/run-gssapi-tests.sh
 
   add-aws-auth-variables-to-file:
     - command: shell.exec
@@ -472,9 +482,8 @@ functions:
     - command: shell.exec
       params:
         script: |
-          cd ${DRIVERS_TOOLS}/.evergreen/ocsp
-          /cygdrive/c/python/python38/python.exe -m venv ./venv
-          ./venv/Scripts/pip3 install -r ${DRIVERS_TOOLS}/.evergreen/ocsp/mock-ocsp-responder-requirements.txt
+          ${PREPARE_SHELL}
+          evergreen/prepare-ocsp.sh
     - command: shell.exec
       params:
         background: true
@@ -491,9 +500,8 @@ functions:
     - command: shell.exec
       params:
         script: |
-          cd ${DRIVERS_TOOLS}/.evergreen/ocsp
-          /cygdrive/c/python/python38/python.exe -m venv ./venv
-          ./venv/Scripts/pip3 install -r ${DRIVERS_TOOLS}/.evergreen/ocsp/mock-ocsp-responder-requirements.txt
+          ${PREPARE_SHELL}
+          evergreen/prepare-ocsp.sh
     - command: shell.exec
       params:
         background: true
@@ -510,9 +518,8 @@ functions:
     - command: shell.exec
       params:
         script: |
-          cd ${DRIVERS_TOOLS}/.evergreen/ocsp
-          /cygdrive/c/python38/python.exe -m venv ./venv
-          ./venv/Scripts/pip3 install -r ${DRIVERS_TOOLS}/.evergreen/ocsp/mock-ocsp-responder-requirements.txt
+          ${PREPARE_SHELL}
+          evergreen/prepare-ocsp.sh
     - command: shell.exec
       params:
         background: true
@@ -531,9 +538,8 @@ functions:
     - command: shell.exec
       params:
         script: |
-          cd ${DRIVERS_TOOLS}/.evergreen/ocsp
-          /cygdrive/c/python38/python.exe -m venv ./venv
-          ./venv/Scripts/pip3 install -r ${DRIVERS_TOOLS}/.evergreen/ocsp/mock-ocsp-responder-requirements.txt
+          ${PREPARE_SHELL}
+          evergreen/prepare-ocsp.sh
     - command: shell.exec
       params:
         background: true
@@ -661,6 +667,13 @@ tasks:
           vars:
             FRAMEWORK: netstandard20
 
+    - name: test-netstandard21
+      commands:
+        - func: bootstrap-mongo-orchestration
+        - func: run-tests
+          vars:
+            FRAMEWORK: netstandard21
+
     - name: atlas-connectivity-tests
       commands:
         - func: run-atlas-connectivity-tests
@@ -668,6 +681,10 @@ tasks:
     - name: plain-auth-tests
       commands:
         - func: run-plain-auth-tests
+
+    - name: gssapi-auth-tests
+      commands:
+        - func: run-gssapi-auth-tests
 
     - name: aws-auth-tests
       commands:
@@ -1071,6 +1088,11 @@ axes:
         variables:
           OS: "windows-64"
         run_on: windows-64-vs2017-test
+      - id: "ubuntu-1804"
+        display_name: "Ubuntu 18.04"
+        variables:
+          OS: "ubuntu-1804"
+        run_on: ubuntu1804-test
 
   - id: topology
     display_name: Topology
@@ -1136,9 +1158,15 @@ buildvariants:
     - windows-64-vs2017-compile
   tasks:
     - name: compile
+- name: ubuntu1804-test
+  display_name: "Ubuntu 18.04 test"
+  run_on:
+    - ubuntu1804-test
+  tasks:
+    - name: compile
 
 - matrix_name: "secure-tests"
-  matrix_spec: { version: "*", topology: "*", auth: "auth", ssl: "ssl", os: "*" }
+  matrix_spec: { version: "*", topology: "*", auth: "auth", ssl: "ssl", os: "windows-64" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
@@ -1147,7 +1175,7 @@ buildvariants:
      - name: test-netstandard20
 
 - matrix_name: "unsecure-tests"
-  matrix_spec: { version: "*", topology: "*", auth: "noauth", ssl: "nossl", os: "*" }
+  matrix_spec: { version: "*", topology: "*", auth: "noauth", ssl: "nossl", os: "windows-64" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
@@ -1156,7 +1184,7 @@ buildvariants:
      - name: test-netstandard20
 
 - matrix_name: "tests-zlib-compression"
-  matrix_spec: { compressor : "zlib", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "latest"], topology: "standalone", os: "*" }
+  matrix_spec: { compressor : "zlib", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "latest"], topology: "standalone", os: "windows-64" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
@@ -1165,7 +1193,7 @@ buildvariants:
      - name: test-netstandard20
 
 - matrix_name: "tests-snappy-compression"
-  matrix_spec: { compressor : "snappy", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "latest"], topology: "standalone", os: "*" }
+  matrix_spec: { compressor : "snappy", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "latest"], topology: "standalone", os: "windows-64" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
@@ -1174,7 +1202,7 @@ buildvariants:
      - name: test-netstandard20
 
 - matrix_name: "tests-zstandard-compression"
-  matrix_spec: { compressor : "zstandard", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "latest"], topology: "standalone", os: "*" }
+  matrix_spec: { compressor : "zstandard", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "latest"], topology: "standalone", os: "windows-64" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
@@ -1182,15 +1210,45 @@ buildvariants:
      - name: test-netstandard15
      - name: test-netstandard20
 
+- matrix_name: "unsecure-tests-posix"
+  matrix_spec: { version: "*", topology: "*", auth: "noauth", ssl: "nossl", os: "ubuntu-1804" }
+  display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
+  tags: ["tests-variant"]
+  tasks:
+     - name: test-netstandard15
+     - name: test-netstandard20
+
+- matrix_name: "tests-zlib-compression-posix"
+  matrix_spec: { compressor : "zlib", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "latest"], topology: "standalone", os: "ubuntu-1804" }
+  display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
+  tags: ["tests-variant"]
+  tasks:
+     - name: test-netstandard15
+     - name: test-netstandard20
+
+#- matrix_name: "tests-snappy-compression-posix"
+#  matrix_spec: { compressor : "snappy", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "latest"], topology: "standalone", os: "ubuntu-1804" }
+#  display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
+#  tags: ["tests-variant"]
+#  tasks:
+#     - name: test-netstandard21
+#
+#- matrix_name: "tests-zstandard-compression-posix"
+#  matrix_spec: { compressor : "zstandard", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "latest"], topology: "standalone", os: "ubuntu-1804" }
+#  display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
+#  tags: ["tests-variant"]
+#  tasks:
+#     - name: test-netstandard21
+
 - matrix_name: "ocsp-tests"
-  matrix_spec: { version: ["4.4", "latest"], auth: "noauth", ssl: "ssl", topology: "standalone", os: "*" } # matrix_spec: { version: ["latest"], os-ssl-32: ["ubuntu1604-64-go-1-12"] }
+  matrix_spec: { version: ["4.4", "latest"], auth: "noauth", ssl: "ssl", topology: "standalone", os: "windows-64" } # matrix_spec: { version: ["latest"], os-ssl-32: ["ubuntu1604-64-go-1-12"] }
   display_name: "OCSP ${version} ${os}" #  display_name: "OCSP ${version} ${os-ssl-32}"
   batchtime: 20160 # 14 days
   tasks:
     - name: ".ocsp"
 
 - matrix_name: aws-auth-tests
-  matrix_spec: { version: ["4.4", "latest"], topology: "standalone", os: "*" }
+  matrix_spec: { version: ["4.4", "latest"], topology: "standalone", os: "windows-64" }
   display_name: "MONGODB-AWS Auth test ${version} ${os}"
   run_on:
     - windows-64-vs2017-test
@@ -1211,13 +1269,20 @@ buildvariants:
   tasks:
     - name: atlas-data-lake-test
 
-# - name: plain-auth-tests
-#   display_name: "PLAIN (LDAP) Auth tests"
-#   run_on:
-#     - windows-64-vs2017-test
-#   tasks:
-#     - name: plain-auth-tests
-
+#- name: plain-auth-tests
+#  display_name: "PLAIN (LDAP) Auth tests"
+#  run_on:
+#    - windows-64-vs2017-test
+#  tasks:
+#    - name: plain-auth-tests
+#
+#- name: gssapi-auth-tests
+#  display_name: "GSSAPI (Kerberos) Auth tests"
+#  run_on:
+#    - windows-64-vs2017-test
+#  tasks:
+#    - name: gssapi-auth-tests
+#
 # - name: publish-snapshot
 #   display_name: publish-snapshot
 #   run_on:

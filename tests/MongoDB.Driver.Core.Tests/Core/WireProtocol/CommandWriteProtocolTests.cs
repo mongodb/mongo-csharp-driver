@@ -91,7 +91,8 @@ namespace MongoDB.Driver.Core.WireProtocol
             else
             {
                 var e = exception.Should().BeOfType<ArgumentException>().Subject;
-                e.Message.Should().Be("CommandResponseHandling must be Return, NoneExpected or ExhaustAllowed.\r\nParameter name: responseHandling");
+                e.Message.Should().Contain("CommandResponseHandling must be Return, NoneExpected or ExhaustAllowed.");
+                e.Message.Should().Contain("Parameter name: responseHandling");
                 subject._cachedConnectionId().Should().NotBeSameAs(cachedWireProtocol);
                 subject._cachedConnectionId().Should().NotBeSameAs(connectionId);
                 result.Should().BeNull();

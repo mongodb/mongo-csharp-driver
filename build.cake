@@ -1,11 +1,14 @@
-#addin "nuget:?package=Cake.FileHelpers&version=3.1.0"
-#addin "nuget:?package=Cake.Git&version=0.19.0"
-#addin "nuget:?package=Cake.Incubator&version=3.1.0"
-#tool "nuget:?package=GitVersion.CommandLine&version=4.0.0"
-#tool "nuget:?package=xunit.runner.console"
+#module nuget:?package=Cake.DotNetTool.Module&version=0.4.0
+#addin nuget:?package=Cake.FileHelpers&version=3.3.0
+#addin nuget:?package=Cake.Git&version=0.22.0
+#addin nuget:?package=Cake.Incubator&version=5.1.0
+#tool dotnet:?package=GitVersion.Tool&version=5.3.7
+#tool nuget:?package=xunit.runner.console
 
+using System;
 using System.Text.RegularExpressions;
 using System.Linq;
+using Cake.Common.Tools.DotNetCore.DotNetCoreVerbosity;
 
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
@@ -20,6 +23,7 @@ var artifactsDocsApiDocsDirectory = artifactsDocsDirectory.Combine("ApiDocs-" + 
 var artifactsDocsRefDocsDirectory = artifactsDocsDirectory.Combine("RefDocs-" + gitVersion.LegacySemVer);
 var artifactsPackagesDirectory = artifactsDirectory.Combine("packages");
 var docsDirectory = solutionDirectory.Combine("Docs");
+var outputDirectory = solutionDirectory.Combine("build");
 var docsApiDirectory = docsDirectory.Combine("Api");
 var srcDirectory = solutionDirectory.Combine("src");
 var testsDirectory = solutionDirectory.Combine("tests");
@@ -49,7 +53,11 @@ Task("Release")
 Task("Restore")
     .Does(() =>
     {
-        DotNetCoreRestore(solutionFullPath);
+        var settings = new DotNetCoreRestoreSettings
+        {
+            Verbosity = Minimal
+        };
+        DotNetCoreRestore(solutionFullPath, settings);
     });
 
 Task("Build")
@@ -141,6 +149,8 @@ Task("Test")
             NoBuild = true,
             NoRestore = true,
             Configuration = configuration,
+            Logger = "trx",
+            ResultsDirectory = outputDirectory.Combine("test-results"),
             ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64")
         };
         switch (target.ToLowerInvariant())
@@ -173,6 +183,42 @@ Task("TestAwsAuthentication")
                     Configuration = configuration,
                     ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
                     Filter = "Category=\"AwsMechanism\""
+                }
+            );
+        });
+
+Task("TestPlainAuthentication")
+    .IsDependentOn("Build")
+    .DoesForEach(
+        GetFiles("./**/MongoDB.Driver.Tests.csproj"),
+        testProject =>
+        {
+            DotNetCoreTest(
+                testProject.FullPath,
+                new DotNetCoreTestSettings {
+                    NoBuild = true,
+                    NoRestore = true,
+                    Configuration = configuration,
+                    ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
+                    Filter = "Category=\"PlainMechanism\""
+                }
+            );
+        });
+
+Task("TestGSSAPIAuthentication")
+    .IsDependentOn("Build")
+    .DoesForEach(
+        GetFiles("./**/MongoDB.Driver.Tests.csproj"),
+        testProject =>
+        {
+            DotNetCoreTest(
+                testProject.FullPath,
+                new DotNetCoreTestSettings {
+                    NoBuild = true,
+                    NoRestore = true,
+                    Configuration = configuration,
+                    ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
+                    Filter = "Category=\"GssapiMechanism\""
                 }
             );
         });

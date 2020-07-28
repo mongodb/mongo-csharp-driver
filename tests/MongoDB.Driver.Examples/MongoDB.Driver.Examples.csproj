@@ -17,6 +17,10 @@
     <Description>MongoDB.Driver examples.</Description>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" PrivateAssets="All" Version="1.0.0" />
+  </ItemGroup>
+
   <PropertyGroup Condition="'$(Version)'==''">
     <Version>0.0.0-local</Version>
   </PropertyGroup>
