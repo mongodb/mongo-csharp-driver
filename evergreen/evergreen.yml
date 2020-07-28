@@ -48,7 +48,7 @@ functions:
            export DRIVERS_TOOLS="$(pwd)/../drivers-tools"
 
            # Python has cygwin path problems on Windows. Detect prospective mongo-orchestration home directory
-           if [ "Windows_NT" == "$OS" ]; then # Magic variable in cygwin
+           if [ $OSTYPE = "cygwin" ]; then # Magic variable in cygwin
               export DRIVERS_TOOLS=$(cygpath -m $DRIVERS_TOOLS)
            fi
 
@@ -1039,6 +1039,11 @@ axes:
         variables:
           OS: "windows-64"
         run_on: windows-64-vs2017-test
+      - id: "ubuntu-1804"
+        display_name: "Ubuntu 18.04"
+        variables:
+          OS: "ubuntu-1804"
+        run_on: ubuntu1804-test
 
   - id: topology
     display_name: Topology
@@ -1102,6 +1107,12 @@ buildvariants:
   display_name: "Windows 64-bit compile"
   run_on:
     - windows-64-vs2017-compile
+  tasks:
+    - name: compile
+- name: ubuntu1804-test
+  display_name: "Ubuntu 18.04 test"
+  run_on:
+    - ubuntu1804-test
   tasks:
     - name: compile
 
