@@ -7,9 +7,9 @@ title = "What's New"
   identifier = "What's New"
   pre = "<i class='fa fa-star'></i>"
 +++
-## What's New in 2.11.0-beta2
+## What's New in 2.11.0
 
-The main new features in 2.11.0-beta2 support new features in MongoDB 4.4.0. These features include:
+The main new features in 2.11.0 support new features in MongoDB 4.4.0. These features include:
 
 * Support for all new
   [``$meta``](https://docs.mongodb.com/manual/reference/operator/projection/meta/)
@@ -33,8 +33,7 @@ Other new additions and updates in this beta include:
 * Support for Snappy compression on .NET Core on Windows (in addition
   to existing support on .NET Framework)
 * Support for Zstandard compression on Windows on 64-bit platforms
-* A new default of enabling certificate revocation checking.
-* A new URI option `tlsDisableCertificateRevocationCheck` to disable
+* A new URI option `tlsDisableCertificateRevocationCheck` to enable or disable
   certificate revocation checking.
 * An expanded list of retryable write errors via the inclusion of
   `ExceededTimeLimit`, `LockTimeout` and `ClientDisconnect`

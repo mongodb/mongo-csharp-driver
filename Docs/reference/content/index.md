@@ -13,7 +13,7 @@ The [Getting Started]({{< relref "getting_started\index.md" >}}) guide contains 
 
 The [What's New]({{< relref "what_is_new.md" >}}) section contains the major new features of the driver.
 
-The main new features in 2.11.0-beta2 support new features in MongoDB 4.4.0.
+The main new features in 2.11.0 support new features in MongoDB 4.4.0.
 
 ## Upgrading
 
