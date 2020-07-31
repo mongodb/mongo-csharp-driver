@@ -21,16 +21,16 @@
   </head>
 
   <body>
-
+  
   <header id="header-db" class="row" role="navigation">
   <div class="header-content">
-
+    
     <div class="logo pull-left">
       <a href="/mongo-csharp-driver">
         <img src="/mongo-csharp-driver/s/img/logo-mongodb-header.png", alt="MongoDB.org" />
       </a>
     </div>
-
+    
     <div>
 <div class="nav-items pull-right">
   <a href="http://try.mongodb.org/">Try it Out</a>
@@ -43,7 +43,7 @@
   </div>
 </header>
 
-
+  
 
   <div id="hero" class="jumbotron">
   <div class="container">
@@ -60,7 +60,7 @@
 </div>
 
 
-
+  
   <div class="container" id="mainContent">
     <div class="row">
       <div class="col-md-8">
@@ -103,88 +103,88 @@
     <div class="row downloadForm">
       <form>
         <div class="col-xs-5 col-lg-4 col-lg-push-2 ">
-
-
-
+      
+      
+      
         <select class="driverPicker">
-
-
-          <option value="0" data-versions="2.11.0-beta1,2.10.4,2.9.3,2.8.1,2.7.3,2.6.1,2.5.1,2.4.4,2.3.0,2.2.4,2.1.1,2.0.2">.NET Driver</option>
+          
+          
+          <option value="0" data-versions="2.11.0,2.10.4,2.9.3,2.8.1,2.7.3,2.6.1,2.5.1,2.4.4,2.3.0,2.2.4,2.1.1,2.0.2">.NET Driver</option>
           
           
           
-          <option value="1" data-versions="2.11.0-beta1,2.10.4,2.9.3,2.8.1,2.7.3,2.6.1,2.5.1,2.4.4,2.3.0,2.2.4,2.1.1">.NET GridFS</option>
+          <option value="1" data-versions="2.11.0,2.10.4,2.9.3,2.8.1,2.7.3,2.6.1,2.5.1,2.4.4,2.3.0,2.2.4,2.1.1">.NET GridFS</option>
           
           
           
-          <option value="2" data-versions="2.11.0-beta1,2.10.4,2.9.3,2.8.1,2.7.3,2.6.1,2.5.1,2.4.4,2.3.0,2.2.4,2.1.1,2.0.2">.NET Core Driver</option>
-
-
-
-          <option value="3" data-versions="2.11.0-beta1,2.10.4,2.9.3,2.8.1,2.7.3,2.6.1,2.5.1,2.4.4,2.3.0,2.2.4,2.1.1,2.0.2">.NET BSON Library</option>
-
-
-
-          <option value="4" data-versions="2.11.0-beta1,2.10.4,2.9.3,2.8.1,2.7.3,2.6.1,2.5.1,2.4.4,2.3.0,2.2.4,2.1.1,2.0.2,1.11">.NET Legacy Driver</option>
-
-
+          <option value="2" data-versions="2.11.0,2.10.4,2.9.3,2.8.1,2.7.3,2.6.1,2.5.1,2.4.4,2.3.0,2.2.4,2.1.1,2.0.2">.NET Core Driver</option>
+          
+          
+          
+          <option value="3" data-versions="2.11.0,2.10.4,2.9.3,2.8.1,2.7.3,2.6.1,2.5.1,2.4.4,2.3.0,2.2.4,2.1.1,2.0.2">.NET BSON Library</option>
+          
+          
+          
+          <option value="4" data-versions="2.11.0,2.10.4,2.9.3,2.8.1,2.7.3,2.6.1,2.5.1,2.4.4,2.3.0,2.2.4,2.1.1,2.0.2,1.11">.NET Legacy Driver</option>
+          
+          
         </select>
-
+      
       </div>
     <div class="col-xs-5 col-lg-4 col-lg-push-2 ">
-
-
-
+    
+    
+    
       <select class="releasePicker">
-
-        <option value="0"disabled="disabled">2.11.0-beta1</option>
-
-
-        <option value="1"disabled="disabled" selected="selected">2.10.4</option>
-
-
+        
+        <option value="0"disabled="disabled">2.11.0</option>
+        
+        
+        <option value="1"disabled="disabled">2.10.4</option>
+        
+        
         <option value="2"disabled="disabled">2.9.3</option>
-
-
+        
+        
         <option value="3"disabled="disabled">2.8.1</option>
-
-
+        
+        
         <option value="4"disabled="disabled">2.7.3</option>
-
-
+        
+        
         <option value="5"disabled="disabled">2.6.1</option>
-
-
+        
+        
         <option value="6"disabled="disabled">2.5.1</option>
-
-
+        
+        
         <option value="7"disabled="disabled">2.4.4</option>
-
-
+        
+        
         <option value="8"disabled="disabled">2.3.0</option>
-
-
+        
+        
         <option value="9"disabled="disabled">2.2.4</option>
-
-
+        
+        
         <option value="10"disabled="disabled">2.1.1</option>
-
-
+        
+        
         <option value="11"disabled="disabled">2.0.2</option>
-
-
+        
+        
         <option value="12"disabled="disabled">1.11</option>
-
-
+        
+        
       </select>
-
+    
     </div>
     <div class="col-lg-2 col-lg-push-2 ">
     <input type="checkbox" checked class="distroPicker" data-toggle="toggle" data-on="Nuget" data-off="Paket" data-offstyle="success">
     </div>
   </form>
   <div class="hidden-md hidden-sm hidden-xs col-lg-2 col-lg-pull-10 downloadLink">
-  <a id="downloadLink" href="https://www.nuget.org/api/v2/package/MongoDB.Driver/2.10.4" class="btn btn-dark btn-download" target="_blank">Download</a>
+  <a id="downloadLink" href="https://www.nuget.org/api/v2/package/MongoDB.Driver/2.11.0" class="btn btn-dark btn-download" target="_blank">Download</a>
   </div>
   </div>
 
@@ -192,44 +192,44 @@
   <div class="clipboard" title="copy">
   <button class="btn btn-dark"><i class="fa fa-clipboard fa-2"></i></button>
   </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div id="nuget-0-0" class="download hidden">
+  
+  
+  
+    
+    
+      
+      
+        
+        
+          
+          
+          
+          
+          
+<div id="nuget-0-0" class="download ">
 <pre><code>&lt;packages&gt;
-    &lt;package id="MongoDB.Driver" version="2.11.0-beta1" /&gt;
-    &lt;package id="MongoDB.Driver.Core" version="2.11.0-beta1" /&gt;
-    &lt;package id="MongoDB.Bson" version="2.11.0-beta1" /&gt;
+    &lt;package id="MongoDB.Driver" version="2.11.0" /&gt;
+    &lt;package id="MongoDB.Driver.Core" version="2.11.0" /&gt;
+    &lt;package id="MongoDB.Bson" version="2.11.0" /&gt;
 &lt;/packages&gt;
 </code></pre>
 </div>
 <div id="paket-0-0" class="download hidden">
 <pre><code>source https://nuget.org/api/v2
 
-nuget MongoDB.Driver ~> 2.11.0-beta1
+nuget MongoDB.Driver ~> 2.11.0
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
-<div id="nuget-1-0" class="download ">
+          
+          
+          
+          
+          
+          
+          
+          
+          
+<div id="nuget-1-0" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="MongoDB.Driver" version="2.10.4" /&gt;
     &lt;package id="MongoDB.Driver.Core" version="2.10.4" /&gt;
@@ -243,15 +243,15 @@ nuget MongoDB.Driver ~> 2.11.0-beta1
 nuget MongoDB.Driver ~> 2.10.4
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-2-0" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="MongoDB.Driver" version="2.9.3" /&gt;
@@ -266,15 +266,15 @@ nuget MongoDB.Driver ~> 2.10.4
 nuget MongoDB.Driver ~> 2.9.3
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-3-0" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="MongoDB.Driver" version="2.8.1" /&gt;
@@ -289,15 +289,15 @@ nuget MongoDB.Driver ~> 2.9.3
 nuget MongoDB.Driver ~> 2.8.1
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-4-0" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="MongoDB.Driver" version="2.7.3" /&gt;
@@ -312,15 +312,15 @@ nuget MongoDB.Driver ~> 2.8.1
 nuget MongoDB.Driver ~> 2.7.3
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-5-0" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="MongoDB.Driver" version="2.6.1" /&gt;
@@ -335,15 +335,15 @@ nuget MongoDB.Driver ~> 2.7.3
 nuget MongoDB.Driver ~> 2.6.1
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-6-0" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="MongoDB.Driver" version="2.5.1" /&gt;
@@ -358,15 +358,15 @@ nuget MongoDB.Driver ~> 2.6.1
 nuget MongoDB.Driver ~> 2.5.1
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-7-0" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="MongoDB.Driver" version="2.4.4" /&gt;
@@ -381,15 +381,15 @@ nuget MongoDB.Driver ~> 2.5.1
 nuget MongoDB.Driver ~> 2.4.4
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-8-0" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="MongoDB.Driver" version="2.3.0" /&gt;
@@ -404,15 +404,15 @@ nuget MongoDB.Driver ~> 2.4.4
 nuget MongoDB.Driver ~> 2.3.0
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-9-0" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="MongoDB.Driver" version="2.2.4" /&gt;
@@ -427,15 +427,15 @@ nuget MongoDB.Driver ~> 2.3.0
 nuget MongoDB.Driver ~> 2.2.4
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-10-0" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="MongoDB.Driver" version="2.1.1" /&gt;
@@ -450,15 +450,15 @@ nuget MongoDB.Driver ~> 2.2.4
 nuget MongoDB.Driver ~> 2.1.1
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-11-0" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="MongoDB.Driver" version="2.0.2" /&gt;
@@ -473,63 +473,57 @@ nuget MongoDB.Driver ~> 2.1.1
 nuget MongoDB.Driver ~> 2.0.2
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
           <div id="driver-0" class="download description">
             <p>The driver.</p>
 
           </div>
-
-
-
-
-
-
-
-
-
-
-
+          
+      
+      
+      
+        
+        
+          
+          
+          
+          
+          
 <div id="nuget-0-1" class="download  hidden">
 <pre><code>&lt;packages&gt;
-    &lt;package id="MongoDB.Driver.GridFS" version="2.11.0-beta1" /&gt;
-    &lt;package id="MongoDB.Driver" version="2.11.0-beta1" /&gt;
-    &lt;package id="MongoDB.Driver.Core" version="2.11.0-beta1" /&gt;
-    &lt;package id="MongoDB.Bson" version="2.11.0-beta1" /&gt;
+    &lt;package id="MongoDB.Driver.GridFS" version="2.11.0" /&gt;
+    &lt;package id="MongoDB.Driver" version="2.11.0" /&gt;
+    &lt;package id="MongoDB.Driver.Core" version="2.11.0" /&gt;
+    &lt;package id="MongoDB.Bson" version="2.11.0" /&gt;
 &lt;/packages&gt;
 </code></pre>
 </div>
 <div id="paket-0-1" class="download hidden">
 <pre><code>source https://nuget.org/api/v2
 
-nuget MongoDB.Driver.GridFS ~> 2.11.0-beta1
+nuget MongoDB.Driver.GridFS ~> 2.11.0
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-1-1" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="MongoDB.Driver.GridFS" version="2.10.4" /&gt;
@@ -761,61 +755,61 @@ nuget MongoDB.Driver.GridFS ~> 2.2.4
 nuget MongoDB.Driver.GridFS ~> 2.1.1
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
           <div id="driver-1" class="download description hidden">
             <p>The GridFS library.</p>
 
           </div>
-
-
-
-
-
-
-
-
-
-
-
+          
+      
+      
+      
+        
+        
+          
+          
+          
+          
+          
 <div id="nuget-0-2" class="download  hidden">
 <pre><code>&lt;packages&gt;
-    &lt;package id="MongoDB.Driver.Core" version="2.11.0-beta1" /&gt;
-    &lt;package id="MongoDB.Bson" version="2.11.0-beta1" /&gt;
+    &lt;package id="MongoDB.Driver.Core" version="2.11.0" /&gt;
+    &lt;package id="MongoDB.Bson" version="2.11.0" /&gt;
 &lt;/packages&gt;
 </code></pre>
 </div>
 <div id="paket-0-2" class="download hidden">
 <pre><code>source https://nuget.org/api/v2
 
-nuget MongoDB.Driver.Core ~> 2.11.0-beta1
+nuget MongoDB.Driver.Core ~> 2.11.0
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-1-2" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="MongoDB.Driver.Core" version="2.10.4" /&gt;
@@ -829,15 +823,15 @@ nuget MongoDB.Driver.Core ~> 2.11.0-beta1
 nuget MongoDB.Driver.Core ~> 2.10.4
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-2-2" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="MongoDB.Driver.Core" version="2.9.3" /&gt;
@@ -851,15 +845,15 @@ nuget MongoDB.Driver.Core ~> 2.10.4
 nuget MongoDB.Driver.Core ~> 2.9.3
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-3-2" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="MongoDB.Driver.Core" version="2.8.1" /&gt;
@@ -873,15 +867,15 @@ nuget MongoDB.Driver.Core ~> 2.9.3
 nuget MongoDB.Driver.Core ~> 2.8.1
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-4-2" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="MongoDB.Driver.Core" version="2.7.3" /&gt;
@@ -895,15 +889,15 @@ nuget MongoDB.Driver.Core ~> 2.8.1
 nuget MongoDB.Driver.Core ~> 2.7.3
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-5-2" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="MongoDB.Driver.Core" version="2.6.1" /&gt;
@@ -917,15 +911,15 @@ nuget MongoDB.Driver.Core ~> 2.7.3
 nuget MongoDB.Driver.Core ~> 2.6.1
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-6-2" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="MongoDB.Driver.Core" version="2.5.1" /&gt;
@@ -939,15 +933,15 @@ nuget MongoDB.Driver.Core ~> 2.6.1
 nuget MongoDB.Driver.Core ~> 2.5.1
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-7-2" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="MongoDB.Driver.Core" version="2.4.4" /&gt;
@@ -961,15 +955,15 @@ nuget MongoDB.Driver.Core ~> 2.5.1
 nuget MongoDB.Driver.Core ~> 2.4.4
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-8-2" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="MongoDB.Driver.Core" version="2.3.0" /&gt;
@@ -983,15 +977,15 @@ nuget MongoDB.Driver.Core ~> 2.4.4
 nuget MongoDB.Driver.Core ~> 2.3.0
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-9-2" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="MongoDB.Driver.Core" version="2.2.4" /&gt;
@@ -1005,15 +999,15 @@ nuget MongoDB.Driver.Core ~> 2.3.0
 nuget MongoDB.Driver.Core ~> 2.2.4
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-10-2" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="MongoDB.Driver.Core" version="2.1.1" /&gt;
@@ -1027,15 +1021,15 @@ nuget MongoDB.Driver.Core ~> 2.2.4
 nuget MongoDB.Driver.Core ~> 2.1.1
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-11-2" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="MongoDB.Driver.Core" version="2.0.2" /&gt;
@@ -1049,54 +1043,54 @@ nuget MongoDB.Driver.Core ~> 2.1.1
 nuget MongoDB.Driver.Core ~> 2.0.2
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
           <div id="driver-2" class="download description hidden">
             <p>The core driver.</p>
 
           </div>
-
-
-
-
-
-
-
-
-
-
-
+          
+      
+      
+      
+        
+        
+          
+          
+          
+          
+          
 <div id="nuget-0-3" class="download  hidden">
 <pre><code>&lt;packages&gt;
-    &lt;package id="MongoDB.Bson" version="2.11.0-beta1" /&gt;
+    &lt;package id="MongoDB.Bson" version="2.11.0" /&gt;
 &lt;/packages&gt;
 </code></pre>
 </div>
 <div id="paket-0-3" class="download hidden">
 <pre><code>source https://nuget.org/api/v2
 
-nuget MongoDB.Bson ~> 2.11.0-beta1
+nuget MongoDB.Bson ~> 2.11.0
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-1-3" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="MongoDB.Bson" version="2.10.4" /&gt;
@@ -1109,15 +1103,15 @@ nuget MongoDB.Bson ~> 2.11.0-beta1
 nuget MongoDB.Bson ~> 2.10.4
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-2-3" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="MongoDB.Bson" version="2.9.3" /&gt;
@@ -1130,15 +1124,15 @@ nuget MongoDB.Bson ~> 2.10.4
 nuget MongoDB.Bson ~> 2.9.3
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-3-3" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="MongoDB.Bson" version="2.8.1" /&gt;
@@ -1151,15 +1145,15 @@ nuget MongoDB.Bson ~> 2.9.3
 nuget MongoDB.Bson ~> 2.8.1
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-4-3" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="MongoDB.Bson" version="2.7.3" /&gt;
@@ -1172,15 +1166,15 @@ nuget MongoDB.Bson ~> 2.8.1
 nuget MongoDB.Bson ~> 2.7.3
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-5-3" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="MongoDB.Bson" version="2.6.1" /&gt;
@@ -1193,15 +1187,15 @@ nuget MongoDB.Bson ~> 2.7.3
 nuget MongoDB.Bson ~> 2.6.1
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-6-3" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="MongoDB.Bson" version="2.5.1" /&gt;
@@ -1214,15 +1208,15 @@ nuget MongoDB.Bson ~> 2.6.1
 nuget MongoDB.Bson ~> 2.5.1
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-7-3" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="MongoDB.Bson" version="2.4.4" /&gt;
@@ -1235,15 +1229,15 @@ nuget MongoDB.Bson ~> 2.5.1
 nuget MongoDB.Bson ~> 2.4.4
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-8-3" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="MongoDB.Bson" version="2.3.0" /&gt;
@@ -1256,15 +1250,15 @@ nuget MongoDB.Bson ~> 2.4.4
 nuget MongoDB.Bson ~> 2.3.0
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-9-3" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="MongoDB.Bson" version="2.2.4" /&gt;
@@ -1277,15 +1271,15 @@ nuget MongoDB.Bson ~> 2.3.0
 nuget MongoDB.Bson ~> 2.2.4
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-10-3" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="MongoDB.Bson" version="2.1.1" /&gt;
@@ -1298,15 +1292,15 @@ nuget MongoDB.Bson ~> 2.2.4
 nuget MongoDB.Bson ~> 2.1.1
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-11-3" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="MongoDB.Bson" version="2.0.2" /&gt;
@@ -1319,57 +1313,57 @@ nuget MongoDB.Bson ~> 2.1.1
 nuget MongoDB.Bson ~> 2.0.2
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
           <div id="driver-3" class="download description hidden">
             <p>The BSON library.</p>
 
           </div>
-
-
-
-
-
-
-
-
-
-
-
+          
+      
+      
+      
+        
+        
+          
+          
+          
+          
+          
 <div id="nuget-0-4" class="download  hidden">
 <pre><code>&lt;packages&gt;
-    &lt;package id="mongocsharpdriver" version="2.11.0-beta1" /&gt;
-    &lt;package id="MongoDB.Driver" version="2.11.0-beta1" /&gt;
-    &lt;package id="MongoDB.Driver.Core" version="2.11.0-beta1" /&gt;
-    &lt;package id="MongoDB.Bson" version="2.11.0-beta1" /&gt;
+    &lt;package id="mongocsharpdriver" version="2.11.0" /&gt;
+    &lt;package id="MongoDB.Driver" version="2.11.0" /&gt;
+    &lt;package id="MongoDB.Driver.Core" version="2.11.0" /&gt;
+    &lt;package id="MongoDB.Bson" version="2.11.0" /&gt;
 &lt;/packages&gt;
 </code></pre>
 </div>
 <div id="paket-0-4" class="download hidden">
 <pre><code>source https://nuget.org/api/v2
 
-nuget mongocsharpdriver ~> 2.11.0-beta1
+nuget mongocsharpdriver ~> 2.11.0
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-1-4" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="mongocsharpdriver" version="2.10.4" /&gt;
@@ -1385,15 +1379,15 @@ nuget mongocsharpdriver ~> 2.11.0-beta1
 nuget mongocsharpdriver ~> 2.10.4
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-2-4" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="mongocsharpdriver" version="2.9.3" /&gt;
@@ -1409,15 +1403,15 @@ nuget mongocsharpdriver ~> 2.10.4
 nuget mongocsharpdriver ~> 2.9.3
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-3-4" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="mongocsharpdriver" version="2.8.1" /&gt;
@@ -1433,15 +1427,15 @@ nuget mongocsharpdriver ~> 2.9.3
 nuget mongocsharpdriver ~> 2.8.1
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-4-4" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="mongocsharpdriver" version="2.7.3" /&gt;
@@ -1457,15 +1451,15 @@ nuget mongocsharpdriver ~> 2.8.1
 nuget mongocsharpdriver ~> 2.7.3
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-5-4" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="mongocsharpdriver" version="2.6.1" /&gt;
@@ -1481,15 +1475,15 @@ nuget mongocsharpdriver ~> 2.7.3
 nuget mongocsharpdriver ~> 2.6.1
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-6-4" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="mongocsharpdriver" version="2.5.1" /&gt;
@@ -1505,15 +1499,15 @@ nuget mongocsharpdriver ~> 2.6.1
 nuget mongocsharpdriver ~> 2.5.1
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-7-4" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="mongocsharpdriver" version="2.4.4" /&gt;
@@ -1529,15 +1523,15 @@ nuget mongocsharpdriver ~> 2.5.1
 nuget mongocsharpdriver ~> 2.4.4
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-8-4" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="mongocsharpdriver" version="2.3.0" /&gt;
@@ -1553,15 +1547,15 @@ nuget mongocsharpdriver ~> 2.4.4
 nuget mongocsharpdriver ~> 2.3.0
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-9-4" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="mongocsharpdriver" version="2.2.4" /&gt;
@@ -1577,15 +1571,15 @@ nuget mongocsharpdriver ~> 2.3.0
 nuget mongocsharpdriver ~> 2.2.4
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-10-4" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="mongocsharpdriver" version="2.1.1" /&gt;
@@ -1601,15 +1595,15 @@ nuget mongocsharpdriver ~> 2.2.4
 nuget mongocsharpdriver ~> 2.1.1
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-11-4" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="mongocsharpdriver" version="2.0.2" /&gt;
@@ -1625,15 +1619,15 @@ nuget mongocsharpdriver ~> 2.1.1
 nuget mongocsharpdriver ~> 2.0.2
 </code></pre>
 </div>
-
-
-
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
+          
+          
+          
 <div id="nuget-12-4" class="download  hidden">
 <pre><code>&lt;packages&gt;
     &lt;package id="mongocsharpdriver" version="1.11" /&gt;
@@ -1646,97 +1640,97 @@ nuget mongocsharpdriver ~> 2.0.2
 nuget mongocsharpdriver ~> 1.11
 </code></pre>
 </div>
-
-
-
-
-
-
+          
+          
+          
+          
+          
+          
           <div id="driver-4" class="download description hidden">
             <p>The legacy driver.</p>
 
           </div>
-
-
-
+          
+      
+      
     </div>
     </div>
   </div>
 
       </div>
       <div class="col-md-4">
-
+        
 <section id="releases">
   <h2>Releases</h2>
   <table class="table table-striped">
     <thead><tr><th>Release</th><th>Documentation</th></tr></thead>
     <tbody>
-
+    
       <tr>
-        <th class="">2.11.0-beta1</th>
+        <th class="current">2.11.0</th>
         <td><a href="./2.11/" class="reference">Reference</a> &#124; <a href="./2.11/apidocs">API</a></td>
       </tr>
-
+    
       <tr>
-        <th class="current">2.10.4</th>
+        <th class="">2.10.4</th>
         <td><a href="./2.10/" class="reference">Reference</a> &#124; <a href="./2.10/apidocs">API</a></td>
       </tr>
-
+    
       <tr>
         <th class="">2.9.3</th>
         <td><a href="./2.9/" class="reference">Reference</a> &#124; <a href="./2.9/apidocs">API</a></td>
       </tr>
-
+    
       <tr>
         <th class="">2.8.1</th>
         <td><a href="./2.8/" class="reference">Reference</a> &#124; <a href="./2.8/apidocs">API</a></td>
       </tr>
-
+    
       <tr>
         <th class="">2.7.3</th>
         <td><a href="./2.7/" class="reference">Reference</a> &#124; <a href="./2.7/apidocs">API</a></td>
       </tr>
-
+    
       <tr>
         <th class="">2.6.1</th>
         <td><a href="./2.6/" class="reference">Reference</a> &#124; <a href="./2.6/apidocs">API</a></td>
       </tr>
-
+    
       <tr>
         <th class="">2.5.1</th>
         <td><a href="./2.5/" class="reference">Reference</a> &#124; <a href="./2.5/apidocs">API</a></td>
       </tr>
-
+    
       <tr>
         <th class="">2.4.4</th>
         <td><a href="./2.4/" class="reference">Reference</a> &#124; <a href="./2.4/apidocs">API</a></td>
       </tr>
-
+    
       <tr>
         <th class="">2.3.0</th>
         <td><a href="./2.3/" class="reference">Reference</a> &#124; <a href="./2.3/apidocs">API</a></td>
       </tr>
-
+    
       <tr>
         <th class="">2.2.4</th>
         <td><a href="./2.2/" class="reference">Reference</a> &#124; <a href="http://api.mongodb.org/csharp/2.2">API</a></td>
       </tr>
-
+    
       <tr>
         <th class="">2.1.1</th>
         <td><a href="./2.1/" class="reference">Reference</a> &#124; <a href="http://api.mongodb.org/csharp/2.1">API</a></td>
       </tr>
-
+    
       <tr>
         <th class="">2.0.2</th>
         <td><a href="./2.0/" class="reference">Reference</a> &#124; <a href="http://api.mongodb.org/csharp/2.0">API</a></td>
       </tr>
-
+    
       <tr>
         <th class="">1.11</th>
         <td><a href="./1.11" class="reference">Reference</a> &#124; <a href="http://api.mongodb.org/csharp/1.11">API</a></td>
       </tr>
-
+    
   </tbody>
   </table>
 </section>
@@ -1756,9 +1750,9 @@ nuget mongocsharpdriver ~> 1.11
      </div>
     </div>
   </div>
+  
 
-
-
+  
   <div class="container">
     <div class="row">
       <div class="col-md-12">
@@ -1774,7 +1768,7 @@ nuget mongocsharpdriver ~> 1.11
       </div>
     </div>
   </div>
-
+  
 
 
 
@@ -1788,14 +1782,14 @@ nuget mongocsharpdriver ~> 1.11
 <script type="text/javascript" src="/mongo-csharp-driver/s/js/frontpage.js"></script>
 
 
-<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-MNSSXD"
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=UA-7301842-14"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push(
 {'gtm.start': new Date().getTime(),event:'gtm.js'}
 );var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-MNSSXD');</script>
+})(window,document,'script','dataLayer','UA-7301842-14');</script>
 
 
 <script type="text/javascript">

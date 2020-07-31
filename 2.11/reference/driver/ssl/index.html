@@ -425,6 +425,240 @@
 
 
   
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
 
 
         
@@ -1019,6 +1253,250 @@
         <i class='fa'></i>
         Serialization
     </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.11/reference/bson/guidserialization/" class="">
+      <i class='fa'></i>
+      <span>Guid Serialization</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/guidserialization/background/">
+        <i class='fa'></i>
+        Background
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l4 ">
+  <a href="/mongo-csharp-driver/2.11/reference/bson/guidserialization/guidrepresentationmode/guidrepresentationmode/" class="">
+      <i class='fa'></i>
+      <span>GuidRepresentationMode</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l5">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/guidserialization/guidrepresentationmode/v2mode/">
+        <i class='fa'></i>
+        V2 mode
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l5">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/guidserialization/guidrepresentationmode/v3mode/">
+        <i class='fa'></i>
+        V3 mode
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l4 ">
+  <a href="/mongo-csharp-driver/2.11/reference/bson/guidserialization/serializerchanges/serializerchanges/" class="">
+      <i class='fa'></i>
+      <span>Serializer changes</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l5">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/guidserialization/serializerchanges/guidserializerchanges/">
+        <i class='fa'></i>
+        GuidSerializer changes
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l5">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/guidserialization/serializerchanges/objectserializerchanges/">
+        <i class='fa'></i>
+        ObjectSerializer changes
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+    </ul>
   </li>
 
 
@@ -2294,22 +2772,22 @@ It is imperative that when loading a certificate with a password, the <a href="h
 
 <h4 id="default-behavior">Default behavior</h4>
 
-<p>The .NET Driver now <strong>enables</strong> certificate revocation checking by
+<p>The .NET Driver now <strong>disables</strong> certificate revocation checking by
 default, setting <a href="/mongo-csharp-driver/2.11/apidocs/html/P_MongoDB_Driver_SslSettings_CheckCertificateRevocation.htm
 "><code>CheckCertificateRevocation</code></a> in
 <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_SslSettings.htm
 "><code>SslSettings</code></a> to
-<code>true</code> by default. This is in contrast to .NET&rsquo;s defaults for
+<code>false</code> by default. This correlates to .NET&rsquo;s defaults for
 <code>SslStream</code> (see .NET Framework documentation
 <a href="https://docs.microsoft.com/en-us/dotnet/api/system.net.security.sslstream.authenticateasclient?view=netframework-4.7.2#System_Net_Security_SslStream_AuthenticateAsClient_System_String_">here</a>
 and .NET Standard documentation
 <a href="https://docs.microsoft.com/en-us/dotnet/api/system.net.security.sslstream.authenticateasclient?view=netstandard-2.0#System_Net_Security_SslStream_AuthenticateAsClient_System_String_">here</a>).
-Any applications relying on the older default of <code>false</code> now must
+Applications relying on the intermediate default of <code>true</code> (introduced in beta driver releases 2.11.0-beta1 and 2.11.0-beta2) must
 explicitly set <a href="/mongo-csharp-driver/2.11/apidocs/html/P_MongoDB_Driver_SslSettings_CheckCertificateRevocation.htm
 "><code>CheckCertificateRevocation</code></a> to
-<code>false</code> in <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_SslSettings.htm
-"><code>SslSettings</code></a> to disable certificate revocation checking. Alternatively,
-applications may also set <code>tlsDisableCertificateRevocationCheck=true</code>
+<code>true</code> in <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_SslSettings.htm
+"><code>SslSettings</code></a> to enable certificate revocation checking. Alternatively,
+applications may also set <code>tlsDisableCertificateRevocationCheck=false</code>
 in their connection string.  See
 <a href="#tlsDisableCertificateRevocationCheck">tlsDisableCertificateRevocationCheck</a>
 for more information.</p>
@@ -2639,17 +3117,18 @@ for the driver to make use of the newest TLS protocols.</p>
 <script type="text/javascript" src="/mongo-csharp-driver/2.11/lib/highlight/highlight.pack.js"></script>
 <script type="text/javascript" src="/mongo-csharp-driver/2.11/js/scripts.js"></script>
 <script type="text/javascript" src="/mongo-csharp-driver/2.11/lib/bootstrap-toggle/bootstrap-toggle.min.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/lib/delighted.js"></script>
 <script type="text/javascript" src="/mongo-csharp-driver/2.11/js/dn.js"></script>
 
 
-<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-K75Z5Q"
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=UA-7301842-14"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push(
 {'gtm.start': new Date().getTime(),event:'gtm.js'}
 );var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-K75Z5Q');</script>
+})(window,document,'script','dataLayer','UA-7301842-14');</script>
 
 
 <script type="text/javascript">

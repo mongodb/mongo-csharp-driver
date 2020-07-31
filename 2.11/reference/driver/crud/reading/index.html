@@ -425,6 +425,240 @@
 
 
   
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
 
 
         
@@ -1196,6 +1430,250 @@
         <i class='fa'></i>
         Serialization
     </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.11/reference/bson/guidserialization/" class="">
+      <i class='fa'></i>
+      <span>Guid Serialization</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/guidserialization/background/">
+        <i class='fa'></i>
+        Background
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l4 ">
+  <a href="/mongo-csharp-driver/2.11/reference/bson/guidserialization/guidrepresentationmode/guidrepresentationmode/" class="">
+      <i class='fa'></i>
+      <span>GuidRepresentationMode</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l5">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/guidserialization/guidrepresentationmode/v2mode/">
+        <i class='fa'></i>
+        V2 mode
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l5">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/guidserialization/guidrepresentationmode/v3mode/">
+        <i class='fa'></i>
+        V3 mode
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l4 ">
+  <a href="/mongo-csharp-driver/2.11/reference/bson/guidserialization/serializerchanges/serializerchanges/" class="">
+      <i class='fa'></i>
+      <span>Serializer changes</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l5">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/guidserialization/serializerchanges/guidserializerchanges/">
+        <i class='fa'></i>
+        GuidSerializer changes
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l5">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/guidserialization/serializerchanges/objectserializerchanges/">
+        <i class='fa'></i>
+        ObjectSerializer changes
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+    </ul>
   </li>
 
 
@@ -2556,7 +3034,7 @@ The order of the chained methods is unimportant. Limit followed by Skip is the s
     .ToCursor();
 foreach (var doc in cursor.ToEnumerable())
 {
-    Console.WriteLine(doc); 
+    Console.WriteLine(doc);
 }
 </code></pre>
 
@@ -2629,8 +3107,8 @@ class ZipEntry
 
 <p>This will result in the following aggregation pipeline getting sent to the server:</p>
 
-<pre><code class="language-json">[{ group: { _id: '$state', TotalPopulation: { $sum : '$pop' } } },
-{ $match: { TotalPopulation: { $gt: 20000 } } }]
+<pre><code class="language-json">[{ group : { _id : '$state', TotalPopulation: { $sum : '$pop' } } },
+{ $match : { TotalPopulation : { $gt : 20000 } } }]
 </code></pre>
 
 <p><div class="admonition note">
@@ -2662,7 +3140,7 @@ Unlike <code>Find</code>, the order that stages are defined in matters. <code>Sk
 <pre><code class="language-csharp">Project(x =&gt; new { Name = x.FirstName + &quot; &quot; + x.LastName });
 </code></pre>
 
-<pre><code class="language-json">{ $project: { Name: { $concat: ['$FirstName', ' ', '$LastName'] } } }
+<pre><code class="language-json">{ $project : { Name : { $concat : ['$FirstName', ' ', '$LastName'] } } }
 </code></pre>
 
 <p><div class="admonition note">
@@ -2679,7 +3157,7 @@ In an aggregation framework projection, a new type, either anonymous or named, m
 <pre><code class="language-csharp">Match(x =&gt; x.Age &gt; 21);
 </code></pre>
 
-<pre><code class="language-json">{ $match: { Age: { $gt: 21 } } }
+<pre><code class="language-json">{ $match : { Age : { $gt : 21 } } }
 </code></pre>
 
 <h4 id="redact">$redact</h4>
@@ -2695,7 +3173,7 @@ In an aggregation framework projection, a new type, either anonymous or named, m
 <pre><code class="language-csharp">Limit(20);
 </code></pre>
 
-<pre><code class="language-json">{ $limit: 20 }
+<pre><code class="language-json">{ $limit : 20 }
 </code></pre>
 
 <h4 id="skip">$skip</h4>
@@ -2706,7 +3184,7 @@ In an aggregation framework projection, a new type, either anonymous or named, m
 <pre><code class="language-csharp">Skip(20);
 </code></pre>
 
-<pre><code class="language-json">{ $skip: 20 }
+<pre><code class="language-json">{ $skip : 20 }
 </code></pre>
 
 <h4 id="unwind">$unwind</h4>
@@ -2718,7 +3196,7 @@ In an aggregation framework projection, a new type, either anonymous or named, m
 <pre><code class="language-csharp">Unwind(x =&gt; x.ArrayFieldToUnwind);
 </code></pre>
 
-<pre><code class="language-json">{ $unwind: 'ArrayFieldToUnwind' }
+<pre><code class="language-json">{ $unwind : 'ArrayFieldToUnwind' }
 </code></pre>
 
 <h4 id="group">$group</h4>
@@ -2729,7 +3207,7 @@ In an aggregation framework projection, a new type, either anonymous or named, m
 <pre><code class="language-csharp">Group(x =&gt; x.Name, g =&gt; new { Name = g.Key, AverageAge = g.Average(x = x.Age) });
 </code></pre>
 
-<pre><code class="language-json">{ $group: { _id: '$Name', AverageAge: { $avg: '$Age'} } }
+<pre><code class="language-json">{ $group : { _id : '$Name', AverageAge : { $avg : '$Age'} } }
 </code></pre>
 
 <p>As in project, it is required that the result of the grouping be a new type, either anonymous or named. If the <code>Key</code> of the grouping is not used, an <code>_id</code> will still be inserted as this is required by the <code>$group</code> operator.</p>
@@ -2742,7 +3220,7 @@ In an aggregation framework projection, a new type, either anonymous or named, m
 <pre><code class="language-csharp">SortBy(x =&gt; x.LastName).ThenByDescending(x =&gt; x.Age);
 </code></pre>
 
-<pre><code class="language-json">{ $sort: { LastName: 1, Age: -1 } }
+<pre><code class="language-json">{ $sort : { LastName : 1, Age : -1 } }
 </code></pre>
 
 <h4 id="geonear">$geoNear</h4>
@@ -2762,7 +3240,256 @@ In an aggregation framework projection, a new type, either anonymous or named, m
 <pre><code class="language-csharp">await OutAsync(&quot;myNewCollection&quot;);
 </code></pre>
 
-<pre><code class="language-json">{ $out: 'myNewCollection' }
+<pre><code class="language-json">{ $out : 'myNewCollection' }
+</code></pre>
+
+<h3 id="text-search">Text Search</h3>
+
+<p><a href="https://docs.atlas.mongodb.com/atlas-search">Atlas Search</a> makes it easy to build fast, relevance-based search capabilities on top of your MongoDB data. Try it today on <a href="https://www.mongodb.com/cloud/atlas">MongoDB Atlas</a>, our fully managed database as a service.</p>
+
+<p>The following examples can be used alongside the <a href="https://docs.atlas.mongodb.com/reference/atlas-search/tutorial/">Atlas Search Tutorial</a></p>
+
+<pre><code class="language-csharp">var collection = client.GetDatabase(&quot;sample_mflix&quot;).GetCollection&lt;BsonDocument&gt;(&quot;movies&quot;);
+
+// Simple search example
+var searchStage = @&quot;
+{
+    $search : {
+        text : {
+            query : 'baseball',
+            path : 'plot'
+        }
+    }
+}&quot;;
+var projection = @&quot;
+{
+    _id : 0,
+    title : 1,
+    plot : 1
+}&quot;;
+var pipeline = new EmptyPipelineDefinition&lt;BsonDocument&gt;()
+    .AppendStage&lt;BsonDocument, BsonDocument, BsonDocument&gt;(searchStage)
+    .Limit(5)
+    .Project(projection);
+var moviesAboutBaseball = collection.Aggregate(pipeline).ToList();
+
+Console.WriteLine(&quot;Movies about baseball:&quot;);
+foreach (var movie in moviesAboutBaseball)
+{
+    Console.WriteLine($&quot;  {movie}&quot;);
+}
+Console.WriteLine();
+
+// Complex search example
+string complexSearch = @&quot;
+{
+    $search : {
+        compound : {
+            must : [ {
+                text : {
+                    query : ['Hawaii', 'Alaska'],
+                    path : 'plot'
+                },
+            },
+            {
+                regex : {
+                    query : '([0-9]{4})',
+                    path : 'plot',
+                    allowAnalyzedField : true
+                }
+            } ],
+            mustNot : [ {
+                text : {
+                    query : ['Comedy', 'Romance'],
+                    path : 'genres'
+                }
+            },
+            {
+                term : {
+                    query : ['Beach', 'Snow'],
+                    path : 'title'
+                }
+            } ]
+        }
+    }
+}&quot;;
+var projectionWithGenre = @&quot;
+{
+    title : 1,
+    plot : 1,
+    genres : 1,
+    _id : 0
+}&quot;;
+var complexPipeline = new EmptyPipelineDefinition&lt;BsonDocument&gt;()
+    .AppendStage&lt;BsonDocument, BsonDocument, BsonDocument&gt;(complexSearch)
+    .Project(projectionWithGenre);
+var complexQueryResults = collection.Aggregate&lt;BsonDocument&gt;(complexPipeline).ToList();
+
+Console.WriteLine(&quot;Complex query results: &quot;);
+foreach (var movie in complexQueryResults)
+{
+    Console.WriteLine($&quot;  {movie}&quot;);
+}
+Console.WriteLine();
+
+// Search using a multi analyzer
+var queryUsingKeywordAnalyzer = @&quot;
+{
+    $search : {
+        text : {
+            query : 'The Count of Monte Cristo',
+            path : { 'value' : 'title', 'multi' : 'keywordAnalyzer' }
+        }
+    }
+}&quot;;
+var pipelineUsingKeywordAnalyzer = new EmptyPipelineDefinition&lt;BsonDocument&gt;()
+    .AppendStage&lt;BsonDocument, BsonDocument, BsonDocument&gt;(queryUsingKeywordAnalyzer)
+    .Project(projection);
+var moviesNamedTheCountOfMonteCristo = collection
+    .Aggregate&lt;BsonDocument&gt;(pipelineUsingKeywordAnalyzer)
+    .ToList();
+
+Console.WriteLine(@&quot;Movies named &quot;&quot;The Count of Monte Cristo&quot;&quot;:&quot;);
+foreach (var movie in moviesNamedTheCountOfMonteCristo)
+{
+    Console.WriteLine($&quot;  {movie}&quot;);
+}
+Console.WriteLine();
+</code></pre>
+
+<p>Below is the version which utilizes <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
+">BsonDocument</a> class.</p>
+
+<pre><code class="language-csharp">var collection = client.GetDatabase(&quot;sample_mflix&quot;).GetCollection&lt;BsonDocument&gt;(&quot;movies&quot;);
+
+// Simple search example
+var searchStage = new BsonDocument
+{
+    {
+        &quot;$search&quot;, new BsonDocument
+        {
+            {
+                &quot;text&quot;, new BsonDocument
+                {
+                    { &quot;query&quot;, &quot;baseball&quot; },
+                    { &quot;path&quot;, &quot;plot&quot; }
+                }
+            }
+        }
+    }
+};
+var projection = new BsonDocument
+{
+    { &quot;_id&quot;, 0 },
+    { &quot;title&quot;, 1 },
+    { &quot;plot&quot;, 1 }
+};
+var pipeline = new EmptyPipelineDefinition&lt;BsonDocument&gt;()
+    .AppendStage&lt;BsonDocument, BsonDocument, BsonDocument&gt;(searchStage)
+    .Limit(5)
+    .Project(projection);
+var moviesAboutBaseball = collection.Aggregate(pipeline).ToList();
+
+Console.WriteLine(&quot;Movies about baseball:&quot;);
+foreach (var movie in moviesAboutBaseball)
+{
+    Console.WriteLine($&quot;  {movie}&quot;);
+}
+Console.WriteLine();
+
+// Complex search example
+var complexSearch = new BsonDocument
+{
+    {
+        &quot;$search&quot;, new BsonDocument
+        {
+            {
+                &quot;compound&quot;, new BsonDocument
+                {
+                    {
+                        &quot;must&quot;, new BsonArray
+                        {
+                            new BsonDocument(&quot;text&quot;, new BsonDocument
+                            {
+                                { &quot;query&quot;, new BsonArray { &quot;Hawaii&quot;, &quot;Alaska&quot; } },
+                                { &quot;path&quot;, &quot;plot&quot; }
+                            }),
+                            new BsonDocument(&quot;regex&quot;, new BsonDocument
+                            {
+                                { &quot;query&quot;, &quot;([0-9]{4})&quot; },
+                                { &quot;path&quot;, &quot;plot&quot; },
+                                { &quot;allowAnalyzedField&quot;, true }
+                            })
+                        }
+                    },
+                    {
+                        &quot;mustNot&quot;, new BsonArray
+                        {
+                            new BsonDocument(&quot;text&quot;, new BsonDocument
+                            {
+                                { &quot;query&quot;, new BsonArray { &quot;Comedy&quot;, &quot;Romance&quot; } },
+                                { &quot;path&quot;, &quot;genres&quot; }
+                            }),
+                            new BsonDocument(&quot;term&quot;, new BsonDocument
+                            {
+                                { &quot;query&quot;, new BsonArray { &quot;Beach&quot;, &quot;Snow&quot; } },
+                                { &quot;path&quot;, &quot;title&quot; }
+                            })
+                        }
+                    }
+                }
+            }
+        }
+    }
+};
+var projectionWithGenre = new BsonDocument
+{
+    { &quot;title&quot;, 1 },
+    { &quot;plot&quot;, 1 },
+    { &quot;genres&quot;, 1 },
+    { &quot;_id&quot;, 0 }
+};
+var complexPipeline = new EmptyPipelineDefinition&lt;BsonDocument&gt;()
+    .AppendStage&lt;BsonDocument, BsonDocument, BsonDocument&gt;(complexSearch)
+    .Project(projectionWithGenre);
+var complexQueryResults = collection.Aggregate&lt;BsonDocument&gt;(complexPipeline).ToList();
+
+Console.WriteLine(&quot;Complex query results: &quot;);
+foreach (var movie in complexQueryResults)
+{
+    Console.WriteLine($&quot;  {movie}&quot;);
+}
+Console.WriteLine();
+
+// Search using a multi analyzer
+var queryUsingKeywordAnalyzer = new BsonDocument
+{
+    {
+        &quot;$search&quot;, new BsonDocument
+        {
+            {
+                &quot;text&quot;, new BsonDocument
+                {
+                    { &quot;query&quot;, &quot;The Count of Monte Cristo&quot; },
+                    { &quot;path&quot;, new BsonDocument { { &quot;value&quot;, &quot;title&quot; }, { &quot;multi&quot;, &quot;keywordAnalyzer&quot; } } }
+                }
+            }
+        }
+    }
+};
+var pipelineUsingKeywordAnalyzer = new EmptyPipelineDefinition&lt;BsonDocument&gt;()
+    .AppendStage&lt;BsonDocument, BsonDocument, BsonDocument&gt;(queryUsingKeywordAnalyzer)
+    .Project(projection);
+var moviesNamedTheCountOfMonteCristo = collection
+    .Aggregate&lt;BsonDocument&gt;(pipelineUsingKeywordAnalyzer)
+    .ToList();
+
+Console.WriteLine(@&quot;Movies named &quot;&quot;The Count of Monte Cristo&quot;&quot;:&quot;);
+foreach (var movie in moviesNamedTheCountOfMonteCristo)
+{
+    Console.WriteLine($&quot;  {movie}&quot;);
+}
+Console.WriteLine();
 </code></pre>
 
 
@@ -2819,6 +3546,7 @@ In an aggregation framework projection, a new type, either anonymous or named, m
 <li><a href="#geonear">$geoNear</a></li>
 <li><a href="#out">$out</a></li>
 </ul></li>
+<li><a href="#text-search">Text Search</a></li>
 </ul></li>
 </ul></li>
 </ul>
@@ -2852,17 +3580,18 @@ In an aggregation framework projection, a new type, either anonymous or named, m
 <script type="text/javascript" src="/mongo-csharp-driver/2.11/lib/highlight/highlight.pack.js"></script>
 <script type="text/javascript" src="/mongo-csharp-driver/2.11/js/scripts.js"></script>
 <script type="text/javascript" src="/mongo-csharp-driver/2.11/lib/bootstrap-toggle/bootstrap-toggle.min.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/lib/delighted.js"></script>
 <script type="text/javascript" src="/mongo-csharp-driver/2.11/js/dn.js"></script>
 
 
-<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-K75Z5Q"
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=UA-7301842-14"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push(
 {'gtm.start': new Date().getTime(),event:'gtm.js'}
 );var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-K75Z5Q');</script>
+})(window,document,'script','dataLayer','UA-7301842-14');</script>
 
 
 <script type="text/javascript">

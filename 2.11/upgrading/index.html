@@ -707,6 +707,250 @@
 
 
 <li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.11/reference/bson/guidserialization/" class="">
+      <i class='fa'></i>
+      <span>Guid Serialization</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/guidserialization/background/">
+        <i class='fa'></i>
+        Background
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l4 ">
+  <a href="/mongo-csharp-driver/2.11/reference/bson/guidserialization/guidrepresentationmode/guidrepresentationmode/" class="">
+      <i class='fa'></i>
+      <span>GuidRepresentationMode</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l5">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/guidserialization/guidrepresentationmode/v2mode/">
+        <i class='fa'></i>
+        V2 mode
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l5">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/guidserialization/guidrepresentationmode/v3mode/">
+        <i class='fa'></i>
+        V3 mode
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l4 ">
+  <a href="/mongo-csharp-driver/2.11/reference/bson/guidserialization/serializerchanges/serializerchanges/" class="">
+      <i class='fa'></i>
+      <span>Serializer changes</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l5">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/guidserialization/serializerchanges/guidserializerchanges/">
+        <i class='fa'></i>
+        GuidSerializer changes
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l5">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/guidserialization/serializerchanges/objectserializerchanges/">
+        <i class='fa'></i>
+        ObjectSerializer changes
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
   <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/" class="">
       <i class='fa'></i>
       <span>Mapping Classes</span>
@@ -1906,17 +2150,7 @@
 
 <h3 id="backwards-compatibility-with-driver-version-2-7-0-2-10-x">Backwards compatibility with driver version 2.7.0–2.10.x</h3>
 
-<p>An application that is unable to contact the OCSP endpoints and/or CRL
-distribution points specified in a server&rsquo;s certificate may experience
-connectivity issues (e.g. if the application is behind a firewall with
-an outbound whitelist). This is because the driver needs to contact
-the OCSP endpoints and/or CRL distribution points specified in the
-server’s certificate and if these OCSP endpoints and/or CRL
-distribution points are not accessible, then the connection to the
-server may fail. In such a scenario, connectivity may be able to be
-restored by disabling certificate revocation checking by adding
-<code>tlsDisableCertificateRevocationCheck=true</code> to the application&rsquo;s connection
-string.</p>
+<p>No known backward compatibility issues.</p>
 
 
 
@@ -1976,17 +2210,18 @@ string.</p>
 <script type="text/javascript" src="/mongo-csharp-driver/2.11/lib/highlight/highlight.pack.js"></script>
 <script type="text/javascript" src="/mongo-csharp-driver/2.11/js/scripts.js"></script>
 <script type="text/javascript" src="/mongo-csharp-driver/2.11/lib/bootstrap-toggle/bootstrap-toggle.min.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/lib/delighted.js"></script>
 <script type="text/javascript" src="/mongo-csharp-driver/2.11/js/dn.js"></script>
 
 
-<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-K75Z5Q"
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=UA-7301842-14"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push(
 {'gtm.start': new Date().getTime(),event:'gtm.js'}
 );var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-K75Z5Q');</script>
+})(window,document,'script','dataLayer','UA-7301842-14');</script>
 
 
 <script type="text/javascript">

@@ -671,6 +671,250 @@
 
 
 <li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.11/reference/bson/guidserialization/" class="">
+      <i class='fa'></i>
+      <span>Guid Serialization</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/guidserialization/background/">
+        <i class='fa'></i>
+        Background
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l4 ">
+  <a href="/mongo-csharp-driver/2.11/reference/bson/guidserialization/guidrepresentationmode/guidrepresentationmode/" class="">
+      <i class='fa'></i>
+      <span>GuidRepresentationMode</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l5">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/guidserialization/guidrepresentationmode/v2mode/">
+        <i class='fa'></i>
+        V2 mode
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l5">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/guidserialization/guidrepresentationmode/v3mode/">
+        <i class='fa'></i>
+        V3 mode
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l4 ">
+  <a href="/mongo-csharp-driver/2.11/reference/bson/guidserialization/serializerchanges/serializerchanges/" class="">
+      <i class='fa'></i>
+      <span>Serializer changes</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l5">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/guidserialization/serializerchanges/guidserializerchanges/">
+        <i class='fa'></i>
+        GuidSerializer changes
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l5">
+    <a href="/mongo-csharp-driver/2.11/reference/bson/guidserialization/serializerchanges/objectserializerchanges/">
+        <i class='fa'></i>
+        ObjectSerializer changes
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
   <a href="/mongo-csharp-driver/2.11/reference/bson/mapping/" class="">
       <i class='fa'></i>
       <span>Mapping Classes</span>
@@ -1866,9 +2110,9 @@
 
 
 
-<h2 id="what-s-new-in-2-11-0-beta1">What&rsquo;s New in 2.11.0-beta1</h2>
+<h2 id="what-s-new-in-2-11-0">What&rsquo;s New in 2.11.0</h2>
 
-<p>Some of the changes in 2.11.0-beta1 include:</p>
+<p>The main new features in 2.11.0 support new features in MongoDB 4.4.0. These features include:</p>
 
 <ul>
 <li>Support for all new
@@ -1882,6 +2126,10 @@ projections: <code>randVal</code>, <code>searchScore</code>, <code>searchHighlig
 <li>Support for <code>MONGODB-AWS</code> authentication using Amazon Web Services
 (AWS) Identity and Access Management (IAM) credentials</li>
 <li>Support for stapled OCSP (Online Certificate Status Protocol) (macOS only)</li>
+<li>Support for shorter SCRAM (Salted Challenge Response Authentication Mechanism) conversations</li>
+<li>Support for speculative SCRAM and MONGODB-X509 authentication</li>
+<li>Support for the <code>CommitQuorum</code> option in <code>createIndexes</code></li>
+<li>Support for <a href="https://docs.mongodb.com/master/core/read-preference-hedge-option/index.html">hedged reads</a></li>
 </ul>
 
 <p>Other new additions and updates in this beta include:</p>
@@ -1891,12 +2139,14 @@ projections: <code>randVal</code>, <code>searchScore</code>, <code>searchHighlig
 <li>Support for Snappy compression on .NET Core on Windows (in addition
 to existing support on .NET Framework)</li>
 <li>Support for Zstandard compression on Windows on 64-bit platforms</li>
-<li>A new default of enabling certificate revocation checking.</li>
-<li>A new URI option <code>tlsDisableCertificateRevocationCheck</code> to disable
+<li>A new URI option <code>tlsDisableCertificateRevocationCheck</code> to enable or disable
 certificate revocation checking.</li>
 <li>An expanded list of retryable write errors via the inclusion of
 <code>ExceededTimeLimit</code>, <code>LockTimeout</code> and <code>ClientDisconnect</code></li>
 <li>A new GuidRepresentationMode setting to opt-in to the new V3 GuidRepresentation mode</li>
+<li>Improved SDAM (Server Discovery and Monitoring) error handling</li>
+<li>Support for the <code>AuthorizedDatabases</code> option in <code>ListDatabases</code></li>
+<li>Session support for <code>AsQueryable</code></li>
 </ul>
 
 <h2 id="what-s-new-in-2-10-0">What&rsquo;s New in 2.10.0</h2>
@@ -2272,7 +2522,7 @@ await db.GetCollection&lt;dynamic&gt;(&quot;people&quot;).InsertOneAsync(person)
 <ul>
 <li>
 <ul>
-<li><a href="#what-s-new-in-2-11-0-beta1">What&rsquo;s New in 2.11.0-beta1</a></li>
+<li><a href="#what-s-new-in-2-11-0">What&rsquo;s New in 2.11.0</a></li>
 <li><a href="#what-s-new-in-2-10-0">What&rsquo;s New in 2.10.0</a></li>
 <li><a href="#what-s-new-in-2-9-0">What&rsquo;s New in 2.9.0</a></li>
 <li><a href="#what-s-new-in-2-8-0">What&rsquo;s New in 2.8.0</a></li>
@@ -2356,17 +2606,18 @@ await db.GetCollection&lt;dynamic&gt;(&quot;people&quot;).InsertOneAsync(person)
 <script type="text/javascript" src="/mongo-csharp-driver/2.11/lib/highlight/highlight.pack.js"></script>
 <script type="text/javascript" src="/mongo-csharp-driver/2.11/js/scripts.js"></script>
 <script type="text/javascript" src="/mongo-csharp-driver/2.11/lib/bootstrap-toggle/bootstrap-toggle.min.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.11/lib/delighted.js"></script>
 <script type="text/javascript" src="/mongo-csharp-driver/2.11/js/dn.js"></script>
 
 
-<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-K75Z5Q"
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=UA-7301842-14"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push(
 {'gtm.start': new Date().getTime(),event:'gtm.js'}
 );var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-K75Z5Q');</script>
+})(window,document,'script','dataLayer','UA-7301842-14');</script>
 
 
 <script type="text/javascript">
