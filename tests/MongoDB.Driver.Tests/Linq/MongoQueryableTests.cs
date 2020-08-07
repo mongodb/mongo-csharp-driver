@@ -183,7 +183,6 @@ namespace Tests.MongoDB.Driver.Linq
         public void Distinct_document_followed_by_where()
         {
             RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
-            RequireServer.Check().VersionLessThan("4.1.0"); // TODO: remove this line when SERVER-37459 is fixed
             var query = CreateQuery()
                 .Distinct()
                 .Where(x => x.A == "Awesome");
