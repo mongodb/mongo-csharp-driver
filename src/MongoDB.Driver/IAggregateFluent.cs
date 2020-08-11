@@ -551,6 +551,13 @@ namespace MongoDB.Driver
             QueryVector queryVector,
             int limit,
             VectorSearchOptions<TResult> options = null);
+
+        /// <summary>
+        /// Appends a sample stage to the pipeline.
+        /// </summary>
+        /// <param name="size">The sample size.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        IAggregateFluent<TResult> Sample(int size);
     }
 
     /// <summary>
