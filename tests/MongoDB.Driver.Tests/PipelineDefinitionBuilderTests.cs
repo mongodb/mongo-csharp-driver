@@ -115,6 +115,18 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void Sample_should_add_expected_stage()
+        {
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
+
+            var result = pipeline.Sample(15);
+
+            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
+            stages.Count.Should().Be(1);
+            stages[0].Should().Be("{ $sample: { size: 15 } }");
+        }
+
+        [Fact]
         public void UnionWith_should_add_expected_stage()
         {
             var pipeline = new EmptyPipelineDefinition<BsonDocument>();

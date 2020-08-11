@@ -204,6 +204,9 @@ namespace MongoDB.Driver
         public abstract IAggregateFluent<TResult> Sort(SortDefinition<TResult> sort);
 
         /// <inheritdoc />
+        public abstract IAggregateFluent<TResult> Sample(int size);
+
+        /// <inheritdoc />
         public virtual IAggregateFluent<AggregateSortByCountResult<TId>> SortByCount<TId>(AggregateExpressionDefinition<TResult, TId> id)
         {
             throw new NotImplementedException();
