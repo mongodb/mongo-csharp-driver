@@ -331,6 +331,13 @@ namespace MongoDB.Driver.Core.Servers
                     return; // stale generation number
                 }
 
+                if (ex is MongoConnectionException mongoConnectionException &&
+                    mongoConnectionException.IsNetworkException &&
+                    !mongoConnectionException.ContainsSocketTimeoutException)
+                {
+                    _monitor.CancelCurrentCheck();
+                }
+
                 if (ex is MongoConnectionException connectionException &&
                     (connectionException.IsNetworkException || connectionException.ContainsSocketTimeoutException))
                 {
