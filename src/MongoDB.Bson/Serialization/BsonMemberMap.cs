@@ -470,7 +470,7 @@ namespace MongoDB.Bson.Serialization
             {
                 throw new ArgumentNullException("serializer");
             }
-            if (serializer.ValueType != _memberType)
+            if (serializer.ValueType != _memberType && serializer.ValueType.DeclaringType != _memberType)
             {
                 var message = string.Format("Value type of serializer is {0} and does not match member type {1}.", serializer.ValueType.FullName, _memberType.FullName);
                 throw new ArgumentException(message, "serializer");

@@ -134,6 +134,9 @@ namespace MongoDB.Driver.Linq.Translators
                         }
                     }
                     break;
+                case ExpressionType.Conditional:
+                    filter = TranslateConditional((ConditionalExpression)node);
+                    break;
             }
 
             if (filter == null)
@@ -143,6 +146,12 @@ namespace MongoDB.Driver.Linq.Translators
             }
 
             return filter;
+        }
+
+        private FilterDefinition<BsonDocument> TranslateConditional(ConditionalExpression node)
+        {
+            var cond = AggregateLanguageTranslator.Translate(node, ExpressionTranslationOptions.Default);
+            return __builder.Expr(cond);
         }
 
         // private methods
@@ -363,6 +372,16 @@ namespace MongoDB.Driver.Linq.Translators
             return null;
         }
 
+        private FilterDefinition<BsonDocument> TranslateAggregateComparision(Expression expression, ExpressionType operatorType, ConstantExpression constantExpression)
+        {
+            var aggregateTranslation = AggregateLanguageTranslator.Translate(expression, ExpressionTranslationOptions.Default);
+            if (aggregateTranslation == null)
+            {
+                return null;
+            }
+            return __builder.Expr(aggregateTranslation);
+        }
+
         private FilterDefinition<BsonDocument> TranslateBoolean(bool value)
         {
             if (value)
@@ -457,7 +476,14 @@ namespace MongoDB.Driver.Linq.Translators
                 return query;
             }
 
-            return TranslateComparison(variableExpression, operatorType, constantExpression);
+
+            query = TranslateComparison(variableExpression, operatorType, constantExpression);
+            if (query != null)
+            {
+                return query;
+            }
+
+            return TranslateAggregateComparision(variableExpression, operatorType, constantExpression);
         }
 
         private FilterDefinition<BsonDocument> TranslateCompareTo(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
@@ -499,6 +525,11 @@ namespace MongoDB.Driver.Linq.Translators
             }
 
             var fieldExpression = GetFieldExpression(variableExpression);
+
+            if (fieldExpression == null)
+            {
+                return null;
+            }
 
             var valueSerializer = FieldValueSerializerHelper.GetSerializerForValueType(fieldExpression.Serializer, _serializerRegistry, constantExpression.Type, value);
             var serializedValue = valueSerializer.ToBsonValue(value);
@@ -1164,7 +1195,7 @@ namespace MongoDB.Driver.Linq.Translators
 
                     if (startIndex == -1)
                     {
-                        // the regex for: IndexOf(c) == index 
+                        // the regex for: IndexOf(c) == index
                         // is: /^[^c]{index}c/
                         pattern = string.Format("^{0}{{{1}}}{2}", negativeClass, index, positiveClass);
                     }
@@ -1197,7 +1228,7 @@ namespace MongoDB.Driver.Linq.Translators
                     var escapedString = Regex.Escape((string)value);
                     if (startIndex == -1)
                     {
-                        // the regex for: IndexOf(s) == index 
+                        // the regex for: IndexOf(s) == index
                         // is: /^(?!.{0,index - 1}s).{index}s/
                         pattern = string.Format("^(?!.{{0,{2}}}{0}).{{{1}}}{0}", escapedString, index, index - 1);
                     }
@@ -1704,14 +1735,12 @@ namespace MongoDB.Driver.Linq.Translators
         private IFieldExpression GetFieldExpression(Expression expression)
         {
             IFieldExpression fieldExpression;
-            if (!TryGetFieldExpression(expression, out fieldExpression))
+            if (TryGetFieldExpression(expression, out fieldExpression))
             {
-                var message = string.Format("{0} is not supported.",
-                    expression.ToString());
-                throw new InvalidOperationException(message);
+                return fieldExpression;
             }
 
-            return fieldExpression;
+            return null;
         }
 
         private void ValidatePipelineExpressionThrowIfNotValid(WhereExpression whereExpression)

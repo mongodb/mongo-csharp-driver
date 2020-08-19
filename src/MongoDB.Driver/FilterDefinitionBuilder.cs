@@ -84,6 +84,16 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Creates a cond filter.
+        /// </summary>
+        /// <param name="cond"></param>
+        /// <returns>A cond filter.</returns>
+        public FilterDefinition<TDocument> Expr(BsonValue cond)
+        {
+            return new ExprFilterDefinition<TDocument>(cond);
+        }
+
+        /// <summary>
         /// Creates an equality filter for an array field.
         /// </summary>
         /// <typeparam name="TItem">The type of the item.</typeparam>
@@ -1586,6 +1596,19 @@ namespace MongoDB.Driver
             document.Clear();
             document.Add("$and", clauses);
         }
+    }
+
+    internal sealed class ExprFilterDefinition<TDocument> : FilterDefinition<TDocument>
+    {
+        private readonly BsonValue _aggregatePipeLine;
+
+        public ExprFilterDefinition(BsonValue aggregatePipeLine)
+        {
+            _aggregatePipeLine = Ensure.IsNotNull(aggregatePipeLine, nameof(aggregatePipeLine));
+        }
+
+        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+            => new BsonDocument("$expr", _aggregatePipeLine);
     }
 
     internal sealed class ArrayOperatorFilterDefinition<TDocument, TItem> : FilterDefinition<TDocument>
