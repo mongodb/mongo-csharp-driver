@@ -378,7 +378,11 @@ namespace MongoDB.Driver.Core.Servers
 
                 newDescription = newDescription.With(reasonChanged: "Heartbeat", lastHeartbeatTimestamp: DateTime.UtcNow);
 
-                SetDescription(newDescription);
+                lock (_lock)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    SetDescription(newDescription);
+                }
 
                 processAnother =
                     // serverSupportsStreaming
