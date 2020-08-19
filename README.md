@@ -149,7 +149,6 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Pete Smith                roysvork@gmail.com
 * staywellandy              https://github.com/staywellandy
 * Vyacheslav Stroy          https://github.com/kreig
-* Jake Sta. Teresa          https://github.com/JakeStaTeresa
 * Testo                     test1@doramail.com
 * TimTim                    https://github.com/wegylexy
 * Zhmayev Yaroslav          https://github.com/salaros
