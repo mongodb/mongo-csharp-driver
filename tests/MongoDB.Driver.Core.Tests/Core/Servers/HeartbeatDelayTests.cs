@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -38,13 +39,20 @@ namespace MongoDB.Driver.Core.Servers
         public void RequestHeartbeat_should_respect_to_minHeartbeatInterval([Values(10, -1)]int heartbeatIntervalInMinutes)
         {
             var heartbeatInterval = heartbeatIntervalInMinutes == -1 ? Timeout.InfiniteTimeSpan : TimeSpan.FromMinutes(heartbeatIntervalInMinutes);
-            var subject = new HeartbeatDelay(heartbeatInterval, TimeSpan.FromSeconds(2));
+            var minHeartbeatInterval = TimeSpan.FromSeconds(2);
 
+            var stopwatch = Stopwatch.StartNew();
+            var subject = new HeartbeatDelay(heartbeatInterval, minHeartbeatInterval);
             subject.RequestHeartbeat();
+            var timeout = TimeSpan.FromMinutes(1);
+            var result = Task.WaitAny(subject.Task, Task.Delay(timeout));
+            if (result != 0)
+            {
+                throw new Exception($"The test timeout {timeout} is exceeded.");
+            }
+            stopwatch.Stop();
 
-            SpinWait.SpinUntil(() => subject.Task.Status != TaskStatus.WaitingForActivation, TimeSpan.FromMilliseconds(1500)).Should().BeFalse();
-            Thread.Sleep(TimeSpan.FromMilliseconds(700));
-            subject.Task.Status.Should().Be(TaskStatus.RanToCompletion);
+            stopwatch.Elapsed.Should().BeGreaterOrEqualTo(minHeartbeatInterval - TimeSpan.FromMilliseconds(15));
         }
 
         [Fact]

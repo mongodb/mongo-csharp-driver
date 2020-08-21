@@ -84,8 +84,6 @@ namespace MongoDB.Driver.Core.Servers
 
         public async Task RunAsync()
         {
-            await Task.Yield(); // return control immediately
-
             while (!_cancellationToken.IsCancellationRequested)
             {
                 try

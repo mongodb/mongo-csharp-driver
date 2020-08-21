@@ -128,7 +128,14 @@ namespace MongoDB.Driver.Core.Servers
         {
             if (_state.TryChange(State.Initial, State.Open))
             {
-                _ = MonitorServerAsync().ConfigureAwait(false);
+                // the call to Task.Factory.StartNew is not normally recommended or necessary
+                // we are using it temporarily to work around a race condition in some of our tests
+                // the issue is that we set up some mocked async methods to return results immediately synchronously
+                // which results in the MonitorServerAsync method making more progress synchronously than the test expected
+                // by using Task.Factory.StartNew we introduce a short delay before the MonitorServerAsync Task starts executing
+                // the delay is whatever time it takes for the new Task to be activated and scheduled
+                // and the delay is usually long enough for the test to get past the race condition (though not guaranteed)
+                _ = Task.Factory.StartNew(() => _ = MonitorServerAsync().ConfigureAwait(false)).ConfigureAwait(false);
                 _ = _roundTripTimeMonitor.RunAsync().ConfigureAwait(false);
             }
         }
@@ -189,8 +196,6 @@ namespace MongoDB.Driver.Core.Servers
 
         private async Task MonitorServerAsync()
         {
-            await Task.Yield(); // return control immediately
-
             var metronome = new Metronome(_serverMonitorSettings.HeartbeatInterval);
             var monitorCancellationToken = _monitorCancellationTokenSource.Token;
 
