@@ -54,6 +54,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkippableTests", "tests\Ski
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Driver.TestConsoleApplication", "tests\MongoDB.Driver.TestConsoleApplication\MongoDB.Driver.TestConsoleApplication.csproj", "{2E5780D2-29A5-483C-9CA2-844F45A66D0C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AstrolabeWorkloadExecutor", "tests\AstrolabeWorkloadExecutor\AstrolabeWorkloadExecutor.csproj", "{B90F025F-89D3-436A-AD78-6AA304A6E240}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -136,6 +138,10 @@ Global
 		{2E5780D2-29A5-483C-9CA2-844F45A66D0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2E5780D2-29A5-483C-9CA2-844F45A66D0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2E5780D2-29A5-483C-9CA2-844F45A66D0C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B90F025F-89D3-436A-AD78-6AA304A6E240}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B90F025F-89D3-436A-AD78-6AA304A6E240}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B90F025F-89D3-436A-AD78-6AA304A6E240}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B90F025F-89D3-436A-AD78-6AA304A6E240}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -160,6 +166,7 @@ Global
 		{D197D685-5509-491E-A456-BA36C662CBB4} = {E472BDF5-61F1-461D-872B-9F53BB3ACA80}
 		{D198833A-6AC3-4327-8B02-5095455192D0} = {E472BDF5-61F1-461D-872B-9F53BB3ACA80}
 		{2E5780D2-29A5-483C-9CA2-844F45A66D0C} = {E472BDF5-61F1-461D-872B-9F53BB3ACA80}
+		{B90F025F-89D3-436A-AD78-6AA304A6E240} = {E472BDF5-61F1-461D-872B-9F53BB3ACA80}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {24BEC44B-92B0-43AA-9B15-163459D0C098}

@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>netcoreapp2.1;netcoreapp1.1;net452</TargetFrameworks>
+    <LangVersion>7.3</LangVersion>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
+    <IsPackable>false</IsPackable>
+    <AssemblyName>workload-executor</AssemblyName>
+    <CodeAnalysisRuleSet>..\..\MongoDBTest.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <AssemblyTitle>AstrolabeWorkloadExecutor</AssemblyTitle>
+    <Product>AstrolabeWorkloadExecutor</Product>
+    <Company>MongoDB Inc.</Company>
+    <Copyright>Copyright © 2010-present MongoDB Inc.</Copyright>
+    <Description>Astrolabe workload executor.</Description>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Version)'==''">
+    <Version>0.0.0-local</Version>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../MongoDB.Driver.Tests/MongoDB.Driver.Tests.csproj" />
+  </ItemGroup>
+</Project>

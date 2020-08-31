@@ -156,6 +156,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                         case "deleteMany": return new JsonDrivenDeleteManyTest(collection, _objectMap);
                         case "deleteOne": return new JsonDrivenDeleteOneTest(collection, _objectMap);
                         case "distinct": return new JsonDrivenDistinctTest(collection, _objectMap);
+                        case "doesNotExist": return new JsonDrivenDoesNotExistTest(collection, _objectMap);
                         case "dropIndex": return new JsonDrivenDropIndexTest(collection, _objectMap);
                         case "estimatedDocumentCount": return new JsonDrivenEstimatedCountTest(collection, _objectMap);
                         case "find":
