@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Core.Authentication
 
         // public methods
         /// <inheritdoc/>
-        public void Authenticate(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
+        public void Authenticate(IConnection connection, ConnectionDescription description, ICustomizedIsMasterCommand isMasterCommand, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(description, nameof(description));
@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         /// <inheritdoc/>
-        public async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
+        public async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, ICustomizedIsMasterCommand isMasterCommand, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(description, nameof(description));
@@ -109,10 +109,10 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         /// <inheritdoc/>
-        public BsonDocument CustomizeInitialIsMasterCommand(BsonDocument isMasterCommand)
+        public ICustomizedIsMasterCommand CustomizeInitialIsMasterCommand(BsonDocument isMasterCommand)
         {
             isMasterCommand.Add("speculativeAuthenticate", CreateAuthenticateCommand());
-            return isMasterCommand;
+            return new CustomizedIsMasterCommand(isMasterCommand);
         }
 
         // private methods

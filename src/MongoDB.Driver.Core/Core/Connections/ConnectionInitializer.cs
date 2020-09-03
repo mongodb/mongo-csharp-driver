@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             Ensure.IsNotNull(connection, nameof(connection));
             var isMasterCommand = CreateInitialIsMasterCommand(connection.Settings.Authenticators);
-            var isMasterProtocol = IsMasterHelper.CreateProtocol(isMasterCommand);
+            var isMasterProtocol = IsMasterHelper.CreateProtocol(isMasterCommand.Command);
             var isMasterResult = IsMasterHelper.GetResult(connection, isMasterProtocol, cancellationToken);
 
             var buildInfoProtocol = CreateBuildInfoProtocol();
@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Core.Connections
 
             var description = new ConnectionDescription(connection.ConnectionId, isMasterResult, buildInfoResult);
 
-            AuthenticationHelper.Authenticate(connection, description, cancellationToken);
+            AuthenticationHelper.Authenticate(connection, description, isMasterCommand, cancellationToken);
 
             var connectionIdServerValue = isMasterResult.ConnectionIdServerValue;
             if (connectionIdServerValue.HasValue)
@@ -80,7 +80,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             Ensure.IsNotNull(connection, nameof(connection));
             var isMasterCommand = CreateInitialIsMasterCommand(connection.Settings.Authenticators);
-            var isMasterProtocol = IsMasterHelper.CreateProtocol(isMasterCommand);
+            var isMasterProtocol = IsMasterHelper.CreateProtocol(isMasterCommand.Command);
             var isMasterResult = await IsMasterHelper.GetResultAsync(connection, isMasterProtocol, cancellationToken).ConfigureAwait(false);
 
             var buildInfoProtocol = CreateBuildInfoProtocol();
@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Core.Connections
 
             var description = new ConnectionDescription(connection.ConnectionId, isMasterResult, buildInfoResult);
 
-            await AuthenticationHelper.AuthenticateAsync(connection, description, cancellationToken).ConfigureAwait(false);
+            await AuthenticationHelper.AuthenticateAsync(connection, description, isMasterCommand, cancellationToken).ConfigureAwait(false);
 
             var connectionIdServerValue = isMasterResult.ConnectionIdServerValue;
             if (connectionIdServerValue.HasValue)
@@ -140,7 +140,7 @@ namespace MongoDB.Driver.Core.Connections
             return getLastErrorProtocol;
         }
 
-        private BsonDocument CreateInitialIsMasterCommand(IReadOnlyList<IAuthenticator> authenticators)
+        private ICustomizedIsMasterCommand CreateInitialIsMasterCommand(IReadOnlyList<IAuthenticator> authenticators)
         {
             var command = IsMasterHelper.CreateCommand();
             IsMasterHelper.AddClientDocumentToCommand(command, _clientDocument);

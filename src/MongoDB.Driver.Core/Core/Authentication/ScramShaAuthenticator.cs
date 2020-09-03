@@ -103,14 +103,14 @@ namespace MongoDB.Driver.Core.Authentication
         public override string DatabaseName => _databaseName;
 
         /// <inheritdoc/>
-        public override BsonDocument CustomizeInitialIsMasterCommand(BsonDocument isMasterCommand)
+        public override ICustomizedIsMasterCommand CustomizeInitialIsMasterCommand(BsonDocument isMasterCommand)
         {
-            isMasterCommand = base.CustomizeInitialIsMasterCommand(isMasterCommand);
+            isMasterCommand = base.CustomizeInitialIsMasterCommand(isMasterCommand).Command;
             _speculativeFirstStep = _mechanism.Initialize(connection: null, conversation: null, description: null);
             var firstCommand = CreateStartCommand(_speculativeFirstStep);
             firstCommand.Add("db", DatabaseName);
             isMasterCommand.Add("speculativeAuthenticate", firstCommand);
-            return isMasterCommand;
+            return new CustomizedIsMasterCommand(isMasterCommand);
         }
 
         private protected override BsonDocument CreateStartCommand(ISaslStep currentStep)

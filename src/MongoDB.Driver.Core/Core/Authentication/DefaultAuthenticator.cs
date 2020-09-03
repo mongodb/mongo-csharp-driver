@@ -35,7 +35,6 @@ namespace MongoDB.Driver.Core.Authentication
         // fields
         private readonly UsernamePasswordCredential _credential;
         private readonly IRandomStringGenerator _randomStringGenerator;
-        private IAuthenticator _speculativeAuthenticator;
 
         // constructors
         /// <summary>
@@ -59,7 +58,7 @@ namespace MongoDB.Driver.Core.Authentication
 
         // methods
         /// <inheritdoc/>
-        public void Authenticate(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
+        public void Authenticate(IConnection connection, ConnectionDescription description, ICustomizedIsMasterCommand isMasterCommand, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(description, nameof(description));
@@ -70,8 +69,8 @@ namespace MongoDB.Driver.Core.Authentication
             if (!description.IsMasterResult.HasSaslSupportedMechs
                 && Feature.ScramSha256Authentication.IsSupported(description.ServerVersion))
             {
-                var command = CustomizeInitialIsMasterCommand(IsMasterHelper.CreateCommand());
-                var isMasterProtocol = IsMasterHelper.CreateProtocol(command);
+                isMasterCommand = CustomizeInitialIsMasterCommand(IsMasterHelper.CreateCommand());
+                var isMasterProtocol = IsMasterHelper.CreateProtocol(isMasterCommand.Command);
                 var isMasterResult = IsMasterHelper.GetResult(connection, isMasterProtocol, cancellationToken);
                 var mergedIsMasterResult = new IsMasterResult(description.IsMasterResult.Wrapped.Merge(isMasterResult.Wrapped));
                 description = new ConnectionDescription(
@@ -80,12 +79,12 @@ namespace MongoDB.Driver.Core.Authentication
                     description.BuildInfoResult);
             }
 
-            var authenticator = GetOrCreateAuthenticator(connection, description);
-            authenticator.Authenticate(connection, description, cancellationToken);
+            var authenticator = GetOrCreateAuthenticator(connection, description, isMasterCommand);
+            authenticator.Authenticate(connection, description, null, cancellationToken);
         }
 
         /// <inheritdoc/>
-        public async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
+        public async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, ICustomizedIsMasterCommand isMasterCommand, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(description, nameof(description));
@@ -96,8 +95,8 @@ namespace MongoDB.Driver.Core.Authentication
             if (!description.IsMasterResult.HasSaslSupportedMechs
                 && Feature.ScramSha256Authentication.IsSupported(description.ServerVersion))
             {
-                var command = CustomizeInitialIsMasterCommand(IsMasterHelper.CreateCommand());
-                var isMasterProtocol = IsMasterHelper.CreateProtocol(command);
+                isMasterCommand = CustomizeInitialIsMasterCommand(IsMasterHelper.CreateCommand());
+                var isMasterProtocol = IsMasterHelper.CreateProtocol(isMasterCommand.Command);
                 var isMasterResult = await IsMasterHelper.GetResultAsync(connection, isMasterProtocol, cancellationToken).ConfigureAwait(false);
                 var mergedIsMasterResult = new IsMasterResult(description.IsMasterResult.Wrapped.Merge(isMasterResult.Wrapped));
                 description = new ConnectionDescription(
@@ -106,18 +105,19 @@ namespace MongoDB.Driver.Core.Authentication
                     description.BuildInfoResult);
             }
 
-            var authenticator = GetOrCreateAuthenticator(connection, description);
-            await authenticator.AuthenticateAsync(connection, description, cancellationToken).ConfigureAwait(false);
+            var authenticator = GetOrCreateAuthenticator(connection, description, isMasterCommand);
+            await authenticator.AuthenticateAsync(connection, description, null, cancellationToken).ConfigureAwait(false);
         }
 
 
         /// <inheritdoc/>
-        public BsonDocument CustomizeInitialIsMasterCommand(BsonDocument isMasterCommand)
+        public ICustomizedIsMasterCommand CustomizeInitialIsMasterCommand(BsonDocument isMasterCommand)
         {
             var saslSupportedMechs = CreateSaslSupportedMechsRequest(_credential.Source, _credential.Username);
             isMasterCommand = isMasterCommand.Merge(saslSupportedMechs);
-            _speculativeAuthenticator = new ScramSha256Authenticator(_credential, _randomStringGenerator);
-            return _speculativeAuthenticator.CustomizeInitialIsMasterCommand(isMasterCommand);
+            var speculativeAuthenticator = new ScramSha256Authenticator(_credential, _randomStringGenerator);
+            var command = speculativeAuthenticator.CustomizeInitialIsMasterCommand(isMasterCommand);
+            return new CustomizedIsMasterCommand(command.Command, speculativeAuthenticator);
         }
 
         private static BsonDocument CreateSaslSupportedMechsRequest(string authenticationDatabaseName, string userName)
@@ -147,13 +147,14 @@ namespace MongoDB.Driver.Core.Authentication
 #pragma warning restore 618
         }
 
-        private IAuthenticator GetOrCreateAuthenticator(IConnection connection, ConnectionDescription description)
+        private IAuthenticator GetOrCreateAuthenticator(IConnection connection, ConnectionDescription description,
+            ICustomizedIsMasterCommand isMasterCommand)
         {
             /* It is possible to have for IsMaster["SpeculativeAuthenticate"] != null and for
              * _speculativeScramSha256Authenticator to be null in the case of multiple authenticators */
             var speculativeAuthenticateResult = description.IsMasterResult.SpeculativeAuthenticate;
-            var canUseSpeculativeAuthenticator = _speculativeAuthenticator != null && speculativeAuthenticateResult != null;
-            return canUseSpeculativeAuthenticator ? _speculativeAuthenticator : CreateAuthenticator(connection, description);
+            var canUseSpeculativeAuthenticator = isMasterCommand.Authenticator != null && speculativeAuthenticateResult != null;
+            return canUseSpeculativeAuthenticator ? isMasterCommand.Authenticator : CreateAuthenticator(connection, description);
         }
     }
 }

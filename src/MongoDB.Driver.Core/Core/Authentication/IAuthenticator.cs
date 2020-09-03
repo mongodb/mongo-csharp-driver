@@ -39,23 +39,25 @@ namespace MongoDB.Driver.Core.Authentication
         /// </summary>
         /// <param name="connection">The connection.</param>
         /// <param name="description">The connection description.</param>
+        /// <param name="isMasterCommand">A customized isMasterCommand, if any</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        void Authenticate(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken);
+        void Authenticate(IConnection connection, ConnectionDescription description, ICustomizedIsMasterCommand isMasterCommand, CancellationToken cancellationToken);
 
         /// <summary>
         /// Authenticates the connection.
         /// </summary>
         /// <param name="connection">The connection.</param>
         /// <param name="description">The connection description.</param>
+        /// <param name="isMasterCommand">A customized isMasterCommand, if any</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task.</returns>
-        Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken);
+        Task AuthenticateAsync(IConnection connection, ConnectionDescription description, ICustomizedIsMasterCommand isMasterCommand, CancellationToken cancellationToken);
 
         /// <summary>
         /// Optionally customizes isMaster command.
         /// </summary>
         /// <param name="isMasterCommand">Initial isMaster command.</param>
         /// <returns>Optionally mutated isMaster command.</returns>
-        BsonDocument CustomizeInitialIsMasterCommand(BsonDocument isMasterCommand);
+        ICustomizedIsMasterCommand CustomizeInitialIsMasterCommand(BsonDocument isMasterCommand);
     }
 }
