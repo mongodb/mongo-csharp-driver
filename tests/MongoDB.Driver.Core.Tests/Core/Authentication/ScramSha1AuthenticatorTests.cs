@@ -64,11 +64,11 @@ namespace MongoDB.Driver.Core.Authentication
             Action act;
             if (async)
             {
-                act = () => subject.AuthenticateAsync(connection, __description, CancellationToken.None).GetAwaiter().GetResult();
+                act = () => subject.AuthenticateAsync(connection, __description, null, CancellationToken.None).GetAwaiter().GetResult();
             }
             else
             {
-                act = () => subject.Authenticate(connection, __description, CancellationToken.None);
+                act = () => subject.Authenticate(connection, __description, null, CancellationToken.None);
             }
 
             act.ShouldThrow<MongoAuthenticationException>();
@@ -92,11 +92,11 @@ namespace MongoDB.Driver.Core.Authentication
             Action act;
             if (async)
             {
-                act = () => subject.AuthenticateAsync(connection, __description, CancellationToken.None).GetAwaiter().GetResult();
+                act = () => subject.AuthenticateAsync(connection, __description, null, CancellationToken.None).GetAwaiter().GetResult();
             }
             else
             {
-                act = () => subject.Authenticate(connection, __description, CancellationToken.None);
+                act = () => subject.Authenticate(connection, __description, null, CancellationToken.None);
             }
 
             act.ShouldThrow<MongoAuthenticationException>();
@@ -123,11 +123,11 @@ namespace MongoDB.Driver.Core.Authentication
             Action act;
             if (async)
             {
-                act = () => subject.AuthenticateAsync(connection, __description, CancellationToken.None).GetAwaiter().GetResult();
+                act = () => subject.AuthenticateAsync(connection, __description, null, CancellationToken.None).GetAwaiter().GetResult();
             }
             else
             {
-                act = () => subject.Authenticate(connection, __description, CancellationToken.None);
+                act = () => subject.Authenticate(connection, __description, null, CancellationToken.None);
             }
 
             act.ShouldThrow<MongoAuthenticationException>();
@@ -173,7 +173,7 @@ namespace MongoDB.Driver.Core.Authentication
             {
                 // Call CustomizeIsMasterCommand so that the authenticator thinks its started to speculatively
                 // authenticate
-                isMasterCommand = subject.CustomizeInitialIsMasterCommand(new BsonDocument { { "isMaster", 1 } });
+                isMasterCommand = subject.CustomizeInitialIsMasterCommand(new BsonDocument { { "isMaster", 1 } }).Command;
             }
             else
             {
@@ -190,13 +190,13 @@ namespace MongoDB.Driver.Core.Authentication
             if (async)
             {
                 exception = Record.Exception(
-                    () => subject.AuthenticateAsync(connection, connection.Description, CancellationToken.None)
+                    () => subject.AuthenticateAsync(connection, connection.Description, null, CancellationToken.None)
                         .GetAwaiter().GetResult());
             }
             else
             {
                 exception = Record.Exception(
-                    () => subject.Authenticate(connection, connection.Description, CancellationToken.None));
+                    () => subject.Authenticate(connection, connection.Description, null, CancellationToken.None));
             }
 
             exception.Should().BeNull();
@@ -287,12 +287,12 @@ namespace MongoDB.Driver.Core.Authentication
 
             if (async)
             {
-                subject.AuthenticateAsync(connection, __description, CancellationToken.None).GetAwaiter()
+                subject.AuthenticateAsync(connection, __description, null, CancellationToken.None).GetAwaiter()
                     .GetResult();
             }
             else
             {
-                subject.Authenticate(connection, __description, CancellationToken.None);
+                subject.Authenticate(connection, __description, null, CancellationToken.None);
             }
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should()

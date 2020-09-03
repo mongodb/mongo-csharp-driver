@@ -67,11 +67,11 @@ namespace MongoDB.Driver.Core.Authentication
             Action act;
             if (async)
             {
-                act = () => subject.AuthenticateAsync(connection, __description, CancellationToken.None).GetAwaiter().GetResult();
+                act = () => subject.AuthenticateAsync(connection, __description, null, CancellationToken.None).GetAwaiter().GetResult();
             }
             else
             {
-                act = () => subject.Authenticate(connection, __description, CancellationToken.None);
+                act = () => subject.Authenticate(connection, __description, null, CancellationToken.None);
             }
 
             act.ShouldThrow<MongoAuthenticationException>();
@@ -101,11 +101,11 @@ namespace MongoDB.Driver.Core.Authentication
             Action act;
             if (async)
             {
-                act = () => subject.AuthenticateAsync(connection, __description, CancellationToken.None).GetAwaiter().GetResult();
+                act = () => subject.AuthenticateAsync(connection, __description, null, CancellationToken.None).GetAwaiter().GetResult();
             }
             else
             {
-                act = () => subject.Authenticate(connection, __description, CancellationToken.None);
+                act = () => subject.Authenticate(connection, __description, null, CancellationToken.None);
             }
 
             act.ShouldNotThrow();

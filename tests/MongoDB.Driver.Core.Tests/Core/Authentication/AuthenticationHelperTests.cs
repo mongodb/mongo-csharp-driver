@@ -67,15 +67,15 @@ namespace MongoDB.Driver.Core.Authentication
 
             if (async)
             {
-                AuthenticationHelper.AuthenticateAsync(mockConnection.Object, description, CancellationToken.None).GetAwaiter().GetResult();
+                AuthenticationHelper.AuthenticateAsync(mockConnection.Object, description, null, CancellationToken.None).GetAwaiter().GetResult();
 
-                mockAuthenticator.Verify(a => a.AuthenticateAsync(mockConnection.Object, description, CancellationToken.None), Times.Once);
+                mockAuthenticator.Verify(a => a.AuthenticateAsync(mockConnection.Object, description, null, CancellationToken.None), Times.Once);
             }
             else
             {
-                AuthenticationHelper.Authenticate(mockConnection.Object, description, CancellationToken.None);
+                AuthenticationHelper.Authenticate(mockConnection.Object, description, null, CancellationToken.None);
 
-                mockAuthenticator.Verify(a => a.Authenticate(mockConnection.Object, description, CancellationToken.None), Times.Once);
+                mockAuthenticator.Verify(a => a.Authenticate(mockConnection.Object, description, null, CancellationToken.None), Times.Once);
             }
         }
 
@@ -99,15 +99,15 @@ namespace MongoDB.Driver.Core.Authentication
 
             if (async)
             {
-                AuthenticationHelper.AuthenticateAsync(mockConnection.Object, description, CancellationToken.None).GetAwaiter().GetResult();
+                AuthenticationHelper.AuthenticateAsync(mockConnection.Object, description, null, CancellationToken.None).GetAwaiter().GetResult();
 
-                mockAuthenticator.Verify(a => a.AuthenticateAsync(It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>(), It.IsAny<CancellationToken>()), Times.Never);
+                mockAuthenticator.Verify(a => a.AuthenticateAsync(It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>(), It.IsAny<ICustomizedIsMasterCommand>(), It.IsAny<CancellationToken>()), Times.Never);
             }
             else
             {
-                AuthenticationHelper.Authenticate(mockConnection.Object, description, CancellationToken.None);
+                AuthenticationHelper.Authenticate(mockConnection.Object, description, null, CancellationToken.None);
 
-                mockAuthenticator.Verify(a => a.Authenticate(It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>(), It.IsAny<CancellationToken>()), Times.Never);
+                mockAuthenticator.Verify(a => a.Authenticate(It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>(), It.IsAny<ICustomizedIsMasterCommand>(), It.IsAny<CancellationToken>()), Times.Never);
             }
         }
     }

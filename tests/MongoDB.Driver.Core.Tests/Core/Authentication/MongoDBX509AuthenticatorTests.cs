@@ -64,11 +64,11 @@ namespace MongoDB.Driver.Core.Authentication
             Action act;
             if (async)
             {
-                act = () => subject.AuthenticateAsync(connection, __description, CancellationToken.None).GetAwaiter().GetResult();
+                act = () => subject.AuthenticateAsync(connection, __description, null, CancellationToken.None).GetAwaiter().GetResult();
             }
             else
             {
-                act = () => subject.Authenticate(connection, __description, CancellationToken.None);
+                act = () => subject.Authenticate(connection, __description, null, CancellationToken.None);
             }
 
             act.ShouldThrow<MongoAuthenticationException>();
@@ -92,11 +92,11 @@ namespace MongoDB.Driver.Core.Authentication
             Action act;
             if (async)
             {
-                act = () => subject.AuthenticateAsync(connection, __description, CancellationToken.None).GetAwaiter().GetResult();
+                act = () => subject.AuthenticateAsync(connection, __description, null, CancellationToken.None).GetAwaiter().GetResult();
             }
             else
             {
-                act = () => subject.Authenticate(connection, __description, CancellationToken.None);
+                act = () => subject.Authenticate(connection, __description, null, CancellationToken.None);
             }
 
             act.ShouldNotThrow();
@@ -120,11 +120,11 @@ namespace MongoDB.Driver.Core.Authentication
             Exception exception;
             if (async)
             {
-                exception = Record.Exception(() => subject.AuthenticateAsync(connection, __description, CancellationToken.None).GetAwaiter().GetResult());
+                exception = Record.Exception(() => subject.AuthenticateAsync(connection, __description, null, CancellationToken.None).GetAwaiter().GetResult());
             }
             else
             {
-                exception = Record.Exception(() => subject.Authenticate(connection, __description, CancellationToken.None));
+                exception = Record.Exception(() => subject.Authenticate(connection, __description, null, CancellationToken.None));
             }
 
             exception.Should().BeOfType<MongoConnectionException>();
@@ -148,11 +148,11 @@ namespace MongoDB.Driver.Core.Authentication
             Exception exception;
             if (async)
             {
-                exception = Record.Exception(() => subject.AuthenticateAsync(connection, description, CancellationToken.None).GetAwaiter().GetResult());
+                exception = Record.Exception(() => subject.AuthenticateAsync(connection, description, null, CancellationToken.None).GetAwaiter().GetResult());
             }
             else
             {
-                exception = Record.Exception(() => subject.Authenticate(connection, description, CancellationToken.None));
+                exception = Record.Exception(() => subject.Authenticate(connection, description, null, CancellationToken.None));
             }
 
             exception.Should().BeNull();
