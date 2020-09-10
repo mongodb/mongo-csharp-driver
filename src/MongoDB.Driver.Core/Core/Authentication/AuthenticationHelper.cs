@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Cryptography;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -30,30 +29,32 @@ namespace MongoDB.Driver.Core.Authentication
 {
     internal static class AuthenticationHelper
     {
-        public static void Authenticate(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
+        public static void Authenticate(IConnection connection, ConnectionDescription description, IReadOnlyList<IAuthenticator> authenticators, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(description, nameof(description));
+            Ensure.IsNotNull(authenticators, nameof(authenticators));
 
             // authentication is currently broken on arbiters
             if (!description.IsMasterResult.IsArbiter)
             {
-                foreach (var authenticator in connection.Settings.Authenticators)
+                foreach (var authenticator in authenticators)
                 {
                     authenticator.Authenticate(connection, description, cancellationToken);
                 }
             }
         }
 
-        public static async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
+        public static async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, IReadOnlyList<IAuthenticator> authenticators, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(description, nameof(description));
+            Ensure.IsNotNull(authenticators, nameof(authenticators));
 
             // authentication is currently broken on arbiters
             if (!description.IsMasterResult.IsArbiter)
             {
-                foreach (var authenticator in connection.Settings.Authenticators)
+                foreach (var authenticator in authenticators)
                 {
                     await authenticator.AuthenticateAsync(connection, description, cancellationToken).ConfigureAwait(false);
                 }

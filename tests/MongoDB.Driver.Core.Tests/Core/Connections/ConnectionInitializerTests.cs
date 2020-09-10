@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Core.Connections
             var credentials = new UsernamePasswordCredential(
                 source: "Pathfinder", username: "Barclay", password: "Barclay-Alpha-1-7-Gamma");
             var authenticator = CreateAuthenticator(authenticatorType, credentials);
-            var connectionSettings = new ConnectionSettings(new[] { authenticator });
+            var connectionSettings = new ConnectionSettings(new[] { new AuthenticatorFactory(() => authenticator) });
 
             var isMasterDocument = _subject.CreateInitialIsMasterCommand(new[] { authenticator });
 
@@ -106,7 +106,7 @@ namespace MongoDB.Driver.Core.Connections
             var credentials = new UsernamePasswordCredential(
                 source: "Voyager", username: "Seven of Nine", password: "Omega-Phi-9-3");
             var authenticator = CreateAuthenticator(authenticatorType, credentials);
-            var connectionSettings = new ConnectionSettings(new[] { authenticator });
+            var connectionSettings = new ConnectionSettings(new[] { new AuthenticatorFactory(() => authenticator) });
             var connection = new MockConnection(__serverId, connectionSettings, eventSubscriber: null);
             connection.EnqueueReplyMessage(isMasterReply);
             connection.EnqueueReplyMessage(buildInfoReply);
