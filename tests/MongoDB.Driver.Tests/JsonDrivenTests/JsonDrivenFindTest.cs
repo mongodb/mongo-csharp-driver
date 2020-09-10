@@ -101,6 +101,10 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                     _options.Limit = value.ToInt32();
                     return;
 
+                case "projection":
+                    _options.Projection = (ProjectionDefinition<BsonDocument, BsonDocument>)value;
+                    return;
+
                 case "result":
                     ParseExpectedResult(value.IsBsonArray ? value.AsBsonArray : new BsonArray(new[] { value }));
                     return;
