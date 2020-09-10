@@ -27,14 +27,9 @@ namespace MongoDB.Driver.Core.Configuration
     /// </summary>
     public class ConnectionSettings
     {
-        #region static
-        // static fields
-        private static readonly IReadOnlyList<IAuthenticator> __noAuthenticators = new IAuthenticator[0];
-        #endregion
-
         // fields
         private readonly string _applicationName;
-        private readonly IReadOnlyList<IAuthenticator> _authenticators;
+        private readonly IReadOnlyList<IAuthenticatorFactory> _authenticatorFactories;
         private readonly IReadOnlyList<CompressorConfiguration> _compressors;
         private readonly TimeSpan _maxIdleTime;
         private readonly TimeSpan _maxLifeTime;
@@ -43,19 +38,19 @@ namespace MongoDB.Driver.Core.Configuration
         /// <summary>
         /// Initializes a new instance of the <see cref="ConnectionSettings" /> class.
         /// </summary>
-        /// <param name="authenticators">The authenticators.</param>
+        /// <param name="authenticatorFactories">The authenticator factories.</param>
         /// <param name="compressors">The compressors.</param>
         /// <param name="maxIdleTime">The maximum idle time.</param>
         /// <param name="maxLifeTime">The maximum life time.</param>
         /// <param name="applicationName">The application name.</param>
         public ConnectionSettings(
-            Optional<IEnumerable<IAuthenticator>> authenticators = default(Optional<IEnumerable<IAuthenticator>>),
+            Optional<IEnumerable<IAuthenticatorFactory>> authenticatorFactories = default,
             Optional<IEnumerable<CompressorConfiguration>> compressors = default(Optional<IEnumerable<CompressorConfiguration>>),
             Optional<TimeSpan> maxIdleTime = default(Optional<TimeSpan>),
             Optional<TimeSpan> maxLifeTime = default(Optional<TimeSpan>),
             Optional<string> applicationName = default(Optional<string>))
         {
-            _authenticators = Ensure.IsNotNull(authenticators.WithDefault(__noAuthenticators), "authenticators").ToList();
+            _authenticatorFactories = Ensure.IsNotNull(authenticatorFactories.WithDefault(Enumerable.Empty<IAuthenticatorFactory>()), nameof(authenticatorFactories)).ToList().AsReadOnly();
             _compressors = Ensure.IsNotNull(compressors.WithDefault(Enumerable.Empty<CompressorConfiguration>()), nameof(compressors)).ToList();
             _maxIdleTime = Ensure.IsGreaterThanZero(maxIdleTime.WithDefault(TimeSpan.FromMinutes(10)), "maxIdleTime");
             _maxLifeTime = Ensure.IsGreaterThanZero(maxLifeTime.WithDefault(TimeSpan.FromMinutes(30)), "maxLifeTime");
@@ -75,14 +70,14 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
-        /// Gets the authenticators.
+        /// Gets the authenticator factories.
         /// </summary>
         /// <value>
-        /// The authenticators.
+        /// The authenticator factories.
         /// </value>
-        public IReadOnlyList<IAuthenticator> Authenticators
+        public IReadOnlyList<IAuthenticatorFactory> AuthenticatorFactories
         {
-            get { return _authenticators; }
+            get { return _authenticatorFactories; }
         }
 
         /// <summary>
@@ -122,21 +117,21 @@ namespace MongoDB.Driver.Core.Configuration
         /// <summary>
         /// Returns a new ConnectionSettings instance with some settings changed.
         /// </summary>
-        /// <param name="authenticators">The authenticators.</param>
+        /// <param name="authenticatorFactories">The authenticator factories.</param>
         /// <param name="compressors">The compressors.</param>
         /// <param name="maxIdleTime">The maximum idle time.</param>
         /// <param name="maxLifeTime">The maximum life time.</param>
         /// <param name="applicationName">The application name.</param>
         /// <returns>A new ConnectionSettings instance.</returns>
         public ConnectionSettings With(
-            Optional<IEnumerable<IAuthenticator>> authenticators = default(Optional<IEnumerable<IAuthenticator>>),
+            Optional<IEnumerable<IAuthenticatorFactory>> authenticatorFactories = default,
             Optional<IEnumerable<CompressorConfiguration>> compressors = default(Optional<IEnumerable<CompressorConfiguration>>),
             Optional<TimeSpan> maxIdleTime = default(Optional<TimeSpan>),
             Optional<TimeSpan> maxLifeTime = default(Optional<TimeSpan>),
             Optional<string> applicationName = default(Optional<string>))
         {
             return new ConnectionSettings(
-                authenticators: Optional.Enumerable(authenticators.WithDefault(_authenticators)),
+                authenticatorFactories: Optional.Enumerable(authenticatorFactories.WithDefault(_authenticatorFactories)),
                 compressors: Optional.Enumerable(compressors.WithDefault(_compressors)),
                 maxIdleTime: maxIdleTime.WithDefault(_maxIdleTime),
                 maxLifeTime: maxLifeTime.WithDefault(_maxLifeTime),
