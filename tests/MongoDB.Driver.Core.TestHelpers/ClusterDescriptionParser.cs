@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Servers;
@@ -26,7 +27,27 @@ namespace MongoDB.Driver.Core.TestHelpers
         public static ClusterDescription Parse(BsonDocument args)
         {
             var clusterId = new ClusterId(args.GetValue("clusterId", 1).ToInt32());
-            var connectionMode = (ClusterConnectionMode)Enum.Parse(typeof(ClusterConnectionMode), args.GetValue("connectionMode", "Automatic").AsString);
+
+#pragma warning disable CS0618 // Type or member is obsolete
+            var connectionModeSwitch = ConnectionModeSwitch.NotSet;
+            var connectionMode = ClusterConnectionMode.Automatic;
+            if (args.TryGetValue("connectionMode", out var connectionModeBson))
+            {
+                connectionModeSwitch = ConnectionModeSwitch.UseConnectionMode;
+                connectionMode = (ClusterConnectionMode)Enum.Parse(typeof(ClusterConnectionMode), connectionModeBson.AsString);
+            }
+            bool? directConnection = null;
+            if (args.TryGetValue("directConnection", out var directConnectionBson))
+            {
+                if (connectionModeSwitch == ConnectionModeSwitch.UseConnectionMode)
+                {
+                    throw new FormatException("connectionMode and directConnection cannot both be set.");
+                }
+                connectionModeSwitch = ConnectionModeSwitch.UseDirectConnection;
+                directConnection = (bool?)directConnectionBson;
+            }
+#pragma warning restore CS0618 // Type or member is obsolete
+
             var clusterType = (ClusterType)Enum.Parse(typeof(ClusterType), args["clusterType"].AsString);
 
             var numberOfServers = args["servers"].AsBsonArray.Count;
@@ -48,7 +69,14 @@ namespace MongoDB.Driver.Core.TestHelpers
                 servers.Add(server);
             }
 
-            return new ClusterDescription(clusterId, connectionMode, clusterType, servers);
+            return new ClusterDescription(
+                clusterId,
+                connectionMode,
+                connectionModeSwitch,
+                directConnection,
+                dnsMonitorException: null,
+                clusterType,
+                servers);
         }
 
         public static ClusterDescription Parse(string json)

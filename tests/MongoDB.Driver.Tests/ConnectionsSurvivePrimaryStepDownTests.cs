@@ -122,7 +122,9 @@ namespace MongoDB.Driver.Tests
             {
                 var secondarySettings = primaryClient.Settings.Clone();
                 secondarySettings.ClusterConfigurator = null;
+#pragma warning disable CS0618 // Type or member is obsolete
                 secondarySettings.ConnectionMode = ConnectionMode.Direct;
+#pragma warning restore CS0618 // Type or member is obsolete
                 var secondaryDnsEndpoint = (DnsEndPoint)secondaryEndpoint;
                 secondarySettings.Server = new MongoServerAddress(secondaryDnsEndpoint.Host, secondaryDnsEndpoint.Port);
                 using (var secondaryClient = DriverTestConfiguration.CreateDisposableClient(secondarySettings))

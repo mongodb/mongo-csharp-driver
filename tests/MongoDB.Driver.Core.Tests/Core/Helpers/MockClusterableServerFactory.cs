@@ -107,7 +107,11 @@ namespace MongoDB.Driver.Core.Helpers
                         Server = new Server(
                             clusterId,
                             clusterClock,
+#pragma warning disable CS0618 // Type or member is obsolete
                             ClusterConnectionMode.Automatic,
+                            ConnectionModeSwitch.UseConnectionMode,
+#pragma warning restore CS0618 // Type or member is obsolete
+                            directConnection: null,
                             new ServerSettings(),
                             endPoint,
                             mockConnectionPoolFactory.Object,

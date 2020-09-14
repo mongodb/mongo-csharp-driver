@@ -80,9 +80,15 @@ namespace MongoDB.Driver
 
         private ClusterSettings ConfigureCluster(ClusterSettings settings, ClusterKey clusterKey)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var endPoints = clusterKey.Servers.Select(s => EndPointHelper.Parse(s.ToString()));
+            var connectionModeSwitch = clusterKey.ConnectionModeSwitch;
+            Optional<ClusterConnectionMode> connectionMode = connectionModeSwitch == ConnectionModeSwitch.UseConnectionMode ? clusterKey.ConnectionMode.ToCore() : default;
+            Optional<bool?> directConnection = connectionModeSwitch == ConnectionModeSwitch.UseDirectConnection ? clusterKey.DirectConnection : default;
             return settings.With(
-                connectionMode: clusterKey.ConnectionMode.ToCore(),
+                connectionMode: connectionMode,
+                connectionModeSwitch: connectionModeSwitch,
+                directConnection: directConnection,
                 endPoints: Optional.Enumerable(endPoints),
                 kmsProviders: Optional.Create(clusterKey.KmsProviders),
                 localThreshold: clusterKey.LocalThreshold,
@@ -91,6 +97,7 @@ namespace MongoDB.Driver
                 serverSelectionTimeout: clusterKey.ServerSelectionTimeout,
                 schemaMap: Optional.Create(clusterKey.SchemaMap),
                 scheme: clusterKey.Scheme);
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         private ConnectionPoolSettings ConfigureConnectionPool(ConnectionPoolSettings settings, ClusterKey clusterKey)

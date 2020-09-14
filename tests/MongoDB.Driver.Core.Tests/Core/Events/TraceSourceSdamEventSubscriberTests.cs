@@ -185,6 +185,7 @@ namespace MongoDB.Driver.Core.Events
             const string logFileName = traceSourceName + "-log";
             var ipAddress = new IPEndPoint(IPAddress.Parse("1.2.3.4"), 42);
             var @event = new ClusterDescriptionChangedEvent(
+#pragma warning disable CS0618 // Type or member is obsolete
                 oldDescription: new ClusterDescription(
                     new ClusterId(),
                     ClusterConnectionMode.Automatic,
@@ -195,6 +196,7 @@ namespace MongoDB.Driver.Core.Events
                     ClusterConnectionMode.Direct,
                     ClusterType.Standalone,
                     new ServerDescription[] { new ServerDescription(new ServerId(new ClusterId(), ipAddress), ipAddress) }));
+#pragma warning restore CS0618 // Type or member is obsolete
             var expectedLogMessage =
                 $"{TraceSourceEventHelper.Label(@event.OldDescription.ClusterId)}: {@event.NewDescription}";
             var traceSource = CreateTraceSource(logFileName, logFileName);

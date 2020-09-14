@@ -63,15 +63,18 @@ namespace MongoDB.Driver.Core.Configuration
         private readonly CompressorsOptions _compressorsOptions;
         private readonly IDnsResolver _dnsResolver;
 
-        // these are all readonly, but since they are not assigned 
+        // these are all readonly, but since they are not assigned
         // from the ctor, they cannot be marked as such.
         private string _applicationName;
         private string _authMechanism;
         private string _authSource;
+#pragma warning disable CS0618 // Type or member is obsolete
         private ClusterConnectionMode? _connect;
+        private ConnectionModeSwitch _connectionModeSwitch = ConnectionModeSwitch.NotSet;
+#pragma warning restore CS0618 // Type or member is obsolete
         private TimeSpan? _connectTimeout;
         private string _databaseName;
-        private bool? _directConnection; // this option covers several cases from _connect. It won't be available outside of this class
+        private bool? _directConnection;
         private bool? _fsync;
         private TimeSpan? _heartbeatInterval;
         private TimeSpan? _heartbeatTimeout;
@@ -205,9 +208,27 @@ namespace MongoDB.Driver.Core.Configuration
         /// <summary>
         /// Gets the connection mode.
         /// </summary>
+        [Obsolete("Use DirectConnection instead.")]
         public ClusterConnectionMode Connect
         {
-            get { return _connect.GetValueOrDefault(); }
+            get
+            {
+                if (_connectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
+                {
+                    throw new InvalidOperationException("ConnectionMode cannot be used when ConnectionModeSwitch is set to UseDirectConnection.");
+                }
+
+                return _connect.GetValueOrDefault();
+            }
+        }
+
+        /// <summary>
+        /// Gets the connection mode switch.
+        /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
+        public ConnectionModeSwitch ConnectionModeSwitch
+        {
+            get { return _connectionModeSwitch; }
         }
 
         /// <summary>
@@ -224,6 +245,22 @@ namespace MongoDB.Driver.Core.Configuration
         public string DatabaseName
         {
             get { return _databaseName; }
+        }
+
+        /// <summary>
+        /// Gets the directConnection.
+        /// </summary>
+        public bool? DirectConnection
+        {
+            get
+            {
+                if (_connectionModeSwitch == ConnectionModeSwitch.UseConnectionMode)
+                {
+                    throw new InvalidOperationException("DirectConnection cannot be used when ConnectionModeSwitch is set to UseConnectionMode.");
+                }
+
+                return _directConnection;
+            }
         }
 
         /// <summary>
@@ -788,7 +825,7 @@ namespace MongoDB.Driver.Core.Configuration
                 var invalidPercentPattern = @"%$|%.$|%[^0-9a-fA-F]|%[0-9a-fA-F][^0-9a-fA-F]";
                 if (Regex.IsMatch(_originalConnectionString, invalidPercentPattern))
                 {
-                    var protectedConnectionString = protectConnectionString(_originalConnectionString);
+                    var protectedConnectionString = ProtectConnectionString(_originalConnectionString);
                     var message = $"The connection string '{protectedConnectionString}' contains an invalid '%' escape sequence.";
                     throw new MongoConfigurationException(message);
                 }
@@ -797,7 +834,7 @@ namespace MongoDB.Driver.Core.Configuration
             var match = Regex.Match(_originalConnectionString, pattern);
             if (!match.Success)
             {
-                var protectedConnectionString = protectConnectionString(_originalConnectionString);
+                var protectedConnectionString = ProtectConnectionString(_originalConnectionString);
                 var message = $"The connection string '{protectedConnectionString}' is not valid.";
                 throw new MongoConfigurationException(message);
             }
@@ -812,7 +849,21 @@ namespace MongoDB.Driver.Core.Configuration
             {
                 throw new MongoConfigurationException("Connect and directConnection cannot both be specified.");
             }
-            _connect = GetEffectiveConnectionMode(_connect, _directConnection, _replicaSet);
+            else
+            {
+                if (_connect.HasValue)
+                {
+                    _connectionModeSwitch = ConnectionModeSwitch.UseConnectionMode;
+                }
+                else if (_directConnection.HasValue)
+                {
+                    _connectionModeSwitch = ConnectionModeSwitch.UseDirectConnection;
+                }
+                else
+                {
+                    _connectionModeSwitch = ConnectionModeSwitch.NotSet;
+                }
+            }
 
             if (_journal.HasValue && _journal.Value && _w != null && _w.Equals(0))
             {
@@ -825,17 +876,23 @@ namespace MongoDB.Driver.Core.Configuration
                     "Specifying both tlsInsecure and tlsDisableCertificateRevocationCheck is invalid.");
             }
 
-            if (_scheme == ConnectionStringScheme.MongoDBPlusSrv && _connect == ClusterConnectionMode.Direct)
+            if (_scheme == ConnectionStringScheme.MongoDBPlusSrv && IsDirectConnection())
             {
                 throw new MongoConfigurationException("Direct connect cannot be used with SRV.");
             }
 
-            if (_hosts.Count > 1 && _connect == ClusterConnectionMode.Direct)
+            if (_hosts.Count > 1 && IsDirectConnection())
             {
                 throw new MongoConfigurationException("Direct connect cannot be used with multiple host names.");
             }
 
-            string protectConnectionString(string connectionString)
+            bool IsDirectConnection() =>
+                _directConnection.GetValueOrDefault() ||
+#pragma warning disable CS0618 // Type or member is obsolete
+                _connect == ClusterConnectionMode.Direct;
+#pragma warning restore CS0618 // Type or member is obsolete
+
+            string ProtectConnectionString(string connectionString)
             {
                 var protectedString = Regex.Replace(connectionString, @"(?<=://)[^/]*(?=@)", "<hidden>");
                 return protectedString;
@@ -1103,6 +1160,7 @@ namespace MongoDB.Driver.Core.Configuration
             }
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         private static ClusterConnectionMode ParseClusterConnectionMode(string name, string value)
         {
             if (value.Equals("shardrouter", StringComparison.OrdinalIgnoreCase))
@@ -1111,6 +1169,7 @@ namespace MongoDB.Driver.Core.Configuration
             }
             return ParseEnum<ClusterConnectionMode>(name, value);
         }
+#pragma warning restore CS0618 // Type or member is obsolete
 
         private static int ParseInt32(string name, string value)
         {
@@ -1217,25 +1276,6 @@ namespace MongoDB.Driver.Core.Configuration
             }
 
             return value;
-        }
-
-        private ClusterConnectionMode? GetEffectiveConnectionMode(ClusterConnectionMode? connect, bool? directConnection, string replicaSet)
-        {
-            if (directConnection.HasValue)
-            {
-                if (directConnection.Value)
-                {
-                    return ClusterConnectionMode.Direct;
-                }
-                else
-                {
-                    return replicaSet != null ? ClusterConnectionMode.ReplicaSet : ClusterConnectionMode.Automatic;
-                }
-            }
-            else
-            {
-                return connect;
-            }
         }
 
         private List<string> GetHostsFromSrvRecords(IEnumerable<SrvRecord> srvRecords)

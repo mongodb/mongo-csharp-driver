@@ -18,6 +18,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using Xunit;
@@ -125,7 +128,9 @@ namespace MongoDB.Driver.Tests
                 AuthenticationMechanismProperties = authMechanismProperties,
                 AuthenticationSource = "db",
                 Compressors = new[] { zlibCompressor },
+#pragma warning disable CS0618 // Type or member is obsolete
                 ConnectionMode = ConnectionMode.ReplicaSet,
+#pragma warning restore CS0618 // Type or member is obsolete
                 ConnectTimeout = TimeSpan.FromSeconds(1),
                 DatabaseName = "database",
                 FSync = true,
@@ -211,11 +216,14 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal("GSSAPI", url.AuthenticationMechanism);
                 Assert.Equal(authMechanismProperties, url.AuthenticationMechanismProperties);
                 Assert.Equal("db", url.AuthenticationSource);
+#pragma warning disable CS0618
+                Assert.Equal(ConnectionModeSwitch.UseConnectionMode, url.ConnectionModeSwitch);
+#pragma warning restore CS0618
                 Assert.Contains(url.Compressors, x => x.Type == CompressorType.Zlib);
 #pragma warning disable 618
                 Assert.Equal(123, url.ComputedWaitQueueSize);
-#pragma warning restore 618
                 Assert.Equal(ConnectionMode.ReplicaSet, url.ConnectionMode);
+#pragma warning restore 618
                 Assert.Equal(TimeSpan.FromSeconds(1), url.ConnectTimeout);
                 Assert.Equal("database", url.DatabaseName);
                 Assert.Equal(true, url.FSync);
@@ -275,6 +283,50 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(expectedConnectionString, url.ToString());
             }
         }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void TestDirectConnection([Values(false, true, null)] bool? directConnection)
+        {
+            var directConnectionString = directConnection.HasValue ? $"?directConnection={directConnection.Value}" : string.Empty;
+            var connectionString = $"mongodb://localhost/{directConnectionString}";
+            var url = new MongoUrl(connectionString);
+
+            url.DirectConnection.Should().Be(directConnection);
+#pragma warning disable CS0618 // Type or member is obsolete
+            url.ConnectionModeSwitch.Should().Be(directConnectionString != string.Empty ? ConnectionModeSwitch.UseDirectConnection : ConnectionModeSwitch.NotSet);
+#pragma warning restore CS0618 // Type or member is obsolete
+        }
+
+        [Theory]
+#pragma warning disable CS0618 // Type or member is obsolete
+        [InlineData(ConnectionModeSwitch.NotSet, "directConnection", false)]
+        [InlineData(ConnectionModeSwitch.NotSet, "connect", false)]
+        [InlineData(ConnectionModeSwitch.UseConnectionMode, "directConnection", true)]
+        [InlineData(ConnectionModeSwitch.UseDirectConnection, "connect", true)]
+        public void TestThatNotExpectedPropertyCallThrow(ConnectionModeSwitch connectionModeSwitch, string property, bool shouldFail)
+        {
+            var connectionString = $"mongodb://localhost";
+            var url = new MongoUrl(connectionString);
+            url._connectionModeSwitch(connectionModeSwitch);
+            Exception exception;
+            switch (property)
+            {
+                case "connect": exception = Record.Exception(() => url.ConnectionMode); break;
+                case "directConnection": exception = Record.Exception(() => url.DirectConnection); break;
+                default: throw new Exception($"Unexpected property {property}.");
+            }
+
+            if (shouldFail)
+            {
+                exception.Should().BeOfType<InvalidOperationException>();
+            }
+            else
+            {
+                exception.Should().BeNull();
+            }
+        }
+#pragma warning restore CS0618 // Type or member is obsolete
 
         [Theory]
         [InlineData("mongodb://localhost/?readPreference=secondary")]
@@ -351,6 +403,16 @@ namespace MongoDB.Driver.Tests
         {
             yield return built.ToMongoUrl();
             yield return new MongoUrl(connectionString);
+        }
+    }
+
+    internal static class MongoUrlReflector
+    {
+#pragma warning disable CS0618 // Type or member is obsolete
+        public static void _connectionModeSwitch(this MongoUrl url, ConnectionModeSwitch connectionModeSwitch)
+#pragma warning restore CS0618 // Type or member is obsolete
+        {
+            Reflector.SetFieldValue(url, nameof(_connectionModeSwitch), connectionModeSwitch);
         }
     }
 }

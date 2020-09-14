@@ -19,6 +19,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Encryption;
@@ -37,9 +38,13 @@ namespace MongoDB.Driver
         private AutoEncryptionOptions _autoEncryptionOptions;
         private Action<ClusterBuilder> _clusterConfigurator;
         private IReadOnlyList<CompressorConfiguration> _compressors;
+#pragma warning disable CS0618 // Type or member is obsolete
         private ConnectionMode _connectionMode;
+        private ConnectionModeSwitch _connectionModeSwitch;
+#pragma warning restore CS0618 // Type or member is obsolete
         private TimeSpan _connectTimeout;
         private MongoCredentialStore _credentials;
+        private bool? _directConnection;
         private GuidRepresentation _guidRepresentation;
         private TimeSpan _heartbeatInterval;
         private TimeSpan _heartbeatTimeout;
@@ -82,9 +87,13 @@ namespace MongoDB.Driver
             _applicationName = null;
             _autoEncryptionOptions = null;
             _compressors = new CompressorConfiguration[0];
+#pragma warning disable CS0618 // Type or member is obsolete
             _connectionMode = ConnectionMode.Automatic;
+            _connectionModeSwitch = ConnectionModeSwitch.NotSet;
+#pragma warning restore CS0618 // Type or member is obsolete
             _connectTimeout = MongoDefaults.ConnectTimeout;
             _credentials = new MongoCredentialStore(new MongoCredential[0]);
+            _directConnection = null;
 #pragma warning disable 618
             if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
             {
@@ -196,13 +205,40 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the connection mode.
         /// </summary>
+        [Obsolete("Use DirectConnection instead.")]
         public ConnectionMode ConnectionMode
         {
-            get { return _connectionMode; }
+            get
+            {
+                if (_connectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
+                {
+                    throw new InvalidOperationException("ConnectionMode cannot be used when ConnectionModeSwitch is set to UseDirectConnection.");
+                }
+
+                return _connectionMode;
+            }
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                if (_connectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
+                {
+                    throw new InvalidOperationException("ConnectionMode cannot be used when ConnectionModeSwitch is set to UseDirectConnection.");
+                }
+
                 _connectionMode = value;
+                _connectionModeSwitch = ConnectionModeSwitch.UseConnectionMode; // _directConnection is always null here
+            }
+        }
+
+        /// <summary>
+        /// Gets the connection mode switch.
+        /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
+        public ConnectionModeSwitch ConnectionModeSwitch
+        {
+            get
+            {
+                return _connectionModeSwitch;
             }
         }
 
@@ -256,6 +292,37 @@ namespace MongoDB.Driver
                     throw new ArgumentNullException("value");
                 }
                 _credentials = new MongoCredentialStore(value);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the direct connection.
+        /// </summary>
+        public bool? DirectConnection
+        {
+            get
+            {
+#pragma warning disable CS0618 // Type or member is obsolete
+                if (_connectionModeSwitch == ConnectionModeSwitch.UseConnectionMode)
+#pragma warning restore CS0618 // Type or member is obsolete
+                {
+                    throw new InvalidOperationException("DirectConnection cannot be used when ConnectionModeSwitch is set to UseConnectionMode.");
+                }
+
+                return _directConnection;
+            }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+#pragma warning disable CS0618 // Type or member is obsolete
+                if (_connectionModeSwitch == ConnectionModeSwitch.UseConnectionMode)
+                {
+                    throw new InvalidOperationException("DirectConnection cannot be used when ConnectionModeSwitch is set to UseConnectionMode.");
+                }
+
+                _directConnection = value;
+                _connectionModeSwitch = ConnectionModeSwitch.UseDirectConnection; // _connectionMode is always Automatic here
+#pragma warning restore CS0618 // Type or member is obsolete
             }
         }
 
@@ -726,8 +793,20 @@ namespace MongoDB.Driver
         {
             if (!url.IsResolved)
             {
-                var connectionMode = url.ConnectionMode;
-                var resolveHosts = connectionMode == ConnectionMode.Direct || connectionMode == ConnectionMode.Standalone;
+                bool resolveHosts;
+#pragma warning disable CS0618 // Type or member is obsolete
+                if (url.ConnectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
+#pragma warning restore CS0618 // Type or member is obsolete
+                {
+                    resolveHosts = url.DirectConnection.GetValueOrDefault();
+                }
+                else
+                {
+#pragma warning disable CS0618 // Type or member is obsolete
+                    var connectionMode = url.ConnectionMode;
+#pragma warning restore CS0618 // Type or member is obsolete
+                    resolveHosts = connectionMode == ConnectionMode.Direct || connectionMode == ConnectionMode.Standalone;
+                }
                 url = url.Resolve(resolveHosts);
             }
 
@@ -738,7 +817,12 @@ namespace MongoDB.Driver
             clientSettings.ApplicationName = url.ApplicationName;
             clientSettings.AutoEncryptionOptions = null; // must be configured via code
             clientSettings.Compressors = url.Compressors;
-            clientSettings.ConnectionMode = url.ConnectionMode;
+#pragma warning disable CS0618 // Type or member is obsolete
+            if (url.ConnectionModeSwitch == ConnectionModeSwitch.UseConnectionMode)
+            {
+                clientSettings.ConnectionMode = url.ConnectionMode;
+#pragma warning restore CS0618 // Type or member is obsolete
+            }
             clientSettings.ConnectTimeout = url.ConnectTimeout;
             if (credential != null)
             {
@@ -754,6 +838,12 @@ namespace MongoDB.Driver
                     }
                 }
                 clientSettings.Credential = credential;
+            }
+#pragma warning disable CS0618 // Type or member is obsolete
+            if (url.ConnectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
+#pragma warning restore CS0618 // Type or member is obsolete
+            {
+                clientSettings.DirectConnection = url.DirectConnection;
             }
 #pragma warning disable 618
             if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
@@ -808,8 +898,10 @@ namespace MongoDB.Driver
             clone._compressors = _compressors;
             clone._clusterConfigurator = _clusterConfigurator;
             clone._connectionMode = _connectionMode;
+            clone._connectionModeSwitch = _connectionModeSwitch;
             clone._connectTimeout = _connectTimeout;
             clone._credentials = _credentials;
+            clone._directConnection = _directConnection;
             clone._guidRepresentation = _guidRepresentation;
             clone._heartbeatInterval = _heartbeatInterval;
             clone._heartbeatTimeout = _heartbeatTimeout;
@@ -869,8 +961,10 @@ namespace MongoDB.Driver
                 object.ReferenceEquals(_clusterConfigurator, rhs._clusterConfigurator) &&
                 _compressors.SequenceEqual(rhs._compressors) &&
                 _connectionMode == rhs._connectionMode &&
+                _connectionModeSwitch == rhs._connectionModeSwitch &&
                 _connectTimeout == rhs._connectTimeout &&
                 _credentials == rhs._credentials &&
+                _directConnection.Equals(rhs._directConnection) &&
                 _guidRepresentation == rhs._guidRepresentation &&
                 _heartbeatInterval == rhs._heartbeatInterval &&
                 _heartbeatTimeout == rhs._heartbeatTimeout &&
@@ -951,6 +1045,7 @@ namespace MongoDB.Driver
                 .Hash(_connectionMode)
                 .Hash(_connectTimeout)
                 .Hash(_credentials)
+                .Hash(_directConnection)
                 .Hash(_guidRepresentation)
                 .Hash(_heartbeatInterval)
                 .Hash(_heartbeatTimeout)
@@ -1004,9 +1099,16 @@ namespace MongoDB.Driver
             {
                 sb.AppendFormat("Compressors=[{0}];", string.Join(",", _compressors));
             }
-            sb.AppendFormat("ConnectionMode={0};", _connectionMode);
+            if (_connectionModeSwitch == ConnectionModeSwitch.UseConnectionMode)
+            {
+                sb.AppendFormat("ConnectionMode={0};", _connectionMode);
+            }
             sb.AppendFormat("ConnectTimeout={0};", _connectTimeout);
             sb.AppendFormat("Credentials={{{0}}};", _credentials);
+            if (_connectionModeSwitch == ConnectionModeSwitch.UseDirectConnection && _directConnection.HasValue)
+            {
+                sb.AppendFormat("DirectConnection={0};", _directConnection.Value);
+            }
             sb.AppendFormat("GuidRepresentation={0};", _guidRepresentation);
             sb.AppendFormat("HeartbeatInterval={0};", _heartbeatInterval);
             sb.AppendFormat("HeartbeatTimeout={0};", _heartbeatTimeout);
@@ -1061,8 +1163,10 @@ namespace MongoDB.Driver
                 _clusterConfigurator,
                 _compressors,
                 _connectionMode,
+                _connectionModeSwitch,
                 _connectTimeout,
                 _credentials.ToList(),
+                _directConnection,
                 _heartbeatInterval,
                 _heartbeatTimeout,
                 _ipv6,
@@ -1094,6 +1198,31 @@ namespace MongoDB.Driver
                 throw new InvalidOperationException(
                         $"{nameof(AllowInsecureTls)} and {nameof(SslSettings)}" +
                         $".{nameof(_sslSettings.CheckCertificateRevocation)} cannot both be true.");
+            }
+
+            if (IsDirectConnection())
+            {
+                if (_scheme == ConnectionStringScheme.MongoDBPlusSrv)
+                {
+                    throw new InvalidOperationException($"SRV cannot be used with direct connections.");
+                }
+
+                if (_servers.Count > 1)
+                {
+                    throw new InvalidOperationException($"Multiple host names cannot be used with direct connections.");
+                }
+            }
+
+            bool IsDirectConnection()
+            {
+                if (_connectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
+                {
+                    return _directConnection.GetValueOrDefault();
+                }
+                else
+                {
+                    return _connectionMode == ConnectionMode.Direct;
+                }
             }
         }
     }

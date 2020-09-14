@@ -14,8 +14,11 @@
 */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -46,7 +49,7 @@ namespace MongoDB.Driver.Specifications.sdam_monitoring
         {
             var definition = testCase.Test;
 
-            VerifyFields(definition, "description", "_path", "phases", "uri");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(definition, "description", "_path", "phases", "uri");
 
             _cluster = BuildCluster(definition);
             _cluster.Initialize();
@@ -60,7 +63,7 @@ namespace MongoDB.Driver.Specifications.sdam_monitoring
 
         private void ApplyPhase(BsonDocument phase)
         {
-            VerifyFields(phase, "outcome", "responses");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(phase, "outcome", "responses");
 
             var responses = phase["responses"].AsBsonArray;
             foreach (BsonArray response in responses)
@@ -81,7 +84,7 @@ namespace MongoDB.Driver.Specifications.sdam_monitoring
 
             var address = response[0].AsString;
             var isMasterDocument = response[1].AsBsonDocument;
-            VerifyFields(isMasterDocument, "hosts", "ismaster", "maxWireVersion", "minWireVersion", "ok", "primary", "secondary", "setName", "setVersion");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(isMasterDocument, "hosts", "ismaster", "maxWireVersion", "minWireVersion", "ok", "primary", "secondary", "setName", "setVersion");
 
             var endPoint = EndPointHelper.Parse(address);
             var isMasterResult = new IsMasterResult(isMasterDocument);
@@ -99,20 +102,9 @@ namespace MongoDB.Driver.Specifications.sdam_monitoring
             SpinWait.SpinUntil(() => !object.ReferenceEquals(_cluster.Description, currentClusterDescription), 100); // sometimes returns false and that's OK
         }
 
-        private void VerifyFields(BsonDocument document, params string[] expectedNames)
-        {
-            foreach (var name in document.Names)
-            {
-                if (!expectedNames.Contains(name))
-                {
-                    throw new FormatException($"Invalid field: \"{name}\".");
-                }
-            }
-        }
-
         private void VerifyOutcome(BsonDocument outcome)
         {
-            VerifyFields(outcome, "events");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(outcome, "events");
 
             var expectedEvents = outcome["events"].AsBsonArray;
             foreach (BsonDocument expectedEvent in expectedEvents)
@@ -167,13 +159,13 @@ namespace MongoDB.Driver.Specifications.sdam_monitoring
 
         private void VerifyEvent(ClusterOpeningEvent actualEvent, BsonDocument expectedEvent)
         {
-            VerifyFields(expectedEvent, "topologyId");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(expectedEvent, "topologyId");
             actualEvent.ClusterId.Should().Be(_cluster.ClusterId);
         }
 
         private void VerifyEvent(ClusterDescriptionChangedEvent actualEvent, BsonDocument expectedEvent)
         {
-            VerifyFields(expectedEvent, "newDescription", "previousDescription", "topologyId");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(expectedEvent, "newDescription", "previousDescription", "topologyId");
             actualEvent.ClusterId.Should().Be(_cluster.ClusterId);
             VerifyClusterDescription(actualEvent.OldDescription, expectedEvent["previousDescription"].AsBsonDocument);
             VerifyClusterDescription(actualEvent.NewDescription, expectedEvent["newDescription"].AsBsonDocument);
@@ -181,7 +173,7 @@ namespace MongoDB.Driver.Specifications.sdam_monitoring
 
         private void VerifyEvent(ServerOpeningEvent actualEvent, BsonDocument expectedEvent)
         {
-            VerifyFields(expectedEvent, "address", "topologyId");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(expectedEvent, "address", "topologyId");
             var expectedEndPoint = EndPointHelper.Parse(expectedEvent["address"].AsString);
             actualEvent.ClusterId.Should().Be(_cluster.ClusterId);
             actualEvent.ServerId.EndPoint.WithComparer(EndPointHelper.EndPointEqualityComparer).Should().Be(expectedEndPoint);
@@ -189,7 +181,7 @@ namespace MongoDB.Driver.Specifications.sdam_monitoring
 
         private void VerifyEvent(ServerClosedEvent actualEvent, BsonDocument expectedEvent)
         {
-            VerifyFields(expectedEvent, "address", "topologyId");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(expectedEvent, "address", "topologyId");
             var expectedEndPoint = EndPointHelper.Parse(expectedEvent["address"].AsString);
             actualEvent.ClusterId.Should().Be(_cluster.ClusterId);
             actualEvent.ServerId.EndPoint.WithComparer(EndPointHelper.EndPointEqualityComparer).Should().Be(expectedEndPoint);
@@ -197,7 +189,7 @@ namespace MongoDB.Driver.Specifications.sdam_monitoring
 
         private void VerifyEvent(ServerDescriptionChangedEvent actualEvent, BsonDocument expectedEvent)
         {
-            VerifyFields(expectedEvent, "address", "newDescription", "previousDescription", "topologyId");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(expectedEvent, "address", "newDescription", "previousDescription", "topologyId");
             var expectedEndPoint = EndPointHelper.Parse(expectedEvent["address"].AsString);
             actualEvent.ClusterId.Should().Be(_cluster.ClusterId);
             actualEvent.ServerId.EndPoint.WithComparer(EndPointHelper.EndPointEqualityComparer).Should().Be(expectedEndPoint);
@@ -207,7 +199,7 @@ namespace MongoDB.Driver.Specifications.sdam_monitoring
 
         private void VerifyClusterDescription(ClusterDescription actualDescription, BsonDocument expectedDescription)
         {
-            VerifyFields(expectedDescription, "servers", "setName", "topologyType");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(expectedDescription, "servers", "setName", "topologyType");
 
             var expectedTopologyType = expectedDescription["topologyType"].AsString;
             VerifyTopology(actualDescription, expectedTopologyType);
@@ -259,7 +251,7 @@ namespace MongoDB.Driver.Specifications.sdam_monitoring
 
         private void VerifyServerDescription(ServerDescription actualDescription, BsonDocument expectedDescription)
         {
-            VerifyFields(expectedDescription, "address", "arbiters", "hosts", "passives", "primary", "setName", "type");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(expectedDescription, "address", "arbiters", "hosts", "passives", "primary", "setName", "type");
 
             var expectedType = expectedDescription["type"].AsString;
             switch (expectedType)
@@ -333,9 +325,21 @@ namespace MongoDB.Driver.Specifications.sdam_monitoring
         {
             var connectionString = new ConnectionString(definition["uri"].AsString);
             var settings = new ClusterSettings(
+#pragma warning disable CS0618
+                connectionModeSwitch: connectionString.ConnectionModeSwitch,
+#pragma warning restore CS0618
                 endPoints: Optional.Enumerable(connectionString.Hosts),
-                connectionMode: connectionString.Connect,
                 replicaSetName: connectionString.ReplicaSet);
+#pragma warning disable CS0618
+            if (connectionString.ConnectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
+            {
+                settings = settings.With(directConnection: connectionString.DirectConnection);
+            }
+            else
+            {
+                settings = settings.With(connectionMode: connectionString.Connect);
+            }
+#pragma warning restore CS0618
 
             _eventSubscriber = new EventCapturer();
             _eventSubscriber.Capture<ClusterOpeningEvent>(e => true);

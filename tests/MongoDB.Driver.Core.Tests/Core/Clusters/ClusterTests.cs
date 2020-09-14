@@ -88,12 +88,14 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         [Theory]
+#pragma warning disable CS0618 // Type or member is obsolete
         [InlineData(ClusterConnectionMode.Automatic, ClusterType.Unknown)]
         [InlineData(ClusterConnectionMode.Direct, ClusterType.Unknown)]
         [InlineData(ClusterConnectionMode.ReplicaSet, ClusterType.ReplicaSet)]
         [InlineData(ClusterConnectionMode.Sharded, ClusterType.Sharded)]
         [InlineData(ClusterConnectionMode.Standalone, ClusterType.Standalone)]
         public void Description_should_return_correct_description_when_not_initialized(ClusterConnectionMode connectionMode, ClusterType clusterType)
+#pragma warning restore CS0618 // Type or member is obsolete
         {
             var subject = CreateSubject(connectionMode);
             var description = subject.Description;
@@ -533,9 +535,11 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         // private methods
-        private StubCluster CreateSubject(ClusterConnectionMode connectionMode = ClusterConnectionMode.Automatic, TimeSpan? serverSelectionTimeout = null)
+#pragma warning disable CS0618 // Type or member is obsolete
+        private StubCluster CreateSubject(ClusterConnectionMode connectionMode = ClusterConnectionMode.Automatic, ConnectionModeSwitch connectionModeSwitch = ConnectionModeSwitch.UseConnectionMode, TimeSpan? serverSelectionTimeout = null)
+#pragma warning restore CS0618 // Type or member is obsolete
         {
-            _settings = _settings.With(connectionMode: connectionMode);
+            _settings = _settings.With(connectionMode: connectionMode, connectionModeSwitch: connectionModeSwitch);
             if (serverSelectionTimeout != null)
             {
                 _settings = _settings.With(serverSelectionTimeout: serverSelectionTimeout.Value);

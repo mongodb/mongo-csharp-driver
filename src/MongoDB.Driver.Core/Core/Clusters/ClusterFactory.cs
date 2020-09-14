@@ -38,37 +38,44 @@ namespace MongoDB.Driver.Core.Clusters
         // methods
         public ICluster CreateCluster()
         {
-            var connectionMode = _settings.ConnectionMode;
+            var settings = _settings;
 
-            if (connectionMode == ClusterConnectionMode.Automatic)
+            bool createSingleServerCluster;
+#pragma warning disable CS0618 // Type or member is obsolete
+            if (settings.ConnectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
             {
-                if (_settings.ReplicaSetName != null)
-                {
-                    connectionMode = ClusterConnectionMode.ReplicaSet;
-                }
+                createSingleServerCluster = settings.DirectConnection.GetValueOrDefault();
             }
-
-            var settings = _settings.With(connectionMode: connectionMode);
-
-            switch (connectionMode)
+            else
             {
-                case ClusterConnectionMode.Automatic:
-                    if (settings.EndPoints.Count == 1 && settings.Scheme != ConnectionStringScheme.MongoDBPlusSrv)
+                var connectionMode = settings.ConnectionMode;
+                if (connectionMode == ClusterConnectionMode.Automatic)
+                {
+                    if (settings.ReplicaSetName != null)
                     {
-                        return CreateSingleServerCluster(settings);
+                        connectionMode = ClusterConnectionMode.ReplicaSet;
+                        settings = settings.With(connectionMode: connectionMode, connectionModeSwitch: ConnectionModeSwitch.UseConnectionMode); // update connectionMode
                     }
-                    else
-                    {
-                        return CreateMultiServerCluster(settings);
-                    }
-                case ClusterConnectionMode.Direct:
-                case ClusterConnectionMode.Standalone:
-                    return CreateSingleServerCluster(settings);
-                case ClusterConnectionMode.ReplicaSet:
-                case ClusterConnectionMode.Sharded:
-                    return CreateMultiServerCluster(settings);
-                default:
-                    throw new MongoInternalException(string.Format("Invalid connection mode: {0}.", connectionMode));
+                }
+
+                createSingleServerCluster =
+                    connectionMode == ClusterConnectionMode.Direct ||
+                    connectionMode == ClusterConnectionMode.Standalone ||
+                    (
+                        connectionMode == ClusterConnectionMode.Automatic &&
+                        settings.EndPoints.Count == 1 &&
+                        settings.Scheme != ConnectionStringScheme.MongoDBPlusSrv
+                    );
+            }
+#pragma warning restore CS0618 // Type or member is obsolete
+
+            if (createSingleServerCluster)
+            {
+                return CreateSingleServerCluster(settings);
+            }
+            else
+            {
+                return CreateMultiServerCluster(settings);
             }
         }
 

@@ -205,10 +205,45 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
 
         private void VerifyTopology(ICluster cluster, string expectedType, string phaseDescription)
         {
+            var clusterDescription = cluster.Description;
             switch (expectedType)
             {
                 case "Single":
-                    cluster.Should().BeOfType<SingleServerCluster>();
+                    if (cluster is SingleServerCluster singleServerCluster)
+                    {
+#pragma warning disable CS0618 // Type or member is obsolete
+                        if (clusterDescription.ConnectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
+                        {
+                            singleServerCluster
+                               .Settings
+                               .Should()
+                               .Match<ClusterSettings>(m => !m.DirectConnection.HasValue || m.DirectConnection.Value);
+                        }
+                        else
+                        {
+                            singleServerCluster.Description.ConnectionMode.Should().Be(ClusterConnectionMode.Automatic);
+                        }
+                    }
+                    else if (cluster is MultiServerCluster multiServerCluster)
+                    {
+                        if (clusterDescription.ConnectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
+                        {
+                            multiServerCluster
+                                .Settings
+                                .Should()
+                                .Match<ClusterSettings>(m => !m.DirectConnection.HasValue || !m.DirectConnection.Value);
+                        }
+                        else
+                        {
+                            multiServerCluster.Description.ConnectionMode.Should().Be(ClusterConnectionMode.Automatic);
+                        }
+#pragma warning restore CS0618 // Type or member is obsolete
+                        multiServerCluster.Description.Type.Should().Be(ClusterType.Standalone);
+                    }
+                    else
+                    {
+                        throw new Exception($"Unexpected cluster type {cluster.GetType().Name}.");
+                    }
                     break;
                 case "ReplicaSetWithPrimary":
                     cluster.Should().BeOfType<MultiServerCluster>();
@@ -448,9 +483,22 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
         {
             var connectionString = new ConnectionString((string)definition["uri"]);
             var settings = new ClusterSettings(
+#pragma warning disable CS0618 // Type or member is obsolete
+                connectionModeSwitch: connectionString.ConnectionModeSwitch,
                 endPoints: Optional.Enumerable(connectionString.Hosts),
-                connectionMode: connectionString.Connect,
                 replicaSetName: connectionString.ReplicaSet);
+
+            if (settings.ConnectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
+#pragma warning restore CS0618
+            {
+                settings = settings.With(directConnection: connectionString.DirectConnection);
+            }
+            else
+            {
+#pragma warning disable CS0618
+                settings = settings.With(connectionMode: connectionString.Connect);
+#pragma warning restore CS0618
+            }
 
             // Passing in an eventCapturer results in Server being used instead of a Mock
             _serverFactory = new MockClusterableServerFactory(new EventCapturer());

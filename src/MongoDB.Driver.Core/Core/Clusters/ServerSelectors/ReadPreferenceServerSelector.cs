@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
                 }
             }
 
-            if (cluster.ConnectionMode == ClusterConnectionMode.Direct)
+            if (cluster.IsDirectConnection)
             {
                 return servers;
             }

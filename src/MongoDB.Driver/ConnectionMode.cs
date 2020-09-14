@@ -24,6 +24,7 @@ namespace MongoDB.Driver
 #if NET452
     [Serializable]
 #endif
+    [Obsolete("Use DirectConnection instead.")]
     public enum ConnectionMode
     {
         /// <summary>
@@ -50,6 +51,7 @@ namespace MongoDB.Driver
 
     internal static class ConnectionModeExtensionMethods
     {
+#pragma warning disable CS0618 // Type or member is obsolete
         public static ClusterConnectionMode ToCore(this ConnectionMode value)
         {
             switch (value)
@@ -62,5 +64,6 @@ namespace MongoDB.Driver
                 default: throw new ArgumentException("Invalid ConnectionMode.", "value");
             }
         }
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 }

@@ -31,7 +31,7 @@ using Xunit.Abstractions;
 namespace MongoDB.Driver.Specifications.initial_dns_seedlist_discovery
 {
     [Trait("Category", "ConnectionString")]
-    public class TestRunner
+    public class InitialDnsSeedlistDiscoveryTestRunner
     {
         [Theory]
         [ClassData(typeof(TestCaseFactory))]

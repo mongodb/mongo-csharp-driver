@@ -80,6 +80,7 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         [Theory]
+#pragma warning disable CS0618 // Type or member is obsolete
         [InlineData(ClusterConnectionMode.ReplicaSet, ServerType.ShardRouter)]
         [InlineData(ClusterConnectionMode.ReplicaSet, ServerType.Standalone)]
         [InlineData(ClusterConnectionMode.Standalone, ServerType.ReplicaSetArbiter)]
@@ -96,7 +97,8 @@ namespace MongoDB.Driver.Core.Clusters
         [InlineData(ClusterConnectionMode.Sharded, ServerType.Standalone)]
         public void Description_should_not_contain_any_servers_if_the_provided_server_is_not_of_the_required_type(ClusterConnectionMode connectionMode, ServerType serverType)
         {
-            _settings = _settings.With(connectionMode: connectionMode);
+            _settings = _settings.With(connectionMode: connectionMode, connectionModeSwitch: ConnectionModeSwitch.UseConnectionMode);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             var subject = CreateSubject();
             subject.Initialize();
@@ -112,7 +114,9 @@ namespace MongoDB.Driver.Core.Clusters
         [Fact]
         public void Description_should_regain_a_server_if_the_provided_server_is_rebooted_to_its_expected_type()
         {
-            _settings = _settings.With(connectionMode: ClusterConnectionMode.Standalone);
+#pragma warning disable CS0618 // Type or member is obsolete
+            _settings = _settings.With(connectionMode: ClusterConnectionMode.Standalone, connectionModeSwitch: ConnectionModeSwitch.UseConnectionMode);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             var subject = CreateSubject();
             subject.Initialize();
@@ -155,7 +159,10 @@ namespace MongoDB.Driver.Core.Clusters
             [Values(null, "wrong")] string isMasterSetName)
         {
             _settings = _settings.With(
+#pragma warning disable CS0618 // Type or member is obsolete
                 connectionMode: ClusterConnectionMode.Direct,
+                connectionModeSwitch: ConnectionModeSwitch.UseConnectionMode,
+#pragma warning restore CS0618 // Type or member is obsolete
                 replicaSetName: "rs");
 
             var subject = CreateSubject();

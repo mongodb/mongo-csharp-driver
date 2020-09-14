@@ -66,9 +66,13 @@ namespace MongoDB.Driver.Tests
                 applicationName: "app1",
                 clusterConfigurator: clusterConfigurator,
                 compressors: new[] { new CompressorConfiguration(CompressorType.Zlib) },
+#pragma warning disable CS0618 // Type or member is obsolete
                 connectionMode: ConnectionMode.ReplicaSet,
+                connectionModeSwitch: ConnectionModeSwitch.UseConnectionMode,
+#pragma warning restore CS0618 // Type or member is obsolete
                 connectTimeout: TimeSpan.FromSeconds(1),
                 credentials: credentials,
+                directConnection: null,
                 heartbeatInterval: TimeSpan.FromSeconds(2),
                 heartbeatTimeout: TimeSpan.FromSeconds(3),
                 ipv6: true,
@@ -102,7 +106,9 @@ namespace MongoDB.Driver.Tests
                     new IPEndPoint(IPAddress.Parse("127.0.0.1"), 30000),
                     new IPEndPoint(IPAddress.Parse("[::1]"), 27018)
                 };
+#pragma warning disable CS0618 // Type or member is obsolete
                 cluster.Settings.ConnectionMode.Should().Be(clusterKey.ConnectionMode.ToCore());
+#pragma warning restore CS0618 // Type or member is obsolete
                 cluster.Settings.KmsProviders.Should().BeEquivalentTo(kmsProviders);
                 cluster.Settings.EndPoints.Should().Equal(expectedEndPoints);
                 cluster.Settings.MaxServerSelectionWaitQueueSize.Should().Be(clusterKey.WaitQueueSize);

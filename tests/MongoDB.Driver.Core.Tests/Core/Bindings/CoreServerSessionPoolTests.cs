@@ -249,10 +249,14 @@ namespace MongoDB.Driver.Tests
                 version: new SemanticVersion(3, 6, 0),
                 wireVersionRange: new Range<int>(2, 6));
 
+#pragma warning disable CS0618 // Type or member is obsolete
             var connectionMode = ClusterConnectionMode.Automatic;
+#pragma warning restore CS0618 // Type or member is obsolete
             var type = ClusterType.Sharded;
             var servers = new[] { serverDescription };
+#pragma warning disable CS0618 // Type or member is obsolete
             var clusterDescription = new ClusterDescription(clusterId, connectionMode, type, servers);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             var mockCluster = new Mock<ICluster>();
             mockCluster.SetupGet(m => m.Description).Returns(clusterDescription);

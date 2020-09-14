@@ -56,8 +56,12 @@ namespace MongoDB.Driver.Core.Servers
         // fields
         private readonly ServerDescription _baseDescription;
         private readonly IClusterClock _clusterClock;
+#pragma warning disable CS0618 // Type or member is obsolete
         private readonly ClusterConnectionMode _clusterConnectionMode;
+        private readonly ConnectionModeSwitch _connectionModeSwitch;
+#pragma warning restore CS0618 // Type or member is obsolete
         private IConnectionPool _connectionPool;
+        private readonly bool? _directConnection;
         private ServerDescription _currentDescription;
         private readonly EndPoint _endPoint;
         private readonly IServerMonitor _monitor;
@@ -75,11 +79,27 @@ namespace MongoDB.Driver.Core.Servers
         public event EventHandler<ServerDescriptionChangedEventArgs> DescriptionChanged;
 
         // constructors
-        public Server(ClusterId clusterId, IClusterClock clusterClock, ClusterConnectionMode clusterConnectionMode, ServerSettings settings, EndPoint endPoint, IConnectionPoolFactory connectionPoolFactory, IServerMonitorFactory serverMonitorFactory, IEventSubscriber eventSubscriber)
+        public Server(
+           ClusterId clusterId,
+           IClusterClock clusterClock,
+#pragma warning disable CS0618 // Type or member is obsolete
+            ClusterConnectionMode clusterConnectionMode,
+           ConnectionModeSwitch connectionModeSwitch,
+#pragma warning restore CS0618 // Type or member is obsolete
+            bool? directConnection,
+           ServerSettings settings,
+           EndPoint endPoint,
+           IConnectionPoolFactory connectionPoolFactory,
+           IServerMonitorFactory serverMonitorFactory,
+           IEventSubscriber eventSubscriber)
         {
+            ClusterConnectionModeHelper.EnsureConnectionModeValuesAreValid(clusterConnectionMode, connectionModeSwitch, directConnection);
+
             Ensure.IsNotNull(clusterId, nameof(clusterId));
             _clusterClock = Ensure.IsNotNull(clusterClock, nameof(clusterClock));
             _clusterConnectionMode = clusterConnectionMode;
+            _connectionModeSwitch = connectionModeSwitch;
+            _directConnection = directConnection;
             _settings = Ensure.IsNotNull(settings, nameof(settings));
             _endPoint = Ensure.IsNotNull(endPoint, nameof(endPoint));
             Ensure.IsNotNull(connectionPoolFactory, nameof(connectionPoolFactory));
@@ -208,7 +228,7 @@ namespace MongoDB.Driver.Core.Servers
         [Obsolete("Use Invalidate with TopologyDescription instead.")]
         public void Invalidate(string reasonInvalidated)
         {
-           Invalidate(reasonInvalidated, responseTopologyDescription: null);
+            Invalidate(reasonInvalidated, responseTopologyDescription: null);
         }
 
         public void Invalidate(string reasonInvalidated, TopologyVersion responseTopologyDescription)
@@ -357,10 +377,10 @@ namespace MongoDB.Driver.Core.Servers
                     lastUpdateTimestamp: DateTime.UtcNow,
                     topologyVersion: responseTopologyVersion);
             SetDescription(newDescription);
-             // TODO: make the heartbeat request conditional so we adhere to this part of the spec
-             // > Network error when reading or writing: ... Clients MUST NOT request an immediate check of the server;
-             // > since application sockets are used frequently, a network error likely means the server has just become
-             // > unavailable, so an immediate refresh is likely to get a network error, too.
+            // TODO: make the heartbeat request conditional so we adhere to this part of the spec
+            // > Network error when reading or writing: ... Clients MUST NOT request an immediate check of the server;
+            // > since application sockets are used frequently, a network error likely means the server has just become
+            // > unavailable, so an immediate refresh is likely to get a network error, too.
             RequestHeartbeat();
         }
 
@@ -1241,7 +1261,7 @@ namespace MongoDB.Driver.Core.Servers
 
             private ReadPreference GetEffectiveReadPreference(bool slaveOk, ReadPreference readPreference)
             {
-                if (_server._clusterConnectionMode == ClusterConnectionMode.Direct && _server.Description.Type != ServerType.ShardRouter)
+                if (IsDirectConnection() && _server.Description.Type != ServerType.ShardRouter)
                 {
                     return ReadPreference.PrimaryPreferred;
                 }
@@ -1262,12 +1282,26 @@ namespace MongoDB.Driver.Core.Servers
 
             private bool GetEffectiveSlaveOk(bool slaveOk)
             {
-                if (_server._clusterConnectionMode == ClusterConnectionMode.Direct && _server.Description.Type != ServerType.ShardRouter)
+                if (IsDirectConnection() && _server.Description.Type != ServerType.ShardRouter)
                 {
                     return true;
                 }
 
                 return slaveOk;
+            }
+
+            private bool IsDirectConnection()
+            {
+#pragma warning disable CS0618 // Type or member is obsolete
+                if (_server._connectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
+                {
+                    return _server._directConnection.GetValueOrDefault();
+                }
+                else
+                {
+                    return _server._clusterConnectionMode == ClusterConnectionMode.Direct;
+                }
+#pragma warning restore CS0618 // Type or member is obsolete
             }
 
             private void MarkSessionDirtyIfNeeded(ICoreSession session, Exception ex)

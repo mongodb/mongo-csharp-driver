@@ -25,16 +25,26 @@ namespace MongoDB.Driver.Core.Servers
     internal class ServerFactory : IClusterableServerFactory
     {
         // fields
+#pragma warning disable CS0618 // Type or member is obsolete
         private readonly ClusterConnectionMode _clusterConnectionMode;
+        private readonly ConnectionModeSwitch _connectionModeSwitch;
+#pragma warning restore CS0618 // Type or member is obsolete
         private readonly IConnectionPoolFactory _connectionPoolFactory;
+        private readonly bool? _directConnection;
         private readonly IServerMonitorFactory _serverMonitorFactory;
         private readonly IEventSubscriber _eventSubscriber;
         private readonly ServerSettings _settings;
 
         // constructors
-        public ServerFactory(ClusterConnectionMode clusterConnectionMode, ServerSettings settings, IConnectionPoolFactory connectionPoolFactory, IServerMonitorFactory serverMonitoryFactory, IEventSubscriber eventSubscriber)
+#pragma warning disable CS0618 // Type or member is obsolete
+        public ServerFactory(ClusterConnectionMode clusterConnectionMode, ConnectionModeSwitch connectionModeSwitch, bool? directConnection, ServerSettings settings, IConnectionPoolFactory connectionPoolFactory, IServerMonitorFactory serverMonitoryFactory, IEventSubscriber eventSubscriber)
+#pragma warning restore CS0618 // Type or member is obsolete
         {
+            ClusterConnectionModeHelper.EnsureConnectionModeValuesAreValid(clusterConnectionMode, connectionModeSwitch, directConnection);
+
             _clusterConnectionMode = clusterConnectionMode;
+            _connectionModeSwitch = connectionModeSwitch;
+            _directConnection = directConnection;
             _settings = Ensure.IsNotNull(settings, nameof(settings));
             _connectionPoolFactory = Ensure.IsNotNull(connectionPoolFactory, nameof(connectionPoolFactory));
             _serverMonitorFactory = Ensure.IsNotNull(serverMonitoryFactory, nameof(serverMonitoryFactory));
@@ -45,7 +55,17 @@ namespace MongoDB.Driver.Core.Servers
         /// <inheritdoc/>
         public IClusterableServer CreateServer(ClusterId clusterId, IClusterClock clusterClock, EndPoint endPoint)
         {
-            return new Server(clusterId, clusterClock, _clusterConnectionMode, _settings, endPoint, _connectionPoolFactory, _serverMonitorFactory, _eventSubscriber);
+            return new Server(
+                clusterId,
+                clusterClock,
+                _clusterConnectionMode,
+                _connectionModeSwitch,
+                _directConnection,
+                _settings,
+                endPoint,
+                _connectionPoolFactory,
+                _serverMonitorFactory,
+                _eventSubscriber);
         }
     }
 }
