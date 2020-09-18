@@ -433,6 +433,31 @@ namespace MongoDB.Driver.Core.Operations
 
         [SkippableTheory]
         [ParameterAttributeData]
+        public void Execute_should_work_when_hidden_has_value(
+            [Values(null, false, true)] bool? hidden,
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.HiddenIndex);
+            DropCollection();
+            var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) { Hidden = hidden } };
+            var subject = new CreateIndexesUsingCommandOperation(_collectionNamespace, requests, _messageEncoderSettings);
+
+            ExecuteOperation(subject, async);
+
+            var indexes = ListIndexes();
+            var index = indexes.Single(i => i["name"].AsString == "x_1");
+            if (hidden.GetValueOrDefault())
+            {
+                index["hidden"].AsBoolean.Should().BeTrue();
+            }
+            else
+            {
+                index.Contains("hidden").Should().BeFalse();
+            }
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_should_work_when_unique_is_true(
             [Values(false, true)]
             bool async)

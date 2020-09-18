@@ -1566,6 +1566,7 @@ namespace MongoDB.Driver
                         Collation = options.Collation,
                         DefaultLanguage = options.DefaultLanguage,
                         ExpireAfter = options.ExpireAfter,
+                        Hidden = options.Hidden,
                         LanguageOverride = options.LanguageOverride,
                         Max = options.Max,
                         Min = options.Min,

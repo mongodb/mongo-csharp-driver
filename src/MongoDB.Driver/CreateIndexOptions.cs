@@ -30,6 +30,7 @@ namespace MongoDB.Driver
         private Collation _collation;
         private string _defaultLanguage;
         private TimeSpan? _expireAfter;
+        private bool? _hidden;
         private string _languageOverride;
         private double? _max;
         private double? _min;
@@ -96,6 +97,15 @@ namespace MongoDB.Driver
         {
             get { return _expireAfter; }
             set { _expireAfter = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the index is hidden.
+        /// </summary>
+        public bool? Hidden
+        {
+            get { return _hidden; }
+            set { _hidden = value; }
         }
 
         /// <summary>
@@ -225,6 +235,7 @@ namespace MongoDB.Driver
                     Collation = options.Collation,
                     DefaultLanguage = options.DefaultLanguage,
                     ExpireAfter = options.ExpireAfter,
+                    Hidden = options.Hidden,
                     LanguageOverride = options.LanguageOverride,
                     Max = options.Max,
                     Min = options.Min,

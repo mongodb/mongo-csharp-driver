@@ -56,6 +56,13 @@ namespace MongoDB.Driver.Tests.Builders
         }
 
         [Fact]
+        public void TestHidden()
+        {
+            var options = IndexOptions.SetHidden(true);
+            options.ToBsonDocument().Should().Be("{ hidden : true }");
+        }
+
+        [Fact]
         public void TestName()
         {
             var options = IndexOptions.SetName("custom");

@@ -141,6 +141,24 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets a value indicating whether the index is hidden.
+        /// </summary>
+        public bool IsHidden
+        {
+            get
+            {
+                if (_document.TryGetValue("hidden", out var value))
+                {
+                    return value.ToBoolean();
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets a value indicating whether the index is sparse.
         /// </summary>
         public bool IsSparse

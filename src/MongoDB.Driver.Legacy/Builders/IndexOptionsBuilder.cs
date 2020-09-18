@@ -91,6 +91,16 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Sets whether the index is hidden.
+        /// </summary>
+        /// <param name="value">Whether the index is hidden.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static IndexOptionsBuilder SetHidden(bool value)
+        {
+            return new IndexOptionsBuilder().SetHidden(value);
+        }
+
+        /// <summary>
         /// Sets the name of the index.
         /// </summary>
         /// <param name="value">The name of the index.</param>
@@ -274,6 +284,17 @@ namespace MongoDB.Driver.Builders
         {
             _document["min"] = min;
             _document["max"] = max;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets whether the index is hidden.
+        /// </summary>
+        /// <param name="value">Whether the index is hidden.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public IndexOptionsBuilder SetHidden(bool value)
+        {
+            _document["hidden"] = value;
             return this;
         }
 
@@ -482,6 +503,16 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Sets whether the index is hidden.
+        /// </summary>
+        /// <param name="value">Whether the index is hidden.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static IndexOptionsBuilder<TDocument> SetHidden(bool value)
+        {
+            return new IndexOptionsBuilder<TDocument>().SetHidden(value);
+        }
+
+        /// <summary>
         /// Sets the geospatial range.
         /// </summary>
         /// <param name="min">The min value of the range.</param>
@@ -682,6 +713,17 @@ namespace MongoDB.Driver.Builders
         public IndexOptionsBuilder<TDocument> SetGeoSpatialRange(double min, double max)
         {
             _indexOptionsBuilder.SetGeoSpatialRange(min, max);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets whether the index is hidden.
+        /// </summary>
+        /// <param name="value">Whether the index is hidden.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public IndexOptionsBuilder<TDocument> SetHidden(bool value)
+        {
+            _indexOptionsBuilder.SetHidden(value);
             return this;
         }
 

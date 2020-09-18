@@ -674,7 +674,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestCreateIndex()
         {
-            void assertNamespace(IndexInfo indexInfo)
+            void AssertNamespace(IndexInfo indexInfo)
             {
                 if (CoreTestConfiguration.ServerVersion < new SemanticVersion(4, 3, 0, ""))
                 {
@@ -695,11 +695,12 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(1, indexes.Count);
             Assert.Equal(false, indexes[0].DroppedDups);
             Assert.Equal(false, indexes[0].IsBackground);
+            Assert.Equal(false, indexes[0].IsHidden);
             Assert.Equal(false, indexes[0].IsSparse);
             Assert.Equal(false, indexes[0].IsUnique);
             Assert.Equal(new IndexKeysDocument("_id", 1), indexes[0].Key);
             Assert.Equal("_id_", indexes[0].Name);
-            assertNamespace(indexes[0]);
+            AssertNamespace(indexes[0]);
             Assert.True(indexes[0].Version >= 0);
 
             var result = _collection.CreateIndex("x");
@@ -711,50 +712,67 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(2, indexes.Count);
             Assert.Equal(false, indexes[0].DroppedDups);
             Assert.Equal(false, indexes[0].IsBackground);
+            Assert.Equal(false, indexes[0].IsHidden);
             Assert.Equal(false, indexes[0].IsSparse);
             Assert.Equal(false, indexes[0].IsUnique);
             Assert.Equal(new IndexKeysDocument("_id", 1), indexes[0].Key);
             Assert.Equal("_id_", indexes[0].Name);
-            assertNamespace(indexes[0]);
+            AssertNamespace(indexes[0]);
             Assert.True(indexes[0].Version >= 0);
             Assert.Equal(false, indexes[1].DroppedDups);
             Assert.Equal(false, indexes[1].IsBackground);
+            Assert.Equal(false, indexes[1].IsHidden);
             Assert.Equal(false, indexes[1].IsSparse);
             Assert.Equal(false, indexes[1].IsUnique);
             Assert.Equal(new IndexKeysDocument("x", 1), indexes[1].Key);
             Assert.Equal("x_1", indexes[1].Name);
-            assertNamespace(indexes[1]);
+            AssertNamespace(indexes[1]);
             Assert.True(indexes[1].Version >= 0);
 
-            // note: DropDups is silently ignored in server 2.8
+            _collection.DropAllIndexes();
+            var options = IndexOptions.SetBackground(true).SetSparse(true).SetUnique(true);
             if (_primary.BuildInfo.Version < new Version(2, 7, 0))
             {
-                _collection.DropAllIndexes();
-                var options = IndexOptions.SetBackground(true).SetDropDups(true).SetSparse(true).SetUnique(true);
-                result = _collection.CreateIndex(IndexKeys.Ascending("x").Descending("y"), options);
-
-                expectedResult = new ExpectedWriteConcernResult();
-                CheckExpectedResult(expectedResult, result);
-
-                indexes = _collection.GetIndexes().OrderBy(x => x.Name).ToList();
-                Assert.Equal(2, indexes.Count);
-                Assert.Equal(false, indexes[0].DroppedDups);
-                Assert.Equal(false, indexes[0].IsBackground);
-                Assert.Equal(false, indexes[0].IsSparse);
-                Assert.Equal(false, indexes[0].IsUnique);
-                Assert.Equal(new IndexKeysDocument("_id", 1), indexes[0].Key);
-                Assert.Equal("_id_", indexes[0].Name);
-                Assert.Equal(_collection.FullName, indexes[0].Namespace);
-                Assert.True(indexes[0].Version >= 0);
-                Assert.Equal(true, indexes[1].DroppedDups);
-                Assert.Equal(true, indexes[1].IsBackground);
-                Assert.Equal(true, indexes[1].IsSparse);
-                Assert.Equal(true, indexes[1].IsUnique);
-                Assert.Equal(new IndexKeysDocument { { "x", 1 }, { "y", -1 } }, indexes[1].Key);
-                Assert.Equal("x_1_y_-1", indexes[1].Name);
-                Assert.Equal(_collection.FullName, indexes[1].Namespace);
-                Assert.True(indexes[1].Version >= 0);
+                // note: DropDups is silently ignored in server 2.8
+                options = options.SetDropDups(true);
             }
+
+            if (_primary.BuildInfo.Version >= new Version(4, 4, 0))
+            {
+                // note: it's supported since server 4.4
+                options = options.SetHidden(true);
+            }
+            result = _collection.CreateIndex(IndexKeys.Ascending("x").Descending("y"), options);
+
+            expectedResult = new ExpectedWriteConcernResult();
+            CheckExpectedResult(expectedResult, result);
+
+            indexes = _collection.GetIndexes().OrderBy(x => x.Name).ToList();
+            Assert.Equal(2, indexes.Count);
+            Assert.Equal(false, indexes[0].DroppedDups);
+            Assert.Equal(false, indexes[0].IsBackground);
+            Assert.Equal(false, indexes[0].IsHidden);
+            Assert.Equal(false, indexes[0].IsSparse);
+            Assert.Equal(false, indexes[0].IsUnique);
+            Assert.Equal(new IndexKeysDocument("_id", 1), indexes[0].Key);
+            Assert.Equal("_id_", indexes[0].Name);
+            Assert.True(indexes[0].Version >= 0);
+            AssertNamespace(indexes[0]);
+            if (_primary.BuildInfo.Version < new Version(2, 7, 0))
+            {
+                Assert.Equal(true, indexes[1].DroppedDups);
+            }
+            Assert.Equal(true, indexes[1].IsBackground);
+            if (_primary.BuildInfo.Version >= new Version(4, 4, 0))
+            {
+                Assert.Equal(true, indexes[1].IsHidden);
+            }
+            Assert.Equal(true, indexes[1].IsSparse);
+            Assert.Equal(true, indexes[1].IsUnique);
+            Assert.Equal(new IndexKeysDocument { { "x", 1 }, { "y", -1 } }, indexes[1].Key);
+            Assert.Equal("x_1_y_-1", indexes[1].Name);
+            AssertNamespace(indexes[1]);
+            Assert.True(indexes[1].Version >= 0);
         }
 
         [SkippableFact]

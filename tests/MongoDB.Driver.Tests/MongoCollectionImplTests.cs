@@ -1838,6 +1838,7 @@ namespace MongoDB.Driver
             [Values(null, 1, 2)] int? commitQuorumW,
             [Values(null, -1, 0, 42, 9000)] int? milliseconds,
             [Values(false, true)] bool usingCreateOneIndexOptions,
+            [Values(null, false, true)] bool? hidden,
             [Values(false, true)] bool async)
         {
             var writeConcern = new WriteConcern(1);
@@ -1866,6 +1867,7 @@ namespace MongoDB.Driver
                 Collation = new Collation("en_US"),
                 DefaultLanguage = "en",
                 ExpireAfter = TimeSpan.FromSeconds(20),
+                Hidden = hidden,
                 LanguageOverride = "es",
                 Max = 30,
                 Min = 40,
@@ -1930,6 +1932,7 @@ namespace MongoDB.Driver
             request.Collation.Should().BeSameAs(options.Collation);
             request.DefaultLanguage.Should().Be(options.DefaultLanguage);
             request.ExpireAfter.Should().Be(options.ExpireAfter);
+            request.Hidden.Should().Be(options.Hidden);
             var expectedKeysResult =
                 usingWildcardIndex
                     ? new BsonDocument("$**", 1)
@@ -1967,6 +1970,7 @@ namespace MongoDB.Driver
             [Values(null, 1, 2)] int? commitQuorumW,
             [Values(null, -1, 0, 42, 9000)] int? milliseconds,
             [Values(false, true)] bool usingCreateManyIndexesOptions,
+            [Values(null, false, true)] bool? hidden,
             [Values(false, true)] bool async)
         {
             var writeConcern = new WriteConcern(1);
@@ -1998,6 +2002,7 @@ namespace MongoDB.Driver
                 Collation = new Collation("en_US"),
                 DefaultLanguage = "en",
                 ExpireAfter = TimeSpan.FromSeconds(20),
+                Hidden = hidden,
                 LanguageOverride = "es",
                 Max = 30,
                 Min = 40,
@@ -2063,6 +2068,7 @@ namespace MongoDB.Driver
             request1.Collation.Should().BeSameAs(options.Collation);
             request1.DefaultLanguage.Should().Be(options.DefaultLanguage);
             request1.ExpireAfter.Should().Be(options.ExpireAfter);
+            request1.Hidden.Should().Be(options.Hidden);
             var expectedKeysResult =
                 usingWildcardIndex
                     ? new BsonDocument("$**", 1)
@@ -2102,6 +2108,7 @@ namespace MongoDB.Driver
             request2.Collation.Should().BeNull();
             request2.DefaultLanguage.Should().BeNull();
             request2.ExpireAfter.Should().NotHaveValue();
+            request2.Hidden.Should().NotHaveValue();
             request2.Keys.Should().Be(keysDocument2);
             request2.LanguageOverride.Should().BeNull();
             request2.Max.Should().NotHaveValue();

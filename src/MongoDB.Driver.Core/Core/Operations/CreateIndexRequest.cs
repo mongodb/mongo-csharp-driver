@@ -32,6 +32,7 @@ namespace MongoDB.Driver.Core.Operations
         private Collation _collation;
         private string _defaultLanguage;
         private TimeSpan? _expireAfter;
+        private bool? _hidden;
         private string _languageOverride;
         private readonly BsonDocument _keys;
         private double? _max;
@@ -138,6 +139,15 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _expireAfter; }
             set { _expireAfter = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the index is hidden.
+        /// </summary>
+        public bool? Hidden
+        {
+            get { return _hidden; }
+            set { _hidden = value; }
         }
 
         /// <summary>
@@ -346,6 +356,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "collation", () => _collation.ToBsonDocument(), _collation != null },
                 { "default_language", () => _defaultLanguage, _defaultLanguage != null },
                 { "expireAfterSeconds", () => _expireAfter.Value.TotalSeconds, _expireAfter.HasValue },
+                { "hidden", () => _hidden.Value, _hidden.HasValue },
                 { "language_override", () => _languageOverride, _languageOverride != null },
                 { "max", () => _max.Value, _max.HasValue },
                 { "min", () => _min.Value, _min.HasValue },

@@ -116,6 +116,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.Collation.Should().BeNull();
             subject.DefaultLanguage.Should().BeNull();
             subject.ExpireAfter.Should().NotHaveValue();
+            subject.Hidden.Should().NotHaveValue();
             subject.LanguageOverride.Should().BeNull();
             subject.Max.Should().NotHaveValue();
             subject.Min.Should().NotHaveValue();
@@ -319,6 +320,27 @@ namespace MongoDB.Driver.Core.Operations
                 { "key", keys },
                 { "name", "x_1" },
                 { "expireAfterSeconds", () => expireAfter.Value.TotalSeconds, expireAfter.HasValue }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateIndexDocument_should_return_expected_result_when_Hidden_is_set([Values(null, false, true)] bool? hidden)
+        {
+            var keys = new BsonDocument("x", 1);
+            var subject = new CreateIndexRequest(keys)
+            {
+                Hidden = hidden
+            };
+
+            var result = subject.CreateIndexDocument(null);
+
+            var expectedResult = new BsonDocument
+            {
+                { "key", keys },
+                { "name", "x_1" },
+                { "hidden", () => hidden.Value, hidden.HasValue }
             };
             result.Should().Be(expectedResult);
         }
@@ -685,6 +707,19 @@ namespace MongoDB.Driver.Core.Operations
 
             subject.ExpireAfter = value;
             var result = subject.ExpireAfter;
+
+            result.Should().Be(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Hidden_get_and_set_should_work(
+            [Values(null, false, true)] bool? value)
+        {
+            var subject = new CreateIndexRequest(new BsonDocument("x", 1));
+
+            subject.Hidden = value;
+            var result = subject.Hidden;
 
             result.Should().Be(value);
         }
