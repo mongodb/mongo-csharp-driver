@@ -19,12 +19,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Linq;
-using MongoDB.Driver.Linq.Translators;
+using MongoDB.Driver.Linq3;
+using MongoDB.Driver.Linq3.Translators.QueryTranslators;
 using Xunit;
 
 namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
@@ -1682,17 +1681,24 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
         private ProjectedResult<TResult> Project<TResult>(Expression<Func<Root, TResult>> projector, ExpressionTranslationOptions translationOptions)
         {
-            var serializer = BsonSerializer.SerializerRegistry.GetSerializer<Root>();
-            var projectionInfo = AggregateProjectTranslator.Translate(projector, serializer, BsonSerializer.SerializerRegistry, translationOptions);
+            //var serializer = BsonSerializer.SerializerRegistry.GetSerializer<Root>();
+            //var projectionInfo = AggregateProjectTranslator.Translate(projector, serializer, BsonSerializer.SerializerRegistry, translationOptions);
 
-            var pipelineOperator = new BsonDocument("$project", projectionInfo.Document);
-            var result = __collection.Aggregate()
-                .Project(new BsonDocumentProjectionDefinition<Root, TResult>(projectionInfo.Document, projectionInfo.ProjectionSerializer))
-                .First();
+            //var pipelineOperator = new BsonDocument("$project", projectionInfo.Document);
+            //var result = __collection.Aggregate()
+            //    .Project(new BsonDocumentProjectionDefinition<Root, TResult>(projectionInfo.Document, projectionInfo.ProjectionSerializer))
+            //    .First();
+
+            var query = __collection.AsQueryable3().Select(projector);
+
+            var provider = (MongoQueryProvider<Root>)query.Provider;
+            var executableQuery = QueryTranslator.TranslateMultiValuedQuery<Root, TResult>(provider, query.Expression);
+            var projection = executableQuery.Stages[0];
+            var result = query.ToList().Single();
 
             return new ProjectedResult<TResult>
             {
-                Projection = projectionInfo.Document,
+                Projection = projection,
                 Value = result
             };
         }

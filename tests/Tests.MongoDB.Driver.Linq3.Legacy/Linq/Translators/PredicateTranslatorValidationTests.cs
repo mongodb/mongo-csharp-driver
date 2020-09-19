@@ -20,7 +20,8 @@ using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.Linq3;
+using MongoDB.Driver.Linq3.Translators.QueryTranslators;
 using Xunit;
 
 namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
@@ -260,20 +261,24 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             actual.Should().Be(expected);
         }
 
-        private IEnumerable<BsonDocument> Execute<T>(IMongoQueryable<T> queryable)
+        private IEnumerable<BsonDocument> Execute<T>(IQueryable<T> queryable)
         {
-            var result = (AggregateQueryableExecutionModel<T>)queryable.GetExecutionModel();
-            return result.Stages;
+            //var result = (AggregateQueryableExecutionModel<T>)queryable.GetExecutionModel();
+            //return result.Stages;
+
+            var provider = (MongoQueryProvider<TestObject>)queryable.Provider;
+            var executableQuery = QueryTranslator.TranslateMultiValuedQuery<TestObject, T>(provider, queryable.Expression);
+            return executableQuery.Stages;
         }
 
-        private IMongoQueryable<TestObject> CreateWhereQuery(Expression<Func<TestObject, bool>> expression)
+        private IQueryable<TestObject> CreateWhereQuery(Expression<Func<TestObject, bool>> expression)
         {
             return CreateQuery().Where(expression);
         }
 
-        private IMongoQueryable<TestObject> CreateQuery()
+        private IQueryable<TestObject> CreateQuery()
         {
-            return _collection.AsQueryable();
+            return _collection.AsQueryable3();
         }
     }
 }

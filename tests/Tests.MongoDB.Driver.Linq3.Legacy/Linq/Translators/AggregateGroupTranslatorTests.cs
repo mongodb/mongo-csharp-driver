@@ -22,8 +22,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Linq;
-using MongoDB.Driver.Linq.Translators;
+using MongoDB.Driver.Linq3;
 using Xunit;
 
 namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
@@ -411,24 +410,26 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
         private ProjectedResult<TResult> Group<TKey, TResult>(Expression<Func<Root, TKey>> idProjector, Expression<Func<IGrouping<TKey, Root>, TResult>> groupProjector, ExpressionTranslationOptions translationOptions)
         {
-            var serializer = BsonSerializer.SerializerRegistry.GetSerializer<Root>();
-            var projectionInfo = AggregateGroupTranslator.Translate<TKey, Root, TResult>(idProjector, groupProjector, serializer, BsonSerializer.SerializerRegistry, translationOptions);
+            //var serializer = BsonSerializer.SerializerRegistry.GetSerializer<Root>();
+            //var projectionInfo = AggregateGroupTranslator.Translate<TKey, Root, TResult>(idProjector, groupProjector, serializer, BsonSerializer.SerializerRegistry, translationOptions);
 
-            var group = new BsonDocument("$group", projectionInfo.Document);
-            var sort = new BsonDocument("$sort", new BsonDocument("_id", 1));
-            var list = __collection.Aggregate<TResult>(new BsonDocumentStagePipelineDefinition<Root, TResult>(new[] { group, sort }, projectionInfo.ProjectionSerializer)).ToList();
+            //var group = new BsonDocument("$group", projectionInfo.Document);
+            //var sort = new BsonDocument("$sort", new BsonDocument("_id", 1));
+            //var list = __collection.Aggregate<TResult>(new BsonDocumentStagePipelineDefinition<Root, TResult>(new[] { group, sort }, projectionInfo.ProjectionSerializer)).ToList();
 
-            return new ProjectedResult<TResult>
-            {
-                Projection = projectionInfo.Document,
-                Value = (TResult)list[0]
-            };
+            //return new ProjectedResult<TResult>
+            //{
+            //    Projection = projectionInfo.Document,
+            //    Value = (TResult)list[0]
+            //};
+
+            throw new NotImplementedException();
         }
 
         private class ProjectedResult<T>
         {
-            public BsonDocument Projection;
-            public T Value;
+            public BsonDocument Projection { get; set; }
+            public T Value { get; set; }
         }
     }
 }
