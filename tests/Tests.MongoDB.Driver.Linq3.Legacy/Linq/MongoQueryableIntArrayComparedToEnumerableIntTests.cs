@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq3;
 using MongoDB.Driver.Tests;
 using Xunit;
 
@@ -44,7 +45,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
         [InlineData(new int[] { 1, 2 }, "{ \"A\" : [1, 2] }")]
         public void Where_operator_equal_should_render_correctly(IEnumerable<int> value, string expectedFilter)
         {
-            var subject = __collection.AsQueryable();
+            var subject = __collection.AsQueryable3();
 
             var queryable = subject.Where(x => x.A == value);
 
@@ -55,7 +56,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
         [InlineData(new int[] { 1, 2 }, "{ \"A\" : { \"$ne\" : [1, 2] } }")]
         public void Where_operator_not_equal_should_render_correctly(IEnumerable<int> value, string expectedFilter)
         {
-            var subject = __collection.AsQueryable();
+            var subject = __collection.AsQueryable3();
 
             var queryable = subject.Where(x => x.A != value);
 

@@ -18,6 +18,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq3;
 using MongoDB.Driver.Tests;
 using Xunit;
 
@@ -47,7 +48,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
         [InlineData(null, "{ \"I\" : null }")]
         public void Where_operator_equal_should_render_correctly(int? value, string expectedFilter)
         {
-            var subject = __collection.AsQueryable();
+            var subject = __collection.AsQueryable3();
 
             var queryable = subject.Where(x => x.I == value);
 
@@ -59,7 +60,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
         [InlineData(null, "{ \"I\" : { \"$gt\" : null } }")]
         public void Where_operator_greater_than_should_render_correctly(int? value, string expectedFilter)
         {
-            var subject = __collection.AsQueryable();
+            var subject = __collection.AsQueryable3();
 
             var queryable = subject.Where(x => x.I > value);
 
@@ -71,7 +72,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
         [InlineData(null, "{ \"I\" : { \"$gte\" : null } }")]
         public void Where_operator_greater_than_or_equal_should_render_correctly(int? value, string expectedFilter)
         {
-            var subject = __collection.AsQueryable();
+            var subject = __collection.AsQueryable3();
 
             var queryable = subject.Where(x => x.I >= value);
 
@@ -83,7 +84,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
         [InlineData(null, "{ \"I\" : { \"$lt\" : null } }")]
         public void Where_operator_less_than_should_render_correctly(int? value, string expectedFilter)
         {
-            var subject = __collection.AsQueryable();
+            var subject = __collection.AsQueryable3();
 
             var queryable = subject.Where(x => x.I < value);
 
@@ -95,7 +96,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
         [InlineData(null, "{ \"I\" : { \"$lte\" : null } }")]
         public void Where_operator_less_than_or_equal_should_render_correctly(int? value, string expectedFilter)
         {
-            var subject = __collection.AsQueryable();
+            var subject = __collection.AsQueryable3();
 
             var queryable = subject.Where(x => x.I <= value);
 
@@ -107,7 +108,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
         [InlineData(null, "{ \"I\" : { \"$ne\" : null } }")]
         public void Where_operator_not_equal_should_render_correctly(int? value, string expectedFilter)
         {
-            var subject = __collection.AsQueryable();
+            var subject = __collection.AsQueryable3();
 
             var queryable = subject.Where(x => x.I != value);
 

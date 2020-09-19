@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq3;
 using MongoDB.Driver.TestHelpers;
 using MongoDB.Driver.Tests;
 using Xunit;
@@ -107,7 +108,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
         {
             var database = client.GetDatabase("test");
             var collection = database.GetCollection<Car>("test");
-            return collection.AsQueryable();
+            return collection.AsQueryable3();
         }
 
         // nested types

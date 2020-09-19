@@ -23,7 +23,8 @@ using MongoDB.Driver;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Linq;
+using MongoDB.Driver.Linq3;
+using MongoDB.Driver.Linq3.Translators.QueryTranslators;
 using MongoDB.Driver.Tests;
 using Xunit;
 
@@ -1748,11 +1749,12 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
             }
         }
 
-        private List<T> Assert<T>(IMongoQueryable<T> queryable, int resultCount, params string[] expectedStages)
+        private List<T> Assert<T>(IQueryable<T> queryable, int resultCount, params string[] expectedStages)
         {
-            var executionModel = (AggregateQueryableExecutionModel<T>)queryable.GetExecutionModel();
+            var provider = (MongoQueryProvider<Root>)queryable.Provider;
+            var executableQuery = QueryTranslator.TranslateMultiValuedQuery<Root, T>(provider, queryable.Expression);
 
-            executionModel.Stages.Should().Equal(expectedStages.Select(x => BsonDocument.Parse(x)));
+            executableQuery.Stages.Should().Equal(expectedStages.Select(x => BsonDocument.Parse(x)));
 
             // async
             var results = queryable.ToListAsync().GetAwaiter().GetResult();
@@ -1765,19 +1767,19 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
             return results;
         }
 
-        private IMongoQueryable<Root> CreateQuery()
+        private IQueryable<Root> CreateQuery()
         {
-            return __collection.AsQueryable();
+            return __collection.AsQueryable3();
         }
 
-        private IMongoQueryable<Root> CreateQuery(IClientSessionHandle session)
+        private IQueryable<Root> CreateQuery(IClientSessionHandle session)
         {
             return __collection.AsQueryable(session);
         }
 
-        private IMongoQueryable<Other> CreateOtherQuery()
+        private IQueryable<Other> CreateOtherQuery()
         {
-            return __otherCollection.AsQueryable();
+            return __otherCollection.AsQueryable3();
         }
     }
 }
