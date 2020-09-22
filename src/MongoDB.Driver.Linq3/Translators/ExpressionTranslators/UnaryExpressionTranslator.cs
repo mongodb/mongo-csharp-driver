@@ -14,6 +14,7 @@
 */
 
 using System.Linq.Expressions;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
@@ -25,6 +26,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
             AstUnaryOperator? @operator = null;
             switch (expression.NodeType)
             {
+                case ExpressionType.Convert: return TranslateConvert(context, expression);
                 case ExpressionType.Not: @operator = AstUnaryOperator.Not; break;
             }
 
@@ -38,6 +40,31 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
             }
 
             throw new ExpressionNotSupportedException(expression);
+        }
+
+        private static TranslatedExpression TranslateConvert(TranslationContext context, UnaryExpression expression)
+        {
+            string toName;
+            switch (expression.Type.FullName)
+            {
+                case "MongoDB.Bson.ObjectId": toName = "objectId"; break;
+                case "System.Boolean": toName = "bool"; break;
+                case "System.DateTime": toName = "date"; break;
+                case "System.Decimal": toName = "decimal"; break;
+                case "System.Double": toName = "double"; break;
+                case "System.Int32": toName = "int"; break;
+                case "System.Int64": toName = "long"; break;
+                case "System.String": toName = "string"; break;
+                default: throw new ExpressionNotSupportedException(expression);
+            }
+            var to = new AstConstantExpression(toName);
+
+            var translatedOperand = ExpressionTranslator.Translate(context, expression.Operand);
+
+            var translation = new AstConvertExpression(translatedOperand.Translation, to);
+            var serializer = BsonSerializer.SerializerRegistry.GetSerializer(expression.Type); // TODO: find correct serializer
+
+            return new TranslatedExpression(expression, translation, serializer);
         }
     }
 }
