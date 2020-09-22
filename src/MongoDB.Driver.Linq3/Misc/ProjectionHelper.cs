@@ -14,6 +14,7 @@
 */
 
 using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Linq3.Ast;
 using MongoDB.Driver.Linq3.Ast.Expressions;
@@ -80,7 +81,7 @@ namespace MongoDB.Driver.Linq3.Misc
 
             if (!isIdProjected)
             {
-                projection.Insert(0, new AstProjectStageExcludeIdSpecification());
+                projection.Add(new AstProjectStageExcludeIdSpecification());
             }
 
             return projection;

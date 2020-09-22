@@ -113,6 +113,28 @@ namespace MongoDB.Driver.Linq3.Misc
                 }
                 return expression;
             }
+
+            protected override Expression VisitMemberInit(MemberInitExpression node)
+            {
+                // Bindings must be visited before NewExpression
+                foreach (var binding in node.Bindings)
+                {
+                    switch (binding.BindingType)
+                    {
+                        case MemberBindingType.Assignment:
+                            var memberAssignment = (MemberAssignment)binding;
+                            base.Visit(memberAssignment.Expression);
+                            break;
+
+                        default:
+                            throw new InvalidOperationException($"Unexpected binding type: {binding.BindingType}.");
+                    }
+                }
+
+                base.Visit(node.NewExpression);
+
+                return node;
+            }
         }
     }
 }

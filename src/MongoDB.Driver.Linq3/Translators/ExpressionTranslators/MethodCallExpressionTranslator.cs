@@ -31,9 +31,12 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
                 case "Count": return CountTranslator.Translate(context, expression);
                 case "Distinct": return DistinctTranslator.Translate(context, expression);
                 case "ElementAt": return ElementAtTranslator.Translate(context, expression);
+                case "Equals": return EqualsTranslator.Translate(context, expression);
                 case "Except": return ExceptTranslator.Translate(context, expression);
+                case "Log": return LogTranslator.Translate(context, expression);
                 case "Min": return MinTranslator.Translate(context, expression);
                 case "Select": return SelectTranslator.Translate(context, expression);
+                case "ToString": return ToStringTranslator.Translate(context, expression);
             }
 
             throw new ExpressionNotSupportedException(expression);

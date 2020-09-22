@@ -13,7 +13,9 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq.Expressions;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
@@ -22,6 +24,16 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
     {
         public static TranslatedExpression Translate(TranslationContext context, BinaryExpression expression)
         {
+            if (expression.NodeType == ExpressionType.Divide)
+            {
+                return DivideExpressionTranslator.Translate(context, expression);
+            }
+
+            if (expression.Type == typeof(string) && expression.NodeType == ExpressionType.Add)
+            {
+                return TranslateStringConcatenation(context, expression);
+            }
+
             AstBinaryOperator? binaryOperator = null;
             AstNaryOperator? naryOperator = null;
             switch (expression.NodeType)
@@ -59,6 +71,29 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
             }
 
             throw new ExpressionNotSupportedException(expression);
+        }
+
+        private static TranslatedExpression TranslateStringConcatenation(TranslationContext context, BinaryExpression expression)
+        {
+            var translatedLeft = ExpressionTranslator.Translate(context, expression.Left);
+            var translatedRight = ExpressionTranslator.Translate(context, expression.Right);
+
+            AstExpression translation;
+            if (translatedLeft.Translation is AstNaryExpression naryExpression && naryExpression.Operator == AstNaryOperator.Concat)
+            {
+                var args = new List<AstExpression>();
+                args.AddRange(naryExpression.Args);
+                args.Add(translatedRight.Translation);
+                translation = new AstNaryExpression(AstNaryOperator.Concat, args);
+            }
+            else
+            {
+                translation = new AstNaryExpression(AstNaryOperator.Concat, translatedLeft.Translation, translatedRight.Translation);
+            }
+
+            var serializer = new StringSerializer(); // TODO: find correct serializer
+
+            return new TranslatedExpression(expression, translation, serializer);
         }
     }
 }
