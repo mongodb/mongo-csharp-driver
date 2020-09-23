@@ -18,9 +18,9 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Misc;
 
-namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodCallTranslators
+namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslators
 {
-    public static class LogTranslator
+    public static class LogMethodTranslator
     {
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {

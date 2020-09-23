@@ -14,7 +14,7 @@
 */
 
 using System.Linq.Expressions;
-using MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodCallTranslators;
+using MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslators;
 using MongoDB.Driver.Linq3.Translators.PipelineTranslators;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
@@ -25,24 +25,24 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
         {
             switch (expression.Method.Name)
             {
-                case "All": return AllTranslator.Translate(context, expression);
-                case "Any": return AnyTranslator.Translate(context, expression);
-                case "Concat": return ConcatTranslator.Translate(context, expression);
-                case "Contains": return ContainsTranslator.Translate(context, expression);
-                case "Count": return CountTranslator.Translate(context, expression);
-                case "Distinct": return DistinctTranslator.Translate(context, expression);
-                case "ElementAt": return ElementAtTranslator.Translate(context, expression);
-                case "Equals": return EqualsTranslator.Translate(context, expression);
-                case "Except": return ExceptTranslator.Translate(context, expression);
-                case "Intersect": return IntersectTranslator.Translate(context, expression);
-                case "Log": return LogTranslator.Translate(context, expression);
-                case "Min": return MinTranslator.Translate(context, expression);
-                case "Select": return SelectTranslator.Translate(context, expression);
-                case "StandardDeviationPopulation": return StandardDeviationTranslator.Translate(context, expression);
-                case "StandardDeviationSample": return StandardDeviationTranslator.Translate(context, expression);
-                case "ToString": return ToStringTranslator.Translate(context, expression);
-                case "Where": return WhereTranslator.Translate(context, expression);
-                case "Union": return UnionTranslator.Translate(context, expression);
+                case "All": return AllMethodTranslator.Translate(context, expression);
+                case "Any": return AnyMethodTranslator.Translate(context, expression);
+                case "Concat": return ConcatMethodTranslator.Translate(context, expression);
+                case "Contains": return ContainsMethodTranslator.Translate(context, expression);
+                case "Count": return CountMethodTranslator.Translate(context, expression);
+                case "Distinct": return DistinctMethodTranslator.Translate(context, expression);
+                case "ElementAt": return ElementAtMethodTranslator.Translate(context, expression);
+                case "Equals": return EqualsMethodTranslator.Translate(context, expression);
+                case "Except": return ExceptMethodTranslator.Translate(context, expression);
+                case "Intersect": return IntersectMethodTranslator.Translate(context, expression);
+                case "Log": return LogMethodTranslator.Translate(context, expression);
+                case "Min": return MinMethodTranslator.Translate(context, expression);
+                case "Select": return SelectMethodTranslator.Translate(context, expression);
+                case "StandardDeviationPopulation": return StandardDeviationMethodsTranslator.Translate(context, expression);
+                case "StandardDeviationSample": return StandardDeviationMethodsTranslator.Translate(context, expression);
+                case "ToString": return ToStringMethodTranslator.Translate(context, expression);
+                case "Where": return WhereMethodTranslator.Translate(context, expression);
+                case "Union": return UnionMethodTranslator.Translate(context, expression);
             }
 
             throw new ExpressionNotSupportedException(expression);

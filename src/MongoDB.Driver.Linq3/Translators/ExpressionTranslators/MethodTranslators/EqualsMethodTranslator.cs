@@ -20,9 +20,9 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Misc;
 
-namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodCallTranslators
+namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslators
 {
-    public static class EqualsTranslator
+    public static class EqualsMethodTranslator
     {
         private static readonly IBsonSerializer<bool> __boolSerializer = new BooleanSerializer();
 

@@ -17,36 +17,24 @@ using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Misc;
-using MongoDB.Driver.Linq3.Serializers;
 
-namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodCallTranslators
+namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslators
 {
-    public static class SelectTranslator
+    public static class MinMethodTranslator
     {
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
-            if (expression.Method.Is(EnumerableMethod.Select))
+            if (expression.Method.Is(EnumerableMethod.MinInt32))
             {
                 var source = expression.Arguments[0];
-                var selector = expression.Arguments[1];
                 var translatedSource = ExpressionTranslator.Translate(context, source);
 
                 if (translatedSource.Serializer is IBsonArraySerializer arraySerializer && arraySerializer.TryGetItemSerializationInfo(out BsonSerializationInfo itemSerializationInfo))
                 {
-                    var selectorLambda = (LambdaExpression)selector;
-                    var selectorParameter = selectorLambda.Parameters[0];
                     var sourceItemSerializer = itemSerializationInfo.Serializer;
-                    var selectorContext = context.WithSymbol(selectorParameter, new Symbol("$" + selectorParameter.Name, sourceItemSerializer));
-                    var translatedSelector = ExpressionTranslator.Translate(selectorContext, selectorLambda.Body);
-
-                    var resultSerializer = translatedSelector.Serializer ?? BsonSerializer.LookupSerializer(selectorLambda.ReturnType);
-                    var enumerableResultSerializer = IEnumerableSerializer.Create(resultSerializer);
-
-                    var translation = new AstMapExpression(
-                        translatedSource.Translation,
-                        selectorParameter.Name,
-                        translatedSelector.Translation);
-                    return new TranslatedExpression(expression, translation, enumerableResultSerializer);
+                    //var translation = new BsonDocument("$min", translatedSource.Translation);
+                    var translation = new AstUnaryExpression(AstUnaryOperator.Min, translatedSource.Translation);
+                    return new TranslatedExpression(expression, translation, sourceItemSerializer);
                 }
             }
 

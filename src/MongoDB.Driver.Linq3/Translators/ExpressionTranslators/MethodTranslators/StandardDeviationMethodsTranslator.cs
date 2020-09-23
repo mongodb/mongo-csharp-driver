@@ -21,9 +21,9 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Misc;
 
-namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodCallTranslators
+namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslators
 {
-    public static class StandardDeviationTranslator
+    public static class StandardDeviationMethodsTranslator
     {
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {

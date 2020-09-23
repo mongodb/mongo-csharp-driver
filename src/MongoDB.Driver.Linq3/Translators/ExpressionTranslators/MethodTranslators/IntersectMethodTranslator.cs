@@ -17,22 +17,22 @@ using System.Linq.Expressions;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Misc;
 
-namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodCallTranslators
+namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslators
 {
-    public static class ConcatTranslator
+    public static class IntersectMethodTranslator
     {
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
-            if (expression.Method.Is(EnumerableMethod.Concat))
+            if (expression.Method.Is(EnumerableMethod.Intersect))
             {
-                var first = expression.Arguments[0];
+                var source = expression.Arguments[0];
                 var second = expression.Arguments[1];
-                var translatedFirst = ExpressionTranslator.Translate(context, first);
+
+                var translatedSource = ExpressionTranslator.Translate(context, source);
                 var translatedSecond = ExpressionTranslator.Translate(context, second);
 
-                //var translation = new BsonDocument("$concatArrays", new BsonArray { translatedFirst.Translation, translatedSecond.Translation });
-                var translation = new AstNaryExpression(AstNaryOperator.ConcatArrays, translatedFirst.Translation, translatedSecond.Translation);
-                return new TranslatedExpression(expression, translation, null);
+                var translation = new AstNaryExpression(AstNaryOperator.SetIntersection, translatedSource.Translation, translatedSecond.Translation);
+                return new TranslatedExpression(expression, translation, translatedSource.Serializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

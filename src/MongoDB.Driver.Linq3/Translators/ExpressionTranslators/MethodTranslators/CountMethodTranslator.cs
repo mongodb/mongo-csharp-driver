@@ -17,22 +17,19 @@ using System.Linq.Expressions;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Misc;
 
-namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodCallTranslators
+namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslators
 {
-    public static class ContainsTranslator
+    public static class CountMethodTranslator
     {
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
-            if (expression.Method.Is(EnumerableMethod.Contains))
+            if (expression.Method.Is(EnumerableMethod.Count))
             {
                 var source = expression.Arguments[0];
-                var value = expression.Arguments[1];
-
                 var translatedSource = ExpressionTranslator.Translate(context, source);
-                var translatedValue = ExpressionTranslator.Translate(context, value);
 
-                //var translation = new BsonDocument("$in", new BsonArray { translatedValue.Translation, translatedSource.Translation });
-                var translation = new AstBinaryExpression(AstBinaryOperator.In, translatedValue.Translation, translatedSource.Translation);
+                //var translation = new BsonDocument("$size", translatedSource.Translation);
+                var translation = new AstUnaryExpression(AstUnaryOperator.Size, translatedSource.Translation);
                 return new TranslatedExpression(expression, translation, null);
             }
 
