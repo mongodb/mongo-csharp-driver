@@ -15,6 +15,7 @@
 
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 
@@ -66,7 +67,19 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
                 var translation = binaryOperator != null ?
                     (AstExpression)new AstBinaryExpression(binaryOperator.Value, translatedLeft.Translation, translatedRight.Translation) :
                     (AstExpression)new AstNaryExpression(naryOperator.Value, translatedLeft.Translation, translatedRight.Translation);
-                var serializer = translatedLeft.Serializer ?? translatedRight.Serializer;
+                IBsonSerializer serializer;
+                if (translatedLeft.Serializer != null && translatedLeft.Serializer.ValueType == expression.Type)
+                {
+                    serializer = translatedLeft.Serializer;
+                }
+                else if (translatedRight.Serializer != null && translatedRight.Serializer.ValueType == expression.Type)
+                {
+                    serializer = translatedRight.Serializer;
+                }
+                else
+                {
+                    serializer = BsonSerializer.LookupSerializer(expression.Type);
+                }
                 return new TranslatedExpression(expression, translation, serializer);
             }
 

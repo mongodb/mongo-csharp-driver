@@ -42,12 +42,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodCallTrans
                     var resultSerializer = translatedSelector.Serializer ?? BsonSerializer.LookupSerializer(selectorLambda.ReturnType);
                     var enumerableResultSerializer = IEnumerableSerializer.Create(resultSerializer);
 
-                    //var translation = new BsonDocument("$map", new BsonDocument
-                    //{
-                    //    { "input", translatedSource.Translation },
-                    //    { "as", selectorParameter.Name },
-                    //    { "in", translatedSelector.Translation }
-                    //});
                     var translation = new AstMapExpression(
                         translatedSource.Translation,
                         selectorParameter.Name,

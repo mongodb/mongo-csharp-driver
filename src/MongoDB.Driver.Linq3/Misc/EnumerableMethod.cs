@@ -275,7 +275,7 @@ namespace MongoDB.Driver.Linq3.Misc
             __range = new Func<int, int, IEnumerable<int>>(Enumerable.Range).Method;
             __repeat = new Func<object, int, IEnumerable<object>>(Enumerable.Repeat).Method.GetGenericMethodDefinition();
             __reverse = new Func<IEnumerable<object>, IEnumerable<object>>(Enumerable.Reverse).Method.GetGenericMethodDefinition();
-            __select = new Func<IEnumerable<object>, Func<object, object>, object>(Enumerable.Select).Method.GetGenericMethodDefinition();
+            __select = new Func<IEnumerable<object>, Func<object, object>, IEnumerable<object>>(Enumerable.Select).Method.GetGenericMethodDefinition();
             __selectMany = new Func<IEnumerable<object>, Func<object, IEnumerable<object>>, IEnumerable<object>>(Enumerable.SelectMany).Method.GetGenericMethodDefinition();
             __selectManyWithCollectionSelectorAndResultSelector = new Func<IEnumerable<object>, Func<object, IEnumerable<object>>, Func<object, object, object>, IEnumerable<object>>(Enumerable.SelectMany).Method.GetGenericMethodDefinition();
             __selectManyWithCollectionSelectorTakingIndexAndResultSelector = new Func<IEnumerable<object>, Func<object, int, IEnumerable<object>>, Func<object, object, object>, IEnumerable<object>>(Enumerable.SelectMany).Method.GetGenericMethodDefinition();
@@ -462,6 +462,11 @@ namespace MongoDB.Driver.Linq3.Misc
         public static MethodInfo Zip => __zip;
 
         // public methods
+        public static MethodInfo MakeSelect(Type sourceType, Type resultType)
+        {
+            return __select.MakeGenericMethod(sourceType, resultType);
+        }
+
         public static MethodInfo MakeWhere(Type tsource)
         {
             return __where.MakeGenericMethod(tsource);

@@ -15,6 +15,7 @@
 
 using System.Linq.Expressions;
 using MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodCallTranslators;
+using MongoDB.Driver.Linq3.Translators.PipelineTranslators;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
 {
@@ -33,10 +34,15 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
                 case "ElementAt": return ElementAtTranslator.Translate(context, expression);
                 case "Equals": return EqualsTranslator.Translate(context, expression);
                 case "Except": return ExceptTranslator.Translate(context, expression);
+                case "Intersect": return IntersectTranslator.Translate(context, expression);
                 case "Log": return LogTranslator.Translate(context, expression);
                 case "Min": return MinTranslator.Translate(context, expression);
                 case "Select": return SelectTranslator.Translate(context, expression);
+                case "StandardDeviationPopulation": return StandardDeviationTranslator.Translate(context, expression);
+                case "StandardDeviationSample": return StandardDeviationTranslator.Translate(context, expression);
                 case "ToString": return ToStringTranslator.Translate(context, expression);
+                case "Where": return WhereTranslator.Translate(context, expression);
+                case "Union": return UnionTranslator.Translate(context, expression);
             }
 
             throw new ExpressionNotSupportedException(expression);

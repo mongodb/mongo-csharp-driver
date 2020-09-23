@@ -50,6 +50,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
 
                 case ExpressionType.ArrayIndex:
                     return ArrayIndexTranslator.Translate(context, (BinaryExpression)expression);
+                case ExpressionType.ArrayLength:
+                    return ArrayLengthTranslator.Translate(context, (UnaryExpression)expression);
                 case ExpressionType.Call:
                     return MethodCallExpressionTranslator.Translate(context, (MethodCallExpression)expression);
                 case ExpressionType.Constant:
