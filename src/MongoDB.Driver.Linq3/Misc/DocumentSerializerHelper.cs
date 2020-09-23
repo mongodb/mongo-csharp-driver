@@ -34,5 +34,12 @@ namespace MongoDB.Driver.Linq3.Misc
 
             return new FieldInfo(serializationInfo.ElementName, serializationInfo.Serializer);
         }
+
+        public static bool HasFieldInfo(IBsonSerializer serializer, string memberName)
+        {
+            return
+                serializer is IBsonDocumentSerializer documentSerializer &&
+                documentSerializer.TryGetMemberSerializationInfo(memberName, out var _);
+        }
     }
 }

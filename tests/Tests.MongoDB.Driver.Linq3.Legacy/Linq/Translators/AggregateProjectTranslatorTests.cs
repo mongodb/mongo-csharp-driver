@@ -629,6 +629,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             result.Value.Result.Should().Be(-1);
         }
 
+#if SKIPFORNOW
         [SkippableFact]
         public void Should_translate_indexOfCP()
         {
@@ -658,6 +659,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             result.Projection.Should().Be("{ Result: { \"$indexOfCP\": [\"$A\", \"e\", 4, { $add: [4, 2] }] }, _id: 0 }");
             result.Value.Result.Should().Be(-1);
         }
+#endif
 
         [SkippableFact]
         public void Should_translate_intToString()
@@ -1102,7 +1104,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.L.Count });
 
-            result.Projection.Should().Be("{ Result: { \"$size\": \"$L\" }, _id: 0 }");
+            result.Projection.Should().Be("{ Result: { $convert : { input : { $size : \"$L\" }, to : \"int\" } }, _id : 0 }");
 
             result.Value.Result.Should().Be(3);
         }
@@ -1387,7 +1389,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.G.StandardDeviationPopulation(g => g.E.F) });
 
-            result.Projection.Should().Be("{ Result: { \"$stdDevPop\": \"$G.E.F\" }, _id: 0 }");
+            result.Projection.Should().Be("{ Result: { \"$stdDevPop\" : { $map : { input : \"$G\", as : \"g\", in : \"$$g.E.F\" } } }, _id: 0 }");
 
             result.Value.Result.Should().Be(11);
         }
@@ -1411,7 +1413,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.G.StandardDeviationSample(g => g.E.F) });
 
-            result.Projection.Should().Be("{ Result: { \"$stdDevSamp\": \"$G.E.F\" }, _id: 0 }");
+            result.Projection.Should().Be("{ Result: { \"$stdDevSamp\": { $map : { input : \"$G\", as : \"g\", in : \"$$g.E.F\" } } }, _id: 0 }");
 
             result.Value.Result.Should().BeApproximately(15.556349186104045, .0001);
         }

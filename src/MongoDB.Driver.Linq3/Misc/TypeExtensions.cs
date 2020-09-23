@@ -30,6 +30,30 @@ namespace MongoDB.Driver.Linq3.Misc
             throw new InvalidOperationException($"Could not find IEnumerable<T> interface of type: {enumerableType}.");
         }
 
+        public static bool Implements(this Type type, Type @interface)
+        {
+            Type interfaceDefinition = null;
+            if (@interface.IsGenericType)
+            {
+                interfaceDefinition = @interface.GetGenericTypeDefinition();
+            }
+
+            foreach (var implementedInterface in type.GetInterfaces())
+            {
+                if (implementedInterface == @interface)
+                {
+                    return true;
+                }
+
+                if (implementedInterface.IsGenericType && implementedInterface.GetGenericTypeDefinition() == interfaceDefinition)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public static bool Is(this Type type, Type comparand)
         {
             if (type == comparand)

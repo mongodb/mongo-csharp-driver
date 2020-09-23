@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
                     {
                         { "input", _input.Render() },
                         { "as", _as, _as != null },
-                        { "int", _in.Render() }
+                        { "in", _in.Render() }
                     }
                 }
             };
