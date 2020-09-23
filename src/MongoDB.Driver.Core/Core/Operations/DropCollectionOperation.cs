@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -158,7 +157,9 @@ namespace MongoDB.Driver.Core.Operations
 
         private bool ShouldIgnoreException(MongoCommandException ex)
         {
-            return ex.ErrorMessage == "ns not found";
+            return
+                ex.Code == (int)ServerErrorCode.NamespaceNotFound ||
+                ex.ErrorMessage == "ns not found";
         }
     }
 }

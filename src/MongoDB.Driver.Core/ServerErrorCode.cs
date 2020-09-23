@@ -30,6 +30,8 @@ namespace MongoDB.Driver
         Interrupted = 11601,
         InterruptedAtShutdown = 11600,
         InterruptedDueToReplStateChange = 11602,
+        MaxTimeMSExpired = 50,
+        NamespaceNotFound = 26,
         NetworkTimeout = 89,
         NotMaster = 10107,
         NotMasterNoSlaveOk = 13435,
@@ -43,7 +45,6 @@ namespace MongoDB.Driver
         StaleShardVersion = 63,
         UnknownReplWriteConcern = 79,
         UnsatisfiableWriteConcern = 100,
-        WriteConcernFailed = 64,
-        MaxTimeMSExpired = 50
+        WriteConcernFailed = 64
     }
 }

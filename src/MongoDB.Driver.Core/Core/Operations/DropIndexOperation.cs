@@ -200,7 +200,9 @@ namespace MongoDB.Driver.Core.Operations
 
         private bool ShouldIgnoreException(MongoCommandException ex)
         {
-            return ex.ErrorMessage != null && ex.ErrorMessage.Contains("ns not found");
+            return
+                ex.Code == (int)ServerErrorCode.NamespaceNotFound ||
+                ex.ErrorMessage != null && ex.ErrorMessage.Contains("ns not found");
         }
     }
 }
