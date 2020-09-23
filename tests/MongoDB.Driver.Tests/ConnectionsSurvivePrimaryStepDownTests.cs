@@ -47,7 +47,9 @@ namespace MongoDB.Driver.Tests
         {
             RequireServer.Check().Supports(Feature.FailPointsFailCommand).ClusterType(ClusterType.ReplicaSet);
 
-            var eventCapturer = new EventCapturer().Capture<ConnectionPoolRemovedConnectionEvent>();
+            var eventCapturer = new EventCapturer()
+                .Capture<ConnectionPoolClearedEvent>()
+                .Capture<ConnectionCreatedEvent>();
             using (var client = CreateDisposableClient(eventCapturer))
             {
                 var database = client.GetDatabase(_databaseName, new MongoDatabaseSettings { WriteConcern = WriteConcern.WMajority });
@@ -61,8 +63,14 @@ namespace MongoDB.Driver.Tests
 
                     var e = exception.Should().BeOfType<MongoNodeIsRecoveringException>().Subject;
                     e.Code.Should().Be(errorCode);
+
+                    eventCapturer.Next().Should().BeOfType<ConnectionPoolClearedEvent>();
+                    eventCapturer.Events.Should().BeEmpty();
+
+                    collection.InsertOne(new BsonDocument("test", 1));
+                    eventCapturer.Next().Should().BeOfType<ConnectionCreatedEvent>();
+                    eventCapturer.Events.Should().BeEmpty();
                 }
-                eventCapturer.Events.Count.Should().Be(1);
             }
         }
 
@@ -72,7 +80,7 @@ namespace MongoDB.Driver.Tests
         {
             RequireServer.Check().Supports(Feature.KeepConnectionPoolWhenReplSetStepDown).ClusterType(ClusterType.ReplicaSet);
 
-            var eventCapturer = new EventCapturer().Capture<ConnectionPoolRemovedConnectionEvent>();
+            var eventCapturer = new EventCapturer().Capture<ConnectionPoolClearedEvent>();
             using (var client = CreateDisposableClient(eventCapturer))
             {
                 var database = client.GetDatabase(_databaseName, new MongoDatabaseSettings { WriteConcern = WriteConcern.WMajority });
@@ -99,7 +107,7 @@ namespace MongoDB.Driver.Tests
                     RunOnSecondary(client, secondary.EndPoint, BsonDocument.Parse("{ replSetFreeze : 0 }"));
                 }
 
-                var replSetStepDownCommand = BsonDocument.Parse("{ replSetStepDown : 20, force : true }");
+                var replSetStepDownCommand = BsonDocument.Parse("{ replSetStepDown : 30, force : true }");
                 BsonDocument replSetStepDownResult;
                 if (async)
                 {
@@ -115,7 +123,7 @@ namespace MongoDB.Driver.Tests
 
                 cursor.MoveNext();
 
-                eventCapturer.Events.Should().BeEmpty();
+                eventCapturer.Events.Should().BeEmpty(); // it also means that no new PoolClearedEvent
             }
 
             void RunOnSecondary(IMongoClient primaryClient, EndPoint secondaryEndpoint, BsonDocument command)
@@ -142,7 +150,9 @@ namespace MongoDB.Driver.Tests
 
             var shouldConnectionPoolBeCleared = !Feature.KeepConnectionPoolWhenNotMasterConnectionException.IsSupported(CoreTestConfiguration.ServerVersion);
 
-            var eventCapturer = new EventCapturer().Capture<ConnectionPoolRemovedConnectionEvent>();
+            var eventCapturer = new EventCapturer()
+                .Capture<ConnectionPoolClearedEvent>()
+                .Capture<ConnectionCreatedEvent>();
             using (var client = CreateDisposableClient(eventCapturer))
             {
                 var database = client.GetDatabase(_databaseName, new MongoDatabaseSettings { WriteConcern = WriteConcern.WMajority });
@@ -152,18 +162,28 @@ namespace MongoDB.Driver.Tests
 
                 using (ConfigureFailPoint(client, 10107))
                 {
-                    var document = new BsonDocument("test", 1);
-                    var exception = Record.Exception(() => { collection.InsertOne(document); });
+                    var exception = Record.Exception(() => { collection.InsertOne(new BsonDocument("test", 1)); });
 
                     var e = exception.Should().BeOfType<MongoNotPrimaryException>().Subject;
                     e.Code.Should().Be(10107);
 
-                    if (!shouldConnectionPoolBeCleared)
+                    if (shouldConnectionPoolBeCleared)
                     {
-                        collection.InsertOne(document);
+                        eventCapturer.Next().Should().BeOfType<ConnectionPoolClearedEvent>();
+                        eventCapturer.Events.Should().BeEmpty();
                     }
+                    else
+                    {
+                        eventCapturer.Events.Should().BeEmpty();
+                    }
+
+                    collection.InsertOne(new BsonDocument("test", 1));
+                    if (shouldConnectionPoolBeCleared)
+                    {
+                        eventCapturer.Next().Should().BeOfType<ConnectionCreatedEvent>();
+                    }
+                    eventCapturer.Events.Should().BeEmpty();
                 }
-                eventCapturer.Events.Count.Should().Be(shouldConnectionPoolBeCleared ? 1 : 0);
             }
         }
 
