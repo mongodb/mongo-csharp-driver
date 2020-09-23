@@ -17,22 +17,20 @@ using System.Linq.Expressions;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Misc;
 
-namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodCallTranslators
+namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslators
 {
-    public static class IntersectTranslator
+    public static class DistinctMethodTranslator
     {
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
-            if (expression.Method.Is(EnumerableMethod.Intersect))
+            if (expression.Method.Is(EnumerableMethod.Distinct))
             {
                 var source = expression.Arguments[0];
-                var second = expression.Arguments[1];
-
                 var translatedSource = ExpressionTranslator.Translate(context, source);
-                var translatedSecond = ExpressionTranslator.Translate(context, second);
 
-                var translation = new AstNaryExpression(AstNaryOperator.SetIntersection, translatedSource.Translation, translatedSecond.Translation);
-                return new TranslatedExpression(expression, translation, translatedSource.Serializer);
+                //var translation = new BsonDocument("$setIntersection", translatedSource.Translation);
+                var translation = new AstNaryExpression(AstNaryOperator.SetIntersection, translatedSource.Translation);
+                return new TranslatedExpression(expression, translation, null);
             }
 
             throw new ExpressionNotSupportedException(expression);

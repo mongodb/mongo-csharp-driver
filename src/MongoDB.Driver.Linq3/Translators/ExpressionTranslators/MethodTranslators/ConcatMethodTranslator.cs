@@ -17,19 +17,21 @@ using System.Linq.Expressions;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Misc;
 
-namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodCallTranslators
+namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslators
 {
-    public static class CountTranslator
+    public static class ConcatMethodTranslator
     {
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
-            if (expression.Method.Is(EnumerableMethod.Count))
+            if (expression.Method.Is(EnumerableMethod.Concat))
             {
-                var source = expression.Arguments[0];
-                var translatedSource = ExpressionTranslator.Translate(context, source);
+                var first = expression.Arguments[0];
+                var second = expression.Arguments[1];
+                var translatedFirst = ExpressionTranslator.Translate(context, first);
+                var translatedSecond = ExpressionTranslator.Translate(context, second);
 
-                //var translation = new BsonDocument("$size", translatedSource.Translation);
-                var translation = new AstUnaryExpression(AstUnaryOperator.Size, translatedSource.Translation);
+                //var translation = new BsonDocument("$concatArrays", new BsonArray { translatedFirst.Translation, translatedSecond.Translation });
+                var translation = new AstNaryExpression(AstNaryOperator.ConcatArrays, translatedFirst.Translation, translatedSecond.Translation);
                 return new TranslatedExpression(expression, translation, null);
             }
 

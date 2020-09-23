@@ -14,28 +14,26 @@
 */
 
 using System.Linq.Expressions;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Misc;
 
-namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodCallTranslators
+namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslators
 {
-    public static class MinTranslator
+    public static class ContainsMethodTranslator
     {
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
-            if (expression.Method.Is(EnumerableMethod.MinInt32))
+            if (expression.Method.Is(EnumerableMethod.Contains))
             {
                 var source = expression.Arguments[0];
-                var translatedSource = ExpressionTranslator.Translate(context, source);
+                var value = expression.Arguments[1];
 
-                if (translatedSource.Serializer is IBsonArraySerializer arraySerializer && arraySerializer.TryGetItemSerializationInfo(out BsonSerializationInfo itemSerializationInfo))
-                {
-                    var sourceItemSerializer = itemSerializationInfo.Serializer;
-                    //var translation = new BsonDocument("$min", translatedSource.Translation);
-                    var translation = new AstUnaryExpression(AstUnaryOperator.Min, translatedSource.Translation);
-                    return new TranslatedExpression(expression, translation, sourceItemSerializer);
-                }
+                var translatedSource = ExpressionTranslator.Translate(context, source);
+                var translatedValue = ExpressionTranslator.Translate(context, value);
+
+                //var translation = new BsonDocument("$in", new BsonArray { translatedValue.Translation, translatedSource.Translation });
+                var translation = new AstBinaryExpression(AstBinaryOperator.In, translatedValue.Translation, translatedSource.Translation);
+                return new TranslatedExpression(expression, translation, null);
             }
 
             throw new ExpressionNotSupportedException(expression);
