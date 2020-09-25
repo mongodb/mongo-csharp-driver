@@ -14,6 +14,7 @@
 */
 
 using System.Linq.Expressions;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Methods;
 using MongoDB.Driver.Linq3.Misc;
@@ -26,25 +27,25 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
         {
             if (expression.Method.Is(EnumerableMethod.All))
             {
-                var source = expression.Arguments[0];
-                var predicate = expression.Arguments[1];
+                var sourceExpression = expression.Arguments[0];
+                var predicateExpression = (LambdaExpression)expression.Arguments[1];
 
-                var translatedSource = ExpressionTranslator.Translate(context, source);
-                var predicateLambda = (LambdaExpression)predicate;
-                var predicateContext = context.WithSymbol(predicateLambda.Parameters[0], new Symbol("$this", translatedSource.Serializer));
-                var translatedPredicate = ExpressionTranslator.Translate(predicateContext, predicateLambda.Body);
+                var sourceTranslation = ExpressionTranslator.Translate(context, sourceExpression);
+                var predicateParameter = predicateExpression.Parameters[0];
+                var predicateParameterSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
+                var predicateContext = context.WithSymbol(predicateParameter, new Symbol("$this", predicateParameterSerializer));
+                var predicateTranslation = ExpressionTranslator.Translate(predicateContext, predicateExpression.Body);
 
-                //var translation = new BsonDocument("$reduce", new BsonDocument
-                //{
-                //    { "input", translatedSource.Translation },
-                //    { "initialValue", true },
-                //    { "in", new BsonDocument("$and", new BsonArray { "$$value", translatedPredicate.Translation }) }
-                //});
                 var translation = new AstReduceExpression(
-                    input: translatedSource.Translation,
+                    input: sourceTranslation.Translation,
                     initialValue: true,
-                    @in: new AstAndExpression(new AstFieldExpression("$$value"), translatedPredicate.Translation));
-                return new TranslatedExpression(expression, translation, null);
+                    @in: new AstCondExpression(
+                        @if: new AstFieldExpression("$$value"),
+                        then: predicateTranslation.Translation,
+                        @else: false));
+
+                var serializer = new BooleanSerializer();
+                return new TranslatedExpression(expression, translation, serializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

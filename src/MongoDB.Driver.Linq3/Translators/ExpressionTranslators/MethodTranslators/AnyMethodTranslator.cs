@@ -14,6 +14,7 @@
 */
 
 using System.Linq.Expressions;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Methods;
 using MongoDB.Driver.Linq3.Misc;
@@ -24,37 +25,35 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
     {
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
-            var source = expression.Arguments[0];
-            var translatedSource = ExpressionTranslator.Translate(context, source);
+            var sourceExpression = expression.Arguments[0];
+            var sourceTranslation = ExpressionTranslator.Translate(context, sourceExpression);
 
             if (expression.Method.Is(EnumerableMethod.Any))
             {
-                //var translation = new BsonDocument("$gt", new BsonArray { new BsonDocument("$size", translatedSource.Translation), 0 });
                 var translation = new AstBinaryExpression(
                     AstBinaryOperator.Gt,
-                    new AstUnaryExpression(AstUnaryOperator.Size, translatedSource.Translation),
+                    new AstUnaryExpression(AstUnaryOperator.Size, sourceTranslation.Translation),
                     0);
-                return new TranslatedExpression(expression, translation, null);
+                return new TranslatedExpression(expression, translation, new BooleanSerializer());
             }
 
             if (expression.Method.Is(EnumerableMethod.AnyWithPredicate))
             {
-                var predicate = expression.Arguments[1];
-                var predicateLambda = (LambdaExpression)predicate;
-                var predicateContext = context.WithSymbol(predicateLambda.Parameters[0], new Symbol("$this", translatedSource.Serializer));
-                var translatedPredicate = ExpressionTranslator.Translate(predicateContext, predicateLambda.Body);
+                var predicateExpression = (LambdaExpression)expression.Arguments[1];
+                var predicateParameter = predicateExpression.Parameters[0];
+                var predicateParameterSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
+                var predicateContext = context.WithSymbol(predicateParameter, new Symbol("$this", predicateParameterSerializer));
+                var predicateTranslation = ExpressionTranslator.Translate(predicateContext, predicateExpression.Body);
 
-                //var translation = new BsonDocument("$reduce", new BsonDocument
-                //{
-                //    { "input", translatedSource.Translation },
-                //    { "initialValue", false },
-                //    { "in", new BsonDocument("$or", new BsonArray { "$$value", translatedPredicate.Translation }) }
-                //});
                 var translation = new AstReduceExpression(
-                    input: translatedSource.Translation,
+                    input: sourceTranslation.Translation,
                     initialValue: false,
-                    @in: new AstNaryExpression(AstNaryOperator.Or, new AstFieldExpression("$$value"), translatedPredicate.Translation));
-                return new TranslatedExpression(expression, translation, null);
+                    @in: new AstCondExpression(
+                        @if: new AstFieldExpression("$$value"),
+                        then: true,
+                        @else: predicateTranslation.Translation));
+
+                return new TranslatedExpression(expression, translation, new BooleanSerializer());
             }
 
             throw new ExpressionNotSupportedException(expression);
