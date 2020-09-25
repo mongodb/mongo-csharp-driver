@@ -784,7 +784,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.M.Max() });
 
-            result.Projection.Should().Be("{ Result: { \"$max\": \"$M\" }, _id: 0 }");
+            result.Projection.Should().Be("{ Result : { $convert : { input : { $max : '$M' }, to : 'int' } }, _id: 0 }");
 
             result.Value.Result.Should().Be(5);
         }
@@ -796,7 +796,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.G.Max(g => g.E.F) });
 
-            result.Projection.Should().Be("{ Result: { \"$max\": \"$G.E.F\" }, _id: 0 }");
+            result.Projection.Should().Be("{ Result : { $convert : { input : { $max : { $map : { input : '$G', as : 'g', in : '$$g.E.F' } } }, to : 'int' } }, _id: 0 }");
 
             result.Value.Result.Should().Be(55);
         }
