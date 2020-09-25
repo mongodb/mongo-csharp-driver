@@ -45,6 +45,10 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
                 case "Union": return UnionMethodTranslator.Translate(context, expression);
                 case "Zip": return ZipMethodTranslator.Translate(context, expression);
 
+                case "First":
+                case "Last":
+                    return FirstLastMethodTranslator.Translate(context, expression);
+
                 case "Max":
                 case "Min":
                     return MaxMinMethodTranslator.Translate(context, expression);
