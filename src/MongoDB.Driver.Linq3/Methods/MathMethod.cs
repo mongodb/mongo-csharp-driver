@@ -24,18 +24,20 @@ namespace MongoDB.Driver.Linq3.Methods
         private static readonly MethodInfo __log;
         private static readonly MethodInfo __logWithNewBase;
         private static readonly MethodInfo __log10;
-
+        private static readonly MethodInfo __sqrt;
         // static constructor
         static MathMethod()
         {
             __log = new Func<double, double>(Math.Log).Method;
             __logWithNewBase = new Func<double, double, double>(Math.Log).Method;
             __log10 = new Func<double, double>(Math.Log10).Method;
+            __sqrt = new Func<double, double>(Math.Sqrt).Method;
         }
 
         // public properties
         public static MethodInfo Log => __log;
         public static MethodInfo LogWithNewBase => __logWithNewBase;
         public static MethodInfo Log10 => __log10;
+        public static MethodInfo Sqrt => __sqrt;
     }
 }
