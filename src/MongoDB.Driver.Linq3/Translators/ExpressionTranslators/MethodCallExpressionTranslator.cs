@@ -36,7 +36,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
                 case "Except": return ExceptMethodTranslator.Translate(context, expression);
                 case "Intersect": return IntersectMethodTranslator.Translate(context, expression);
                 case "Log": return LogMethodTranslator.Translate(context, expression);
-                case "Min": return MinMethodTranslator.Translate(context, expression);
                 case "Select": return SelectMethodTranslator.Translate(context, expression);
                 case "Split": return SplitMethodTranslator.Translate(context, expression);
                 case "Take": return TakeMethodTranslator.Translate(context, expression);
@@ -44,6 +43,10 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
                 case "Where": return WhereMethodTranslator.Translate(context, expression);
                 case "Union": return UnionMethodTranslator.Translate(context, expression);
                 case "Zip": return ZipMethodTranslator.Translate(context, expression);
+
+                case "Max":
+                case "Min":
+                    return MaxMinMethodTranslator.Translate(context, expression);
 
                 case "StandardDeviationPopulation":
                 case "StandardDeviationSample":
