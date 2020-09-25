@@ -21,7 +21,6 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
     {
         Add,
         AllElementsTrue,
-        And,
         AnyElementTrue,
         Avg,
         Concat,
@@ -46,7 +45,6 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
             {
                 case AstNaryOperator.Add: return "$add";
                 case AstNaryOperator.AllElementsTrue: return "$allElementsTrue";
-                case AstNaryOperator.And: return "$and";
                 case AstNaryOperator.AnyElementTrue: return "$anyElementTrue";
                 case AstNaryOperator.Avg: return "$avg";
                 case AstNaryOperator.Concat: return "$concat";

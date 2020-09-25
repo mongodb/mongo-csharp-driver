@@ -38,11 +38,24 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
                 case "Log": return LogMethodTranslator.Translate(context, expression);
                 case "Min": return MinMethodTranslator.Translate(context, expression);
                 case "Select": return SelectMethodTranslator.Translate(context, expression);
-                case "StandardDeviationPopulation": return StandardDeviationMethodsTranslator.Translate(context, expression);
-                case "StandardDeviationSample": return StandardDeviationMethodsTranslator.Translate(context, expression);
+                case "Split": return SplitMethodTranslator.Translate(context, expression);
+                case "Take": return TakeMethodTranslator.Translate(context, expression);
                 case "ToString": return ToStringMethodTranslator.Translate(context, expression);
                 case "Where": return WhereMethodTranslator.Translate(context, expression);
                 case "Union": return UnionMethodTranslator.Translate(context, expression);
+                case "Zip": return ZipMethodTranslator.Translate(context, expression);
+
+                case "StandardDeviationPopulation":
+                case "StandardDeviationSample":
+                    return StandardDeviationMethodsTranslator.Translate(context, expression);
+
+                case "Substring":
+                case "SubstrBytes":
+                    return SubstringMethodTranslator.Translate(context, expression);
+
+                case "ToUpper":
+                case "ToUpperInvariant":
+                    return ToUpperMethodTranslator.Translate(context, expression);
             }
 
             throw new ExpressionNotSupportedException(expression);

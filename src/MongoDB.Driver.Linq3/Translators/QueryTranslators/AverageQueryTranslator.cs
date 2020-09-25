@@ -15,9 +15,11 @@
 
 using System.Linq;
 using System.Linq.Expressions;
+using MongoDB.Bson;
 using MongoDB.Driver.Linq3.Ast;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Ast.Stages;
+using MongoDB.Driver.Linq3.Methods;
 using MongoDB.Driver.Linq3.Misc;
 using MongoDB.Driver.Linq3.Serializers;
 using MongoDB.Driver.Linq3.Translators.PipelineTranslators;
@@ -52,8 +54,8 @@ namespace MongoDB.Driver.Linq3.Translators.QueryTranslators
                     //BsonDocument.Parse("{ $group : { _id : null, _v : { $avg : \"$_v\" } } }"),
                     //BsonDocument.Parse("{ $project : { _id : 0 } }"));
                     new AstGroupStage(
-                        new AstConstantExpression(null),
-                        new AstComputedField("_v", new AstUnaryExpression(AstUnaryOperator.Avg, new AstFieldExpression("$_v")))));
+                        id: BsonNull.Value,
+                        fields: new AstComputedField("_v", new AstUnaryExpression(AstUnaryOperator.Avg, new AstFieldExpression("$_v")))));
 
                 return new ExecutableQuery<TDocument, TOutput, TOutput>(
                     provider.Collection,

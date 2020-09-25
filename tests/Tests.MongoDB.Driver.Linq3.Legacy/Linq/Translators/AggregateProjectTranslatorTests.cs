@@ -1449,8 +1449,6 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         }
 
         [Theory]
-        [InlineData(StringComparison.CurrentCulture)]
-        [InlineData(StringComparison.CurrentCultureIgnoreCase)]
 #if NET452
         [InlineData(StringComparison.InvariantCulture)]
         [InlineData(StringComparison.InvariantCultureIgnoreCase)]
@@ -1477,19 +1475,19 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Project(x => new { Result = x.B.Substring(3, 20) });
 
-            result.Projection.Should().Be("{ Result: { \"$substr\": [\"$B\",3, 20] }, _id: 0 }");
+            result.Projection.Should().Be("{ Result: { \"$substrCP\": [\"$B\", 3, 20] }, _id: 0 }");
 
             result.Value.Result.Should().Be("loon");
         }
 
         [SkippableFact]
-        public void Should_translate_substrCP()
+        public void Should_translate_substrBytes()
         {
             RequireServer.Check().VersionGreaterThanOrEqualTo("3.3.4");
 
-            var result = Project(x => new { Result = x.B.Substring(3, 20) }, __codePointTranslationOptions);
+            var result = Project(x => new { Result = x.B.SubstrBytes(3, 20) });
 
-            result.Projection.Should().Be("{ Result: { \"$substrCP\": [\"$B\",3, 20] }, _id: 0 }");
+            result.Projection.Should().Be("{ Result: { \"$substrBytes\": [\"$B\", 3, 20] }, _id: 0 }");
 
             result.Value.Result.Should().Be("loon");
         }
@@ -1619,7 +1617,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.M.Zip(x.O, (a, b) => a + b) });
 
-            result.Projection.Should().Be("{ Result: { \"$map\": { input: { \"$zip\": { inputs: [\"$M\", \"$O\"] } }, as: \"a_b\", in: { $add: [{ $arrayElemAt: [\"$$a_b\", 0] }, { $arrayElemAt: [\"$$a_b\", 1] }] } } }, _id: 0 }");
+            result.Projection.Should().Be("{ Result: { $map: { input: { $zip: { inputs: ['$M', '$O'] } }, as: 'z__', in: { $let : { vars : { a : { $arrayElemAt : ['$$z__', 0] }, b : { $arrayElemAt : ['$$z__', 1] } }, in : { $convert :  { input : { $add : ['$$a', '$$b'] }, to : 'long' } } } } } }, _id : 0 }");
 
             result.Value.Result.Should().BeEquivalentTo(12L, 24L, 35L);
         }
@@ -1631,7 +1629,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.M.Zip(x.O, (a, b) => new { a, b }) });
 
-            result.Projection.Should().Be("{ Result: { \"$map\": { input: { \"$zip\": { inputs: [\"$M\", \"$O\"] } }, as: \"a_b\", in: { a: { $arrayElemAt: [\"$$a_b\", 0] }, b: { $arrayElemAt: [\"$$a_b\", 1] } } } }, _id: 0 }");
+            result.Projection.Should().Be("{ Result: { $map: { input: { $zip: { inputs: ['$M', '$O'] } }, as: 'z__', in: { $let : { vars : { a : { $arrayElemAt : ['$$z__', 0] }, b : { $arrayElemAt : ['$$z__', 1] } }, in : { a : '$$a', b : '$$b' } } } } }, _id : 0 }");
 
             var aResults = result.Value.Result.Select(x => x.a);
             var bResults = result.Value.Result.Select(x => x.b);

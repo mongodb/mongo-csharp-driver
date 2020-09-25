@@ -44,20 +44,19 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
 
         private static TranslatedExpression TranslateConvert(TranslationContext context, UnaryExpression expression)
         {
-            string toName;
+            string to;
             switch (expression.Type.FullName)
             {
-                case "MongoDB.Bson.ObjectId": toName = "objectId"; break;
-                case "System.Boolean": toName = "bool"; break;
-                case "System.DateTime": toName = "date"; break;
-                case "System.Decimal": toName = "decimal"; break;
-                case "System.Double": toName = "double"; break;
-                case "System.Int32": toName = "int"; break;
-                case "System.Int64": toName = "long"; break;
-                case "System.String": toName = "string"; break;
+                case "MongoDB.Bson.ObjectId": to = "objectId"; break;
+                case "System.Boolean": to = "bool"; break;
+                case "System.DateTime": to = "date"; break;
+                case "System.Decimal": to = "decimal"; break;
+                case "System.Double": to = "double"; break;
+                case "System.Int32": to = "int"; break;
+                case "System.Int64": to = "long"; break;
+                case "System.String": to = "string"; break;
                 default: throw new ExpressionNotSupportedException(expression);
             }
-            var to = new AstConstantExpression(toName);
 
             var translatedOperand = ExpressionTranslator.Translate(context, expression.Operand);
 

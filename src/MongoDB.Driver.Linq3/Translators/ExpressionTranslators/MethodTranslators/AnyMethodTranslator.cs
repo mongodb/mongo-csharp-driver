@@ -15,6 +15,7 @@
 
 using System.Linq.Expressions;
 using MongoDB.Driver.Linq3.Ast.Expressions;
+using MongoDB.Driver.Linq3.Methods;
 using MongoDB.Driver.Linq3.Misc;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslators
@@ -32,7 +33,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
                 var translation = new AstBinaryExpression(
                     AstBinaryOperator.Gt,
                     new AstUnaryExpression(AstUnaryOperator.Size, translatedSource.Translation),
-                    new AstConstantExpression(0));
+                    0);
                 return new TranslatedExpression(expression, translation, null);
             }
 
@@ -50,9 +51,9 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
                 //    { "in", new BsonDocument("$or", new BsonArray { "$$value", translatedPredicate.Translation }) }
                 //});
                 var translation = new AstReduceExpression(
-                    translatedSource.Translation,
-                    new AstConstantExpression(false),
-                    new AstNaryExpression(AstNaryOperator.Or, new AstFieldExpression("$$value"), translatedPredicate.Translation));
+                    input: translatedSource.Translation,
+                    initialValue: false,
+                    @in: new AstNaryExpression(AstNaryOperator.Or, new AstFieldExpression("$$value"), translatedPredicate.Translation));
                 return new TranslatedExpression(expression, translation, null);
             }
 

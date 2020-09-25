@@ -18,6 +18,7 @@ using MongoDB.Bson;
 using MongoDB.Driver.Linq3.Ast;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Ast.Stages;
+using MongoDB.Driver.Linq3.Methods;
 using MongoDB.Driver.Linq3.Misc;
 using MongoDB.Driver.Linq3.Translators.PipelineTranslators;
 using MongoDB.Driver.Linq3.Translators.QueryTranslators.Finalizers;
@@ -50,8 +51,8 @@ namespace MongoDB.Driver.Linq3.Translators.QueryTranslators
                     //new BsonDocument("$group", new BsonDocument { { "_id", BsonNull.Value }, { "_last", new BsonDocument("$last", "$$ROOT") } }),
                     //new BsonDocument("$replaceRoot", new BsonDocument("newRoot", "$_last")));
                     new AstGroupStage(
-                        new AstConstantExpression(BsonNull.Value),
-                        new AstComputedField("_last", new AstUnaryExpression(AstUnaryOperator.Last, new AstFieldExpression("$$ROOT")))));
+                        id: BsonNull.Value,
+                        fields: new AstComputedField("_last", new AstUnaryExpression(AstUnaryOperator.Last, new AstFieldExpression("$$ROOT")))));
 
                 var finalizer = expression.Method.Name == "LastOrDefault" ? __singleOrDefaultFinalizer : __singleFinalizer;
 

@@ -19,6 +19,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq3.Ast.Expressions;
+using MongoDB.Driver.Linq3.Methods;
 using MongoDB.Driver.Linq3.Misc;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslators

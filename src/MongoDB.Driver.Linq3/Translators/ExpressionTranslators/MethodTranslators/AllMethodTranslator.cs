@@ -15,6 +15,7 @@
 
 using System.Linq.Expressions;
 using MongoDB.Driver.Linq3.Ast.Expressions;
+using MongoDB.Driver.Linq3.Methods;
 using MongoDB.Driver.Linq3.Misc;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslators
@@ -40,9 +41,9 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
                 //    { "in", new BsonDocument("$and", new BsonArray { "$$value", translatedPredicate.Translation }) }
                 //});
                 var translation = new AstReduceExpression(
-                    translatedSource.Translation,
-                    new AstConstantExpression(true),
-                    new AstNaryExpression(AstNaryOperator.And, new AstFieldExpression("$$value"), translatedPredicate.Translation));
+                    input: translatedSource.Translation,
+                    initialValue: true,
+                    @in: new AstAndExpression(new AstFieldExpression("$$value"), translatedPredicate.Translation));
                 return new TranslatedExpression(expression, translation, null);
             }
 

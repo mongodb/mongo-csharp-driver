@@ -14,28 +14,28 @@
 */
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 
-namespace MongoDB.Driver.Linq3.Misc
+namespace MongoDB.Driver.Linq3.Methods
 {
-    public static class ObjectMethod
+    public static class MathMethod
     {
         // private static fields
-        private static readonly MethodInfo __equals;
-        private static readonly MethodInfo __toString;
+        private static readonly MethodInfo __log;
+        private static readonly MethodInfo __logWithNewBase;
+        private static readonly MethodInfo __log10;
 
         // static constructor
-        static ObjectMethod()
+        static MathMethod()
         {
-            __equals = new Func<object, bool>(new object().Equals).Method;
-            __toString = new Func<string>(new object().ToString).Method;
+            __log = new Func<double, double>(Math.Log).Method;
+            __logWithNewBase = new Func<double, double, double>(Math.Log).Method;
+            __log10 = new Func<double, double>(Math.Log10).Method;
         }
 
         // public properties
-        public static new MethodInfo Equals => __equals;
-        public static new MethodInfo ToString => __toString;
+        public static MethodInfo Log => __log;
+        public static MethodInfo LogWithNewBase => __logWithNewBase;
+        public static MethodInfo Log10 => __log10;
     }
 }
