@@ -66,8 +66,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
                 //    { "in", $"$$_document.{fieldInfo.ElementName}" }
                 //});
                 var translation = new AstLetExpression(
-                    new[] { new AstComputedField("_document", translatedContainer.Translation) },
-                    new AstFieldExpression($"$$_document.{fieldInfo.ElementName}"));
+                    new[] { new AstComputedField("d__", translatedContainer.Translation) },
+                    new AstFieldExpression($"$$d__.{fieldInfo.ElementName}"));
                 return new TranslatedExpression(expression, translation, fieldInfo.Serializer);
             }
 

@@ -284,7 +284,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.G.First().D });
 
-            result.Projection.Should().Be("{ Result: { $arrayElemAt: [\"$G.D\", 0] }, _id: 0 }");
+            result.Projection.Should().Be("{ Result: { $let : { vars : { d__ : { $arrayElemAt: [\"$G\", 0] } }, in : '$$d__.D' } }, _id: 0 }");
 
             result.Value.Result.Should().Be("Don't");
         }
@@ -308,7 +308,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.G.Last().D });
 
-            result.Projection.Should().Be("{ Result: { \"$arrayElemAt\": [\"$G.D\", -1] }, _id: 0 }");
+            result.Projection.Should().Be("{ Result : { $let : { vars : { d__ : { '$arrayElemAt' : ['$G', -1] } }, in : '$$d__.D' } }, _id : 0 }");
 
             result.Value.Result.Should().Be("Dolphin");
         }
