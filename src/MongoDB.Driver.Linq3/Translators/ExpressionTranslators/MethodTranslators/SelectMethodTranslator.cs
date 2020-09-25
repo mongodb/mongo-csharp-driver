@@ -16,6 +16,7 @@
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq3.Ast.Expressions;
+using MongoDB.Driver.Linq3.Methods;
 using MongoDB.Driver.Linq3.Misc;
 using MongoDB.Driver.Linq3.Serializers;
 

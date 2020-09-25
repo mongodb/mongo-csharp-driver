@@ -18,6 +18,7 @@ using MongoDB.Bson;
 using MongoDB.Driver.Linq3.Ast;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Ast.Stages;
+using MongoDB.Driver.Linq3.Methods;
 using MongoDB.Driver.Linq3.Misc;
 using MongoDB.Driver.Linq3.Serializers;
 using MongoDB.Driver.Linq3.Translators.PipelineTranslators;
@@ -64,8 +65,8 @@ namespace MongoDB.Driver.Linq3.Translators.QueryTranslators
                     //BsonDocument.Parse("{ $group : { _id : null, _min : { $min : \"$_v\" } } }"),
                     //BsonDocument.Parse("{ $project : { _id : 0, _v : \"$_min\" } }"));
                     new AstGroupStage(
-                        new AstConstantExpression(BsonNull.Value),
-                        new AstComputedField("$_min", new AstUnaryExpression(AstUnaryOperator.Min, new AstFieldExpression("$_v")))),
+                        id: BsonNull.Value,
+                        fields: new AstComputedField("$_min", new AstUnaryExpression(AstUnaryOperator.Min, new AstFieldExpression("$_v")))),
                     new AstProjectStage(
                         new AstProjectStageExcludeIdSpecification(),
                         new AstProjectStageComputedFieldSpecification(new AstComputedField("_v", new AstFieldExpression("$_min")))));

@@ -25,23 +25,24 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
     {
         public static TranslatedExpression Translate(TranslationContext context, BinaryExpression expression)
         {
-            if (expression.NodeType == ExpressionType.Divide)
+            switch (expression.NodeType)
             {
-                return DivideExpressionTranslator.Translate(context, expression);
-            }
+                case ExpressionType.Add:
+                    return AddExpressionTranslator.Translate(context, expression);
 
-            if (expression.Type == typeof(string) && expression.NodeType == ExpressionType.Add)
-            {
-                return TranslateStringConcatenation(context, expression);
+                case ExpressionType.And:
+                case ExpressionType.AndAlso:
+                    return AndExpressionTranslator.Translate(context, expression);
+
+                case ExpressionType.Divide:
+                    return DivideExpressionTranslator.Translate(context, expression);
+
             }
 
             AstBinaryOperator? binaryOperator = null;
             AstNaryOperator? naryOperator = null;
             switch (expression.NodeType)
             {
-                case ExpressionType.Add: naryOperator = AstNaryOperator.Add; break;
-                case ExpressionType.And: naryOperator = AstNaryOperator.And; break;
-                case ExpressionType.AndAlso: naryOperator = AstNaryOperator.And; break;
                 case ExpressionType.Coalesce: binaryOperator = AstBinaryOperator.IfNull; break;
                 case ExpressionType.Divide: binaryOperator = AstBinaryOperator.Divide; break;
                 case ExpressionType.Equal: binaryOperator = AstBinaryOperator.Eq; break;
@@ -84,29 +85,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
             }
 
             throw new ExpressionNotSupportedException(expression);
-        }
-
-        private static TranslatedExpression TranslateStringConcatenation(TranslationContext context, BinaryExpression expression)
-        {
-            var translatedLeft = ExpressionTranslator.Translate(context, expression.Left);
-            var translatedRight = ExpressionTranslator.Translate(context, expression.Right);
-
-            AstExpression translation;
-            if (translatedLeft.Translation is AstNaryExpression naryExpression && naryExpression.Operator == AstNaryOperator.Concat)
-            {
-                var args = new List<AstExpression>();
-                args.AddRange(naryExpression.Args);
-                args.Add(translatedRight.Translation);
-                translation = new AstNaryExpression(AstNaryOperator.Concat, args);
-            }
-            else
-            {
-                translation = new AstNaryExpression(AstNaryOperator.Concat, translatedLeft.Translation, translatedRight.Translation);
-            }
-
-            var serializer = new StringSerializer(); // TODO: find correct serializer
-
-            return new TranslatedExpression(expression, translation, serializer);
         }
     }
 }

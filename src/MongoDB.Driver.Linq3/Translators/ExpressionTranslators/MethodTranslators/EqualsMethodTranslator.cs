@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Bson.Serialization;
@@ -28,6 +29,11 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
 
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
+            if (IsStringEqualsMethod(expression.Method))
+            {
+                return TranslateStringEqualsMethod(context, expression);
+            }
+
             if (IsInstanceEqualsMethod(expression.Method))
             {
                 var lhs = expression.Object;
@@ -40,16 +46,90 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
             }
 
             throw new ExpressionNotSupportedException(expression);
+        }
 
-            bool IsInstanceEqualsMethod(MethodInfo method)
+        private static bool IsInstanceEqualsMethod(MethodInfo method)
+        {
+            var parameters = method.GetParameters();
+            return
+                !method.IsStatic &&
+                method.ReturnParameter.ParameterType == typeof(bool) &&
+                parameters.Length == 1 &&
+                parameters[0].ParameterType == method.DeclaringType;
+        }
+
+        private static bool IsStringEqualsMethod(MethodInfo method)
+        {
+            return method.DeclaringType == typeof(string);
+        }
+
+        private static TranslatedExpression TranslateStringEqualsMethod(TranslationContext context, MethodCallExpression expression)
+        {
+            var method = expression.Method;
+            var arguments = expression.Arguments;
+
+            Expression a;
+            Expression b;
+            Expression comparisonType = null;
+            if (method.IsStatic)
             {
-                var parameters = method.GetParameters();
-                return
-                    !method.IsStatic &&
-                    method.ReturnParameter.ParameterType == typeof(bool) &&
-                    parameters.Length == 1 &&
-                    parameters[0].ParameterType == method.DeclaringType;
+                a = arguments[0];
+                b = arguments[1];
+                if (arguments.Count == 3)
+                {
+                    comparisonType = arguments[2];
+                }
             }
+            else
+            {
+                a = expression.Object;
+                b = arguments[0];
+                if (arguments.Count == 2)
+                {
+                    comparisonType = arguments[1];
+                }
+            }
+
+            var translatedA = ExpressionTranslator.Translate(context, a);
+            var translatedB = ExpressionTranslator.Translate(context, b);
+
+            StringComparison comparisonTypeValue = StringComparison.Ordinal;
+            if (comparisonType != null)
+            {
+                var constantExpression = comparisonType as ConstantExpression;
+                if (constantExpression == null)
+                {
+                    goto notSupported;
+                }
+
+                comparisonTypeValue = (StringComparison)constantExpression.Value;
+            }
+
+            AstExpression translation;
+            switch (comparisonTypeValue)
+            {
+                case StringComparison.CurrentCulture:
+                case StringComparison.Ordinal:
+                    translation = new AstBinaryExpression(AstBinaryOperator.Eq, translatedA.Translation, translatedB.Translation);
+                    break;
+
+                case StringComparison.CurrentCultureIgnoreCase:
+                case StringComparison.OrdinalIgnoreCase:
+                    translation = new AstBinaryExpression(
+                        AstBinaryOperator.Eq,
+                        new AstBinaryExpression(AstBinaryOperator.StrCaseCmp, translatedA.Translation, translatedB.Translation),
+                        0);
+                    break;
+
+                default:
+                    goto notSupported;
+            }
+
+            var serializer = new BooleanSerializer();
+            return new TranslatedExpression(expression, translation, serializer);
+
+        notSupported:
+            throw new ExpressionNotSupportedException(expression);
         }
     }
 }

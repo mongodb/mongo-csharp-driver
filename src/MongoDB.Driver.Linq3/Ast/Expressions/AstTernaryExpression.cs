@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
             _operator = @operator;
             _arg1 = Ensure.IsNotNull(arg1, nameof(arg1));
             _arg2 = Ensure.IsNotNull(arg2, nameof(arg2));
-            _arg3 = Ensure.IsNotNull(arg2, nameof(arg3));
+            _arg3 = Ensure.IsNotNull(arg3, nameof(arg3));
         }
 
         public AstExpression Arg1 => _arg1;

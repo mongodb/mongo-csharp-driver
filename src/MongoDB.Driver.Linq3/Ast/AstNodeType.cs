@@ -18,6 +18,7 @@ namespace MongoDB.Driver.Linq3.Ast
     public enum AstNodeType
     {
         AddFieldsStage,
+        AndExpression,
         AndFilter,
         BinaryExpression,
         BucketAutoStage,

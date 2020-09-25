@@ -25,6 +25,7 @@ using MongoDB.Driver.Linq3.Ast;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Ast.Filters;
 using MongoDB.Driver.Linq3.Ast.Stages;
+using MongoDB.Driver.Linq3.Methods;
 using MongoDB.Driver.Linq3.Misc;
 using MongoDB.Driver.Linq3.Serializers;
 using MongoDB.Driver.Linq3.Translators.PipelineTranslators;
@@ -73,7 +74,7 @@ namespace MongoDB.Driver.Linq3.Translators.QueryTranslators
                     new AstLimitStage(1),
                     new AstProjectStage(
                         new AstProjectStageExcludeFieldSpecification("_id"),
-                        new AstProjectStageComputedFieldSpecification(new AstComputedField("_v", new AstConstantExpression(BsonNull.Value)))));
+                        new AstProjectStageComputedFieldSpecification(new AstComputedField("_v", BsonNull.Value))));
                 return new ExecutableQuery<TDocument, string, bool>(
                     provider.Collection,
                     provider.Options,

@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
             
             if (value == null)
             {
-                return new TranslatedExpression(expression, new AstConstantExpression(BsonNull.Value), null);
+                return new TranslatedExpression(expression, BsonNull.Value, null);
             }
 
             BsonValue translatedConstant = null;
@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
 
             if (translatedConstant != null)
             {
-                return new TranslatedExpression(expression, new AstConstantExpression(translatedConstant), null);
+                return new TranslatedExpression(expression, translatedConstant, null);
             }
 
             var valueType = value.GetType();
@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
                 var itemSerializer = BsonSerializer.LookupSerializer(itemType);
 
                 translatedConstant = SerializationHelper.SerializeValues(itemSerializer, (IEnumerable)value);
-                return new TranslatedExpression(expression, new AstConstantExpression(translatedConstant), null);
+                return new TranslatedExpression(expression, translatedConstant, null);
             }
 
             throw new ExpressionNotSupportedException(expression);

@@ -14,29 +14,36 @@
 */
 
 using System.Linq.Expressions;
+using System.Reflection;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq3.Ast.Expressions;
-using MongoDB.Driver.Linq3.Methods;
-using MongoDB.Driver.Linq3.Misc;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslators
 {
-    public static class ConcatMethodTranslator
+    public static class ToUpperMethodTranslator
     {
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
-            if (expression.Method.Is(EnumerableMethod.Concat))
+            if (IsStringInstanceMethodWithNoArguments(expression.Method))
             {
-                var first = expression.Arguments[0];
-                var second = expression.Arguments[1];
-                var translatedFirst = ExpressionTranslator.Translate(context, first);
-                var translatedSecond = ExpressionTranslator.Translate(context, second);
+                var source = expression.Object;
+                var translatedSource = ExpressionTranslator.Translate(context, source);
 
-                //var translation = new BsonDocument("$concatArrays", new BsonArray { translatedFirst.Translation, translatedSecond.Translation });
-                var translation = new AstNaryExpression(AstNaryOperator.ConcatArrays, translatedFirst.Translation, translatedSecond.Translation);
-                return new TranslatedExpression(expression, translation, null);
+                var translation = new AstUnaryExpression(AstUnaryOperator.ToUpper, translatedSource.Translation);
+                var stringSerializer = new StringSerializer();
+                return new TranslatedExpression(expression, translation, stringSerializer);
             }
 
             throw new ExpressionNotSupportedException(expression);
+        }
+
+        private static bool IsStringInstanceMethodWithNoArguments(MethodInfo methodInfo)
+        {
+            return
+                methodInfo.DeclaringType == typeof(string) &&
+                !methodInfo.IsStatic &&
+                methodInfo.ReturnParameter.ParameterType == typeof(string) &&
+                methodInfo.GetParameters().Length == 0;
         }
     }
 }

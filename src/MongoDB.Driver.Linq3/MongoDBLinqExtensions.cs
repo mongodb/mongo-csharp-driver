@@ -13,30 +13,25 @@
 * limitations under the License.
 */
 
-using MongoDB.Bson;
+using System;
 
-namespace MongoDB.Driver.Linq3.Ast.Expressions
+namespace MongoDB.Driver.Linq3
 {
-    public abstract class AstExpression : AstNode
+    public static class MongoDBLinqExtensions
     {
-        public static implicit operator AstExpression(BsonValue value)
+        public static int IndexOfBytes(this string instance, string substring, int startIndex, int count)
         {
-            return new AstConstantExpression(value);
+            throw new NotImplementedException();
         }
 
-        public static implicit operator AstExpression(bool value)
+        public static int StrLenBytes(this string instance)
         {
-            return new AstConstantExpression(value);
+            throw new NotImplementedException();
         }
 
-        public static implicit operator AstExpression(int value)
+        public static string SubstrBytes(this string instance, int startIndex, int length)
         {
-            return new AstConstantExpression(value);
-        }
-
-        public static implicit operator AstExpression(string value)
-        {
-            return new AstConstantExpression(value);
+            throw new NotImplementedException();
         }
     }
 }
