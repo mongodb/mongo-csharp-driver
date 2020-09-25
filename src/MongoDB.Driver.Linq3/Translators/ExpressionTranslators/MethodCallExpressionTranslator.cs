@@ -38,6 +38,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
                 case "Log": return LogMethodTranslator.Translate(context, expression);
                 case "Select": return SelectMethodTranslator.Translate(context, expression);
                 case "Split": return SplitMethodTranslator.Translate(context, expression);
+                case "Sqrt": return SqrtMethodTranslator.Translate(context, expression);
                 case "Take": return TakeMethodTranslator.Translate(context, expression);
                 case "ToString": return ToStringMethodTranslator.Translate(context, expression);
                 case "Where": return WhereMethodTranslator.Translate(context, expression);

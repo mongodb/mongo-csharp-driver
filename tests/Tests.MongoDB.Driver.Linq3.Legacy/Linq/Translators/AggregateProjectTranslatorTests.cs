@@ -796,7 +796,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.G.Max(g => g.E.F) });
 
-            result.Projection.Should().Be("{ Result : { $convert : { input : { $max : { $map : { input : '$G', as : 'g', in : '$$g.E.F' } } }, to : 'int' } }, _id: 0 }");
+            result.Projection.Should().Be("{ Result : { $convert : { input : { $max : { $map : { input : '$G', as : 'g', in : '$$g.E.F' } } }, to : 'int' } }, _id : 0 }");
 
             result.Value.Result.Should().Be(55);
         }
@@ -808,7 +808,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.J.Millisecond });
 
-            result.Projection.Should().Be("{ Result: { \"$millisecond\": \"$J\" }, _id: 0 }");
+            result.Projection.Should().Be("{ Result: { \"$millisecond\": \"$J\" }, _id : 0 }");
 
             result.Value.Result.Should().Be(16);
         }
@@ -820,7 +820,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.M.Min() });
 
-            result.Projection.Should().Be("{ Result: { \"$min\": \"$M\" }, _id: 0 }");
+            result.Projection.Should().Be("{ Result : { $convert : { input : { $min : '$M' }, to : 'int' } }, _id : 0 }");
 
             result.Value.Result.Should().Be(2);
         }
@@ -832,7 +832,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.G.Min(g => g.E.F) });
 
-            result.Projection.Should().Be("{ Result: { \"$min\": \"$G.E.F\" }, _id: 0 }");
+            result.Projection.Should().Be("{ Result : { $convert : { input : { $min : { $map : { input : '$G', as : 'g', in : '$$g.E.F' } } }, to : 'int' } }, _id : 0 }");
 
             result.Value.Result.Should().Be(33);
         }
@@ -1238,7 +1238,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = Math.Sqrt(x.C.E.F) });
 
-            result.Projection.Should().Be("{ Result: { \"$sqrt\": [\"$C.E.F\"] }, _id: 0 }");
+            result.Projection.Should().Be("{ Result: { \"$sqrt\": \"$C.E.F\" }, _id: 0 }");
 
             result.Value.Result.Should().BeApproximately(3.31662479, .0001);
         }
@@ -1300,7 +1300,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.G.Select(c => c.D).Where(c => c == "Don't") });
 
-            result.Projection.Should().Be("{ Result: { \"$filter\": { \"input\": \"$G.D\", \"as\": \"c\", \"cond\": { \"$eq\": [\"$$c\", \"Don't\"] } } }, _id: 0 }");
+            result.Projection.Should().Be("{ Result: { \"$filter\": { \"input\": { $map : { input : '$G', as : 'c', in : '$$c.D' } }, \"as\": \"c\", \"cond\": { \"$eq\": [\"$$c\", \"Don't\"] } } }, _id: 0 }");
 
             result.Value.Result.Should().HaveCount(1);
             result.Value.Result.Single().Should().Be("Don't");
