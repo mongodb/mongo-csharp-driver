@@ -21,6 +21,15 @@ namespace MongoDB.Driver.Linq3.Misc
     public static class StringMethod
     {
         // private static fields
+        private static readonly MethodInfo __indexOfWithChar;
+        private static readonly MethodInfo __indexOfWithCharAndStartIndex;
+        private static readonly MethodInfo __indexOfWithCharAndStartIndexAndCount;
+        private static readonly MethodInfo __indexOfWithString;
+        private static readonly MethodInfo __indexOfWithStringAndStartIndex;
+        private static readonly MethodInfo __indexOfWithStringAndStartIndexAndCount;
+        private static readonly MethodInfo __indexOfWithStringAndComparisonType;
+        private static readonly MethodInfo __indexOfWithStringAndStartIndexAndComparisonType;
+        private static readonly MethodInfo __indexOfWithStringAndStartIndexAndCountAndComparisonType;
         private static readonly MethodInfo __splitWithChars;
         private static readonly MethodInfo __splitWithCharsAndCount;
         private static readonly MethodInfo __splitWithCharsAndCountAndOptions;
@@ -33,6 +42,15 @@ namespace MongoDB.Driver.Linq3.Misc
         // static constructor
         static StringMethod()
         {
+            __indexOfWithChar = new Func<char, int>("".IndexOf).Method;
+            __indexOfWithCharAndStartIndex = new Func<char, int, int>("".IndexOf).Method;
+            __indexOfWithCharAndStartIndexAndCount = new Func<char, int, int, int>("".IndexOf).Method;
+            __indexOfWithString = new Func<string, int>("".IndexOf).Method;
+            __indexOfWithStringAndStartIndex = new Func<string, int, int>("".IndexOf).Method;
+            __indexOfWithStringAndStartIndexAndCount = new Func<string, int, int, int>("".IndexOf).Method;
+            __indexOfWithStringAndComparisonType = new Func<string, StringComparison, int>("".IndexOf).Method;
+            __indexOfWithStringAndStartIndexAndComparisonType = new Func<string, int, StringComparison, int>("".IndexOf).Method;
+            __indexOfWithStringAndStartIndexAndCountAndComparisonType = new Func<string, int, int, StringComparison, int>("".IndexOf).Method;
             __splitWithChars = new Func<char[], string[]>("".Split).Method;
             __splitWithCharsAndCount = new Func<char[], int, string[]>("".Split).Method;
             __splitWithCharsAndCountAndOptions = new Func<char[], int, StringSplitOptions, string[]>("".Split).Method;
@@ -44,6 +62,15 @@ namespace MongoDB.Driver.Linq3.Misc
         }
 
         // public properties
+        public static MethodInfo IndexOfWithChar => __indexOfWithChar;
+        public static MethodInfo IndexOfWithCharAndStartIndex => __indexOfWithCharAndStartIndex;
+        public static MethodInfo IndexOfWithCharAndStartIndexAndCount => __indexOfWithCharAndStartIndexAndCount;
+        public static MethodInfo IndexOfWithString => __indexOfWithString;
+        public static MethodInfo IndexOfWithStringAndStartIndex => __indexOfWithStringAndStartIndex;
+        public static MethodInfo IndexOfWithStringAndStartIndexAndCount => __indexOfWithStringAndStartIndexAndCount;
+        public static MethodInfo IndexOfWithStringAndComparisonType => __indexOfWithStringAndComparisonType;
+        public static MethodInfo IndexOfWithStringAndStartIndexAndComparisonType => __indexOfWithStringAndStartIndexAndComparisonType;
+        public static MethodInfo IndexOfWithStringAndStartIndexAndCountAndComparisonType => __indexOfWithStringAndStartIndexAndCountAndComparisonType;
         public static MethodInfo SplitWithChars => __splitWithChars;
         public static MethodInfo SplitWithCharsAndCount => __splitWithCharsAndCount;
         public static MethodInfo SplitWithCharsAndCountAndOptions => __splitWithCharsAndCountAndOptions;
