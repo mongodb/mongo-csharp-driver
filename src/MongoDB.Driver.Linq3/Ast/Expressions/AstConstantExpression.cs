@@ -31,6 +31,11 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
 
         public override BsonValue Render()
         {
+            if (_value is BsonString bsonString && bsonString.Value.StartsWith("$"))
+            {
+                return new BsonDocument("$literal", _value);
+            }
+
             return _value;
         }
     }
