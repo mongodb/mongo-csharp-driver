@@ -13,8 +13,6 @@
 * limitations under the License.
 */
 
-using System;
-using System.Data;
 using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Bson.Serialization;
@@ -26,29 +24,40 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
 {
     public static class StandardDeviationMethodsTranslator
     {
-        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static ExpressionTranslation Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
+            var arguments = expression.Arguments;
+
             if (IsStandardDeviationMethod(method, out var @operator))
             {
-                var arguments = expression.Arguments;
                 if (arguments.Count == 1 || arguments.Count == 2)
                 {
-                    var source = arguments[0];
-                    var translatedSource = ExpressionTranslator.Translate(context, source);
-
+                    var sourceExpression = arguments[0];
+                    LambdaExpression selectorExpression = null;
                     if (arguments.Count == 2)
                     {
-                        var selector = (LambdaExpression)arguments[1];
-                        var parameter = selector.Parameters[0];
-                        var selectMethod = EnumerableMethod.MakeSelect(parameter.Type, selector.ReturnType);
-                        var selectExpression = Expression.Call(selectMethod, source, selector);
-                        translatedSource = ExpressionTranslator.Translate(context, selectExpression);
+                        selectorExpression = (LambdaExpression)arguments[1];
                     }
 
-                    var translation = new AstUnaryExpression(@operator, translatedSource.Translation);
+                    var sourceTranslation = ExpressionTranslator.Translate(context, sourceExpression);
+                    if (selectorExpression != null)
+                    {
+                        var selectorParameter = selectorExpression.Parameters[0];
+                        var selectorParameterSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
+                        var selectorContext = context.WithSymbol(selectorParameter, new Symbol(selectorParameter.Name, selectorParameterSerializer));
+                        var selectorTranslation = ExpressionTranslator.Translate(selectorContext, selectorExpression.Body);
+                        var selectorAst = new AstMapExpression(
+                            input: sourceTranslation.Ast,
+                            @as: selectorParameter.Name,
+                            @in: selectorTranslation.Ast);
+                        var selectorResultSerializer = BsonSerializer.LookupSerializer(selectorExpression.ReturnType);
+                        sourceTranslation = new ExpressionTranslation(selectorExpression, selectorAst, selectorResultSerializer);
+                    }
+                    var ast = new AstUnaryExpression(@operator, sourceTranslation.Ast);
                     var serializer = BsonSerializer.LookupSerializer(expression.Type);
-                    return new TranslatedExpression(expression, translation, serializer);
+
+                    return new ExpressionTranslation(expression, ast, serializer);
                 }
             }
 

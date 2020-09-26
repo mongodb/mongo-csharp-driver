@@ -23,42 +23,31 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
 {
     public static class LogMethodTranslator
     {
-        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static ExpressionTranslation Translate(TranslationContext context, MethodCallExpression expression)
         {
             if (expression.Method.IsOneOf(MathMethod.Log, MathMethod.LogWithNewBase, MathMethod.Log10))
             {
-                var argument = expression.Arguments[0];
-                if (IsConvertThatCanBeRemoved(argument))
-                {
-                    argument = ((UnaryExpression)argument).Operand;
-                }
-                var translatedArgument = ExpressionTranslator.Translate(context, argument);
+                var argumentExpression = expression.Arguments[0];
 
-                AstExpression translation;
+                argumentExpression = ConvertHelper.RemoveUnnecessaryConvert(argumentExpression, typeof(double));
+                var argumentTranslation = ExpressionTranslator.Translate(context, argumentExpression);
+                AstExpression ast;
                 if (expression.Method.Is(MathMethod.LogWithNewBase))
                 {
-                    var newBase = expression.Arguments[1];
-                    var translatedNewBase = ExpressionTranslator.Translate(context, newBase);
-
-                    translation = new AstBinaryExpression(AstBinaryOperator.Log, translatedArgument.Translation, translatedNewBase.Translation);
+                    var newBaseExpression = expression.Arguments[1];
+                    var newBaseTranslation = ExpressionTranslator.Translate(context, newBaseExpression);
+                    ast = new AstBinaryExpression(AstBinaryOperator.Log, argumentTranslation.Ast, newBaseTranslation.Ast);
                 }
                 else
                 {
                     var @operator = expression.Method.Is(MathMethod.Log10) ? AstUnaryOperator.Log10 : AstUnaryOperator.Ln;
-                    translation = new AstUnaryExpression(@operator, translatedArgument.Translation);
+                    ast = new AstUnaryExpression(@operator, argumentTranslation.Ast);
                 }
 
-                var serializer = new DoubleSerializer();
-
-                return new TranslatedExpression(expression, translation, serializer);
+                return new ExpressionTranslation(expression, ast, new DoubleSerializer());
             }
 
             throw new ExpressionNotSupportedException(expression);
-        }
-
-        private static bool IsConvertThatCanBeRemoved(Expression value)
-        {
-            return true;
         }
     }
 }

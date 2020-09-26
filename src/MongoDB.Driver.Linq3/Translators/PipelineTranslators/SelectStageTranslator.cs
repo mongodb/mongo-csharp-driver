@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Linq3.Translators.PipelineTranslators
 
                 if (translatedSelectorSerializer is IBsonDocumentSerializer)
                 {
-                    var projection = ProjectionHelper.ConvertExpressionToProjection(translatedSelector.Translation);
+                    var projection = ProjectionHelper.ConvertExpressionToProjection(translatedSelector.Ast);
 
                     pipeline.AddStages(
                         translatedSelectorSerializer,
@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Linq3.Translators.PipelineTranslators
                         //new BsonDocument("$project", new BsonDocument { { "_id", 0 }, { "_v", translatedSelector.Translation } }));
                         new AstProjectStage(
                             new AstProjectStageExcludeIdSpecification(),
-                            new AstProjectStageComputedFieldSpecification(new Ast.AstComputedField("_v", translatedSelector.Translation))));
+                            new AstProjectStageComputedFieldSpecification(new Ast.AstComputedField("_v", translatedSelector.Ast))));
 
                     return pipeline;
                 }

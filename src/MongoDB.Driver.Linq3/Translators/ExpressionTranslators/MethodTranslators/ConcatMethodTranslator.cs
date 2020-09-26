@@ -22,18 +22,18 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
 {
     public static class ConcatMethodTranslator
     {
-        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static ExpressionTranslation Translate(TranslationContext context, MethodCallExpression expression)
         {
             if (expression.Method.Is(EnumerableMethod.Concat))
             {
-                var first = expression.Arguments[0];
-                var second = expression.Arguments[1];
-                var translatedFirst = ExpressionTranslator.Translate(context, first);
-                var translatedSecond = ExpressionTranslator.Translate(context, second);
+                var firstExpression = expression.Arguments[0];
+                var secondExpression = expression.Arguments[1];
 
-                //var translation = new BsonDocument("$concatArrays", new BsonArray { translatedFirst.Translation, translatedSecond.Translation });
-                var translation = new AstNaryExpression(AstNaryOperator.ConcatArrays, translatedFirst.Translation, translatedSecond.Translation);
-                return new TranslatedExpression(expression, translation, null);
+                var firstTranslation = ExpressionTranslator.Translate(context, firstExpression);
+                var secondTranslation = ExpressionTranslator.Translate(context, secondExpression);
+                var ast = new AstNaryExpression(AstNaryOperator.ConcatArrays, firstTranslation.Ast, secondTranslation.Ast);
+
+                return new ExpressionTranslation(expression, ast, firstTranslation.Serializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

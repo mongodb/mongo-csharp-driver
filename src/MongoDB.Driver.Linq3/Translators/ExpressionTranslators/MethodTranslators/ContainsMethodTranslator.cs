@@ -14,6 +14,7 @@
 */
 
 using System.Linq.Expressions;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Methods;
 using MongoDB.Driver.Linq3.Misc;
@@ -22,19 +23,18 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
 {
     public static class ContainsMethodTranslator
     {
-        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static ExpressionTranslation Translate(TranslationContext context, MethodCallExpression expression)
         {
             if (expression.Method.Is(EnumerableMethod.Contains))
             {
-                var source = expression.Arguments[0];
-                var value = expression.Arguments[1];
+                var sourceExpression = expression.Arguments[0];
+                var valueExpression = expression.Arguments[1];
 
-                var translatedSource = ExpressionTranslator.Translate(context, source);
-                var translatedValue = ExpressionTranslator.Translate(context, value);
+                var sourceTranslation = ExpressionTranslator.Translate(context, sourceExpression);
+                var valueTranslation = ExpressionTranslator.Translate(context, valueExpression);
+                var ast = new AstBinaryExpression(AstBinaryOperator.In, valueTranslation.Ast, sourceTranslation.Ast);
 
-                //var translation = new BsonDocument("$in", new BsonArray { translatedValue.Translation, translatedSource.Translation });
-                var translation = new AstBinaryExpression(AstBinaryOperator.In, translatedValue.Translation, translatedSource.Translation);
-                return new TranslatedExpression(expression, translation, null);
+                return new ExpressionTranslation(expression, ast, new BooleanSerializer());
             }
 
             throw new ExpressionNotSupportedException(expression);

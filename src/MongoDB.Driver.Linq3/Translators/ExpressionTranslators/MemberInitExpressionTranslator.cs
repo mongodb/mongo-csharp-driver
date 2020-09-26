@@ -24,29 +24,29 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
 {
     public static class MemberInitExpressionTranslator
     {
-        public static TranslatedExpression Translate(TranslationContext context, MemberInitExpression expression)
+        public static ExpressionTranslation Translate(TranslationContext context, MemberInitExpression expression)
         {
-            var computedFields = new List<AstComputedField>();
             var classMapType = typeof(BsonClassMap<>).MakeGenericType(expression.Type);
             var classMap = (BsonClassMap)Activator.CreateInstance(classMapType);
+            var computedFields = new List<AstComputedField>();
 
             foreach (var binding in expression.Bindings)
             {
                 var memberAssignment = (MemberAssignment)binding;
                 var member = memberAssignment.Member;
                 var valueExpression = memberAssignment.Expression;
-                var translatedValue = ExpressionTranslator.Translate(context, valueExpression);
-                computedFields.Add(new AstComputedField(member.Name, translatedValue.Translation));
-                var translatedFieldSerializer = translatedValue.Serializer ?? BsonSerializer.LookupSerializer(valueExpression.Type);
-                classMap.MapMember(member).SetSerializer(translatedFieldSerializer);
+                var valueTranslation = ExpressionTranslator.Translate(context, valueExpression);
+                var memberSerializer = valueTranslation.Serializer ?? BsonSerializer.LookupSerializer(valueExpression.Type);
+                classMap.MapMember(member).SetSerializer(memberSerializer);
+                computedFields.Add(new AstComputedField(member.Name, valueTranslation.Ast));
             }
             classMap.Freeze();
 
-            var translation = new AstComputedDocumentExpression(computedFields);
+            var ast = new AstComputedDocumentExpression(computedFields);
             var serializerType = typeof(BsonClassMapSerializer<>).MakeGenericType(expression.Type);
             var serializer = (IBsonSerializer)Activator.CreateInstance(serializerType, classMap);
 
-            return new TranslatedExpression(expression, translation, serializer);
+            return new ExpressionTranslation(expression, ast, serializer);
         }
     }
 }

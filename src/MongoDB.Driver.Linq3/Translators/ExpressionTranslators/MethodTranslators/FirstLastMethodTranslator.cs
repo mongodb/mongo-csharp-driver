@@ -22,19 +22,19 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
 {
     public static class FirstLastMethodTranslator
     {
-        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static ExpressionTranslation Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             if (method.IsOneOf(EnumerableMethod.First, EnumerableMethod.Last))
             {
-                var source = expression.Arguments[0];
-                var translatedSource = ExpressionTranslator.Translate(context, source);
+                var sourceExpression = expression.Arguments[0];
+                var sourceTranslation = ExpressionTranslator.Translate(context, sourceExpression);
 
                 var index = method.Name == "First" ? 0 : -1;
-                var translation = new AstBinaryExpression(AstBinaryOperator.ArrayElemAt, translatedSource.Translation, index);
+                var ast = new AstBinaryExpression(AstBinaryOperator.ArrayElemAt, sourceTranslation.Ast, index);
+                var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
 
-                var itemSerializer = ArraySerializerHelper.GetItemSerializer(translatedSource.Serializer);
-                return new TranslatedExpression(expression, translation, itemSerializer);
+                return new ExpressionTranslation(expression, ast, itemSerializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

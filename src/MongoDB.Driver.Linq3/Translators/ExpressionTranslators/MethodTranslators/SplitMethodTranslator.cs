@@ -64,22 +64,32 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
             StringMethod.SplitWithStringsAndOptions
         };
 
-        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static ExpressionTranslation Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
+            var arguments = expression.Arguments;
+
             if (method.IsOneOf(__splitMethods))
             {
-                var instance = expression.Object;
-                var translatedInstance = ExpressionTranslator.Translate(context, instance);
+                var stringExpression = expression.Object;
+                var separatorsExpression = arguments[0];
+                Expression countExpression = null;
+                if (method.IsOneOf(__splitWithCountMethods))
+                {
+                    countExpression = arguments[1];
+                }
+                Expression optionsExpression = null;
+                if (method.IsOneOf(__splitWithOptionsMethods))
+                {
+                    optionsExpression = arguments.Last();
+                }
 
-                var arguments = expression.Arguments;
-                var separators = arguments[0];
-                if (!(separators is ConstantExpression separatorsConstantExpression))
+                var stringTranslation = ExpressionTranslator.Translate(context, stringExpression);
+                string delimiter;
+                if (!(separatorsExpression is ConstantExpression separatorsConstantExpression))
                 {
                     goto notSupported;
                 }
-
-                string delimiter;
                 if (method.IsOneOf(__splitWithCharsMethods))
                 {
                     var separatorChars = (char[])separatorsConstantExpression.Value;
@@ -102,41 +112,31 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
                 {
                     goto notSupported;
                 }
-
-                Expression count = null;
-                if (method.IsOneOf(__splitWithCountMethods))
+                var ast = (AstExpression)new AstBinaryExpression(AstBinaryOperator.Split, stringTranslation.Ast, delimiter);
+                var options = StringSplitOptions.None;
+                if (optionsExpression != null)
                 {
-                    count = arguments[1];
-                }
-
-                var optionsValue = StringSplitOptions.None;
-                if (method.IsOneOf(__splitWithOptionsMethods))
-                {
-                    var options = arguments.Last();
-                    if (!(options is ConstantExpression optionsConstantExpression))
+                    if (!(optionsExpression is ConstantExpression constantExpression))
                     {
                         goto notSupported;
                     }
-
-                    optionsValue = (StringSplitOptions)optionsConstantExpression.Value;
+                    options = (StringSplitOptions)constantExpression.Value;
                 }
-
-                var translation = (AstExpression)new AstBinaryExpression(AstBinaryOperator.Split, translatedInstance.Translation, delimiter);
-                if (optionsValue == StringSplitOptions.RemoveEmptyEntries)
+                if (options == StringSplitOptions.RemoveEmptyEntries)
                 {
-                    translation = new AstFilterExpression(
-                        input: translation,
+                    ast = new AstFilterExpression(
+                        input: ast,
                         cond: new AstBinaryExpression(AstBinaryOperator.Ne, new AstFieldExpression("$$item"), ""),
                         @as: "item");
                 }
-                if (count != null)
+                if (countExpression != null)
                 {
-                    var translatedCount = ExpressionTranslator.Translate(context, count);
-                    translation = new AstSliceExpression(translation, translatedCount.Translation);
+                    var countTranslation = ExpressionTranslator.Translate(context, countExpression);
+                    ast = new AstSliceExpression(ast, countTranslation.Ast);
                 }
-
                 var serializer = new ArraySerializer<string>(new StringSerializer());
-                return new TranslatedExpression(expression, translation, serializer);
+
+                return new ExpressionTranslation(expression, ast, serializer);
             }
 
         notSupported:

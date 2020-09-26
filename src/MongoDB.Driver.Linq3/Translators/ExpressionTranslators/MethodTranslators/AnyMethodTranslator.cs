@@ -23,18 +23,19 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
 {
     public static class AnyMethodTranslator
     {
-        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static ExpressionTranslation Translate(TranslationContext context, MethodCallExpression expression)
         {
             var sourceExpression = expression.Arguments[0];
-            var sourceTranslation = ExpressionTranslator.Translate(context, sourceExpression);
 
+            var sourceTranslation = ExpressionTranslator.Translate(context, sourceExpression);
             if (expression.Method.Is(EnumerableMethod.Any))
             {
-                var translation = new AstBinaryExpression(
+                var ast = new AstBinaryExpression(
                     AstBinaryOperator.Gt,
-                    new AstUnaryExpression(AstUnaryOperator.Size, sourceTranslation.Translation),
+                    new AstUnaryExpression(AstUnaryOperator.Size, sourceTranslation.Ast),
                     0);
-                return new TranslatedExpression(expression, translation, new BooleanSerializer());
+
+                return new ExpressionTranslation(expression, ast, new BooleanSerializer());
             }
 
             if (expression.Method.Is(EnumerableMethod.AnyWithPredicate))
@@ -45,15 +46,15 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
                 var predicateContext = context.WithSymbol(predicateParameter, new Symbol("$this", predicateParameterSerializer));
                 var predicateTranslation = ExpressionTranslator.Translate(predicateContext, predicateExpression.Body);
 
-                var translation = new AstReduceExpression(
-                    input: sourceTranslation.Translation,
+                var ast = new AstReduceExpression(
+                    input: sourceTranslation.Ast,
                     initialValue: false,
                     @in: new AstCondExpression(
                         @if: new AstFieldExpression("$$value"),
                         then: true,
-                        @else: predicateTranslation.Translation));
+                        @else: predicateTranslation.Ast));
 
-                return new TranslatedExpression(expression, translation, new BooleanSerializer());
+                return new ExpressionTranslation(expression, ast, new BooleanSerializer());
             }
 
             throw new ExpressionNotSupportedException(expression);

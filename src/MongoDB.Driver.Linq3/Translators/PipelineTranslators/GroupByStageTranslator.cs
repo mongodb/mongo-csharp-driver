@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Linq3.Translators.PipelineTranslators
                         //    { "_elements", new BsonDocument("$push", "$$ROOT") }
                         //}));
                         new AstGroupStage(
-                            translatedKeySelector.Translation,
+                            translatedKeySelector.Ast,
                             new[] { new AstComputedField("_elements", new AstUnaryExpression(AstUnaryOperator.Push, new AstFieldExpression("$$ROOT"))) }));
 
                     return pipeline;
@@ -77,8 +77,8 @@ namespace MongoDB.Driver.Linq3.Translators.PipelineTranslators
                         //    { "_elements", new BsonDocument("$push", translatedElementSelector.Translation) }
                         //}));
                         new AstGroupStage(
-                            translatedKeySelector.Translation,
-                            new[] { new AstComputedField("_elements", new AstUnaryExpression(AstUnaryOperator.Push, translatedElementSelector.Translation)) }));
+                            translatedKeySelector.Ast,
+                            new[] { new AstComputedField("_elements", new AstUnaryExpression(AstUnaryOperator.Push, translatedElementSelector.Ast)) }));
 
                     return pipeline;
                 }
@@ -98,7 +98,7 @@ namespace MongoDB.Driver.Linq3.Translators.PipelineTranslators
                         ( elementsParameter, new Symbol("_elements", enumerableElementSerializer) )
                     );
                     var translatedResultSelector = ExpressionTranslator.Translate(resultSelectorContext, resultSelectorLambda.Body);
-                    var projection = ProjectionHelper.ConvertExpressionToProjection(translatedResultSelector.Translation);
+                    var projection = ProjectionHelper.ConvertExpressionToProjection(translatedResultSelector.Ast);
 
                     pipeline.AddStages(
                         translatedResultSelector.Serializer,
@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Linq3.Translators.PipelineTranslators
                         //}),
                         //new BsonDocument("$project", projection));
                         new AstGroupStage(
-                            translatedKeySelector.Translation,
+                            translatedKeySelector.Ast,
                             new AstComputedField("_elements", new AstUnaryExpression(AstUnaryOperator.Push, new AstFieldExpression("$$ROOT")))),
                         new AstProjectStage(projection));
 

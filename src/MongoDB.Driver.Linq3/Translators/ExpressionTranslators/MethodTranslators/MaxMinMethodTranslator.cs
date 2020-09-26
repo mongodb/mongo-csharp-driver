@@ -17,66 +17,50 @@ using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq3.Ast.Expressions;
+using MongoDB.Driver.Linq3.Misc;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslators
 {
     public static class MaxMinMethodTranslator
     {
-        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static ExpressionTranslation Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
             if (method.DeclaringType == typeof(Enumerable) && (method.Name == "Max" || method.Name == "Min"))
             {
-                var source = arguments[0];
-                var translatedSource = ExpressionTranslator.Translate(context, source);
+                var sourceExpression = arguments[0];
 
-                AstExpression translation;
                 var @operator = method.Name == "Max" ? AstUnaryOperator.Max : AstUnaryOperator.Min;
+                var sourceTranslation = ExpressionTranslator.Translate(context, sourceExpression);
+                AstExpression ast;
                 if (arguments.Count == 1)
                 {
-                    translation = new AstUnaryExpression(@operator, translatedSource.Translation);
+                    ast = new AstUnaryExpression(@operator, sourceTranslation.Ast);
                 }
                 else
                 {
-                    var selector = (LambdaExpression)arguments[1];
-                    var selectorParameter = selector.Parameters[0];
-                    if (!TryGetSourceItemSerializer(translatedSource.Serializer, out var sourceItemSerializer))
-                    {
-                        goto notSupported;
-                    }
-                    var selectorContext = context.WithSymbol(selectorParameter, new Misc.Symbol("$" + selectorParameter.Name, sourceItemSerializer));
-                    var translatedSelector = ExpressionTranslator.Translate(selectorContext, selector.Body);
+                    var selectorExpression = (LambdaExpression)arguments[1];
+                    var selectorParameter = selectorExpression.Parameters[0];
+                    var selectorParameterSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
+                    var selectorContext = context.WithSymbol(selectorParameter, new Misc.Symbol("$" + selectorParameter.Name, selectorParameterSerializer));
+                    var selectorTranslation = ExpressionTranslator.Translate(selectorContext, selectorExpression.Body);
 
-                    translation = new AstUnaryExpression(
+                    ast = new AstUnaryExpression(
                         @operator,
                         new AstMapExpression(
-                            input: translatedSource.Translation,
+                            input: sourceTranslation.Ast,
                             @as: selectorParameter.Name,
-                            @in: translatedSelector.Translation));
+                            @in: selectorTranslation.Ast));
                 }
-                translation = new AstConvertExpression(translation, expression.Type);
-
+                ast = new AstConvertExpression(ast, expression.Type);
                 var serializer = BsonSerializer.LookupSerializer(expression.Type);
-                return new TranslatedExpression(expression, translation, serializer);
+
+                return new ExpressionTranslation(expression, ast, serializer);
             }
 
-        notSupported:
             throw new ExpressionNotSupportedException(expression);
-        }
-
-        private static bool TryGetSourceItemSerializer(IBsonSerializer sourceSerializer, out IBsonSerializer sourceItemSerializer)
-        {
-            sourceItemSerializer = null;
-
-            if (sourceSerializer is IBsonArraySerializer arraySerializer && arraySerializer.TryGetItemSerializationInfo(out var sourceItemSerializationInfo))
-            {
-                sourceItemSerializer = sourceItemSerializationInfo.Serializer;
-                return true;
-            }
-
-            return false;
         }
     }
 }

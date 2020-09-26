@@ -19,37 +19,35 @@ using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq3.Ast.Expressions;
+using MongoDB.Driver.Linq3.Misc;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
 {
     public static class AddExpressionTranslator
     {
-        public static TranslatedExpression Translate(TranslationContext context, BinaryExpression expression)
+        public static ExpressionTranslation Translate(TranslationContext context, BinaryExpression expression)
         {
             if (expression.Type == typeof(string))
             {
                 return TranslateStringConcatenation(context, expression);
             }
 
-            var arg1 = expression.Left;
-            var arg2 = expression.Right;
+            var leftExpression = expression.Left;
+            var rightExpression = expression.Right;
 
-            var serverType = GetServerType(arg1.Type, arg2.Type);
-            arg1 = RemoveUnnecessaryConvert(arg1, serverType);
-            arg2 = RemoveUnnecessaryConvert(arg2, serverType);
-
-            var translatedArg1 = ExpressionTranslator.Translate(context, arg1);
-            var translatedArg2 = ExpressionTranslator.Translate(context, arg2);
-            var translation = (AstExpression)new AstNaryExpression(AstNaryOperator.Add, translatedArg1.Translation, translatedArg2.Translation);
-
+            var serverType = GetServerType(leftExpression.Type, rightExpression.Type);
+            leftExpression = ConvertHelper.RemoveUnnecessaryConvert(leftExpression, impliedType: serverType);
+            rightExpression = ConvertHelper.RemoveUnnecessaryConvert(rightExpression, impliedType: serverType);
+            var leftTranslation = ExpressionTranslator.Translate(context, leftExpression);
+            var rightTranslation = ExpressionTranslator.Translate(context, rightExpression);
+            var ast = (AstExpression)new AstNaryExpression(AstNaryOperator.Add, leftTranslation.Ast, rightTranslation.Ast);
             if (expression.Type != serverType)
             {
-                var to = GetTo(expression.Type);
-                translation = new AstConvertExpression(translation, to);
+                ast = new AstConvertExpression(ast, expression.Type);
             }
-
             var serializer = BsonSerializer.LookupSerializer(expression.Type);
-            return new TranslatedExpression(expression, translation, serializer);
+
+            return new ExpressionTranslation(expression, ast, serializer);
         }
 
         private static Type GetServerType(Type arg1Type, Type arg2Type)
@@ -64,60 +62,27 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
             }
         }
 
-        private static string GetTo(Type type)
+        private static ExpressionTranslation TranslateStringConcatenation(TranslationContext context, BinaryExpression expression)
         {
-            switch (type.FullName)
-            {
-                case "System.Decimal": return "decimal";
-                case "System.Double": return "double";
-                case "System.Int32": return "int";
-                case "System.Int64": return "long";
-                default: throw new InvalidOperationException($"Unexpected type: {type.FullName}");
-            }
-        }
+            var leftExpression = expression.Left;
+            var rightExpression = expression.Right;
 
-        private static Expression RemoveUnnecessaryConvert(Expression expression, Type serverType)
-        {
-            if (expression.NodeType == ExpressionType.Convert)
-            {
-                var unaryExpression = (UnaryExpression)expression;
-                if (IsConvertUnnecessary(unaryExpression.Operand.Type, unaryExpression.Type))
-                {
-                    return unaryExpression.Operand;
-                }
-            }
-
-            return expression;
-
-            bool IsConvertUnnecessary(Type from, Type to)
-            {
-                return
-                    to == serverType ||
-                    (from == typeof(int) && to == typeof(long));
-            }
-        }
-
-        private static TranslatedExpression TranslateStringConcatenation(TranslationContext context, BinaryExpression expression)
-        {
-            var translatedLeft = ExpressionTranslator.Translate(context, expression.Left);
-            var translatedRight = ExpressionTranslator.Translate(context, expression.Right);
-
-            AstExpression translation;
-            if (translatedLeft.Translation is AstNaryExpression naryExpression && naryExpression.Operator == AstNaryOperator.Concat)
+            var leftTranslation = ExpressionTranslator.Translate(context, leftExpression);
+            var rightTranslation = ExpressionTranslator.Translate(context, rightExpression);
+            AstExpression ast;
+            if (leftTranslation.Ast is AstNaryExpression naryExpression && naryExpression.Operator == AstNaryOperator.Concat)
             {
                 var args = new List<AstExpression>();
                 args.AddRange(naryExpression.Args);
-                args.Add(translatedRight.Translation);
-                translation = new AstNaryExpression(AstNaryOperator.Concat, args);
+                args.Add(rightTranslation.Ast);
+                ast = new AstNaryExpression(AstNaryOperator.Concat, args);
             }
             else
             {
-                translation = new AstNaryExpression(AstNaryOperator.Concat, translatedLeft.Translation, translatedRight.Translation);
+                ast = new AstNaryExpression(AstNaryOperator.Concat, leftTranslation.Ast, rightTranslation.Ast);
             }
 
-            var serializer = new StringSerializer(); // TODO: find correct serializer
-
-            return new TranslatedExpression(expression, translation, serializer);
+            return new ExpressionTranslation(expression, ast, new StringSerializer());
         }
     }
 }

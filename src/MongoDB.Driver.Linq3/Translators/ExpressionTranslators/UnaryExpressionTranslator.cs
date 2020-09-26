@@ -21,7 +21,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
 {
     public static class UnaryExpressionTranslator
     {
-        public static TranslatedExpression Translate(TranslationContext context, UnaryExpression expression)
+        public static ExpressionTranslation Translate(TranslationContext context, UnaryExpression expression)
         {
             AstUnaryOperator? @operator = null;
             switch (expression.NodeType)
@@ -32,38 +32,23 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
 
             if (@operator != null)
             {
-                var translatedOperand = ExpressionTranslator.Translate(context, expression.Operand);
+                var operandTranslation = ExpressionTranslator.Translate(context, expression.Operand);
+                var ast = new AstUnaryExpression(@operator.Value, operandTranslation.Ast);
 
-                //var translation = new BsonDocument(@operator, new BsonArray { translatedOperand.Translation });
-                var translation = new AstUnaryExpression(@operator.Value, translatedOperand.Translation);
-                return new TranslatedExpression(expression, translation, null);
+                return new ExpressionTranslation(expression, ast, operandTranslation.Serializer);
             }
 
             throw new ExpressionNotSupportedException(expression);
         }
 
-        private static TranslatedExpression TranslateConvert(TranslationContext context, UnaryExpression expression)
+        private static ExpressionTranslation TranslateConvert(TranslationContext context, UnaryExpression expression)
         {
-            string to;
-            switch (expression.Type.FullName)
-            {
-                case "MongoDB.Bson.ObjectId": to = "objectId"; break;
-                case "System.Boolean": to = "bool"; break;
-                case "System.DateTime": to = "date"; break;
-                case "System.Decimal": to = "decimal"; break;
-                case "System.Double": to = "double"; break;
-                case "System.Int32": to = "int"; break;
-                case "System.Int64": to = "long"; break;
-                case "System.String": to = "string"; break;
-                default: throw new ExpressionNotSupportedException(expression);
-            }
+            var operandTranslation = ExpressionTranslator.Translate(context, expression.Operand);
 
-            var translatedOperand = ExpressionTranslator.Translate(context, expression.Operand);
-
-            var translation = new AstConvertExpression(translatedOperand.Translation, to);
+            var ast = new AstConvertExpression(operandTranslation.Ast, expression.Type);
             var serializer = BsonSerializer.SerializerRegistry.GetSerializer(expression.Type); // TODO: find correct serializer
 
-            return new TranslatedExpression(expression, translation, serializer);
+            return new ExpressionTranslation(expression, ast, serializer);
         }
     }
 }

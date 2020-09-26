@@ -27,39 +27,40 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
 {
     public static class ZipMethodTranslator
     {
-        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static ExpressionTranslation Translate(TranslationContext context, MethodCallExpression expression)
         {
-            if (expression.Method.Is(EnumerableMethod.Zip))
+            var method = expression.Method;
+            var arguments = expression.Arguments;
+
+            if (method.Is(EnumerableMethod.Zip))
             {
-                var arguments = expression.Arguments;
-                var first = arguments[0];
-                var second = arguments[1];
-                var resultSelector = (LambdaExpression)arguments[2];
+                var firstExpression = arguments[0];
+                var secondExpression = arguments[1];
+                var resultSelectorExpression = (LambdaExpression)arguments[2];
 
-                var translatedFirst = ExpressionTranslator.Translate(context, first);
-                var translatedSecond = ExpressionTranslator.Translate(context, second);
+                var firstTranslation = ExpressionTranslator.Translate(context, firstExpression);
+                var secondTranslation = ExpressionTranslator.Translate(context, secondExpression);
+                var resultSelectorParameters = resultSelectorExpression.Parameters;
+                var resultSelectorParameter1 = resultSelectorParameters[0];
+                var resultSelectorParameter2 = resultSelectorParameters[1];
+                var resultSelectorSymbol1 = new Symbol("$" + resultSelectorParameter1.Name, BsonSerializer.LookupSerializer(resultSelectorParameter1.Type));
+                var resultSelectorSymbol2 = new Symbol("$" + resultSelectorParameter2.Name, BsonSerializer.LookupSerializer(resultSelectorParameter2.Type));
+                var resultSelectorContext = context.WithSymbols((resultSelectorParameter1, resultSelectorSymbol1), (resultSelectorParameter2, resultSelectorSymbol2));
+                var resultSelectorTranslation = ExpressionTranslator.Translate(resultSelectorContext, resultSelectorExpression.Body);
 
-                var resultSelectorParameters = resultSelector.Parameters;
-                var parameter1 = resultSelectorParameters[0];
-                var parameter2 = resultSelectorParameters[1];
-                var symbol1 = new Symbol("$" + parameter1.Name, BsonSerializer.LookupSerializer(parameter1.Type));
-                var symbol2 = new Symbol("$" + parameter2.Name, BsonSerializer.LookupSerializer(parameter2.Type));
-                var resultSelectorContext = context.WithSymbols((parameter1, symbol1), (parameter2, symbol2));
-                var translatedSelector = ExpressionTranslator.Translate(resultSelectorContext, resultSelector.Body);
-
-                var translation = new AstMapExpression(
-                    input: new AstZipExpression(new[] { translatedFirst.Translation, translatedSecond.Translation }),
+                var ast = new AstMapExpression(
+                    input: new AstZipExpression(new[] { firstTranslation.Ast, secondTranslation.Ast }),
                     @as: "z__",
                     @in: new AstLetExpression(
                         vars: new[]
                         {
-                            new AstComputedField(parameter1.Name, new AstBinaryExpression(AstBinaryOperator.ArrayElemAt, new AstFieldExpression("$$z__"), 0)),
-                            new AstComputedField(parameter2.Name, new AstBinaryExpression(AstBinaryOperator.ArrayElemAt, new AstFieldExpression("$$z__"), 1))
+                            new AstComputedField(resultSelectorParameter1.Name, new AstBinaryExpression(AstBinaryOperator.ArrayElemAt, new AstFieldExpression("$$z__"), 0)),
+                            new AstComputedField(resultSelectorParameter2.Name, new AstBinaryExpression(AstBinaryOperator.ArrayElemAt, new AstFieldExpression("$$z__"), 1))
                         },
-                        @in: translatedSelector.Translation));
+                        @in: resultSelectorTranslation.Ast));
+                var serializer = IEnumerableSerializer.Create(resultSelectorTranslation.Serializer);
 
-                var serializer = IEnumerableSerializer.Create(translatedSelector.Serializer);
-                return new TranslatedExpression(expression, translation, serializer);
+                return new ExpressionTranslation(expression, ast, serializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

@@ -14,33 +14,24 @@
 */
 
 using System.Linq.Expressions;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq3.Ast.Expressions;
+using MongoDB.Driver.Linq3.Misc;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
 {
     public static class ArrayIndexTranslator
     {
-        public static TranslatedExpression Translate(TranslationContext context, BinaryExpression expression)
+        public static ExpressionTranslation Translate(TranslationContext context, BinaryExpression expression)
         {
-            var array = expression.Left;
-            var index = expression.Right;
+            var arrayExpression = expression.Left;
+            var indexExpression = expression.Right;
 
-            var translatedArray = ExpressionTranslator.Translate(context, array);
-            var translatedIndex = ExpressionTranslator.Translate(context, index);
+            var arrayTranslation = ExpressionTranslator.Translate(context, arrayExpression);
+            var indexTranslation = ExpressionTranslator.Translate(context, indexExpression);
+            var ast = new AstBinaryExpression(AstBinaryOperator.ArrayElemAt, arrayTranslation.Ast, indexTranslation.Ast);
+            var itemSerializer = ArraySerializerHelper.GetItemSerializer(arrayTranslation.Serializer);
 
-            IBsonSerializer itemSerializer = null;
-            if (translatedArray.Serializer is IBsonArraySerializer arraySerializer)
-            {
-                if (arraySerializer.TryGetItemSerializationInfo(out BsonSerializationInfo serializationInfo))
-                {
-                    itemSerializer = serializationInfo.Serializer;
-                }
-            }
-
-            //var translation = new BsonDocument("$arrayElemAt", new BsonArray { translatedArray.Translation, translatedIndex.Translation });
-            var translation = new AstBinaryExpression(AstBinaryOperator.ArrayElemAt, translatedArray.Translation, translatedIndex.Translation);
-            return new TranslatedExpression(expression, translation, itemSerializer);
+            return new ExpressionTranslation(expression, ast, itemSerializer);
         }
     }
 }

@@ -21,7 +21,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
 {
     public static class MethodCallExpressionTranslator
     {
-        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static ExpressionTranslation Translate(TranslationContext context, MethodCallExpression expression)
         {
             switch (expression.Method.Name)
             {

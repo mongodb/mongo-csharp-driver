@@ -14,7 +14,6 @@
 */
 
 using System.Linq.Expressions;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Methods;
 using MongoDB.Driver.Linq3.Misc;
@@ -24,41 +23,35 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
 {
     public static class TakeMethodTranslator
     {
-        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static ExpressionTranslation Translate(TranslationContext context, MethodCallExpression expression)
         {
             if (expression.Method.Is(EnumerableMethod.Take))
             {
-                var source = expression.Arguments[0];
-                var count = expression.Arguments[1];
-
-                Expression skip = null;
-                if (source is MethodCallExpression skipExpression && skipExpression.Method.Is(EnumerableMethod.Skip))
+                var sourceExpression = expression.Arguments[0];
+                var countExpression = expression.Arguments[1];
+                Expression skipExpression = null;
+                if (sourceExpression is MethodCallExpression sourceSkipExpression && sourceSkipExpression.Method.Is(EnumerableMethod.Skip))
                 {
-                    source = skipExpression.Arguments[0];
-                    skip = skipExpression.Arguments[1];
+                    sourceExpression = sourceSkipExpression.Arguments[0];
+                    skipExpression = sourceSkipExpression.Arguments[1];
                 }
 
-                var translatedSource = ExpressionTranslator.Translate(context, source);
-                if (translatedSource.Serializer is IBsonArraySerializer arraySerializer && arraySerializer.TryGetItemSerializationInfo(out var itemSerializationInfo))
+                var sourceTranslation = ExpressionTranslator.Translate(context, sourceExpression);
+                var countTranslation = ExpressionTranslator.Translate(context, countExpression);
+                AstExpression ast;
+                if (skipExpression == null)
                 {
-                    var translatedCount = ExpressionTranslator.Translate(context, count);
-
-                    AstExpression translation;
-                    if (skip == null)
-                    {
-                        translation = new AstSliceExpression(translatedSource.Translation, translatedCount.Translation);
-                    }
-                    else
-                    {
-                        var translatedSkip = ExpressionTranslator.Translate(context, skip);
-                        translation = new AstSliceExpression(translatedSource.Translation, translatedSkip.Translation, translatedCount.Translation);
-                    }
-
-                    var itemSerializer = itemSerializationInfo.Serializer;
-                    var serializer = IEnumerableSerializer.Create(itemSerializer);
-
-                    return new TranslatedExpression(expression, translation, serializer);
+                    ast = new AstSliceExpression(sourceTranslation.Ast, countTranslation.Ast);
                 }
+                else
+                {
+                    var skipTranslation = ExpressionTranslator.Translate(context, skipExpression);
+                    ast = new AstSliceExpression(sourceTranslation.Ast, skipTranslation.Ast, countTranslation.Ast);
+                }
+                var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
+                var serializer = IEnumerableSerializer.Create(itemSerializer);
+
+                return new ExpressionTranslation(expression, ast, serializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

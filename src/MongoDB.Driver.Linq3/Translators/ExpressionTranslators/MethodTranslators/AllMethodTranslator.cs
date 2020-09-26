@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
 {
     public static class AllMethodTranslator
     {
-        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static ExpressionTranslation Translate(TranslationContext context, MethodCallExpression expression)
         {
             if (expression.Method.Is(EnumerableMethod.All))
             {
@@ -36,16 +36,15 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
                 var predicateContext = context.WithSymbol(predicateParameter, new Symbol("$this", predicateParameterSerializer));
                 var predicateTranslation = ExpressionTranslator.Translate(predicateContext, predicateExpression.Body);
 
-                var translation = new AstReduceExpression(
-                    input: sourceTranslation.Translation,
+                var ast = new AstReduceExpression(
+                    input: sourceTranslation.Ast,
                     initialValue: true,
                     @in: new AstCondExpression(
                         @if: new AstFieldExpression("$$value"),
-                        then: predicateTranslation.Translation,
+                        then: predicateTranslation.Ast,
                         @else: false));
 
-                var serializer = new BooleanSerializer();
-                return new TranslatedExpression(expression, translation, serializer);
+                return new ExpressionTranslation(expression, ast, new BooleanSerializer());
             }
 
             throw new ExpressionNotSupportedException(expression);
