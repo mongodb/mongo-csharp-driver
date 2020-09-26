@@ -21,14 +21,14 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
 {
     public static class ParameterExpressionTranslator
     {
-        public static TranslatedExpression Translate(TranslationContext context, ParameterExpression expression)
+        public static ExpressionTranslation Translate(TranslationContext context, ParameterExpression expression)
         {
             var symbolTable = context.SymbolTable;
             if (symbolTable.TryGetSymbol(expression, out Symbol symbol))
             {
-                //var translation = symbol == symbolTable.Current ? "$$CURRENT" : "$" + symbol.Name;
                 var field = symbol == symbolTable.Current ? "$$CURRENT" : "$" + symbol.Name;
-                return new TranslatedExpression(expression, new AstFieldExpression(field), symbol.Serializer);
+                var ast = new AstFieldExpression(field);
+                return new ExpressionTranslation(expression, ast, symbol.Serializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

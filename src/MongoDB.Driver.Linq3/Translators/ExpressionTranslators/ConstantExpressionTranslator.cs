@@ -18,38 +18,38 @@ using System.Collections;
 using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Linq3.Ast.Expressions;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq3.Misc;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
 {
     public static class ConstantExpressionTranslator
     {
-        public static TranslatedExpression Translate(TranslationContext context, ConstantExpression expression)
+        public static ExpressionTranslation Translate(TranslationContext context, ConstantExpression expression)
         {
             var value = expression.Value;
             
             if (value == null)
             {
-                return new TranslatedExpression(expression, BsonNull.Value, null);
+                return new ExpressionTranslation(expression, BsonNull.Value, new BsonNullSerializer());
             }
 
-            BsonValue translatedConstant = null;
+            BsonValue translatedValue = null;
             switch (Type.GetTypeCode(expression.Type))
             {
-                case TypeCode.Boolean: translatedConstant = (BsonBoolean)(bool)value; break;
-                case TypeCode.DateTime: translatedConstant = (BsonDateTime)(DateTime)value; break;
-                case TypeCode.Decimal: translatedConstant = (BsonDecimal128)(Decimal)value; break;
-                case TypeCode.Double: translatedConstant = (BsonDouble)(double)value; break;
-                case TypeCode.Int16: translatedConstant = (BsonInt32)(int)(short)value; break;
-                case TypeCode.Int32: translatedConstant = (BsonInt32)(int)value; break;
-                case TypeCode.Int64: translatedConstant = (BsonInt64)(long)value; break;
-                case TypeCode.String: translatedConstant = (BsonString)(string)value; break;
+                case TypeCode.Boolean: translatedValue = (BsonBoolean)(bool)value; break;
+                case TypeCode.DateTime: translatedValue = (BsonDateTime)(DateTime)value; break;
+                case TypeCode.Decimal: translatedValue = (BsonDecimal128)(Decimal)value; break;
+                case TypeCode.Double: translatedValue = (BsonDouble)(double)value; break;
+                case TypeCode.Int16: translatedValue = (BsonInt32)(int)(short)value; break;
+                case TypeCode.Int32: translatedValue = (BsonInt32)(int)value; break;
+                case TypeCode.Int64: translatedValue = (BsonInt64)(long)value; break;
+                case TypeCode.String: translatedValue = (BsonString)(string)value; break;
             }
-
-            if (translatedConstant != null)
+            if (translatedValue != null)
             {
-                return new TranslatedExpression(expression, translatedConstant, null);
+                var serializer = BsonSerializer.LookupSerializer(translatedValue.GetType());
+                return new ExpressionTranslation(expression, translatedValue, serializer);
             }
 
             var valueType = value.GetType();
@@ -58,9 +58,10 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
                 var ienumerableInterface = valueType.GetIEnumerableGenericInterface();
                 var itemType = ienumerableInterface.GetGenericArguments()[0];
                 var itemSerializer = BsonSerializer.LookupSerializer(itemType);
+                translatedValue = SerializationHelper.SerializeValues(itemSerializer, (IEnumerable)value);
+                var serializer = BsonSerializer.LookupSerializer(translatedValue.GetType());
 
-                translatedConstant = SerializationHelper.SerializeValues(itemSerializer, (IEnumerable)value);
-                return new TranslatedExpression(expression, translatedConstant, null);
+                return new ExpressionTranslation(expression, translatedValue, serializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

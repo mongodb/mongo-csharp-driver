@@ -22,16 +22,16 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
 {
     public static class ToUpperMethodTranslator
     {
-        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static ExpressionTranslation Translate(TranslationContext context, MethodCallExpression expression)
         {
             if (IsStringInstanceMethodWithNoArguments(expression.Method))
             {
-                var source = expression.Object;
-                var translatedSource = ExpressionTranslator.Translate(context, source);
+                var sourceExpression = expression.Object;
 
-                var translation = new AstUnaryExpression(AstUnaryOperator.ToUpper, translatedSource.Translation);
-                var stringSerializer = new StringSerializer();
-                return new TranslatedExpression(expression, translation, stringSerializer);
+                var sourceTranslation = ExpressionTranslator.Translate(context, sourceExpression);
+                var ast = new AstUnaryExpression(AstUnaryOperator.ToUpper, sourceTranslation.Ast);
+
+                return new ExpressionTranslation(expression, ast, new StringSerializer());
             }
 
             throw new ExpressionNotSupportedException(expression);

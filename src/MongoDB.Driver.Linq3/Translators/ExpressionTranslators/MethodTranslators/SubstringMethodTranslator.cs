@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq3.Ast;
@@ -25,71 +24,29 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
 {
     public static class SubstringMethodTranslator
     {
-        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static ExpressionTranslation Translate(TranslationContext context, MethodCallExpression expression)
         {
+            var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (expression.Method.IsOneOf(StringMethod.Substring, StringMethod.SubstringWithLength))
+            if (method.IsOneOf(StringMethod.Substring, StringMethod.SubstringWithLength))
             {
-                var instance = expression.Object;
-                var startIndex = arguments[0];
-                var length = arguments.Count == 2 ? arguments[1] : null;
-                return Helper(instance, startIndex, length, AstTernaryOperator.SubstrCP);
+                var stringExpression = expression.Object;
+                var startIndexExpression = arguments[0];
+                var lengthExpression = arguments.Count == 2 ? arguments[1] : null;
+                return TranslateHelper(context, expression, stringExpression, startIndexExpression, lengthExpression, AstTernaryOperator.SubstrCP);
             }
 
-            if (expression.Method.Is(LinqExtensionsMethod.SubstrBytes))
+            if (method.Is(LinqExtensionsMethod.SubstrBytes))
             {
-                var instance = arguments[0];
-                var startIndex = arguments[1];
-                var length = arguments[2];
-                return Helper(instance, startIndex, length, AstTernaryOperator.SubstrBytes);
+                var stringExpression = arguments[0];
+                var startIndexExpression = arguments[1];
+                var lengthExpression = arguments[2];
+                return TranslateHelper(context, expression, stringExpression, startIndexExpression, lengthExpression, AstTernaryOperator.SubstrBytes);
             }
 
             throw new ExpressionNotSupportedException(expression);
 
-            TranslatedExpression Helper(Expression instance, Expression startIndex, Expression length, AstTernaryOperator substringOperator)
-            {
-                var translatedInstance = ExpressionTranslator.Translate(context, instance);
-                var translatedStartIndex = ExpressionTranslator.Translate(context, startIndex);
-
-                AstExpression translation;
-                if (length == null)
-                {
-                    var lengthOperator = substringOperator == AstTernaryOperator.SubstrCP ? AstUnaryOperator.StrLenCP : AstUnaryOperator.StrLenBytes;
-                    if (IsSimple(translatedInstance.Translation) && IsSimple(translatedStartIndex.Translation))
-                    {
-                        var stringTranslation = translatedInstance.Translation;
-                        var indexTranslation = translatedStartIndex.Translation;
-                        var lengthTranslation = new AstUnaryExpression(lengthOperator, stringTranslation);
-                        var countTranslation = new AstBinaryExpression(AstBinaryOperator.Subtract, lengthTranslation, indexTranslation);
-
-                        translation = new AstTernaryExpression(substringOperator, stringTranslation, indexTranslation, countTranslation);
-                    }
-                    else
-                    {
-                        var vars = new[]
-                        {
-                            new AstComputedField("string", translatedInstance.Translation),
-                            new AstComputedField("index", translatedStartIndex.Translation)
-                        };
-                        var stringField = new AstFieldExpression("$$string");
-                        var indexField = new AstFieldExpression("$$index");
-                        var lengthTranslation = new AstUnaryExpression(lengthOperator, stringField);
-                        var countTranslation = new AstBinaryExpression(AstBinaryOperator.Subtract, lengthTranslation, indexField);
-                        var @in = new AstTernaryExpression(substringOperator, stringField, indexField, countTranslation);
-
-                        translation = new AstLetExpression(vars, @in);
-                    }
-                }
-                else
-                {
-                    var translatedLength = ExpressionTranslator.Translate(context, length);
-                    translation = new AstTernaryExpression(substringOperator, translatedInstance.Translation, translatedStartIndex.Translation, translatedLength.Translation);
-                }
-
-                var serializer = new StringSerializer();
-                return new TranslatedExpression(expression, translation, serializer);
-            }
         }
 
         private static bool IsSimple(AstExpression expression)
@@ -97,6 +54,45 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
             return
                 expression.NodeType == AstNodeType.ConstantExpression ||
                 expression.NodeType == AstNodeType.FieldExpression;
+        }
+
+        private static ExpressionTranslation TranslateHelper(TranslationContext context, Expression expression, Expression stringExpression, Expression startIndexExpression, Expression lengthExpression, AstTernaryOperator substringOperator)
+        {
+            var stringTranslation = ExpressionTranslator.Translate(context, stringExpression);
+            var startIndexTranslation = ExpressionTranslator.Translate(context, startIndexExpression);
+
+            AstExpression ast;
+            if (lengthExpression == null)
+            {
+                var lengthOperator = substringOperator == AstTernaryOperator.SubstrCP ? AstUnaryOperator.StrLenCP : AstUnaryOperator.StrLenBytes;
+                if (IsSimple(stringTranslation.Ast) && IsSimple(startIndexTranslation.Ast))
+                {
+                    var lengthAst = new AstUnaryExpression(lengthOperator, stringTranslation.Ast);
+                    var countAst = new AstBinaryExpression(AstBinaryOperator.Subtract, lengthAst, startIndexTranslation.Ast);
+                    ast = new AstTernaryExpression(substringOperator, stringTranslation.Ast, startIndexTranslation.Ast, countAst);
+                }
+                else
+                {
+                    var vars = new[]
+                    {
+                            new AstComputedField("string", stringTranslation.Ast),
+                            new AstComputedField("index", startIndexTranslation.Ast)
+                    };
+                    var stringField = new AstFieldExpression("$$string");
+                    var indexField = new AstFieldExpression("$$index");
+                    var lengthAst = new AstUnaryExpression(lengthOperator, stringField);
+                    var countAst = new AstBinaryExpression(AstBinaryOperator.Subtract, lengthAst, indexField);
+                    var inAst = new AstTernaryExpression(substringOperator, stringField, indexField, countAst);
+                    ast = new AstLetExpression(vars, inAst);
+                }
+            }
+            else
+            {
+                var lengthTranslation = ExpressionTranslator.Translate(context, lengthExpression);
+                ast = new AstTernaryExpression(substringOperator, stringTranslation.Ast, startIndexTranslation.Ast, lengthTranslation.Ast);
+            }
+
+            return new ExpressionTranslation(expression, ast, new StringSerializer());
         }
     }
 }

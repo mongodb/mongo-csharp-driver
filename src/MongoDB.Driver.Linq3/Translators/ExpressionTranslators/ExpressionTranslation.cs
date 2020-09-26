@@ -21,32 +21,30 @@ using MongoDB.Driver.Linq3.Misc;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
 {
-    public class TranslatedExpression
+    public class ExpressionTranslation
     {
         // private fields
+        private readonly AstExpression _ast;
         private readonly Expression _expression;
         private readonly IBsonSerializer _serializer;
-        private readonly AstExpression _translation;
 
         // constructors
-        public TranslatedExpression(Expression expression, AstExpression translation, IBsonSerializer serializer)
+        public ExpressionTranslation(Expression expression, AstExpression ast, IBsonSerializer serializer)
         {
-            _translation = Throw.IfNull(translation, nameof(translation));
             _expression = Throw.IfNull(expression, nameof(expression));
+            _ast = Throw.IfNull(ast, nameof(ast));
             _serializer = serializer; // can be null
         }
 
         // public properties
+        public AstExpression Ast => _ast;
         public Expression Expression => _expression;
-
         public IBsonSerializer Serializer => _serializer;
-
-        public AstExpression Translation => _translation;
 
         // public methods
         public override string ToString()
         {
-            return _translation.Render().ToJson();
+            return _ast.Render().ToJson();
         }
     }
 }

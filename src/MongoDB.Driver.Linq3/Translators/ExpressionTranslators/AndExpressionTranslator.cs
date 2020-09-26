@@ -21,14 +21,13 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
 {
     public static class AndExpressionTranslator
     {
-        public static TranslatedExpression Translate(TranslationContext context, BinaryExpression expression)
+        public static ExpressionTranslation Translate(TranslationContext context, BinaryExpression expression)
         {
-            var translatedLeft = ExpressionTranslator.Translate(context, expression.Left);
-            var translatedRight = ExpressionTranslator.Translate(context, expression.Right);
-            var translation = new AstAndExpression(translatedLeft.Translation, translatedRight.Translation);
-            var serializer = new BooleanSerializer();
+            var leftTranslation = ExpressionTranslator.Translate(context, expression.Left);
+            var rightTranslation = ExpressionTranslator.Translate(context, expression.Right);
+            var ast = new AstAndExpression(leftTranslation.Ast, rightTranslation.Ast);
 
-            return new TranslatedExpression(expression, translation, serializer);
+            return new ExpressionTranslation(expression, ast, new BooleanSerializer());
         }
     }
 }

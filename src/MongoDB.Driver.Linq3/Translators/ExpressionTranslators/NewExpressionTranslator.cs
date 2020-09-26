@@ -25,34 +25,32 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
 {
     public static class NewExpressionTranslator
     {
-        public static TranslatedExpression Translate(TranslationContext context, NewExpression expression)
+        public static ExpressionTranslation Translate(TranslationContext context, NewExpression expression)
         {
-            //var translation = new BsonDocument();
-            var computedFields = new List<AstComputedField>();
             var classMapType = typeof(BsonClassMap<>).MakeGenericType(expression.Type);
             var classMap = (BsonClassMap)Activator.CreateInstance(classMapType);
+            var computedFields = new List<AstComputedField>();
 
             for (var i = 0; i < expression.Members.Count; i++)
             {
                 var member = expression.Members[i];
                 var fieldExpression = expression.Arguments[i];
-                var translatedField = ExpressionTranslator.Translate(context, fieldExpression);
-                //translation.Add(member.Name, translatedField.Translation);
-                computedFields.Add(new AstComputedField(member.Name, translatedField.Translation));
-                var translatedFieldSerializer = translatedField.Serializer ?? BsonSerializer.LookupSerializer(fieldExpression.Type);
-                classMap.MapProperty(member.Name).SetSerializer(translatedFieldSerializer);
+                var fieldTranslation = ExpressionTranslator.Translate(context, fieldExpression);
+                var memberSerializer = fieldTranslation.Serializer ?? BsonSerializer.LookupSerializer(fieldExpression.Type);
+                classMap.MapProperty(member.Name).SetSerializer(memberSerializer);
+                computedFields.Add(new AstComputedField(member.Name, fieldTranslation.Ast));
             }
-            var translation = new AstComputedDocumentExpression(computedFields);
 
             var constructorInfo = expression.Type.GetConstructors().Single();
             var constructorArgumentNames = expression.Members.Select(m => m.Name).ToArray();
             classMap.MapConstructor(constructorInfo, constructorArgumentNames);
             classMap.Freeze();
 
+            var ast = new AstComputedDocumentExpression(computedFields);
             var serializerType = typeof(BsonClassMapSerializer<>).MakeGenericType(expression.Type);
             var serializer = (IBsonSerializer)Activator.CreateInstance(serializerType, classMap);
 
-            return new TranslatedExpression(expression, translation, serializer);
+            return new ExpressionTranslation(expression, ast, serializer);
         }
     }
 }

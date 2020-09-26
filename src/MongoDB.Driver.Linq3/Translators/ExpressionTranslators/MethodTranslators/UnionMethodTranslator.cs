@@ -22,18 +22,18 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
 {
     public static class UnionMethodTranslator
     {
-        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static ExpressionTranslation Translate(TranslationContext context, MethodCallExpression expression)
         {
             if (expression.Method.Is(EnumerableMethod.Union))
             {
-                var source = expression.Arguments[0];
-                var second = expression.Arguments[1];
+                var sourceExpression = expression.Arguments[0];
+                var secondExpression = expression.Arguments[1];
 
-                var translatedSource = ExpressionTranslator.Translate(context, source);
-                var translatedSecond = ExpressionTranslator.Translate(context, second);
+                var sourceTranslation = ExpressionTranslator.Translate(context, sourceExpression);
+                var secondTranslation = ExpressionTranslator.Translate(context, secondExpression);
+                var ast = new AstNaryExpression(AstNaryOperator.SetUnion, sourceTranslation.Ast, secondTranslation.Ast);
 
-                var translation = new AstNaryExpression(AstNaryOperator.SetUnion, translatedSource.Translation, translatedSecond.Translation);
-                return new TranslatedExpression(expression, translation, translatedSource.Serializer);
+                return new ExpressionTranslation(expression, ast, sourceTranslation.Serializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

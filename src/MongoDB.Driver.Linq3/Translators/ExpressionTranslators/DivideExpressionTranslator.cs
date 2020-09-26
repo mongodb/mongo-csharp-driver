@@ -17,32 +17,30 @@ using System;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq3.Ast.Expressions;
+using MongoDB.Driver.Linq3.Misc;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
 {
     public static class DivideExpressionTranslator
     {
-        public static TranslatedExpression Translate(TranslationContext context, BinaryExpression expression)
+        public static ExpressionTranslation Translate(TranslationContext context, BinaryExpression expression)
         {
-            var arg1 = expression.Left;
-            var arg2 = expression.Right;
+            var leftExpression = expression.Left;
+            var rightExpression = expression.Right;
 
-            var serverType = GetServerType(arg1.Type, arg2.Type);
-            arg1 = RemoveUnnecessaryConvert(arg1, serverType);
-            arg2 = RemoveUnnecessaryConvert(arg2, serverType);
-
-            var translatedArg1 = ExpressionTranslator.Translate(context, arg1);
-            var translatedArg2 = ExpressionTranslator.Translate(context, arg2);
-            var translation = (AstExpression)new AstBinaryExpression(AstBinaryOperator.Divide, translatedArg1.Translation, translatedArg2.Translation);
-
+            var serverType = GetServerType(leftExpression.Type, rightExpression.Type);
+            leftExpression = ConvertHelper.RemoveUnnecessaryConvert(leftExpression, impliedType: serverType);
+            rightExpression = ConvertHelper.RemoveUnnecessaryConvert(rightExpression, impliedType: serverType);
+            var leftTranslation = ExpressionTranslator.Translate(context, leftExpression);
+            var rightTranslation = ExpressionTranslator.Translate(context, rightExpression);
+            var ast = (AstExpression)new AstBinaryExpression(AstBinaryOperator.Divide, leftTranslation.Ast, rightTranslation.Ast);
             if (expression.Type != serverType)
             {
-                var to = GetTo(expression.Type);
-                translation = new AstConvertExpression(translation, to);
+                ast = new AstConvertExpression(ast, expression.Type);
             }
-
             var serializer = BsonSerializer.LookupSerializer(expression.Type);
-            return new TranslatedExpression(expression, translation, serializer);
+
+            return new ExpressionTranslation(expression, ast, serializer);
         }
 
         private static Type GetServerType(Type arg1Type, Type arg2Type)
@@ -54,39 +52,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
             else
             {
                 return typeof(double);
-            }
-        }
-
-        private static string GetTo(Type type)
-        {
-            switch (type.FullName)
-            {
-                case "System.Decimal": return "decimal";
-                case "System.Double": return "double";
-                case "System.Int32": return "int";
-                case "System.Int64": return "long";
-                default: throw new InvalidOperationException($"Unexpected type: {type.FullName}");
-            }
-        }
-
-        private static Expression RemoveUnnecessaryConvert(Expression expression, Type serverType)
-        {
-            if (expression.NodeType == ExpressionType.Convert)
-            {
-                var unaryExpression = (UnaryExpression)expression;
-                if (IsConvertUnnecessary(unaryExpression.Operand.Type, unaryExpression.Type))
-                {
-                    return unaryExpression.Operand;
-                }
-            }
-
-            return expression;
-
-            bool IsConvertUnnecessary(Type from, Type to)
-            {
-                return
-                    to == serverType ||
-                    (from == typeof(int) && to == typeof(long));
             }
         }
     }

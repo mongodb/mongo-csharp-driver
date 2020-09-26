@@ -25,9 +25,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
 {
     public static class EqualsMethodTranslator
     {
-        private static readonly IBsonSerializer<bool> __boolSerializer = new BooleanSerializer();
-
-        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static ExpressionTranslation Translate(TranslationContext context, MethodCallExpression expression)
         {
             if (IsStringEqualsMethod(expression.Method))
             {
@@ -36,13 +34,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
 
             if (IsInstanceEqualsMethod(expression.Method))
             {
-                var lhs = expression.Object;
-                var rhs = expression.Arguments[0];
-                var translatedLhs = ExpressionTranslator.Translate(context, lhs);
-                var translatedRhs = ExpressionTranslator.Translate(context, rhs);
-
-                var translation = new AstBinaryExpression(AstBinaryOperator.Eq, translatedLhs.Translation, translatedRhs.Translation);
-                return new TranslatedExpression(expression, translation, __boolSerializer);
+                return TranslateInstanceEqualsMethod(context, expression);
             }
 
             throw new ExpressionNotSupportedException(expression);
@@ -63,61 +55,73 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
             return method.DeclaringType == typeof(string);
         }
 
-        private static TranslatedExpression TranslateStringEqualsMethod(TranslationContext context, MethodCallExpression expression)
+        private static ExpressionTranslation TranslateInstanceEqualsMethod(TranslationContext context, MethodCallExpression expression)
+        {
+            var lhsExpression = expression.Object;
+            var rhsExpression = expression.Arguments[0];
+
+            var lhsTranslation = ExpressionTranslator.Translate(context, lhsExpression);
+            var rhsTranslation = ExpressionTranslator.Translate(context, rhsExpression);
+            var ast = new AstBinaryExpression(AstBinaryOperator.Eq, lhsTranslation.Ast, rhsTranslation.Ast);
+
+            return new ExpressionTranslation(expression, ast, new BooleanSerializer());
+        }
+
+        private static ExpressionTranslation TranslateStringEqualsMethod(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            Expression a;
-            Expression b;
-            Expression comparisonType = null;
+            Expression lhsExpression;
+            Expression rhsExpression;
+            Expression comparisonTypeExpression = null;
             if (method.IsStatic)
             {
-                a = arguments[0];
-                b = arguments[1];
+                lhsExpression = arguments[0];
+                rhsExpression = arguments[1];
                 if (arguments.Count == 3)
                 {
-                    comparisonType = arguments[2];
+                    comparisonTypeExpression = arguments[2];
                 }
             }
             else
             {
-                a = expression.Object;
-                b = arguments[0];
+                lhsExpression = expression.Object;
+                rhsExpression = arguments[0];
                 if (arguments.Count == 2)
                 {
-                    comparisonType = arguments[1];
+                    comparisonTypeExpression = arguments[1];
                 }
             }
 
-            var translatedA = ExpressionTranslator.Translate(context, a);
-            var translatedB = ExpressionTranslator.Translate(context, b);
-
-            StringComparison comparisonTypeValue = StringComparison.Ordinal;
-            if (comparisonType != null)
+            StringComparison comparisonType = StringComparison.Ordinal;
+            if (comparisonTypeExpression != null)
             {
-                var constantExpression = comparisonType as ConstantExpression;
+                var constantExpression = comparisonTypeExpression as ConstantExpression;
                 if (constantExpression == null)
                 {
                     goto notSupported;
                 }
 
-                comparisonTypeValue = (StringComparison)constantExpression.Value;
+                comparisonType = (StringComparison)constantExpression.Value;
             }
 
-            AstExpression translation;
-            switch (comparisonTypeValue)
+            var lhsTranslation = ExpressionTranslator.Translate(context, lhsExpression);
+            var rhsTranslation = ExpressionTranslator.Translate(context, rhsExpression);
+
+            AstExpression ast;
+            switch (comparisonType)
             {
                 case StringComparison.CurrentCulture:
                 case StringComparison.Ordinal:
-                    translation = new AstBinaryExpression(AstBinaryOperator.Eq, translatedA.Translation, translatedB.Translation);
+                    ast = new AstBinaryExpression(AstBinaryOperator.Eq, lhsTranslation.Ast, rhsTranslation.Ast);
                     break;
 
                 case StringComparison.CurrentCultureIgnoreCase:
                 case StringComparison.OrdinalIgnoreCase:
-                    translation = new AstBinaryExpression(
+                    ast = new AstBinaryExpression(
                         AstBinaryOperator.Eq,
-                        new AstBinaryExpression(AstBinaryOperator.StrCaseCmp, translatedA.Translation, translatedB.Translation),
+                        new AstBinaryExpression(AstBinaryOperator.StrCaseCmp, lhsTranslation.Ast, rhsTranslation.Ast),
                         0);
                     break;
 
@@ -125,8 +129,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
                     goto notSupported;
             }
 
-            var serializer = new BooleanSerializer();
-            return new TranslatedExpression(expression, translation, serializer);
+            return new ExpressionTranslation(expression, ast, new BooleanSerializer());
 
         notSupported:
             throw new ExpressionNotSupportedException(expression);

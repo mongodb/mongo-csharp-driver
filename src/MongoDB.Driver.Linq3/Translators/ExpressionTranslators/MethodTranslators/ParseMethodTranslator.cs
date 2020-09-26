@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
 {
     public static class ParseMethodTranslator
     {
-        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static ExpressionTranslation Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             if (method.Is(DateTimeMethod.Parse))
@@ -34,13 +34,14 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
             throw new ExpressionNotSupportedException(expression);
         }
 
-        private static TranslatedExpression TranslateDateTimeParse(TranslationContext context, MethodCallExpression expression)
+        private static ExpressionTranslation TranslateDateTimeParse(TranslationContext context, MethodCallExpression expression)
         {
-            var @string = expression.Arguments[0];
-            var translatedString = ExpressionTranslator.Translate(context, @string);
-            var translation = new AstDateFromStringExpression(translatedString.Translation);
-            var serializer = new DateTimeSerializer();
-            return new TranslatedExpression(expression, translation, serializer);
+            var stringExpression = expression.Arguments[0];
+
+            var stringTranslation = ExpressionTranslator.Translate(context, stringExpression);
+            var ast = new AstDateFromStringExpression(stringTranslation.Ast);
+
+            return new ExpressionTranslation(expression, ast, new DateTimeSerializer());
         }
     }
 }

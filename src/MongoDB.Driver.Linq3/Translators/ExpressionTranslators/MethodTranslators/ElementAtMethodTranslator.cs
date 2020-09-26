@@ -14,7 +14,6 @@
 */
 
 using System.Linq.Expressions;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Methods;
 using MongoDB.Driver.Linq3.Misc;
@@ -23,27 +22,19 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
 {
     public static class ElementAtMethodTranslator
     {
-        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static ExpressionTranslation Translate(TranslationContext context, MethodCallExpression expression)
         {
             if (expression.Method.Is(EnumerableMethod.ElementAt))
             {
-                var source = expression.Arguments[0];
-                var index = expression.Arguments[1];
-                var translatedSource = ExpressionTranslator.Translate(context, source);
-                var translatedIndex = ExpressionTranslator.Translate(context, index);
+                var sourceExpression = expression.Arguments[0];
+                var indexExpression = expression.Arguments[1];
 
-                IBsonSerializer itemSerializer = null;
-                if (translatedSource.Serializer is IBsonArraySerializer arraySerializer)
-                {
-                    if (arraySerializer.TryGetItemSerializationInfo(out BsonSerializationInfo serializationInfo))
-                    {
-                        itemSerializer = serializationInfo.Serializer;
-                    }
-                }
+                var sourceTranslation = ExpressionTranslator.Translate(context, sourceExpression);
+                var indexTranslation = ExpressionTranslator.Translate(context, indexExpression);
+                var ast = new AstBinaryExpression(AstBinaryOperator.ArrayElemAt, sourceTranslation.Ast, indexTranslation.Ast);
+                var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
 
-                //var translation = new BsonDocument("$arrayElemAt", new BsonArray { translatedSource.Translation, translatedIndex.Translation });
-                var translation = new AstBinaryExpression(AstBinaryOperator.ArrayElemAt, translatedSource.Translation, translatedIndex.Translation);
-                return new TranslatedExpression(expression, translation, itemSerializer);
+                return new ExpressionTranslation(expression, ast, itemSerializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

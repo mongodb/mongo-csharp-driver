@@ -22,16 +22,16 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
 {
     public static class DistinctMethodTranslator
     {
-        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static ExpressionTranslation Translate(TranslationContext context, MethodCallExpression expression)
         {
             if (expression.Method.Is(EnumerableMethod.Distinct))
             {
-                var source = expression.Arguments[0];
-                var translatedSource = ExpressionTranslator.Translate(context, source);
+                var sourceExpression = expression.Arguments[0];
 
-                //var translation = new BsonDocument("$setIntersection", translatedSource.Translation);
-                var translation = new AstNaryExpression(AstNaryOperator.SetIntersection, translatedSource.Translation);
-                return new TranslatedExpression(expression, translation, null);
+                var sourceTranslation = ExpressionTranslator.Translate(context, sourceExpression);
+                var ast = new AstNaryExpression(AstNaryOperator.SetIntersection, sourceTranslation.Ast);
+
+                return new ExpressionTranslation(expression, ast, sourceTranslation.Serializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

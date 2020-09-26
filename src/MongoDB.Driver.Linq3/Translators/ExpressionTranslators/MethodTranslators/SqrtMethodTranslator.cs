@@ -23,20 +23,18 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
 {
     public static class SqrtMethodTranslator
     {
-        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static ExpressionTranslation Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             if (method.Is(MathMethod.Sqrt))
             {
-                var argument = expression.Arguments[0];
-                argument = ConvertHelper.RemoveUnnecessaryConvert(argument, impliedType: typeof(double));
+                var argumentExpression = expression.Arguments[0];
 
-                var translatedArgument = ExpressionTranslator.Translate(context, argument);
+                argumentExpression = ConvertHelper.RemoveUnnecessaryConvert(argumentExpression, impliedType: typeof(double));
+                var argumentTranslation = ExpressionTranslator.Translate(context, argumentExpression);
+                var ast = new AstUnaryExpression(AstUnaryOperator.Sqrt, argumentTranslation.Ast);
 
-                var translation = new AstUnaryExpression(AstUnaryOperator.Sqrt, translatedArgument.Translation);
-
-                var serializer = new DoubleSerializer();
-                return new TranslatedExpression(expression, translation, serializer);
+                return new ExpressionTranslation(expression, ast, new DoubleSerializer());
             }
 
             throw new ExpressionNotSupportedException(expression);

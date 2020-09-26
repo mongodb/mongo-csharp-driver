@@ -14,7 +14,6 @@
 */
 
 using System.Linq.Expressions;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Methods;
 using MongoDB.Driver.Linq3.Misc;
@@ -24,31 +23,25 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
 {
     public static class SelectMethodTranslator
     {
-        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static ExpressionTranslation Translate(TranslationContext context, MethodCallExpression expression)
         {
             if (expression.Method.Is(EnumerableMethod.Select))
             {
-                var source = expression.Arguments[0];
-                var selector = expression.Arguments[1];
-                var translatedSource = ExpressionTranslator.Translate(context, source);
+                var sourceExpression = expression.Arguments[0];
+                var selectorExpression = (LambdaExpression)expression.Arguments[1];
 
-                if (translatedSource.Serializer is IBsonArraySerializer arraySerializer && arraySerializer.TryGetItemSerializationInfo(out BsonSerializationInfo itemSerializationInfo))
-                {
-                    var selectorLambda = (LambdaExpression)selector;
-                    var selectorParameter = selectorLambda.Parameters[0];
-                    var sourceItemSerializer = itemSerializationInfo.Serializer;
-                    var selectorContext = context.WithSymbol(selectorParameter, new Symbol("$" + selectorParameter.Name, sourceItemSerializer));
-                    var translatedSelector = ExpressionTranslator.Translate(selectorContext, selectorLambda.Body);
+                var sourceTranslation = ExpressionTranslator.Translate(context, sourceExpression);
+                var selectorParameter = selectorExpression.Parameters[0];
+                var selectorParameterSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
+                var selectorContext = context.WithSymbol(selectorParameter, new Symbol("$" + selectorParameter.Name, selectorParameterSerializer));
+                var translatedSelector = ExpressionTranslator.Translate(selectorContext, selectorExpression.Body);
+                var ast = new AstMapExpression(
+                    sourceTranslation.Ast,
+                    selectorParameter.Name,
+                    translatedSelector.Ast);
+                var serializer = IEnumerableSerializer.Create(translatedSelector.Serializer);
 
-                    var resultSerializer = translatedSelector.Serializer ?? BsonSerializer.LookupSerializer(selectorLambda.ReturnType);
-                    var enumerableResultSerializer = IEnumerableSerializer.Create(resultSerializer);
-
-                    var translation = new AstMapExpression(
-                        translatedSource.Translation,
-                        selectorParameter.Name,
-                        translatedSelector.Translation);
-                    return new TranslatedExpression(expression, translation, enumerableResultSerializer);
-                }
+                return new ExpressionTranslation(expression, ast, serializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

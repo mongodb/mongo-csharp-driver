@@ -21,14 +21,15 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
 {
     public static class ArrayLengthTranslator
     {
-        public static TranslatedExpression Translate(TranslationContext context, UnaryExpression expression)
+        public static ExpressionTranslation Translate(TranslationContext context, UnaryExpression expression)
         {
-            var array = expression.Operand;
-            var translatedArray = ExpressionTranslator.Translate(context, array);
+            var arrayExpression = expression.Operand;
 
-            var translation = new AstUnaryExpression(AstUnaryOperator.Size, translatedArray.Translation);
+            var arrayTranslation = ExpressionTranslator.Translate(context, arrayExpression);
+            var ast = new AstUnaryExpression(AstUnaryOperator.Size, arrayTranslation.Ast);
             var serializer = BsonSerializer.LookupSerializer(expression.Type);
-            return new TranslatedExpression(expression, translation, serializer);
+
+            return new ExpressionTranslation(expression, ast, serializer);
         }
     }
 }

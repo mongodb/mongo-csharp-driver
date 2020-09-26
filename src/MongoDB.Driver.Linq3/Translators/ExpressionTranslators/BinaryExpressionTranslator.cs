@@ -13,17 +13,15 @@
 * limitations under the License.
 */
 
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
 {
     public static class BinaryExpressionTranslator
     {
-        public static TranslatedExpression Translate(TranslationContext context, BinaryExpression expression)
+        public static ExpressionTranslation Translate(TranslationContext context, BinaryExpression expression)
         {
             switch (expression.NodeType)
             {
@@ -61,27 +59,15 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
 
             if (binaryOperator != null | naryOperator != null)
             {
-                var translatedLeft = ExpressionTranslator.Translate(context, expression.Left);
-                var translatedRight = ExpressionTranslator.Translate(context, expression.Right);
+                var leftTranslation = ExpressionTranslator.Translate(context, expression.Left);
+                var rightTranslation = ExpressionTranslator.Translate(context, expression.Right);
 
-                //var translation = new BsonDocument(operatorName, new BsonArray { translatedLeft.Translation, translatedRight.Translation });
-                var translation = binaryOperator != null ?
-                    (AstExpression)new AstBinaryExpression(binaryOperator.Value, translatedLeft.Translation, translatedRight.Translation) :
-                    (AstExpression)new AstNaryExpression(naryOperator.Value, translatedLeft.Translation, translatedRight.Translation);
-                IBsonSerializer serializer;
-                if (translatedLeft.Serializer != null && translatedLeft.Serializer.ValueType == expression.Type)
-                {
-                    serializer = translatedLeft.Serializer;
-                }
-                else if (translatedRight.Serializer != null && translatedRight.Serializer.ValueType == expression.Type)
-                {
-                    serializer = translatedRight.Serializer;
-                }
-                else
-                {
-                    serializer = BsonSerializer.LookupSerializer(expression.Type);
-                }
-                return new TranslatedExpression(expression, translation, serializer);
+                var ast = binaryOperator != null ?
+                    (AstExpression)new AstBinaryExpression(binaryOperator.Value, leftTranslation.Ast, rightTranslation.Ast) :
+                    (AstExpression)new AstNaryExpression(naryOperator.Value, leftTranslation.Ast, rightTranslation.Ast);
+                var serializer = BsonSerializer.LookupSerializer(expression.Type); // TODO: get correct serializer
+
+                return new ExpressionTranslation(expression, ast, serializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

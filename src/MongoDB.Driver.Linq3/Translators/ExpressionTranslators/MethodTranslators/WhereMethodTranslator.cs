@@ -23,28 +23,24 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
 {
     public static class WhereMethodTranslator
     {
-        public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
+        public static ExpressionTranslation Translate(TranslationContext context, MethodCallExpression expression)
         {
             if (expression.Method.Is(EnumerableMethod.Where))
             {
-                var source = expression.Arguments[0];
-                var predicate = expression.Arguments[1];
-                var translatedSource = ExpressionTranslator.Translate(context, source);
+                var sourceExpression = expression.Arguments[0];
+                var predicateExpression = (LambdaExpression)expression.Arguments[1];
 
-                if (translatedSource.Serializer is IBsonArraySerializer arraySerializer && arraySerializer.TryGetItemSerializationInfo(out BsonSerializationInfo sourceItemSerializationInfo))
-                {
-                    var predicateLambda = (LambdaExpression)predicate;
-                    var predicateParameter = predicateLambda.Parameters[0];
-                    var sourceItemSerializer = sourceItemSerializationInfo.Serializer;
-                    var predicateContext = context.WithSymbol(predicateParameter, new Symbol("$" + predicateParameter.Name, sourceItemSerializer));
-                    var translatedPredicate = ExpressionTranslator.Translate(predicateContext, predicateLambda.Body);
+                var sourceTranslation = ExpressionTranslator.Translate(context, sourceExpression);
+                var predicateParameter = predicateExpression.Parameters[0];
+                var predicateParameterSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
+                var predicateContext = context.WithSymbol(predicateParameter, new Symbol("$" + predicateParameter.Name, predicateParameterSerializer));
+                var translatedPredicate = ExpressionTranslator.Translate(predicateContext, predicateExpression.Body);
+                var ast = new AstFilterExpression(
+                    sourceTranslation.Ast,
+                    translatedPredicate.Ast,
+                    predicateParameter.Name);
 
-                    var translation = new AstFilterExpression(
-                        translatedSource.Translation,
-                        translatedPredicate.Translation,
-                        predicateParameter.Name);
-                    return new TranslatedExpression(expression, translation, translatedSource.Serializer);
-                }
+                return new ExpressionTranslation(expression, ast, sourceTranslation.Serializer);
             }
 
             throw new ExpressionNotSupportedException(expression);
