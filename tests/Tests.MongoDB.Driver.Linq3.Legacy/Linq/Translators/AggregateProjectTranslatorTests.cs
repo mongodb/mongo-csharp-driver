@@ -872,17 +872,17 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Project(x => new { Result = x.C.E.F * x.C.E.H });
 
-            result.Projection.Should().Be("{ Result: { \"$multiply\": [\"$C.E.F\", \"$C.E.H\"] }, _id: 0 }");
+            result.Projection.Should().Be("{ Result : { $convert : { input : { $multiply : ['$C.E.F', '$C.E.H'] }, to : 'int' } }, _id : 0 }");
 
             result.Value.Result.Should().Be(242);
         }
 
         [Fact]
-        public void Should_translate_multiply_flattened()
+        public void Should_translate_multiply_nested()
         {
             var result = Project(x => new { Result = x.Id * x.C.E.F * x.C.E.H });
 
-            result.Projection.Should().Be("{ Result: { \"$multiply\": [\"$_id\", \"$C.E.F\", \"$C.E.H\"] }, _id: 0 }");
+            result.Projection.Should().Be("{ Result : { $convert : { input : { $multiply : [{ $convert : { input : { $multiply : ['$_id', '$C.E.F'] }, to : 'int' } }, '$C.E.H'] }, to : 'int' } }, _id : 0 }");
 
             result.Value.Result.Should().Be(2420);
         }
