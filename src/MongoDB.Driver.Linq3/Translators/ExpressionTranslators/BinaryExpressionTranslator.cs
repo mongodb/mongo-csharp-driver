@@ -35,6 +35,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
                 case ExpressionType.Divide:
                     return DivideExpressionTranslator.Translate(context, expression);
 
+                case ExpressionType.Multiply:
+                    return MultiplyExpressionTranslator.Translate(context, expression);
             }
 
             AstBinaryOperator? binaryOperator = null;
