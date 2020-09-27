@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Bson.Serialization.Serializers;
@@ -24,25 +25,55 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
     {
         public static ExpressionTranslation Translate(TranslationContext context, MethodCallExpression expression)
         {
-            if (IsInstanceToStringMethodWithNoArguments(expression.Method))
+            if (TryTranslateInstanceToStringWithNoArguments(context, expression, out var translation) ||
+                TryTranslateDateTimeToStringWithFormat(context, expression, out translation))
             {
-                var sourceExpression = expression.Object;
-
-                var sourceTranslation = ExpressionTranslator.Translate(context, sourceExpression);
-                var ast = new AstUnaryExpression(AstUnaryOperator.ToString, sourceTranslation.Ast);
-
-                return new ExpressionTranslation(expression, ast, new StringSerializer());
+                return translation;
             }
 
             throw new ExpressionNotSupportedException(expression);
         }
 
-        private static bool IsInstanceToStringMethodWithNoArguments(MethodInfo methodInfo)
+        private static bool TryTranslateDateTimeToStringWithFormat(TranslationContext context, MethodCallExpression expression, out ExpressionTranslation translation)
         {
-            return
-                !methodInfo.IsStatic &&
-                methodInfo.ReturnParameter.ParameterType == typeof(string) &&
-                methodInfo.GetParameters().Length == 0;
+            var method = expression.Method;
+            var arguments = expression.Arguments;
+            translation = null;
+
+            if (method.DeclaringType != typeof(DateTime) || method.IsStatic || method.ReturnType != typeof(string) || method.Name != "ToString" || arguments.Count != 1 || arguments[0].Type != typeof(string))
+            {
+                return false;
+            }
+
+            var dateTimeExpression = expression.Object;
+            var formatExpression = arguments[0];
+
+            var dateTimeTranslation = ExpressionTranslator.Translate(context, dateTimeExpression);
+            var formatTranslation = ExpressionTranslator.Translate(context, formatExpression);
+            var ast = new AstDateToStringExpression(dateTimeTranslation.Ast, formatTranslation.Ast);
+
+            translation = new ExpressionTranslation(expression, ast, new StringSerializer());
+            return true;
+        }
+
+        private static bool TryTranslateInstanceToStringWithNoArguments(TranslationContext context, MethodCallExpression expression, out ExpressionTranslation translation)
+        {
+            var method = expression.Method;
+            var arguments = expression.Arguments;
+            translation = null;
+
+            if (method.IsStatic || method.ReturnType != typeof(string) || method.Name != "ToString" || arguments.Count != 0)
+            {
+                return false;
+            }
+
+            var objectExpression = expression.Object;
+
+            var objectTranslation = ExpressionTranslator.Translate(context, objectExpression);
+            var ast = new AstUnaryExpression(AstUnaryOperator.ToString, objectTranslation.Ast);
+
+            translation = new ExpressionTranslation(expression, ast, new StringSerializer());
+            return true;
         }
     }
 }

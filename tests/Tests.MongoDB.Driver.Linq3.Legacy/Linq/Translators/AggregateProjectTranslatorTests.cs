@@ -446,7 +446,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.J.ToString("%Y-%m-%d") });
 
-            result.Projection.Should().Be("{ Result: { \"$dateToString\": {format: \"%Y-%m-%d\", date: \"$J\" } }, _id: 0 }");
+            result.Projection.Should().Be("{ Result: { \"$dateToString\": { date: \"$J\", format: \"%Y-%m-%d\" } }, _id: 0 }");
 
             result.Value.Result.Should().Be("2012-12-01");
         }
