@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
                 var itemType = ienumerableInterface.GetGenericArguments()[0];
                 var itemSerializer = BsonSerializer.LookupSerializer(itemType);
                 translatedValue = SerializationHelper.SerializeValues(itemSerializer, (IEnumerable)value);
-                var serializer = BsonSerializer.LookupSerializer(translatedValue.GetType());
+                var serializer = BsonSerializer.LookupSerializer(valueType);
 
                 return new ExpressionTranslation(expression, translatedValue, serializer);
             }

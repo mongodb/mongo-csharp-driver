@@ -14,9 +14,11 @@
 */
 
 using System.Linq.Expressions;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Methods;
 using MongoDB.Driver.Linq3.Misc;
+using MongoDB.Driver.Linq3.Serializers;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslators
 {
@@ -32,8 +34,10 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
                 var sourceTranslation = ExpressionTranslator.Translate(context, sourceExpression);
                 var secondTranslation = ExpressionTranslator.Translate(context, secondExpression);
                 var ast = new AstNaryExpression(AstNaryOperator.SetUnion, sourceTranslation.Ast, secondTranslation.Ast);
+                var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
+                var serializer = IEnumerableSerializer.Create(itemSerializer);
 
-                return new ExpressionTranslation(expression, ast, sourceTranslation.Serializer);
+                return new ExpressionTranslation(expression, ast, serializer);
             }
 
             throw new ExpressionNotSupportedException(expression);
