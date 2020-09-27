@@ -131,7 +131,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.L.Contains(5) });
 
-            result.Projection.Should().Be("{ Result: { \"$anyElementTrue\": { $map: { input: \"$L\", as: \"x\", in: { $eq: [\"$$x\", 5 ] } } } }, _id: 0 }");
+            result.Projection.Should().Be("{ Result: { $in : [5, '$L'] }, _id : 0 }");
 
             result.Value.Result.Should().BeTrue();
         }
@@ -144,7 +144,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             var local = new[] { 11, 33, 55 };
             var result = Project(x => new { Result = local.Contains(x.C.E.F) });
 
-            result.Projection.Should().Be("{ Result: { \"$anyElementTrue\": { $map: { input: [11, 33, 55], as: \"x\", in: { $eq: [\"$$x\", \"$C.E.F\" ] } } } }, _id: 0 }");
+            result.Projection.Should().Be("{ Result: { $in : ['$C.E.F', [11, 33, 55]] }, _id : 0 }");
 
             result.Value.Result.Should().BeTrue();
         }
@@ -284,7 +284,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.G.First().D });
 
-            result.Projection.Should().Be("{ Result: { $let : { vars : { d__ : { $arrayElemAt: [\"$G\", 0] } }, in : '$$d__.D' } }, _id: 0 }");
+            result.Projection.Should().Be("{ Result: { $let : { vars : { this : { $arrayElemAt: [\"$G\", 0] } }, in : '$$this.D' } }, _id: 0 }");
 
             result.Value.Result.Should().Be("Don't");
         }
@@ -308,7 +308,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.G.Last().D });
 
-            result.Projection.Should().Be("{ Result : { $let : { vars : { d__ : { '$arrayElemAt' : ['$G', -1] } }, in : '$$d__.D' } }, _id : 0 }");
+            result.Projection.Should().Be("{ Result : { $let : { vars : { this : { '$arrayElemAt' : ['$G', -1] } }, in : '$$this.D' } }, _id : 0 }");
 
             result.Value.Result.Should().Be("Dolphin");
         }

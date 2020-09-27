@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
                     {
                         var selectorParameter = selectorExpression.Parameters[0];
                         var selectorParameterSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
-                        var selectorContext = context.WithSymbol(selectorParameter, new Symbol(selectorParameter.Name, selectorParameterSerializer));
+                        var selectorContext = context.WithSymbol(selectorParameter, new Symbol("$" + selectorParameter.Name, selectorParameterSerializer));
                         var selectorTranslation = ExpressionTranslator.Translate(selectorContext, selectorExpression.Body);
                         var selectorAst = new AstMapExpression(
                             input: sourceTranslation.Ast,

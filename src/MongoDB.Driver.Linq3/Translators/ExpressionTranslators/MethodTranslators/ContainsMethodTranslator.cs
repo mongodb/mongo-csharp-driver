@@ -14,6 +14,7 @@
 */
 
 using System.Linq.Expressions;
+using System.Reflection;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Methods;
@@ -25,11 +26,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
     {
         public static ExpressionTranslation Translate(TranslationContext context, MethodCallExpression expression)
         {
-            if (expression.Method.Is(EnumerableMethod.Contains))
+            if (IsContainsMethod(expression, out var sourceExpression, out var valueExpression))
             {
-                var sourceExpression = expression.Arguments[0];
-                var valueExpression = expression.Arguments[1];
-
                 var sourceTranslation = ExpressionTranslator.Translate(context, sourceExpression);
                 var valueTranslation = ExpressionTranslator.Translate(context, valueExpression);
                 var ast = new AstBinaryExpression(AstBinaryOperator.In, valueTranslation.Ast, sourceTranslation.Ast);
@@ -38,6 +36,33 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
             }
 
             throw new ExpressionNotSupportedException(expression);
+        }
+
+        private static bool IsContainsMethod(MethodCallExpression expression, out Expression sourceExpression, out Expression valueExpression)
+        {
+            var method = expression.Method;
+            var arguments = expression.Arguments;
+            sourceExpression = null;
+            valueExpression = null;
+
+            if (method.Is(EnumerableMethod.Contains))
+            {
+                sourceExpression = arguments[0];
+                valueExpression = arguments[1];
+                return true;
+            }
+
+            if (!method.IsStatic && method.ReturnType == typeof(bool) && arguments.Count == 1)
+            {
+                sourceExpression = expression.Object;
+                valueExpression = arguments[0];
+
+                var ienumerableInterface = sourceExpression.Type.GetIEnumerableGenericInterface();
+                var itemType = ienumerableInterface.GetGenericArguments()[0];
+                return itemType == valueExpression.Type;
+            }
+
+            return false;
         }
     }
 }
