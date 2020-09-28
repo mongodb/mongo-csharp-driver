@@ -63,6 +63,7 @@ namespace MongoDB.Driver.Linq3.Ast
         MergeStage,
         NaryExpression,
         NotFilter,
+        OrExpression,
         OrFilter,
         OutStage,
         Pipeline,
