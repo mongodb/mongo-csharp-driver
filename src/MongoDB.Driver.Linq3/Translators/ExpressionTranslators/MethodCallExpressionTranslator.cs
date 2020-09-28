@@ -34,6 +34,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
                 case "ElementAt": return ElementAtMethodTranslator.Translate(context, expression);
                 case "Equals": return EqualsMethodTranslator.Translate(context, expression);
                 case "Except": return ExceptMethodTranslator.Translate(context, expression);
+                case "Exp": return ExpMethodTranslator.Translate(context, expression);
                 case "IndexOf": return IndexOfMethodTranslator.Translate(context, expression);
                 case "Intersect": return IntersectMethodTranslator.Translate(context, expression);
                 case "IsSubsetOf": return IsSubsetOfMethodTranslator.Translate(context, expression);
