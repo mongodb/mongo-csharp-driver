@@ -68,9 +68,11 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
                 case "SubstrBytes":
                     return SubstringMethodTranslator.Translate(context, expression);
 
+                case "ToLower":
+                case "ToLowerInvariant":
                 case "ToUpper":
                 case "ToUpperInvariant":
-                    return ToUpperMethodTranslator.Translate(context, expression);
+                    return ToLowerToUpperMethodTranslator.Translate(context, expression);
             }
 
             throw new ExpressionNotSupportedException(expression);

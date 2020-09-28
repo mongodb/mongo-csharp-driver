@@ -38,6 +38,10 @@ namespace MongoDB.Driver.Linq3.Misc
         private static readonly MethodInfo __splitWithStringsAndOptions;
         private static readonly MethodInfo __substring;
         private static readonly MethodInfo __substringWithLength;
+        private static readonly MethodInfo __toLower;
+        private static readonly MethodInfo __toLowerInvariant;
+        private static readonly MethodInfo __toUpper;
+        private static readonly MethodInfo __toUpperInvariant;
 
         // static constructor
         static StringMethod()
@@ -59,6 +63,10 @@ namespace MongoDB.Driver.Linq3.Misc
             __splitWithStringsAndOptions = new Func<string[], StringSplitOptions, string[]>("".Split).Method;
             __substring = new Func<int, string>("".Substring).Method;
             __substringWithLength = new Func<int, int, string>("".Substring).Method;
+            __toLower = new Func<string>("".ToLower).Method;
+            __toLowerInvariant = new Func<string>("".ToLowerInvariant).Method;
+            __toUpper = new Func<string>("".ToUpper).Method;
+            __toUpperInvariant = new Func<string>("".ToUpperInvariant).Method;
         }
 
         // public properties
@@ -79,5 +87,9 @@ namespace MongoDB.Driver.Linq3.Misc
         public static MethodInfo SplitWithStringsAndOptions => __splitWithStringsAndOptions;
         public static MethodInfo Substring => __substring;
         public static MethodInfo SubstringWithLength => __substringWithLength;
+        public static MethodInfo ToLower => __toLower;
+        public static MethodInfo ToLowerInvariant => __toLowerInvariant;
+        public static MethodInfo ToUpper => __toUpper;
+        public static MethodInfo ToUpperInvariant => __toUpperInvariant;
     }
 }
