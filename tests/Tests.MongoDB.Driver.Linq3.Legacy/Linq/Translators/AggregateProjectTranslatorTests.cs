@@ -1325,7 +1325,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             RequireServer.Check().VersionGreaterThanOrEqualTo("3.3.4");
 
-            var result = Project(x => new { Result = x.A.Length });
+            var result = Project(x => new { Result = x.A.StrLenBytes() });
 
             result.Projection.Should().Be("{ Result: { \"$strLenBytes\": \"$A\" }, _id: 0 }");
 
@@ -1337,7 +1337,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             RequireServer.Check().VersionGreaterThanOrEqualTo("3.3.4");
 
-            var result = Project(x => new { Result = x.A.Length }, __codePointTranslationOptions);
+            var result = Project(x => new { Result = x.A.Length } );
 
             result.Projection.Should().Be("{ Result: { \"$strLenCP\": \"$A\" }, _id: 0 }");
 

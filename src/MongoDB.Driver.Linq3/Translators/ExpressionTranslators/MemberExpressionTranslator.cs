@@ -23,6 +23,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq3.Ast;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Misc;
+using MongoDB.Driver.Linq3.Translators.ExpressionTranslators.PropertyTranslators;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
 {
@@ -36,6 +37,11 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
             var containerTranslation = ExpressionTranslator.Translate(context, containerExpression);
             if (!DocumentSerializerHelper.HasFieldInfo(containerTranslation.Serializer, member.Name))
             {
+                switch (member.Name)
+                {
+                    case "Length": return LengthPropertyTranslator.Translate(context, expression);
+                }
+
                 if (TryTranslateCollectionCountProperty(expression, containerTranslation, member, out var translatedCount))
                 {
                     return translatedCount;
