@@ -28,7 +28,6 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
         Max,
         MergeObjects,
         Min,
-        Or,
         SetEquals,
         SetIntersection,
         SetUnion,
@@ -52,7 +51,6 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
                 case AstNaryOperator.Max: return "$max";
                 case AstNaryOperator.MergeObjects: return "$mergeObjects";
                 case AstNaryOperator.Min: return "$min";
-                case AstNaryOperator.Or: return "$or";
                 case AstNaryOperator.SetEquals: return "$setEquals";
                 case AstNaryOperator.SetIntersection: return "$setIntersection";
                 case AstNaryOperator.SetUnion: return "$setUnion";

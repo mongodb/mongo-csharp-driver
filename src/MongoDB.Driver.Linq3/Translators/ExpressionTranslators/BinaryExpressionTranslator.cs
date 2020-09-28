@@ -37,6 +37,10 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
 
                 case ExpressionType.Multiply:
                     return MultiplyExpressionTranslator.Translate(context, expression);
+
+                case ExpressionType.Or:
+                case ExpressionType.OrElse:
+                    return OrExpressionTranslator.Translate(context, expression);
             }
 
             AstBinaryOperator? binaryOperator = null;
@@ -53,8 +57,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
                 case ExpressionType.Modulo: binaryOperator = AstBinaryOperator.Mod; break;
                 case ExpressionType.Multiply: binaryOperator = AstBinaryOperator.Multiply; break;
                 case ExpressionType.NotEqual: binaryOperator = AstBinaryOperator.Ne; break;
-                case ExpressionType.Or: naryOperator = AstNaryOperator.Or; break;
-                case ExpressionType.OrElse: naryOperator = AstNaryOperator.Or; break;
                 case ExpressionType.Power: binaryOperator = AstBinaryOperator.Pow; break;
                 case ExpressionType.Subtract: binaryOperator = AstBinaryOperator.Subtract; break;
             }
