@@ -25,6 +25,9 @@ namespace MongoDB.Driver.Linq3.Methods
         private static readonly MethodInfo __logWithNewBase;
         private static readonly MethodInfo __log10;
         private static readonly MethodInfo __sqrt;
+        private static readonly MethodInfo __truncateDecimal;
+        private static readonly MethodInfo __truncateDouble;
+
         // static constructor
         static MathMethod()
         {
@@ -32,6 +35,8 @@ namespace MongoDB.Driver.Linq3.Methods
             __logWithNewBase = new Func<double, double, double>(Math.Log).Method;
             __log10 = new Func<double, double>(Math.Log10).Method;
             __sqrt = new Func<double, double>(Math.Sqrt).Method;
+            __truncateDecimal = new Func<decimal, decimal>(Math.Truncate).Method;
+            __truncateDouble = new Func<double, double>(Math.Truncate).Method;
         }
 
         // public properties
@@ -39,5 +44,7 @@ namespace MongoDB.Driver.Linq3.Methods
         public static MethodInfo LogWithNewBase => __logWithNewBase;
         public static MethodInfo Log10 => __log10;
         public static MethodInfo Sqrt => __sqrt;
+        public static MethodInfo TruncateDecimal => __truncateDecimal;
+        public static MethodInfo TruncateDouble => __truncateDouble;
     }
 }

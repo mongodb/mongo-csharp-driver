@@ -53,7 +53,6 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
                 {
                     case AstUnaryOperator.Not:
                     case AstUnaryOperator.Round:
-                    case AstUnaryOperator.Trunc:
                         return true;
 
                     default:
