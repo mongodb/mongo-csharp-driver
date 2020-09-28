@@ -25,10 +25,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
         {
             switch (expression.NodeType)
             {
-                case ExpressionType.Convert:
-                case ExpressionType.Not:
-                    return UnaryExpressionTranslator.Translate(context, (UnaryExpression)expression);
-
                 case ExpressionType.Add:
                 case ExpressionType.And:
                 case ExpressionType.AndAlso:
@@ -47,7 +43,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
                 case ExpressionType.Power:
                 case ExpressionType.Subtract:
                     return BinaryExpressionTranslator.Translate(context, (BinaryExpression)expression);
-
                 case ExpressionType.ArrayIndex:
                     return ArrayIndexTranslator.Translate(context, (BinaryExpression)expression);
                 case ExpressionType.ArrayLength:
@@ -64,6 +59,9 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
                     return NewExpressionTranslator.Translate(context, (NewExpression)expression);
                 case ExpressionType.Parameter:
                     return ParameterExpressionTranslator.Translate(context, (ParameterExpression)expression);
+                case ExpressionType.Convert:
+                case ExpressionType.Not:
+                    return UnaryExpressionTranslator.Translate(context, (UnaryExpression)expression);
             }
 
             throw new ExpressionNotSupportedException(expression);
