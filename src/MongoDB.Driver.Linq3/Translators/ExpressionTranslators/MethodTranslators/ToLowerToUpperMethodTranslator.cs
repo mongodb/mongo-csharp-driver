@@ -14,36 +14,29 @@
 */
 
 using System.Linq.Expressions;
-using System.Reflection;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq3.Ast.Expressions;
+using MongoDB.Driver.Linq3.Misc;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslators
 {
-    public static class ToUpperMethodTranslator
+    public static class ToLowerToUpperMethodTranslator
     {
         public static ExpressionTranslation Translate(TranslationContext context, MethodCallExpression expression)
         {
-            if (IsStringInstanceMethodWithNoArguments(expression.Method))
+            var method = expression.Method;
+            if (method.IsOneOf(StringMethod.ToLower, StringMethod.ToLowerInvariant, StringMethod.ToUpper, StringMethod.ToUpperInvariant))
             {
-                var sourceExpression = expression.Object;
+                var stringExpression = expression.Object;
 
-                var sourceTranslation = ExpressionTranslator.Translate(context, sourceExpression);
-                var ast = new AstUnaryExpression(AstUnaryOperator.ToUpper, sourceTranslation.Ast);
+                var stringTranslation = ExpressionTranslator.Translate(context, stringExpression);
+                var @operator = method.IsOneOf(StringMethod.ToLower, StringMethod.ToLowerInvariant) ? AstUnaryOperator.ToLower : AstUnaryOperator.ToUpper;
+                var ast = new AstUnaryExpression(@operator, stringTranslation.Ast);
 
                 return new ExpressionTranslation(expression, ast, new StringSerializer());
             }
 
             throw new ExpressionNotSupportedException(expression);
-        }
-
-        private static bool IsStringInstanceMethodWithNoArguments(MethodInfo methodInfo)
-        {
-            return
-                methodInfo.DeclaringType == typeof(string) &&
-                !methodInfo.IsStatic &&
-                methodInfo.ReturnParameter.ParameterType == typeof(string) &&
-                methodInfo.GetParameters().Length == 0;
         }
     }
 }
