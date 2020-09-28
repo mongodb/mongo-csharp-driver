@@ -27,11 +27,36 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
     {
         public static ExpressionTranslation Translate(TranslationContext context, BinaryExpression expression)
         {
-            if (expression.Type == typeof(string))
+            switch (expression.Type.FullName)
             {
-                return TranslateStringConcatenation(context, expression);
+                case "System.Decimal":
+                case "System.Double":
+                case "System.Int32":
+                case "System.Int64":
+                case "System.Single":
+                    return TranslateNumericAddition(context, expression);
+
+                case "System.String":
+                    return TranslateStringConcatenation(context, expression);
             }
 
+            throw new ExpressionNotSupportedException(expression);
+        }
+
+        private static Type GetServerType(Type arg1Type, Type arg2Type)
+        {
+            if (arg1Type == typeof(decimal) || arg2Type == typeof(decimal))
+            {
+                return typeof(decimal);
+            }
+            else
+            {
+                return typeof(double);
+            }
+        }
+
+        private static ExpressionTranslation TranslateNumericAddition(TranslationContext context, BinaryExpression expression)
+        {
             var leftExpression = expression.Left;
             var rightExpression = expression.Right;
 
@@ -48,18 +73,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
             var serializer = BsonSerializer.LookupSerializer(expression.Type);
 
             return new ExpressionTranslation(expression, ast, serializer);
-        }
-
-        private static Type GetServerType(Type arg1Type, Type arg2Type)
-        {
-            if (arg1Type == typeof(decimal) || arg2Type == typeof(decimal))
-            {
-                return typeof(decimal);
-            }
-            else
-            {
-                return typeof(double);
-            }
         }
 
         private static ExpressionTranslation TranslateStringConcatenation(TranslationContext context, BinaryExpression expression)

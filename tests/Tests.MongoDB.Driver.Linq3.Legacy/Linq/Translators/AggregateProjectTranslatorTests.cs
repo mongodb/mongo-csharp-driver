@@ -73,7 +73,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Project(x => new { Result = x.C.E.F + x.C.E.H });
 
-            result.Projection.Should().Be("{ Result: { \"$add\": [\"$C.E.F\", \"$C.E.H\"] }, _id: 0 }");
+            result.Projection.Should().Be("{ Result : { $convert : { input : { $add : ['$C.E.F', '$C.E.H'] }, to : 'int' } }, _id : 0 }");
 
             result.Value.Result.Should().Be(33);
         }
@@ -83,7 +83,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Project(x => new { Result = x.Id + x.C.E.F + x.C.E.H });
 
-            result.Projection.Should().Be("{ Result: { \"$add\": [\"$_id\", \"$C.E.F\", \"$C.E.H\"] }, _id: 0 }");
+            result.Projection.Should().Be("{ Result : { $convert : { input : { $add : [{ $convert : { input : { $add : ['$_id', '$C.E.F'] }, to : 'int' } }, '$C.E.H'] }, to : 'int' } }, _id : 0 }");
 
             result.Value.Result.Should().Be(43);
         }
