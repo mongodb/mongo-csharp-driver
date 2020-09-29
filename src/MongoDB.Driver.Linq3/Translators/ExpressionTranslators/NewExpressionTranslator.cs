@@ -27,6 +27,11 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
     {
         public static ExpressionTranslation Translate(TranslationContext context, NewExpression expression)
         {
+            if (expression.Type == typeof(DateTime))
+            {
+                return NewDateTimeExpressionTranslator.Translate(context, expression);
+            }
+
             var classMapType = typeof(BsonClassMap<>).MakeGenericType(expression.Type);
             var classMap = (BsonClassMap)Activator.CreateInstance(classMapType);
             var computedFields = new List<AstComputedField>();
