@@ -14,6 +14,7 @@
 */
 
 using System.Linq.Expressions;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Methods;
@@ -25,14 +26,24 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
     {
         public static ExpressionTranslation Translate(TranslationContext context, MethodCallExpression expression)
         {
-            if (expression.Method.Is(EnumerableMethod.Count))
+            if (expression.Method.IsOneOf(EnumerableMethod.Count, EnumerableMethod.LongCount))
             {
                 var sourceExpression = expression.Arguments[0];
 
                 var sourceTranslation = ExpressionTranslator.Translate(context, sourceExpression);
-                var ast = new AstUnaryExpression(AstUnaryOperator.Size, sourceTranslation.Ast);
+                var ast = (AstExpression)new AstUnaryExpression(AstUnaryOperator.Size, sourceTranslation.Ast);
+                IBsonSerializer serializer;
+                if (expression.Type == typeof(int))
+                {
+                    ast = new AstConvertExpression(ast, typeof(int));
+                    serializer = new Int32Serializer();
+                }
+                else
+                {
+                    serializer = new Int64Serializer();
+                }
 
-                return new ExpressionTranslation(expression, ast, new Int32Serializer());
+                return new ExpressionTranslation(expression, ast, serializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

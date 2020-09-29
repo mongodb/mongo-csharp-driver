@@ -30,7 +30,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
                 case "Concat": return ConcatMethodTranslator.Translate(context, expression);
                 case "CompareTo": return CompareToMethodTranslator.Translate(context, expression);
                 case "Contains": return ContainsMethodTranslator.Translate(context, expression);
-                case "Count": return CountMethodTranslator.Translate(context, expression);
                 case "Distinct": return DistinctMethodTranslator.Translate(context, expression);
                 case "ElementAt": return ElementAtMethodTranslator.Translate(context, expression);
                 case "Equals": return EqualsMethodTranslator.Translate(context, expression);
@@ -56,6 +55,10 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
                 case "Where": return WhereMethodTranslator.Translate(context, expression);
                 case "Union": return UnionMethodTranslator.Translate(context, expression);
                 case "Zip": return ZipMethodTranslator.Translate(context, expression);
+
+                case "Count":
+                case "LongCount":
+                    return CountMethodTranslator.Translate(context, expression);
 
                 case "First":
                 case "Last":
