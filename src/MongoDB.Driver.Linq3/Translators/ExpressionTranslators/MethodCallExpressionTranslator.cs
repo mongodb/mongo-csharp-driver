@@ -28,6 +28,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
                 case "All": return AllMethodTranslator.Translate(context, expression);
                 case "Any": return AnyMethodTranslator.Translate(context, expression);
                 case "Concat": return ConcatMethodTranslator.Translate(context, expression);
+                case "CompareTo": return CompareToMethodTranslator.Translate(context, expression);
                 case "Contains": return ContainsMethodTranslator.Translate(context, expression);
                 case "Count": return CountMethodTranslator.Translate(context, expression);
                 case "Distinct": return DistinctMethodTranslator.Translate(context, expression);
