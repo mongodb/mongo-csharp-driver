@@ -1543,7 +1543,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.M.Sum() });
 
-            result.Projection.Should().Be("{ Result: { \"$sum\": \"$M\" }, _id: 0 }");
+            result.Projection.Should().Be("{ Result : { $convert : { input : { $sum : '$M' }, to : 'int' } }, _id : 0 }");
 
             result.Value.Result.Should().Be(11);
         }
@@ -1555,7 +1555,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.G.Sum(g => g.E.F) });
 
-            result.Projection.Should().Be("{ Result: { \"$sum\": \"$G.E.F\" }, _id: 0 }");
+            result.Projection.Should().Be("{ Result : { $convert : { input : { $sum : { $map : { input : '$G', as : 'g', in : '$$g.E.F' } } }, to : 'int' } }, _id : 0 }");
 
             result.Value.Result.Should().Be(88);
         }
