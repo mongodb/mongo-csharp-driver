@@ -1643,7 +1643,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Project(x => new { Result = x.G.Select(y => y.E.F) });
 
-            result.Projection.Should().Be("{ Result: \"$G.E.F\", _id: 0 }");
+            result.Projection.Should().Be("{ Result : { $map : { input : '$G', as : 'y', in : '$$y.E.F' } }, _id: 0 }");
 
             result.Value.Result.Should().BeEquivalentTo(33, 55);
         }
