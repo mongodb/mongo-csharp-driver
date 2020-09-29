@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
                 case "System.Decimal": to = "decimal"; break;
                 case "System.Double": to = "double"; break;
                 case "System.Int32": to = "int"; break;
-                case "System.Int63": to = "long"; break;
+                case "System.Int64": to = "long"; break;
                 case "System.String": to = "string"; break;
                 default: throw new ArgumentException($"Invalid toType: {toType.FullName}.", nameof(toType));
             }
