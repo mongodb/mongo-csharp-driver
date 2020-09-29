@@ -22,6 +22,8 @@ namespace MongoDB.Driver.Linq3.Methods
     {
         // private static fields
         private static readonly MethodInfo __exp;
+        private static readonly MethodInfo __floorWithDecimal;
+        private static readonly MethodInfo __floorWithDouble;
         private static readonly MethodInfo __log;
         private static readonly MethodInfo __logWithNewBase;
         private static readonly MethodInfo __log10;
@@ -34,6 +36,8 @@ namespace MongoDB.Driver.Linq3.Methods
         static MathMethod()
         {
             __exp = new Func<double, double>(Math.Exp).Method;
+            __floorWithDecimal = new Func<decimal, decimal>(Math.Floor).Method;
+            __floorWithDouble = new Func<double, double>(Math.Floor).Method;
             __log = new Func<double, double>(Math.Log).Method;
             __logWithNewBase = new Func<double, double, double>(Math.Log).Method;
             __log10 = new Func<double, double>(Math.Log10).Method;
@@ -45,6 +49,8 @@ namespace MongoDB.Driver.Linq3.Methods
 
         // public properties
         public static MethodInfo Exp => __exp;
+        public static MethodInfo FloorWithDecimal => __floorWithDecimal;
+        public static MethodInfo FloorWithDouble => __floorWithDouble;
         public static MethodInfo Log => __log;
         public static MethodInfo LogWithNewBase => __logWithNewBase;
         public static MethodInfo Log10 => __log10;
