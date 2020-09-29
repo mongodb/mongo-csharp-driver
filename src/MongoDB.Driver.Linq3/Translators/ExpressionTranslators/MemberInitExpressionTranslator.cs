@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
@@ -26,8 +25,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
     {
         public static ExpressionTranslation Translate(TranslationContext context, MemberInitExpression expression)
         {
-            var classMapType = typeof(BsonClassMap<>).MakeGenericType(expression.Type);
-            var classMap = (BsonClassMap)Activator.CreateInstance(classMapType);
             var computedFields = new List<AstComputedField>();
 
             foreach (var binding in expression.Bindings)
@@ -36,15 +33,11 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
                 var member = memberAssignment.Member;
                 var valueExpression = memberAssignment.Expression;
                 var valueTranslation = ExpressionTranslator.Translate(context, valueExpression);
-                var memberSerializer = valueTranslation.Serializer ?? BsonSerializer.LookupSerializer(valueExpression.Type);
-                classMap.MapMember(member).SetSerializer(memberSerializer);
                 computedFields.Add(new AstComputedField(member.Name, valueTranslation.Ast));
             }
-            classMap.Freeze();
 
             var ast = new AstComputedDocumentExpression(computedFields);
-            var serializerType = typeof(BsonClassMapSerializer<>).MakeGenericType(expression.Type);
-            var serializer = (IBsonSerializer)Activator.CreateInstance(serializerType, classMap);
+            var serializer = BsonSerializer.LookupSerializer(expression.Type);
 
             return new ExpressionTranslation(expression, ast, serializer);
         }
