@@ -51,7 +51,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Project(x => new RootView(x.A) { Field = x.B });
 
-            result.Projection.Should().Be("{ Field: \"$B\", Property: \"$A\", _id: 0 }");
+            result.Projection.Should().Be("{ Property: \"$A\", Field: \"$B\", _id: 0 }");
 
             result.Value.Property.Should().Be("Awesome");
             result.Value.Field.Should().Be("Balloon");
