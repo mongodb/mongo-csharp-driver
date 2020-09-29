@@ -736,7 +736,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = Math.Log10(x.C.E.F) });
 
-            result.Projection.Should().Be("{ Result: { \"$log10\": [\"$C.E.F\"] }, _id: 0 }");
+            result.Projection.Should().Be("{ Result: { \"$log10\": \"$C.E.F\" }, _id: 0 }");
 
             result.Value.Result.Should().BeApproximately(1.0413928515823, .0001);
         }

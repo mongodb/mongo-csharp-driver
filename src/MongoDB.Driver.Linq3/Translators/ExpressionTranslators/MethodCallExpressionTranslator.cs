@@ -40,7 +40,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
                 case "Intersect": return IntersectMethodTranslator.Translate(context, expression);
                 case "IsNullOrEmpty": return IsNullOrEmptyMethodTranslator.Translate(context, expression);
                 case "IsSubsetOf": return IsSubsetOfMethodTranslator.Translate(context, expression);
-                case "Log": return LogMethodTranslator.Translate(context, expression);
                 case "Parse": return ParseMethodTranslator.Translate(context, expression);
                 case "Pow": return PowMethodTranslator.Translate(context, expression);
                 case "Select": return SelectMethodTranslator.Translate(context, expression);
@@ -57,6 +56,10 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
                 case "First":
                 case "Last":
                     return FirstLastMethodTranslator.Translate(context, expression);
+
+                case "Log":
+                case "Log10":
+                    return LogMethodTranslator.Translate(context, expression);
 
                 case "Max":
                 case "Min":
