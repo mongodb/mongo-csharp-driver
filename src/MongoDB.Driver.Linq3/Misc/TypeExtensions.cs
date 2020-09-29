@@ -72,6 +72,21 @@ namespace MongoDB.Driver.Linq3.Misc
             return false;
         }
 
+        public static bool TryGetIDictionaryGenericInterface(this Type type, out Type idictionaryGenericInterface)
+        {
+            foreach (var interfaceType in type.GetInterfaces())
+            {
+                if (interfaceType.IsGenericType && interfaceType.GetGenericTypeDefinition() == typeof(IDictionary<,>))
+                {
+                    idictionaryGenericInterface = interfaceType;
+                    return true;
+                }
+            }
+
+            idictionaryGenericInterface = null;
+            return false;
+        }
+
         public static bool TryGetIEnumerableGenericInterface(this Type type, out Type ienumerableGenericInterface)
         {
             foreach (var interfaceType in type.GetInterfaces())

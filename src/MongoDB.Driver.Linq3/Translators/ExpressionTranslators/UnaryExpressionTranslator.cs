@@ -14,7 +14,6 @@
 */
 
 using System.Linq.Expressions;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
@@ -26,7 +25,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
             AstUnaryOperator? @operator = null;
             switch (expression.NodeType)
             {
-                case ExpressionType.Convert: return TranslateConvert(context, expression);
+                case ExpressionType.Convert: return ConvertUnaryExpressionTranslator.Translate(context, expression);
                 case ExpressionType.Not: @operator = AstUnaryOperator.Not; break;
             }
 
@@ -39,16 +38,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
             }
 
             throw new ExpressionNotSupportedException(expression);
-        }
-
-        private static ExpressionTranslation TranslateConvert(TranslationContext context, UnaryExpression expression)
-        {
-            var operandTranslation = ExpressionTranslator.Translate(context, expression.Operand);
-
-            var ast = new AstConvertExpression(operandTranslation.Ast, expression.Type);
-            var serializer = BsonSerializer.SerializerRegistry.GetSerializer(expression.Type); // TODO: find correct serializer
-
-            return new ExpressionTranslation(expression, ast, serializer);
         }
     }
 }
