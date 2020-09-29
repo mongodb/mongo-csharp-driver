@@ -13,8 +13,10 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq3.Ast;
 using MongoDB.Driver.Linq3.Ast.Expressions;
@@ -26,6 +28,19 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
         public static ExpressionTranslation Translate(TranslationContext context, MemberInitExpression expression)
         {
             var computedFields = new List<AstComputedField>();
+
+            var newExpression = expression.NewExpression;
+            var constructorParameters = newExpression.Constructor.GetParameters();
+            var constructorArguments = newExpression.Arguments;
+            for (var i = 0; i < constructorArguments.Count; i++)
+            {
+                var constructorParameter = constructorParameters[i];
+                var argumentExpression = constructorArguments[i];
+
+                var fieldName = GetFieldName(constructorParameter);
+                var argumentTanslation = ExpressionTranslator.Translate(context, argumentExpression);
+                computedFields.Add(new AstComputedField(fieldName, argumentTanslation.Ast));
+            }
 
             foreach (var binding in expression.Bindings)
             {
@@ -40,6 +55,14 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
             var serializer = BsonSerializer.LookupSerializer(expression.Type);
 
             return new ExpressionTranslation(expression, ast, serializer);
+        }
+
+        private static string GetFieldName(ParameterInfo parameter)
+        {
+            // TODO: implement properly
+            var parameterName = parameter.Name;
+            var fieldName = parameterName.Substring(0, 1).ToUpper() + parameterName.Substring(1);
+            return fieldName;
         }
     }
 }
