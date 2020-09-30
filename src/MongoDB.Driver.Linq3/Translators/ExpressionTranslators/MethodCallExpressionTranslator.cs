@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
         {
             switch (expression.Method.Name)
             {
+                case "Aggregate": return AggregateMethodTranslator.Translate(context, expression);
                 case "All": return AllMethodTranslator.Translate(context, expression);
                 case "Any": return AnyMethodTranslator.Translate(context, expression);
                 case "Average": return AverageMethodTranslator.Translate(context, expression);

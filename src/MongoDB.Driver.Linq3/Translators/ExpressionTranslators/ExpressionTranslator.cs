@@ -57,6 +57,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
                     return MemberInitExpressionTranslator.Translate(context, (MemberInitExpression)expression);
                 case ExpressionType.New:
                     return NewExpressionTranslator.Translate(context, (NewExpression)expression);
+                case ExpressionType.NewArrayInit:
+                    return NewArrayInitExpressionTranslator.Translate(context, (NewArrayExpression)expression);
                 case ExpressionType.Parameter:
                     return ParameterExpressionTranslator.Translate(context, (ParameterExpression)expression);
                 case ExpressionType.Convert:
