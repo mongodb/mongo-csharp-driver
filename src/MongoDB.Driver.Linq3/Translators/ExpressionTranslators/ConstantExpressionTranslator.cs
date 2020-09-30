@@ -64,7 +64,9 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
                 return new ExpressionTranslation(expression, translatedValue, serializer);
             }
 
-            throw new ExpressionNotSupportedException(expression);
+            var valueSerializer = BsonSerializer.LookupSerializer(valueType);
+            translatedValue = valueSerializer.ToBsonValue(value);
+            return new ExpressionTranslation(expression, translatedValue, valueSerializer);
         }
     }
 }

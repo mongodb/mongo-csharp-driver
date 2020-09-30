@@ -1009,20 +1009,117 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             RequireServer.Check().VersionGreaterThanOrEqualTo("3.3.5");
 
             var result = Project(x => new { Result = x.M.Aggregate((a, b) => a + b) });
-            result.Projection.Should().Be("{ Result: { $reduce: { input: \"$M\", initialValue: 0, in: { $add: [\"$$value\", \"$$this\"] } } }, _id: 0 }");
+            var projection1 =
+                @"
+                {
+                    Result :
+                        {
+                            $let :
+                                {
+                                    vars : { source : '$M' },
+                                    in :
+                                        {
+                                            $cond:
+                                                {
+                                                    if : { $lte : [ { $size : '$$source' }, 1 ] }, 
+                                                    then: { $arrayElemAt : [ '$$source', 0 ] },
+                                                    else :
+                                                        {
+                                                            $reduce :
+                                                                {
+                                                                    input : { $slice : [ '$$source', 1, 2147483647 ] },
+                                                                    initialValue : { $arrayElemAt : [ '$$source', 0 ] },
+                                                                    in : { $convert : { input : { $add : [ '$$value', '$$this' ] }, to : 'int' } }
+                                                                }
+                                                        }
+                                                }
+                                        }
+                                }
+                        },
+                    _id : 0
+                }
+                ";
+            result.Projection.Should().Be(projection1);
             result.Value.Result.Should().Be(11);
 
             var arrayResult = Project(x => new { Result = x.M.Aggregate(new int[] { 0, 0 }, (a, b) => new int[] { a[0] + a[1], b }) });
-            arrayResult.Projection.Should().Be("{ Result: { $reduce: { input: \"$M\", initialValue: [0,0], in: [{ $add: [{$arrayElemAt: [\"$$value\", 0]}, {$arrayElemAt: [\"$$value\", 1]}]},\"$$this\"]}}, _id: 0}");
+            var projection2 =
+                @"
+                {
+                    Result :
+                        {
+                            $reduce :
+                                {
+                                    input : '$M',
+                                    initialValue : [ 0, 0 ],
+                                    in :
+                                        [
+                                            { $convert : { input : { $add : [ { $arrayElemAt : [ '$$value', 0 ] }, { $arrayElemAt : [ '$$value', 1 ] } ] },  to : 'int' } },
+                                            '$$this'
+                                        ]
+                                }
+                        },
+                    _id : 0
+                }
+                ";
+            arrayResult.Projection.Should().Be(projection2);
             arrayResult.Value.Result.Should().BeEquivalentTo(6, 5);
 
             var arrayResultWithSelector = Project(x => new { Result = x.M.Aggregate(new int[] { 0, 0 }, (a, b) => new int[] { a[0] + a[1], b }, r => new { x = r[0], y = r[1] }) });
-            arrayResultWithSelector.Projection.Should().Be("{ Result: { $let: { vars: { r: { $reduce: { input: \"$M\", initialValue: [0,0], in: [{ $add: [{$arrayElemAt: [\"$$value\", 0]}, {$arrayElemAt: [\"$$value\", 1]}]},\"$$this\"]}}}, in: { x: { $arrayElemAt: [\"$$r\", 0] }, y: { $arrayElemAt: [\"$$r\", 1] } } } }, _id: 0}");
+            var projection3 =
+                @"
+                {
+                    Result :
+                        {
+                            $let :
+                                {
+                                    vars :
+                                        {
+                                            r :
+                                                {
+                                                    $reduce :
+                                                        {
+                                                            input : '$M',
+                                                            initialValue : [ 0, 0 ],
+                                                            in :
+                                                                [
+                                                                    { $convert : { input : { $add : [ { $arrayElemAt : [ '$$value', 0 ] }, { $arrayElemAt : [ '$$value', 1 ] } ] },  to : 'int' } },
+                                                                    '$$this'
+                                                                ]
+                                                        }
+                                                },
+                                        },
+                                    in : { x : { $arrayElemAt : [ '$$r', 0 ] }, y : { $arrayElemAt : [ '$$r', 1 ] } }
+                                }
+                        },
+                    _id : 0
+                }
+                ";
+            arrayResultWithSelector.Projection.Should().Be(projection3);
             arrayResultWithSelector.Value.Result.x.Should().Be(6);
             arrayResultWithSelector.Value.Result.y.Should().Be(5);
 
             var typeResult = Project(x => new { Result = x.M.Aggregate(new { x = 0, y = 0 }, (a, b) => new { x = a.x + a.y, y = b }) });
-            typeResult.Projection.Should().Be("{ Result: { $reduce: { input: \"$M\", initialValue: {x: 0, y: 0}, in: { x: { $add: [\"$$value.x\", \"$$value.y\"]}, y: \"$$this\"}}}, _id: 0}");
+            var projection4 =
+                 @"
+                {
+                    Result :
+                        {
+                            $reduce :
+                                {
+                                    input : '$M',
+                                    initialValue : { x : 0, y : 0 },
+                                    in :
+                                        {
+                                            x : { $convert : { input : { $add : [ '$$value.x', '$$value.y' ] }, to : 'int' } },
+                                            y : '$$this'
+                                        }
+                                }
+                        },
+                    _id : 0
+                }
+                ";
+            typeResult.Projection.Should().Be(projection4);
             typeResult.Value.Result.x.Should().Be(6);
             typeResult.Value.Result.y.Should().Be(5);
         }

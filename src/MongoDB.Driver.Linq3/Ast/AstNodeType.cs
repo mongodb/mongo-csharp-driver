@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Linq3.Ast
         BucketStage,
         CollStatsStage,
         ComparisonFilter,
+        ComputedArrayExpression,
         ComputedDocumentExpression,
         CondExpression,
         ConstantExpression,
