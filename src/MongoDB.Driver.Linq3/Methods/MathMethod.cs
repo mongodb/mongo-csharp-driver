@@ -21,6 +21,8 @@ namespace MongoDB.Driver.Linq3.Methods
     public static class MathMethod
     {
         // private static fields
+        private static readonly MethodInfo __ceilingWithDecimal;
+        private static readonly MethodInfo __ceilingWithDouble;
         private static readonly MethodInfo __exp;
         private static readonly MethodInfo __floorWithDecimal;
         private static readonly MethodInfo __floorWithDouble;
@@ -35,6 +37,8 @@ namespace MongoDB.Driver.Linq3.Methods
         // static constructor
         static MathMethod()
         {
+            __ceilingWithDecimal = new Func<decimal, decimal>(Math.Ceiling).Method;
+            __ceilingWithDouble = new Func<double, double>(Math.Ceiling).Method;
             __exp = new Func<double, double>(Math.Exp).Method;
             __floorWithDecimal = new Func<decimal, decimal>(Math.Floor).Method;
             __floorWithDouble = new Func<double, double>(Math.Floor).Method;
@@ -48,6 +52,8 @@ namespace MongoDB.Driver.Linq3.Methods
         }
 
         // public properties
+        public static MethodInfo CeilingWithDecimal => __ceilingWithDecimal;
+        public static MethodInfo CeilingWithDouble => __ceilingWithDouble;
         public static MethodInfo Exp => __exp;
         public static MethodInfo FloorWithDecimal => __floorWithDecimal;
         public static MethodInfo FloorWithDouble => __floorWithDouble;
