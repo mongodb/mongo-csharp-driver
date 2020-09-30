@@ -18,6 +18,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq3.Ast;
@@ -100,22 +101,37 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
 
             if (container.Expression.Type == typeof(DateTime) && memberInfo is PropertyInfo propertyInfo)
             {
-                AstDatePart datePart;
-                switch (propertyInfo.Name)
+                AstExpression ast;
+                IBsonSerializer serializer;
+
+                if (propertyInfo.Name == "DayOfWeek")
                 {
-                    case "Day": datePart = AstDatePart.DayOfMonth; break;
-                    case "DayOfYear": datePart = AstDatePart.DayOfYear; break;
-                    case "Hour": datePart = AstDatePart.Hour; break;
-                    case "Millisecond": datePart = AstDatePart.Millisecond; break;
-                    case "Minute": datePart = AstDatePart.Minute; break;
-                    case "Month": datePart = AstDatePart.Month; break;
-                    case "Second": datePart = AstDatePart.Second; break;
-                    case "Week": datePart = AstDatePart.Week; break;
-                    case "Year": datePart = AstDatePart.Year; break;
-                    default: return false;
+                    ast = new AstBinaryExpression(
+                        AstBinaryOperator.Subtract,
+                        new AstDatePartExpression(AstDatePart.DayOfWeek, container.Ast),
+                        1);
+                    serializer = new EnumSerializer<DayOfWeek>(BsonType.Int32);
                 }
-                var ast = new AstDatePartExpression(datePart, container.Ast);
-                var serializer = new Int32Serializer();
+                else
+                {
+                    AstDatePart datePart;
+                    switch (propertyInfo.Name)
+                    {
+                        case "Day": datePart = AstDatePart.DayOfMonth; break;
+                        case "DayOfYear": datePart = AstDatePart.DayOfYear; break;
+                        case "DayOfWeek": datePart = AstDatePart.DayOfWeek; break;
+                        case "Hour": datePart = AstDatePart.Hour; break;
+                        case "Millisecond": datePart = AstDatePart.Millisecond; break;
+                        case "Minute": datePart = AstDatePart.Minute; break;
+                        case "Month": datePart = AstDatePart.Month; break;
+                        case "Second": datePart = AstDatePart.Second; break;
+                        case "Week": datePart = AstDatePart.Week; break;
+                        case "Year": datePart = AstDatePart.Year; break;
+                        default: return false;
+                    }
+                    ast = new AstDatePartExpression(datePart, container.Ast);
+                    serializer = new Int32Serializer();
+                }
 
                 result = new ExpressionTranslation(expression, ast, serializer);
                 return true;
