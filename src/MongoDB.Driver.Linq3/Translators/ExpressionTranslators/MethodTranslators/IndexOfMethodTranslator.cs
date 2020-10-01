@@ -19,6 +19,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq3.Ast.Expressions;
+using MongoDB.Driver.Linq3.Methods;
 using MongoDB.Driver.Linq3.Misc;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslators
@@ -35,8 +36,11 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
             StringMethod.IndexOfWithStringAndStartIndexAndCount,
             StringMethod.IndexOfWithStringAndComparisonType,
             StringMethod.IndexOfWithStringAndStartIndexAndComparisonType,
-            StringMethod.IndexOfWithStringAndStartIndexAndCountAndComparisonType
-        };
+            StringMethod.IndexOfWithStringAndStartIndexAndCountAndComparisonType,
+            MongoDBLinqExtensionsMethod.IndexOfBytesWithValue,
+            MongoDBLinqExtensionsMethod.IndexOfBytesWithValueAndStartIndex,
+            MongoDBLinqExtensionsMethod.IndexOfBytesWithValueAndStartIndexAndCount
+       };
 
         private static readonly MethodInfo[] __indexOfWithCharMethods =
         {
@@ -52,14 +56,17 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
             StringMethod.IndexOfWithStringAndStartIndex,
             StringMethod.IndexOfWithStringAndStartIndexAndCount,
             StringMethod.IndexOfWithStringAndStartIndexAndComparisonType,
-            StringMethod.IndexOfWithStringAndStartIndexAndCountAndComparisonType
-        };
+            StringMethod.IndexOfWithStringAndStartIndexAndCountAndComparisonType,
+            MongoDBLinqExtensionsMethod.IndexOfBytesWithValueAndStartIndex,
+            MongoDBLinqExtensionsMethod.IndexOfBytesWithValueAndStartIndexAndCount
+       };
 
         private static readonly MethodInfo[] __indexOfWithCountMethods =
         {
             StringMethod.IndexOfWithCharAndStartIndexAndCount,
             StringMethod.IndexOfWithStringAndStartIndexAndCount,
-            StringMethod.IndexOfWithStringAndStartIndexAndCountAndComparisonType
+            StringMethod.IndexOfWithStringAndStartIndexAndCountAndComparisonType,
+            MongoDBLinqExtensionsMethod.IndexOfBytesWithValueAndStartIndexAndCount
         };
 
         private static readonly MethodInfo[] __indexOfWithStringComparisonMethods =
@@ -69,17 +76,19 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
             StringMethod.IndexOfWithStringAndStartIndexAndCountAndComparisonType
         };
 
+        private static readonly MethodInfo[] __indexOfBytesMethods =
+        {
+            MongoDBLinqExtensionsMethod.IndexOfBytesWithValue,
+            MongoDBLinqExtensionsMethod.IndexOfBytesWithValueAndStartIndex,
+            MongoDBLinqExtensionsMethod.IndexOfBytesWithValueAndStartIndexAndCount
+       };
+
         public static ExpressionTranslation Translate(TranslationContext context, MethodCallExpression expression)
         {
-            var method = expression.Method;
-            var arguments = expression.Arguments;
-
-            if (method.IsOneOf(__indexOfMethods))
+            if (IsStringIndexOfMethod(expression, out var objectExpression, out var valueExpression, out var startIndexExpression, out var countExpression, out var comparisonTypeExpression))
             {
-                var objectExpression = expression.Object;
                 var objectTranslation = ExpressionTranslator.Translate(context, objectExpression);
 
-                var valueExpression = arguments[0];
                 ExpressionTranslation valueTranslation;
                 if (valueExpression.Type == typeof(char))
                 {
@@ -97,22 +106,19 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
                 }
 
                 ExpressionTranslation startIndexTranslation = null;
-                if (method.IsOneOf(__indexOfWithStartIndexMethods))
+                if (startIndexExpression != null)
                 {
-                    var startIndexExpression = arguments[1];
                     startIndexTranslation = ExpressionTranslator.Translate(context, startIndexExpression);
                 }
 
                 ExpressionTranslation countTranslation = null;
-                if (method.IsOneOf(__indexOfWithCountMethods))
+                if (countExpression != null)
                 {
-                    var countExpression = arguments[2];
                     countTranslation = ExpressionTranslator.Translate(context, countExpression);
                 }
 
-                if (method.IsOneOf(__indexOfWithStringComparisonMethods))
+                if (comparisonTypeExpression != null)
                 {
-                    var comparisonTypeExpression = arguments.Last();
                     if (!(comparisonTypeExpression is ConstantExpression constantExpression))
                     {
                         goto notSupported;
@@ -131,18 +137,67 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
                 }
 
                 AstExpression endAst = null;
-                if (method.IsOneOf(__indexOfWithCountMethods))
+                if (countTranslation != null)
                 {
                     endAst = new AstNaryExpression(AstNaryOperator.Add, startIndexTranslation.Ast, countTranslation.Ast);
                 }
 
-                var translation = new AstIndexOfCPExpression(objectTranslation.Ast, valueTranslation.Ast, startIndexTranslation?.Ast, endAst);
+                AstExpression ast;
+                if (expression.Method.IsOneOf(__indexOfBytesMethods))
+                {
+                    ast = new AstIndexOfBytesExpression(objectTranslation.Ast, valueTranslation.Ast, startIndexTranslation?.Ast, endAst);
+                }
+                else
+                {
+                    ast = new AstIndexOfCPExpression(objectTranslation.Ast, valueTranslation.Ast, startIndexTranslation?.Ast, endAst);
+                }
 
-                return new ExpressionTranslation(expression, translation, new Int32Serializer());
+                return new ExpressionTranslation(expression, ast, new Int32Serializer());
             }
 
         notSupported:
             throw new ExpressionNotSupportedException(expression);
+        }
+
+        private static bool IsStringIndexOfMethod(
+            MethodCallExpression expression,
+            out Expression instanceExpression,
+            out Expression valueExpression,
+            out Expression startIndexExpression,
+            out Expression countExpression,
+            out Expression comparisonTypeExpression)
+        {
+            var method = expression.Method;
+            var arguments = expression.Arguments;
+
+            if (method.IsOneOf(__indexOfMethods))
+            {
+                if (method.IsOneOf(__indexOfBytesMethods))
+                {
+                    instanceExpression = arguments[0];
+                    valueExpression = arguments[1];
+                    startIndexExpression = method.IsOneOf(__indexOfWithStartIndexMethods) ? arguments[2] : null;
+                    countExpression = method.IsOneOf(__indexOfWithCountMethods) ? arguments[3] : null;
+                    comparisonTypeExpression = null;
+                    return true;
+                }
+                else
+                {
+                    instanceExpression = expression.Object;
+                    valueExpression = arguments[0];
+                    startIndexExpression = method.IsOneOf(__indexOfWithStartIndexMethods) ? arguments[1] : null;
+                    countExpression = method.IsOneOf(__indexOfWithCountMethods) ? arguments[2] : null;
+                    comparisonTypeExpression = method.IsOneOf(__indexOfWithStringComparisonMethods) ? arguments.Last() : null;
+                    return true;
+                }
+            }
+
+            instanceExpression = null;
+            valueExpression = null;
+            startIndexExpression = null;
+            countExpression = null;
+            comparisonTypeExpression = null;
+            return false;
         }
     }
 }

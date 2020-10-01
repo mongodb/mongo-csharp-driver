@@ -600,36 +600,23 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         }
 
         [SkippableFact]
-        public void Should_translate_indexOf()
+        public void Should_translate_indexOfBytes()
         {
             RequireServer.Check().VersionGreaterThanOrEqualTo("3.3.6");
 
-            var result = Project(x => new { Result = x.A.IndexOf('e') });
-            result.Projection.Should().Be("{ Result: { \"$indexOfCP\": [\"$A\", \"e\"] }, _id: 0 }");
+            var result = Project(x => new { Result = x.A.IndexOfBytes("e") });
+            result.Projection.Should().Be("{ Result: { \"$indexOfBytes\": [\"$A\", \"e\"] }, _id: 0 }");
             result.Value.Result.Should().Be(2);
 
-            result = Project(x => new { Result = x.A.IndexOf("e") });
-            result.Projection.Should().Be("{ Result: { \"$indexOfCP\": [\"$A\", \"e\"] }, _id: 0 }");
-            result.Value.Result.Should().Be(2);
-
-            result = Project(x => new { Result = x.A.IndexOf('e', 4) });
-            result.Projection.Should().Be("{ Result: { \"$indexOfCP\": [\"$A\", \"e\", 4] }, _id: 0 }");
+            result = Project(x => new { Result = x.A.IndexOfBytes("e", 4) });
+            result.Projection.Should().Be("{ Result: { \"$indexOfBytes\": [\"$A\", \"e\", 4] }, _id: 0 }");
             result.Value.Result.Should().Be(6);
 
-            result = Project(x => new { Result = x.A.IndexOf("e", 4) });
-            result.Projection.Should().Be("{ Result: { \"$indexOfCP\": [\"$A\", \"e\", 4] }, _id: 0 }");
-            result.Value.Result.Should().Be(6);
-
-            result = Project(x => new { Result = x.A.IndexOf('e', 4, 2) });
-            result.Projection.Should().Be("{ Result: { \"$indexOfCP\": [\"$A\", \"e\", 4, { $add: [4, 2] }] }, _id: 0 }");
-            result.Value.Result.Should().Be(-1);
-
-            result = Project(x => new { Result = x.A.IndexOf("e", 4, 2) });
-            result.Projection.Should().Be("{ Result: { \"$indexOfCP\": [\"$A\", \"e\", 4, { $add: [4, 2] }] }, _id: 0 }");
+            result = Project(x => new { Result = x.A.IndexOfBytes("e", 4, 2) });
+            result.Projection.Should().Be("{ Result: { \"$indexOfBytes\": [\"$A\", \"e\", 4, { $add: [4, 2] }] }, _id: 0 }");
             result.Value.Result.Should().Be(-1);
         }
 
-#if SKIPFORNOW
         [SkippableFact]
         public void Should_translate_indexOfCP()
         {
@@ -659,7 +646,6 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             result.Projection.Should().Be("{ Result: { \"$indexOfCP\": [\"$A\", \"e\", 4, { $add: [4, 2] }] }, _id: 0 }");
             result.Value.Result.Should().Be(-1);
         }
-#endif
 
         [SkippableFact]
         public void Should_translate_intToString()

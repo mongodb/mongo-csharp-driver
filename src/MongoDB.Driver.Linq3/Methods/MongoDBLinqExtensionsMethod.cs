@@ -18,23 +18,29 @@ using System.Reflection;
 
 namespace MongoDB.Driver.Linq3.Methods
 {
-    public static class LinqExtensionsMethod
+    public static class MongoDBLinqExtensionsMethod
     {
         // private static fields
-        private static readonly MethodInfo __indexOfBytes;
+        private static readonly MethodInfo __indexOfBytesWithValue;
+        private static readonly MethodInfo __indexOfBytesWithValueAndStartIndex;
+        private static readonly MethodInfo __indexOfBytesWithValueAndStartIndexAndCount;
         private static readonly MethodInfo __strLenBytes;
         private static readonly MethodInfo __substrBytes;
 
         // static constructor
-        static LinqExtensionsMethod()
+        static MongoDBLinqExtensionsMethod()
         {
-            __indexOfBytes = new Func<string, string, int, int, int>(MongoDBLinqExtensions.IndexOfBytes).Method;
+            __indexOfBytesWithValue = new Func<string, string, int>(MongoDBLinqExtensions.IndexOfBytes).Method;
+            __indexOfBytesWithValueAndStartIndex = new Func<string, string, int, int>(MongoDBLinqExtensions.IndexOfBytes).Method;
+            __indexOfBytesWithValueAndStartIndexAndCount = new Func<string, string, int, int, int>(MongoDBLinqExtensions.IndexOfBytes).Method;
             __strLenBytes = new Func<string, int>(MongoDBLinqExtensions.StrLenBytes).Method;
             __substrBytes = new Func<string, int, int , string>(MongoDBLinqExtensions.SubstrBytes).Method;
         }
 
         // public properties
-        public static MethodInfo IndexOfBytes => __indexOfBytes;
+        public static MethodInfo IndexOfBytesWithValue => __indexOfBytesWithValue;
+        public static MethodInfo IndexOfBytesWithValueAndStartIndex => __indexOfBytesWithValueAndStartIndex;
+        public static MethodInfo IndexOfBytesWithValueAndStartIndexAndCount => __indexOfBytesWithValueAndStartIndexAndCount;
         public static MethodInfo StrLenBytes => __strLenBytes;
         public static MethodInfo SubstrBytes => __substrBytes;
     }
