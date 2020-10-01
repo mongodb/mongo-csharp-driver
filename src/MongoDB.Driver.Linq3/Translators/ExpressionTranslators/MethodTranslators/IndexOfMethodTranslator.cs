@@ -76,27 +76,12 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
 
             if (method.IsOneOf(__indexOfMethods))
             {
-                var stringExpression = expression.Object;
-                var valueExpression = arguments[0];
-                Expression startIndexExpression = null;
-                if (method.IsOneOf(__indexOfWithStartIndexMethods))
-                {
-                    startIndexExpression = arguments[1];
-                }
-                Expression countExpression = null;
-                if (method.IsOneOf(__indexOfWithCountMethods))
-                {
-                    countExpression = arguments[2];
-                }
-                Expression comparisonTypeExpression = null;
-                if (method.IsOneOf(__indexOfWithStringComparisonMethods))
-                {
-                    comparisonTypeExpression = arguments.Last();
-                }
+                var objectExpression = expression.Object;
+                var objectTranslation = ExpressionTranslator.Translate(context, objectExpression);
 
-                var stringTranslation = ExpressionTranslator.Translate(context, stringExpression);
+                var valueExpression = arguments[0];
                 ExpressionTranslation valueTranslation;
-                if (valueExpression.Type == typeof(char[]))
+                if (valueExpression.Type == typeof(char))
                 {
                     if (!(valueExpression is ConstantExpression constantExpression))
                     {
@@ -110,24 +95,29 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
                 {
                     valueTranslation = ExpressionTranslator.Translate(context, valueExpression);
                 }
-                ExpressionTranslation startAtTranslation = null;
-                if (startIndexExpression != null)
+
+                ExpressionTranslation startIndexTranslation = null;
+                if (method.IsOneOf(__indexOfWithStartIndexMethods))
                 {
-                    startAtTranslation = ExpressionTranslator.Translate(context, startIndexExpression);
+                    var startIndexExpression = arguments[1];
+                    startIndexTranslation = ExpressionTranslator.Translate(context, startIndexExpression);
                 }
-                ExpressionTranslation endTranslation = null;
-                if (countExpression != null)
+
+                ExpressionTranslation countTranslation = null;
+                if (method.IsOneOf(__indexOfWithCountMethods))
                 {
-                    var countTranslation = ExpressionTranslator.Translate(context, countExpression);
-                    var endAst = new AstNaryExpression(AstNaryOperator.Add, startAtTranslation.Ast, countTranslation.Ast);
-                    endTranslation = new ExpressionTranslation(countExpression, endAst, countTranslation.Serializer);
+                    var countExpression = arguments[2];
+                    countTranslation = ExpressionTranslator.Translate(context, countExpression);
                 }
-                if (comparisonTypeExpression != null)
+
+                if (method.IsOneOf(__indexOfWithStringComparisonMethods))
                 {
+                    var comparisonTypeExpression = arguments.Last();
                     if (!(comparisonTypeExpression is ConstantExpression constantExpression))
                     {
                         goto notSupported;
                     }
+
                     var comparisonType = (StringComparison)constantExpression.Value;
                     switch (comparisonType)
                     {
@@ -140,8 +130,13 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
                     }
                 }
 
+                AstExpression endAst = null;
+                if (method.IsOneOf(__indexOfWithCountMethods))
+                {
+                    endAst = new AstNaryExpression(AstNaryOperator.Add, startIndexTranslation.Ast, countTranslation.Ast);
+                }
 
-                var translation = new AstIndexOfCPExpression(stringTranslation.Ast, valueTranslation.Ast, startAtTranslation?.Ast, endTranslation?.Ast);
+                var translation = new AstIndexOfCPExpression(objectTranslation.Ast, valueTranslation.Ast, startIndexTranslation?.Ast, endAst);
 
                 return new ExpressionTranslation(expression, translation, new Int32Serializer());
             }
