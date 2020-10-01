@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
 
                     ast = new AstUnaryExpression(
                         @operator,
-                        new AstMapExpression(
+                        AstMapExpression.Create(
                             input: sourceTranslation.Ast,
                             @as: selectorParameter.Name,
                             @in: selectorTranslation.Ast));
