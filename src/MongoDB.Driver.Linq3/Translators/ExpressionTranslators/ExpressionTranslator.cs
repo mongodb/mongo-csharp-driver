@@ -25,6 +25,10 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
         {
             switch (expression.NodeType)
             {
+                case ExpressionType.Convert:
+                case ExpressionType.Not:
+                    return UnaryExpressionTranslator.Translate(context, (UnaryExpression)expression);
+
                 case ExpressionType.Add:
                 case ExpressionType.And:
                 case ExpressionType.AndAlso:
@@ -43,12 +47,15 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
                 case ExpressionType.Power:
                 case ExpressionType.Subtract:
                     return BinaryExpressionTranslator.Translate(context, (BinaryExpression)expression);
+
                 case ExpressionType.ArrayIndex:
                     return ArrayIndexTranslator.Translate(context, (BinaryExpression)expression);
                 case ExpressionType.ArrayLength:
                     return ArrayLengthTranslator.Translate(context, (UnaryExpression)expression);
                 case ExpressionType.Call:
                     return MethodCallExpressionTranslator.Translate(context, (MethodCallExpression)expression);
+                case ExpressionType.Conditional:
+                    return ConditionalExpressionTranslator.Translate(context, (ConditionalExpression)expression);
                 case ExpressionType.Constant:
                     return ConstantExpressionTranslator.Translate(context, (ConstantExpression)expression);
                 case ExpressionType.MemberAccess:
@@ -61,9 +68,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
                     return NewArrayInitExpressionTranslator.Translate(context, (NewArrayExpression)expression);
                 case ExpressionType.Parameter:
                     return ParameterExpressionTranslator.Translate(context, (ParameterExpression)expression);
-                case ExpressionType.Convert:
-                case ExpressionType.Not:
-                    return UnaryExpressionTranslator.Translate(context, (UnaryExpression)expression);
             }
 
             throw new ExpressionNotSupportedException(expression);

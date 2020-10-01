@@ -422,7 +422,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Project(x => new { Result = x.A == "funny" ? "a" : "b" });
 
-            result.Projection.Should().Be("{ Result: { \"$cond\": [{ \"$eq\": [\"$A\", \"funny\"] }, \"a\", \"b\"] }, _id: 0 }");
+            result.Projection.Should().Be("{ Result: { \"$cond\": { if  : { \"$eq\": [\"$A\", \"funny\"] }, then : \"a\", else : \"b\" } }, _id: 0 }");
 
             result.Value.Result.Should().Be("b");
         }
