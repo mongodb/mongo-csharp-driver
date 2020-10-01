@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
     {
         public static ExpressionTranslation Translate(TranslationContext context, MethodCallExpression expression)
         {
-            if (expression.Method.Is(LinqExtensionsMethod.StrLenBytes))
+            if (expression.Method.Is(MongoDBLinqExtensionsMethod.StrLenBytes))
             {
                 var stringExpression = expression.Arguments[0];
 

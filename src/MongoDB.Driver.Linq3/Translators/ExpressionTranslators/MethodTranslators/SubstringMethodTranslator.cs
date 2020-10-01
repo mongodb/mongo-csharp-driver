@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
                 return TranslateHelper(context, expression, stringExpression, startIndexExpression, lengthExpression, AstTernaryOperator.SubstrCP);
             }
 
-            if (method.Is(LinqExtensionsMethod.SubstrBytes))
+            if (method.Is(MongoDBLinqExtensionsMethod.SubstrBytes))
             {
                 var stringExpression = arguments[0];
                 var startIndexExpression = arguments[1];
