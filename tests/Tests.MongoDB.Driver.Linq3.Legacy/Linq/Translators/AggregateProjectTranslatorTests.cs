@@ -248,7 +248,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.G.ElementAt(1).D });
 
-            result.Projection.Should().Be("{ Result: { $let: { vars: { item: { \"$arrayElemAt\": [\"$G\", 1] } }, in: \"$$item.D\" } }, _id: 0 }");
+            result.Projection.Should().Be("{ Result: { $let: { vars: { this: { \"$arrayElemAt\": [\"$G\", 1] } }, in: \"$$this.D\" } }, _id: 0 }");
 
             result.Value.Result.Should().Be("Dolphin");
         }
