@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace MongoDB.Driver.Linq3.Misc
@@ -79,6 +80,14 @@ namespace MongoDB.Driver.Linq3.Misc
             #region static
             private static bool CanBeEvaluatedLocally(Expression expression)
             {
+                if (expression is ConstantExpression constantExpression)
+                {
+                    if (constantExpression.Value is IQueryable queryable && object.ReferenceEquals(queryable.Expression, expression))
+                    {
+                        return false;
+                    }
+                }
+
                 return expression.NodeType != ExpressionType.Parameter;
             }
             #endregion

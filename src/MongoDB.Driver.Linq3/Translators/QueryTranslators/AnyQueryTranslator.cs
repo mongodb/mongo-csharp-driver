@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Linq3.Translators.QueryTranslators
     public static class AnyQueryTranslator
     {
         // private static fields
-        private static readonly IExecutableQueryFinalizer<string, bool> __finalizer = new AnyFinalizer();
+        private static readonly IExecutableQueryFinalizer<BsonNull, bool> __finalizer = new AnyFinalizer();
         private static readonly IBsonSerializer<BsonNull> __outputSerializer = new WrappedValueSerializer<BsonNull>(BsonNullSerializer.Instance);
 
         // public static methods
@@ -60,25 +60,25 @@ namespace MongoDB.Driver.Linq3.Translators.QueryTranslators
                         new AstProjectStageExcludeFieldSpecification("_id"),
                         new AstProjectStageComputedFieldSpecification(new Ast.AstComputedField("_v", BsonNull.Value))));
 
-                return new ExecutableQuery<TDocument, string, bool>(
+                return new ExecutableQuery<TDocument, BsonNull, bool>(
                     provider.Collection,
                     provider.Options,
-                    pipeline.ToPipelineDefinition<TDocument, string>(),
+                    pipeline.ToPipelineDefinition<TDocument, BsonNull>(),
                     __finalizer);
             }
 
             throw new ExpressionNotSupportedException(expression);
         }
 
-        private class AnyFinalizer : IExecutableQueryFinalizer<string, bool>
+        private class AnyFinalizer : IExecutableQueryFinalizer<BsonNull, bool>
         {
-            public bool Finalize(IAsyncCursor<string> cursor, CancellationToken cancellationToken)
+            public bool Finalize(IAsyncCursor<BsonNull> cursor, CancellationToken cancellationToken)
             {
                 var output = cursor.ToList(cancellationToken);
                 return output.Any();
             }
 
-            public async Task<bool> FinalizeAsync(IAsyncCursor<string> cursor, CancellationToken cancellationToken)
+            public async Task<bool> FinalizeAsync(IAsyncCursor<BsonNull> cursor, CancellationToken cancellationToken)
             {
                 var output = await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
                 return output.Any();
