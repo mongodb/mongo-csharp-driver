@@ -348,7 +348,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             var ms = (int)Math.Round(timeout.TotalMilliseconds);
             return string.Format(
-                "A timeout occured after {0}ms selecting a server using {1}. Client view of cluster state is {2}.",
+                "A timeout occurred after {0}ms selecting a server using {1}. Client view of cluster state is {2}.",
                 ms.ToString(),
                 selector.ToString(),
                 clusterDescription.ToString());

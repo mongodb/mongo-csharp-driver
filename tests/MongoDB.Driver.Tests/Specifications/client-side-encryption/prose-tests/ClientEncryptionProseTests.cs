@@ -262,7 +262,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 var exception = Record.Exception(() => Insert(coll, async, new BsonDocument("encrypted", "test")));
 
                 exception.Should().BeOfType<MongoEncryptionException>();
-                exception.Message.Should().Contain("A timeout occured after 1000ms selecting a server");
+                exception.Message.Should().Contain("A timeout occurred after 1000ms selecting a server");
             }
         }
 
@@ -291,7 +291,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 var exception = Record.Exception(() => adminDatabase.RunCommand<BsonDocument>(isMasterCommand));
 
                 exception.Should().BeOfType<TimeoutException>();
-                exception.Message.Should().Contain("A timeout occured after 1000ms selecting a server");
+                exception.Message.Should().Contain("A timeout occurred after 1000ms selecting a server");
             }
         }
 

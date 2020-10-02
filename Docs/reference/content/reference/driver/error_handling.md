@@ -22,7 +22,7 @@ There are a few types of errors you will see.
 Even when some servers are available, it might not be possible to satisfy a request. For example, using [tag sets]({{< docsref "core/read-preference/#tag-sets" >}}) in a read preference when no server exists with those tags or attempting to write to a [replica set]({{< docsref "core/replication-introduction/" >}}) when the Primary is unavailable. Both of these would result in a [`TimeoutException`]({{< msdnref "system.timeoutexception" >}}). Below is an example exception (formatted for readability) when attempting to insert into a replica set without a primary.
 
 ```bash
-System.TimeoutException: A timeout occured after 30000ms selecting a server using 
+System.TimeoutException: A timeout occurred after 30000ms selecting a server using 
 CompositeServerSelector{ 
     Selectors = 
         WritableServerSelector, 
@@ -79,7 +79,7 @@ If you are having trouble discovering why the driver can't connect, [enabling ne
 When a server is not listening at the location specified, the driver can't connect to it.
 
 ```bash
-System.TimeoutException: A timeout occured after 30000ms selecting a server using
+System.TimeoutException: A timeout occurred after 30000ms selecting a server using
 CompositeServerSelector{ 
     Selectors = 
         WritableServerSelector, 
@@ -116,7 +116,7 @@ Fixing this problem either involves starting a server at the specified location 
 When DNS is misconfigured, or the hostname provided is not registered, resolution from hostname to IP address may fail. 
 
 ```bash
-System.TimeoutException: A timeout occured after 30000ms selecting a server using 
+System.TimeoutException: A timeout occurred after 30000ms selecting a server using 
 CompositeServerSelector{ 
     Selectors = 
         WritableServerSelector, 
@@ -160,7 +160,7 @@ DNS problems might be seen when a replica set is misconfigured. It is imperative
 When the latency between the driver and the server is too great, the driver may give up.
 
 ```bash
-System.TimeoutException: A timeout occured after 30000ms selecting a server using
+System.TimeoutException: A timeout occurred after 30000ms selecting a server using
 CompositeServerSelector{ 
     Selectors = 
         WritableServerSelector, 
@@ -197,7 +197,7 @@ The default connection timeout is 30 seconds and can be changed using the [`Mong
 When the credentials or the authentication mechanism is incorrect, the application will fail to connect.
 
 ```bash
-System.TimeoutException: A timeout occured after 30000ms selecting a server using
+System.TimeoutException: A timeout occurred after 30000ms selecting a server using
 CompositeServerSelector{ 
     Selectors = 
         WritableServerSelector, 
@@ -283,7 +283,7 @@ MongoDB.Driver.MongoBulkWriteException`1[MongoDB.Bson.BsonDocument]: A bulk writ
    at MongoDB.Driver.MongoCollectionImpl`1.<BulkWriteAsync>d__11.MoveNext() in c :\projects\mongo-csharp-driver\src\MongoDB.Driver\MongoCollectionImpl.cs:line 166
 ```
 
-Above, we see that a duplicate key exception occured. In this case, two writes existed in the batch. Inspected the [`WriteErrors`]({{< apiref "P_MongoDB_Driver_MongoBulkWriteException_WriteErrors" >}}) property would allow the identification of which write failed.
+Above, we see that a duplicate key exception occurred. In this case, two writes existed in the batch. Inspected the [`WriteErrors`]({{< apiref "P_MongoDB_Driver_MongoBulkWriteException_WriteErrors" >}}) property would allow the identification of which write failed.
 
 #### Ordered Writes
 

@@ -119,7 +119,7 @@ static void Main()
 
 ### Operation Ids
 
-Any commands that could occur based on user initiation will contain an operation identifier. This identifer can be used to link together all events that occured due to the user initiated action.
+Any commands that could occur based on user initiation will contain an operation identifier. This identifer can be used to link together all events that occurred due to the user initiated action.
 
 
 ### ClusterId, ServerId, and ConnectionId
