@@ -16,8 +16,14 @@
 using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using MongoDB.Bson.Internals;
 
 [assembly: CLSCompliant(true)]
 [assembly: ComVisible(false)]
+
+// Prevents the Xamarin static linker from stripping anything from this assembly.
+// Required for most of the serialization classes on AOT compiled targets, such
+// as Xamarin.iOS/Xamarin.Mac.
+[assembly: Preserve(AllMembers = true)]
 
 [assembly: InternalsVisibleTo("MongoDB.Bson.Tests")]
