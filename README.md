@@ -138,6 +138,7 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Rachelle Palmer           https://github.com/techbelle
 * Rich Quackenbush          rich.quackenbush@captiveaire.com
 * Carl Reinke               https://github.com/mindless2112
+* Rodrigo Reis              https://github.com/rodrigoreis
 * Gian Maria Ricci          https://github.com/alkampfergit
 * Andrew Rondeau            github@andrewrondeau.com
 * Ed Rooth                  edward.rooth@wallstreetjapan.com
