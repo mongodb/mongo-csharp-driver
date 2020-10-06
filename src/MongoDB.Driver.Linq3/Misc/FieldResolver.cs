@@ -19,27 +19,16 @@ using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Linq3.Misc
 {
-    public class FieldResolver
+    public static class FieldResolver
     {
-        // private fields
-        private readonly SymbolTable _symbolTable;
-
-        // constructors
-        public FieldResolver(SymbolTable symbolTable)
-        {
-            _symbolTable = Throw.IfNull(symbolTable, nameof(symbolTable));
-        }
-
         // public methods
-        public bool TryResolveField(Expression expression, out ResolvedField resolvedField)
+        public static ResolvedField ResolveField(Expression expression, SymbolTable symbolTable)
         {
-            resolvedField = null;
-
             if (expression is ParameterExpression parameterExpression)
             {
-                if (_symbolTable.TryGetSymbol(parameterExpression, out Symbol symbol))
+                if (symbolTable.TryGetSymbol(parameterExpression, out Symbol symbol))
                 {
-                    var dottedFieldName = symbol.Name;
+                    var dottedFieldName = symbol == symbolTable.Current ? "$$CURRENT" : symbol.Name;
                     var fieldSerializer = symbol.Serializer;
 
                     if (fieldSerializer is IWrappedValueSerializer wrappedValueSerializer)
@@ -48,60 +37,51 @@ namespace MongoDB.Driver.Linq3.Misc
                         fieldSerializer = wrappedValueSerializer.ValueSerializer;
                     }
 
-                    resolvedField = new ResolvedField(expression, dottedFieldName, fieldSerializer);
-                    return true;
+                    return new ResolvedField(expression, dottedFieldName, fieldSerializer);
                 }
             }
-
-            if (expression is MemberExpression memberExpression)
+            else if (expression is MemberExpression memberExpression)
             {
-                if (TryResolveField(memberExpression.Expression, out ResolvedField containingField))
+                var containingField = ResolveField(memberExpression.Expression, symbolTable);
+                if (containingField.Serializer is IBsonDocumentSerializer documentSerializer)
                 {
-                    if (containingField.Serializer is IBsonDocumentSerializer documentSerializer)
+                    if (documentSerializer.TryGetMemberSerializationInfo(memberExpression.Member.Name, out BsonSerializationInfo fieldSerializationInfo))
                     {
-                        if (documentSerializer.TryGetMemberSerializationInfo(memberExpression.Member.Name, out BsonSerializationInfo fieldSerializationInfo))
-                        {
-                            var fieldName = fieldSerializationInfo.ElementName;
-                            var dottedFieldName = Combine(containingField.DottedFieldName, fieldName);
-                            resolvedField = new ResolvedField(expression, dottedFieldName, fieldSerializationInfo.Serializer);
-                            return true;
-                        }
+                        var fieldName = fieldSerializationInfo.ElementName;
+                        var dottedFieldName = Combine(containingField.DottedFieldName, fieldName);
+                        return new ResolvedField(expression, dottedFieldName, fieldSerializationInfo.Serializer);
                     }
                 }
             }
-
-            if (expression is UnaryExpression unaryExpression)
+            else if (expression is UnaryExpression unaryExpression)
             {
                 if (unaryExpression.NodeType == ExpressionType.Convert)
                 {
-                    if (TryResolveField(unaryExpression.Operand, out ResolvedField convertedField))
+                    var convertedField = ResolveField(unaryExpression.Operand, symbolTable);
+                    var fieldType = convertedField.Serializer.ValueType;
+                    if (fieldType.IsEnum)
                     {
-                        var fieldType = convertedField.Serializer.ValueType;
-                        if (fieldType.IsEnum)
+                        var enumType = fieldType;
+                        var enumUnderlyingType = enumType.GetEnumUnderlyingType();
+                        if (unaryExpression.Type == enumUnderlyingType)
                         {
-                            var enumType = fieldType;
-                            var enumUnderlyingType = enumType.GetEnumUnderlyingType();
-                            if (unaryExpression.Type == enumUnderlyingType)
-                            {
-                                var enumAsUnderlyingTypeSerializer = EnumAsUnderlyingTypeSerializer.Create(convertedField.Serializer);
-                                resolvedField = new ResolvedField(expression, convertedField.DottedFieldName, enumAsUnderlyingTypeSerializer);
-                                return true;
-                            }
+                            var enumAsUnderlyingTypeSerializer = EnumAsUnderlyingTypeSerializer.Create(convertedField.Serializer);
+                            return new ResolvedField(expression, convertedField.DottedFieldName, enumAsUnderlyingTypeSerializer);
                         }
                     }
                 }
             }
 
-            return false;
+            throw new ExpressionNotSupportedException(expression);
         }
 
         // private methods
-        private string Combine(string containingField, string member)
+        private static string Combine(string containingField, string member)
         {
             Throw.IfNullOrEmpty(containingField, nameof(containingField));
             Throw.IfNullOrEmpty(member, nameof(member));
 
-            if (containingField == "$CURRENT")
+            if (containingField == "$$CURRENT")
             {
                 return member;
             }
@@ -110,6 +90,5 @@ namespace MongoDB.Driver.Linq3.Misc
                 return containingField + "." + member;
             }
         }
-
     }
 }

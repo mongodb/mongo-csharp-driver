@@ -26,6 +26,7 @@ using MongoDB.Driver.Linq3.Ast.Stages;
 using MongoDB.Driver.Linq3.Methods;
 using MongoDB.Driver.Linq3.Misc;
 using MongoDB.Driver.Linq3.Serializers;
+using MongoDB.Driver.Linq3.Translators.FilterTranslators;
 using MongoDB.Driver.Linq3.Translators.PipelineTranslators;
 
 namespace MongoDB.Driver.Linq3.Translators.QueryTranslators
@@ -41,15 +42,20 @@ namespace MongoDB.Driver.Linq3.Translators.QueryTranslators
         {
             if (expression.Method.IsOneOf(QueryableMethod.Any, QueryableMethod.AnyWithPredicate))
             {
-                var source = expression.Arguments[0];
+                var sourceExpression = expression.Arguments[0];
+                var pipeline = PipelineTranslator.Translate(context, sourceExpression);
+
                 if (expression.Method.Is(QueryableMethod.AnyWithPredicate))
                 {
-                    var predicate = expression.Arguments[1];
-                    var tsource = source.Type.GetGenericArguments()[0];
-                    source = Expression.Call(QueryableMethod.MakeWhere(tsource), source, predicate);
-                }
+                    var predicateLambda = ExpressionHelper.Unquote(expression.Arguments[1]);
+                    var predicateParameter = predicateLambda.Parameters[0];
+                    var predicateContext = context.WithSymbolAsCurrent(predicateParameter, new Symbol(predicateParameter.Name, pipeline.OutputSerializer));
+                    var filterTranslation = FilterTranslator.Translate(predicateContext, predicateLambda.Body);
 
-                var pipeline = PipelineTranslator.Translate(context, source);
+                    pipeline.AddStages(
+                        pipeline.OutputSerializer,
+                        new AstMatchStage(filterTranslation));
+                }
 
                 pipeline.AddStages(
                     __outputSerializer,

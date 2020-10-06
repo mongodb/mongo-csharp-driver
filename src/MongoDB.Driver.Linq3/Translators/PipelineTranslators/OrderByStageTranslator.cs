@@ -83,13 +83,8 @@ namespace MongoDB.Driver.Linq3.Translators.PipelineTranslators
         {
             var lambda = ExpressionHelper.Unquote(keySelector);
             var symbolTable = new SymbolTable(lambda.Parameters[0], new Symbol("$CURRENT", outputSerializer));
-            var fieldResolver = new FieldResolver(symbolTable);
-            if (fieldResolver.TryResolveField(lambda.Body, out ResolvedField keyField))
-            {
-                return keyField.DottedFieldName;
-            }
-
-            throw new ExpressionNotSupportedException(keySelector);
+            var keyField = FieldResolver.ResolveField(lambda.Body, symbolTable);
+            return keyField.DottedFieldName;
         }
     }
 }
