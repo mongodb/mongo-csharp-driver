@@ -14,12 +14,14 @@
 */
 
 using System.Linq.Expressions;
+using System.Reflection;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq3.Ast.Stages;
 using MongoDB.Driver.Linq3.Methods;
 using MongoDB.Driver.Linq3.Misc;
 using MongoDB.Driver.Linq3.Serializers;
+using MongoDB.Driver.Linq3.Translators.FilterTranslators;
 using MongoDB.Driver.Linq3.Translators.PipelineTranslators;
 using MongoDB.Driver.Linq3.Translators.QueryTranslators.Finalizers;
 
@@ -28,34 +30,58 @@ namespace MongoDB.Driver.Linq3.Translators.QueryTranslators
     public static class LongCountQueryTranslator
     {
         // private static fields
-        private static readonly IExecutableQueryFinalizer<long, long> __finalizer = new SingleFinalizer<long>();
-        private static readonly IBsonSerializer<long> __outputSerializer = new WrappedValueSerializer<long>(new Int64Serializer());
+        private static readonly MethodInfo[] __longCountMethods;
+        private static readonly MethodInfo[] __longCountWithPredicateMethods;
+        private static readonly IExecutableQueryFinalizer<long, long> _finalizer = new SingleOrDefaultFinalizer<long>();
+        private static readonly IBsonSerializer<long> __wrappedInt64Serializer = new WrappedValueSerializer<long>(new Int64Serializer());
+
+        // static constructor
+        static LongCountQueryTranslator()
+        {
+            __longCountMethods = new[]
+            {
+                QueryableMethod.LongCount,
+                QueryableMethod.LongCountWithPredicate,
+                MongoQueryableMethod.LongCountAsync,
+                MongoQueryableMethod.LongCountWithPredicateAsync
+            };
+
+            __longCountWithPredicateMethods = new[]
+            {
+                QueryableMethod.LongCountWithPredicate,
+                MongoQueryableMethod.LongCountWithPredicateAsync
+            };
+        }
 
         // public static methods
         public static ExecutableQuery<TDocument, long> Translate<TDocument>(MongoQueryProvider<TDocument> provider, TranslationContext context, MethodCallExpression expression)
         {
-            if (expression.Method.IsOneOf(QueryableMethod.LongCount, QueryableMethod.LongCountWithPredicate))
-            {
-                var source = expression.Arguments[0];
-                if (expression.Method.Is(QueryableMethod.LongCountWithPredicate))
-                {
-                    var predicate = expression.Arguments[1];
-                    var tsource = source.Type.GetGenericArguments()[0];
-                    source = Expression.Call(QueryableMethod.MakeWhere(tsource), source, predicate);
-                }
+            var method = expression.Method;
+            var arguments = expression.Arguments;
 
+            if (method.IsOneOf(__longCountMethods))
+            {
+                var source = arguments[0];
                 var pipeline = PipelineTranslator.Translate(context, source);
 
+                if (expression.Method.IsOneOf(__longCountWithPredicateMethods))
+                {
+                    var predicateLambda = ExpressionHelper.Unquote(arguments[1]);
+                    var filter = FilterTranslator.Translate(context, predicateLambda, parameterSerializer: pipeline.OutputSerializer);
+                    pipeline.AddStages(
+                        pipeline.OutputSerializer,
+                        new AstMatchStage(filter));
+                }
+
                 pipeline.AddStages(
-                    __outputSerializer,
-                    //new BsonDocument("$count", "_v"));
+                    __wrappedInt64Serializer,
                     new AstCountStage("_v"));
 
                 return new ExecutableQuery<TDocument, long, long>(
                     provider.Collection,
                     provider.Options,
                     pipeline.ToPipelineDefinition<TDocument, long>(),
-                    __finalizer);
+                    _finalizer);
             }
 
             throw new ExpressionNotSupportedException(expression);

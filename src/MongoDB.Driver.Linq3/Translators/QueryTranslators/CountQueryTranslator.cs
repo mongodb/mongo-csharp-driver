@@ -14,12 +14,14 @@
 */
 
 using System.Linq.Expressions;
+using System.Reflection;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq3.Ast.Stages;
 using MongoDB.Driver.Linq3.Methods;
 using MongoDB.Driver.Linq3.Misc;
 using MongoDB.Driver.Linq3.Serializers;
+using MongoDB.Driver.Linq3.Translators.FilterTranslators;
 using MongoDB.Driver.Linq3.Translators.PipelineTranslators;
 using MongoDB.Driver.Linq3.Translators.QueryTranslators.Finalizers;
 
@@ -28,27 +30,51 @@ namespace MongoDB.Driver.Linq3.Translators.QueryTranslators
     public static class CountQueryTranslator
     {
         // private static fields
-        private static readonly IExecutableQueryFinalizer<int, int> _finalizer = new SingleFinalizer<int>();
-        private static readonly IBsonSerializer<int> __outputSerializer = new WrappedValueSerializer<int>(new Int32Serializer());
+        private static readonly MethodInfo[] __countMethods;
+        private static readonly MethodInfo[] __countWithPredicateMethods;
+        private static readonly IExecutableQueryFinalizer<int, int> _finalizer = new SingleOrDefaultFinalizer<int>();
+        private static readonly IBsonSerializer<int> __wrappedInt32Serializer = new WrappedValueSerializer<int>(new Int32Serializer());
+
+        // static constructor
+        static CountQueryTranslator()
+        {
+            __countMethods = new[]
+            {
+                QueryableMethod.Count,
+                QueryableMethod.CountWithPredicate,
+                MongoQueryableMethod.CountAsync,
+                MongoQueryableMethod.CountWithPredicateAsync
+            };
+
+            __countWithPredicateMethods = new[]
+            {
+                QueryableMethod.CountWithPredicate,
+                MongoQueryableMethod.CountWithPredicateAsync
+            };
+        }
 
         // public static methods
         public static ExecutableQuery<TDocument, int> Translate<TDocument>(MongoQueryProvider<TDocument> provider, TranslationContext context, MethodCallExpression expression)
         {
-            if (expression.Method.IsOneOf(QueryableMethod.Count, QueryableMethod.CountWithPredicate))
-            {
-                var source = expression.Arguments[0];
-                if (expression.Method.Is(QueryableMethod.CountWithPredicate))
-                {
-                    var predicate = expression.Arguments[1];
-                    var tsource = source.Type.GetGenericArguments()[0];
-                    source = Expression.Call(QueryableMethod.MakeWhere(tsource), source, predicate);
-                }
+            var method = expression.Method;
+            var arguments = expression.Arguments;
 
+            if (method.IsOneOf(__countMethods))
+            {
+                var source = arguments[0];
                 var pipeline = PipelineTranslator.Translate(context, source);
 
+                if (expression.Method.IsOneOf(__countWithPredicateMethods))
+                {
+                    var predicateLambda = ExpressionHelper.Unquote(arguments[1]);
+                    var filter = FilterTranslator.Translate(context, predicateLambda, parameterSerializer: pipeline.OutputSerializer);
+                    pipeline.AddStages(
+                        pipeline.OutputSerializer,
+                        new AstMatchStage(filter));
+                }
+
                 pipeline.AddStages(
-                    __outputSerializer,
-                    //new BsonDocument("$count", "_v"));
+                    __wrappedInt32Serializer,
                     new AstCountStage("_v"));
 
                 return new ExecutableQuery<TDocument, int, int>(

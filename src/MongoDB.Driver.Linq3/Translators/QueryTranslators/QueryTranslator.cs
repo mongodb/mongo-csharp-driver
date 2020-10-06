@@ -57,6 +57,7 @@ namespace MongoDB.Driver.Linq3.Translators.QueryTranslators
                 case "Contains":
                     return ContainsQueryTranslator.Translate(provider, context, methodCallExpression).AsExecutableQuery<TDocument, TResult>(); ;
                 case "Count":
+                case "CountAsync":
                     return CountQueryTranslator.Translate(provider, context, methodCallExpression).AsExecutableQuery<TDocument, TResult>();
                 case "ElementAt":
                     return ElementAtQueryTranslator<TResult>.Translate(provider, context, methodCallExpression);
@@ -66,6 +67,9 @@ namespace MongoDB.Driver.Linq3.Translators.QueryTranslators
                 case "Last":
                 case "LastOrDefault":
                     return LastQueryTranslator<TResult>.Translate(provider, context, methodCallExpression);
+                case "LongCount":
+                case "LongCountAsync":
+                    return LongCountQueryTranslator.Translate(provider, context, methodCallExpression).AsExecutableQuery<TDocument, TResult>();
                 case "Max":
                     return MaxQueryTranslator<TResult>.Translate(provider, context, methodCallExpression);
                 case "Min":

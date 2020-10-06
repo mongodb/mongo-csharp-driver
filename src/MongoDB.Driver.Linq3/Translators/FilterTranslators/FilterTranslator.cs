@@ -13,8 +13,11 @@
 * limitations under the License.
 */
 
+using System.Linq;
 using System.Linq.Expressions;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq3.Ast.Filters;
+using MongoDB.Driver.Linq3.Misc;
 
 namespace MongoDB.Driver.Linq3.Translators.FilterTranslators
 {
@@ -46,6 +49,14 @@ namespace MongoDB.Driver.Linq3.Translators.FilterTranslators
             }
 
             throw new ExpressionNotSupportedException(expression);
+        }
+
+        public static AstFilter Translate(TranslationContext context, LambdaExpression lambdaExpression, IBsonSerializer parameterSerializer)
+        {
+            var parameterExpression = lambdaExpression.Parameters.Single();
+            var parameterSymbol = new Symbol(parameterExpression.Name, parameterSerializer);
+            var lambdaContext = context.WithSymbolAsCurrent(parameterExpression, parameterSymbol);
+            return Translate(lambdaContext, lambdaExpression.Body);
         }
     }
 }

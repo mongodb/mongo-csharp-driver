@@ -47,6 +47,10 @@ namespace MongoDB.Driver.Linq3.Methods
         private static readonly MethodInfo __averageNullableSingleWithSelectorAsync;
         private static readonly MethodInfo __averageSingleAsync;
         private static readonly MethodInfo __averageSingleWithSelectorAsync;
+        private static readonly MethodInfo __countAsync;
+        private static readonly MethodInfo __countWithPredicateAsync;
+        private static readonly MethodInfo __longCountAsync;
+        private static readonly MethodInfo __longCountWithPredicateAsync;
 
         // static constructor
         static MongoQueryableMethod()
@@ -73,6 +77,10 @@ namespace MongoDB.Driver.Linq3.Methods
             __averageNullableSingleWithSelectorAsync = new Func<IQueryable<object>, Expression<Func<object, float?>>, CancellationToken, Task<float?>>(MongoQueryable.AverageAsync).Method.GetGenericMethodDefinition();
             __averageSingleAsync = new Func<IQueryable<float>, CancellationToken, Task<float>>(MongoQueryable.AverageAsync).Method;
             __averageSingleWithSelectorAsync = new Func<IQueryable<object>, Expression<Func<object, float>>, CancellationToken, Task<float>>(MongoQueryable.AverageAsync).Method.GetGenericMethodDefinition();
+            __countAsync = new Func<IQueryable<object>, CancellationToken, Task<int>>(MongoQueryable.CountAsync).Method.GetGenericMethodDefinition();
+            __countWithPredicateAsync = new Func<IQueryable<object>, Expression<Func<object, bool>>, CancellationToken, Task<int>>(MongoQueryable.CountAsync).Method.GetGenericMethodDefinition();
+            __longCountAsync = new Func<IQueryable<object>, CancellationToken, Task<long>>(MongoQueryable.LongCountAsync).Method.GetGenericMethodDefinition();
+            __longCountWithPredicateAsync = new Func<IQueryable<object>, Expression<Func<object, bool>>, CancellationToken, Task<long>>(MongoQueryable.LongCountAsync).Method.GetGenericMethodDefinition();
         }
 
         // public properties
@@ -98,5 +106,9 @@ namespace MongoDB.Driver.Linq3.Methods
         public static MethodInfo AverageNullableSingleWithSelectorAsync => __averageNullableSingleWithSelectorAsync;
         public static MethodInfo AverageSingleAsync => __averageSingleAsync;
         public static MethodInfo AverageSingleWithSelectorAsync => __averageSingleWithSelectorAsync;
+        public static MethodInfo CountAsync => __countAsync;
+        public static MethodInfo CountWithPredicateAsync => __countWithPredicateAsync;
+        public static MethodInfo LongCountAsync => __longCountAsync;
+        public static MethodInfo LongCountWithPredicateAsync => __longCountWithPredicateAsync;
     }
 }
