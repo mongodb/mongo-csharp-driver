@@ -48,102 +48,202 @@ namespace MongoDB.Driver.Linq3
 
         public static Task<decimal> AverageAsync(this IQueryable<decimal> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<decimal>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<decimal>, CancellationToken, Task<decimal>>(MongoQueryable.AverageAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<decimal?> AverageAsync(this IQueryable<decimal?> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<decimal?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<decimal?>, CancellationToken, Task<decimal?>>(MongoQueryable.AverageAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<double> AverageAsync(this IQueryable<double> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<double>, CancellationToken, Task<double>>(MongoQueryable.AverageAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<double?> AverageAsync(this IQueryable<double?> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<double?>, CancellationToken, Task<double?>>(MongoQueryable.AverageAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<float> AverageAsync(this IQueryable<float> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<float>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<float>, CancellationToken, Task<float>>(MongoQueryable.AverageAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<float?> AverageAsync(this IQueryable<float?> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<float?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<float?>, CancellationToken, Task<float?>>(MongoQueryable.AverageAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
-        public static Task<int> AverageAsync(this IQueryable<int> source, CancellationToken cancellationToken = default)
+        public static Task<double> AverageAsync(this IQueryable<int> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<int>, CancellationToken, Task<double>>(MongoQueryable.AverageAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
-        public static Task<int?> AverageAsync(this IQueryable<int?> source, CancellationToken cancellationToken = default)
+        public static Task<double?> AverageAsync(this IQueryable<int?> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<int?>, CancellationToken, Task<double?>>(MongoQueryable.AverageAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
-        public static Task<long> AverageAsync(this IQueryable<long> source, CancellationToken cancellationToken = default)
+        public static Task<double> AverageAsync(this IQueryable<long> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<long>, CancellationToken, Task<double>>(MongoQueryable.AverageAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
-        public static Task<long?> AverageAsync(this IQueryable<long?> source, CancellationToken cancellationToken = default)
+        public static Task<double?> AverageAsync(this IQueryable<long?> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<long?>, CancellationToken, Task<double?>>(MongoQueryable.AverageAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<decimal> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, decimal>> selector, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<decimal>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, decimal>>, CancellationToken, Task<decimal>>(MongoQueryable.AverageAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<decimal?> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, decimal?>> selector, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<decimal?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, decimal?>>, CancellationToken, Task<decimal?>>(MongoQueryable.AverageAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<double> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, double>> selector, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, double>>, CancellationToken, Task<double>>(MongoQueryable.AverageAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<double?> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, double?>> selector, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, double?>>, CancellationToken, Task<double?>>(MongoQueryable.AverageAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<float> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, float>> selector, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<float>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, float>>, CancellationToken, Task<float>>(MongoQueryable.AverageAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<float?> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, float?>> selector, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<float?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, float?>>, CancellationToken, Task<float?>>(MongoQueryable.AverageAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
-        public static Task<int> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, int>> selector, CancellationToken cancellationToken = default)
+        public static Task<double> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, int>> selector, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, int>>, CancellationToken, Task<double>>(MongoQueryable.AverageAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
-        public static Task<int?> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, int?>> selector, CancellationToken cancellationToken = default)
+        public static Task<double?> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, int?>> selector, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, int?>>, CancellationToken, Task<double?>>(MongoQueryable.AverageAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
-        public static Task<long> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, long>> selector, CancellationToken cancellationToken = default)
+        public static Task<double> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, long>> selector, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, long>>, CancellationToken, Task<double>>(MongoQueryable.AverageAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
-        public static Task<long?> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, long?>> selector, CancellationToken cancellationToken = default)
+        public static Task<double?> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, long?>> selector, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, long?>>, CancellationToken, Task<double?>>(MongoQueryable.AverageAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<int> CountAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default)
