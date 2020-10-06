@@ -17,21 +17,33 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Linq3
 {
-    public static class QueryableExtensions
+    // this class is analogous to .NET's Queryable class and contains MongoDB specific extension methods for IQueryable
+    public static class MongoQueryable
     {
         public static Task<bool> AnyAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<bool>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, CancellationToken, Task<bool>>(MongoQueryable.AnyAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<bool> AnyAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(predicate), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<bool>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, bool>>, CancellationToken, Task<bool>>(MongoQueryable.AnyAsync, source, predicate, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<decimal> AverageAsync(this IQueryable<decimal> source, CancellationToken cancellationToken = default)
@@ -728,6 +740,21 @@ namespace MongoDB.Driver.Linq3
         public static Task<List<TSource>> ToListAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
+        }
+
+        private static MethodInfo GetMethodInfo<T1, T2>(Func<T1, T2> f, T1 unused)
+        {
+            return f.GetMethodInfo();
+        }
+
+        private static MethodInfo GetMethodInfo<T1, T2, T3>(Func<T1, T2, T3> f, T1 unused1, T2 unused2)
+        {
+            return f.GetMethodInfo();
+        }
+
+        private static MethodInfo GetMethodInfo<T1, T2, T3, T4>(Func<T1, T2, T3, T4> f, T1 unused1, T2 unused2, T3 unused3)
+        {
+            return f.GetMethodInfo();
         }
     }
 }

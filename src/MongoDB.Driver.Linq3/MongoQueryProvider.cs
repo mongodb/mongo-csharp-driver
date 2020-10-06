@@ -52,6 +52,7 @@ namespace MongoDB.Driver.Linq3
         public abstract IQueryable<TElement> CreateQuery<TElement>(Expression expression);
         public abstract object Execute(Expression expression);
         public abstract TResult Execute<TResult>(Expression expression);
+        public abstract Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken);
         public MongoQueryProvider WithCancellationToken(CancellationToken cancellationToken) => WithCancellationTokenGeneric(cancellationToken);
         public MongoQueryProvider WithOptions(AggregateOptions options) => WithOptionsGeneric(options);
         public MongoQueryProvider WithSession(IClientSessionHandle session) => WithSessionGeneric(session);
@@ -104,10 +105,10 @@ namespace MongoDB.Driver.Linq3
             return executableQuery.Execute(_session, _cancellationToken);
         }
 
-        public Task<TResult> ExecuteAsync<TResult>(Expression expression)
+        public override Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
         {
             var executableQuery = QueryTranslator.TranslateSingleValuedQuery<TDocument, TResult>(this, expression);
-            return executableQuery.ExecuteAsync(_session, _cancellationToken);
+            return executableQuery.ExecuteAsync(_session, cancellationToken);
         }
 
         public new MongoQueryProvider<TDocument> WithCancellationToken(CancellationToken cancellationToken)

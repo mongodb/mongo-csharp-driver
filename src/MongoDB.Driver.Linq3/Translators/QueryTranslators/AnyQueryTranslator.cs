@@ -15,13 +15,13 @@
 
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
-using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Ast.Stages;
 using MongoDB.Driver.Linq3.Methods;
 using MongoDB.Driver.Linq3.Misc;
@@ -34,18 +34,38 @@ namespace MongoDB.Driver.Linq3.Translators.QueryTranslators
     public static class AnyQueryTranslator
     {
         // private static fields
+        private static readonly MethodInfo[] __anyMethods;
+        private static readonly MethodInfo[] __anyWithPredicateMethods;
         private static readonly IExecutableQueryFinalizer<BsonNull, bool> __finalizer = new AnyFinalizer();
         private static readonly IBsonSerializer<BsonNull> __outputSerializer = new WrappedValueSerializer<BsonNull>(BsonNullSerializer.Instance);
+
+        // static constructors
+        static AnyQueryTranslator()
+        {
+            __anyMethods = new MethodInfo[]
+            {
+                QueryableMethod.Any,
+                QueryableMethod.AnyWithPredicate,
+                MongoQueryableMethod.AnyAsync,
+                MongoQueryableMethod.AnyWithPredicateAsync
+            };
+
+            __anyWithPredicateMethods = new MethodInfo[]
+            {
+                QueryableMethod.AnyWithPredicate,
+                MongoQueryableMethod.AnyWithPredicateAsync
+            };
+        }
 
         // public static methods
         public static ExecutableQuery<TDocument, bool> Translate<TDocument>(MongoQueryProvider<TDocument> provider, TranslationContext context, MethodCallExpression expression)
         {
-            if (expression.Method.IsOneOf(QueryableMethod.Any, QueryableMethod.AnyWithPredicate))
+            if (expression.Method.IsOneOf(__anyMethods))
             {
                 var sourceExpression = expression.Arguments[0];
                 var pipeline = PipelineTranslator.Translate(context, sourceExpression);
 
-                if (expression.Method.Is(QueryableMethod.AnyWithPredicate))
+                if (expression.Method.IsOneOf(__anyWithPredicateMethods))
                 {
                     var predicateLambda = ExpressionHelper.Unquote(expression.Arguments[1]);
                     var predicateParameter = predicateLambda.Parameters[0];
@@ -59,8 +79,6 @@ namespace MongoDB.Driver.Linq3.Translators.QueryTranslators
 
                 pipeline.AddStages(
                     __outputSerializer,
-                    //new BsonDocument("$limit", 1),
-                    //new BsonDocument("$project", new BsonDocument { { "_id", 0 }, { "_v", BsonNull.Value } }));
                     new AstLimitStage(1),
                     new AstProjectStage(
                         new AstProjectStageExcludeFieldSpecification("_id"),

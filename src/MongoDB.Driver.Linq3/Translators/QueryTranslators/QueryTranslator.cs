@@ -49,6 +49,7 @@ namespace MongoDB.Driver.Linq3.Translators.QueryTranslators
                 case "All":
                     return AllQueryTranslator.Translate(provider, context, methodCallExpression).AsExecutableQuery<TDocument, TResult>();
                 case "Any":
+                case "AnyAsync":
                     return AnyQueryTranslator.Translate(provider, context, methodCallExpression).AsExecutableQuery<TDocument, TResult>();
                 case "Average":
                     return AverageQueryTranslator<TResult>.Translate(provider, context, methodCallExpression);
