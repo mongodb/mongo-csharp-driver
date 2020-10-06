@@ -248,12 +248,22 @@ namespace MongoDB.Driver.Linq3
 
         public static Task<int> CountAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<int>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, CancellationToken, Task<int>>(MongoQueryable.CountAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<int> CountAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate , CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(predicate), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<int>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, bool>>, CancellationToken, Task<int>>(MongoQueryable.CountAsync, source, predicate, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<TSource> FirstAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default)
@@ -283,12 +293,22 @@ namespace MongoDB.Driver.Linq3
 
         public static Task<long> LongCountAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<long>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, CancellationToken, Task<long>>(MongoQueryable.LongCountAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<long> LongCountAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(predicate), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<long>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, bool>>, CancellationToken, Task<long>>(MongoQueryable.LongCountAsync, source, predicate, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<TSource> MaxAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default)
