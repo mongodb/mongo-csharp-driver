@@ -1185,8 +1185,8 @@ buildvariants:
     - name: ".ocsp"
 
 - matrix_name: aws-auth-tests
-  matrix_spec: { version: ["latest"], topology: "standalone", os: "*" }
-  display_name: "MONGODB-AWS Auth test"
+  matrix_spec: { version: ["4.4", "latest"], topology: "standalone", os: "*" }
+  display_name: "MONGODB-AWS Auth test ${version} ${os}"
   run_on:
     - windows-64-vs2017-test
   tasks:
