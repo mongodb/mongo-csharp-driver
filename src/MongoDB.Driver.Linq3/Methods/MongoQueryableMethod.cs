@@ -49,6 +49,10 @@ namespace MongoDB.Driver.Linq3.Methods
         private static readonly MethodInfo __averageSingleWithSelectorAsync;
         private static readonly MethodInfo __countAsync;
         private static readonly MethodInfo __countWithPredicateAsync;
+        private static readonly MethodInfo __firstAsync;
+        private static readonly MethodInfo __firstOrDefaultAsync;
+        private static readonly MethodInfo __firstOrDefaultWithPredicateAsync;
+        private static readonly MethodInfo __firstWithPredicateAsync;
         private static readonly MethodInfo __longCountAsync;
         private static readonly MethodInfo __longCountWithPredicateAsync;
 
@@ -79,6 +83,10 @@ namespace MongoDB.Driver.Linq3.Methods
             __averageSingleWithSelectorAsync = new Func<IQueryable<object>, Expression<Func<object, float>>, CancellationToken, Task<float>>(MongoQueryable.AverageAsync).Method.GetGenericMethodDefinition();
             __countAsync = new Func<IQueryable<object>, CancellationToken, Task<int>>(MongoQueryable.CountAsync).Method.GetGenericMethodDefinition();
             __countWithPredicateAsync = new Func<IQueryable<object>, Expression<Func<object, bool>>, CancellationToken, Task<int>>(MongoQueryable.CountAsync).Method.GetGenericMethodDefinition();
+            __firstAsync = new Func<IQueryable<object>, CancellationToken, object>(MongoQueryable.FirstAsync).Method.GetGenericMethodDefinition();
+            __firstOrDefaultAsync = new Func<IQueryable<object>, CancellationToken, object>(MongoQueryable.FirstOrDefaultAsync).Method.GetGenericMethodDefinition();
+            __firstOrDefaultWithPredicateAsync = new Func<IQueryable<object>, Expression<Func<object, bool>>, CancellationToken, object>(MongoQueryable.FirstOrDefaultAsync).Method.GetGenericMethodDefinition();
+            __firstWithPredicateAsync = new Func<IQueryable<object>, Expression<Func<object, bool>>, CancellationToken, object>(MongoQueryable.FirstAsync).Method.GetGenericMethodDefinition();
             __longCountAsync = new Func<IQueryable<object>, CancellationToken, Task<long>>(MongoQueryable.LongCountAsync).Method.GetGenericMethodDefinition();
             __longCountWithPredicateAsync = new Func<IQueryable<object>, Expression<Func<object, bool>>, CancellationToken, Task<long>>(MongoQueryable.LongCountAsync).Method.GetGenericMethodDefinition();
         }
@@ -108,6 +116,10 @@ namespace MongoDB.Driver.Linq3.Methods
         public static MethodInfo AverageSingleWithSelectorAsync => __averageSingleWithSelectorAsync;
         public static MethodInfo CountAsync => __countAsync;
         public static MethodInfo CountWithPredicateAsync => __countWithPredicateAsync;
+        public static MethodInfo FirstAsync => __firstAsync;
+        public static MethodInfo FirstOrDefaultAsync => __firstOrDefaultAsync;
+        public static MethodInfo FirstOrDefaultWithPredicateAsync => __firstOrDefaultWithPredicateAsync;
+        public static MethodInfo FirstWithPredicateAsync => __firstWithPredicateAsync;
         public static MethodInfo LongCountAsync => __longCountAsync;
         public static MethodInfo LongCountWithPredicateAsync => __longCountWithPredicateAsync;
     }
