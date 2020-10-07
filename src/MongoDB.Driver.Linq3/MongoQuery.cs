@@ -24,7 +24,13 @@ using MongoDB.Driver.Linq3.Translators.QueryTranslators;
 
 namespace MongoDB.Driver.Linq3
 {
-    public class MongoQuery<TDocument, TOutput> : IMongoQueryable<TOutput>
+    public abstract class MongoQuery<TOutput>
+    {
+        public abstract IAsyncCursor<TOutput> Execute();
+        public abstract Task<IAsyncCursor<TOutput>> ExecuteAsync();
+    }
+
+    public class MongoQuery<TDocument, TOutput> : MongoQuery<TOutput>, IMongoQueryable<TOutput>
     {
         // private fields
         private readonly Expression _expression;
@@ -53,13 +59,13 @@ namespace MongoDB.Driver.Linq3
         IQueryProvider IQueryable.Provider => _provider;
 
         // public methods
-        public IAsyncCursor<TOutput> Execute()
+        public override IAsyncCursor<TOutput> Execute()
         {
             var executableQuery = QueryTranslator.TranslateMultiValuedQuery<TDocument, TOutput>(_provider, _expression);
             return executableQuery.Execute(_provider.Session, _provider.CancellationToken);
         }
 
-        public Task<IAsyncCursor<TOutput>> ExecuteAsync()
+        public override Task<IAsyncCursor<TOutput>> ExecuteAsync()
         {
             var executableQuery = QueryTranslator.TranslateMultiValuedQuery<TDocument, TOutput>(_provider, _expression);
             return executableQuery.ExecuteAsync(_provider.Session, _provider.CancellationToken);
