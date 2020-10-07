@@ -16,8 +16,13 @@
 using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using MongoDB.Bson;
 
 [assembly: CLSCompliant(true)]
 [assembly: ComVisible(false)]
+
+// Prevents the Xamarin static linker from stripping anything from this assembly.
+// Required for most of the reflection usage in Xamarin.iOS/Xamarin.Mac.
+[assembly: Preserve(AllMembers = true)]
 
 [assembly: InternalsVisibleTo("MongoDB.Driver.GridFS.Tests")]

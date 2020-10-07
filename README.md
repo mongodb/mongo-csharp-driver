@@ -113,6 +113,7 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Bouke Haarsma             https://github.com/Bouke
 * James Hadwen              james.hadwen@sociustec.com
 * Nuri Halperin             https://github.com/nurih
+* Nikola Irinchev           https://github.com/nirinchev
 * Jacob Jewell              jacobjewell@eflexsystems.com
 * Danny Kendrick            https://github.com/dkendrick
 * Ruslan Khasanbaev         https://github.com/flaksirus
