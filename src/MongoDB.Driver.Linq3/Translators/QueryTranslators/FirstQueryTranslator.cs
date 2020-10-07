@@ -14,9 +14,11 @@
 */
 
 using System.Linq.Expressions;
+using System.Reflection;
 using MongoDB.Driver.Linq3.Ast.Stages;
 using MongoDB.Driver.Linq3.Methods;
 using MongoDB.Driver.Linq3.Misc;
+using MongoDB.Driver.Linq3.Translators.FilterTranslators;
 using MongoDB.Driver.Linq3.Translators.PipelineTranslators;
 using MongoDB.Driver.Linq3.Translators.QueryTranslators.Finalizers;
 
@@ -26,26 +28,56 @@ namespace MongoDB.Driver.Linq3.Translators.QueryTranslators
     {
         // private static fields
         private static readonly IExecutableQueryFinalizer<TOutput, TOutput> __firstFinalizer = new FirstFinalizer<TOutput>();
+        private static readonly MethodInfo[] __firstMethods;
+        private static readonly MethodInfo[] __firstWithPredicateMethods;
         private static readonly IExecutableQueryFinalizer<TOutput, TOutput> __firstOrDefaultFinalizer = new FirstOrDefaultFinalizer<TOutput>();
+
+        // static constructor
+        static FirstQueryTranslator()
+        {
+            __firstMethods = new[]
+            {
+                QueryableMethod.First,
+                QueryableMethod.FirstOrDefault,
+                QueryableMethod.FirstOrDefaultWithPredicate,
+                QueryableMethod.FirstWithPredicate,
+                MongoQueryableMethod.FirstAsync,
+                MongoQueryableMethod.FirstOrDefaultAsync,
+                MongoQueryableMethod.FirstOrDefaultWithPredicateAsync,
+                MongoQueryableMethod.FirstWithPredicateAsync
+            };
+
+            __firstWithPredicateMethods = new[]
+            {
+                QueryableMethod.FirstOrDefaultWithPredicate,
+                QueryableMethod.FirstWithPredicate,
+                MongoQueryableMethod.FirstOrDefaultWithPredicateAsync,
+                MongoQueryableMethod.FirstWithPredicateAsync
+            };
+        }
 
         // public static methods
         public static ExecutableQuery<TDocument, TOutput> Translate<TDocument>(MongoQueryProvider<TDocument> provider, TranslationContext context, MethodCallExpression expression)
         {
-            if (expression.Method.IsOneOf(QueryableMethod.First, QueryableMethod.FirstWithPredicate, QueryableMethod.FirstOrDefault, QueryableMethod.FirstOrDefaultWithPredicate))
-            {
-                var source = expression.Arguments[0];
-                if (expression.Method.IsOneOf(QueryableMethod.FirstWithPredicate, QueryableMethod.FirstOrDefaultWithPredicate))
-                {
-                    var predicate = expression.Arguments[1];
-                    var tsource = source.Type.GetGenericArguments()[0];
-                    source = Expression.Call(QueryableMethod.MakeWhere(tsource), source, predicate);
-                }
+            var method = expression.Method;
+            var arguments = expression.Arguments;
 
-                var pipeline = PipelineTranslator.Translate(context, source);
+            if (method.IsOneOf(__firstMethods))
+            {
+                var sourceExpression = arguments[0];
+                var pipeline = PipelineTranslator.Translate(context, sourceExpression);
+
+                if (method.IsOneOf(__firstWithPredicateMethods))
+                {
+                    var predicateLambda = ExpressionHelper.Unquote(arguments[1]);
+                    var filter = FilterTranslator.Translate(context, predicateLambda, parameterSerializer: pipeline.OutputSerializer);
+                    pipeline.AddStages(
+                        pipeline.OutputSerializer,
+                        new AstMatchStage(filter));
+                }
 
                 pipeline.AddStages(
                     pipeline.OutputSerializer,
-                    //new BsonDocument("$limit", 1));
                     new AstLimitStage(1));
 
                 var finalizer = expression.Method.Name == "FirstOrDefault" ? __firstOrDefaultFinalizer : __firstFinalizer;

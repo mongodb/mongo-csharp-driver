@@ -62,7 +62,9 @@ namespace MongoDB.Driver.Linq3.Translators.QueryTranslators
                 case "ElementAt":
                     return ElementAtQueryTranslator<TResult>.Translate(provider, context, methodCallExpression);
                 case "First":
+                case "FirstAsync":
                 case "FirstOrDefault":
+                case "FirstOrDefaultAsync":
                     return FirstQueryTranslator<TResult>.Translate(provider, context, methodCallExpression);
                 case "Last":
                 case "LastOrDefault":
