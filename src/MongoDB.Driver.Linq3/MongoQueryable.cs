@@ -857,9 +857,12 @@ namespace MongoDB.Driver.Linq3
             throw new NotImplementedException();
         }
 
-        public static Task<List<TSource>> ToListAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default)
+        public static async Task<List<TSource>> ToListAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var mongoQuery = (MongoQuery<TSource>)source;
+            var cursor = await mongoQuery.ExecuteAsync().ConfigureAwait(false);
+            var list = await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
+            return list;
         }
 
         private static MethodInfo GetMethodInfo<T1, T2>(Func<T1, T2> f, T1 unused)

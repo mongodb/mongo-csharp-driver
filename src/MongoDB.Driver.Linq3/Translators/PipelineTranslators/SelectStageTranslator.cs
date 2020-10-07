@@ -43,7 +43,6 @@ namespace MongoDB.Driver.Linq3.Translators.PipelineTranslators
 
                     pipeline.AddStages(
                         translatedSelectorSerializer,
-                        //new BsonDocument("$project", projection));
                         new AstProjectStage(projection));
 
                     return pipeline;
@@ -55,10 +54,9 @@ namespace MongoDB.Driver.Linq3.Translators.PipelineTranslators
 
                     pipeline.AddStages(
                         wrappedValueSerializer,
-                        //new BsonDocument("$project", new BsonDocument { { "_id", 0 }, { "_v", translatedSelector.Translation } }));
                         new AstProjectStage(
-                            new AstProjectStageExcludeIdSpecification(),
-                            new AstProjectStageComputedFieldSpecification(new Ast.AstComputedField("_v", translatedSelector.Ast))));
+                            new AstProjectStageComputedFieldSpecification(new Ast.AstComputedField("_v", translatedSelector.Ast)),
+                            new AstProjectStageExcludeIdSpecification()));
 
                     return pipeline;
                 }

@@ -190,7 +190,8 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
             Assert(query,
                 1,
                 "{ $group: { _id: '$$ROOT' } }",
-                "{ $match: { '_id.A': 'Awesome' } }");
+                "{ $replaceRoot : { newRoot : '$_id' } }",
+                "{ $match: { A: 'Awesome' } }");
         }
 
         [SkippableFact]
@@ -206,7 +207,8 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
                 1,
                 "{ $project: { 'A': '$A', 'B': '$B', '_id': 0 } }",
                 "{ $match: { 'A': 'Awesome' } }",
-                "{ $group: { '_id': '$$ROOT' } }");
+                "{ $group: { '_id': '$$ROOT' } }",
+                "{ $replaceRoot : { newRoot : '$_id' } }");
         }
 
         [SkippableFact]
@@ -220,8 +222,10 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 1,
-                "{ $match: { 'A': 'Awesome' } }",
-                "{ $group: { '_id': { 'A': '$A', 'B': '$B' } } }");
+                "{ $match : { 'A' : 'Awesome' } }",
+                "{ $project : { A : '$A', B : '$B', _id : 0  } }",
+                "{ $group : { '_id' : '$$ROOT' } }",
+                "{ $replaceRoot : { newRoot : '$_id' } }");
         }
 
         [SkippableFact]
@@ -235,8 +239,10 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 1,
-                "{ $match: { 'A': 'Awesome' } }",
-                "{ $group: { '_id': '$A' } }");
+                "{ $match : { 'A' : 'Awesome' } }",
+                "{ $project : { _v : '$A', _id : 0 } }",
+                "{ $group : { '_id' : '$$ROOT' } }",
+                "{ $replaceRoot : { newRoot : '$_id' } }");
         }
 
         [SkippableFact]
@@ -250,9 +256,10 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 1,
-                "{ $project: { 'A': '$A', '_id': 0 } }",
-                "{ $match: { 'A': 'Awesome' } }",
-                "{ $group: { '_id': '$A' } }");
+                "{ $project: { '_v': '$A', '_id': 0 } }",
+                "{ $match: { '_v': 'Awesome' } }",
+                "{ $group: { '_id': '$$ROOT' } }",
+                "{ $replaceRoot : { newRoot : '$_id' } }");
         }
 
         [Fact]
@@ -916,8 +923,10 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 1,
-                "{ $group: { _id: { $concat: ['$A', ' ', '$B'] } } }",
-                "{ $match: { _id: 'Awesome Balloon' } }");
+                "{ $project : { _v : { $concat : ['$A', ' ', '$B'] }, _id : 0 } }",
+                "{ $group : { _id : '$$ROOT' } }",
+                "{ $replaceRoot : { newRoot : '$_id' } }",
+                "{ $match : { _v : 'Awesome Balloon' } }");
         }
 
         [Fact]

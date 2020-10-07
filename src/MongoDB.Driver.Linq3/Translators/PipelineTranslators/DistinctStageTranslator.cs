@@ -32,8 +32,6 @@ namespace MongoDB.Driver.Linq3.Translators.PipelineTranslators
             {
                 pipeline.AddStages(
                     pipeline.OutputSerializer,
-                    //new BsonDocument("$group", new BsonDocument("_id", "$$ROOT")),
-                    //new BsonDocument("$replaceRoot", new BsonDocument("newRoot", "$_id")));
                     new AstGroupStage(new AstFieldExpression("$$ROOT"), Enumerable.Empty<AstComputedField>()),
                     new AstReplaceRootStage(new AstFieldExpression("$_id")));
 
