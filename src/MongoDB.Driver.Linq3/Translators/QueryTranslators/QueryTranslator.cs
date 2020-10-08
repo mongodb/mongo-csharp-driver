@@ -73,6 +73,7 @@ namespace MongoDB.Driver.Linq3.Translators.QueryTranslators
                 case "LongCountAsync":
                     return LongCountQueryTranslator.Translate(provider, context, methodCallExpression).AsExecutableQuery<TDocument, TResult>();
                 case "Max":
+                case "MaxAsync":
                     return MaxQueryTranslator<TResult>.Translate(provider, context, methodCallExpression);
                 case "Min":
                     return MinQueryTranslator<TResult>.Translate(provider, context, methodCallExpression);

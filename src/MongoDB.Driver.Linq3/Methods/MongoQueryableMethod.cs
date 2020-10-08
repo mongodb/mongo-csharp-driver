@@ -55,6 +55,8 @@ namespace MongoDB.Driver.Linq3.Methods
         private static readonly MethodInfo __firstWithPredicateAsync;
         private static readonly MethodInfo __longCountAsync;
         private static readonly MethodInfo __longCountWithPredicateAsync;
+        private static readonly MethodInfo __maxAsync;
+        private static readonly MethodInfo __maxWithSelectorAsync;
 
         // static constructor
         static MongoQueryableMethod()
@@ -89,6 +91,8 @@ namespace MongoDB.Driver.Linq3.Methods
             __firstWithPredicateAsync = new Func<IQueryable<object>, Expression<Func<object, bool>>, CancellationToken, object>(MongoQueryable.FirstAsync).Method.GetGenericMethodDefinition();
             __longCountAsync = new Func<IQueryable<object>, CancellationToken, Task<long>>(MongoQueryable.LongCountAsync).Method.GetGenericMethodDefinition();
             __longCountWithPredicateAsync = new Func<IQueryable<object>, Expression<Func<object, bool>>, CancellationToken, Task<long>>(MongoQueryable.LongCountAsync).Method.GetGenericMethodDefinition();
+            __maxAsync = new Func<IQueryable<object>, CancellationToken, Task<object>>(MongoQueryable.MaxAsync).Method.GetGenericMethodDefinition();
+            __maxWithSelectorAsync = new Func<IQueryable<object>, Expression<Func<object, object>>, CancellationToken, Task<object>>(MongoQueryable.MaxAsync).Method.GetGenericMethodDefinition();
         }
 
         // public properties
@@ -122,5 +126,7 @@ namespace MongoDB.Driver.Linq3.Methods
         public static MethodInfo FirstWithPredicateAsync => __firstWithPredicateAsync;
         public static MethodInfo LongCountAsync => __longCountAsync;
         public static MethodInfo LongCountWithPredicateAsync => __longCountWithPredicateAsync;
+        public static MethodInfo MaxAsync => __maxAsync;
+        public static MethodInfo MaxWithSelectorAsync => __maxWithSelectorAsync;
     }
 }
