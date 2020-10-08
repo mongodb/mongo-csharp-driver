@@ -14,13 +14,16 @@
 */
 
 using System.Linq.Expressions;
+using System.Reflection;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq3.Ast;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Ast.Stages;
 using MongoDB.Driver.Linq3.Methods;
 using MongoDB.Driver.Linq3.Misc;
 using MongoDB.Driver.Linq3.Serializers;
+using MongoDB.Driver.Linq3.Translators.ExpressionTranslators;
 using MongoDB.Driver.Linq3.Translators.PipelineTranslators;
 using MongoDB.Driver.Linq3.Translators.QueryTranslators.Finalizers;
 
@@ -30,46 +33,67 @@ namespace MongoDB.Driver.Linq3.Translators.QueryTranslators
     {
         // private static fields
         private static readonly IExecutableQueryFinalizer<TOutput, TOutput> __finalizer = new SingleFinalizer<TOutput>();
+        private static readonly MethodInfo[] __minMethods;
+        private static readonly MethodInfo[] __minWithSelectorMethods;
+
+        // static constructor
+        static MinQueryTranslator()
+        {
+            __minMethods = new[]
+            {
+                QueryableMethod.Min,
+                QueryableMethod.MinWithSelector,
+                MongoQueryableMethod.MinAsync,
+                MongoQueryableMethod.MinWithSelectorAsync,
+            };
+
+            __minWithSelectorMethods = new[]
+            {
+                QueryableMethod.MinWithSelector,
+                MongoQueryableMethod.MinWithSelectorAsync,
+            };
+        }
 
         // public static methods
         public static ExecutableQuery<TDocument, TOutput> Translate<TDocument>(MongoQueryProvider<TDocument> provider, TranslationContext context, MethodCallExpression expression)
         {
-            if (expression.Method.IsOneOf(QueryableMethod.Min, QueryableMethod.MinWithSelector))
-            {
-                var source = expression.Arguments[0];
-                if (expression.Method.Is(QueryableMethod.MinWithSelector))
-                {
-                    var selector = expression.Arguments[1];
-                    var lambda = ExpressionHelper.Unquote(selector);
-                    var tsource = source.Type.GetGenericArguments()[0];
-                    var tresult = lambda.ReturnType;
-                    source = Expression.Call(QueryableMethod.MakeSelect(tsource, tresult), source, selector);
-                }
+            var method = expression.Method;
+            var arguments = expression.Arguments;
 
+            if (method.IsOneOf(__minMethods))
+            {
+                var source = arguments[0];
                 var pipeline = PipelineTranslator.Translate(context, source);
 
-                var outputSerializer = pipeline.OutputSerializer;
-                if (!(outputSerializer is IWrappedValueSerializer))
+                AstExpression minArgument;
+                IBsonSerializer minSerializer;
+                if (method.IsOneOf(__minWithSelectorMethods))
                 {
-                    outputSerializer = WrappedValueSerializer.Create(outputSerializer);
-                    pipeline.AddStages(
-                        outputSerializer,
-                        //BsonDocument.Parse("{ $project : { _id : 0, _v : \"$$ROOT\" } }"));
-                        new AstProjectStage(
-                            new AstProjectStageExcludeIdSpecification(),
-                            new AstProjectStageComputedFieldSpecification(new AstComputedField("_v", new AstFieldExpression("$$ROOT")))));
+                    var selectorExpression = ExpressionHelper.Unquote(arguments[1]);
+                    var selectorTranslation = ExpressionTranslator.Translate(context, selectorExpression, pipeline.OutputSerializer);
+                    if (selectorTranslation.Serializer is IBsonDocumentSerializer)
+                    {
+                        minArgument = selectorTranslation.Ast;
+                        minSerializer = selectorTranslation.Serializer;
+                    }
+                    else
+                    {
+                        minArgument = new AstComputedDocumentExpression(new[] { new AstComputedField("_v", selectorTranslation.Ast) });
+                        minSerializer = WrappedValueSerializer.Create(selectorTranslation.Serializer);
+                    }
+                }
+                else
+                {
+                    minArgument = new AstFieldExpression("$$ROOT");
+                    minSerializer = pipeline.OutputSerializer;
                 }
 
                 pipeline.AddStages(
-                    outputSerializer,
-                    //BsonDocument.Parse("{ $group : { _id : null, _min : { $min : \"$_v\" } } }"),
-                    //BsonDocument.Parse("{ $project : { _id : 0, _v : \"$_min\" } }"));
+                    minSerializer,
                     new AstGroupStage(
                         id: BsonNull.Value,
-                        fields: new AstComputedField("$_min", new AstUnaryExpression(AstUnaryOperator.Min, new AstFieldExpression("$_v")))),
-                    new AstProjectStage(
-                        new AstProjectStageExcludeIdSpecification(),
-                        new AstProjectStageComputedFieldSpecification(new AstComputedField("_v", new AstFieldExpression("$_min")))));
+                        fields: new AstComputedField("_min", new AstUnaryExpression(AstUnaryOperator.Min, minArgument))),
+                    new AstReplaceRootStage(new AstFieldExpression("$_min")));
 
                 return new ExecutableQuery<TDocument, TOutput, TOutput>(
                     provider.Collection,

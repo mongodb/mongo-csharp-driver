@@ -76,6 +76,7 @@ namespace MongoDB.Driver.Linq3.Translators.QueryTranslators
                 case "MaxAsync":
                     return MaxQueryTranslator<TResult>.Translate(provider, context, methodCallExpression);
                 case "Min":
+                case "MinAsync":
                     return MinQueryTranslator<TResult>.Translate(provider, context, methodCallExpression);
                 case "Single":
                 case "SingleOrDefault":
