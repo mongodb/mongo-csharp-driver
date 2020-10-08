@@ -353,12 +353,22 @@ namespace MongoDB.Driver.Linq3
 
         public static Task<TSource> MinAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<TSource>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, CancellationToken, Task<TSource>>(MongoQueryable.MinAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<TResult> MinAsync<TSource, TResult>(this IQueryable<TSource> source, Expression<Func<TSource, TResult>> selector, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<TResult>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, TResult>>, CancellationToken, Task<TResult>>(MongoQueryable.MinAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static IMongoQueryable<TSource> Sample<TSource>(this IQueryable<TSource> source, long count)
