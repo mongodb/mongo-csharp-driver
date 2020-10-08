@@ -14,13 +14,16 @@
 */
 
 using System.Linq.Expressions;
+using System.Reflection;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq3.Ast;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Ast.Stages;
 using MongoDB.Driver.Linq3.Methods;
 using MongoDB.Driver.Linq3.Misc;
 using MongoDB.Driver.Linq3.Serializers;
+using MongoDB.Driver.Linq3.Translators.ExpressionTranslators;
 using MongoDB.Driver.Linq3.Translators.PipelineTranslators;
 using MongoDB.Driver.Linq3.Translators.QueryTranslators.Finalizers;
 
@@ -30,46 +33,67 @@ namespace MongoDB.Driver.Linq3.Translators.QueryTranslators
     {
         // private static fields
         private static readonly IExecutableQueryFinalizer<TOutput, TOutput> __finalizer = new SingleFinalizer<TOutput>();
+        private static readonly MethodInfo[] __maxMethods;
+        private static readonly MethodInfo[] __maxWithSelectorMethods;
+
+        // static constructor
+        static MaxQueryTranslator()
+        {
+            __maxMethods = new[]
+            {
+                QueryableMethod.Max,
+                QueryableMethod.MaxWithSelector,
+                MongoQueryableMethod.MaxAsync,
+                MongoQueryableMethod.MaxWithSelectorAsync,
+            };
+
+            __maxWithSelectorMethods = new[]
+            {
+                QueryableMethod.MaxWithSelector,
+                MongoQueryableMethod.MaxWithSelectorAsync,
+            };
+        }
 
         // public static methods
         public static ExecutableQuery<TDocument, TOutput> Translate<TDocument>(MongoQueryProvider<TDocument> provider, TranslationContext context, MethodCallExpression expression)
         {
-            if (expression.Method.IsOneOf(QueryableMethod.Max, QueryableMethod.MaxWithSelector))
-            {
-                var source = expression.Arguments[0];
-                if (expression.Method.Is(QueryableMethod.MaxWithSelector))
-                {
-                    var selector = expression.Arguments[1];
-                    var lambda = ExpressionHelper.Unquote(selector);
-                    var tsource = source.Type.GetGenericArguments()[0];
-                    var tresult = lambda.ReturnType;
-                    source = Expression.Call(QueryableMethod.MakeSelect(tsource, tresult), source, selector);
-                }
+            var method = expression.Method;
+            var arguments = expression.Arguments;
 
+            if (method.IsOneOf(__maxMethods))
+            {
+                var source = arguments[0];
                 var pipeline = PipelineTranslator.Translate(context, source);
 
-                var outputSerializer = pipeline.OutputSerializer;
-                if (!(outputSerializer is IWrappedValueSerializer))
+                AstExpression maxArgument;
+                IBsonSerializer maxSerializer;
+                if (method.IsOneOf(__maxWithSelectorMethods))
                 {
-                    outputSerializer = WrappedValueSerializer.Create(outputSerializer);
-                    pipeline.AddStages(
-                        outputSerializer,
-                        //BsonDocument.Parse("{ $project : { _id : 0, _v : \"$$ROOT\" } }"));
-                        new AstProjectStage(
-                            new AstProjectStageExcludeFieldSpecification("_id"),
-                            new AstProjectStageComputedFieldSpecification(new AstComputedField("_v", new AstFieldExpression("$$ROOT")))));
+                    var selectorExpression = ExpressionHelper.Unquote(arguments[1]);
+                    var selectorTranslation = ExpressionTranslator.Translate(context, selectorExpression, pipeline.OutputSerializer);
+                    if (selectorTranslation.Serializer is IBsonDocumentSerializer)
+                    {
+                        maxArgument = selectorTranslation.Ast;
+                        maxSerializer = selectorTranslation.Serializer;
+                    }
+                    else
+                    {
+                        maxArgument = new AstComputedDocumentExpression(new[] { new AstComputedField("_v", selectorTranslation.Ast) });
+                        maxSerializer = WrappedValueSerializer.Create(selectorTranslation.Serializer);
+                    }
+                }
+                else
+                {
+                    maxArgument = new AstFieldExpression("$$ROOT");
+                    maxSerializer = pipeline.OutputSerializer;
                 }
 
                 pipeline.AddStages(
-                    outputSerializer,
-                    //BsonDocument.Parse("{ $group : { _id : null, _max : { $max : \"$_v\" } } }"),
-                    //BsonDocument.Parse("{ $project : { _id : 0, _v : \"$_max\" } }"));
+                    maxSerializer,
                     new AstGroupStage(
                         id: BsonNull.Value,
-                        fields: new AstComputedField("_max", new AstUnaryExpression(AstUnaryOperator.Max, new AstFieldExpression("$_v")))),
-                    new AstProjectStage(
-                        new AstProjectStageExcludeFieldSpecification("_id"),
-                        new AstProjectStageComputedFieldSpecification(new AstComputedField("_v", new AstFieldExpression("$_max")))));
+                        fields: new AstComputedField("_max", new AstUnaryExpression(AstUnaryOperator.Max, maxArgument))),
+                    new AstReplaceRootStage(new AstFieldExpression("$_max")));
 
                 return new ExecutableQuery<TDocument, TOutput, TOutput>(
                     provider.Collection,
