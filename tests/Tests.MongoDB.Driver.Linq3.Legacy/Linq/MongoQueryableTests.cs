@@ -772,9 +772,9 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 1,
-                "{ $project: { E: '$C.E', _id: 0 } }",
-                "{ $match: { 'E._t': 'V' } }",
-                "{ $match: { 'E.W': 1111 } }");
+                "{ $project : { _v : '$C.E', _id : 0 } }",
+                "{ $match: { '_v._t': 'V' } }",
+                "{ $match: { '_v.W': 1111 } }");
         }
 
         [Fact]
