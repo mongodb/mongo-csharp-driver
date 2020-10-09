@@ -48,6 +48,8 @@ namespace MongoDB.Driver.Linq3.Translators.PipelineTranslators
                 case "ThenBy":
                 case "ThenByDescending":
                     return OrderByStageTranslator.Translate(context, methodCallExpression, pipeline);
+                case "Sample":
+                    return SampleStageTranslator.Translate(context, methodCallExpression, pipeline);
                 case "Select":
                     return SelectStageTranslator.Translate(context, methodCallExpression, pipeline);
                 case "Skip":

@@ -20,19 +20,19 @@ namespace MongoDB.Driver.Linq3.Ast.Stages
 {
     public sealed class AstSampleStage : AstPipelineStage
     {
-        private readonly long _sampleSize;
+        private readonly long _size;
 
-        public AstSampleStage(int sampleSize)
+        public AstSampleStage(long size)
         {
-            _sampleSize = Ensure.IsGreaterThanZero(sampleSize, nameof(sampleSize));
+            _size = Ensure.IsGreaterThanZero(size, nameof(size));
         }
 
         public override AstNodeType NodeType => AstNodeType.RedactStage;
-        public long SampleSize => _sampleSize;
+        public long SampleSize => _size;
 
         public override BsonValue Render()
         {
-            return new BsonDocument("$sample", new BsonDocument("size", _sampleSize));
+            return new BsonDocument("$sample", new BsonDocument("size", _size));
         }
     }
 }

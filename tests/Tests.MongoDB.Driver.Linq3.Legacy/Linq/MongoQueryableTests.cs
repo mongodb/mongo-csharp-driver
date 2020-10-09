@@ -891,8 +891,8 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 2,
-                "{ $project: { A: '$A', _id: 0 } }",
-                "{ $sample: { size: 100 } }");
+                "{ $project : { _v : '$A', _id : 0 } }",
+                "{ $sample : { size : 100 } }");
         }
 
         [Fact]

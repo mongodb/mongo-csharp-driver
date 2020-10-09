@@ -371,11 +371,14 @@ namespace MongoDB.Driver.Linq3
                 cancellationToken);
         }
 
-        public static IMongoQueryable<TSource> Sample<TSource>(this IQueryable<TSource> source, long count)
+        public static IQueryable<TSource> Sample<TSource>(this IQueryable<TSource> source, long size)
         {
-            throw new NotImplementedException();
+            Expression[] arguments = new[] { source.Expression, Expression.Constant(size) };
+            return source.Provider.CreateQuery<TSource>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, long, IQueryable<TSource>>(new Func<IQueryable<TSource>, long, IQueryable<TSource>>(MongoQueryable.Sample), source, size),
+                    arguments));
         }
-
 
         public static Task<TSource> SingleAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default)
         {
