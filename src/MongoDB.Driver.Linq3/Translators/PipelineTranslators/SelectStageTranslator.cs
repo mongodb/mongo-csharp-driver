@@ -14,7 +14,6 @@
 */
 
 using System.Linq.Expressions;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq3.Ast.Stages;
 using MongoDB.Driver.Linq3.Methods;
 using MongoDB.Driver.Linq3.Misc;
@@ -28,38 +27,22 @@ namespace MongoDB.Driver.Linq3.Translators.PipelineTranslators
         // public static methods
         public static TranslatedPipeline Translate(TranslationContext context, MethodCallExpression expression, TranslatedPipeline pipeline)
         {
-            if (expression.Method.Is(QueryableMethod.Select))
+            var method = expression.Method;
+            var arguments = expression.Arguments;
+
+            if (method.Is(QueryableMethod.Select))
             {
-                var selector = expression.Arguments[1];
+                var selectorExpression = ExpressionHelper.Unquote(arguments[1]);
+                var selectorTranslation = ExpressionTranslator.Translate(context, selectorExpression, parameterSerializer: pipeline.OutputSerializer);
+                var wrappedValueSerializer = WrappedValueSerializer.Create(selectorTranslation.Serializer);
 
-                var lambda = ExpressionHelper.Unquote(selector);
-                var selectorContext = context.WithSymbolAsCurrent(lambda.Parameters[0], new Symbol("$ROOT", pipeline.OutputSerializer));
-                var translatedSelector = ExpressionTranslator.Translate(selectorContext, lambda.Body);
-                var translatedSelectorSerializer = translatedSelector.Serializer ?? BsonSerializer.LookupSerializer(lambda.ReturnType);
+                pipeline.AddStages(
+                    wrappedValueSerializer,
+                    new AstProjectStage(
+                        new AstProjectStageComputedFieldSpecification(new Ast.AstComputedField("_v", selectorTranslation.Ast)),
+                        new AstProjectStageExcludeIdSpecification()));
 
-                if (translatedSelectorSerializer is IBsonDocumentSerializer)
-                {
-                    var projection = ProjectionHelper.ConvertExpressionToProjection(translatedSelector.Ast);
-
-                    pipeline.AddStages(
-                        translatedSelectorSerializer,
-                        new AstProjectStage(projection));
-
-                    return pipeline;
-                }
-                else
-                {
-                    var valueType = lambda.ReturnType;
-                    var wrappedValueSerializer = WrappedValueSerializer.Create(translatedSelectorSerializer);
-
-                    pipeline.AddStages(
-                        wrappedValueSerializer,
-                        new AstProjectStage(
-                            new AstProjectStageComputedFieldSpecification(new Ast.AstComputedField("_v", translatedSelector.Ast)),
-                            new AstProjectStageExcludeIdSpecification()));
-
-                    return pipeline;
-                }
+                return pipeline;
             }
 
             throw new ExpressionNotSupportedException(expression);
