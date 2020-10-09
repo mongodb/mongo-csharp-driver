@@ -14,6 +14,7 @@
 */
 
 using System.Linq.Expressions;
+using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Ast.Stages;
 using MongoDB.Driver.Linq3.Methods;
 using MongoDB.Driver.Linq3.Misc;
@@ -34,13 +35,25 @@ namespace MongoDB.Driver.Linq3.Translators.PipelineTranslators
             {
                 var selectorExpression = ExpressionHelper.Unquote(arguments[1]);
                 var selectorTranslation = ExpressionTranslator.Translate(context, selectorExpression, parameterSerializer: pipeline.OutputSerializer);
-                var wrappedValueSerializer = WrappedValueSerializer.Create(selectorTranslation.Serializer);
 
-                pipeline.AddStages(
-                    wrappedValueSerializer,
-                    new AstProjectStage(
-                        new AstProjectStageComputedFieldSpecification(new Ast.AstComputedField("_v", selectorTranslation.Ast)),
-                        new AstProjectStageExcludeIdSpecification()));
+                if (selectorTranslation.Ast is AstComputedDocumentExpression)
+                {
+                    var projection = ProjectionHelper.ConvertExpressionToProjection(selectorTranslation.Ast);
+
+                    pipeline.AddStages(
+                        selectorTranslation.Serializer,
+                        new AstProjectStage(projection));
+                }
+                else
+                {
+                    var wrappedValueSerializer = WrappedValueSerializer.Create(selectorTranslation.Serializer);
+
+                    pipeline.AddStages(
+                        wrappedValueSerializer,
+                        new AstProjectStage(
+                            new AstProjectStageComputedFieldSpecification(new Ast.AstComputedField("_v", selectorTranslation.Ast)),
+                            new AstProjectStageExcludeIdSpecification()));
+                }
 
                 return pipeline;
             }
