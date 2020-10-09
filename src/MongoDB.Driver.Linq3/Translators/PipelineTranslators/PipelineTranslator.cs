@@ -41,6 +41,8 @@ namespace MongoDB.Driver.Linq3.Translators.PipelineTranslators
                     return DistinctStageTranslator.Translate(context, methodCallExpression, pipeline);
                 case "GroupBy":
                     return GroupByStageTranslator.Translate(context, methodCallExpression, pipeline);
+                case "OfType":
+                    return OfTypeStageTranslator.Translate(context, methodCallExpression, pipeline);
                 case "OrderBy":
                 case "OrderByDescending":
                 case "ThenBy":
