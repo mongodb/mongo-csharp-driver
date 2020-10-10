@@ -144,6 +144,26 @@ namespace MongoDB.Driver.Linq3.Methods
         private static readonly MethodInfo __standardDeviationSampleSingleAsync;
         private static readonly MethodInfo __standardDeviationSampleSingleWithSelector;
         private static readonly MethodInfo __standardDeviationSampleSingleWithSelectorAsync;
+        private static readonly MethodInfo __sumDecimalAsync;
+        private static readonly MethodInfo __sumDecimalWithSelectorAsync;
+        private static readonly MethodInfo __sumDoubleAsync;
+        private static readonly MethodInfo __sumDoubleWithSelectorAsync;
+        private static readonly MethodInfo __sumInt32Async;
+        private static readonly MethodInfo __sumInt32WithSelectorAsync;
+        private static readonly MethodInfo __sumInt64Async;
+        private static readonly MethodInfo __sumInt64WithSelectorAsync;
+        private static readonly MethodInfo __sumNullableDecimalAsync;
+        private static readonly MethodInfo __sumNullableDecimalWithSelectorAsync;
+        private static readonly MethodInfo __sumNullableDoubleAsync;
+        private static readonly MethodInfo __sumNullableDoubleWithSelectorAsync;
+        private static readonly MethodInfo __sumNullableInt32Async;
+        private static readonly MethodInfo __sumNullableInt32WithSelectorAsync;
+        private static readonly MethodInfo __sumNullableInt64Async;
+        private static readonly MethodInfo __sumNullableInt64WithSelectorAsync;
+        private static readonly MethodInfo __sumNullableSingleAsync;
+        private static readonly MethodInfo __sumNullableSingleWithSelectorAsync;
+        private static readonly MethodInfo __sumSingleAsync;
+        private static readonly MethodInfo __sumSingleWithSelectorAsync;
 
         // static constructor
         static MongoQueryableMethod()
@@ -267,7 +287,26 @@ namespace MongoDB.Driver.Linq3.Methods
             __standardDeviationSampleSingleAsync = new Func<IQueryable<float>, CancellationToken, Task<float>>(MongoQueryable.StandardDeviationSampleAsync).Method;
             __standardDeviationSampleSingleWithSelector = new Func<IQueryable<object>, Expression<Func<object, float>>, float>(MongoQueryable.StandardDeviationSample).Method.GetGenericMethodDefinition();
             __standardDeviationSampleSingleWithSelectorAsync = new Func<IQueryable<object>, Expression<Func<object, float>>, CancellationToken, Task<float>>(MongoQueryable.StandardDeviationSampleAsync).Method.GetGenericMethodDefinition(); ;
-
+            __sumDecimalAsync = new Func<IQueryable<decimal>, CancellationToken, Task<decimal>>(MongoQueryable.SumAsync).Method;
+            __sumDecimalWithSelectorAsync = new Func<IQueryable<object>, Expression<Func<object, decimal>>, CancellationToken, Task<decimal>>(MongoQueryable.SumAsync).Method.GetGenericMethodDefinition();
+            __sumDoubleAsync = new Func<IQueryable<double>, CancellationToken, Task<double>>(MongoQueryable.SumAsync).Method;
+            __sumDoubleWithSelectorAsync = new Func<IQueryable<object>, Expression<Func<object, double>>, CancellationToken, Task<double>>(MongoQueryable.SumAsync).Method.GetGenericMethodDefinition();
+            __sumInt32Async = new Func<IQueryable<int>, CancellationToken, Task<int>>(MongoQueryable.SumAsync).Method;
+            __sumInt32WithSelectorAsync = new Func<IQueryable<object>, Expression<Func<object, int>>, CancellationToken, Task<int>>(MongoQueryable.SumAsync).Method.GetGenericMethodDefinition();
+            __sumInt64Async = new Func<IQueryable<long>, CancellationToken, Task<long>>(MongoQueryable.SumAsync).Method;
+            __sumInt64WithSelectorAsync = new Func<IQueryable<object>, Expression<Func<object, long>>, CancellationToken, Task<long>>(MongoQueryable.SumAsync).Method.GetGenericMethodDefinition();
+            __sumNullableDecimalAsync = new Func<IQueryable<decimal?>, CancellationToken, Task<decimal?>>(MongoQueryable.SumAsync).Method;
+            __sumNullableDecimalWithSelectorAsync = new Func<IQueryable<object>, Expression<Func<object, decimal?>>, CancellationToken, Task<decimal?>>(MongoQueryable.SumAsync).Method.GetGenericMethodDefinition();
+            __sumNullableDoubleAsync = new Func<IQueryable<double?>, CancellationToken, Task<double?>>(MongoQueryable.SumAsync).Method;
+            __sumNullableDoubleWithSelectorAsync = new Func<IQueryable<object>, Expression<Func<object, double?>>, CancellationToken, Task<double?>>(MongoQueryable.SumAsync).Method.GetGenericMethodDefinition();
+            __sumNullableInt32Async = new Func<IQueryable<int?>, CancellationToken, Task<int?>>(MongoQueryable.SumAsync).Method;
+            __sumNullableInt32WithSelectorAsync = new Func<IQueryable<object>, Expression<Func<object, int?>>, CancellationToken, Task<int?>>(MongoQueryable.SumAsync).Method.GetGenericMethodDefinition();
+            __sumNullableInt64Async = new Func<IQueryable<long?>, CancellationToken, Task<long?>>(MongoQueryable.SumAsync).Method;
+            __sumNullableInt64WithSelectorAsync = new Func<IQueryable<object>, Expression<Func<object, long?>>, CancellationToken, Task<long?>>(MongoQueryable.SumAsync).Method.GetGenericMethodDefinition();
+            __sumNullableSingleAsync = new Func<IQueryable<float?>, CancellationToken, Task<float?>>(MongoQueryable.SumAsync).Method;
+            __sumNullableSingleWithSelectorAsync = new Func<IQueryable<object>, Expression<Func<object, float?>>, CancellationToken, Task<float?>>(MongoQueryable.SumAsync).Method.GetGenericMethodDefinition();
+            __sumSingleAsync = new Func<IQueryable<float>, CancellationToken, Task<float>>(MongoQueryable.SumAsync).Method;
+            __sumSingleWithSelectorAsync = new Func<IQueryable<object>, Expression<Func<object, float>>, CancellationToken, Task<float>>(MongoQueryable.SumAsync).Method.GetGenericMethodDefinition();
         }
 
         // public properties
@@ -389,6 +428,26 @@ namespace MongoDB.Driver.Linq3.Methods
         public static MethodInfo StandardDeviationSampleSingle => __standardDeviationSampleSingle;
         public static MethodInfo StandardDeviationSampleSingleAsync => __standardDeviationSampleSingleAsync;
         public static MethodInfo StandardDeviationSampleSingleWithSelector => __standardDeviationSampleSingleWithSelector;
-        public static MethodInfo StandardDeviationSampleSingleWithSelectorAsync => __standardDeviationPopulationSingleWithSelectorAsync;
+        public static MethodInfo StandardDeviationSampleSingleWithSelectorAsync => __standardDeviationSampleSingleWithSelectorAsync;
+        public static MethodInfo SumDecimalAsync => __sumDecimalAsync;
+        public static MethodInfo SumDecimalWithSelectorAsync => __sumDecimalWithSelectorAsync;
+        public static MethodInfo SumDoubleAsync => __sumDoubleAsync;
+        public static MethodInfo SumDoubleWithSelectorAsync => __sumDoubleWithSelectorAsync;
+        public static MethodInfo SumInt32Async => __sumInt32Async;
+        public static MethodInfo SumInt32WithSelectorAsync => __sumInt32WithSelectorAsync;
+        public static MethodInfo SumInt64Async => __sumInt64Async;
+        public static MethodInfo SumInt64WithSelectorAsync => __sumInt64WithSelectorAsync;
+        public static MethodInfo SumNullableDecimalAsync => __sumNullableDecimalAsync;
+        public static MethodInfo SumNullableDecimalWithSelectorAsync => __sumNullableDecimalWithSelectorAsync;
+        public static MethodInfo SumNullableDoubleAsync => __sumNullableDoubleAsync;
+        public static MethodInfo SumNullableDoubleWithSelectorAsync => __sumNullableDoubleWithSelectorAsync;
+        public static MethodInfo SumNullableInt32Async => __sumNullableInt32Async;
+        public static MethodInfo SumNullableInt32WithSelectorAsync => __sumNullableInt32WithSelectorAsync;
+        public static MethodInfo SumNullableInt64Async => __sumNullableInt64Async;
+        public static MethodInfo SumNullableInt64WithSelectorAsync => __sumNullableInt64WithSelectorAsync;
+        public static MethodInfo SumNullableSingleAsync => __sumNullableSingleAsync;
+        public static MethodInfo SumNullableSingleWithSelectorAsync => __sumNullableSingleWithSelectorAsync;
+        public static MethodInfo SumSingleAsync => __sumSingleAsync;
+        public static MethodInfo SumSingleWithSelectorAsync => __sumSingleWithSelectorAsync;
     }
 }
