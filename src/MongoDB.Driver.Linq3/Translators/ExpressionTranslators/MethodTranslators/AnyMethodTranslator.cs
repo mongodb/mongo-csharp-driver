@@ -43,16 +43,15 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
                 var predicateExpression = (LambdaExpression)expression.Arguments[1];
                 var predicateParameter = predicateExpression.Parameters[0];
                 var predicateParameterSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
-                var predicateContext = context.WithSymbol(predicateParameter, new Symbol("$this", predicateParameterSerializer));
+                var predicateContext = context.WithSymbol(predicateParameter, new Symbol("$" + predicateParameter.Name, predicateParameterSerializer));
                 var predicateTranslation = ExpressionTranslator.Translate(predicateContext, predicateExpression.Body);
 
-                var ast = new AstReduceExpression(
-                    input: sourceTranslation.Ast,
-                    initialValue: false,
-                    @in: new AstCondExpression(
-                        @if: new AstFieldExpression("$$value"),
-                        then: true,
-                        @else: predicateTranslation.Ast));
+                var ast = new AstUnaryExpression(
+                    AstUnaryOperator.AnyElementTrue,
+                    new AstMapExpression(
+                        input: sourceTranslation.Ast,
+                        @as: predicateParameter.Name,
+                        @in: predicateTranslation.Ast));
 
                 return new ExpressionTranslation(expression, ast, new BooleanSerializer());
             }
