@@ -910,7 +910,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 2,
-                "{ $project: { Id: '$_id', A: '$A', _id: 0} }");
+                "{ $project : { _id : '$_id', A : '$A' } }");
         }
 
         [Fact]
@@ -938,8 +938,8 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 1,
-                "{ $project: { __fld0: { $concat: ['$A', ' ', '$B'] }, _id: 0 } }",
-                "{ $match: { __fld0: 'Awesome Balloon' } }");
+                "{ $project : { _v : { $concat : ['$A', ' ', '$B'] }, _id : 0 } }",
+                "{ $match : { _v : 'Awesome Balloon' } }");
         }
 
         [SkippableFact]
@@ -951,7 +951,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 2,
-                "{ $project: { __fld0: { $anyElementTrue: { $map: { input: '$G', as: 'g', 'in': { $eq: ['$$g.D', \"Don't\"] } } } }, _id: 0 } }");
+                "{ $project : { _v : { $anyElementTrue : [ { $map : { input : '$G', as : 'g', 'in' : { $eq: ['$$g.D', \"Don't\"] } } } ] }, _id: 0 } }");
         }
 
         [Fact]
@@ -963,8 +963,8 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 1,
-                "{ $project: { Yeah: '$A', _id: 0 } }",
-                "{ $match: { Yeah: 'Awesome' } }");
+                "{ $project : { Yeah : '$A', _id : 0 } }",
+                "{ $match : { Yeah : 'Awesome' } }");
         }
 
         [Fact]
@@ -976,8 +976,8 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 1,
-                "{ $project: { A: '$A', _id: 0 } }",
-                "{ $match: { A: 'Awesome' } }");
+                "{ $project : { _v : '$A', _id : 0 } }",
+                "{ $match : { _v : 'Awesome' } }");
         }
 
         [Fact]
@@ -1008,7 +1008,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 2,
-                "{ $project: { A: '$A', _id: 0 } }");
+                "{ $project : { _v : '$A', _id : 0 } }");
         }
 
         [Fact]
@@ -1019,7 +1019,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 2,
-                "{ $project: { A: '$A', _id: 0 } }");
+                "{ $project : { _v : '$A', _id : 0 } }");
         }
 
         [Fact]
@@ -1029,7 +1029,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 2,
-                "{ $project: { __fld0: { $concat: ['$A', ' ', '$B'] }, _id: 0 } }");
+                "{ $project : { _v : { $concat : ['$A', ' ', '$B'] }, _id : 0 } }");
         }
 
         [Fact]
@@ -1040,7 +1040,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 2,
-                "{ $project: { __fld0: { $concat: ['$A', ' ', '$B'] }, _id: 0 } }");
+                "{ $project : { _v : { $concat : ['$A', ' ', '$B'] }, _id : 0 } }");
         }
 
         [Fact]
@@ -1050,7 +1050,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 2,
-                "{ $project: { M: '$M', _id: 0 } }");
+                "{ $project : { _v : '$M', _id : 0 } }");
         }
 
         [Fact]
@@ -1061,7 +1061,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 2,
-                "{ $project: { M: '$M', _id: 0 } }");
+                "{ $project : { _v : '$M', _id : 0 } }");
         }
 
         [SkippableFact]
@@ -1072,7 +1072,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 2,
-                "{ $project: { __fld0: { $arrayElemAt: ['$M', 0] }, _id: 0 } }");
+                "{ $project : { _v : { $arrayElemAt : ['$M', 0] }, _id : 0 } }");
         }
 
         [SkippableFact]
@@ -1084,7 +1084,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 2,
-                "{ $project: { __fld0: { $arrayElemAt: ['$M', 0] }, _id: 0 } }");
+                "{ $project : { _v : { $arrayElemAt : ['$M', 0] }, _id : 0 } }");
         }
 
         [SkippableFact]
@@ -1095,7 +1095,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 2,
-                "{ $project: { __fld0: { $arrayElemAt: ['$M', 0] }, _id: 0 } }");
+                "{ $project : { _v : { $arrayElemAt : ['$M', 0] }, _id : 0 } }");
         }
 
         [SkippableFact]
@@ -1107,7 +1107,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 2,
-                "{ $project: { __fld0: { $map: { input: '$M', as: 'i', in: { $add: ['$$i', 1] } } }, _id: 0 } }");
+                "{ $project : { _v : { $map : { input : '$M', as : 'i', in : { $add : ['$$i', 1] } } }, _id : 0 } }");
         }
 
         [SkippableFact]
@@ -1119,7 +1119,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 2,
-                "{ $project: { __fld0: { $map: { input: '$M', as: 'i', in: { $add: ['$$i', 1] } } }, _id: 0 } }");
+                "{ $project : { _v : { $map : { input : '$M', as : 'i', in : { $add : ['$$i', 1] } } }, _id : 0 } }");
         }
 
         [Fact]
