@@ -1182,102 +1182,202 @@ namespace MongoDB.Driver.Linq3
 
         public static Task<decimal> SumAsync(this IQueryable<decimal> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<decimal>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<decimal>, CancellationToken, Task<decimal>>(MongoQueryable.SumAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<decimal?> SumAsync(this IQueryable<decimal?> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<decimal?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<decimal?>, CancellationToken, Task<decimal?>>(MongoQueryable.SumAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<double> SumAsync(this IQueryable<double> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<double>, CancellationToken, Task<double>>(MongoQueryable.SumAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<double?> SumAsync(this IQueryable<double?> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<double?>, CancellationToken, Task<double?>>(MongoQueryable.SumAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<float> SumAsync(this IQueryable<float> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<float>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<float>, CancellationToken, Task<float>>(MongoQueryable.SumAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<float?> SumAsync(this IQueryable<float?> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<float?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<float?>, CancellationToken, Task<float?>>(MongoQueryable.SumAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<int> SumAsync(this IQueryable<int> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<int>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<int>, CancellationToken, Task<int>>(MongoQueryable.SumAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<int?> SumAsync(this IQueryable<int?> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<int?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<int?>, CancellationToken, Task<int?>>(MongoQueryable.SumAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<long> SumAsync(this IQueryable<long> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<long>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<long>, CancellationToken, Task<long>>(MongoQueryable.SumAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<long?> SumAsync(this IQueryable<long?> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<long?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<long?>, CancellationToken, Task<long?>>(MongoQueryable.SumAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<decimal> SumAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, decimal>> selector, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<decimal>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, decimal>>, CancellationToken, Task<decimal>>(MongoQueryable.SumAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<decimal?> SumAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, decimal?>> selector, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<decimal?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, decimal?>>, CancellationToken, Task<decimal?>>(MongoQueryable.SumAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<double> SumAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, double>> selector, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, double>>, CancellationToken, Task<double>>(MongoQueryable.SumAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<double?> SumAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, double?>> selector, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, double?>>, CancellationToken, Task<double?>>(MongoQueryable.SumAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<float> SumAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, float>> selector, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<float>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, float>>, CancellationToken, Task<float>>(MongoQueryable.SumAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<float?> SumAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, float?>> selector, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<float?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, float?>>, CancellationToken, Task<float?>>(MongoQueryable.SumAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<int> SumAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, int>> selector, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<int>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, int>>, CancellationToken, Task<int>>(MongoQueryable.SumAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<int?> SumAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, int?>> selector, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<int?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, int?>>, CancellationToken, Task<int?>>(MongoQueryable.SumAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<long> SumAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, long>> selector, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<long>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, long>>, CancellationToken, Task<long>>(MongoQueryable.SumAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<long?> SumAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, long?>> selector, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<long?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, long?>>, CancellationToken, Task<long?>>(MongoQueryable.SumAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static async Task<List<TSource>> ToListAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default)
