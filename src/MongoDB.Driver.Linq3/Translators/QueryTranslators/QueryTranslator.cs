@@ -83,6 +83,11 @@ namespace MongoDB.Driver.Linq3.Translators.QueryTranslators
                 case "SingleOrDefault":
                 case "SingleOrDefaultAsync":
                     return SingleQueryTranslator<TResult>.Translate(provider, context, methodCallExpression);
+                case "StandardDeviationPopulation":
+                case "StandardDeviationPopulationAsync":
+                case "StandardDeviationSample":
+                case "StandardDeviationSampleAsync":
+                    return StandardDeviationQueryTranslator<TResult>.Translate(provider, context, methodCallExpression);
                 case "Sum":
                     return SumQueryTranslator<TResult>.Translate(provider, context, methodCallExpression);
             }
