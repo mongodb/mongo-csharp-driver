@@ -422,402 +422,762 @@ namespace MongoDB.Driver.Linq3
 
         public static decimal StandardDeviationPopulation(this IQueryable<decimal> source)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression };
+            return ((MongoQueryProvider)source.Provider).Execute<decimal>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<decimal>, decimal>(MongoQueryable.StandardDeviationPopulation, source),
+                    arguments));
         }
 
-        public static decimal StandardDeviationPopulation(this IQueryable<decimal?> source)
+        public static decimal? StandardDeviationPopulation(this IQueryable<decimal?> source)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression };
+            return ((MongoQueryProvider)source.Provider).Execute<decimal?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<decimal?>, decimal?>(MongoQueryable.StandardDeviationPopulation, source),
+                    arguments));
         }
 
         public static double StandardDeviationPopulation(this IQueryable<double> source)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression };
+            return ((MongoQueryProvider)source.Provider).Execute<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<double>, double>(MongoQueryable.StandardDeviationPopulation, source),
+                    arguments));
         }
 
         public static double? StandardDeviationPopulation(this IQueryable<double?> source)
         {
-            throw new NotImplementedException();
-        }
-
-        public static double StandardDeviationPopulation(this IQueryable<int> source)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static double? StandardDeviationPopulation(this IQueryable<int?> source)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static double StandardDeviationPopulation(this IQueryable<long> source)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static double? StandardDeviationPopulation(this IQueryable<long?> source)
-        {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression };
+            return ((MongoQueryProvider)source.Provider).Execute<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<double?>, double?>(MongoQueryable.StandardDeviationPopulation, source),
+                    arguments));
         }
 
         public static float StandardDeviationPopulation(this IQueryable<float> source)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression };
+            return ((MongoQueryProvider)source.Provider).Execute<float>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<float>, float>(MongoQueryable.StandardDeviationPopulation, source),
+                    arguments));
         }
 
         public static float? StandardDeviationPopulation(this IQueryable<float?> source)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression };
+            return ((MongoQueryProvider)source.Provider).Execute<float?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<float?>, float?>(MongoQueryable.StandardDeviationPopulation, source),
+                    arguments));
         }
 
-        public static decimal StandardDeviationPopulation<TSource>(this IQueryable<TSource> source, Func<TSource, decimal> selector)
+        public static double StandardDeviationPopulation(this IQueryable<int> source)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression };
+            return ((MongoQueryProvider)source.Provider).Execute<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<int>, double>(MongoQueryable.StandardDeviationPopulation, source),
+                    arguments));
         }
 
-        public static decimal? StandardDeviationPopulation<TSource>(this IQueryable<TSource> source, Func<TSource, decimal?> selector)
+        public static double? StandardDeviationPopulation(this IQueryable<int?> source)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression };
+            return ((MongoQueryProvider)source.Provider).Execute<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<int?>, double?>(MongoQueryable.StandardDeviationPopulation, source),
+                    arguments));
         }
 
-        public static double StandardDeviationPopulation<TSource>(this IQueryable<TSource> source, Func<TSource, double> selector)
+        public static double StandardDeviationPopulation(this IQueryable<long> source)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression };
+            return ((MongoQueryProvider)source.Provider).Execute<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<long>, double>(MongoQueryable.StandardDeviationPopulation, source),
+                    arguments));
         }
 
-        public static double? StandardDeviationPopulation<TSource>(this IQueryable<TSource> source, Func<TSource, double?> selector)
+        public static double? StandardDeviationPopulation(this IQueryable<long?> source)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression };
+            return ((MongoQueryProvider)source.Provider).Execute<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<long?>, double?>(MongoQueryable.StandardDeviationPopulation, source),
+                    arguments));
         }
 
-        public static float StandardDeviationPopulation<TSource>(this IQueryable<TSource> source, Func<TSource, float> selector)
+        public static decimal StandardDeviationPopulation<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, decimal>> selector)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector) };
+            return ((MongoQueryProvider)source.Provider).Execute<decimal>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, decimal>>, decimal>(MongoQueryable.StandardDeviationPopulation, source, selector),
+                    arguments));
         }
 
-        public static float? StandardDeviationPopulation<TSource>(this IQueryable<TSource> source, Func<TSource, float?> selector)
+        public static decimal? StandardDeviationPopulation<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, decimal?>> selector)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector) };
+            return ((MongoQueryProvider)source.Provider).Execute<decimal?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, decimal?>>, decimal?>(MongoQueryable.StandardDeviationPopulation, source, selector),
+                    arguments));
         }
 
-        public static double StandardDeviationPopulation<TSource>(this IQueryable<TSource> source, Func<TSource, int> selector)
+        public static double StandardDeviationPopulation<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, double>> selector)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector) };
+            return ((MongoQueryProvider)source.Provider).Execute<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, double>>, double>(MongoQueryable.StandardDeviationPopulation, source, selector),
+                    arguments));
         }
 
-        public static double? StandardDeviationPopulation<TSource>(this IQueryable<TSource> source, Func<TSource, int?> selector)
+        public static double? StandardDeviationPopulation<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, double?>> selector)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector) };
+            return ((MongoQueryProvider)source.Provider).Execute<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, double?>>, double?>(MongoQueryable.StandardDeviationPopulation, source, selector),
+                    arguments));
         }
 
-        public static double StandardDeviationPopulation<TSource>(this IQueryable<TSource> source, Func<TSource, long> selector)
+        public static float StandardDeviationPopulation<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, float>> selector)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector) };
+            return ((MongoQueryProvider)source.Provider).Execute<float>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, float>>, float>(MongoQueryable.StandardDeviationPopulation, source, selector),
+                    arguments));
         }
 
-        public static double? StandardDeviationPopulation<TSource>(this IQueryable<TSource> source, Func<TSource, long?> selector)
+        public static float? StandardDeviationPopulation<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, float?>> selector)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector) };
+            return ((MongoQueryProvider)source.Provider).Execute<float?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, float?>>, float?>(MongoQueryable.StandardDeviationPopulation, source, selector),
+                    arguments));
+        }
+
+        public static double StandardDeviationPopulation<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, int>> selector)
+        {
+            var arguments = new[] { source.Expression, Expression.Quote(selector) };
+            return ((MongoQueryProvider)source.Provider).Execute<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, int>>, double>(MongoQueryable.StandardDeviationPopulation, source, selector),
+                    arguments));
+        }
+
+        public static double? StandardDeviationPopulation<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, int?>> selector)
+        {
+            var arguments = new[] { source.Expression, Expression.Quote(selector) };
+            return ((MongoQueryProvider)source.Provider).Execute<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, int?>>, double?>(MongoQueryable.StandardDeviationPopulation, source, selector),
+                    arguments));
+        }
+
+        public static double StandardDeviationPopulation<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, long>> selector)
+        {
+            var arguments = new[] { source.Expression, Expression.Quote(selector) };
+            return ((MongoQueryProvider)source.Provider).Execute<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, long>>, double>(MongoQueryable.StandardDeviationPopulation, source, selector),
+                    arguments));
+        }
+
+        public static double? StandardDeviationPopulation<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, long?>> selector)
+        {
+            var arguments = new[] { source.Expression, Expression.Quote(selector) };
+            return ((MongoQueryProvider)source.Provider).Execute<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, long?>>, double?>(MongoQueryable.StandardDeviationPopulation, source, selector),
+                    arguments));
         }
 
         public static Task<decimal> StandardDeviationPopulationAsync(this IQueryable<decimal> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<decimal>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<decimal>, CancellationToken, Task<decimal>>(MongoQueryable.StandardDeviationPopulationAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
-        public static Task<decimal> StandardDeviationPopulationAsync(this IQueryable<decimal?> source, CancellationToken cancellationToken = default)
+        public static Task<decimal?> StandardDeviationPopulationAsync(this IQueryable<decimal?> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<decimal?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<decimal?>, CancellationToken, Task<decimal?>>(MongoQueryable.StandardDeviationPopulationAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<double> StandardDeviationPopulationAsync(this IQueryable<double> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<double>, CancellationToken, Task<double>>(MongoQueryable.StandardDeviationPopulationAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<double?> StandardDeviationPopulationAsync(this IQueryable<double?> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
-        }
-
-        public static Task<double> StandardDeviationPopulationAsync(this IQueryable<int> source, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static Task<double?> StandardDeviationPopulationAsync(this IQueryable<int?> source, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static Task<double> StandardDeviationPopulationAsync(this IQueryable<long> source, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static Task<double?> StandardDeviationPopulationAsync(this IQueryable<long?> source, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<double?>, CancellationToken, Task<double?>>(MongoQueryable.StandardDeviationPopulationAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<float> StandardDeviationPopulationAsync(this IQueryable<float> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<float>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<float>, CancellationToken, Task<float>>(MongoQueryable.StandardDeviationPopulationAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<float?> StandardDeviationPopulationAsync(this IQueryable<float?> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<float?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<float?>, CancellationToken, Task<float?>>(MongoQueryable.StandardDeviationPopulationAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
-        public static Task<decimal> StandardDeviationPopulationAsync<TSource>(this IQueryable<TSource> source, Func<TSource, decimal> selector, CancellationToken cancellationToken = default)
+        public static Task<double> StandardDeviationPopulationAsync(this IQueryable<int> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<int>, CancellationToken, Task<double>>(MongoQueryable.StandardDeviationPopulationAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
-        public static Task<decimal?> StandardDeviationPopulationAsync<TSource>(this IQueryable<TSource> source, Func<TSource, decimal?> selector, CancellationToken cancellationToken = default)
+        public static Task<double?> StandardDeviationPopulationAsync(this IQueryable<int?> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<int?>, CancellationToken, Task<double?>>(MongoQueryable.StandardDeviationPopulationAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
-        public static Task<double> StandardDeviationPopulationAsync<TSource>(this IQueryable<TSource> source, Func<TSource, double> selector, CancellationToken cancellationToken = default)
+        public static Task<double> StandardDeviationPopulationAsync(this IQueryable<long> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<long>, CancellationToken, Task<double>>(MongoQueryable.StandardDeviationPopulationAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
-        public static Task<double?> StandardDeviationPopulationAsync<TSource>(this IQueryable<TSource> source, Func<TSource, double?> selector, CancellationToken cancellationToken = default)
+        public static Task<double?> StandardDeviationPopulationAsync(this IQueryable<long?> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<long?>, CancellationToken, Task<double?>>(MongoQueryable.StandardDeviationPopulationAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
-        public static Task<float> StandardDeviationPopulationAsync<TSource>(this IQueryable<TSource> source, Func<TSource, float> selector, CancellationToken cancellationToken = default)
+        public static Task<decimal> StandardDeviationPopulationAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, decimal>> selector, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<decimal>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, decimal>>, CancellationToken, Task<decimal>>(MongoQueryable.StandardDeviationPopulationAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
-        public static Task<float?> StandardDeviationPopulationAsync<TSource>(this IQueryable<TSource> source, Func<TSource, float?> selector, CancellationToken cancellationToken = default)
+        public static Task<decimal?> StandardDeviationPopulationAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, decimal?>> selector, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<decimal?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, decimal?>>, CancellationToken, Task<decimal?>>(MongoQueryable.StandardDeviationPopulationAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
-        public static Task<double> StandardDeviationPopulationAsync<TSource>(this IQueryable<TSource> source, Func<TSource, int> selector, CancellationToken cancellationToken = default)
+        public static Task<double> StandardDeviationPopulationAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, double>> selector, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, double>>, CancellationToken, Task<double>>(MongoQueryable.StandardDeviationPopulationAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
-        public static Task<double?> StandardDeviationPopulationAsync<TSource>(this IQueryable<TSource> source, Func<TSource, int?> selector, CancellationToken cancellationToken = default)
+        public static Task<double?> StandardDeviationPopulationAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, double?>> selector, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, double?>>, CancellationToken, Task<double?>>(MongoQueryable.StandardDeviationPopulationAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
-        public static Task<double> StandardDeviationPopulationAsync<TSource>(this IQueryable<TSource> source, Func<TSource, long> selector, CancellationToken cancellationToken = default)
+        public static Task<float> StandardDeviationPopulationAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, float>> selector, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<float>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, float>>, CancellationToken, Task<float>>(MongoQueryable.StandardDeviationPopulationAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
-        public static Task<double?> StandardDeviationPopulationAsync<TSource>(this IQueryable<TSource> source, Func<TSource, long?> selector, CancellationToken cancellationToken = default)
+        public static Task<float?> StandardDeviationPopulationAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, float?>> selector, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<float?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, float?>>, CancellationToken, Task<float?>>(MongoQueryable.StandardDeviationPopulationAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
+        }
+
+        public static Task<double> StandardDeviationPopulationAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, int>> selector, CancellationToken cancellationToken = default)
+        {
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, int>>, CancellationToken, Task<double>>(MongoQueryable.StandardDeviationPopulationAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
+        }
+
+        public static Task<double?> StandardDeviationPopulationAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, int?>> selector, CancellationToken cancellationToken = default)
+        {
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, int?>>, CancellationToken, Task<double?>>(MongoQueryable.StandardDeviationPopulationAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
+        }
+
+        public static Task<double> StandardDeviationPopulationAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, long>> selector, CancellationToken cancellationToken = default)
+        {
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, long>>, CancellationToken, Task<double>>(MongoQueryable.StandardDeviationPopulationAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
+        }
+
+        public static Task<double?> StandardDeviationPopulationAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, long?>> selector, CancellationToken cancellationToken = default)
+        {
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, long?>>, CancellationToken, Task<double?>>(MongoQueryable.StandardDeviationPopulationAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static decimal StandardDeviationSample(this IQueryable<decimal> source)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression };
+            return ((MongoQueryProvider)source.Provider).Execute<decimal>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<decimal>, decimal>(MongoQueryable.StandardDeviationSample, source),
+                    arguments));
         }
 
-        public static decimal StandardDeviationSample(this IQueryable<decimal?> source)
+        public static decimal? StandardDeviationSample(this IQueryable<decimal?> source)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression };
+            return ((MongoQueryProvider)source.Provider).Execute<decimal?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<decimal?>, decimal?>(MongoQueryable.StandardDeviationSample, source),
+                    arguments));
         }
 
         public static double StandardDeviationSample(this IQueryable<double> source)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression };
+            return ((MongoQueryProvider)source.Provider).Execute<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<double>, double>(MongoQueryable.StandardDeviationSample, source),
+                    arguments));
         }
 
         public static double? StandardDeviationSample(this IQueryable<double?> source)
         {
-            throw new NotImplementedException();
-        }
-
-        public static double StandardDeviationSample(this IQueryable<int> source)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static double? StandardDeviationSample(this IQueryable<int?> source)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static double StandardDeviationSample(this IQueryable<long> source)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static double? StandardDeviationSample(this IQueryable<long?> source)
-        {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression };
+            return ((MongoQueryProvider)source.Provider).Execute<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<double?>, double?>(MongoQueryable.StandardDeviationSample, source),
+                    arguments));
         }
 
         public static float StandardDeviationSample(this IQueryable<float> source)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression };
+            return ((MongoQueryProvider)source.Provider).Execute<float>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<float>, float>(MongoQueryable.StandardDeviationSample, source),
+                    arguments));
         }
 
         public static float? StandardDeviationSample(this IQueryable<float?> source)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression };
+            return ((MongoQueryProvider)source.Provider).Execute<float?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<float?>, float?>(MongoQueryable.StandardDeviationSample, source),
+                    arguments));
         }
 
-        public static decimal StandardDeviationSample<TSource>(this IQueryable<TSource> source, Func<TSource, decimal> selector)
+        public static double StandardDeviationSample(this IQueryable<int> source)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression };
+            return ((MongoQueryProvider)source.Provider).Execute<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<int>, double>(MongoQueryable.StandardDeviationSample, source),
+                    arguments));
         }
 
-        public static decimal? StandardDeviationSample<TSource>(this IQueryable<TSource> source, Func<TSource, decimal?> selector)
+        public static double? StandardDeviationSample(this IQueryable<int?> source)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression };
+            return ((MongoQueryProvider)source.Provider).Execute<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<int?>, double?>(MongoQueryable.StandardDeviationSample, source),
+                    arguments));
         }
 
-        public static double StandardDeviationSample<TSource>(this IQueryable<TSource> source, Func<TSource, double> selector)
+        public static double StandardDeviationSample(this IQueryable<long> source)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression };
+            return ((MongoQueryProvider)source.Provider).Execute<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<long>, double>(MongoQueryable.StandardDeviationSample, source),
+                    arguments));
         }
 
-        public static double? StandardDeviationSample<TSource>(this IQueryable<TSource> source, Func<TSource, double?> selector)
+        public static double? StandardDeviationSample(this IQueryable<long?> source)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression };
+            return ((MongoQueryProvider)source.Provider).Execute<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<long?>, double?>(MongoQueryable.StandardDeviationSample, source),
+                    arguments));
         }
 
-        public static float StandardDeviationSample<TSource>(this IQueryable<TSource> source, Func<TSource, float> selector)
+        public static decimal StandardDeviationSample<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, decimal>> selector)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector) };
+            return ((MongoQueryProvider)source.Provider).Execute<decimal>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, decimal>>, decimal>(MongoQueryable.StandardDeviationSample, source, selector),
+                    arguments));
         }
 
-        public static float? StandardDeviationSample<TSource>(this IQueryable<TSource> source, Func<TSource, float?> selector)
+        public static decimal? StandardDeviationSample<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, decimal?>> selector)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector) };
+            return ((MongoQueryProvider)source.Provider).Execute<decimal?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, decimal?>>, decimal?>(MongoQueryable.StandardDeviationSample, source, selector),
+                    arguments));
         }
 
-        public static double StandardDeviationSample<TSource>(this IQueryable<TSource> source, Func<TSource, int> selector)
+        public static double StandardDeviationSample<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, double>> selector)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector) };
+            return ((MongoQueryProvider)source.Provider).Execute<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, double>>, double>(MongoQueryable.StandardDeviationSample, source, selector),
+                    arguments));
         }
 
-        public static double? StandardDeviationSample<TSource>(this IQueryable<TSource> source, Func<TSource, int?> selector)
+        public static double? StandardDeviationSample<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, double?>> selector)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector) };
+            return ((MongoQueryProvider)source.Provider).Execute<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, double?>>, double?>(MongoQueryable.StandardDeviationSample, source, selector),
+                    arguments));
         }
 
-        public static double StandardDeviationSample<TSource>(this IQueryable<TSource> source, Func<TSource, long> selector)
+        public static float StandardDeviationSample<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, float>> selector)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector) };
+            return ((MongoQueryProvider)source.Provider).Execute<float>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, float>>, float>(MongoQueryable.StandardDeviationSample, source, selector),
+                    arguments));
         }
 
-        public static double? StandardDeviationSample<TSource>(this IQueryable<TSource> source, Func<TSource, long?> selector)
+        public static float? StandardDeviationSample<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, float?>> selector)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector) };
+            return ((MongoQueryProvider)source.Provider).Execute<float?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, float?>>, float?>(MongoQueryable.StandardDeviationSample, source, selector),
+                    arguments));
+        }
+
+        public static double StandardDeviationSample<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, int>> selector)
+        {
+            var arguments = new[] { source.Expression, Expression.Quote(selector) };
+            return ((MongoQueryProvider)source.Provider).Execute<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, int>>, double>(MongoQueryable.StandardDeviationSample, source, selector),
+                    arguments));
+        }
+
+        public static double? StandardDeviationSample<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, int?>> selector)
+        {
+            var arguments = new[] { source.Expression, Expression.Quote(selector) };
+            return ((MongoQueryProvider)source.Provider).Execute<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, int?>>, double?>(MongoQueryable.StandardDeviationSample, source, selector),
+                    arguments));
+        }
+
+        public static double StandardDeviationSample<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, long>> selector)
+        {
+            var arguments = new[] { source.Expression, Expression.Quote(selector) };
+            return ((MongoQueryProvider)source.Provider).Execute<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, long>>, double>(MongoQueryable.StandardDeviationSample, source, selector),
+                    arguments));
+        }
+
+        public static double? StandardDeviationSample<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, long?>> selector)
+        {
+            var arguments = new[] { source.Expression, Expression.Quote(selector) };
+            return ((MongoQueryProvider)source.Provider).Execute<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, long?>>, double?>(MongoQueryable.StandardDeviationSample, source, selector),
+                    arguments));
         }
 
         public static Task<decimal> StandardDeviationSampleAsync(this IQueryable<decimal> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<decimal>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<decimal>, CancellationToken, Task<decimal>>(MongoQueryable.StandardDeviationSampleAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
-        public static Task<decimal> StandardDeviationSampleAsync(this IQueryable<decimal?> source, CancellationToken cancellationToken = default)
+        public static Task<decimal?> StandardDeviationSampleAsync(this IQueryable<decimal?> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<decimal?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<decimal?>, CancellationToken, Task<decimal?>>(MongoQueryable.StandardDeviationSampleAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<double> StandardDeviationSampleAsync(this IQueryable<double> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<double>, CancellationToken, Task<double>>(MongoQueryable.StandardDeviationSampleAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<double?> StandardDeviationSampleAsync(this IQueryable<double?> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
-        }
-
-        public static Task<double> StandardDeviationSampleAsync(this IQueryable<int> source, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static Task<double?> StandardDeviationSampleAsync(this IQueryable<int?> source, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static Task<double> StandardDeviationSampleAsync(this IQueryable<long> source, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static Task<double?> StandardDeviationSampleAsync(this IQueryable<long?> source, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<double?>, CancellationToken, Task<double?>>(MongoQueryable.StandardDeviationSampleAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<float> StandardDeviationSampleAsync(this IQueryable<float> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<float>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<float>, CancellationToken, Task<float>>(MongoQueryable.StandardDeviationSampleAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<float?> StandardDeviationSampleAsync(this IQueryable<float?> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<float?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<float?>, CancellationToken, Task<float?>>(MongoQueryable.StandardDeviationSampleAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
-        public static Task<decimal> StandardDeviationSampleAsync<TSource>(this IQueryable<TSource> source, Func<TSource, decimal> selector, CancellationToken cancellationToken = default)
+        public static Task<double> StandardDeviationSampleAsync(this IQueryable<int> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<int>, CancellationToken, Task<double>>(MongoQueryable.StandardDeviationSampleAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
-        public static Task<decimal?> StandardDeviationSampleAsync<TSource>(this IQueryable<TSource> source, Func<TSource, decimal?> selector, CancellationToken cancellationToken = default)
+        public static Task<double?> StandardDeviationSampleAsync(this IQueryable<int?> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<int?>, CancellationToken, Task<double?>>(MongoQueryable.StandardDeviationSampleAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
-        public static Task<double> StandardDeviationSampleAsync<TSource>(this IQueryable<TSource> source, Func<TSource, double> selector, CancellationToken cancellationToken = default)
+        public static Task<double> StandardDeviationSampleAsync(this IQueryable<long> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<long>, CancellationToken, Task<double>>(MongoQueryable.StandardDeviationSampleAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
-        public static Task<double?> StandardDeviationSampleAsync<TSource>(this IQueryable<TSource> source, Func<TSource, double?> selector, CancellationToken cancellationToken = default)
+        public static Task<double?> StandardDeviationSampleAsync(this IQueryable<long?> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<long?>, CancellationToken, Task<double?>>(MongoQueryable.StandardDeviationSampleAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
-        public static Task<float> StandardDeviationSampleAsync<TSource>(this IQueryable<TSource> source, Func<TSource, float> selector, CancellationToken cancellationToken = default)
+        public static Task<decimal> StandardDeviationSampleAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, decimal>> selector, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<decimal>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, decimal>>, CancellationToken, Task<decimal>>(MongoQueryable.StandardDeviationSampleAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
-        public static Task<float?> StandardDeviationSampleAsync<TSource>(this IQueryable<TSource> source, Func<TSource, float?> selector, CancellationToken cancellationToken = default)
+        public static Task<decimal?> StandardDeviationSampleAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, decimal?>> selector, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<decimal?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, decimal?>>, CancellationToken, Task<decimal?>>(MongoQueryable.StandardDeviationSampleAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
-        public static Task<double> StandardDeviationSampleAsync<TSource>(this IQueryable<TSource> source, Func<TSource, int> selector, CancellationToken cancellationToken = default)
+        public static Task<double> StandardDeviationSampleAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, double>> selector, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, double>>, CancellationToken, Task<double>>(MongoQueryable.StandardDeviationSampleAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
-        public static Task<double?> StandardDeviationSampleAsync<TSource>(this IQueryable<TSource> source, Func<TSource, int?> selector, CancellationToken cancellationToken = default)
+        public static Task<double?> StandardDeviationSampleAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, double?>> selector, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, double?>>, CancellationToken, Task<double?>>(MongoQueryable.StandardDeviationSampleAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
-        public static Task<double> StandardDeviationSampleAsync<TSource>(this IQueryable<TSource> source, Func<TSource, long> selector, CancellationToken cancellationToken = default)
+        public static Task<float> StandardDeviationSampleAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, float>> selector, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<float>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, float>>, CancellationToken, Task<float>>(MongoQueryable.StandardDeviationSampleAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
-        public static Task<double?> StandardDeviationSampleAsync<TSource>(this IQueryable<TSource> source, Func<TSource, long?> selector, CancellationToken cancellationToken = default)
+        public static Task<float?> StandardDeviationSampleAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, float?>> selector, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<float?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, float?>>, CancellationToken, Task<float?>>(MongoQueryable.StandardDeviationSampleAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
+        }
+
+        public static Task<double> StandardDeviationSampleAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, int>> selector, CancellationToken cancellationToken = default)
+        {
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, int>>, CancellationToken, Task<double>>(MongoQueryable.StandardDeviationSampleAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
+        }
+
+        public static Task<double?> StandardDeviationSampleAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, int?>> selector, CancellationToken cancellationToken = default)
+        {
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, int?>>, CancellationToken, Task<double?>>(MongoQueryable.StandardDeviationSampleAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
+        }
+
+        public static Task<double> StandardDeviationSampleAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, long>> selector, CancellationToken cancellationToken = default)
+        {
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, long>>, CancellationToken, Task<double>>(MongoQueryable.StandardDeviationSampleAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
+        }
+
+        public static Task<double?> StandardDeviationSampleAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, long?>> selector, CancellationToken cancellationToken = default)
+        {
+            var arguments = new[] { source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<double?>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, long?>>, CancellationToken, Task<double?>>(MongoQueryable.StandardDeviationSampleAsync, source, selector, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<decimal> SumAsync(this IQueryable<decimal> source, CancellationToken cancellationToken = default)
