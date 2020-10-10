@@ -382,22 +382,42 @@ namespace MongoDB.Driver.Linq3
 
         public static Task<TSource> SingleAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<TSource>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, CancellationToken, Task<TSource>>(MongoQueryable.SingleAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<TSource> SingleAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(predicate), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<TSource>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, bool>>, CancellationToken, Task<TSource>>(MongoQueryable.SingleAsync, source, predicate, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<TSource> SingleOrDefaultAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<TSource>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, CancellationToken, Task<TSource>>(MongoQueryable.SingleOrDefaultAsync, source, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static Task<TSource> SingleOrDefaultAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var arguments = new[] { source.Expression, Expression.Quote(predicate), Expression.Constant(cancellationToken) };
+            return ((MongoQueryProvider)source.Provider).ExecuteAsync<TSource>(
+                Expression.Call(
+                    GetMethodInfo<IQueryable<TSource>, Expression<Func<TSource, bool>>, CancellationToken, Task<TSource>>(MongoQueryable.SingleOrDefaultAsync, source, predicate, cancellationToken),
+                    arguments),
+                cancellationToken);
         }
 
         public static decimal StandardDeviationPopulation(this IQueryable<decimal> source)
