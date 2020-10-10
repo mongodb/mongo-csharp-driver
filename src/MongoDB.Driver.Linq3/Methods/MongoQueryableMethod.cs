@@ -60,6 +60,10 @@ namespace MongoDB.Driver.Linq3.Methods
         private static readonly MethodInfo __minAsync;
         private static readonly MethodInfo __minWithSelectorAsync;
         private static readonly MethodInfo __sample;
+        private static readonly MethodInfo __singleAsync;
+        private static readonly MethodInfo __singleOrDefaultAsync;
+        private static readonly MethodInfo __singleOrDefaultWithPredicateAsync;
+        private static readonly MethodInfo __singleWithPredicateAsync;
 
         // static constructor
         static MongoQueryableMethod()
@@ -99,6 +103,10 @@ namespace MongoDB.Driver.Linq3.Methods
             __minAsync = new Func<IQueryable<object>, CancellationToken, Task<object>>(MongoQueryable.MinAsync).Method.GetGenericMethodDefinition();
             __minWithSelectorAsync = new Func<IQueryable<object>, Expression<Func<object, object>>, CancellationToken, Task<object>>(MongoQueryable.MinAsync).Method.GetGenericMethodDefinition();
             __sample = new Func<IQueryable<object>, long, IQueryable<object>>(MongoQueryable.Sample).Method.GetGenericMethodDefinition();
+            __singleAsync = new Func<IQueryable<object>, CancellationToken, Task<object>>(MongoQueryable.SingleAsync).Method.GetGenericMethodDefinition();
+            __singleOrDefaultAsync = new Func<IQueryable<object>, CancellationToken, Task<object>>(MongoQueryable.SingleOrDefaultAsync).Method.GetGenericMethodDefinition();
+            __singleOrDefaultWithPredicateAsync = new Func<IQueryable<object>, Expression<Func<object, bool>>, CancellationToken, Task<object>>(MongoQueryable.SingleOrDefaultAsync).Method.GetGenericMethodDefinition();
+            __singleWithPredicateAsync = new Func<IQueryable<object>, Expression<Func<object, bool>>, CancellationToken, Task<object>>(MongoQueryable.SingleAsync).Method.GetGenericMethodDefinition();
         }
 
         // public properties
@@ -137,5 +145,9 @@ namespace MongoDB.Driver.Linq3.Methods
         public static MethodInfo MinAsync => __minAsync;
         public static MethodInfo MinWithSelectorAsync => __minWithSelectorAsync;
         public static MethodInfo Sample => __sample;
+        public static MethodInfo SingleAsync => __singleAsync;
+        public static MethodInfo SingleOrDefaultAsync => __singleOrDefaultAsync;
+        public static MethodInfo SingleOrDefaultWithPredicateAsync => __singleOrDefaultWithPredicateAsync;
+        public static MethodInfo SingleWithPredicateAsync => __singleWithPredicateAsync;
     }
 }

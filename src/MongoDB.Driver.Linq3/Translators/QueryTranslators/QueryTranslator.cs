@@ -79,7 +79,9 @@ namespace MongoDB.Driver.Linq3.Translators.QueryTranslators
                 case "MinAsync":
                     return MinQueryTranslator<TResult>.Translate(provider, context, methodCallExpression);
                 case "Single":
+                case "SingleAsync":
                 case "SingleOrDefault":
+                case "SingleOrDefaultAsync":
                     return SingleQueryTranslator<TResult>.Translate(provider, context, methodCallExpression);
                 case "Sum":
                     return SumQueryTranslator<TResult>.Translate(provider, context, methodCallExpression);
