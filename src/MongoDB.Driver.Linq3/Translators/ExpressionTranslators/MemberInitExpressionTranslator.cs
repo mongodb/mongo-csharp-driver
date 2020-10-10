@@ -27,6 +27,10 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
     {
         public static ExpressionTranslation Translate(TranslationContext context, MemberInitExpression expression)
         {
+            if (!(BsonSerializer.LookupSerializer(expression.Type) is IBsonDocumentSerializer instanceSerializer))
+            {
+                goto notSupported;
+            }
             var computedFields = new List<AstComputedField>();
 
             var newExpression = expression.NewExpression;
@@ -46,15 +50,23 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
             {
                 var memberAssignment = (MemberAssignment)binding;
                 var member = memberAssignment.Member;
+                if (!(instanceSerializer.TryGetMemberSerializationInfo(member.Name, out var memberSerializationInfo)))
+                {
+                    goto notSupported;
+                }
+                var elementName = memberSerializationInfo.ElementName;
                 var valueExpression = memberAssignment.Expression;
                 var valueTranslation = ExpressionTranslator.Translate(context, valueExpression);
-                computedFields.Add(new AstComputedField(member.Name, valueTranslation.Ast));
+                computedFields.Add(new AstComputedField(elementName, valueTranslation.Ast));
             }
 
             var ast = new AstComputedDocumentExpression(computedFields);
             var serializer = BsonSerializer.LookupSerializer(expression.Type);
 
             return new ExpressionTranslation(expression, ast, serializer);
+
+        notSupported:
+            throw new ExpressionNotSupportedException(expression);
         }
 
         private static string GetFieldName(ParameterInfo parameter)
