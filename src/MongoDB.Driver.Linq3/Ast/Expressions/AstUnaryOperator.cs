@@ -23,6 +23,7 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
         ACos,
         ACosh,
         AddToSet,
+        AnyElementTrue,
         ArrayToObject,
         ASin,
         ASinh,
@@ -86,6 +87,7 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
                 case AstUnaryOperator.ACos: return "$acos";
                 case AstUnaryOperator.ACosh: return "$acosh";
                 case AstUnaryOperator.AddToSet: return "$addToSet";
+                case AstUnaryOperator.AnyElementTrue: return "$anyElementTrue";
                 case AstUnaryOperator.ArrayToObject: return "$arrayToObject";
                 case AstUnaryOperator.ASin: return "$asin";
                 case AstUnaryOperator.ASinh: return "$asinh";
