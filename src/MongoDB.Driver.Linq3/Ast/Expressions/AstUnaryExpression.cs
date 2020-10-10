@@ -51,6 +51,7 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
             {
                 switch (_operator)
                 {
+                    case AstUnaryOperator.AnyElementTrue:
                     case AstUnaryOperator.Not:
                     case AstUnaryOperator.Round:
                         return true;
