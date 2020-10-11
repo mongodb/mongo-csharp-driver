@@ -1107,7 +1107,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 2,
-                "{ $project : { _v : { $map : { input : '$M', as : 'i', in : { $add : ['$$i', 1] } } }, _id : 0 } }");
+                "{ $project : { _v : { $map : { input : '$M', as : 'i', in : { $convert : { input : { $add : ['$$i', 1] }, to : 'int' } } } }, _id : 0 } }");
         }
 
         [SkippableFact]
@@ -1119,7 +1119,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 2,
-                "{ $project : { _v : { $map : { input : '$M', as : 'i', in : { $add : ['$$i', 1] } } }, _id : 0 } }");
+                "{ $project : { _v : { $map : { input : '$M', as : 'i', in : { $convert : { input : { $add : ['$$i', 1] }, to : 'int' } } } }, _id : 0 } }");
         }
 
         [Fact]
