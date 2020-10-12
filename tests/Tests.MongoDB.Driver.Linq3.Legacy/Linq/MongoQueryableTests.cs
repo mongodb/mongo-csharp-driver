@@ -1189,12 +1189,12 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(xQuery,
                 0,
-                "{ $unwind : '$G' }",
-                "{ $project : { G : '$G', _id : 0 } }",
-                "{ $unwind : '$G.S' }",
-                "{ $project : { S : '$G.S', _id : 0 } }",
-                "{ $unwind : '$S.X' }",
-                "{ $project : { X : '$S.X', _id : 0 } }");
+                "{ $project : { _v : '$G', _id : 0 } }",
+                "{ $unwind : '$_v' }",
+                "{ $project : { _v : '$_v.S', _id : 0 } }",
+                "{ $unwind : '$_v' }",
+                "{ $project : { _v : '$_v.X', _id : 0 } }",
+                "{ $unwind : '$_v' }");
         }
 
         [Fact]
@@ -1207,8 +1207,8 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
             Assert(query,
                 2,
                 "{ $match : { 'K' : true } }",
-                "{ $unwind : '$G' }",
-                "{ $project : { G : '$G', _id : 0 } }");
+                "{ $project : { _v : '$G', _id : 0 } }",
+                "{ $unwind : '$_v' }");
         }
 
         [Fact]
@@ -1219,8 +1219,8 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 4,
-                "{ $unwind: '$G' }",
-                "{ $project: { G: '$G', _id: 0 } }");
+                "{ $project : { _v : '$G', _id: 0 } }",
+                "{ $unwind : '$_v' }");
         }
 
         [Fact]
@@ -1232,10 +1232,10 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(cQuery,
                 1,
-                "{ $unwind : '$G' }",
-                "{ $project : { G : '$G', _id : 0 } }",
-                "{ $unwind : '$G.S' }",
-                "{ $project : { S : '$G.S', _id : 0 } }");
+                "{ $project : { _v : '$G', _id: 0 } }",
+                "{ $unwind : '$_v' }",
+                "{ $project : { _v : '$_v.S', _id : 0 } }",
+                "{ $unwind : '$_v' }");
 
             cQuery = CreateQuery()
                 .SelectMany(g => g.G)
@@ -1243,10 +1243,10 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(cQuery,
                 1,
-                "{ $unwind : '$G' }",
-                "{ $project : { G : '$G', _id : 0 } }",
-                "{ $unwind : '$G.S' }",
-                "{ $project : { S : '$G.S', _id : 0 } }");
+                "{ $project : { _v : '$G', _id: 0 } }",
+                "{ $unwind : '$_v' }",
+                "{ $project : { _v : '$_v.S', _id: 0 } }",
+                "{ $unwind : '$_v' }");
 
             cQuery = CreateQuery()
                 .SelectMany(g => g.G, (x, c) => c)
@@ -1254,10 +1254,10 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(cQuery,
                 1,
-                "{ $unwind : '$G' }",
-                "{ $project : { G : '$G', _id : 0 } }",
-                "{ $unwind : '$G.S' }",
-                "{ $project : { S : '$G.S', _id : 0 } }");
+                "{ $project : { _v : '$G', _id: 0 } }",
+                "{ $unwind : '$_v' }",
+                "{ $project : { _v : '$_v.S', _id: 0 } }",
+                "{ $unwind : '$_v' }");
 
             var xQuery = CreateQuery()
                 .SelectMany(g => g.G, (x, c) => c)
@@ -1266,12 +1266,12 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(xQuery,
                 0,
-                "{ $unwind : '$G' }",
-                "{ $project : { G : '$G', _id : 0 } }",
-                "{ $unwind : '$G.S' }",
-                "{ $project : { S : '$G.S', _id : 0 } }",
-                "{ $unwind : '$S.X' }",
-                "{ $project : { X : '$S.X', _id : 0 } }");
+                "{ $project : { _v : '$G', _id: 0 } }",
+                "{ $unwind : '$_v' }",
+                "{ $project : { _v : '$_v.S', _id: 0 } }",
+                "{ $unwind : '$_v' }",
+                "{ $project : { _v : '$_v.X', _id: 0 } }",
+                "{ $unwind : '$_v' }");
         }
 
         [Fact]
@@ -1283,8 +1283,8 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 4,
-                "{ $unwind: '$G' }",
-                "{ $project: { G: '$G', _id: 0 } }");
+                "{ $project : { _v : '$G', _id: 0 } }",
+                "{ $unwind : '$_v' }");
         }
 
         [Fact]
@@ -1299,22 +1299,22 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(selectMany2,
                 1,
-                "{ $unwind : '$G' }",
-                "{ $project : { G : '$G', _id : 0 } }",
-                "{ $unwind : '$G.S' }",
-                "{ $project : { S : '$G.S', _id : 0 } }");
+                "{ $project : { _v : '$G', _id: 0 } }",
+                "{ $unwind : '$_v' }",
+                "{ $project : { _v : '$_v.S', _id: 0 } }",
+                "{ $unwind : '$_v' }");
         }
 
         [Fact]
         public void SelectMany_with_collection_selector_method_computed_scalar()
         {
             var query = CreateQuery()
-                .SelectMany(x => x.G, (x, c) => x.C.E.F + c.E.F + c.E.H);
+                .SelectMany(x => x.G, (x, c) => x.C.E.F + c.E.F);
 
             Assert(query,
                 4,
-                "{ $unwind: '$G' }",
-                "{ $project: { __fld0: { $add: ['$C.E.F', '$G.E.F', '$G.E.H'] }, _id: 0 } }");
+                "{ $project : { _v: { $map : { input : '$G', as : 'c', in : { $convert : { input : { $add : ['$C.E.F', '$$c.E.F'] }, to : 'int' } } } }, _id : 0 } }",
+                "{ $unwind : '$_v' }");
         }
 
         [Fact]
@@ -1322,14 +1322,14 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
         {
             var query = CreateQuery()
                 .SelectMany(g => g.G)
-                .SelectMany(s => s.S, (x, c) => (int?)(x.E.F + c.E.F + c.E.H));
+                .SelectMany(s => s.S, (x, c) => (int?)(x.E.F + c.E.F));
 
             Assert(query,
                 1,
-                "{ $unwind : '$G' }",
-                "{ $project : { G : '$G', _id : 0 } }",
-                "{ $unwind : '$G.S' }",
-                "{ $project : { __fld0 : { $add : ['$G.E.F', '$G.S.E.F', '$G.S.E.H'] }, _id : 0 } }");
+                "{ $project : { _v : '$G', _id : 0 } }",
+                "{ $unwind : '$_v' }",
+                "{ $project : { _v : { $map : { input : '$_v.S', as : 'c', in : { $convert : { input : { $add : ['$_v.E.F', '$$c.E.F'] }, to : 'int' } } } }, _id : 0 } }",
+                "{ $unwind : '$_v' }");
         }
 
         [Fact]
@@ -1337,12 +1337,12 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
         {
             var query = from x in CreateQuery()
                         from y in x.G
-                        select x.C.E.F + y.E.F + y.E.H;
+                        select x.C.E.F + y.E.F;
 
             Assert(query,
                 4,
-                "{ $unwind: '$G' }",
-                "{ $project: { __fld0: { $add: ['$C.E.F', '$G.E.F', '$G.E.H'] }, _id: 0 } }");
+                "{ $project : { _v: { $map : { input : '$G', as : 'y', in : { $convert : { input : { $add: ['$C.E.F', '$$y.E.F'] }, to : 'int' } } } }, _id: 0 } }",
+                "{ $unwind: '$_v' }");
         }
 
         [Fact]
@@ -1355,14 +1355,14 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
             var selectMany2 =
                 from g in selectMany1
                 from s in g.S
-                select (int?)(g.E.F + s.E.F + s.E.H);
+                select (int?)(g.E.F + s.E.F);
 
             Assert(selectMany2,
                 1,
-                "{ $unwind : '$G' }",
-                "{ $project : { G : '$G', _id : 0 } }",
-                "{ $unwind : '$G.S' }",
-                "{ $project: { __fld0 : { $add : ['$G.E.F', '$G.S.E.F', '$G.S.E.H'] }, _id : 0 } }");
+                "{ $project : { _v : '$G', _id : 0 } }",
+                "{ $unwind : '$_v' }",
+                "{ $project : { _v : { $map : { input : '$_v.S', as : 's', in : { $convert : { input : { $add : ['$_v.E.F', '$$s.E.F'] }, to : 'int' } } } }, _id : 0 } }",
+                "{ $unwind : '$_v' }");
         }
 
         [Fact]
@@ -1373,8 +1373,8 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 4,
-                "{ $unwind: '$G' }",
-                "{ $project: { F: '$C.E.F', Other: '$G.D', _id: 0 } }");
+                "{ $project : { _v : { $map : { input : '$G', as : 'c', in : { F : '$C.E.F', Other: '$$c.D' } } }, _id: 0 } }",
+                "{ $unwind: '$_v' }");
         }
 
         [Fact]
@@ -1386,10 +1386,10 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 1,
-                "{ $unwind : '$G' }",
-                "{ $project : { G : '$G', _id : 0 } }",
-                "{ $unwind : '$G.S' }",
-                "{ $project : { F : '$G.E.F', Other : '$G.S.D', _id : 0 } }");
+                "{ $project : { _v : '$G', _id : 0 } }",
+                "{ $unwind : '$_v' }",
+                "{ $project : { _v : { $map : { input : '$_v.S', as : 'c', in : { F : '$_v.E.F', Other : '$$c.D' } } }, _id : 0 } }",
+                "{ $unwind : '$_v' }");
         }
 
         [Fact]
@@ -1401,8 +1401,8 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 4,
-                "{ $unwind: '$G' }",
-                "{ $project: { F: '$C.E.F', Other: '$G.D', _id: 0 } }");
+                "{ $project : { _v : { $map : { input : '$G', as : 'y', in : { F : '$C.E.F', Other : '$$y.D' } } }, _id : 0 } }",
+                "{ $unwind : '$_v' }");
         }
 
         [Fact]
@@ -1419,10 +1419,10 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(selectMany2,
                 1,
-                "{ $unwind : '$G' }",
-                "{ $project : { G : '$G', _id : 0 } }",
-                "{ $unwind : '$G.S' }",
-                "{ $project : { F : '$G.E.F', Other : '$G.S.D', _id : 0 } }");
+                "{ $project : { _v : '$G', _id : 0 } }",
+                "{ $unwind : '$_v' }",
+                "{ $project : { _v : { $map : { input : '$_v.S', as : 's', in : { F : '$_v.E.F', Other : '$$s.D' } } }, _id : 0 } }",
+                "{ $unwind : '$_v' }");
         }
 
         [Fact]
