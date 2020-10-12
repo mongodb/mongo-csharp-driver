@@ -52,6 +52,8 @@ namespace MongoDB.Driver.Linq3.Translators.PipelineTranslators
                     return SampleStageTranslator.Translate(context, methodCallExpression, pipeline);
                 case "Select":
                     return SelectStageTranslator.Translate(context, methodCallExpression, pipeline);
+                case "SelectMany":
+                    return SelectManyStageTranslator.Translate(context, methodCallExpression, pipeline);
                 case "Skip":
                     return SkipStageTranslator.Translate(context, methodCallExpression, pipeline);
                 case "Take":

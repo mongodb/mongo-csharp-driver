@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Linq3.Ast.Stages
         {
             if (_includeArrayIndex == null && _preserveNullAndEmptyArrays == null)
             {
-                return _field;
+                return "$" + _field;
             }
             else
             {
