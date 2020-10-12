@@ -1152,8 +1152,8 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 4,
-                "{ $unwind: '$G' }",
-                "{ $project: { G: '$G', _id: 0 } }");
+                "{ $project : { _v : '$G', _id : 0 } }",
+                "{ $unwind : '$_v' }");
         }
 
         [Fact]
@@ -1164,8 +1164,8 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 2,
-                "{ $unwind : '$C.X' }",
-                "{ $project : { X : '$C.X', _id : 0 } }");
+                "{ $project : { _v : '$C.X', _id : 0 } }",
+                "{ $unwind : '$_v' }");
         }
 
         [Fact]
@@ -1177,10 +1177,10 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(cQuery,
                 1,
-                "{ $unwind : '$G' }",
-                "{ $project : { G : '$G', _id : 0 } }",
-                "{ $unwind : '$G.S' }",
-                "{ $project : { S : '$G.S', _id : 0 } }");
+                "{ $project : { _v : '$G', _id : 0 } }",
+                "{ $unwind : '$_v' }",
+                "{ $project : { _v : '$_v.S', _id : 0 } }",
+                "{ $unwind : '$_v' }");
 
             var xQuery = CreateQuery()
                 .SelectMany(g => g.G)
