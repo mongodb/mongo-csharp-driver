@@ -43,6 +43,7 @@ namespace MongoDB.Driver.Linq3.Misc
             : this()
         {
             Throw.IfNull(other, nameof(other));
+            _current = other.Current;
             _symbols = new Dictionary<ParameterExpression, Symbol>(other._symbols);
         }
 

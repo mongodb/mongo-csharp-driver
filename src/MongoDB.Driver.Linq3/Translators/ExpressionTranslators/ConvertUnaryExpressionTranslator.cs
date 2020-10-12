@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
                     Type valueSerializerType = typeof(IBsonSerializer<>).MakeGenericType(valueType);
                     var constructorInfo = nullableSerializerType.GetConstructor(new[] { valueSerializerType });
                     var nullableSerializer = (IBsonSerializer)constructorInfo.Invoke(new[] { operandTranslation.Serializer });
-                    return new ExpressionTranslation(expression, operandTranslation.Ast, null);
+                    return new ExpressionTranslation(expression, operandTranslation.Ast, nullableSerializer);
                 }
             }
 

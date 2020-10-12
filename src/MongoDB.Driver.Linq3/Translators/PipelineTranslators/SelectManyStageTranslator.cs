@@ -14,7 +14,9 @@
 */
 
 using System.Linq.Expressions;
+using System.Reflection;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Linq3.Ast;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Ast.Stages;
 using MongoDB.Driver.Linq3.Methods;
@@ -36,26 +38,72 @@ namespace MongoDB.Driver.Linq3.Translators.PipelineTranslators
             {
                 var selectorExpression = ExpressionHelper.Unquote(arguments[1]);
                 var selectorTranslation = ExpressionTranslator.Translate(context, selectorExpression, parameterSerializer: pipeline.OutputSerializer);
-                if (!(selectorTranslation.Ast is AstFieldExpression selectorFieldAst))
-                {
-                    goto notSupported;
-                }
-                var fieldName = selectorFieldAst.Field.Substring(1); // remove leading "$"
-                var outputValueType = selectorExpression.ReturnType.GetGenericArguments()[0];
-                var outputValueSerializer = BsonSerializer.LookupSerializer(outputValueType); // TODO: use known serializer
-                var outputWrappedValueSerializer = WrappedValueSerializer.Create(outputValueSerializer);
+                var resultValueSerializer = ArraySerializerHelper.GetItemSerializer(selectorTranslation.Serializer);
+                var resultWrappedValueSerializer = WrappedValueSerializer.Create(resultValueSerializer);
 
                 pipeline.AddStages(
-                    outputWrappedValueSerializer,
+                    resultWrappedValueSerializer,
                     new AstProjectStage(
-                        new AstProjectStageComputedFieldSpecification(new Ast.AstComputedField("_v", new AstFieldExpression("$" + fieldName))),
+                        new AstProjectStageComputedFieldSpecification(new Ast.AstComputedField("_v", selectorTranslation.Ast)),
                         new AstProjectStageExcludeIdSpecification()),
                     new AstUnwindStage("_v"));
 
                 return pipeline;
             }
 
-        notSupported:
+            if (method.Is(QueryableMethod.SelectManyWithCollectionSelectorAndResultSelector))
+            {
+                var sourceSerializer = pipeline.OutputSerializer;
+
+                var collectionSelectorExpression = ExpressionHelper.Unquote(arguments[1]);
+                var collectionSelectorTranslation = ExpressionTranslator.Translate(context, collectionSelectorExpression, parameterSerializer: sourceSerializer);
+                var collectionItemSerializer = ArraySerializerHelper.GetItemSerializer(collectionSelectorTranslation.Serializer);
+
+                var resultSelectorExpression = ExpressionHelper.Unquote(arguments[2]);
+                var resultSelectorSourceParameterExpression = resultSelectorExpression.Parameters[0];
+                var resultSelectorCollectionItemParameterExpression = resultSelectorExpression.Parameters[1];
+
+                if (resultSelectorExpression.Body == resultSelectorCollectionItemParameterExpression)
+                {
+                    // special case identity resultSelector: (x, y) => y
+                    var resultValueSerializer = collectionItemSerializer;
+                    var resultWrappedValueSerializer = WrappedValueSerializer.Create(resultValueSerializer);
+
+                    pipeline.AddStages(
+                        resultWrappedValueSerializer,
+                        new AstProjectStage(
+                            new AstProjectStageComputedFieldSpecification(new Ast.AstComputedField("_v", collectionSelectorTranslation.Ast)),
+                            new AstProjectStageExcludeIdSpecification()),
+                        new AstUnwindStage("_v"));
+                }
+                else
+                {
+                    var resultSelectorSourceParameterSymbol = new Symbol("$" + resultSelectorSourceParameterExpression.Name, sourceSerializer);
+                    var resultSelectorCollectionItemParameterSymbol = new Symbol("$" + resultSelectorCollectionItemParameterExpression.Name, collectionItemSerializer);
+                    var resultSelectorContext = context
+                        .WithSymbolAsCurrent(resultSelectorSourceParameterExpression, resultSelectorSourceParameterSymbol)
+                        .WithSymbol(resultSelectorCollectionItemParameterExpression, resultSelectorCollectionItemParameterSymbol);
+                    var resultSelectorTranslation = ExpressionTranslator.Translate(resultSelectorContext, resultSelectorExpression.Body);
+                    var resultValueSerializer = resultSelectorTranslation.Serializer;
+                    var resultWrappedValueSerializer = WrappedValueSerializer.Create(resultValueSerializer);
+
+                    pipeline.AddStages(
+                        resultWrappedValueSerializer,
+                        new AstProjectStage(
+                            new AstProjectStageComputedFieldSpecification(
+                                new AstComputedField(
+                                    "_v",
+                                    new AstMapExpression(
+                                        input: collectionSelectorTranslation.Ast,
+                                        @as: resultSelectorCollectionItemParameterExpression.Name,
+                                        @in: resultSelectorTranslation.Ast))),
+                            new AstProjectStageExcludeIdSpecification()),
+                        new AstUnwindStage("_v"));
+                }
+
+                return pipeline;
+            }
+
             throw new ExpressionNotSupportedException(expression);
         }
     }

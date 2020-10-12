@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Linq3.Serializers
         IBsonSerializer ValueSerializer { get; }
     }
 
-    public class WrappedValueSerializer<TValue> : SerializerBase<TValue>, IWrappedValueSerializer
+    public class WrappedValueSerializer<TValue> : SerializerBase<TValue>, IWrappedValueSerializer, IBsonArraySerializer, IBsonDocumentSerializer
     {
         // private fields
         private readonly IBsonSerializer<TValue> _valueSerializer;
@@ -60,6 +60,33 @@ namespace MongoDB.Driver.Linq3.Serializers
             writer.WriteName("_v");
             _valueSerializer.Serialize(context, value);
             writer.WriteEndDocument();
+        }
+
+        public bool TryGetItemSerializationInfo(out BsonSerializationInfo serializationInfo)
+        {
+            if (_valueSerializer is IBsonArraySerializer arraySerializer)
+            {
+                return arraySerializer.TryGetItemSerializationInfo(out serializationInfo);
+            }
+
+            serializationInfo = null;
+            return false;
+        }
+
+        public bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo)
+        {
+            if (_valueSerializer is IBsonDocumentSerializer documentSerializer)
+            {
+                if (documentSerializer.TryGetMemberSerializationInfo(memberName, out serializationInfo))
+                {
+                    var wrappedElementName = "_v." + serializationInfo.ElementName;
+                    serializationInfo = new BsonSerializationInfo(wrappedElementName, serializationInfo.Serializer, serializationInfo.NominalType);
+                    return true;
+                }
+            }
+
+            serializationInfo = null;
+            return false;
         }
     }
 
