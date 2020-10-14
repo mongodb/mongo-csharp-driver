@@ -66,10 +66,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
             var leftTranslation = ExpressionTranslator.Translate(context, leftExpression);
             var rightTranslation = ExpressionTranslator.Translate(context, rightExpression);
             var ast = (AstExpression)new AstNaryExpression(AstNaryOperator.Add, leftTranslation.Ast, rightTranslation.Ast);
-            if (expression.Type != serverType)
-            {
-                ast = new AstConvertExpression(ast, expression.Type);
-            }
             var serializer = BsonSerializer.LookupSerializer(expression.Type);
 
             return new ExpressionTranslation(expression, ast, serializer);

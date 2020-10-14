@@ -35,7 +35,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
                 IBsonSerializer serializer;
                 if (expression.Type == typeof(int))
                 {
-                    ast = new AstConvertExpression(ast, typeof(int));
                     serializer = new Int32Serializer();
                 }
                 else

@@ -81,10 +81,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators
                 var containerType = container.Expression.Type;
                 if (containerType.Implements(typeof(ICollection)) || containerType.Implements(typeof(ICollection<>)))
                 {
-                    var ast =
-                        new AstConvertExpression(
-                            new AstUnaryExpression(AstUnaryOperator.Size, container.Ast),
-                            propertyInfo.PropertyType);
+                    var ast = new AstUnaryExpression(AstUnaryOperator.Size, container.Ast);
                     var serializer = BsonSerializer.LookupSerializer(propertyInfo.PropertyType);
 
                     result = new ExpressionTranslation(expression, ast, serializer);
