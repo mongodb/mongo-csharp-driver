@@ -1357,6 +1357,7 @@ namespace MongoDB.Bson.IO
                     case "$symbol": _currentValue = ParseSymbolExtendedJson(); return BsonType.Symbol;
                     case "$timestamp": _currentValue = ParseTimestampExtendedJson(); return BsonType.Timestamp;
                     case "$undefined": _currentValue = ParseUndefinedExtendedJson(); return BsonType.Undefined;
+                    case "$uuid": _currentValue = ParseUuidExtendedJson(); return BsonType.Binary;
                 }
             }
             ReturnToBookmark(bookmark);
@@ -2075,6 +2076,28 @@ namespace MongoDB.Bson.IO
             VerifyToken("true");
             VerifyToken("}");
             return BsonMaxKey.Value;
+        }
+
+        private BsonValue ParseUuidExtendedJson()
+        {
+            VerifyToken(":");
+            var uuidToken = PopToken();
+            if (uuidToken.Type != JsonTokenType.String)
+            {
+                var message = string.Format("JSON reader expected a string but found '{0}'.", uuidToken.Lexeme);
+                throw new FormatException(message);
+            }
+            VerifyToken("}");
+
+            var hexString = uuidToken.StringValue.Replace("-", "");
+            var bytes = BsonUtils.ParseHexString(hexString);
+            if (bytes.Length != 16)
+            {
+                var message = string.Format("Invalid $uuid string: '{0}'.", hexString);
+                throw new FormatException(message);
+            }
+
+            return new BsonBinaryData(bytes, BsonBinarySubType.UuidStandard);
         }
 
         private BsonValue ParseUUIDConstructor(string uuidConstructorName)
