@@ -259,6 +259,62 @@ namespace MongoDB.Driver
         }
 
         [Theory]
+        [InlineData("{ $merge : \"outputcollection\" }", null, "outputcollection", false)]
+        [InlineData("{ $merge : \"outputcollection\" }", null, "outputcollection", true)]
+        [InlineData("{ $merge : { into : \"outputcollection\" } }", null, "outputcollection", false)]
+        [InlineData("{ $merge : { into : \"outputcollection\" } }", null, "outputcollection", true)]
+        [InlineData("{ $merge : { into : { coll : \"outputcollection\" } } }", null, "outputcollection", false)]
+        [InlineData("{ $merge : { into : { coll : \"outputcollection\" } } }", null, "outputcollection", true)]
+        [InlineData("{ $merge : { into : { db: \"outputdatabase\", coll : \"outputcollection\" } } }", "outputdatabase", "outputcollection", false)]
+        [InlineData("{ $merge : { into : { db: \"outputdatabase\", coll : \"outputcollection\" } } }", "outputdatabase", "outputcollection", true)]
+        public void Aggregate_should_recognize_merge_collection_argument(
+            string stageDefinitionString,
+            string expectedDatabaseName,
+            string expectedCollectionName,
+            bool async)
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var stageDefinition = BsonDocument.Parse(stageDefinitionString);
+            var expectedCollectionNamespace = new CollectionNamespace(
+                expectedDatabaseName ?? subject.CollectionNamespace.DatabaseNamespace.DatabaseName,
+                expectedCollectionName);
+
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>()
+                .AppendStage<BsonDocument, BsonDocument, BsonDocument>(stageDefinition);
+            var expectedPipeline = new List<BsonDocument>(RenderPipeline(subject, pipeline).Documents);
+
+            IAsyncCursor<BsonDocument> result;
+            if (async)
+            {
+                result = subject.AggregateAsync(pipeline).GetAwaiter().GetResult();
+            }
+            else
+            {
+                result = subject.Aggregate(pipeline);
+            }
+            var aggregateCall = _operationExecutor.GetWriteCall<BsonDocument>();
+
+            var aggregateOperation = aggregateCall.Operation.Should().BeOfType<AggregateToCollectionOperation>().Subject;
+            aggregateOperation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
+            aggregateOperation.Pipeline.Should().Equal(expectedPipeline);
+
+            var mockCursor = new Mock<IAsyncCursor<BsonDocument>>();
+            _operationExecutor.EnqueueResult(mockCursor.Object);
+            if (async)
+            {
+                result.MoveNextAsync().GetAwaiter().GetResult();
+            }
+            else
+            {
+                result.MoveNext();
+            }
+            var findCall = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
+
+            var findOperation = findCall.Operation.Should().BeOfType<FindOperation<BsonDocument>>().Subject;
+            findOperation.CollectionNamespace.Should().Be(expectedCollectionNamespace);
+        }
+
+        [Theory]
         [ParameterAttributeData]
         public void AggregateToCollection_should_execute_an_AggregateToCollectionOperation(
             [Values(false, true)] bool usingSession,

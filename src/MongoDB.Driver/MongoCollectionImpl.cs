@@ -806,19 +806,34 @@ namespace MongoDB.Driver
                     break;
                 case "$merge":
                     {
-                        var mergeArguments = outStage[0].AsBsonDocument;
+                        var mergeArguments = outStage[0];
                         DatabaseNamespace outputDatabaseNamespace;
                         string outputCollectionName;
-                        var into = mergeArguments["into"];
-                        if (into.IsString)
+                        if (mergeArguments.IsString)
                         {
                             outputDatabaseNamespace = _collectionNamespace.DatabaseNamespace;
-                            outputCollectionName = into.AsString;
+                            outputCollectionName = mergeArguments.AsString;
                         }
                         else
                         {
-                            outputDatabaseNamespace = new DatabaseNamespace(into["db"].AsString);
-                            outputCollectionName = into["coll"].AsString;
+                            var into = mergeArguments.AsBsonDocument["into"];
+                            if (into.IsString)
+                            {
+                                outputDatabaseNamespace = _collectionNamespace.DatabaseNamespace;
+                                outputCollectionName = into.AsString;
+                            }
+                            else
+                            {
+                                if (into.AsBsonDocument.Contains("db"))
+                                {
+                                    outputDatabaseNamespace = new DatabaseNamespace(into["db"].AsString);
+                                }
+                                else
+                                {
+                                    outputDatabaseNamespace = _collectionNamespace.DatabaseNamespace;
+                                }
+                                outputCollectionName = into["coll"].AsString;
+                            }
                         }
                         outputCollectionNamespace = new CollectionNamespace(outputDatabaseNamespace, outputCollectionName);
                     }
