@@ -73,7 +73,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Project(x => new { Result = x.C.E.F + x.C.E.H });
 
-            result.Projection.Should().Be("{ Result : { $convert : { input : { $add : ['$C.E.F', '$C.E.H'] }, to : 'int' } }, _id : 0 }");
+            result.Projection.Should().Be("{ Result : { $add : ['$C.E.F', '$C.E.H'] }, _id : 0 }");
 
             result.Value.Result.Should().Be(33);
         }
@@ -83,7 +83,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Project(x => new { Result = x.Id + x.C.E.F + x.C.E.H });
 
-            result.Projection.Should().Be("{ Result : { $convert : { input : { $add : [{ $convert : { input : { $add : ['$_id', '$C.E.F'] }, to : 'int' } }, '$C.E.H'] }, to : 'int' } }, _id : 0 }");
+            result.Projection.Should().Be("{ Result : { $add : [{ $add : ['$_id', '$C.E.F'] }, '$C.E.H'] }, _id : 0 }");
 
             result.Value.Result.Should().Be(43);
         }
@@ -770,7 +770,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.M.Max() });
 
-            result.Projection.Should().Be("{ Result : { $convert : { input : { $max : '$M' }, to : 'int' } }, _id: 0 }");
+            result.Projection.Should().Be("{ Result : { $max : '$M' }, _id: 0 }");
 
             result.Value.Result.Should().Be(5);
         }
@@ -782,7 +782,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.G.Max(g => g.E.F) });
 
-            result.Projection.Should().Be("{ Result : { $convert : { input : { $max : '$G.E.F' }, to : 'int' } }, _id : 0 }");
+            result.Projection.Should().Be("{ Result : { $max : '$G.E.F' }, _id : 0 }");
 
             result.Value.Result.Should().Be(55);
         }
@@ -806,7 +806,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.M.Min() });
 
-            result.Projection.Should().Be("{ Result : { $convert : { input : { $min : '$M' }, to : 'int' } }, _id : 0 }");
+            result.Projection.Should().Be("{ Result : { $min : '$M' }, _id : 0 }");
 
             result.Value.Result.Should().Be(2);
         }
@@ -818,7 +818,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.G.Min(g => g.E.F) });
 
-            result.Projection.Should().Be("{ Result : { $convert : { input : { $min : '$G.E.F' }, to : 'int' } }, _id : 0 }");
+            result.Projection.Should().Be("{ Result : { $min : '$G.E.F' }, _id : 0 }");
 
             result.Value.Result.Should().Be(33);
         }
@@ -858,7 +858,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Project(x => new { Result = x.C.E.F * x.C.E.H });
 
-            result.Projection.Should().Be("{ Result : { $convert : { input : { $multiply : ['$C.E.F', '$C.E.H'] }, to : 'int' } }, _id : 0 }");
+            result.Projection.Should().Be("{ Result : { $multiply : ['$C.E.F', '$C.E.H'] }, _id : 0 }");
 
             result.Value.Result.Should().Be(242);
         }
@@ -868,7 +868,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Project(x => new { Result = x.Id * x.C.E.F * x.C.E.H });
 
-            result.Projection.Should().Be("{ Result : { $convert : { input : { $multiply : [{ $convert : { input : { $multiply : ['$_id', '$C.E.F'] }, to : 'int' } }, '$C.E.H'] }, to : 'int' } }, _id : 0 }");
+            result.Projection.Should().Be("{ Result : { $multiply : [{ $multiply : ['$_id', '$C.E.F'] }, '$C.E.H'] }, _id : 0 }");
 
             result.Value.Result.Should().Be(2420);
         }
@@ -1015,7 +1015,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
                                                                 {
                                                                     input : { $slice : [ '$$source', 1, 2147483647 ] },
                                                                     initialValue : { $arrayElemAt : [ '$$source', 0 ] },
-                                                                    in : { $convert : { input : { $add : [ '$$value', '$$this' ] }, to : 'int' } }
+                                                                    in : { $add : [ '$$value', '$$this' ] }
                                                                 }
                                                         }
                                                 }
@@ -1040,7 +1040,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
                                     initialValue : [ 0, 0 ],
                                     in :
                                         [
-                                            { $convert : { input : { $add : [ { $arrayElemAt : [ '$$value', 0 ] }, { $arrayElemAt : [ '$$value', 1 ] } ] },  to : 'int' } },
+                                            { $add : [ { $arrayElemAt : [ '$$value', 0 ] }, { $arrayElemAt : [ '$$value', 1 ] } ] },
                                             '$$this'
                                         ]
                                 }
@@ -1069,7 +1069,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
                                                             initialValue : [ 0, 0 ],
                                                             in :
                                                                 [
-                                                                    { $convert : { input : { $add : [ { $arrayElemAt : [ '$$value', 0 ] }, { $arrayElemAt : [ '$$value', 1 ] } ] },  to : 'int' } },
+                                                                    { $add : [ { $arrayElemAt : [ '$$value', 0 ] }, { $arrayElemAt : [ '$$value', 1 ] } ] },
                                                                     '$$this'
                                                                 ]
                                                         }
@@ -1097,7 +1097,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
                                     initialValue : { x : 0, y : 0 },
                                     in :
                                         {
-                                            x : { $convert : { input : { $add : [ '$$value.x', '$$value.y' ] }, to : 'int' } },
+                                            x : { $add : [ '$$value.x', '$$value.y' ] },
                                             y : '$$this'
                                         }
                                 }
@@ -1163,7 +1163,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.M.Count() });
 
-            result.Projection.Should().Be("{ Result : { $convert : { input : { $size : '$M' }, to : 'int' } }, _id : 0 }");
+            result.Projection.Should().Be("{ Result : { $size : '$M' }, _id : 0 }");
 
             result.Value.Result.Should().Be(3);
         }
@@ -1187,7 +1187,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.L.Count });
 
-            result.Projection.Should().Be("{ Result: { $convert : { input : { $size : \"$L\" }, to : \"int\" } }, _id : 0 }");
+            result.Projection.Should().Be("{ Result: { $size : \"$L\" }, _id : 0 }");
 
             result.Value.Result.Should().Be(3);
         }
@@ -1626,7 +1626,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.M.Sum() });
 
-            result.Projection.Should().Be("{ Result : { $convert : { input : { $sum : '$M' }, to : 'int' } }, _id : 0 }");
+            result.Projection.Should().Be("{ Result : { $sum : '$M' }, _id : 0 }");
 
             result.Value.Result.Should().Be(11);
         }
@@ -1638,7 +1638,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.G.Sum(g => g.E.F) });
 
-            result.Projection.Should().Be("{ Result : { $convert : { input : { $sum : '$G.E.F' }, to : 'int' } }, _id : 0 }");
+            result.Projection.Should().Be("{ Result : { $sum : '$G.E.F' }, _id : 0 }");
 
             result.Value.Result.Should().Be(88);
         }
@@ -1700,7 +1700,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.M.Zip(x.O, (a, b) => a + b) });
 
-            result.Projection.Should().Be("{ Result: { $map: { input: { $zip: { inputs: ['$M', '$O'] } }, as: 'z__', in: { $let : { vars : { a : { $arrayElemAt : ['$$z__', 0] }, b : { $arrayElemAt : ['$$z__', 1] } }, in : { $convert :  { input : { $add : ['$$a', '$$b'] }, to : 'long' } } } } } }, _id : 0 }");
+            result.Projection.Should().Be("{ Result: { $map: { input: { $zip: { inputs: ['$M', '$O'] } }, as: 'z__', in: { $let : { vars : { a : { $arrayElemAt : ['$$z__', 0] }, b : { $arrayElemAt : ['$$z__', 1] } }, in : { $add : ['$$a', '$$b'] } } } } }, _id : 0 }");
 
             result.Value.Result.Should().BeEquivalentTo(12L, 24L, 35L);
         }

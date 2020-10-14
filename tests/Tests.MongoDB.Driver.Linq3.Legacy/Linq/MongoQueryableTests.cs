@@ -1107,7 +1107,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 2,
-                "{ $project : { _v : { $map : { input : '$M', as : 'i', in : { $convert : { input : { $add : ['$$i', 1] }, to : 'int' } } } }, _id : 0 } }");
+                "{ $project : { _v : { $map : { input : '$M', as : 'i', in : { $add : ['$$i', 1] } } }, _id : 0 } }");
         }
 
         [SkippableFact]
@@ -1119,7 +1119,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 2,
-                "{ $project : { _v : { $map : { input : '$M', as : 'i', in : { $convert : { input : { $add : ['$$i', 1] }, to : 'int' } } } }, _id : 0 } }");
+                "{ $project : { _v : { $map : { input : '$M', as : 'i', in : { $add : ['$$i', 1] } } }, _id : 0 } }");
         }
 
         [Fact]
@@ -1313,7 +1313,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 4,
-                "{ $project : { _v: { $map : { input : '$G', as : 'c', in : { $convert : { input : { $add : ['$C.E.F', '$$c.E.F'] }, to : 'int' } } } }, _id : 0 } }",
+                "{ $project : { _v: { $map : { input : '$G', as : 'c', in : { $add : ['$C.E.F', '$$c.E.F'] } } }, _id : 0 } }",
                 "{ $unwind : '$_v' }");
         }
 
@@ -1328,7 +1328,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
                 1,
                 "{ $project : { _v : '$G', _id : 0 } }",
                 "{ $unwind : '$_v' }",
-                "{ $project : { _v : { $map : { input : '$_v.S', as : 'c', in : { $convert : { input : { $add : ['$_v.E.F', '$$c.E.F'] }, to : 'int' } } } }, _id : 0 } }",
+                "{ $project : { _v : { $map : { input : '$_v.S', as : 'c', in : { $add : ['$_v.E.F', '$$c.E.F'] } } }, _id : 0 } }",
                 "{ $unwind : '$_v' }");
         }
 
@@ -1341,7 +1341,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 4,
-                "{ $project : { _v: { $map : { input : '$G', as : 'y', in : { $convert : { input : { $add: ['$C.E.F', '$$y.E.F'] }, to : 'int' } } } }, _id: 0 } }",
+                "{ $project : { _v: { $map : { input : '$G', as : 'y', in : { $add: ['$C.E.F', '$$y.E.F'] } } }, _id: 0 } }",
                 "{ $unwind: '$_v' }");
         }
 
@@ -1361,7 +1361,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
                 1,
                 "{ $project : { _v : '$G', _id : 0 } }",
                 "{ $unwind : '$_v' }",
-                "{ $project : { _v : { $map : { input : '$_v.S', as : 's', in : { $convert : { input : { $add : ['$_v.E.F', '$$s.E.F'] }, to : 'int' } } } }, _id : 0 } }",
+                "{ $project : { _v : { $map : { input : '$_v.S', as : 's', in : { $add : ['$_v.E.F', '$$s.E.F'] } } }, _id : 0 } }",
                 "{ $unwind : '$_v' }");
         }
 

@@ -83,40 +83,11 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
                             @in: selectorTranslation.Ast));
                     serializer = BsonSerializer.LookupSerializer(expression.Type); // TODO: find more specific serializer?
                 }
-                var serverResultType = GetServerResultType(expression.Type);
-                if (serverResultType != expression.Type)
-                {
-                    ast = new AstConvertExpression(ast, expression.Type);
-                }
 
                 return new ExpressionTranslation(expression, ast, serializer);
             }
 
             throw new ExpressionNotSupportedException(expression);
-        }
-
-        private static Type GetServerResultType(Type sumResultType)
-        {
-            if (sumResultType.IsConstructedGenericType && sumResultType.GetGenericTypeDefinition() == typeof(Nullable<>))
-            {
-                var valueType = sumResultType.GetGenericArguments()[0];
-                var serverResultType = GetServerResultType(valueType);
-                return typeof(Nullable<>).MakeGenericType(serverResultType);
-            }
-            else
-            {
-                switch (sumResultType.FullName)
-                {
-                    case "System.Decimal":
-                        return typeof(decimal);
-
-                    case "System.Single":
-                        return typeof(float); // actually double but no conversion needed
-
-                    default:
-                        return typeof(double);
-                }
-            }
         }
     }
 }

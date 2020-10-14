@@ -54,7 +54,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionTranslators.MethodTranslato
                             @as: selectorParameter.Name,
                             @in: selectorTranslation.Ast));
                 }
-                ast = new AstConvertExpression(ast, expression.Type);
                 var serializer = BsonSerializer.LookupSerializer(expression.Type);
 
                 return new ExpressionTranslation(expression, ast, serializer);
