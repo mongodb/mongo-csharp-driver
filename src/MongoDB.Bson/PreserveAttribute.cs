@@ -19,7 +19,7 @@ using System.ComponentModel;
 namespace MongoDB.Bson
 {
     /// <summary>
-    /// Prevents the Xamarin managed linker from linking the target.
+    /// Prevents the Xamarin managed linker from stripping the target.
     /// </summary>
     [AttributeUsage(AttributeTargets.All)]
     [EditorBrowsable(EditorBrowsableState.Never)]
