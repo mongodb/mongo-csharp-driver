@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -355,7 +356,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 2,
-                "{ $group: { _id: '$A' } }");
+                "{ $group : { _id : '$A', _elements : { $push : '$$ROOT' } } }");
         }
 
         [Fact]
@@ -367,8 +368,18 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 2,
-                "{ $group: { _id: '$A', __agg0: { $sum: 1 }, __agg1: { $min: '$U' } } }",
-                "{ $project: { A: '$_id', Count: '$__agg0', Min: '$__agg1', _id: 0 } }");
+                "{ $project : { _key : '$A', _v : '$$ROOT' } }",
+                "{ $group : { _id : '$_key', A : { $first : '$_key' }, Count : { $sum : 1 }, Min : { $min : '$_v.U' } } }",
+                "{ $project : { _id : 0 } }");
+
+            query = CreateQuery()
+                .GroupBy(x => x.A, (key, x) => new { A = key, Count = x.Count(), Min = x.Min(y => y.U) });
+
+            Assert(query,
+                2,
+                "{ $project : { _key : '$A', _v : '$$ROOT' } }",
+                "{ $group : { _id : '$_key', A : { $first : '$_key' }, Count : { $sum : 1 }, Min : { $min : '$_v.U' } } }",
+                "{ $project : { _id : 0 } }");
         }
 
         [Fact]
@@ -420,7 +431,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 1,
-                "{ $group: { _id: '$A' } }",
+                "{ $group : { _id : '$A', _elements : { $push : '$$ROOT' } } }",
                 "{ $match: { _id: 'Awesome' } }");
         }
 
@@ -433,8 +444,8 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 1,
-                "{ $group: { _id: '$A', __agg0: { $first: '$B' } } }",
-                "{ $match: { __agg0: 'Balloon' } }");
+                "{ $group : { _id : '$A', _elements : { $push : '$$ROOT' } } }",
+                "{ $match : { '_elements.0.B' : 'Balloon' } }");
         }
 
         [Fact]
