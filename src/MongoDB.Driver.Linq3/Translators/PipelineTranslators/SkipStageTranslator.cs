@@ -23,11 +23,17 @@ namespace MongoDB.Driver.Linq3.Translators.PipelineTranslators
     public static class SkipStageTranslator
     {
         // public static methods
-        public static TranslatedPipeline Translate(TranslationContext context, MethodCallExpression expression, TranslatedPipeline pipeline)
+        public static TranslatedPipeline Translate(TranslationContext context, MethodCallExpression expression)
         {
-            if (expression.Method.Is(QueryableMethod.Skip))
+            var method = expression.Method;
+            var arguments = expression.Arguments;
+
+            var source = arguments[0];
+            var pipeline = PipelineTranslator.Translate(context, source);
+
+            if (method.Is(QueryableMethod.Skip))
             {
-                var count = expression.Arguments[1];
+                var count = arguments[1];
 
                 if (count.NodeType == ExpressionType.Constant)
                 {

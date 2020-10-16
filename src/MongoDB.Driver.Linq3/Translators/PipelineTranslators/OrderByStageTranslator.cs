@@ -26,15 +26,21 @@ namespace MongoDB.Driver.Linq3.Translators.PipelineTranslators
     public static class OrderByStageTranslator
     {
         // public static methods
-        public static TranslatedPipeline Translate(TranslationContext context, MethodCallExpression expression, TranslatedPipeline pipeline)
+        public static TranslatedPipeline Translate(TranslationContext context, MethodCallExpression expression)
         {
-            if (expression.Method.IsOneOf(QueryableMethod.OrderBy, QueryableMethod.OrderByDescending, QueryableMethod.ThenBy, QueryableMethod.ThenByDescending))
+            var method = expression.Method;
+            var arguments = expression.Arguments;
+
+            var source = arguments[0];
+            var pipeline = PipelineTranslator.Translate(context, source);
+
+            if (method.IsOneOf(QueryableMethod.OrderBy, QueryableMethod.OrderByDescending, QueryableMethod.ThenBy, QueryableMethod.ThenByDescending))
             {
-                var keySelector = expression.Arguments[1];
+                var keySelector = arguments[1];
 
-                var sortField = CreateSortField(expression.Method.Name, keySelector, pipeline.OutputSerializer);
+                var sortField = CreateSortField(method.Name, keySelector, pipeline.OutputSerializer);
 
-                switch (expression.Method.Name)
+                switch (method.Name)
                 {
                     case "OrderBy":
                     case "OrderByDescending":

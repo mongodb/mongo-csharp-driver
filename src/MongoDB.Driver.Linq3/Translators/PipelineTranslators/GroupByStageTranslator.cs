@@ -28,18 +28,24 @@ namespace MongoDB.Driver.Linq3.Translators.PipelineTranslators
     public static class GroupByStageTranslator
     {
         // public static methods
-        public static TranslatedPipeline Translate(TranslationContext context, MethodCallExpression expression, TranslatedPipeline pipeline)
+        public static TranslatedPipeline Translate(TranslationContext context, MethodCallExpression expression)
         {
-            if (expression.Method.IsOneOf(QueryableMethod.GroupByWithKeySelector, QueryableMethod.GroupByWithKeySelectorAndElementSelector, QueryableMethod.GroupByWithKeySelectorAndResultSelector))
+            var method = expression.Method;
+            var arguments = expression.Arguments;
+
+            var source = arguments[0];
+            var pipeline = PipelineTranslator.Translate(context, source);
+
+            if (method.IsOneOf(QueryableMethod.GroupByWithKeySelector, QueryableMethod.GroupByWithKeySelectorAndElementSelector, QueryableMethod.GroupByWithKeySelectorAndResultSelector))
             {
-                var keySelector = expression.Arguments[1];
+                var keySelector = arguments[1];
 
                 var keySelectorLambda = ExpressionHelper.Unquote(keySelector);
                 var keySelectorContext = context.WithSymbolAsCurrent(keySelectorLambda.Parameters[0], new Symbol("$ROOT", pipeline.OutputSerializer));
                 var translatedKeySelector = ExpressionTranslator.Translate(keySelectorContext, keySelectorLambda.Body);
                 var keySerializer = translatedKeySelector.Serializer ?? BsonSerializer.LookupSerializer(keySelectorLambda.ReturnType);
 
-                if (expression.Method.Is(QueryableMethod.GroupByWithKeySelector))
+                if (method.Is(QueryableMethod.GroupByWithKeySelector))
                 {
                     var elementSerializer = pipeline.OutputSerializer;
                     var groupingSerializer = IGroupingSerializer.Create(keySerializer, elementSerializer);
@@ -58,9 +64,9 @@ namespace MongoDB.Driver.Linq3.Translators.PipelineTranslators
                     return pipeline;
                 }
 
-                if (expression.Method.Is(QueryableMethod.GroupByWithKeySelectorAndElementSelector))
+                if (method.Is(QueryableMethod.GroupByWithKeySelectorAndElementSelector))
                 {
-                    var elementSelector = expression.Arguments[2];
+                    var elementSelector = arguments[2];
 
                     var elementSelectorLambda = ExpressionHelper.Unquote(elementSelector);
                     var elementSelectorContext = context.WithSymbolAsCurrent(elementSelectorLambda.Parameters[0], new Symbol("$ROOT", pipeline.OutputSerializer));
@@ -83,9 +89,9 @@ namespace MongoDB.Driver.Linq3.Translators.PipelineTranslators
                     return pipeline;
                 }
 
-                if (expression.Method.Is(QueryableMethod.GroupByWithKeySelectorAndResultSelector))
+                if (method.Is(QueryableMethod.GroupByWithKeySelectorAndResultSelector))
                 {
-                    var resultSelector = expression.Arguments[2];
+                    var resultSelector = arguments[2];
 
                     var resultSelectorLambda = ExpressionHelper.Unquote(resultSelector);
                     var keyParameter = resultSelectorLambda.Parameters[0];

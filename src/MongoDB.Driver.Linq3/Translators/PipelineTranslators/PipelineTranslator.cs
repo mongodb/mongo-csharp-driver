@@ -31,35 +31,31 @@ namespace MongoDB.Driver.Linq3.Translators.PipelineTranslators
             }
 
             var methodCallExpression = (MethodCallExpression)expression;
-            var source = methodCallExpression.Arguments[0];
-
-            var pipeline = Translate(context, source);
-
             switch (methodCallExpression.Method.Name)
             {
                 case "Distinct":
-                    return DistinctStageTranslator.Translate(context, methodCallExpression, pipeline);
+                    return DistinctStageTranslator.Translate(context, methodCallExpression);
                 case "GroupBy":
-                    return GroupByStageTranslator.Translate(context, methodCallExpression, pipeline);
+                    return GroupByStageTranslator.Translate(context, methodCallExpression);
                 case "OfType":
-                    return OfTypeStageTranslator.Translate(context, methodCallExpression, pipeline);
+                    return OfTypeStageTranslator.Translate(context, methodCallExpression);
                 case "OrderBy":
                 case "OrderByDescending":
                 case "ThenBy":
                 case "ThenByDescending":
-                    return OrderByStageTranslator.Translate(context, methodCallExpression, pipeline);
+                    return OrderByStageTranslator.Translate(context, methodCallExpression);
                 case "Sample":
-                    return SampleStageTranslator.Translate(context, methodCallExpression, pipeline);
+                    return SampleStageTranslator.Translate(context, methodCallExpression);
                 case "Select":
-                    return SelectStageTranslator.Translate(context, methodCallExpression, pipeline);
+                    return SelectStageTranslator.Translate(context, methodCallExpression);
                 case "SelectMany":
-                    return SelectManyStageTranslator.Translate(context, methodCallExpression, pipeline);
+                    return SelectManyStageTranslator.Translate(context, methodCallExpression);
                 case "Skip":
-                    return SkipStageTranslator.Translate(context, methodCallExpression, pipeline);
+                    return SkipStageTranslator.Translate(context, methodCallExpression);
                 case "Take":
-                    return TakeStageTranslator.Translate(context, methodCallExpression, pipeline);
+                    return TakeStageTranslator.Translate(context, methodCallExpression);
                 case "Where":
-                    return WhereStageTranslator.Translate(context, methodCallExpression, pipeline);
+                    return WhereStageTranslator.Translate(context, methodCallExpression);
             }
 
             throw new ExpressionNotSupportedException(expression);

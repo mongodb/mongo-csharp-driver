@@ -27,10 +27,13 @@ namespace MongoDB.Driver.Linq3.Translators.PipelineTranslators
     public static class OfTypeStageTranslator
     {
         // public static methods
-        public static TranslatedPipeline Translate(TranslationContext context, MethodCallExpression expression, TranslatedPipeline pipeline)
+        public static TranslatedPipeline Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
+
+            var source = arguments[0];
+            var pipeline = PipelineTranslator.Translate(context, source);
 
             if (method.Is(QueryableMethod.OfType))
             {
