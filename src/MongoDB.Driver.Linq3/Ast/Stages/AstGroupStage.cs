@@ -32,6 +32,7 @@ namespace MongoDB.Driver.Linq3.Ast.Stages
         {
             _id = Ensure.IsNotNull(id, nameof(id));
             _fields = Ensure.IsNotNull(fields, nameof(fields)).ToList().AsReadOnly();
+            Ensure.That(!_fields.Any(f => f.Name == "_id"), "An accumulator field of a $group stage cannot be named \"_id\".", nameof(fields));
         }
 
         public AstGroupStage(

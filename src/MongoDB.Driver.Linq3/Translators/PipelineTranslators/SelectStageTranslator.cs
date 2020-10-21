@@ -31,11 +31,18 @@ namespace MongoDB.Driver.Linq3.Translators.PipelineTranslators
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            var source = arguments[0];
-            var pipeline = PipelineTranslator.Translate(context, source);
-
             if (method.Is(QueryableMethod.Select))
             {
+                var sourceExpression = arguments[0];
+
+                if (sourceExpression is MethodCallExpression sourceMethodCallExpression &&
+                    sourceMethodCallExpression.Method.Is(QueryableMethod.GroupByWithKeySelector))
+                {
+                    return GroupByStageTranslator.TranslateGroupByAndSelectTogether(context, groupByExpression: sourceMethodCallExpression, selectExpression: expression);
+                }
+
+                var pipeline = PipelineTranslator.Translate(context, sourceExpression);
+
                 var selectorExpression = ExpressionHelper.Unquote(arguments[1]);
                 if (selectorExpression.Body == selectorExpression.Parameters[0])
                 {

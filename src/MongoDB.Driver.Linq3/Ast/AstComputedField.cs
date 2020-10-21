@@ -37,5 +37,10 @@ namespace MongoDB.Driver.Linq3.Ast
         {
             return new BsonElement(_name, _expression.Render());
         }
+
+        public override string ToString()
+        {
+            return $"\"{_name}\" : {_expression.Render().ToJson()}";
+        }
     }
 }
