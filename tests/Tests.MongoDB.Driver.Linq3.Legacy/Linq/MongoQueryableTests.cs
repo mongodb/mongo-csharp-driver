@@ -368,7 +368,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 2,
-                "{ $project : { _key : '$A', _v : '$$ROOT' } }",
+                "{ $project : { _key : '$A', _v : '$$ROOT', _id : 0 } }",
                 "{ $group : { _id : '$_key', A : { $first : '$_key' }, Count : { $sum : 1 }, Min : { $min : '$_v.U' } } }",
                 "{ $project : { _id : 0 } }");
 
@@ -377,7 +377,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 2,
-                "{ $project : { _key : '$A', _v : '$$ROOT' } }",
+                "{ $project : { _key : '$A', _v : '$$ROOT', _id : 0 } }",
                 "{ $group : { _id : '$_key', A : { $first : '$_key' }, Count : { $sum : 1 }, Min : { $min : '$_v.U' } } }",
                 "{ $project : { _id : 0 } }");
         }
@@ -404,9 +404,11 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 2,
-                "{ $group: { _id: '$A', __agg0: { $first: '$B'} } }",
-                "{ $project: { Key: '$_id', FirstB: '$__agg0', _id: 0 } }");
+                "{ $project : { _key : '$A', _v : '$$ROOT', _id : 0 } }",
+                "{ $group : { _id : '$_key', Key : { $first : '$_key' }, FirstB = { $first : '' } } }",
+                "{ $project : { _id : 0 } }");
         }
+
 #if !MONO
         [Fact]
         public void GroupBy_select_anonymous_type_syntax()
