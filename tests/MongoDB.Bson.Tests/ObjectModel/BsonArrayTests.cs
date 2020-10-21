@@ -33,6 +33,18 @@ namespace MongoDB.Bson.Tests
         }
 
         [Fact]
+        public void TestAddElement()
+        {
+            var array = new BsonArray();
+            var value = BsonValue.Create(1);
+            array.Add("x", value);
+            Assert.Equal(1, array.Count);
+            Assert.IsType<BsonDocument>(array[0]);
+            Assert.True(array[0].AsBsonDocument.Contains("x"));
+            Assert.Equal(1, array[0].AsBsonDocument.GetValue("x"));
+        }
+
+        [Fact]
         public void TestAddNull()
         {
             var array = new BsonArray();

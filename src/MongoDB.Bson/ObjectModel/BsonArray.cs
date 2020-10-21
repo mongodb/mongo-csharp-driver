@@ -278,6 +278,25 @@ namespace MongoDB.Bson
             return this;
         }
 
+        // public methods
+        /// <summary>
+        /// Creates and adds an element to the array.
+        /// </summary>
+        /// <param name="name">The name of the element to add to the array.</param>
+        /// <param name="value">The value of the element to add to the array.</param>
+        /// <returns>The array (so method calls can be chained).</returns>
+        public virtual BsonArray Add(string name, BsonValue value)
+        {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
+
+            Add(new BsonDocument(name, value));
+
+            return this;
+        }
+
         /// <summary>
         /// Adds multiple elements to the array.
         /// </summary>
