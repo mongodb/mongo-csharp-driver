@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
@@ -27,6 +28,7 @@ namespace MongoDB.Driver
     {
         // private fields
         private readonly string[] _removedFields;
+        private readonly BsonArray _truncatedArrays;
         private readonly BsonDocument _updatedFields;
 
         // constructors
@@ -38,9 +40,24 @@ namespace MongoDB.Driver
         public ChangeStreamUpdateDescription(
             BsonDocument updatedFields,
             string[] removedFields)
+            : this(updatedFields, removedFields, null)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ChangeStreamUpdateDescription" /> class.
+        /// </summary>
+        /// <param name="updatedFields">The updated fields.</param>
+        /// <param name="removedFields">The removed fields.</param>
+        /// <param name="truncatedArrays">The truncated arrays.</param>
+        public ChangeStreamUpdateDescription(
+            BsonDocument updatedFields,
+            string[] removedFields,
+            BsonArray truncatedArrays)
         {
             _updatedFields = Ensure.IsNotNull(updatedFields, nameof(updatedFields));
             _removedFields = Ensure.IsNotNull(removedFields, nameof(removedFields));
+            _truncatedArrays = truncatedArrays; // can be null
         }
 
         // public properties
@@ -51,6 +68,14 @@ namespace MongoDB.Driver
         /// The removed fields.
         /// </value>
         public string[] RemovedFields => _removedFields;
+
+        /// <summary>
+        /// Gets the truncated arrays.
+        /// </summary>
+        /// <value>
+        /// The truncated arrays.
+        /// </value>
+        public BsonArray TruncatedArrays => _truncatedArrays;
 
         /// <summary>
         /// Gets the updated fields.
@@ -72,7 +97,8 @@ namespace MongoDB.Driver
             var other = (ChangeStreamUpdateDescription)obj;
             return
                 _removedFields.SequenceEqual(other._removedFields) &&
-                _updatedFields.Equals(other._updatedFields);
+                _updatedFields.Equals(other._updatedFields) &&
+                object.Equals(_truncatedArrays, other._truncatedArrays);
         }
 
         /// <inheritdoc />
@@ -81,6 +107,7 @@ namespace MongoDB.Driver
             return new Hasher()
                 .HashElements(_removedFields)
                 .Hash(_updatedFields)
+                .Hash(_truncatedArrays)
                 .GetHashCode();
         }
     }

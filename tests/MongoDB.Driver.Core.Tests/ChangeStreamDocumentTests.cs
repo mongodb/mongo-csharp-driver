@@ -280,18 +280,26 @@ namespace MongoDB.Driver
         }
 
         [Theory]
-        [InlineData("{}", new string[0])]
-        [InlineData("{ x : 1 }", new[] { "a", "b", "c" })]
-        public void UpdateDescription_should_return_expected_result(string updatedFieldsJson, string[] removedFields)
+        [InlineData("{}", new string[0], null)]
+        [InlineData("{ x : 1 }", new[] { "a", "b", "c" }, null)]
+        [InlineData("{ x : 1 }", new[] { "a", "b", "c" }, "[ ]")]
+        [InlineData("{ x : 1 }", new[] { "a", "b", "c" }, "[ { field : 'arrayForSubdiff', newSize : 2 } ]")]
+        public void UpdateDescription_should_return_expected_result(string updatedFieldsJson, string[] removedFields, string truncatedArrays)
         {
             var updatedFields = BsonDocument.Parse(updatedFieldsJson);
-            var updateDescriptionDocument = new BsonDocument { { "updatedFields", updatedFields }, { "removedFields", new BsonArray(removedFields) } };
+            var truncatedArraysBsonArray = truncatedArrays != null ? BsonSerializer.Deserialize<BsonArray>(truncatedArrays) : null;
+            var updateDescriptionDocument = new BsonDocument
+            {
+                { "updatedFields", updatedFields },
+                { "removedFields", new BsonArray(removedFields) },
+                { "truncatedArrays", truncatedArraysBsonArray, truncatedArraysBsonArray != null }
+            };
             var backingDocument = new BsonDocument { { "other", 1 }, { "updateDescription", updateDescriptionDocument } };
             var subject = CreateSubject(backingDocument: backingDocument);
 
             var result = subject.UpdateDescription;
 
-            var expectedResult = new ChangeStreamUpdateDescription(updatedFields, removedFields);
+            var expectedResult = new ChangeStreamUpdateDescription(updatedFields, removedFields, truncatedArraysBsonArray);
             result.Should().Be(expectedResult);
         }
 

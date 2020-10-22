@@ -49,6 +49,7 @@ namespace MongoDB.Driver
 
             BsonDocument updatedFields = null;
             string[] removedFields = null;
+            BsonArray truncatedArrays = null;
 
             reader.ReadStartDocument();
             while (reader.ReadBsonType() != 0)
@@ -64,13 +65,17 @@ namespace MongoDB.Driver
                         removedFields = __stringArraySerializer.Deserialize(context);
                         break;
 
+                    case "truncatedArrays":
+                        truncatedArrays = BsonArraySerializer.Instance.Deserialize(context);
+                        break;
+
                     default:
                         throw new FormatException($"Invalid field name: \"{fieldName}\".");
                 }
             }
             reader.ReadEndDocument();
 
-            return new ChangeStreamUpdateDescription(updatedFields, removedFields);
+            return new ChangeStreamUpdateDescription(updatedFields, removedFields, truncatedArrays);
         }
 
         /// <inheritdoc />
@@ -83,6 +88,11 @@ namespace MongoDB.Driver
             BsonDocumentSerializer.Instance.Serialize(context, value.UpdatedFields);
             writer.WriteName("removedFields");
             __stringArraySerializer.Serialize(context, value.RemovedFields);
+            if (value.TruncatedArrays != null)
+            {
+                writer.WriteName("truncatedArrays");
+                BsonArraySerializer.Instance.Serialize(context, value.TruncatedArrays);
+            }
             writer.WriteEndDocument();
         }
     }

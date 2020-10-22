@@ -28,6 +28,7 @@ namespace MongoDB.Driver
     {
         [Theory]
         [InlineData("{ updatedFields : { f : 1 }, removedFields : [\"f\"] }")]
+        [InlineData("{ updatedFields : { f : 1 }, removedFields : [\"f\"], truncatedArrays : [ { field : \"arrayForSubdiff\", newSize : 2 } ] }")]
         public void Deserialize_should_return_expected_result(
             string json)
         {
@@ -41,7 +42,7 @@ namespace MongoDB.Driver
                 result = subject.Deserialize(context);
             }
 
-            result.ShouldBeEquivalentTo(expectedResult);
+            result.Should().Be(expectedResult);
         }
 
         [Fact]
@@ -83,8 +84,9 @@ namespace MongoDB.Driver
             var subject = CreateSubject();
             var value = new ChangeStreamUpdateDescription(
                 new BsonDocument("f", 1),
-                new[] { "f" });
-            var expectedResult = "{ \"updatedFields\" : { \"f\" : 1 }, \"removedFields\" : [\"f\"] }";
+                new[] { "f" },
+                BsonArray.Create(new[] { BsonDocument.Parse("{ field : 'arrayForSubdiff', newSize : 2 }") }));
+            var expectedResult = "{ \"updatedFields\" : { \"f\" : 1 }, \"removedFields\" : [\"f\"], \"truncatedArrays\" : [{ \"field\" : \"arrayForSubdiff\", \"newSize\" : 2 }] }";
 
             string result;
             using (var textWriter = new StringWriter())
@@ -127,8 +129,9 @@ namespace MongoDB.Driver
             var document = BsonDocument.Parse(json);
             var updatedFields = document["updatedFields"].AsBsonDocument;
             var removedFields = document["removedFields"].AsBsonArray.Select(f => f.AsString).ToArray();
+            var truncatedArrays = document.GetValue("truncatedArrays", null)?.AsBsonArray;
 
-            return new ChangeStreamUpdateDescription(updatedFields, removedFields);
+            return new ChangeStreamUpdateDescription(updatedFields, removedFields, truncatedArrays);
         }
     }
 }
