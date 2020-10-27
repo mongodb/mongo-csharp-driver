@@ -183,7 +183,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
         [SkippableFact]
         public void Distinct_document_followed_by_where()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.4.0");
             var query = CreateQuery()
                 .Distinct()
                 .Where(x => x.A == "Awesome");
@@ -198,7 +198,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
         [SkippableFact]
         public void Distinct_document_preceded_by_select_where()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.4.0");
             var query = CreateQuery()
                 .Select(x => new { x.A, x.B })
                 .Where(x => x.A == "Awesome")
@@ -215,7 +215,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
         [SkippableFact]
         public void Distinct_document_preceded_by_where_select()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.4.0");
             var query = CreateQuery()
                 .Where(x => x.A == "Awesome")
                 .Select(x => new { x.A, x.B })
@@ -232,7 +232,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
         [SkippableFact]
         public void Distinct_field_preceded_by_where_select()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.4.0");
             var query = CreateQuery()
                 .Where(x => x.A == "Awesome")
                 .Select(x => x.A)
@@ -249,7 +249,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
         [SkippableFact]
         public void Distinct_field_preceded_by_select_where()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.4.0");
             var query = CreateQuery()
                 .Select(x => x.A)
                 .Where(x => x == "Awesome")
@@ -401,6 +401,16 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
             var query = CreateQuery()
                 .GroupBy(x => x.A)
                 .Select(g => new { Key = g.Key, FirstB = g.First().B });
+
+            //Assert(query,
+            //    2,
+            //    "{ $project : { _key : '$A', _v : '$$ROOT', _id : 0 } }",
+            //    "{ $group : { _id : '$_key', Key : { $first : '$_key' }, FirstB = { $first : '' } } }",
+            //    "{ $project : { _id : 0 } }");
+
+            query = CreateQuery()
+                .GroupBy(x => x.A)
+                .Select(g => new { Key = g.Key, FirstB = g.Select(x => x.B).First() });
 
             Assert(query,
                 2,
@@ -929,6 +939,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
         [Fact]
         public void Select_method_computed_scalar_followed_by_distinct_followed_by_where()
         {
+            RequireServer.Check().VersionGreaterThanOrEqualTo("3.4.0");
             var query = CreateQuery()
                 .Select(x => x.A + " " + x.B)
                 .Distinct()
