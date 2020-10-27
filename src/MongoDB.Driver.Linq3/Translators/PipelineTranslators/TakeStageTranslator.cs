@@ -28,21 +28,19 @@ namespace MongoDB.Driver.Linq3.Translators.PipelineTranslators
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            var source = arguments[0];
-            var pipeline = PipelineTranslator.Translate(context, source);
+            var sourceExpression = arguments[0];
+            var pipeline = PipelineTranslator.Translate(context, sourceExpression);
 
             if (method.Is(QueryableMethod.Take))
             {
-                var count = arguments[1];
-
-                if (count.NodeType == ExpressionType.Constant)
+                var countExpression = arguments[1];
+                if (countExpression is ConstantExpression constantExpression)
                 {
-                    var countValue = (int)((ConstantExpression)count).Value;
+                    var count = (int)constantExpression.Value;
 
                     pipeline.AddStages(
                         pipeline.OutputSerializer,
-                        //new BsonDocument("$limit", countValue));
-                        new AstLimitStage(countValue));
+                        new AstLimitStage(count));
 
                     return pipeline;
                 }
