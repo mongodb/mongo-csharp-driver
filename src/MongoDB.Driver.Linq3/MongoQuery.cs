@@ -61,13 +61,13 @@ namespace MongoDB.Driver.Linq3
         // public methods
         public override IAsyncCursor<TOutput> Execute()
         {
-            var executableQuery = QueryTranslator.TranslateMultiValuedQuery<TDocument, TOutput>(_provider, _expression);
+            var executableQuery = QueryTranslator.TranslateQuery<TDocument, TOutput>(_provider, _expression);
             return executableQuery.Execute(_provider.Session, _provider.CancellationToken);
         }
 
         public override Task<IAsyncCursor<TOutput>> ExecuteAsync()
         {
-            var executableQuery = QueryTranslator.TranslateMultiValuedQuery<TDocument, TOutput>(_provider, _expression);
+            var executableQuery = QueryTranslator.TranslateQuery<TDocument, TOutput>(_provider, _expression);
             return executableQuery.ExecuteAsync(_provider.Session, _provider.CancellationToken);
         }
 
@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Linq3
         {
             try
             {
-                var executableQuery = QueryTranslator.TranslateMultiValuedQuery<TDocument, TOutput>(_provider, _expression);
+                var executableQuery = QueryTranslator.TranslateQuery<TDocument, TOutput>(_provider, _expression);
                 return $"[{string.Join(", ", executableQuery.Stages.Select(s => s.ToJson()))}]";
             }
             catch (Exception ex)

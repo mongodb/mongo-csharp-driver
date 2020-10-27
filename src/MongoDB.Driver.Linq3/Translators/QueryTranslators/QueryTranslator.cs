@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Linq3.Translators.QueryTranslators
     public static class QueryTranslator
     {
         // public static methods
-        public static ExecutableQuery<TDocument, IAsyncCursor<TOutput>> TranslateMultiValuedQuery<TDocument, TOutput>(MongoQueryProvider<TDocument> provider, Expression expression)
+        public static ExecutableQuery<TDocument, IAsyncCursor<TOutput>> TranslateQuery<TDocument, TOutput>(MongoQueryProvider<TDocument> provider, Expression expression)
         {
             expression = PartialEvaluator.EvaluatePartially(expression);
 
@@ -35,10 +35,10 @@ namespace MongoDB.Driver.Linq3.Translators.QueryTranslators
                 provider.Collection,
                 provider.Options,
                 pipeline.ToPipelineDefinition<TDocument, TOutput>(),
-                MultiValuedQueryFinalizer<TOutput>.Instance);
+                IdentityFinalizer<TOutput>.Instance);
         }
 
-        public static ExecutableQuery<TDocument, TResult> TranslateSingleValuedQuery<TDocument, TResult>(MongoQueryProvider<TDocument> provider, Expression expression)
+        public static ExecutableQuery<TDocument, TResult> TranslateScalarQuery<TDocument, TResult>(MongoQueryProvider<TDocument> provider, Expression expression)
         {
             expression = PartialEvaluator.EvaluatePartially(expression);
 
@@ -96,10 +96,10 @@ namespace MongoDB.Driver.Linq3.Translators.QueryTranslators
             throw new ExpressionNotSupportedException(expression);
         }
 
-        private class MultiValuedQueryFinalizer<TOutput> : IExecutableQueryFinalizer<TOutput, IAsyncCursor<TOutput>>
+        private class IdentityFinalizer<TOutput> : IExecutableQueryFinalizer<TOutput, IAsyncCursor<TOutput>>
         {
             #region static
-            private static readonly IExecutableQueryFinalizer<TOutput, IAsyncCursor<TOutput>> __instance = new MultiValuedQueryFinalizer<TOutput>();
+            private static readonly IExecutableQueryFinalizer<TOutput, IAsyncCursor<TOutput>> __instance = new IdentityFinalizer<TOutput>();
 
             public static IExecutableQueryFinalizer<TOutput, IAsyncCursor<TOutput>> Instance => __instance;
             #endregion
