@@ -1785,7 +1785,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
         private List<T> Assert<T>(IQueryable<T> queryable, int resultCount, params string[] expectedStages)
         {
             var provider = (MongoQueryProvider<Root>)queryable.Provider;
-            var executableQuery = QueryTranslator.TranslateMultiValuedQuery<Root, T>(provider, queryable.Expression);
+            var executableQuery = QueryTranslator.TranslateQuery<Root, T>(provider, queryable.Expression);
 
             executableQuery.Stages.Should().Equal(expectedStages.Select(x => BsonDocument.Parse(x)));
 

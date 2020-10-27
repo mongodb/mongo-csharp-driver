@@ -267,7 +267,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             //return result.Stages;
 
             var provider = (MongoQueryProvider<TestObject>)queryable.Provider;
-            var executableQuery = QueryTranslator.TranslateMultiValuedQuery<TestObject, T>(provider, queryable.Expression);
+            var executableQuery = QueryTranslator.TranslateQuery<TestObject, T>(provider, queryable.Expression);
             return executableQuery.Stages;
         }
 

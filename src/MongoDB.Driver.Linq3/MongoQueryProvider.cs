@@ -101,13 +101,13 @@ namespace MongoDB.Driver.Linq3
 
         public override TResult Execute<TResult>(Expression expression)
         {
-            var executableQuery = QueryTranslator.TranslateSingleValuedQuery<TDocument, TResult>(this, expression);
+            var executableQuery = QueryTranslator.TranslateScalarQuery<TDocument, TResult>(this, expression);
             return executableQuery.Execute(_session, _cancellationToken);
         }
 
         public override Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
         {
-            var executableQuery = QueryTranslator.TranslateSingleValuedQuery<TDocument, TResult>(this, expression);
+            var executableQuery = QueryTranslator.TranslateScalarQuery<TDocument, TResult>(this, expression);
             return executableQuery.ExecuteAsync(_session, cancellationToken);
         }
 
