@@ -95,22 +95,8 @@ namespace MongoDB.Driver.Linq3.Serializers
         public static IBsonSerializer Create(IBsonSerializer valueSerializer)
         {
             var valueType = valueSerializer.ValueType;
-            var factoryType = typeof(WrappedValueSerializerFactory<>).MakeGenericType(valueType);
-            var factory = (WrappedValueSerializerFactory)Activator.CreateInstance(factoryType);
-            return factory.Create(valueSerializer);
-        }
-    }
-
-    public abstract class WrappedValueSerializerFactory
-    {
-        public abstract IBsonSerializer Create(IBsonSerializer valueSerializer);
-    }
-
-    public class WrappedValueSerializerFactory<TValue> : WrappedValueSerializerFactory
-    {
-        public override IBsonSerializer Create(IBsonSerializer valueSerializer)
-        {
-            return new WrappedValueSerializer<TValue>((IBsonSerializer<TValue>)valueSerializer);
+            var wrappedValueSerializerType = typeof(WrappedValueSerializer<>).MakeGenericType(valueType);
+            return (IBsonSerializer)Activator.CreateInstance(wrappedValueSerializerType, valueSerializer);
         }
     }
 }

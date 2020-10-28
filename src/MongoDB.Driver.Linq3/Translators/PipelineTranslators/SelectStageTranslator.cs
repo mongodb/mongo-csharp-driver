@@ -43,12 +43,12 @@ namespace MongoDB.Driver.Linq3.Translators.PipelineTranslators
 
                 var pipeline = PipelineTranslator.Translate(context, sourceExpression);
 
-                var selectorExpression = ExpressionHelper.Unquote(arguments[1]);
-                if (selectorExpression.Body == selectorExpression.Parameters[0])
+                var selectorLambdaExpression = ExpressionHelper.Unquote(arguments[1]);
+                if (selectorLambdaExpression.Body == selectorLambdaExpression.Parameters[0])
                 {
                     return pipeline; // ignore identity projection: Select(x => x)
                 }
-                var selectorTranslation = ExpressionTranslator.Translate(context, selectorExpression, parameterSerializer: pipeline.OutputSerializer);
+                var selectorTranslation = ExpressionTranslator.Translate(context, selectorLambdaExpression, parameterSerializer: pipeline.OutputSerializer);
 
                 if (selectorTranslation.Ast is AstComputedDocumentExpression)
                 {
