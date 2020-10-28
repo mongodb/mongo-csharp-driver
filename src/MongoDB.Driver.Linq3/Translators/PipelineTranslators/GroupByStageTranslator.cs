@@ -58,9 +58,9 @@ namespace MongoDB.Driver.Linq3.Translators.PipelineTranslators
                 var sourceExpression = arguments[0];
                 var pipeline = PipelineTranslator.Translate(context, sourceExpression);
 
-                var keySelectorLambda = ExpressionHelper.Unquote(arguments[1]);
-                var keySelectorContext = context.WithSymbolAsCurrent(keySelectorLambda.Parameters[0], new Symbol("$ROOT", pipeline.OutputSerializer));
-                var keySelectorTranslation = ExpressionTranslator.Translate(keySelectorContext, keySelectorLambda.Body);
+                var keySelectorLambdaExpression = ExpressionHelper.Unquote(arguments[1]);
+                var keySelectorContext = context.WithSymbolAsCurrent(keySelectorLambdaExpression.Parameters[0], new Symbol("$ROOT", pipeline.OutputSerializer));
+                var keySelectorTranslation = ExpressionTranslator.Translate(keySelectorContext, keySelectorLambdaExpression.Body);
                 var keySerializer = keySelectorTranslation.Serializer;
 
                 if (method.Is(QueryableMethod.GroupByWithKeySelector))
@@ -79,9 +79,9 @@ namespace MongoDB.Driver.Linq3.Translators.PipelineTranslators
 
                 if (method.Is(QueryableMethod.GroupByWithKeySelectorAndElementSelector))
                 {
-                    var elementSelectorLambda = ExpressionHelper.Unquote(arguments[2]);
-                    var elementSelectorContext = context.WithSymbolAsCurrent(elementSelectorLambda.Parameters[0], new Symbol("$ROOT", pipeline.OutputSerializer));
-                    var elementSelectorTranslation = ExpressionTranslator.Translate(elementSelectorContext, elementSelectorLambda.Body);
+                    var elementSelectorLambdaExpression = ExpressionHelper.Unquote(arguments[2]);
+                    var elementSelectorContext = context.WithSymbolAsCurrent(elementSelectorLambdaExpression.Parameters[0], new Symbol("$ROOT", pipeline.OutputSerializer));
+                    var elementSelectorTranslation = ExpressionTranslator.Translate(elementSelectorContext, elementSelectorLambdaExpression.Body);
                     var elementSerializer = elementSelectorTranslation.Serializer;
                     var groupingSerializer = IGroupingSerializer.Create(keySerializer, elementSerializer);
 
@@ -98,9 +98,9 @@ namespace MongoDB.Driver.Linq3.Translators.PipelineTranslators
                 {
                     var keyValueSerializer = AddKeyValueStage(context, pipeline, keySelectorTranslation);
 
-                    var resultSelectorLambda = ExpressionHelper.Unquote(arguments[2]);
-                    var keyParameter = resultSelectorLambda.Parameters[0];
-                    var accumulatorFields = TranslateAccumulatorFields(context, resultSelectorLambda, keyParameter, keyValueSerializer, out var outputSerializer);
+                    var resultSelectorLambdaExpression = ExpressionHelper.Unquote(arguments[2]);
+                    var keyParameter = resultSelectorLambdaExpression.Parameters[0];
+                    var accumulatorFields = TranslateAccumulatorFields(context, resultSelectorLambdaExpression, keyParameter, keyValueSerializer, out var outputSerializer);
 
                     pipeline.AddStages(
                         outputSerializer,
@@ -123,11 +123,11 @@ namespace MongoDB.Driver.Linq3.Translators.PipelineTranslators
                 var sourceExpression = groupByExpression.Arguments[0];
                 var pipeline = PipelineTranslator.Translate(context, sourceExpression);
 
-                var keySelectorLambda = ExpressionHelper.Unquote(groupByExpression.Arguments[1]);
-                var keyValueSerializer = AddKeyValueStage(context, pipeline, keySelectorLambda);
+                var keySelectorLambdaExpression = ExpressionHelper.Unquote(groupByExpression.Arguments[1]);
+                var keyValueSerializer = AddKeyValueStage(context, pipeline, keySelectorLambdaExpression);
 
-                var selectorLambda = ExpressionHelper.Unquote(selectExpression.Arguments[1]);
-                var accumulatorFields = TranslateAccumulatorFields(context, selectorLambda, keyParameterExpression: null, keyValueSerializer, out var outputSerializer);
+                var selectorLambdaExpression = ExpressionHelper.Unquote(selectExpression.Arguments[1]);
+                var accumulatorFields = TranslateAccumulatorFields(context, selectorLambdaExpression, keyParameterExpression: null, keyValueSerializer, out var outputSerializer);
 
                 pipeline.AddStages(
                     outputSerializer,

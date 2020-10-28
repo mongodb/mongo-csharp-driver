@@ -87,9 +87,9 @@ namespace MongoDB.Driver.Linq3.Translators.PipelineTranslators
 
         private static string GetDottedFieldName(Expression keySelector, IBsonSerializer outputSerializer)
         {
-            var lambda = ExpressionHelper.Unquote(keySelector);
-            var symbolTable = new SymbolTable(lambda.Parameters[0], new Symbol("$$CURRENT", outputSerializer));
-            var keyField = FieldResolver.ResolveField(lambda.Body, symbolTable);
+            var keySelectorLambdaExpression = ExpressionHelper.Unquote(keySelector);
+            var symbolTable = new SymbolTable(keySelectorLambdaExpression.Parameters[0], new Symbol("$$CURRENT", outputSerializer));
+            var keyField = FieldResolver.ResolveField(keySelectorLambdaExpression.Body, symbolTable);
             return keyField.DottedFieldName;
         }
     }
