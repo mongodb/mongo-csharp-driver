@@ -363,8 +363,16 @@ namespace MongoDB.Driver.Core.Connections
                     receiveLockRequest.Task.GetAwaiter().GetResult(); // propagate exceptions
                     while (true)
                     {
-                        var buffer = ReceiveBuffer(cancellationToken);
-                        _dropbox.AddMessage(buffer);
+                        try
+                        {
+                            var buffer = ReceiveBuffer(cancellationToken);
+                            _dropbox.AddMessage(buffer);
+                        }
+                        catch (Exception ex)
+                        {
+                            _dropbox.AddException(ex);
+                            throw;
+                        }
 
                         if (messageTask.IsCompleted)
                         {
@@ -426,8 +434,16 @@ namespace MongoDB.Driver.Core.Connections
                     receiveLockRequest.Task.GetAwaiter().GetResult(); // propagate exceptions
                     while (true)
                     {
-                        var buffer = await ReceiveBufferAsync(cancellationToken).ConfigureAwait(false);
-                        _dropbox.AddMessage(buffer);
+                        try
+                        {
+                            var buffer = await ReceiveBufferAsync(cancellationToken).ConfigureAwait(false);
+                            _dropbox.AddMessage(buffer);
+                        }
+                        catch (Exception ex)
+                        {
+                            _dropbox.AddException(ex);
+                            throw;
+                        }
 
                         if (messageTask.IsCompleted)
                         {
@@ -766,6 +782,14 @@ namespace MongoDB.Driver.Core.Connections
             private readonly ConcurrentDictionary<int, TaskCompletionSource<IByteBuffer>> _messages = new ConcurrentDictionary<int, TaskCompletionSource<IByteBuffer>>();
 
             // public methods
+            public void AddException(Exception exception)
+            {
+                foreach (var taskCompletionSource in _messages.Values)
+                {
+                    taskCompletionSource.TrySetException(exception); // has no effect on already completed tasks
+                }
+            }
+
             public void AddMessage(IByteBuffer message)
             {
                 var responseTo = GetResponseTo(message);
