@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>netstandard1.5;netstandard2.0;net452</TargetFrameworks>
@@ -24,6 +24,18 @@
     <PackageLanguage>en-US</PackageLanguage>
     <IncludeSymbols>true</IncludeSymbols>
   </PropertyGroup>
+
+  <PropertyGroup>
+    <IsWindows Condition="$([MSBuild]::IsOSPlatform('Windows'))">true</IsWindows>
+    <IsOSX Condition="$([MSBuild]::IsOSPlatform('OSX'))">true</IsOSX>
+    <IsLinux Condition="$([MSBuild]::IsOSPlatform('Linux'))">true</IsLinux>
+  </PropertyGroup>
+
+  <Target Name="PrintOS" BeforeTargets="Build">
+    <Message Text="IsWindows: '$(IsWindows)'" Importance="high" />
+    <Message Text="IsOSX: '$(IsOSX)'" Importance="high" />
+    <Message Text="IsLinux: '$(IsLinux)'" Importance="high" />
+  </Target>
 
   <PropertyGroup Condition="'$(Version)'==''">
     <Version>0.0.0-local</Version>
@@ -61,7 +73,7 @@
     <SnappyBinaries>Core/Compression/Snappy/lib/win</SnappyBinaries>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition=" '$(IsWindows)' == true ">
     <Content Include="$(SnappyBinaries)/snappy32.dll">
       <Pack>true</Pack>
       <PackagePath>$(CompressionRuntimesPath)</PackagePath>
@@ -72,7 +84,7 @@
     </Content>
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition=" '$(IsWindows)' == true ">
     <Content Include="$(SnappyBinaries)/snappy32.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Link>snappy32.dll</Link>
@@ -92,14 +104,14 @@
     <ZstdBinaries>Core/Compression/Zstandard/lib/win</ZstdBinaries>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition=" '$(IsWindows)' == true ">
     <Content Include="$(ZstdBinaries)/libzstd.dll">
       <Pack>true</Pack>
       <PackagePath>$(CompressionRuntimesPath)</PackagePath>
     </Content>
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition=" '$(IsWindows)' == true ">
     <Content Include="$(ZstdBinaries)/libzstd.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Link>libzstd.dll</Link>
@@ -150,7 +162,7 @@
   <ItemGroup>
     <None Include="..\..\License.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
     <None Include="..\..\THIRD-PARTY-NOTICES" Pack="true" PackagePath="\" />
-    <None Include="..\..\packageIcon.png" Pack="true" PackagePath=""/>
+    <None Include="..\..\packageIcon.png" Pack="true" PackagePath="" />
   </ItemGroup>
 
 </Project>
