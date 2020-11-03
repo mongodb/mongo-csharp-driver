@@ -20,7 +20,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Libmongocrypt;
 
@@ -219,7 +218,7 @@ namespace MongoDB.Driver.Encryption
         }
 
         // private methods
-        private IKmsKeyId GetKmsKeyId(string kmsProvider, IReadOnlyList<string> alternateKeyNames, BsonDocument masterKey)
+        private KmsKeyId GetKmsKeyId(string kmsProvider, IReadOnlyList<string> alternateKeyNames, BsonDocument masterKey)
         {
             IEnumerable<byte[]> wrappedAlternateKeyNamesBytes = null;
             if (alternateKeyNames != null)
@@ -227,18 +226,12 @@ namespace MongoDB.Driver.Encryption
                 wrappedAlternateKeyNamesBytes = alternateKeyNames.Select(GetWrappedAlternateKeyNameBytes);
             }
 
-            switch (kmsProvider)
+            var dataKeyDocument = new BsonDocument("provider", kmsProvider.ToLower());
+            if (masterKey != null)
             {
-                case "aws":
-                    var customerMasterKey = masterKey["key"].ToString();
-                    var endpoint = masterKey.GetValue("endpoint", null)?.ToString();
-                    var region = masterKey["region"].ToString();
-                    return new AwsKeyId(customerMasterKey, region, wrappedAlternateKeyNamesBytes, endpoint);
-                case "local":
-                    return wrappedAlternateKeyNamesBytes != null ? new LocalKeyId(wrappedAlternateKeyNamesBytes) : new LocalKeyId();
-                default:
-                    throw new ArgumentException($"Invalid kmsProvider {kmsProvider}.");
+                dataKeyDocument.AddRange(masterKey.Elements);
             }
+            return new KmsKeyId(dataKeyDocument.ToBson(), wrappedAlternateKeyNamesBytes);
         }
 
         private byte[] GetWrappedAlternateKeyNameBytes(string value)

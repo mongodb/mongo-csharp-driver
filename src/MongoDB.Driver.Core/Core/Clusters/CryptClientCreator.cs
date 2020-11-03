@@ -65,24 +65,16 @@ namespace MongoDB.Driver.Core.Clusters
 
         private CryptOptions CreateCryptOptions()
         {
-            Dictionary<KmsType, IKmsCredentials> kmsProvidersMap = null;
+            List<KmsCredentials> kmsProviders = null;
             if (_kmsProviders != null && _kmsProviders.Count > 0)
             {
-                kmsProvidersMap = new Dictionary<KmsType, IKmsCredentials>();
-                if (_kmsProviders.TryGetValue("aws", out var awsProvider))
+                kmsProviders = new List<KmsCredentials>();
+                foreach (var kmsProvider in _kmsProviders)
                 {
-                    if (awsProvider.TryGetValue("accessKeyId", out var accessKeyId) &&
-                        awsProvider.TryGetValue("secretAccessKey", out var secretAccessKey))
-                    {
-                        kmsProvidersMap.Add(KmsType.Aws, new AwsKmsCredentials((string)secretAccessKey, (string)accessKeyId));
-                    }
-                }
-                if (_kmsProviders.TryGetValue("local", out var localProvider))
-                {
-                    if (localProvider.TryGetValue("key", out var keyObject) && keyObject is byte[] key)
-                    {
-                        kmsProvidersMap.Add(KmsType.Local, new LocalKmsCredentials(key));
-                    }
+                    var kmsTypeDocumentKey = kmsProvider.Key.ToLower();
+                    var kmsProviderDocument = CreateProviderDocument(kmsTypeDocumentKey, kmsProvider.Value);
+                    var kmsCredentials = new KmsCredentials(credentialsBytes: kmsProviderDocument.ToBson());
+                    kmsProviders.Add(kmsCredentials);
                 }
             }
             else
@@ -105,7 +97,18 @@ namespace MongoDB.Driver.Core.Clusters
                 schemaBytes = schemaDocument.ToBson(writerSettings: writerSettings);
             }
 
-            return new CryptOptions(kmsProvidersMap, schemaBytes);
+            return new CryptOptions(kmsProviders, schemaBytes);
+        }
+
+        private BsonDocument CreateProviderDocument(string kmsType, IReadOnlyDictionary<string, object> data)
+        {
+            var providerContent = new BsonDocument();
+            foreach (var record in data)
+            {
+                providerContent.Add(new BsonElement(record.Key, BsonValue.Create(record.Value)));
+            }
+            var providerDocument = new BsonDocument(kmsType, providerContent);
+            return providerDocument;
         }
     }
 }

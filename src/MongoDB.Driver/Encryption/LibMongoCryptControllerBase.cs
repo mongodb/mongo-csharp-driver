@@ -235,9 +235,9 @@ namespace MongoDB.Driver.Encryption
                 var requestBytes = request.Message.ToArray();
                 sslStream.Write(requestBytes);
 
-                var buffer = new byte[4096];
                 while (request.BytesNeeded > 0)
                 {
+                    var buffer = new byte[request.BytesNeeded]; // BytesNeeded is the maximum number of bytes that libmongocrypt wants to receive.
                     var count = sslStream.Read(buffer, 0, buffer.Length);
                     var responseBytes = new byte[count];
                     Buffer.BlockCopy(buffer, 0, responseBytes, 0, count);
@@ -264,9 +264,9 @@ namespace MongoDB.Driver.Encryption
                 var requestBytes = request.Message.ToArray();
                 await sslStream.WriteAsync(requestBytes, 0, requestBytes.Length).ConfigureAwait(false);
 
-                var buffer = new byte[4096];
                 while (request.BytesNeeded > 0)
                 {
+                    var buffer = new byte[request.BytesNeeded]; // BytesNeeded is the maximum number of bytes that libmongocrypt wants to receive.
                     var count = await sslStream.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
                     var responseBytes = new byte[count];
                     Buffer.BlockCopy(buffer, 0, responseBytes, 0, count);

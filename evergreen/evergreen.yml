@@ -251,6 +251,11 @@ functions:
           set +x
           export FLE_AWS_ACCESS_KEY_ID=${FLE_AWS_ACCESS_KEY_ID}
           export FLE_AWS_SECRET_ACCESS_KEY=${FLE_AWS_SECRET_ACCESS_KEY}
+          export FLE_AZURE_TENANT_ID=${FLE_AZURE_TENANT_ID}
+          export FLE_AZURE_CLIENT_ID=${FLE_AZURE_CLIENT_ID}
+          export FLE_AZURE_CLIENT_SECRET=${FLE_AZURE_CLIENT_SECRET}
+          export FLE_GCP_EMAIL=${FLE_GCP_EMAIL}
+          export FLE_GCP_PRIVATE_KEY=${FLE_GCP_PRIVATE_KEY}
           ${PREPARE_SHELL}
           SSL=${SSL} evergreen/add-certs-if-needed.sh
           AUTH=${AUTH} \

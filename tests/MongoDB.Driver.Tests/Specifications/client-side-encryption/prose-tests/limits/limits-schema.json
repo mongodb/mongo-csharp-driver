@@ -1,13 +1,13 @@
-﻿{
+{
     "properties": {
         "00": {
             "encrypt": {
                 "keyId": [
                     {
-                      "$binary": {
-                        "base64": "LOCALAAAAAAAAAAAAAAAAA==",
-                        "subType": "04"
-                      }
+                        "$binary": {
+                            "base64": "LOCALAAAAAAAAAAAAAAAAA==", 
+                            "subType": "04"
+                        }
                     }
                 ], 
                 "bsonType": "string", 

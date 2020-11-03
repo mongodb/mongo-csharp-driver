@@ -17,7 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Net.Sockets;
+using System.Reflection;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -30,6 +30,7 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Encryption;
 using MongoDB.Driver.TestHelpers;
@@ -311,17 +312,23 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             {
                 CreateCollection(client, __collCollectionNamespace, new BsonDocument("$jsonSchema", corpusSchema));
 
-                var corpusKeyLocal = JsonFileReader.Instance.Documents["corpus.corpus-key-local.json"];
-                var corpusKeyAws = JsonFileReader.Instance.Documents["corpus.corpus-key-aws.json"];
                 var keyVaultCollection = GetCollection(client, __keyVaultCollectionNamespace);
-                Insert(keyVaultCollection, async, corpusKeyLocal, corpusKeyAws);
+                Insert(
+                    keyVaultCollection,
+                    async,
+                    JsonFileReader.Instance.Documents["corpus.corpus-key-local.json"],
+                    JsonFileReader.Instance.Documents["corpus.corpus-key-aws.json"],
+                    JsonFileReader.Instance.Documents["corpus.corpus-key-azure.json"],
+                    JsonFileReader.Instance.Documents["corpus.corpus-key-gcp.json"]);
 
                 var corpus = JsonFileReader.Instance.Documents["corpus.corpus.json"];
                 var corpusCopied = new BsonDocument
                 {
                     corpus.GetElement("_id"),
                     corpus.GetElement("altname_aws"),
-                    corpus.GetElement("altname_local")
+                    corpus.GetElement("altname_local"),
+                    corpus.GetElement("altname_azure"),
+                    corpus.GetElement("altname_gcp")
                 };
 
                 foreach (var corpusElement in corpus.Elements.Where(c => c.Value.IsBsonDocument))
@@ -397,7 +404,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             }
                             break;
                         default:
-                            throw new ArgumentException($"Unsupported expected algorithm {expectedAllowed}.", nameof(expectedAlgorithm));
+                            throw new ArgumentException($"Unsupported expected algorithm {expectedAlgorithm}.", nameof(expectedAlgorithm));
                     }
 
                     if (expectedAllowed)
@@ -426,6 +433,12 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             break;
                         case "aws":
                             keyId = GuidConverter.FromBytes(Convert.FromBase64String("AWSAAAAAAAAAAAAAAAAAAA=="), GuidRepresentation.Standard);
+                            break;
+                        case "azure":
+                            keyId = GuidConverter.FromBytes(Convert.FromBase64String("AZUREAAAAAAAAAAAAAAAAA=="), GuidRepresentation.Standard);
+                            break;
+                        case "gcp":
+                            keyId = GuidConverter.FromBytes(Convert.FromBase64String("GCPAAAAAAAAAAAAAAAAAAA=="), GuidRepresentation.Standard);
                             break;
                         default:
                             throw new ArgumentException($"Unsupported kms type {kms}.");
@@ -460,7 +473,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         [SkippableTheory]
         [ParameterAttributeData]
         public void CreateDataKeyAndDoubleEncryptionTest(
-            [Values("local", "aws")] string kmsProvider,
+            [Values("local", "aws", "azure", "gcp")] string kmsProvider,
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
@@ -526,90 +539,153 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         }
 
         [SkippableTheory]
-        [ParameterAttributeData]
-        public void CustomEndpointTest([Values(false, true)] bool async)
+        // aws
+        [InlineData("aws", null, null, null)]
+        [InlineData("aws", "kms.us-east-1.amazonaws.com", null, null)]
+        [InlineData("aws", "kms.us-east-1.amazonaws.com:443", null, null)]
+        [InlineData("aws", "kms.us-east-1.amazonaws.com:12345", "$ConnectionRefusedSocketException$", null)]
+        [InlineData("aws", "kms.us-east-2.amazonaws.com", "us-east-1", null)]
+        [InlineData("aws", "example.com", "parse error", null)]
+        // additional not spec tests
+        [InlineData("aws", "$test$", "Invalid endpoint, expected dot separator in host, but got: $test$", null)]
+        // azure
+        [InlineData("azure", "key-vault-csfle.vault.azure.net", null, "parse error")]
+        // gcp
+        [InlineData("gcp", "cloudkms.googleapis.com:443", null, "parse error")]
+        [InlineData("gcp", "example.com:443", "Invalid KMS response", null)]
+        public void CustomEndpointTest(
+            string kmsType,
+            string customEndpoint,
+            string expectedExceptionInfoForValidEncryption,
+            string expectedExceptionInfoForInvalidEncryption)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
 
             using (var client = ConfigureClient())
-            using (var clientEncryption = ConfigureClientEncryption(client.Wrapped as MongoClient))
+            using (var clientEncryption = ConfigureClientEncryption(client.Wrapped as MongoClient, ValidKmsEndpointConfigurator))
+            using (var clientEncryptionInvalid = ConfigureClientEncryption(client.Wrapped as MongoClient, InvalidKmsEndpointConfigurator))
             {
-                var testCaseMasterKey = new BsonDocument
+                BsonDocument testCaseMasterKey = null;
+                switch (kmsType)
                 {
-                    { "region", "us-east-1" },
-                    { "key", "arn:aws:kms:us-east-1:579766882180:key/89fcc2c4-08b0-4bd9-9f25-e30687b580d0" }
-                };
-                TestCase(testCaseMasterKey);
-
-                testCaseMasterKey = new BsonDocument
-                {
-                    { "region", "us-east-1" },
-                    { "key", "arn:aws:kms:us-east-1:579766882180:key/89fcc2c4-08b0-4bd9-9f25-e30687b580d0" },
-                    { "endpoint", "kms.us-east-1.amazonaws.com" }
-                };
-                TestCase(testCaseMasterKey);
-
-                testCaseMasterKey = new BsonDocument
-                {
-                    { "region", "us-east-1" },
-                    { "key", "arn:aws:kms:us-east-1:579766882180:key/89fcc2c4-08b0-4bd9-9f25-e30687b580d0" },
-                    { "endpoint", "kms.us-east-1.amazonaws.com:443" }
-                };
-                TestCase(testCaseMasterKey);
-
-                testCaseMasterKey = new BsonDocument
-                {
-                    { "region", "us-east-1" },
-                    { "key", "arn:aws:kms:us-east-1:579766882180:key/89fcc2c4-08b0-4bd9-9f25-e30687b580d0" },
-                    { "endpoint", "kms.us-east-1.amazonaws.com:12345" }
-                };
-                var exception = Record.Exception(() => TestCase(testCaseMasterKey));
-                exception.InnerException.Should().BeAssignableTo<SocketException>();
-
-                testCaseMasterKey = new BsonDocument
-                {
-                    { "region", "us-east-1" },
-                    { "key", "arn:aws:kms:us-east-1:579766882180:key/89fcc2c4-08b0-4bd9-9f25-e30687b580d0" },
-                    { "endpoint", "kms.us-east-2.amazonaws.com" }
-                };
-                exception = Record.Exception(() => TestCase(testCaseMasterKey));
-                exception.Should().NotBeNull();
-                exception.Message.Should().Contain("us-east-1");
-
-                testCaseMasterKey = new BsonDocument
-                {
-                    { "region", "us-east-1" },
-                    { "key", "arn:aws:kms:us-east-1:579766882180:key/89fcc2c4-08b0-4bd9-9f25-e30687b580d0" },
-                    { "endpoint", "example.com" }
-                };
-                exception = Record.Exception(() => TestCase(testCaseMasterKey));
-                exception.Should().NotBeNull();
-                exception.Message.Should().Contain("parse error");
-
-                // additional not spec tests
-                testCaseMasterKey = new BsonDocument
-                {
-                    { "region", "us-east-1" },
-                    { "key", "arn:aws:kms:us-east-1:579766882180:key/89fcc2c4-08b0-4bd9-9f25-e30687b580d0" },
-                    { "endpoint", "$test$" }
-                };
-                exception = Record.Exception(() => TestCase(testCaseMasterKey));
-                exception.Should().NotBeNull();
-                exception.InnerException.Should().BeAssignableTo<SocketException>();
-
-                void TestCase(BsonDocument masterKey)
-                {
-                    var dataKeyOptions = new DataKeyOptions(masterKey: masterKey);
-                    var dataKey = CreateDataKey(clientEncryption, "aws", dataKeyOptions, async);
-
-                    var encryptOptions = new EncryptOptions(
-                        algorithm: EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic.ToString(),
-                        keyId: dataKey);
-                    var value = "test";
-                    var encrypted = ExplicitEncrypt(clientEncryption, encryptOptions, value, async);
-                    var decrypted = ExplicitDecrypt(clientEncryption, encrypted, async);
-                    decrypted.Should().Be(BsonValue.Create(value));
+                    case "aws":
+                        {
+                            testCaseMasterKey = new BsonDocument
+                            {
+                                { "region", "us-east-1" },
+                                { "key", "arn:aws:kms:us-east-1:579766882180:key/89fcc2c4-08b0-4bd9-9f25-e30687b580d0" },
+                                { "endpoint", customEndpoint, customEndpoint != null }
+                            };
+                        }
+                        break;
+                    case "azure":
+                        {
+                            testCaseMasterKey = new BsonDocument
+                            {
+                                { "keyVaultEndpoint", customEndpoint },
+                                { "keyName", "key-name-csfle" }
+                            };
+                        }
+                        break;
+                    case "gcp":
+                        {
+                            testCaseMasterKey = new BsonDocument
+                            {
+                                { "projectId", "devprod-drivers" },
+                                { "location", "global" },
+                                { "keyRing", "key-ring-csfle" },
+                                { "keyName", "key-name-csfle" },
+                                { "endpoint", customEndpoint }
+                            };
+                        }
+                        break;
+                    default:
+                        throw new Exception($"Unexpected kms type {kmsType}.");
                 }
+
+                foreach (var async in new[] { false, true })
+                {
+                    var exception = Record.Exception(() => TestCase(clientEncryption, testCaseMasterKey, async));
+                    AssertResult(exception, expectedExceptionInfoForValidEncryption);
+                    if (expectedExceptionInfoForInvalidEncryption != null)
+                    {
+                        exception = Record.Exception(() => CreateDataKeyTestCaseStep(clientEncryptionInvalid, testCaseMasterKey, async));
+                        AssertResult(exception, expectedExceptionInfoForInvalidEncryption);
+                    }
+                }
+
+            }
+
+            void AssertResult(Exception ex, string expectedExceptionInfo)
+            {
+                if (expectedExceptionInfo != null)
+                {
+                    var innerException = ex.Should().BeOfType<MongoEncryptionException>().Subject.InnerException;
+
+                    if (expectedExceptionInfo.StartsWith("$") && expectedExceptionInfo.EndsWith("Exception$"))
+                    {
+                        var expectedException = CoreExceptionHelper.CreateException(expectedExceptionInfo.Trim('$'));
+                        var excectedExceptionType = expectedException.GetType().GetTypeInfo();
+                        excectedExceptionType.IsAssignableFrom(innerException.GetType()).Should().BeTrue();
+                        innerException.Message.Should().StartWith(expectedException.Message);
+                    }
+                    else
+                    {
+                        var e = innerException.Should().BeOfType<CryptException>().Subject;
+                        e.Message.Should().Contain(expectedExceptionInfo.ToString());
+                    }
+                }
+                else
+                {
+                    ex.Should().BeNull();
+                }
+            }
+
+            Guid CreateDataKeyTestCaseStep(ClientEncryption testCaseClientEncription, BsonDocument masterKey, bool async)
+            {
+                var dataKeyOptions = new DataKeyOptions(masterKey: masterKey);
+                return CreateDataKey(testCaseClientEncription, kmsType, dataKeyOptions, async);
+            }
+
+            void InvalidKmsEndpointConfigurator(string kt, Dictionary<string, object> ko)
+            {
+                switch (kt)
+                {
+                    case "azure":
+                        ko.Add("identityPlatformEndpoint", "example.com:443");
+                        break;
+                    case "gcp":
+                        ko.Add("endpoint", "example.com:443");
+                        break;
+                }
+            }
+
+            void ValidKmsEndpointConfigurator(string kt, Dictionary<string, object> ko)
+            {
+                switch (kt)
+                {
+                    // these values are default, so set them just to show the difference with incorrect values
+                    // NOTE: "aws" and "local" don't have a way to set endpoints here
+                    case "azure":
+                        ko.Add("identityPlatformEndpoint", "login.microsoftonline.com:443");
+                        break;
+                    case "gcp":
+                        ko.Add("endpoint", "oauth2.googleapis.com:443");
+                        break;
+                }
+            }
+
+            void TestCase(ClientEncryption testCaseClientEncription, BsonDocument masterKey, bool async)
+            {
+                var dataKey = CreateDataKeyTestCaseStep(testCaseClientEncription, masterKey, async);
+
+                var encryptOptions = new EncryptOptions(
+                    algorithm: EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic.ToString(),
+                    keyId: dataKey);
+                var value = "test";
+                var encrypted = ExplicitEncrypt(testCaseClientEncription, encryptOptions, value, async);
+                var decrypted = ExplicitDecrypt(testCaseClientEncription, encrypted, async);
+                decrypted.Should().Be(BsonValue.Create(value));
             }
         }
 
@@ -728,12 +804,12 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             return clientEncrypted;
         }
 
-        private ClientEncryption ConfigureClientEncryption(MongoClient client)
+        private ClientEncryption ConfigureClientEncryption(MongoClient client, Action<string, Dictionary<string, object>> kmsProviderConfigurator = null)
         {
             var clientEncryptionOptions = new ClientEncryptionOptions(
                 keyVaultClient: client.Settings.AutoEncryptionOptions?.KeyVaultClient ?? client,
                 keyVaultNamespace: __keyVaultCollectionNamespace,
-                kmsProviders: GetKmsProviders());
+                kmsProviders: GetKmsProviders(kmsProviderConfigurator));
 
             return new ClientEncryption(clientEncryptionOptions);
         }
@@ -777,14 +853,34 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 case "local":
                     return new DataKeyOptions(alternateKeyNames: alternateKeyNames);
                 case "aws":
-                    var masterKey = new BsonDocument
+                    var awsMasterKey = new BsonDocument
                     {
                         { "region", "us-east-1" },
                         { "key", "arn:aws:kms:us-east-1:579766882180:key/89fcc2c4-08b0-4bd9-9f25-e30687b580d0" }
                     };
                     return new DataKeyOptions(
                         alternateKeyNames: alternateKeyNames,
-                        masterKey: masterKey);
+                        masterKey: awsMasterKey);
+                case "azure":
+                    var azureMasterKey = new BsonDocument
+                    {
+                        { "keyName", "key-name-csfle" },
+                        { "keyVaultEndpoint", "key-vault-csfle.vault.azure.net" }
+                    };
+                    return new DataKeyOptions(
+                        alternateKeyNames: alternateKeyNames,
+                        masterKey: azureMasterKey);
+                case "gcp":
+                    var gcpMasterKey = new BsonDocument
+                    {
+                        { "projectId", "devprod-drivers" },
+                        { "location", "global" },
+                        { "keyRing", "key-ring-csfle" },
+                        { "keyName", "key-name-csfle" }
+                    };
+                    return new DataKeyOptions(
+                        alternateKeyNames: alternateKeyNames,
+                        masterKey: gcpMasterKey);
                 default:
                     throw new ArgumentException($"Incorrect kms provider {kmsProvider}", nameof(kmsProvider));
             }
@@ -814,7 +910,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 {
                     extraOptions = new Dictionary<string, object>()
                     {
-                        { "mongocryptdSpawnPath", Environment.GetEnvironmentVariable("MONGODB_BINARIES") ?? string.Empty }
+                        { "mongocryptdSpawnPath", GetEnvironmentVariableOrDefaultOrThrowIfNothing("MONGODB_BINARIES", string.Empty) }
                     };
                 }
 
@@ -940,26 +1036,53 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 .GetCollection<BsonDocument>(collectionNamespace.CollectionName, collectionSettings);
         }
 
-        private IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> GetKmsProviders()
+        private string GetEnvironmentVariableOrDefaultOrThrowIfNothing(string variableName, string defaultValue = null) =>
+            Environment.GetEnvironmentVariable(variableName) ??
+            defaultValue ??
+            throw new Exception($"{variableName} environment variable must be configured on the machine.");
+
+        private IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> GetKmsProviders(Action<string, Dictionary<string, object>> kmsProviderConfigurator = null)
         {
             var kmsProviders = new Dictionary<string, IReadOnlyDictionary<string, object>>();
 
-            var awsRegion = Environment.GetEnvironmentVariable("FLE_AWS_REGION") ?? "us-east-1";
-            var awsAccessKey = Environment.GetEnvironmentVariable("FLE_AWS_ACCESS_KEY_ID") ?? throw new Exception("The FLE_AWS_ACCESS_KEY_ID system variable should be configured on the machine.");
-            var awsSecretAccessKey = Environment.GetEnvironmentVariable("FLE_AWS_SECRET_ACCESS_KEY") ?? throw new Exception("The FLE_AWS_SECRET_ACCESS_KEY system variable should be configured on the machine.");
-            var kmsOptions = new Dictionary<string, object>
+            var awsAccessKey = GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_ACCESS_KEY_ID");
+            var awsSecretAccessKey = GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_SECRET_ACCESS_KEY");
+            var awsKmsOptions = new Dictionary<string, object>
             {
-                { "region", awsRegion },
                 { "accessKeyId", awsAccessKey },
                 { "secretAccessKey", awsSecretAccessKey }
             };
-            kmsProviders.Add("aws", kmsOptions);
+            kmsProviderConfigurator?.Invoke("aws", awsKmsOptions);
+            kmsProviders.Add("aws", awsKmsOptions);
 
             var localOptions = new Dictionary<string, object>
             {
                 { "key", new BsonBinaryData(Convert.FromBase64String(LocalMasterKey)).Bytes }
             };
+            kmsProviderConfigurator?.Invoke("local", localOptions);
             kmsProviders.Add("local", localOptions);
+
+            var azureTenantId = GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_TENANT_ID");
+            var azureClientId = GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_CLIENT_ID");
+            var azureClientSecret = GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_CLIENT_SECRET");
+            var azureKmsOptions = new Dictionary<string, object>
+            {
+                { "tenantId", azureTenantId },
+                { "clientId", azureClientId },
+                { "clientSecret", azureClientSecret }
+            };
+            kmsProviderConfigurator?.Invoke("azure", azureKmsOptions);
+            kmsProviders.Add("azure", azureKmsOptions);
+
+            var gcpEmail = GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_GCP_EMAIL");
+            var gcpPrivateKey = GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_GCP_PRIVATE_KEY");
+            var gcpKmsOptions = new Dictionary<string, object>
+            {
+                { "email", gcpEmail },
+                { "privateKey", gcpPrivateKey }
+            };
+            kmsProviderConfigurator?.Invoke("gcp", gcpKmsOptions);
+            kmsProviders.Add("gcp", gcpKmsOptions);
 
             return new ReadOnlyDictionary<string, IReadOnlyDictionary<string, object>>(kmsProviders);
         }

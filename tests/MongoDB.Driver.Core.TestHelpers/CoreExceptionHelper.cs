@@ -100,6 +100,9 @@ namespace MongoDB.Driver.Core.TestHelpers
                 case "TimedOutSocketException":
                     return new SocketException((int)SocketError.TimedOut);
 
+                case "ConnectionRefusedSocketException":
+                    return new SocketException((int)SocketError.ConnectionRefused);
+
                 default:
                     throw new ArgumentException("Unknown error type.");
             }

@@ -207,6 +207,11 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
             return autoEncryptionOptions;
         }
 
+        private string GetEnvironmentVariableOrDefaultOrThrowIfNothing(string variableName, string defaultValue = null) =>
+            Environment.GetEnvironmentVariable(variableName) ??
+            defaultValue ??
+            throw new Exception($"{variableName} environment variable must be configured on the machine.");
+
         private ReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> ParseKmsProviders(BsonDocument kmsProviders)
         {
             var providers = new Dictionary<string, IReadOnlyDictionary<string, object>>();
@@ -217,14 +222,11 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                 {
                     case "aws":
                         {
-                            var awsRegion = Environment.GetEnvironmentVariable("FLE_AWS_REGION") ?? "us-east-1";
-                            var awsAccessKey = Environment.GetEnvironmentVariable("FLE_AWS_ACCESS_KEY_ID") ?? throw new Exception("The FLE_AWS_ACCESS_KEY_ID system variable should be configured on the machine.");
-                            var awsSecretAccessKey = Environment.GetEnvironmentVariable("FLE_AWS_SECRET_ACCESS_KEY") ?? throw new Exception("The FLE_AWS_SECRET_ACCESS_KEY system variable should be configured on the machine.");
-                            kmsOptions.Add("region", awsRegion);
+                            var awsAccessKey = GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_ACCESS_KEY_ID");
+                            var awsSecretAccessKey = GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_SECRET_ACCESS_KEY");
                             kmsOptions.Add("accessKeyId", awsAccessKey);
                             kmsOptions.Add("secretAccessKey", awsSecretAccessKey);
                         }
-                        providers.Add(kmsProvider.Name, kmsOptions);
                         break;
                     case "local":
                         if (kmsProvider.Value.AsBsonDocument.TryGetElement("key", out var key))
@@ -232,11 +234,29 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                             var binary = key.Value.AsBsonBinaryData;
                             kmsOptions.Add(key.Name, binary.Bytes);
                         }
-                        providers.Add(kmsProvider.Name, kmsOptions);
+                        break;
+                    case "azure":
+                        {
+                            var azureTenantId = GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_TENANT_ID");
+                            var azureClientId = GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_CLIENT_ID");
+                            var azureClientSecret = GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_CLIENT_SECRET");
+                            kmsOptions.Add("tenantId", azureTenantId);
+                            kmsOptions.Add("clientId", azureClientId);
+                            kmsOptions.Add("clientSecret", azureClientSecret);
+                        }
+                        break;
+                    case "gcp":
+                        {
+                            var gcpEmail = GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_GCP_EMAIL");
+                            var gcpPrivateKey = GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_GCP_PRIVATE_KEY");
+                            kmsOptions.Add("email", gcpEmail);
+                            kmsOptions.Add("privateKey", gcpPrivateKey);
+                        }
                         break;
                     default:
                         throw new Exception($"Unexpected kms provider type {kmsProvider.Name}.");
                 }
+                providers.Add(kmsProvider.Name, kmsOptions);
             }
 
             return new ReadOnlyDictionary<string, IReadOnlyDictionary<string, object>>(providers);
