@@ -91,7 +91,7 @@ namespace MongoDB.Driver.Specifications.connection_string
                             connectionString.AuthSource.Should().Be(expectedOption.Value.AsString);
                             break;
                         case "compressors":
-                            var compressors = new BsonArray(connectionString.Compressors.Select(c => c.Type.ToString().ToLowerInvariant()));
+                            var compressors = new BsonArray(connectionString.Compressors.Select(c => CompressorTypeMapper.ToServerName(c.Type)));
                             var expectedCompressors = RemoveUnsupportedCompressors(expectedOption.Value.AsBsonArray);
                             compressors.Should().Be(expectedCompressors);
                             break;

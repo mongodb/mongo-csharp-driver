@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Core.Connections
                         .AsBsonArray
                         .Select(x =>
                         {
-                            return Enum.TryParse<CompressorType>(x.AsString, true, out var compressorType)
+                            return CompressorTypeMapper.TryFromServerName(x.AsString, out var compressorType)
                                 ? compressorType
                                 // we can have such a case only due to the server bug
                                 : throw new NotSupportedException($"The unsupported compressor name: '{x}'.");

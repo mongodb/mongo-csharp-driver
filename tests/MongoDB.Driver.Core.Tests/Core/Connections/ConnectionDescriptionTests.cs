@@ -31,13 +31,13 @@ namespace MongoDB.Driver.Core.Connections
             "{ ok: 1, version: \"2.6.3\" }"
         ));
 
-        private static readonly IEnumerable<CompressorType> __compressors = new[] { CompressorType.Zlib };
+        private static readonly IEnumerable<CompressorType> __compressors = new[] { CompressorType.Zlib, CompressorType.ZStandard };
 
         private static readonly ConnectionId __connectionId = new ConnectionId(
             new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017)));
 
         private static readonly IsMasterResult __isMasterResult = new IsMasterResult(BsonDocument.Parse(
-            "{ ok: 1, maxWriteBatchSize: 10, maxBsonObjectSize: 20, maxMessageSizeBytes: 30, compression: ['zlib'] }"
+            "{ ok: 1, maxWriteBatchSize: 10, maxBsonObjectSize: 20, maxMessageSizeBytes: 30, compression: ['zlib', 'zstd'] }"
         ));
 
         private static readonly IsMasterResult __isMasterResultWithoutCompression = new IsMasterResult(BsonDocument.Parse(
@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             var subject = new ConnectionDescription(__connectionId, __isMasterResult, __buildInfoResult);
 
-            subject.AvailableCompressors.Count.Should().Be(1);
+            subject.AvailableCompressors.Count.Should().Be(2);
             subject.AvailableCompressors.Should().Equal(__compressors);
         }
 
