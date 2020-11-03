@@ -161,10 +161,12 @@ namespace MongoDB.Driver.Core.Connections
 
         [Theory]
         [ParameterAttributeData]
-        public void InitializeConnectionA_should_build_the_ConnectionDescription_correctly([Values(false, true)] bool async)
+        public void InitializeConnectionA_should_build_the_ConnectionDescription_correctly(
+            [Values("noop", "zlib", "snappy", "zstd")] string compressorType,
+            [Values(false, true)] bool async)
         {
             var isMasterReply = MessageHelper.BuildReply<RawBsonDocument>(
-                RawBsonDocumentHelper.FromJson("{ ok: 1, compression: ['zlib'] }"));
+                RawBsonDocumentHelper.FromJson($"{{ ok: 1, compression: ['{compressorType}'] }}"));
             var buildInfoReply = MessageHelper.BuildReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{ ok: 1, version: \"2.6.3\" }"));
             var gleReply = MessageHelper.BuildReply<RawBsonDocument>(
@@ -188,7 +190,20 @@ namespace MongoDB.Driver.Core.Connections
             result.ServerVersion.Should().Be(new SemanticVersion(2, 6, 3));
             result.ConnectionId.ServerValue.Should().Be(10);
             result.AvailableCompressors.Count.Should().Be(1);
-            result.AvailableCompressors.Should().Contain(CompressorType.Zlib);
+            result.AvailableCompressors.Should().Contain(ToCompressorTypeEnum(compressorType));
+
+            CompressorType ToCompressorTypeEnum(string ct)
+            {
+                switch (ct)
+                {
+                    case "noop": return CompressorType.Noop;
+                    case "zlib": return CompressorType.Zlib;
+                    case "snappy": return CompressorType.Snappy;
+                    case "zstd": return CompressorType.ZStandard;
+                    default:
+                        throw new InvalidOperationException($"Unexpected compression {compressorType}.");
+                }
+            }
         }
 
         private IAuthenticator CreateAuthenticator(string authenticatorType, UsernamePasswordCredential credentials)

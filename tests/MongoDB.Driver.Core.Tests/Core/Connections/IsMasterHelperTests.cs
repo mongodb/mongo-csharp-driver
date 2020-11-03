@@ -71,7 +71,8 @@ namespace MongoDB.Driver.Core.Connections
                 new CompressorType[] { },
                 new [] { CompressorType.Zlib },
                 new [] { CompressorType.Snappy},
-                new [] { CompressorType.Zlib, CompressorType.Snappy })]
+                new [] { CompressorType.Zlib, CompressorType.Snappy },
+                new [] { CompressorType.ZStandard, CompressorType.Snappy })]
             CompressorType[] compressorsParameters)
         {
             var command = IsMasterHelper.CreateCommand();
@@ -81,7 +82,7 @@ namespace MongoDB.Driver.Core.Connections
                     .ToArray();
             var result = IsMasterHelper.AddCompressorsToCommand(command, compressors);
 
-            var expectedCompressions = string.Join(",", compressorsParameters.Select(c => $"'{c.ToString().ToLowerInvariant()}'"));
+            var expectedCompressions = string.Join(",", compressorsParameters.Select(c => $"'{CompressorTypeMapper.ToServerName(c)}'"));
             result.Should().Be(BsonDocument.Parse($"{{ isMaster : 1, compression: [{expectedCompressions}] }}"));
         }
     }

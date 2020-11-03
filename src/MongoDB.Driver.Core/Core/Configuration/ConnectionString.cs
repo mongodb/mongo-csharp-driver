@@ -1420,7 +1420,7 @@ namespace MongoDB.Driver.Core.Configuration
                 foreach (var compressor in compressorNames)
                 {
                     // NOTE: the 'noop' is also expected by the server
-                    if (!Enum.TryParse(compressor, true, out CompressorType compressorType) || !CompressorSource.IsCompressorSupported(compressorType))
+                    if (!CompressorTypeMapper.TryFromServerName(compressor, out CompressorType compressorType) || !CompressorSource.IsCompressorSupported(compressorType))
                     {
                         // Keys that aren't supported by a driver MUST be ignored.
                         continue;

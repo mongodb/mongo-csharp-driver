@@ -29,8 +29,13 @@ namespace MongoDB.Driver.Core.Connections
     {
         [Theory]
         [InlineData("{ compression : ['zlib'] }", new[] { CompressorType.Zlib })]
+        [InlineData("{ compression : ['Zlib'] }", new[] { CompressorType.Zlib })]
         [InlineData("{ compression : ['zlib', 'snappy'] }", new[] { CompressorType.Zlib, CompressorType.Snappy })]
+        [InlineData("{ compression : ['zlib', 'snAppy'] }", new[] { CompressorType.Zlib, CompressorType.Snappy })]
         [InlineData("{ compression : ['noop'] }", new[] { CompressorType.Noop })]
+        [InlineData("{ compression : ['nOop'] }", new[] { CompressorType.Noop })]
+        [InlineData("{ compression : ['zstd'] }", new[] { CompressorType.ZStandard})]
+        [InlineData("{ compression : ['zsTd'] }", new[] { CompressorType.ZStandard })]
         [InlineData("{ compression : [] }", new CompressorType[0])]
         [InlineData("{ }", new CompressorType[0])]
         public void Compression_should_parse_document_correctly(string json, CompressorType[] expectedCompression)
