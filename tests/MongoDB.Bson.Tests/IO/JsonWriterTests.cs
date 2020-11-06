@@ -512,6 +512,22 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Fact]
+        public void TestUuidStandardWhenGuidRepresentationIsUnspecified()
+        {
+            var guid = new Guid("00112233445566778899aabbccddeeff");
+            var guidBytes = GuidConverter.ToBytes(guid, GuidRepresentation.Standard);
+
+            var binary = new BsonBinaryData(guidBytes, BsonBinarySubType.UuidStandard); // GuidRepresentation is Unspecified
+            var result = binary.ToJson(writerSettings: new JsonWriterSettings()
+            {
+#pragma warning disable CS0618 // Type or member is obsolete
+                GuidRepresentation = GuidRepresentation.Unspecified
+#pragma warning restore CS0618 // Type or member is obsolete
+            });
+            result.Should().Be("UUID(\"00112233-4455-6677-8899-aabbccddeeff\")");
+        }
+
+        [Fact]
         public void TestMaxKey()
         {
             var document = new BsonDocument
