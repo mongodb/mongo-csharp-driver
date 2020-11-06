@@ -1,8 +1,8 @@
-# .NET Driver Version 2.12.0-beta01 Release Notes
+# .NET Driver Version 2.12.0-beta1 Release Notes
 
 This is a beta release for the 2.12.0 version of the driver.
 
-The main new features in 2.12.0-beta01 include:
+The main new features in 2.12.0-beta1 include:
 
 * Support for Hidden Indexes in MongoDB 4.4
 * Support for Azure and GCP keystores in client-side field level encryption (CSFLE)
@@ -10,7 +10,7 @@ The main new features in 2.12.0-beta01 include:
 
 An online version of these release notes is available at:
 
-https://github.com/mongodb/mongo-csharp-driver/blob/master/Release%20Notes/Release%20Notes%20v2.12.0-beta01.md
+https://github.com/mongodb/mongo-csharp-driver/blob/master/Release%20Notes/Release%20Notes%20v2.12.0-beta1.md
 
 The full list of JIRA issues that are currently scheduled to be resolved in this release is available at:
 
