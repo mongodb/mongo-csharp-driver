@@ -1,0 +1,1835 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>MongoDB .NET Driver</title>
+    <link>/mongo-csharp-driver/2.12/</link>
+    <description>Recent content on MongoDB .NET Driver</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 23 Jul 2020 00:00:00 +0000</lastBuildDate>
+    <atom:link href="/mongo-csharp-driver/2.12/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>GuidRepresentationMode</title>
+      <link>/mongo-csharp-driver/2.12/reference/bson/guidserialization/guidrepresentationmode/guidrepresentationmode/</link>
+      <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.12/reference/bson/guidserialization/guidrepresentationmode/guidrepresentationmode/</guid>
+      <description>
+
+&lt;h2 id=&#34;guidrepresentationmode&#34;&gt;GuidRepresentationMode&lt;/h2&gt;
+
+&lt;p&gt;If we just abruptly changed the way the driver serialized Guids that would be a breaking change. In order to help applications
+migrate in an orderly fashion to the new way of handling Guids we have introduced a configurable &lt;code&gt;GuidRepresentationMode&lt;/code&gt;.
+In V2 mode the driver will handle Guids the same way that the v2.x versions have in the past. In V3 mode the driver
+will handle Guids in the new way. An application can opt-in to V3 mode to transition to the new way Guids are handled.
+In the v2.x versions of the driver V2 is the default mode but V3 mode is supported. In future v3.x versions of the driver
+V3 will be the default mode (and support for V2 mode will be removed).&lt;/p&gt;
+
+&lt;h3 id=&#34;guidrepresentationmode-v2-deprecated&#34;&gt;GuidRepresentationMode == V2 (Deprecated)&lt;/h3&gt;
+
+&lt;p&gt;In V2 mode the central principle is that all Guids in a collection must be represented the same way. In order to enforce
+this the representation of Guids is not controlled at the individual serializer level, but rather at the reader/writer
+level since the same reader/writer is used to read/write an entire document.&lt;/p&gt;
+
+&lt;p&gt;Read more about V2 mode &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/reference/bson/guidserialization/guidrepresentationmode/v2mode/&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;guidrepresentationmode-v3&#34;&gt;GuidRepresentationMode == V3&lt;/h3&gt;
+
+&lt;p&gt;In V3 mode the central principle is that the representation of Guids is controlled at the level of each individual
+property by configuring the serializer for that property. The recommendation is that all Guids in a
+collection be represented uniformly using the standard BsonBinaryData subtype 4, but when working with historical
+data it is acceptable for different Guid fields in the same document to be represented differently.&lt;/p&gt;
+
+&lt;p&gt;Read more about V3 mode &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/reference/bson/guidserialization/guidrepresentationmode/v3mode/&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;opting-in-to-v3-guidrepresentationmode&#34;&gt;Opting in to V3 GuidRepresentationMode&lt;/h3&gt;
+
+&lt;p&gt;An application must choose to use either the original V2 GuidRepresentationMode or the new V3 GuidRepresentationMode. It is
+not possible to mix use of both modes in the same application.&lt;/p&gt;
+
+&lt;p&gt;If you want to use V2 mode you don&amp;rsquo;t need to do anything because V2 is still the default.&lt;/p&gt;
+
+&lt;p&gt;If you want to use V3 mode execute the following line of code as early as possible in your application:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;BsonDefaults.GuidRepresentationMode = GuidRepresentationMode.V3;
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>V2 mode</title>
+      <link>/mongo-csharp-driver/2.12/reference/bson/guidserialization/guidrepresentationmode/v2mode/</link>
+      <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.12/reference/bson/guidserialization/guidrepresentationmode/v2mode/</guid>
+      <description>
+
+&lt;h2 id=&#34;v2-guidrepresentationmode-deprecated&#34;&gt;V2 GuidRepresentationMode (Deprecated)&lt;/h2&gt;
+
+&lt;p&gt;In V2 mode the central principle is that all Guids in a collection must be represented the same way. In order to enforce
+this the representation of Guids is not controlled at the individual serializer level, but rather at the reader/writer
+level since the same reader/writer is used to read/write an entire document.&lt;/p&gt;
+
+&lt;p&gt;All of the following properties and methods are only relevant to V2 mode and are now deprecated:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;BsonDefaults GuidRepresentation property&lt;/li&gt;
+&lt;li&gt;BsonBinaryData implicit conversion to or from Guid&lt;/li&gt;
+&lt;li&gt;BsonBinaryData constructor taking a Guid (without a GuidRepresentation)&lt;/li&gt;
+&lt;li&gt;BsonBinaryData constructor taking (byte[], BsonBinarySubType, GuidRepresentation)&lt;/li&gt;
+&lt;li&gt;BsonBinaryData GuidRepresentation property&lt;/li&gt;
+&lt;li&gt;BsonValue implicit conversion from Guid or Guid? (Nullable&amp;lt;Guid&amp;gt;)&lt;/li&gt;
+&lt;li&gt;BsonDocumentReaderSettings constructor taking a GuidRepresentation&lt;/li&gt;
+&lt;li&gt;BsonDocumentWriterSettings constructor taking a GuidRepresentation&lt;/li&gt;
+&lt;li&gt;BsonReaderSettings GuidRepresentation property&lt;/li&gt;
+&lt;li&gt;BsonWriterSettings GuidRepresentation property&lt;/li&gt;
+&lt;li&gt;IBsonReaderExtentions ReadBinaryDataWithGuidRepresentationUnspecified extension method&lt;/li&gt;
+&lt;li&gt;MongoClientSettings GuidRepresentation property&lt;/li&gt;
+&lt;li&gt;MongoCollectionSettings GuidRepresentation property&lt;/li&gt;
+&lt;li&gt;MongoDatabaseSettings GuidRepresentation property&lt;/li&gt;
+&lt;li&gt;MongoDefaults GuidRepresentation property&lt;/li&gt;
+&lt;li&gt;MongoUrl GuidRepresentation property&lt;/li&gt;
+&lt;li&gt;MongoUrlBuilder GuidRepresentation property&lt;/li&gt;
+&lt;li&gt;MongoGridFSSettings GuidRepresentation property&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Note: the BsonDefaults GuidRepresentationMode property is itself deprecated even though it is new because it is only
+intended to be use during the transition period and will be removed when support for V2 mode is removed.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Background</title>
+      <link>/mongo-csharp-driver/2.12/reference/bson/guidserialization/background/</link>
+      <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.12/reference/bson/guidserialization/background/</guid>
+      <description>
+
+&lt;h2 id=&#34;background-information&#34;&gt;Background information&lt;/h2&gt;
+
+&lt;p&gt;Guids were originally represented in BSON as BsonBinaryData values of subtype 3. Unfortunately, different drivers
+inadvertently used different byte orders when converting a Guid to a 16 byte binary value. To standardize on a
+single canonical representation BsonBinaryData subtype 4 was created with a well defined byte order.&lt;/p&gt;
+
+&lt;p&gt;The C# driver&amp;rsquo;s support for Guids was originally based on the premise that all Guids in a single collection must
+be represented the same way (i.e. using the same BsonBinaryData sub type and byte order). In order to accomplish this
+the representation of Guids is enforced at the BSON reader and writer levels (because a single reader or writer is
+used to read or write an entire document from or to the collection).&lt;/p&gt;
+
+&lt;p&gt;However, this original premise has not stood the test of time.&lt;/p&gt;
+
+&lt;p&gt;The first issue we ran into was that the server
+started returning UUIDs (i.e. Guids) in metadata using standard subtype 4. If a collection was configured to use
+subtype 3 (which it usually was since that is the default) the driver could not deserialize the Guids in the metadata
+without throwing an exception. We worked around this by temporarily reconfiguring the BSON reader while reading the metadata.&lt;/p&gt;
+
+&lt;p&gt;The second issue is that the original premise was too strict. There are valid reasons why a single collection might
+have a mix of Guid representations, and we need to allow that.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>V3 mode</title>
+      <link>/mongo-csharp-driver/2.12/reference/bson/guidserialization/guidrepresentationmode/v3mode/</link>
+      <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.12/reference/bson/guidserialization/guidrepresentationmode/v3mode/</guid>
+      <description>
+
+&lt;h2 id=&#34;v3-guidrepresentationmode&#34;&gt;V3 GuidRepresentationMode&lt;/h2&gt;
+
+&lt;p&gt;In V3 mode the central principle is that the representation of Guids is controlled at the level of each individual
+property of a document by configuring the serializer for that property. The recommendation is that all Guids in a
+collection be represented uniformly using the standard BsonBinaryData subtype 4, but when working with historical
+data it is acceptable for different Guid fields in the same document to be represented differently.&lt;/p&gt;
+
+&lt;p&gt;The following existing methods behave differently in V3 mode:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;BsonBinaryReader.ReadBinaryData method ignores readerSettings.GuidRepresentation&lt;/li&gt;
+&lt;li&gt;BsonBinaryWriter.WriteBinaryData method ignores writerSettings.GuidRepresentation&lt;/li&gt;
+&lt;li&gt;JsonReader ReadBinaryData method ignores readerSettings.GuidRepresentation&lt;/li&gt;
+&lt;li&gt;JsonWriter ignores writerSettings.GuidRepresentation&lt;/li&gt;
+&lt;li&gt;BsonBinaryData ToGuid without GuidRepresentation argument is only valid for sub type 4&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>GuidSerializer changes</title>
+      <link>/mongo-csharp-driver/2.12/reference/bson/guidserialization/serializerchanges/guidserializerchanges/</link>
+      <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.12/reference/bson/guidserialization/serializerchanges/guidserializerchanges/</guid>
+      <description>
+
+&lt;h1 id=&#34;guidserializer-changes&#34;&gt;GuidSerializer changes&lt;/h1&gt;
+
+&lt;p&gt;Some small changes have been made to the GuidSerializer to allow the GuidRepresentation it uses to be configurable at the serializer level.&lt;/p&gt;
+
+&lt;h2 id=&#34;guidrepresentation-constructor-argument-and-property&#34;&gt;GuidRepresentation constructor argument and property&lt;/h2&gt;
+
+&lt;p&gt;A new constructor has been added that allows you to configure the desired GuidRepresentation when instantiating an instance of
+the GuidSerializer. Calling the constructor that takes a GuidRepresentation property implies a BsonType representation of Binary.&lt;/p&gt;
+
+&lt;p&gt;For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var guidSerializer = new GuidSerializer(GuidRepresentation.Standard);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If you want to use the Standard GuidRepresentation globally you can register a properly configured GuidSerializer early in your code:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;bsonguidrepresentation-attribute&#34;&gt;BsonGuidRepresentation attribute&lt;/h2&gt;
+
+&lt;p&gt;In V3 GuidRepresentationMode you must explicitly specify the GuidRepresentation you want used for every Guid property. If you are
+relying on the driver&amp;rsquo;s auto mapping to map C# classes to document schemas you may use the new BsonGuidRepresentation attribute to specify the desired representation.&lt;/p&gt;
+
+&lt;p&gt;For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public class C
+{
+    public int Id { get; set; }
+
+    [BsonGuidRepresentation(GuidRepresentation.Standard)]
+    public Guid G { get; set; }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If most of your Guids use the same representation and only a few use a different representation, you could alternatively register
+a global GuidSerializer (as shown above) for the most commonly used representation, and only use the BsonGuidRepresentation attribute
+to mark the ones that use a different representation.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Guid Serialization</title>
+      <link>/mongo-csharp-driver/2.12/reference/bson/guidserialization/</link>
+      <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.12/reference/bson/guidserialization/</guid>
+      <description>
+
+&lt;h1 id=&#34;guid-serialization&#34;&gt;Guid serialization&lt;/h1&gt;
+
+&lt;p&gt;We are making changes to how Guids will be serialized in the future. For the time being the driver will
+continue to serialize Guids as it has in the past, in order to not break backward compatibility. You
+can opt-in to the new way of serializing Guids by setting the GuidRepresentationMode to V3.&lt;/p&gt;
+
+&lt;p&gt;The folowing sections contain more information:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;- &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/reference/bson/guidserialization/background/&#34;&gt;Background&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;- &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/reference/bson/guidserialization/guidrepresentationmode/guidrepresentationmode/&#34;&gt;GuidRepresentationMode&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;- &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/reference/bson/guidserialization/serializerchanges/serializerchanges/&#34;&gt;Serializer changes&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Serializer changes</title>
+      <link>/mongo-csharp-driver/2.12/reference/bson/guidserialization/serializerchanges/serializerchanges/</link>
+      <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.12/reference/bson/guidserialization/serializerchanges/serializerchanges/</guid>
+      <description>
+
+&lt;h1 id=&#34;serializer-changes&#34;&gt;Serializer changes&lt;/h1&gt;
+
+&lt;p&gt;The following sections describe changes to the two serializers to handle Guids differently:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;- &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/reference/bson/guidserialization/serializerchanges/guidserializerchanges/&#34;&gt;GuidSerializer changes&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;- &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/reference/bson/guidserialization/serializerchanges/objectserializerchanges/&#34;&gt;ObjectSerializer changes&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>ObjectSerializer changes</title>
+      <link>/mongo-csharp-driver/2.12/reference/bson/guidserialization/serializerchanges/objectserializerchanges/</link>
+      <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.12/reference/bson/guidserialization/serializerchanges/objectserializerchanges/</guid>
+      <description>
+
+&lt;h1 id=&#34;objectserializer-changes&#34;&gt;ObjectSerializer changes&lt;/h1&gt;
+
+&lt;p&gt;Some small changes have been made to the ObjectSerializer to allow the GuidRepresentation it uses to be configurable at the serializer level.&lt;/p&gt;
+
+&lt;h2 id=&#34;guidrepresentation-constructor-argument-and-property&#34;&gt;GuidRepresentation constructor argument and property&lt;/h2&gt;
+
+&lt;p&gt;A new constructor has been added that allows you to configure the desired GuidRepresentation when instantiating an instance of
+the ObjectSerializer.&lt;/p&gt;
+
+&lt;p&gt;For example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var objectDiscriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(object));
+var objectSerializer = new ObjectSerializer(objectDiscriminatorConvention, GuidRepresentation.Standard);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In V3 GuidRepresentationMode, if your application relies on the ObjectSerializer to serialize any Guids you must register
+an object serializer that you have configured the way you want. This must be done early in your application and this object
+serializer will be globally used whenever an object serializer is needed and has not been otherwise specified.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var objectDiscriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(object));
+var objectSerializer = new ObjectSerializer(objectDiscriminatorConvention, GuidRepresentation.Standard);
+BsonSerializer.RegisterSerializer(objectSerializer);
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Compression</title>
+      <link>/mongo-csharp-driver/2.12/reference/driver/crud/compression/</link>
+      <pubDate>Wed, 29 Jan 2020 22:05:03 -0400</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.12/reference/driver/crud/compression/</guid>
+      <description>
+
+&lt;h2 id=&#34;compression&#34;&gt;Compression&lt;/h2&gt;
+
+&lt;p&gt;The C# driver supports compression of messages to and from MongoDB servers. The driver implements the three algorithms that are supported by MongoDB servers:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://google.github.io/snappy/&#34;&gt;Snappy&lt;/a&gt;: Snappy compression can be used when connecting to MongoDB servers starting with the 3.4 release.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://zlib.net/&#34;&gt;Zlib&lt;/a&gt;: Zlib compression can be used when connecting to MongoDB servers starting with the 3.6 release.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://facebook.github.io/zstd/&#34;&gt;Zstandard&lt;/a&gt;: Zstandard compression can be used when connecting to MongoDB servers starting with the 4.2 release.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The driver will negotiate which, if any, compression algorithm is used based on capabilities advertised by the server in the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/command/isMaster/
+&#34;&gt;ismaster&lt;/a&gt; command response.&lt;/p&gt;
+
+&lt;h3 id=&#34;specify-compression-via-connection-string&#34;&gt;Specify compression via &lt;code&gt;Connection String&lt;/code&gt;&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c#&#34;&gt;using MongoDB.Driver;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To specify compression with &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/apidocs/html/T_MongoDB_Driver_Core_Configuration_ConnectionString.htm
+&#34;&gt;&lt;code&gt;ConnectionString&lt;/code&gt;&lt;/a&gt;, just add &lt;code&gt;compressors&lt;/code&gt; into the connection string, as in:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c#&#34;&gt;var connectionString = &amp;quot;mongodb://localhost/?compressors=snappy&amp;quot;;
+var client = new MongoClient(connectionString);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;for Snappy compression, or&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c#&#34;&gt;var connectionString = &amp;quot;mongodb://localhost/?compressors=zlib&amp;quot;;
+var client = new MongoClient(connectionString);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;for zlib compression, or&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c#&#34;&gt;var connectionString = &amp;quot;mongodb://localhost/?compressors=zstd&amp;quot;;
+var client = new MongoClient(connectionString);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;for Zstandard compression, or&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c#&#34;&gt;var connectionString = &amp;quot;mongodb://localhost/?compressors=snappy,zlib,zstd&amp;quot;;
+var client = new MongoClient(connectionString);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;to configure multiple compressors.&lt;/p&gt;
+
+&lt;p&gt;In all cases the driver will use the first compressor in the list for which the server advertises support.&lt;/p&gt;
+
+&lt;p&gt;Additionally, zlib compression allows specifying a compression level with supported values between -1 and 9:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c#&#34;&gt;var connectionString = &amp;quot;mongodb://localhost/?compressors=zlib;zlibcompressionlevel=6&amp;quot;;
+var client = new MongoClient(connectionString);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;specify-compression-via-mongoclientsettings&#34;&gt;Specify compression via &lt;code&gt;MongoClientSettings&lt;/code&gt;&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c#&#34;&gt;using MongoDB.Driver;
+using MongoDB.Driver.Core.Compression;
+using MongoDB.Driver.Core.Configuration;
+using System.Collections.Generic;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To specify compression with &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/apidocs/html/T_MongoDB_Driver_MongoClientSettings.htm
+&#34;&gt;&lt;code&gt;MongoClientSettings&lt;/code&gt;&lt;/a&gt;, set the &lt;code&gt;Compressors&lt;/code&gt; property to a list of &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/apidocs/html/T_MongoDB_Driver_Core_Configuration_CompressorConfiguration.htm
+&#34;&gt;&lt;code&gt;CompressorConfiguration&lt;/code&gt;&lt;/a&gt; instances:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c#&#34;&gt;var mongoClientSettings = new MongoClientSettings();
+mongoClientSettings.Compressors = new List&amp;lt;CompressorConfiguration&amp;gt;()
+{
+    new CompressorConfiguration(CompressorType.Snappy)
+};
+var client = new MongoClient(mongoClientSettings);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;for Snappy compression, or&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c#&#34;&gt;var mongoClientSettings = new MongoClientSettings();
+mongoClientSettings.Compressors = new List&amp;lt;CompressorConfiguration&amp;gt;()
+{
+    new CompressorConfiguration(CompressorType.Zlib)
+};
+var client = new MongoClient(mongoClientSettings);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;for zlib compression, or&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c#&#34;&gt;var mongoClientSettings = new MongoClientSettings();
+mongoClientSettings.Compressors = new List&amp;lt;CompressorConfiguration&amp;gt;()
+{
+    new CompressorConfiguration(CompressorType.Zstd)
+};
+var client = new MongoClient(mongoClientSettings);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;for Zstandard compression, or&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c#&#34;&gt;var mongoClientSettings = new MongoClientSettings();
+mongoClientSettings.Compressors = new List&amp;lt;CompressorConfiguration&amp;gt;()
+{
+    new CompressorConfiguration(CompressorType.Snappy),
+    new CompressorConfiguration(CompressorType.Zlib),
+    new CompressorConfiguration(CompressorType.Zstd)
+};
+var client = new MongoClient(mongoClientSettings);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;to configure multiple compressors.&lt;/p&gt;
+
+&lt;p&gt;As with configuration via connection string, the driver will use the first compressor in the list for which the server advertises support. Also, the driver allows specifying a compression level option for zlib compression:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c#&#34;&gt;    var mongoClientSettings = new MongoClientSettings();
+    var compressorConfiguration = new CompressorConfiguration(CompressorType.Zlib);
+    compressorConfiguration.Properties.Add(&amp;quot;Level&amp;quot;, 6);
+    mongoClientSettings.Compressors = new List&amp;lt;CompressorConfiguration&amp;gt;() { compressorConfiguration };
+    var client = new MongoClient(mongoClientSettings);
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Client-Side Encryption</title>
+      <link>/mongo-csharp-driver/2.12/reference/driver/crud/client_side_encryption/</link>
+      <pubDate>Mon, 30 Sep 2019 20:38:42 -0400</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.12/reference/driver/crud/client_side_encryption/</guid>
+      <description>
+
+&lt;h1 id=&#34;client-side-field-level-encryption&#34;&gt;Client-Side Field Level Encryption&lt;/h1&gt;
+
+&lt;p&gt;New in MongoDB 4.2, client-side field level encryption allows administrators and
+developers to encrypt specific data fields in addition to other MongoDB
+encryption features.&lt;/p&gt;
+
+&lt;p&gt;With client-side field level encryption, developers can encrypt fields
+client-side without any server-side configuration or directives. Client-side
+field level encryption supports workloads where applications must guarantee that
+unauthorized parties, including server administrators, cannot read the encrypted
+data.&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition important&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;important&lt;/h5&gt;
+&lt;p&gt;Client-side field level encryption is supported only on Windows.&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;h2 id=&#34;mongocryptd-configuration&#34;&gt;mongocryptd configuration&lt;/h2&gt;
+
+&lt;p&gt;Client-side field level encryption requires the &lt;code&gt;mongocryptd&lt;/code&gt; daemon / process
+to be running. If &lt;code&gt;mongocryptd&lt;/code&gt; isn&amp;rsquo;t running, the driver will atempt to spawn
+an instance, utilizing the &lt;code&gt;PATH&lt;/code&gt; environment variable. Alternatively, the path
+to &lt;code&gt;mongocryptd&lt;/code&gt; can be specified by setting &lt;code&gt;mongocryptdSpawnPath&lt;/code&gt; in
+&lt;code&gt;extraOptions&lt;/code&gt;. A specific daemon / process URI can also be configured in the
+&lt;code&gt;AutoEncryptionSettings&lt;/code&gt; class by setting &lt;code&gt;mongocryptdURI&lt;/code&gt; in &lt;code&gt;extraOptions&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;More information about &lt;code&gt;mongocryptd&lt;/code&gt; will soon be available from the official
+documentation.&lt;/p&gt;
+
+&lt;h2 id=&#34;examples&#34;&gt;Examples&lt;/h2&gt;
+
+&lt;h3 id=&#34;automatic-client-side-encryption&#34;&gt;Automatic client-side encryption&lt;/h3&gt;
+
+&lt;p&gt;The following is a sample app that assumes the &lt;strong&gt;key&lt;/strong&gt; and &lt;strong&gt;schema&lt;/strong&gt; have
+already been created in MongoDB. The example uses a local key, however using AWS
+Key Management Service is also an option. The data in the &lt;code&gt;encryptedField&lt;/code&gt; field
+is automatically encrypted on the insert and decrypted when using find on the
+client-side. The following example has been adapted from
+&lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Examples/ClientEncryptionExamples.cs&#34;&gt;&lt;code&gt;ClientSideEncryptionExamples.cs&lt;/code&gt;&lt;/a&gt;, which can be found on GitHub along with the driver source.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using System;
+using System.Collections.Generic;
+using MongoDB.Bson;
+using MongoDB.Driver.Encryption;
+
+namespace MongoDB.Driver.Examples
+{
+    public class ClientEncryptionExamples
+    {
+        private const string LocalMasterKey = &amp;quot;Mng0NCt4ZHVUYUJCa1kxNkVyNUR1QURhZ2h2UzR2d2RrZzh0cFBwM3R6NmdWMDFBMUN3YkQ5aXRRMkhGRGdQV09wOGVNYUMxT2k3NjZKelhaQmRCZGJkTXVyZG9uSjFk&amp;quot;;
+
+        public static void Main(string[] args)
+        {
+            var localMasterKey = Convert.FromBase64String(LocalMasterKey);
+
+            var kmsProviders = new Dictionary&amp;lt;string, IReadOnlyDictionary&amp;lt;string, object&amp;gt;&amp;gt;();
+            var localKey = new Dictionary&amp;lt;string, object&amp;gt;
+            {
+                { &amp;quot;key&amp;quot;, localMasterKey }
+            };
+            kmsProviders.Add(&amp;quot;local&amp;quot;, localKey);
+
+            var keyVaultNamespace = CollectionNamespace.FromFullName(&amp;quot;admin.datakeys&amp;quot;);
+            var autoEncryptionOptions = new AutoEncryptionOptions(keyVaultNamespace, kmsProviders);
+
+            var mongoClientSettings = new MongoClientSettings
+            {
+                AutoEncryptionOptions = autoEncryptionOptions
+            };
+            var client = new MongoClient(mongoClientSettings);
+            var database = client.GetDatabase(&amp;quot;test&amp;quot;);
+            database.DropCollection(&amp;quot;coll&amp;quot;);
+            var collection = database.GetCollection&amp;lt;BsonDocument&amp;gt;(&amp;quot;coll&amp;quot;);
+
+            collection.InsertOne(new BsonDocument(&amp;quot;encryptedField&amp;quot;, &amp;quot;123456789&amp;quot;));
+
+            var result = collection.Find(FilterDefinition&amp;lt;BsonDocument&amp;gt;.Empty).First();
+            Console.WriteLine(result.ToJson());
+        }
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+&lt;p&gt;Auto encryption is an &lt;strong&gt;enterprise&lt;/strong&gt; only feature.&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;The following example shows how to configure the &lt;code&gt;AutoEncryptionSettings&lt;/code&gt;
+instance to create a new key and how to set the json schema map. The following
+example has been adapted from
+&lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Examples/ClientEncryptionExamples.cs&#34;&gt;&lt;code&gt;ClientSideEncryptionExamples.cs&lt;/code&gt;&lt;/a&gt;,
+which can be found on Github along with the driver source.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using System;
+using System.Collections.Generic;
+using System.Threading;
+using MongoDB.Bson;
+using MongoDB.Driver.Encryption;
+
+namespace MongoDB.Driver.Examples
+{
+    public class ClientEncryptionExamples
+    {
+        private const string LocalMasterKey = &amp;quot;Mng0NCt4ZHVUYUJCa1kxNkVyNUR1QURhZ2h2UzR2d2RrZzh0cFBwM3R6NmdWMDFBMUN3YkQ5aXRRMkhGRGdQV09wOGVNYUMxT2k3NjZKelhaQmRCZGJkTXVyZG9uSjFk&amp;quot;;
+
+        public static void Main(string[] args)
+        {
+            var localMasterKey = Convert.FromBase64String(LocalMasterKey);
+
+            var kmsProviders = new Dictionary&amp;lt;string, IReadOnlyDictionary&amp;lt;string, object&amp;gt;&amp;gt;();
+            var localKey = new Dictionary&amp;lt;string, object&amp;gt;
+            {
+                { &amp;quot;key&amp;quot;, localMasterKey }
+            };
+            kmsProviders.Add(&amp;quot;local&amp;quot;, localKey);
+
+            var keyVaultNamespace = CollectionNamespace.FromFullName(&amp;quot;admin.datakeys&amp;quot;);
+            var keyVaultMongoClient = new MongoClient();
+            var clientEncryptionSettings = new ClientEncryptionOptions(
+                keyVaultMongoClient,
+                keyVaultNamespace,
+                kmsProviders);
+
+            Guid dataKeyId;
+            using (var clientEncryption = new ClientEncryption(clientEncryptionSettings))
+            {
+                dataKeyId = clientEncryption.CreateDataKey(&amp;quot;local&amp;quot;, new DataKeyOptions(), CancellationToken.None);
+            }
+
+            var base64DataKeyId = Convert.ToBase64String(GuidConverter.ToBytes(dataKeyId, GuidRepresentation.Standard));
+            var collectionNamespace = CollectionNamespace.FromFullName(&amp;quot;test.coll&amp;quot;);
+
+            var schemaMap = $@&amp;quot;{{
+                properties: {{
+                    encryptedField: {{
+                        encrypt: {{
+                            keyId: [{{
+                                &#39;$binary&#39; : {{
+                                    &#39;base64&#39; : &#39;{base64DataKeyId}&#39;,
+                                    &#39;subType&#39; : &#39;04&#39;
+                                }}
+                            }}],
+                        bsonType: &#39;string&#39;,
+                        algorithm: &#39;AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic&#39;
+                        }}
+                    }}
+                }},
+                &#39;bsonType&#39;: &#39;object&#39;
+            }}&amp;quot;;
+            var autoEncryptionSettings = new AutoEncryptionOptions(
+                keyVaultNamespace,
+                kmsProviders,
+                schemaMap: new Dictionary&amp;lt;string, BsonDocument&amp;gt;()
+                {
+                    { collectionNamespace.ToString(), BsonDocument.Parse(schemaMap) }
+                });
+            var clientSettings = new MongoClientSettings
+            {
+                AutoEncryptionOptions = autoEncryptionSettings
+            };
+            var client = new MongoClient(clientSettings);
+            var database = client.GetDatabase(&amp;quot;test&amp;quot;);
+            database.DropCollection(&amp;quot;coll&amp;quot;);
+            var collection = database.GetCollection&amp;lt;BsonDocument&amp;gt;(&amp;quot;coll&amp;quot;);
+
+            collection.InsertOne(new BsonDocument(&amp;quot;encryptedField&amp;quot;, &amp;quot;123456789&amp;quot;));
+
+            var result = collection.Find(FilterDefinition&amp;lt;BsonDocument&amp;gt;.Empty).First();
+            Console.WriteLine(result.ToJson());
+        }
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;explicit-encryption-and-decryption&#34;&gt;Explicit Encryption and Decryption&lt;/h3&gt;
+
+&lt;p&gt;Explicit encryption and decryption is a &lt;strong&gt;MongoDB Community Server&lt;/strong&gt; feature and does not use the &lt;code&gt;mongocryptd&lt;/code&gt; process. Explicit encryption is provided by the &lt;code&gt;ClientEncryption&lt;/code&gt; class. The following example has been adapted from &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Examples/ExplicitEncryptionExamples.cs&#34;&gt;&lt;code&gt;ExplicitEncryptionExamples.cs&lt;/code&gt;&lt;/a&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using System;
+using System.Collections.Generic;
+using System.Threading;
+using MongoDB.Driver.Encryption;
+using MongoDB.Libmongocrypt;
+
+namespace MongoDB.Driver.Examples
+{
+    public class ExplicitEncryptionExamples
+    {
+        private const string LocalMasterKey = &amp;quot;Mng0NCt4ZHVUYUJCa1kxNkVyNUR1QURhZ2h2UzR2d2RrZzh0cFBwM3R6NmdWMDFBMUN3YkQ5aXRRMkhGRGdQV09wOGVNYUMxT2k3NjZKelhaQmRCZGJkTXVyZG9uSjFk&amp;quot;;
+
+        public static void Main(string[] args)
+        {
+            var localMasterKey = Convert.FromBase64String(LocalMasterKey);
+            var kmsProviders = new Dictionary&amp;lt;string, IReadOnlyDictionary&amp;lt;string, object&amp;gt;&amp;gt;();
+            var localKey = new Dictionary&amp;lt;string, object&amp;gt;
+            {
+                { &amp;quot;key&amp;quot;, localMasterKey }
+            };
+            kmsProviders.Add(&amp;quot;local&amp;quot;, localKey);
+
+            var keyVaultNamespace = CollectionNamespace.FromFullName(&amp;quot;admin.datakeys&amp;quot;);
+            var keyVaultClient = new MongoClient(&amp;quot;mongodb://localhost&amp;quot;);
+            var keyVaultDatabase = keyVaultClient.GetDatabase(keyVaultNamespace.DatabaseNamespace.DatabaseName);
+            keyVaultDatabase.DropCollection(keyVaultNamespace.CollectionName);
+
+            // Create the ClientEncryption instance
+            var clientEncryptionSettings = new ClientEncryptionOptions(
+                keyVaultClient,
+                keyVaultNamespace,
+                kmsProviders);
+            using (var clientEncryption = new ClientEncryption(clientEncryptionSettings))
+            {
+                var dataKeyId = clientEncryption.CreateDataKey(
+                    &amp;quot;local&amp;quot;,
+                    new DataKeyOptions(),
+                    CancellationToken.None);
+
+                var originalString = &amp;quot;123456789&amp;quot;;
+                Console.WriteLine($&amp;quot;Original string {originalString}.&amp;quot;);
+
+                // Explicitly encrypt a field
+                var encryptOptions = new EncryptOptions(
+                    EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic.ToString(),
+                    keyId: dataKeyId);
+                var encryptedFieldValue = clientEncryption.Encrypt(
+                    originalString,
+                    encryptOptions,
+                    CancellationToken.None);
+                Console.WriteLine($&amp;quot;Encrypted value {encryptedFieldValue}.&amp;quot;);
+
+                // Explicitly decrypt the field
+                var decryptedValue = clientEncryption.Decrypt(encryptedFieldValue, CancellationToken.None);
+                Console.WriteLine($&amp;quot;Decrypted value {decryptedValue}.&amp;quot;);
+            }
+        }
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;explicit-encryption-and-auto-decryption&#34;&gt;Explicit Encryption and Auto Decryption&lt;/h3&gt;
+
+&lt;p&gt;Although automatic encryption requires MongoDB 4.2 Enterprise Server or a MongoDB 4.2 Atlas cluster, automatic decryption is supported for all users. To configure automatic decryption without automatic encryption set &lt;code&gt;bypassAutoEncryption=true&lt;/code&gt;. The following example has been adapted from &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Examples/ExplicitEncryptionExamples.cs&#34;&gt;&lt;code&gt;ExplicitEncryptionExamples.cs&lt;/code&gt;&lt;/a&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using System;
+using System.Collections.Generic;
+using System.Threading;
+using MongoDB.Bson;
+using MongoDB.Driver.Encryption;
+using MongoDB.Libmongocrypt;
+
+namespace MongoDB.Driver.Examples
+{
+    public class ExplicitEncryptionAndAutoDecryptionExamples
+    {
+        private const string LocalMasterKey = &amp;quot;Mng0NCt4ZHVUYUJCa1kxNkVyNUR1QURhZ2h2UzR2d2RrZzh0cFBwM3R6NmdWMDFBMUN3YkQ5aXRRMkhGRGdQV09wOGVNYUMxT2k3NjZKelhaQmRCZGJkTXVyZG9uSjFk&amp;quot;;
+
+        public static void Main(string[] args)
+        {
+            var localMasterKey = Convert.FromBase64String(LocalMasterKey);
+            var kmsProviders = new Dictionary&amp;lt;string, IReadOnlyDictionary&amp;lt;string, object&amp;gt;&amp;gt;();
+            var localKey = new Dictionary&amp;lt;string, object&amp;gt;
+            {
+                { &amp;quot;key&amp;quot;, localMasterKey }
+            };
+            kmsProviders.Add(&amp;quot;local&amp;quot;, localKey);
+
+            var keyVaultNamespace = CollectionNamespace.FromFullName(&amp;quot;admin.datakeys&amp;quot;);
+            var collectionNamespace = CollectionNamespace.FromFullName(&amp;quot;test.coll&amp;quot;);
+            var autoEncryptionOptions = new AutoEncryptionOptions(
+                keyVaultNamespace,
+                kmsProviders,
+                bypassAutoEncryption: true);
+            var clientSettings = MongoClientSettings.FromConnectionString(&amp;quot;mongodb://localhost&amp;quot;);
+            clientSettings.AutoEncryptionOptions = autoEncryptionOptions;
+            var mongoClient = new MongoClient(clientSettings);
+            var database = mongoClient.GetDatabase(collectionNamespace.DatabaseNamespace.DatabaseName);
+            database.DropCollection(collectionNamespace.CollectionName);
+            var collection = database.GetCollection&amp;lt;BsonDocument&amp;gt;(collectionNamespace.CollectionName);
+
+            var keyVaultClient = new MongoClient(&amp;quot;mongodb://localhost&amp;quot;);
+            var keyVaultDatabase = keyVaultClient.GetDatabase(keyVaultNamespace.DatabaseNamespace.DatabaseName);
+            keyVaultDatabase.DropCollection(keyVaultNamespace.CollectionName);
+
+            // Create the ClientEncryption instance
+            var clientEncryptionSettings = new ClientEncryptionOptions(
+                keyVaultClient,
+                keyVaultNamespace,
+                kmsProviders);
+            using (var clientEncryption = new ClientEncryption(clientEncryptionSettings))
+            {
+                var dataKeyId = clientEncryption.CreateDataKey(
+                    &amp;quot;local&amp;quot;,
+                    new DataKeyOptions(),
+                    CancellationToken.None);
+
+                var originalString = &amp;quot;123456789&amp;quot;;
+                Console.WriteLine($&amp;quot;Original string {originalString}.&amp;quot;);
+
+                // Explicitly encrypt a field
+                var encryptOptions = new EncryptOptions(
+                    EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic.ToString(),
+                    keyId: dataKeyId);
+                var encryptedFieldValue = clientEncryption.Encrypt(
+                    originalString,
+                    encryptOptions,
+                    CancellationToken.None);
+                Console.WriteLine($&amp;quot;Encrypted value {encryptedFieldValue}.&amp;quot;);
+
+                collection.InsertOne(new BsonDocument(&amp;quot;encryptedField&amp;quot;, encryptedFieldValue));
+
+                // Automatically decrypts the encrypted field.
+                var decryptedValue = collection.Find(FilterDefinition&amp;lt;BsonDocument&amp;gt;.Empty).First();
+                Console.WriteLine($&amp;quot;Decrypted document {decryptedValue.ToJson()}.&amp;quot;);
+            }
+        }
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>SDAM Events</title>
+      <link>/mongo-csharp-driver/2.12/reference/driver_core/sdamevents/</link>
+      <pubDate>Wed, 17 Apr 2019 21:21:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.12/reference/driver_core/sdamevents/</guid>
+      <description>
+
+&lt;h2 id=&#34;sdam-events&#34;&gt;SDAM Events&lt;/h2&gt;
+
+&lt;p&gt;Server Discovery and Monitoring (SDAM) is the process by which the driver discovers and monitors the set of servers that it is connected to. In
+the case of a standalone configuration the driver will only monitor a single server. In the case of a replica set configuration the driver
+will monitor each member of the replica set (primary, secondaries, etc.). In the case of a sharded configuration the driver will&lt;br /&gt;
+monitor the set of shard routers (mongos instances) that it is connected to.&lt;/p&gt;
+
+&lt;p&gt;As the driver monitors the health and state of each server in a configuration, it raises a number of events that report what it is finding and
+how it is reacting to that information. You can subscribe to any or all of these events if you want to observe what SDAM is doing.&lt;/p&gt;
+
+&lt;p&gt;See the general &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/reference/driver_core/events/&#34;&gt;Eventing&lt;/a&gt; page for information on how to subscribe to individual events.&lt;/p&gt;
+
+&lt;h3 id=&#34;logging-sdam-events-the-easy-way&#34;&gt;Logging SDAM Events the Easy Way&lt;/h3&gt;
+
+&lt;p&gt;Often all you want to do with SDAM events is log them. You can configure logging of SDAM events by setting the &lt;code&gt;SdamLogFilename&lt;/code&gt; property of &lt;code&gt;MongoClientSettings&lt;/code&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var clientSettings = new MongoClientSettings();
+clientSetting.SdamLogFilename = @&amp;quot;c:\sdam.log&amp;quot;;
+var client = new MongoClient(clientSettings);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;code&gt;SdamLogFilename&lt;/code&gt; is only configurable in code, not in the connection string. The way to combine using a connection string with SDAM logging is:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var connectionString = &amp;quot;mongodb://localhost&amp;quot;; // presumably loaded via some config mechanism
+var clientSettings = MongoClientSettings.FromConnectionString(connectionString);
+clientSetting.SdamLogFilename = @&amp;quot;c:\sdam.log&amp;quot;;
+var client = new MongoClient(clientSettings);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+&lt;p&gt;Logging SDAM events results in the file being opened in exclusive mode, so it is possible for multiple instances of &lt;code&gt;MongoClient&lt;/code&gt; to conflict
+over the use of the file. Whether the multiple &lt;code&gt;MongoClient&lt;/code&gt; instances actually conflict over the use of the file or not depends on how similar
+the &lt;code&gt;MongoClientSettings&lt;/code&gt; are. If they are different enough to result in the creation of separate underlying &lt;code&gt;Cluster&lt;/code&gt; instances then they will conflict.&lt;/p&gt;
+
+&lt;p&gt;The safest approach when logging SDAM events is to use a single instance of &lt;code&gt;MongoClient&lt;/code&gt; throughout
+your application. This differs from previous guidance which stated that it didn&amp;rsquo;t matter how many instances of &lt;code&gt;MongoClient&lt;/code&gt; you created.&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;h3 id=&#34;sdam-events-that-are-logged&#34;&gt;SDAM Events That Are Logged&lt;/h3&gt;
+
+&lt;p&gt;SDAM logging logs the following events which are raised in the course of monitoring the servers the driver is connected to.&lt;/p&gt;
+
+&lt;h4 id=&#34;clusteraddedserverevent&#34;&gt;ClusterAddedServerEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/apidocs/html/T_MongoDB_Driver_Core_Events_ClusterAddedServerEvent.htm
+&#34;&gt;&lt;code&gt;ClusterAddedServerEvent&lt;/code&gt;&lt;/a&gt; is raised after a server has been added to the cluster.&lt;/p&gt;
+
+&lt;h4 id=&#34;clusteraddingserverevent&#34;&gt;ClusterAddingServerEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/apidocs/html/T_MongoDB_Driver_Core_Events_ClusterAddingServerEvent.htm
+&#34;&gt;&lt;code&gt;ClusterAddingServerEvent&lt;/code&gt;&lt;/a&gt; is raised before a server is added to the cluster.&lt;/p&gt;
+
+&lt;h4 id=&#34;clusterclosedevent&#34;&gt;ClusterClosedEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/apidocs/html/T_MongoDB_Driver_Core_Events_ClusterClosedEvent.htm
+&#34;&gt;&lt;code&gt;ClusterClosedEvent&lt;/code&gt;&lt;/a&gt; is raised after a cluster has been closed.&lt;/p&gt;
+
+&lt;h4 id=&#34;clusterclosingevent&#34;&gt;ClusterClosingEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/apidocs/html/T_MongoDB_Driver_Core_Events_ClusterClosingEvent.htm
+&#34;&gt;&lt;code&gt;ClusterClosingEvent&lt;/code&gt;&lt;/a&gt; is raised before a cluster is closed.&lt;/p&gt;
+
+&lt;h4 id=&#34;clusterdescriptionchangedevent&#34;&gt;ClusterDescriptionChangedEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/apidocs/html/T_MongoDB_Driver_Core_Events_ClusterDescriptionChangedEvent.htm
+&#34;&gt;&lt;code&gt;ClusterDescriptionChangedEvent&lt;/code&gt;&lt;/a&gt; is raised when the cluster description changes.&lt;/p&gt;
+
+&lt;h4 id=&#34;clusteropenedevent&#34;&gt;ClusterOpenedEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/apidocs/html/T_MongoDB_Driver_Core_Events_ClusterOpenedEvent.htm
+&#34;&gt;&lt;code&gt;ClusterOpenedEvent&lt;/code&gt;&lt;/a&gt; is raised after a cluster has been opened.&lt;/p&gt;
+
+&lt;h4 id=&#34;clusteropeningevent&#34;&gt;ClusterOpeningEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/apidocs/html/T_MongoDB_Driver_Core_Events_ClusterOpeningEvent.htm
+&#34;&gt;&lt;code&gt;ClusterOpeningEvent&lt;/code&gt;&lt;/a&gt; is raised before a cluster is opened.&lt;/p&gt;
+
+&lt;h4 id=&#34;clusterremovedserverevent&#34;&gt;ClusterRemovedServerEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/apidocs/html/T_MongoDB_Driver_Core_Events_ClusterRemovedServerEvent.htm
+&#34;&gt;&lt;code&gt;ClusterRemovedServerEvent&lt;/code&gt;&lt;/a&gt; is raised after a server has been removed from the cluster.&lt;/p&gt;
+
+&lt;h4 id=&#34;clusterremovingserverevent&#34;&gt;ClusterRemovingServerEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/apidocs/html/T_MongoDB_Driver_Core_Events_ClusterRemovingServerEvent.htm
+&#34;&gt;&lt;code&gt;ClusterRemovingServerEvent&lt;/code&gt;&lt;/a&gt; is raised before a server is removed from the cluster.&lt;/p&gt;
+
+&lt;h4 id=&#34;sdaminformationevent&#34;&gt;SdamInformationEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/apidocs/html/T_MongoDB_Driver_Core_Events_SdamInformationEvent.htm
+&#34;&gt;&lt;code&gt;SdamInformationEvent&lt;/code&gt;&lt;/a&gt; is raised when something interesting happened that is not covered by a custom event type.&lt;/p&gt;
+
+&lt;h4 id=&#34;serverclosedevent&#34;&gt;ServerClosedEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/apidocs/html/T_MongoDB_Driver_Core_Events_ServerClosedEvent.htm
+&#34;&gt;&lt;code&gt;ServerClosedEvent&lt;/code&gt;&lt;/a&gt; is raised after a server has been closed.&lt;/p&gt;
+
+&lt;h4 id=&#34;serverclosingevent&#34;&gt;ServerClosingEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/apidocs/html/T_MongoDB_Driver_Core_Events_ServerClosingEvent.htm
+&#34;&gt;&lt;code&gt;ServerClosingEvent&lt;/code&gt;&lt;/a&gt; is raised before a server is closed.&lt;/p&gt;
+
+&lt;h4 id=&#34;serverdescriptionchangedevent&#34;&gt;ServerDescriptionChangedEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/apidocs/html/T_MongoDB_Driver_Core_Events_ServerDescriptionChangedEvent.htm
+&#34;&gt;&lt;code&gt;ServerDescriptionChangedEvent&lt;/code&gt;&lt;/a&gt; is raised when the server description has changed.&lt;/p&gt;
+
+&lt;h4 id=&#34;serverheartbeatfailedevent&#34;&gt;ServerHeartbeatFailedEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/apidocs/html/T_MongoDB_Driver_Core_Events_ServerHeartbeatFailedEvent.htm
+&#34;&gt;&lt;code&gt;ServerHeartbeatFailedEvent&lt;/code&gt;&lt;/a&gt; is raised after a heartbeat has failed.&lt;/p&gt;
+
+&lt;h4 id=&#34;serverheartbeatstartedevent&#34;&gt;ServerHeartbeatStartedEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/apidocs/html/T_MongoDB_Driver_Core_Events_ServerHeartbeatStartedEvent.htm
+&#34;&gt;&lt;code&gt;ServerHeartbeatStartedEvent&lt;/code&gt;&lt;/a&gt; is raised after a heartbeat has started (but before the heartbeat is sent to the server).&lt;/p&gt;
+
+&lt;h4 id=&#34;serverheartbeatsucceededevent&#34;&gt;ServerHeartbeatSucceededEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/apidocs/html/T_MongoDB_Driver_Core_Events_ServerHeartbeatSucceededEvent.htm
+&#34;&gt;&lt;code&gt;ServerHeartbeatSucceededEvent&lt;/code&gt;&lt;/a&gt; is raised after a heartbeat has succeeded.&lt;/p&gt;
+
+&lt;h4 id=&#34;serveropenedevent&#34;&gt;ServerOpenedEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/apidocs/html/T_MongoDB_Driver_Core_Events_ServerOpenedEvent.htm
+&#34;&gt;&lt;code&gt;ServerOpenedEvent&lt;/code&gt;&lt;/a&gt; is raised after a server has been opened.&lt;/p&gt;
+
+&lt;h4 id=&#34;serveropeningevent&#34;&gt;ServerOpeningEvent&lt;/h4&gt;
+
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/apidocs/html/T_MongoDB_Driver_Core_Events_ServerOpeningEvent.htm
+&#34;&gt;&lt;code&gt;ServerOpeningEvent&lt;/code&gt;&lt;/a&gt; is raised before a server is opened.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Change Streams</title>
+      <link>/mongo-csharp-driver/2.12/reference/driver/change_streams/</link>
+      <pubDate>Mon, 02 Jul 2018 20:36:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.12/reference/driver/change_streams/</guid>
+      <description>
+
+&lt;h2 id=&#34;change-streams&#34;&gt;Change Streams&lt;/h2&gt;
+
+&lt;p&gt;Change streams allow an application to receive a stream of events representing changes to documents in:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;A single collection&lt;/li&gt;
+&lt;li&gt;All collections in a single database&lt;/li&gt;
+&lt;li&gt;All collections in all databases&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;An application starts watching a change stream by calling one of the Watch methods.&lt;/p&gt;
+
+&lt;h3 id=&#34;watching-changes-in-a-single-collection&#34;&gt;Watching changes in a single collection&lt;/h3&gt;
+
+&lt;p&gt;To watch changes in a single collection call the Watch or WatchAsync method of IMongoCollection.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = collection.Watch())
+{
+    foreach (var change in cursor.ToEnumerable())
+    {
+        // process change event
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;or&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = await collection.WatchAsync())
+{
+    await cursor.ForEachAsync(change =&amp;gt;
+    {
+        // process change event
+    });
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;watching-changes-in-all-collections-in-a-single-database&#34;&gt;Watching changes in all collections in a single database&lt;/h3&gt;
+
+&lt;p&gt;To watch changes in all collections in a single database call the Watch or WatchAsync method of IMongoDatabase.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = database.Watch())
+{
+    foreach (var change in cursor.ToEnumerable())
+    {
+        // process change event
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;or&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = await database.WatchAsync())
+{
+    await cursor.ForEachAsync(change =&amp;gt;
+    {
+        // process change event
+    });
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;watching-changes-in-all-collections-in-all-databases&#34;&gt;Watching changes in all collections in all databases&lt;/h3&gt;
+
+&lt;p&gt;To watch changes in all collections in all databases call the Watch or WatchAsync method of IMongoClient.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = client.Watch())
+{
+    foreach (var change in cursor.ToEnumerable())
+    {
+        // process change event
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;or&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = await client.WatchAsync())
+{
+    await cursor.ForEachAsync(change =&amp;gt;
+    {
+        // process change event
+    });
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;strongly-typed-changestreamdocument-lt-tdocument-gt-class&#34;&gt;Strongly typed ChangeStreamDocument&amp;lt;TDocument&amp;gt; class&lt;/h3&gt;
+
+&lt;p&gt;The cursor returned from the Watch methods returns the change stream events wrapped in a strongly typed C# class called ChangeStreamDocument&amp;lt;TDocument&amp;gt; (unless you used a pipeline that changed the shape of the results). The underlying change stream events are documented in the server documentation &lt;a href=&#34;https://docs.mongodb.com/manual/reference/change-events/&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public class ChangeStreamDocument&amp;lt;TDocument&amp;gt;
+{
+    public BsonDocument ClusterTime { get; }
+    public CollectionNamespace CollectionNamespace { get; }
+    public BsonDocument DocumentKey { get; }
+    public TDocument FullDocument { get; }
+    public ChangeStreamOperationType OperationType { get; }
+    public BsonDocument ResumeToken { get; }
+    public ChangeStreamUpdateDescription UpdateDescription { get; }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;ClusterTime is the timestamp from the oplog entry associated with the event.&lt;/p&gt;
+
+&lt;p&gt;CollectionNamespace is the full namespace of the collection containing the changed document.&lt;/p&gt;
+
+&lt;p&gt;DocumentKey contains the _id of the document created or modified by the operation. For sharded collections it also contains the shard key of the document.&lt;/p&gt;
+
+&lt;p&gt;For Insert and Replace operations,  FullDocument is the new document created by the operation. For Delete operations FullDocument is null as the document no longer exists. For Update operations FullDocument is only present if you set the FullDocument option in the options passed to Watch to ChangeStreamFullDocumentOption.UpdateLookup, in which case it contains the most current majority-committed version of the document modified by the Update operation (see the server documentation for fullDocument &lt;a href=&#34;https://docs.mongodb.com/manual/reference/change-events/&#34;&gt;here&lt;/a&gt; for details).&lt;/p&gt;
+
+&lt;p&gt;OperationType is one of: Insert, Update, Replace, Delete or Invalidate.&lt;/p&gt;
+
+&lt;p&gt;ResumeToken is metadata identifying the change stream event. It can be passed to Watch in the ResumeAfter option to start a new change stream that will resume with the next change event after this one. This is useful when your application needs to restart a change stream after a network outage.&lt;/p&gt;
+
+&lt;p&gt;UpdateDescription is only present when the OperationType is Update. It describes the fields that were updated or removed by the Update operation.&lt;/p&gt;
+
+&lt;h3 id=&#34;using-an-optional-pipeline&#34;&gt;Using an optional pipeline&lt;/h3&gt;
+
+&lt;p&gt;All the Watch and WatchAsync methods have overloads that take a pipeline argument. An application can pass in a pipeline to filter or modify the change stream in some way.&lt;/p&gt;
+
+&lt;p&gt;Only certain modifications are valid in a change stream pipeline. See the server documentation &lt;a href=&#34;https://docs.mongodb.com/manual/changeStreams/#modify-change-stream-output&#34;&gt;here&lt;/a&gt; for details.&lt;/p&gt;
+
+&lt;p&gt;For example, if you are only interested in monitoring inserted documents, you could use a pipeline to filter the change stream to only include insert operations.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var pipeline = 
+    new EmptyPipelineDefinition&amp;lt;ChangeStreamDocument&amp;lt;BsonDocument&amp;gt;&amp;gt;()
+    .Match(x =&amp;gt; x.OperationType == ChangeStreamOperationType.Insert);
+using (var cursor = collection.Watch(pipeline))
+{
+    foreach (var change in cursor.ToEnumerable())
+    {
+        // process insert change event
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+&lt;p&gt;The implementation of Watch depends on the presence of a &amp;ldquo;resume token&amp;rdquo; in the change stream. The resume token is the value of the &amp;ldquo;_id&amp;rdquo; field in the change stream documents (represented as the ResumeToken property of the ChangeStreamDocument class). If you use a pipeline and the pipeline changes the shape of the change stream documents, the pipeline MUST preserve the presence of the &amp;ldquo;_id&amp;rdquo; field, and it MUST NOT change its value.&lt;/p&gt;
+
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;h3 id=&#34;passing-options-to-the-watch-and-watchasync-methods&#34;&gt;Passing options to the Watch and WatchAsync methods&lt;/h3&gt;
+
+&lt;p&gt;You can pass options to the Watch and WatchAsync methods in the optional options argument, which is of type ChangeStreamOptions.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public class ChangeStreamOptions
+{
+    public int? BatchSize { get; set; }
+    public Collation Collation { get; set; }
+    public ChangeStreamFullDocumentOption FullDocument { get; set; }
+    public TimeSpan? MaxAwaitTime { get; set; }
+    public BsonDocument ResumeAfter { get; set; }
+    public BsonTimestamp StartAtOperationTime { get; set; }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;BatchSize determines the maximum number of change events the server will return at one time. The server might return fewer.&lt;/p&gt;
+
+&lt;p&gt;FullDocument can be set to ChangeStreamFullDocumentOption.UpdateLookup if you want the change stream event for Update operations to include a copy of the full document (the full document might include additional changes that are the result of subsequent change events, see the server documentation &lt;a href=&#34;https://docs.mongodb.com/manual/reference/change-events/#update-event&#34;&gt;here&lt;/a&gt;).&lt;/p&gt;
+
+&lt;p&gt;ResumeAfter and StartAtOperationTime are useful when you want to resume or start a change stream from some point in time.&lt;/p&gt;
+
+&lt;p&gt;For example, if you want to monitor only updates, and you want each change event to include the full document, you would write:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var pipeline = 
+    new EmptyPipelineDefinition&amp;lt;ChangeStreamDocument&amp;lt;BsonDocument&amp;gt;&amp;gt;()
+    .Match(x =&amp;gt; x.OperationType == ChangeStreamOperationType.Update);
+
+var changeStreamOptions = new ChangeStreamOptions
+{
+    FullDocument = ChangeStreamFullDocumentOption.UpdateLookup
+};
+
+using (var cursor = collection.Watch(pipeline, changeStreamOptions))
+{
+    foreach (var change in cursor.ToEnumerable())
+    {
+        // process updated document in change.FullDocument
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Authentication</title>
+      <link>/mongo-csharp-driver/2.12/reference/driver/authentication/</link>
+      <pubDate>Mon, 02 Jul 2018 16:49:42 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.12/reference/driver/authentication/</guid>
+      <description>
+
+&lt;h2 id=&#34;authentication&#34;&gt;Authentication&lt;/h2&gt;
+
+&lt;p&gt;The .NET driver supports all &lt;a href=&#34;http://docs.mongodb.org/manual/core/authentication/
+&#34;&gt;MongoDB authentication mechanisms&lt;/a&gt; including those in the &lt;a href=&#34;http://docs.mongodb.org/manual/administration/install-enterprise/
+&#34;&gt;Enterprise Edition&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Authentication credentials are created by the application as instances of &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/apidocs/html/T_MongoDB_Driver_MongoCredential.htm
+&#34;&gt;&lt;code&gt;MongoCredential&lt;/code&gt;&lt;/a&gt; which includes static factory methods for each of the supported authentication mechanisms. A list of these instances must be passed to the driver using the &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/apidocs/html/M_MongoDB_Driver_MongoClient__ctor_1.htm
+&#34;&gt;&lt;code&gt;MongoClient constructor&lt;/code&gt;&lt;/a&gt; that takes a &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/apidocs/html/T_MongoDB_Driver_MongoClientSettings.htm
+&#34;&gt;&lt;code&gt;MongoClientSettings&lt;/code&gt;&lt;/a&gt;. When only one credential is necessary, it is possible to specify via the &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/reference/driver/connecting/#connection-string&#34;&gt;connection string&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;default&#34;&gt;Default&lt;/h3&gt;
+
+&lt;p&gt;MongoDB 4.0 now uses &lt;a href=&#34;https://docs.mongodb.com/manual/core/security-scram/#authentication-scram&#34;&gt;SCRAM&lt;/a&gt; (Salted Challenge Response Authentication Mechanism) as the default mechanism and no longer supports &lt;a href=&#34;http://docs.mongodb.org/manual/core/authentication/#mongodb-cr-authentication&#34;&gt;MONGODB-CR&lt;/a&gt;. To create a credential that will authenticate properly regardless of server version, create a credential using the following static factory method.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var credential = MongoCredential.CreateCredential(databaseName, username, password);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Or via the connection string:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mongodb://username:password@myserver/databaseName
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;These are the recommended approaches as it will make upgrading from MongoDB 2.6 to MongoDB 3.0 seamless, before and after &lt;a href=&#34;http://docs.mongodb.org/manual/release-notes/3.0-scram/#upgrade-mongodb-cr-to-scram&#34;&gt;upgrading the authentication schema&lt;/a&gt;. For MongoDB 4.0, the above approaches will automatically determine which version of SCRAM should be used (SCRAM-SHA-1 or SCRAM-SHA-256).&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+The databaseName part of the connection string indicates which database the credentials are located in. See the &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/reference/driver/connecting/#connection-string&#34;&gt;connection string section&lt;/a&gt; for more information on connection strings.
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;h3 id=&#34;scram&#34;&gt;SCRAM&lt;/h3&gt;
+
+&lt;p&gt;When connecting to a MongoDB 4.0 server without specifying an authentication mechanism, the driver will negotiate with the server to determine whether SCRAM-SHA-1 or SCRAM-SHA-256 is the appropriate mechanism.&lt;/p&gt;
+
+&lt;h4 id=&#34;scram-sha-256&#34;&gt;SCRAM-SHA-256&lt;/h4&gt;
+
+&lt;p&gt;SCRAM-SHA-256 is the default authentication mechanism chosen as long as the user&amp;rsquo;s authentication mechanism supports it. (See the &lt;a href=&#34;https://docs.mongodb.com/manual/reference/method/db.createUser/#db.createUser&#34;&gt;mechanism parameter of createUser()&lt;/a&gt; and the &lt;a href=&#34;https://github.com/mongodb/specifications/blob/master/source/auth/auth.rst#defaults&#34;&gt;&amp;ldquo;Supported Authentication Methods: Defaults&amp;rdquo; section of the Driver Authentication Specification&lt;/a&gt; for additional information.&lt;/p&gt;
+
+&lt;h5 id=&#34;securestrings&#34;&gt;SecureStrings&lt;/h5&gt;
+
+&lt;p&gt;SecureStrings are slightly less secure when used in conjunction with SCRAM-SHA-256, due to the need to temporarily store the cleartext password in a managed memory string in order to SASLPrep it. This behavior is no different from other drivers in languages with managed memory. (SCRAM-SHA-1 is &lt;em&gt;not&lt;/em&gt; affected.)&lt;/p&gt;
+
+&lt;h5 id=&#34;net-standard-support&#34;&gt;.NET Standard support&lt;/h5&gt;
+
+&lt;p&gt;In .NET Standard, authenticating via SCRAM-SHA-256 may not work with non-ASCII passwords because SASLPrep is not fully implemented due to the lack of a string normalization function in .NET Standard 1.5. Normalizing the password into Unicode Normalization Form KC beforehand MAY help. SCRAM-SHA-1 is the recommended alternative for now. See &lt;a href=&#34;https://tools.ietf.org/html/rfc5802&#34;&gt;RFC5802&lt;/a&gt; and the &lt;a href=&#34;https://github.com/mongodb/specifications/blob/master/source/auth/auth.rst#scram-sha-256&#34;&gt;SCRAM-SHA-256 section of the Driver Authentication specification&lt;/a&gt; for additional information.&lt;/p&gt;
+
+&lt;h3 id=&#34;x-509-authentication&#34;&gt;x.509 Authentication&lt;/h3&gt;
+
+&lt;p&gt;The &lt;a href=&#34;http://docs.mongodb.org/manual/core/authentication/#x-509-certificate-authentication&#34;&gt;x.509&lt;/a&gt; mechanism authenticates a user whose name is derived from the distinguished subject name of the x.509 certificate presented by the driver during SSL negotiation. This authentication method requires the use of &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/reference/driver/ssl/&#34;&gt;SSL connections&lt;/a&gt; with certificate validation and is available in MongoDB 2.6 and newer.&lt;/p&gt;
+
+&lt;p&gt;There are two ways to create a credential of this type:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;Programmatically, using the following static factory method:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var credential = MongoCredential.CreateX509Credential(username);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;When configuring x.509 authentication programmatically, the &lt;code&gt;username&lt;/code&gt; parameter provided to &lt;code&gt;CreateX509Credential&lt;/code&gt; must match the distinguished subject name of your x.509 certificate &lt;em&gt;exactly&lt;/em&gt;. To determine the exact &lt;code&gt;username&lt;/code&gt; required for your x.509 connection, consult &lt;a href=&#34;http://docs.mongodb.org/manual/tutorial/configure-x509-client-authentication/#add-x-509-certificate-subject-as-a-user&#34;&gt;the MongoDB server x.509 tutorial&lt;/a&gt;. Alternatively, any &lt;code&gt;null&lt;/code&gt; &lt;code&gt;username&lt;/code&gt; parameter provided to &lt;code&gt;CreateX509Credential&lt;/code&gt; will cause the MongoDB server to infer a username based on the distinguished subject name of the x.509 certificate. Using a &lt;code&gt;null&lt;/code&gt; username value can help prevent issues when certificates are updated, since you can avoid managing a &lt;code&gt;username&lt;/code&gt; value and a certificate as separate entities in your environment.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Manually, using &lt;a href=&#34;https://docs.mongodb.com/manual/reference/connection-string/#connection-string-options&#34;&gt;connection string options&lt;/a&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mongodb://myserver/?authMechanism=MONGODB-X509
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;When configuring x.509 authentication from a connection string, you must still provide the certificate programmatically via &lt;code&gt;MongoClientSettings&lt;/code&gt;. Any connection string specifying x.509 authentication must be imported into a &lt;code&gt;MongoClientSettings&lt;/code&gt; object using &lt;code&gt;MongoClientSettings.FromConnectionString&lt;/code&gt; to add the certificate to the configuration.&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;You can use certificates via the trust stores on your computer, or a PKCS #12 (&lt;code&gt;.pfx&lt;/code&gt;) file. To be used with client authentication, the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.security.cryptography.x509certificates.x509certificate.aspx&#34;&gt;&lt;code&gt;X509Certificate&lt;/code&gt;&lt;/a&gt; provided to the driver must contain the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.security.cryptography.x509certificates.x509certificate2.privatekey.aspx&#34;&gt;&lt;code&gt;PrivateKey&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;For testing purposes, the &lt;code&gt;AllowInsecureTls&lt;/code&gt; field of your &lt;code&gt;MongoClientSettings&lt;/code&gt; can be set to &lt;code&gt;true&lt;/code&gt; to allow the use of self-signed certificates. Since this setting bypasses the validation of certificates entirely, it should never be used for production uses.&lt;/p&gt;
+
+&lt;p&gt;Connecting using a &lt;code&gt;MongoClientSettings&lt;/code&gt; object built from a connection string:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var connectionString = &amp;quot;mongodb://myserver/?authMechanism=MONGODB-X509&amp;quot;;
+var settings = MongoClientSettings.FromConnectionString(connectionString);
+
+settings.useTls = true;
+settings.SslSettings = new SslSettings
+{
+    ClientCertificates = new List&amp;lt;X509Certificate&amp;gt;()
+    {
+        new X509Certificate2(&amp;quot;client-certificate.pfx&amp;quot;, &amp;quot;password&amp;quot;)
+    }
+};
+
+// For testing using self-signed certs, use this option to skip validation.
+// DO NOT USE THIS OPTION FOR PRODUCTION USES
+settings.AllowInsecureTls = true;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Connecting using a &lt;code&gt;MongoClientSettings&lt;/code&gt; object built from scratch:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var settings = new MongoClientSettings 
+{
+    // if a username is null, the distinguished name from the certificate will be used
+    Credential =  MongoCredential.CreateMongoX509Credential(null),
+    SslSettings = new SslSettings
+    {
+        ClientCertificates = new List&amp;lt;X509Certificate&amp;gt;()
+        {
+            new X509Certificate2(&amp;quot;client-certificate.pfx&amp;quot;, &amp;quot;password&amp;quot;)
+        },
+    },
+    UseTls = true,
+    Server = new MongoServerAddress(&amp;quot;myserver&amp;quot;, 27017),
+
+    // For testing using self-signed certs, use this option to skip validation.
+    // DO NOT USE THIS OPTION FOR PRODUCTION USES
+    AllowInsecureTls = true
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;gssapi-kerberos&#34;&gt;GSSAPI/Kerberos&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://www.mongodb.com/products/mongodb-enterprise&#34;&gt;MongoDB Enterprise&lt;/a&gt; supports authentication using &lt;a href=&#34;http://docs.mongodb.org/manual/core/authentication/#kerberos-authentication&#34;&gt;Kerberos/GSSAPI&lt;/a&gt;. To create a Kerberos/GSSAPI credential, use the following method:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var credential = MongoCredential.CreateGssapiCredential(username, password);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Or via the connection string:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mongodb://username%40REALM.com:password@myserver/?authMechanism=GSSAPI
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+Note that the username will need to have a REALM associated with it. When used in a connection string, &lt;code&gt;%40&lt;/code&gt; is the escape character for the &lt;code&gt;@&lt;/code&gt; symbol.
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;If the process owner running your application is the same as the user needing authentication, you can omit the password:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var credential = MongoCredential.CreateGssapiCredential(username);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Or via the connection string:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mongodb://username%40REALM.com@myserver/?authMechanism=GSSAPI
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Depending on the kerberos setup, it may be required to specify some additional properties. These may be specified in the connection string or via code.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;CANONICALIZE_HOST_NAME&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Uses the DNS server to retrieve the fully qualified domain name (FQDN) of the host.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;credential = credential.WithMechanismProperty(&amp;quot;CANONICALIZE_HOST_NAME&amp;quot;, &amp;quot;true&amp;quot;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Or via the connection string:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mongodb://username@myserver/?authMechanism=GSSAPI&amp;amp;authMechanismProperties=CANONICALIZE_HOSTNAME:true
+&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;REALM&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;This is used when the user&amp;rsquo;s realm is different from the service&amp;rsquo;s realm.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;credential = credential.WithMechanismProperty(&amp;quot;REALM&amp;quot;, &amp;quot;otherrealm&amp;quot;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Or via the connection string:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mongodb://username%40REALM.com@myserver/?authMechanism=GSSAPI&amp;amp;authMechanismProperties=REALM:otherrealm
+&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;SERVICE_NAME&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;This is used when the service&amp;rsquo;s name is different that the default &lt;code&gt;mongodb&lt;/code&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;credential = credential.WithMechanismProperty(&amp;quot;SERVICE_NAME&amp;quot;, &amp;quot;othername&amp;quot;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Or via the connection string:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mongodb://username%40REALM.com@myserver/?authMechanism=GSSAPI&amp;amp;authMechanismProperties=SERVICE_NAME:othername
+&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;In addition, it is possible to use multiple authentication mechanism properties either via code or in the connection string. In code, call &lt;code&gt;WithMechanismProperty&lt;/code&gt; multiple times. In the connection string, separate the entries with a &lt;code&gt;,&lt;/code&gt; (comma).&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mongodb://username%40REALM.com@myserver/?authMechanism=GSSAPI&amp;amp;authMechanismProperties=SERVICE_NAME:othername,REALM:otherrealm
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;ldap-plain&#34;&gt;LDAP (PLAIN)&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://www.mongodb.com/products/mongodb-enterprise&#34;&gt;MongoDB Enterprise&lt;/a&gt; supports proxy authentication through a Lightweight Directory Access Protocol (LDAP) service. To create a credential of type LDAP use the following static factory method:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var credential = MongoCredential.CreatePlainCredential(&amp;quot;$external&amp;quot;, username, password);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Or via the connection string:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mongodb://username:password@myserver/?authSource=$external&amp;amp;authMechanism=PLAIN
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
+Note that the method refers to the plain authentication mechanism instead of LDAP because technically the driver is authenticating via the PLAIN SASL mechanism. This means that your credentials are in plain text on the wire. Therefore, PLAIN should only be used in conjunction with SSL.
+&lt;/div&gt;
+&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>SSL</title>
+      <link>/mongo-csharp-driver/2.12/reference/driver/ssl/</link>
+      <pubDate>Mon, 02 Jul 2018 12:50:42 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.12/reference/driver/ssl/</guid>
+      <description>
+
+&lt;h2 id=&#34;ssl&#34;&gt;SSL&lt;/h2&gt;
+
+&lt;p&gt;The driver supports SSL connections to MongoDB servers using the underlying support for SSL provided by the .NET Framework. The driver takes a &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.net.sockets.networkstream.aspx&#34;&gt;&lt;code&gt;Network Stream&lt;/code&gt;&lt;/a&gt; and wraps it with an &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.net.security.sslstream.aspx&#34;&gt;&lt;code&gt;SslStream&lt;/code&gt;&lt;/a&gt;. You can configure the use of SSL with the &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/reference/driver/connecting/#connection-string&#34;&gt;connection string&lt;/a&gt; or with &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/apidocs/html/T_MongoDB_Driver_MongoClientSettings.htm
+&#34;&gt;&lt;code&gt;MongoClientSettings&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&#34;connection-string&#34;&gt;Connection String&lt;/h2&gt;
+
+&lt;p&gt;The connection string provides 2 options:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;?ssl=true|false&lt;/code&gt;
+You can turn on SSL using this option, or explicitly turn it off. The default is &lt;code&gt;false&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;?sslVerifyCertificate=true|false&lt;/code&gt;
+You can turn off automatic certificate verification using this option. The default is &lt;code&gt;true&lt;/code&gt;.
+&lt;div class=&#34;admonition warning&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;warning&lt;/h5&gt;
+This option should not be set to &lt;code&gt;false&lt;/code&gt; in production. It is important that the server certificate is properly validated.
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&#34;mongoclientsettings&#34;&gt;MongoClientSettings&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/apidocs/html/T_MongoDB_Driver_MongoClientSettings.htm
+&#34;&gt;&lt;code&gt;MongoClientSettings&lt;/code&gt;&lt;/a&gt; provides a much fuller and robust solution for configuring SSL. It contains the &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/apidocs/html/P_MongoDB_Driver_MongoClientSettings_SslSettings.htm
+&#34;&gt;&lt;code&gt;SslSettings&lt;/code&gt;&lt;/a&gt; property which allows the setting of various values. Each of these values will map very strongly to their counterpart in the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/dd990420.aspx&#34;&gt;&lt;code&gt;SslStream constructor&lt;/code&gt;&lt;/a&gt; and the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/ms145061.aspx&#34;&gt;&lt;code&gt;AuthenticateAsClient&lt;/code&gt;&lt;/a&gt; method. For example, to authenticate with a client certificate called &amp;ldquo;client.pfx&amp;rdquo;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var cert = new X509Certificate2(&amp;quot;client.pfx&amp;quot;, &amp;quot;mySuperSecretPassword&amp;quot;);
+
+var settings = new MongoClientSettings
+{
+    SslSettings = new SslSettings
+    {
+        ClientCertificates = new[] { cert },
+    },
+    UseSsl = true
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;div class=&#34;admonition important&#34;&gt;
+&lt;h5 class=&#34;admonition-title&#34;&gt;important&lt;/h5&gt;
+It is imperative that when loading a certificate with a password, the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.security.cryptography.x509certificates.x509certificate2.privatekey.aspx&#34;&gt;PrivateKey&lt;/a&gt; property not be null. If the property is null, it means that your certificate does not contain the private key and will not be passed to the server.
+&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;h3 id=&#34;certificate-revocation-checking&#34;&gt;Certificate Revocation Checking&lt;/h3&gt;
+
+&lt;h4 id=&#34;default-behavior&#34;&gt;Default behavior&lt;/h4&gt;
+
+&lt;p&gt;The .NET Driver now &lt;strong&gt;disables&lt;/strong&gt; certificate revocation checking by
+default, setting &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/apidocs/html/P_MongoDB_Driver_SslSettings_CheckCertificateRevocation.htm
+&#34;&gt;&lt;code&gt;CheckCertificateRevocation&lt;/code&gt;&lt;/a&gt; in
+&lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/apidocs/html/T_MongoDB_Driver_SslSettings.htm
+&#34;&gt;&lt;code&gt;SslSettings&lt;/code&gt;&lt;/a&gt; to
+&lt;code&gt;false&lt;/code&gt; by default. This correlates to .NET&amp;rsquo;s defaults for
+&lt;code&gt;SslStream&lt;/code&gt; (see .NET Framework documentation
+&lt;a href=&#34;https://docs.microsoft.com/en-us/dotnet/api/system.net.security.sslstream.authenticateasclient?view=netframework-4.7.2#System_Net_Security_SslStream_AuthenticateAsClient_System_String_&#34;&gt;here&lt;/a&gt;
+and .NET Standard documentation
+&lt;a href=&#34;https://docs.microsoft.com/en-us/dotnet/api/system.net.security.sslstream.authenticateasclient?view=netstandard-2.0#System_Net_Security_SslStream_AuthenticateAsClient_System_String_&#34;&gt;here&lt;/a&gt;).
+Applications relying on the intermediate default of &lt;code&gt;true&lt;/code&gt; (introduced in beta driver releases 2.11.0-beta1 and 2.11.0-beta2) must
+explicitly set &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/apidocs/html/P_MongoDB_Driver_SslSettings_CheckCertificateRevocation.htm
+&#34;&gt;&lt;code&gt;CheckCertificateRevocation&lt;/code&gt;&lt;/a&gt; to
+&lt;code&gt;true&lt;/code&gt; in &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/apidocs/html/T_MongoDB_Driver_SslSettings.htm
+&#34;&gt;&lt;code&gt;SslSettings&lt;/code&gt;&lt;/a&gt; to enable certificate revocation checking. Alternatively,
+applications may also set &lt;code&gt;tlsDisableCertificateRevocationCheck=false&lt;/code&gt;
+in their connection string.  See
+&lt;a href=&#34;#tlsDisableCertificateRevocationCheck&#34;&gt;tlsDisableCertificateRevocationCheck&lt;/a&gt;
+for more information.&lt;/p&gt;
+
+&lt;p&gt;Prior to v2.7.0, the driver also enabled certificate revocation checking by
+default.&lt;/p&gt;
+
+&lt;h4 id=&#34;tlsdisablecertificaterevocationcheck&#34;&gt;tlsDisableCertificateRevocationCheck&lt;/h4&gt;
+
+&lt;p&gt;The URI option, &lt;code&gt;tlsDisableCertificateRevocationCheck&lt;/code&gt; controls
+whether or not to disable certificate revocation checking during a TLS
+handshake. Setting &lt;code&gt;tlsDisableCertificateRevocationCheck=true&lt;/code&gt; is
+equivalent to setting &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/apidocs/html/P_MongoDB_Driver_SslSettings_CheckCertificateRevocation.htm
+&#34;&gt;&lt;code&gt;CheckCertificateRevocation&lt;/code&gt;&lt;/a&gt; in
+&lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/apidocs/html/T_MongoDB_Driver_SslSettings.htm
+&#34;&gt;&lt;code&gt;SslSettings&lt;/code&gt;&lt;/a&gt; to
+&lt;code&gt;false&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;ocsp&#34;&gt;OCSP&lt;/h3&gt;
+
+&lt;h4 id=&#34;stapling&#34;&gt;Stapling&lt;/h4&gt;
+
+&lt;p&gt;Due to limitations in .NET, the driver currently only supports OCSP
+(Online Certificate Status Protocol) stapling on .NET Core ≥2.x on
+macOS.&lt;/p&gt;
+
+&lt;p&gt;On Windows, when a server has a Must-Staple certificate and does not
+staple, by default, the driver will continue to connect as long as the
+OCSP responder is still available and reports that the server&amp;rsquo;s
+certificate is valid. This behavior differs from the mongo shell and
+from the MongoDB Python and Go drivers, which will fail to connect in
+when a server has a Must-Staple certificate and does not staple.&lt;/p&gt;
+
+&lt;h4 id=&#34;hard-fail-vs-soft-fail&#34;&gt;Hard-fail vs. soft-fail&lt;/h4&gt;
+
+&lt;p&gt;On Windows, due .NET&amp;rsquo;s implementation of TLS, the driver utilizes
+&amp;ldquo;hard-fail&amp;rdquo; behavior in contrast to the &amp;ldquo;soft-fail&amp;rdquo; behavior exhibited
+by the Linux/macOS mongo shell and MongoDB drivers such as Python and
+Go. This means that in the case that an OCSP responder is unavailable,
+the driver will fail to connect (i.e. hard-fail) instead of allowing
+the connection to continue (i.e. soft-fail).&lt;/p&gt;
+
+&lt;h2 id=&#34;tls-support&#34;&gt;TLS support&lt;/h2&gt;
+
+&lt;h3 id=&#34;overview&#34;&gt;Overview&lt;/h3&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;OS&lt;/th&gt;
+&lt;th&gt;.NET Version&lt;/th&gt;
+&lt;th&gt;TLS1.1&lt;/th&gt;
+&lt;th&gt;TLS1.2&lt;/th&gt;
+&lt;th&gt;SNI&lt;/th&gt;
+&lt;th&gt;CRLs without OCSP&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Windows&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;.NET Framework 4.5&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;.NET Framework 4.6&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;.NET Framework 4.7&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;.NET Core 1.0&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;.NET Core 1.1&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;.NET Core 2.0&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;.NET Core 2.1&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;Linux&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;.NET Core 1.0&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;No&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;.NET Core 1.1&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;No&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;.NET Core 2.0&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;No&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;.NET Core 2.1&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;macOS&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;.NET Core 1.0&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;No&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;.NET Core 1.1&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;No&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;.NET Core 2.0&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;No&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;.NET Core 2.1&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;Yes&lt;/td&gt;
+&lt;td&gt;No&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h4 id=&#34;notes&#34;&gt;Notes&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;SNI (Server Name Indication) is required for Atlas free tier.&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;.NET Core on macOS will fail to connect if &lt;strong&gt;both&lt;/strong&gt; of the following conditions are met: (1) &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/reference/driver/ssl/#certificate-revocation-checking&#34;&gt;certificate revocation checking&lt;/a&gt; is enabled, and (2) a server&amp;rsquo;s certificate includes Certificate Revocation List (CRL) Distribution Points but does not include an Online Certificate Status Protocol (OCSP) extension.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;This is due to a limitation of the Apple Security Framework (see &lt;a href=&#34;https://github.com/dotnet/corefx/issues/29064&#34;&gt;https://github.com/dotnet/corefx/issues/29064&lt;/a&gt;). Prior to version 2.0, .NET Core on macOS used OpenSSL, which does support CRLs without OCSP.&lt;/li&gt;
+&lt;li&gt;Connecting to Atlas on macOS with certificate revocation checking enabled will succeed since Atlas certificates include CRL Distribution Points as well as an OCSP extension.&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;support-for-tls-v1-1-and-newer&#34;&gt;Support for TLS v1.1 and newer&lt;/h3&gt;
+
+&lt;p&gt;Industry best practices recommend, and some regulations require, the use of TLS 1.1 or newer. No application changes are required
+for the driver to make use of the newest TLS protocols.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Sessions and Transactions</title>
+      <link>/mongo-csharp-driver/2.12/reference/driver/crud/sessions_and_transactions/</link>
+      <pubDate>Fri, 29 Jun 2018 13:45:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.12/reference/driver/crud/sessions_and_transactions/</guid>
+      <description>
+
+&lt;h2 id=&#34;sessions&#34;&gt;Sessions&lt;/h2&gt;
+
+&lt;p&gt;A session is used to group together a series of operations that are related to each other and should be executed with the same session options. Sessions are also used for transactions.&lt;/p&gt;
+
+&lt;p&gt;New overloaded methods that take a session parameter have been added for all operation methods in the driver. You execute multiple operations in the same session by passing the same session value to each operation.&lt;/p&gt;
+
+&lt;p&gt;When you call an older operation method that does not take a session parameter, the driver will start an implicit session to execute that one operation and then immediately end the implicit session.&lt;/p&gt;
+
+&lt;h3 id=&#34;startsession-and-startsessionasync&#34;&gt;StartSession and StartSessionAsync&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IClientSessionHandle StartSession(ClientSessionOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+Task&amp;lt;IClientSessionHandle&amp;gt; StartSessionAsync(ClientSessionOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;A session is started by calling the StartSession or StartSessionAsync methods of IMongoClient:&lt;/p&gt;
+
+&lt;p&gt;You must end a session when you no longer need it. You end a session by calling Dispose, which will happen automatically if you put the session inside a using statement.&lt;/p&gt;
+
+&lt;p&gt;The recommended way of using a session is:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var sessionOptions = new ClientSessionOptions { ... };
+using (var session = client.StartSession(sessionOptions, cancellationToken))
+{
+    // execute some operations passing the session as an argument to each operation
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;or&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var sessionOptions = new ClientSessionOptions { ... };
+using (var session = await client.StartSessionAsync(sessionOptions, cancellationToken))
+{
+    // execute some operations passing the session as an argument to each operation
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;A session is typically short lived. You start a session, execute some operations, and end the session.&lt;/p&gt;
+
+&lt;h3 id=&#34;clientsessionoptions&#34;&gt;ClientSessionOptions&lt;/h3&gt;
+
+&lt;p&gt;The ClientSessionOptions class is used to specify any desired options when calling StartSession.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public class ClientSessionOptions
+{
+    public bool? CausalConsistency { get; set; }
+    public TransactionOptions DefaultTransactionOptions { get; set; }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;causalconsistency&#34;&gt;CausalConsistency&lt;/h4&gt;
+
+&lt;p&gt;Set to true if you want all operations in a session to be causally consistent.&lt;/p&gt;
+
+&lt;h4 id=&#34;defaulttransactionoptions&#34;&gt;DefaultTransactionOptions&lt;/h4&gt;
+
+&lt;p&gt;You can provide default transaction options to be used for any options that are not provided when StartTransaction is called.&lt;/p&gt;
+
+&lt;h3 id=&#34;iclientsession-properties-and-methods&#34;&gt;IClientSession properties and methods&lt;/h3&gt;
+
+&lt;p&gt;The IClientSession interface defines the properties and methods available on a session.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public interface IClientSession : IDisposable
+{
+    IMongoClient Client { get; }
+    BsonDocument ClusterTime { get; }
+    bool IsInTransaction { get; }
+    BsonTimestamp OperationTime { get; }
+    ClientSessionOptions Options { get; }
+
+    void AdvanceClusterTime(BsonDocument newClusterTime);
+    void AdvanceOperationTime(BsonTimestamp newOperationTime);
+
+    // see also transaction related methods documented below
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Note: a few members of IClientSession have been deliberately omitted from this documentation, either because they are rarely used or because they are for internal use only.&lt;/p&gt;
+
+&lt;h4 id=&#34;client&#34;&gt;Client&lt;/h4&gt;
+
+&lt;p&gt;The Client property returns a reference to the IMongoClient instance that was used to start this session.&lt;/p&gt;
+
+&lt;h4 id=&#34;clustertime&#34;&gt;ClusterTime&lt;/h4&gt;
+
+&lt;p&gt;The ClusterTime property returns the highest cluster time that has been seen by this client. The value is an opaque BsonDocument containing a cluster time that has been returned by the server. While an application might never inspect the actual value, it might set this value (by calling AdvanceClusterTime) when initializing a causally consistent session.&lt;/p&gt;
+
+&lt;h3 id=&#34;isintransaction&#34;&gt;IsInTransaction&lt;/h3&gt;
+
+&lt;p&gt;Specifies whether the session is currently in a transaction. A session is in a transaction after StartTransaction has been called and until either AbortTransaction or CommitTransaction has been called.&lt;/p&gt;
+
+&lt;h3 id=&#34;operationtime&#34;&gt;OperationTime&lt;/h3&gt;
+
+&lt;p&gt;The operation time returned by the server for the most recent operation in this session. Operation times are used by the driver to ensure causal consistency when the ClientSessionOptions specify that causal consistency is desired. While an application might never use the actual value, it might set this value (by calling AdvanceOperationTime) when initializing a causally consistent session.&lt;/p&gt;
+
+&lt;h3 id=&#34;options&#34;&gt;Options&lt;/h3&gt;
+
+&lt;p&gt;Returns the options that were passed to StartSession.&lt;/p&gt;
+
+&lt;h3 id=&#34;advanceclustertime-and-advanceoperationtime&#34;&gt;AdvanceClusterTime and AdvanceOperationTime&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;void AdvanceClusterTime(BsonDocument newClusterTime);
+void AdvanceOperationTime(BsonTimestamp newOperationTime);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Call these methods to advance the cluster and operation times when you want subsequent operations in this session to be causally consistent with operations that have executed outside of this session. Typically the values you pass to AdvanceClusterTime and AdvanceOperation time will come from the ClusterTime and OperationTime properties of some other session.&lt;/p&gt;
+
+&lt;h3 id=&#34;transaction-methods&#34;&gt;Transaction methods&lt;/h3&gt;
+
+&lt;p&gt;The methods to start, abort or commit a transaction are documented in the next section.&lt;/p&gt;
+
+&lt;h2 id=&#34;transactions&#34;&gt;Transactions&lt;/h2&gt;
+
+&lt;p&gt;Transactions are started, committed or aborted using methods of IClientSession. A session can only execute one transaction at a time, but a session can execute more than one transaction as long as each transaction is committed or aborted before the next one is started.&lt;/p&gt;
+
+&lt;h3 id=&#34;starttransaction&#34;&gt;StartTransaction&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;void StartTransaction(TransactionOptions transactionOptions = null);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Start a transaction by calling StartTransaction, optionally specifying options for the transaction.&lt;/p&gt;
+
+&lt;p&gt;Each transaction option can be specified at any of the following levels:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;StartTransaction in the options parameter&lt;/li&gt;
+&lt;li&gt;StartSession in the defaultTransactionOptions parameter&lt;/li&gt;
+&lt;li&gt;Defaulted&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;You can specify different options at different levels. An option specified in StartTransaction overrides the same option specified in the defaultTransactionOptions passed to StartSession, which in turn overrides the default value.&lt;/p&gt;
+
+&lt;h4 id=&#34;transactionoptions&#34;&gt;TransactionOptions&lt;/h4&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public class TransactionOptions
+{
+    public ReadConcern ReadConcern { get; };
+    public ReadPreference ReadPreference { get; };
+    public WriteConcern WriteConcern { get; };
+
+    public TransactionOptions(
+        Optional&amp;lt;ReadConcern&amp;gt; readConcern = default(Optional&amp;lt;ReadConcern&amp;gt;),
+        Optional&amp;lt;ReadPreference&amp;gt; readPreference = default(Optional&amp;lt;ReadPreference&amp;gt;),
+        Optional&amp;lt;WriteConcern&amp;gt; writeConcern = default(Optional&amp;lt;WriteConcern&amp;gt;));
+
+    public TransactionOptions With(
+        Optional&amp;lt;ReadConcern&amp;gt; readConcern = default(Optional&amp;lt;ReadConcern&amp;gt;),
+        Optional&amp;lt;ReadPreference&amp;gt; readPreference = default(Optional&amp;lt;ReadPreference&amp;gt;),
+        Optional&amp;lt;WriteConcern&amp;gt; writeConcern = default(Optional&amp;lt;WriteConcern&amp;gt;))
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Create an instance of TransactionOptions either by calling the constructor with any desired optional arguments, or by calling the With method on an existing instance of TransactionOptions to create a new instance with some values changed.&lt;/p&gt;
+
+&lt;h5 id=&#34;readconcern&#34;&gt;ReadConcern&lt;/h5&gt;
+
+&lt;p&gt;The ReadConcern used while in the transaction. All operations in the transaction use the ReadConcern specified when StartTransaction is called.&lt;/p&gt;
+
+&lt;h5 id=&#34;readpreference&#34;&gt;ReadPreference&lt;/h5&gt;
+
+&lt;p&gt;The ReadPreference used while in the transaction. Currently, the ReadPreference for a transaction must be Primary.&lt;/p&gt;
+
+&lt;h5 id=&#34;writeconcern&#34;&gt;WriteConcern&lt;/h5&gt;
+
+&lt;p&gt;The WriteConcern used for this transaction. The WriteConcern only applies when committing the transaction, not to the individual operations executed while in the transaction.&lt;/p&gt;
+
+&lt;h3 id=&#34;committransaction-and-committransactionasync&#34;&gt;CommitTransaction and CommitTransactionAsync&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;void CommitTransaction(CancellationToken cancellationToken = default(CancellationToken));
+Task CommitTransactionAsync(CancellationToken cancellationToken = default(CancellationToken));
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You must call CommitTransaction or CommitTransactionAsync in order for a transaction to be committed. If a session is ended while a transaction is in progress the transaction will be automatically aborted.&lt;/p&gt;
+
+&lt;p&gt;The commit is executed with the WriteConcern specified by the transaction options.&lt;/p&gt;
+
+&lt;h3 id=&#34;aborttransaction-and-aborttransactionasync&#34;&gt;AbortTransaction and AbortTransactionAsync&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;void AbortTransaction(CancellationToken cancellationToken = default(CancellationToken));
+Task AbortTransactionAsync(CancellationToken cancellationToken = default(CancellationToken));
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Call AbortTransaction or AbortTransactionAsync to abort a transaction. Since any transaction in progress is automatically aborted when a session is ended, you can also implicitly abort an uncommitted transaction by simply ending the session.&lt;/p&gt;
+
+&lt;p&gt;In this example we rely on the implied transaction abort:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var session = client.StartSession())
+{
+    session.StartTransaction();
+    // execute operations using the session
+    session.CommitTransaction(); // if an exception is thrown before reaching here the transaction will be implicitly aborted
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;When writing an async program you may want to avoid using the implied abort transaction that occurs when Dispose is called on a session with a transaction in progress, because Dispose is a blocking operation. To be fully async, even in the case where the transaction needs to be aborted, you might instead write:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var session = await client.StartSessionAsync())
+{
+    try
+    {
+        // execute async operations using the session
+    }
+    catch
+    {
+        await session.AbortTransactionAsync(); // now Dispose on the session has nothing to do and won&#39;t block
+        throw;
+    }
+    await session.CommitTransactionAsync();
+}
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
