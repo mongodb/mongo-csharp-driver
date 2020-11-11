@@ -121,7 +121,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             var classMap = BsonClassMap.LookupClassMap(typeof(TestClassC));
 
             classMap.DeclaredMemberMaps.Select(m => m.MemberName).Should().Equal("A", "B");
-            classMap.CreatorMaps.Count().Should().Be(1);
+            classMap.CreatorMaps.Count().Should().Be(2);
         }
 
         [Fact]
@@ -150,7 +150,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             var classMap = new BsonClassMap<TestClassC>();
             convention.Apply(classMap);
             Assert.True(classMap.HasCreatorMaps);
-            Assert.Equal(1, classMap.CreatorMaps.Count());
+            Assert.Equal(2, classMap.CreatorMaps.Count());
         }
 
         [Fact]

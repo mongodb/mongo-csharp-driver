@@ -43,8 +43,8 @@ namespace MongoDB.Bson.Serialization.Conventions
             }
 
             var anyConstructorsWereFound = false;
-            var constructorBindingFlags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance;
-            foreach (var ctor in typeInfo.GetConstructors(constructorBindingFlags))
+            var constructors = GetUsableConstructors(typeInfo);
+            foreach (var ctor in constructors)
             {
                 if (ctor.IsPrivate)
                 {
@@ -52,10 +52,6 @@ namespace MongoDB.Bson.Serialization.Conventions
                 }
 
                 var parameters = ctor.GetParameters();
-                if (parameters.Length != properties.Length)
-                {
-                    continue; // only consider constructors that have sufficient parameters to initialize all properties
-                }
 
                 var matches = parameters
                     .GroupJoin(properties,
@@ -88,6 +84,10 @@ namespace MongoDB.Bson.Serialization.Conventions
                     {
                         continue;
                     }
+                    if (!PropertyMatchesSomeCreatorParameter(classMap, property))
+                    {
+                        continue;
+                    }
 
                     var memberMap = classMap.MapMember(property);
                     if (classMap.IsAnonymous)
@@ -104,6 +104,56 @@ namespace MongoDB.Bson.Serialization.Conventions
         {
             // CanWrite gets true even if a property has only a private setter
             return propertyInfo.CanWrite && (propertyInfo.SetMethod?.IsPublic ?? false);
+        }
+
+        private ConstructorInfo[] GetUsableConstructors(TypeInfo typeInfo)
+        {
+            var constructorBindingFlags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance;
+            return typeInfo.GetConstructors(constructorBindingFlags);
+        }
+
+        private bool PropertyMatchesSomeCreatorParameter(BsonClassMap classMap, PropertyInfo propertyInfo)
+        {
+            foreach (var creatorMap in classMap.CreatorMaps)
+            {
+                if (creatorMap.MemberInfo is ConstructorInfo constructorInfo)
+                {
+                    if (PropertyMatchesSomeConstructorParameter(constructorInfo))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            // also map properties that match some constructor parameter that might be called by a derived class
+            var constructors = GetUsableConstructors(classMap.ClassType.GetTypeInfo());
+            foreach (var constructorInfo in constructors)
+            {
+                if (classMap.ClassType.GetTypeInfo().IsAbstract || 
+                    constructorInfo.IsFamily || // protected
+                    constructorInfo.IsFamilyOrAssembly) // protected internal
+                {
+                    if (PropertyMatchesSomeConstructorParameter(constructorInfo))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+
+            bool PropertyMatchesSomeConstructorParameter(ConstructorInfo constructorInfo)
+            {
+                foreach (var parameter in constructorInfo.GetParameters())
+                {
+                    if (string.Equals(propertyInfo.Name, parameter.Name, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
         }
     }
 }
