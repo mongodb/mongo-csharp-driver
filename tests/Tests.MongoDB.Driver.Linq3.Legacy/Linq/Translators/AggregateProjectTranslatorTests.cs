@@ -23,7 +23,7 @@ using MongoDB.Driver;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq3;
-using MongoDB.Driver.Linq3.Translators.QueryTranslators;
+using MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators;
 using Xunit;
 
 namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
@@ -1775,7 +1775,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             var query = __collection.AsQueryable3().Select(projector);
 
             var provider = (MongoQueryProvider<Root>)query.Provider;
-            var executableQuery = QueryTranslator.TranslateQuery<Root, TResult>(provider, query.Expression);
+            var executableQuery = ExpressionToExecutableQueryTranslator.Translate<Root, TResult>(provider, query.Expression);
             var projection = executableQuery.Stages[0]["$project"].AsBsonDocument;
             var value = query.FirstOrDefault();
 

@@ -25,7 +25,7 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq3;
-using MongoDB.Driver.Linq3.Translators.QueryTranslators;
+using MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators;
 using MongoDB.Driver.Tests;
 using Xunit;
 
@@ -1785,7 +1785,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
         private List<T> Assert<T>(IQueryable<T> queryable, int resultCount, params string[] expectedStages)
         {
             var provider = (MongoQueryProvider<Root>)queryable.Provider;
-            var executableQuery = QueryTranslator.TranslateQuery<Root, T>(provider, queryable.Expression);
+            var executableQuery = ExpressionToExecutableQueryTranslator.Translate<Root, T>(provider, queryable.Expression);
 
             executableQuery.Stages.Should().Equal(expectedStages.Select(x => BsonDocument.Parse(x)));
 
