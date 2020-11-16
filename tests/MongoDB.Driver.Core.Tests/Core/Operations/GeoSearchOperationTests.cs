@@ -176,7 +176,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet).VersionLessThan("4.8.0");
             EnsureTestData();
             var subject = new GeoSearchOperation<BsonDocument>(
                 _collectionNamespace,
@@ -198,7 +198,7 @@ namespace MongoDB.Driver.Core.Operations
         public void Execute_should_send_session_id_when_supported(
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet).VersionLessThan("4.8.0");
             EnsureTestData();
             var subject = new GeoSearchOperation<BsonDocument>(
                 _collectionNamespace,
@@ -218,7 +218,7 @@ namespace MongoDB.Driver.Core.Operations
         public void Execute_should_throw_when_maxTime_is_exceeded(
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet).VersionLessThan("4.8.0");
             var subject = new GeoSearchOperation<BsonDocument>(
                 _collectionNamespace,
                 new BsonArray { 1, 2 },
