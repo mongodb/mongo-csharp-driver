@@ -1638,7 +1638,6 @@ namespace MongoDB.Driver.Tests
         }
 #pragma warning restore
 
-        [Fact]
         [SkippableFact]
         public void TestGeoHaystackSearch()
         {
@@ -1676,7 +1675,6 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Fact]
         [SkippableFact]
         public void TestGeoHaystackSearchWithMaxTime()
         {
@@ -1711,7 +1709,6 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Fact]
         [SkippableFact]
         public void TestGeoHaystackSearch_Typed()
         {
