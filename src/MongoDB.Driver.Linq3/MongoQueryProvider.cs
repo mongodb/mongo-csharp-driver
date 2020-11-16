@@ -19,7 +19,7 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Linq3.Translators.QueryTranslators;
+using MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators;
 
 namespace MongoDB.Driver.Linq3
 {
@@ -101,13 +101,13 @@ namespace MongoDB.Driver.Linq3
 
         public override TResult Execute<TResult>(Expression expression)
         {
-            var executableQuery = QueryTranslator.TranslateScalarQuery<TDocument, TResult>(this, expression);
+            var executableQuery = ExpressionToExecutableQueryTranslator.TranslateScalar<TDocument, TResult>(this, expression);
             return executableQuery.Execute(_session, _cancellationToken);
         }
 
         public override Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
         {
-            var executableQuery = QueryTranslator.TranslateScalarQuery<TDocument, TResult>(this, expression);
+            var executableQuery = ExpressionToExecutableQueryTranslator.TranslateScalar<TDocument, TResult>(this, expression);
             return executableQuery.ExecuteAsync(_session, cancellationToken);
         }
 

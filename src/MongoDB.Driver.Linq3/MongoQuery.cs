@@ -20,7 +20,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Driver.Linq3.Translators.QueryTranslators;
+using MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators;
 
 namespace MongoDB.Driver.Linq3
 {
@@ -61,13 +61,13 @@ namespace MongoDB.Driver.Linq3
         // public methods
         public override IAsyncCursor<TOutput> Execute()
         {
-            var executableQuery = QueryTranslator.TranslateQuery<TDocument, TOutput>(_provider, _expression);
+            var executableQuery = ExpressionToExecutableQueryTranslator.Translate<TDocument, TOutput>(_provider, _expression);
             return executableQuery.Execute(_provider.Session, _provider.CancellationToken);
         }
 
         public override Task<IAsyncCursor<TOutput>> ExecuteAsync()
         {
-            var executableQuery = QueryTranslator.TranslateQuery<TDocument, TOutput>(_provider, _expression);
+            var executableQuery = ExpressionToExecutableQueryTranslator.Translate<TDocument, TOutput>(_provider, _expression);
             return executableQuery.ExecuteAsync(_provider.Session, _provider.CancellationToken);
         }
 
@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Linq3
         {
             try
             {
-                var executableQuery = QueryTranslator.TranslateQuery<TDocument, TOutput>(_provider, _expression);
+                var executableQuery = ExpressionToExecutableQueryTranslator.Translate<TDocument, TOutput>(_provider, _expression);
                 return $"[{string.Join(", ", executableQuery.Stages.Select(s => s.ToJson()))}]";
             }
             catch (Exception ex)

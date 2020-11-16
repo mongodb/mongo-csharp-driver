@@ -21,7 +21,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq3;
-using MongoDB.Driver.Linq3.Translators.QueryTranslators;
+using MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators;
 using Xunit;
 
 namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
@@ -267,7 +267,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             //return result.Stages;
 
             var provider = (MongoQueryProvider<TestObject>)queryable.Provider;
-            var executableQuery = QueryTranslator.TranslateQuery<TestObject, T>(provider, queryable.Expression);
+            var executableQuery = ExpressionToExecutableQueryTranslator.Translate<TestObject, T>(provider, queryable.Expression);
             return executableQuery.Stages;
         }
 
