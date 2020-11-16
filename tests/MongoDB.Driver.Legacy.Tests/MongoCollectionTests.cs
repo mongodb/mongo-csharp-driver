@@ -1639,8 +1639,10 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore
 
         [Fact]
+        [SkippableFact]
         public void TestGeoHaystackSearch()
         {
+            RequireServer.Check().VersionLessThan("4.8.0");
             if (_primary.InstanceType != MongoServerInstanceType.ShardRouter)
             {
                 _collection.Drop();
@@ -1675,8 +1677,10 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        [SkippableFact]
         public void TestGeoHaystackSearchWithMaxTime()
         {
+            RequireServer.Check().VersionLessThan("4.8.0");
             if (_primary.InstanceType != MongoServerInstanceType.ShardRouter)
             {
                 using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
@@ -1708,8 +1712,10 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        [SkippableFact]
         public void TestGeoHaystackSearch_Typed()
         {
+            RequireServer.Check().VersionLessThan("4.8.0");
             if (_primary.InstanceType != MongoServerInstanceType.ShardRouter)
             {
                 _collection.Drop();
