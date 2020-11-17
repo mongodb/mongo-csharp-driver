@@ -2,8 +2,10 @@
 #addin "nuget:?package=Cake.Git&version=0.19.0"
 #addin "nuget:?package=Cake.Incubator&version=3.1.0"
 #tool "nuget:?package=GitVersion.CommandLine&version=4.0.0"
+#tool nuget:?package=XunitXml.TestLogger&version=2.1.26
 #tool "nuget:?package=xunit.runner.console"
 
+using System;
 using System.Text.RegularExpressions;
 using System.Linq;
 
@@ -20,6 +22,7 @@ var artifactsDocsApiDocsDirectory = artifactsDocsDirectory.Combine("ApiDocs-" + 
 var artifactsDocsRefDocsDirectory = artifactsDocsDirectory.Combine("RefDocs-" + gitVersion.LegacySemVer);
 var artifactsPackagesDirectory = artifactsDirectory.Combine("packages");
 var docsDirectory = solutionDirectory.Combine("Docs");
+var outputDirectory = solutionDirectory.Combine("build");
 var docsApiDirectory = docsDirectory.Combine("Api");
 var srcDirectory = solutionDirectory.Combine("src");
 var testsDirectory = solutionDirectory.Combine("tests");
@@ -136,11 +139,13 @@ Task("Test")
             Console.WriteLine($"MONGO_X509_CLIENT_CERTIFICATE_PASSWORD={mongoX509ClientCertificatePassword}");
         }
 
+        var testResultsFile = outputDirectory.Combine("test-results").Combine($"TEST-{target.ToLowerInvariant()}-{DateTime.Now.ToLongTimeString()}.xml");
         var settings = new DotNetCoreTestSettings
         {
             NoBuild = true,
             NoRestore = true,
             Configuration = configuration,
+            Logger = $"\"xunit;LogFilePath={testResultsFile}\"",
             ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64")
         };
         switch (target.ToLowerInvariant())
