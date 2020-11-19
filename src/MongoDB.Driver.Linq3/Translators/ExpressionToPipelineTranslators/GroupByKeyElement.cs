@@ -15,21 +15,21 @@
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
 {
-    public class GroupByKeyValue<TKey, TValue>
+    public class GroupByKeyElement<TKey, TElement>
     {
         // private fields
         private readonly TKey _key;
-        private readonly TValue _value;
+        private readonly TElement _element;
 
         // constructors
-        public GroupByKeyValue(TKey key, TValue value)
+        public GroupByKeyElement(TKey key, TElement element)
         {
             _key = key;
-            _value = value; // can be null
+            _element = element; // can be null
         }
 
         // public properties
         public TKey Key => _key;
-        public TValue Value => _value;
+        public TElement Element => _element;
     }
 }

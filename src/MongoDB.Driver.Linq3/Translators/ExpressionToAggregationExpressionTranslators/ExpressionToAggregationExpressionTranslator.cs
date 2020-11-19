@@ -17,7 +17,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
+using MongoDB.Driver.Linq3.Ast;
+using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Misc;
+using MongoDB.Driver.Linq3.Serializers;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslators
 {
@@ -76,12 +79,46 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             throw new ExpressionNotSupportedException(expression);
         }
 
+        public static AggregationExpression TranslateEnumerable(TranslationContext context, Expression expression)
+        {
+            var aggregateExpression = Translate(context, expression);
+
+            var serializer = aggregateExpression.Serializer;
+            if (serializer is IWrappedEnumerableSerializer wrappedEnumerableSerializer)
+            {
+                var enumerableFieldName = wrappedEnumerableSerializer.EnumerableFieldName;
+                var enumerableElementSerializer = wrappedEnumerableSerializer.EnumerableElementSerializer;
+                var enumerableSerializer = IEnumerableSerializer.Create(enumerableElementSerializer);
+                var ast = CreateFieldReference(aggregateExpression.Ast, enumerableFieldName);
+                return new AggregationExpression(aggregateExpression.Expression, ast, enumerableSerializer);
+            }
+
+            return aggregateExpression;
+        }
+
         public static AggregationExpression TranslateLambdaBody(TranslationContext context, LambdaExpression lambdaExpression, IBsonSerializer parameterSerializer)
         {
             var parameterExpression = lambdaExpression.Parameters.Single();
             var parameterSymbol = new Symbol(parameterExpression.Name, parameterSerializer);
             var lambdaContext = context.WithSymbolAsCurrent(parameterExpression, parameterSymbol);
             return Translate(lambdaContext, lambdaExpression.Body);
+        }
+
+        // TODO: this probably needs to be moved to a helper class so that it can be used in more places
+        private static AstExpression CreateFieldReference(AstExpression astExpression, string fieldName)
+        {
+            if (astExpression is AstFieldExpression astFieldExpression)
+            {
+                var containerFieldName = astFieldExpression.Field;
+                var combinedFieldName = TranslatedFieldHelper.Combine(containerFieldName, fieldName);
+                return new AstFieldExpression(combinedFieldName);
+            }
+            else
+            {
+                return new AstLetExpression(
+                    vars: new[] { new AstComputedField("_container", astExpression) },
+                    @in: new AstFieldExpression($"$$_container.{fieldName}"));
+            }
         }
     }
 }

@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             if (method.IsOneOf(EnumerableMethod.First, EnumerableMethod.Last))
             {
                 var sourceExpression = expression.Arguments[0];
-                var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
+                var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
 
                 var index = method.Name == "First" ? 0 : -1;
                 var ast = new AstBinaryExpression(AstBinaryOperator.ArrayElemAt, sourceTranslation.Ast, index);

@@ -53,6 +53,7 @@ namespace MongoDB.Driver.Linq3.Ast
         IndexOfBytesExpression,
         IndexOfCPExpression,
         IndexStatsStage,
+        InFilter,
         LetExpression,
         LimitStage,
         ListLocalSessionsStage,

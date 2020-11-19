@@ -23,21 +23,31 @@ namespace MongoDB.Driver.Linq3.Serializers
 {
     public interface IWrappedValueSerializer
     {
+        string FieldName { get; }
         IBsonSerializer ValueSerializer { get; }
     }
 
     public class WrappedValueSerializer<TValue> : SerializerBase<TValue>, IWrappedValueSerializer, IBsonArraySerializer, IBsonDocumentSerializer
     {
         // private fields
+        private readonly string _fieldName;
         private readonly IBsonSerializer<TValue> _valueSerializer;
 
         // constructors
         public WrappedValueSerializer(IBsonSerializer<TValue> valueSerializer)
+            : this("_v", valueSerializer)
         {
+        }
+
+        public WrappedValueSerializer(string fieldName, IBsonSerializer<TValue> valueSerializer)
+        {
+            _fieldName = Ensure.IsNotNull(fieldName, nameof(fieldName));
             _valueSerializer = Ensure.IsNotNull(valueSerializer, nameof(valueSerializer));
         }
 
         // public properties
+        public string FieldName => _fieldName;
+
         public IBsonSerializer<TValue> ValueSerializer => _valueSerializer;
 
         IBsonSerializer IWrappedValueSerializer.ValueSerializer => _valueSerializer;
@@ -47,7 +57,7 @@ namespace MongoDB.Driver.Linq3.Serializers
         {
             var reader = context.Reader;
             reader.ReadStartDocument();
-            reader.ReadName("_v");
+            reader.ReadName(_fieldName);
             var value = _valueSerializer.Deserialize(context);
             reader.ReadEndDocument();
             return value;
@@ -57,7 +67,7 @@ namespace MongoDB.Driver.Linq3.Serializers
         {
             var writer = context.Writer;
             writer.WriteStartDocument();
-            writer.WriteName("_v");
+            writer.WriteName(_fieldName);
             _valueSerializer.Serialize(context, value);
             writer.WriteEndDocument();
         }
@@ -79,7 +89,7 @@ namespace MongoDB.Driver.Linq3.Serializers
             {
                 if (documentSerializer.TryGetMemberSerializationInfo(memberName, out serializationInfo))
                 {
-                    var wrappedElementName = "_v." + serializationInfo.ElementName;
+                    var wrappedElementName = $"{_fieldName}.{serializationInfo.ElementName}";
                     serializationInfo = new BsonSerializationInfo(wrappedElementName, serializationInfo.Serializer, serializationInfo.NominalType);
                     return true;
                 }
@@ -94,9 +104,14 @@ namespace MongoDB.Driver.Linq3.Serializers
     {
         public static IBsonSerializer Create(IBsonSerializer valueSerializer)
         {
+            return Create("_v", valueSerializer);
+        }
+
+        public static IBsonSerializer Create(string fieldName, IBsonSerializer valueSerializer)
+        {
             var valueType = valueSerializer.ValueType;
             var wrappedValueSerializerType = typeof(WrappedValueSerializer<>).MakeGenericType(valueType);
-            return (IBsonSerializer)Activator.CreateInstance(wrappedValueSerializerType, valueSerializer);
+            return (IBsonSerializer)Activator.CreateInstance(wrappedValueSerializerType, fieldName, valueSerializer);
         }
     }
 }

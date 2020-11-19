@@ -39,6 +39,11 @@ namespace MongoDB.Driver.Linq3.Translators
         public SymbolTable SymbolTable => _symbolTable;
 
         // public methods
+        public override string ToString()
+        {
+            return $"{{ SymbolTable : {_symbolTable} }}";
+        }
+
         public TranslationContext WithSymbol(ParameterExpression parameter, Symbol symbol)
         {
             var newSymbolTable = _symbolTable.WithSymbol(parameter, symbol);

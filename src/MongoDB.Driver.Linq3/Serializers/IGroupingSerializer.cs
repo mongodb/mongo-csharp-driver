@@ -20,10 +20,11 @@ using MongoDB.Driver.Linq3.Misc;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using static MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators.MaxOrMinMethodToAggregationExpressionTranslator;
 
 namespace MongoDB.Driver.Linq3.Serializers
 {
-    public class IGroupingSerializer<TKey, TElement> : SerializerBase<IGrouping<TKey, TElement>>, IBsonDocumentSerializer
+    public class IGroupingSerializer<TKey, TElement> : SerializerBase<IGrouping<TKey, TElement>>, IBsonDocumentSerializer, IWrappedEnumerableSerializer
     {
         // private fields
         private readonly IBsonSerializer<TElement> _elementSerializer;
@@ -35,6 +36,11 @@ namespace MongoDB.Driver.Linq3.Serializers
             _keySerializer = Throw.IfNull(keySerializer, nameof(keySerializer));
             _elementSerializer = Throw.IfNull(elementSerializer, nameof(elementSerializer));
         }
+
+        // public properties
+        public string EnumerableFieldName => "_elements";
+
+        public IBsonSerializer EnumerableElementSerializer => _elementSerializer;
 
         // public methods
         public override IGrouping<TKey, TElement> Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)

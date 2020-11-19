@@ -34,13 +34,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
             if (method.Is(QueryableMethod.Select))
             {
                 var sourceExpression = arguments[0];
-
-                if (sourceExpression is MethodCallExpression sourceMethodCallExpression &&
-                    sourceMethodCallExpression.Method.Is(QueryableMethod.GroupByWithKeySelector))
-                {
-                    return GroupByMethodToPipelineTranslator.TranslateGroupByAndSelectTogether(context, groupByExpression: sourceMethodCallExpression, selectExpression: expression);
-                }
-
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
 
                 var selectorLambdaExpression = ExpressionHelper.Unquote(arguments[1]);
