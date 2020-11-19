@@ -61,6 +61,11 @@ namespace MongoDB.Driver.Linq3.Misc
             return GetEnumerator();
         }
 
+        public override string ToString()
+        {
+            return $"{{ Current : {_current}, Symbols : [{string.Join(", ", _symbols.Values)}] }}";
+        }
+
         public bool TryGetSymbol(ParameterExpression parameter, out Symbol symbol)
         {
             return _symbols.TryGetValue(parameter, out symbol);

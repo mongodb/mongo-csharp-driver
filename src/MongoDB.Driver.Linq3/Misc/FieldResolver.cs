@@ -71,6 +71,25 @@ namespace MongoDB.Driver.Linq3.Misc
                     }
                 }
             }
+            else if (expression is MethodCallExpression methodCallExpression)
+            {
+                var method = methodCallExpression.Method;
+                var arguments = methodCallExpression.Arguments;
+                var parameters = method.GetParameters();
+
+                if (method.IsStatic &&
+                    method.Name == "First" &&
+                    parameters.Length == 1)
+                {
+                    var containingField = ResolveField(arguments[0], symbolTable);
+                    var dottedFieldName = Combine(containingField.DottedFieldName, "0");
+                    var itemSerializer = ArraySerializerHelper.GetItemSerializer(containingField.Serializer);
+                    if (method.ReturnType == itemSerializer.ValueType)
+                    {
+                        return new ResolvedField(expression, dottedFieldName, itemSerializer);
+                    }
+                }
+            }
 
             throw new ExpressionNotSupportedException(expression);
         }

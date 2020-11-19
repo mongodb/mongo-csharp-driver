@@ -33,11 +33,13 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 var sourceExpression = arguments[0];
 
                 var @operator = method.Name == "Max" ? AstUnaryOperator.Max : AstUnaryOperator.Min;
-                var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
+                var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
                 AstExpression ast;
+                IBsonSerializer serializer;
                 if (arguments.Count == 1)
                 {
                     ast = new AstUnaryExpression(@operator, sourceTranslation.Ast);
+                    serializer = sourceTranslation.Serializer;
                 }
                 else
                 {
@@ -53,8 +55,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                             input: sourceTranslation.Ast,
                             @as: selectorParameter.Name,
                             @in: selectorTranslation.Ast));
+                    serializer = selectorTranslation.Serializer;
                 }
-                var serializer = BsonSerializer.LookupSerializer(expression.Type);
 
                 return new AggregationExpression(expression, ast, serializer);
             }

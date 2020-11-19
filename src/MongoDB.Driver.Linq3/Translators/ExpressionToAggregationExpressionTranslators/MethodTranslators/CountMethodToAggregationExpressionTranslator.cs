@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             {
                 var sourceExpression = expression.Arguments[0];
 
-                var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
+                var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
                 var ast = (AstExpression)new AstUnaryExpression(AstUnaryOperator.Size, sourceTranslation.Ast);
                 IBsonSerializer serializer;
                 if (expression.Type == typeof(int))

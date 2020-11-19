@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 var sourceExpression = expression.Arguments[0];
                 var selectorExpression = (LambdaExpression)expression.Arguments[1];
 
-                var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
+                var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
                 var selectorParameter = selectorExpression.Parameters[0];
                 var selectorParameterSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
                 var selectorContext = context.WithSymbol(selectorParameter, new Symbol("$" + selectorParameter.Name, selectorParameterSerializer));

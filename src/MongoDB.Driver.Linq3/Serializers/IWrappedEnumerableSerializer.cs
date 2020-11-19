@@ -15,27 +15,11 @@
 
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Driver.Linq3.Misc
+namespace MongoDB.Driver.Linq3.Serializers
 {
-    public class Symbol
+    public interface IWrappedEnumerableSerializer
     {
-        // private fields
-        private readonly string _name;
-        private readonly IBsonSerializer _serializer;
-
-        // constructors
-        public Symbol(string name, IBsonSerializer serializer)
-        {
-            _name = Throw.IfNullOrEmpty(name, nameof(name));
-            _serializer = Throw.IfNull(serializer, nameof(serializer));
-        }
-
-        // public properties
-        public string Name => _name;
-
-        public IBsonSerializer Serializer => _serializer;
-
-        // public methods
-        public override string ToString() => $"\"{_name}\"";
+        string EnumerableFieldName { get; }
+        IBsonSerializer EnumerableElementSerializer { get; }
     }
 }

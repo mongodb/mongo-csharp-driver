@@ -22,60 +22,60 @@ using MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators;
 
 namespace MongoDB.Driver.Linq3.Serializers
 {
-    public interface IGroupByKeyValueSerializer : IBsonSerializer
+    public interface IGroupByKeyElementSerializer : IBsonSerializer
     {
         IBsonSerializer KeySerializer { get; }
-        IBsonSerializer ValueSerializer { get; }
+        IBsonSerializer ElementSerializer { get; }
     }
 
-    public static class GroupByKeyValueSerializer
+    public static class GroupByKeyElementSerializer
     {
-        public static IGroupByKeyValueSerializer Create(IBsonSerializer keySerializer, IBsonSerializer valueSerializer)
+        public static IGroupByKeyElementSerializer Create(IBsonSerializer keySerializer, IBsonSerializer elementSerializer)
         {
-            var serializerType = typeof(GroupByKeyValueSerializer<,>).MakeGenericType(keySerializer.ValueType, valueSerializer.ValueType);
-            return (IGroupByKeyValueSerializer)Activator.CreateInstance(serializerType, keySerializer, valueSerializer);
+            var serializerType = typeof(GroupByKeyElementSerializer<,>).MakeGenericType(keySerializer.ValueType, elementSerializer.ValueType);
+            return (IGroupByKeyElementSerializer)Activator.CreateInstance(serializerType, keySerializer, elementSerializer);
         }
     }
 
-    public class GroupByKeyValueSerializer<TKey, TValue> : SerializerBase<GroupByKeyValue<TKey, TValue>>, IGroupByKeyValueSerializer, IBsonDocumentSerializer
+    public class GroupByKeyElementSerializer<TKey, TElement> : SerializerBase<GroupByKeyElement<TKey, TElement>>, IGroupByKeyElementSerializer, IBsonDocumentSerializer
     {
         // private fields
         private readonly IBsonSerializer<TKey> _keySerializer;
-        private readonly IBsonSerializer<TValue> _valueSerializer;
+        private readonly IBsonSerializer<TElement> _elementSerializer;
 
         // constructors
-        public GroupByKeyValueSerializer(IBsonSerializer<TKey> keySerializer, IBsonSerializer<TValue> valueSerializer)
+        public GroupByKeyElementSerializer(IBsonSerializer<TKey> keySerializer, IBsonSerializer<TElement> elementSerializer)
         {
             _keySerializer = Throw.IfNull(keySerializer, nameof(keySerializer));
-            _valueSerializer = Throw.IfNull(valueSerializer, nameof(valueSerializer));
+            _elementSerializer = Throw.IfNull(elementSerializer, nameof(elementSerializer));
         }
 
         // public properties
         public IBsonSerializer KeySerializer => _keySerializer;
-        public IBsonSerializer ValueSerializer => _valueSerializer;
+        public IBsonSerializer ElementSerializer => _elementSerializer;
 
         // public methods
-        public override GroupByKeyValue<TKey, TValue> Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+        public override GroupByKeyElement<TKey, TElement> Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var reader = context.Reader;
             reader.ReadStartDocument();
             reader.ReadName("_key");
             var key = _keySerializer.Deserialize(context);
-            reader.ReadName("_v");
-            var value = _valueSerializer.Deserialize(context);
+            reader.ReadName("_element");
+            var element = _elementSerializer.Deserialize(context);
             reader.ReadEndDocument();
 
-            return new GroupByKeyValue<TKey, TValue>(key, value);
+            return new GroupByKeyElement<TKey, TElement>(key, element);
         }
 
-        public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, GroupByKeyValue<TKey, TValue> value)
+        public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, GroupByKeyElement<TKey, TElement> value)
         {
             var writer = context.Writer;
             writer.WriteStartDocument();
             writer.WriteName("_key");
             _keySerializer.Serialize(context, value.Key);
-            writer.WriteName("_v");
-            _valueSerializer.Serialize(context, value);
+            writer.WriteName("_element");
+            _elementSerializer.Serialize(context, value.Element);
             writer.WriteEndDocument();
         }
 
@@ -87,8 +87,8 @@ namespace MongoDB.Driver.Linq3.Serializers
                     serializationInfo = new BsonSerializationInfo("_key", _keySerializer, typeof(TKey));
                     return true;
 
-                case "Value":
-                    serializationInfo = new BsonSerializationInfo("_v", _valueSerializer, typeof(TValue));
+                case "Element":
+                    serializationInfo = new BsonSerializationInfo("_element", _elementSerializer, typeof(TElement));
                     return true;
 
                 default:

@@ -32,6 +32,9 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                 case ExpressionType.AndAlso:
                     return AndExpressionToFilterTranslator.Translate(context, (BinaryExpression)expression);
 
+                case ExpressionType.Call:
+                    return MethodCallExpressionToFilterTranslator.Translate(context, (MethodCallExpression)expression);
+
                 case ExpressionType.Equal:
                 case ExpressionType.GreaterThan:
                 case ExpressionType.GreaterThanOrEqual:

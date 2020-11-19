@@ -59,8 +59,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
 
                 var keySelectorLambdaExpression = ExpressionHelper.Unquote(arguments[1]);
-                var keySelectorContext = context.WithSymbolAsCurrent(keySelectorLambdaExpression.Parameters[0], new Symbol("$ROOT", pipeline.OutputSerializer));
-                var keySelectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(keySelectorContext, keySelectorLambdaExpression.Body);
+                var keySelectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, keySelectorLambdaExpression, pipeline.OutputSerializer);
                 var keySerializer = keySelectorTranslation.Serializer;
 
                 if (method.Is(QueryableMethod.GroupByWithKeySelector))
@@ -70,9 +69,13 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
 
                     pipeline.AddStages(
                         groupingSerializer,
+                        new AstProjectStage(
+                            new AstProjectStageComputedFieldSpecification(new AstComputedField("_key", keySelectorTranslation.Ast)),
+                            new AstProjectStageComputedFieldSpecification(new AstComputedField("_element", new AstFieldExpression("$$ROOT"))),
+                            new AstProjectStageExcludeIdSpecification()),
                         new AstGroupStage(
-                            keySelectorTranslation.Ast,
-                            new[] { new AstComputedField("_elements", new AstUnaryExpression(AstUnaryOperator.Push, new AstFieldExpression("$$ROOT"))) }));
+                            new AstFieldExpression("$_key"),
+                            new AstComputedField("_elements", new AstUnaryExpression(AstUnaryOperator.Push, new AstFieldExpression("$_element")))));
 
                     return pipeline;
                 }
@@ -96,11 +99,11 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
 
                 if (method.Is(QueryableMethod.GroupByWithKeySelectorAndResultSelector))
                 {
-                    var keyValueSerializer = AddKeyValueStage(context, pipeline, keySelectorTranslation);
+                    var keyElementSerializer = AddKeyElementStage(context, pipeline, keySelectorTranslation);
 
                     var resultSelectorLambdaExpression = ExpressionHelper.Unquote(arguments[2]);
                     var keyParameter = resultSelectorLambdaExpression.Parameters[0];
-                    var accumulatorFields = TranslateAccumulatorFields(context, resultSelectorLambdaExpression, keyParameter, keyValueSerializer, out var outputSerializer);
+                    var accumulatorFields = TranslateAccumulatorFields(context, resultSelectorLambdaExpression, keyParameter, keyElementSerializer, out var outputSerializer);
 
                     pipeline.AddStages(
                         outputSerializer,
@@ -116,73 +119,47 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
             throw new ExpressionNotSupportedException(expression);
         }
 
-        public static Pipeline TranslateGroupByAndSelectTogether(TranslationContext context, MethodCallExpression groupByExpression, MethodCallExpression selectExpression)
-        {
-            if (groupByExpression.Method.Is(QueryableMethod.GroupByWithKeySelector) && selectExpression.Method.Is(QueryableMethod.Select))
-            {
-                var sourceExpression = groupByExpression.Arguments[0];
-                var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
-
-                var keySelectorLambdaExpression = ExpressionHelper.Unquote(groupByExpression.Arguments[1]);
-                var keyValueSerializer = AddKeyValueStage(context, pipeline, keySelectorLambdaExpression);
-
-                var selectorLambdaExpression = ExpressionHelper.Unquote(selectExpression.Arguments[1]);
-                var accumulatorFields = TranslateAccumulatorFields(context, selectorLambdaExpression, keyParameterExpression: null, keyValueSerializer, out var outputSerializer);
-
-                pipeline.AddStages(
-                    outputSerializer,
-                    new AstGroupStage(
-                        id: new AstFieldExpression("$_key"),
-                        accumulatorFields),
-                    new AstProjectStage(new AstProjectStageExcludeIdSpecification()));
-
-                return pipeline;
-            }
-
-            throw new ExpressionNotSupportedException(selectExpression);
-        }
-
         // private methods
-        private static IGroupByKeyValueSerializer AddKeyValueStage(TranslationContext context, Pipeline pipeline, LambdaExpression keySelectorLambda)
+        private static IGroupByKeyElementSerializer AddKeyElementStage(TranslationContext context, Pipeline pipeline, LambdaExpression keySelectorLambda)
         {
             var keySelectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, keySelectorLambda, pipeline.OutputSerializer);
-            return AddKeyValueStage(context, pipeline, keySelectorTranslation);
+            return AddKeyElementStage(context, pipeline, keySelectorTranslation);
         }
 
-        private static IGroupByKeyValueSerializer AddKeyValueStage(TranslationContext context, Pipeline pipeline, AggregationExpression keySelectorTranslation)
+        private static IGroupByKeyElementSerializer AddKeyElementStage(TranslationContext context, Pipeline pipeline, AggregationExpression keySelectorTranslation)
         {
-            var valueAst = new AstFieldExpression("$$ROOT");
-            var valueSerializer = pipeline.OutputSerializer;
-            if (valueSerializer is IWrappedValueSerializer wrappedValueSerializer)
+            var elementAst = new AstFieldExpression("$$ROOT");
+            var elementSerializer = pipeline.OutputSerializer;
+            if (elementSerializer is IWrappedValueSerializer wrappedValueSerializer)
             {
-                valueAst = new AstFieldExpression("$_v");
-                valueSerializer = wrappedValueSerializer.ValueSerializer;
+                elementAst = new AstFieldExpression(wrappedValueSerializer.FieldName);
+                elementSerializer = wrappedValueSerializer.ValueSerializer;
             }
 
-            var groupByKeyValueSerializer = GroupByKeyValueSerializer.Create(keySelectorTranslation.Serializer, valueSerializer);
+            var groupByKeyElementSerializer = GroupByKeyElementSerializer.Create(keySelectorTranslation.Serializer, elementSerializer);
             pipeline.AddStages(
-                groupByKeyValueSerializer,
+                groupByKeyElementSerializer,
                 new AstProjectStage(
                     new AstProjectStageComputedFieldSpecification(new AstComputedField("_key", keySelectorTranslation.Ast)),
-                    new AstProjectStageComputedFieldSpecification(new AstComputedField("_v", valueAst)),
+                    new AstProjectStageComputedFieldSpecification(new AstComputedField("_element", elementAst)),
                     new AstProjectStageExcludeIdSpecification()));
 
-            return groupByKeyValueSerializer;
+            return groupByKeyElementSerializer;
         }
 
-        private static List<AstComputedField> TranslateAccumulatorFields(TranslationContext context, LambdaExpression selectorLambda, ParameterExpression keyParameterExpression, IGroupByKeyValueSerializer keyValueSerializer, out IBsonSerializer outputSerializer)
+        private static List<AstComputedField> TranslateAccumulatorFields(TranslationContext context, LambdaExpression selectorLambda, ParameterExpression keyParameterExpression, IGroupByKeyElementSerializer keyElementSerializer, out IBsonSerializer outputSerializer)
         {
             var body = selectorLambda.Body;
 
             if (body is NewExpression newExpression)
             {
-                return TranslateSelectorNewExpression(context, newExpression, keyParameterExpression, keyValueSerializer, out outputSerializer);
+                return TranslateSelectorNewExpression(context, newExpression, keyParameterExpression, keyElementSerializer, out outputSerializer);
             }
 
             throw new ExpressionNotSupportedException(selectorLambda);
         }
 
-        private static List<AstComputedField> TranslateSelectorNewExpression(TranslationContext context, NewExpression newExpression, ParameterExpression keyParameterExpression, IGroupByKeyValueSerializer keyValueSerializer, out IBsonSerializer outputSerializer)
+        private static List<AstComputedField> TranslateSelectorNewExpression(TranslationContext context, NewExpression newExpression, ParameterExpression keyParameterExpression, IGroupByKeyElementSerializer keyElementSerializer, out IBsonSerializer outputSerializer)
         {
             var accumulatorFields = new List<AstComputedField>();
             var classMap = new BsonClassMap(newExpression.Type);
@@ -191,7 +168,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
             {
                 var member = newExpression.Members[i];
                 var accumulatorExpression = newExpression.Arguments[i];
-                var accumulatorTranslation = TranslateAccumulatorExpression(context, accumulatorExpression, keyParameterExpression, keyValueSerializer);
+                var accumulatorTranslation = TranslateAccumulatorExpression(context, accumulatorExpression, keyParameterExpression, keyElementSerializer);
                 var accumulatorComputedField = new AstComputedField(member.Name, accumulatorTranslation.Ast);
                 accumulatorFields.Add(accumulatorComputedField);
                 classMap.MapMember(member).SetSerializer(accumulatorTranslation.Serializer);
@@ -204,12 +181,12 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
             return accumulatorFields;
         }
 
-        private static AggregationExpression TranslateAccumulatorExpression(TranslationContext context, Expression accumulatorExpression, ParameterExpression keyParameterExpression, IGroupByKeyValueSerializer keyValueSerializer)
+        private static AggregationExpression TranslateAccumulatorExpression(TranslationContext context, Expression accumulatorExpression, ParameterExpression keyParameterExpression, IGroupByKeyElementSerializer keyElementSerializer)
         {
             if (accumulatorExpression == keyParameterExpression)
             {
                 var ast = new AstUnaryExpression(AstUnaryOperator.First, new AstFieldExpression("$_key"));
-                return new AggregationExpression(accumulatorExpression, ast, keyValueSerializer.KeySerializer);
+                return new AggregationExpression(accumulatorExpression, ast, keyElementSerializer.KeySerializer);
             }
 
             if (accumulatorExpression is MemberExpression memberExpression)
@@ -220,7 +197,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                     if (memberExpression.Member.Name == "Key")
                     {
                         var ast = new AstUnaryExpression(AstUnaryOperator.First, new AstFieldExpression("$_key"));
-                        return new AggregationExpression(accumulatorExpression, ast, keyValueSerializer.KeySerializer);
+                        return new AggregationExpression(accumulatorExpression, ast, keyElementSerializer.KeySerializer);
                     }
                 }
             }
@@ -247,8 +224,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                         if (method.Name == "Min" && method.DeclaringType == typeof(Enumerable))
                         {
                             var selectorLambda = (LambdaExpression)arguments[1];
-                            var wrappedValueSerializer = WrappedValueSerializer.Create(keyValueSerializer.ValueSerializer);
-                            var selectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, selectorLambda, wrappedValueSerializer);
+                            var elementSerializer = WrappedValueSerializer.Create("_element", keyElementSerializer.ElementSerializer);
+                            var selectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, selectorLambda, elementSerializer);
                             var minAst = new AstUnaryExpression(AstUnaryOperator.Min, selectorTranslation.Ast);
                             return new AggregationExpression(accumulatorExpression, minAst, selectorTranslation.Serializer);
                         }
