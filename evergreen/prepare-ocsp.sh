@@ -11,8 +11,7 @@ if [ "$OSTYPE" = "cygwin" ]; then
   /cygdrive/c/python/python38/python.exe -m venv ./venv
   ./venv/Scripts/pip3 install -r ${DRIVERS_TOOLS}/.evergreen/ocsp/mock-ocsp-responder-requirements.txt
 else
-  which python
-  ls -la /opt/python
-  /opt/python/2.7/bin/python -m venv ./venv
-  ./venv/Scripts/pip3 install -r ${DRIVERS_TOOLS}/.evergreen/ocsp/mock-ocsp-responder-requirements.txt
+  # Need to ensure on Linux python is installed in the correct place and visible to the script.
+  # /opt/python/2.7/bin/python -m venv ./venv
+  # ./venv/Scripts/pip3 install -r ${DRIVERS_TOOLS}/.evergreen/ocsp/mock-ocsp-responder-requirements.txt
 fi
