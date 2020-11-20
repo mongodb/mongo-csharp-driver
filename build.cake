@@ -23,7 +23,6 @@ var artifactsDocsApiDocsDirectory = artifactsDocsDirectory.Combine("ApiDocs-" + 
 var artifactsDocsRefDocsDirectory = artifactsDocsDirectory.Combine("RefDocs-" + gitVersion.LegacySemVer);
 var artifactsPackagesDirectory = artifactsDirectory.Combine("packages");
 var docsDirectory = solutionDirectory.Combine("Docs");
-var outputDirectory = solutionDirectory.Combine("build");
 var docsApiDirectory = docsDirectory.Combine("Api");
 var srcDirectory = solutionDirectory.Combine("src");
 var testsDirectory = solutionDirectory.Combine("tests");
@@ -145,8 +144,6 @@ Task("Test")
             NoBuild = true,
             NoRestore = true,
             Configuration = configuration,
-            Logger = "trx",
-            ResultsDirectory = outputDirectory.Combine("test-results"),
             ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64")
         };
         switch (target.ToLowerInvariant())
