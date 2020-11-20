@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Linq3.Misc
                     method.Name == "First" &&
                     parameters.Length == 1)
                 {
-                    var containingField = ResolveField(arguments[0], symbolTable);
+                    var containingField = ResolveFieldEnumerable(arguments[0], symbolTable);
                     var dottedFieldName = Combine(containingField.DottedFieldName, "0");
                     var itemSerializer = ArraySerializerHelper.GetItemSerializer(containingField.Serializer);
                     if (method.ReturnType == itemSerializer.ValueType)
@@ -92,6 +92,20 @@ namespace MongoDB.Driver.Linq3.Misc
             }
 
             throw new ExpressionNotSupportedException(expression);
+        }
+
+        public static ResolvedField ResolveFieldEnumerable(Expression expression, SymbolTable symbolTable)
+        {
+            var resolvedField = ResolveField(expression, symbolTable);
+            var serializer = resolvedField.Serializer;
+            if (serializer is IWrappedEnumerableSerializer wrappedEnumerableSerializer)
+            {
+                var combinedFieldName = Combine(resolvedField.DottedFieldName, wrappedEnumerableSerializer.EnumerableFieldName);
+                var enumerableSerializer = IEnumerableSerializer.Create(wrappedEnumerableSerializer.EnumerableElementSerializer);
+                return new ResolvedField(expression, combinedFieldName, enumerableSerializer);
+            }
+
+            return resolvedField;
         }
 
         // private methods

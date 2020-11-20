@@ -130,7 +130,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
                 "{ $match : { B : { $in : ['Baloon', 'Balloon'] } } }",
                 "{ $project : { _key : '$A', _element : '$$ROOT', _id : 0 } }",
                 "{ $group : { '_id': '$_key', _elements : { $push : '$_element' } } }",
-                "{ $project : { _v : { $max : '$_elements.C' }, _id : 0 } }");
+                "{ $project : { _v : { $max : '$_elements.C' }, _id : 0 } }"); // TODO: push accumulator back to $group
         }
 
         [Fact]
@@ -372,7 +372,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
                 2,
                 "{ $project : { _key : '$A', _element : '$$ROOT', _id : 0 } }",
                 "{ $group : { _id : '$_key', _elements : { $push : '$_element' } } }",
-                "{ $project : { A : '$_id', Count : { $size : '$_elements' }, Min : { $min : '$_elements.U' }, _id : 0 } }");
+                "{ $project : { A : '$_id', Count : { $size : '$_elements' }, Min : { $min : '$_elements.U' }, _id : 0 } }"); // TODO: push accumulator back to $group
 
             query = CreateQuery()
                 .GroupBy(x => x.A, (key, x) => new { A = key, Count = x.Count(), Min = x.Min(y => y.U) });
@@ -410,7 +410,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
                 2,
                 "{ $project : { _key : '$A', _element : '$$ROOT', _id : 0 } }",
                 "{ $group : { _id : '$_key', _elements : { $push : '$_element' } } }",
-                "{ $project : { Key : '$_id', FirstB : { $let : { vars : { this : { $arrayElemAt : ['$_elements', 0] } }, in : '$$this.B' } }, _id : 0 } }");
+                "{ $project : { Key : '$_id', FirstB : { $let : { vars : { this : { $arrayElemAt : ['$_elements', 0] } }, in : '$$this.B' } }, _id : 0 } }"); // TODO: push accumulator back to $group
 
             query = CreateQuery()
                 .GroupBy(x => x.A)
@@ -435,7 +435,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
                 2,
                 "{ $project : { _key : '$A', _element : '$$ROOT', _id : 0 } }",
                 "{ $group : { _id : '$_key', _elements : { $push : '$_element' } } }",
-                "{ $project : { Key : '$_id', FirstB : { $let : { vars : { this : { $arrayElemAt : ['$_elements', 0] } }, in : '$$this.B' } }, _id : 0 } }");
+                "{ $project : { Key : '$_id', FirstB : { $let : { vars : { this : { $arrayElemAt : ['$_elements', 0] } }, in : '$$this.B' } }, _id : 0 } }"); // TODO: push accumulator back to $group
         }
 #endif
 
@@ -477,9 +477,10 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 1,
-                "{ $group: { _id: '$A', __agg0: { $first: '$B'} } }",
-                "{ $match: { __agg0: 'Balloon' } }",
-                "{ $project: { Key: '$_id', FirstB: '$__agg0', _id: 0 } }");
+                "{ $project : { _key : '$A', _element : '$$ROOT', _id : 0 } }",
+                "{ $group : { _id : '$_key', _elements : { $push : '$_element' } } }",
+                "{ $match : { '_elements.0.B' : 'Balloon' } }",
+                "{ $project : { Key : '$_id', FirstB : { $let : { vars : { this : { $arrayElemAt : ['$_elements', 0] } }, in : '$$this.B' } }, _id : 0 } }");
         }
 
 #if !MONO
@@ -493,9 +494,10 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 1,
-                "{ $group: { _id: '$A', __agg0: { $first: '$B'} } }",
-                "{ $match: { __agg0: 'Balloon' } }",
-                "{ $project: { Key: '$_id', FirstB: '$__agg0', _id: 0 } }");
+                "{ $project : { _key : '$A', _element : '$$ROOT', _id : 0 } }",
+                "{ $group : { _id : '$_key', _elements : { $push : '$_element' } } }",
+                "{ $match : { '_elements.0.B' : 'Balloon' } }",
+                "{ $project : { Key : '$_id', FirstB : { $let : { vars : { this : { $arrayElemAt : ['$_elements', 0] } }, in : '$$this.B' } }, _id : 0 } }");
         }
 #endif
 
