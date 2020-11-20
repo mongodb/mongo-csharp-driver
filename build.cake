@@ -187,42 +187,6 @@ Task("TestAwsAuthentication")
             );
         });
 
-Task("TestPlainAuthentication")
-    .IsDependentOn("Build")
-    .DoesForEach(
-        GetFiles("./**/MongoDB.Driver.Tests.csproj"),
-        testProject =>
-        {
-            DotNetCoreTest(
-                testProject.FullPath,
-                new DotNetCoreTestSettings {
-                    NoBuild = true,
-                    NoRestore = true,
-                    Configuration = configuration,
-                    ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
-                    Filter = "Category=\"PlainMechanism\""
-                }
-            );
-        });
-
-Task("TestGSSAPIAuthentication")
-    .IsDependentOn("Build")
-    .DoesForEach(
-        GetFiles("./**/MongoDB.Driver.Tests.csproj"),
-        testProject =>
-        {
-            DotNetCoreTest(
-                testProject.FullPath,
-                new DotNetCoreTestSettings {
-                    NoBuild = true,
-                    NoRestore = true,
-                    Configuration = configuration,
-                    ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
-                    Filter = "Category=\"GssapiMechanism\""
-                }
-            );
-        });
-
 // currently we are not running this Task on Evergreen (only locally occassionally)
 Task("TestAllGuidRepresentations")
     .IsDependentOn("Build")
