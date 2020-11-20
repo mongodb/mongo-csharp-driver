@@ -131,7 +131,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                 else
                 {
                     Throw.If(!(pipeline.OutputSerializer is IWrappedValueSerializer), "Expected pipeline.OutputSerializer to be an IWrappedValueSerializer.", nameof(pipeline));
-                    avgExpression = new AstFieldExpression("$_v");
+                    avgExpression = new AstFieldExpression("_v");
                 }
 
                 var outputValueType = GetValueType(expression);

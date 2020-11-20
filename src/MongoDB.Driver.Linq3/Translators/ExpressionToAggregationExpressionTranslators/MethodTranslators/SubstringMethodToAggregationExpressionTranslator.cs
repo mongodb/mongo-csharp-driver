@@ -78,8 +78,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                             new AstComputedField("string", stringTranslation.Ast),
                             new AstComputedField("index", startIndexTranslation.Ast)
                     };
-                    var stringField = new AstFieldExpression("$$string");
-                    var indexField = new AstFieldExpression("$$index");
+                    var stringField = new AstFieldExpression("$string");
+                    var indexField = new AstFieldExpression("$index");
                     var lengthAst = new AstUnaryExpression(lengthOperator, stringField);
                     var countAst = new AstBinaryExpression(AstBinaryOperator.Subtract, lengthAst, indexField);
                     var inAst = new AstTernaryExpression(substringOperator, stringField, indexField, countAst);

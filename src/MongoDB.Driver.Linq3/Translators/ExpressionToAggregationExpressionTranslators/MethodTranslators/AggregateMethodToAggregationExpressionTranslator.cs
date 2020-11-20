@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                     var funcContext = context.WithSymbols((accumulatorParameter, accumulatorSymbol), (itemParameter, itemSymbol));
                     var funcTranslation = ExpressionToAggregationExpressionTranslator.Translate(funcContext, funcExpression.Body);
 
-                    var sourceField = new AstFieldExpression("$$source");
+                    var sourceField = new AstFieldExpression("$source");
                     var ast = new AstLetExpression(
                         vars: new[] { new AstComputedField("source", sourceTranslation.Ast) },
                         @in: new AstCondExpression(

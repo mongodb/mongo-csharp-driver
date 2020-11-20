@@ -13,23 +13,23 @@
 * limitations under the License.
 */
 
-namespace MongoDB.Driver.Linq3.Misc
-{
-    public static class TranslatedFieldHelper
-    {
-        public static string Combine(string translatedContainerField, string elementName)
-        {
-            Throw.IfNullOrEmpty(translatedContainerField, nameof(translatedContainerField));
-            Throw.IfNullOrEmpty(elementName, nameof(elementName));
+using MongoDB.Bson;
+using MongoDB.Driver.Core.Misc;
 
-            if (translatedContainerField == "$$CURRENT")
-            {
-                return "$" + elementName;
-            }
-            else
-            {
-                return translatedContainerField + "." + elementName;
-            }
+namespace MongoDB.Driver.Linq3.Ast.Filters
+{
+    public class AstFilterField : AstNode
+    {
+        private string _name;
+
+        public AstFilterField(string name)
+        {
+            _name = Ensure.IsNotNull(name, nameof(name));
         }
+
+        public string Name => _name;
+        public override AstNodeType NodeType => AstNodeType.FilterField;
+
+        public override BsonValue Render() => _name;
     }
 }

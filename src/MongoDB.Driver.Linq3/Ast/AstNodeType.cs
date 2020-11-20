@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Linq3.Ast
         FacetStage,
         FieldExpression,
         FilterExpression,
-        FilterFieldReference,
+        FilterField,
         FunctionExpression,
         GeoNearStage,
         GraphLookupStage,

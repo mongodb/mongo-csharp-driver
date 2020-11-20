@@ -41,17 +41,17 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
                 if (indexExpression is ConstantExpression indexConstantExpression)
                 {
-                    var indexValue = (string)indexConstantExpression.Value;
+                    var keyValue = (string)indexConstantExpression.Value;
                     AstExpression ast;
                     if (sourceTranslation.Ast is AstFieldExpression sourceFieldAst)
                     {
-                        ast = new AstFieldExpression(sourceFieldAst.Field + "." + indexValue);
+                        ast = sourceFieldAst.Combine(keyValue);
                     }
                     else
                     {
                         ast = new AstLetExpression(
                             vars: new[] { new AstComputedField("this", sourceTranslation.Ast) },
-                            @in: new AstFieldExpression($"$$this.{indexValue}"));
+                            @in: new AstFieldExpression($"$this.{keyValue}"));
                     }
                     var valueSerializer = GetDictionaryValueSerializer(sourceTranslation.Serializer);
 

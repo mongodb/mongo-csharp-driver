@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                     //new BsonDocument("$replaceRoot", new BsonDocument("newRoot", "$_last")));
                     new AstGroupStage(
                         id: BsonNull.Value,
-                        fields: new AstComputedField("_last", new AstUnaryExpression(AstUnaryOperator.Last, new AstFieldExpression("$$ROOT")))));
+                        fields: new AstComputedField("_last", new AstUnaryExpression(AstUnaryOperator.Last, new AstFieldExpression("$ROOT")))));
 
                 var finalizer = expression.Method.Name == "LastOrDefault" ? __singleOrDefaultFinalizer : __singleFinalizer;
 

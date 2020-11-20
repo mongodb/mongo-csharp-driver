@@ -54,8 +54,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                     @in: new AstLetExpression(
                         vars: new[]
                         {
-                            new AstComputedField(resultSelectorParameter1.Name, new AstBinaryExpression(AstBinaryOperator.ArrayElemAt, new AstFieldExpression("$$z__"), 0)),
-                            new AstComputedField(resultSelectorParameter2.Name, new AstBinaryExpression(AstBinaryOperator.ArrayElemAt, new AstFieldExpression("$$z__"), 1))
+                            new AstComputedField(resultSelectorParameter1.Name, new AstBinaryExpression(AstBinaryOperator.ArrayElemAt, new AstFieldExpression("$z__"), 0)),
+                            new AstComputedField(resultSelectorParameter2.Name, new AstBinaryExpression(AstBinaryOperator.ArrayElemAt, new AstFieldExpression("$z__"), 1))
                         },
                         @in: resultSelectorTranslation.Ast));
                 var serializer = IEnumerableSerializer.Create(resultSelectorTranslation.Serializer);

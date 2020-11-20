@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                 var value = constantExpression.Value;
                 var serializedValue = SerializationHelper.SerializeValue(resolvedField.Serializer, value);
 
-                var field = new AstFieldExpression(resolvedField.DottedFieldName);
+                var field = new AstFilterField(resolvedField.DottedFieldName);
                 return new AstComparisonFilter(comparisonOperator, field, serializedValue);
             }
 

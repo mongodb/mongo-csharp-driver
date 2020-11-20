@@ -325,7 +325,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                 }
                 else
                 {
-                    arg = new AstFieldExpression("$_v");
+                    arg = new AstFieldExpression("_v");
                 }
                 var outputValueType = method.IsOneOf(__standardDeviationAsyncMethods) ? expression.Type.GetGenericArguments()[0] : expression.Type;
                 var outputValueSerializer = BsonSerializer.LookupSerializer(outputValueType);
