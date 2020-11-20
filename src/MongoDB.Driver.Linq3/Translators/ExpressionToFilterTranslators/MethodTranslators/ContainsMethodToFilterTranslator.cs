@@ -81,9 +81,9 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                 if (itemTranslation.Ast is AstFieldExpression itemFieldExpression &&
                     sourceTranslation.Ast is AstConstantExpression sourceConstantExpression)
                 {
-                    var fieldName = itemFieldExpression.Field.Substring(1);
+                    var filterField = new AstFilterField(itemFieldExpression.Field);
                     var values = sourceConstantExpression.Value.AsBsonArray;
-                    return new AstInFilter(fieldName, values);
+                    return new AstInFilter(filterField, values);
                 }
             }
 

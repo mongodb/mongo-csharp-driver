@@ -30,9 +30,23 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
         public string Field => _field;
         public override AstNodeType NodeType => AstNodeType.FieldExpression;
 
+        public AstFieldExpression Combine(string subField)
+        {
+            Ensure.IsNotNull(subField, nameof(subField));
+
+            if (_field == "$CURRENT")
+            {
+                return new AstFieldExpression(subField);
+            }
+            else
+            {
+                return new AstFieldExpression(_field + "." + subField);
+            }
+        }
+
         public override BsonValue Render()
         {
-            return _field;
+            return "$" + _field;
         }
     }
 }

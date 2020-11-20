@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                         if (containerDocumentSerializer.TryGetMemberSerializationInfo(propertyInfo.Name, out var propertySerializationInfo))
                         {
                             var elementName = propertySerializationInfo.ElementName;
-                            return new AstComparisonFilter(AstComparisonFilterOperator.Eq, new AstFieldExpression(elementName), true);
+                            return new AstComparisonFilter(AstComparisonFilterOperator.Eq, new AstFilterField(elementName), true);
                         }
                     }
                 }

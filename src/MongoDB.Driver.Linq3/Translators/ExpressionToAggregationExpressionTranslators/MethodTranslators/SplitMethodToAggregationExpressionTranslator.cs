@@ -126,7 +126,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 {
                     ast = new AstFilterExpression(
                         input: ast,
-                        cond: new AstBinaryExpression(AstBinaryOperator.Ne, new AstFieldExpression("$$item"), ""),
+                        cond: new AstBinaryExpression(AstBinaryOperator.Ne, new AstFieldExpression("$item"), ""),
                         @as: "item");
                 }
                 if (countExpression != null)

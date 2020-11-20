@@ -22,22 +22,22 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
 {
     public sealed class AstInFilter : AstFilter
     {
-        private readonly string _fieldName;
+        private readonly AstFilterField _field;
         private readonly IReadOnlyList<BsonValue> _values;
 
-        public AstInFilter(string fieldName, IEnumerable<BsonValue> values)
+        public AstInFilter(AstFilterField field, IEnumerable<BsonValue> values)
         {
-            _fieldName = Ensure.IsNotNull(fieldName, nameof(fieldName));
+            _field = Ensure.IsNotNull(field, nameof(field));
             _values = Ensure.IsNotNull(values, nameof(values)).ToList().AsReadOnly();
         }
 
-        public string FieldName => _fieldName;
+        public AstFilterField Field => _field;
         public override AstNodeType NodeType => AstNodeType.InFilter;
         public IReadOnlyList<BsonValue> Values => _values;
 
         public override BsonValue Render()
         {
-            return new BsonDocument(_fieldName, new BsonDocument("$in", new BsonArray(_values)));
+            return new BsonDocument(_field.Name, new BsonDocument("$in", new BsonArray(_values)));
         }
     }
 }

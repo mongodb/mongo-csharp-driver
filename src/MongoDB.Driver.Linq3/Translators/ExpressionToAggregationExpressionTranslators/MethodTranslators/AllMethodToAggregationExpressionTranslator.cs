@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                     input: sourceTranslation.Ast,
                     initialValue: true,
                     @in: new AstCondExpression(
-                        @if: new AstFieldExpression("$$value"),
+                        @if: new AstFieldExpression("$value"),
                         then: predicateTranslation.Ast,
                         @else: false));
 

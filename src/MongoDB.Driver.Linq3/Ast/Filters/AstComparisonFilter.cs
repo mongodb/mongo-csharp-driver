@@ -21,18 +21,18 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
 {
     public sealed class AstComparisonFilter : AstFilter
     {
-        private readonly AstFieldExpression _field;
+        private readonly AstFilterField _field;
         private readonly AstComparisonFilterOperator _operator;
         private readonly BsonValue _value;
 
-        public AstComparisonFilter(AstComparisonFilterOperator @operator, AstFieldExpression field, BsonValue value)
+        public AstComparisonFilter(AstComparisonFilterOperator @operator, AstFilterField field, BsonValue value)
         {
             _operator = @operator;
             _field = Ensure.IsNotNull(field, nameof(field));
             _value = Ensure.IsNotNull(value, nameof(value));
         }
 
-        public AstFieldExpression Field => _field;
+        public AstFilterField Field => _field;
         public override AstNodeType NodeType => AstNodeType.ComparisonFilter;
         public AstComparisonFilterOperator Operator => _operator;
         public BsonValue Value => _value;

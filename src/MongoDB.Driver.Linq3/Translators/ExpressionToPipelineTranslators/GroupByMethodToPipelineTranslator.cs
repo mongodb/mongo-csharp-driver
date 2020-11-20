@@ -71,11 +71,11 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                         groupingSerializer,
                         new AstProjectStage(
                             new AstProjectStageComputedFieldSpecification(new AstComputedField("_key", keySelectorTranslation.Ast)),
-                            new AstProjectStageComputedFieldSpecification(new AstComputedField("_element", new AstFieldExpression("$$ROOT"))),
+                            new AstProjectStageComputedFieldSpecification(new AstComputedField("_element", new AstFieldExpression("$ROOT"))),
                             new AstProjectStageExcludeIdSpecification()),
                         new AstGroupStage(
-                            new AstFieldExpression("$_key"),
-                            new AstComputedField("_elements", new AstUnaryExpression(AstUnaryOperator.Push, new AstFieldExpression("$_element")))));
+                            new AstFieldExpression("_key"),
+                            new AstComputedField("_elements", new AstUnaryExpression(AstUnaryOperator.Push, new AstFieldExpression("_element")))));
 
                     return pipeline;
                 }
@@ -108,7 +108,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                     pipeline.AddStages(
                         outputSerializer,
                         new AstGroupStage(
-                            id: new AstFieldExpression("$_key"),
+                            id: new AstFieldExpression("_key"),
                             accumulatorFields),
                         new AstProjectStage(new AstProjectStageExcludeIdSpecification()));
 
@@ -128,7 +128,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
 
         private static IGroupByKeyElementSerializer AddKeyElementStage(TranslationContext context, Pipeline pipeline, AggregationExpression keySelectorTranslation)
         {
-            var elementAst = new AstFieldExpression("$$ROOT");
+            var elementAst = new AstFieldExpression("$ROOT");
             var elementSerializer = pipeline.OutputSerializer;
             if (elementSerializer is IWrappedValueSerializer wrappedValueSerializer)
             {
@@ -185,7 +185,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
         {
             if (accumulatorExpression == keyParameterExpression)
             {
-                var ast = new AstUnaryExpression(AstUnaryOperator.First, new AstFieldExpression("$_key"));
+                var ast = new AstUnaryExpression(AstUnaryOperator.First, new AstFieldExpression("_key"));
                 return new AggregationExpression(accumulatorExpression, ast, keyElementSerializer.KeySerializer);
             }
 
@@ -196,7 +196,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                 {
                     if (memberExpression.Member.Name == "Key")
                     {
-                        var ast = new AstUnaryExpression(AstUnaryOperator.First, new AstFieldExpression("$_key"));
+                        var ast = new AstUnaryExpression(AstUnaryOperator.First, new AstFieldExpression("_key"));
                         return new AggregationExpression(accumulatorExpression, ast, keyElementSerializer.KeySerializer);
                     }
                 }

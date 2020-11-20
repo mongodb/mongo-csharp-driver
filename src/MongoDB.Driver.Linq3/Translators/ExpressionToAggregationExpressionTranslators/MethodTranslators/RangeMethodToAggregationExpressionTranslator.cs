@@ -43,8 +43,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 }
                 else
                 {
-                    var startVariable = new AstFieldExpression("$$start");
-                    var countVariable = new AstFieldExpression("$$count");
+                    var startVariable = new AstFieldExpression("$start");
+                    var countVariable = new AstFieldExpression("$count");
                     ast = new AstLetExpression(
                         vars: new[] { new AstComputedField("start", startTranslation.Ast), new AstComputedField("count", countTranslation.Ast) },
                         @in: new AstRangeExpression(
