@@ -53,11 +53,7 @@ Task("Release")
 Task("Restore")
     .Does(() =>
     {
-        var settings = new DotNetCoreRestoreSettings
-        {
-            Verbosity = Minimal
-        };
-        DotNetCoreRestore(solutionFullPath, settings);
+        DotNetCoreRestore(solutionFullPath);
     });
 
 Task("Build")
