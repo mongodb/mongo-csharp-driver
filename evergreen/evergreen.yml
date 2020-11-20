@@ -279,24 +279,6 @@ functions:
           # DO NOT ECHO WITH XTRACE (which PREPARE_SHELL does)
           ATLAS_FREE="${ATLAS_FREE}" ATLAS_FREE_SRV="${ATLAS_FREE_SRV}" ATLAS_REPLICA="${ATLAS_REPLICA}" ATLAS_REPLICA_SRV="${ATLAS_REPLICA_SRV}" ATLAS_SHARDED="${ATLAS_SHARDED}" ATLAS_SHARDED_SRV="${ATLAS_SHARDED_SRV}" ATLAS_TLS11="${ATLAS_TLS11}" ATLAS_TLS11_SRV="${ATLAS_TLS11_SRV}" ATLAS_TLS12="${ATLAS_TLS12}" ATLAS_TLS12_SRV="${ATLAS_TLS12_SRV}" evergreen/run-atlas-connectivity-tests.sh
 
-  run-plain-auth-tests:
-    - command: shell.exec
-      type: test
-      params:
-        working_dir: mongo-csharp-driver
-        script: |
-          ${PREPARE_SHELL}
-          MONGODB_URI="${plain_auth_mongodb_uri}" evergreen/run-plain-auth-tests.sh
-
-  run-gssapi-auth-tests:
-    - command: shell.exec
-      type: test
-      params:
-        working_dir: mongo-csharp-driver
-        script: |
-          ${PREPARE_SHELL}
-          MONGODB_URI="${gssapi_mongodb_uri}" evergreen/run-gssapi-tests.sh
-
   add-aws-auth-variables-to-file:
     - command: shell.exec
       type: test
@@ -1268,20 +1250,6 @@ buildvariants:
   tasks:
     - name: atlas-data-lake-test
 
-#- name: plain-auth-tests
-#  display_name: "PLAIN (LDAP) Auth tests"
-#  run_on:
-#    - windows-64-vs2017-test
-#  tasks:
-#    - name: plain-auth-tests
-#
-#- name: gssapi-auth-tests
-#  display_name: "GSSAPI (Kerberos) Auth tests"
-#  run_on:
-#    - windows-64-vs2017-test
-#  tasks:
-#    - name: gssapi-auth-tests
-#
 # - name: publish-snapshot
 #   display_name: publish-snapshot
 #   run_on:
