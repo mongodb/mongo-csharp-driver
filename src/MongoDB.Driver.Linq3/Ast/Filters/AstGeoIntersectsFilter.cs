@@ -18,34 +18,24 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstComparisonFilter : AstFilter
+    public sealed class AstGeoIntersectsFilter : AstFilter
     {
         private readonly AstFilterField _field;
-        private readonly AstComparisonFilterOperator _operator;
-        private readonly BsonValue _value;
+        private readonly BsonDocument _geometry;
 
-        public AstComparisonFilter(AstComparisonFilterOperator @operator, AstFilterField field, BsonValue value)
+        public AstGeoIntersectsFilter(AstFilterField field, BsonDocument geometry)
         {
-            _operator = @operator;
             _field = Ensure.IsNotNull(field, nameof(field));
-            _value = Ensure.IsNotNull(value, nameof(value));
+            _geometry = Ensure.IsNotNull(geometry, nameof(geometry));
         }
 
         public AstFilterField Field => _field;
-        public override AstNodeType NodeType => AstNodeType.ComparisonFilter;
-        public AstComparisonFilterOperator Operator => _operator;
-        public BsonValue Value => _value;
+        public BsonDocument Geometry => _geometry;
+        public override AstNodeType NodeType => AstNodeType.GeoIntersectsFilter;
 
         public override BsonValue Render()
         {
-            if (_operator == AstComparisonFilterOperator.Eq)
-            {
-                return new BsonDocument(_field.Name, _value);
-            }
-            else
-            {
-                return new BsonDocument(_field.Name, new BsonDocument(_operator.Render(), _value));
-            }
+            return new BsonDocument(_field.Name, new BsonDocument("$geoIntersects", new BsonDocument("$geometry", _geometry)));
         }
     }
 }

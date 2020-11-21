@@ -15,21 +15,25 @@
 
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Linq3.Ast.Expressions;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstFilterField : AstNode
+    public sealed class AstExprFilter : AstFilter
     {
-        private string _name;
+        private readonly AstExpression _expression;
 
-        public AstFilterField(string name)
+        public AstExprFilter(AstExpression expression)
         {
-            _name = Ensure.IsNotNull(name, nameof(name));
+            _expression = Ensure.IsNotNull(expression, nameof(expression));
         }
 
-        public string Name => _name;
-        public override AstNodeType NodeType => AstNodeType.FilterField;
+        public AstExpression Expression => _expression;
+        public override AstNodeType NodeType => AstNodeType.ExprFilter;
 
-        public override BsonValue Render() => _name;
+        public override BsonValue Render()
+        {
+            return new BsonDocument("$expr", _expression.Render());
+        }
     }
 }

@@ -18,18 +18,21 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstFilterField : AstNode
+    public sealed class AstWhereFilter : AstFilter
     {
-        private string _name;
+        private readonly BsonJavaScript _code;
 
-        public AstFilterField(string name)
+        public AstWhereFilter(BsonJavaScript code)
         {
-            _name = Ensure.IsNotNull(name, nameof(name));
+            _code = Ensure.IsNotNull(code, nameof(code));
         }
 
-        public string Name => _name;
-        public override AstNodeType NodeType => AstNodeType.FilterField;
+        public BsonJavaScript Code => _code;
+        public override AstNodeType NodeType => AstNodeType.WhereFilter;
 
-        public override BsonValue Render() => _name;
+        public override BsonValue Render()
+        {
+            return new BsonDocument("$where", _code);
+        }
     }
 }

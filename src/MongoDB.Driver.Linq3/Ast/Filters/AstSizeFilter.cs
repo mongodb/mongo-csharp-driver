@@ -18,18 +18,24 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstFilterField : AstNode
+    public sealed class AstSizeFilter : AstFilter
     {
-        private string _name;
+        private readonly AstFilterField _field;
+        private readonly BsonValue _size;
 
-        public AstFilterField(string name)
+        public AstSizeFilter(AstFilterField field, BsonValue size)
         {
-            _name = Ensure.IsNotNull(name, nameof(name));
+            _field = Ensure.IsNotNull(field, nameof(field));
+            _size = Ensure.IsNotNull(size, nameof(size));
         }
 
-        public string Name => _name;
-        public override AstNodeType NodeType => AstNodeType.FilterField;
+        public AstFilterField Field => _field;
+        public override AstNodeType NodeType => AstNodeType.SizeFilter;
+        public BsonValue Size => _size;
 
-        public override BsonValue Render() => _name;
+        public override BsonValue Render()
+        {
+            return new BsonDocument(_field.Name, new BsonDocument("$size", _size));
+        }
     }
 }

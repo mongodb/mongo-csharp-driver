@@ -18,34 +18,24 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstComparisonFilter : AstFilter
+    public sealed class AstElemMatchFilter : AstFilter
     {
         private readonly AstFilterField _field;
-        private readonly AstComparisonFilterOperator _operator;
-        private readonly BsonValue _value;
+        private readonly BsonDocument _queries; // TODO: use some AST classes instead of BsonDocument?
 
-        public AstComparisonFilter(AstComparisonFilterOperator @operator, AstFilterField field, BsonValue value)
+        public AstElemMatchFilter(AstFilterField field, BsonDocument queries)
         {
-            _operator = @operator;
             _field = Ensure.IsNotNull(field, nameof(field));
-            _value = Ensure.IsNotNull(value, nameof(value));
+            _queries = Ensure.IsNotNull(queries, nameof(queries));
         }
 
         public AstFilterField Field => _field;
-        public override AstNodeType NodeType => AstNodeType.ComparisonFilter;
-        public AstComparisonFilterOperator Operator => _operator;
-        public BsonValue Value => _value;
+        public override AstNodeType NodeType => AstNodeType.ElemMatchFilter;
+        public BsonDocument Queries => _queries;
 
         public override BsonValue Render()
         {
-            if (_operator == AstComparisonFilterOperator.Eq)
-            {
-                return new BsonDocument(_field.Name, _value);
-            }
-            else
-            {
-                return new BsonDocument(_field.Name, new BsonDocument(_operator.Render(), _value));
-            }
+            return new BsonDocument(_field.Name, new BsonDocument("$elemMatch", _queries));
         }
     }
 }
