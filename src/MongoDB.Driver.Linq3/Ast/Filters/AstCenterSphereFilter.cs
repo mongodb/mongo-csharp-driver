@@ -18,34 +18,30 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstComparisonFilter : AstFilter
+    public sealed class AstCenterSphereFilter : AstFilter
     {
         private readonly AstFilterField _field;
-        private readonly AstComparisonFilterOperator _operator;
-        private readonly BsonValue _value;
+        private readonly BsonValue _radius;
+        private readonly BsonValue _x;
+        private readonly BsonValue _y;
 
-        public AstComparisonFilter(AstComparisonFilterOperator @operator, AstFilterField field, BsonValue value)
+        public AstCenterSphereFilter(AstFilterField field, BsonValue x, BsonValue y, BsonValue radius)
         {
-            _operator = @operator;
             _field = Ensure.IsNotNull(field, nameof(field));
-            _value = Ensure.IsNotNull(value, nameof(value));
+            _x = Ensure.IsNotNull(x, nameof(x));
+            _y = Ensure.IsNotNull(y, nameof(y));
+            _radius = Ensure.IsNotNull(radius, nameof(radius));
         }
 
         public AstFilterField Field => _field;
-        public override AstNodeType NodeType => AstNodeType.ComparisonFilter;
-        public AstComparisonFilterOperator Operator => _operator;
-        public BsonValue Value => _value;
+        public override AstNodeType NodeType => AstNodeType.CenterSphereFilter;
+        public BsonValue Radius => _radius;
+        public BsonValue X => _x;
+        public BsonValue Y => _y;
 
         public override BsonValue Render()
         {
-            if (_operator == AstComparisonFilterOperator.Eq)
-            {
-                return new BsonDocument(_field.Name, _value);
-            }
-            else
-            {
-                return new BsonDocument(_field.Name, new BsonDocument(_operator.Render(), _value));
-            }
+            return new BsonDocument(_field.Name, new BsonDocument("$geoWithin", new BsonDocument("$centerSphere", new BsonArray { new BsonArray { _x, _y }, _radius })));
         }
     }
 }

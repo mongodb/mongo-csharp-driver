@@ -14,6 +14,7 @@
 */
 
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 
 namespace MongoDB.Driver.Linq3.Ast
 {
@@ -25,7 +26,14 @@ namespace MongoDB.Driver.Linq3.Ast
 
         public override string ToString()
         {
-            return Render().ToJson();
+            var jsonWriterSettings = new JsonWriterSettings();
+#pragma warning disable CS0618 // Type or member is obsolete
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                jsonWriterSettings.GuidRepresentation = GuidRepresentation.Unspecified;
+            }
+#pragma warning restore CS0618 // Type or member is obsolete
+            return Render().ToJson(jsonWriterSettings);
         }
     }
 }

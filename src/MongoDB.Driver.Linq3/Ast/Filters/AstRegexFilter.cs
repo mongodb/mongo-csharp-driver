@@ -18,34 +18,27 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstComparisonFilter : AstFilter
+    public sealed class AstRegexFilter : AstFilter
     {
         private readonly AstFilterField _field;
-        private readonly AstComparisonFilterOperator _operator;
-        private readonly BsonValue _value;
+        private readonly string _options;
+        private readonly string _pattern;
 
-        public AstComparisonFilter(AstComparisonFilterOperator @operator, AstFilterField field, BsonValue value)
+        public AstRegexFilter(AstFilterField field, string pattern, string options)
         {
-            _operator = @operator;
             _field = Ensure.IsNotNull(field, nameof(field));
-            _value = Ensure.IsNotNull(value, nameof(value));
+            _pattern = Ensure.IsNotNull(pattern, nameof(pattern));
+            _options = Ensure.IsNotNull(options, nameof(options));
         }
 
         public AstFilterField Field => _field;
-        public override AstNodeType NodeType => AstNodeType.ComparisonFilter;
-        public AstComparisonFilterOperator Operator => _operator;
-        public BsonValue Value => _value;
+        public override AstNodeType NodeType => AstNodeType.RegexFilter;
+        public string Options => _options;
+        public string Pattern => _pattern;
 
         public override BsonValue Render()
         {
-            if (_operator == AstComparisonFilterOperator.Eq)
-            {
-                return new BsonDocument(_field.Name, _value);
-            }
-            else
-            {
-                return new BsonDocument(_field.Name, new BsonDocument(_operator.Render(), _value));
-            }
+            return new BsonDocument(_field.Name, new BsonDocument { { "$regex", _pattern }, { "$options", _options } });
         }
     }
 }

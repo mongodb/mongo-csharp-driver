@@ -18,18 +18,24 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstFilterField : AstNode
+    public sealed class AstBitsAllClearFilter : AstFilter
     {
-        private string _name;
+        private readonly AstFilterField _field;
+        private readonly BsonValue _bitmask;
 
-        public AstFilterField(string name)
+        public AstBitsAllClearFilter(AstFilterField field, BsonValue bitmask)
         {
-            _name = Ensure.IsNotNull(name, nameof(name));
+            _field = Ensure.IsNotNull(field, nameof(field));
+            _bitmask = Ensure.IsNotNull(bitmask, nameof(bitmask));
         }
 
-        public string Name => _name;
-        public override AstNodeType NodeType => AstNodeType.FilterField;
+        public BsonValue Bitmask => _bitmask;
+        public AstFilterField Field => _field;
+        public override AstNodeType NodeType => AstNodeType.BitsAllClearFilter;
 
-        public override BsonValue Render() => _name;
+        public override BsonValue Render()
+        {
+            return new BsonDocument(_field.Name, new BsonDocument("$bitsAllClear", _bitmask));
+        }
     }
 }

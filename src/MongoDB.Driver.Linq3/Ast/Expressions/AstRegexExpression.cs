@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
         }
 
         public AstExpression Input => _input;
-        public override AstNodeType NodeType => AstNodeType.RegexFindExpression;
+        public override AstNodeType NodeType => AstNodeType.RegexExpression;
         public AstRegexOperator Operator => _operator;
         public AstExpression Options => _options;
         public AstExpression Regex => _regex;

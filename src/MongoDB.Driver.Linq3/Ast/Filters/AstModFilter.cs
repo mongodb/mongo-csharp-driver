@@ -18,34 +18,27 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstComparisonFilter : AstFilter
+    public sealed class AstModFilter : AstFilter
     {
+        private readonly BsonValue _divisor;
         private readonly AstFilterField _field;
-        private readonly AstComparisonFilterOperator _operator;
-        private readonly BsonValue _value;
+        private readonly BsonValue _remainder;
 
-        public AstComparisonFilter(AstComparisonFilterOperator @operator, AstFilterField field, BsonValue value)
+        public AstModFilter(AstFilterField field, BsonValue divisor, BsonValue remainder)
         {
-            _operator = @operator;
             _field = Ensure.IsNotNull(field, nameof(field));
-            _value = Ensure.IsNotNull(value, nameof(value));
+            _divisor = Ensure.IsNotNull(divisor, nameof(divisor));
+            _remainder = Ensure.IsNotNull(remainder, nameof(remainder));
         }
 
+        public BsonValue Divisor => _divisor;
         public AstFilterField Field => _field;
-        public override AstNodeType NodeType => AstNodeType.ComparisonFilter;
-        public AstComparisonFilterOperator Operator => _operator;
-        public BsonValue Value => _value;
+        public override AstNodeType NodeType => AstNodeType.ModFilter;
+        public BsonValue Remainder => _remainder;
 
         public override BsonValue Render()
         {
-            if (_operator == AstComparisonFilterOperator.Eq)
-            {
-                return new BsonDocument(_field.Name, _value);
-            }
-            else
-            {
-                return new BsonDocument(_field.Name, new BsonDocument(_operator.Render(), _value));
-            }
+            return new BsonDocument(_field.Name, new BsonDocument("$mod", new BsonArray { _divisor, _remainder }));
         }
     }
 }

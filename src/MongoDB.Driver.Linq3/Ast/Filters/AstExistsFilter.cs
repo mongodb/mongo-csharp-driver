@@ -18,18 +18,24 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstFilterField : AstNode
+    public sealed class AstExistsFilter : AstFilter
     {
-        private string _name;
+        private readonly bool _exists;
+        private readonly AstFilterField _field;
 
-        public AstFilterField(string name)
+        public AstExistsFilter(AstFilterField field, bool exists = true)
         {
-            _name = Ensure.IsNotNull(name, nameof(name));
+            _field = Ensure.IsNotNull(field, nameof(field));
+            _exists = exists;
         }
 
-        public string Name => _name;
-        public override AstNodeType NodeType => AstNodeType.FilterField;
+        public bool Exists => _exists;
+        public AstFilterField Field => _field;
+        public override AstNodeType NodeType => AstNodeType.ExistsFilter;
 
-        public override BsonValue Render() => _name;
+        public override BsonValue Render()
+        {
+            return new BsonDocument(_field.Name, new BsonDocument("$exists", _exists));
+        }
     }
 }
