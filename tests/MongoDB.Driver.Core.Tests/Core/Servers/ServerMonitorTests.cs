@@ -118,7 +118,7 @@ namespace MongoDB.Driver.Core.Servers
             description.State.Should().Be(ServerState.Disconnected);
         }
 
-#if Windows
+#if WINDOWS
         [Fact]
         public void DescriptionChanged_should_be_raised_during_initial_handshake()
         {

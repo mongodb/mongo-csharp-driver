@@ -83,7 +83,7 @@ namespace MongoDB.Bson.Tests.Jira
             new Test("Mon, 10 Oct 2011 11:22:33 MDT", "2011-10-10T11:22:33-06:00"),
             new Test("Mon, 10 Oct 2011 11:22:33 PST", "2011-10-10T11:22:33-08:00"),
             new Test("Mon, 10 Oct 2011 11:22:33 PDT", "2011-10-10T11:22:33-07:00"),
-#if Windows
+#if WINDOWS
             new Test("Mon, 10 Oct 2011 11:22:33 A", "2011-10-10T11:22:33+01:00"),
             new Test("Mon, 10 Oct 2011 11:22:33 B", "2011-10-10T11:22:33+02:00"),
             new Test("Mon, 10 Oct 2011 11:22:33 C", "2011-10-10T11:22:33+03:00"),

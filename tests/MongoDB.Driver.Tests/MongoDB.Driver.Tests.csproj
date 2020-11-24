@@ -37,6 +37,14 @@
       xUnit2013 <!--Do not use equality check to check for collection size. (https://xunit.github.io/xunit.analyzers/rules/xUnit2013.html)-->
     </NoWarn>
   </PropertyGroup>
+  
+  <PropertyGroup>
+    <IsWindows Condition="$([MSBuild]::IsOSPlatform('Windows'))">true</IsWindows>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(IsWindows)'=='true'">
+    <DefineConstants>WINDOWS</DefineConstants>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" PrivateAssets="All" Version="1.0.0" />

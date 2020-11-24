@@ -28,6 +28,14 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" PrivateAssets="All" Version="1.0.0" />
   </ItemGroup>
+  
+  <PropertyGroup>
+    <IsWindows Condition="$([MSBuild]::IsOSPlatform('Windows'))">true</IsWindows>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(IsWindows)'=='true'">
+    <DefineConstants>WINDOWS</DefineConstants>
+  </PropertyGroup>
 
   <PropertyGroup>
     <NoWarn>

@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Core.Compression
 {
     public class CompressedMessageBinaryEncoderTests
     {
-#if Windows
+#if WINDOWS
         private readonly MessageEncoderSettings _messageEncoderSettings = new MessageEncoderSettings();
 
         [Fact]

@@ -28,6 +28,14 @@
   <PropertyGroup>
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
+ 
+  <PropertyGroup>
+    <IsWindows Condition="$([MSBuild]::IsOSPlatform('Windows'))">true</IsWindows>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(IsWindows)'=='true'">
+    <DefineConstants>WINDOWS</DefineConstants>
+  </PropertyGroup>
 
   <PropertyGroup>
     <NoWarn>

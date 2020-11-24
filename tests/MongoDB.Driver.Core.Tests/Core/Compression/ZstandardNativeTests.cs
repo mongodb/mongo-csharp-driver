@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
 {
     public class ZstandardNativeTests
     {
-#if Windows
+#if WINDOWS
 #region static
         // private constants
         private const string __testMessagePortion = @"Two households, both alike in dignity,

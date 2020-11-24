@@ -92,7 +92,7 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
                     break;
                 }
             }
-#if Windows
+#if WINDOWS
             AssertError(test, exception);
             AssertEvents(test, eventCapturer);
 #endif

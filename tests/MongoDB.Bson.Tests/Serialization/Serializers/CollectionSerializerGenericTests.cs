@@ -276,7 +276,7 @@ namespace MongoDB.Bson.Tests.Serialization.CollectionSerializersGeneric
         }
     }
 
-#if Windows
+#if WINDOWS
 
     public class EnumerableSerializerNominalTypeObjectTests
     {

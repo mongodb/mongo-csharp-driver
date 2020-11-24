@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Tests
 {
     public class ClusterRegistryTests
     {
-#if Windows
+#if WINDOWS
         [Fact]
         public void Instance_should_return_the_same_instance_every_time()
         {

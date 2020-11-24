@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Tests
     public class IAggregateFluentExtensionsTests
     {
         // public methods
-#if Windows
+#if WINDOWS
         [Theory]
         [ParameterAttributeData]
         public void First_should_add_limit_and_call_ToCursor(
@@ -96,7 +96,7 @@ namespace MongoDB.Driver.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("aggregate");
         }
 
-#if Windows
+#if WINDOWS
         [Theory]
         [ParameterAttributeData]
         public void FirstOrDefault_should_add_limit_and_call_ToCursor(
@@ -314,7 +314,7 @@ namespace MongoDB.Driver.Tests
             AssertLast(subject, expectedStage);
         }
 
-#if Windows
+#if WINDOWS
         [Theory]
         [ParameterAttributeData]
         public void Single_should_add_limit_and_call_ToCursor(
@@ -373,7 +373,7 @@ namespace MongoDB.Driver.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("aggregate");
         }
 
-#if Windows
+#if WINDOWS
         [Theory]
         [ParameterAttributeData]
         public void SingleOrDefault_should_add_limit_and_call_ToCursor(

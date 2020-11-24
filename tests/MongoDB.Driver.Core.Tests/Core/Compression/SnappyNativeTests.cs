@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
 {
     public class SnappyNativeTests
     {
-#if Windows
+#if WINDOWS
         [Fact]
         public void Compress_should_throw_if_parameter_null()
         {

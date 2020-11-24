@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
     public class CompressorsTests
     {
         private static string __testMessage = "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz";
-#if Windows
+#if WINDOWS
         [Theory]
         [InlineData(CompressorType.Snappy)]
         [InlineData(CompressorType.ZStandard)]
