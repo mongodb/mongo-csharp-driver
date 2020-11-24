@@ -277,7 +277,6 @@ namespace MongoDB.Bson.Tests.Serialization.CollectionSerializersGeneric
     }
 
 #if WINDOWS
-
     public class EnumerableSerializerNominalTypeObjectTests
     {
         public class T
@@ -356,7 +355,6 @@ namespace MongoDB.Bson.Tests.Serialization.CollectionSerializersGeneric
             Assert.True(bson.SequenceEqual(rehydrated.ToBson(configurator: c => c.IsDynamicType = t => false)));
         }
     }
-
 #endif
 
     public class EnumerableSerializerWithItemSerializationOptionsTests
