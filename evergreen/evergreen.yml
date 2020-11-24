@@ -652,14 +652,6 @@ tasks:
       commands:
         - func: run-atlas-connectivity-tests
 
-    - name: plain-auth-tests
-      commands:
-        - func: run-plain-auth-tests
-
-    - name: gssapi-auth-tests
-      commands:
-        - func: run-gssapi-auth-tests
-
     - name: aws-auth-tests
       commands:
         - func: bootstrap-mongo-orchestration
