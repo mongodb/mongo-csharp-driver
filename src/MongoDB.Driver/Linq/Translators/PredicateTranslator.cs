@@ -624,44 +624,27 @@ namespace MongoDB.Driver.Linq.Translators
 
         private FilterDefinition<BsonDocument> TranslateEquals(MethodCallExpression methodCallExpression)
         {
-            var arguments = methodCallExpression.Arguments.ToArray();
+            var arguments = methodCallExpression.Arguments.ToList();
+
+            if (arguments.Count == 0)
+                return null;
 
             // assume that static and instance Equals mean the same thing for all classes (i.e. an equality test)
-            Expression firstExpression = null;
-            Expression secondExpression = null;
-            if (methodCallExpression.Object == null)
+            if(methodCallExpression.Object != null)
             {
-                // static Equals method
-                if (arguments.Length == 2)
-                {
-                    firstExpression = arguments[0];
-                    secondExpression = arguments[1];
-                }
-            }
-            else
-            {
-                // instance Equals method
-                if (arguments.Length == 1)
-                {
-                    firstExpression = methodCallExpression.Object;
-                    secondExpression = arguments[0];
-                }
+                arguments.Insert(0, methodCallExpression.Object);
             }
 
-            if (firstExpression != null && secondExpression != null)
-            {
-                // the constant could be either expression
-                var variableExpression = firstExpression;
-                var constantExpression = secondExpression as ConstantExpression;
-                if (constantExpression == null)
-                {
-                    constantExpression = firstExpression as ConstantExpression;
-                    variableExpression = secondExpression;
-                }
+            var variableExpression = arguments.FirstOrDefault(a => a.NodeType != ExpressionType.Constant);
+            var constantArguments = arguments.OfType<ConstantExpression>();
 
-                if (constantExpression == null)
+            if (variableExpression != null && constantArguments.Any())
+            {
+                var constantExpression = constantArguments.FirstOrDefault();
+
+                if(variableExpression.Type == typeof(string) && constantExpression.Type == typeof(string))
                 {
-                    return null;
+                    return TranslateStringEqualsQuery(variableExpression, constantArguments);
                 }
 
                 if (variableExpression.Type == typeof(Type) && constantExpression.Type == typeof(Type))
@@ -1361,6 +1344,43 @@ namespace MongoDB.Driver.Linq.Translators
             }
 
             return null;
+        }
+
+        private FilterDefinition<BsonDocument> TranslateStringEqualsQuery(Expression variableExpression, IEnumerable<ConstantExpression> constantExpression)
+        {
+            if (variableExpression == null)
+            {
+                return null;
+            }
+
+            var stringConstantExpression = constantExpression.FirstOrDefault(x => x.Type == typeof(string));
+            var stringComparisonType = constantExpression.FirstOrDefault(x => x.Type == typeof(StringComparison));
+
+            var fieldExpression = GetFieldExpression(variableExpression);
+            var serializedValue = fieldExpression.SerializeValue(stringConstantExpression.Type, stringConstantExpression.Value);
+
+            if (!serializedValue.IsString)
+            {
+                return null;
+            }
+
+            var insansitiveComparsions = new[] {
+                    1, //StringComparison.CurrentCultureIgnoreCase,
+                    5, //StringComparison.OrdinalIgnoreCase,
+                    3 //StringComparison.InvariantCultureIgnoreCase
+            };
+
+            if (stringComparisonType != null && insansitiveComparsions.Contains((int)stringComparisonType.Value))
+            {
+                string pattern = "/^" + Regex.Escape(serializedValue.AsString) + "$/i";
+                var regex = new BsonRegularExpression(pattern);
+
+                return __builder.Regex(fieldExpression.FieldName, regex);
+            }
+            else
+            {
+                return TranslateComparison(variableExpression, ExpressionType.Equal, stringConstantExpression);
+            }
         }
 
         private FilterDefinition<BsonDocument> TranslateStringCaseInsensitiveComparisonQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)

@@ -1046,6 +1046,39 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Fact]
+        public void StringEqualsMethodWithStringComparisonArgument()
+        {
+            Assert(
+                x => x.A.Equals("Awesome", StringComparison.InvariantCultureIgnoreCase),
+                1,
+                "{A: /^Awesome$/i}");
+
+            Assert(
+                x => !"Awesome".Equals(x.A, StringComparison.OrdinalIgnoreCase),
+                1,
+                "{A: {$not: /^Awesome$/i}}");
+
+            Assert(
+                x => "Awesome".Equals(x.A, StringComparison.Ordinal),
+                1,
+                "{A: 'Awesome'}");
+
+            Assert(
+                x => !x.A.Equals("Awesome", StringComparison.InvariantCulture),
+                1,
+                "{A: {$ne: 'Awesome'}}");
+        }
+
+        [Fact]
+        public void StringEqualsMethodWithInsensitiveComparsion_ToUpper()
+        {
+            Assert(
+                x => x.A.ToUpper() == "AWESOME",
+                1,
+                "{A: /^AWESOME$/i}");
+        }
+
+        [Fact]
         public void NotStringEqualsMethod()
         {
             Assert(
