@@ -82,10 +82,9 @@ namespace MongoDB.Bson
             if (millisecondsSinceEpoch < BsonConstants.DateTimeMinValueMillisecondsSinceEpoch ||
                 millisecondsSinceEpoch > BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch)
             {
-                var message = string.Format(
-                    "The value {0} for the BsonDateTime MillisecondsSinceEpoch is outside the" +
-                    "range that can be converted to a .NET DateTime.",
-                    millisecondsSinceEpoch);
+                var message =
+                    $"The value {millisecondsSinceEpoch} for the BsonDateTime MillisecondsSinceEpoch is outside the" +
+                    "range that can be converted to a .NET DateTime.";
                 throw new ArgumentOutOfRangeException("millisecondsSinceEpoch", message);
             }
 
