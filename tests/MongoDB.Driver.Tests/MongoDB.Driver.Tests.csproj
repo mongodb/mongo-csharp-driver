@@ -43,7 +43,7 @@
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(IsWindows)'=='true'">
-    <DefineConstants>WINDOWS</DefineConstants>
+    <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

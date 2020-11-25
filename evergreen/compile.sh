@@ -18,6 +18,6 @@ if [ "$OSTYPE" = "cygwin" ]; then
 else
   for var in TMP TEMP NUGET_PACKAGES NUGET_HTTP_CACHE_PATH APPDATA; do
     export $var=/data/tmp;
-    ./build.sh -target=Build -verbosity=Diagnostic
   done
+  ./build.sh -target=Build -verbosity=Diagnostic
 fi

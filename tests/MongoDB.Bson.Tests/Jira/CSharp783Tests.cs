@@ -143,7 +143,6 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
             Assert.Equal(c.S, r.S);
         }
     }
-
 #endif
 
     public class CSharp783ImpliedHashSetImplementationTests
