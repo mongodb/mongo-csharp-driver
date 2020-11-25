@@ -29,13 +29,13 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
+#if WINDOWS
     public class EncryptionTests
     {
-        #region static
+    #region static
         private static readonly CollectionNamespace __keyVaultCollectionNamespace = CollectionNamespace.FromFullName("db.coll");
-        #endregion
+    #endregion
 
-#if WINDOWS
         private const string LocalMasterKey = "Mng0NCt4ZHVUYUJCa1kxNkVyNUR1QURhZ2h2UzR2d2RrZzh0cFBwM3R6NmdWMDFBMUN3YkQ5aXRRMkhGRGdQV09wOGVNYUMxT2k3NjZKelhaQmRCZGJkTXVyZG9uSjFk";
 
         [Theory]
@@ -273,5 +273,4 @@ namespace MongoDB.Driver.Tests
         }
     }
 #endif
-    }
 }
