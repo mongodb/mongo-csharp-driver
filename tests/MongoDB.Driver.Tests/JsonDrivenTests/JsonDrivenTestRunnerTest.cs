@@ -14,9 +14,9 @@
 */
 
 using System.Collections.Generic;
+using System.Net;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {
@@ -36,9 +36,9 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
 
         protected IJsonDrivenTestRunner TestRunner => _testRunner;
 
-        protected IServer GetPinnedServer()
+        protected EndPoint GetPinnedServerEndpoint()
         {
-            return _session?.WrappedCoreSession?.CurrentTransaction?.PinnedServer;
+            return _session?.WrappedCoreSession?.CurrentTransaction?.PinnedServer?.EndPoint;
         }
 
         protected override void SetArgument(string name, BsonValue value)

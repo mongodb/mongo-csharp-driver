@@ -167,7 +167,7 @@ namespace MongoDB.Driver.Core.TestHelpers
         {
             if (!_disposed)
             {
-                try { ConfigureOff(); } catch { }
+                ConfigureOff();
                 _binding.Dispose();
                 _disposed = true;
             }

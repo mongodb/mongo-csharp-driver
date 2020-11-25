@@ -14,8 +14,11 @@
 */
 
 using System.Collections.Generic;
+using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
@@ -23,20 +26,39 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
     public sealed class JsonDrivenTargetedFailPointTest : JsonDrivenConfigureFailPointTest
     {
         public JsonDrivenTargetedFailPointTest(IJsonDrivenTestRunner testRunner, Dictionary<string, object> objectMap)
-            : base(testRunner, client: null, objectMap)
+            : base(testRunner, objectMap)
         {
         }
 
-        protected override IServer GetServer()
+        protected override IServer GetFailPointServer()
         {
-            var pinnedServer = GetPinnedServer();
-            pinnedServer.Should().NotBeNull();
-            return pinnedServer;
+            var pinnedServerEndpoint = GetPinnedServerEndpointAndAssertNotNull();
+            var pinnedServerSelector = CreateServerSelector(pinnedServerEndpoint);
+            return TestRunner.FailPointCluster.SelectServer(pinnedServerSelector, CancellationToken.None);
         }
 
-        protected async override Task<IServer> GetServerAsync()
+        protected async override Task<IServer> GetFailPointServerAsync()
         {
-            return await Task.Run(() => GetServer()).ConfigureAwait(false);
+            var pinnedServerEndpoint = GetPinnedServerEndpointAndAssertNotNull();
+            var pinnedServerSelector = CreateServerSelector(pinnedServerEndpoint);
+            return await TestRunner.FailPointCluster.SelectServerAsync(pinnedServerSelector, CancellationToken.None).ConfigureAwait(false);
+        }
+
+        // private methods 
+        private IServerSelector CreateServerSelector(EndPoint endpoint)
+        {
+            return new CompositeServerSelector(new IServerSelector[]
+            {
+                WritableServerSelector.Instance,
+                new EndPointServerSelector(endpoint)
+            });
+        }
+
+        private EndPoint GetPinnedServerEndpointAndAssertNotNull()
+        {
+            var pinnedServerEndpoint = GetPinnedServerEndpoint();
+            pinnedServerEndpoint.Should().NotBeNull();
+            return pinnedServerEndpoint;
         }
     }
 }

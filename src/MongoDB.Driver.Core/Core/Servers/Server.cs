@@ -318,7 +318,7 @@ namespace MongoDB.Driver.Core.Servers
 
                 if (ex is MongoConnectionException mongoConnectionException &&
                     mongoConnectionException.IsNetworkException &&
-                    !mongoConnectionException.ContainsSocketTimeoutException)
+                    !mongoConnectionException.ContainsTimeoutException)
                 {
                     _monitor.CancelCurrentCheck();
                 }
@@ -353,13 +353,13 @@ namespace MongoDB.Driver.Core.Servers
 
                 if (ex is MongoConnectionException mongoConnectionException &&
                     mongoConnectionException.IsNetworkException &&
-                    !mongoConnectionException.ContainsSocketTimeoutException)
+                    !mongoConnectionException.ContainsTimeoutException)
                 {
                     _monitor.CancelCurrentCheck();
                 }
 
                 if (ex is MongoConnectionException connectionException &&
-                    (connectionException.IsNetworkException || connectionException.ContainsSocketTimeoutException))
+                    (connectionException.IsNetworkException || connectionException.ContainsTimeoutException))
                 {
                     Invalidate($"ChannelException during handshake: {ex}.", clearConnectionPool: true, responseTopologyVersion: null);
                 }
@@ -473,7 +473,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             if (ex is MongoConnectionException mongoCommandException &&
                 mongoCommandException.IsNetworkException &&
-                !mongoCommandException.ContainsSocketTimeoutException)
+                !mongoCommandException.ContainsTimeoutException)
             {
                 return true;
             }
@@ -493,7 +493,7 @@ namespace MongoDB.Driver.Core.Servers
             out TopologyVersion invalidatingResponseTopologyVersion)
         {
             if (exception is MongoConnectionException mongoConnectionException &&
-                mongoConnectionException.ContainsSocketTimeoutException)
+                mongoConnectionException.ContainsTimeoutException)
             {
                 invalidatingResponseTopologyVersion = null;
                 return false;

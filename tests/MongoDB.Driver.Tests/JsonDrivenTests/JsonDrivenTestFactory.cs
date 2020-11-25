@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                         case "assertSameLsidOnLastTwoCommands": return new JsonDrivenAssertSameLsidOnLastTwoCommandsTest(_testRunner, _eventCapturer, _objectMap);
                         case "assertSessionTransactionState": return new JsonDrivenAssertSessionTransactionStateTest(_testRunner, _objectMap);
                         case "assertEventCount": return new JsonDrivenAssertEventsCountTest(_testRunner, _objectMap, _eventCapturer);
-                        case "configureFailPoint": return new JsonDrivenConfigureFailPointTest(_testRunner, _client, _objectMap);
+                        case "configureFailPoint": return new JsonDrivenConfigureFailPointTest(_testRunner, _objectMap);
                         case "recordPrimary": return new JsonDrivenRecordPrimaryTest(_stateHolder, _testRunner, _client, _objectMap);
                         case "runAdminCommand": return new JsonDrivenRunAdminCommandTest(_client, _testRunner, _objectMap);
                         case "runOnThread": return new JsonDrivenRunOnThreadTest(_stateHolder, _testRunner, _objectMap, this);
