@@ -13,16 +13,17 @@
 * limitations under the License.
 */
 
-using System;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Tests
 {
     public interface IJsonDrivenTestRunner
     {
+        ICluster FailPointCluster { get; }
         void ConfigureFailPoint(IServer server, ICoreSessionHandle session, BsonDocument failCommand);
         Task ConfigureFailPointAsync(IServer server, ICoreSessionHandle session, BsonDocument failCommand);
     }

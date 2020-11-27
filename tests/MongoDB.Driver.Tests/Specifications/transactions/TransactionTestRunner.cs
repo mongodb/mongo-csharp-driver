@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
+using MongoDB.Driver;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
@@ -53,9 +54,22 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
         #endregion
 
         // private fields
+        private string _collectionName = "test";
         private string _databaseName = "transaction-tests";
         private readonly List<IDisposable> _disposables = new List<IDisposable>();
-        private string _collectionName = "test";
+
+        // public properties
+        public ICluster FailPointCluster
+        {
+            get
+            {
+                var regularClient = DriverTestConfiguration.Client;
+                var client = regularClient.Cluster.Description.Type == ClusterType.Sharded
+                    ? DriverTestConfiguration.ClientWithMultipleShardRouters
+                    : regularClient;
+                return client.Cluster;
+            }
+        }
 
         // public methods
         public void ConfigureFailPoint(IServer server, ICoreSessionHandle session, BsonDocument failCommand)

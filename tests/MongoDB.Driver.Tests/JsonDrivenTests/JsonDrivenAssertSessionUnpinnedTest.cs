@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
 
         public override void Assert()
         {
-            GetPinnedServer().Should().BeNull();
+            GetPinnedServerEndpoint().Should().BeNull();
         }
     }
 }

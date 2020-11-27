@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Tests
     {
         // private static fields
         private static Lazy<MongoClient> __client;
+        private static Lazy<MongoClient> __clientWithMultipleShardRouters;
         private static CollectionNamespace __collectionNamespace;
         private static DatabaseNamespace __databaseNamespace;
         private static Lazy<IReadOnlyList<IMongoClient>> __directClientsToShardRouters;
@@ -38,6 +39,7 @@ namespace MongoDB.Driver.Tests
         static DriverTestConfiguration()
         {
             __client = new Lazy<MongoClient>(() => new MongoClient(GetClientSettings()), true);
+            __clientWithMultipleShardRouters = new Lazy<MongoClient>(() => CreateClient(useMultipleShardRouters: true), true);
             __databaseNamespace = CoreTestConfiguration.DatabaseNamespace;
             __directClientsToShardRouters = new Lazy<IReadOnlyList<IMongoClient>>(
                 () => CreateDirectClientsToHostsInConnectionString(CoreTestConfiguration.ConnectionStringWithMultipleShardRouters).ToList().AsReadOnly(),
@@ -52,6 +54,14 @@ namespace MongoDB.Driver.Tests
         public static MongoClient Client
         {
             get { return __client.Value; }
+        }
+
+        /// <summary>
+        /// Gets the test client with multiple shard routers.
+        /// </summary>
+        public static MongoClient ClientWithMultipleShardRouters
+        {
+            get { return __clientWithMultipleShardRouters.Value; }
         }
 
         /// <summary>
@@ -110,8 +120,8 @@ namespace MongoDB.Driver.Tests
             return CreateDisposableClient((MongoClientSettings s) => s.ClusterConfigurator = clusterConfigurator);
         }
 
-        public static DisposableMongoClient CreateDisposableClient(
-            Action<MongoClientSettings> clientSettingsConfigurator,
+        public static MongoClient CreateClient(
+            Action<MongoClientSettings> clientSettingsConfigurator = null,
             bool useMultipleShardRouters = false)
         {
             if (CoreTestConfiguration.Cluster.Description.Type != ClusterType.Sharded)
@@ -124,8 +134,15 @@ namespace MongoDB.Driver.Tests
                 ? CoreTestConfiguration.ConnectionStringWithMultipleShardRouters.ToString()
                 : CoreTestConfiguration.ConnectionString.ToString();
             var clientSettings = MongoClientSettings.FromUrl(new MongoUrl(connectionString));
-            clientSettingsConfigurator(clientSettings);
-            var client = new MongoClient(clientSettings);
+            clientSettingsConfigurator?.Invoke(clientSettings);
+            return new MongoClient(clientSettings);
+        }
+
+        public static DisposableMongoClient CreateDisposableClient(
+            Action<MongoClientSettings> clientSettingsConfigurator,
+            bool useMultipleShardRouters = false)
+        {
+            var client = CreateClient(clientSettingsConfigurator, useMultipleShardRouters);
             return new DisposableMongoClient(client);
         }
 

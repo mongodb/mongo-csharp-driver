@@ -25,36 +25,34 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
 {
     public class JsonDrivenConfigureFailPointTest : JsonDrivenTestRunnerTest
     {
-        private readonly IMongoClient _client;
         protected BsonDocument _failCommand;
 
-        public JsonDrivenConfigureFailPointTest(IJsonDrivenTestRunner testRunner, IMongoClient client, Dictionary<string, object> objectMap)
+        public JsonDrivenConfigureFailPointTest(IJsonDrivenTestRunner testRunner, Dictionary<string, object> objectMap)
             : base(testRunner, objectMap)
         {
-            _client = client;
         }
 
         protected override void CallMethod(CancellationToken cancellationToken)
         {
-            var server = GetServer();
+            var server = GetFailPointServer();
             TestRunner.ConfigureFailPoint(server, NoCoreSession.NewHandle(), _failCommand);
         }
 
         protected override async Task CallMethodAsync(CancellationToken cancellationToken)
         {
-            var server = await GetServerAsync().ConfigureAwait(false);
+            var server = await GetFailPointServerAsync().ConfigureAwait(false);
             await TestRunner.ConfigureFailPointAsync(server, NoCoreSession.NewHandle(), _failCommand).ConfigureAwait(false);
         }
 
-        protected virtual IServer GetServer()
+        protected virtual IServer GetFailPointServer()
         {
-            var cluster = _client.Cluster;
+            var cluster = TestRunner.FailPointCluster;
             return cluster.SelectServer(WritableServerSelector.Instance, CancellationToken.None);
         }
 
-        protected async virtual Task<IServer> GetServerAsync()
+        protected async virtual Task<IServer> GetFailPointServerAsync()
         {
-            var cluster = _client.Cluster;
+            var cluster = TestRunner.FailPointCluster;
             return await cluster.SelectServerAsync(WritableServerSelector.Instance, CancellationToken.None).ConfigureAwait(false);
         }
 
