@@ -1,8 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+  <PropertyGroup>
+    <IsWindows Condition="$([MSBuild]::IsOSPlatform('Windows'))">true</IsWindows>
+  </PropertyGroup>
+  
   <PropertyGroup>
     <TargetFrameworks>netcoreapp1.1;netcoreapp2.1;net452</TargetFrameworks>
-    <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netcoreapp1.1;netcoreapp2.1</TargetFrameworks>
+    <TargetFrameworks Condition="'$(IsWindows)'!='true'">netcoreapp1.1;netcoreapp2.1</TargetFrameworks>
     <LangVersion>7.3</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
@@ -37,10 +40,6 @@
       xUnit2004; <!--Do not use equality check to test for boolean conditions (https://xunit.github.io/xunit.analyzers/rules/xUnit2004.html)-->
       xUnit2013 <!--Do not use equality check to check for collection size. (https://xunit.github.io/xunit.analyzers/rules/xUnit2013.html)-->
     </NoWarn>
-  </PropertyGroup>
-  
-  <PropertyGroup>
-    <IsWindows Condition="$([MSBuild]::IsOSPlatform('Windows'))">true</IsWindows>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(IsWindows)'=='true'">
