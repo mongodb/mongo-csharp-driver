@@ -1130,7 +1130,11 @@ namespace MongoDB.Bson.Tests.Serialization
             var json = obj.ToJson();
             var expected = "{ 'D' : #D, 'I' : 0, 'L' : NumberLong(0), 'S' : '#S' }";
             expected = expected.Replace("#D", "-1.7976931348623157E+308");
+#if NETCOREAPP3_0
+            expected = expected.Replace("#S", "-3.4028235E+38");
+#else
             expected = expected.Replace("#S", "-3.40282347E+38");
+#endif
             expected = expected.Replace("'", "\"");
             Assert.Equal(expected, json);
 
@@ -1228,7 +1232,12 @@ namespace MongoDB.Bson.Tests.Serialization
             var json = obj.ToJson();
             var expected = "{ 'D' : #D, 'I' : 0, 'L' : NumberLong(0), 'S' : '#S' }";
             expected = expected.Replace("#D", "1.7976931348623157E+308");
-            expected = expected.Replace("#S", "3.40282347E+38");
+
+#if NETCOREAPP3_0
+            expected = expected.Replace("#S", "3.4028235E+38");
+#else
+            expected = expected.Replace("#S", "-3.40282347E+38");
+#endif
             expected = expected.Replace("'", "\"");
             Assert.Equal(expected, json);
 

@@ -15,7 +15,7 @@
 
 using System;
 using System.Collections.Generic;
-#if NET452 || NETSTANDARD2_0
+#if !NETSTANDARD1_5
 using System.ComponentModel;
 #endif
 using System.Linq;
@@ -157,7 +157,7 @@ namespace MongoDB.Bson.Serialization
 
             Dictionary<string, object> values = null;
             var document = default(TClass);
-#if NET452 || NETSTANDARD2_0
+#if !NETSTANDARD1_5
             ISupportInitialize supportsInitialization = null;
 #endif
             if (_classMap.HasCreatorMaps)
@@ -170,7 +170,7 @@ namespace MongoDB.Bson.Serialization
                 // for mutable classes we deserialize the values directly into the result object
                 document = (TClass)_classMap.CreateInstance();
 
-#if NET452 || NETSTANDARD2_0
+#if !NETSTANDARD1_5
                 supportsInitialization = document as ISupportInitialize;
                 if (supportsInitialization != null)
                 {
@@ -321,7 +321,7 @@ namespace MongoDB.Bson.Serialization
 
             if (document != null)
             {
-#if NET452 || NETSTANDARD2_0
+#if !NETSTANDARD1_5
                 if (supportsInitialization != null)
                 {
                     supportsInitialization.EndInit();
@@ -473,7 +473,7 @@ namespace MongoDB.Bson.Serialization
             var creatorMap = ChooseBestCreator(values);
             var document = creatorMap.CreateInstance(values); // removes values consumed
 
-#if NET452 || NETSTANDARD2_0
+#if !NETSTANDARD1_5
             var supportsInitialization = document as ISupportInitialize;
             if (supportsInitialization != null)
             {
@@ -493,7 +493,7 @@ namespace MongoDB.Bson.Serialization
                 }
             }
 
-#if NET452 || NETSTANDARD2_0
+#if !NETSTANDARD1_5
             if (supportsInitialization != null)
             {
                 supportsInitialization.EndInit();

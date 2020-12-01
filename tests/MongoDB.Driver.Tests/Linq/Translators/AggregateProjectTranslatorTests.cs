@@ -1347,7 +1347,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         {
             RequireServer.Check().VersionGreaterThanOrEqualTo("3.3.6");
 
-#if !NETCOREAPP2_1 
+#if NET452 || NETCOREAPP1_1 
             /* for implementations that don't support omitted optional parameters in expression trees
              * skip to next test */
             var result1 = Project(x => new { Result = x.A.Split('e') });
