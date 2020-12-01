@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
 using Xunit;
@@ -66,6 +67,9 @@ namespace MongoDB.Driver.Core.Configuration
         [InlineData("mongodb://test5.test.build.10gen.cc", "mongodb://test5.test.build.10gen.cc", true)]
         [InlineData("mongodb+srv://test5.test.build.10gen.cc", "mongodb://localhost.test.build.10gen.cc:27017/?replicaSet=repl0&authSource=thisDB&tls=true", false)]
         [InlineData("mongodb+srv://test5.test.build.10gen.cc", "mongodb://localhost.test.build.10gen.cc:27017/?replicaSet=repl0&authSource=thisDB&tls=true", true)]
+        [InlineData("mongodb+srv://test5.test.build.10gen.cc/?authSource=$external", "mongodb://localhost.test.build.10gen.cc:27017/?replicaSet=repl0&authSource=%24external&tls=true", false)]
+        [InlineData("mongodb+srv://test5.test.build.10gen.cc/?authSource=%24external", "mongodb://localhost.test.build.10gen.cc:27017/?replicaSet=repl0&authSource=%24external&tls=true", false)]
+        [InlineData("mongodb+srv://test5.test.build.10gen.cc/?authSource=$external&authMechanism=MONGODB-AWS", "mongodb://localhost.test.build.10gen.cc:27017/?replicaSet=repl0&authSource=%24external&authMechanism=MONGODB-AWS&tls=true", false)]
         public void Resolve_should_return_expected_result(string connectionString, string expectedResult, bool async)
         {
             var subject = new ConnectionString(connectionString);
@@ -82,6 +86,26 @@ namespace MongoDB.Driver.Core.Configuration
 
             result.IsResolved.Should().BeTrue();
             result.ToString().Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Resolve_against_mongodb_aws_session_token_should_return_the_expected_aws_session_token([Values(false, true)] bool escapeToken)
+        {
+            const string authMechanism = "MONGODB-AWS";
+            const string username = "AKIAIOSFODNN7EXAMPLE";
+            const string password = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYzEXAMPLEKEY";
+            const string awsSessionToken = "AQoEXAMPLEH4aoAH0gNCAPyJxz4BlCFFxWNE1OPTgk5TthT+FvwqnKwRcOIfrRh3c/LTo6UDdyJwOOvEVPvLXCrrrUtdnniCEXAMPLE/IvU1dYUg2RVAJBanLiHb4IgRmpRV3zrkuWJOgQs8IZZaIv2BXIa2R4OlgkBN9bkUDNCJiBeb/AXlzBBko7b15fjrBs2+cTQtpZ3CYWFXG8C5zqx37wnOE49mRl/+OtkIKGO7fAE";
+
+            var preparedToken = escapeToken ? Uri.EscapeDataString(awsSessionToken) : awsSessionToken;
+            var uri = $"mongodb+srv://{username}:{Uri.EscapeDataString(password)}@test5.test.build.10gen.cc/test?authSource=$external&authMechanism={authMechanism}&authMechanismProperties=AWS_SESSION_TOKEN:{preparedToken}";
+            var connectionString = new ConnectionString(uri);
+
+            var result = connectionString.Resolve();
+
+            result.AuthMechanism.Should().Be(authMechanism);
+            result.Username.Should().Be(username);
+            result.AuthMechanismProperties["AWS_SESSION_TOKEN"].Should().Be(awsSessionToken);
         }
 
         [Theory]
