@@ -90,8 +90,7 @@ namespace MongoDB.Driver.Core.Configuration
         [Theory]
         [ParameterAttributeData]
         public void Resolve_against_mongodb_aws_session_token_should_return_the_expected_aws_session_token([Values(false, true)] bool escapeToken)
-
-    {
+        {
             const string authMechanism = "MONGODB-AWS";
             const string username = "AKIAIOSFODNN7EXAMPLE";
             const string password = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYzEXAMPLEKEY";
