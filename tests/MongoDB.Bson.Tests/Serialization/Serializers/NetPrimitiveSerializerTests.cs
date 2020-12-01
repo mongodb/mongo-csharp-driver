@@ -1236,7 +1236,7 @@ namespace MongoDB.Bson.Tests.Serialization
 #if NETCOREAPP3_0
             expected = expected.Replace("#S", "3.4028235E+38");
 #else
-            expected = expected.Replace("#S", "-3.40282347E+38");
+            expected = expected.Replace("#S", "3.40282347E+38");
 #endif
             expected = expected.Replace("'", "\"");
             Assert.Equal(expected, json);
