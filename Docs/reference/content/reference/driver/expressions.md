@@ -248,6 +248,12 @@ Find(p => p.Children.ContainsKey("John"))
 { "Children.John": { $exists: true } }
 ```
 
+#### $text
+
+```csharp
+// no example yet
+```
+
 ### Evaluation
 
 See the [MongoDB documentation]({{< docsref "reference/operator/query/#evaluation" >}}) for more information on each operator.
