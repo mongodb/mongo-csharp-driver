@@ -381,7 +381,7 @@ Find(x => x.FavoriteNumbers.Any(n => n < 42 && n > 21));
 { FavoriteNumbers: { $elemMatch: { $lt: 42, $gt: 21 } } }
 ```
 
-{{% note %}}Depending on the complexity and the operators involved in the Any method call, the driver might eliminate the $elemMatch completely. For instance,
+{{% note %}}Depending on the complexity and the operators involved in the Any method call, the driver might eliminate the `$elemMatch` completely. For instance,
 
 ```csharp
 Find(x => x.Pets.Any(p => p.Name == "Fluffy"))
