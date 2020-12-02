@@ -994,10 +994,6 @@ axes:
   - id: version
     display_name: MongoDB Version
     values:
-      - id: "latest"
-        display_name: "latest"
-        variables:
-           VERSION: "latest"
       - id: "4.4"
         display_name: "4.4"
         variables:
@@ -1124,7 +1120,7 @@ buildvariants:
      - name: test-netstandard20
 
 - matrix_name: "tests-zlib-compression"
-  matrix_spec: { compressor : "zlib", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "latest"], topology: "standalone", os: "*" }
+  matrix_spec: { compressor : "zlib", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4"], topology: "standalone", os: "*" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
@@ -1133,7 +1129,7 @@ buildvariants:
      - name: test-netstandard20
 
 - matrix_name: "tests-snappy-compression"
-  matrix_spec: { compressor : "snappy", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "latest"], topology: "standalone", os: "*" }
+  matrix_spec: { compressor : "snappy", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4"], topology: "standalone", os: "*" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
@@ -1142,7 +1138,7 @@ buildvariants:
      - name: test-netstandard20
 
 - matrix_name: "tests-zstandard-compression"
-  matrix_spec: { compressor : "zstandard", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "latest"], topology: "standalone", os: "*" }
+  matrix_spec: { compressor : "zstandard", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4"], topology: "standalone", os: "*" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
@@ -1151,14 +1147,14 @@ buildvariants:
      - name: test-netstandard20
 
 - matrix_name: "ocsp-tests"
-  matrix_spec: { version: ["4.4", "latest"], auth: "noauth", ssl: "ssl", topology: "standalone", os: "*" } # matrix_spec: { version: ["latest"], os-ssl-32: ["ubuntu1604-64-go-1-12"] }
+  matrix_spec: { version: ["4.4"], auth: "noauth", ssl: "ssl", topology: "standalone", os: "*" }
   display_name: "OCSP ${version} ${os}" #  display_name: "OCSP ${version} ${os-ssl-32}"
   batchtime: 20160 # 14 days
   tasks:
     - name: ".ocsp"
 
 - matrix_name: aws-auth-tests
-  matrix_spec: { version: ["latest"], topology: "standalone", os: "*" }
+  matrix_spec: { version: ["4.4"], topology: "standalone", os: "*" }
   display_name: "MONGODB-AWS Auth test"
   run_on:
     - windows-64-vs2017-test
