@@ -310,6 +310,46 @@ Find(p => p.Name.ToLower().Contains("John"))
 ```
 {{% note %}}`ToLowerInvariant`, `ToUpper`, `ToUpperInvariant`, `Trim`, `TrimStart`, and `TrimEnd` are also supported for the first function call. `StartsWith` and `EndsWith` are also supported for the second function call.{{% /note %}}
 
+#### $text
+
+```csharp
+// no example yet
+```
+
+#### $where
+
+```csharp
+// no example yet
+```
+
+
+### Geospatial
+
+See the [MongoDB documentation]({{< docsref "reference/operator/query/#geospatial" >}}) for more information on each operator.
+
+#### $geoWithin
+
+```csharp
+// no example yet
+```
+
+#### $geoIntersects
+
+```csharp
+// no example yet
+```
+
+#### $near
+
+```csharp
+// no example yet
+```
+
+#### $nearSphere
+
+```csharp
+// no example yet
+```
 
 ### Array
 
@@ -778,6 +818,16 @@ p => p.Name.Equals("balloon", StringComparison.OrdinalIgnoreCase);
 ```
 ```json
 { $strcasecmp: ['$Name', 'balloon' ] }
+```
+
+### Text Search Expressions
+
+See the [MongoDB documentation]({{< docsref "meta/aggregation-quick-reference/#text-search-expressions" >}}) for more information on each operator.
+
+#### $meta
+
+```csharp
+// no example yet
 ```
 
 ### Array Expressions
