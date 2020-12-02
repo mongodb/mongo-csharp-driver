@@ -660,6 +660,12 @@ tasks:
         - func: run-tests
           vars:
             FRAMEWORK: netstandard20
+    - name: test-netstandard21
+      commands:
+        - func: bootstrap-mongo-orchestration
+        - func: run-tests
+          vars:
+            FRAMEWORK: netstandard21
 
     - name: atlas-connectivity-tests
       commands:
@@ -1145,6 +1151,7 @@ buildvariants:
      - name: test-net452
      - name: test-netstandard15
      - name: test-netstandard20
+     - name: test-netstandard21
 
 - matrix_name: "unsecure-tests"
   matrix_spec: { version: "*", topology: "*", auth: "noauth", ssl: "nossl", os: "*" }
@@ -1154,6 +1161,7 @@ buildvariants:
      - name: test-net452
      - name: test-netstandard15
      - name: test-netstandard20
+     - name: test-netstandard21
 
 - matrix_name: "tests-zlib-compression"
   matrix_spec: { compressor : "zlib", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "latest"], topology: "standalone", os: "*" }
@@ -1163,6 +1171,7 @@ buildvariants:
      - name: test-net452
      - name: test-netstandard15
      - name: test-netstandard20
+     - name: test-netstandard21
 
 - matrix_name: "tests-snappy-compression"
   matrix_spec: { compressor : "snappy", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "latest"], topology: "standalone", os: "*" }
@@ -1172,6 +1181,7 @@ buildvariants:
      - name: test-net452
      - name: test-netstandard15
      - name: test-netstandard20
+     - name: test-netstandard21
 
 - matrix_name: "tests-zstandard-compression"
   matrix_spec: { compressor : "zstandard", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "latest"], topology: "standalone", os: "*" }
@@ -1181,6 +1191,7 @@ buildvariants:
      - name: test-net452
      - name: test-netstandard15
      - name: test-netstandard20
+     - name: test-netstandard21
 
 - matrix_name: "ocsp-tests"
   matrix_spec: { version: ["4.4", "latest"], auth: "noauth", ssl: "ssl", topology: "standalone", os: "*" } # matrix_spec: { version: ["latest"], os-ssl-32: ["ubuntu1604-64-go-1-12"] }

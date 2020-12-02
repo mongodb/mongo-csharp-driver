@@ -20,6 +20,7 @@ using System.Security.Authentication;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
@@ -702,6 +703,26 @@ namespace MongoDB.Driver.Tests
             var expectedServers = new[] { MongoServerAddress.Parse(expectedEndPoint) };
             result.Servers.Should().Equal(expectedServers);
             result.Scheme.Should().Be(expectedScheme);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void TestFromUrlWithMongoDBAWS_should_parse_credentials_correctly([Values(false, true)] bool escapeToken)
+        {
+            const string authMechanism = "MONGODB-AWS";
+            const string username = "AKIAIOSFODNN7EXAMPLE";
+            const string password = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYzEXAMPLEKEY";
+            const string awsSessionToken = "AQoEXAMPLEH4aoAH0gNCAPyJxz4BlCFFxWNE1OPTgk5TthT+FvwqnKwRcOIfrRh3c/LTo6UDdyJwOOvEVPvLXCrrrUtdnniCEXAMPLE/IvU1dYUg2RVAJBanLiHb4IgRmpRV3zrkuWJOgQs8IZZaIv2BXIa2R4OlgkBN9bkUDNCJiBeb/AXlzBBko7b15fjrBs2+cTQtpZ3CYWFXG8C5zqx37wnOE49mRl/+OtkIKGO7fAE";
+
+            var preparedToken = escapeToken ? Uri.EscapeDataString(awsSessionToken) : awsSessionToken;
+            var uri = $"mongodb+srv://{username}:{Uri.EscapeDataString(password)}@awssessiontokentest.example.net/test?authSource=$external&authMechanism={authMechanism}&authMechanismProperties=AWS_SESSION_TOKEN:{preparedToken}";
+            var url = new MongoUrl(uri);
+
+            var result = MongoClientSettings.FromUrl(url).Credential;
+
+            result.Mechanism.Should().Be(authMechanism);
+            result.Username.Should().Be(username);
+            result.GetMechanismProperty("AWS_SESSION_TOKEN", string.Empty).Should().Be(awsSessionToken);
         }
 
         [Fact]

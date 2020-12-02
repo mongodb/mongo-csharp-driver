@@ -73,7 +73,7 @@ Task("BuildArtifacts")
     .IsDependentOn("Build")
     .Does(() =>
     {
-        foreach (var targetFramework in new[] { "net452", "netstandard1.5", "netstandard2.0" })
+        foreach (var targetFramework in new[] { "net452", "netstandard1.5", "netstandard2.0", "netstandard2.1" })
         {
             var toDirectory = artifactsBinDirectory.Combine(targetFramework);
             CleanDirectory(toDirectory);
@@ -148,6 +148,7 @@ Task("Test")
             case "testnet452": settings.Framework = "net452"; break;
             case "testnetstandard15": settings.Framework = "netcoreapp1.1"; break;
             case "testnetstandard20": settings.Framework = "netcoreapp2.1"; break;
+            case "testnetstandard21": settings.Framework = "netcoreapp3.0"; break;
         }
         DotNetCoreTest(
             testProject.FullPath,
@@ -158,6 +159,7 @@ Task("Test")
 Task("TestNet452").IsDependentOn("Test");
 Task("TestNetStandard15").IsDependentOn("Test");
 Task("TestNetStandard20").IsDependentOn("Test");
+Task("TestNetStandard21").IsDependentOn("Test");
 
 Task("TestAwsAuthentication")
     .IsDependentOn("Build")

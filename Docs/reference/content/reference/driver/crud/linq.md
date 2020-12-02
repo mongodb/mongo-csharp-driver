@@ -276,7 +276,7 @@ The [`$out`]({{< docsref "reference/operator/aggregation/out/" >}}) stage is not
 
 #### $lookup
 
-The [`GroupJoin`]({{< msdnref "bb549264" >}}) method is used to generate a [`$lookup`]({{< docsref "reference/operator/aggregation/lookup/" >}}) stage.
+The [`GroupJoin`]({{< msdnref "bb548539" >}}) method is used to generate a [`$lookup`]({{< docsref "reference/operator/aggregation/lookup/" >}}) stage.
 
 This operator can take on many forms, many of which are not supported by MongoDB. Therefore, only 2 forms are supported.
 

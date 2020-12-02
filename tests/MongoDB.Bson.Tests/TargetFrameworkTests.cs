@@ -35,6 +35,8 @@ namespace MongoDB.Bson.Tests
             return "netstandard15";
 #elif NETCOREAPP2_1
             return "netstandard20";
+#elif NETCOREAPP3_0
+            return "netstandard21";
 #elif NET452
             return "net452";
 #endif

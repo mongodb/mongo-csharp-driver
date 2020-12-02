@@ -24,7 +24,7 @@ This is the easiest way to upload a file to GridFS, assuming that you have, or c
 
 ```csharp
 IGridFSBucket bucket;
-bytes[] source;
+byte[] source;
 ```
 ```csharp
 var id = bucket.UploadFromBytes("filename", source);
@@ -39,7 +39,7 @@ When using the [`UploadFromBytes`]({{< apiref "M_MongoDB_Driver_GridFS_IGridFSBu
 
 ```csharp
 IGridFSBucket bucket;
-bytes[] source;
+byte[] source;
 var options = new GridFSUploadOptions
 {
     ChunkSizeBytes = 64512, // 63KB
@@ -76,7 +76,7 @@ var id = await bucket.UploadFromStreamAsync("filename", source);
 
 The driver will read from the current position of the source [`Stream`]({{< msdnref "system.io.stream" >}}) and upload everything read from the [`Stream`]({{< msdnref "system.io.stream" >}}) until the [`Stream`]({{< msdnref "system.io.stream" >}}) reaches end of file.
 
-The [`UploadFromStream`]({{< apiref "M_MongoDB_Driver_GridFS_IGridFSBucket_UploadFromStream" >}}) and [`UploadFromStreamAsync`]({{< apiref "M_MongoDB_Driver_GridFS_IGridFSBucket_UploadFromStreamAsync" >}}) methods also support providing additional options, just like the example above for [`UploadFromBytes`]({{< apiref "M_MongoDB_Driver_GridFS_IGridFSBucket_UploadFromBytes" >}}) and [`UploadFromBytesAsync`]({{< apiref "M_MongoDB_Driver_GridFS_IGridFSBucket_UploadFromBytessAsync" >}}).
+The [`UploadFromStream`]({{< apiref "M_MongoDB_Driver_GridFS_IGridFSBucket_UploadFromStream" >}}) and [`UploadFromStreamAsync`]({{< apiref "M_MongoDB_Driver_GridFS_IGridFSBucket_UploadFromStreamAsync" >}}) methods also support providing additional options, just like the example above for [`UploadFromBytes`]({{< apiref "M_MongoDB_Driver_GridFS_IGridFSBucket_UploadFromBytes" >}}) and [`UploadFromBytesAsync`]({{< apiref "M_MongoDB_Driver_GridFS_IGridFSBucket_UploadFromBytesAsync" >}}).
 
 ### Uploading to a Stream
 

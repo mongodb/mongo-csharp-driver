@@ -1096,7 +1096,7 @@ namespace MongoDB.Driver
         /// Creates a pop first operator.
         /// </summary>
         /// <param name="field">The field.</param>
-        /// <returns>A pop first operator.</returns>
+        /// <returns>A pop last operator.</returns>
         public UpdateDefinition<TDocument> PopLast(Expression<Func<TDocument, object>> field)
         {
             return PopLast(new ExpressionFieldDefinition<TDocument>(field));
