@@ -23,7 +23,6 @@ using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira.CSharp783
 {
-
 #if WINDOWS
     public class CSharp783DiscriminatedInterfaceTests
     {
