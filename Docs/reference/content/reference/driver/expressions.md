@@ -248,7 +248,7 @@ Find(p => p.Children.ContainsKey("John"))
 { "Children.John": { $exists: true } }
 ```
 
-#### $text
+#### $type
 
 ```csharp
 // no example yet
