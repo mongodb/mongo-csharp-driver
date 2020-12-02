@@ -492,25 +492,6 @@ var result = collection.AsQueryable().Select(p => p.Age).Max();
 ]
 ```
 
-
-#### Sum
-
-All forms of [`Sum`]({{< msdnref "system.linq.queryable.Sum" >}}) are supported.
-
-```csharp
-var result = collection.AsQueryable().Sum(p => p.Age);
-
-// or
-
-var result = collection.AsQueryable().Select(p => p.Age).Sum();
-```
-```json
-[
-    { $group: { _id: 1, __result: { $Sum: "$Age" } } }
-]
-```
-
-
 #### OfType
 
 All forms of [`OfType`]({{< msdnref "system.linq.queryable.oftype" >}}) are supported.

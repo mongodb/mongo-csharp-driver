@@ -32,8 +32,8 @@ namespace MongoDB.Bson.Serialization
     public class BsonClassMap
     {
         // private static fields
-        private readonly static Dictionary<Type, BsonClassMap> __classMaps = new Dictionary<Type, BsonClassMap>();
-        private readonly static Queue<Type> __knownTypesQueue = new Queue<Type>();
+        private static readonly Dictionary<Type, BsonClassMap> __classMaps = new Dictionary<Type, BsonClassMap>();
+        private static readonly Queue<Type> __knownTypesQueue = new Queue<Type>();
         private static int __freezeNestingLevel = 0;
         private static readonly MethodInfo __getUninitializedObjectMethodInfo = GetGetUninitializedObjectMethodInfo();
 
@@ -60,7 +60,7 @@ namespace MongoDB.Bson.Serialization
         private bool _ignoreExtraElementsIsInherited;
         private BsonMemberMap _extraElementsMemberMap;
         private int _extraElementsMemberIndex = -1;
-        private List<Type> _knownTypes = new List<Type>();
+        private readonly List<Type> _knownTypes = new List<Type>();
 
         // constructors
         /// <summary>
@@ -1416,7 +1416,7 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// Creates a member map for the extra elements field and adds it to the class map.
         /// </summary>
-        /// <typeparam name="TMember">The member type.</typeparam>
+        /// <typeparam name="TMember">The field type.</typeparam>
         /// <param name="fieldLambda">A lambda expression specifying the extra elements field.</param>
         /// <returns>The member map.</returns>
         public BsonMemberMap MapExtraElementsField<TMember>(Expression<Func<TClass, TMember>> fieldLambda)
@@ -1442,7 +1442,7 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// Creates a member map for the extra elements property and adds it to the class map.
         /// </summary>
-        /// <typeparam name="TMember">The member type.</typeparam>
+        /// <typeparam name="TMember">The property type.</typeparam>
         /// <param name="propertyLambda">A lambda expression specifying the extra elements property.</param>
         /// <returns>The member map.</returns>
         public BsonMemberMap MapExtraElementsProperty<TMember>(Expression<Func<TClass, TMember>> propertyLambda)
@@ -1455,7 +1455,7 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// Creates a member map for a field and adds it to the class map.
         /// </summary>
-        /// <typeparam name="TMember">The member type.</typeparam>
+        /// <typeparam name="TMember">The field type.</typeparam>
         /// <param name="fieldLambda">A lambda expression specifying the field.</param>
         /// <returns>The member map.</returns>
         public BsonMemberMap MapField<TMember>(Expression<Func<TClass, TMember>> fieldLambda)
@@ -1466,7 +1466,7 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// Creates a member map for the Id field and adds it to the class map.
         /// </summary>
-        /// <typeparam name="TMember">The member type.</typeparam>
+        /// <typeparam name="TMember">The field type.</typeparam>
         /// <param name="fieldLambda">A lambda expression specifying the Id field.</param>
         /// <returns>The member map.</returns>
         public BsonMemberMap MapIdField<TMember>(Expression<Func<TClass, TMember>> fieldLambda)
@@ -1492,7 +1492,7 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// Creates a member map for the Id property and adds it to the class map.
         /// </summary>
-        /// <typeparam name="TMember">The member type.</typeparam>
+        /// <typeparam name="TMember">The property type.</typeparam>
         /// <param name="propertyLambda">A lambda expression specifying the Id property.</param>
         /// <returns>The member map.</returns>
         public BsonMemberMap MapIdProperty<TMember>(Expression<Func<TClass, TMember>> propertyLambda)
@@ -1517,7 +1517,7 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// Creates a member map for the property and adds it to the class map.
         /// </summary>
-        /// <typeparam name="TMember">The member type.</typeparam>
+        /// <typeparam name="TMember">The property type.</typeparam>
         /// <param name="propertyLambda">A lambda expression specifying the property.</param>
         /// <returns>The member map.</returns>
         public BsonMemberMap MapProperty<TMember>(Expression<Func<TClass, TMember>> propertyLambda)
@@ -1528,7 +1528,7 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// Removes the member map for a field from the class map.
         /// </summary>
-        /// <typeparam name="TMember">The member type.</typeparam>
+        /// <typeparam name="TMember">The field type.</typeparam>
         /// <param name="fieldLambda">A lambda expression specifying the field.</param>
         public void UnmapField<TMember>(Expression<Func<TClass, TMember>> fieldLambda)
         {
@@ -1549,7 +1549,7 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// Removes a member map for a property from the class map.
         /// </summary>
-        /// <typeparam name="TMember">The member type.</typeparam>
+        /// <typeparam name="TMember">The property type.</typeparam>
         /// <param name="propertyLambda">A lambda expression specifying the property.</param>
         public void UnmapProperty<TMember>(Expression<Func<TClass, TMember>> propertyLambda)
         {
