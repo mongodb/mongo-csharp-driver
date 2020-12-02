@@ -22,6 +22,8 @@ class Person
 
 	public int Age { get; set; }
 
+	public Dictionary<string, Person> Children { get; set; }
+
 	public IEnumerable<Pet> Pets { get; set; }
 
 	public int[] FavoriteNumbers { get; set; }
@@ -218,15 +220,20 @@ Find(p => p.Name != "Jack" && p.Name != "Jim");
 #### $not
 
 ```csharp
-// no example yet
+Find(p => !(p.Age < 18))
+```
+```json
+{ Age: { $not: { $lt: 18 } } }
 ```
 
 #### $nor
 
 ```csharp
-// no example yet
+Find(p => !(p.Age < 18 || p.Age >= 65))
 ```
-
+```json
+{ $nor: [{ Age: { $lt: 18 } }, { Age: { $gte: 65 } }] }
+```
 
 ### Element
 
@@ -235,13 +242,10 @@ See the [MongoDB documentation]({{< docsref "reference/operator/query/#element" 
 #### $exists
 
 ```csharp
-// no example yet
+Find(p => p.Children.ContainsKey("John"))
 ```
-
-#### $type
-
-```csharp
-// no example yet
+```json
+{ "Children.John": { $exists: true } }
 ```
 
 ### Evaluation
@@ -251,55 +255,61 @@ See the [MongoDB documentation]({{< docsref "reference/operator/query/#evaluatio
 #### $mod
 
 ```csharp
-// no example yet
+Find(p => p.Age % 2 == 0)
+```
+```json
+{ Age: { $mod: [NumberLong(2), NumberLong(0)] } }
 ```
 
 #### $regex
 
 ```csharp
-// no example yet
+Find(p => p.Name.IndexOf("John") == 0)
 ```
-
-#### $text
-
+```json
+{ Name: /^(?!.{0,-1}John).{0}John/s }
+```
+---
 ```csharp
-// no example yet
+Find(p => p.Name[0] == 'a')
 ```
-
-#### $where
-
+```json
+{ Name: /^.{0}a/s }
+```
+---
 ```csharp
-// no example yet
+Find(p => p.Name.Length >= 5)
 ```
+```json
+{ Name: /^.{5,}$/s }
+```
+---
+```
+Find(p => p.Name.ToLower() == "john")
+```
+```json
+{ Name: /^john$/i }
+```
+{{% note %}}`ToLowerInvariant`, `ToUpper`, and `ToUpperInvariant` are also supported.{{% /note %}}
 
-
-### Geospatial
-
-See the [MongoDB documentation]({{< docsref "reference/operator/query/#geospatial" >}}) for more information on each operator.
-
-#### $geoWithin
-
+---
 ```csharp
-// no example yet
+Find(p => p.Name.Contains("John"))
 ```
+```json
+{ Name: /John/s }
+```
+{{% note %}}`StartsWith` and `EndsWith` are also supported.{{% /note %}}
 
-#### $geoIntersects
-
+---
 ```csharp
-// no example yet
+Find(p => p.Name.ToLower().Contains("John"))
 ```
-
-#### $near
-
-```csharp
-// no example yet
+```json
+{ Name: /John/is }
 ```
+{{% note %}}`ToLowerInvariant`, `ToUpper`, `ToUpperInvariant`, `Trim`, `TrimStart`, and `TrimEnd` are also supported for the first function call. `StartsWith` and `EndsWith` are also supported for the second function call.{{% /note %}}
 
-#### $nearSphere
-
-```csharp
-// no example yet
-```
 
 ### Array
 
@@ -770,16 +780,6 @@ p => p.Name.Equals("balloon", StringComparison.OrdinalIgnoreCase);
 { $strcasecmp: ['$Name', 'balloon' ] }
 ```
 
-### Text Search Expressions
-
-See the [MongoDB documentation]({{< docsref "meta/aggregation-quick-reference/#text-search-expressions" >}}) for more information on each operator.
-
-#### $meta
-
-```csharp
-// no example yet
-```
-
 ### Array Expressions
 
 See the [MongoDB documentation]({{< docsref "meta/aggregation-quick-reference/#array-expressions" >}}) for more information on each operator.
@@ -972,7 +972,7 @@ p => p.CreatedAtUtc.Day);
 The .NET constant for day of week is 1 less than that in MongoDB. As such, we must subtract 1 from the MongoDB version in order for mapping back to the .NET type to be accurate.
 
 ```csharp
-p => p.CreatedAtUtc.DayOfWeek);
+p => p.CreatedAtUtc.DayOfWeek;
 ```
 ```json
 { $subtract: [ { $dayOfWeek: '$CreatedAtUtc' }, 1 ] }
@@ -981,7 +981,7 @@ p => p.CreatedAtUtc.DayOfWeek);
 #### $year
 
 ```csharp
-p => p.CreatedAtUtc.Year);
+p => p.CreatedAtUtc.Year;
 ```
 ```json
 { $year: '$CreatedAtUtc' }
@@ -990,7 +990,7 @@ p => p.CreatedAtUtc.Year);
 #### $month
 
 ```csharp
-p => p.CreatedAtUtc.Month);
+p => p.CreatedAtUtc.Month;
 ```
 ```json
 { $month: '$CreatedAtUtc' }
@@ -1005,7 +1005,7 @@ p => p.CreatedAtUtc.Month);
 #### $hour
 
 ```csharp
-p => p.CreatedAtUtc.Hour);
+p => p.CreatedAtUtc.Hour;
 ```
 ```json
 { $hour: '$CreatedAtUtc' }
@@ -1014,7 +1014,7 @@ p => p.CreatedAtUtc.Hour);
 #### $minute
 
 ```csharp
-p => p.CreatedAtUtc.Minute);
+p => p.CreatedAtUtc.Minute;
 ```
 ```json
 { $minute: '$CreatedAtUtc' }
@@ -1023,7 +1023,7 @@ p => p.CreatedAtUtc.Minute);
 #### $second
 
 ```csharp
-p => p.CreatedAtUtc.Second);
+p => p.CreatedAtUtc.Second;
 ```
 ```json
 { $second: '$CreatedAtUtc' }
@@ -1032,7 +1032,7 @@ p => p.CreatedAtUtc.Second);
 #### $millisecond
 
 ```csharp
-p => p.CreatedAtUtc.Millisecond);
+p => p.CreatedAtUtc.Millisecond;
 ```
 ```json
 { $millisecond: '$CreatedAtUtc' }

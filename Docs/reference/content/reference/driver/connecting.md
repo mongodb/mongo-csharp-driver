@@ -114,7 +114,7 @@ An [`IMongoCollection<TDocument>`]({{< apiref "T_MongoDB_Driver_IMongoCollection
 var collection = db.GetCollection<BsonDocument>("people");
 ```
 
-Above, we have gotten the "people" collection. IF the collection does not exist on the server, it will be created automatically upon first use. If you want to use more than one database, call [`GetCollection<TDocument>`]({{< apiref "M_MongoDB_Driver_IMongoDatabase_GetCollection__1" >}}) once for each database you'd like to work with.
+Above, we have gotten the "people" collection. If the collection does not exist on the server, it will be created automatically upon first use. If you want to use more than one database, call [`GetCollection<TDocument>`]({{< apiref "M_MongoDB_Driver_IMongoDatabase_GetCollection__1" >}}) once for each database you'd like to work with.
 
 The generic parameter `TDocument` is the type of document that is stored in your collection. It can, effectively, be any type that can be mapped to and from BSON. The driver utilizes the [BSON library]({{< relref "reference\bson\index.md" >}}) to handle this mapping. The most common types you will use are:
 
