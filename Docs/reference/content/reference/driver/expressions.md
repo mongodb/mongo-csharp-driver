@@ -248,6 +248,15 @@ Find(p => p.Children.ContainsKey("John"))
 { "Children.John": { $exists: true } }
 ```
 
+#### $type
+
+```csharp
+Find(Builders<Person>.Filter.Type(p => p.Name, BsonType.String))
+```
+```json
+{ "Name" : { "$type" : 2 } }
+```
+
 ### Evaluation
 
 See the [MongoDB documentation]({{< docsref "reference/operator/query/#evaluation" >}}) for more information on each operator.
