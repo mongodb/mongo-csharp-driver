@@ -40,8 +40,7 @@ namespace MongoDB.Bson.Serialization
 
         // public methods
         /// <summary>
-        /// Gets the serializer for the specified <paramref name="type" />,
-        /// or adds it when it was not registered yet.
+        /// Gets the serializer (explicitly registered or default) for the specified <paramref name="type" />.
         /// </summary>
         /// <param name="type">The type.</param>
         /// <returns>
@@ -64,8 +63,7 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
-        /// Gets the serializer for the specified <typeparamref name="T" />,
-        /// or adds it when it was not registered yet.
+        /// Gets the serializer (explicitly registered or default) for the specified <typeparamref name="T" />.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns>
