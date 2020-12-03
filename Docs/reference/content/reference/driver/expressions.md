@@ -255,10 +255,10 @@ See the [MongoDB documentation]({{< docsref "reference/operator/query/#evaluatio
 #### $mod
 
 ```csharp
-Find(p => p.Age % 2 = 0)
+Find(p => p.Age % 2 == 0)
 ```
 ```json
-{ Age: { $mod: [2, 0] } }
+{ Age: { $mod: [NumberLong(2), NumberLong(0)] } }
 ```
 
 #### $regex
@@ -268,13 +268,6 @@ Find(p => p.Name.IndexOf("John") == 0)
 ```
 ```json
 { Name: /^(?!.{0,-1}John).{0}John/s }
-```
----
-```csharp
-Find(p => p.Name.IndexOfAny(new char[] { 'a', 'b', 'c' }))
-```
-```json
-{ Name: /^[^abc]{0}[abc]/s }
 ```
 ---
 ```csharp
@@ -348,7 +341,7 @@ Find(x => x.FavoriteNumbers.Any(n => n < 42 && n > 21));
 { FavoriteNumbers: { $elemMatch: { $lt: 42, $gt: 21 } } }
 ```
 
-{{% note %}}Depending on the complexity and the operators involved in the Any method call, the driver might eliminate the $elemMatch completely. For instance,
+{{% note %}}Depending on the complexity and the operators involved in the Any method call, the driver might eliminate the `$elemMatch` completely. For instance,
 
 ```csharp
 Find(x => x.Pets.Any(p => p.Name == "Fluffy"))
