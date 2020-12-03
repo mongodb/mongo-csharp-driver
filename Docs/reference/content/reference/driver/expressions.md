@@ -306,7 +306,7 @@ Find(p => p.Name.Contains("John"))
 Find(p => p.Name.ToLower().Contains("John"))
 ```
 ```json
-{ Name: /john/is }
+{ Name: /John/is }
 ```
 {{% note %}}`ToLowerInvariant`, `ToUpper`, `ToUpperInvariant`, `Trim`, `TrimStart`, and `TrimEnd` are also supported for the first function call. `StartsWith` and `EndsWith` are also supported for the second function call.{{% /note %}}
 
