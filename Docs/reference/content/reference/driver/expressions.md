@@ -248,6 +248,15 @@ Find(p => p.Children.ContainsKey("John"))
 { "Children.John": { $exists: true } }
 ```
 
+#### $type
+
+```csharp
+Find(Builders<Person>.Filter.Type(p => p.Name, BsonType.String))
+```
+```json
+{ "Name" : { "$type" : 2 } }
+```
+
 ### Evaluation
 
 See the [MongoDB documentation]({{< docsref "reference/operator/query/#evaluation" >}}) for more information on each operator.
@@ -255,27 +264,14 @@ See the [MongoDB documentation]({{< docsref "reference/operator/query/#evaluatio
 #### $mod
 
 ```csharp
-Find(p => p.Age % 2 = 0)
+Find(p => p.Age % 2 == 0)
 ```
 ```json
-{ Age: { $mod: [2, 0] } }
+{ Age: { $mod: [NumberLong(2), NumberLong(0)] } }
 ```
 
 #### $regex
 
-```csharp
-Find(p => p.Name.IndexOf("John") == 0)
-```
-```json
-{ Name: /^(?!.{0,-1}John).{0}John/s }
-```
----
-```csharp
-Find(p => p.Name.IndexOfAny(new char[] { 'a', 'b', 'c' }))
-```
-```json
-{ Name: /^[^abc]{0}[abc]/s }
-```
 ---
 ```csharp
 Find(p => p.Name[0] == 'a')
@@ -313,10 +309,50 @@ Find(p => p.Name.Contains("John"))
 Find(p => p.Name.ToLower().Contains("John"))
 ```
 ```json
-{ Name: /john/is }
+{ Name: /John/is }
 ```
 {{% note %}}`ToLowerInvariant`, `ToUpper`, `ToUpperInvariant`, `Trim`, `TrimStart`, and `TrimEnd` are also supported for the first function call. `StartsWith` and `EndsWith` are also supported for the second function call.{{% /note %}}
 
+#### $text
+
+```csharp
+// no example yet
+```
+
+#### $where
+
+```csharp
+// no example yet
+```
+
+
+### Geospatial
+
+See the [MongoDB documentation]({{< docsref "reference/operator/query/#geospatial" >}}) for more information on each operator.
+
+#### $geoWithin
+
+```csharp
+// no example yet
+```
+
+#### $geoIntersects
+
+```csharp
+// no example yet
+```
+
+#### $near
+
+```csharp
+// no example yet
+```
+
+#### $nearSphere
+
+```csharp
+// no example yet
+```
 
 ### Array
 
@@ -348,7 +384,7 @@ Find(x => x.FavoriteNumbers.Any(n => n < 42 && n > 21));
 { FavoriteNumbers: { $elemMatch: { $lt: 42, $gt: 21 } } }
 ```
 
-{{% note %}}Depending on the complexity and the operators involved in the Any method call, the driver might eliminate the $elemMatch completely. For instance,
+{{% note %}}Depending on the complexity and the operators involved in the Any method call, the driver might eliminate the `$elemMatch` completely. For instance,
 
 ```csharp
 Find(x => x.Pets.Any(p => p.Name == "Fluffy"))
@@ -785,6 +821,16 @@ p => p.Name.Equals("balloon", StringComparison.OrdinalIgnoreCase);
 ```
 ```json
 { $strcasecmp: ['$Name', 'balloon' ] }
+```
+
+### Text Search Expressions
+
+See the [MongoDB documentation]({{< docsref "meta/aggregation-quick-reference/#text-search-expressions" >}}) for more information on each operator.
+
+#### $meta
+
+```csharp
+// no example yet
 ```
 
 ### Array Expressions

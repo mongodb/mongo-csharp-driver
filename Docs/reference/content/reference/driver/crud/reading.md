@@ -263,7 +263,7 @@ Skip(20);
 
 #### $unwind
 
-An `$unwind` stage is defined using the [`Unwind`]({{< apiref "M_MongoDB_Driver_IAggregateFluent_1_Unwind__1" >}}) method and its overloads. Because $unwind is a type of projection, you must provide a return type, although not specifying one will use the overload that projects into a [`BsonDocument`]({{< apiref "T_MongoDB_Bson_BsonDocument" >}}).
+An `$unwind` stage is defined using the [`Unwind`]({{< apiref "M_MongoDB_Driver_IAggregateFluent_1_Unwind__1" >}}) method and its overloads. Because `$unwind` is a type of projection, you must provide a return type, although not specifying one will use the overload that projects into a [`BsonDocument`]({{< apiref "T_MongoDB_Bson_BsonDocument" >}}).
 
 ```csharp
 Unwind(x => x.ArrayFieldToUnwind);
