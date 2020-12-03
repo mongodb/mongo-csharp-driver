@@ -40,8 +40,8 @@ namespace MongoDB.Bson.Serialization
 
         // public methods
         /// <summary>
-        /// Gets the serializer for the specified <paramref name="type" />,
-        /// or adds it when it was not registered yet.
+        /// Gets the serializer for the specified <paramref name="type" />.
+        /// If none is already registered, the serialization providers will be used to create a serializer and it will be automatically registered.
         /// </summary>
         /// <param name="type">The type.</param>
         /// <returns>
@@ -64,8 +64,8 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
-        /// Gets the serializer for the specified <typeparamref name="T" />,
-        /// or adds it when it was not registered yet.
+        /// Gets the serializer for the specified <typeparamref name="T" />.
+        /// If none is already registered, the serialization providers will be used to create a serializer and it will be automatically registered.
         /// </summary>
         /// <typeparam name="T">The value type of the serializer.</typeparam>
         /// <returns>
@@ -111,7 +111,7 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
-        /// Registers the serialization provider. This behaves like a stack, so the 
+        /// Registers the serialization provider. This behaves like a stack, so the
         /// last provider registered is the first provider consulted.
         /// </summary>
         /// <param name="serializationProvider">The serialization provider.</param>
