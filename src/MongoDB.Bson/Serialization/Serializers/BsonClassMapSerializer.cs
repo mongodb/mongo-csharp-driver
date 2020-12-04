@@ -584,13 +584,6 @@ namespace MongoDB.Bson.Serialization
                 SerializeMember(context, document, idMemberMap);
             }
 
-            //var autoTimeStampMemberMap = _classMap.AutoTimeStampMemberMap;
-            //if (autoTimeStampMemberMap != null)
-            //{
-            //    SerializeNormalMember(context, document, autoTimeStampMemberMap);
-            //    remainingMemberMaps.Remove(autoTimeStampMemberMap);
-            //}
-
             if (ShouldSerializeDiscriminator(args.NominalType))
             {
                 SerializeDiscriminator(context, args.NominalType, document);
