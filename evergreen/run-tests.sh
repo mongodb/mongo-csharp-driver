@@ -92,21 +92,13 @@ fi
 echo "Running $AUTH tests over $SSL for $TOPOLOGY with $COMPRESSOR compressor and connecting to $MONGODB_URI"
 
 if [[ "$OS" =~ Windows|windows ]]; then
-  if [[ "$FRAMEWORK" == "nil" ]]; then
-    export TARGET="Test"
-  else
-    export TARGET="Test${FRAMEWORK}"
-  fi
+  export TARGET="Test${FRAMEWORK}"
   if [ "$OCSP_TLS_SHOULD_SUCCEED" != "nil" ]; then
     export TARGET="TestOcsp"
     certutil.exe -urlcache localhost delete # clear the OS-level cache of all entries with the URL "localhost"
   fi
 else
-  if [[ "$FRAMEWORK" == "nil" ]]; then
-    export TARGET="Test"
-  else
-    export TARGET="Test${FRAMEWORK}"
-  fi
+  export TARGET="Test${FRAMEWORK}"
 fi
 
 echo "Final MongoDB_URI: $MONGODB_URI"
