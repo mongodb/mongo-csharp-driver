@@ -30,12 +30,6 @@
     <PackageLanguage>en-US</PackageLanguage>
     <IncludeSymbols>true</IncludeSymbols>
   </PropertyGroup>
-
-  <Target Name="PrintOS" BeforeTargets="Build">
-    <Message Text="IsWindows: '$(IsWindows)'" Importance="high" />
-    <Message Text="IsOSX: '$(IsOSX)'" Importance="high" />
-    <Message Text="IsLinux: '$(IsLinux)'" Importance="high" />
-  </Target>
   
   <ItemGroup>
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" PrivateAssets="All" Version="1.0.0" />
