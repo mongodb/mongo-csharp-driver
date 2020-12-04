@@ -49,7 +49,6 @@ functions:
 
            # Python has cygwin path problems on Windows. Detect prospective mongo-orchestration home directory
            if [ "Windows_NT" = "$OS" ]; then # Magic variable in cygwin
-              echo "########################## CYGWIN"
               export DRIVERS_TOOLS=$(cygpath -m $DRIVERS_TOOLS)
            fi
 
