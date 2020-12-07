@@ -272,12 +272,6 @@ Find(p => p.Age % 2 == 0)
 
 #### $regex
 
-```csharp
-Find(p => p.Name.IndexOf("John") == 0)
-```
-```json
-{ Name: /^(?!.{0,-1}John).{0}John/s }
-```
 ---
 ```csharp
 Find(p => p.Name[0] == 'a')
