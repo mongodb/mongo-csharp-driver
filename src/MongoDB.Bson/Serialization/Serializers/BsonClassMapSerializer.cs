@@ -516,16 +516,23 @@ namespace MongoDB.Bson.Serialization
                 endInitMethodInfo = null;
             }
             #endregion
+
+            #region private static fields
+            private static readonly MethodInfo _beginInitMethodInfo;
+            private static readonly MethodInfo _endInitMethodInfo;
+            #endregion
+
+            // Note: This is inside a generic type so the static constructor will be called on a per type parameter (TClass) basis.
+            static ClassDeserializationStrategy()
+            {
+                CheckForISupportInitializeInterface(out _beginInitMethodInfo, out _endInitMethodInfo);
+            }
 #endif
 
             #region private fields
             private readonly TClass _document;
 #if !NETSTANDARD1_5
             private readonly ISupportInitialize _supportsInitialization;
-#endif
-#if NETSTANDARD1_5
-            private readonly MethodInfo _beginInitMethodInfo;
-            private readonly MethodInfo _endInitMethodInfo;
 #endif
             #endregion
 
@@ -539,7 +546,6 @@ namespace MongoDB.Bson.Serialization
                 _supportsInitialization?.BeginInit();
 #endif
 #if NETSTANDARD1_5
-                CheckForISupportInitializeInterface(out _beginInitMethodInfo, out _endInitMethodInfo);
                 _beginInitMethodInfo?.Invoke(_document, new object[0]);
 #endif
             }
