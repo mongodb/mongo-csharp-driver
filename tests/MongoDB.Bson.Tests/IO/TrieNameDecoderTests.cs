@@ -28,7 +28,7 @@ namespace MongoDB.Bson.Tests.IO
             var trie = new BsonTrie<int>();
             trie.Add("known", 10);
 
-            Assert(trie, "different");
+            Assert(trie, "different", false, default);
         }
 
         [Fact]
@@ -37,7 +37,7 @@ namespace MongoDB.Bson.Tests.IO
             var trie = new BsonTrie<int>();
             trie.Add("longer", 10);
 
-            Assert(trie, "long");
+            Assert(trie, "long", false, default);
         }
 
         [Fact]
@@ -46,13 +46,11 @@ namespace MongoDB.Bson.Tests.IO
             var trie = new BsonTrie<int>();
             trie.Add("known", 10);
 
-            Assert(trie, "known");
+            Assert(trie, "known", true, 10);
         }
 
-        private void Assert(BsonTrie<int> trie, string name)
+        private static void Assert(string name, TrieNameDecoder<int> subject, bool found, int value)
         {
-            var subject = new TrieNameDecoder<int>(trie);
-
             using (var memoryStream = new MemoryStream())
             using (var bsonStream = new BsonStreamAdapter(memoryStream))
             {
@@ -63,7 +61,27 @@ namespace MongoDB.Bson.Tests.IO
                 var result = subject.Decode(bsonStream, Utf8Encodings.Strict);
 
                 result.Should().Be(name);
+                subject.Found.Should().Be(found);
+                subject.Value.Should().Be(value);
             }
+        }
+
+        private void Assert(BsonTrie<int> trie, string name, bool found, int value)
+        {
+            // test multiple calls to the same TrieDecoder instance
+            var subject = new TrieNameDecoder<int>(trie);
+
+            // 1st pass: assert calling test's expectation
+            Assert(name, subject, found, value);
+
+            // 2rd pass: assert calling test's expectation once again
+            Assert(name, subject, found, value);
+
+            // 3rd pass: different value in stream --> assert "found: false" and "value: default"
+            Assert("doesn't exist in trie", subject, false, default);
+
+            // 4th pass: assert calling test's expectation once again
+            Assert(name, subject, found, value);
         }
     }
 }
