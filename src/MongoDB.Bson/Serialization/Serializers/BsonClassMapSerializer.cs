@@ -86,27 +86,22 @@ namespace MongoDB.Bson.Serialization
                 throw new BsonSerializationException(message);
             }
 
-            if (bsonReader.GetCurrentBsonType() == Bson.BsonType.Null)
+            if (bsonReader.GetCurrentBsonType() == BsonType.Null)
             {
                 bsonReader.ReadNull();
-                return default(TClass);
+                return default;
             }
-            else
+
+            var discriminatorConvention = _classMap.GetDiscriminatorConvention();
+
+            var actualType = discriminatorConvention.GetActualType(bsonReader, args.NominalType);
+            if (actualType == typeof(TClass))
             {
-                var discriminatorConvention = _classMap.GetDiscriminatorConvention();
-
-                var actualType = discriminatorConvention.GetActualType(bsonReader, args.NominalType);
-                if (actualType == typeof(TClass))
-                {
-                    return DeserializeClass(context);
-                }
-                else
-                {
-                    var serializer = BsonSerializer.LookupSerializer(actualType);
-                    return (TClass)serializer.Deserialize(context);
-                }
-
+                return DeserializeClass(context);
             }
+
+            var serializer = BsonSerializer.LookupSerializer(actualType);
+            return (TClass)serializer.Deserialize(context);
         }
 
         /// <summary>
@@ -131,11 +126,8 @@ namespace MongoDB.Bson.Serialization
             {
                 return DeserializeClass(context, bsonReader, new DictionaryDeserializationStrategy(_classMap));
             }
-            else
-            {
 
-                return DeserializeClass(context, bsonReader, new ClassDeserializationStrategy(_classMap));
-            }
+            return DeserializeClass(context, bsonReader, new ClassDeserializationStrategy(_classMap));
         }
 
         private TClass DeserializeClass(BsonDeserializationContext context, IBsonReader bsonReader, IClassDeserializationStrategy deserializationStrategy)
@@ -262,13 +254,11 @@ namespace MongoDB.Bson.Serialization
                 idGenerator = idMemberMap.IdGenerator;
                 return true;
             }
-            else
-            {
-                id = null;
-                idNominalType = null;
-                idGenerator = null;
-                return false;
-            }
+
+            id = null;
+            idNominalType = null;
+            idGenerator = null;
+            return false;
         }
 
         /// <summary>
@@ -546,33 +536,21 @@ namespace MongoDB.Bson.Serialization
 
 #if !NETSTANDARD1_5
                 _supportsInitialization = _document as ISupportInitialize;
-                if (_supportsInitialization != null)
-                {
-                    _supportsInitialization.BeginInit();
-                }
+                _supportsInitialization?.BeginInit();
 #endif
 #if NETSTANDARD1_5
                 CheckForISupportInitializeInterface(out _beginInitMethodInfo, out _endInitMethodInfo);
-                if (_beginInitMethodInfo != null)
-                {
-                    _beginInitMethodInfo.Invoke(_document, new object[0]);
-                }
+                _beginInitMethodInfo?.Invoke(_document, new object[0]);
 #endif
             }
 
             public TClass GetDeserializationResult()
             {
 #if !NETSTANDARD1_5
-                if (_supportsInitialization != null)
-                {
-                    _supportsInitialization.EndInit();
-                }
+                _supportsInitialization?.EndInit();
 #endif
 #if NETSTANDARD1_5
-                if (_endInitMethodInfo != null)
-                {
-                    _endInitMethodInfo.Invoke(_document, new object[0]);
-                }
+                _endInitMethodInfo?.Invoke(_document, new object[0]);
 #endif
                 return _document;
             }
@@ -729,10 +707,7 @@ namespace MongoDB.Bson.Serialization
 
 #if !NETSTANDARD1_5
                 var supportsInitialization = document as ISupportInitialize;
-                if (supportsInitialization != null)
-                {
-                    supportsInitialization.BeginInit();
-                }
+                supportsInitialization?.BeginInit();
 #endif
                 // process any left over values that weren't passed to the creator
                 foreach (var keyValuePair in values)
@@ -748,10 +723,7 @@ namespace MongoDB.Bson.Serialization
                 }
 
 #if !NETSTANDARD1_5
-                if (supportsInitialization != null)
-                {
-                    supportsInitialization.EndInit();
-                }
+                supportsInitialization?.EndInit();
 #endif
 
                 return (TClass)document;
