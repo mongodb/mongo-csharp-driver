@@ -31,7 +31,7 @@ namespace MongoDB.Bson.Serialization
     public class BsonClassMapSerializer<TClass> : SerializerBase<TClass>, IBsonIdProvider, IBsonDocumentSerializer, IBsonPolymorphicSerializer
     {
         // private fields
-        private BsonClassMap _classMap;
+        private readonly BsonClassMap _classMap;
 
         // constructors
         /// <summary>
