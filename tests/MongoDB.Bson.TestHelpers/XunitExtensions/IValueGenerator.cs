@@ -15,7 +15,7 @@
 
 namespace MongoDB.Bson.TestHelpers.XunitExtensions
 {
-    internal interface IValueGenerator
+    public interface IValueGenerator
     {
         object[] GenerateValues();
     }
