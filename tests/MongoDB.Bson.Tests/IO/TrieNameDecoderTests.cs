@@ -49,7 +49,8 @@ namespace MongoDB.Bson.Tests.IO
             Assert(trie, "known", true, 10);
         }
 
-        private static void Assert(string name, TrieNameDecoder<int> subject, bool found, int value)
+        // private methods
+        private void Assert(string name, TrieNameDecoder<int> subject, bool found, int value)
         {
             using (var memoryStream = new MemoryStream())
             using (var bsonStream = new BsonStreamAdapter(memoryStream))
