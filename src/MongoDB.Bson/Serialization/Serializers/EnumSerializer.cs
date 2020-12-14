@@ -14,12 +14,8 @@
 */
 
 using System;
-using System.IO;
-using System.Linq;
 using System.Reflection;
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson.Serialization.Options;
+using System.Runtime.CompilerServices;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -31,6 +27,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     {
         // private fields
         private readonly BsonType _representation;
+        private readonly TypeCode _underlyingTypeCode;
 
         // constructors
         /// <summary>
@@ -69,6 +66,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
 
             _representation = representation;
+            _underlyingTypeCode = Type.GetTypeCode(Enum.GetUnderlyingType(typeof(TEnum)));
         }
 
         // public properties
@@ -97,10 +95,10 @@ namespace MongoDB.Bson.Serialization.Serializers
             var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
-                case BsonType.Int32: return (TEnum)Enum.ToObject(typeof(TEnum), bsonReader.ReadInt32());
-                case BsonType.Int64: return (TEnum)Enum.ToObject(typeof(TEnum), bsonReader.ReadInt64());
-                case BsonType.Double: return (TEnum)Enum.ToObject(typeof(TEnum), (long)bsonReader.ReadDouble());
-                case BsonType.String: return (TEnum)Enum.Parse(typeof(TEnum), bsonReader.ReadString());
+                case BsonType.Int32: return ConvertInt32ToEnum(bsonReader.ReadInt32());
+                case BsonType.Int64: return ConvertInt64ToEnum(bsonReader.ReadInt64());
+                case BsonType.Double: return ConvertDoubleToEnum(bsonReader.ReadDouble());
+                case BsonType.String: return ConvertStringToEnum(bsonReader.ReadString());
                 default:
                     throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
@@ -119,8 +117,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             switch (_representation)
             {
                 case 0:
-                    var underlyingTypeCode = Type.GetTypeCode(Enum.GetUnderlyingType(typeof(TEnum)));
-                    if (underlyingTypeCode == TypeCode.Int64 || underlyingTypeCode == TypeCode.UInt64)
+                    if (_underlyingTypeCode == TypeCode.Int64 || _underlyingTypeCode == TypeCode.UInt64)
                     {
                         goto case BsonType.Int64;
                     }
@@ -130,15 +127,15 @@ namespace MongoDB.Bson.Serialization.Serializers
                     }
 
                 case BsonType.Int32:
-                    bsonWriter.WriteInt32(Convert.ToInt32(value));
+                    bsonWriter.WriteInt32(ConvertEnumToInt32(value));
                     break;
 
                 case BsonType.Int64:
-                    bsonWriter.WriteInt64(Convert.ToInt64(value));
+                    bsonWriter.WriteInt64(ConvertEnumToInt64(value));
                     break;
 
                 case BsonType.String:
-                    bsonWriter.WriteString(value.ToString());
+                    bsonWriter.WriteString(ConvertEnumToString(value));
                     break;
 
                 default:
@@ -168,5 +165,88 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             return WithRepresentation(representation);
         }
+
+        private int ConvertEnumToInt32(TEnum value)
+        {
+            switch (_underlyingTypeCode)
+            {
+                case TypeCode.Byte: return Unsafe.As<TEnum, byte>(ref value);
+                case TypeCode.Int16: return Unsafe.As<TEnum, short>(ref value);
+                case TypeCode.Int32: return Unsafe.As<TEnum, int>(ref value);
+                case TypeCode.Int64: return checked((int)Unsafe.As<TEnum, long>(ref value));
+                case TypeCode.SByte: return Unsafe.As<TEnum, sbyte>(ref value);
+                case TypeCode.UInt16: return Unsafe.As<TEnum, ushort>(ref value);
+                case TypeCode.UInt32: return (int)Unsafe.As<TEnum, uint>(ref value);
+                case TypeCode.UInt64: return checked((int)Unsafe.As<TEnum, ulong>(ref value));
+                default: throw new InvalidOperationException($"Unexpected underlying type code: {_underlyingTypeCode}.");
+            }
+        }
+
+        private long ConvertEnumToInt64(TEnum value)
+        {
+            switch (_underlyingTypeCode)
+            {
+                case TypeCode.Byte: return Unsafe.As<TEnum, byte>(ref value);
+                case TypeCode.Int16: return Unsafe.As<TEnum, short>(ref value);
+                case TypeCode.Int32: return Unsafe.As<TEnum, int>(ref value);
+                case TypeCode.Int64: return Unsafe.As<TEnum, long>(ref value);
+                case TypeCode.SByte: return Unsafe.As<TEnum, sbyte>(ref value);
+                case TypeCode.UInt16: return Unsafe.As<TEnum, ushort>(ref value);
+                case TypeCode.UInt32: return Unsafe.As<TEnum, uint>(ref value);
+                case TypeCode.UInt64: return Unsafe.As<TEnum, long>(ref value);
+                default: throw new InvalidOperationException($"Unexpected underlying type code: {_underlyingTypeCode}.");
+            }
+        }
+
+        private string ConvertEnumToString(TEnum value) => value.ToString();
+
+        private TEnum ConvertDoubleToEnum(double value) => ConvertInt64ToEnum(checked((long)value));
+
+        private TEnum ConvertInt32ToEnum(int value)
+        {
+            long checkedVal;
+
+            switch (_underlyingTypeCode)
+            {
+                case TypeCode.Byte: checkedVal = checked((byte)value); break;
+                case TypeCode.SByte: checkedVal = checked((sbyte)value); break;
+                case TypeCode.Int16: checkedVal = checked((short)value); break;
+                case TypeCode.UInt16: checkedVal = checked((ushort)value); break;
+
+                case TypeCode.Int32:
+                case TypeCode.UInt32:
+                case TypeCode.UInt64:
+                case TypeCode.Int64:
+                    checkedVal = value;
+                    break;
+                default: throw new InvalidOperationException($"Unexpected underlying type code: {_underlyingTypeCode}.");
+            }
+
+            return Unsafe.As<long, TEnum>(ref checkedVal);
+        }
+
+        private TEnum ConvertInt64ToEnum(long value)
+        {
+            long checkedVal;
+
+            switch (_underlyingTypeCode)
+            {
+                case TypeCode.Byte: checkedVal = checked((byte)value); break;
+                case TypeCode.SByte: checkedVal = checked((sbyte)value); break;
+                case TypeCode.Int16: checkedVal = checked((short)value); break;
+                case TypeCode.UInt16: checkedVal = checked((ushort)value); break;
+                case TypeCode.Int32: checkedVal = checked((int)value); break;
+                case TypeCode.UInt32: checkedVal = checked((uint)value); break;
+                case TypeCode.UInt64:
+                case TypeCode.Int64:
+                    checkedVal = value;
+                    break;
+                default: throw new InvalidOperationException($"Unexpected underlying type code: {_underlyingTypeCode}.");
+            }
+
+            return Unsafe.As<long, TEnum>(ref checkedVal);
+        }
+
+        private TEnum ConvertStringToEnum(string value) => (TEnum)Enum.Parse(typeof(TEnum), value);
     }
 }
