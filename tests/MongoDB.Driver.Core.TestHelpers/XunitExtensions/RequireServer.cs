@@ -222,33 +222,43 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
         // private methods
         private bool CanRunOn(ICluster cluster, BsonDocument requirement)
         {
-            if (requirement.TryGetValue("minServerVersion", out var minServerVersionBsonValue))
+            foreach (var item in requirement)
             {
-                var actualVersion = CoreTestConfiguration.ServerVersion;
-                var minServerVersion = SemanticVersion.Parse(minServerVersionBsonValue.AsString);
-                if (actualVersion < minServerVersion)
+                switch (item.Name)
                 {
-                    return false;
-                }
-            }
-
-            if (requirement.TryGetValue("maxServerVersion", out var maxServerVersionBsonValue))
-            {
-                var actualVersion = CoreTestConfiguration.ServerVersion;
-                var maxServerVersion = SemanticVersion.Parse(maxServerVersionBsonValue.AsString);
-                if (actualVersion > maxServerVersion)
-                {
-                    return false;
-                }
-            }
-
-            if (requirement.TryGetValue("topology", out var topologyBsonValue))
-            {
-                var actualClusterType = CoreTestConfiguration.Cluster.Description.Type;
-                var runOnClusterTypes = topologyBsonValue.AsBsonArray.Select(topology => MapTopologyToClusterType(topology.AsString)).ToList();
-                if (!runOnClusterTypes.Contains(actualClusterType))
-                {
-                    return false;
+                    case "minServerVersion":
+                        {
+                            var actualVersion = CoreTestConfiguration.ServerVersion;
+                            var minServerVersion = SemanticVersion.Parse(item.Value.AsString);
+                            if (actualVersion < minServerVersion)
+                            {
+                                return false;
+                            }
+                        }
+                        break;
+                    case "maxServerVersion":
+                        {
+                            var actualVersion = CoreTestConfiguration.ServerVersion;
+                            var maxServerVersion = SemanticVersion.Parse(item.Value.AsString);
+                            if (actualVersion > maxServerVersion)
+                            {
+                                return false;
+                            }
+                        }
+                        break;
+                    case "topologies":
+                    case "topology":
+                        {
+                            var actualClusterType = CoreTestConfiguration.Cluster.Description.Type;
+                            var runOnClusterTypes = item.Value.AsBsonArray.Select(topology => MapTopologyToClusterType(topology.AsString)).ToList();
+                            if (!runOnClusterTypes.Contains(actualClusterType))
+                            {
+                                return false;
+                            }
+                        }
+                        break;
+                    default:
+                        throw new FormatException($"Unrecognized requirement field: '{item.Name}'");
                 }
             }
 
@@ -261,6 +271,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
             {
                 case "single": return Clusters.ClusterType.Standalone;
                 case "replicaset": return Clusters.ClusterType.ReplicaSet;
+                case "sharded-replicaset":
                 case "sharded": return Clusters.ClusterType.Sharded;
                 default: throw new ArgumentException($"Invalid topology: \"{topology}\".", nameof(topology));
             }
