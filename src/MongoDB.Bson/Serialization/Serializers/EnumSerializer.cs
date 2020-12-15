@@ -76,10 +76,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <value>
         /// The representation.
         /// </value>
-        public BsonType Representation
-        {
-            get { return _representation; }
-        }
+        public BsonType Representation =>
+            _representation;
 
         // public methods
         /// <summary>
@@ -166,6 +164,10 @@ namespace MongoDB.Bson.Serialization.Serializers
             return WithRepresentation(representation);
         }
 
+        // private methods
+        private TEnum ConvertDoubleToEnum(double value) =>
+            ConvertInt64ToEnum(checked((long)value));
+
         private int ConvertEnumToInt32(TEnum value)
         {
             switch (_underlyingTypeCode)
@@ -198,9 +200,8 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
         }
 
-        private string ConvertEnumToString(TEnum value) => value.ToString();
-
-        private TEnum ConvertDoubleToEnum(double value) => ConvertInt64ToEnum(checked((long)value));
+        private string ConvertEnumToString(TEnum value) =>
+            value.ToString();
 
         private TEnum ConvertInt32ToEnum(int value)
         {
@@ -247,6 +248,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             return Unsafe.As<long, TEnum>(ref checkedVal);
         }
 
-        private TEnum ConvertStringToEnum(string value) => (TEnum)Enum.Parse(typeof(TEnum), value);
+        private TEnum ConvertStringToEnum(string value) =>
+            (TEnum)Enum.Parse(typeof(TEnum), value);
     }
 }

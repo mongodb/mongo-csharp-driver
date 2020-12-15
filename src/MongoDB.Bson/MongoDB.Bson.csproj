@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>netstandard1.5;netstandard2.0;netstandard2.1;net452</TargetFrameworks>
@@ -60,8 +60,7 @@
 
   <ItemGroup>
     <None Include="..\..\License.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
-    <None Include="..\..\packageIcon.png" Pack="true" PackagePath=""/>
-
+    <None Include="..\..\packageIcon.png" Pack="true" PackagePath="" />
   </ItemGroup>
 
 </Project>
