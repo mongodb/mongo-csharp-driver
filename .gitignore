@@ -66,3 +66,4 @@ src/packages
 artifacts
 packages
 /tools
+/evergreen/krb5.conf.empty

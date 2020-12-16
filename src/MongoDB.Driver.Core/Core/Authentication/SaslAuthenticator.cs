@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -217,7 +216,7 @@ namespace MongoDB.Driver.Core.Authentication
         {
             // fields
             private readonly ConnectionId _connectionId;
-            private List<IDisposable> _itemsNeedingDisposal;
+            private ISecurityContext _securityContext;
             private bool _isDisposed;
 
             // constructors
@@ -228,7 +227,6 @@ namespace MongoDB.Driver.Core.Authentication
             public SaslConversation(ConnectionId connectionId)
             {
                 _connectionId = connectionId;
-                _itemsNeedingDisposal = new List<IDisposable>();
             }
 
             // properties
@@ -247,37 +245,22 @@ namespace MongoDB.Driver.Core.Authentication
             /// <inheritdoc/>
             public void Dispose()
             {
-                Dispose(true);
-                GC.SuppressFinalize(this);
+                if (_isDisposed)
+                {
+                    return;
+                }
+
+                _securityContext?.Dispose();
+                _isDisposed = true;
             }
 
             /// <summary>
-            /// Registers the item for disposal.
+            /// Registers an <see cref="ISecurityContext"/> for disposal.
             /// </summary>
-            /// <param name="item">The disposable item.</param>
-            public void RegisterItemForDisposal(IDisposable item)
+            /// <param name="securityContext"></param>
+            public void RegisterSecurityContext(ISecurityContext securityContext)
             {
-                _itemsNeedingDisposal.Add(item);
-            }
-
-            private void Dispose(bool disposing)
-            {
-                if (!_isDisposed)
-                {
-                    // disposal should happen in reverse order of registration.
-                    if (disposing && _itemsNeedingDisposal != null)
-                    {
-                        for (int i = _itemsNeedingDisposal.Count - 1; i >= 0; i--)
-                        {
-                            _itemsNeedingDisposal[i].Dispose();
-                        }
-
-                        _itemsNeedingDisposal.Clear();
-                        _itemsNeedingDisposal = null;
-                    }
-
-                    _isDisposed = true;
-                }
+                _securityContext = securityContext;
             }
         }
 

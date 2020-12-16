@@ -22,36 +22,30 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
     /// <summary>
     /// A wrapper around the SspiHandle structure specifically used as a security context handle.
     /// </summary>
-    internal class SecurityContext : SafeHandle
+    internal class SspiSecurityContext : SafeHandle, ISecurityContext
     {
         // static fields
         private static readonly int __maxTokenSize;
 
         // fields
-        private SecurityCredential _credential;
+        private readonly string _servicePrincipalName;
+        private SspiSecurityCredential _credential;
         private SspiHandle _sspiHandle;
         private bool _isInitialized;
+        private bool _isDisposed;
 
         // constructors
-        static SecurityContext()
+        static SspiSecurityContext()
         {
             __maxTokenSize = GetMaxTokenSize();
         }
 
-        public SecurityContext()
+        public SspiSecurityContext(string servicePrincipalName, SspiSecurityCredential credential)
             : base(IntPtr.Zero, true)
         {
+            _servicePrincipalName = servicePrincipalName;
+            _credential = credential;
             _sspiHandle = new SspiHandle();
-        }
-
-        // static methods
-        public static SecurityContext Initialize(SecurityCredential credential, string servicePrincipalName, byte[] input, out byte[] output)
-        {
-            var context = new SecurityContext();
-            context._credential = credential;
-
-            context.Initialize(servicePrincipalName, input, out output);
-            return context;
         }
 
         // properties
@@ -66,9 +60,9 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
         }
 
         // public methods
-        public void DecryptMessage(int messageLength, byte[] encryptedBytes, out byte[] decryptedBytes)
+        public byte[] DecryptMessage(int messageLength, byte[] encryptedBytes)
         {
-            decryptedBytes = null;
+            byte[] decryptedBytes;
 
             byte[] encryptedMessage = new byte[messageLength];
             Array.Copy(encryptedBytes, 0, encryptedMessage, 0, messageLength);
@@ -128,11 +122,13 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
                     descriptor.Free();
                 }
             }
+
+            return decryptedBytes;
         }
 
-        public void EncryptMessage(byte[] inBytes, out byte[] outBytes)
+        public byte[] EncryptMessage(byte[] plainTextBytes)
         {
-            outBytes = null;
+            byte[] outBytes;
 
             bool contextAddRefSuccess = false;
             SecurityPackageContextSizes sizes;
@@ -174,7 +170,7 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
             var buffers = new SecurityBuffer[]
             {
                 new SecurityBuffer(new byte[sizes.SecurityTrailer], SecurityBufferType.Token),
-                new SecurityBuffer(inBytes, SecurityBufferType.Data),
+                new SecurityBuffer(plainTextBytes, SecurityBufferType.Data),
                 new SecurityBuffer(new byte[sizes.BlockSize], SecurityBufferType.Padding)
             };
 
@@ -223,11 +219,13 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
                     descriptor.Free();
                 }
             }
+
+            return outBytes;
         }
 
-        public void Initialize(string servicePrincipalName, byte[] inBytes, out byte[] outBytes)
+        public byte[] Next(byte[] challenge)
         {
-            outBytes = null;
+            byte[] outBytes;
 
             var outputBuffer = new SecurityBufferDescriptor(__maxTokenSize);
 
@@ -269,12 +267,12 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
                     uint result;
                     long timestamp;
                     var credentialHandle = _credential._sspiHandle;
-                    if (inBytes == null || inBytes.Length == 0)
+                    if (challenge == null || challenge.Length == 0)
                     {
                         result = NativeMethods.InitializeSecurityContext(
                             ref credentialHandle,
                             IntPtr.Zero,
-                            servicePrincipalName,
+                            _servicePrincipalName,
                             flags,
                             0,
                             DataRepresentation.Network,
@@ -287,13 +285,13 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
                     }
                     else
                     {
-                        var serverToken = new SecurityBufferDescriptor(inBytes);
+                        var serverToken = new SecurityBufferDescriptor(challenge);
                         try
                         {
                             result = NativeMethods.InitializeSecurityContext(
                                 ref credentialHandle,
                                 ref _sspiHandle,
-                                servicePrincipalName,
+                                _servicePrincipalName,
                                 flags,
                                 0,
                                 DataRepresentation.Network,
@@ -326,12 +324,25 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
                     outputBuffer.Free();
                 }
             }
+
+            return outBytes;
         }
 
         // protected methods
         protected override bool ReleaseHandle()
         {
             return NativeMethods.DeleteSecurityContext(ref _sspiHandle) == 0;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (!_isDisposed && disposing)
+            {
+                _credential?.Dispose();
+                _credential = null;
+                _isDisposed = true;
+            }
+            base.Dispose(disposing);
         }
 
         // static methods
