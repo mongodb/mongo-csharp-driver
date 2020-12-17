@@ -23,7 +23,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// Represents a serializer for enums.
     /// </summary>
     /// <typeparam name="TEnum">The type of the enum.</typeparam>
-    public class EnumSerializer<TEnum> : StructSerializerBase<TEnum>, IRepresentationConfigurable<EnumSerializer<TEnum>> where TEnum : struct
+    public class EnumSerializer<TEnum> : StructSerializerBase<TEnum>, IRepresentationConfigurable<EnumSerializer<TEnum>> where TEnum : struct, Enum
     {
         // private fields
         private readonly BsonType _representation;
@@ -208,18 +208,13 @@ namespace MongoDB.Bson.Serialization.Serializers
             switch (_underlyingTypeCode)
             {
                 case TypeCode.Byte: var byteValue = checked((byte)value); return Unsafe.As<byte, TEnum>(ref byteValue);
-                case TypeCode.SByte: var sbyteValue = checked((sbyte)value); return Unsafe.As<sbyte, TEnum>(ref sbyteValue);
                 case TypeCode.Int16: var int16Value = checked((short)value); return Unsafe.As<short, TEnum>(ref int16Value);
+                case TypeCode.Int32: return Unsafe.As<int, TEnum>(ref value);
+                case TypeCode.Int64: var longValue = (long)value; return Unsafe.As<long, TEnum>(ref longValue);
+                case TypeCode.SByte: var sbyteValue = checked((sbyte)value); return Unsafe.As<sbyte, TEnum>(ref sbyteValue);
                 case TypeCode.UInt16: var uint16Value = checked((ushort)value); return Unsafe.As<ushort, TEnum>(ref uint16Value);
-
-                case TypeCode.Int32:
-                case TypeCode.UInt32:
-                    return Unsafe.As<int, TEnum>(ref value);
-
-                case TypeCode.UInt64:
-                case TypeCode.Int64:
-                    var longValue = (long)value; return Unsafe.As<long, TEnum>(ref longValue);
-
+                case TypeCode.UInt32: var uint32Value = (uint)value; return Unsafe.As<uint, TEnum>(ref uint32Value);
+                case TypeCode.UInt64: var uint64Value = (ulong)(long)value; return Unsafe.As<ulong, TEnum>(ref uint64Value);
                 default: throw new InvalidOperationException($"Unexpected underlying type code: {_underlyingTypeCode}.");
             }
         }
@@ -229,21 +224,18 @@ namespace MongoDB.Bson.Serialization.Serializers
             switch (_underlyingTypeCode)
             {
                 case TypeCode.Byte: var byteValue = checked((byte)value); return Unsafe.As<byte, TEnum>(ref byteValue);
-                case TypeCode.SByte: var sbyteValue = checked((sbyte)value); return Unsafe.As<sbyte, TEnum>(ref sbyteValue);
                 case TypeCode.Int16: var int16Value = checked((short)value); return Unsafe.As<short, TEnum>(ref int16Value);
-                case TypeCode.UInt16: var uint16Value = checked((ushort)value); return Unsafe.As<ushort, TEnum>(ref uint16Value);
                 case TypeCode.Int32: var int32Value = checked((int)value); return Unsafe.As<int, TEnum>(ref int32Value);
+                case TypeCode.Int64: return Unsafe.As<long, TEnum>(ref value);
+                case TypeCode.SByte: var sbyteValue = checked((sbyte)value); return Unsafe.As<sbyte, TEnum>(ref sbyteValue);
+                case TypeCode.UInt16: var uint16Value = checked((ushort)value); return Unsafe.As<ushort, TEnum>(ref uint16Value);
                 case TypeCode.UInt32: var uint32Value = checked((uint)value); return Unsafe.As<uint, TEnum>(ref uint32Value);
-
-                case TypeCode.UInt64:
-                case TypeCode.Int64:
-                    return Unsafe.As<long, TEnum>(ref value);
-
+                case TypeCode.UInt64: var uint64Value = (ulong)value; return Unsafe.As<ulong, TEnum>(ref uint64Value);
                 default: throw new InvalidOperationException($"Unexpected underlying type code: {_underlyingTypeCode}.");
             }
         }
 
         private TEnum ConvertStringToEnum(string value) =>
-            (TEnum)Enum.Parse(typeof(TEnum), value);
+            (TEnum)Enum.Parse(typeof(TEnum), value, true);
     }
 }
