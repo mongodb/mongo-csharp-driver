@@ -1218,6 +1218,7 @@ buildvariants:
   tasks:
      - name: test-netstandard15
      - name: test-netstandard20
+     - name: test-netstandard21
      
 - matrix_name: "unsecure-tests-macOS"
   matrix_spec: { version: "*", topology: "*", auth: "noauth", ssl: "nossl", os: "macos-1014" }
@@ -1235,6 +1236,7 @@ buildvariants:
   tasks:
      - name: test-netstandard15
      - name: test-netstandard20
+     - name: test-netstandard21
 
 - matrix_name: "ocsp-tests"
   matrix_spec: { version: ["4.4", "latest"], auth: "noauth", ssl: "ssl", topology: "standalone", os: "windows-64" } # matrix_spec: { version: ["latest"], os-ssl-32: ["ubuntu1604-64-go-1-12"] }
