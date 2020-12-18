@@ -2,6 +2,7 @@
 #addin nuget:?package=Cake.Git&version=1.0.1
 #addin nuget:?package=Cake.Incubator&version=6.0.0
 #tool dotnet:?package=GitVersion.Tool&version=5.6.9
+#tool nuget:?package=JunitXml.TestLogger&version=3.0.98
 
 using System;
 using System.Text.RegularExpressions;
@@ -24,6 +25,7 @@ var docsDirectory = solutionDirectory.Combine("Docs");
 var docsApiDirectory = docsDirectory.Combine("Api");
 var srcDirectory = solutionDirectory.Combine("src");
 var testsDirectory = solutionDirectory.Combine("tests");
+var outputDirectory = solutionDirectory.Combine("build");
 var toolsDirectory = solutionDirectory.Combine("tools");
 var toolsHugoDirectory = toolsDirectory.Combine("Hugo");
 
@@ -51,7 +53,7 @@ Task("Restore")
     .Does(() =>
     {
         // disable parallel restore to work around apparent bugs in restore
-        var restoreSettings = new DotNetCoreRestoreSettings 
+        var restoreSettings = new DotNetCoreRestoreSettings
         {
             DisableParallel = true
         };
@@ -148,11 +150,14 @@ Task("Test")
             Console.WriteLine($"MONGO_X509_CLIENT_CERTIFICATE_PASSWORD={mongoX509ClientCertificatePassword}");
         }
 
+        var testResultsFile = outputDirectory.Combine("test-results").Combine($"TEST-{target.ToLowerInvariant()}-{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}.xml");
+        var logger = $"junit;LogFilePath={testResultsFile};FailureBodyFormat=Verbose";
         var settings = new DotNetCoreTestSettings
         {
             NoBuild = true,
             NoRestore = true,
             Configuration = configuration,
+            Logger = logger,
             ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64")
         };
         switch (target.ToLowerInvariant())
@@ -367,7 +372,7 @@ Task("TestLoadBalanced")
             settings
         );
      });
- 
+
 Task("TestLoadBalancedNetStandard15").IsDependentOn("TestLoadBalanced");
 Task("TestLoadBalancedNetStandard20").IsDependentOn("TestLoadBalanced");
 Task("TestLoadBalancedNetStandard21").IsDependentOn("TestLoadBalanced");
