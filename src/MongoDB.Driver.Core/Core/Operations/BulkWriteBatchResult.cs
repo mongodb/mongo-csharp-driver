@@ -14,7 +14,6 @@
 */
 
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
@@ -37,10 +36,11 @@ namespace MongoDB.Driver.Core.Operations
             bool isOrdered,
             IReadOnlyList<WriteRequest> requests,
             BsonDocument writeCommandResponse,
-            IndexMap indexMap)
+            IndexMap indexMap,
+            MongoWriteConcernException writeConcernException)
         {
             var writeErrors = CreateWriteErrors(writeCommandResponse);
-            var writeConcernError = CreateWriteConcernError(writeCommandResponse);
+            var writeConcernError = CreateWriteConcernError(writeCommandResponse, writeConcernException);
             var processedRequests = CreateProcessedRequests(requests, writeErrors, isOrdered);
             var unprocessedRequests = CreateUnprocessedRequests(requests, writeErrors, isOrdered);
             var upserts = CreateUpserts(writeCommandResponse);
@@ -262,7 +262,9 @@ namespace MongoDB.Driver.Core.Operations
             return upserts;
         }
 
-        private static BulkWriteConcernError CreateWriteConcernError(BsonDocument writeCommandResponse)
+        private static BulkWriteConcernError CreateWriteConcernError(
+            BsonDocument writeCommandResponse,
+            MongoWriteConcernException writeConcernException)
         {
             if (writeCommandResponse != null && writeCommandResponse.Contains("writeConcernError"))
             {
@@ -271,7 +273,9 @@ namespace MongoDB.Driver.Core.Operations
                 var codeName = (string)value.GetValue("codeName", null);
                 var message = value["errmsg"].AsString;
                 var details = (BsonDocument)value.GetValue("errInfo", null);
-                return new BulkWriteConcernError(code, codeName, message, details);
+                var errorLabels = writeConcernException.ErrorLabels;
+
+                return new BulkWriteConcernError(code, codeName, message, details, errorLabels);
             }
 
             return null;

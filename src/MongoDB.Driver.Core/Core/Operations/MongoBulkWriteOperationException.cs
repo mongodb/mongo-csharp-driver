@@ -60,6 +60,13 @@ namespace MongoDB.Driver.Core.Operations
             _writeErrors = writeErrors;
             _writeConcernError = writeConcernError;
             _unprocessedRequests = unprocessedRequests;
+            if (_writeConcernError != null)
+            {
+                foreach (var errorLabel in _writeConcernError.ErrorLabels)
+                {
+                    AddErrorLabel(errorLabel);
+                }
+            }
         }
 
 #if NET452
@@ -75,6 +82,13 @@ namespace MongoDB.Driver.Core.Operations
             _unprocessedRequests = (IReadOnlyList<WriteRequest>)info.GetValue("_unprocessedRequests", typeof(IReadOnlyList<WriteRequest>));
             _writeConcernError = (BulkWriteConcernError)info.GetValue("_writeConcernError", typeof(BulkWriteConcernError));
             _writeErrors = (IReadOnlyList<BulkWriteOperationError>)info.GetValue("_writeErrors", typeof(IReadOnlyList<BulkWriteOperationError>));
+            if (_writeConcernError != null)
+            {
+                foreach (var errorLabel in _writeConcernError.ErrorLabels)
+                {
+                    AddErrorLabel(errorLabel);
+                }
+            }
         }
 #endif
 

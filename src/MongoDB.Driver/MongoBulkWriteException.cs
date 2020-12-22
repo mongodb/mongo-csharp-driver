@@ -22,7 +22,6 @@ using System.Runtime.Serialization;
 using System.Text;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Operations;
-using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver
 {
@@ -52,6 +51,13 @@ namespace MongoDB.Driver
         {
             _writeErrors = writeErrors.ToList();
             _writeConcernError = writeConcernError;
+            if (_writeConcernError != null)
+            {
+                foreach (var errorLabel in _writeConcernError.ErrorLabels)
+                {
+                    AddErrorLabel(errorLabel);
+                }
+            }
         }
 
 #if NET452
@@ -65,6 +71,13 @@ namespace MongoDB.Driver
         {
             _writeConcernError = (WriteConcernError)info.GetValue("_writeConcernError", typeof(WriteConcernError));
             _writeErrors = (IReadOnlyList<BulkWriteError>)info.GetValue("_writeErrors", typeof(IReadOnlyList<BulkWriteError>));
+            if (_writeConcernError != null)
+            {
+                foreach (var errorLabel in _writeConcernError.ErrorLabels)
+                {
+                    AddErrorLabel(errorLabel);
+                }
+            }
         }
 #endif
 

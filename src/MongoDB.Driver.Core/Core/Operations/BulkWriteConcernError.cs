@@ -15,10 +15,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -34,6 +32,7 @@ namespace MongoDB.Driver.Core.Operations
         private readonly int _code;
         private readonly string _codeName;
         private readonly BsonDocument _details;
+        private readonly IEnumerable<string> _errorLabels;
         private readonly string _message;
 
         // constructors
@@ -56,11 +55,25 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="message">The message.</param>
         /// <param name="details">The details.</param>
         public BulkWriteConcernError(int code, string codeName, string message, BsonDocument details)
+            : this(code, codeName, message, details, new string[0])
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BulkWriteConcernError" /> class.
+        /// </summary>
+        /// <param name="code">The code.</param>
+        /// <param name="codeName">The name of the code.</param>
+        /// <param name="message">The message.</param>
+        /// <param name="details">The details.</param>
+        /// <param name="errorLabels">The error labels.</param>
+        public BulkWriteConcernError(int code, string codeName, string message, BsonDocument details, IEnumerable<string> errorLabels)
         {
             _code = code;
             _codeName = codeName;
             _details = details;
             _message = message;
+            _errorLabels = Ensure.IsNotNull(errorLabels, nameof(errorLabels));
         }
 
         // properties
@@ -95,6 +108,17 @@ namespace MongoDB.Driver.Core.Operations
         public BsonDocument Details
         {
             get { return _details; }
+        }
+
+        /// <summary>
+        /// Gets the error labels.
+        /// </summary>
+        /// <value>
+        /// The error labels.
+        /// </value>
+        public IEnumerable<string> ErrorLabels
+        {
+            get { return _errorLabels; }
         }
 
         /// <summary>

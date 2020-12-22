@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using MongoDB.Bson;
 
 namespace MongoDB.Driver
@@ -30,14 +31,21 @@ namespace MongoDB.Driver
         private readonly int _code;
         private readonly string _codeName;
         private readonly BsonDocument _details;
+        private readonly IEnumerable<string> _errorLabels;
         private readonly string _message;
 
         // constructors
-        internal WriteConcernError(int code, string codeName, string message, BsonDocument details)
+        internal WriteConcernError(
+            int code,
+            string codeName,
+            string message,
+            BsonDocument details,
+            IEnumerable<string> errorLabels)
         {
             _code = code;
             _codeName = codeName;
             _details = details;
+            _errorLabels = errorLabels;
             _message = message;
         }
 
@@ -70,6 +78,14 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets the error labels.
+        /// </summary>
+        public IEnumerable<string> ErrorLabels
+        {
+            get { return _errorLabels; }
+        }
+
+        /// <summary>
         /// Gets the error message.
         /// </summary>
         public string Message
@@ -80,7 +96,7 @@ namespace MongoDB.Driver
         // internal static methods
         internal static WriteConcernError FromCore(Core.Operations.BulkWriteConcernError error)
         {
-            return error == null ? null : new WriteConcernError(error.Code, error.CodeName, error.Message, error.Details);
+            return error == null ? null : new WriteConcernError(error.Code, error.CodeName, error.Message, error.Details, error.ErrorLabels);
         }
     }
 }

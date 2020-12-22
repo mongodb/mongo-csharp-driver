@@ -157,7 +157,10 @@ namespace MongoDB.Driver.Core.Operations
         protected abstract bool RequestHasHint(TWriteRequest request);
 
         // private methods
-        private BulkWriteBatchResult CreateBatchResult(Batch batch, BsonDocument writeCommandResult)
+        private BulkWriteBatchResult CreateBatchResult(
+            Batch batch,
+            BsonDocument writeCommandResult,
+            MongoWriteConcernException writeConcernException)
         {
             var requests = batch.Requests;
             var requestsInBatch = requests.GetProcessedItems();
@@ -166,7 +169,8 @@ namespace MongoDB.Driver.Core.Operations
                 _isOrdered,
                 requestsInBatch,
                 writeCommandResult,
-                indexMap);
+                indexMap,
+                writeConcernException);
         }
 
         private void EnsureCollationIsSupportedIfAnyRequestHasCollation(RetryableWriteContext context, IEnumerable<TWriteRequest> requests)
@@ -200,6 +204,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var operation = CreateBatchOperation(batch);
             BsonDocument operationResult;
+            MongoWriteConcernException writeConcernException = null;
             try
             {
                 operationResult = RetryableWriteOperationExecutor.Execute(operation, context, cancellationToken);
@@ -207,14 +212,17 @@ namespace MongoDB.Driver.Core.Operations
             catch (MongoWriteConcernException exception) when (exception.IsWriteConcernErrorOnly())
             {
                 operationResult = exception.Result;
+                writeConcernException = exception;
             }
-            return CreateBatchResult(batch, operationResult);
+
+            return CreateBatchResult(batch, operationResult, writeConcernException);
         }
 
         private async Task<BulkWriteBatchResult> ExecuteBatchAsync(RetryableWriteContext context, Batch batch, CancellationToken cancellationToken)
         {
             var operation = CreateBatchOperation(batch);
             BsonDocument operationResult;
+            MongoWriteConcernException writeConcernException = null;
             try
             {
                 operationResult = await RetryableWriteOperationExecutor.ExecuteAsync(operation, context, cancellationToken).ConfigureAwait(false);
@@ -222,8 +230,10 @@ namespace MongoDB.Driver.Core.Operations
             catch (MongoWriteConcernException exception) when (exception.IsWriteConcernErrorOnly())
             {
                 operationResult = exception.Result;
+                writeConcernException = exception;
             }
-            return CreateBatchResult(batch, operationResult);
+
+            return CreateBatchResult(batch, operationResult, writeConcernException);
         }
 
         private BulkWriteOperationResult ExecuteBatches(RetryableWriteContext context, CancellationToken cancellationToken)

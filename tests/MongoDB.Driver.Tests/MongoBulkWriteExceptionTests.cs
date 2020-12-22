@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Tests
             var processedRequests = new[] { new InsertOneModel<BsonDocument>(new BsonDocument("b", 1)) };
             var upserts = new BulkWriteUpsert[0];
             __bulkWriteResult = new BulkWriteResult<BsonDocument>.Acknowledged(1, 1, 0, 0, 0, processedRequests, upserts);
-            __writeConcernError = new WriteConcernError(11, null, "funny", new BsonDocument("c", 1));
+            __writeConcernError = new WriteConcernError(11, null, "funny", new BsonDocument("c", 1), new[] { "RetryableWriteError" });
             __writeErrors = new[] { new BulkWriteError(10, ServerErrorCategory.Uncategorized, 1, "blah", new BsonDocument("a", 1)) };
             __unprocessedRequests = new[] { new InsertOneModel<BsonDocument>(new BsonDocument("a", 1)) };
 
@@ -68,6 +68,7 @@ namespace MongoDB.Driver.Tests
             var subject = new MongoBulkWriteException<BsonDocument>(__connectionId, __bulkWriteResult, __writeErrors, __writeConcernError, __unprocessedRequests);
 
             subject.ConnectionId.Should().BeSameAs(__connectionId);
+            subject.ErrorLabels.Should().BeEquivalentTo(__writeConcernError.ErrorLabels);
             subject.Message.Should().Contain("bulk write operation");
             subject.Result.Should().BeSameAs(__bulkWriteResult);
             subject.UnprocessedRequests.Should().Equal(__unprocessedRequests);
@@ -89,7 +90,7 @@ namespace MongoDB.Driver.Tests
                     processedRequests: new[] { new InsertRequest(new BsonDocument("b", 1)) { CorrelationId = 1 } },
                     upserts: new List<BulkWriteOperationUpsert>()),
                 writeErrors: new[] { new BulkWriteOperationError(10, 1, "blah", new BsonDocument("a", 1)) },
-                writeConcernError: new BulkWriteConcernError(11, "funny", new BsonDocument("c", 1)),
+                writeConcernError: new BulkWriteConcernError(11, "47", "funny", new BsonDocument("c", 1), new[] { "RetryableWriteError" }),
                 unprocessedRequests: new[] { new InsertRequest(new BsonDocument("a", 1)) { CorrelationId = 0 } });
 
             var models = new[]
@@ -99,9 +100,11 @@ namespace MongoDB.Driver.Tests
             };
             var mapped = MongoBulkWriteException<BsonDocument>.FromCore(exception, models);
 
+            mapped.ErrorLabels.Should().BeEquivalentTo(exception.ErrorLabels);
             mapped.Result.ProcessedRequests.Count.Should().Be(1);
             mapped.Result.ProcessedRequests[0].Should().BeSameAs(models[1]);
             mapped.WriteConcernError.Should().NotBeNull();
+            mapped.WriteConcernError.ErrorLabels.Should().BeEquivalentTo(exception.WriteConcernError.ErrorLabels);
             mapped.WriteErrors.Count.Should().Be(1);
             mapped.WriteErrors[0].Should().NotBeNull();
             mapped.UnprocessedRequests.Count.Should().Be(1);
@@ -122,15 +125,17 @@ namespace MongoDB.Driver.Tests
                     processedRequests: new[] { new InsertRequest(new BsonDocumentWrapper(new BsonDocument("b", 1))) { CorrelationId = 1 } },
                     upserts: new List<BulkWriteOperationUpsert>()),
                 writeErrors: new[] { new BulkWriteOperationError(10, 1, "blah", new BsonDocument("a", 1)) },
-                writeConcernError: new BulkWriteConcernError(11, "funny", new BsonDocument("c", 1)),
+                writeConcernError: new BulkWriteConcernError(11, "47", "funny", new BsonDocument("c", 1), new[] { "RetryableWriteError" }),
                 unprocessedRequests: new[] { new InsertRequest(new BsonDocumentWrapper(new BsonDocument("a", 1))) { CorrelationId = 0 } });
 
             var mapped = MongoBulkWriteException<BsonDocument>.FromCore(exception);
 
+            mapped.ErrorLabels.Should().BeEquivalentTo(exception.ErrorLabels);
             mapped.Result.ProcessedRequests.Count.Should().Be(1);
             mapped.Result.ProcessedRequests[0].Should().BeOfType<InsertOneModel<BsonDocument>>();
             ((InsertOneModel<BsonDocument>)mapped.Result.ProcessedRequests[0]).Document.Should().Be("{b:1}");
             mapped.WriteConcernError.Should().NotBeNull();
+            mapped.WriteConcernError.ErrorLabels.Should().BeEquivalentTo(exception.WriteConcernError.ErrorLabels);
             mapped.WriteErrors.Count.Should().Be(1);
             mapped.WriteErrors[0].Should().NotBeNull();
             mapped.UnprocessedRequests.Count.Should().Be(1);
@@ -152,6 +157,7 @@ namespace MongoDB.Driver.Tests
                 var rehydrated = (MongoBulkWriteException<BsonDocument>)formatter.Deserialize(stream);
 
                 rehydrated.ConnectionId.Should().Be(subject.ConnectionId);
+                rehydrated.ErrorLabels.Should().BeEquivalentTo(subject.ErrorLabels);
                 rehydrated.Message.Should().Be(subject.Message);
                 rehydrated.Result.Should().BeUsing(subject.Result, EqualityComparerRegistry.Default);
                 rehydrated.UnprocessedRequests.Should().EqualUsing(subject.UnprocessedRequests, EqualityComparerRegistry.Default);

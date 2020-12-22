@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Core.Operations
             _upserts = new List<BulkWriteOperationUpsert>();
             _result = new BulkWriteOperationResult.Acknowledged(1, 2, 3, 4, 5, _processedRequests, _upserts);
             _writeErrors = new List<BulkWriteOperationError>();
-            _writeConcernError = new BulkWriteConcernError(1, "message", new BsonDocument("x", 1));
+            _writeConcernError = new BulkWriteConcernError(1, "47", "message", new BsonDocument("x", 1), new[] { "RetryableWriteError" });
             _unprocessedRequests = new List<WriteRequest>();
         }
 
@@ -56,6 +56,7 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new MongoBulkWriteOperationException(_connectionId, _result, _writeErrors, _writeConcernError, _unprocessedRequests);
 
             subject.ConnectionId.Should().BeSameAs(_connectionId);
+            subject.ErrorLabels.Should().BeEquivalentTo(_writeConcernError.ErrorLabels);
             subject.Result.Should().BeSameAs(_result);
             subject.UnprocessedRequests.Should().BeSameAs(_unprocessedRequests);
             subject.WriteConcernError.Should().BeSameAs(_writeConcernError);
@@ -76,6 +77,7 @@ namespace MongoDB.Driver.Core.Operations
                 var rehydrated = (MongoBulkWriteOperationException)formatter.Deserialize(stream);
 
                 rehydrated.ConnectionId.Should().Be(subject.ConnectionId);
+                rehydrated.ErrorLabels.Should().BeEquivalentTo(subject.ErrorLabels);
                 rehydrated.Message.Should().Be(subject.Message);
                 rehydrated.Result.Should().BeUsing(subject.Result, EqualityComparerRegistry.Default);
                 rehydrated.UnprocessedRequests.Should().EqualUsing(subject.UnprocessedRequests, EqualityComparerRegistry.Default);

@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Tests
         {
             __connectionId = new ConnectionId(new ServerId(new ClusterId(1), new DnsEndPoint("localhost", 27017)), 2);
             __innerException = new Exception("inner");
-            __writeConcernError = new WriteConcernError(1, null, "writeConcernError", new BsonDocument("details", "writeConcernError"));
+            __writeConcernError = new WriteConcernError(1, null, "writeConcernError", new BsonDocument("details", "writeConcernError"), new[] { "RetryableWriteError" });
             __writeError = new WriteError(ServerErrorCategory.Uncategorized, 1, "writeError", new BsonDocument("details", "writeError"));
             return true;
         }
@@ -62,6 +62,7 @@ namespace MongoDB.Driver.Tests
             var subject = new MongoWriteException(__connectionId, __writeError, __writeConcernError, __innerException);
 
             subject.ConnectionId.Should().Be(__connectionId);
+            subject.ErrorLabels.Should().BeEquivalentTo(__writeConcernError.ErrorLabels);
             subject.InnerException.Should().Be(__innerException);
             subject.Message.Should().Be("A write operation resulted in an error." + Environment.NewLine + "  writeError" + Environment.NewLine + "  writeConcernError");
             subject.WriteConcernError.Should().Be(__writeConcernError);
@@ -75,13 +76,14 @@ namespace MongoDB.Driver.Tests
             var upserts = new List<BulkWriteUpsert>();
             var bulkWriteResult = new BulkWriteResult<BsonDocument>.Acknowledged(1, 1, 0, 0, 0, processedRequests, upserts);
             var writeErrors = new[] { new BulkWriteError(1, ServerErrorCategory.Uncategorized, 2, "message", new BsonDocument("details", 1)) };
-            var writeConcernError = new WriteConcernError(1, null, "message", new BsonDocument("details", 1));
+            var writeConcernError = new WriteConcernError(1, null, "message", new BsonDocument("details", 1), new[] { "RetryableWriteError" });
             var unprocessedRequests = new List<WriteModel<BsonDocument>>();
             var bulkWriteException = new MongoBulkWriteException<BsonDocument>(__connectionId, bulkWriteResult, writeErrors, writeConcernError, unprocessedRequests);
 
             var result = MongoWriteException.FromBulkWriteException(bulkWriteException);
 
             result.ConnectionId.Should().Be(__connectionId);
+            result.ErrorLabels.Should().BeEquivalentTo(writeConcernError.ErrorLabels);
             result.InnerException.Should().BeSameAs(bulkWriteException);
             result.Message.Should().Be("A write operation resulted in an error." + Environment.NewLine + "  message" + Environment.NewLine + "  message");
             result.WriteConcernError.Should().Be(writeConcernError);
@@ -102,6 +104,7 @@ namespace MongoDB.Driver.Tests
                 var rehydrated = (MongoWriteException)formatter.Deserialize(stream);
 
                 rehydrated.ConnectionId.Should().Be(subject.ConnectionId);
+                rehydrated.ErrorLabels.Should().BeEquivalentTo(subject.ErrorLabels);
                 rehydrated.InnerException.Message.Should().Be(subject.InnerException.Message); // Exception does not override Equals
                 rehydrated.Message.Should().Be(subject.Message);
                 rehydrated.WriteConcernError.Should().BeUsing(subject.WriteConcernError, EqualityComparerRegistry.Default);

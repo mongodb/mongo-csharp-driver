@@ -61,6 +61,13 @@ namespace MongoDB.Driver
         {
             _writeError = writeError;
             _writeConcernError = writeConcernError;
+            if (_writeConcernError != null)
+            {
+                foreach (var errorLabel in _writeConcernError.ErrorLabels)
+                {
+                    AddErrorLabel(errorLabel);
+                }
+            }
         }
 
 #if NET452
@@ -74,6 +81,13 @@ namespace MongoDB.Driver
         {
             _writeConcernError = (WriteConcernError)info.GetValue("_writeConcernError", typeof(WriteConcernError));
             _writeError = (WriteError)info.GetValue("_writeError", typeof(WriteError));
+            if (_writeConcernError != null)
+            {
+                foreach (var errorLabel in _writeConcernError.ErrorLabels)
+                {
+                    AddErrorLabel(errorLabel);
+                }
+            }
         }
 #endif
 
