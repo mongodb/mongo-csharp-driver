@@ -21,6 +21,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver.Encryption
 {
@@ -118,9 +119,9 @@ namespace MongoDB.Driver.Encryption
                     path = string.Empty; // look at the PATH env variable
                 }
 
-                if (!Path.HasExtension(path))
+                if (Directory.Exists(path))
                 {
-                    string fileName = "mongocryptd.exe";
+                    string fileName = $"mongocryptd{GetMongocryptdExtension()}";
                     path = Path.Combine(path, fileName);
                 }
 
@@ -151,8 +152,7 @@ namespace MongoDB.Driver.Encryption
 
                 if (!args.Contains("logpath")) // disable logging by the mongocryptd process
                 {
-                    // "nul" is the windows specific value. Unix-based platforms should use "/dev/null"
-                    args += " --logpath nul";
+                    args += $" --logpath {GetLogPath()}";
 
                     if (!args.Contains("logappend"))
                     {
@@ -165,6 +165,36 @@ namespace MongoDB.Driver.Encryption
             }
 
             return false;
+
+            string GetMongocryptdExtension()
+            {
+                var currentOperatingSystem = OperatingSystemHelper.CurrentOperatingSystem;
+                switch (currentOperatingSystem)
+                {
+                    case OperatingSystemPlatform.Windows:
+                        return ".exe";
+                    case OperatingSystemPlatform.Linux:
+                    case OperatingSystemPlatform.MacOS:
+                    default:
+                        return "";
+                }
+            }
+
+            string GetLogPath()
+            {
+                var currentOperatingSystem = OperatingSystemHelper.CurrentOperatingSystem;
+                switch (currentOperatingSystem)
+                {
+                    case OperatingSystemPlatform.Windows:
+                        // "nul" is the windows specific value
+                        return "nul";
+                    // Unix - based platforms should use "/dev/null"
+                    case OperatingSystemPlatform.Linux:
+                    case OperatingSystemPlatform.MacOS:
+                    default:
+                        return "/dev/null";
+                }
+            }
         }
 
         private void StartProcess(string path, string args)

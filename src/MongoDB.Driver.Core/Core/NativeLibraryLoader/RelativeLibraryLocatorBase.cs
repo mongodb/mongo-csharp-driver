@@ -16,6 +16,7 @@
 using System;
 using System.IO;
 using System.Reflection;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.NativeLibraryLoader
 {
@@ -25,7 +26,7 @@ namespace MongoDB.Driver.Core.NativeLibraryLoader
         public virtual bool IsX32ModeSupported => false;
 
         // public methods
-        public string GetLibraryAbsolutePath(SupportedPlatform currentPlatform)
+        public string GetLibraryAbsolutePath(OperatingSystemPlatform currentPlatform)
         {
             var relativePath = GetLibraryRelativePath(currentPlatform);
             return GetAbsolutePath(relativePath);
@@ -45,7 +46,7 @@ namespace MongoDB.Driver.Core.NativeLibraryLoader
             return Path.GetDirectoryName(absolutePath);
         }
 
-        public abstract string GetLibraryRelativePath(SupportedPlatform currentPlatform);
+        public abstract string GetLibraryRelativePath(OperatingSystemPlatform currentPlatform);
 
         // private methods
         private string GetAbsolutePath(string relativePath)

@@ -42,35 +42,41 @@ namespace MongoDB.Driver.Tests
 
         [SkippableTheory]
         [InlineData("{ mongocryptdBypassSpawn : true }", null, null, false)]
-        [InlineData(null, "mongocryptd.exe", "--idleShutdownTimeoutSecs 60 --logpath nul --logappend", true)]
-        [InlineData("{ mongocryptdBypassSpawn : false }", "mongocryptd.exe", "--idleShutdownTimeoutSecs 60 --logpath nul --logappend", true)]
-        [InlineData("{ mongocryptdBypassSpawn : false }", "mongocryptd.exe", "--idleShutdownTimeoutSecs 60 --logpath nul --logappend", true)]
-        [InlineData("{ mongocryptdBypassSpawn : false, mongocryptdSpawnPath : 'c:/' }", "c:/mongocryptd.exe", "--idleShutdownTimeoutSecs 60 --logpath nul --logappend", true)]
-        [InlineData("{ mongocryptdBypassSpawn : false, mongocryptdSpawnPath : 'c:/mgcr.exe' }", "c:/mgcr.exe", "--idleShutdownTimeoutSecs 60 --logpath nul --logappend", true)]
-        [InlineData("{ mongocryptdBypassSpawn : false, mongocryptdSpawnPath : 'c:/mgcr.exe' }", "c:/mgcr.exe", "--idleShutdownTimeoutSecs 60 --logpath nul --logappend", true)]
+        [InlineData(null, "", "--idleShutdownTimeoutSecs 60 --logpath #logpath# --logappend", true)]
+        [InlineData("{ mongocryptdBypassSpawn : false }", "", "--idleShutdownTimeoutSecs 60 --logpath #logpath# --logappend", true)]
+        [InlineData("{ mongocryptdBypassSpawn : false }", "", "--idleShutdownTimeoutSecs 60 --logpath #logpath# --logappend", true)]
+        [InlineData("{ mongocryptdBypassSpawn : false, mongocryptdSpawnPath : 'c:/mongocryptd.exe' }", "c:/mongocryptd.exe", "--idleShutdownTimeoutSecs 60 --logpath #logpath# --logappend", true)]
+        [InlineData("{ mongocryptdBypassSpawn : false, mongocryptdSpawnPath : 'c:/mgcr.exe' }", "c:/mgcr.exe", "--idleShutdownTimeoutSecs 60 --logpath #logpath# --logappend", true)]
+        [InlineData("{ mongocryptdBypassSpawn : false, mongocryptdSpawnPath : 'c:/mgcr.exe' }", "c:/mgcr.exe", "--idleShutdownTimeoutSecs 60 --logpath #logpath# --logappend", true)]
         // args string
-        [InlineData("{ mongocryptdSpawnArgs : '--arg1 A --arg2 B' }", "mongocryptd.exe", "--arg1 A --arg2 B --idleShutdownTimeoutSecs 60 --logpath nul --logappend", true)]
-        [InlineData("{ mongocryptdSpawnArgs : '--arg1 A --arg2 B --idleShutdownTimeoutSecs 50' }", "mongocryptd.exe", "--arg1 A --arg2 B --idleShutdownTimeoutSecs 50 --logpath nul --logappend", true)]
-        [InlineData("{ mongocryptdSpawnArgs : '--arg1 A --arg2 B --logpath path.txt' }", "mongocryptd.exe", "--arg1 A --arg2 B --logpath path.txt --idleShutdownTimeoutSecs 60", true)]
-        [InlineData("{ mongocryptdSpawnArgs : '--arg1 A --arg2 B --logpath path.txt --logappend' }", "mongocryptd.exe", "--arg1 A --arg2 B --logpath path.txt --logappend --idleShutdownTimeoutSecs 60", true)]
-        [InlineData("{ mongocryptdSpawnArgs : '--arg1 A --arg2 B --logappend' }", "mongocryptd.exe", "--arg1 A --arg2 B --logappend --idleShutdownTimeoutSecs 60 --logpath nul", true)]
+        [InlineData("{ mongocryptdSpawnArgs : '--arg1 A --arg2 B' }", "", "--arg1 A --arg2 B --idleShutdownTimeoutSecs 60 --logpath #logpath# --logappend", true)]
+        [InlineData("{ mongocryptdSpawnArgs : '--arg1 A --arg2 B --idleShutdownTimeoutSecs 50' }", "", "--arg1 A --arg2 B --idleShutdownTimeoutSecs 50 --logpath #logpath# --logappend", true)]
+        [InlineData("{ mongocryptdSpawnArgs : '--arg1 A --arg2 B --logpath path.txt' }", "", "--arg1 A --arg2 B --logpath path.txt --idleShutdownTimeoutSecs 60", true)]
+        [InlineData("{ mongocryptdSpawnArgs : '--arg1 A --arg2 B --logpath path.txt --logappend' }", "", "--arg1 A --arg2 B --logpath path.txt --logappend --idleShutdownTimeoutSecs 60", true)]
+        [InlineData("{ mongocryptdSpawnArgs : '--arg1 A --arg2 B --logappend' }", "", "--arg1 A --arg2 B --logappend --idleShutdownTimeoutSecs 60 --logpath #logpath#", true)]
         // args IEnumerable
-        [InlineData("{ mongocryptdSpawnArgs : ['arg1 A', 'arg2 B'] }", "mongocryptd.exe", "--arg1 A --arg2 B --idleShutdownTimeoutSecs 60 --logpath nul --logappend", true)]
-        [InlineData("{ mongocryptdSpawnArgs : ['arg1 A', 'arg2 B', 'idleShutdownTimeoutSecs 50'] }", "mongocryptd.exe", "--arg1 A --arg2 B --idleShutdownTimeoutSecs 50 --logpath nul --logappend", true)]
-        [InlineData("{ mongocryptdSpawnArgs : ['arg1 A', '--arg2 B', '--idleShutdownTimeoutSecs 50'] }", "mongocryptd.exe", "--arg1 A --arg2 B --idleShutdownTimeoutSecs 50 --logpath nul --logappend", true)]
-        [InlineData("{ mongocryptdSpawnArgs : ['arg1 A', 'arg2 B', '--logpath path.txt'] }", "mongocryptd.exe", "--arg1 A --arg2 B --logpath path.txt --idleShutdownTimeoutSecs 60", true)]
-        [InlineData("{ mongocryptdSpawnArgs : ['arg1 A', 'arg2 B', '--logpath path.txt', '--logappend'] }", "mongocryptd.exe", "--arg1 A --arg2 B --logpath path.txt --logappend --idleShutdownTimeoutSecs 60", true)]
-        [InlineData("{ mongocryptdSpawnArgs : ['arg1 A', 'arg2 B', '--logappend'] }", "mongocryptd.exe", "--arg1 A --arg2 B --logappend --idleShutdownTimeoutSecs 60 --logpath nul", true)]
-
-        [InlineData("{ mongocryptdBypassSpawn : false, mongocryptdSpawnArgs : [ '--arg1 A', '--arg2 B', '--idleShutdownTimeoutSecs 50'] }", "mongocryptd.exe", "--arg1 A --arg2 B --idleShutdownTimeoutSecs 50 --logpath nul --logappend", true)]
-
-        [InlineData("{ mongocryptdBypassSpawn : false, mongocryptdSpawnArgs : [ '--arg1 A', '--arg2 B', '--idleShutdownTimeoutSecs 50'] }", "mongocryptd.exe", "--arg1 A --arg2 B --idleShutdownTimeoutSecs 50 --logpath nul --logappend", true)]
+        [InlineData("{ mongocryptdSpawnArgs : ['arg1 A', 'arg2 B'] }", "", "--arg1 A --arg2 B --idleShutdownTimeoutSecs 60 --logpath #logpath# --logappend", true)]
+        [InlineData("{ mongocryptdSpawnArgs : ['arg1 A', 'arg2 B', 'idleShutdownTimeoutSecs 50'] }", "", "--arg1 A --arg2 B --idleShutdownTimeoutSecs 50 --logpath #logpath# --logappend", true)]
+        [InlineData("{ mongocryptdSpawnArgs : ['arg1 A', '--arg2 B', '--idleShutdownTimeoutSecs 50'] }", "", "--arg1 A --arg2 B --idleShutdownTimeoutSecs 50 --logpath #logpath# --logappend", true)]
+        [InlineData("{ mongocryptdSpawnArgs : ['arg1 A', 'arg2 B', '--logpath path.txt'] }", "", "--arg1 A --arg2 B --logpath path.txt --idleShutdownTimeoutSecs 60", true)]
+        [InlineData("{ mongocryptdSpawnArgs : ['arg1 A', 'arg2 B', '--logpath path.txt', '--logappend'] }", "", "--arg1 A --arg2 B --logpath path.txt --logappend --idleShutdownTimeoutSecs 60", true)]
+        [InlineData("{ mongocryptdSpawnArgs : ['arg1 A', 'arg2 B', '--logappend'] }", "", "--arg1 A --arg2 B --logappend --idleShutdownTimeoutSecs 60 --logpath #logpath#", true)]
+        [InlineData("{ mongocryptdBypassSpawn : false, mongocryptdSpawnArgs : [ '--arg1 A', '--arg2 B', '--idleShutdownTimeoutSecs 50'] }", "", "--arg1 A --arg2 B --idleShutdownTimeoutSecs 50 --logpath #logpath# --logappend", true)]
         public void Mongocryptd_should_be_spawned_with_correct_extra_arguments(
             string stringExtraOptions,
             string expectedPath,
             string expectedArgs,
             bool shouldBeSpawned)
         {
+            string emptyLogPath;
+#if WINDOWS
+            emptyLogPath = "nul";
+#else
+            emptyLogPath = "/dev/null";
+#endif
+            stringExtraOptions = stringExtraOptions?.Replace("#logpath#", emptyLogPath);
+            expectedArgs = expectedArgs?.Replace("#logpath#", emptyLogPath);
+
             var bsonDocumentExtraOptions =
                 stringExtraOptions != null
                  ? BsonDocument.Parse(stringExtraOptions)

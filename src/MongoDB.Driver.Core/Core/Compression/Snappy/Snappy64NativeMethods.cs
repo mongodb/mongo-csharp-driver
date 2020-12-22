@@ -29,6 +29,7 @@
 
 using System;
 using MongoDB.Driver.Core.NativeLibraryLoader;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Compression.Snappy
 {
@@ -101,14 +102,14 @@ namespace MongoDB.Driver.Core.Compression.Snappy
         {
             public override bool IsX32ModeSupported => true;
 
-            public override string GetLibraryRelativePath(SupportedPlatform currentPlatform)
+            public override string GetLibraryRelativePath(OperatingSystemPlatform currentPlatform)
             {
                 switch (currentPlatform)
                 {
-                    case SupportedPlatform.Windows:
+                    case OperatingSystemPlatform.Windows:
                         return @"runtimes\win\native\snappy64.dll";
-                    case SupportedPlatform.Linux: // TODO: add support for Linux and MacOS later
-                    case SupportedPlatform.MacOS:
+                    case OperatingSystemPlatform.Linux: // TODO: add support for Linux and MacOS later
+                    case OperatingSystemPlatform.MacOS:
                     default:
                         throw new InvalidOperationException($"Snappy is not supported on the current platform: {currentPlatform}.");
                 }

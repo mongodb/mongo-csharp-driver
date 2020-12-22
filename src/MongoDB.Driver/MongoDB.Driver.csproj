@@ -50,7 +50,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.2" PrivateAssets="All" />
-    <PackageReference Include="MongoDB.Libmongocrypt" Version="1.1.0-beta02" />
+    <PackageReference Include="MongoDB.Libmongocrypt" Version="1.1.0-beta03" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.5'">
@@ -66,6 +66,7 @@
   <ItemGroup>
     <Compile Include="..\MongoDB.Shared\ApplicationNameHelper.cs" Link="ApplicationNameHelper.cs" />
     <Compile Include="..\MongoDB.Shared\Hasher.cs" Link="Support\Hasher.cs" />
+    <Compile Include="..\MongoDB.Shared\OperatingSystemHelper.cs" Link="Support\OperatingSystemHelper.cs" />
     <Compile Include="..\MongoDB.Shared\SecureStringHelper.cs" Link="Support\SecureStringHelper.cs" />
   </ItemGroup>
 

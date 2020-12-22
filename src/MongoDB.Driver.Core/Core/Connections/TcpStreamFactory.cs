@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Core.Connections
         // methods
         public Stream CreateStream(EndPoint endPoint, CancellationToken cancellationToken)
         {
-#if NETSTANDARD1_5 || NETSTANDARD2_0
+#if NETSTANDARD1_5 || NETSTANDARD2_0 || NETSTANDARD2_1
             // ugh... I know... but there isn't a non-async version of dns resolution
             // in .NET Core
             var resolved = ResolveEndPointsAsync(endPoint).GetAwaiter().GetResult();
@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Core.Connections
 
         public async Task<Stream> CreateStreamAsync(EndPoint endPoint, CancellationToken cancellationToken)
         {
-#if NETSTANDARD1_5 || NETSTANDARD2_0
+#if NETSTANDARD1_5 || NETSTANDARD2_0 || NETSTANDARD2_1
             var resolved = await ResolveEndPointsAsync(endPoint).ConfigureAwait(false);
             for (int i = 0; i < resolved.Length; i++)
             {
@@ -181,7 +181,7 @@ namespace MongoDB.Driver.Core.Connections
                 try
                 {
                     var dnsEndPoint = endPoint as DnsEndPoint;
-#if NETSTANDARD1_5 || NETSTANDARD2_0
+#if !NET452
                     await socket.ConnectAsync(endPoint).ConfigureAwait(false);
 #else
                     if (dnsEndPoint != null)

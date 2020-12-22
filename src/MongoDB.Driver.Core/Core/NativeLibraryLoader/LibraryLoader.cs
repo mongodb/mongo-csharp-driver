@@ -14,18 +14,12 @@
 */
 
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Shared;
 using System;
 using System.Runtime.InteropServices;
 
 namespace MongoDB.Driver.Core.NativeLibraryLoader
 {
-    internal enum SupportedPlatform
-    {
-        Windows,
-        Linux,
-        MacOS
-    }
-
     internal class LibraryLoader
     {
         private readonly INativeLibraryLoader _nativeLoader;
@@ -55,44 +49,24 @@ namespace MongoDB.Driver.Core.NativeLibraryLoader
         // private methods
         private INativeLibraryLoader CreateNativeLoader(ILibraryLocator libraryLocator)
         {
-            var currentPlatform = GetCurrentPlatform();
+            var currentPlatform = OperatingSystemHelper.CurrentOperatingSystem;
             var absolutePath = libraryLocator.GetLibraryAbsolutePath(currentPlatform);
             return CreateNativeLoader(currentPlatform, absolutePath);
         }
 
-        private INativeLibraryLoader CreateNativeLoader(SupportedPlatform currentPlatform, string libraryPath)
+        private INativeLibraryLoader CreateNativeLoader(OperatingSystemPlatform currentPlatform, string libraryPath)
         {
             switch (currentPlatform)
             {
-                case SupportedPlatform.Linux:
+                case OperatingSystemPlatform.Linux:
                     return new LinuxLibraryLoader(libraryPath);
-                case SupportedPlatform.MacOS:
+                case OperatingSystemPlatform.MacOS:
                     return new DarwinLibraryLoader(libraryPath);
-                case SupportedPlatform.Windows:
+                case OperatingSystemPlatform.Windows:
                     return new WindowsLibraryLoader(libraryPath);
                 default:
                     throw new PlatformNotSupportedException($"Unexpected platform {currentPlatform}.");
             }
-        }
-
-        private SupportedPlatform GetCurrentPlatform()
-        {
-#if NETSTANDARD1_5
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                return SupportedPlatform.MacOS;
-            }
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                return SupportedPlatform.Linux;
-            }
-#endif
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                return SupportedPlatform.Windows;
-            }
-
-            throw new InvalidOperationException("Current platform is not supported by LibraryLoader.");
         }
 
         private void ThrowIfNot64BitProcess()

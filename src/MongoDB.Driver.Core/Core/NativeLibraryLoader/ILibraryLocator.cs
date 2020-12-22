@@ -13,11 +13,13 @@
 * limitations under the License.
 */
 
+using MongoDB.Shared;
+
 namespace MongoDB.Driver.Core.NativeLibraryLoader
 {
     internal interface ILibraryLocator
     {
         bool IsX32ModeSupported { get; }
-        string GetLibraryAbsolutePath(SupportedPlatform currentPlatform);
+        string GetLibraryAbsolutePath(OperatingSystemPlatform currentPlatform);
     }
 }

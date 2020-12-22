@@ -70,13 +70,15 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             _cluster = CoreTestConfiguration.Cluster;
         }
 
-#if WINDOWS
         [SkippableTheory]
         [ParameterAttributeData]
         public void BsonSizeLimitAndBatchSizeSplittingTest(
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
+            RequirePlatform
+                .Check()
+                .SkipWhen(SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard15);
 
             var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "insert");
             using (var client = ConfigureClient())
@@ -242,6 +244,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
+            RequirePlatform
+                .Check()
+                .SkipWhen(SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard15);
 
             var extraOptions = new Dictionary<string, object>
             {
@@ -274,6 +279,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
+            RequirePlatform
+                .Check()
+                .SkipWhen(SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard15);
 
             var extraOptions = new Dictionary<string, object>
             {
@@ -304,6 +312,11 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
+            RequirePlatform
+                .Check()
+                .SkipWhen(SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard15)
+                // it's required only for gcp, but the test design doesn't allow skipping only required steps
+                .SkipWhen(SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard20);
 
             var corpusSchema = JsonFileReader.Instance.Documents["corpus.corpus-schema.json"];
             var schemaMap = useLocalSchema ? new BsonDocument("db.coll", corpusSchema) : null;
@@ -338,6 +351,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     var kms = corpusValue["kms"].AsString;
                     var abbreviatedAlgorithmName = corpusValue["algo"].AsString;
                     var identifier = corpusValue["identifier"].AsString;
+
                     var allowed = corpusValue["allowed"].ToBoolean();
                     var value = corpusValue["value"];
                     var method = corpusValue["method"].AsString;
@@ -478,6 +492,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
+            RequirePlatform
+                .Check()
+                .SkipWhen(SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard15)
+                .SkipWhen(() => kmsProvider == "gcp", SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard20); // gcp is supported starting from netstandard2.1
 
             using (var client = ConfigureClient())
             using (var clientEncrypted = ConfigureClientEncrypted(BsonDocument.Parse(SchemaMap)))
@@ -561,6 +579,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             string expectedExceptionInfoForInvalidEncryption)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
+            RequirePlatform
+                .Check()
+                .SkipWhen(SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard15)
+                .SkipWhen(() => kmsType == "gcp", SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard20); // gcp is supported starting from netstandard2.1
 
             using (var client = ConfigureClient())
             using (var clientEncryption = ConfigureClientEncryption(client.Wrapped as MongoClient, ValidKmsEndpointConfigurator))
@@ -697,6 +719,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
+            RequirePlatform
+                .Check()
+                .SkipWhen(SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard15);
 
             var clientEncryptedSchema = new BsonDocument("db.coll", JsonFileReader.Instance.Documents["external.external-schema.json"]);
             using (var client = ConfigureClient())
@@ -738,6 +763,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         public void ViewAreProhibitedTest([Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
+            RequirePlatform
+                .Check()
+                .SkipWhen(SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard15);
 
             var viewName = CollectionNamespace.FromFullName("db.view");
             using (var client = ConfigureClient(false))
@@ -758,6 +786,61 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         async,
                         documents: new BsonDocument("test", 1)));
                 exception.Message.Should().Be("Encryption related exception: cannot auto encrypt a view.");
+            }
+        }
+
+        // NOTE: this test is not presented in the prose tests
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void UnsupportedPlatformsTests(
+            [Values("local", "aws", "azure", "gcp")] string kmsProvider,
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.ClientSideEncryption);
+
+            using (var clientEncrypted = ConfigureClientEncrypted())
+            using (var clientEncryption = ConfigureClientEncryption(clientEncrypted.Wrapped as MongoClient))
+            {
+                var dataKeyOptions = CreateDataKeyOptions(kmsProvider);
+                var exception = Record.Exception(() => _ = CreateDataKey(clientEncryption, kmsProvider, dataKeyOptions, async));
+                AssertResult(exception);
+            }
+
+            void AssertResult(Exception ex)
+            {
+                var isLinux = RequirePlatform.GetCurrentOperatingSystem() == SupportedOperatingSystem.Linux;
+
+                switch (kmsProvider)
+                {
+                    // all crypto hooks fail on linux with .netstandard1.5
+                    case var _ when isLinux && CurrentTargetFrameworkIs(SupportedTargetFramework.NetStandard15):
+                        {
+                            var errorMessage = AssertExceptionTypesAndReturnErrorMessage<PlatformNotSupportedException>(ex);
+                            errorMessage.Should().Be($"Field-level encryption is not supported on Linux with .NET Standard 1.5.");
+                        }
+                        break;
+                    case "gcp" when isLinux && CurrentTargetFrameworkIs(SupportedTargetFramework.NetStandard20):
+                        {
+                            var errorMessage = AssertExceptionTypesAndReturnErrorMessage<CryptException>(ex);
+                            errorMessage.Should().Be("error constructing KMS message: Failed to create GCP oauth request signature");
+                        }
+                        break;
+                    default:
+                        ex.Should().BeNull(); // the rest of cases should not throw
+                        break;
+                }
+            }
+
+            string AssertExceptionTypesAndReturnErrorMessage<TInnerException>(Exception ex) where TInnerException : Exception
+            {
+                var e = ex.Should().BeOfType<MongoEncryptionException>().Subject;
+                return e.InnerException.Should().BeOfType<TInnerException>().Subject.Message;
+            }
+
+            bool CurrentTargetFrameworkIs(SupportedTargetFramework supportedTargetFramework)
+            {
+                var currentTargetFramework = RequirePlatform.GetCurrentTargetFramework();
+                return supportedTargetFramework == currentTargetFramework;
             }
         }
 
@@ -1195,6 +1278,5 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 }
             }
         }
-#endif
     }
 }
