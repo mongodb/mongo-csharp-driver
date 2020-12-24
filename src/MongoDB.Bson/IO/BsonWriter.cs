@@ -27,8 +27,8 @@ namespace MongoDB.Bson.IO
     public abstract class BsonWriter : IBsonWriter
     {
         // private fields
-        private Func<IElementNameValidator> _childElementNameValidatorFactory = () => NoOpElementNameValidator.Instance;
         private bool _disposed = false;
+        private bool _useChildValidator = false;
         private IElementNameValidator _elementNameValidator = NoOpElementNameValidator.Instance;
         private Stack<IElementNameValidator> _elementNameValidatorStack = new Stack<IElementNameValidator>();
         private BsonWriterSettings _settings;
@@ -131,7 +131,7 @@ namespace MongoDB.Bson.IO
         public void PopElementNameValidator()
         {
             _elementNameValidator = _elementNameValidatorStack.Pop();
-            _childElementNameValidatorFactory = () => _elementNameValidator;
+            _useChildValidator = false;
         }
 
         /// <inheritdoc />
@@ -153,7 +153,7 @@ namespace MongoDB.Bson.IO
 
             _elementNameValidatorStack.Push(_elementNameValidator);
             _elementNameValidator = validator;
-            _childElementNameValidatorFactory = () => _elementNameValidator;
+            _useChildValidator = false;
         }
 
         /// <inheritdoc />
@@ -276,10 +276,10 @@ namespace MongoDB.Bson.IO
                 var message = string.Format("Element name '{0}' is not valid'.", name);
                 throw new BsonSerializationException(message);
             }
-            _childElementNameValidatorFactory = () => _elementNameValidator.GetValidatorForChildContent(name);
 
             _name = name;
             _state = BsonWriterState.Value;
+            _useChildValidator = true;
         }
 
         /// <summary>
@@ -381,7 +381,8 @@ namespace MongoDB.Bson.IO
                 throw new BsonSerializationException("Maximum serialization depth exceeded (does the object being serialized have a circular reference?).");
             }
 
-            PushElementNameValidator(_childElementNameValidatorFactory());
+            var childValidator = _useChildValidator ? _elementNameValidator.GetValidatorForChildContent(_name) : _elementNameValidator;
+            PushElementNameValidator(childValidator);
         }
 
         /// <summary>
