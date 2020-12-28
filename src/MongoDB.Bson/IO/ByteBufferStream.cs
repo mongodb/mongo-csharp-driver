@@ -32,7 +32,6 @@ namespace MongoDB.Bson.IO
         private readonly bool _ownsBuffer;
         private int _position;
         private readonly byte[] _temp = new byte[12];
-        private readonly byte[] _tempUtf8 = new byte[128];
 
         // constructors
         /// <summary>
@@ -529,7 +528,7 @@ namespace MongoDB.Bson.IO
             }
             else
             {
-                var bytes = length <= _tempUtf8.Length ? _tempUtf8 : new byte[length];
+                var bytes = BufferCache.GetBuffer(length);
                 this.ReadBytes(bytes, 0, length);
                 if (bytes[length - 1] != 0)
                 {
@@ -568,20 +567,25 @@ namespace MongoDB.Bson.IO
             }
             else
             {
+                // Compare to 128 to preserve original behaviour
+                const int legacyCachedBufferLength = 128;
+
                 byte[] bytes;
-                if (maxLength <= _tempUtf8.Length)
+                if (maxLength <= legacyCachedBufferLength)
                 {
-                    bytes = _tempUtf8;
+                    bytes = BufferCache.GetBuffer(legacyCachedBufferLength);
                     actualLength = CStringUtf8Encoding.GetBytes(value, bytes, 0, Utf8Encodings.Strict);
                 }
                 else
                 {
-                    bytes = Utf8Encodings.Strict.GetBytes(value);
-                    if (Array.IndexOf<byte>(bytes, 0) != -1)
+                    var segmentEncoded = Utf8Encodings.Strict.GetBytesCachedBuffer(value);
+                    bytes = segmentEncoded.Array;
+                    actualLength = segmentEncoded.Count;
+
+                    if (Array.IndexOf<byte>(bytes, 0, 0, actualLength) != -1)
                     {
                         throw new ArgumentException("A CString cannot contain null bytes.", "value");
                     }
-                    actualLength = bytes.Length;
                 }
 
                 _buffer.SetBytes(_position, bytes, 0, actualLength);
@@ -715,17 +719,9 @@ namespace MongoDB.Bson.IO
             }
             else
             {
-                byte[] bytes;
-                if (maxLength <= _tempUtf8.Length)
-                {
-                    bytes = _tempUtf8;
-                    actualLength = encoding.GetBytes(value, 0, value.Length, bytes, 0);
-                }
-                else
-                {
-                    bytes = encoding.GetBytes(value);
-                    actualLength = bytes.Length;
-                }
+                var segmentEncoded = encoding.GetBytesCachedBuffer(value);
+                var bytes = segmentEncoded.Array;
+                actualLength = segmentEncoded.Count;
 
                 var lengthPlusOneBytes = BitConverter.GetBytes(actualLength + 1);
 

@@ -57,7 +57,7 @@ namespace MongoDB.Bson.IO
         /// <param name="value">The value to add. The value can be null for reference types.</param>
         public void Add(string elementName, TValue value)
         {
-            var utf8 = Utf8Encodings.Strict.GetBytes(elementName);
+            var utf8 = Utf8Encodings.Strict.GetBytesCachedBuffer(elementName);
 
             var node = _root;
             foreach (var keyByte in utf8)
@@ -80,7 +80,7 @@ namespace MongoDB.Bson.IO
         /// <param name="utf8">The element name.</param>
         /// <param name="node">
         /// When this method returns, contains the node associated with the specified element name, if the key is found;
-        /// otherwise, null. This parameter is passed unitialized.
+        /// otherwise, null. This parameter is passed uninitialized.
         /// </param>
         /// <returns>True if the node was found; otherwise, false.</returns>
         public bool TryGetNode(ArraySegment<byte> utf8, out BsonTrieNode<TValue> node)
@@ -125,7 +125,7 @@ namespace MongoDB.Bson.IO
         /// <param name="utf8">The element name.</param>
         /// <param name="value">
         /// When this method returns, contains the value associated with the specified element name, if the key is found;
-        /// otherwise, the default value for the type of the value parameter. This parameter is passed unitialized.
+        /// otherwise, the default value for the type of the value parameter. This parameter is passed uninitialized.
         /// </param>
         /// <returns>True if the value was found; otherwise, false.</returns>
         public bool TryGetValue(ArraySegment<byte> utf8, out TValue value)
@@ -147,13 +147,12 @@ namespace MongoDB.Bson.IO
         /// <param name="elementName">The element name.</param>
         /// <param name="value">
         /// When this method returns, contains the value associated with the specified element name, if the key is found;
-        /// otherwise, the default value for the type of the value parameter. This parameter is passed unitialized.
+        /// otherwise, the default value for the type of the value parameter. This parameter is passed uninitialized.
         /// </param>
         /// <returns>True if the value was found; otherwise, false.</returns>
         public bool TryGetValue(string elementName, out TValue value)
         {
-            var bytes = Utf8Encodings.Strict.GetBytes(elementName);
-            var utf8 = new ArraySegment<byte>(bytes, 0, bytes.Length);
+            var utf8 = Utf8Encodings.Strict.GetBytesCachedBuffer(elementName);
             return TryGetValue(utf8, out value);
         }
     }

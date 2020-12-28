@@ -15,7 +15,6 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,7 +31,6 @@ namespace MongoDB.Bson.IO
         private bool _ownsStream;
         private readonly Stream _stream;
         private readonly byte[] _temp = new byte[12];
-        private readonly byte[] _tempUtf8 = new byte[128];
 
         // constructors
         /// <summary>
@@ -52,7 +50,7 @@ namespace MongoDB.Bson.IO
             _ownsStream = ownsStream;
         }
 
-        // properties        
+        // properties
         /// <summary>
         /// Gets the base stream.
         /// </summary>
@@ -372,7 +370,7 @@ namespace MongoDB.Bson.IO
             ThrowIfDisposed();
 
             var length = ReadInt32();
-            var bytes = length <= _tempUtf8.Length ? _tempUtf8 : new byte[length];
+            var bytes = BufferCache.GetBuffer(length);
             this.ReadBytes(bytes, 0, length);
             if (bytes[length - 1] != 0)
             {
@@ -457,19 +455,23 @@ namespace MongoDB.Bson.IO
             byte[] bytes;
             int length;
 
-            if (CStringUtf8Encoding.GetMaxByteCount(value.Length) <= _tempUtf8.Length)
+            // Compare to 128 to preserve original behaviour
+            const int legacyCachedBufferLength = 128;
+            if (CStringUtf8Encoding.GetMaxByteCount(value.Length) <= legacyCachedBufferLength)
             {
-                bytes = _tempUtf8;
-                length = CStringUtf8Encoding.GetBytes(value, _tempUtf8, 0, Utf8Encodings.Strict);
+                bytes = BufferCache.GetBuffer(legacyCachedBufferLength);
+                length = CStringUtf8Encoding.GetBytes(value, bytes, 0, Utf8Encodings.Strict);
             }
             else
             {
-                bytes = Utf8Encodings.Strict.GetBytes(value);
-                if (Array.IndexOf<byte>(bytes, 0) != -1)
+                var segment = Utf8Encodings.Strict.GetBytesCachedBuffer(value);
+                bytes = segment.Array;
+                length = segment.Count;
+
+                if (Array.IndexOf<byte>(bytes, 0, 0, length) != -1)
                 {
                     throw new ArgumentException("A CString cannot contain null bytes.", "value");
                 }
-                length = bytes.Length;
             }
 
             _stream.Write(bytes, 0, length);
@@ -545,22 +547,10 @@ namespace MongoDB.Bson.IO
             }
             ThrowIfDisposed();
 
-            byte[] bytes;
-            int length;
+            var segment = encoding.GetBytesCachedBuffer(value);
 
-            if (encoding.GetMaxByteCount(value.Length) <= _tempUtf8.Length)
-            {
-                bytes = _tempUtf8;
-                length = encoding.GetBytes(value, 0, value.Length, _tempUtf8, 0);
-            }
-            else
-            {
-                bytes = encoding.GetBytes(value);
-                length = bytes.Length;
-            }
-
-            WriteInt32(length + 1);
-            _stream.Write(bytes, 0, length);
+            WriteInt32(segment.Count + 1);
+            _stream.Write(segment.Array, 0, segment.Count);
             _stream.WriteByte(0);
         }
     }
