@@ -15,7 +15,6 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,7 +31,6 @@ namespace MongoDB.Bson.IO
         private bool _ownsStream;
         private readonly Stream _stream;
         private readonly byte[] _temp = new byte[12];
-        private readonly byte[] _tempUtf8 = new byte[128];
 
         // constructors
         /// <summary>
@@ -52,7 +50,7 @@ namespace MongoDB.Bson.IO
             _ownsStream = ownsStream;
         }
 
-        // properties        
+        // properties
         /// <summary>
         /// Gets the base stream.
         /// </summary>
@@ -372,7 +370,9 @@ namespace MongoDB.Bson.IO
             ThrowIfDisposed();
 
             var length = ReadInt32();
-            var bytes = length <= _tempUtf8.Length ? _tempUtf8 : new byte[length];
+            using var rentedBuffer = ThreadStaticBuffer.RentBuffer(length);
+            var bytes = rentedBuffer.Bytes;
+
             this.ReadBytes(bytes, 0, length);
             if (bytes[length - 1] != 0)
             {
@@ -454,26 +454,33 @@ namespace MongoDB.Bson.IO
             }
             ThrowIfDisposed();
 
-            byte[] bytes;
-            int length;
 
-            if (CStringUtf8Encoding.GetMaxByteCount(value.Length) <= _tempUtf8.Length)
+            // Compare to 128 to preserve original behavior
+            const int maxLengthToUseCStringUtf8EncodingWith = 128;
+            if (CStringUtf8Encoding.GetMaxByteCount(value.Length) <= maxLengthToUseCStringUtf8EncodingWith)
             {
-                bytes = _tempUtf8;
-                length = CStringUtf8Encoding.GetBytes(value, _tempUtf8, 0, Utf8Encodings.Strict);
+                using var rentedBuffer = ThreadStaticBuffer.RentBuffer(maxLengthToUseCStringUtf8EncodingWith);
+
+                var length = CStringUtf8Encoding.GetBytes(value, rentedBuffer.Bytes, 0, Utf8Encodings.Strict);
+                WriteBytes(rentedBuffer.Bytes, length);
             }
             else
             {
-                bytes = Utf8Encodings.Strict.GetBytes(value);
-                if (Array.IndexOf<byte>(bytes, 0) != -1)
+                using var rentedSegment = Utf8Encodings.Strict.GetBytesUsingThreadStaticBuffer(value);
+                var segment = rentedSegment.Segment;
+                if (Array.IndexOf<byte>(segment.Array, 0, 0, segment.Count) != -1)
                 {
                     throw new ArgumentException("A CString cannot contain null bytes.", "value");
                 }
-                length = bytes.Length;
+
+                WriteBytes(segment.Array, segment.Count);
             }
 
-            _stream.Write(bytes, 0, length);
-            _stream.WriteByte(0);
+            void WriteBytes(byte[] bytes, int length)
+            {
+                _stream.Write(bytes, 0, length);
+                _stream.WriteByte(0);
+            }
         }
 
         /// <inheritdoc/>
@@ -545,22 +552,11 @@ namespace MongoDB.Bson.IO
             }
             ThrowIfDisposed();
 
-            byte[] bytes;
-            int length;
+            using var rentedSegment = encoding.GetBytesUsingThreadStaticBuffer(value);
+            var segment = rentedSegment.Segment;
 
-            if (encoding.GetMaxByteCount(value.Length) <= _tempUtf8.Length)
-            {
-                bytes = _tempUtf8;
-                length = encoding.GetBytes(value, 0, value.Length, _tempUtf8, 0);
-            }
-            else
-            {
-                bytes = encoding.GetBytes(value);
-                length = bytes.Length;
-            }
-
-            WriteInt32(length + 1);
-            _stream.Write(bytes, 0, length);
+            WriteInt32(segment.Count + 1);
+            _stream.Write(segment.Array, 0, segment.Count);
             _stream.WriteByte(0);
         }
     }

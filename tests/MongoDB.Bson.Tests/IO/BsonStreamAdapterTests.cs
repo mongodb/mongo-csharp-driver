@@ -300,7 +300,6 @@ namespace MongoDB.Bson.Tests
             subjectReflector._ownsStream.Should().Be(ownsStream);
             subjectReflector._stream.Should().Be(mockStream.Object);
             subjectReflector._temp.Should().NotBeNull();
-            subjectReflector._tempUtf8.Should().NotBeNull();
         }
 
         [Fact]
@@ -1291,10 +1290,11 @@ namespace MongoDB.Bson.Tests
         public void WriteCString_should_throw_when_value_with_maxByteCount_near_tempUtf8_contains_nulls(
             [Values(-1, 0, 1)] int delta)
         {
+            const int tempUtf8LegacySize = 128;
+
             var stream = new MemoryStream();
             var subject = new BsonStreamAdapter(stream);
-            var subjectReflector = new Reflector(subject);
-            var valueLength = (subjectReflector._tempUtf8.Length / 3) + delta;
+            var valueLength = (tempUtf8LegacySize / 3) + delta;
             var length1 = valueLength / 2;
             var length2 = valueLength - length1 - 1;
             var value = new string('x', length1) + '\0' + new string('x', length2);
@@ -1336,10 +1336,11 @@ namespace MongoDB.Bson.Tests
             [Values(-1, 0, 1)]
             int delta)
         {
+            const int tempUtf8LegacySize = 128;
+
             var stream = new MemoryStream();
             var subject = new BsonStreamAdapter(stream);
-            var subjectReflector = new Reflector(subject);
-            var valueLength = (subjectReflector._tempUtf8.Length / 3) + delta;
+            var valueLength = (tempUtf8LegacySize / 3) + delta;
             var value = new string('a', valueLength);
             var expectedBytes = Enumerable.Repeat<byte>(97, valueLength).Concat(new byte[] { 0 }).ToArray();
 
@@ -1620,10 +1621,11 @@ namespace MongoDB.Bson.Tests
             [Values(-1, 0, 1)]
             int delta)
         {
+            const int tempUtf8LegacySize = 128;
+
             var stream = new MemoryStream();
             var subject = new BsonStreamAdapter(stream);
-            var subjectReflector = new Reflector(subject);
-            var valueLength = ((subjectReflector._tempUtf8.Length - 5) / 3) + delta;
+            var valueLength = ((tempUtf8LegacySize - 5) / 3) + delta;
             var value = new string('a', valueLength);
             var expectedBytes = BitConverter.GetBytes(valueLength + 1)
                 .Concat(Enumerable.Repeat<byte>(97, valueLength))
@@ -1734,15 +1736,6 @@ namespace MongoDB.Bson.Tests
                 get
                 {
                     var field = typeof(BsonStreamAdapter).GetField("_temp", BindingFlags.NonPublic | BindingFlags.Instance);
-                    return (byte[])field.GetValue(_instance);
-                }
-            }
-
-            public byte[] _tempUtf8
-            {
-                get
-                {
-                    var field = typeof(BsonStreamAdapter).GetField("_tempUtf8", BindingFlags.NonPublic | BindingFlags.Instance);
                     return (byte[])field.GetValue(_instance);
                 }
             }

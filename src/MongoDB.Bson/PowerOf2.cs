@@ -21,14 +21,20 @@ namespace MongoDB.Bson
     {
         public static bool IsPowerOf2(int n)
         {
-            return n == RoundUpToPowerOf2(n);
+            if (n < 0 || n > 0x40000000)
+            {
+                throw new ArgumentOutOfRangeException(nameof(n));
+            }
+
+            var result = (n & (n - 1)) == 0;
+            return result;
         }
 
         public static int RoundUpToPowerOf2(int n)
         {
-            if (n < 0 || n > 0x40000000)
+            if (IsPowerOf2(n))
             {
-                throw new ArgumentOutOfRangeException("n");
+                return n;
             }
 
             // see: Hacker's Delight, by Henry S. Warren
