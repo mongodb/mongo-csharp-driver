@@ -21,7 +21,6 @@ using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using Xunit;
-using Xunit.Sdk;
 
 namespace MongoDB.Bson.Tests.IO
 {
@@ -29,6 +28,17 @@ namespace MongoDB.Bson.Tests.IO
     {
         // static fields
         private static readonly int[] __sizes = { 1, 2, 3, 4, 7, 8, 9, 15, 16, 17, 127, 128, 129, 8191, 8192 };
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(-1)]
+        [InlineData(-10)]
+        [InlineData(1024 * 1024 * 1024 + 1)]
+        public void TestBuffer_invalid_buffer_size_should_throw(int size)
+        {
+            var exception = Record.Exception(() => BufferCache.GetBuffer(size));
+            exception.Should().BeOfType<ArgumentOutOfRangeException>();
+        }
 
         [Fact]
         public void TestBufferSizeIncreasing_expected_powerof2()

@@ -25,6 +25,7 @@ namespace MongoDB.Bson.IO
     {
         private const int MinSize = 16;
         private const int MaxSize = 8192;
+        private const int MaxAllocationSize = 1024 * 1024 * 1024; // 1GB
         private const int MaxThreads = 1024;
 
         // private static fields
@@ -35,6 +36,11 @@ namespace MongoDB.Bson.IO
 
         public static byte[] GetBuffer(int size)
         {
+            if (size <= 0 || size > MaxAllocationSize)
+            {
+                throw new ArgumentOutOfRangeException(nameof(size), "Invalid requested buffer size");
+            }
+
             if (size > MaxSize ||
                 __buffer == null && Interlocked.Increment(ref __buffersCount) >= MaxThreads)
             {
