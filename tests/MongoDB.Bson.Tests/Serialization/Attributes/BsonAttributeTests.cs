@@ -65,12 +65,28 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
             public string NoElement { get; set; }
         }
 
+        [BsonIgnoreExtraElements(true)]
+        public class TestIgnoredByAttribute
+        {
+        }
+
+        [BsonIgnoreExtraElements(false)]
+        public class TestNotIgnoredByAttribute
+        {
+        }
+
         [Fact]
         public void TestDiscriminator()
         {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
             Assert.Equal("discriminator", classMap.Discriminator);
             Assert.Equal(true, classMap.DiscriminatorIsRequired);
+
+            var ignoredClassMap = BsonClassMap.LookupClassMap(typeof(TestIgnoredByAttribute));
+            Assert.Equal(true, ignoredClassMap.IgnoreExtraElements);
+
+            var notIgnoredClassMap = BsonClassMap.LookupClassMap(typeof(TestNotIgnoredByAttribute));
+            Assert.Equal(false, notIgnoredClassMap.IgnoreExtraElements);
         }
 
         [Fact]

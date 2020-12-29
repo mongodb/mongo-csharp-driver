@@ -419,16 +419,23 @@ namespace MongoDB.Bson.Tests.Serialization
 
             classMap.Freeze();
 
+            var defaultClassMap = new BsonClassMap<TestClass>();
+            defaultClassMap.Freeze();
+
             classMap.CreateInstance();
-            Assert.Equal(0, classMap.DeclaredMemberMaps.Count());
-            Assert.Equal("TestClass", classMap.Discriminator);
-            Assert.False(classMap.DiscriminatorIsRequired);
-            Assert.Null(classMap.ExtraElementsMemberMap);
-            Assert.Null(classMap.IdMemberMap);
-            Assert.True(classMap.IgnoreExtraElements);
-            Assert.False(classMap.IgnoreExtraElementsIsInherited);
-            Assert.False(classMap.IsRootClass);
-            Assert.Equal(0, classMap.KnownTypes.Count());
+
+            foreach (var map in new[] { defaultClassMap, classMap })
+            {
+                Assert.Equal(0, map.DeclaredMemberMaps.Count());
+                Assert.Equal(nameof(TestClass), map.Discriminator);
+                Assert.False(map.DiscriminatorIsRequired);
+                Assert.Null(map.ExtraElementsMemberMap);
+                Assert.Null(map.IdMemberMap);
+                Assert.False(map.IgnoreExtraElements);
+                Assert.False(map.IgnoreExtraElementsIsInherited);
+                Assert.False(map.IsRootClass);
+                Assert.Equal(0, map.KnownTypes.Count());
+            }
         }
 
         private class TestClass

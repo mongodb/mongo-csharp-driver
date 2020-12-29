@@ -148,9 +148,6 @@ namespace MongoDB.Driver.Linq.Processors
             }
             var classMap = new BsonClassMap(type, baseClassMap);
 
-            // Ignore extra elements, as the projection expression will likely not be complete
-            classMap.SetIgnoreExtraElements(true);
-
             foreach (var memberMapping in mapping.Members.Where(x => x.Member.DeclaringType == type))
             {
                 var serializationExpression = memberMapping.Expression as SerializationExpression;
