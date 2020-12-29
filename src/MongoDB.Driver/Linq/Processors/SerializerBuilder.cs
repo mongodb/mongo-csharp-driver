@@ -21,7 +21,6 @@ using System.Reflection;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Expressions;
-using MongoDB.Bson.Serialization.Conventions;
 
 namespace MongoDB.Driver.Linq.Processors
 {
