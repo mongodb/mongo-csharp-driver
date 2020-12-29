@@ -14,7 +14,6 @@
 */
 
 using System.Linq;
-using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.IdGenerators;
@@ -70,23 +69,12 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
         {
         }
 
-        [BsonIgnoreExtraElements(false)]
-        public class TestNotIgnoredByAttribute
-        {
-        }
-
         [Fact]
         public void TestDiscriminator()
         {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
             Assert.Equal("discriminator", classMap.Discriminator);
             Assert.Equal(true, classMap.DiscriminatorIsRequired);
-
-            var ignoredClassMap = BsonClassMap.LookupClassMap(typeof(TestIgnoredByAttribute));
-            Assert.Equal(true, ignoredClassMap.IgnoreExtraElements);
-
-            var notIgnoredClassMap = BsonClassMap.LookupClassMap(typeof(TestNotIgnoredByAttribute));
-            Assert.Equal(false, notIgnoredClassMap.IgnoreExtraElements);
         }
 
         [Fact]
@@ -94,6 +82,9 @@ namespace MongoDB.Bson.Tests.Serialization.Attributes
         {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
             Assert.Equal(false, classMap.IgnoreExtraElements);
+
+            var ignoredClassMap = BsonClassMap.LookupClassMap(typeof(TestIgnoredByAttribute));
+            Assert.Equal(true, ignoredClassMap.IgnoreExtraElements);
         }
 
         [Fact]
