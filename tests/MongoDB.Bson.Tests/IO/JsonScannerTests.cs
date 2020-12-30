@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson.IO;
 using Xunit;
 
@@ -403,6 +404,20 @@ namespace MongoDB.Bson.Tests.IO
             Assert.Equal(JsonTokenType.Double, token.Type);
             Assert.Equal("-1e-12", token.Lexeme);
             Assert.Equal(',', buffer.Read());
+        }
+
+        [Theory]
+        [InlineData("/")]
+        [InlineData("/pattern")]
+        [InlineData("/pattern\\/")]
+        public void TestMissingClosingSlash(string jsonRegex)
+        {
+            var buffer = new JsonBuffer(jsonRegex);
+
+            var exception = Record.Exception(() => JsonScanner.GetNextToken(buffer));
+
+            Assert.IsType<FormatException>(exception);
+            Assert.StartsWith("Invalid JSON regular expression", exception.Message);
         }
 
         [Fact]
