@@ -369,6 +369,7 @@ namespace MongoDB.Bson.IO
                         {
                             case '/': state = RegularExpressionState.InOptions; break;
                             case '\\': state = RegularExpressionState.InEscapeSequence; break;
+                            case -1: state = RegularExpressionState.Invalid; break;
                             default: state = RegularExpressionState.InPattern; break;
                         }
                         break;

@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+using System;
+using System.Threading.Tasks;
 using MongoDB.Bson.IO;
 using Xunit;
 
@@ -403,6 +405,32 @@ namespace MongoDB.Bson.Tests.IO
             Assert.Equal(JsonTokenType.Double, token.Type);
             Assert.Equal("-1e-12", token.Lexeme);
             Assert.Equal(',', buffer.Read());
+        }
+
+        [Theory]
+        [InlineData("/")]
+        [InlineData("/pattern")]
+        [InlineData("/pattern\\/")]
+        public async Task TestInvalidRegularExpression(string jsonRegex)
+        {
+            // In the failure case, JsonScanner.GetNextToken() never returns.
+            // The only way to make the test the failure mode, is to add
+            // a timeout. Otherwise, the test will never finish.
+            var getNextTokenTask = Task.Run(() =>
+            {
+                var buffer = new JsonBuffer(jsonRegex);
+                return JsonScanner.GetNextToken(buffer);
+            });
+            var timeoutTask = Task.Delay(5000);
+            var completedTask = await Task.WhenAny(getNextTokenTask, timeoutTask).ConfigureAwait(false);
+
+            // The completedTask should be the getNextTokenTask
+            Assert.Equal(getNextTokenTask, completedTask);
+
+            // Unwrap the FormatException from completedTask
+            var formatException = await Assert.ThrowsAsync<FormatException>(() => completedTask).ConfigureAwait(false);
+
+            Assert.StartsWith("Invalid JSON regular expression", formatException.Message);
         }
 
         [Fact]
