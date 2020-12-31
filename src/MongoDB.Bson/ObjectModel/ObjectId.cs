@@ -55,7 +55,24 @@ namespace MongoDB.Bson
                 throw new ArgumentException("Byte array must be 12 bytes long", "bytes");
             }
 
-            FromByteArray(bytes, 0, out _a, out _b, out _c);
+            FromByteSpan(bytes, 0, out _a, out _b, out _c);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the ObjectId class.
+        /// </summary>
+        /// <param name="span">The span containing bytes.</param>
+        public ObjectId(ReadOnlySpan<byte> span) 
+        {
+            if (span == null) 
+            {
+                throw new ArgumentException(nameof(span));
+            }
+            if (span.Length != 12) 
+            {
+                throw new ArgumentException("Span must be 12 bytes long", nameof(span));
+            }
+            FromByteSpan(span, 0, out _a, out _b, out _c);
         }
 
         /// <summary>
@@ -65,7 +82,7 @@ namespace MongoDB.Bson
         /// <param name="index">The index into the byte array where the ObjectId starts.</param>
         internal ObjectId(byte[] bytes, int index)
         {
-            FromByteArray(bytes, index, out _a, out _b, out _c);
+            FromByteSpan(bytes, index, out _a, out _b, out _c);
         }
 
         /// <summary>
@@ -116,8 +133,9 @@ namespace MongoDB.Bson
                 throw new ArgumentNullException("value");
             }
 
-            var bytes = BsonUtils.ParseHexString(value);
-            FromByteArray(bytes, 0, out _a, out _b, out _c);
+            Span<byte> span = stackalloc byte[BsonUtils.GetHexStringBinaryLength(value)];
+            BsonUtils.ParseHexString(value, span);
+            FromByteSpan(span, 0, out _a, out _b, out _c);
         }
 
         private ObjectId(int a, int b, int c)
@@ -289,6 +307,21 @@ namespace MongoDB.Bson
         [Obsolete("This method will be removed in a later release.")]
         public static byte[] Pack(int timestamp, int machine, short pid, int increment)
         {
+            var bytes = new byte[12];
+            Pack(bytes, timestamp, machine, pid, increment);
+            return bytes;
+        }
+
+        /// <summary>
+        /// Packs the components of an ObjectId and write into a span of bytes
+        /// </summary>
+        /// <param name="span">The span to be writen into.</param>
+        /// <param name="timestamp">The timestamp.</param>
+        /// <param name="machine">The machine hash.</param>
+        /// <param name="pid">The PID.</param>
+        /// <param name="increment">The increment.</param>
+        public static void Pack(Span<byte> span, int timestamp, int machine, short pid, int increment)
+        {
             if ((machine & 0xff000000) != 0)
             {
                 throw new ArgumentOutOfRangeException("machine", "The machine value must be between 0 and 16777215 (it must fit in 3 bytes).");
@@ -297,21 +330,23 @@ namespace MongoDB.Bson
             {
                 throw new ArgumentOutOfRangeException("increment", "The increment value must be between 0 and 16777215 (it must fit in 3 bytes).");
             }
+            if (span.Length < 12)
+            {
+                throw new ArgumentException(nameof(span), "Span length must equal or longer then 12");
+            }
 
-            byte[] bytes = new byte[12];
-            bytes[0] = (byte)(timestamp >> 24);
-            bytes[1] = (byte)(timestamp >> 16);
-            bytes[2] = (byte)(timestamp >> 8);
-            bytes[3] = (byte)(timestamp);
-            bytes[4] = (byte)(machine >> 16);
-            bytes[5] = (byte)(machine >> 8);
-            bytes[6] = (byte)(machine);
-            bytes[7] = (byte)(pid >> 8);
-            bytes[8] = (byte)(pid);
-            bytes[9] = (byte)(increment >> 16);
-            bytes[10] = (byte)(increment >> 8);
-            bytes[11] = (byte)(increment);
-            return bytes;
+            span[0] = (byte)(timestamp >> 24);
+            span[1] = (byte)(timestamp >> 16);
+            span[2] = (byte)(timestamp >> 8);
+            span[3] = (byte)(timestamp);
+            span[4] = (byte)(machine >> 16);
+            span[5] = (byte)(machine >> 8);
+            span[6] = (byte)(machine);
+            span[7] = (byte)(pid >> 8);
+            span[8] = (byte)(pid);
+            span[9] = (byte)(increment >> 16);
+            span[10] = (byte)(increment >> 8);
+            span[11] = (byte)(increment);
         }
 
         /// <summary>
@@ -349,8 +384,8 @@ namespace MongoDB.Bson
             // don't throw ArgumentNullException if s is null
             if (s != null && s.Length == 24)
             {
-                byte[] bytes;
-                if (BsonUtils.TryParseHexString(s, out bytes))
+                Span<byte> bytes = stackalloc byte[BsonUtils.GetHexStringBinaryLength(s)];
+                if (BsonUtils.TryParseHexString(s, bytes))
                 {
                     objectId = new ObjectId(bytes);
                     return true;
@@ -379,6 +414,28 @@ namespace MongoDB.Bson
             if (bytes.Length != 12)
             {
                 throw new ArgumentOutOfRangeException("bytes", "Byte array must be 12 bytes long.");
+            }
+
+            Unpack(bytes.AsSpan(), out timestamp, out machine, out pid, out increment);
+        }
+
+        /// <summary>
+        /// Unpacks a span into the components of an ObjectId.
+        /// </summary>
+        /// <param name="bytes">A span containing bytes.</param>
+        /// <param name="timestamp">The timestamp.</param>
+        /// <param name="machine">The machine hash.</param>
+        /// <param name="pid">The PID.</param>
+        /// <param name="increment">The increment.</param>
+        public static void Unpack(ReadOnlySpan<byte> bytes, out int timestamp, out int machine, out short pid, out int increment)
+        {
+            if (bytes == null)
+            {
+                throw new ArgumentNullException(nameof(bytes));
+            }
+            if (bytes.Length != 12)
+            {
+                throw new ArgumentOutOfRangeException(nameof(bytes), "Span must be 12 bytes long.");
             }
 
             timestamp = (bytes[0] << 24) + (bytes[1] << 16) + (bytes[2] << 8) + bytes[3];
@@ -460,7 +517,7 @@ namespace MongoDB.Bson
             return (int)(uint)secondsSinceEpoch;
         }
 
-        private static void FromByteArray(byte[] bytes, int offset, out int a, out int b, out int c)
+        private static void FromByteSpan(ReadOnlySpan<byte> bytes, int offset, out int a, out int b, out int c)
         {
             a = (bytes[offset] << 24) | (bytes[offset + 1] << 16) | (bytes[offset + 2] << 8) | bytes[offset + 3];
             b = (bytes[offset + 4] << 24) | (bytes[offset + 5] << 16) | (bytes[offset + 6] << 8) | bytes[offset + 7];
@@ -552,18 +609,32 @@ namespace MongoDB.Bson
                 throw new ArgumentException("Not enough room in destination buffer.", "offset");
             }
 
-            destination[offset + 0] = (byte)(_a >> 24);
-            destination[offset + 1] = (byte)(_a >> 16);
-            destination[offset + 2] = (byte)(_a >> 8);
-            destination[offset + 3] = (byte)(_a);
-            destination[offset + 4] = (byte)(_b >> 24);
-            destination[offset + 5] = (byte)(_b >> 16);
-            destination[offset + 6] = (byte)(_b >> 8);
-            destination[offset + 7] = (byte)(_b);
-            destination[offset + 8] = (byte)(_c >> 24);
-            destination[offset + 9] = (byte)(_c >> 16);
-            destination[offset + 10] = (byte)(_c >> 8);
-            destination[offset + 11] = (byte)(_c);
+            ToSpan(destination.AsSpan(offset));
+        }
+
+        /// <summary>
+        /// Writes the binary form of ObjectId into a span of bytes
+        /// </summary>
+        /// <param name="destination">The destination.</param>
+        public void ToSpan(Span<byte> destination)
+        {
+            if (destination.Length < 12)
+            {
+                throw new ArgumentException(nameof(destination), "Not enough room in destination span");
+            }
+
+            destination[0] = (byte)(_a >> 24);
+            destination[1] = (byte)(_a >> 16);
+            destination[2] = (byte)(_a >> 8);
+            destination[3] = (byte)(_a);
+            destination[4] = (byte)(_b >> 24);
+            destination[5] = (byte)(_b >> 16);
+            destination[6] = (byte)(_b >> 8);
+            destination[7] = (byte)(_b);
+            destination[8] = (byte)(_c >> 24);
+            destination[9] = (byte)(_c >> 16);
+            destination[10] = (byte)(_c >> 8);
+            destination[11] = (byte)(_c);
         }
 
         /// <summary>
@@ -572,7 +643,7 @@ namespace MongoDB.Bson
         /// <returns>A string representation of the value.</returns>
         public override string ToString()
         {
-            var c = new char[24];
+            Span<char> c = stackalloc char[24];
             c[0] = BsonUtils.ToHexChar((_a >> 28) & 0x0f);
             c[1] = BsonUtils.ToHexChar((_a >> 24) & 0x0f);
             c[2] = BsonUtils.ToHexChar((_a >> 20) & 0x0f);
@@ -597,7 +668,7 @@ namespace MongoDB.Bson
             c[21] = BsonUtils.ToHexChar((_c >> 8) & 0x0f);
             c[22] = BsonUtils.ToHexChar((_c >> 4) & 0x0f);
             c[23] = BsonUtils.ToHexChar(_c & 0x0f);
-            return new string(c);
+            return c.ToString();
         }
 
         // explicit IConvertible implementation

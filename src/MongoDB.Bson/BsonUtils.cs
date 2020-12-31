@@ -52,6 +52,16 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
+        /// Get's the hex string's equivalent byte array size
+        /// </summary>
+        /// <param name="s"></param>
+        /// <returns></returns>
+        public static int GetHexStringBinaryLength(string s)
+        {
+            return (s.Length + 1) / 2;
+        }
+
+        /// <summary>
         /// Parses a hex string into its equivalent byte array.
         /// </summary>
         /// <param name="s">The hex string to parse.</param>
@@ -70,6 +80,35 @@ namespace MongoDB.Bson
             }
 
             return bytes;
+        }
+
+        /// <summary>
+        /// Parses a hex string into its equivalent span of bytes
+        /// </summary>
+        /// <param name="s">The hex string to parse.</param>
+        /// <param name="span">The byte sequivalent of the hex string.</param>
+        public static void ParseHexString(string s, Span<byte> span)
+        {
+            if (s == null)
+            {
+                throw new ArgumentException(nameof(s));
+            }
+
+            if (span == null)
+            {
+                throw new ArgumentException(nameof(span));
+            }
+
+            var length = GetHexStringBinaryLength(s);
+            if (span.Length != length)
+            {
+                throw new ArgumentException(nameof(span), $"Span does not match the length of the equivalent binary size of the hex string (expected : {length})");
+            }
+
+            if (!TryParseHexString(s, span))
+            {
+                throw new FormatException("String should contain only hexadecimal digits.");
+            }
         }
 
         /// <summary>
@@ -117,22 +156,30 @@ namespace MongoDB.Bson
         /// <returns>A hex string.</returns>
         public static string ToHexString(byte[] bytes)
         {
+            return ToHexString(bytes.AsSpan());
+        }
+
+        /// <summary>
+        /// Converts a span of bytes to a hex string.
+        /// </summary>
+        /// <param name="bytes">The span of bytes.</param>
+        /// <returns>A hex string.</returns>
+        public static string ToHexString(ReadOnlySpan<byte> bytes)
+        {
             if (bytes == null)
             {
-                throw new ArgumentNullException("bytes");
+                throw new ArgumentException(nameof(bytes));
             }
 
             var length = bytes.Length;
-            var c = new char[length * 2];
-
+            Span<char> c = stackalloc char[length * 2];
             for (int i = 0, j = 0; i < length; i++)
             {
                 var b = bytes[i];
                 c[j++] = ToHexChar(b >> 4);
                 c[j++] = ToHexChar(b & 0x0f);
             }
-
-            return new string(c);
+            return c.ToString();
         }
 
         /// <summary>
@@ -189,21 +236,16 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
-        /// Tries to parse a hex string to a byte array.
+        /// Tries to parse a hex string to a pre-allocated span of bytes
         /// </summary>
         /// <param name="s">The hex string.</param>
-        /// <param name="bytes">A byte array.</param>
-        /// <returns>True if the hex string was successfully parsed.</returns>
-        public static bool TryParseHexString(string s, out byte[] bytes)
+        /// <param name="buffer">A pre-allocated span of bytes</param>
+        /// <returns>True if the hex string was successfully parsed, and the allocated span of bytes has the exact length</returns>
+        public static bool TryParseHexString(string s, Span<byte> buffer)
         {
-            bytes = null;
-
-            if (s == null)
-            {
+            if (s == null || buffer.Length != GetHexStringBinaryLength(s)) {
                 return false;
             }
-
-            var buffer = new byte[(s.Length + 1) / 2];
 
             var i = 0;
             var j = 0;
@@ -232,9 +274,33 @@ namespace MongoDB.Bson
                 }
                 buffer[j++] = (byte)((x << 4) | y);
             }
-
-            bytes = buffer;
             return true;
+        }
+
+        /// <summary>
+        /// Tries to parse a hex string to a byte array.
+        /// </summary>
+        /// <param name="s">The hex string.</param>
+        /// <param name="bytes">A byte array.</param>
+        /// <returns>True if the hex string was successfully parsed.</returns>
+        public static bool TryParseHexString(string s, out byte[] bytes)
+        {
+            bytes = null;
+
+            if (s == null)
+            {
+                return false;
+            }
+
+            var buffer = new byte[GetHexStringBinaryLength(s)];
+            var result = TryParseHexString(s, buffer);
+
+            if (result)
+            {
+                bytes = buffer;
+            }
+
+            return result;
         }
 
         // private static methods
