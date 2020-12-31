@@ -44,7 +44,7 @@ namespace MongoDB.Bson.IO
             }
 
             var maxSize = encoding.GetMaxByteCount(length);
-            var buffer = BufferCache.GetBuffer(maxSize);
+            var buffer = ThreadStaticBuffer.GetBuffer(maxSize);
 
             var size = encoding.GetBytes(value, 0, length, buffer, 0);
 

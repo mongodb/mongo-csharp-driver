@@ -14,25 +14,21 @@
 */
 
 using System;
-using System.Threading;
 
 namespace MongoDB.Bson.IO
 {
     /// <summary>
     /// Represents a class that provides reusable buffer per thread.
     /// </summary>
-    internal static class BufferCache
+    internal static class ThreadStaticBuffer
     {
-        private const int MinSize = 16;
-        private const int MaxSize = 8192;
+        private const int MinSize = 256;
+        private const int MaxSize = 16384;
         private const int MaxAllocationSize = 1024 * 1024 * 1024; // 1GB
-        private const int MaxThreads = 1024;
 
         // private static fields
         [ThreadStatic]
         private static byte[] __buffer;
-
-        private static int __buffersCount = 0;
 
         public static byte[] GetBuffer(int size)
         {
@@ -41,33 +37,18 @@ namespace MongoDB.Bson.IO
                 throw new ArgumentOutOfRangeException(nameof(size), "Invalid requested buffer size");
             }
 
-            if (size > MaxSize ||
-                __buffer == null && Interlocked.Increment(ref __buffersCount) >= MaxThreads)
+            if (size > MaxSize)
             {
                 return new byte[size];
             }
 
             if (!(__buffer?.Length >= size))
             {
-                var newSize = size <= MinSize ? MinSize : CeilPower2(size);
+                var newSize = size <= MinSize ? MinSize : PowerOf2.RoundUpToPowerOf2(size);
                 __buffer = new byte[newSize];
             }
 
             return __buffer;
-        }
-
-        // private methods
-        private static int CeilPower2(int number)
-        {
-            number--;
-            number |= number >> 1;
-            number |= number >> 2;
-            number |= number >> 4;
-            number |= number >> 8;
-            number |= number >> 16;
-            number++;
-
-            return number;
         }
     }
 }

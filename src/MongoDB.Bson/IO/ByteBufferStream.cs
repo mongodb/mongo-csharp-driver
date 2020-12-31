@@ -528,7 +528,7 @@ namespace MongoDB.Bson.IO
             }
             else
             {
-                var bytes = BufferCache.GetBuffer(length);
+                var bytes = ThreadStaticBuffer.GetBuffer(length);
                 this.ReadBytes(bytes, 0, length);
                 if (bytes[length - 1] != 0)
                 {
@@ -573,7 +573,7 @@ namespace MongoDB.Bson.IO
                 byte[] bytes;
                 if (maxLength <= legacyCachedBufferLength)
                 {
-                    bytes = BufferCache.GetBuffer(legacyCachedBufferLength);
+                    bytes = ThreadStaticBuffer.GetBuffer(legacyCachedBufferLength);
                     actualLength = CStringUtf8Encoding.GetBytes(value, bytes, 0, Utf8Encodings.Strict);
                 }
                 else

@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson.IO;
@@ -24,7 +23,7 @@ using Xunit;
 
 namespace MongoDB.Bson.Tests.IO
 {
-    public class BufferCacheTests
+    public class ThreadStaticBufferTests
     {
         // static fields
         private static readonly int[] __sizes = { 1, 2, 3, 4, 7, 8, 9, 15, 16, 17, 127, 128, 129, 8191, 8192 };
@@ -36,7 +35,7 @@ namespace MongoDB.Bson.Tests.IO
         [InlineData(1024 * 1024 * 1024 + 1)]
         public void TestBuffer_invalid_buffer_size_should_throw(int size)
         {
-            var exception = Record.Exception(() => BufferCache.GetBuffer(size));
+            var exception = Record.Exception(() => ThreadStaticBuffer.GetBuffer(size));
             exception.Should().BeOfType<ArgumentOutOfRangeException>();
         }
 
@@ -49,35 +48,35 @@ namespace MongoDB.Bson.Tests.IO
                 {
                     var expectedSize = Math.Max(16, 1 << (int)Math.Ceiling(Math.Log(requestedSize, 2)));
 
-                    var buffer = BufferCache.GetBuffer(requestedSize);
+                    var buffer = ThreadStaticBuffer.GetBuffer(requestedSize);
                     buffer.Length.Should().Be(expectedSize);
                 }
             });
         }
 
         [Theory]
-        [InlineData(8193)]
-        [InlineData(10000)]
         [InlineData(16384)]
+        [InlineData(16385)]
+        [InlineData(16386)]
         [InlineData(32767)]
         [InlineData(32769)]
         public void TestBufferSizeGreaterThanMaxSize_expected_exact_size(int requestedSize)
         {
-            var buffer = BufferCache.GetBuffer(requestedSize);
+            var buffer = ThreadStaticBuffer.GetBuffer(requestedSize);
             buffer.Length.Should().Be(requestedSize);
         }
 
         [Fact]
         public void TestBufferMultiThreaded_expected_unique_instance_per_thread()
         {
-            const int threadsCount = 10;
+            const int threadsCount = 2;
             const int size = 256;
 
             var allBuffers = new ConcurrentBag<byte[]>();
 
             ExecuteOnNewThread(threadsCount, i =>
             {
-                var buffer = BufferCache.GetBuffer(size);
+                var buffer = ThreadStaticBuffer.GetBuffer(size);
                 buffer.Length.Should().Be(size);
 
                 var newSize = size;
@@ -85,7 +84,7 @@ namespace MongoDB.Bson.Tests.IO
                 {
                     newSize = (newSize >> 1) + 1;
 
-                    var bufferCurrent = BufferCache.GetBuffer(newSize);
+                    var bufferCurrent = ThreadStaticBuffer.GetBuffer(newSize);
                     bufferCurrent.Should().BeSameAs(buffer);
                 }
 
@@ -98,35 +97,6 @@ namespace MongoDB.Bson.Tests.IO
 
             buffersOrdered.Length.Should().Be(threadsCount);
             buffersOrdered.ShouldAllBeEquivalentTo(buffersDistinct);
-
-            GetBuffersCount().Should().BeGreaterOrEqualTo(threadsCount);
-        }
-
-        [Fact]
-        public void TestBufferMultiThreaded_should_not_cache_buffers()
-        {
-            var currCount = GetBuffersCount();
-
-            const int newBufferCount = 1024;
-            const int threadsCount = 4;
-            const int size = 256;
-
-            SetBuffersCount(newBufferCount);
-
-            ExecuteOnNewThread(threadsCount, _ =>
-            {
-                var buffer = BufferCache.GetBuffer(size);
-                buffer.Length.Should().Be(size);
-
-                var bufferNew = BufferCache.GetBuffer(size);
-                bufferNew.Length.Should().Be(size);
-                bufferNew.Should().NotBeSameAs(buffer);
-            });
-
-            var newCount = GetBuffersCount();
-            newCount.Should().Be(newBufferCount + threadsCount * 2);
-
-            SetBuffersCount(currCount);
         }
 
         // private methods
@@ -147,14 +117,5 @@ namespace MongoDB.Bson.Tests.IO
                     throw new TimeoutException();
             }
         }
-
-        private FieldInfo BuffersCountField() =>
-            typeof(BufferCache).GetField("__buffersCount", BindingFlags.NonPublic | BindingFlags.Static);
-
-        private int GetBuffersCount() =>
-            (int)BuffersCountField().GetValue(null);
-
-        private void SetBuffersCount(int count) =>
-            BuffersCountField().SetValue(null, count);
     }
 }
