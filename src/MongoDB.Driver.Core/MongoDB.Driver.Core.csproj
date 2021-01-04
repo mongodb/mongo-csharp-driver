@@ -126,7 +126,7 @@
   <ItemGroup>
     <PackageReference Include="DnsClient" Version="1.3.1" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.2" PrivateAssets="All" />
-    <PackageReference Include="MongoDB.Libmongocrypt" Version="1.1.0-beta03" />
+    <PackageReference Include="MongoDB.Libmongocrypt" Version="1.1.0-beta04" />
     <PackageReference Include="SharpCompress" Version="0.23.0" />
     <PackageReference Include="System.Buffers" Version="4.4.0" />
   </ItemGroup>

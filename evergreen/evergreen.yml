@@ -1078,6 +1078,11 @@ axes:
         variables:
           OS: "ubuntu-1804"
         run_on: ubuntu1804-test
+      - id: "macos-1014"
+        display_name: "macOS 10.14"
+        variables:
+          OS: "macos-1014"
+        run_on: macos-1014
 
   - id: topology
     display_name: Topology
@@ -1148,6 +1153,12 @@ buildvariants:
   run_on:
     - ubuntu1804-test
   tasks:
+    - name: compile    
+- name: macos1014-compile
+  display_name: "macOS 10.14 compile"
+  run_on:
+    - macos-1014
+  tasks:
     - name: compile
 
 - matrix_name: "secure-tests"
@@ -1207,6 +1218,15 @@ buildvariants:
   tasks:
      - name: test-netstandard15
      - name: test-netstandard20
+     
+- matrix_name: "unsecure-tests-macOS"
+  matrix_spec: { version: "*", topology: "*", auth: "noauth", ssl: "nossl", os: "macos-1014" }
+  display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
+  tags: ["tests-variant"]
+  tasks:
+     - name: test-netstandard15
+     - name: test-netstandard20
+     - name: test-netstandard21
 
 - matrix_name: "tests-zlib-compression-posix"
   matrix_spec: { compressor : "zlib", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "latest"], topology: "standalone", os: "ubuntu-1804" }

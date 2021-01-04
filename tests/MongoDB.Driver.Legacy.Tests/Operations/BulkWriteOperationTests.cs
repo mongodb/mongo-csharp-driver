@@ -20,9 +20,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Legacy.Tests;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
 
@@ -41,9 +39,11 @@ namespace MongoDB.Driver.Tests.Operations
             _collection = LegacyTestConfiguration.Database.GetCollection(GetType().Name);
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestBatchSplittingBySizeWithErrorsOrdered()
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             _collection.Drop();
 
             var documents = new BsonDocument[8];
@@ -80,9 +80,11 @@ namespace MongoDB.Driver.Tests.Operations
             Assert.Equal(expectedDocuments, _collection.FindAll());
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestBatchSplittingBySizeWithErrorsUnordered()
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             _collection.Drop();
 
             var documents = new BsonDocument[8];
@@ -118,12 +120,14 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData(-1)]
         [InlineData(0)]
         [InlineData(1)]
         public void TestBatchSplittingDeletesNearMaxWriteBatchCount(int maxBatchCountDelta)
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             var count = _primary.MaxBatchCount + maxBatchCountDelta;
             _collection.Drop();
             _collection.InsertBatch(Enumerable.Range(0, count).Select(n => new BsonDocument("_id", n)));
@@ -139,12 +143,14 @@ namespace MongoDB.Driver.Tests.Operations
             Assert.Equal(0, _collection.Count());
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData(-1)]
         [InlineData(0)]
         [InlineData(1)]
         public void TestBatchSplittingInsertsNearMaxWriteBatchCount(int maxBatchCountDelta)
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             var count = _primary.MaxBatchCount + maxBatchCountDelta;
             _collection.Drop();
 
@@ -159,12 +165,14 @@ namespace MongoDB.Driver.Tests.Operations
             Assert.Equal(count, _collection.Count());
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData(-1)]
         [InlineData(0)]
         [InlineData(1)]
         public void TestBatchSplittingUpdatesNearMaxWriteBatchCount(int maxBatchCountDelta)
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             var count = _primary.MaxBatchCount + maxBatchCountDelta;
             _collection.Drop();
             _collection.InsertBatch(Enumerable.Range(0, count).Select(n => new BsonDocument { { "_id", n }, { "n", 0 } }));
@@ -182,11 +190,13 @@ namespace MongoDB.Driver.Tests.Operations
             Assert.Equal(count, _collection.Count(Query.EQ("n", 1)));
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestExecuteTwice(bool ordered)
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             _collection.Drop();
             var bulk = InitializeBulkOperation(_collection, ordered);
             bulk.Insert(new BsonDocument());
@@ -194,13 +204,15 @@ namespace MongoDB.Driver.Tests.Operations
             Assert.Throws<InvalidOperationException>(() => bulk.Execute());
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData(false, 0)]
         [InlineData(false, 1)]
         [InlineData(true, 0)]
         [InlineData(true, 1)]
         public void TestExecuteWithExplicitWriteConcern(bool ordered, int w)
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             var server = LegacyTestConfiguration.GetServer(retryWrites: false);
             var collection = GetCollection(server);
 
@@ -222,21 +234,25 @@ namespace MongoDB.Driver.Tests.Operations
             }
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestExecuteWithNoRequests(bool ordered)
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             _collection.Drop();
             var bulk = InitializeBulkOperation(_collection, ordered);
             Assert.Throws<InvalidOperationException>(() => bulk.Execute());
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestFindAfterExecute(bool ordered)
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             _collection.Drop();
             var bulk = InitializeBulkOperation(_collection, ordered);
             bulk.Insert(new BsonDocument("x", 1));
@@ -244,21 +260,25 @@ namespace MongoDB.Driver.Tests.Operations
             Assert.Throws<InvalidOperationException>(() => bulk.Find(new QueryDocument()));
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestFindWithNullQuery(bool ordered)
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             _collection.Drop();
             var bulk = InitializeBulkOperation(_collection, ordered);
             Assert.Throws<ArgumentNullException>(() => bulk.Find(null));
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestInsertAfterExecute(bool ordered)
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             _collection.Drop();
             var bulk = InitializeBulkOperation(_collection, ordered);
             bulk.Insert(new BsonDocument("x", 1));
@@ -266,22 +286,26 @@ namespace MongoDB.Driver.Tests.Operations
             Assert.Throws<InvalidOperationException>(() => bulk.Insert(new BsonDocument()));
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestInsertKeyValidation(bool ordered)
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             _collection.Drop();
             var bulk = InitializeBulkOperation(_collection, ordered);
             bulk.Insert(new BsonDocument("$key", 1));
             Assert.Throws<BsonSerializationException>(() => bulk.Execute());
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestInsertMultipleDocuments(bool ordered)
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             _collection.Drop();
 
             var documents = new BsonDocument[]
@@ -303,11 +327,13 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().Should().BeEquivalentTo(documents);
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestInsertOneDocument(bool ordered)
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             _collection.Drop();
 
             var document = new BsonDocument("_id", 1);
@@ -322,9 +348,11 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().Should().BeEquivalentTo(new[] { document });
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestMixedOperationsOrdered()
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             _collection.Drop();
 
             var bulk = _collection.InitializeOrderedBulkOperation();
@@ -360,9 +388,11 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestMixedOperationsUnordered()
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             _collection.Drop();
             _collection.Insert(new BsonDocument { { "a", 1 } });
             _collection.Insert(new BsonDocument { { "a", 2 } });
@@ -400,9 +430,11 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestMixedUpsertsOrdered()
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             _collection.Drop();
 
             var bulk = _collection.InitializeOrderedBulkOperation();
@@ -427,9 +459,11 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestMixedUpsertsUnordered()
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             _collection.Drop();
 
             var bulk = _collection.InitializeUnorderedBulkOperation();
@@ -460,6 +494,8 @@ namespace MongoDB.Driver.Tests.Operations
         public void TestNonDefaultWriteConcern(bool ordered)
         {
             RequireServer.Check().ClusterType(ClusterType.Standalone);
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             _collection.Drop();
 
             var documents = new[]
@@ -483,9 +519,11 @@ namespace MongoDB.Driver.Tests.Operations
             }
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestOrderedBatchWithErrors()
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             _collection.Drop();
             _collection.CreateIndex(IndexKeys.Ascending("a"), IndexOptions.SetUnique(true));
 
@@ -526,11 +564,13 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestRemoveMultiple(bool ordered)
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             _collection.Drop();
 
             var documents = new BsonDocument[]
@@ -555,11 +595,13 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestRemoveOneOnlyRemovesOneDocument(bool ordered)
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             _collection.Drop();
             _collection.Insert(new BsonDocument("key", 1));
             _collection.Insert(new BsonDocument("key", 1));
@@ -575,11 +617,13 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestRemoveWithEmptyQueryRemovesAllDocuments(bool ordered)
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             _collection.Drop();
             _collection.Insert(new BsonDocument("key", 1));
             _collection.Insert(new BsonDocument("key", 1));
@@ -594,11 +638,13 @@ namespace MongoDB.Driver.Tests.Operations
             Assert.Equal(0, _collection.Count());
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestRemoveWithQueryRemovesOnlyMatchingDocuments(bool ordered)
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             _collection.Drop();
             _collection.Insert(new BsonDocument("key", 1));
             _collection.Insert(new BsonDocument("key", 2));
@@ -614,11 +660,13 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestReplaceOneKeyValidation(bool ordered)
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             _collection.Drop();
             _collection.Insert(new BsonDocument("_id", 1));
 
@@ -629,11 +677,13 @@ namespace MongoDB.Driver.Tests.Operations
             Assert.Throws<BsonSerializationException>(() => bulk.Execute());
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestReplaceOneWithMultipleMatchingDocuments(bool ordered)
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             _collection.Drop();
             _collection.Insert(new BsonDocument("key", 1));
             _collection.Insert(new BsonDocument("key", 1));
@@ -659,9 +709,11 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestUnorderedBatchWithErrors()
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             _collection.Drop();
             _collection.CreateIndex(IndexKeys.Ascending("a"), IndexOptions.SetUnique(true));
 
@@ -710,11 +762,13 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestUpdateChecksThatAllTopLevelFieldNamesAreOperators(bool ordered)
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             _collection.Drop();
             var bulk = InitializeBulkOperation(_collection, ordered);
             var query = Query.EQ("_id", 1);
@@ -723,11 +777,13 @@ namespace MongoDB.Driver.Tests.Operations
             Assert.Throws<BsonSerializationException>(() => bulk.Execute());
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestUpdateOneBasic(bool ordered)
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             _collection.Drop();
             _collection.Insert(new BsonDocument("key", 1));
             _collection.Insert(new BsonDocument("key", 1));
@@ -752,11 +808,13 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestUpdateOneKeyValidation(bool ordered)
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             var updates = new IMongoUpdate[]
             {
                 new UpdateDocument { { "key", 1 } },
@@ -773,11 +831,13 @@ namespace MongoDB.Driver.Tests.Operations
             }
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestUpdateOnlyAffectsDocumentsThatMatch(bool ordered)
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             _collection.Drop();
             _collection.Insert(new BsonDocument("key", 1));
             _collection.Insert(new BsonDocument("key", 2));
@@ -805,11 +865,13 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestUpdateUpdatesAllMatchingDocuments(bool ordered)
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             _collection.Drop();
             _collection.Insert(new BsonDocument("key", 1));
             _collection.Insert(new BsonDocument("key", 2));
@@ -834,11 +896,13 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestUpsertOneVeryLargeDocument(bool ordered)
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             if (_primary.BuildInfo.Version >= new Version(2, 6, 0))
             {
                 _collection.Drop();
@@ -863,11 +927,13 @@ namespace MongoDB.Driver.Tests.Operations
             }
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestUpsertReplaceOneDoesNotAffectNonUpsertsInTheSameOperation(bool ordered)
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             _collection.Drop();
 
             var bulk = InitializeBulkOperation(_collection, ordered);
@@ -887,11 +953,13 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestUpsertReplaceOneOnlyReplacesOneMatchingDocument(bool ordered)
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             _collection.Drop();
             _collection.Insert(new BsonDocument("key", 1));
             _collection.Insert(new BsonDocument("key", 1));
@@ -917,11 +985,13 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestUpsertUpdateOneDoesNotAffectNonUpsertsInTheSameOperation(bool ordered)
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             _collection.Drop();
 
             var bulk = InitializeBulkOperation(_collection, ordered);
@@ -956,11 +1026,13 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestUpsertUpdateOneOnlyAffectsOneMatchingDocument(bool ordered)
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             _collection.Drop();
             _collection.Insert(new BsonDocument("key", 1));
             _collection.Insert(new BsonDocument("key", 1));
@@ -985,11 +1057,13 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestUpsertUpdateUpsertsAndDoesNotAffectNonUpsertsInTheSameOperation(bool ordered)
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             _collection.Drop();
 
             var bulk = InitializeBulkOperation(_collection, ordered);
@@ -1024,11 +1098,13 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestUpsertWithMultipleMatchingDocuments(bool ordered)
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             _collection.Drop();
             _collection.Insert(new BsonDocument { { "_id", 1 }, { "x", 1 } });
             _collection.Insert(new BsonDocument { { "_id", 2 }, { "x", 1 } });
@@ -1055,11 +1131,13 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestUpsertWithNoMatchingDocument(bool ordered)
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             _collection.Drop();
 
             // use non-ObjectIds to ensure functionality against < 2.6 servers
@@ -1086,11 +1164,13 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestUpsertWithOneMatchingDocument(bool ordered)
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             _collection.Drop();
             _collection.Insert(new BsonDocument { { "_id", 1 }, { "x", 1 } });
             _collection.Insert(new BsonDocument { { "_id", 2 }, { "x", 2 } });
@@ -1117,12 +1197,14 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [Theory]
+        [SkippableTheory]
         [ParameterAttributeData]
         public void TestW0DoesNotReportErrors(
             [Values(false, true)] bool retryWrites,
             [Values(false, true)] bool ordered)
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             var server = LegacyTestConfiguration.GetServer(retryWrites);
             var collection = GetCollection(server);
 
@@ -1150,11 +1232,13 @@ namespace MongoDB.Driver.Tests.Operations
             }
         }
 
-        [Theory]
+        [SkippableTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestW2AgainstStandalone(bool ordered)
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             if (_primary.InstanceType == MongoServerInstanceType.StandAlone)
             {
                 _collection.Drop();
@@ -1174,6 +1258,8 @@ namespace MongoDB.Driver.Tests.Operations
         {
             RequireEnvironment.Check().EnvironmentVariable("EXPLICIT");
             RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+
             _collection.Drop();
 
             var secondary = LegacyTestConfiguration.Server.Secondaries.First();

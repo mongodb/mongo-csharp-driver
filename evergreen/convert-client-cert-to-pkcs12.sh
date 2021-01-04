@@ -25,6 +25,21 @@ openssl pkcs12 -export -in "${CLIENT_PEM}" \
   -name "Drivers Client Certificate" \
   -password "pass:${MONGO_X509_CLIENT_CERTIFICATE_PASSWORD}"
 
+if [[ "$OS" =~ MAC|Mac|mac ]]; then
+  # this function is not available on mac OS
+  function realpath() {
+    OURPWD=$PWD
+    cd "$(dirname "$1")"
+    LINK=$(readlink "$(basename "$1")")
+    while [ "$LINK" ]; do
+      cd "$(dirname "$LINK")"
+      LINK=$(readlink "$(basename "$1")")
+    done
+    REALPATH="$PWD/$(basename "$1")"
+    cd "$OURPWD"
+    echo "$REALPATH"
+  }
+fi
 MONGO_X509_CLIENT_CERTIFICATE_PATH=$(realpath "${MONGO_X509_CLIENT_P12}")
 
 if [[ "$OS" =~ Windows|windows ]]; then

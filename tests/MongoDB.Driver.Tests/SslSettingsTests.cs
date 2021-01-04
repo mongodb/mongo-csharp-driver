@@ -22,6 +22,7 @@ using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using Xunit;
 using FluentAssertions;
+using MongoDB.Driver.TestHelpers;
 
 namespace MongoDB.Driver.Tests
 {
@@ -61,9 +62,11 @@ namespace MongoDB.Driver.Tests
             Assert.Throws<InvalidOperationException>(() => { settings.CheckCertificateRevocation = checkCertificateRevocation; });
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestClientCertificates()
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard15);
+
             var settings = new SslSettings();
             Assert.Equal(null, settings.ClientCertificates);
 
@@ -94,9 +97,11 @@ namespace MongoDB.Driver.Tests
             Assert.Throws<InvalidOperationException>(() => { settings.ClientCertificateSelectionCallback = callback; });
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestClone()
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard15);
+
             var certificateFileName = GetTestCertificateFileName();
             var settings = new SslSettings
             {
@@ -122,9 +127,11 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(null, settings.ServerCertificateValidationCallback);
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestEquals()
         {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard15);
+
             var settings = new SslSettings();
             var clone = settings.Clone();
             Assert.Equal(settings, clone);

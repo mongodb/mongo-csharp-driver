@@ -243,6 +243,9 @@ namespace MongoDB.Driver.Encryption
             using (var sslStream = new SslStream(networkStream, leaveInnerStreamOpen: false))
             {
 #if NETSTANDARD1_5
+                // the way we use this method doesn't work on MacOS with .netstandard1.5.
+                // Since that platform is not supported on libmongocrypt level anyway, instead of fixing it,
+                // we rely on throwing a PlatformNotSupported exception in the previous steps
                 sslStream.AuthenticateAsClientAsync(host).ConfigureAwait(false).GetAwaiter().GetResult();
 #else
                 sslStream.AuthenticateAsClient(host);
@@ -279,6 +282,9 @@ namespace MongoDB.Driver.Encryption
             using (var networkStream = new NetworkStream(socket, ownsSocket: true))
             using (var sslStream = new SslStream(networkStream, leaveInnerStreamOpen: false))
             {
+                // the way we use this method doesn't work on MacOS with .netstandard1.5.
+                // Since that platform is not supported on libmongocrypt level anyway, instead of fixing it,
+                // we rely on throwing a PlatformNotSupported exception in the previous steps
                 await sslStream.AuthenticateAsClientAsync(host).ConfigureAwait(false);
 
                 var requestBytes = request.Message.ToArray();
