@@ -54,7 +54,7 @@ namespace MongoDB.Bson.Serialization.Serializers
 
                 default:
                     var message = string.Format("{0} is not a valid representation for an EnumSerializer.", representation);
-                    throw new ArgumentException(message);
+                    throw new ArgumentException(message, nameof(representation));
             }
 
             // don't know of a way to enforce this at compile time
@@ -165,8 +165,16 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         // private methods
-        private TEnum ConvertDoubleToEnum(double value) =>
-            ConvertInt64ToEnum(checked((long)value));
+        private TEnum ConvertDoubleToEnum(double value)
+        {
+            var int64Value = checked((long)value);
+            if (int64Value != value)
+            {
+                throw new OverflowException("Double value cannot be convert to Int64 without loss of precision.");
+            }
+
+            return ConvertInt64ToEnum(int64Value);
+        }
 
         private int ConvertEnumToInt32(TEnum value)
         {
@@ -179,7 +187,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 case TypeCode.SByte: return Unsafe.As<TEnum, sbyte>(ref value);
                 case TypeCode.UInt16: return Unsafe.As<TEnum, ushort>(ref value);
                 case TypeCode.UInt32: return (int)Unsafe.As<TEnum, uint>(ref value);
-                case TypeCode.UInt64: return checked((int)Unsafe.As<TEnum, ulong>(ref value));
+                case TypeCode.UInt64: return (int)checked((uint)Unsafe.As<TEnum, ulong>(ref value));
                 default: throw new InvalidOperationException($"Unexpected underlying type code: {_underlyingTypeCode}.");
             }
         }
@@ -195,7 +203,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 case TypeCode.SByte: return Unsafe.As<TEnum, sbyte>(ref value);
                 case TypeCode.UInt16: return Unsafe.As<TEnum, ushort>(ref value);
                 case TypeCode.UInt32: return Unsafe.As<TEnum, uint>(ref value);
-                case TypeCode.UInt64: return Unsafe.As<TEnum, long>(ref value);
+                case TypeCode.UInt64: return (long)Unsafe.As<TEnum, ulong>(ref value);
                 default: throw new InvalidOperationException($"Unexpected underlying type code: {_underlyingTypeCode}.");
             }
         }
@@ -210,11 +218,11 @@ namespace MongoDB.Bson.Serialization.Serializers
                 case TypeCode.Byte: var byteValue = checked((byte)value); return Unsafe.As<byte, TEnum>(ref byteValue);
                 case TypeCode.Int16: var int16Value = checked((short)value); return Unsafe.As<short, TEnum>(ref int16Value);
                 case TypeCode.Int32: return Unsafe.As<int, TEnum>(ref value);
-                case TypeCode.Int64: var longValue = (long)value; return Unsafe.As<long, TEnum>(ref longValue);
+                case TypeCode.Int64: var int64Value = (long)value; return Unsafe.As<long, TEnum>(ref int64Value);
                 case TypeCode.SByte: var sbyteValue = checked((sbyte)value); return Unsafe.As<sbyte, TEnum>(ref sbyteValue);
                 case TypeCode.UInt16: var uint16Value = checked((ushort)value); return Unsafe.As<ushort, TEnum>(ref uint16Value);
                 case TypeCode.UInt32: var uint32Value = (uint)value; return Unsafe.As<uint, TEnum>(ref uint32Value);
-                case TypeCode.UInt64: var uint64Value = (ulong)(long)value; return Unsafe.As<ulong, TEnum>(ref uint64Value);
+                case TypeCode.UInt64: var uint64Value = (ulong)(uint)value; return Unsafe.As<ulong, TEnum>(ref uint64Value);
                 default: throw new InvalidOperationException($"Unexpected underlying type code: {_underlyingTypeCode}.");
             }
         }
@@ -229,7 +237,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 case TypeCode.Int64: return Unsafe.As<long, TEnum>(ref value);
                 case TypeCode.SByte: var sbyteValue = checked((sbyte)value); return Unsafe.As<sbyte, TEnum>(ref sbyteValue);
                 case TypeCode.UInt16: var uint16Value = checked((ushort)value); return Unsafe.As<ushort, TEnum>(ref uint16Value);
-                case TypeCode.UInt32: var uint32Value = checked((uint)value); return Unsafe.As<uint, TEnum>(ref uint32Value);
+                case TypeCode.UInt32: var uint32Value = checked((uint)unchecked((ulong)value)); return Unsafe.As<uint, TEnum>(ref uint32Value);
                 case TypeCode.UInt64: var uint64Value = (ulong)value; return Unsafe.As<ulong, TEnum>(ref uint64Value);
                 default: throw new InvalidOperationException($"Unexpected underlying type code: {_underlyingTypeCode}.");
             }
