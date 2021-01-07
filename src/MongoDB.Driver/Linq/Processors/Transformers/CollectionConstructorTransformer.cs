@@ -34,7 +34,8 @@ namespace MongoDB.Driver.Linq.Processors.Transformers
 
         public Expression Transform(NewExpression node)
         {
-            var isGenericType = node.Type.GetTypeInfo().IsGenericType;
+            var nodeTypeInfo = node.Type.GetTypeInfo();
+            var isGenericType = nodeTypeInfo.IsGenericType;
 
             if (isGenericType &&
                 node.Type.GetGenericTypeDefinition() == typeof(HashSet<>) &&
@@ -43,7 +44,7 @@ namespace MongoDB.Driver.Linq.Processors.Transformers
                 return Expression.Call(
                     typeof(MongoEnumerable),
                     "ToHashSet",
-                    node.Type.GetTypeInfo().GetGenericArguments(),
+                    nodeTypeInfo.GetGenericArguments(),
                     node.Arguments.ToArray());
             }
 
@@ -54,7 +55,7 @@ namespace MongoDB.Driver.Linq.Processors.Transformers
                 return Expression.Call(
                     typeof(Enumerable),
                     "ToList",
-                    node.Type.GetTypeInfo().GetGenericArguments(),
+                    nodeTypeInfo.GetGenericArguments(),
                     node.Arguments.ToArray());
             }
 

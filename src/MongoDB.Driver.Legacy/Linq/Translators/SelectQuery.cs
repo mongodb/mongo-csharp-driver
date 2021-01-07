@@ -222,8 +222,9 @@ namespace MongoDB.Driver.Linq
             {
                 var lambdaType = projection.GetType();
                 var delegateType = lambdaType.GetTypeInfo().GetGenericArguments()[0];
-                var sourceType = delegateType.GetTypeInfo().GetGenericArguments()[0];
-                var resultType = delegateType.GetTypeInfo().GetGenericArguments()[1];
+                var delegateTypeInfo = delegateType.GetTypeInfo();
+                var sourceType = delegateTypeInfo.GetGenericArguments()[0];
+                var resultType = delegateTypeInfo.GetGenericArguments()[1];
                 var projectorType = typeof(Projector<,>).MakeGenericType(sourceType, resultType);
                 var compiledProjection = projection.Compile();
                 projector = (IProjector)Activator.CreateInstance(projectorType, cursor, compiledProjection);

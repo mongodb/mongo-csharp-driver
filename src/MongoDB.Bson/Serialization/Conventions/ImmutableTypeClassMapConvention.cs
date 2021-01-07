@@ -126,10 +126,11 @@ namespace MongoDB.Bson.Serialization.Conventions
             }
 
             // also map properties that match some constructor parameter that might be called by a derived class
-            var constructors = GetUsableConstructors(classMap.ClassType.GetTypeInfo());
+            var classTypeInfo = classMap.ClassType.GetTypeInfo();
+            var constructors = GetUsableConstructors(classTypeInfo);
             foreach (var constructorInfo in constructors)
             {
-                if (classMap.ClassType.GetTypeInfo().IsAbstract || 
+                if (classTypeInfo.IsAbstract || 
                     constructorInfo.IsFamily || // protected
                     constructorInfo.IsFamilyOrAssembly) // protected internal
                 {

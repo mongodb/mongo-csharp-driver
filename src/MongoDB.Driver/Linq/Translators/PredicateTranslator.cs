@@ -530,8 +530,9 @@ namespace MongoDB.Driver.Linq.Translators
         private FilterDefinition<BsonDocument> TranslateContainsKey(MethodCallExpression methodCallExpression)
         {
             var dictionaryType = methodCallExpression.Object.Type;
-            var implementedInterfaces = new List<Type>(dictionaryType.GetTypeInfo().GetInterfaces());
-            if (dictionaryType.GetTypeInfo().IsInterface)
+            var dictionaryTypeInfo = dictionaryType.GetTypeInfo();
+            var implementedInterfaces = new List<Type>(dictionaryTypeInfo.GetInterfaces());
+            if (dictionaryTypeInfo.IsInterface)
             {
                 implementedInterfaces.Add(dictionaryType);
             }

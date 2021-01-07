@@ -120,8 +120,10 @@ namespace MongoDB.Bson.Serialization.Conventions
 
             private void OptInMembersWithBsonCreatorMapModifierAttribute(BsonClassMap classMap)
             {
+                TypeInfo classTypeInfo = classMap.ClassType.GetTypeInfo();
+
                 // let other constructors opt-in if they have any IBsonCreatorMapAttribute attributes
-                foreach (var constructorInfo in classMap.ClassType.GetTypeInfo().GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
+                foreach (var constructorInfo in classTypeInfo.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
                 {
                     var hasAttribute = constructorInfo.GetCustomAttributes(inherit: false).OfType<IBsonCreatorMapAttribute>().Any();
                     if (hasAttribute)
@@ -131,7 +133,7 @@ namespace MongoDB.Bson.Serialization.Conventions
                 }
 
                 // let other static factory methods opt-in if they have any IBsonCreatorMapAttribute attributes
-                foreach (var methodInfo in classMap.ClassType.GetTypeInfo().GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
+                foreach (var methodInfo in classTypeInfo.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
                 {
                     var hasAttribute = methodInfo.GetCustomAttributes(inherit: false).OfType<IBsonCreatorMapAttribute>().Any();
                     if (hasAttribute)
@@ -143,8 +145,10 @@ namespace MongoDB.Bson.Serialization.Conventions
 
             private void OptInMembersWithBsonMemberMapModifierAttribute(BsonClassMap classMap)
             {
+                var classTypeInfo = classMap.ClassType.GetTypeInfo();
+
                 // let other fields opt-in if they have any IBsonMemberMapAttribute attributes
-                foreach (var fieldInfo in classMap.ClassType.GetTypeInfo().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
+                foreach (var fieldInfo in classTypeInfo.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
                 {
                     var hasAttribute = fieldInfo.GetCustomAttributes(inherit: false).OfType<IBsonMemberMapAttribute>().Any();
                     if (hasAttribute)
@@ -154,7 +158,7 @@ namespace MongoDB.Bson.Serialization.Conventions
                 }
 
                 // let other properties opt-in if they have any IBsonMemberMapAttribute attributes
-                foreach (var propertyInfo in classMap.ClassType.GetTypeInfo().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
+                foreach (var propertyInfo in classTypeInfo.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
                 {
                     var hasAttribute = propertyInfo.GetCustomAttributes(inherit: false).OfType<IBsonMemberMapAttribute>().Any();
                     if (hasAttribute)

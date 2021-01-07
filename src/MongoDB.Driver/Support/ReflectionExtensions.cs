@@ -126,7 +126,7 @@ namespace MongoDB.Driver.Support
 
             if (seqTypeInfo.IsGenericType)
             {
-                foreach (Type arg in seqType.GetTypeInfo().GetGenericArguments())
+                foreach (Type arg in seqTypeInfo.GetGenericArguments())
                 {
                     Type ienum = typeof(IEnumerable<>).MakeGenericType(arg);
                     if (ienum.GetTypeInfo().IsAssignableFrom(seqType))

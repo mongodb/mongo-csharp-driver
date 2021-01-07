@@ -42,7 +42,7 @@ namespace MongoDB.Bson
 
             var sb = new StringBuilder();
             sb.AppendFormat("{0}<", Regex.Replace(type.Name, @"\`\d+$", ""));
-            foreach (var typeParameter in type.GetTypeInfo().GetGenericArguments())
+            foreach (var typeParameter in typeInfo.GetGenericArguments())
             {
                 sb.AppendFormat("{0}, ", GetFriendlyTypeName(typeParameter));
             }
