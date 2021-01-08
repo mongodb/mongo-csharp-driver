@@ -1267,12 +1267,13 @@ buildvariants:
   tasks:
     - name: atlas-data-lake-test
 
-# - name: plain-auth-tests
-#   display_name: "PLAIN (LDAP) Auth tests"
-#   run_on:
-#     - windows-64-vs2017-test
-#   tasks:
-#     - name: plain-auth-tests
+- name: plain-auth-tests
+  display_name: "PLAIN (LDAP) Auth tests"
+  run_on:
+    - windows-64-vs2017-test
+    - ubuntu-1804-test
+  tasks:
+    - name: plain-auth-tests
 
 # - name: publish-snapshot
 #   display_name: publish-snapshot

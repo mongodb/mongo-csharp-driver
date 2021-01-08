@@ -16,7 +16,12 @@ if [ -z ${MONGODB_URI+x} ]; then
     echo "MONGODB_URI is not set";
     exit 1
 fi
-export MONGODB_URI="${MONGODB_URI}&authSource=\$external"
-powershell.exe \
-  '$env:EXPLICIT="true";' \
-  '.\\build.ps1 -target TestPlainAuthentication'
+export MONGODB_URI="${MONGODB_URI}"
+
+if [[ "$OS" =~ Windows|windows ]]; then
+  powershell.exe \
+    '$env:MONGODB_URI="'${MONGODB_URI}'";'\
+    '.\build.ps1 -target TestPlainAuthentication'
+else
+  ./build.sh -target=TestPlainAuthentication
+fi
