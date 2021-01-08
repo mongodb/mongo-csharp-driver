@@ -1253,6 +1253,12 @@ buildvariants:
   tasks:
     - name: aws-auth-tests
 
+- matrix_name: plain-auth-tests
+  matrix_spec: { os: "*" }
+  display_name: "PLAIN (LDAP) Auth Tests"
+  tasks:
+    - name: plain-auth-tests
+
 - name: atlas-connectivity-tests
   display_name: "Atlas Connectivity Tests"
   run_on:
@@ -1266,14 +1272,6 @@ buildvariants:
     - windows-64-vs2017-test
   tasks:
     - name: atlas-data-lake-test
-
-- name: plain-auth-tests
-  display_name: "PLAIN (LDAP) Auth tests"
-  run_on:
-    - windows-64-vs2017-test
-    - ubuntu-1804-test
-  tasks:
-    - name: plain-auth-tests
 
 # - name: publish-snapshot
 #   display_name: publish-snapshot

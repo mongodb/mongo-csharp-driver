@@ -20,7 +20,6 @@ export MONGODB_URI="${MONGODB_URI}"
 
 if [[ "$OS" =~ Windows|windows ]]; then
   powershell.exe \
-    '$env:MONGODB_URI="'${MONGODB_URI}'";'\
     '.\build.ps1 -target TestPlainAuthentication'
 else
   ./build.sh -target=TestPlainAuthentication
