@@ -40,11 +40,11 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
         {
             if (_operator == AstComparisonFilterOperator.Eq)
             {
-                return new BsonDocument(_field.Name, _value);
+                return new BsonDocument(_field.Path, _value);
             }
             else
             {
-                return new BsonDocument(_field.Name, new BsonDocument(_operator.Render(), _value));
+                return new BsonDocument(_field.Path, new BsonDocument(_operator.Render(), _value));
             }
         }
     }

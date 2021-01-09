@@ -17,9 +17,11 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Ast.Stages;
 using MongoDB.Driver.Linq3.Methods;
 using MongoDB.Driver.Linq3.Misc;
+using MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslators;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
 {
@@ -38,7 +40,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
             {
                 var keySelector = arguments[1];
 
-                var sortField = CreateSortField(method.Name, keySelector, pipeline.OutputSerializer);
+                var sortField = CreateSortField(context, method.Name, keySelector);
 
                 switch (method.Name)
                 {
@@ -68,29 +70,31 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
         }
 
         // private static methods
-        private static AstSortStageField CreateSortField(string methodName, Expression keySelector, IBsonSerializer outputSerializer)
+        private static AstSortStageField CreateSortField(TranslationContext context, string methodName, Expression keySelector)
         {
-            var dottedFieldName = GetDottedFieldName(keySelector, outputSerializer);
-            //return new BsonElement(dottedFieldName, direction);
+            var fieldPath = GetFieldPath(context, keySelector);
             switch (methodName)
             {
                 case "OrderBy":
                 case "ThenBy":
-                    return new AstSortStageField(dottedFieldName, new AstSortStageAscendingSortOrder());
+                    return new AstSortStageField(fieldPath, new AstSortStageAscendingSortOrder());
                 case "OrderByDescending":
                 case "ThenByDescending":
-                    return new AstSortStageField(dottedFieldName, new AstSortStageDescendingSortOrder());
+                    return new AstSortStageField(fieldPath, new AstSortStageDescendingSortOrder());
                 default:
                     throw new ArgumentException("Unexpected method name.", nameof(methodName));
             }
         }
 
-        private static string GetDottedFieldName(Expression keySelector, IBsonSerializer outputSerializer)
+        private static string GetFieldPath(TranslationContext context, Expression keySelector)
         {
-            var keySelectorLambdaExpression = ExpressionHelper.Unquote(keySelector);
-            var symbolTable = new SymbolTable(keySelectorLambdaExpression.Parameters[0], new Symbol("$$CURRENT", outputSerializer));
-            var keyField = FieldResolver.ResolveField(keySelectorLambdaExpression.Body, symbolTable);
-            return keyField.DottedFieldName;
+            var keySelectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, keySelector);
+            if (keySelectorTranslation.Ast is AstFieldExpression fieldExpressionAst)
+            {
+                return fieldExpressionAst.Path;
+            }
+
+            throw new ExpressionNotSupportedException(keySelector);
         }
     }
 }

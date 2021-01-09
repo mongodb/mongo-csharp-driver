@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             var fieldInfo = DocumentSerializerHelper.GetFieldInfo(containerTranslation.Serializer, member.Name);
             if (containerTranslation.Ast is AstFieldExpression fieldExpression)
             {
-                var ast = fieldExpression.Combine(fieldInfo.ElementName);
+                var ast = fieldExpression.CreateSubField(fieldInfo.ElementName);
                 return new AggregationExpression(expression, ast, fieldInfo.Serializer);
             }
             else

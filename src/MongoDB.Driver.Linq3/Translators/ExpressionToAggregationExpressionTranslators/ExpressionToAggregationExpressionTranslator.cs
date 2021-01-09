@@ -109,13 +109,13 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
         {
             if (astExpression is AstFieldExpression astFieldExpression)
             {
-                return astFieldExpression.Combine(fieldName);
+                return astFieldExpression.CreateSubField(fieldName);
             }
             else
             {
                 return new AstLetExpression(
                     vars: new[] { new AstComputedField("_container", astExpression) },
-                    @in: new AstFieldExpression($"$_container.{fieldName}"));
+                    @in: new AstFieldExpression($"_container.{fieldName}"));
             }
         }
     }

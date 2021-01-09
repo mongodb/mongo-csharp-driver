@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
         {
             return new BsonDocument
             {
-                { _field.Name, new BsonDocument
+                { _field.Path, new BsonDocument
                     {
                         { "$near", new BsonDocument
                             {

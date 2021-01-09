@@ -48,11 +48,11 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
             if (_types.Count == 1)
             {
                 var type = _types[0];
-                return new BsonDocument(_field.Name, new BsonDocument("$type", MapBsonTypeToString(type)));
+                return new BsonDocument(_field.Path, new BsonDocument("$type", MapBsonTypeToString(type)));
             }
             else
             {
-                return new BsonDocument(_field.Name, new BsonDocument("$type", new BsonArray(_types.Select(type => MapBsonTypeToString(type)))));
+                return new BsonDocument(_field.Path, new BsonDocument("$type", new BsonArray(_types.Select(type => MapBsonTypeToString(type)))));
             }
         }
 

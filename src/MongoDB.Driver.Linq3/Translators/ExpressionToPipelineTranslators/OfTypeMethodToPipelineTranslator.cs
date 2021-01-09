@@ -15,6 +15,7 @@
 
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Ast.Filters;
 using MongoDB.Driver.Linq3.Ast.Stages;
@@ -47,8 +48,9 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                 {
                     discriminatorElementName = "_v." + discriminatorElementName;
                 }
+                var discriminatorField = new AstFilterField(discriminatorElementName, BsonValueSerializer.Instance);
                 var discriminatorValue = discriminatorConvention.GetDiscriminator(nominalType, actualType);
-                var filter = new AstComparisonFilter(AstComparisonFilterOperator.Eq, new AstFilterField(discriminatorElementName), discriminatorValue);
+                var filter = new AstComparisonFilter(AstComparisonFilterOperator.Eq, discriminatorField, discriminatorValue);
                 var actualSerializer = BsonSerializer.LookupSerializer(actualType); // TODO: use known serializer
                 if (pipeline.OutputSerializer is IWrappedValueSerializer)
                 {

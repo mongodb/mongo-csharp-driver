@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
 
         public override BsonValue Render()
         {
-            return new BsonDocument(_field.Name, new BsonDocument("$geoWithin", new BsonDocument("$centerSphere", new BsonArray { new BsonArray { _x, _y }, _radius })));
+            return new BsonDocument(_field.Path, new BsonDocument("$geoWithin", new BsonDocument("$centerSphere", new BsonArray { new BsonArray { _x, _y }, _radius })));
         }
     }
 }

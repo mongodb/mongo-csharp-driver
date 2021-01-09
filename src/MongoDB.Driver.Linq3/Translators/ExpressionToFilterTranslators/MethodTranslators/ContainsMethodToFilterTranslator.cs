@@ -14,15 +14,19 @@
 */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Ast.Filters;
+using MongoDB.Driver.Linq3.Misc;
+using MongoDB.Driver.Linq3.Serializers;
 using MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslators;
+using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ExpressionToFilterFieldTranslators;
 
-namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators
+namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodTranslators
 {
     public static class ContainsMethodToFilterTranslator
     {
@@ -76,15 +80,11 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
         {
             if (sourceExpression is ConstantExpression constantSourceExpression)
             {
-                var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
-                var itemTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, itemExpression);
-                if (itemTranslation.Ast is AstFieldExpression itemFieldExpression &&
-                    sourceTranslation.Ast is AstConstantExpression sourceConstantExpression)
-                {
-                    var filterField = new AstFilterField(itemFieldExpression.Field);
-                    var values = sourceConstantExpression.Value.AsBsonArray;
-                    return new AstInFilter(filterField, values);
-                }
+                var field = ExpressionToFilterFieldTranslator.Translate(context, itemExpression);
+                var sourceValues = (IEnumerable)constantSourceExpression.Value;
+                var sourceSerializer = IEnumerableSerializer.Create(field.Serializer);
+                var serializedValues = SerializationHelper.SerializeValues(field.Serializer, sourceValues);
+                return new AstInFilter(field, serializedValues);
             }
 
             throw new ExpressionNotSupportedException(expression);

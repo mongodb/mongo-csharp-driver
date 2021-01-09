@@ -14,22 +14,40 @@
 */
 
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
     public sealed class AstFilterField : AstNode
     {
-        private string _name;
+        private string _path;
+        private IBsonSerializer _serializer;
 
-        public AstFilterField(string name)
+        public AstFilterField(string path, IBsonSerializer serializer)
         {
-            _name = Ensure.IsNotNull(name, nameof(name));
+            _path = Ensure.IsNotNull(path, nameof(path));
+            _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
         }
 
-        public string Name => _name;
+        public string Path => _path;
         public override AstNodeType NodeType => AstNodeType.FilterField;
+        public IBsonSerializer Serializer => _serializer;
 
-        public override BsonValue Render() => _name;
+        public AstFilterField CreateFilterSubField(string subFieldName, IBsonSerializer subFieldSerializer)
+        {
+            Ensure.IsNotNull(subFieldName, nameof(subFieldName));
+
+            if (_path == "$CURRENT")
+            {
+                return new AstFilterField(subFieldName, subFieldSerializer);
+            }
+            else
+            {
+                return new AstFilterField(_path + "." + subFieldName, subFieldSerializer);
+            }
+        }
+
+        public override BsonValue Render() => _path;
     }
 }
