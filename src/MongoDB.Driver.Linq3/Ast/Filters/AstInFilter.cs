@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
 
         public override BsonValue Render()
         {
-            return new BsonDocument(_field.Name, new BsonDocument("$in", new BsonArray(_values)));
+            return new BsonDocument(_field.Path, new BsonDocument("$in", new BsonArray(_values)));
         }
     }
 }

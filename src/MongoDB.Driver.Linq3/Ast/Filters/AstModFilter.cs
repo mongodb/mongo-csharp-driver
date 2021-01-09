@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
 
         public override BsonValue Render()
         {
-            return new BsonDocument(_field.Name, new BsonDocument("$mod", new BsonArray { _divisor, _remainder }));
+            return new BsonDocument(_field.Path, new BsonDocument("$mod", new BsonArray { _divisor, _remainder }));
         }
     }
 }

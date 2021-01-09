@@ -19,7 +19,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Ast.Filters;
 
-namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators
+namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators
 {
     public static class MemberExpressionToFilterTranslator
     {
@@ -38,7 +38,9 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                         if (containerDocumentSerializer.TryGetMemberSerializationInfo(propertyInfo.Name, out var propertySerializationInfo))
                         {
                             var elementName = propertySerializationInfo.ElementName;
-                            return new AstComparisonFilter(AstComparisonFilterOperator.Eq, new AstFilterField(elementName), true);
+                            var elementSerializer = propertySerializationInfo.Serializer;
+                            var field = new AstFilterField(elementName, elementSerializer);
+                            return new AstComparisonFilter(AstComparisonFilterOperator.Eq, field, value: true);
                         }
                     }
                 }

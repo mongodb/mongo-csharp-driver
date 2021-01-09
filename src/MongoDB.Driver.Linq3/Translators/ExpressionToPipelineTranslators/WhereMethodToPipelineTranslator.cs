@@ -18,6 +18,7 @@ using MongoDB.Driver.Linq3.Ast.Stages;
 using MongoDB.Driver.Linq3.Methods;
 using MongoDB.Driver.Linq3.Misc;
 using MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators;
+using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
 {

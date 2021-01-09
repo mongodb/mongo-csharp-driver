@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                     AstExpression ast;
                     if (sourceTranslation.Ast is AstFieldExpression sourceFieldAst)
                     {
-                        ast = sourceFieldAst.Combine(keyValue);
+                        ast = sourceFieldAst.CreateSubField(keyValue);
                     }
                     else
                     {

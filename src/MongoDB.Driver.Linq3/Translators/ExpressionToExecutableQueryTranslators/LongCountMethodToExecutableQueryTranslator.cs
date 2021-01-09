@@ -24,6 +24,7 @@ using MongoDB.Driver.Linq3.Serializers;
 using MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators;
 using MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators;
 using MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators.Finalizers;
+using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators
 {

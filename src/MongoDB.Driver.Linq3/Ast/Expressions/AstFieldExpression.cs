@@ -20,33 +20,33 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
 {
     public sealed class AstFieldExpression : AstExpression
     {
-        private readonly string _field;
+        private readonly string _path;
 
-        public AstFieldExpression(string field)
+        public AstFieldExpression(string path)
         {
-            _field = Ensure.IsNotNullOrEmpty(field, nameof(field));
+            _path = Ensure.IsNotNullOrEmpty(path, nameof(path));
         }
 
-        public string Field => _field;
+        public string Path => _path;
         public override AstNodeType NodeType => AstNodeType.FieldExpression;
 
-        public AstFieldExpression Combine(string subField)
+        public AstFieldExpression CreateSubField(string subFieldName)
         {
-            Ensure.IsNotNull(subField, nameof(subField));
+            Ensure.IsNotNull(subFieldName, nameof(subFieldName));
 
-            if (_field == "$CURRENT")
+            if (_path == "$CURRENT")
             {
-                return new AstFieldExpression(subField);
+                return new AstFieldExpression(subFieldName);
             }
             else
             {
-                return new AstFieldExpression(_field + "." + subField);
+                return new AstFieldExpression(_path + "." + subFieldName);
             }
         }
 
         public override BsonValue Render()
         {
-            return "$" + _field;
+            return "$" + _path;
         }
     }
 }

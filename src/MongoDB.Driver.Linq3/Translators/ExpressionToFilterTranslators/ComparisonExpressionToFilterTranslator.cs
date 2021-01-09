@@ -17,8 +17,9 @@ using System.Linq.Expressions;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Ast.Filters;
 using MongoDB.Driver.Linq3.Misc;
+using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ExpressionToFilterFieldTranslators;
 
-namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators
+namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators
 {
     public static class ComparisonExpressionToFilterTranslator
     {
@@ -54,13 +55,12 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                 }
             }
 
-            var resolvedField = FieldResolver.ResolveField(leftExpression, context.SymbolTable);
+            var field = ExpressionToFilterFieldTranslator.Translate(context, leftExpression);
             if (rightExpression is ConstantExpression constantExpression)
             {
                 var value = constantExpression.Value;
-                var serializedValue = SerializationHelper.SerializeValue(resolvedField.Serializer, value);
+                var serializedValue = SerializationHelper.SerializeValue(field.Serializer, value);
 
-                var field = new AstFilterField(resolvedField.DottedFieldName);
                 return new AstComparisonFilter(comparisonOperator, field, serializedValue);
             }
 
