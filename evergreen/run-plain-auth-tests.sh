@@ -17,6 +17,7 @@ if [ -z ${MONGODB_URI+x} ]; then
     exit 1
 fi
 export MONGODB_URI="${MONGODB_URI}"
+export PLAIN_AUTH_TESTS_ENABLED=true
 
 if [[ "$OS" =~ Windows|windows ]]; then
   powershell.exe \

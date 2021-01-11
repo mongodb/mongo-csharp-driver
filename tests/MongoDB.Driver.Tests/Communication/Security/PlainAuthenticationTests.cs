@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
         [SkippableFact]
         public void TestNoCredentials()
         {
-            RequireEnvironment.Check().EnvironmentVariable("EXPLICIT");
+            RequireEnvironment.Check().EnvironmentVariable("PLAIN_AUTH_TESTS_ENABLED");
             _settings.Credential = null;
             var client = new MongoClient(_settings);
 
@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
         [SkippableFact]
         public void TestSuccessfulAuthentication()
         {
-            RequireEnvironment.Check().EnvironmentVariable("EXPLICIT");
+            RequireEnvironment.Check().EnvironmentVariable("PLAIN_AUTH_TESTS_ENABLED");
             var client = new MongoClient(_settings);
 
             var result = client
@@ -71,13 +71,13 @@ namespace MongoDB.Driver.Tests.Communication.Security
         [SkippableFact]
         public void TestBadPassword()
         {
-            RequireEnvironment.Check().EnvironmentVariable("EXPLICIT");
+            RequireEnvironment.Check().EnvironmentVariable("PLAIN_AUTH_TESTS_ENABLED");
             var currentCredential = _settings.Credential;
             _settings.Credential = MongoCredential.CreatePlainCredential(currentCredential.Source, currentCredential.Username, "wrongPassword");
 
             var client = new MongoClient(_settings);
 
-            Assert.Throws<TimeoutException>(() =>
+            Assert.Throws<MongoAuthenticationException>(() =>
             {
                 client
                     .GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName)
