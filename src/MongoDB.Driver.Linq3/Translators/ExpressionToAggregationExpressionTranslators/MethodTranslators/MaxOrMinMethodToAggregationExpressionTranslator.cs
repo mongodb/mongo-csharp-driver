@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 if (arguments.Count == 1)
                 {
                     ast = new AstUnaryExpression(@operator, sourceTranslation.Ast);
-                    serializer = sourceTranslation.Serializer;
+                    serializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
                 }
                 else
                 {
