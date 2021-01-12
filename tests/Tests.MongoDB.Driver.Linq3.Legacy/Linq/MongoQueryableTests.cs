@@ -889,7 +889,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
                 .ThenBy(x => x.A);
 
             Action act = () => query.ToList();
-            act.ShouldThrow<NotSupportedException>();
+            act.ShouldThrow<InvalidOperationException>();
         }
 
         [Fact]
@@ -901,7 +901,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
                 .ThenByDescending(x => x.A);
 
             Action act = () => query.ToList();
-            act.ShouldThrow<NotSupportedException>();
+            act.ShouldThrow<InvalidOperationException>();
         }
 
         [SkippableFact]
