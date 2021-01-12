@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators
         {
             switch (expression.Method.Name)
             {
+                case "Any": return AnyMethodToFilterTranslator.Translate(context, expression);
                 case "Contains": return ContainsMethodToFilterTranslator.Translate(context, expression);
             }
 

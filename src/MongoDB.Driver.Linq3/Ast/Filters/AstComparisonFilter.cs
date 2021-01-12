@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
 
         public override BsonValue Render()
         {
-            if (_operator == AstComparisonFilterOperator.Eq)
+            if (_operator == AstComparisonFilterOperator.Eq && _value.BsonType != BsonType.RegularExpression)
             {
                 return new BsonDocument(_field.Path, _value);
             }
