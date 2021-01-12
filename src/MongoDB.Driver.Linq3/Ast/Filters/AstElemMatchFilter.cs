@@ -21,21 +21,49 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
     public sealed class AstElemMatchFilter : AstFilter
     {
         private readonly AstFilterField _field;
-        private readonly BsonDocument _queries; // TODO: use some AST classes instead of BsonDocument?
+        private readonly AstFilter _filter; // note: using "$elem" to represent the implied element values
 
-        public AstElemMatchFilter(AstFilterField field, BsonDocument queries)
+        public AstElemMatchFilter(AstFilterField field, AstFilter filter)
         {
             _field = Ensure.IsNotNull(field, nameof(field));
-            _queries = Ensure.IsNotNull(queries, nameof(queries));
+            _filter = Ensure.IsNotNull(filter, nameof(filter));
         }
 
         public AstFilterField Field => _field;
+        public AstFilter Filter => _filter;
         public override AstNodeType NodeType => AstNodeType.ElemMatchFilter;
-        public BsonDocument Queries => _queries;
 
         public override BsonValue Render()
         {
-            return new BsonDocument(_field.Path, new BsonDocument("$elemMatch", _queries));
+            return new BsonDocument(_field.Path, new BsonDocument("$elemMatch", RewriteElemMatchFilter(_filter.Render())));
+        }
+
+        // TODO: this implementation is incomplete
+        private BsonValue RewriteElemMatchFilter(BsonValue filter)
+        {
+            if (filter is BsonDocument filterDocument && filterDocument.ElementCount == 1)
+            {
+                var elementName = filterDocument.GetElement(0).Name;
+                if (elementName == "$elem")
+                {
+                    var condition = filterDocument[0];
+                    if (condition is BsonDocument conditionDocument &&
+                        conditionDocument.ElementCount > 0 &&
+                        conditionDocument.GetElement(0).Name.StartsWith("$"))
+                    {
+                        return condition; // TODO: recurse
+                    }
+                    return new BsonDocument("$eq", condition);
+                }
+                if (elementName.StartsWith("$elem."))
+                {
+                    var subFieldName = elementName.Substring(6);
+                    filterDocument.SetElement(0, new BsonElement(subFieldName, filterDocument[0]));
+                    return filterDocument;
+                }
+            }
+
+            return filter;
         }
     }
 }
