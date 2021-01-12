@@ -38,9 +38,9 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
 
             if (method.IsOneOf(QueryableMethod.OrderBy, QueryableMethod.OrderByDescending, QueryableMethod.ThenBy, QueryableMethod.ThenByDescending))
             {
-                var keySelector = arguments[1];
+                var keySelector = ExpressionHelper.Unquote(arguments[1]);
 
-                var sortField = CreateSortField(context, method.Name, keySelector);
+                var sortField = CreateSortField(context, method.Name, keySelector, parameterSerializer: pipeline.OutputSerializer);
 
                 switch (method.Name)
                 {
@@ -70,9 +70,9 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
         }
 
         // private static methods
-        private static AstSortStageField CreateSortField(TranslationContext context, string methodName, Expression keySelector)
+        private static AstSortStageField CreateSortField(TranslationContext context, string methodName, LambdaExpression keySelector, IBsonSerializer parameterSerializer)
         {
-            var fieldPath = GetFieldPath(context, keySelector);
+            var fieldPath = GetFieldPath(context, keySelector, parameterSerializer);
             switch (methodName)
             {
                 case "OrderBy":
@@ -86,9 +86,9 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
             }
         }
 
-        private static string GetFieldPath(TranslationContext context, Expression keySelector)
+        private static string GetFieldPath(TranslationContext context, LambdaExpression keySelector, IBsonSerializer parameterSerializer)
         {
-            var keySelectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, keySelector);
+            var keySelectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, keySelector, parameterSerializer);
             if (keySelectorTranslation.Ast is AstFieldExpression fieldExpressionAst)
             {
                 return fieldExpressionAst.Path;
