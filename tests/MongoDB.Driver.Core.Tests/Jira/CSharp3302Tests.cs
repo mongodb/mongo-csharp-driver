@@ -77,7 +77,9 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 Interlocked.Exchange(ref isInHeartbeat, 0);
 
                 if (Interlocked.Increment(ref heartbeatsCount) == heartbeatsExpectedMinCount)
+                {
                     allHeartbeatsRecieved.SetResult(true);
+                }
             }
 
             var serverDescriptionDisconnected = new ServerDescription(
@@ -116,15 +118,6 @@ namespace MongoDB.Driver.Core.Tests.Jira
 
                 // Trigger Cluster._rapidHeartbeatTimer
                 var selectServerTask = cluster.SelectServerAsync(CreateWritableServerAndEndPointSelector(__endPoint1), CancellationToken.None);
-
-                // Postpone change description, to allow timer to be activated
-                await Task.Delay(100);
-
-                // Change description
-                var args = new ServerDescriptionChangedEventArgs(serverDescriptionDisconnected, serverDescriptionConnected);
-                serverMock.Raise(s => s.DescriptionChanged += null, serverMock.Object, args);
-
-                var selectedServer = await selectServerTask;
 
                 // Wait for all heartbeats to complete
                 await Task.WhenAny(allHeartbeatsRecieved.Task, Task.Delay(1000));
