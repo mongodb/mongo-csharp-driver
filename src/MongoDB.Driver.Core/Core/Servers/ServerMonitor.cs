@@ -143,10 +143,7 @@ namespace MongoDB.Driver.Core.Servers
         public void RequestHeartbeat()
         {
             ThrowIfNotOpen();
-            lock (_lock)
-            {
-                _heartbeatDelay?.RequestHeartbeat();
-            }
+            _heartbeatDelay?.RequestHeartbeat();
         }
 
         // private methods

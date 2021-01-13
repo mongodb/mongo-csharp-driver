@@ -619,5 +619,11 @@ namespace MongoDB.Driver.Core.Clusters
     internal static class ClusterReflector
     {
         public static InterlockedInt32 _state(this Cluster cluster) => (InterlockedInt32)Reflector.GetFieldValue(cluster, nameof(_state));
+
+        public static TimeSpan __minHeartbeatInterval(this Cluster cluster) => (TimeSpan)Reflector.GetFieldValue(cluster, nameof(__minHeartbeatInterval), BindingFlags.Static | BindingFlags.NonPublic);
+        public static void __minHeartbeatIntervalSet(this Cluster cluster, TimeSpan timeSpan)
+        {
+            Reflector.SetFieldValue(cluster, nameof(__minHeartbeatInterval), timeSpan, BindingFlags.Static | BindingFlags.NonPublic);
+        }
     }
 }
