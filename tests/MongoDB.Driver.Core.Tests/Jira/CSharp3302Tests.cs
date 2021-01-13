@@ -127,7 +127,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 var selectedServer = await selectServerTask;
 
                 // Wait for all hearbeats to complete
-                await Task.WhenAny(allHeartbeatsRecieved.Task, Task.Delay(500));
+                await Task.WhenAny(allHeartbeatsRecieved.Task, Task.Delay(1000));
             }
 
             allHeartbeatsRecieved.Task.Status.Should().Be(TaskStatus.RanToCompletion);
