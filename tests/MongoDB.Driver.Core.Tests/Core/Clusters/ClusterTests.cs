@@ -620,10 +620,10 @@ namespace MongoDB.Driver.Core.Clusters
     {
         public static InterlockedInt32 _state(this Cluster cluster) => (InterlockedInt32)Reflector.GetFieldValue(cluster, nameof(_state));
 
-        public static TimeSpan __minHeartbeatInterval(this Cluster cluster) => (TimeSpan)Reflector.GetFieldValue(cluster, nameof(__minHeartbeatInterval), BindingFlags.Static | BindingFlags.NonPublic);
-        public static void __minHeartbeatIntervalSet(this Cluster cluster, TimeSpan timeSpan)
+        public static TimeSpan _minHeartbeatInterval(this Cluster cluster) => (TimeSpan)Reflector.GetFieldValue(cluster, nameof(_minHeartbeatInterval));
+        public static void _minHeartbeatIntervalSet(this Cluster cluster, TimeSpan timeSpan)
         {
-            Reflector.SetFieldValue(cluster, nameof(__minHeartbeatInterval), timeSpan, BindingFlags.Static | BindingFlags.NonPublic);
+            Reflector.SetFieldValue(cluster, nameof(_minHeartbeatInterval), timeSpan);
         }
     }
 }

@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Core.Clusters
     {
         #region static
         // static fields
-        private static readonly TimeSpan __minHeartbeatInterval = TimeSpan.FromMilliseconds(500);
+        private static readonly TimeSpan __minHeartbeatIntervalDefault = TimeSpan.FromMilliseconds(500);
         private static readonly SemanticVersion __minSupportedServerVersion = new SemanticVersion(2, 6, 0);
         private static readonly IServerSelector __randomServerSelector = new RandomServerSelector();
         private static readonly Range<int> __supportedWireVersionRange = new Range<int>(2, 9);
@@ -61,6 +61,7 @@ namespace MongoDB.Driver.Core.Clusters
         #endregion
 
         // fields
+        private readonly TimeSpan _minHeartbeatInterval = __minHeartbeatIntervalDefault;
         private readonly IClusterClock _clusterClock = new ClusterClock();
         private readonly ClusterId _clusterId;
         private CryptClient _cryptClient = null;
@@ -199,7 +200,7 @@ namespace MongoDB.Driver.Core.Clusters
 
                 if (++_serverSelectionWaitQueueSize == 1)
                 {
-                    _rapidHeartbeatTimer.Change(TimeSpan.Zero, __minHeartbeatInterval);
+                    _rapidHeartbeatTimer.Change(TimeSpan.Zero, _minHeartbeatInterval);
                 }
             }
         }

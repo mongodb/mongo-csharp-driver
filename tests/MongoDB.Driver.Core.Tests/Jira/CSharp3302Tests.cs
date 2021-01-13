@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading;
@@ -37,7 +36,6 @@ using Xunit;
 
 namespace MongoDB.Driver.Core.Tests.Jira
 {
-    [CollectionDefinition("EndpointTests", DisableParallelization = true)]
     public class CSharp3302Tests
     {
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -109,8 +107,8 @@ namespace MongoDB.Driver.Core.Tests.Jira
 
             using (var cluster = new MultiServerCluster(clusterSettings, serverFactoryMock.Object, new EventCapturer()))
             {
-                cluster.__minHeartbeatIntervalSet(TimeSpan.FromMilliseconds(10));
-                cluster.__minHeartbeatInterval().Should().Be(TimeSpan.FromMilliseconds(10));
+                cluster._minHeartbeatIntervalSet(TimeSpan.FromMilliseconds(10));
+                cluster._minHeartbeatInterval().Should().Be(TimeSpan.FromMilliseconds(10));
 
                 ForceClusterId(cluster, __clusterId);
 
@@ -267,7 +265,6 @@ namespace MongoDB.Driver.Core.Tests.Jira
             var serverMonitorFactory = new ServerMonitorFactory(serverMonitorSettings, serverMonitorConnectionFactory, eventCapturer);
 
             var serverFactory = new ServerFactory(__clusterConnectionMode, __connectionModeSwitch, __directConnection, serverSettings, connectionPoolFactory, serverMonitorFactory, eventCapturer);
-
             return new MultiServerCluster(clusterSettings, serverFactory, eventCapturer);
         }
 
