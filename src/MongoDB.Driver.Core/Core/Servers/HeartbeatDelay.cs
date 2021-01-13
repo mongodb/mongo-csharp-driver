@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -63,7 +62,14 @@ namespace MongoDB.Driver.Core.Servers
                 }
                 else
                 {
-                    _timer.Change(earlyHeartbeatDelay, Timeout.InfiniteTimeSpan);
+                    try
+                    {
+                        _timer.Change(earlyHeartbeatDelay, Timeout.InfiniteTimeSpan);
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        // Allow timer to be disposed during RequestHeartbeat
+                    }
                 }
             }
         }

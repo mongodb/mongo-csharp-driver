@@ -143,10 +143,10 @@ namespace MongoDB.Driver.Core.Servers
         public void RequestHeartbeat()
         {
             ThrowIfNotOpen();
-            lock (_lock)
-            {
-                _heartbeatDelay?.RequestHeartbeat();
-            }
+
+            // CSHARP-3302: Accessing _heartbeatDelay inside _lock can lead to deadlock when processing concurrent heartbeats from old and new primaries.
+            // Accessing _heartbeatDelay outside of _lock avoids the deadlock and will at worst reference the previous delay
+            _heartbeatDelay?.RequestHeartbeat();
         }
 
         // private methods

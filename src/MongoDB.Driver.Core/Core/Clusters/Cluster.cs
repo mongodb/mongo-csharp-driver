@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Core.Clusters
     {
         #region static
         // static fields
-        private static readonly TimeSpan __minHeartbeatInterval = TimeSpan.FromMilliseconds(500);
+        private static readonly TimeSpan __minHeartbeatIntervalDefault = TimeSpan.FromMilliseconds(500);
         private static readonly SemanticVersion __minSupportedServerVersion = new SemanticVersion(2, 6, 0);
         private static readonly IServerSelector __randomServerSelector = new RandomServerSelector();
         private static readonly Range<int> __supportedWireVersionRange = new Range<int>(2, 9);
@@ -61,6 +61,7 @@ namespace MongoDB.Driver.Core.Clusters
         #endregion
 
         // fields
+        private readonly TimeSpan _minHeartbeatInterval = __minHeartbeatIntervalDefault;
         private readonly IClusterClock _clusterClock = new ClusterClock();
         private readonly ClusterId _clusterId;
         private CryptClient _cryptClient = null;
@@ -75,6 +76,7 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly ICoreServerSessionPool _serverSessionPool;
         private readonly ClusterSettings _settings;
         private readonly InterlockedInt32 _state;
+        private readonly InterlockedInt32 _rapidHeartbeatTimerCallbackState;
 
         private readonly Action<ClusterDescriptionChangedEvent> _descriptionChangedEventHandler;
         private readonly Action<ClusterSelectingServerEvent> _selectingServerEventHandler;
@@ -88,6 +90,7 @@ namespace MongoDB.Driver.Core.Clusters
             _serverFactory = Ensure.IsNotNull(serverFactory, nameof(serverFactory));
             Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
             _state = new InterlockedInt32(State.Initial);
+            _rapidHeartbeatTimerCallbackState = new InterlockedInt32(RapidHeartbeatTimerCallbackState.NotRunning);
 
             _clusterId = new ClusterId();
             _description = ClusterDescription.CreateInitial(_clusterId, _settings.ConnectionMode);
@@ -178,7 +181,7 @@ namespace MongoDB.Driver.Core.Clusters
 
                 if (++_serverSelectionWaitQueueSize == 1)
                 {
-                    _rapidHeartbeatTimer.Change(TimeSpan.Zero, __minHeartbeatInterval);
+                    _rapidHeartbeatTimer.Change(TimeSpan.Zero, _minHeartbeatInterval);
                 }
             }
         }
@@ -208,15 +211,23 @@ namespace MongoDB.Driver.Core.Clusters
 
         private void RapidHeartbeatTimerCallback(object args)
         {
-            try
+            // avoid requesting heartbeat reentrantly
+            if (_rapidHeartbeatTimerCallbackState.TryChange(RapidHeartbeatTimerCallbackState.NotRunning, RapidHeartbeatTimerCallbackState.Running))
             {
-                RequestHeartbeat();
-            }
-            catch
-            {
-                // TODO: Trace this
-                // If we don't protect this call, we could
-                // take down the app domain.
+                try
+                {
+                    RequestHeartbeat();
+                }
+                catch
+                {
+                    // TODO: Trace this
+                    // If we don't protect this call, we could
+                    // take down the app domain.
+                }
+                finally
+                {
+                    _rapidHeartbeatTimerCallbackState.TryChange(RapidHeartbeatTimerCallbackState.NotRunning);
+                }
             }
         }
 
@@ -595,6 +606,12 @@ namespace MongoDB.Driver.Core.Clusters
             public const int Initial = 0;
             public const int Open = 1;
             public const int Disposed = 2;
+        }
+
+        private static class RapidHeartbeatTimerCallbackState
+        {
+            public const int NotRunning = 0;
+            public const int Running = 1;
         }
     }
 }
