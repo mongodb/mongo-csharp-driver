@@ -232,7 +232,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             if (!_heartbeatState.TryChange(State.Initial, State.Open))
             {
-                // Avoid requesting hearbeat concurrently
+                // Avoid requesting heartbeat concurrently
                 return;
             }
 

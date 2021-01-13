@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
         private static HashSet<ServerId> s_primaries = new HashSet<ServerId>();
 
         [Fact]
-        public async Task Ensure_hearbeat_timer_runs_synchroniosly()
+        public async Task Ensure_heartbeat_timer_runs_synchroniosly()
         {
             var clusterSettings = new ClusterSettings(
                 connectionMode: __clusterConnectionMode,
@@ -63,18 +63,18 @@ namespace MongoDB.Driver.Core.Tests.Jira
 
             var allHeartbeatsRecieved = new TaskCompletionSource<bool>(false);
             const int heartbeatsExpectedMinCount = 3;
-            int heartbeatsCount = 0, isInHearbeat = 0;
+            int heartbeatsCount = 0, isInHeartbeat = 0;
             var calledConcurrently = false;
 
             void BlockHeartbeatRequested()
             {
                 // Validate BlockHeartbeatRequested is not running already
-                calledConcurrently |= Interlocked.Exchange(ref isInHearbeat, 1) != 0;
+                calledConcurrently |= Interlocked.Exchange(ref isInHeartbeat, 1) != 0;
 
                 // Block Cluster._rapidHeartbeatTimer timer
                 Thread.Sleep(40);
 
-                Interlocked.Exchange(ref isInHearbeat, 0);
+                Interlocked.Exchange(ref isInHeartbeat, 0);
 
                 if (Interlocked.Increment(ref heartbeatsCount) == heartbeatsExpectedMinCount)
                     allHeartbeatsRecieved.SetResult(true);
@@ -117,7 +117,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 // Trigger Cluster._rapidHeartbeatTimer
                 var selectServerTask = cluster.SelectServerAsync(CreateWritableServerAndEndPointSelector(__endPoint1), CancellationToken.None);
 
-                // Postpone change description, to allow timer to be actived
+                // Postpone change description, to allow timer to be activated
                 await Task.Delay(100);
 
                 // Change description
@@ -126,7 +126,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
 
                 var selectedServer = await selectServerTask;
 
-                // Wait for all hearbeats to complete
+                // Wait for all heartbeats to complete
                 await Task.WhenAny(allHeartbeatsRecieved.Task, Task.Delay(1000));
             }
 
@@ -140,7 +140,6 @@ namespace MongoDB.Driver.Core.Tests.Jira
             // Force async execution, otherwise test timeout won't be respected
             await Task.Yield();
 
-            // ensure that isMaster check response is finished only after network error
             var noLongerPrimaryStalled = new TaskCompletionSource<bool>();
             s_primaries.Add(__serverId1);
 
