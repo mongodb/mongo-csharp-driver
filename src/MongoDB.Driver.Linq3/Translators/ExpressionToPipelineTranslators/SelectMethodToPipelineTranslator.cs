@@ -42,25 +42,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                     return pipeline; // ignore identity projection: Select(x => x)
                 }
                 var selectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, selectorLambdaExpression, parameterSerializer: pipeline.OutputSerializer);
-
-                if (selectorTranslation.Ast is AstComputedDocumentExpression)
-                {
-                    var projection = ProjectionHelper.ConvertExpressionToProjection(selectorTranslation.Ast);
-
-                    pipeline.AddStages(
-                        selectorTranslation.Serializer,
-                        new AstProjectStage(projection));
-                }
-                else
-                {
-                    var wrappedValueSerializer = WrappedValueSerializer.Create(selectorTranslation.Serializer);
-
-                    pipeline.AddStages(
-                        wrappedValueSerializer,
-                        new AstProjectStage(
-                            new AstProjectStageComputedFieldSpecification(new Ast.AstComputedField("_v", selectorTranslation.Ast)),
-                            new AstProjectStageExcludeIdSpecification()));
-                }
+                ProjectionHelper.AddProjectStage(pipeline, selectorTranslation);
 
                 return pipeline;
             }
