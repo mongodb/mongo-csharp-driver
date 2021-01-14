@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly ICoreServerSessionPool _serverSessionPool;
         private readonly ClusterSettings _settings;
         private readonly InterlockedInt32 _state;
-        private readonly InterlockedInt32 _heartbeatState;
+        private readonly InterlockedInt32 _rapidHeartbeatTimerCallbackState;
 
         private readonly Action<ClusterDescriptionChangedEvent> _descriptionChangedEventHandler;
         private readonly Action<ClusterSelectingServerEvent> _selectingServerEventHandler;
@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Core.Clusters
             _serverFactory = Ensure.IsNotNull(serverFactory, nameof(serverFactory));
             Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
             _state = new InterlockedInt32(State.Initial);
-            _heartbeatState = new InterlockedInt32(State.Initial);
+            _rapidHeartbeatTimerCallbackState = new InterlockedInt32(RapidHeartbeatTimerCallbackState.Idle);
 
             _clusterId = new ClusterId();
             _description = CreateInitialDescription();
@@ -230,25 +230,23 @@ namespace MongoDB.Driver.Core.Clusters
 
         private void RapidHeartbeatTimerCallback(object args)
         {
-            if (!_heartbeatState.TryChange(State.Initial, State.Open))
+            // Avoid requesting heartbeat concurrently
+            if (_rapidHeartbeatTimerCallbackState.TryChange(RapidHeartbeatTimerCallbackState.Idle, RapidHeartbeatTimerCallbackState.Running))
             {
-                // Avoid requesting heartbeat concurrently
-                return;
-            }
-
-            try
-            {
-                RequestHeartbeat();
-            }
-            catch
-            {
-                // TODO: Trace this
-                // If we don't protect this call, we could
-                // take down the app domain.
-            }
-            finally
-            {
-                _heartbeatState.TryChange(State.Initial);
+                try
+                {
+                    RequestHeartbeat();
+                }
+                catch
+                {
+                    // TODO: Trace this
+                    // If we don't protect this call, we could
+                    // take down the app domain.
+                }
+                finally
+                {
+                    _rapidHeartbeatTimerCallbackState.TryChange(RapidHeartbeatTimerCallbackState.Idle);
+                }
             }
         }
 
@@ -627,6 +625,12 @@ namespace MongoDB.Driver.Core.Clusters
             public const int Initial = 0;
             public const int Open = 1;
             public const int Disposed = 2;
+        }
+
+        private static class RapidHeartbeatTimerCallbackState
+        {
+            public const int Idle = 0;
+            public const int Running = 1;
         }
     }
 }

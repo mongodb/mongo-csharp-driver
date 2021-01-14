@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
         private static HashSet<ServerId> s_primaries = new HashSet<ServerId>();
 
         [Fact]
-        public async Task Ensure_heartbeat_timer_runs_synchroniosly()
+        public async Task RapidHeartbeatTimerCallback_should_not_be_called_reentrantly()
         {
             var clusterSettings = new ClusterSettings(
                 connectionMode: __clusterConnectionMode,
@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
 
             using (var cluster = new MultiServerCluster(clusterSettings, serverFactoryMock.Object, new EventCapturer()))
             {
-                cluster._minHeartbeatIntervalSet(TimeSpan.FromMilliseconds(10));
+                cluster._minHeartbeatInterval(TimeSpan.FromMilliseconds(10));
                 cluster._minHeartbeatInterval().Should().Be(TimeSpan.FromMilliseconds(10));
 
                 ForceClusterId(cluster, __clusterId);
