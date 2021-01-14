@@ -14,79 +14,62 @@
 */
 
 using System.Collections.Generic;
-using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Linq3.Ast;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Ast.Stages;
+using MongoDB.Driver.Linq3.Serializers;
+using MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslators;
+using MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators;
 
 namespace MongoDB.Driver.Linq3.Misc
 {
     public static class ProjectionHelper
     {
-        //public static BsonValue ConvertExpressionToProjection(BsonValue translatedExpression)
-        public static IEnumerable<AstProjectStageSpecification> ConvertExpressionToProjection(AstExpression expression)
+        // public static method
+        public static void AddProjectStage(Pipeline pipeline, AggregationExpression expression)
         {
-            //if (translatedExpression is BsonDocument projection)
-            //{
-            //    foreach (var element in projection.Elements.ToList())
-            //    {
-            //        var needsLiteral = false;
-            //        switch (element.Value.BsonType)
-            //        {
-            //            case BsonType.Boolean:
-            //            case BsonType.Decimal128:
-            //            case BsonType.Double:
-            //            case BsonType.Int32:
-            //            case BsonType.Int64:
-            //                needsLiteral = true;
-            //                break;
-            //        }
+            if (expression.Ast.NodeType == AstNodeType.ComputedDocumentExpression)
+            {
+                AddComputedDocumentProjectStage(pipeline, expression);
+            }
+            else
+            {
+                AddWrappedValueProjectStage(pipeline, expression);
+            }
+        }
 
-            //        if (needsLiteral)
-            //        {
-            //            projection[element.Name] = new BsonDocument("$literal", element.Value);
-            //        }
-            //    }
+        private static void AddComputedDocumentProjectStage(Pipeline pipeline, AggregationExpression expression)
+        {
+            var computedDocument = (AstComputedDocumentExpression)expression.Ast;
 
-            //    if (!projection.Contains("_id"))
-            //    {
-            //        projection.InsertAt(0, new BsonElement("_id", 0));
-            //    }
-
-            //    return projection;
-            //}
-
-            //return translatedExpression;
-
-            var computedDocumentExpression = (AstComputedDocumentExpression)expression; // TODO: is this always true?            
-
-            var projection = new List<AstProjectStageSpecification>();
+            var specifications = new List<AstProjectStageSpecification>();
 
             var isIdProjected = false;
-            foreach (var computedField in computedDocumentExpression.Fields)
+            foreach (var computedField in computedDocument.Fields)
             {
                 var projectedField = computedField;
                 if (computedField.Expression is AstConstantExpression constantExpression)
                 {
-                    var constantValue = constantExpression.Value;
-                    if (NeedsToBeQuoted(constantValue))
+                    if (ValueNeedsToBeQuoted(constantExpression.Value))
                     {
                         projectedField = new AstComputedField(computedField.Name, new AstUnaryExpression(AstUnaryOperator.Literal, constantExpression));
                     }
                 }
-                projection.Add(new AstProjectStageComputedFieldSpecification(projectedField));
+                specifications.Add(new AstProjectStageComputedFieldSpecification(projectedField));
                 isIdProjected |= computedField.Name == "_id";
             }
 
             if (!isIdProjected)
             {
-                projection.Add(new AstProjectStageExcludeIdSpecification());
+                specifications.Add(new AstProjectStageExcludeIdSpecification());
             }
 
-            return projection;
+            var projectStage = new AstProjectStage(specifications);
 
-            bool NeedsToBeQuoted(BsonValue constantValue)
+            pipeline.AddStages(expression.Serializer, projectStage);
+
+            bool ValueNeedsToBeQuoted(BsonValue constantValue)
             {
                 switch (constantValue.BsonType)
                 {
@@ -101,6 +84,17 @@ namespace MongoDB.Driver.Linq3.Misc
                         return false;
                 }
             }
+        }
+
+        private static void AddWrappedValueProjectStage(Pipeline pipeline, AggregationExpression expression)
+        {
+            var wrappedValueSerializer = WrappedValueSerializer.Create(expression.Serializer);
+            var projectStage =
+                new AstProjectStage(
+                    new AstProjectStageComputedFieldSpecification(new Ast.AstComputedField("_v", expression.Ast)),
+                    new AstProjectStageExcludeIdSpecification());
+
+            pipeline.AddStages(wrappedValueSerializer, projectStage);
         }
     }
 }
