@@ -24,7 +24,7 @@ using static MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionT
 
 namespace MongoDB.Driver.Linq3.Serializers
 {
-    public class IGroupingSerializer<TKey, TElement> : SerializerBase<IGrouping<TKey, TElement>>, IBsonDocumentSerializer, IWrappedEnumerableSerializer
+    public class IGroupingSerializer<TKey, TElement> : SerializerBase<IGrouping<TKey, TElement>>, IBsonArraySerializer, IBsonDocumentSerializer, IWrappedEnumerableSerializer
     {
         // private fields
         private readonly IBsonSerializer<TElement> _elementSerializer;
@@ -77,6 +77,12 @@ namespace MongoDB.Driver.Linq3.Serializers
             }
             writer.WriteEndArray();
             writer.WriteEndDocument();
+        }
+
+        public bool TryGetItemSerializationInfo(out BsonSerializationInfo serializationInfo)
+        {
+            serializationInfo = new BsonSerializationInfo(elementName: null, serializer: _elementSerializer, nominalType: typeof(TElement));
+            return true;
         }
 
         public bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo)
