@@ -85,8 +85,17 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                 }
                 else
                 {
-                    elementAst = new AstFieldExpression("$ROOT");
-                    elementSerializer = sourceSerializer;
+                    if (sourceSerializer is IWrappedValueSerializer wrappedSerializer)
+                    {
+                        elementAst = new AstFieldExpression("_v");
+                        elementSerializer = wrappedSerializer.ValueSerializer;
+
+                    }
+                    else
+                    {
+                        elementAst = new AstFieldExpression("$ROOT");
+                        elementSerializer = sourceSerializer;
+                    }
                 }
 
                 var groupingSerializer = IGroupingSerializer.Create(keySerializer, elementSerializer);
