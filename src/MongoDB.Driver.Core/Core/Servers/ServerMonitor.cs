@@ -143,6 +143,8 @@ namespace MongoDB.Driver.Core.Servers
         public void RequestHeartbeat()
         {
             ThrowIfNotOpen();
+
+            // _heartbeatDelay is created under _lock and is safe for concurrent access outside _lock
             _heartbeatDelay?.RequestHeartbeat();
         }
 

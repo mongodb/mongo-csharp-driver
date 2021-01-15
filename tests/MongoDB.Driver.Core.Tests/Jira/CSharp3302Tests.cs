@@ -82,24 +82,17 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 }
             }
 
-            var serverDescriptionDisconnected = new ServerDescription(
+            var serverDescription = new ServerDescription(
                 __serverId1,
                 __endPoint1,
                 type: ServerType.ReplicaSetPrimary,
                 state: ServerState.Disconnected,
                 replicaSetConfig: new ReplicaSetConfig(new[] { __endPoint1 }, "rs", __endPoint1, null));
 
-            var serverDescriptionConnected = new ServerDescription(
-              __serverId1,
-              __endPoint1,
-              type: ServerType.ReplicaSetPrimary,
-              state: ServerState.Connected,
-              replicaSetConfig: new ReplicaSetConfig(new[] { __endPoint1 }, "rs", __endPoint1, null));
-
             var serverMock = new Mock<IClusterableServer>();
             serverMock.Setup(s => s.EndPoint).Returns(__endPoint1);
             serverMock.Setup(s => s.IsInitialized).Returns(true);
-            serverMock.Setup(s => s.Description).Returns(serverDescriptionDisconnected);
+            serverMock.Setup(s => s.Description).Returns(serverDescription);
             serverMock.Setup(s => s.RequestHeartbeat()).Callback(BlockHeartbeatRequested);
 
             var serverFactoryMock = new Mock<IClusterableServerFactory>();
