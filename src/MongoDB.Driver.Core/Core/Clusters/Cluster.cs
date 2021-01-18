@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Core.Clusters
             _serverFactory = Ensure.IsNotNull(serverFactory, nameof(serverFactory));
             Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
             _state = new InterlockedInt32(State.Initial);
-            _rapidHeartbeatTimerCallbackState = new InterlockedInt32(RapidHeartbeatTimerCallbackState.Idle);
+            _rapidHeartbeatTimerCallbackState = new InterlockedInt32(RapidHeartbeatTimerCallbackState.NotRunning);
 
             _clusterId = new ClusterId();
             _description = CreateInitialDescription();
@@ -230,8 +230,8 @@ namespace MongoDB.Driver.Core.Clusters
 
         private void RapidHeartbeatTimerCallback(object args)
         {
-            // Avoid requesting heartbeat concurrently
-            if (_rapidHeartbeatTimerCallbackState.TryChange(RapidHeartbeatTimerCallbackState.Idle, RapidHeartbeatTimerCallbackState.Running))
+            // avoid requesting heartbeat reentrantly
+            if (_rapidHeartbeatTimerCallbackState.TryChange(RapidHeartbeatTimerCallbackState.NotRunning, RapidHeartbeatTimerCallbackState.Running))
             {
                 try
                 {
@@ -245,7 +245,7 @@ namespace MongoDB.Driver.Core.Clusters
                 }
                 finally
                 {
-                    _rapidHeartbeatTimerCallbackState.TryChange(RapidHeartbeatTimerCallbackState.Idle);
+                    _rapidHeartbeatTimerCallbackState.TryChange(RapidHeartbeatTimerCallbackState.NotRunning);
                 }
             }
         }
@@ -629,7 +629,7 @@ namespace MongoDB.Driver.Core.Clusters
 
         private static class RapidHeartbeatTimerCallbackState
         {
-            public const int Idle = 0;
+            public const int NotRunning = 0;
             public const int Running = 1;
         }
     }

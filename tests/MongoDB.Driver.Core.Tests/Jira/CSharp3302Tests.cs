@@ -1,4 +1,4 @@
-﻿/* Copyright 2020-present MongoDB Inc.
+﻿/* Copyright 2021-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -50,10 +50,10 @@ namespace MongoDB.Driver.Core.Tests.Jira
         private readonly static ServerId __serverId1 = new ServerId(__clusterId, __endPoint1);
         private readonly static ServerId __serverId2 = new ServerId(__clusterId, __endPoint2);
 
-        private static HashSet<ServerId> s_primaries = new HashSet<ServerId>();
+        private HashSet<ServerId> _currentPrimaries;
 
         [Fact]
-        public async Task RapidHeartbeatTimerCallback_should_not_be_called_reentrantly()
+        public async Task RapidHeartbeatTimerCallback_should_ignore_reentrant_calls()
         {
             var clusterSettings = new ClusterSettings(
                 connectionMode: __clusterConnectionMode,
@@ -61,26 +61,10 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 serverSelectionTimeout: TimeSpan.FromSeconds(30),
                 endPoints: new[] { __endPoint1 });
 
-            var allHeartbeatsRecieved = new TaskCompletionSource<bool>(false);
+            var allHeartbeatsReceived = new TaskCompletionSource<bool>(false);
             const int heartbeatsExpectedMinCount = 3;
             int heartbeatsCount = 0, isInHeartbeat = 0;
-            var calledConcurrently = false;
-
-            void BlockHeartbeatRequested()
-            {
-                // Validate BlockHeartbeatRequested is not running already
-                calledConcurrently |= Interlocked.Exchange(ref isInHeartbeat, 1) != 0;
-
-                // Block Cluster._rapidHeartbeatTimer timer
-                Thread.Sleep(40);
-
-                Interlocked.Exchange(ref isInHeartbeat, 0);
-
-                if (Interlocked.Increment(ref heartbeatsCount) == heartbeatsExpectedMinCount)
-                {
-                    allHeartbeatsRecieved.SetResult(true);
-                }
-            }
+            var calledReentrantly = false;
 
             var serverDescription = new ServerDescription(
                 __serverId1,
@@ -110,14 +94,30 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 cluster.Initialize();
 
                 // Trigger Cluster._rapidHeartbeatTimer
-                var selectServerTask = cluster.SelectServerAsync(CreateWritableServerAndEndPointSelector(__endPoint1), CancellationToken.None);
+                var _ = cluster.SelectServerAsync(CreateWritableServerAndEndPointSelector(__endPoint1), CancellationToken.None);
 
                 // Wait for all heartbeats to complete
-                await Task.WhenAny(allHeartbeatsRecieved.Task, Task.Delay(1000));
+                await Task.WhenAny(allHeartbeatsReceived.Task, Task.Delay(1000));
             }
 
-            allHeartbeatsRecieved.Task.Status.Should().Be(TaskStatus.RanToCompletion);
-            calledConcurrently.Should().Be(false);
+            allHeartbeatsReceived.Task.Status.Should().Be(TaskStatus.RanToCompletion);
+            calledReentrantly.Should().Be(false);
+
+            void BlockHeartbeatRequested()
+            {
+                // Validate BlockHeartbeatRequested is not running already
+                calledReentrantly |= Interlocked.Exchange(ref isInHeartbeat, 1) != 0;
+
+                // Block Cluster._rapidHeartbeatTimer timer
+                Thread.Sleep(40);
+
+                Interlocked.Exchange(ref isInHeartbeat, 0);
+
+                if (Interlocked.Increment(ref heartbeatsCount) == heartbeatsExpectedMinCount)
+                {
+                    allHeartbeatsReceived.SetResult(true);
+                }
+            }
         }
 
         [Fact(Timeout = 10000)]
@@ -126,8 +126,8 @@ namespace MongoDB.Driver.Core.Tests.Jira
             // Force async execution, otherwise test timeout won't be respected
             await Task.Yield();
 
-            var noLongerPrimaryStalled = new TaskCompletionSource<bool>();
-            s_primaries.Add(__serverId1);
+            var noLongerPrimaryEventStalled = new TaskCompletionSource<bool>();
+            _currentPrimaries = new HashSet<ServerId>() { __serverId1 };
 
             EndPoint initialSelectedEndpoint = null;
             using (var cluster = CreateAndSetupCluster())
@@ -145,18 +145,18 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 initialSelectedEndpoint.Should().Be(__endPoint1);
 
                 // Change primary
-                s_primaries.Add(__serverId2);
+                _currentPrimaries.Add(__serverId2);
                 selectedServer = cluster.SelectServer(CreateWritableServerAndEndPointSelector(__endPoint2), CancellationToken.None);
                 selectedServer.EndPoint.Should().Be(__endPoint2);
 
                 // Ensure stalling happened
-                await noLongerPrimaryStalled.Task;
+                await noLongerPrimaryEventStalled.Task;
             }
 
             void ProcessServerDescriptionChanged(object sender, ServerDescriptionChangedEventArgs e)
             {
                 // Stall once for first primary
-                if (e.NewServerDescription.ReasonChanged == "InvalidatedBecause:NoLongerPrimary" && s_primaries.Remove(__serverId1))
+                if (e.NewServerDescription.ReasonChanged == "InvalidatedBecause:NoLongerPrimary" && _currentPrimaries.Remove(__serverId1))
                 {
                     var server = (IServer)sender;
                     server.EndPoint.Should().Be(__endPoint1);
@@ -164,7 +164,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
                     // Postpone Server.Invalidate invoke in MultiServerCluster.ProcessReplicaSetChange
                     Thread.Sleep(1000);
 
-                    noLongerPrimaryStalled.SetResult(true);
+                    noLongerPrimaryEventStalled.SetResult(true);
                 }
             }
         }
@@ -308,22 +308,21 @@ namespace MongoDB.Driver.Core.Tests.Jira
 
             Task<ResponseMessage> GetIsMasterResponse()
             {
-                var doc = s_primaries.Contains(serverId) ? primaryDoc : secondaryDoc;
+                var isMasterDoc = _currentPrimaries.Contains(serverId) ? primaryDoc : secondaryDoc;
 
-                ResponseMessage result = MessageHelper.BuildReply(new RawBsonDocument(doc.ToBson()));
+                ResponseMessage result = MessageHelper.BuildReply(new RawBsonDocument(isMasterDoc.ToBson()));
                 return Task.FromResult(result);
             }
 
             ConnectionDescription GetConnectionDescription()
             {
-                var doc = s_primaries.Contains(serverId) ? primaryDoc : secondaryDoc;
+                var isMasterDoc = _currentPrimaries.Contains(serverId) ? primaryDoc : secondaryDoc;
 
                 return new ConnectionDescription(
                     mockConnection.Object.ConnectionId,
-                    new IsMasterResult(doc),
+                    new IsMasterResult(isMasterDoc),
                     new BuildInfoResult(new BsonDocument("version", serverVersion)));
             }
         }
     }
 }
-;
