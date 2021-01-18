@@ -50,8 +50,6 @@ namespace MongoDB.Driver.Core.Tests.Jira
         private readonly static ServerId __serverId1 = new ServerId(__clusterId, __endPoint1);
         private readonly static ServerId __serverId2 = new ServerId(__clusterId, __endPoint2);
 
-        private HashSet<ServerId> _currentPrimaries;
-
         [Fact]
         public async Task RapidHeartbeatTimerCallback_should_ignore_reentrant_calls()
         {
@@ -61,7 +59,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 serverSelectionTimeout: TimeSpan.FromSeconds(30),
                 endPoints: new[] { __endPoint1 });
 
-            var allHeartbeatsReceived = new TaskCompletionSource<bool>(false);
+            var allHeartbeatsReceived = new TaskCompletionSource<bool>();
             const int heartbeatsExpectedMinCount = 3;
             int heartbeatsCount = 0, isInHeartbeat = 0;
             var calledReentrantly = false;
@@ -87,6 +85,8 @@ namespace MongoDB.Driver.Core.Tests.Jira
             using (var cluster = new MultiServerCluster(clusterSettings, serverFactoryMock.Object, new EventCapturer()))
             {
                 cluster._minHeartbeatInterval(TimeSpan.FromMilliseconds(10));
+
+                // _minHeartbeatInterval validation might not be necessary, and can be reconsidered along with Reflector testing
                 cluster._minHeartbeatInterval().Should().Be(TimeSpan.FromMilliseconds(10));
 
                 ForceClusterId(cluster, __clusterId);
@@ -127,10 +127,10 @@ namespace MongoDB.Driver.Core.Tests.Jira
             await Task.Yield();
 
             var noLongerPrimaryEventStalled = new TaskCompletionSource<bool>();
-            _currentPrimaries = new HashSet<ServerId>() { __serverId1 };
+            var currentPrimaries = new HashSet<ServerId>() { __serverId1 };
 
             EndPoint initialSelectedEndpoint = null;
-            using (var cluster = CreateAndSetupCluster())
+            using (var cluster = CreateAndSetupCluster(currentPrimaries))
             {
                 ForceClusterId(cluster, __clusterId);
 
@@ -145,7 +145,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 initialSelectedEndpoint.Should().Be(__endPoint1);
 
                 // Change primary
-                _currentPrimaries.Add(__serverId2);
+                currentPrimaries.Add(__serverId2);
                 selectedServer = cluster.SelectServer(CreateWritableServerAndEndPointSelector(__endPoint2), CancellationToken.None);
                 selectedServer.EndPoint.Should().Be(__endPoint2);
 
@@ -156,7 +156,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
             void ProcessServerDescriptionChanged(object sender, ServerDescriptionChangedEventArgs e)
             {
                 // Stall once for first primary
-                if (e.NewServerDescription.ReasonChanged == "InvalidatedBecause:NoLongerPrimary" && _currentPrimaries.Remove(__serverId1))
+                if (e.NewServerDescription.ReasonChanged == "InvalidatedBecause:NoLongerPrimary" && currentPrimaries.Remove(__serverId1))
                 {
                     var server = (IServer)sender;
                     server.EndPoint.Should().Be(__endPoint1);
@@ -209,6 +209,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
         }
 
         private IConnectionFactory CreateAndSetupServerMonitorConnectionFactory(
+            HashSet<ServerId> primaries,
             params (ServerId ServerId, EndPoint Endpoint)[] serverInfoCollection)
         {
             var mockConnectionFactory = new Mock<IConnectionFactory>();
@@ -216,7 +217,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
             foreach (var serverInfo in serverInfoCollection)
             {
                 var mockServerMonitorConnection = new Mock<IConnection>();
-                SetupServerMonitorConnection(mockServerMonitorConnection, serverInfo.ServerId);
+                SetupServerMonitorConnection(primaries, mockServerMonitorConnection, serverInfo.ServerId);
                 mockConnectionFactory
                     .Setup(c => c.CreateConnection(serverInfo.ServerId, serverInfo.Endpoint))
                     .Returns(mockServerMonitorConnection.Object);
@@ -225,7 +226,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
             return mockConnectionFactory.Object;
         }
 
-        private MultiServerCluster CreateAndSetupCluster()
+        private MultiServerCluster CreateAndSetupCluster(HashSet<ServerId> primaries)
         {
             (ServerId ServerId, EndPoint Endpoint)[] serverInfoCollection = new[]
             {
@@ -246,7 +247,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
 
             var eventCapturer = new EventCapturer();
             var connectionPoolFactory = CreateAndSetupConnectionPoolFactory(serverInfoCollection);
-            var serverMonitorConnectionFactory = CreateAndSetupServerMonitorConnectionFactory(serverInfoCollection);
+            var serverMonitorConnectionFactory = CreateAndSetupServerMonitorConnectionFactory(primaries, serverInfoCollection);
             var serverMonitorFactory = new ServerMonitorFactory(serverMonitorSettings, serverMonitorConnectionFactory, eventCapturer);
 
             var serverFactory = new ServerFactory(__clusterConnectionMode, __connectionModeSwitch, __directConnection, serverSettings, connectionPoolFactory, serverMonitorFactory, eventCapturer);
@@ -271,6 +272,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
         }
 
         private void SetupServerMonitorConnection(
+            HashSet<ServerId> primaries,
             Mock<IConnection> mockConnection,
             ServerId serverId)
         {
@@ -287,11 +289,11 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 { "topologyVersion", new TopologyVersion(ObjectId.Empty, 1).ToBsonDocument(), false }
             };
 
-            var primaryDoc = (BsonDocument)baseDoc.DeepClone();
-            primaryDoc.Add("ismaster", true);
+            var primaryDocument = (BsonDocument)baseDoc.DeepClone();
+            primaryDocument.Add("ismaster", true);
 
-            var secondaryDoc = (BsonDocument)baseDoc.DeepClone();
-            secondaryDoc.Add("secondary", true);
+            var secondaryDocument = (BsonDocument)baseDoc.DeepClone();
+            secondaryDocument.Add("secondary", true);
 
             mockConnection.SetupGet(c => c.ConnectionId).Returns(connectionId);
             mockConnection.SetupGet(c => c.EndPoint).Returns(serverId.EndPoint);
@@ -308,15 +310,15 @@ namespace MongoDB.Driver.Core.Tests.Jira
 
             Task<ResponseMessage> GetIsMasterResponse()
             {
-                var isMasterDoc = _currentPrimaries.Contains(serverId) ? primaryDoc : secondaryDoc;
+                var isMasterDocument = primaries.Contains(serverId) ? primaryDocument : secondaryDocument;
 
-                ResponseMessage result = MessageHelper.BuildReply(new RawBsonDocument(isMasterDoc.ToBson()));
+                ResponseMessage result = MessageHelper.BuildReply(new RawBsonDocument(isMasterDocument.ToBson()));
                 return Task.FromResult(result);
             }
 
             ConnectionDescription GetConnectionDescription()
             {
-                var isMasterDoc = _currentPrimaries.Contains(serverId) ? primaryDoc : secondaryDoc;
+                var isMasterDoc = primaries.Contains(serverId) ? primaryDocument : secondaryDocument;
 
                 return new ConnectionDescription(
                     mockConnection.Object.ConnectionId,

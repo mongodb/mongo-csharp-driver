@@ -144,7 +144,8 @@ namespace MongoDB.Driver.Core.Servers
         {
             ThrowIfNotOpen();
 
-            // _heartbeatDelay is created under _lock and is safe for concurrent access outside _lock
+            // CSHARP-3302: Accessing _heartbeatDelay inside _lock can lead to deadlock when processing concurrent heartbeats from old and new primaries.
+            // Accessing _heartbeatDelay outside of _lock avoids the deadlock and will at worst reference the previous delay
             _heartbeatDelay?.RequestHeartbeat();
         }
 
