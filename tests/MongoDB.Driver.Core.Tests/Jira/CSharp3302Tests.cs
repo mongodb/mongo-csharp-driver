@@ -278,7 +278,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
         {
             var connectionId = new ConnectionId(serverId);
             var serverVersion = "2.6";
-            var baseDoc = new BsonDocument
+            var baseDocument = new BsonDocument
             {
                 { "ok", 1 },
                 { "minWireVersion", 6 },
@@ -289,10 +289,10 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 { "topologyVersion", new TopologyVersion(ObjectId.Empty, 1).ToBsonDocument(), false }
             };
 
-            var primaryDocument = (BsonDocument)baseDoc.DeepClone();
+            var primaryDocument = (BsonDocument)baseDocument.DeepClone();
             primaryDocument.Add("ismaster", true);
 
-            var secondaryDocument = (BsonDocument)baseDoc.DeepClone();
+            var secondaryDocument = (BsonDocument)baseDocument.DeepClone();
             secondaryDocument.Add("secondary", true);
 
             mockConnection.SetupGet(c => c.ConnectionId).Returns(connectionId);
@@ -318,11 +318,11 @@ namespace MongoDB.Driver.Core.Tests.Jira
 
             ConnectionDescription GetConnectionDescription()
             {
-                var isMasterDoc = primaries.Contains(serverId) ? primaryDocument : secondaryDocument;
+                var isMasterDocument = primaries.Contains(serverId) ? primaryDocument : secondaryDocument;
 
                 return new ConnectionDescription(
                     mockConnection.Object.ConnectionId,
-                    new IsMasterResult(isMasterDoc),
+                    new IsMasterResult(isMasterDocument),
                     new BuildInfoResult(new BsonDocument("version", serverVersion)));
             }
         }
