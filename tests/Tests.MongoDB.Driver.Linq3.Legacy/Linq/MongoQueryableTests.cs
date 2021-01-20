@@ -630,8 +630,10 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 1,
-                "{ $lookup: { from: 'testcollection_other', localField: '_id', foreignField: '_id', as: 'o' } }",
-                "{ $unwind: '$o' }");
+                "{ $project : { _outer : '$$ROOT', _id : 0 } }",
+                "{ $lookup : { from : 'testcollection_other', localField : '_outer._id', foreignField : '_id', as : '_inner' } }",
+                "{ $unwind : '$_inner' }",
+                "{ $project : { p : '$_outer', o : '$_inner', _id : 0 } }");
         }
 
         [SkippableFact]
@@ -647,8 +649,10 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 0,
-                "{ $lookup: { from: 'testcollection_other', localField: '_id', foreignField: 'CEF', as: 'o' } }",
-                "{ $unwind: '$o' }");
+                "{ $project : { _outer : '$$ROOT', _id : 0 } }",
+                "{ $lookup : { from : 'testcollection_other', localField : '_outer._id', foreignField: 'CEF', as : '_inner' } }",
+                "{ $unwind : '$_inner' }",
+                "{ $project : { p : '$_outer', o : '$_inner', _id : 0 } }");
         }
 
         [SkippableFact]
@@ -661,9 +665,10 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 1,
-                "{ $lookup: { from: 'testcollection_other', localField: '_id', foreignField: '_id', as: 'o' } }",
-                "{ $unwind: '$o' }",
-                "{ $project: { A: '$A', CEF: '$o.CEF', _id: 0 } }");
+                "{ $project : { _outer : '$$ROOT', _id : 0 } }",
+                "{ $lookup : { from : 'testcollection_other', localField : '_outer._id', foreignField : '_id', as : '_inner' } }",
+                "{ $unwind : '$_inner' }",
+                "{ $project : { A : '$_outer.A', CEF : '$_inner.CEF', _id : 0 } }");
         }
 
         [SkippableFact]
@@ -677,10 +682,12 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 1,
-                "{ $lookup: { from: 'testcollection_other', localField: '_id', foreignField: '_id', as: 'o' } }",
-                "{ $unwind: '$o' }",
-                "{ $sort: { B: 1, 'o._id': 1 } }",
-                "{ $project: { A: '$A', CEF: '$o.CEF', _id: 0 } }");
+                "{ $project : { _outer : '$$ROOT', _id : 0 } }",
+                "{ $lookup : { from : 'testcollection_other', localField : '_outer._id', foreignField : '_id', as : '_inner' } }",
+                "{ $unwind: '$_inner' }",
+                "{ $project : { p : '$_outer', o : '$_inner', _id : 0 } }",
+                "{ $sort : { 'p.B' : 1, 'o._id' : 1 } }",
+                "{ $project : { A : '$p.A', CEF : '$o.CEF', _id : 0 } }");
         }
 
         [Fact]
