@@ -43,6 +43,7 @@ namespace MongoDB.Driver.Linq3
 
         // public properties
         public CancellationToken CancellationToken => _cancellationToken;
+        public abstract string CollectionName { get; }
         public abstract IBsonSerializer DocumentSerializer { get; }
         public AggregateOptions Options => _options;
         public IClientSessionHandle Session => _session;
@@ -81,6 +82,7 @@ namespace MongoDB.Driver.Linq3
 
         // public properties
         public IMongoCollection<TDocument> Collection => _collection;
+        public override string CollectionName => _collection.CollectionNamespace.CollectionName;
         public override IBsonSerializer DocumentSerializer => _collection.DocumentSerializer;
 
         // public methods

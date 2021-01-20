@@ -15,6 +15,7 @@
 
 using System.Collections.Generic;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq3.Ast;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Ast.Stages;
@@ -26,20 +27,27 @@ namespace MongoDB.Driver.Linq3.Misc
 {
     public static class ProjectionHelper
     {
-        // public static method
+        // public static methods
         public static void AddProjectStage(Pipeline pipeline, AggregationExpression expression)
+        {
+            var (projectStage, newOutputSerializer) = CreateProjectStage(pipeline, expression);
+            pipeline.AddStages(newOutputSerializer, projectStage);
+        }
+
+        public static (AstProjectStage, IBsonSerializer) CreateProjectStage(Pipeline pipeline, AggregationExpression expression)
         {
             if (expression.Ast.NodeType == AstNodeType.ComputedDocumentExpression)
             {
-                AddComputedDocumentProjectStage(pipeline, expression);
+                return CreateComputedDocumentProjectStage(pipeline, expression);
             }
             else
             {
-                AddWrappedValueProjectStage(pipeline, expression);
+                return CreateWrappedValueProjectStage(pipeline, expression);
             }
         }
 
-        private static void AddComputedDocumentProjectStage(Pipeline pipeline, AggregationExpression expression)
+        // private static methods
+        private static (AstProjectStage, IBsonSerializer) CreateComputedDocumentProjectStage(Pipeline pipeline, AggregationExpression expression)
         {
             var computedDocument = (AstComputedDocumentExpression)expression.Ast;
 
@@ -67,7 +75,7 @@ namespace MongoDB.Driver.Linq3.Misc
 
             var projectStage = new AstProjectStage(specifications);
 
-            pipeline.AddStages(expression.Serializer, projectStage);
+            return (projectStage, expression.Serializer);
 
             bool ValueNeedsToBeQuoted(BsonValue constantValue)
             {
@@ -86,7 +94,7 @@ namespace MongoDB.Driver.Linq3.Misc
             }
         }
 
-        private static void AddWrappedValueProjectStage(Pipeline pipeline, AggregationExpression expression)
+        private static (AstProjectStage, IBsonSerializer) CreateWrappedValueProjectStage(Pipeline pipeline, AggregationExpression expression)
         {
             var wrappedValueSerializer = WrappedValueSerializer.Create(expression.Serializer);
             var projectStage =
@@ -94,7 +102,7 @@ namespace MongoDB.Driver.Linq3.Misc
                     new AstProjectStageComputedFieldSpecification(new Ast.AstComputedField("_v", expression.Ast)),
                     new AstProjectStageExcludeIdSpecification());
 
-            pipeline.AddStages(wrappedValueSerializer, projectStage);
+            return (projectStage, wrappedValueSerializer);
         }
     }
 }
