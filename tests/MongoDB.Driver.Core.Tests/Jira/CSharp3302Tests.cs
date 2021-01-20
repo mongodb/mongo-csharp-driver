@@ -38,12 +38,8 @@ namespace MongoDB.Driver.Core.Tests.Jira
 {
     public class CSharp3302Tests
     {
-#pragma warning disable CS0618 // Type or member is obsolete
         private readonly static ClusterConnectionMode __clusterConnectionMode = ClusterConnectionMode.ReplicaSet;
-        private readonly static ConnectionModeSwitch __connectionModeSwitch = ConnectionModeSwitch.UseConnectionMode;
-#pragma warning restore CS0618 // Type or member is obsolete
         private readonly static ClusterId __clusterId = new ClusterId();
-        private readonly static bool? __directConnection = null;
         private readonly static EndPoint __endPoint1 = new DnsEndPoint("localhost", 27017);
         private readonly static EndPoint __endPoint2 = new DnsEndPoint("localhost", 27018);
         private readonly static TimeSpan __heartbeatInterval = TimeSpan.FromMilliseconds(200);
@@ -55,7 +51,6 @@ namespace MongoDB.Driver.Core.Tests.Jira
         {
             var clusterSettings = new ClusterSettings(
                 connectionMode: __clusterConnectionMode,
-                connectionModeSwitch: __connectionModeSwitch,
                 serverSelectionTimeout: TimeSpan.FromSeconds(30),
                 endPoints: new[] { __endPoint1 });
 
@@ -236,7 +231,6 @@ namespace MongoDB.Driver.Core.Tests.Jira
 
             var clusterSettings = new ClusterSettings(
                 connectionMode: __clusterConnectionMode,
-                connectionModeSwitch: __connectionModeSwitch,
                 serverSelectionTimeout: TimeSpan.FromSeconds(30),
                 endPoints: serverInfoCollection.Select(c => c.Endpoint).ToArray());
 
@@ -250,7 +244,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
             var serverMonitorConnectionFactory = CreateAndSetupServerMonitorConnectionFactory(primaries, serverInfoCollection);
             var serverMonitorFactory = new ServerMonitorFactory(serverMonitorSettings, serverMonitorConnectionFactory, eventCapturer);
 
-            var serverFactory = new ServerFactory(__clusterConnectionMode, __connectionModeSwitch, __directConnection, serverSettings, connectionPoolFactory, serverMonitorFactory, eventCapturer);
+            var serverFactory = new ServerFactory(__clusterConnectionMode, serverSettings, connectionPoolFactory, serverMonitorFactory, eventCapturer);
             return new MultiServerCluster(clusterSettings, serverFactory, eventCapturer);
         }
 
@@ -268,7 +262,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
         private void ForceClusterId(MultiServerCluster cluster, ClusterId clusterId)
         {
             Reflector.SetFieldValue(cluster, "_clusterId", clusterId);
-            Reflector.SetFieldValue(cluster, "_description", ClusterDescription.CreateInitial(clusterId, __clusterConnectionMode, __connectionModeSwitch, __directConnection));
+            Reflector.SetFieldValue(cluster, "_description", ClusterDescription.CreateInitial(clusterId, __clusterConnectionMode));
         }
 
         private void SetupServerMonitorConnection(
