@@ -39,6 +39,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                     return GroupByMethodToPipelineTranslator.Translate(context, methodCallExpression);
                 case "GroupJoin":
                     return GroupJoinMethodToPipelineTranslator.Translate(context, methodCallExpression);
+                case "Join":
+                    return JoinMethodToPipelineTranslator.Translate(context, methodCallExpression);
                 case "OfType":
                     return OfTypeMethodToPipelineTranslator.Translate(context, methodCallExpression);
                 case "OrderBy":
