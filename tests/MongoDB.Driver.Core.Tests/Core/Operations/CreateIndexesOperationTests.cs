@@ -241,7 +241,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             RequireServer.Check();
             DropCollection();
-            var expireAfter = TimeSpan.FromSeconds(1.5);
+            var expireAfter = TimeSpan.FromSeconds(1);
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) { ExpireAfter = expireAfter } };
             var subject = new CreateIndexesOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
