@@ -525,7 +525,9 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 2,
-                "{ $lookup: { from: 'testcollection_other', localField: '_id', foreignField: '_id', as: 'o' } }");
+                "{ $project : { _outer : '$$ROOT', _id : 0 } }",
+                "{ $lookup : { from : 'testcollection_other', localField : '_outer._id', foreignField : '_id', as : '_inner' } }",
+                "{ $project : { p : '$_outer', o : '$_inner', _id : 0 } }");
         }
 
         [SkippableFact]
@@ -541,7 +543,9 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 2,
-                "{ $lookup: { from: 'testcollection_other', localField: '_id', foreignField: 'CEF', as: 'o' } }");
+                "{ $project : { _outer : '$$ROOT', _id : 0 } }",
+                "{ $lookup : { from : 'testcollection_other', localField : '_outer._id', foreignField : 'CEF', as : '_inner' } }",
+                "{ $project : { p : '$_outer', o : '$_inner', _id : 0 } }");
         }
 
         [SkippableFact]
@@ -554,8 +558,9 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 2,
-                "{ $lookup: { from: 'testcollection_other', localField: '_id', foreignField: '_id', as: 'joined' } }",
-                "{ $project: { A: '$A', SumCEF: { $sum: '$joined.CEF' }, _id: 0 } }");
+                "{ $project : { _outer : '$$ROOT', _id : 0 } }",
+                "{ $lookup : { from : 'testcollection_other', localField : '_outer._id', foreignField : '_id', as : '_inner' } }",
+                "{ $project : { A : '$_outer.A', SumCEF : { $sum : '$_inner.CEF' }, _id : 0 } }");
         }
 
         [SkippableFact]
@@ -569,9 +574,11 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 2,
-                "{ $lookup: { from: 'testcollection_other', localField: '_id', foreignField: '_id', as: 'joined' } }",
-                "{ $sort: { B: 1 } }",
-                "{ $project: { A: '$A', Joined: '$joined', _id: 0 } }");
+                "{ $project : { _outer : '$$ROOT', _id : 0 } }",
+                "{ $lookup : { from : 'testcollection_other', localField : '_outer._id', foreignField : '_id', as : '_inner' } }",
+                "{ $project : { p : '$_outer', joined : '$_inner', _id : 0 } }",
+                "{ $sort: { 'p.B' : 1 } }",
+                "{ $project : { A : '$p.A', Joined : '$joined', _id : 0 } }");
         }
 
         [SkippableFact]
@@ -585,9 +592,11 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 1,
-                "{ $lookup: { from: 'testcollection_other', localField: '_id', foreignField: '_id', as: 'joined' } }",
-                "{ $unwind: '$joined' }",
-                "{ $project: { A: '$A', CEF: '$joined.CEF', _id: 0 } }");
+                "{ $project : { _outer : '$$ROOT', _id : 0 } }",
+                "{ $lookup : { from: 'testcollection_other', localField : '_outer._id', foreignField : '_id', as : '_inner' } }",
+                "{ $project : { p : '$_outer', joined : '$_inner', _id : 0 } }",
+                "{ $project : { _v : { $map : { input : '$joined', as : 'subo', in : { A : '$p.A', CEF : '$$subo.CEF' } } }, _id : 0 } }",
+                "{ $unwind : '$_v' }");
         }
 
         [SkippableFact]
@@ -596,14 +605,16 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
             RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
             var query = from p in CreateQuery()
                         join o in __otherCollection on p.Id equals o.Id into joined
-                        from subo in joined.DefaultIfEmpty()
+                        from subo in joined // TODO: .DefaultIfEmpty()
                         select new { A = p.A, CEF = (int?)subo.CEF ?? null };
 
             Assert(query,
-                2,
-                "{ $lookup: { from: 'testcollection_other', localField: '_id', foreignField: '_id', as: 'joined' } }",
-                "{ $unwind: { path: '$joined', preserveNullAndEmptyArrays: true } }",
-                "{ $project: { A: '$A', CEF: { $ifNull: ['$joined.CEF', null] }, _id: 0 } }");
+                1,
+                "{ $project : { _outer : '$$ROOT', _id : 0 } }",
+                "{ $lookup : { from : 'testcollection_other', localField : '_outer._id', foreignField : '_id', as : '_inner' } }",
+                "{ $project : { p : '$_outer', joined : '$_inner', _id : 0 } }",
+                "{ $project : { _v : { $map : { input : '$joined', as : 'subo', in : { A : '$p.A', CEF : { $ifNull : ['$$subo.CEF', null] } } } }, _id : 0 } }",
+                "{ $unwind : '$_v' }");
         }
 
         [SkippableFact]
@@ -1817,7 +1828,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
         private IQueryable<Root> CreateQuery(IClientSessionHandle session)
         {
-            return __collection.AsQueryable(session);
+            return __collection.AsQueryable3(session);
         }
 
         private IQueryable<Other> CreateOtherQuery()

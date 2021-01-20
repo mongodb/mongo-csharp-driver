@@ -308,7 +308,7 @@ namespace MongoDB.Driver.Linq3
 
         public static IQueryable<TResult> GroupJoin<TOuter, TInner, TKey, TResult>(this IQueryable<TOuter> outer, IMongoCollection<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, IEnumerable<TInner>, TResult>> resultSelector)
         {
-            throw new NotImplementedException();
+            return outer.GroupJoin(inner.AsQueryable3(), outerKeySelector, innerKeySelector, resultSelector);
         }
 
         public static Task<long> LongCountAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default)
