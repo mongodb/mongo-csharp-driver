@@ -23,6 +23,8 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq3;
+using MongoDB.Driver.Linq3.Translators;
+using MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators;
 using Xunit;
 
 namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
@@ -34,7 +36,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Group(x => x.A, g => new RootView { Property = g.Key, Field = g.First().B });
 
-            result.Projection.Should().Be("{ _id: \"$A\", Field: { \"$first\" : \"$B\" } }");
+            result.Projection.Should().Be("{ $project : { Property : '$_id', Field : { $let : { vars : { this : { $arrayElemAt : [ '$_elements', 0 ] } }, in : '$$this.B' } }, _id : 0 } }");
 
             result.Value.Property.Should().Be("Amazing");
             result.Value.Field.Should().Be("Baby");
@@ -45,7 +47,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Group(x => x.A, g => new RootView(g.Key) { Field = g.First().B });
 
-            result.Projection.Should().Be("{ _id: \"$A\", Field: { \"$first\" : \"$B\" } }");
+            result.Projection.Should().Be("{ $project : { Property : '$_id', Field : { $let : { vars : { this : { $arrayElemAt : ['$_elements', 0] } }, in : '$$this.B' } }, _id : 0 } }");
 
             result.Value.Property.Should().Be("Amazing");
             result.Value.Field.Should().Be("Baby");
@@ -56,7 +58,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Group(x => x.A, g => new { _id = g.Key });
 
-            result.Projection.Should().Be("{ _id: \"$A\" }");
+            result.Projection.Should().Be("{ $project : { _id : '$_id' } }");
 
             result.Value._id.Should().Be("Amazing");
         }
@@ -66,7 +68,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Group(x => x.A, g => new { Test = g.Key });
 
-            result.Projection.Should().Be("{ _id: \"$A\" }");
+            result.Projection.Should().Be("{ $project : { Test : '$_id', _id : 0 } }");
 
             result.Value.Test.Should().Be("Amazing");
         }
@@ -86,7 +88,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Group(x => x.A, g => new { Result = g.Select(x => x.C.E.F).Distinct() });
 
-            result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$addToSet\": \"$C.E.F\" } }");
+            result.Projection.Should().Be("{ $project : { Result : { $setIntersection : ['$_elements.C.E.F'] }, _id : 0 } }");
 
             result.Value.Result.Should().Equal(111);
         }
@@ -106,7 +108,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Group(x => x.A, g => new { Result = g.Select(x => x.C.E.F).Average() });
 
-            result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$avg\": \"$C.E.F\" } }");
+            result.Projection.Should().Be("{ $project : { Result : { $avg : '$_elements.C.E.F' }, _id : 0 } }");
 
             result.Value.Result.Should().Be(111);
         }
@@ -116,7 +118,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Group(x => x.A, g => new { Result = g.Count() });
 
-            result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$sum\": 1 } }");
+            result.Projection.Should().Be("{ $project : { Result : { $size : '$_elements' }, _id : 0 } }");
 
             result.Value.Result.Should().Be(1);
         }
@@ -156,7 +158,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Group(x => x.A, g => new { Result = g.Select(x => new { A = x.A }).Count() });
 
-            result.Projection.Should().Be("{ \"_id\" : \"$A\", \"Result\" : { \"$sum\" : 1 } }");
+            result.Projection.Should().Be("{ $project : { Result : { $size : { $map : { input : '$_elements', as : 'x', in : { A : '$$x.A' } } } }, _id : 0 } }");
 
             result.Value.Result.Should().Be(1);
         }
@@ -166,7 +168,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Group(x => x.A, g => new { Result = g.LongCount() });
 
-            result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$sum\": 1 } }");
+            result.Projection.Should().Be("{ $project : { Result : { $size : '$_elements' }, _id : 0 } }");
 
             result.Value.Result.Should().Be(1);
         }
@@ -176,7 +178,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Group(x => x.A, g => new { B = g.Select(x => x.B).First() });
 
-            result.Projection.Should().Be("{ _id: \"$A\", B: { \"$first\": \"$B\" } }");
+            result.Projection.Should().Be("{ $project : { B : { $arrayElemAt : ['$_elements.B', 0] }, _id : 0 } }");
 
             result.Value.B.Should().Be("Baby");
         }
@@ -186,7 +188,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Group(x => x.A, g => new { g.First().B });
 
-            result.Projection.Should().Be("{ _id: \"$A\", B: { \"$first\": \"$B\" } }");
+            result.Projection.Should().Be("{ $project : { B : { $let : { vars : { this : { $arrayElemAt : ['$_elements', 0] } }, in : '$$this.B' } }, _id : 0 } }");
 
             result.Value.B.Should().Be("Baby");
         }
@@ -196,7 +198,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Group(x => x.A, g => new { B = g.Select(x => x.B).Last() });
 
-            result.Projection.Should().Be("{ _id: \"$A\", B: { \"$last\": \"$B\" } }");
+            result.Projection.Should().Be("{ $project : { B : { $arrayElemAt : ['$_elements.B', -1] }, _id : 0 } }");
 
             result.Value.B.Should().Be("Baby");
         }
@@ -206,7 +208,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Group(x => x.A, g => new { g.Last().B });
 
-            result.Projection.Should().Be("{ _id: \"$A\", B: { \"$last\": \"$B\" } }");
+            result.Projection.Should().Be("{ $project : { B : { $let : { vars : { this : { $arrayElemAt : ['$_elements', -1] } }, in : '$$this.B' } }, _id : 0 } }");
 
             result.Value.B.Should().Be("Baby");
         }
@@ -224,7 +226,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Group(x => x.A, g => new { Result = g.Max(x => x.C.E.F) });
 
-            result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$max\": \"$C.E.F\" } }");
+            result.Projection.Should().Be("{ $project : { Result : { $max : '$_elements.C.E.F' }, _id : 0 } }");
 
             result.Value.Result.Should().Be(111);
         }
@@ -234,7 +236,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Group(x => x.A, g => new { Result = g.Select(x => x.C.E.F).Max() });
 
-            result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$max\": \"$C.E.F\" } }");
+            result.Projection.Should().Be("{ $project : { Result : { $max : '$_elements.C.E.F' }, _id : 0 } }");
 
             result.Value.Result.Should().Be(111);
         }
@@ -244,7 +246,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Group(x => x.A, g => new { Result = g.Min(x => x.C.E.F) });
 
-            result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$min\": \"$C.E.F\" } }");
+            result.Projection.Should().Be("{ $project : { Result : { $min : '$_elements.C.E.F' }, _id : 0 } }");
 
             result.Value.Result.Should().Be(111);
         }
@@ -254,7 +256,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Group(x => x.A, g => new { Result = g.Select(x => x.C.E.F).Min() });
 
-            result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$min\": \"$C.E.F\" } }");
+            result.Projection.Should().Be("{ $project : { Result : { $min : '$_elements.C.E.F' }, _id : 0 } }");
 
             result.Value.Result.Should().Be(111);
         }
@@ -264,7 +266,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Group(x => x.A, g => new { Result = g.Select(x => x.C.E.F) });
 
-            result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$push\": \"$C.E.F\" } }");
+            result.Projection.Should().Be("{ $project : { Result : '$_elements.C.E.F', _id : 0 } }");
 
             result.Value.Result.Should().Equal(111);
         }
@@ -318,7 +320,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Group(x => 1, g => new { Result = g.Select(x => x.C.E.F).StandardDeviationPopulation() });
 
-            result.Projection.Should().Be("{ _id: 1, Result: { \"$stdDevPop\": \"$C.E.F\" } }");
+            result.Projection.Should().Be("{ $project : { Result : { $stdDevPop : '$_elements.C.E.F' }, _id : 0 } }");
 
             result.Value.Result.Should().Be(50);
         }
@@ -342,7 +344,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Group(x => 1, g => new { Result = g.Select(x => x.C.E.F).StandardDeviationSample() });
 
-            result.Projection.Should().Be("{ _id: 1, Result: { \"$stdDevSamp\": \"$C.E.F\" } }");
+            result.Projection.Should().Be("{ $project : { Result : { $stdDevSamp : '$_elements.C.E.F' }, _id : 0 } }");
 
             result.Value.Result.Should().BeApproximately(70.7106781156545, .0001);
         }
@@ -352,7 +354,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Group(x => x.A, g => new { Result = g.Sum(x => x.C.E.F) });
 
-            result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$sum\": \"$C.E.F\" } }");
+            result.Projection.Should().Be("{ $project : { Result : { $sum : '$_elements.C.E.F' }, _id : 0 } }");
 
             result.Value.Result.Should().Be(111);
         }
@@ -362,7 +364,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Group(x => x.A, g => new { Result = g.Select(x => x.C.E.F).Sum() });
 
-            result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$sum\": \"$C.E.F\" } }");
+            result.Projection.Should().Be("{ $project : { Result : { $sum : '$_elements.C.E.F' }, _id : 0 } }");
 
             result.Value.Result.Should().Be(111);
         }
@@ -380,7 +382,19 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
                 Max = g.Max(x => x.C.E.F + x.C.E.H)
             });
 
-            result.Projection.Should().Be("{ _id : \"$A\", Count : { \"$sum\" : 1 }, Sum : { \"$sum\" : { \"$add\": [\"$C.E.F\", \"$C.E.H\"] } }, First : { \"$first\" : \"$B\" }, Last : { \"$last\" : \"$K\" }, Min : { \"$min\" : { \"$add\" : [\"$C.E.F\", \"$C.E.H\"] } }, Max : { \"$max\" : { \"$add\" : [\"$C.E.F\", \"$C.E.H\"] } } }");
+            result.Projection.Should().Be(
+                @"
+                {
+                    $project : {
+                        Count : { $size : '$_elements' },
+                        Sum : { $sum : { $map : { input : '$_elements', as : 'x', in : { $add : ['$$x.C.E.F', '$$x.C.E.H'] } } } },
+                        First : { $let : { vars : { this : { $arrayElemAt : ['$_elements', 0] } }, in : '$$this.B' } },
+                        Last : { $let : { vars : { this : { $arrayElemAt : ['$_elements', -1] } }, in : '$$this.K' } },
+                        Min : { $min : { $map : { input : '$_elements', as : 'x', in : { $add : ['$$x.C.E.F', '$$x.C.E.H'] } } } },
+                        Max : { $max : { $map : { input : '$_elements', as : 'x', in : { $add : ['$$x.C.E.F', '$$x.C.E.H'] } } } },
+                        _id : 0
+                    }
+                }");
 
             result.Value.Count.Should().Be(1);
             result.Value.Sum.Should().Be(333);
@@ -410,20 +424,23 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
         private ProjectedResult<TResult> Group<TKey, TResult>(Expression<Func<Root, TKey>> idProjector, Expression<Func<IGrouping<TKey, Root>, TResult>> groupProjector, ExpressionTranslationOptions translationOptions)
         {
-            //var serializer = BsonSerializer.SerializerRegistry.GetSerializer<Root>();
-            //var projectionInfo = AggregateGroupTranslator.Translate<TKey, Root, TResult>(idProjector, groupProjector, serializer, BsonSerializer.SerializerRegistry, translationOptions);
+            var queryable = __collection.AsQueryable3()
+                .GroupBy(idProjector)
+                .Select(groupProjector);
 
-            //var group = new BsonDocument("$group", projectionInfo.Document);
-            //var sort = new BsonDocument("$sort", new BsonDocument("_id", 1));
-            //var list = __collection.Aggregate<TResult>(new BsonDocumentStagePipelineDefinition<Root, TResult>(new[] { group, sort }, projectionInfo.ProjectionSerializer)).ToList();
+            var context = new TranslationContext();
+            var executableQuery = ExpressionToPipelineTranslator.Translate(context, queryable.Expression);
 
-            //return new ProjectedResult<TResult>
-            //{
-            //    Projection = projectionInfo.Document,
-            //    Value = (TResult)list[0]
-            //};
+            var stages = executableQuery.Stages.Select(s => s.Render()).Cast<BsonDocument>().ToList();
+            stages.Insert(1, new BsonDocument("$sort", new BsonDocument("_id", 1))); // force a standard order for testing purposes
+            var pipeline = new BsonDocumentStagePipelineDefinition<Root, TResult>(stages, outputSerializer: (IBsonSerializer<TResult>)executableQuery.OutputSerializer);
+            var results = __collection.Aggregate(pipeline).ToList();
 
-            throw new NotImplementedException();
+            return new ProjectedResult<TResult>
+            {
+                Projection = stages[2],
+                Value = results[0]
+            };
         }
 
         private class ProjectedResult<T>
