@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-using System;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver
 {
@@ -52,6 +52,23 @@ namespace MongoDB.Driver
         public override IMongoCollection<TDerivedDocument> WithWriteConcern(WriteConcern writeConcern)
         {
             return new OfTypeMongoCollection<TRootDocument, TDerivedDocument>(_rootDocumentCollection, WrappedCollection.WithWriteConcern(writeConcern), Filter);
+        }
+
+        protected override UpdateDefinition<TDerivedDocument> GetUpdateDefinition(UpdateDefinition<TDerivedDocument> updateDefinition, bool isUpsert)
+        {
+            var result = base.GetUpdateDefinition(updateDefinition, isUpsert);
+
+            if (isUpsert)
+            {
+                var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(TDerivedDocument));
+                var discriminatorValue = discriminatorConvention?.GetDiscriminator(typeof(TRootDocument), typeof(TDerivedDocument));
+
+                var builder = new UpdateDefinitionBuilder<TDerivedDocument>();
+                var derivedUpdate = builder.SetOnInsert(discriminatorConvention.ElementName, discriminatorValue);
+                result = builder.Combine(result, derivedUpdate);
+            }
+
+            return result;
         }
     }
 }

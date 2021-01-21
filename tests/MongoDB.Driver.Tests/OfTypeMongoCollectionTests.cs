@@ -359,6 +359,7 @@ namespace MongoDB.Driver.Tests
                 IsUpsert = true
             };
             var options = new BulkWriteOptions();
+            var expectedUpdate = BsonDocument.Parse("{$set: {x: 1}, $setOnInsert: {_t: [\"A\", \"B\"]}}");
 
             if (async)
             {
@@ -368,7 +369,7 @@ namespace MongoDB.Driver.Tests
                     c => c.BulkWriteAsync(
                         It.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<UpdateManyModel<B>>()
                             .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
-                                RenderUpdate(m.Update).Equals(BsonDocument.Parse("{$set: {x: 1}}")) &&
+                                RenderUpdate(m.Update).Equals(expectedUpdate) &&
                                 m.Collation == model.Collation &&
                                 m.Hint == model.Hint &&
                                 m.IsUpsert == model.IsUpsert).Count() == 1),
@@ -384,7 +385,7 @@ namespace MongoDB.Driver.Tests
                     c => c.BulkWrite(
                         It.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<UpdateManyModel<B>>()
                             .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
-                                RenderUpdate(m.Update).Equals(BsonDocument.Parse("{$set: {x: 1}}")) &&
+                                RenderUpdate(m.Update).Equals(expectedUpdate) &&
                                 m.Collation == model.Collation &&
                                 m.Hint == model.Hint &&
                                 m.IsUpsert == model.IsUpsert).Count() == 1),
@@ -408,6 +409,7 @@ namespace MongoDB.Driver.Tests
                 IsUpsert = true
             };
             var options = new BulkWriteOptions();
+            var expectedUpdate = BsonDocument.Parse("{$set: {x: 1}, $setOnInsert: {_t: [\"A\", \"B\"]}}");
 
             if (async)
             {
@@ -417,7 +419,7 @@ namespace MongoDB.Driver.Tests
                     c => c.BulkWriteAsync(
                         It.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<UpdateOneModel<B>>()
                             .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
-                                RenderUpdate(m.Update).Equals(BsonDocument.Parse("{$set: {x: 1}}")) &&
+                                RenderUpdate(m.Update).Equals(expectedUpdate) &&
                                 m.Collation == model.Collation &&
                                 m.Hint == model.Hint &&
                                 m.IsUpsert == model.IsUpsert).Count() == 1),
@@ -433,7 +435,7 @@ namespace MongoDB.Driver.Tests
                     c => c.BulkWrite(
                         It.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<UpdateOneModel<B>>()
                             .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
-                                RenderUpdate(m.Update).Equals(BsonDocument.Parse("{$set: {x: 1}}")) &&
+                                RenderUpdate(m.Update).Equals(expectedUpdate) &&
                                 m.Collation == model.Collation &&
                                 m.Hint == model.Hint &&
                                 m.IsUpsert == model.IsUpsert).Count() == 1),
@@ -865,6 +867,8 @@ namespace MongoDB.Driver.Tests
             return update.Render(serializer, BsonSerializer.SerializerRegistry).AsBsonDocument;
         }
 
+        [BsonDiscriminator(RootClass = true)]
+        [BsonKnownTypes(typeof(B), typeof(C))]
         public class A
         {
             public int PropA;
