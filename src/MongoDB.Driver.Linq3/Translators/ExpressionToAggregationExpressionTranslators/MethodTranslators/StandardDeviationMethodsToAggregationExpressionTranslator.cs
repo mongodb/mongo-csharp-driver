@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                         selectorExpression = (LambdaExpression)arguments[1];
                     }
 
-                    var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
+                    var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
                     if (selectorExpression != null)
                     {
                         var selectorParameter = selectorExpression.Parameters[0];

@@ -98,7 +98,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Group(x => x.A, g => new { Result = g.Average(x => x.C.E.F) });
 
-            result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$avg\": \"$C.E.F\" } }");
+            result.Projection.Should().Be("{ $project : { Result : { $avg : '$_elements.C.E.F' }, _id : 0 } }");
 
             result.Value.Result.Should().Be(111);
         }
@@ -308,7 +308,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Group(x => 1, g => new { Result = g.StandardDeviationPopulation(x => x.C.E.F) });
 
-            result.Projection.Should().Be("{ _id: 1, Result: { \"$stdDevPop\": \"$C.E.F\" } }");
+            result.Projection.Should().Be("{ $project : { Result : { $stdDevPop : '$_elements.C.E.F' }, _id : 0 } }");
 
             result.Value.Result.Should().Be(50);
         }
@@ -332,7 +332,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Group(x => 1, g => new { Result = g.StandardDeviationSample(x => x.C.E.F) });
 
-            result.Projection.Should().Be("{ _id: 1, Result: { \"$stdDevSamp\": \"$C.E.F\" } }");
+            result.Projection.Should().Be("{ $project : { Result : { $stdDevSamp : '$_elements.C.E.F' }, _id : 0 } }");
 
             result.Value.Result.Should().BeApproximately(70.7106781156545, .0001);
         }
