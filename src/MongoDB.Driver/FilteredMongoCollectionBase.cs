@@ -340,6 +340,11 @@ namespace MongoDB.Driver
             return _filter & filter;
         }
 
+        protected virtual UpdateDefinition<TDocument> AdjustUpdateDefinition(UpdateDefinition<TDocument> updateDefinition, bool isUpsert)
+        {
+            return updateDefinition;
+        }
+
         private IEnumerable<WriteModel<TDocument>> CombineModelFilters(IEnumerable<WriteModel<TDocument>> models)
         {
             return models.Select<WriteModel<TDocument>, WriteModel<TDocument>>(x =>
@@ -372,7 +377,9 @@ namespace MongoDB.Driver
                         };
                     case WriteModelType.UpdateMany:
                         var updateManyModel = (UpdateManyModel<TDocument>)x;
-                        return new UpdateManyModel<TDocument>(CombineFilters(updateManyModel.Filter), updateManyModel.Update)
+                        return new UpdateManyModel<TDocument>(
+                            CombineFilters(updateManyModel.Filter),
+                            AdjustUpdateDefinition(updateManyModel.Update, updateManyModel.IsUpsert))
                         {
                             ArrayFilters = updateManyModel.ArrayFilters,
                             Collation = updateManyModel.Collation,
@@ -381,7 +388,9 @@ namespace MongoDB.Driver
                         };
                     case WriteModelType.UpdateOne:
                         var updateOneModel = (UpdateOneModel<TDocument>)x;
-                        return new UpdateOneModel<TDocument>(CombineFilters(updateOneModel.Filter), updateOneModel.Update)
+                        return new UpdateOneModel<TDocument>(
+                            CombineFilters(updateOneModel.Filter),
+                            AdjustUpdateDefinition(updateOneModel.Update, updateOneModel.IsUpsert))
                         {
                             ArrayFilters = updateOneModel.ArrayFilters,
                             Collation = updateOneModel.Collation,

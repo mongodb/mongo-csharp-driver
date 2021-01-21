@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -347,31 +348,44 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
-        public void BulkWrite_with_UpdateMany(
+        public void BulkWrite_with_UpdateMany<TRoot, TDerived>(
+            [ClassValues(typeof(UpdateTestCases))] (TRoot, TDerived, string Discriminator) testCase,
+            [Values(false, true)] bool isUpsert,
             [Values(false, true)] bool async)
+                where TDerived : TRoot
         {
-            var subject = CreateSubject();
+            var (mockDerivedCollection, subject) = CreateSubject<TRoot, TDerived>();
             var collation = new Collation("en_US");
-            var model = new UpdateManyModel<B>(_providedFilter, "{$set: {x: 1}}")
+            var model = new UpdateManyModel<TDerived>(_providedFilter, "{$set: {x: 1}}")
             {
                 Collation = collation,
                 Hint = new BsonDocument("_id", 1),
-                IsUpsert = true
+                IsUpsert = isUpsert
             };
+
             var options = new BulkWriteOptions();
+            var updateString = isUpsert ?
+                $"{{$set: {{x: 1}}, $setOnInsert: {{{testCase.Discriminator}}}}}" :
+                "{$set: {x: 1}}";
+            var expectedUpdate = BsonDocument.Parse(updateString);
+
+            Func<UpdateManyModel<TDerived>, bool> isModelValid = m =>
+                RenderFilter(m.Filter).Equals(_expectedFilter) &&
+                RenderUpdate(m.Update).Equals(expectedUpdate) &&
+                m.Collation == model.Collation &&
+                m.Hint == model.Hint &&
+                m.IsUpsert == model.IsUpsert;
+
+            Expression<Func<IEnumerable<WriteModel<TDerived>>, bool>> modelMatch = v =>
+                isModelValid(v.Single().As<UpdateManyModel<TDerived>>());
 
             if (async)
             {
                 subject.BulkWriteAsync(new[] { model }, options, CancellationToken.None);
 
-                _mockDerivedCollection.Verify(
+                mockDerivedCollection.Verify(
                     c => c.BulkWriteAsync(
-                        It.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<UpdateManyModel<B>>()
-                            .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
-                                RenderUpdate(m.Update).Equals(BsonDocument.Parse("{$set: {x: 1}}")) &&
-                                m.Collation == model.Collation &&
-                                m.Hint == model.Hint &&
-                                m.IsUpsert == model.IsUpsert).Count() == 1),
+                        It.Is(modelMatch),
                         options,
                         CancellationToken.None),
                     Times.Once);
@@ -380,14 +394,9 @@ namespace MongoDB.Driver.Tests
             {
                 subject.BulkWrite(new[] { model }, options, CancellationToken.None);
 
-                _mockDerivedCollection.Verify(
+                mockDerivedCollection.Verify(
                     c => c.BulkWrite(
-                        It.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<UpdateManyModel<B>>()
-                            .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
-                                RenderUpdate(m.Update).Equals(BsonDocument.Parse("{$set: {x: 1}}")) &&
-                                m.Collation == model.Collation &&
-                                m.Hint == model.Hint &&
-                                m.IsUpsert == model.IsUpsert).Count() == 1),
+                        It.Is(modelMatch),
                         options,
                         CancellationToken.None),
                     Times.Once);
@@ -396,31 +405,43 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
-        public void BulkWrite_with_UpdateOne(
+        public void BulkWrite_with_UpdateOne<TRoot, TDerived>(
+            [ClassValues(typeof(UpdateTestCases))] (TRoot, TDerived, string Discriminator) testCase,
+            [Values(false, true)] bool isUpsert,
             [Values(false, true)] bool async)
+                where TDerived : TRoot
         {
-            var subject = CreateSubject();
+            var (mockDerivedCollection, subject) = CreateSubject<TRoot, TDerived>();
             var collation = new Collation("en_US");
-            var model = new UpdateOneModel<B>(_providedFilter, "{$set: {x: 1}}")
+            var model = new UpdateOneModel<TDerived>(_providedFilter, "{$set: {x: 1}}")
             {
                 Collation = collation,
                 Hint = new BsonDocument("_id", 1),
-                IsUpsert = true
+                IsUpsert = isUpsert
             };
             var options = new BulkWriteOptions();
+            var updateString = isUpsert ?
+                $"{{$set: {{x: 1}}, $setOnInsert: {{{testCase.Discriminator}}}}}" :
+                "{$set: {x: 1}}";
+            var expectedUpdate = BsonDocument.Parse(updateString);
+
+            Func<UpdateOneModel<TDerived>, bool> isModelValid = m =>
+                RenderFilter(m.Filter).Equals(_expectedFilter) &&
+                RenderUpdate(m.Update).Equals(expectedUpdate) &&
+                m.Collation == model.Collation &&
+                m.Hint == model.Hint &&
+                m.IsUpsert == model.IsUpsert;
+
+            Expression<Func<IEnumerable<WriteModel<TDerived>>, bool>> modelMatch = v =>
+                isModelValid(v.Single().As<UpdateOneModel<TDerived>>());
 
             if (async)
             {
                 subject.BulkWriteAsync(new[] { model }, options, CancellationToken.None);
 
-                _mockDerivedCollection.Verify(
+                mockDerivedCollection.Verify(
                     c => c.BulkWriteAsync(
-                        It.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<UpdateOneModel<B>>()
-                            .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
-                                RenderUpdate(m.Update).Equals(BsonDocument.Parse("{$set: {x: 1}}")) &&
-                                m.Collation == model.Collation &&
-                                m.Hint == model.Hint &&
-                                m.IsUpsert == model.IsUpsert).Count() == 1),
+                        It.Is(modelMatch),
                         options,
                         CancellationToken.None),
                     Times.Once);
@@ -429,14 +450,9 @@ namespace MongoDB.Driver.Tests
             {
                 subject.BulkWrite(new[] { model }, options, CancellationToken.None);
 
-                _mockDerivedCollection.Verify(
+                mockDerivedCollection.Verify(
                     c => c.BulkWrite(
-                        It.Is<IEnumerable<WriteModel<B>>>(v => v.OfType<UpdateOneModel<B>>()
-                            .Where(m => RenderFilter(m.Filter).Equals(_expectedFilter) &&
-                                RenderUpdate(m.Update).Equals(BsonDocument.Parse("{$set: {x: 1}}")) &&
-                                m.Collation == model.Collation &&
-                                m.Hint == model.Hint &&
-                                m.IsUpsert == model.IsUpsert).Count() == 1),
+                        It.Is(modelMatch),
                         options,
                         CancellationToken.None),
                     Times.Once);
@@ -840,6 +856,21 @@ namespace MongoDB.Driver.Tests
             return new OfTypeMongoCollection<A, B>(_rootCollection, _derivedCollection, _ofTypeFilter);
         }
 
+        private (Mock<IMongoCollection<TDerived>> MockDerivedCollection, OfTypeMongoCollection<TRoot, TDerived> Subject) CreateSubject<TRoot, TDerived>()
+            where TDerived : TRoot
+        {
+            var mockRootCollection = new Mock<IMongoCollection<TRoot>>();
+            mockRootCollection.SetupGet(c => c.CollectionNamespace).Returns(CollectionNamespace.FromFullName("foo.bar"));
+            mockRootCollection.SetupGet(c => c.Settings).Returns(new MongoCollectionSettings());
+
+            var mockDerivedCollection = new Mock<IMongoCollection<TDerived>>();
+            mockDerivedCollection.SetupGet(c => c.CollectionNamespace).Returns(CollectionNamespace.FromFullName("foo.bar"));
+            mockDerivedCollection.SetupGet(c => c.Settings).Returns(new MongoCollectionSettings());
+
+            var subject = new OfTypeMongoCollection<TRoot, TDerived>(mockRootCollection.Object, mockDerivedCollection.Object, _ofTypeFilter);
+            return (mockDerivedCollection, subject);
+        }
+
         private string RenderField<TDocument, TField>(FieldDefinition<TDocument, TField> field)
         {
             var serializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
@@ -878,6 +909,36 @@ namespace MongoDB.Driver.Tests
         public class C : B
         {
             public int PropC;
+        }
+
+        [BsonDiscriminator(RootClass = true)]
+        [BsonKnownTypes(typeof(BHierarchical), typeof(CHierarchical))]
+        public class AHierarchical
+        {
+            public int PropA;
+        }
+
+        public class BHierarchical : AHierarchical
+        {
+            public int PropB;
+        }
+
+        public class CHierarchical : BHierarchical
+        {
+            public int PropC;
+        }
+
+        public class UpdateTestCases  : IValueGenerator
+        {
+            public object[] GenerateValues() => new object[]
+                {
+                    (new A(), new B(), "_t: \"B\""),
+                    (new A(), new C(), "_t: \"C\""),
+                    (new B(), new C(), "_t: \"C\""),
+                    (new AHierarchical(), new BHierarchical(), "_t: [\"AHierarchical\", \"BHierarchical\"]"),
+                    (new AHierarchical(), new CHierarchical(), "_t: [\"AHierarchical\", \"BHierarchical\", \"CHierarchical\"]"),
+                    (new BHierarchical(), new CHierarchical(), "_t: [\"AHierarchical\", \"BHierarchical\", \"CHierarchical\"]")
+                };
         }
     }
 
