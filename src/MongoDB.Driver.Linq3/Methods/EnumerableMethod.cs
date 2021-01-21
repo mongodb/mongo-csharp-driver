@@ -163,6 +163,7 @@ namespace MongoDB.Driver.Linq3.Methods
         private static readonly MethodInfo __take;
         private static readonly MethodInfo __thenBy;
         private static readonly MethodInfo __thenByDescending;
+        private static readonly MethodInfo __toList;
         private static readonly MethodInfo __union;
         private static readonly MethodInfo __where;
         private static readonly MethodInfo __whereWithPredicateTakingIndex;
@@ -310,6 +311,7 @@ namespace MongoDB.Driver.Linq3.Methods
             __take = new Func<IEnumerable<object>, int, IEnumerable<object>>(Enumerable.Take).Method.GetGenericMethodDefinition();
             __thenBy = new Func<IOrderedEnumerable<object>, Func<object, object>, IOrderedEnumerable<object>>(Enumerable.ThenBy).Method.GetGenericMethodDefinition();
             __thenByDescending = new Func<IOrderedEnumerable<object>, Func<object, object>, IOrderedEnumerable<object>>(Enumerable.ThenByDescending).Method.GetGenericMethodDefinition();
+            __toList = new Func<IEnumerable<object>, List<object>>(Enumerable.ToList).Method.GetGenericMethodDefinition();
             __union = new Func<IEnumerable<object>, IEnumerable<object>, IEnumerable<object>>(Enumerable.Union).Method.GetGenericMethodDefinition();
             __where = new Func<IEnumerable<object>, Func<object, bool>, IEnumerable<object>>(Enumerable.Where).Method.GetGenericMethodDefinition();
             __whereWithPredicateTakingIndex = new Func<IEnumerable<object>, Func<object, int, bool>, IEnumerable<object>>(Enumerable.Where).Method.GetGenericMethodDefinition();
@@ -456,6 +458,7 @@ namespace MongoDB.Driver.Linq3.Methods
         public static MethodInfo Take => __take;
         public static MethodInfo ThenBy => __thenBy;
         public static MethodInfo ThenByDescending => __thenByDescending;
+        public static MethodInfo ToList => __toList;
         public static MethodInfo Union => __union;
         public static MethodInfo Where => __where;
         public static MethodInfo WhereWithPredicateTakingIndex => __whereWithPredicateTakingIndex;
