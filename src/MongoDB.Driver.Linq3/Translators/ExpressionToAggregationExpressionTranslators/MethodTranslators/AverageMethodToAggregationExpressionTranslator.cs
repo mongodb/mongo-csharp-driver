@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 var sourceExpression = arguments[0];
                 var selectorExpression = arguments.Count == 2 ? (LambdaExpression)arguments[1] : null;
 
-                var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
+                var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
                 var sourceItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
                 AstExpression ast;
                 if (selectorExpression == null)
