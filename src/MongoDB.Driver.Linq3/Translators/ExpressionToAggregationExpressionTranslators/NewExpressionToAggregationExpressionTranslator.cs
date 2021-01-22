@@ -35,6 +35,10 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             {
                 return NewHashSetExpressionToAggregationExpressionTranslator.Translate(context, expression);
             }
+            if (expression.Type.IsConstructedGenericType && expression.Type.GetGenericTypeDefinition() == typeof(List<>))
+            {
+                return NewListExpressionToAggregationExpressionTranslator.Translate(context, expression);
+            }
 
             var classMapType = typeof(BsonClassMap<>).MakeGenericType(expression.Type);
             var classMap = (BsonClassMap)Activator.CreateInstance(classMapType);
