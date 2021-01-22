@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
@@ -96,11 +97,19 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             return aggregateExpression;
         }
 
-        public static AggregationExpression TranslateLambdaBody(TranslationContext context, LambdaExpression lambdaExpression, IBsonSerializer parameterSerializer)
+        public static AggregationExpression TranslateLambdaBody(
+            TranslationContext context,
+            LambdaExpression lambdaExpression,
+            IBsonSerializer parameterSerializer,
+            bool asCurrentSymbol = false)
         {
             var parameterExpression = lambdaExpression.Parameters.Single();
-            var parameterSymbol = new Symbol(parameterExpression.Name, parameterSerializer);
-            var lambdaContext = context.WithSymbolAsCurrent(parameterExpression, parameterSymbol);
+            if (parameterSerializer.ValueType != parameterExpression.Type)
+            {
+                throw new ArgumentException($"ValueType '{parameterSerializer.ValueType.FullName}' of parameterSerializer does not match parameter type '{parameterExpression.Type.FullName}'.", nameof(parameterSerializer));
+            }
+            var parameterSymbol = new Symbol('$' + parameterExpression.Name, parameterSerializer);
+            var lambdaContext = asCurrentSymbol ? context.WithSymbolAsCurrent(parameterExpression, parameterSymbol) : context.WithSymbol(parameterExpression, parameterSymbol);
             return Translate(lambdaContext, lambdaExpression.Body);
         }
 
@@ -114,8 +123,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             else
             {
                 return new AstLetExpression(
-                    vars: new[] { new AstComputedField("_container", astExpression) },
-                    @in: new AstFieldExpression($"_container.{fieldName}"));
+                    vars: new[] { new AstComputedField("this", astExpression) },
+                    @in: new AstFieldExpression($"$this.{fieldName}"));
             }
         }
     }

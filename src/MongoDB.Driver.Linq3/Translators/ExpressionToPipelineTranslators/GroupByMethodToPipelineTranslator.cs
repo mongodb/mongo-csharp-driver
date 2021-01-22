@@ -68,18 +68,18 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
             {
                 var sourceExpression = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
+                var sourceSerializer = pipeline.OutputSerializer;
 
                 var keySelectorLambdaExpression = ExpressionHelper.Unquote(arguments[1]);
-                var keySelectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, keySelectorLambdaExpression, pipeline.OutputSerializer);
+                var keySelectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, keySelectorLambdaExpression, sourceSerializer, asCurrentSymbol: true);
                 var keySerializer = keySelectorTranslation.Serializer;
 
-                var sourceSerializer = pipeline.OutputSerializer;
                 AstExpression elementAst;
                 IBsonSerializer elementSerializer;
                 if (method.IsOneOf(__groupByMethodsWithElementSelector))
                 {
                     var elementLambdaExpression = ExpressionHelper.Unquote(arguments[2]);
-                    var elementTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, elementLambdaExpression, parameterSerializer: sourceSerializer);
+                    var elementTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, elementLambdaExpression, sourceSerializer, asCurrentSymbol: true);
                     elementAst = elementTranslation.Ast;
                     elementSerializer = elementTranslation.Serializer;
                 }

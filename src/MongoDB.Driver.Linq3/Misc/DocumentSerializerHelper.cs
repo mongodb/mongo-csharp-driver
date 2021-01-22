@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Linq3.Misc
         {
             if (!(serializer is IBsonDocumentSerializer documentSerializer))
             {
-                throw new NotSupportedException($"Serializer for {serializer.ValueType} must implement IBsonSerializer to be used with LINQ.");
+                throw new NotSupportedException($"Serializer for {serializer.ValueType} must implement IBsonDocumentSerializer to be used with LINQ.");
             }
 
             if (!(documentSerializer.TryGetMemberSerializationInfo(memberName, out BsonSerializationInfo serializationInfo)))
