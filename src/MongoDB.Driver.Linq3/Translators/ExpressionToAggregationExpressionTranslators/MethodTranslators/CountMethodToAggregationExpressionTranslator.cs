@@ -13,7 +13,9 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq.Expressions;
+using System.Reflection;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq3.Ast.Expressions;
@@ -24,28 +26,70 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
 {
     public static class CountMethodToAggregationExpressionTranslator
     {
+        private static MethodInfo[] __countMethods;
+        private static MethodInfo[] __countWithPredicateMethods;
+
+        static CountMethodToAggregationExpressionTranslator()
+        {
+            __countMethods = new[]
+            {
+                EnumerableMethod.Count,
+                EnumerableMethod.CountWithPredicate,
+                EnumerableMethod.LongCount,
+                EnumerableMethod.LongCountWithPredicate
+            };
+
+            __countWithPredicateMethods = new[]
+            {
+                EnumerableMethod.CountWithPredicate,
+                EnumerableMethod.LongCountWithPredicate
+            };
+        }
+
         public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
-            if (expression.Method.IsOneOf(EnumerableMethod.Count, EnumerableMethod.LongCount))
+            var method = expression.Method;
+            var arguments = expression.Arguments;
+
+            if (method.IsOneOf(__countMethods))
             {
-                var sourceExpression = expression.Arguments[0];
+                var sourceExpression = arguments[0];
 
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
-                var ast = (AstExpression)new AstUnaryExpression(AstUnaryOperator.Size, sourceTranslation.Ast);
-                IBsonSerializer serializer;
-                if (expression.Type == typeof(int))
+                AstExpression ast;
+                if (method.IsOneOf(__countWithPredicateMethods))
                 {
-                    serializer = new Int32Serializer();
+                    var predicateLambda = (LambdaExpression)arguments[1];
+                    var sourceItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
+                    var predicateTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, predicateLambda, sourceItemSerializer);
+                    var filteredSourceAst = new AstFilterExpression(
+                        input: sourceTranslation.Ast,
+                        cond: predicateTranslation.Ast,
+                        @as: predicateLambda.Parameters[0].Name);
+                    ast = new AstUnaryExpression(AstUnaryOperator.Size, filteredSourceAst);
                 }
                 else
                 {
-                    serializer = new Int64Serializer();
+                    ast = new AstUnaryExpression(AstUnaryOperator.Size, sourceTranslation.Ast);
                 }
+                var serializer = GetSerializer(expression);
 
                 return new AggregationExpression(expression, ast, serializer);
             }
 
             throw new ExpressionNotSupportedException(expression);
+        }
+
+        private static IBsonSerializer GetSerializer(Expression expression)
+        {
+            if (expression.Type == typeof(int))
+            {
+                return new Int32Serializer();
+            }
+            else
+            {
+                return new Int64Serializer();
+            }
         }
     }
 }

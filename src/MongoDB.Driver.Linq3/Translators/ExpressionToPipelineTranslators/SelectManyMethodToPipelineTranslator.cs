@@ -36,11 +36,12 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
 
             var source = arguments[0];
             var pipeline = ExpressionToPipelineTranslator.Translate(context, source);
+            var sourceSerializer = pipeline.OutputSerializer;
 
             if (method.Is(QueryableMethod.SelectMany))
             {
                 var selectorLambdaExpression = ExpressionHelper.Unquote(arguments[1]);
-                var selectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, selectorLambdaExpression, parameterSerializer: pipeline.OutputSerializer);
+                var selectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, selectorLambdaExpression, sourceSerializer, asCurrentSymbol: true);
                 var resultValueSerializer = ArraySerializerHelper.GetItemSerializer(selectorTranslation.Serializer);
                 var resultWrappedValueSerializer = WrappedValueSerializer.Create(resultValueSerializer);
 
@@ -56,10 +57,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
 
             if (method.Is(QueryableMethod.SelectManyWithCollectionSelectorAndResultSelector))
             {
-                var sourceSerializer = pipeline.OutputSerializer;
-
                 var collectionSelectorLambdaExpression = ExpressionHelper.Unquote(arguments[1]);
-                var collectionSelectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, collectionSelectorLambdaExpression, parameterSerializer: sourceSerializer);
+                var collectionSelectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, collectionSelectorLambdaExpression, sourceSerializer, asCurrentSymbol: true);
                 var collectionItemSerializer = ArraySerializerHelper.GetItemSerializer(collectionSelectorTranslation.Serializer);
 
                 var resultSelectorLambdaExpression = ExpressionHelper.Unquote(arguments[2]);

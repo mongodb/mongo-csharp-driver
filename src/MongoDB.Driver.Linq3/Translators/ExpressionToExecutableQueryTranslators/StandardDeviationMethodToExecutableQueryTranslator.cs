@@ -314,13 +314,14 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
             {
                 var sourceExpression = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
+                var sourceSerializer = pipeline.OutputSerializer;
 
                 var @operator = method.IsOneOf(__standardDeviationPopulationMethods) ? AstUnaryOperator.StdDevPop : AstUnaryOperator.StdDevSamp;
                 AstExpression arg;
                 if (method.IsOneOf(__standardDeviationWithSelectorMethods))
                 {
                     var selectorLambda = ExpressionHelper.Unquote(arguments[1]);
-                    var selectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, selectorLambda, pipeline.OutputSerializer);
+                    var selectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, selectorLambda, sourceSerializer, asCurrentSymbol: true);
                     arg = selectorTranslation.Ast;
                 }
                 else

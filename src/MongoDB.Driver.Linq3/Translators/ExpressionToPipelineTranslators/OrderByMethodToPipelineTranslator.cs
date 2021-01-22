@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
 
         private static string GetFieldPath(TranslationContext context, LambdaExpression keySelector, IBsonSerializer parameterSerializer)
         {
-            var keySelectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, keySelector, parameterSerializer);
+            var keySelectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, keySelector, parameterSerializer, asCurrentSymbol: true);
             if (keySelectorTranslation.Ast is AstFieldExpression fieldExpressionAst)
             {
                 return fieldExpressionAst.Path;

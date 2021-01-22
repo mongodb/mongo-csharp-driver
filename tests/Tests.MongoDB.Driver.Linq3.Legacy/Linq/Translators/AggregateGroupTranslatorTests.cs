@@ -128,7 +128,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Group(x => x.A, g => new { Result = g.Count(x => x.A != "Awesome") });
 
-            result.Projection.Should().Be("{ \"_id\" : \"$A\", \"Result\" : { \"$sum\" : { \"$cond\" : [{ \"$ne\" : [\"$A\", \"Awesome\"] }, 1, 0] } } }");
+            result.Projection.Should().Be("{ $project : { Result : { $size : { $filter : { input : '$_elements', as : 'x', cond : { $ne : ['$$x.A', 'Awesome' ] } } } }, _id : 0 } }");
 
             result.Value.Result.Should().Be(1);
         }
@@ -138,7 +138,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Group(x => x.A, g => new { Result = g.Where(x => x.A != "Awesome").Count() });
 
-            result.Projection.Should().Be("{ \"_id\" : \"$A\", \"Result\" : { \"$sum\" : { \"$cond\" : [{ \"$ne\" : [\"$A\", \"Awesome\"] }, 1, 0] } } }");
+            result.Projection.Should().Be("{ $project : { Result : { $size : { $filter : { input : '$_elements', as : 'x', cond : { $ne : ['$$x.A', 'Awesome'] } } } }, _id : 0 } }");
 
             result.Value.Result.Should().Be(1);
         }
@@ -148,7 +148,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Group(x => x.A, g => new { Result = g.Select(x => new { A = x.A }).Count(x => x.A != "Awesome") });
 
-            result.Projection.Should().Be("{ \"_id\" : \"$A\", \"Result\" : { \"$sum\" : { \"$cond\" : [{ \"$ne\" : [\"$A\", \"Awesome\"] }, 1, 0] } } }");
+            result.Projection.Should().Be("{ $project : { Result : { $size : { $filter : { input : { $map : { input : '$_elements', as : 'x', in : { A : '$$x.A' } } }, as : 'x', cond : { $ne : ['$$x.A', 'Awesome'] } } } }, _id : 0 } }");
 
             result.Value.Result.Should().Be(1);
         }

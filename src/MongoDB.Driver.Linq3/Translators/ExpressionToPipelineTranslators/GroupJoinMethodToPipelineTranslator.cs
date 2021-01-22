@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
 
         private static string GetForeignFieldPath(TranslationContext context, LambdaExpression innerKeySelectorLambda, IBsonSerializer innerSerializer)
         {
-            var innerKeySelectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, innerKeySelectorLambda, parameterSerializer: innerSerializer);
+            var innerKeySelectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, innerKeySelectorLambda, innerSerializer, asCurrentSymbol: true);
             if (innerKeySelectorTranslation.Ast is AstFieldExpression fieldExpression)
             {
                 return fieldExpression.Path;
@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
 
         private static string GetLocalFieldPath(TranslationContext context, LambdaExpression outerKeySelectorLambda, IBsonSerializer outerSerializer)
         {
-            var outerKeySelectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, outerKeySelectorLambda, parameterSerializer: outerSerializer);
+            var outerKeySelectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, outerKeySelectorLambda, outerSerializer, asCurrentSymbol: true);
             if (outerKeySelectorTranslation.Ast is AstFieldExpression fieldExpression)
             {
                 return fieldExpression.Path;

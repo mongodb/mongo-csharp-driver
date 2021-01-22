@@ -64,13 +64,14 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
             {
                 var source = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, source);
+                var sourceSerializer = pipeline.OutputSerializer;
 
                 AstExpression minArgument;
                 IBsonSerializer minSerializer;
                 if (method.IsOneOf(__minWithSelectorMethods))
                 {
                     var selectorExpression = ExpressionHelper.Unquote(arguments[1]);
-                    var selectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, selectorExpression, pipeline.OutputSerializer);
+                    var selectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, selectorExpression, sourceSerializer, asCurrentSymbol: true);
                     if (selectorTranslation.Serializer is IBsonDocumentSerializer)
                     {
                         minArgument = selectorTranslation.Ast;

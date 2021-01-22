@@ -35,13 +35,14 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
             {
                 var sourceExpression = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
+                var sourceSerializer = pipeline.OutputSerializer;
 
                 var selectorLambdaExpression = ExpressionHelper.Unquote(arguments[1]);
                 if (selectorLambdaExpression.Body == selectorLambdaExpression.Parameters[0])
                 {
                     return pipeline; // ignore identity projection: Select(x => x)
                 }
-                var selectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, selectorLambdaExpression, parameterSerializer: pipeline.OutputSerializer);
+                var selectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, selectorLambdaExpression, sourceSerializer, asCurrentSymbol: true);
                 ProjectionHelper.AddProjectStage(pipeline, selectorTranslation);
 
                 return pipeline;
