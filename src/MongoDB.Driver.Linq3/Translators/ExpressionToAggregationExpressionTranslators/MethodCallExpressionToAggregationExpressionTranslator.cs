@@ -55,6 +55,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 case "StrLenBytes": return StrLenBytesMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Sum": return SumMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Take": return TakeMethodToAggregationExpressionTranslator.Translate(context, expression);
+                case "ToArray": return ToArrayMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "ToList": return ToListMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "ToString": return ToStringMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Truncate": return TruncateMethodToAggregationExpressionTranslator.Translate(context, expression);

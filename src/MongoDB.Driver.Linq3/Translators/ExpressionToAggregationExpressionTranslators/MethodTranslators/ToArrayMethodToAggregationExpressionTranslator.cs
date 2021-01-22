@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
@@ -23,25 +22,24 @@ using MongoDB.Driver.Linq3.Misc;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
-    public static class ToListMethodToAggregationExpressionTranslator
+    public static class ToArrayMethodToAggregationExpressionTranslator
     {
         public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.Is(EnumerableMethod.ToList))
+            if (method.Is(EnumerableMethod.ToArray))
             {
                 var sourceExpression = arguments[0];
 
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
-                var listItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
-                var listItemType = listItemSerializer.ValueType;
-                var listType = typeof(List<>).MakeGenericType(listItemType);
-                var listSerializerType = typeof(EnumerableInterfaceImplementerSerializer<,>).MakeGenericType(listType, listItemType);
-                var listSerializer = (IBsonSerializer)Activator.CreateInstance(listSerializerType, listItemSerializer);
+                var arrayItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
+                var arrayItemType = arrayItemSerializer.ValueType;
+                var arraySerializerType = typeof(ArraySerializer<>).MakeGenericType(arrayItemType);
+                var arraySerializer = (IBsonSerializer)Activator.CreateInstance(arraySerializerType, arrayItemSerializer);
 
-                return new AggregationExpression(expression, sourceTranslation.Ast, listSerializer);
+                return new AggregationExpression(expression, sourceTranslation.Ast, arraySerializer);
             }
 
             throw new ExpressionNotSupportedException(expression);
