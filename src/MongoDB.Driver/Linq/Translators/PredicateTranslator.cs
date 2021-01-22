@@ -188,6 +188,7 @@ namespace MongoDB.Driver.Linq.Translators
                     {
                         case "Contains":
                         case "StartsWith":
+                        case "Equals":
                         case "EndsWith":
                             return true;
                         default:
@@ -806,7 +807,7 @@ namespace MongoDB.Driver.Linq.Translators
                 case "Contains": return TranslateContains(methodCallExpression);
                 case "ContainsKey": return TranslateContainsKey(methodCallExpression);
                 case "EndsWith": return TranslateStringQuery(methodCallExpression);
-                case "Equals": return TranslateEquals(methodCallExpression);
+                case "Equals": return TranslateStringQuery(methodCallExpression);
                 case "HasFlag": return TranslateHasFlag(methodCallExpression);
                 case "In": return TranslateIn(methodCallExpression);
                 case "IsMatch": return TranslateIsMatch(methodCallExpression);
