@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                             input: sourceTranslation.Ast,
                             @as: selectorParameter.Name,
                             @in: selectorTranslation.Ast));
-                    serializer = BsonSerializer.LookupSerializer(expression.Type); // TODO: find more specific serializer?
+                    serializer = selectorTranslation.Serializer;
                 }
 
                 return new AggregationExpression(expression, ast, serializer);

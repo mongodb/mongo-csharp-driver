@@ -412,7 +412,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
                 Sum = g.Sum(x => x.U)
             });
 
-            result.Projection.Should().Be("{ _id : 1, Sum : { \"$sum\" : \"$U\" } }");
+            result.Projection.Should().Be("{ $project : { Sum : { $sum : '$_elements.U' }, _id : 0 } }");
 
             result.Value.Sum.Should().Be(-0.00000000714529169165701m);
         }
