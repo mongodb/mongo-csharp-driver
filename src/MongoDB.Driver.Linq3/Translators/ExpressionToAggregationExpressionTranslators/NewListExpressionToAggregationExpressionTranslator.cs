@@ -18,17 +18,16 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Misc;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslators
 {
-    public static class NewHashSetExpressionToAggregationExpressionTranslator
+    public static class NewListExpressionToAggregationExpressionTranslator
     {
         public static AggregationExpression Translate(TranslationContext context, NewExpression expression)
         {
-            var hashSetType = expression.Type;
-            var hashSetItemType = hashSetType.GetGenericArguments()[0];
+            var listType = expression.Type;
+            var listItemType = listType.GetGenericArguments()[0];
             var arguments = expression.Arguments;
 
             if (arguments.Count == 1)
@@ -38,16 +37,15 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 if (argumentType.IsConstructedGenericType && argumentType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
                 {
                     var argumentItemType = argumentType.GetGenericArguments()[0];
-                    if (argumentItemType == hashSetItemType)
+                    if (argumentItemType == listItemType)
                     {
                         var collectionExpression = argument;
                         var collectionTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, collectionExpression);
-                        var ast = new AstNaryExpression(AstNaryOperator.SetUnion, collectionTranslation.Ast);
-                        var serializerType = typeof(EnumerableInterfaceImplementerSerializer<,>).MakeGenericType(hashSetType, hashSetItemType);
-                        var hashSetItemSerializer = ArraySerializerHelper.GetItemSerializer(collectionTranslation.Serializer);
-                        var serializer = (IBsonSerializer)Activator.CreateInstance(serializerType, hashSetItemSerializer);
+                        var listSerializerType = typeof(EnumerableInterfaceImplementerSerializer<,>).MakeGenericType(listType, listItemType);
+                        var listItemSerializer = ArraySerializerHelper.GetItemSerializer(collectionTranslation.Serializer);
+                        var listSerializer = (IBsonSerializer)Activator.CreateInstance(listSerializerType, listItemSerializer);
 
-                        return new AggregationExpression(expression, ast, serializer);
+                        return new AggregationExpression(expression, collectionTranslation.Ast, listSerializer);
                     }
                 }
             }

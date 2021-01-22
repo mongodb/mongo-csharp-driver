@@ -286,7 +286,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Group(x => x.A, g => new { Result = new List<int>(g.Select(x => x.C.E.F)) });
 
-            result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$push\": \"$C.E.F\" } }");
+            result.Projection.Should().Be("{ $project : { Result : '$_elements.C.E.F', _id : 0 } }");
 
             result.Value.Result.Should().Equal(111);
         }
