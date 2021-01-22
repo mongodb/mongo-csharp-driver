@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -31,8 +30,6 @@ namespace MongoDB.Driver
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     public abstract class MongoCollectionBase<TDocument> : IMongoCollection<TDocument>
     {
-        private readonly bool _isConcrete;
-
         /// <inheritdoc />
         public abstract CollectionNamespace CollectionNamespace { get; }
 
@@ -47,16 +44,6 @@ namespace MongoDB.Driver
 
         /// <inheritdoc />
         public abstract MongoCollectionSettings Settings { get; }
-
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MongoCollectionBase{TDocument}"/> class.
-        /// </summary>
-        protected MongoCollectionBase()
-        {
-            var derivedTypeInfo = typeof(TDocument).GetTypeInfo();
-            _isConcrete = derivedTypeInfo.IsAbstract || derivedTypeInfo.IsInterface;
-        }
 
         /// <inheritdoc />
         public virtual IAsyncCursor<TResult> Aggregate<TResult>(PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
@@ -718,11 +705,6 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(update, nameof(update));
 
             options = options ?? new UpdateOptions();
-            if (options.IsUpsert)
-            {
-                EnsureConcrete();
-            }
-
             var model = new UpdateManyModel<TDocument>(filter, update)
             {
                 ArrayFilters = options.ArrayFilters,
@@ -764,11 +746,6 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(update, nameof(update));
 
             options = options ?? new UpdateOptions();
-            if (options.IsUpsert)
-            {
-                EnsureConcrete();
-            }
-
             var model = new UpdateManyModel<TDocument>(filter, update)
             {
                 ArrayFilters = options.ArrayFilters,
@@ -810,11 +787,6 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(update, nameof(update));
 
             options = options ?? new UpdateOptions();
-            if (options.IsUpsert)
-            {
-                EnsureConcrete();
-            }
-
             var model = new UpdateOneModel<TDocument>(filter, update)
             {
                 ArrayFilters = options.ArrayFilters,
@@ -856,11 +828,6 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(update, nameof(update));
 
             options = options ?? new UpdateOptions();
-            if (options.IsUpsert)
-            {
-                EnsureConcrete();
-            }
-
             var model = new UpdateOneModel<TDocument>(filter, update)
             {
                 ArrayFilters = options.ArrayFilters,
@@ -933,14 +900,5 @@ namespace MongoDB.Driver
 
         /// <inheritdoc />
         public abstract IMongoCollection<TDocument> WithWriteConcern(WriteConcern writeConcern);
-
-        //private methods
-        private void EnsureConcrete()
-        {
-            if (!_isConcrete)
-            {
-                throw new MongoException("Operation allowed only for concrete types");
-            }
-        }
     }
 }

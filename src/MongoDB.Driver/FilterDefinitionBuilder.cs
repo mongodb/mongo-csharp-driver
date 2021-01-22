@@ -1951,21 +1951,11 @@ namespace MongoDB.Driver
             {
                 throw new NotSupportedException($"OfType requires that documents of type {BsonUtils.GetFriendlyTypeName(typeof(TDerived))} have a discriminator value.");
             }
-
-            BsonDocument renderedOfTypeFilter = null;
             if (discriminatorValue.IsBsonArray)
             {
-                var builder = new FilterDefinitionBuilder<TDocument>();
-
-                var arrayElements = discriminatorValue.AsBsonArray.Select(discriminator => new BsonDocument("$elemMatch", new BsonDocument("$eq", discriminator)));
-                var filter = builder.All(discriminatorConvention.ElementName, arrayElements);
-
-                renderedOfTypeFilter = filter.Render(documentSerializer, serializerRegistry);
+                discriminatorValue = discriminatorValue.AsBsonArray.Last();
             }
-            else
-            {
-                renderedOfTypeFilter = new BsonDocument(discriminatorConvention.ElementName, discriminatorValue);
-            }
+            var renderedOfTypeFilter = new BsonDocument(discriminatorConvention.ElementName, discriminatorValue);
 
             if (_derivedDocumentFilter == null)
             {
