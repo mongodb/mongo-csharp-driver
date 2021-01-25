@@ -58,7 +58,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             var local = new List<int> { 1, 2 };
 
             Expression<Func<TestObject, bool>> expr = (a) => local.Any(b => a.Collection2.Contains(b));
-            Execute(CreateWhereQuery(expr));
+            Translate(CreateWhereQuery(expr));
         }
 
         [Fact]
@@ -70,13 +70,13 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             var local2 = new List<bool> { true, false };
 
             Expression<Func<TestObject, bool>> expr = (a) => a.Collection1.Any(b => local.Any(c => b.Collection2.Contains(c)));
-            AssertWhere(expr, "{ $match : { 'Collection2' : { '$in' : [1, 2] } } }");
+            AssertWhere(expr, "{ $match : { Collection1 : { $elemMatch : { Collection2 : { $in : [1, 2] } } } } }");
 
             expr = (a) => a.Collection1.Any(b => b.Collection1.Any(c => local.Any(d => c.Collection2.Contains(d))));
-            AssertWhere(expr, "{ $match : { 'Collection2' : { '$in' : [1, 2] } } }");
+            AssertWhere(expr, "{ $match : { Collection1 : { $elemMatch : { Collection1 : { $elemMatch : { Collection2 : { $in : [1, 2] } } } } } } }");
 
             expr = (a) => a.Collection1.Any(b => b.Collection2 != null && b.Collection1.Any(c => local.Any(d => c.Collection2.Contains(d))));
-            AssertWhere(expr, "{ $match : { 'Collection1' : { '$elemMatch' : { 'Collection2' : { '$ne' : null, '$in' : [1, 2] } } } } }");
+            AssertWhere(expr, "{ $match : { Collection1 : { $elemMatch : { $and : [{ Collection2 : { $ne : null } }, { Collection1 : { $elemMatch : { Collection2 : { $in : [1, 2 ] } } } }] } } } }");
 
             expr = (a) => a.Collection1.Any(
                 b =>
@@ -87,19 +87,26 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
                         ));
             AssertWhere(
                 expr,
-                @"{ 
-                    $match : { 
-                        'Collection1' : { 
-                            '$elemMatch' : { 
-                                'Collection1' : { 
-                                    '$ne' : null, 
-                                    '$elemMatch' : { 
-                                        'Collection2' : { '$in' : [1, 2] }, 
-                                        'Collection3' : { '$in' : [true, false] } 
-                                    } 
-                                } 
-                            } 
-                        } 
+                @"
+                { 
+                    $match : {
+                        Collection1 : {
+                            $elemMatch : {
+                                $and : [
+                                    { Collection1 : { $ne : null } },
+                                    {
+                                        Collection1 : {
+                                            $elemMatch : {
+                                                $and : [
+                                                    { Collection2 : { $in : [1, 2] } },
+                                                    { Collection3 : { $in : [true, false] } }
+                                                ]
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
                     }
                 }");
 
@@ -114,17 +121,23 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
                 expr,
                 @"
                 {
-                    $match : { 
-                        'Collection1' : { 
-                            '$elemMatch' : { 
-                                'Collection1' : { 
-                                    '$ne' : null, 
-                                    '$elemMatch' : { 
-                                        'Collection1' : { '$elemMatch' : { 'Value1' : 2 } }, 
-                                        'Collection3' : { '$in' : [true, false] } 
-                                    } 
-                                } 
-                            } 
+                    $match : {
+                        Collection1 : {
+                            $elemMatch : {
+                                $and : [
+                                    { Collection1 : { $ne : null } },
+                                    {
+                                        Collection1 : {
+                                            $elemMatch : {
+                                                $and : [
+                                                    { Collection1 : { $elemMatch : { Value1 : 2 } } },
+                                                    { Collection3 : { $in : [true, false] }}
+                                                ]
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
                         }
                     }
                 }");
@@ -136,10 +149,10 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             Setup();
 
             Expression<Func<TestObject, bool>> expr = (a) => a.Collection3.Any(b => b);
-            Execute(CreateWhereQuery(expr));
+            Translate(CreateWhereQuery(expr));
 
             expr = (a) => a.Collection3.Any(b => b && b);
-            Execute(CreateWhereQuery(expr));
+            Translate(CreateWhereQuery(expr));
         }
 
         [Fact]
@@ -153,7 +166,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
                         .Where(b => b.Collection1.Any(d => d.Value1 != 2))
                         .Any(c => c.Value1 == 3);
 
-            Execute(CreateWhereQuery(expr));
+            Translate(CreateWhereQuery(expr));
         }
 
         [Fact]
@@ -165,13 +178,13 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
                 (a) =>
                     a.Collection1.Any(c => c.Value1 == 3) &&
                     a.Collection1.Any(d => d.Value1 != 4);
-            Execute(CreateWhereQuery(expr));
+            Translate(CreateWhereQuery(expr));
 
             expr =
                 (a) => a.Collection1
                     .Any(
                         c => c.Value1 != 3 && c.Collection1.Any(d => d.Value1 != 5));
-            Execute(CreateWhereQuery(expr));
+            Translate(CreateWhereQuery(expr));
         }
 
 
@@ -180,7 +193,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             Setup();
 
-            Execute(CreateQuery().Select(x => x.Collection1).Where(x => x.Any(y => y.Value1 > 1)));
+            Translate(CreateQuery().Select(x => x.Collection1).Where(x => x.Any(y => y.Value1 > 1)));
         }
 
         [Fact]
@@ -188,9 +201,9 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             Setup();
 
-            Execute(CreateQuery().Select(x => x.Collection1.Where(y => y.Value1 > x.Value1)));
+            Translate(CreateQuery().Select(x => x.Collection1.Where(y => y.Value1 > x.Value1)));
 
-            Execute(CreateQuery().GroupBy(x => x.Collection1.Where(y => y.Value1 > x.Value1)));
+            Translate(CreateQuery().GroupBy(x => x.Collection1.Where(y => y.Value1 > x.Value1)));
         }
 
         [Fact]
@@ -200,7 +213,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             Expression<Func<TestObject, bool>> expr = (a) => a.Collection1.Any(b => b.Collection1.Any(c => a.Value1 == 2));
 
-            var exception = Assert.Throws<NotSupportedException>(() => Execute(CreateWhereQuery(expr)));
+            var exception = Assert.Throws<NotSupportedException>(() => Translate(CreateWhereQuery(expr)));
             exception.Message.Should().Be(string.Format(NotSupportErrorMessageTemplate, "{document}{Collection1}.Where(Any({document}{Collection1}.Where(({document}{Value1} == 2))))", "a"));
         }
 
@@ -210,19 +223,19 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             Setup();
 
             Expression<Func<TestObject, bool>> expr = (a) => a.Collection1.Any(b => a.Value1 == 2);
-            var exception = Assert.Throws<NotSupportedException>(() => Execute(CreateWhereQuery(expr)));
+            var exception = Assert.Throws<NotSupportedException>(() => Translate(CreateWhereQuery(expr)));
             exception.Message.Should().Be(string.Format(NotSupportErrorMessageTemplate, "{document}{Collection1}.Where(({document}{Value1} == 2))", "a"));
 
             expr = (a) => a.Collection1.Any(b => b.Value1 == 2 && a.Value1 == 3);
-            exception = Assert.Throws<NotSupportedException>(() => Execute(CreateWhereQuery(expr)));
+            exception = Assert.Throws<NotSupportedException>(() => Translate(CreateWhereQuery(expr)));
             exception.Message.Should().Be(string.Format(NotSupportErrorMessageTemplate, "{document}{Collection1}.Where((({document}{Value1} == 2) AndAlso ({document}{Value1} == 3)))", "a"));
 
             expr = (a) => a.Collection3.Any(b => a.Value2);
-            exception = Assert.Throws<NotSupportedException>(() => Execute(CreateWhereQuery(expr)));
+            exception = Assert.Throws<NotSupportedException>(() => Translate(CreateWhereQuery(expr)));
             exception.Message.Should().Be(string.Format(NotSupportErrorMessageTemplate, "{document}{Collection3}.Where({document}{Value2})", "a"));
 
             expr = (a) => a.Collection1.Where(b => a.Value1 == 2).Any();
-            exception = Assert.Throws<NotSupportedException>(() => Execute(CreateWhereQuery(expr)));
+            exception = Assert.Throws<NotSupportedException>(() => Translate(CreateWhereQuery(expr)));
             exception.Message.Should().Be(string.Format(NotSupportErrorMessageTemplate, "{document}{Collection1}.Where(({document}{Value1} == 2))", "a"));
         }
 
@@ -235,21 +248,21 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
                 (a) =>
                     a.Collection1.Any(c => c.Value1 == 3) &&
                     a.Collection1.Any(d => a.Value1 != 4);
-            var exception = Assert.Throws<NotSupportedException>(() => Execute(CreateWhereQuery(expr)));
+            var exception = Assert.Throws<NotSupportedException>(() => Translate(CreateWhereQuery(expr)));
             exception.Message.Should().Be(string.Format(NotSupportErrorMessageTemplate, "{document}{Collection1}.Where(({document}{Value1} != 4))", "a"));
 
             expr =
                 (a) => a.Collection1
                     .Any(
                         c => c.Value1 != 3 && c.Collection1.Any(d => a.Value1 != 5));
-            exception = Assert.Throws<NotSupportedException>(() => Execute(CreateWhereQuery(expr)));
+            exception = Assert.Throws<NotSupportedException>(() => Translate(CreateWhereQuery(expr)));
             exception.Message.Should().Be(string.Format(NotSupportErrorMessageTemplate, "{document}{Collection1}.Where((({document}{Value1} != 3) AndAlso Any({document}{Collection1}.Where(({document}{Value1} != 5)))))", "a"));
         }
 
         // private methods
         private void AssertWhere(Expression<Func<TestObject, bool>> expression, string expectedStages)
         {
-            var actualStages = Execute(CreateWhereQuery(expression));
+            var actualStages = Translate(CreateWhereQuery(expression));
             var actual = new BsonDocument();
             foreach (var actualStage in actualStages)
             {
@@ -261,11 +274,8 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             actual.Should().Be(expected);
         }
 
-        private IEnumerable<BsonDocument> Execute<T>(IQueryable<T> queryable)
+        private IEnumerable<BsonDocument> Translate<T>(IQueryable<T> queryable)
         {
-            //var result = (AggregateQueryableExecutionModel<T>)queryable.GetExecutionModel();
-            //return result.Stages;
-
             var provider = (MongoQueryProvider<TestObject>)queryable.Provider;
             var executableQuery = ExpressionToExecutableQueryTranslator.Translate<TestObject, T>(provider, queryable.Expression);
             return executableQuery.Stages;

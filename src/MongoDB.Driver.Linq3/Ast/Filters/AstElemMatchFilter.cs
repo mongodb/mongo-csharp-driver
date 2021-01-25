@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 
@@ -55,11 +56,18 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
                     }
                     return new BsonDocument("$eq", condition);
                 }
+
                 if (elementName.StartsWith("$elem."))
                 {
                     var subFieldName = elementName.Substring(6);
                     filterDocument.SetElement(0, new BsonElement(subFieldName, filterDocument[0]));
                     return filterDocument;
+                }
+
+                if (elementName == "$and" || elementName == "$or")
+                {
+                    var rewrittenClauses = filterDocument[0].AsBsonArray.Select(clause => RewriteElemMatchFilter(clause));
+                    return new BsonDocument(elementName, new BsonArray(rewrittenClauses));
                 }
             }
 
