@@ -52,6 +52,9 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators
                 case ExpressionType.Or:
                 case ExpressionType.OrElse:
                     return OrExpressionToFilterTranslator.Translate(context, (BinaryExpression)expression);
+
+                case ExpressionType.Parameter:
+                    return ParameterExpressionToFilterTranslator.Translate(context, (ParameterExpression)expression);
             }
 
             throw new ExpressionNotSupportedException(expression);
