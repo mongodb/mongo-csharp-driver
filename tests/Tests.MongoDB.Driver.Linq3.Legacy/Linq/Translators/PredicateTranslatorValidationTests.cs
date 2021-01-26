@@ -90,7 +90,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             AssertWhere(
                 expr,
                 @"
-                { 
+                {
                     $match : {
                         Collection1 : {
                             $elemMatch : {
@@ -187,13 +187,19 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
                 (a) =>
                     a.Collection1.Any(c => c.Value1 == 3) &&
                     a.Collection1.Any(d => d.Value1 != 4);
-            Translate(CreateWhereQuery(expr));
+
+            AssertWhere(
+                expr,
+                @"{ $match : { $and : [{ Collection1 : { $elemMatch : { Value1 : 3 } } }, { Collection1 : { $elemMatch : { Value1 : { $ne : 4 } } } } ] } }");
 
             expr =
                 (a) => a.Collection1
                     .Any(
                         c => c.Value1 != 3 && c.Collection1.Any(d => d.Value1 != 5));
-            Translate(CreateWhereQuery(expr));
+
+            AssertWhere(
+                expr,
+                @"{ $match : { Collection1 : { $elemMatch : { $and : [{ Value1 : { $ne : 3 } }, { Collection1 : { $elemMatch : { Value1 : { $ne : 5 } } } }] } } } }");
         }
 
 
@@ -202,7 +208,12 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             Setup();
 
-            Translate(CreateQuery().Select(x => x.Collection1).Where(x => x.Any(y => y.Value1 > 1)));
+            var query = CreateQuery().Select(x => x.Collection1).Where(x => x.Any(y => y.Value1 > 1));
+
+            AssertQuery(
+                query,
+                @"{ $project : { _v : '$Collection1', _id : 0 } }",
+                @"{ $match : { _v : { $elemMatch : { Value1 : { $gt : 1 } } } } }");
         }
 
         [Fact]
@@ -210,9 +221,15 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             Setup();
 
-            Translate(CreateQuery().Select(x => x.Collection1.Where(y => y.Value1 > x.Value1)));
+            var query1 = CreateQuery().Select(x => x.Collection1.Where(y => y.Value1 > x.Value1));
+            AssertQuery(
+                query1,
+                @"{ $project : { _v : { $filter : { input : '$Collection1', as : 'y', cond : { $gt : ['$$y.Value1', '$Value1'] } } }, _id : 0 } }");
 
-            Translate(CreateQuery().GroupBy(x => x.Collection1.Where(y => y.Value1 > x.Value1)));
+            var query2 = CreateQuery().GroupBy(x => x.Collection1.Where(y => y.Value1 > x.Value1));
+            AssertQuery(
+                query2,
+                @"{ $group : { _id : { $filter : { input : '$Collection1', as : 'y', cond : { $gt : ['$$y.Value1', '$Value1'] } } }, _elements : { $push : '$$ROOT' } } }");
         }
 
         [Fact]
@@ -269,18 +286,23 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         }
 
         // private methods
-        private void AssertWhere(Expression<Func<TestObject, bool>> expression, string expectedStages)
+        private void AssertQuery<TResult>(IQueryable<TResult> query, params string[] expectedStages)
         {
-            var actualStages = Translate(CreateWhereQuery(expression));
-            var actual = new BsonDocument();
-            foreach (var actualStage in actualStages)
+            var actualStages = Translate(query).ToList();
+
+            actualStages.Should().HaveCount(expectedStages.Length);
+            for (var i = 0; i < actualStages.Count; i++)
             {
-                actual.AddRange(actualStage);
+                var actualStage = actualStages[i];
+                var expectedStage = expectedStages[i];
+                actualStage.Should().Be(expectedStage);
             }
+        }
 
-            var expected = BsonDocument.Parse(expectedStages);
-
-            actual.Should().Be(expected);
+        private void AssertWhere(Expression<Func<TestObject, bool>> expression, params string[] expectedStages)
+        {
+            var query = CreateWhereQuery(expression);
+            AssertQuery(query, expectedStages);
         }
 
         private IEnumerable<BsonDocument> Translate<T>(IQueryable<T> queryable)
