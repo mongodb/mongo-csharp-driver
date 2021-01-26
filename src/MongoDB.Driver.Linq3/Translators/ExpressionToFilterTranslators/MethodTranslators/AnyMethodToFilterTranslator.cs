@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections;
 using System.Linq.Expressions;
 using MongoDB.Driver.Linq3.Ast.Filters;
@@ -32,6 +33,11 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             if (IsArrayFieldInArrayConstantExpression(context, expression, out var arrayFieldExpression, out var arrayConstantExpression))
             {
                 return CreateArrayFieldInArrayConstantFilter(context, arrayFieldExpression, arrayConstantExpression);
+            }
+
+            if (IsWhereFollowedByAnyExpression(expression, out var combinedAnyExpression))
+            {
+                return Translate(context, combinedAnyExpression);
             }
 
             var sourceExpression = arguments[0];
@@ -54,6 +60,34 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             }
 
             throw new ExpressionNotSupportedException(expression);
+        }
+
+        private static AstFilter CreateArrayFieldInArrayConstantFilter(TranslationContext context, Expression arrayFieldExpression, ConstantExpression arrayConstantExpression)
+        {
+            var arrayFieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, arrayFieldExpression);
+            var itemSerializer = ArraySerializerHelper.GetItemSerializer(arrayFieldTranslation.Serializer);
+            var values = (IEnumerable)arrayConstantExpression.Value;
+            var serializedValues = SerializationHelper.SerializeValues(itemSerializer, values);
+            return new AstInFilter(arrayFieldTranslation, serializedValues);
+        }
+
+        private static MethodCallExpression CreateCombinedAnyExpression(Expression whereSourceExpression, LambdaExpression wherePredicateLambda, LambdaExpression anyPredicateLambda)
+        {
+            // transform s.Where(x => p1(x)).Any(y => p2(y)) to s.Any(x => p1(x) && p2(x))
+
+            var wherePredicateParameter = wherePredicateLambda.Parameters[0];
+            var anyPredicateParameter = anyPredicateLambda.Parameters[0];
+            var modifiedAnyPredicateBody = ExpressionReplacer.Replace(anyPredicateLambda.Body, anyPredicateParameter, wherePredicateParameter);
+
+            return Expression.Call(
+                EnumerableMethod.AnyWithPredicate.MakeGenericMethod(anyPredicateParameter.Type),
+                whereSourceExpression,
+                Expression.Lambda(
+                    Expression.MakeBinary(
+                        ExpressionType.AndAlso,
+                        wherePredicateLambda.Body,
+                        modifiedAnyPredicateBody),
+                    wherePredicateParameter));
         }
 
         private static bool IsArrayFieldInArrayConstantExpression(TranslationContext context, MethodCallExpression expression, out Expression arrayFieldExpression, out ConstantExpression arrayConstantExpression)
@@ -106,13 +140,37 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             return false;
         }
 
-        private static AstFilter CreateArrayFieldInArrayConstantFilter(TranslationContext context, Expression arrayFieldExpression, ConstantExpression arrayConstantExpression)
+        private static bool IsWhereExpression(Expression expression, out Expression whereSourceExpression, out LambdaExpression wherePredicateLambda)
         {
-            var arrayFieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, arrayFieldExpression);
-            var itemSerializer = ArraySerializerHelper.GetItemSerializer(arrayFieldTranslation.Serializer);
-            var values = (IEnumerable)arrayConstantExpression.Value;
-            var serializedValues = SerializationHelper.SerializeValues(itemSerializer, values);
-            return new AstInFilter(arrayFieldTranslation, serializedValues);
+            if (expression is MethodCallExpression methodCallExpression &&
+                methodCallExpression.Method.Is(EnumerableMethod.Where))
+            {
+                whereSourceExpression = methodCallExpression.Arguments[0];
+                wherePredicateLambda = (LambdaExpression)methodCallExpression.Arguments[1];
+                return true;
+            }
+
+            whereSourceExpression = null;
+            wherePredicateLambda = null;
+            return false;
+        }
+
+        private static bool IsWhereFollowedByAnyExpression(MethodCallExpression expression, out MethodCallExpression combinedAnyExpression)
+        {
+            if (expression.Method.Is(EnumerableMethod.AnyWithPredicate))
+            {
+                var anySourceExpression = expression.Arguments[0];
+                var anyPredicateLambda = (LambdaExpression)expression.Arguments[1];
+
+                if (IsWhereExpression(anySourceExpression, out var whereSourceExpression, out var wherePredicateLambda))
+                {
+                    combinedAnyExpression = CreateCombinedAnyExpression(whereSourceExpression, wherePredicateLambda, anyPredicateLambda);
+                    return true;
+                }
+            }
+
+            combinedAnyExpression = null;
+            return false;
         }
     }
 }

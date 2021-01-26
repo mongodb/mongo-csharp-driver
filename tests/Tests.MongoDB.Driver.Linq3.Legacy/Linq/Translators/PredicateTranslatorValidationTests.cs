@@ -58,7 +58,9 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             var local = new List<int> { 1, 2 };
 
             Expression<Func<TestObject, bool>> expr = (a) => local.Any(b => a.Collection2.Contains(b));
-            Translate(CreateWhereQuery(expr));
+            AssertWhere(
+                expr,
+                @"{ $match : { Collection2 : { $in : [1, 2] } } }");
         }
 
         [Fact]
@@ -171,7 +173,9 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
                         .Where(b => b.Collection1.Any(d => d.Value1 != 2))
                         .Any(c => c.Value1 == 3);
 
-            Translate(CreateWhereQuery(expr));
+            AssertWhere(
+                expr,
+                @"{ $match : { Collection1 : { $elemMatch : { $and : [{ Collection1 : { $elemMatch : { Value1 : { $ne : 2 } } } }, { Value1 : 3 }] } } } }");
         }
 
         [Fact]
