@@ -239,8 +239,8 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             Expression<Func<TestObject, bool>> expr = (a) => a.Collection1.Any(b => b.Collection1.Any(c => a.Value1 == 2));
 
-            var exception = Assert.Throws<NotSupportedException>(() => Translate(CreateWhereQuery(expr)));
-            exception.Message.Should().Be(string.Format(NotSupportErrorMessageTemplate, "{document}{Collection1}.Where(Any({document}{Collection1}.Where(({document}{Value1} == 2))))", "a"));
+            var exception = Assert.Throws<ExpressionNotSupportedException>(() => Translate(CreateWhereQuery(expr)));
+            //exception.Message.Should().Be(string.Format(NotSupportErrorMessageTemplate, "{document}{Collection1}.Where(Any({document}{Collection1}.Where(({document}{Value1} == 2))))", "a"));
         }
 
         [Fact]
@@ -249,20 +249,20 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             Setup();
 
             Expression<Func<TestObject, bool>> expr = (a) => a.Collection1.Any(b => a.Value1 == 2);
-            var exception = Assert.Throws<NotSupportedException>(() => Translate(CreateWhereQuery(expr)));
-            exception.Message.Should().Be(string.Format(NotSupportErrorMessageTemplate, "{document}{Collection1}.Where(({document}{Value1} == 2))", "a"));
+            var exception = Assert.Throws<ExpressionNotSupportedException>(() => Translate(CreateWhereQuery(expr)));
+            //exception.Message.Should().Be(string.Format(NotSupportErrorMessageTemplate, "{document}{Collection1}.Where(({document}{Value1} == 2))", "a"));
 
             expr = (a) => a.Collection1.Any(b => b.Value1 == 2 && a.Value1 == 3);
-            exception = Assert.Throws<NotSupportedException>(() => Translate(CreateWhereQuery(expr)));
-            exception.Message.Should().Be(string.Format(NotSupportErrorMessageTemplate, "{document}{Collection1}.Where((({document}{Value1} == 2) AndAlso ({document}{Value1} == 3)))", "a"));
+            exception = Assert.Throws<ExpressionNotSupportedException>(() => Translate(CreateWhereQuery(expr)));
+            //exception.Message.Should().Be(string.Format(NotSupportErrorMessageTemplate, "{document}{Collection1}.Where((({document}{Value1} == 2) AndAlso ({document}{Value1} == 3)))", "a"));
 
             expr = (a) => a.Collection3.Any(b => a.Value2);
-            exception = Assert.Throws<NotSupportedException>(() => Translate(CreateWhereQuery(expr)));
-            exception.Message.Should().Be(string.Format(NotSupportErrorMessageTemplate, "{document}{Collection3}.Where({document}{Value2})", "a"));
+            exception = Assert.Throws<ExpressionNotSupportedException>(() => Translate(CreateWhereQuery(expr)));
+            //exception.Message.Should().Be(string.Format(NotSupportErrorMessageTemplate, "{document}{Collection3}.Where({document}{Value2})", "a"));
 
             expr = (a) => a.Collection1.Where(b => a.Value1 == 2).Any();
-            exception = Assert.Throws<NotSupportedException>(() => Translate(CreateWhereQuery(expr)));
-            exception.Message.Should().Be(string.Format(NotSupportErrorMessageTemplate, "{document}{Collection1}.Where(({document}{Value1} == 2))", "a"));
+            exception = Assert.Throws<ExpressionNotSupportedException>(() => Translate(CreateWhereQuery(expr)));
+            //exception.Message.Should().Be(string.Format(NotSupportErrorMessageTemplate, "{document}{Collection1}.Where(({document}{Value1} == 2))", "a"));
         }
 
         [Fact]
@@ -274,15 +274,15 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
                 (a) =>
                     a.Collection1.Any(c => c.Value1 == 3) &&
                     a.Collection1.Any(d => a.Value1 != 4);
-            var exception = Assert.Throws<NotSupportedException>(() => Translate(CreateWhereQuery(expr)));
-            exception.Message.Should().Be(string.Format(NotSupportErrorMessageTemplate, "{document}{Collection1}.Where(({document}{Value1} != 4))", "a"));
+            var exception = Assert.Throws<ExpressionNotSupportedException>(() => Translate(CreateWhereQuery(expr)));
+            //exception.Message.Should().Be(string.Format(NotSupportErrorMessageTemplate, "{document}{Collection1}.Where(({document}{Value1} != 4))", "a"));
 
             expr =
                 (a) => a.Collection1
                     .Any(
                         c => c.Value1 != 3 && c.Collection1.Any(d => a.Value1 != 5));
-            exception = Assert.Throws<NotSupportedException>(() => Translate(CreateWhereQuery(expr)));
-            exception.Message.Should().Be(string.Format(NotSupportErrorMessageTemplate, "{document}{Collection1}.Where((({document}{Value1} != 3) AndAlso Any({document}{Collection1}.Where(({document}{Value1} != 5)))))", "a"));
+            exception = Assert.Throws<ExpressionNotSupportedException>(() => Translate(CreateWhereQuery(expr)));
+            //exception.Message.Should().Be(string.Format(NotSupportErrorMessageTemplate, "{document}{Collection1}.Where((({document}{Value1} != 3) AndAlso Any({document}{Collection1}.Where(({document}{Value1} != 5)))))", "a"));
         }
 
         // private methods
