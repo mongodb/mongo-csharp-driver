@@ -26,7 +26,7 @@ var docsDirectory = solutionDirectory.Combine("Docs");
 var docsApiDirectory = docsDirectory.Combine("Api");
 var srcDirectory = solutionDirectory.Combine("src");
 var testsDirectory = solutionDirectory.Combine("tests");
-var toolsDirectory = solutionDirectory.Combine("Tools");
+var toolsDirectory = solutionDirectory.Combine("tools");
 var toolsHugoDirectory = toolsDirectory.Combine("Hugo");
 
 var solutionFile = solutionDirectory.CombineWithFilePath("CSharpDriver.sln");
