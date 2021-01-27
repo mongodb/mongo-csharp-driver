@@ -54,7 +54,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
                 var predicateLambda = (LambdaExpression)arguments[1];
                 var parameterExpression = predicateLambda.Parameters[0];
                 var parameterSymbol = new Symbol("$elem", elementSerializer);
-                var predicateContext = context.WithSymbol(parameterExpression, parameterSymbol);
+                var predicateSymbolTable = new SymbolTable(parameterExpression, parameterSymbol); // only one symbol is visible inside an $elemMatch
+                var predicateContext = new TranslationContext(predicateSymbolTable);
                 var predicateFilter = ExpressionToFilterTranslator.Translate(predicateContext, predicateLambda.Body);
                 return new AstElemMatchFilter(sourceField, predicateFilter);
             }

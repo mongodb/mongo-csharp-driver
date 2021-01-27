@@ -18,6 +18,7 @@ using System.Reflection;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Ast.Filters;
+using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ExpressionToFilterFieldTranslators;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators
 {
@@ -32,7 +33,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators
             {
                 if (memberInfo is PropertyInfo propertyInfo)
                 {
-                    var containerSerializer = BsonSerializer.LookupSerializer(containerExpression.Type); // TODO: use known serializer
+                    var containerField = ExpressionToFilterFieldTranslator.Translate(context, containerExpression);
+                    var containerSerializer = containerField.Serializer;
                     if (containerSerializer is IBsonDocumentSerializer containerDocumentSerializer)
                     {
                         if (containerDocumentSerializer.TryGetMemberSerializationInfo(propertyInfo.Name, out var propertySerializationInfo))
