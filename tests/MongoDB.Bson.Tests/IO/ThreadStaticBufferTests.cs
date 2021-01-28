@@ -17,9 +17,9 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.IO
@@ -54,9 +54,9 @@ namespace MongoDB.Bson.Tests.IO
 
         [Theory]
         [MemberData(nameof(IncrementalSizeTestData))]
-        public void GetBuffer_thread_incrementaly_increases_requested_buffer_size_expected_powerof2(params (int requestedSize, int expectedSize)[] sizes)
+        public void GetBuffer_incrementally_growing_buffer_size_expected_powerof2(params (int requestedSize, int expectedSize)[] sizes)
         {
-            ExecuteOnNewThread(2, _ =>
+            ThreadingUtilities.ExecuteOnNewThread(2, _ =>
             {
                 foreach (var (requestedSize, expectedSize) in sizes)
                 {
@@ -86,7 +86,7 @@ namespace MongoDB.Bson.Tests.IO
 
             var allBuffers = new ConcurrentBag<byte[]>();
 
-            ExecuteOnNewThread(threadsCount, i =>
+            ThreadingUtilities.ExecuteOnNewThread(threadsCount, i =>
             {
                 var buffer = ThreadStaticBuffer.GetBuffer(size);
                 buffer.Length.Should().Be(size);
@@ -109,27 +109,6 @@ namespace MongoDB.Bson.Tests.IO
 
             buffersOrdered.Length.Should().Be(threadsCount);
             buffersOrdered.ShouldAllBeEquivalentTo(buffersDistinct);
-        }
-
-        // private methods
-        private void ExecuteOnNewThread(int threadsCount, Action<int> action)
-        {
-            var threads = Enumerable.Range(0, threadsCount).Select(i =>
-            {
-                var thread = new Thread(_ => action(i));
-                thread.Start();
-
-                return thread;
-            }).ToArray();
-
-
-            foreach (var thread in threads)
-            {
-                if (!thread.Join(10000))
-                {
-                    throw new TimeoutException();
-                }
-            }
         }
     }
 }

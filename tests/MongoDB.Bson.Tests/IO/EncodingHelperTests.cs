@@ -16,9 +16,9 @@
 using System;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.IO
@@ -26,23 +26,23 @@ namespace MongoDB.Bson.Tests.IO
     public class EncodingHelperTests
     {
         [Fact]
-        public void TestEncodingHelper_invalid_encoding_shouldthrow()
+        public void GetBytesUsingThreadStaticBuffer_should_throw_when_encoding_is_null()
         {
             var exception = Record.Exception(() => EncodingHelper.GetBytesUsingThreadStaticBuffer(null, "asd"));
-            exception.Should().BeOfType<ArgumentNullException>();
-            exception.Message.Should().Contain("encoding");
+            var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            e.ParamName.Should().Be("encoding");
         }
 
         [Fact]
-        public void TestEncodingHelper_invalid_string_shouldthrow()
+        public void GetBytesUsingThreadStaticBuffer_should_throw_when_value_is_null()
         {
             var exception = Record.Exception(() => EncodingHelper.GetBytesUsingThreadStaticBuffer(Encoding.ASCII, null));
-            exception.Should().BeOfType<ArgumentNullException>();
-            exception.Message.Should().Contain("value");
+            var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            e.ParamName.Should().Be("value");
         }
 
         [Fact]
-        public void TestEncodingHelper_empty_string_shouldbe_default_buffer()
+        public void GetBytesUsingThreadStaticBuffer_empty_string_should_return_default_buffer()
         {
             var segmentA = EncodingHelper.GetBytesUsingThreadStaticBuffer(Encoding.ASCII, "");
             var segmentB = EncodingHelper.GetBytesUsingThreadStaticBuffer(Encoding.ASCII, "");
@@ -55,7 +55,7 @@ namespace MongoDB.Bson.Tests.IO
         [InlineData(60)]
         [InlineData(127)]
         [InlineData(511)]
-        public void TestEncodingHelper_should_reuse_instance(int maxStringSize)
+        public void GetBytesUsingThreadStaticBuffer_should_return_same_instance_when_possible(int maxStringSize)
         {
             var encoding = Utf8Encodings.Strict;
 
@@ -79,18 +79,18 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Fact]
-        public async Task TestEncodingHelperMultithreaded_should_encode_correctly()
+        public void GetBytesUsingThreadStaticBuffer_should_return_expected_result_when_multiple_threads_are_used()
         {
             const int threadsCount = 10;
-            const int maxIterations = 10;
+            const int iterationsCount = 10;
             const int maxSize = 1024;
 
             var random = new Random();
             var encoding = Utf8Encodings.Strict;
 
-            var tasks = Enumerable.Range(0, threadsCount).Select(i => Task.Run(() =>
+            ThreadingUtilities.ExecuteOnNewThread(threadsCount, _ =>
                 {
-                    for (int j = 0; j < maxIterations; j++)
+                    for (int j = 0; j < iterationsCount; j++)
                     {
                         var sizeCurrent = random.Next(8, maxSize);
                         var str = GetString(sizeCurrent);
@@ -101,9 +101,7 @@ namespace MongoDB.Bson.Tests.IO
 
                         encodedActual.ShouldAllBeEquivalentTo(encodedExpected);
                     }
-                })).ToArray();
-
-            await Task.WhenAll(tasks);
+                });
         }
 
         // private methods
