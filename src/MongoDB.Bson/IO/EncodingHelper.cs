@@ -25,16 +25,16 @@ namespace MongoDB.Bson.IO
     {
         private static readonly ArraySegment<byte> __emptySegment = new ArraySegment<byte>(new byte[0]);
 
-        public static ArraySegment<byte> GetBytesCachedBuffer(this Encoding encoding, string value)
+        public static ArraySegment<byte> GetBytesUsingThreadStaticBuffer(this Encoding encoding, string value)
         {
             if (encoding == null)
             {
-                throw new ArgumentNullException(nameof(encoding), "Value cannot be null.");
+                throw new ArgumentNullException(nameof(encoding));
             }
 
             if (value == null)
             {
-                throw new ArgumentNullException(nameof(value), "Value cannot be null.");
+                throw new ArgumentNullException(nameof(value));
             }
 
             var length = value.Length;

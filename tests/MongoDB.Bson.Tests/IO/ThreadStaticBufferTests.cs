@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using FluentAssertions;
@@ -25,8 +26,20 @@ namespace MongoDB.Bson.Tests.IO
 {
     public class ThreadStaticBufferTests
     {
-        // static fields
-        private static readonly int[] __sizes = { 1, 2, 3, 4, 7, 8, 9, 15, 16, 17, 127, 128, 129, 8191, 8192 };
+        public static readonly IEnumerable<object[]> IncrementalSizeTestData = new List<object[]>
+        {   new object[]
+            {
+                (1, 256),
+                (2, 256),
+                (128, 256),
+                (255, 256),
+                (256, 256),
+                (257, 512),
+                (512, 512),
+                (8191, 8192),
+                (8192, 8192)
+            }
+        };
 
         [Theory]
         [InlineData(0)]
@@ -39,15 +52,14 @@ namespace MongoDB.Bson.Tests.IO
             exception.Should().BeOfType<ArgumentOutOfRangeException>();
         }
 
-        [Fact]
-        public void TestBufferSizeIncreasing_expected_powerof2()
+        [Theory]
+        [MemberData(nameof(IncrementalSizeTestData))]
+        public void GetBuffer_thread_incrementaly_increases_requested_buffer_size_expected_powerof2(params (int requestedSize, int expectedSize)[] sizes)
         {
-            ExecuteOnNewThread(1, _ =>
+            ExecuteOnNewThread(2, _ =>
             {
-                foreach (var requestedSize in __sizes)
+                foreach (var (requestedSize, expectedSize) in sizes)
                 {
-                    var expectedSize = Math.Max(16, 1 << (int)Math.Ceiling(Math.Log(requestedSize, 2)));
-
                     var buffer = ThreadStaticBuffer.GetBuffer(requestedSize);
                     buffer.Length.Should().Be(expectedSize);
                 }
@@ -60,7 +72,7 @@ namespace MongoDB.Bson.Tests.IO
         [InlineData(16386)]
         [InlineData(32767)]
         [InlineData(32769)]
-        public void TestBufferSizeGreaterThanMaxSize_expected_exact_size(int requestedSize)
+        public void GetBuffer_should_return_different_instance_in_different_threads(int requestedSize)
         {
             var buffer = ThreadStaticBuffer.GetBuffer(requestedSize);
             buffer.Length.Should().Be(requestedSize);
@@ -114,7 +126,9 @@ namespace MongoDB.Bson.Tests.IO
             foreach (var thread in threads)
             {
                 if (!thread.Join(10000))
+                {
                     throw new TimeoutException();
+                }
             }
         }
     }

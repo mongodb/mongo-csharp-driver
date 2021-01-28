@@ -28,7 +28,7 @@ namespace MongoDB.Bson.Tests.IO
         [Fact]
         public void TestEncodingHelper_invalid_encoding_shouldthrow()
         {
-            var exception = Record.Exception(() => EncodingHelper.GetBytesCachedBuffer(null, "asd"));
+            var exception = Record.Exception(() => EncodingHelper.GetBytesUsingThreadStaticBuffer(null, "asd"));
             exception.Should().BeOfType<ArgumentNullException>();
             exception.Message.Should().Contain("encoding");
         }
@@ -36,7 +36,7 @@ namespace MongoDB.Bson.Tests.IO
         [Fact]
         public void TestEncodingHelper_invalid_string_shouldthrow()
         {
-            var exception = Record.Exception(() => EncodingHelper.GetBytesCachedBuffer(Encoding.ASCII, null));
+            var exception = Record.Exception(() => EncodingHelper.GetBytesUsingThreadStaticBuffer(Encoding.ASCII, null));
             exception.Should().BeOfType<ArgumentNullException>();
             exception.Message.Should().Contain("value");
         }
@@ -44,8 +44,8 @@ namespace MongoDB.Bson.Tests.IO
         [Fact]
         public void TestEncodingHelper_empty_string_shouldbe_default_buffer()
         {
-            var segmentA = EncodingHelper.GetBytesCachedBuffer(Encoding.ASCII, "");
-            var segmentB = EncodingHelper.GetBytesCachedBuffer(Encoding.ASCII, "");
+            var segmentA = EncodingHelper.GetBytesUsingThreadStaticBuffer(Encoding.ASCII, "");
+            var segmentB = EncodingHelper.GetBytesUsingThreadStaticBuffer(Encoding.ASCII, "");
 
             segmentA.Array.Length.Should().Be(0);
             segmentA.Array.Should().BeSameAs(segmentB.Array);
@@ -67,7 +67,7 @@ namespace MongoDB.Bson.Tests.IO
 
                 var str = GetString(maxStringSize);
 
-                var segment = encoding.GetBytesCachedBuffer(str);
+                var segment = encoding.GetBytesUsingThreadStaticBuffer(str);
                 var encodedExpected = encoding.GetBytes(str);
                 var encodedActual = segment.ToArray();
 
@@ -95,7 +95,7 @@ namespace MongoDB.Bson.Tests.IO
                         var sizeCurrent = random.Next(8, maxSize);
                         var str = GetString(sizeCurrent);
 
-                        var segment = encoding.GetBytesCachedBuffer(str);
+                        var segment = encoding.GetBytesUsingThreadStaticBuffer(str);
                         var encodedExpected = encoding.GetBytes(str);
                         var encodedActual = segment.ToArray();
 

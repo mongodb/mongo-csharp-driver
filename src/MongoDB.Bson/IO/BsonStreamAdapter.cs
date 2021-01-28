@@ -455,16 +455,16 @@ namespace MongoDB.Bson.IO
             byte[] bytes;
             int length;
 
-            // Compare to 128 to preserve original behaviour
-            const int legacyCachedBufferLength = 128;
-            if (CStringUtf8Encoding.GetMaxByteCount(value.Length) <= legacyCachedBufferLength)
+            // Compare to 128 to preserve original behavior
+            const int maxLengthToUseCStringUtf8EncodingWith = 128;
+            if (CStringUtf8Encoding.GetMaxByteCount(value.Length) <= maxLengthToUseCStringUtf8EncodingWith)
             {
-                bytes = ThreadStaticBuffer.GetBuffer(legacyCachedBufferLength);
+                bytes = ThreadStaticBuffer.GetBuffer(maxLengthToUseCStringUtf8EncodingWith);
                 length = CStringUtf8Encoding.GetBytes(value, bytes, 0, Utf8Encodings.Strict);
             }
             else
             {
-                var segment = Utf8Encodings.Strict.GetBytesCachedBuffer(value);
+                var segment = Utf8Encodings.Strict.GetBytesUsingThreadStaticBuffer(value);
                 bytes = segment.Array;
                 length = segment.Count;
 
@@ -547,7 +547,7 @@ namespace MongoDB.Bson.IO
             }
             ThrowIfDisposed();
 
-            var segment = encoding.GetBytesCachedBuffer(value);
+            var segment = encoding.GetBytesUsingThreadStaticBuffer(value);
 
             WriteInt32(segment.Count + 1);
             _stream.Write(segment.Array, 0, segment.Count);
