@@ -42,7 +42,7 @@ namespace MongoDB.Bson.IO
                 return new byte[size];
             }
 
-            if (!(__buffer?.Length >= size))
+            if (__buffer == null || __buffer.Length < size)
             {
                 var newSize = size <= MinSize ? MinSize : PowerOf2.RoundUpToPowerOf2(size);
                 __buffer = new byte[newSize];

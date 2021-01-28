@@ -17,7 +17,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.TestHelpers;
@@ -50,20 +49,22 @@ namespace MongoDB.Bson.Tests.IO
         public void TestBuffer_invalid_buffer_size_should_throw(int size)
         {
             var exception = Record.Exception(() => ThreadStaticBuffer.GetBuffer(size));
-            exception.Should().BeOfType<ArgumentOutOfRangeException>();
+            var e = exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
+
+            e.ParamName.Should().Be("size");
         }
 
         [Theory]
         [MemberData(nameof(IncrementalSizeTestData))]
         public void GetBuffer_incrementally_growing_buffer_size_expected_powerof2(params (int requestedSize, int expectedSize)[] sizes)
         {
-            ThreadingUtilities.ExecuteOnNewThread(2, (_, validator) =>
+            ThreadingUtilities.ExecuteOnNewThread(2, _ =>
             {
                 foreach (var (requestedSize, expectedSize) in sizes)
                 {
                     var buffer = ThreadStaticBuffer.GetBuffer(requestedSize);
 
-                    validator(() => buffer.Length.Should().Be(expectedSize));
+                    buffer.Length.Should().Be(expectedSize);
                 }
             });
         }
@@ -74,21 +75,21 @@ namespace MongoDB.Bson.Tests.IO
         [InlineData(16386)]
         [InlineData(32767)]
         [InlineData(32769)]
-        public void GetBuffer_should_return_different_instance_in_different_threads(int requestedSize)
+        public void GetBuffer_should_return_exact_size_if_requested_greater_than_maxsize(int requestedSize)
         {
             var buffer = ThreadStaticBuffer.GetBuffer(requestedSize);
             buffer.Length.Should().Be(requestedSize);
         }
 
         [Fact]
-        public void TestBufferMultiThreaded_expected_unique_instance_per_thread()
+        public void GetBuffer_should_return_different_instance_in_different_threads()
         {
             const int threadsCount = 2;
             const int size = 256;
 
             var allBuffers = new ConcurrentBag<byte[]>();
 
-            ThreadingUtilities.ExecuteOnNewThread(threadsCount, (i, validator) =>
+            ThreadingUtilities.ExecuteOnNewThread(threadsCount, i =>
             {
                 var buffer = ThreadStaticBuffer.GetBuffer(size);
                 buffer.Length.Should().Be(size);
@@ -99,18 +100,16 @@ namespace MongoDB.Bson.Tests.IO
                     newSize = (newSize >> 1) + 1;
 
                     var bufferCurrent = ThreadStaticBuffer.GetBuffer(newSize);
-                    validator(() => bufferCurrent.Should().BeSameAs(buffer));
+                    bufferCurrent.Should().BeSameAs(buffer);
                 }
 
-                buffer[0] = (byte)i;
                 allBuffers.Add(buffer);
             });
 
-            var buffersOrdered = allBuffers.OrderBy(b => b[0]).ToArray();
-            var buffersDistinct = buffersOrdered.Distinct().ToArray();
+            var buffersDistinct = allBuffers.Distinct().ToArray();
 
-            buffersOrdered.Length.Should().Be(threadsCount);
-            buffersOrdered.ShouldAllBeEquivalentTo(buffersDistinct);
+            allBuffers.Count.Should().Be(threadsCount);
+            buffersDistinct.Length.Should().Be(threadsCount);
         }
     }
 }

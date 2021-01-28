@@ -29,6 +29,7 @@ namespace MongoDB.Bson.Tests.IO
         public void GetBytesUsingThreadStaticBuffer_should_throw_when_encoding_is_null()
         {
             var exception = Record.Exception(() => EncodingHelper.GetBytesUsingThreadStaticBuffer(null, "asd"));
+
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("encoding");
         }
@@ -37,6 +38,7 @@ namespace MongoDB.Bson.Tests.IO
         public void GetBytesUsingThreadStaticBuffer_should_throw_when_value_is_null()
         {
             var exception = Record.Exception(() => EncodingHelper.GetBytesUsingThreadStaticBuffer(Encoding.ASCII, null));
+
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("value");
         }
@@ -88,7 +90,7 @@ namespace MongoDB.Bson.Tests.IO
             var random = new Random();
             var encoding = Utf8Encodings.Strict;
 
-            ThreadingUtilities.ExecuteOnNewThread(threadsCount, (_, validator) =>
+            ThreadingUtilities.ExecuteOnNewThread(threadsCount, _ =>
                 {
                     for (int j = 0; j < iterationsCount; j++)
                     {
@@ -99,7 +101,7 @@ namespace MongoDB.Bson.Tests.IO
                         var encodedExpected = encoding.GetBytes(str);
                         var encodedActual = segment.ToArray();
 
-                        validator(() => encodedActual.ShouldAllBeEquivalentTo(encodedExpected));
+                        encodedActual.ShouldAllBeEquivalentTo(encodedExpected);
                     }
                 });
         }

@@ -7,15 +7,22 @@ namespace MongoDB.Bson.TestHelpers
 {
     public static class ThreadingUtilities
     {
-        public static void ExecuteOnNewThread(int threadsCount, Action<int, Action<Action>> action, int timeoutMilliseconds = 100000)
+        public static void ExecuteOnNewThread(int threadsCount, Action<int> action, int timeoutMilliseconds = 100000)
         {
-            var validations = new ConcurrentBag<Action>();
+            var exceptions = new ConcurrentBag<Exception>();
 
             var threads = Enumerable.Range(0, threadsCount).Select(i =>
             {
                 var thread = new Thread(_ =>
                 {
-                     action(i, validations.Add);
+                    try
+                    {
+                        action(i);
+                    }
+                    catch (Exception ex)
+                    {
+                        exceptions.Add(ex);
+                    }
                 });
 
                 thread.Start();
@@ -32,9 +39,9 @@ namespace MongoDB.Bson.TestHelpers
                 }
             }
 
-            foreach (var v in validations)
+            if (exceptions.Any())
             {
-                v();
+                throw exceptions.First();
             }
         }
     }
