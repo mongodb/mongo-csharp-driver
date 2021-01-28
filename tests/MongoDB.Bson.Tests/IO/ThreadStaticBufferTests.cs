@@ -17,6 +17,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.TestHelpers;
@@ -56,12 +57,13 @@ namespace MongoDB.Bson.Tests.IO
         [MemberData(nameof(IncrementalSizeTestData))]
         public void GetBuffer_incrementally_growing_buffer_size_expected_powerof2(params (int requestedSize, int expectedSize)[] sizes)
         {
-            ThreadingUtilities.ExecuteOnNewThread(2, _ =>
+            ThreadingUtilities.ExecuteOnNewThread(2, (_, validator) =>
             {
                 foreach (var (requestedSize, expectedSize) in sizes)
                 {
                     var buffer = ThreadStaticBuffer.GetBuffer(requestedSize);
-                    buffer.Length.Should().Be(expectedSize);
+
+                    validator(() => buffer.Length.Should().Be(expectedSize));
                 }
             });
         }
@@ -86,7 +88,7 @@ namespace MongoDB.Bson.Tests.IO
 
             var allBuffers = new ConcurrentBag<byte[]>();
 
-            ThreadingUtilities.ExecuteOnNewThread(threadsCount, i =>
+            ThreadingUtilities.ExecuteOnNewThread(threadsCount, (i, validator) =>
             {
                 var buffer = ThreadStaticBuffer.GetBuffer(size);
                 buffer.Length.Should().Be(size);
@@ -97,7 +99,7 @@ namespace MongoDB.Bson.Tests.IO
                     newSize = (newSize >> 1) + 1;
 
                     var bufferCurrent = ThreadStaticBuffer.GetBuffer(newSize);
-                    bufferCurrent.Should().BeSameAs(buffer);
+                    validator(() => bufferCurrent.Should().BeSameAs(buffer));
                 }
 
                 buffer[0] = (byte)i;

@@ -88,7 +88,7 @@ namespace MongoDB.Bson.Tests.IO
             var random = new Random();
             var encoding = Utf8Encodings.Strict;
 
-            ThreadingUtilities.ExecuteOnNewThread(threadsCount, _ =>
+            ThreadingUtilities.ExecuteOnNewThread(threadsCount, (_, validator) =>
                 {
                     for (int j = 0; j < iterationsCount; j++)
                     {
@@ -99,7 +99,7 @@ namespace MongoDB.Bson.Tests.IO
                         var encodedExpected = encoding.GetBytes(str);
                         var encodedActual = segment.ToArray();
 
-                        encodedActual.ShouldAllBeEquivalentTo(encodedExpected);
+                        validator(() => encodedActual.ShouldAllBeEquivalentTo(encodedExpected));
                     }
                 });
         }
