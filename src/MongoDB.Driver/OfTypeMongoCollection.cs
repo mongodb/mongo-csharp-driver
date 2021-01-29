@@ -61,7 +61,7 @@ namespace MongoDB.Driver
             if (isUpsert)
             {
                 var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(TDerivedDocument));
-                var discriminatorValue = discriminatorConvention?.GetDiscriminator(typeof(TRootDocument), typeof(TDerivedDocument));
+                var discriminatorValue = discriminatorConvention.GetDiscriminator(typeof(TRootDocument), typeof(TDerivedDocument));
 
                 var builder = new UpdateDefinitionBuilder<TDerivedDocument>();
                 var derivedUpdate = builder.SetOnInsert(discriminatorConvention.ElementName, discriminatorValue);
