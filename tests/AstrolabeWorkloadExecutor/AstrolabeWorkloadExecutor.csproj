@@ -7,7 +7,7 @@
     <OutputType>Exe</OutputType>
     <TargetFrameworks>netcoreapp1.1;netcoreapp2.1;netcoreapp3.0;net452</TargetFrameworks>
     <TargetFrameworks Condition="'$(IsWindows)'!='true'">netcoreapp1.1;netcoreapp2.1;netcoreapp3.0</TargetFrameworks>
-    <LangVersion>8</LangVersion>
+    <LangVersion>9</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
     <IsPackable>false</IsPackable>
