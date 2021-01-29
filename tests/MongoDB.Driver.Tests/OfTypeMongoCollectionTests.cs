@@ -349,12 +349,12 @@ namespace MongoDB.Driver.Tests
         [Theory]
         [ParameterAttributeData]
         public void BulkWrite_with_UpdateMany<TRoot, TDerived>(
-            [ClassValues(typeof(SerializedTypeInfos))]
-            (TRoot, TDerived, string Discriminator) typeInfo,
+            [ClassValues(typeof(UpdateTestCases))] (TRoot, TDerived, string Discriminator) testCase,
             [Values(false, true)] bool isUpsert,
-            [Values(false, true)] bool async) where TDerived : TRoot
+            [Values(false, true)] bool async)
+                where TDerived : TRoot
         {
-            var (derivedCollectionMock, ofTypeCollection) = CreateSubject<TRoot, TDerived>();
+            var (mockDerivedCollection, subject) = CreateSubject<TRoot, TDerived>();
             var collation = new Collation("en_US");
             var model = new UpdateManyModel<TDerived>(_providedFilter, "{$set: {x: 1}}")
             {
@@ -365,7 +365,7 @@ namespace MongoDB.Driver.Tests
 
             var options = new BulkWriteOptions();
             var updateString = isUpsert ?
-                $"{{$set: {{x: 1}}, $setOnInsert: {{{typeInfo.Discriminator}}}}}" :
+                $"{{$set: {{x: 1}}, $setOnInsert: {{{testCase.Discriminator}}}}}" :
                 "{$set: {x: 1}}";
             var expectedUpdate = BsonDocument.Parse(updateString);
 
@@ -381,9 +381,9 @@ namespace MongoDB.Driver.Tests
 
             if (async)
             {
-                ofTypeCollection.BulkWriteAsync(new[] { model }, options, CancellationToken.None);
+                subject.BulkWriteAsync(new[] { model }, options, CancellationToken.None);
 
-                derivedCollectionMock.Verify(
+                mockDerivedCollection.Verify(
                     c => c.BulkWriteAsync(
                         It.Is(modelMatch),
                         options,
@@ -392,9 +392,9 @@ namespace MongoDB.Driver.Tests
             }
             else
             {
-                ofTypeCollection.BulkWrite(new[] { model }, options, CancellationToken.None);
+                subject.BulkWrite(new[] { model }, options, CancellationToken.None);
 
-                derivedCollectionMock.Verify(
+                mockDerivedCollection.Verify(
                     c => c.BulkWrite(
                         It.Is(modelMatch),
                         options,
@@ -406,12 +406,12 @@ namespace MongoDB.Driver.Tests
         [Theory]
         [ParameterAttributeData]
         public void BulkWrite_with_UpdateOne<TRoot, TDerived>(
-            [ClassValues(typeof(SerializedTypeInfos))]
-            (TRoot, TDerived, string Discriminator) typeInfo,
+            [ClassValues(typeof(UpdateTestCases))] (TRoot, TDerived, string Discriminator) testCase,
             [Values(false, true)] bool isUpsert,
-            [Values(false, true)] bool async) where TDerived : TRoot
+            [Values(false, true)] bool async)
+                where TDerived : TRoot
         {
-            var (derivedCollectionMock, ofTypeCollection) = CreateSubject<TRoot, TDerived>();
+            var (mockDerivedCollection, subject) = CreateSubject<TRoot, TDerived>();
             var collation = new Collation("en_US");
             var model = new UpdateOneModel<TDerived>(_providedFilter, "{$set: {x: 1}}")
             {
@@ -421,8 +421,8 @@ namespace MongoDB.Driver.Tests
             };
             var options = new BulkWriteOptions();
             var updateString = isUpsert ?
-              $"{{$set: {{x: 1}}, $setOnInsert: {{{typeInfo.Discriminator}}}}}" :
-              "{$set: {x: 1}}";
+                $"{{$set: {{x: 1}}, $setOnInsert: {{{testCase.Discriminator}}}}}" :
+                "{$set: {x: 1}}";
             var expectedUpdate = BsonDocument.Parse(updateString);
 
             Func<UpdateOneModel<TDerived>, bool> isModelValid = m =>
@@ -437,9 +437,9 @@ namespace MongoDB.Driver.Tests
 
             if (async)
             {
-                ofTypeCollection.BulkWriteAsync(new[] { model }, options, CancellationToken.None);
+                subject.BulkWriteAsync(new[] { model }, options, CancellationToken.None);
 
-                derivedCollectionMock.Verify(
+                mockDerivedCollection.Verify(
                     c => c.BulkWriteAsync(
                         It.Is(modelMatch),
                         options,
@@ -448,9 +448,9 @@ namespace MongoDB.Driver.Tests
             }
             else
             {
-                ofTypeCollection.BulkWrite(new[] { model }, options, CancellationToken.None);
+                subject.BulkWrite(new[] { model }, options, CancellationToken.None);
 
-                derivedCollectionMock.Verify(
+                mockDerivedCollection.Verify(
                     c => c.BulkWrite(
                         It.Is(modelMatch),
                         options,
@@ -856,19 +856,19 @@ namespace MongoDB.Driver.Tests
             return new OfTypeMongoCollection<A, B>(_rootCollection, _derivedCollection, _ofTypeFilter);
         }
 
-        private (Mock<IMongoCollection<TDerived>> Derived, OfTypeMongoCollection<TRoot, TDerived> OfType) CreateSubject<TRoot, TDerived>()
+        private (Mock<IMongoCollection<TDerived>> MockDerivedCollection, OfTypeMongoCollection<TRoot, TDerived> Subject) CreateSubject<TRoot, TDerived>()
             where TDerived : TRoot
         {
-            var mockRootCollectionMock = new Mock<IMongoCollection<TRoot>>();
-            mockRootCollectionMock.SetupGet(c => c.CollectionNamespace).Returns(CollectionNamespace.FromFullName("foo.bar"));
-            mockRootCollectionMock.SetupGet(c => c.Settings).Returns(new MongoCollectionSettings());
+            var mockRootCollection = new Mock<IMongoCollection<TRoot>>();
+            mockRootCollection.SetupGet(c => c.CollectionNamespace).Returns(CollectionNamespace.FromFullName("foo.bar"));
+            mockRootCollection.SetupGet(c => c.Settings).Returns(new MongoCollectionSettings());
 
-            var mockDerivedCollectionMock = new Mock<IMongoCollection<TDerived>>();
-            mockDerivedCollectionMock.SetupGet(c => c.CollectionNamespace).Returns(CollectionNamespace.FromFullName("foo.bar"));
-            mockDerivedCollectionMock.SetupGet(c => c.Settings).Returns(new MongoCollectionSettings());
+            var mockDerivedCollection = new Mock<IMongoCollection<TDerived>>();
+            mockDerivedCollection.SetupGet(c => c.CollectionNamespace).Returns(CollectionNamespace.FromFullName("foo.bar"));
+            mockDerivedCollection.SetupGet(c => c.Settings).Returns(new MongoCollectionSettings());
 
-            var ofTypeCollection = new OfTypeMongoCollection<TRoot, TDerived>(mockRootCollectionMock.Object, mockDerivedCollectionMock.Object, _ofTypeFilter);
-            return (mockDerivedCollectionMock, ofTypeCollection);
+            var subject = new OfTypeMongoCollection<TRoot, TDerived>(mockRootCollection.Object, mockDerivedCollection.Object, _ofTypeFilter);
+            return (mockDerivedCollection, subject);
         }
 
         private string RenderField<TDocument, TField>(FieldDefinition<TDocument, TField> field)
@@ -912,32 +912,32 @@ namespace MongoDB.Driver.Tests
         }
 
         [BsonDiscriminator(RootClass = true)]
-        [BsonKnownTypes(typeof(B_Discriminated), typeof(C_Discriminated))]
-        public class A_Discriminated
+        [BsonKnownTypes(typeof(BHierarchical), typeof(CHierarchical))]
+        public class AHierarchical
         {
             public int PropA;
         }
 
-        public class B_Discriminated : A_Discriminated
+        public class BHierarchical : AHierarchical
         {
             public int PropB;
         }
 
-        public class C_Discriminated : B_Discriminated
+        public class CHierarchical : BHierarchical
         {
             public int PropC;
         }
 
-        public class SerializedTypeInfos : IValueGenerator
+        public class UpdateTestCases  : IValueGenerator
         {
             public object[] GenerateValues() => new object[]
                 {
                     (new A(), new B(), "_t: \"B\""),
                     (new A(), new C(), "_t: \"C\""),
                     (new B(), new C(), "_t: \"C\""),
-                    (new A_Discriminated(), new B_Discriminated(), "_t: [\"A_Discriminated\", \"B_Discriminated\"]"),
-                    (new A_Discriminated(), new C_Discriminated(), "_t: [\"A_Discriminated\", \"B_Discriminated\", \"C_Discriminated\"]"),
-                    (new B_Discriminated(), new C_Discriminated(), "_t: [\"A_Discriminated\", \"B_Discriminated\", \"C_Discriminated\"]")
+                    (new AHierarchical(), new BHierarchical(), "_t: [\"AHierarchical\", \"BHierarchical\"]"),
+                    (new AHierarchical(), new CHierarchical(), "_t: [\"AHierarchical\", \"BHierarchical\", \"CHierarchical\"]"),
+                    (new BHierarchical(), new CHierarchical(), "_t: [\"AHierarchical\", \"BHierarchical\", \"CHierarchical\"]")
                 };
         }
     }

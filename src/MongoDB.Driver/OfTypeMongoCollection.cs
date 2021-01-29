@@ -54,9 +54,9 @@ namespace MongoDB.Driver
             return new OfTypeMongoCollection<TRootDocument, TDerivedDocument>(_rootDocumentCollection, WrappedCollection.WithWriteConcern(writeConcern), Filter);
         }
 
-        protected override UpdateDefinition<TDerivedDocument> GetUpdateDefinition(UpdateDefinition<TDerivedDocument> updateDefinition, bool isUpsert)
+        protected override UpdateDefinition<TDerivedDocument> AdjustUpdateDefinition(UpdateDefinition<TDerivedDocument> updateDefinition, bool isUpsert)
         {
-            var result = base.GetUpdateDefinition(updateDefinition, isUpsert);
+            var result = base.AdjustUpdateDefinition(updateDefinition, isUpsert);
 
             if (isUpsert)
             {
@@ -64,8 +64,8 @@ namespace MongoDB.Driver
                 var discriminatorValue = discriminatorConvention.GetDiscriminator(typeof(TRootDocument), typeof(TDerivedDocument));
 
                 var builder = new UpdateDefinitionBuilder<TDerivedDocument>();
-                var derivedUpdate = builder.SetOnInsert(discriminatorConvention.ElementName, discriminatorValue);
-                result = builder.Combine(result, derivedUpdate);
+                var setOnInsertDiscriminator = builder.SetOnInsert(discriminatorConvention.ElementName, discriminatorValue);
+                result = builder.Combine(result, setOnInsertDiscriminator);
             }
 
             return result;

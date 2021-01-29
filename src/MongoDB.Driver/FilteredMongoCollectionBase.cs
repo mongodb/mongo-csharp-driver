@@ -340,7 +340,7 @@ namespace MongoDB.Driver
             return _filter & filter;
         }
 
-        protected virtual UpdateDefinition<TDocument> GetUpdateDefinition(UpdateDefinition<TDocument> updateDefinition, bool isUpsert)
+        protected virtual UpdateDefinition<TDocument> AdjustUpdateDefinition(UpdateDefinition<TDocument> updateDefinition, bool isUpsert)
         {
             return updateDefinition;
         }
@@ -379,7 +379,7 @@ namespace MongoDB.Driver
                         var updateManyModel = (UpdateManyModel<TDocument>)x;
                         return new UpdateManyModel<TDocument>(
                             CombineFilters(updateManyModel.Filter),
-                            GetUpdateDefinition(updateManyModel.Update, updateManyModel.IsUpsert))
+                            AdjustUpdateDefinition(updateManyModel.Update, updateManyModel.IsUpsert))
                         {
                             ArrayFilters = updateManyModel.ArrayFilters,
                             Collation = updateManyModel.Collation,
@@ -390,7 +390,7 @@ namespace MongoDB.Driver
                         var updateOneModel = (UpdateOneModel<TDocument>)x;
                         return new UpdateOneModel<TDocument>(
                             CombineFilters(updateOneModel.Filter),
-                            GetUpdateDefinition(updateOneModel.Update, updateOneModel.IsUpsert))
+                            AdjustUpdateDefinition(updateOneModel.Update, updateOneModel.IsUpsert))
                         {
                             ArrayFilters = updateOneModel.ArrayFilters,
                             Collation = updateOneModel.Collation,
