@@ -19,6 +19,10 @@ namespace MongoDB.Bson.IO
 {
     /// <summary>
     /// Represents a class that provides reusable buffer per thread.
+    /// Use this technique ONLY when:
+    ///     1. Buffer is not shared across multiple threads.
+    ///     2. No nested methods invocations use the same buffer.
+    /// Advised to limit the usage scope to a single method.
     /// </summary>
     internal static class ThreadStaticBuffer
     {

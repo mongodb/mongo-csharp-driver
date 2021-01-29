@@ -46,7 +46,7 @@ namespace MongoDB.Bson.Tests.IO
         [InlineData(-1)]
         [InlineData(-10)]
         [InlineData(1024 * 1024 * 1024 + 1)]
-        public void TestBuffer_invalid_buffer_size_should_throw(int size)
+        public void GetBuffer_should_throw_when_size_is_invalid(int size)
         {
             var exception = Record.Exception(() => ThreadStaticBuffer.GetBuffer(size));
             var e = exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
@@ -75,7 +75,7 @@ namespace MongoDB.Bson.Tests.IO
         [InlineData(16386)]
         [InlineData(32767)]
         [InlineData(32769)]
-        public void GetBuffer_should_return_exact_size_if_requested_greater_than_maxsize(int requestedSize)
+        public void GetBuffer_should_return_exact_size_when_requested_greater_than_maxsize(int requestedSize)
         {
             var buffer = ThreadStaticBuffer.GetBuffer(requestedSize);
             buffer.Length.Should().Be(requestedSize);
