@@ -106,10 +106,7 @@ namespace MongoDB.Bson.Tests.IO
                 allBuffers.Add(buffer);
             });
 
-            var buffersDistinct = allBuffers.Distinct().ToArray();
-
-            allBuffers.Count.Should().Be(threadsCount);
-            buffersDistinct.Length.Should().Be(threadsCount);
+            allBuffers.Distinct().Should().HaveCount(threadsCount);
         }
     }
 }

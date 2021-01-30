@@ -17,6 +17,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
+using FluentAssertions;
 
 namespace MongoDB.Bson.TestHelpers
 {
@@ -24,6 +25,8 @@ namespace MongoDB.Bson.TestHelpers
     {
         public static void ExecuteOnNewThread(int threadsCount, Action<int> action, int timeoutMilliseconds = 10000)
         {
+            var actionsExecutedCount = 0;
+
             var exceptions = new ConcurrentBag<Exception>();
 
             var threads = Enumerable.Range(0, threadsCount).Select(i =>
@@ -33,6 +36,7 @@ namespace MongoDB.Bson.TestHelpers
                     try
                     {
                         action(i);
+                        actionsExecutedCount++;
                     }
                     catch (Exception ex)
                     {
@@ -58,6 +62,8 @@ namespace MongoDB.Bson.TestHelpers
             {
                 throw exceptions.First();
             }
+
+            actionsExecutedCount.Should().Be(threadsCount);
         }
     }
 }
