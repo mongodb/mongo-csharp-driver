@@ -44,7 +44,7 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Fact]
-        public void GetBytesUsingThreadStaticBuffer_empty_string_should_return_default_buffer()
+        public void GetBytesUsingThreadStaticBuffer_should_return_cached_empty_segment_when_value_is_empty_string()
         {
             var segmentA = EncodingHelper.GetBytesUsingThreadStaticBuffer(Encoding.ASCII, "");
             var segmentB = EncodingHelper.GetBytesUsingThreadStaticBuffer(Encoding.ASCII, "");
