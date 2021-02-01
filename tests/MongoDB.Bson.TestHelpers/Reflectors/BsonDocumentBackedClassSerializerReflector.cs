@@ -1,4 +1,4 @@
-﻿/* Copyright 2018-present MongoDB Inc.
+﻿/* Copyright 2021-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,14 +15,9 @@
 
 using System.Collections.Generic;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.TestHelpers;
 
-namespace MongoDB.Bson.Tests.Serialization.Serializers
+namespace MongoDB.Bson.TestHelpers.Reflectors
 {
-    public class BsonDocumentBackedClassSerializerTests
-    {
-    }
-
     public static class BsonDocumentBackedClassSerializerReflector
     {
         public static Dictionary<string, BsonSerializationInfo> _memberSerializationInfo<TClass>(this BsonDocumentBackedClassSerializer<TClass> obj)
