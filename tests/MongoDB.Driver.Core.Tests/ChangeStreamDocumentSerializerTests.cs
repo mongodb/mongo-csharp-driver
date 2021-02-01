@@ -21,7 +21,6 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.Bson.Tests.Serialization.Serializers;
 using Xunit;
 
 namespace MongoDB.Driver
