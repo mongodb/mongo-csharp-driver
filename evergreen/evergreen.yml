@@ -285,7 +285,7 @@ functions:
       params:
         working_dir: mongo-csharp-driver
         script: |
-          AUTH_HOST="${AUTH_HOST}" AUTH_GSSAPI="${AUTH_GSSAPI}" evergreen/run-gssapi-auth-tests.sh
+          PROJECT_DIRECTORY=${PROJECT_DIRECTORY} AUTH_HOST="${AUTH_HOST}" AUTH_GSSAPI="${AUTH_GSSAPI}" evergreen/run-gssapi-auth-tests.sh
 
   run-plain-auth-tests:
     - command: shell.exec
