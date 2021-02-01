@@ -52,7 +52,11 @@ Task("Release")
 Task("Restore")
     .Does(() =>
     {
-        DotNetCoreRestore(solutionFullPath);
+        var restoreSettings = new DotNetCoreRestoreSettings 
+        {
+            DisableParallel = true
+        };
+        DotNetCoreRestore(solutionFullPath, restoreSettings);
     });
 
 Task("Build")
