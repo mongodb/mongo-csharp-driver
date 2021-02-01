@@ -22,11 +22,4 @@ version 4.5 and later, and the netstandard1.5 target allows the driver to be use
 - [MongoDB.Driver.Core](http://www.nuget.org/packages/mongodb.driver.core): The core of the driver and a dependency of MongoDB.Driver. You will probably not use this package directly. More documentation can be found in the [reference guide]({{< relref "reference\driver_core\index.md" >}}).
 - [MongoDB.Driver.GridFS](http://www.nuget.org/packages/mongodb.driver.gridfs): The GridFS package. More documentation can be found in the [reference guide]({{< relref "reference\gridfs\index.md" >}}).
 - [MongoDB.Bson](http://www.nuget.org/packages/mongodb.bson): The BSON layer. It is a dependency of MongoDB.Driver.Core. It may be used by itself. More documentation can be found in the [reference guide]({{< relref "reference\bson\index.md" >}}).
-- [mongocsharpdriver](http://www.nuget.org/packages/mongocsharpdriver): The compatibility layer for those upgrading from our 1.x series. This should not be used for new projects. More information can be found in the [1.x documentation](http://mongodb.github.io/mongo-csharp-driver/1.x);
-
-## Binary Installation
-
-Alternatively, if you'd like to pull down binaries, you can do that from the [releases section](https://github.com/mongodb/mongo-csharp-driver/releases) on our [github repository](https://github.com/mongodb/mongo-csharp-driver), which contains zip files for each release.
-
-The assembly names mostly correlate strongly with the package names above. For new applications, you'll add references to `MongoDB.Driver.dll`, `MongoDB.Driver.Core.dll`, and `MongoDB.Bson.dll`. For those working with legacy applications, you'll also want to add a reference to `MongoDB.Driver.Legacy.dll`.
-
+- [mongocsharpdriver](http://www.nuget.org/packages/mongocsharpdriver): The compatibility layer for those upgrading from our 1.x series. This should not be used for new projects. More information can be found in the [1.x documentation](http://mongodb.github.io/mongo-csharp-driver/1.11);
