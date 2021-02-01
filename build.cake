@@ -52,6 +52,7 @@ Task("Release")
 Task("Restore")
     .Does(() =>
     {
+        // disable parallel restore to work around apparent bugs in restore
         var restoreSettings = new DotNetCoreRestoreSettings 
         {
             DisableParallel = true
