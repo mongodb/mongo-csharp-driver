@@ -15,11 +15,10 @@
 
 using System.Collections.Generic;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.TestHelpers;
 
-namespace MongoDB.Driver
+namespace MongoDB.Bson.TestHelpers
 {
-    internal static class BsonDocumentBackedClassSerializerReflector
+    public static class BsonDocumentBackedClassSerializerReflector
     {
         public static Dictionary<string, BsonSerializationInfo> _memberSerializationInfo<TClass>(this BsonDocumentBackedClassSerializer<TClass> obj)
             where TClass : BsonDocumentBackedClass

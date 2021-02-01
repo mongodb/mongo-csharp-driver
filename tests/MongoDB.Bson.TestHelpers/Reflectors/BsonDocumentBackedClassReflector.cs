@@ -15,9 +15,8 @@
 
 using System.Reflection;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.TestHelpers;
 
-namespace MongoDB.Driver
+namespace MongoDB.Bson.TestHelpers
 {
     public static class BsonDocumentBackedClassReflector
     {
