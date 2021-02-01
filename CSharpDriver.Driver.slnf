@@ -1,0 +1,12 @@
+{
+  "solution": {
+    "path": "CSharpDriver.sln",
+    "projects": [
+      "src\\MongoDB.Bson\\MongoDB.Bson.csproj",
+      "src\\MongoDB.Driver.Core\\MongoDB.Driver.Core.csproj",
+      "src\\MongoDB.Driver\\MongoDB.Driver.csproj",
+      "tests\\MongoDB.Driver.TestHelpers\\MongoDB.Driver.TestHelpers.csproj",
+      "tests\\MongoDB.Driver.Tests\\MongoDB.Driver.Tests.csproj"
+    ]
+  }
+}
