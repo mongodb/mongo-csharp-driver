@@ -307,19 +307,33 @@ Task("TestGssapi")
     .IsDependentOn("Build")
     .DoesForEach(
         GetFiles("./**/MongoDB.Driver.Tests.csproj"),
-        testProject => 
+        testProject =>
 	{
+        var settings = new DotNetCoreTestSettings
+        {
+            NoBuild = true,
+            NoRestore = true,
+            Configuration = configuration,
+            ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
+            Filter = "Category=\"GssapiMechanism\""
+        };
+        switch (target.ToLowerInvariant())
+        {
+            case "testgssapinet452": settings.Framework = "net452"; break;
+            case "testgssapinetstandard15": settings.Framework = "netcoreapp1.1"; break;
+            case "testgssapinetstandard20": settings.Framework = "netcoreapp2.1"; break;
+            case "testgssapinetstandard21": settings.Framework = "netcoreapp3.0"; break;
+        }
 		DotNetCoreTest(
 			testProject.FullPath,
-			new DotNetCoreTestSettings {
-				NoBuild = true,
-				NoRestore = true,
-				Configuration = configuration,
-				ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
-				Filter = "Category=\"GssapiMechanism\""
-			}
+            settings
 		);
 	});
+
+Task("TestGssapiNet452").IsDependentOn("TestGssapi");
+Task("TestGssapiNetStandard15").IsDependentOn("TestGssapi");
+Task("TestGssapiNetStandard20").IsDependentOn("TestGssapi");
+Task("TestGssapiNetStandard21").IsDependentOn("TestGssapi");
 
 Task("Docs")
     .IsDependentOn("ApiDocs")

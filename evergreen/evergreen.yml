@@ -285,7 +285,11 @@ functions:
       params:
         working_dir: mongo-csharp-driver
         script: |
-          PROJECT_DIRECTORY=${PROJECT_DIRECTORY} AUTH_HOST="${AUTH_HOST}" AUTH_GSSAPI="${AUTH_GSSAPI}" evergreen/run-gssapi-auth-tests.sh
+          PROJECT_DIRECTORY=${PROJECT_DIRECTORY} \
+            AUTH_HOST="${AUTH_HOST}" \
+            AUTH_GSSAPI="${AUTH_GSSAPI}" \
+            FRAMEWORK=${FRAMEWORK} \
+            evergreen/run-gssapi-auth-tests.sh
 
   run-plain-auth-tests:
     - command: shell.exec
@@ -664,6 +668,7 @@ tasks:
         - func: run-tests
           vars:
             FRAMEWORK: netstandard20
+
     - name: test-netstandard21
       commands:
         - func: bootstrap-mongo-orchestration
@@ -675,12 +680,33 @@ tasks:
       commands:
         - func: run-atlas-connectivity-tests
 
-    - name: gssapi-auth-tests
-      depends_on:
-        - variant: windows-64-compile
-          name: compile
+    - name: test-gssapi
       commands:
         - func: run-gssapi-auth-tests
+
+    - name: test-gssapi-net452
+      commands:
+        - func: run-gssapi-auth-tests
+          vars:
+            FRAMEWORK: net452
+
+    - name: test-gssapi-netstandard15
+      commands:
+        - func: run-gssapi-auth-tests
+          vars:
+            FRAMEWORK: netstandard15
+
+    - name: test-gssapi-netstandard20
+      commands:
+        - func: run-gssapi-auth-tests
+          vars:
+            FRAMEWORK: netstandard20
+
+    - name: test-gssapi-netstandard21
+      commands:
+        - func: run-gssapi-auth-tests
+          vars:
+            FRAMEWORK: netstandard21
 
     - name: plain-auth-tests
       commands:
@@ -1168,7 +1194,7 @@ buildvariants:
   run_on:
     - ubuntu1804-test
   tasks:
-    - name: compile    
+    - name: compile
 - name: macos1014-compile
   display_name: "macOS 10.14 compile"
   run_on:
@@ -1234,7 +1260,7 @@ buildvariants:
      - name: test-netstandard15
      - name: test-netstandard20
      - name: test-netstandard21
-     
+
 - matrix_name: "unsecure-tests-macOS"
   matrix_spec: { version: "*", topology: "*", auth: "noauth", ssl: "nossl", os: "macos-1014" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
@@ -1288,9 +1314,22 @@ buildvariants:
   tasks:
     - name: atlas-data-lake-test
 
-- matrix_name: gssapi-auth-tests
-  matrix_spec: { os: ["windows-64", "ubuntu-1804"] }
-  display_name: "GSSAPI (Kerberos) Auth tests ${os}"
+- name: gssapi-auth-tests-windows
+  run_on:
+    - windows-64-vs2017-test
+  display_name: "GSSAPI (Kerberos) Auth tests - Windows"
   tasks:
-    - name: gssapi-auth-tests
+    - name: test-gssapi-net452
+    - name: test-gssapi-netstandard15
+    - name: test-gssapi-netstandard20
+    - name: test-gssapi-netstandard21
+
+- name: gssapi-auth-tests-linux
+  run_on:
+    - ubuntu1804-test
+  display_name: "GSSAPI (Kerberos) Auth tests - Linux"
+  tasks:
+    - name: test-gssapi-netstandard15
+    - name: test-gssapi-netstandard20
+    - name: test-gssapi-netstandard21
 
