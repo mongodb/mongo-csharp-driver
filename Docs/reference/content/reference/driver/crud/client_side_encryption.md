@@ -21,10 +21,6 @@ field level encryption supports workloads where applications must guarantee that
 unauthorized parties, including server administrators, cannot read the encrypted
 data.
 
-{{% note class="important" %}} 
-Client-side field level encryption is supported only on Windows.
-{{% /note %}}
-
 ## mongocryptd configuration
 
 Client-side field level encryption requires the `mongocryptd` daemon / process
