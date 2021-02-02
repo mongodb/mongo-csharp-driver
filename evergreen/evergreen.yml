@@ -1288,11 +1288,9 @@ buildvariants:
   tasks:
     - name: atlas-data-lake-test
 
-- name: gssapi-auth-tests
-  display_name: "GSSAPI (Kerberos) Auth tests"
-  run_on:
-    - windows-64-vs2017-test
-    - ubuntu1804-test
+- matrix_name: gssapi-auth-tests
+  matrix_spec: { os: ["windows-64", "ubuntu-1804"] }
+  display_name: "GSSAPI (Kerberos) Auth tests ${os}"
   tasks:
     - name: gssapi-auth-tests
 
