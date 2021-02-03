@@ -114,8 +114,9 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
 
         private static AstFilterField TranslateConvertExpression(TranslationContext context, UnaryExpression expression)
         {
-            var convertedFieldAst = Translate(context, expression.Operand);
-            var fieldType = convertedFieldAst.Serializer.ValueType;
+            var fieldAst = Translate(context, expression.Operand);
+            var fieldSerializer = fieldAst.Serializer;
+            var fieldType = fieldSerializer.ValueType;
             var targetType = expression.Type;
 
             if (fieldType.IsEnum)
@@ -124,15 +125,20 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
                 var enumUnderlyingType = enumType.GetEnumUnderlyingType();
                 if (targetType == enumUnderlyingType)
                 {
-                    var enumAsUnderlyingTypeSerializer = EnumAsUnderlyingTypeSerializer.Create(convertedFieldAst.Serializer);
-                    return new AstFilterField(convertedFieldAst.Path, enumAsUnderlyingTypeSerializer);
+                    var enumAsUnderlyingTypeSerializer = EnumAsUnderlyingTypeSerializer.Create(fieldSerializer);
+                    return new AstFilterField(fieldAst.Path, enumAsUnderlyingTypeSerializer);
                 }
             }
 
             if (IsNumericType(targetType))
             {
                 var targetTypeSerializer = BsonSerializer.LookupSerializer(targetType); // TODO: use known serializer
-                return new AstFilterField(convertedFieldAst.Path, targetTypeSerializer);
+                if (fieldSerializer is IRepresentationConfigurable configurableFieldSerializer &&
+                    targetTypeSerializer is IRepresentationConfigurable configurableTargetTypeSerializer)
+                {
+                    targetTypeSerializer = configurableTargetTypeSerializer.WithRepresentation(configurableFieldSerializer.Representation);
+                }
+                return new AstFilterField(fieldAst.Path, targetTypeSerializer);
             }
 
             throw new ExpressionNotSupportedException(expression);
