@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq3.Ast.Filters;
@@ -115,18 +116,47 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
         {
             var convertedFieldAst = Translate(context, expression.Operand);
             var fieldType = convertedFieldAst.Serializer.ValueType;
+            var targetType = expression.Type;
+
             if (fieldType.IsEnum)
             {
                 var enumType = fieldType;
                 var enumUnderlyingType = enumType.GetEnumUnderlyingType();
-                if (expression.Type == enumUnderlyingType)
+                if (targetType == enumUnderlyingType)
                 {
                     var enumAsUnderlyingTypeSerializer = EnumAsUnderlyingTypeSerializer.Create(convertedFieldAst.Serializer);
                     return new AstFilterField(convertedFieldAst.Path, enumAsUnderlyingTypeSerializer);
                 }
             }
 
+            if (IsNumericType(targetType))
+            {
+                var targetTypeSerializer = BsonSerializer.LookupSerializer(targetType); // TODO: use known serializer
+                return new AstFilterField(convertedFieldAst.Path, targetTypeSerializer);
+            }
+
             throw new ExpressionNotSupportedException(expression);
+        }
+
+        private static bool IsNumericType(Type type)
+        {
+            switch (Type.GetTypeCode(type))
+            {
+                case TypeCode.Byte:
+                case TypeCode.Decimal:
+                case TypeCode.Double:
+                case TypeCode.Int16:
+                case TypeCode.Int32:
+                case TypeCode.Int64:
+                case TypeCode.Single:
+                case TypeCode.UInt16:
+                case TypeCode.UInt32:
+                case TypeCode.UInt64:
+                    return true;
+
+                default:
+                    return false;
+            }
         }
     }
 }
