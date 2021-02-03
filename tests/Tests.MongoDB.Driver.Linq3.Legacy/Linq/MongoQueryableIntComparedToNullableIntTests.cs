@@ -15,8 +15,10 @@
 
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq3;
+using MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators;
 using MongoDB.Driver.Tests;
 using Xunit;
 
@@ -49,7 +51,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             var queryable = subject.Where(x => x.I == value);
 
-            queryable.ToString().Should().Be($"aggregate([{{ \"$match\" : {expectedFilter} }}])");
+            AssertFilter(queryable, expectedFilter);
         }
 
         [Theory]
@@ -61,7 +63,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             var queryable = subject.Where(x => x.I > value);
 
-            queryable.ToString().Should().Be($"aggregate([{{ \"$match\" : {expectedFilter} }}])");
+            AssertFilter(queryable, expectedFilter);
         }
 
         [Theory]
@@ -73,7 +75,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             var queryable = subject.Where(x => x.I >= value);
 
-            queryable.ToString().Should().Be($"aggregate([{{ \"$match\" : {expectedFilter} }}])");
+            AssertFilter(queryable, expectedFilter);
         }
 
         [Theory]
@@ -85,7 +87,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             var queryable = subject.Where(x => x.I < value);
 
-            queryable.ToString().Should().Be($"aggregate([{{ \"$match\" : {expectedFilter} }}])");
+            AssertFilter(queryable, expectedFilter);
         }
 
         [Theory]
@@ -97,7 +99,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             var queryable = subject.Where(x => x.I <= value);
 
-            queryable.ToString().Should().Be($"aggregate([{{ \"$match\" : {expectedFilter} }}])");
+            AssertFilter(queryable, expectedFilter);
         }
 
         [Theory]
@@ -109,7 +111,22 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             var queryable = subject.Where(x => x.I != value);
 
-            queryable.ToString().Should().Be($"aggregate([{{ \"$match\" : {expectedFilter} }}])");
+            AssertFilter(queryable, expectedFilter);
+        }
+
+        // private methods
+        private void AssertFilter<T>(IQueryable<T> queryable, string expectedFilter)
+        {
+            var stages = Translate(queryable);
+            stages.Should().HaveCount(1);
+            stages[0].Should().Be($"{{ \"$match\" : {expectedFilter} }}");
+        }
+
+        private BsonDocument[] Translate<T>(IQueryable<T> queryable)
+        {
+            var provider = (MongoQueryProvider<T>)queryable.Provider;
+            var executableQuery = ExpressionToExecutableQueryTranslator.Translate<T, T>(provider, queryable.Expression);
+            return executableQuery.Stages;
         }
     }
 }

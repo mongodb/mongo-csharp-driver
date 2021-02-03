@@ -16,6 +16,7 @@
 using System;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq3.Ast.Filters;
 using MongoDB.Driver.Linq3.Misc;
 using MongoDB.Driver.Linq3.Serializers;
@@ -139,6 +140,15 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
                     targetTypeSerializer = configurableTargetTypeSerializer.WithRepresentation(configurableFieldSerializer.Representation);
                 }
                 return new AstFilterField(fieldAst.Path, targetTypeSerializer);
+            }
+
+            if (targetType.IsConstructedGenericType &&
+                targetType.GetGenericTypeDefinition() == typeof(Nullable<>) &&
+                targetType.GetGenericArguments()[0] == fieldType)
+            {
+                var nullableSerializerType = typeof(NullableSerializer<>).MakeGenericType(fieldType);
+                var nullableSerializer = (IBsonSerializer)Activator.CreateInstance(nullableSerializerType, fieldSerializer);
+                return new AstFilterField(fieldAst.Path, nullableSerializer);
             }
 
             throw new ExpressionNotSupportedException(expression);
