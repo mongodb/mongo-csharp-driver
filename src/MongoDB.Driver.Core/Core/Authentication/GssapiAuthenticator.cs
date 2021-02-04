@@ -366,7 +366,7 @@ namespace MongoDB.Driver.Core.Authentication
                 {
                     // NOTE: We simply check whether we can successfully decrypt the message,
                     //       but don't do anything with the decrypted plaintext
-                    _context.DecryptMessage(0, bytesReceivedFromServer);
+                    _ = _context.DecryptMessage(0, bytesReceivedFromServer);
                 }
                 catch (Exception ex)
                 {

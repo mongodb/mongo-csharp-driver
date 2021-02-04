@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Runtime.InteropServices;
 
 namespace MongoDB.Driver.Core.Authentication.Libgssapi
 {
@@ -49,7 +48,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
         {
             if (Handle != IntPtr.Zero)
             {
-                NativeMethods.ReleaseName(out _, Handle);
+                _ = NativeMethods.ReleaseName(out _, Handle);
             }
         }
     }

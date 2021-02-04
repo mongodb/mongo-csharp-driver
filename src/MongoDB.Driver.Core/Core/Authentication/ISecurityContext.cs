@@ -25,8 +25,8 @@ namespace MongoDB.Driver.Core.Authentication
         /// <summary>
         /// Negotiates the steps of an authentication handshake.
         /// </summary>
-        /// <param name="challenge"></param>
-        /// <returns></returns>
+        /// <param name="challenge">Challenge received from the MongoDB server.</param>
+        /// <returns>Response to send back to the MongoDB server.</returns>
         byte[] Next(byte[] challenge);
         /// <summary>
         /// Whether the security context has been initialized.
@@ -35,15 +35,15 @@ namespace MongoDB.Driver.Core.Authentication
         /// <summary>
         /// Decrypts ciphertext to plaintext.
         /// </summary>
-        /// <param name="messageLength"></param>
-        /// <param name="encryptedBytes"></param>
-        /// <returns></returns>
+        /// <param name="messageLength">Number of message bytes. Remaining bytes are the security trailer.</param>
+        /// <param name="encryptedBytes">Ciphertext to decrypt.</param>
+        /// <returns>Decrypted plaintext.</returns>
         byte[] DecryptMessage(int messageLength, byte[] encryptedBytes);
         /// <summary>
         /// Encrypts plaintext to ciphertext.
         /// </summary>
-        /// <param name="plainTextBytes"></param>
-        /// <returns></returns>
+        /// <param name="plainTextBytes">Plaintext to encrypt.</param>
+        /// <returns>Encrypted ciphertext.</returns>
         byte[] EncryptMessage(byte[] plainTextBytes);
     }
 }
