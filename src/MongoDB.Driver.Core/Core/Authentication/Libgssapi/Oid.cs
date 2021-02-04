@@ -31,8 +31,10 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
 
         private static Oid Create(params byte[] oidBytes)
         {
-            var ntUserNameHandle = GCHandle.Alloc(oidBytes, GCHandleType.Pinned);
-            return new Oid {elements = ntUserNameHandle.AddrOfPinnedObject(), length = (uint) oidBytes.Length};
+            int numBytes = oidBytes.Length;
+            var unmanagedArray = Marshal.AllocHGlobal(numBytes);
+            Marshal.Copy(oidBytes, 0, unmanagedArray, numBytes);
+            return new Oid {elements = unmanagedArray, length = (uint) numBytes};
         }
     }
 }
