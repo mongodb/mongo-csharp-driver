@@ -17,13 +17,12 @@ using System.Runtime.InteropServices;
 using System.Security;
 using MongoDB.Driver.Core.Authentication.Libgssapi;
 using MongoDB.Driver.Core.Authentication.Sspi;
-using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.Core.Authentication
 {
     internal static class SecurityContextFactory
     {
-        public static ISecurityContext InitializeSecurityContext(ConnectionId connectionId, string serviceName, string hostname, string realm, string authorizationId, SecureString password)
+        public static ISecurityContext InitializeSecurityContext(string serviceName, string hostname, string realm, string authorizationId, SecureString password)
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -38,10 +37,10 @@ namespace MongoDB.Driver.Core.Authentication
                     credential = SspiSecurityCredential.Acquire(SspiPackage.Kerberos, authorizationId, password);
                     return new SspiSecurityContext(servicePrincipalName, credential);
                 }
-                catch (Win32Exception ex)
+                catch (Win32Exception)
                 {
                     credential?.Dispose();
-                    throw new MongoAuthenticationException(connectionId, "Unable to acquire security credential.", ex);
+                    throw;
                 }
             }
             else
@@ -54,11 +53,11 @@ namespace MongoDB.Driver.Core.Authentication
                     credential = GssapiSecurityCredential.Acquire(authorizationId, password);
                     return new GssapiSecurityContext(servicePrincipalName, credential);
                 }
-                catch (LibgssapiException ex)
+                catch (LibgssapiException)
                 {
                     servicePrincipalName?.Dispose();
                     credential?.Dispose();
-                    throw new MongoAuthenticationException(connectionId, "Unable to acquire security credential.", ex);
+                    throw;
                 }
             }
         }

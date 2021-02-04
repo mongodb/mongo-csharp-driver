@@ -18,6 +18,8 @@ using System.Collections.Generic;
 using System.Net;
 using System.Security;
 using System.Text;
+using MongoDB.Driver.Core.Authentication.Libgssapi;
+using MongoDB.Driver.Core.Authentication.Sspi;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 
@@ -245,11 +247,11 @@ namespace MongoDB.Driver.Core.Authentication
 
                 try
                 {
-                    _context = SecurityContextFactory.InitializeSecurityContext(conversation.ConnectionId, serviceName, hostname, realm, _authorizationId, _password);
+                    _context = SecurityContextFactory.InitializeSecurityContext(serviceName, hostname, realm, _authorizationId, _password);
                     conversation.RegisterSecurityContext(_context);
                     _bytesToSendToServer = _context.Next(null);
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is Win32Exception or LibgssapiException)
                 {
                     if (password != null)
                     {
