@@ -15,6 +15,7 @@
 
 using System;
 using System.Linq.Expressions;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq3.Ast.Filters;
@@ -134,10 +135,19 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
             if (IsNumericType(targetType))
             {
                 var targetTypeSerializer = BsonSerializer.LookupSerializer(targetType); // TODO: use known serializer
-                if (fieldSerializer is IRepresentationConfigurable configurableFieldSerializer &&
-                    targetTypeSerializer is IRepresentationConfigurable configurableTargetTypeSerializer)
+                if (fieldSerializer is IRepresentationConfigurable representationConfigurableFieldSerializer &&
+                    targetTypeSerializer is IRepresentationConfigurable representationConfigurableTargetTypeSerializer)
                 {
-                    targetTypeSerializer = configurableTargetTypeSerializer.WithRepresentation(configurableFieldSerializer.Representation);
+                    var fieldRepresentation = representationConfigurableFieldSerializer.Representation;
+                    if (fieldRepresentation == BsonType.String)
+                    {
+                        targetTypeSerializer = representationConfigurableTargetTypeSerializer.WithRepresentation(fieldRepresentation);
+                    }
+                }
+                if (fieldSerializer is IRepresentationConverterConfigurable converterConfigurableFieldSerializer &&
+                    targetTypeSerializer is IRepresentationConverterConfigurable converterConfigurableTargetTypeSerializer)
+                {
+                    targetTypeSerializer = converterConfigurableTargetTypeSerializer.WithConverter(converterConfigurableFieldSerializer.Converter);
                 }
                 return new AstFilterField(fieldAst.Path, targetTypeSerializer);
             }
