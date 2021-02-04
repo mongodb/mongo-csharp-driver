@@ -21,8 +21,8 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
     [StructLayout(LayoutKind.Sequential)]
     internal struct Oid
     {
-        public uint length;
-        public IntPtr elements;
+        public uint Length;
+        public IntPtr Elements;
 
         public static IntPtr NoOid = IntPtr.Zero;
         public static Oid NtUserName = Create(0x2a, 0x86, 0x48, 0x86, 0xf7, 0x12, 0x01, 0x02, 0x01, 0x01);
@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
             int numBytes = oidBytes.Length;
             var unmanagedArray = Marshal.AllocHGlobal(numBytes);
             Marshal.Copy(oidBytes, 0, unmanagedArray, numBytes);
-            return new Oid { elements = unmanagedArray, length = (uint) numBytes };
+            return new Oid { Elements = unmanagedArray, Length = (uint) numBytes };
         }
     }
 }
