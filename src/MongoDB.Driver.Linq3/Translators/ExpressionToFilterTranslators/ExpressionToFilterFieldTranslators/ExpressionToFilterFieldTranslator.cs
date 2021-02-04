@@ -153,12 +153,38 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
             }
 
             if (targetType.IsConstructedGenericType &&
-                targetType.GetGenericTypeDefinition() == typeof(Nullable<>) &&
-                targetType.GetGenericArguments()[0] == fieldType)
+                targetType.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
-                var nullableSerializerType = typeof(NullableSerializer<>).MakeGenericType(fieldType);
-                var nullableSerializer = (IBsonSerializer)Activator.CreateInstance(nullableSerializerType, fieldSerializer);
-                return new AstFilterField(fieldAst.Path, nullableSerializer);
+                var nullableValueType = targetType.GetGenericArguments()[0];
+                if (nullableValueType == fieldType)
+                {
+                    var nullableSerializerType = typeof(NullableSerializer<>).MakeGenericType(nullableValueType);
+                    var nullableSerializer = (IBsonSerializer)Activator.CreateInstance(nullableSerializerType, fieldSerializer);
+                    return new AstFilterField(fieldAst.Path, nullableSerializer);
+                }
+
+                if (fieldType.IsConstructedGenericType &&
+                    fieldType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                {
+                    var fieldValueType = fieldType.GetGenericArguments()[0];
+                    if (fieldValueType.IsEnum)
+                    {
+                        var enumUnderlyingType = fieldValueType.GetEnumUnderlyingType();
+                        if (nullableValueType == enumUnderlyingType)
+                        {
+                            var fieldSerializerType = fieldSerializer.GetType();
+                            if (fieldSerializerType.IsConstructedGenericType &&
+                                fieldSerializerType.GetGenericTypeDefinition() == typeof(NullableSerializer<>))
+                            {
+                                var enumSerializer = ((IChildSerializerConfigurable)fieldSerializer).ChildSerializer;
+                                var enumAsUnderlyingTypeSerializer = EnumAsUnderlyingTypeSerializer.Create(enumSerializer);
+                                var nullableSerializerType = typeof(NullableSerializer<>).MakeGenericType(nullableValueType);
+                                var nullableSerializer = (IBsonSerializer)Activator.CreateInstance(nullableSerializerType, enumAsUnderlyingTypeSerializer);
+                                return new AstFilterField(fieldAst.Path, nullableSerializer);
+                            }
+                        }
+                    }
+                }
             }
 
             throw new ExpressionNotSupportedException(expression);
