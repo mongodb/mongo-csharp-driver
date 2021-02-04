@@ -17,8 +17,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq3;
+using MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators;
 using MongoDB.Driver.TestHelpers;
 using MongoDB.Driver.Tests;
 using Xunit;
@@ -30,78 +32,66 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
         [Fact]
         public void Where_with_ExtraInfo_Type_and_ExtraInfo_NotNullableType_should_render_correctly()
         {
-            using (var client = CreateDisposableClient())
-            {
-                var subject = CreateSubject(client);
+            var client = GetClient();
+            var subject = CreateSubject(client);
 
-                var result = subject.Where(c => c.ExtraInfo.Type == 1 && c.ExtraInfo.NotNullableType == 1);
+            var result = subject.Where(c => c.ExtraInfo.Type == 1 && c.ExtraInfo.NotNullableType == 1);
 
-                result.ToString().Should().Be("aggregate([{ \"$match\" : { \"ExtraInfo.Type\" : 1, \"ExtraInfo.NotNullableType\" : 1 } }])");
-            }
+            AssertStage(result, "{ \"$match\" : { $and : [{ \"ExtraInfo.Type\" : 1 }, { \"ExtraInfo.NotNullableType\" : 1 }] } }");
         }
 
         [Fact]
         public void Where_with_ExtraInfo_Type_should_render_correctly()
         {
-            using (var client = CreateDisposableClient())
-            {
-                var subject = CreateSubject(client);
+            var client = GetClient();
+            var subject = CreateSubject(client);
 
-                var result = subject.Where(c => c.ExtraInfo.Type == null);
+            var result = subject.Where(c => c.ExtraInfo.Type == null);
 
-                result.ToString().Should().Be("aggregate([{ \"$match\" : { \"ExtraInfo.Type\" : null } }])");
-            }
+            AssertStage(result, "{ \"$match\" : { \"ExtraInfo.Type\" : null } }");
         }
 
         [Fact]
         public void Where_with_ExtraInfo_Type_with_Value_should_render_correctly()
         {
-            using (var client = CreateDisposableClient())
-            {
-                var subject = CreateSubject(client);
+            var client = GetClient();
+            var subject = CreateSubject(client);
 
-                var result = subject.Where(c => c.ExtraInfo.Type.Value == 2);
+            var result = subject.Where(c => c.ExtraInfo.Type.Value == 2);
 
-                result.ToString().Should().Be("aggregate([{ \"$match\" : { \"ExtraInfo.Type\" : 2 } }])");
-            }
+            AssertStage(result, "{ \"$match\" : { \"ExtraInfo.Type\" : 2 } }");
         }
 
         [Fact]
         public void Where_with_ExtraInfo_Type_with_Value_and_nullable_variable_should_render_correctly()
         {
-            using (var client = CreateDisposableClient())
-            {
-                var subject = CreateSubject(client);
-                int? infoType = 3;
+            var client = GetClient();
+            var subject = CreateSubject(client);
+            int? infoType = 3;
 
-                var result = subject.Where(c => c.ExtraInfo.Type.Value == infoType);
+            var result = subject.Where(c => c.ExtraInfo.Type.Value == infoType);
 
-                result.ToString().Should().Be("aggregate([{ \"$match\" : { \"ExtraInfo.Type\" : 3 } }])");
-            }
+            AssertStage(result, "{ \"$match\" : { \"ExtraInfo.Type\" : 3 } }");
         }
 
         [Fact]
         public void Where_with_Contains_should_render_correctly()
         {
-            using (var client = CreateDisposableClient())
-            {
-                var subject = CreateSubject(client);
-                var list = new List<int>
-                {
-                    4, 5
-                };
+            var client = GetClient();
+            var subject = CreateSubject(client);
+            var list = new List<int> { 4, 5 };
 
-                var result = subject.Where(c => list.Contains(c.ExtraInfo.Type.Value) || list.Contains(c.ExtraInfo.NotNullableType));
+            var result = subject.Where(c => list.Contains(c.ExtraInfo.Type.Value) || list.Contains(c.ExtraInfo.NotNullableType));
 
-                result.ToString().Should().Be("aggregate([{ \"$match\" : { \"$or\" : [{ \"ExtraInfo.Type\" : { \"$in\" : [4, 5] } }, { \"ExtraInfo.NotNullableType\" : { \"$in\" : [4, 5] } }] } }])");
-            }
+            AssertStage(result, "{ \"$match\" : { \"$or\" : [{ \"ExtraInfo.Type\" : { \"$in\" : [4, 5] } }, { \"ExtraInfo.NotNullableType\" : { \"$in\" : [4, 5] } }] } }");
         }
 
         // private methods
-        private DisposableMongoClient CreateDisposableClient()
+        private void AssertStage<T>(IQueryable<T> queryable, string expectedStage)
         {
-            var mongoClientSettings = MongoClientSettings.FromConnectionString("mongodb://hostnotneeded");
-            return DriverTestConfiguration.CreateDisposableClient(mongoClientSettings);
+            var stages = Translate(queryable);
+            stages.Should().HaveCount(1);
+            stages[0].Should().Be(expectedStage);
         }
 
         private IQueryable<Car> CreateSubject(IMongoClient client)
@@ -109,6 +99,18 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
             var database = client.GetDatabase("test");
             var collection = database.GetCollection<Car>("test");
             return collection.AsQueryable3();
+        }
+
+        private MongoClient GetClient()
+        {
+            return DriverTestConfiguration.Client;
+        }
+
+        private BsonDocument[] Translate<T>(IQueryable<T> queryable)
+        {
+            var provider = (MongoQueryProvider<T>)queryable.Provider;
+            var executableQuery = ExpressionToExecutableQueryTranslator.Translate<T, T>(provider, queryable.Expression);
+            return executableQuery.Stages;
         }
 
         // nested types
