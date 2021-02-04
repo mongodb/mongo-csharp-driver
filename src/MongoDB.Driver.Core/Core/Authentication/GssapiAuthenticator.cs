@@ -238,16 +238,14 @@ namespace MongoDB.Driver.Core.Authentication
             private readonly string _authorizationId;
             private readonly byte[] _bytesToSendToServer;
             private readonly ISecurityContext _context;
-            private readonly SecureString _password;
 
             public FirstStep(string serviceName, string hostname, string realm, string username, SecureString password, SaslConversation conversation)
             {
                 _authorizationId = username;
-                _password = password;
 
                 try
                 {
-                    _context = SecurityContextFactory.InitializeSecurityContext(serviceName, hostname, realm, _authorizationId, _password);
+                    _context = SecurityContextFactory.InitializeSecurityContext(serviceName, hostname, realm, _authorizationId, password);
                     conversation.RegisterSecurityContext(_context);
                     _bytesToSendToServer = _context.Next(null);
                 }
