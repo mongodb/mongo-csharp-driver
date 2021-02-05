@@ -19,7 +19,7 @@ using System.Runtime.InteropServices;
 namespace MongoDB.Driver.Core.Authentication.Libgssapi
 {
     [StructLayout(LayoutKind.Sequential)]
-    internal struct GssInputBuffer : IDisposable
+    internal sealed class GssInputBuffer : IDisposable
     {
         public ulong Length;
         public IntPtr Value;
@@ -47,11 +47,24 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
             Value = unmanagedArray;
         }
 
+        ~GssInputBuffer()
+        {
+            InnerDispose();
+        }
+
         public void Dispose()
+        {
+            InnerDispose();
+            GC.SuppressFinalize(this);
+        }
+
+        private void InnerDispose()
         {
             if (Value != IntPtr.Zero)
             {
                 Marshal.FreeHGlobal(Value);
+                Length = 0;
+                Value = IntPtr.Zero;
             }
         }
     }

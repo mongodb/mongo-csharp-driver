@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
                     uint majorStatus, minorStatus;
 
                     const GssFlags authenticationFlags = GssFlags.Mutual | GssFlags.Sequence;
-                    majorStatus = NativeMethods.InitializeSecurityContext(out minorStatus, _credential, ref handle, _servicePrincipalName, IntPtr.Zero, authenticationFlags, 0, IntPtr.Zero, ref inputToken, out var _, out outputToken, out var _, out var _);
+                    majorStatus = NativeMethods.InitializeSecurityContext(out minorStatus, _credential, ref handle, _servicePrincipalName, IntPtr.Zero, authenticationFlags, 0, IntPtr.Zero, inputToken, out var _, out outputToken, out var _, out var _);
                     Gss.ThrowIfError(majorStatus, minorStatus);
 
                     IsInitialized = true;
@@ -80,7 +80,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
                 GssInputBuffer inputBuffer;
                 using (inputBuffer = new GssInputBuffer(encryptedBytes))
                 {
-                    var majorStatus = NativeMethods.UnwrapMessage(out uint minorStatus, handle, ref inputBuffer, out outputBuffer, out int _, out int _);
+                    var majorStatus = NativeMethods.UnwrapMessage(out uint minorStatus, handle, inputBuffer, out outputBuffer, out int _, out int _);
                     Gss.ThrowIfError(majorStatus, minorStatus);
                     return outputBuffer.ToByteArray();
                 }
@@ -99,7 +99,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
                 GssInputBuffer inputBuffer;
                 using (inputBuffer = new GssInputBuffer(plainTextBytes))
                 {
-                    var majorStatus = NativeMethods.WrapMessage(out uint minorStatus, handle, 0, 0, ref inputBuffer, out int _, out outputBuffer);
+                    var majorStatus = NativeMethods.WrapMessage(out uint minorStatus, handle, 0, 0, inputBuffer, out int _, out outputBuffer);
                     Gss.ThrowIfError(majorStatus, minorStatus);
                     return outputBuffer.ToByteArray();
                 }

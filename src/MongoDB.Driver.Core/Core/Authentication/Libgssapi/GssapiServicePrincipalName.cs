@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
             GssInputBuffer spnBuffer;
             using (spnBuffer = new GssInputBuffer(spn))
             {
-                majorStatus = NativeMethods.ImportName(out minorStatus, ref spnBuffer, ref Oid.NtHostBasedService, out var spnName);
+                majorStatus = NativeMethods.ImportName(out minorStatus, spnBuffer, ref Oid.NtHostBasedService, out var spnName);
                 Gss.ThrowIfError(majorStatus, minorStatus);
                 return new GssapiServicePrincipalName(spnName);
             }
