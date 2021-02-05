@@ -42,21 +42,21 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
                     majorStatus = NativeMethods.ImportName(out minorStatus, ref nameBuffer, ref Oid.NtUserName, out gssName);
                     Gss.ThrowIfError(majorStatus, minorStatus);
 
-                    IntPtr credentialHandle;
+                    GssapiSecurityCredential securityCredential;
                     if (password != null)
                     {
                         GssInputBuffer passwordBuffer;
                         using (passwordBuffer = new GssInputBuffer(SecureStringHelper.ToInsecureString(password)))
                         {
-                            majorStatus = NativeMethods.AcquireCredentialWithPassword(out minorStatus, gssName, ref passwordBuffer, uint.MaxValue, IntPtr.Zero, GssCredentialUsage.Initiate, out credentialHandle, out OidSet _, out uint _);
+                            majorStatus = NativeMethods.AcquireCredentialWithPassword(out minorStatus, gssName, ref passwordBuffer, uint.MaxValue, IntPtr.Zero, GssCredentialUsage.Initiate, out securityCredential, out OidSet _, out uint _);
                         }
                     }
                     else
                     {
-                        majorStatus = NativeMethods.AcquireCredential(out minorStatus, gssName, uint.MaxValue, IntPtr.Zero, GssCredentialUsage.Initiate, out credentialHandle, out OidSet _, out uint _);
+                        majorStatus = NativeMethods.AcquireCredential(out minorStatus, gssName, uint.MaxValue, IntPtr.Zero, GssCredentialUsage.Initiate, out securityCredential, out OidSet _, out uint _);
                     }
                     Gss.ThrowIfError(majorStatus, minorStatus);
-                    return new GssapiSecurityCredential(credentialHandle);
+                    return securityCredential;
                 }
             }
             finally
@@ -78,9 +78,8 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
             return Acquire(username, null);
         }
 
-        private GssapiSecurityCredential(IntPtr credentialHandle)
+        private GssapiSecurityCredential()
         {
-            SetHandle(credentialHandle);
         }
 
         /// <inheritdoc />
