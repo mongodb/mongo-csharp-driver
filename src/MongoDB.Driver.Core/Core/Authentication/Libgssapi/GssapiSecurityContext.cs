@@ -53,8 +53,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
             GssOutputBuffer outputToken = new GssOutputBuffer();
             try
             {
-                GssInputBuffer inputToken;
-                using (inputToken = new GssInputBuffer(challenge))
+                using (var inputToken = new GssInputBuffer(challenge))
                 {
                     uint majorStatus, minorStatus;
 
@@ -77,8 +76,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
             GssOutputBuffer outputBuffer = new GssOutputBuffer();
             try
             {
-                GssInputBuffer inputBuffer;
-                using (inputBuffer = new GssInputBuffer(encryptedBytes))
+                using (var inputBuffer = new GssInputBuffer(encryptedBytes))
                 {
                     var majorStatus = NativeMethods.UnwrapMessage(out uint minorStatus, handle, inputBuffer, out outputBuffer, out int _, out int _);
                     Gss.ThrowIfError(majorStatus, minorStatus);
@@ -96,8 +94,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
             GssOutputBuffer outputBuffer = new GssOutputBuffer();
             try
             {
-                GssInputBuffer inputBuffer;
-                using (inputBuffer = new GssInputBuffer(plainTextBytes))
+                using (var inputBuffer = new GssInputBuffer(plainTextBytes))
                 {
                     var majorStatus = NativeMethods.WrapMessage(out uint minorStatus, handle, 0, 0, inputBuffer, out int _, out outputBuffer);
                     Gss.ThrowIfError(majorStatus, minorStatus);
