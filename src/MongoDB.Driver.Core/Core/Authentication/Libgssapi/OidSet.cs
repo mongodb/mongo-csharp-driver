@@ -21,7 +21,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
     [StructLayout(LayoutKind.Sequential)]
     internal struct OidSet
     {
-        public ulong count;
-        public IntPtr elements;
+        public ulong Count;
+        public IntPtr Elements;
     }
 }

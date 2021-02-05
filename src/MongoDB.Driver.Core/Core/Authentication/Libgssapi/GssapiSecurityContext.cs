@@ -17,7 +17,7 @@ using System;
 
 namespace MongoDB.Driver.Core.Authentication.Libgssapi
 {
-    internal class GssapiSecurityContext : GssapiSafeHandle, ISecurityContext
+    internal sealed class GssapiSecurityContext : GssapiSafeHandle, ISecurityContext
     {
         private GssapiServicePrincipalName _servicePrincipalName;
         private GssapiSecurityCredential _credential;

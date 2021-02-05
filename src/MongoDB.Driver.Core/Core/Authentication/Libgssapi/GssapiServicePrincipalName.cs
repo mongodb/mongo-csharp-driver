@@ -17,7 +17,7 @@ using System;
 
 namespace MongoDB.Driver.Core.Authentication.Libgssapi
 {
-    internal class GssapiServicePrincipalName : GssapiSafeHandle
+    internal sealed class GssapiServicePrincipalName : GssapiSafeHandle
     {
         public static GssapiServicePrincipalName Create(string service, string host, string realm)
         {
@@ -28,8 +28,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
             }
 
             uint majorStatus, minorStatus;
-            GssInputBuffer spnBuffer;
-            using (spnBuffer = new GssInputBuffer(spn))
+            using (var spnBuffer = new GssInputBuffer(spn))
             {
                 majorStatus = NativeMethods.ImportName(out minorStatus, spnBuffer, ref Oid.NtHostBasedService, out var spnName);
                 Gss.ThrowIfError(majorStatus, minorStatus);

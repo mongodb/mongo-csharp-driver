@@ -19,24 +19,14 @@ using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Authentication.Libgssapi
 {
-    /// <summary>
-    /// A wrapper around the Libgssapi structure specifically used as a credential handle.
-    /// </summary>
-    internal class GssapiSecurityCredential : GssapiSafeHandle
+    internal sealed class GssapiSecurityCredential : GssapiSafeHandle
     {
-        /// <summary>
-        /// Acquires the TGT from the KDC with provided password or keytab (if password is null).
-        /// </summary>
-        /// <param name="username"></param>
-        /// <param name="password"></param>
-        /// <returns></returns>
         public static GssapiSecurityCredential Acquire(string username, SecureString password)
         {
             IntPtr gssName = IntPtr.Zero;
             try
             {
-                GssInputBuffer nameBuffer;
-                using (nameBuffer = new GssInputBuffer(username))
+                using (var nameBuffer = new GssInputBuffer(username))
                 {
                     uint minorStatus, majorStatus;
                     majorStatus = NativeMethods.ImportName(out minorStatus, nameBuffer, ref Oid.NtUserName, out gssName);
@@ -45,8 +35,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
                     GssapiSecurityCredential securityCredential;
                     if (password != null)
                     {
-                        GssInputBuffer passwordBuffer;
-                        using (passwordBuffer = new GssInputBuffer(SecureStringHelper.ToInsecureString(password)))
+                        using (var passwordBuffer = new GssInputBuffer(SecureStringHelper.ToInsecureString(password)))
                         {
                             majorStatus = NativeMethods.AcquireCredentialWithPassword(out minorStatus, gssName, passwordBuffer, uint.MaxValue, IntPtr.Zero, GssCredentialUsage.Initiate, out securityCredential, out OidSet _, out uint _);
                         }
@@ -68,11 +57,6 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
             }
         }
 
-        /// <summary>
-        /// Acquires the TGT from the KDC using keytab.
-        /// </summary>
-        /// <param name="username"></param>
-        /// <returns></returns>
         public static GssapiSecurityCredential Acquire(string username)
         {
             return Acquire(username, null);
@@ -82,7 +66,6 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
         {
         }
 
-        /// <inheritdoc />
         protected override bool ReleaseHandle()
         {
             uint majorStatus = NativeMethods.ReleaseCredential(out uint minorStatus, base.handle);
