@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Runtime.InteropServices;
 using System.Security;
 using MongoDB.Shared;
 
@@ -23,7 +22,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
     /// <summary>
     /// A wrapper around the Libgssapi structure specifically used as a credential handle.
     /// </summary>
-    public class GssapiSecurityCredential : SafeHandle
+    internal class GssapiSecurityCredential : GssapiSafeHandle
     {
         /// <summary>
         /// Acquires the TGT from the KDC with provided password or keytab (if password is null).
@@ -79,34 +78,16 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
             return Acquire(username, null);
         }
 
-        private GssapiSecurityCredential(IntPtr credentialHandle) : base(credentialHandle, true)
+        private GssapiSecurityCredential(IntPtr credentialHandle)
         {
+            SetHandle(credentialHandle);
         }
 
         /// <inheritdoc />
         protected override bool ReleaseHandle()
         {
-            if (base.handle != IntPtr.Zero)
-            {
-                NativeMethods.ReleaseCredential(out uint _, base.handle);
-            }
-
-            return true;
-        }
-
-        /// <inheritdoc />
-        public override bool IsInvalid
-        {
-            get { return base.IsClosed || base.handle == IntPtr.Zero; }
-        }
-
-        /// <inheritdoc />
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                ReleaseHandle();
-            }
+            uint majorStatus = NativeMethods.ReleaseCredential(out uint minorStatus, base.handle);
+            return majorStatus != 0 && minorStatus != 0;
         }
     }
 }

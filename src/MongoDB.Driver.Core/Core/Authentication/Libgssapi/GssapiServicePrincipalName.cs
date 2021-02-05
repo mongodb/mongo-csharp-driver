@@ -14,11 +14,10 @@
 */
 
 using System;
-using System.Runtime.InteropServices;
 
 namespace MongoDB.Driver.Core.Authentication.Libgssapi
 {
-    internal class GssapiServicePrincipalName : SafeHandle
+    internal class GssapiServicePrincipalName : GssapiSafeHandle
     {
         public static GssapiServicePrincipalName Create(string service, string host, string realm)
         {
@@ -38,7 +37,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
             }
         }
 
-        private GssapiServicePrincipalName(IntPtr spnName) : base(IntPtr.Zero, true)
+        private GssapiServicePrincipalName(IntPtr spnName)
         {
             SetHandle(spnName);
         }
@@ -48,7 +47,5 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
             uint majorStatus = NativeMethods.ReleaseName(out uint minorStatus, handle);
             return majorStatus == 0 && minorStatus == 0;
         }
-
-        public override bool IsInvalid => handle == IntPtr.Zero;
     }
 }
