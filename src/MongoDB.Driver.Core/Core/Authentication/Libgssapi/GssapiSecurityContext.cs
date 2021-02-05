@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
 
                     var credentialHandle = _credential.DangerousGetHandle();
                     const GssFlags authenticationFlags = GssFlags.Mutual | GssFlags.Sequence;
-                    majorStatus = NativeMethods.InitializeSecurityContext(out minorStatus, credentialHandle, ref handle, _servicePrincipalName.Handle, IntPtr.Zero, authenticationFlags, 0, IntPtr.Zero, ref inputToken, out var _, out outputToken, out var _, out var _);
+                    majorStatus = NativeMethods.InitializeSecurityContext(out minorStatus, credentialHandle, ref handle, _servicePrincipalName, IntPtr.Zero, authenticationFlags, 0, IntPtr.Zero, ref inputToken, out var _, out outputToken, out var _, out var _);
                     Gss.ThrowIfError(majorStatus, minorStatus);
 
                     IsInitialized = true;

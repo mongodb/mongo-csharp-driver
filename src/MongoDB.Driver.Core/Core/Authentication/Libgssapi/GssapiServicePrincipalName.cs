@@ -14,13 +14,12 @@
 */
 
 using System;
+using System.Runtime.InteropServices;
 
 namespace MongoDB.Driver.Core.Authentication.Libgssapi
 {
-    internal class GssapiServicePrincipalName : IDisposable
+    internal class GssapiServicePrincipalName : SafeHandle
     {
-        public IntPtr Handle { get; }
-
         public static GssapiServicePrincipalName Create(string service, string host, string realm)
         {
             var spn = $"{service}@{host}";
@@ -39,17 +38,17 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
             }
         }
 
-        private GssapiServicePrincipalName(IntPtr spnName)
+        private GssapiServicePrincipalName(IntPtr spnName) : base(IntPtr.Zero, true)
         {
-            Handle = spnName;
+            SetHandle(spnName);
         }
 
-        public void Dispose()
+        protected override bool ReleaseHandle()
         {
-            if (Handle != IntPtr.Zero)
-            {
-                _ = NativeMethods.ReleaseName(out _, Handle);
-            }
+            uint majorStatus = NativeMethods.ReleaseName(out uint minorStatus, handle);
+            return majorStatus == 0 && minorStatus == 0;
         }
+
+        public override bool IsInvalid => handle == IntPtr.Zero;
     }
 }
