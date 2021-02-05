@@ -259,7 +259,7 @@ functions:
           . ./evergreen/set-virtualenv.sh
           . ./evergreen/set-temp-fle-aws-creds.sh
           ${PREPARE_SHELL}
-          SSL=${SSL} evergreen/add-certs-if-needed.sh
+          SSL=${SSL} OS=${OS} evergreen/add-certs-if-needed.sh
           AUTH=${AUTH} \
             SSL=${SSL} \
             MONGODB_URI="${MONGODB_URI}" \
@@ -267,6 +267,7 @@ functions:
             OS=${OS} \
             COMPRESSOR=${COMPRESSOR} \
             CLIENT_PEM=${DRIVERS_TOOLS}/.evergreen/x509gen/client.pem \
+            CAFILE=${DRIVERS_TOOLS}/.evergreen/x509gen/ca.pem \
             FRAMEWORK=${FRAMEWORK} \
             evergreen/run-tests.sh
           echo "Skipping certificate removal..."
@@ -1254,12 +1255,32 @@ buildvariants:
      - name: test-netstandard20
      - name: test-netstandard21
 
-- matrix_name: "unsecure-tests-posix"
+  # ubuntu 18 does not support SSL until 4.0
+- matrix_name: "secure-tests-linux"
+  matrix_spec: { version: ["4.0", "4.2", "4.4", "latest"], topology: "*", auth: "auth", ssl: "ssl", os: "ubuntu-1804" }
+  display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
+  tags: ["tests-variant"]
+  tasks:
+     - name: test-netstandard15
+     - name: test-netstandard20
+     - name: test-netstandard21
+
+- matrix_name: "unsecure-tests-linux"
   matrix_spec: { version: "*", topology: "*", auth: "noauth", ssl: "nossl", os: "ubuntu-1804" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
      - name: test-netstandard15
+     - name: test-netstandard20
+     - name: test-netstandard21
+
+# macos-1014 does not support SSL until 3.2
+- matrix_name: "secure-tests-macOS"
+  matrix_spec: { version: ["3.2", "3.6", "4.0", "4.2", "4.4", "latest"], topology: "*", auth: "auth", ssl: "ssl", os: "macos-1014" }
+  display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
+  tags: ["tests-variant"]
+  tasks:
+     # - name: test-netstandard15: auth tests fail on macos with test-netstandard15, so skip them
      - name: test-netstandard20
      - name: test-netstandard21
 
