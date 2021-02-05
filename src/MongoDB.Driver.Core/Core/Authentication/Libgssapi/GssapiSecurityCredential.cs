@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
                 using (var nameBuffer = new GssInputBuffer(username))
                 {
                     uint minorStatus, majorStatus;
-                    majorStatus = NativeMethods.ImportName(out minorStatus, nameBuffer, ref Oid.NtUserName, out gssName);
+                    majorStatus = NativeMethods.ImportName(out minorStatus, nameBuffer, in Oid.NtUserName, out gssName);
                     Gss.ThrowIfError(majorStatus, minorStatus);
 
                     GssapiSecurityCredential securityCredential;

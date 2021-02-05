@@ -26,14 +26,14 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
 
             if (majorStatus != (uint)GssStatus.Complete && majorStatus != (uint)GssStatus.ContinueNeeded)
             {
-                NativeMethods.DisplayStatus(out _, majorStatus, GssCode.GSS_CODE, ref Oid.NoOid, out uint _, out var outputBuffer);
+                NativeMethods.DisplayStatus(out _, majorStatus, GssCode.GSS_CODE, in Oid.NoOid, out uint _, out var outputBuffer);
                 majorMessage = Marshal.PtrToStringAnsi(outputBuffer.Value);
                 outputBuffer.Dispose();
             }
 
             if (minorStatus != 0)
             {
-                NativeMethods.DisplayStatus(out _, minorStatus, GssCode.MECH_CODE, ref Oid.NoOid, out uint _, out var outputBuffer);
+                NativeMethods.DisplayStatus(out _, minorStatus, GssCode.MECH_CODE, in Oid.NoOid, out uint _, out var outputBuffer);
                 minorMessage = Marshal.PtrToStringAnsi(outputBuffer.Value);
                 outputBuffer.Dispose();
             }

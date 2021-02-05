@@ -23,13 +23,13 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
         private const string GSSAPI_LIBRARY = @"gssapi_krb5";
 
         [DllImport(GSSAPI_LIBRARY, EntryPoint = "gss_import_name")]
-        public static extern uint ImportName(out uint minorStatus, GssInputBuffer name, ref Oid nameType, out IntPtr outputName);
+        public static extern uint ImportName(out uint minorStatus, GssInputBuffer name, in Oid nameType, out IntPtr outputName);
 
         [DllImport(GSSAPI_LIBRARY, EntryPoint = "gss_display_name")]
         public static extern uint DisplayName(out uint minorStatus, IntPtr inputName, out GssOutputBuffer outputBuffer, out Oid outputNameType);
 
         [DllImport(GSSAPI_LIBRARY, EntryPoint = "gss_canonicalize_name")]
-        public static extern uint CanonicalizeName(out uint minorStatus, IntPtr inputName, ref Oid mechType, out IntPtr outputName);
+        public static extern uint CanonicalizeName(out uint minorStatus, IntPtr inputName, in Oid mechType, out IntPtr outputName);
 
         [DllImport(GSSAPI_LIBRARY, EntryPoint = "gss_acquire_cred_with_password")]
         public static extern uint AcquireCredentialWithPassword(out uint minorStatus, IntPtr name, GssInputBuffer password, uint timeRequested, IntPtr desiredMechanisms, GssCredentialUsage credentialUsage, out GssapiSecurityCredential securityCredential, out OidSet actualMechanisms, out uint timeReceived);
@@ -38,10 +38,10 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
         public static extern uint AcquireCredential(out uint minorStatus, IntPtr name, uint timeRequested, IntPtr desiredMechanisms, GssCredentialUsage credentialUsage, out GssapiSecurityCredential securityCredential, out OidSet actualMechanisms, out uint timeReceived);
 
         [DllImport(GSSAPI_LIBRARY, EntryPoint = "gss_init_sec_context")]
-        public static extern uint InitializeSecurityContext(out uint minorStatus, GssapiSecurityCredential securityCredential, ref IntPtr securityContextHandle, GssapiServicePrincipalName spnName, IntPtr inputMechType, GssFlags requestFlags, uint timeRequested, IntPtr inputChannelBindings, GssInputBuffer inputToken, out IntPtr actualMechType, out GssOutputBuffer outputToken, out GssFlags returnedFlags, out uint timeReceived);
+        public static extern uint InitializeSecurityContext(out uint minorStatus, GssapiSecurityCredential securityCredential, in IntPtr securityContextHandle, GssapiServicePrincipalName spnName, IntPtr inputMechType, GssFlags requestFlags, uint timeRequested, IntPtr inputChannelBindings, GssInputBuffer inputToken, out IntPtr actualMechType, out GssOutputBuffer outputToken, out GssFlags returnedFlags, out uint timeReceived);
 
         [DllImport(GSSAPI_LIBRARY, EntryPoint = "gss_display_status")]
-        public static extern uint DisplayStatus(out uint minorStatus, uint status, GssCode statusType, ref IntPtr mechType, out uint messageContext, out GssOutputBuffer statusString);
+        public static extern uint DisplayStatus(out uint minorStatus, uint status, GssCode statusType, in IntPtr mechType, out uint messageContext, out GssOutputBuffer statusString);
 
         [DllImport(GSSAPI_LIBRARY, EntryPoint = "gss_release_name")]
         public static extern uint ReleaseName(out uint minorStatus, IntPtr name);
