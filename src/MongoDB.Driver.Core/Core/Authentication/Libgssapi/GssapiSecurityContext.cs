@@ -14,38 +14,20 @@
 */
 
 using System;
-using System.Runtime.InteropServices;
 
 namespace MongoDB.Driver.Core.Authentication.Libgssapi
 {
-    internal class GssapiSecurityContext : SafeHandle, ISecurityContext
+    internal class GssapiSecurityContext : GssapiSafeHandle, ISecurityContext
     {
         private GssapiServicePrincipalName _servicePrincipalName;
         private GssapiSecurityCredential _credential;
-        private bool _isDisposed;
 
         public bool IsInitialized { get; private set; }
 
-        public override bool IsInvalid
-        {
-            get { return base.IsClosed || handle == IntPtr.Zero; }
-        }
-
-        public GssapiSecurityContext(GssapiServicePrincipalName servicePrincipalName, GssapiSecurityCredential credential) : base(IntPtr.Zero, true)
+        public GssapiSecurityContext(GssapiServicePrincipalName servicePrincipalName, GssapiSecurityCredential credential)
         {
             _servicePrincipalName = servicePrincipalName;
             _credential = credential;
-        }
-
-        protected override bool ReleaseHandle()
-        {
-            if (handle != IntPtr.Zero)
-            {
-                var majorStatus = NativeMethods.DeleteSecurityContext(out var minorStatus, handle, IntPtr.Zero);
-                return majorStatus == 0 && minorStatus == 0;
-            }
-
-            return true;
         }
 
         public byte[] Next(byte[] challenge)
@@ -107,16 +89,20 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
             }
         }
 
+        protected override bool ReleaseHandle()
+        {
+            uint majorStatus = NativeMethods.DeleteSecurityContext(out uint minorStatus, handle, IntPtr.Zero);
+            return majorStatus == 0 && minorStatus == 0;
+        }
+
         protected override void Dispose(bool disposing)
         {
-            if (!_isDisposed && disposing)
+            if (disposing)
             {
                 _servicePrincipalName?.Dispose();
                 _servicePrincipalName = null;
                 _credential?.Dispose();
                 _credential = null;
-                ReleaseHandle();
-                _isDisposed = true;
             }
             base.Dispose(disposing);
         }
