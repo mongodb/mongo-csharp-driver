@@ -16,6 +16,7 @@
 using System;
 using System.Collections;
 using System.Linq.Expressions;
+using MongoDB.Bson;
 using MongoDB.Driver.Linq3.Ast.Filters;
 using MongoDB.Driver.Linq3.Methods;
 using MongoDB.Driver.Linq3.Misc;
@@ -46,7 +47,9 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
 
             if (method.Is(EnumerableMethod.Any))
             {
-                throw new ExpressionNotSupportedException(expression); // TODO
+                return new AstAndFilter(
+                    new AstComparisonFilter(AstComparisonFilterOperator.Ne, sourceField, BsonNull.Value),
+                    new AstNotFilter(new AstSizeFilter(sourceField, 0)));
             }
 
             if (method.Is(EnumerableMethod.AnyWithPredicate))
