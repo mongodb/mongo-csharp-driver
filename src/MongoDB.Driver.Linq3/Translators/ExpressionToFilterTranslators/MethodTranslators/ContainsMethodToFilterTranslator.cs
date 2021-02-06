@@ -68,26 +68,35 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             }
 
             throw new ExpressionNotSupportedException(expression);
-
-            bool TypeImplementsIEnumerable(Type type, Type itemType)
-            {
-                var ienumerableType = typeof(IEnumerable<>).MakeGenericType(itemType);
-                return ienumerableType.IsAssignableFrom(type);
-            }
         }
 
         private static AstFilter Translate(TranslationContext context, Expression expression, Expression sourceExpression, Expression itemExpression)
         {
+            if (TypeImplementsIEnumerable(sourceExpression.Type, itemExpression.Type) &&
+                itemExpression is ConstantExpression constantItemExpression)
+            {
+                var sourceField = ExpressionToFilterFieldTranslator.Translate(context, sourceExpression);
+                var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceField.Serializer);
+                var value = constantItemExpression.Value;
+                var serializedValue = SerializationHelper.SerializeValue(itemSerializer, value);
+                return new AstComparisonFilter(AstComparisonFilterOperator.Eq, sourceField, serializedValue);
+            }
+
             if (sourceExpression is ConstantExpression constantSourceExpression)
             {
-                var field = ExpressionToFilterFieldTranslator.Translate(context, itemExpression);
+                var itemField = ExpressionToFilterFieldTranslator.Translate(context, itemExpression);
                 var sourceValues = (IEnumerable)constantSourceExpression.Value;
-                var sourceSerializer = IEnumerableSerializer.Create(field.Serializer);
-                var serializedValues = SerializationHelper.SerializeValues(field.Serializer, sourceValues);
-                return new AstInFilter(field, serializedValues);
+                var serializedValues = SerializationHelper.SerializeValues(itemField.Serializer, sourceValues);
+                return new AstInFilter(itemField, serializedValues);
             }
 
             throw new ExpressionNotSupportedException(expression);
+        }
+
+        private static bool TypeImplementsIEnumerable(Type type, Type itemType)
+        {
+            var ienumerableType = typeof(IEnumerable<>).MakeGenericType(itemType);
+            return ienumerableType.IsAssignableFrom(type);
         }
     }
 }
