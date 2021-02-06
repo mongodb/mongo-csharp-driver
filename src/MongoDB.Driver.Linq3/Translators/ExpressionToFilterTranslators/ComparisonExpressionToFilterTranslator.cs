@@ -55,10 +55,30 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators
                 }
             }
 
-            var field = ExpressionToFilterFieldTranslator.Translate(context, leftExpression);
-            if (rightExpression is ConstantExpression constantExpression)
+            if (leftExpression.NodeType == ExpressionType.ArrayLength &&
+                rightExpression is ConstantExpression constantSizeExpression)
             {
-                var value = constantExpression.Value;
+                var arrayLengthExpression = (UnaryExpression)leftExpression;
+                var arrayExpression = arrayLengthExpression.Operand;
+                var arrayField = ExpressionToFilterFieldTranslator.Translate(context, arrayExpression);
+                var size = (int)constantSizeExpression.Value;
+
+                switch (comparisonOperator)
+                {
+                    case AstComparisonFilterOperator.Eq:
+                        return new AstSizeFilter(arrayField, size);
+
+                    case AstComparisonFilterOperator.Ne:
+                        return new AstNotFilter(new AstSizeFilter(arrayField, size));
+                }
+
+                throw new ExpressionNotSupportedException(expression);
+            }
+
+            var field = ExpressionToFilterFieldTranslator.Translate(context, leftExpression);
+            if (rightExpression is ConstantExpression constantValueExpression)
+            {
+                var value = constantValueExpression.Value;
                 var serializedValue = SerializationHelper.SerializeValue(field.Serializer, value);
 
                 return new AstComparisonFilter(comparisonOperator, field, serializedValue);
