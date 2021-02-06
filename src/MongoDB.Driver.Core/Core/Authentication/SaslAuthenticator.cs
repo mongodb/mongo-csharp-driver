@@ -14,8 +14,10 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using DnsClient;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Connections;
@@ -216,7 +218,7 @@ namespace MongoDB.Driver.Core.Authentication
         {
             // fields
             private readonly ConnectionId _connectionId;
-            private ISecurityContext _securityContext;
+            private List<IDisposable> _itemsNeedingDisposal;
             private bool _isDisposed;
 
             // constructors
@@ -227,6 +229,7 @@ namespace MongoDB.Driver.Core.Authentication
             public SaslConversation(ConnectionId connectionId)
             {
                 _connectionId = connectionId;
+                _itemsNeedingDisposal = new List<IDisposable>();
             }
 
             // properties
@@ -241,26 +244,29 @@ namespace MongoDB.Driver.Core.Authentication
                 get { return _connectionId; }
             }
 
-            // methods
+            /// <summary>
+            /// Registers the item for disposal.
+            /// </summary>
+            /// <param name="item">The disposable item.</param>
+            public void RegisterItemForDisposal(IDisposable item)
+            {
+                Ensure.IsNotNull(item, "item");
+                _itemsNeedingDisposal.Add(item);
+            }
+
             /// <inheritdoc/>
             public void Dispose()
             {
-                if (_isDisposed)
+                if (!_isDisposed)
                 {
-                    return;
+                    for (int i = _itemsNeedingDisposal.Count - 1; i >= 0; i--)
+                    {
+                        _itemsNeedingDisposal[i].Dispose();
+                    }
+
+                    _itemsNeedingDisposal.Clear();
+                    _isDisposed = true;
                 }
-
-                _securityContext?.Dispose();
-                _isDisposed = true;
-            }
-
-            /// <summary>
-            /// Registers an <see cref="ISecurityContext"/> for disposal.
-            /// </summary>
-            /// <param name="securityContext"></param>
-            public void RegisterSecurityContext(ISecurityContext securityContext)
-            {
-                _securityContext = securityContext;
             }
         }
 

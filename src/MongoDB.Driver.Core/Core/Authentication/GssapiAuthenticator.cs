@@ -246,7 +246,7 @@ namespace MongoDB.Driver.Core.Authentication
                 try
                 {
                     _context = SecurityContextFactory.InitializeSecurityContext(serviceName, hostname, realm, _authorizationId, password);
-                    conversation.RegisterSecurityContext(_context);
+                    conversation.RegisterItemForDisposal(_context);
                     _bytesToSendToServer = _context.Next(null);
                 }
                 catch (Exception ex) when (ex is Win32Exception or LibgssapiException)
