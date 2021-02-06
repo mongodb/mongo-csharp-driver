@@ -31,6 +31,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
         {
             switch (expression.NodeType)
             {
+                case ExpressionType.ArrayIndex: return TranslateArrayIndexExpression(context, (BinaryExpression)expression);
                 case ExpressionType.MemberAccess: return TranslateMemberExpression(context, (MemberExpression)expression);
                 case ExpressionType.Call: return TranslateMethodCallExpression(context, (MethodCallExpression)expression);
                 case ExpressionType.Parameter: return TranslateParameterExpression(context, (ParameterExpression)expression);
@@ -55,6 +56,22 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
         }
 
         // private static methods
+        private static AstFilterField TranslateArrayIndexExpression(TranslationContext context, BinaryExpression binaryExpression)
+        {
+            var arrayExpression = binaryExpression.Left;
+            var indexExpression = binaryExpression.Right;
+
+            if (indexExpression is ConstantExpression constantIndexExpression)
+            {
+                var index = (int)constantIndexExpression.Value;
+                var arrayField = Translate(context, arrayExpression);
+                var itemSerializer = ArraySerializerHelper.GetItemSerializer(arrayField.Serializer);
+                return arrayField.CreateFilterSubField(index.ToString(), itemSerializer);
+            }
+
+            throw new ExpressionNotSupportedException(binaryExpression);
+        }
+
         private static AstFilterField TranslateMemberExpression(TranslationContext context, MemberExpression memberExpression)
         {
             var containingFieldAst = Translate(context, memberExpression.Expression);
