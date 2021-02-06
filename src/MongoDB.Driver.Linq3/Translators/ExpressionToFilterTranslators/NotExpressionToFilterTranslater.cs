@@ -27,7 +27,14 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators
             if (operandExpression.Type == typeof(bool))
             {
                 var operandTranslation = ExpressionToFilterTranslator.Translate(context, operandExpression);
-                return new AstNotFilter(operandTranslation);
+                if (operandTranslation is AstNotFilter innerNotFilter)
+                {
+                    return innerNotFilter.Arg;
+                }
+                else
+                {
+                    return new AstNotFilter(operandTranslation);
+                }
             }
 
             throw new ExpressionNotSupportedException(expression);
