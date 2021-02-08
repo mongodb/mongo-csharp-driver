@@ -26,39 +26,19 @@ namespace MongoDB.Driver.Core.Authentication
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                SspiSecurityCredential credential = null;
-                try
+                var servicePrincipalName = $"{serviceName}/{hostname}";
+                if (!string.IsNullOrEmpty(realm))
                 {
-                    var servicePrincipalName = $"{serviceName}/{hostname}";
-                    if (!string.IsNullOrEmpty(realm))
-                    {
-                        servicePrincipalName += $"@{realm}";
-                    }
-                    credential = SspiSecurityCredential.Acquire(SspiPackage.Kerberos, authorizationId, password);
-                    return new SspiSecurityContext(servicePrincipalName, credential);
+                    servicePrincipalName += $"@{realm}";
                 }
-                catch (Win32Exception)
-                {
-                    credential?.Dispose();
-                    throw;
-                }
+                using var credential = SspiSecurityCredential.Acquire(SspiPackage.Kerberos, authorizationId, password);
+                return new SspiSecurityContext(servicePrincipalName, credential);
             }
             else
             {
-                GssapiServicePrincipalName servicePrincipalName = null;
-                GssapiSecurityCredential credential = null;
-                try
-                {
-                    servicePrincipalName = GssapiServicePrincipalName.Create(serviceName, hostname, realm);
-                    credential = GssapiSecurityCredential.Acquire(authorizationId, password);
-                    return new GssapiSecurityContext(servicePrincipalName, credential);
-                }
-                catch (LibgssapiException)
-                {
-                    servicePrincipalName?.Dispose();
-                    credential?.Dispose();
-                    throw;
-                }
+                using var servicePrincipalName = GssapiServicePrincipalName.Create(serviceName, hostname, realm);
+                using var credential = GssapiSecurityCredential.Acquire(authorizationId, password);
+                return new GssapiSecurityContext(servicePrincipalName, credential);
             }
         }
     }
