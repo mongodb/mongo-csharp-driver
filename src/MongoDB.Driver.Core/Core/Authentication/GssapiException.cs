@@ -14,6 +14,7 @@
 */
 
 using System;
+
 #if NET452
 using System.Runtime.Serialization;
 #endif
