@@ -834,7 +834,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     case "gcp" when shouldThrowPlatformNotSupportedException && CurrentTargetFrameworkIs(SupportedTargetFramework.NetStandard20):
                         {
                             var errorMessage = AssertExceptionTypesAndReturnErrorMessage<CryptException>(ex);
-                            errorMessage.Should().Be("error constructing KMS message: Failed to create GCP oauth request signature");
+                            errorMessage.Should().Be("error constructing KMS message: Failed to create GCP oauth request signature: RSACryptoServiceProvider.ImportPkcs8PrivateKey is supported only on frameworks higher or equal to .netstandard2.1.");
                         }
                         break;
                     default:
