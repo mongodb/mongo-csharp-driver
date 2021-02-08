@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Core.Authentication
 
 #if NET452
         /// <summary>
-        /// Initializes a new instance of the <see cref="Win32Exception" /> class.
+        /// Initializes a new instance of the <see cref="GssapiException" /> class.
         /// </summary>
         /// <param name="info">The info.</param>
         /// <param name="context">The context.</param>
