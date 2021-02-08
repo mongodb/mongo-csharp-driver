@@ -26,19 +26,39 @@ namespace MongoDB.Driver.Core.Authentication
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                var servicePrincipalName = $"{serviceName}/{hostname}";
-                if (!string.IsNullOrEmpty(realm))
+                SspiSecurityCredential credential = null;
+                try
                 {
-                    servicePrincipalName += $"@{realm}";
+                    var servicePrincipalName = $"{serviceName}/{hostname}";
+                    if (!string.IsNullOrEmpty(realm))
+                    {
+                        servicePrincipalName += $"@{realm}";
+                    }
+                    credential = SspiSecurityCredential.Acquire(SspiPackage.Kerberos, authorizationId, password);
+                    return new SspiSecurityContext(servicePrincipalName, credential);
                 }
-                using var credential = SspiSecurityCredential.Acquire(SspiPackage.Kerberos, authorizationId, password);
-                return new SspiSecurityContext(servicePrincipalName, credential);
+                catch (Win32Exception)
+                {
+                    credential?.Dispose();
+                    throw;
+                }
             }
             else
             {
-                using var servicePrincipalName = GssapiServicePrincipalName.Create(serviceName, hostname, realm);
-                using var credential = GssapiSecurityCredential.Acquire(authorizationId, password);
-                return new GssapiSecurityContext(servicePrincipalName, credential);
+                GssapiServicePrincipalName servicePrincipalName = null;
+                GssapiSecurityCredential credential = null;
+                try
+                {
+                    servicePrincipalName = GssapiServicePrincipalName.Create(serviceName, hostname, realm);
+                    credential = GssapiSecurityCredential.Acquire(authorizationId, password);
+                    return new GssapiSecurityContext(servicePrincipalName, credential);
+                }
+                catch (LibgssapiException)
+                {
+                    servicePrincipalName?.Dispose();
+                    credential?.Dispose();
+                    throw;
+                }
             }
         }
     }
