@@ -279,7 +279,7 @@ namespace MongoDB.Driver.Core.Authentication
                 {
                     bytesToSendToServer = _context.Next(bytesReceivedFromServer);
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is Win32Exception or LibgssapiException)
                 {
                     throw new MongoAuthenticationException(conversation.ConnectionId, "Unable to initialize security context", ex);
                 }
@@ -323,7 +323,7 @@ namespace MongoDB.Driver.Core.Authentication
                 {
                     bytesToSendToServer = _context.Next(bytesReceivedFromServer);
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is Win32Exception or LibgssapiException)
                 {
                     throw new MongoAuthenticationException(conversation.ConnectionId, "Unable to initialize security context", ex);
                 }
@@ -368,7 +368,7 @@ namespace MongoDB.Driver.Core.Authentication
                     //       but don't do anything with the decrypted plaintext
                     _ = _context.DecryptMessage(0, bytesReceivedFromServer);
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is Win32Exception or LibgssapiException)
                 {
                     throw new MongoAuthenticationException(conversation.ConnectionId, "Unable to decrypt message.", ex);
                 }
@@ -396,7 +396,7 @@ namespace MongoDB.Driver.Core.Authentication
                 {
                     bytesToSendToServer = _context.EncryptMessage(bytesReceivedFromServer);
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is Win32Exception or LibgssapiException)
                 {
                     throw new MongoAuthenticationException(conversation.ConnectionId, "Unable to encrypt message.", ex);
                 }
