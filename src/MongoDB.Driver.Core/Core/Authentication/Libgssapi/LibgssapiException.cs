@@ -13,17 +13,12 @@
 * limitations under the License.
 */
 
-using System;
-
 namespace MongoDB.Driver.Core.Authentication.Libgssapi
 {
     /// <summary>
     /// Represents a Libgssapi exception.
     /// </summary>
-#if NET452
-    [Serializable]
-#endif
-    public class LibgssapiException : Exception
+    public class LibgssapiException : GssapiException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="LibgssapiException"/> class.

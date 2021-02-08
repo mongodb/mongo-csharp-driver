@@ -18,8 +18,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Security;
 using System.Text;
-using MongoDB.Driver.Core.Authentication.Libgssapi;
-using MongoDB.Driver.Core.Authentication.Sspi;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 
@@ -249,7 +247,7 @@ namespace MongoDB.Driver.Core.Authentication
                     conversation.RegisterItemForDisposal(_context);
                     _bytesToSendToServer = _context.Next(null);
                 }
-                catch (Exception ex) when (ex is Win32Exception or LibgssapiException)
+                catch (GssapiException ex)
                 {
                     if (password != null)
                     {
@@ -279,7 +277,7 @@ namespace MongoDB.Driver.Core.Authentication
                 {
                     bytesToSendToServer = _context.Next(bytesReceivedFromServer);
                 }
-                catch (Exception ex) when (ex is Win32Exception or LibgssapiException)
+                catch (GssapiException ex)
                 {
                     throw new MongoAuthenticationException(conversation.ConnectionId, "Unable to initialize security context", ex);
                 }
@@ -323,7 +321,7 @@ namespace MongoDB.Driver.Core.Authentication
                 {
                     bytesToSendToServer = _context.Next(bytesReceivedFromServer);
                 }
-                catch (Exception ex) when (ex is Win32Exception or LibgssapiException)
+                catch (GssapiException ex)
                 {
                     throw new MongoAuthenticationException(conversation.ConnectionId, "Unable to initialize security context", ex);
                 }
@@ -368,7 +366,7 @@ namespace MongoDB.Driver.Core.Authentication
                     //       but don't do anything with the decrypted plaintext
                     _ = _context.DecryptMessage(0, bytesReceivedFromServer);
                 }
-                catch (Exception ex) when (ex is Win32Exception or LibgssapiException)
+                catch (GssapiException ex)
                 {
                     throw new MongoAuthenticationException(conversation.ConnectionId, "Unable to decrypt message.", ex);
                 }
@@ -396,7 +394,7 @@ namespace MongoDB.Driver.Core.Authentication
                 {
                     bytesToSendToServer = _context.EncryptMessage(bytesReceivedFromServer);
                 }
-                catch (Exception ex) when (ex is Win32Exception or LibgssapiException)
+                catch (GssapiException ex)
                 {
                     throw new MongoAuthenticationException(conversation.ConnectionId, "Unable to encrypt message.", ex);
                 }

@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-present MongoDB Inc.
+/* Copyright 2021-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,38 +13,34 @@
 * limitations under the License.
 */
 
+using System;
 #if NET452
 using System.Runtime.Serialization;
 #endif
 
-namespace MongoDB.Driver.Core.Authentication.Sspi
+namespace MongoDB.Driver.Core.Authentication
 {
     /// <summary>
-    /// Thrown from a win32 wrapped operation.
+    /// Thrown from a GSSAPI-related method.
     /// </summary>
 #if NET452
     [Serializable]
 #endif
-    public class Win32Exception : GssapiException
+    public class GssapiException : Exception
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="Win32Exception" /> class.
+        /// Initializes a new instance of the <see cref="GssapiException" /> class.
         /// </summary>
-        /// <param name="errorCode">The error code.</param>
-        public Win32Exception(long errorCode)
+        protected GssapiException()
         {
-            HResult = (int)errorCode;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Win32Exception" /> class.
+        /// Initializes a new instance of the <see cref="GssapiException" /> class.
         /// </summary>
-        /// <param name="errorCode">The error code.</param>
         /// <param name="message">The message.</param>
-        public Win32Exception(long errorCode, string message)
-            : base(message)
+        protected GssapiException(string message) : base(message)
         {
-            HResult = (int)errorCode;
         }
 
 #if NET452
