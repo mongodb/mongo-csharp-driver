@@ -14,21 +14,26 @@
 */
 
 using System.Linq.Expressions;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq3.Ast.Filters;
 
-namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators
+namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ExpressionTranslators
 {
-    public static class ParameterExpressionToFilterTranslator
+    public static class NotExpressionToFilterTranslator
     {
-        public static AstFilter Translate(TranslationContext context, ParameterExpression expression)
+        public static AstFilter Translate(TranslationContext context, UnaryExpression expression)
         {
-            if (expression.Type == typeof(bool))
+            var operandExpression = expression.Operand;
+
+            if (operandExpression.Type == typeof(bool))
             {
-                if (context.SymbolTable.TryGetSymbol(expression, out var symbol))
+                var operandTranslation = ExpressionToFilterTranslator.Translate(context, operandExpression);
+                if (operandTranslation is AstNotFilter innerNotFilter)
                 {
-                    var field = new AstFilterField(symbol.Name, new BooleanSerializer()); // TODO: use known serializer
-                    return new AstComparisonFilter(AstComparisonFilterOperator.Eq, field, true);
+                    return innerNotFilter.Arg;
+                }
+                else
+                {
+                    return new AstNotFilter(operandTranslation);
                 }
             }
 

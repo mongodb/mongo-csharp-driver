@@ -16,20 +16,17 @@
 using System.Linq.Expressions;
 using MongoDB.Driver.Linq3.Ast.Filters;
 
-namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators
+namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodTranslators
 {
-    public static class AndExpressionToFilterTranslator
+    public static class MethodCallExpressionToFilterTranslator
     {
-        public static AstFilter Translate(TranslationContext context, BinaryExpression expression)
+        public static AstFilter Translate(TranslationContext context, MethodCallExpression expression)
         {
-            var leftExpression = expression.Left;
-            var rightExpression = expression.Right;
-
-            if (leftExpression.Type == typeof(bool) && rightExpression.Type == typeof(bool))
+            switch (expression.Method.Name)
             {
-                var leftTranslation = ExpressionToFilterTranslator.Translate(context, leftExpression);
-                var rightTranslation = ExpressionToFilterTranslator.Translate(context, rightExpression);
-                return new AstAndFilter(leftTranslation, rightTranslation);
+                case "Any": return AnyMethodToFilterTranslator.Translate(context, expression);
+                case "Contains": return ContainsMethodToFilterTranslator.Translate(context, expression);
+                case "Equals": return EqualsMethodToFilterTranslator.Translate(context, expression);
             }
 
             throw new ExpressionNotSupportedException(expression);

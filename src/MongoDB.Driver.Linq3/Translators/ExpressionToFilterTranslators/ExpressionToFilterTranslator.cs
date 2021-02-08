@@ -18,6 +18,8 @@ using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq3.Ast.Filters;
 using MongoDB.Driver.Linq3.Misc;
+using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ExpressionTranslators;
+using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodTranslators;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators
 {
@@ -60,7 +62,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators
             throw new ExpressionNotSupportedException(expression);
         }
 
-        public static AstFilter Translate(TranslationContext context, LambdaExpression lambdaExpression, IBsonSerializer parameterSerializer)
+        public static AstFilter TranslateLambda(TranslationContext context, LambdaExpression lambdaExpression, IBsonSerializer parameterSerializer)
         {
             var parameterExpression = lambdaExpression.Parameters.Single();
             var parameterSymbol = new Symbol(parameterExpression.Name, parameterSerializer);

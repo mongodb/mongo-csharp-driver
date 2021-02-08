@@ -14,20 +14,22 @@
 */
 
 using System.Linq.Expressions;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq3.Ast.Filters;
-using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodTranslators;
 
-namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators
+namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ExpressionTranslators
 {
-    public static class MethodCallExpressionToFilterTranslator
+    public static class ParameterExpressionToFilterTranslator
     {
-        public static AstFilter Translate(TranslationContext context, MethodCallExpression expression)
+        public static AstFilter Translate(TranslationContext context, ParameterExpression expression)
         {
-            switch (expression.Method.Name)
+            if (expression.Type == typeof(bool))
             {
-                case "Any": return AnyMethodToFilterTranslator.Translate(context, expression);
-                case "Contains": return ContainsMethodToFilterTranslator.Translate(context, expression);
-                case "Equals": return EqualsMethodToFilterTranslator.Translate(context, expression);
+                if (context.SymbolTable.TryGetSymbol(expression, out var symbol))
+                {
+                    var field = new AstFilterField(symbol.Name, new BooleanSerializer()); // TODO: use known serializer
+                    return new AstComparisonFilter(AstComparisonFilterOperator.Eq, field, true);
+                }
             }
 
             throw new ExpressionNotSupportedException(expression);
