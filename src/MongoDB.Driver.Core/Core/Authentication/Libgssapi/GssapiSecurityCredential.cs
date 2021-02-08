@@ -37,12 +37,12 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
                     {
                         using (var passwordBuffer = new GssInputBuffer(SecureStringHelper.ToInsecureString(password)))
                         {
-                            majorStatus = NativeMethods.AcquireCredentialWithPassword(out minorStatus, gssName, passwordBuffer, uint.MaxValue, IntPtr.Zero, GssCredentialUsage.Initiate, out securityCredential, out OidSet _, out uint _);
+                            majorStatus = NativeMethods.AcquireCredentialWithPassword(out minorStatus, gssName, passwordBuffer, uint.MaxValue, IntPtr.Zero, GssCredentialUsage.Initiate, out securityCredential, IntPtr.Zero, out uint _);
                         }
                     }
                     else
                     {
-                        majorStatus = NativeMethods.AcquireCredential(out minorStatus, gssName, uint.MaxValue, IntPtr.Zero, GssCredentialUsage.Initiate, out securityCredential, out OidSet _, out uint _);
+                        majorStatus = NativeMethods.AcquireCredential(out minorStatus, gssName, uint.MaxValue, IntPtr.Zero, GssCredentialUsage.Initiate, out securityCredential, IntPtr.Zero, out uint _);
                     }
                     Gss.ThrowIfError(majorStatus, minorStatus);
                     return securityCredential;
