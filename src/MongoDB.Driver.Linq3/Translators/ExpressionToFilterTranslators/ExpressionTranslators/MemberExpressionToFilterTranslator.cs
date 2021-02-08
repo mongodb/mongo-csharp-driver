@@ -16,11 +16,10 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Ast.Filters;
-using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ExpressionToFilterFieldTranslators;
+using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators;
 
-namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators
+namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ExpressionTranslators
 {
     public static class MemberExpressionToFilterTranslator
     {

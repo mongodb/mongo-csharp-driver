@@ -16,9 +16,9 @@
 using System.Linq.Expressions;
 using MongoDB.Driver.Linq3.Ast.Filters;
 
-namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators
+namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ExpressionTranslators
 {
-    public static class OrExpressionToFilterTranslator
+    public static class AndExpressionToFilterTranslator
     {
         public static AstFilter Translate(TranslationContext context, BinaryExpression expression)
         {
@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators
             {
                 var leftTranslation = ExpressionToFilterTranslator.Translate(context, leftExpression);
                 var rightTranslation = ExpressionToFilterTranslator.Translate(context, rightExpression);
-                return new AstOrFilter(leftTranslation, rightTranslation);
+                return new AstAndFilter(leftTranslation, rightTranslation);
             }
 
             throw new ExpressionNotSupportedException(expression);
