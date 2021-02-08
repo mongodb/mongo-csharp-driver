@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
 
         protected override bool ReleaseHandle()
         {
-            uint majorStatus = NativeMethods.ReleaseCredential(out uint minorStatus, base.handle);
+            var majorStatus = NativeMethods.ReleaseCredential(out var minorStatus, base.handle);
             return majorStatus != 0 && minorStatus != 0;
         }
     }
