@@ -21,27 +21,29 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
     [StructLayout(LayoutKind.Sequential)]
     internal struct GssOutputBuffer
     {
-        public ulong Length;
-        public IntPtr Value;
+        private ulong length;
+        private IntPtr value;
+
+        public IntPtr Value => value;
 
         public byte[] ToByteArray()
         {
-            if (Length > int.MaxValue)
+            if (length > int.MaxValue)
             {
                 throw new InvalidOperationException("GssBuffer too large to convert to array.");
             }
 
-            var result = new byte[Length];
-            if (Length > 0)
+            var result = new byte[length];
+            if (length > 0)
             {
-                Marshal.Copy(Value, result, 0, (int)Length);
+                Marshal.Copy(value, result, 0, (int)length);
             }
             return result;
         }
 
         public void Dispose()
         {
-            if (Value != IntPtr.Zero)
+            if (value != IntPtr.Zero)
             {
                 NativeMethods.ReleaseBuffer(out _, ref this);
             }

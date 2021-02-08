@@ -23,13 +23,13 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
     {
         public static GssapiSecurityCredential Acquire(string username, SecureString password)
         {
-            IntPtr gssName = IntPtr.Zero;
+            var gssName = IntPtr.Zero;
             try
             {
                 using (var nameBuffer = new GssInputBuffer(username))
                 {
                     uint minorStatus, majorStatus;
-                    majorStatus = NativeMethods.ImportName(out minorStatus, nameBuffer, in Oid.NtUserName, out gssName);
+                    majorStatus = NativeMethods.ImportName(out minorStatus, nameBuffer, in Oid.GSS_C_NT_USER_NAME, out gssName);
                     Gss.ThrowIfError(majorStatus, minorStatus);
 
                     GssapiSecurityCredential securityCredential;
@@ -37,12 +37,12 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
                     {
                         using (var passwordBuffer = new GssInputBuffer(SecureStringHelper.ToInsecureString(password)))
                         {
-                            majorStatus = NativeMethods.AcquireCredentialWithPassword(out minorStatus, gssName, passwordBuffer, uint.MaxValue, IntPtr.Zero, GssCredentialUsage.Initiate, out securityCredential, IntPtr.Zero, out uint _);
+                            majorStatus = NativeMethods.AcquireCredentialWithPassword(out minorStatus, gssName, passwordBuffer, uint.MaxValue, IntPtr.Zero, GssCredentialUsage.GSS_C_INITIATE, out securityCredential, IntPtr.Zero, out uint _);
                         }
                     }
                     else
                     {
-                        majorStatus = NativeMethods.AcquireCredential(out minorStatus, gssName, uint.MaxValue, IntPtr.Zero, GssCredentialUsage.Initiate, out securityCredential, IntPtr.Zero, out uint _);
+                        majorStatus = NativeMethods.AcquireCredential(out minorStatus, gssName, uint.MaxValue, IntPtr.Zero, GssCredentialUsage.GSS_C_INITIATE, out securityCredential, IntPtr.Zero, out uint _);
                     }
                     Gss.ThrowIfError(majorStatus, minorStatus);
                     return securityCredential;

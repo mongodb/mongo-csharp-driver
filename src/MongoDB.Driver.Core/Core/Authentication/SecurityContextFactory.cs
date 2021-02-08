@@ -17,6 +17,7 @@ using System.Runtime.InteropServices;
 using System.Security;
 using MongoDB.Driver.Core.Authentication.Libgssapi;
 using MongoDB.Driver.Core.Authentication.Sspi;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Authentication
 {
@@ -24,7 +25,7 @@ namespace MongoDB.Driver.Core.Authentication
     {
         public static ISecurityContext InitializeSecurityContext(string serviceName, string hostname, string realm, string authorizationId, SecureString password)
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (OperatingSystemHelper.CurrentOperatingSystem == OperatingSystemPlatform.Windows)
             {
                 SspiSecurityCredential credential = null;
                 try

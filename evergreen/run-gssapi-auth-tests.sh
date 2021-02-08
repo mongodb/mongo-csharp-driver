@@ -6,6 +6,9 @@ set -o errexit  # Exit the script with error if any of the commands fail
 # Supported/used environment variables:
 #       AUTH_HOST             Set the hostname of a key distribution center (KDC)
 #       AUTH_GSSAPI           Set the GSSAPI credentials, including a user principal/password to use to connect to AUTH_HOST server via GSSAPI authentication mechanism
+#       FRAMEWORK             Set target framework to test against
+#       OS                    Set whether the current operating system is Windows or not
+#       PROJECT_DIRECTORY     Set the working directory for the project (only required for non-Windows environments)
 
 ############################################
 #            Main Program                  #

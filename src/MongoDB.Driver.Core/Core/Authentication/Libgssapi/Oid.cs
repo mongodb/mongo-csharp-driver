@@ -21,20 +21,21 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
     [StructLayout(LayoutKind.Sequential)]
     internal struct Oid
     {
-        public uint Length;
-        public IntPtr Elements;
-
-        public static readonly IntPtr NoOid = IntPtr.Zero;
-        public static readonly Oid NtUserName = Create(0x2a, 0x86, 0x48, 0x86, 0xf7, 0x12, 0x01, 0x02, 0x01, 0x01);
-        public static readonly Oid MechKrb5 = Create(0x2a, 0x86, 0x48, 0x86, 0xf7, 0x12, 0x01, 0x02, 0x02);
-        public static readonly Oid NtHostBasedService = Create(0x2a, 0x86, 0x48, 0x86, 0xf7, 0x12, 0x01, 0x02, 0x01, 0x04);
+        #region static
+        public static readonly IntPtr GSS_C_NO_OID = IntPtr.Zero;
+        public static readonly Oid GSS_C_NT_USER_NAME = Create(0x2a, 0x86, 0x48, 0x86, 0xf7, 0x12, 0x01, 0x02, 0x01, 0x01);
+        public static readonly Oid GSS_C_NT_HOSTBASED_SERVICE = Create(0x2a, 0x86, 0x48, 0x86, 0xf7, 0x12, 0x01, 0x02, 0x01, 0x04);
 
         private static Oid Create(params byte[] oidBytes)
         {
             int numBytes = oidBytes.Length;
             var unmanagedArray = Marshal.AllocHGlobal(numBytes);
             Marshal.Copy(oidBytes, 0, unmanagedArray, numBytes);
-            return new Oid { Elements = unmanagedArray, Length = (uint) numBytes };
+            return new Oid { elements = unmanagedArray, length = (uint) numBytes };
         }
+        #endregion
+
+        private uint length;
+        private IntPtr elements;
     }
 }

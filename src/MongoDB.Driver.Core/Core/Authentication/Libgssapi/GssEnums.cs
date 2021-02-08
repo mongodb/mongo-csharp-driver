@@ -19,27 +19,27 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
 {
     internal enum GssCode
     {
-        GSS_CODE = 1,
-        MECH_CODE = 2
+        GSS_C_GSS_CODE = 1,
+        GSS_C_MECH_CODE = 2
     }
 
     internal enum GssCredentialUsage
     {
-        Both = 0,
-        Initiate = 1,
-        Accept = 2
+        GSS_C_BOTH = 0,
+        GSS_C_INITIATE = 1,
+        GSS_C_ACCEPT = 2
     }
 
     [Flags]
     internal enum GssFlags
     {
-        Mutual = 2,
-        Sequence = 8
+        GSS_C_MUTUAL_FLAG = 2,
+        GSS_C_SEQUENCE_FLAG = 8
     }
 
     internal enum GssStatus : uint
     {
-        Complete = 0,
-        ContinueNeeded = 1
+        GSS_S_COMPLETE = 0,
+        GSS_S_CONTINUE_NEEDED = 1
     }
 }

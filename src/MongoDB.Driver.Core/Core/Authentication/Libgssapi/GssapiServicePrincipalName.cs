@@ -19,22 +19,23 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
 {
     internal sealed class GssapiServicePrincipalName : GssapiSafeHandle
     {
+        #region static
         public static GssapiServicePrincipalName Create(string service, string host, string realm)
         {
-            var spn = $"{service}@{host}";
+            var servicePrincipalName = $"{service}@{host}";
             if (!string.IsNullOrEmpty(realm))
             {
-                spn += $"@{realm}";
+                servicePrincipalName += $"@{realm}";
             }
 
-            uint majorStatus, minorStatus;
-            using (var spnBuffer = new GssInputBuffer(spn))
+            using (var spnBuffer = new GssInputBuffer(servicePrincipalName))
             {
-                majorStatus = NativeMethods.ImportName(out minorStatus, spnBuffer, in Oid.NtHostBasedService, out var spnName);
+                var majorStatus = NativeMethods.ImportName(out var minorStatus, spnBuffer, in Oid.GSS_C_NT_HOSTBASED_SERVICE, out var spnName);
                 Gss.ThrowIfError(majorStatus, minorStatus);
                 return new GssapiServicePrincipalName(spnName);
             }
         }
+        #endregion
 
         private GssapiServicePrincipalName(IntPtr spnName)
         {
@@ -43,7 +44,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
 
         protected override bool ReleaseHandle()
         {
-            uint majorStatus = NativeMethods.ReleaseName(out uint minorStatus, handle);
+            var majorStatus = NativeMethods.ReleaseName(out var minorStatus, handle);
             return majorStatus == 0 && minorStatus == 0;
         }
     }

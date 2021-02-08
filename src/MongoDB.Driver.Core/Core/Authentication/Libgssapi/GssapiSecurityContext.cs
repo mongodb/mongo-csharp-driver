@@ -19,10 +19,9 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
 {
     internal sealed class GssapiSecurityContext : GssapiSafeHandle, ISecurityContext
     {
-        private GssapiServicePrincipalName _servicePrincipalName;
-        private GssapiSecurityCredential _credential;
-
-        public bool IsInitialized { get; private set; }
+        private readonly GssapiSecurityCredential _credential;
+        private bool _isInitialized;
+        private readonly GssapiServicePrincipalName _servicePrincipalName;
 
         public GssapiSecurityContext(GssapiServicePrincipalName servicePrincipalName, GssapiSecurityCredential credential)
         {
@@ -30,20 +29,22 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
             _credential = credential;
         }
 
+        public bool IsInitialized => _isInitialized;
+
         public byte[] Next(byte[] challenge)
         {
-            GssOutputBuffer outputToken = new GssOutputBuffer();
+            var outputToken = new GssOutputBuffer();
             try
             {
                 using (var inputToken = new GssInputBuffer(challenge))
                 {
                     uint majorStatus, minorStatus;
 
-                    const GssFlags authenticationFlags = GssFlags.Mutual | GssFlags.Sequence;
+                    const GssFlags authenticationFlags = GssFlags.GSS_C_MUTUAL_FLAG | GssFlags.GSS_C_SEQUENCE_FLAG;
                     majorStatus = NativeMethods.InitializeSecurityContext(out minorStatus, _credential, in handle, _servicePrincipalName, IntPtr.Zero, authenticationFlags, 0, IntPtr.Zero, inputToken, out var _, out outputToken, out var _, out var _);
                     Gss.ThrowIfError(majorStatus, minorStatus);
 
-                    IsInitialized = true;
+                    _isInitialized = true;
                     return outputToken.ToByteArray();
                 }
             }
@@ -55,7 +56,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
 
         public byte[] DecryptMessage(int messageLength, byte[] encryptedBytes)
         {
-            GssOutputBuffer outputBuffer = new GssOutputBuffer();
+            var outputBuffer = new GssOutputBuffer();
             try
             {
                 using (var inputBuffer = new GssInputBuffer(encryptedBytes))
@@ -73,7 +74,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
 
         public byte[] EncryptMessage(byte[] plainTextBytes)
         {
-            GssOutputBuffer outputBuffer = new GssOutputBuffer();
+            var outputBuffer = new GssOutputBuffer();
             try
             {
                 using (var inputBuffer = new GssInputBuffer(plainTextBytes))
@@ -91,7 +92,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
 
         protected override bool ReleaseHandle()
         {
-            uint majorStatus = NativeMethods.DeleteSecurityContext(out uint minorStatus, handle, IntPtr.Zero);
+            var majorStatus = NativeMethods.DeleteSecurityContext(out var minorStatus, handle, IntPtr.Zero);
             return majorStatus == 0 && minorStatus == 0;
         }
 
@@ -100,9 +101,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
             if (disposing)
             {
                 _servicePrincipalName?.Dispose();
-                _servicePrincipalName = null;
                 _credential?.Dispose();
-                _credential = null;
             }
             base.Dispose(disposing);
         }
