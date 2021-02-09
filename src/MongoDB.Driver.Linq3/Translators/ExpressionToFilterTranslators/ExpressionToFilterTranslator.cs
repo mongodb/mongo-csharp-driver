@@ -20,6 +20,7 @@ using MongoDB.Driver.Linq3.Ast.Filters;
 using MongoDB.Driver.Linq3.Misc;
 using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ExpressionTranslators;
 using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodTranslators;
+using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators
 {
@@ -59,7 +60,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators
                     return ParameterExpressionToFilterTranslator.Translate(context, (ParameterExpression)expression);
             }
 
-            throw new ExpressionNotSupportedException(expression);
+            var field = ExpressionToFilterFieldTranslator.Translate(context, expression);
+            return new AstComparisonFilter(AstComparisonFilterOperator.Eq, field, true);
         }
 
         public static AstFilter TranslateLambda(TranslationContext context, LambdaExpression lambdaExpression, IBsonSerializer parameterSerializer)

@@ -28,6 +28,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
             var containerExpression = expression.Expression;
             var memberInfo = expression.Member;
 
+            // TODO: since ExpressionToFilterTranslator now translates 'f' to '{ f : true }' this class might no longer be needed
             if (expression.Type == typeof(bool))
             {
                 if (memberInfo is PropertyInfo propertyInfo)
