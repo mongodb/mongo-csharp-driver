@@ -21,6 +21,7 @@ namespace MongoDB.Driver.Linq3.Misc
     public static class StringMethod
     {
         // private static fields
+        private static readonly MethodInfo __endsWith;
         private static readonly MethodInfo __indexOfWithChar;
         private static readonly MethodInfo __indexOfWithCharAndStartIndex;
         private static readonly MethodInfo __indexOfWithCharAndStartIndexAndCount;
@@ -47,6 +48,7 @@ namespace MongoDB.Driver.Linq3.Misc
         // static constructor
         static StringMethod()
         {
+            __endsWith = new Func<string, bool>("".EndsWith).Method;
             __indexOfWithChar = new Func<char, int>("".IndexOf).Method;
             __indexOfWithCharAndStartIndex = new Func<char, int, int>("".IndexOf).Method;
             __indexOfWithCharAndStartIndexAndCount = new Func<char, int, int, int>("".IndexOf).Method;
@@ -72,6 +74,7 @@ namespace MongoDB.Driver.Linq3.Misc
         }
 
         // public properties
+        public static MethodInfo EndsWith => __endsWith;
         public static MethodInfo IndexOfWithChar => __indexOfWithChar;
         public static MethodInfo IndexOfWithCharAndStartIndex => __indexOfWithCharAndStartIndex;
         public static MethodInfo IndexOfWithCharAndStartIndexAndCount => __indexOfWithCharAndStartIndexAndCount;

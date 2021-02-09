@@ -14,20 +14,32 @@
 */
 
 using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 using MongoDB.Driver.Linq3.Ast.Filters;
+using MongoDB.Driver.Linq3.Misc;
+using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodTranslators
 {
-    public static class MethodCallExpressionToFilterTranslator
+    public static class EndsWithMethodToFilterTranslator
     {
         public static AstFilter Translate(TranslationContext context, MethodCallExpression expression)
         {
-            switch (expression.Method.Name)
+            var method = expression.Method;
+            var arguments = expression.Arguments;
+
+            if (method.Is(StringMethod.EndsWith))
             {
-                case "Any": return AnyMethodToFilterTranslator.Translate(context, expression);
-                case "Contains": return ContainsMethodToFilterTranslator.Translate(context, expression);
-                case "EndsWith": return EndsWithMethodToFilterTranslator.Translate(context, expression);
-                case "Equals": return EqualsMethodToFilterTranslator.Translate(context, expression);
+                var objectExpression = expression.Object;
+                var field = ExpressionToFilterFieldTranslator.Translate(context, objectExpression);
+
+                var valueExpression = arguments[0];
+                if (valueExpression is ConstantExpression valueConstantExpression)
+                {
+                    var value = (string)valueConstantExpression.Value;
+                    var pattern = Regex.Escape(value) + "$";
+                    return new AstRegexFilter(field, pattern, options: "");
+                }
             }
 
             throw new ExpressionNotSupportedException(expression);
