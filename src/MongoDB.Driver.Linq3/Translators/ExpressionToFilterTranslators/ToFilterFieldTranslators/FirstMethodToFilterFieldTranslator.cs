@@ -14,18 +14,32 @@
 */
 
 using System.Linq.Expressions;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq3.Ast.Filters;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators
 {
-    public static class MethodCallExpressionToFilterFieldTranslator
+    public static class FirstMethodToFilterFieldTranslator
     {
         public static AstFilterField Translate(TranslationContext context, MethodCallExpression expression)
         {
-            switch (expression.Method.Name)
+            var method = expression.Method;
+            var arguments = expression.Arguments;
+
+            if (method.IsStatic &&
+                method.Name == "First" &&
+                arguments.Count == 1)
             {
-                case "First": return FirstMethodToFilterFieldTranslator.Translate(context, expression);
-                case "get_Item": return GetItemMethodToFilterFieldTranslator.Translate(context, expression);
+                var enumerableFieldAst = ExpressionToFilterFieldTranslator.TranslateEnumerable(context, arguments[0]);
+                if (enumerableFieldAst.Serializer is IBsonArraySerializer arraySerializer &&
+                    arraySerializer.TryGetItemSerializationInfo(out var itemSerializationInfo))
+                {
+                    var itemSerializer = itemSerializationInfo.Serializer;
+                    if (method.ReturnType.IsAssignableFrom(itemSerializer.ValueType))
+                    {
+                        return enumerableFieldAst.CreateFilterSubField("0", itemSerializer);
+                    }
+                }
             }
 
             throw new ExpressionNotSupportedException(expression);
