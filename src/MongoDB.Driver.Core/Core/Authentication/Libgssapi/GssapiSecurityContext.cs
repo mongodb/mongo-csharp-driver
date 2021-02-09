@@ -33,61 +33,32 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
 
         public byte[] Next(byte[] challenge)
         {
-            var outputToken = new GssOutputBuffer();
-            try
-            {
-                using (var inputToken = new GssInputBuffer(challenge))
-                {
-                    uint majorStatus, minorStatus;
+            using var inputToken = new GssInputBuffer(challenge);
+            using var outputToken = new GssOutputBuffer();
+            const GssFlags authenticationFlags = GssFlags.GSS_C_MUTUAL_FLAG | GssFlags.GSS_C_SEQUENCE_FLAG;
+            var majorStatus = NativeMethods.InitializeSecurityContext(out var minorStatus, _credential, in handle, _servicePrincipalName, IntPtr.Zero, authenticationFlags, 0, IntPtr.Zero, inputToken, out var _, outputToken, out var _, out var _);
+            Gss.ThrowIfError(majorStatus, minorStatus);
 
-                    const GssFlags authenticationFlags = GssFlags.GSS_C_MUTUAL_FLAG | GssFlags.GSS_C_SEQUENCE_FLAG;
-                    majorStatus = NativeMethods.InitializeSecurityContext(out minorStatus, _credential, in handle, _servicePrincipalName, IntPtr.Zero, authenticationFlags, 0, IntPtr.Zero, inputToken, out var _, out outputToken, out var _, out var _);
-                    Gss.ThrowIfError(majorStatus, minorStatus);
-
-                    _isInitialized = true;
-                    return outputToken.ToByteArray();
-                }
-            }
-            finally
-            {
-                outputToken.Dispose();
-            }
+            _isInitialized = true;
+            return outputToken.ToByteArray();
         }
 
         public byte[] DecryptMessage(int messageLength, byte[] encryptedBytes)
         {
-            var outputBuffer = new GssOutputBuffer();
-            try
-            {
-                using (var inputBuffer = new GssInputBuffer(encryptedBytes))
-                {
-                    var majorStatus = NativeMethods.UnwrapMessage(out uint minorStatus, handle, inputBuffer, out outputBuffer, out int _, out int _);
-                    Gss.ThrowIfError(majorStatus, minorStatus);
-                    return outputBuffer.ToByteArray();
-                }
-            }
-            finally
-            {
-                outputBuffer.Dispose();
-            }
+            using var inputBuffer = new GssInputBuffer(encryptedBytes);
+            using var outputBuffer = new GssOutputBuffer();
+            var majorStatus = NativeMethods.UnwrapMessage(out uint minorStatus, handle, inputBuffer, outputBuffer, out int _, out int _);
+            Gss.ThrowIfError(majorStatus, minorStatus);
+            return outputBuffer.ToByteArray();
         }
 
         public byte[] EncryptMessage(byte[] plainTextBytes)
         {
-            var outputBuffer = new GssOutputBuffer();
-            try
-            {
-                using (var inputBuffer = new GssInputBuffer(plainTextBytes))
-                {
-                    var majorStatus = NativeMethods.WrapMessage(out uint minorStatus, handle, 0, 0, inputBuffer, out int _, out outputBuffer);
-                    Gss.ThrowIfError(majorStatus, minorStatus);
-                    return outputBuffer.ToByteArray();
-                }
-            }
-            finally
-            {
-                outputBuffer.Dispose();
-            }
+            using var inputBuffer = new GssInputBuffer(plainTextBytes);
+            using var outputBuffer = new GssOutputBuffer();
+            var majorStatus = NativeMethods.WrapMessage(out uint minorStatus, handle, 0, 0, inputBuffer, out int _, outputBuffer);
+            Gss.ThrowIfError(majorStatus, minorStatus);
+            return outputBuffer.ToByteArray();
         }
 
         protected override bool ReleaseHandle()

@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
         public static extern uint ImportName(out uint minorStatus, GssInputBuffer name, in Oid nameType, out IntPtr outputName);
 
         [DllImport(GSSAPI_LIBRARY, EntryPoint = "gss_display_name")]
-        public static extern uint DisplayName(out uint minorStatus, IntPtr inputName, out GssOutputBuffer outputBuffer, out Oid outputNameType);
+        public static extern uint DisplayName(out uint minorStatus, IntPtr inputName, [MarshalAs(UnmanagedType.LPStruct)] GssOutputBuffer outputBuffer, out Oid outputNameType);
 
         [DllImport(GSSAPI_LIBRARY, EntryPoint = "gss_canonicalize_name")]
         public static extern uint CanonicalizeName(out uint minorStatus, IntPtr inputName, in Oid mechType, out IntPtr outputName);
@@ -38,16 +38,16 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
         public static extern uint AcquireCredential(out uint minorStatus, IntPtr name, uint timeRequested, IntPtr desiredMechanisms, GssCredentialUsage credentialUsage, out GssapiSecurityCredential securityCredential, IntPtr actualMechanisms, out uint timeReceived);
 
         [DllImport(GSSAPI_LIBRARY, EntryPoint = "gss_init_sec_context")]
-        public static extern uint InitializeSecurityContext(out uint minorStatus, GssapiSecurityCredential securityCredential, in IntPtr securityContextHandle, GssapiServicePrincipalName spnName, IntPtr inputMechType, GssFlags requestFlags, uint timeRequested, IntPtr inputChannelBindings, GssInputBuffer inputToken, out IntPtr actualMechType, out GssOutputBuffer outputToken, out GssFlags returnedFlags, out uint timeReceived);
+        public static extern uint InitializeSecurityContext(out uint minorStatus, GssapiSecurityCredential securityCredential, in IntPtr securityContextHandle, GssapiServicePrincipalName spnName, IntPtr inputMechType, GssFlags requestFlags, uint timeRequested, IntPtr inputChannelBindings, GssInputBuffer inputToken, out IntPtr actualMechType, [MarshalAs(UnmanagedType.LPStruct)] GssOutputBuffer outputToken, out GssFlags returnedFlags, out uint timeReceived);
 
         [DllImport(GSSAPI_LIBRARY, EntryPoint = "gss_display_status")]
-        public static extern uint DisplayStatus(out uint minorStatus, uint status, GssCode statusType, in IntPtr mechType, out uint messageContext, out GssOutputBuffer statusString);
+        public static extern uint DisplayStatus(out uint minorStatus, uint status, GssCode statusType, in IntPtr mechType, out uint messageContext, [MarshalAs(UnmanagedType.LPStruct)] GssOutputBuffer statusString);
 
         [DllImport(GSSAPI_LIBRARY, EntryPoint = "gss_release_name")]
         public static extern uint ReleaseName(out uint minorStatus, IntPtr name);
 
         [DllImport(GSSAPI_LIBRARY, EntryPoint = "gss_release_buffer")]
-        public static extern uint ReleaseBuffer(out uint minorStatus, ref GssOutputBuffer buffer);
+        public static extern uint ReleaseBuffer(out uint minorStatus, GssOutputBuffer buffer);
 
         [DllImport(GSSAPI_LIBRARY, EntryPoint = "gss_release_cred")]
         public static extern uint ReleaseCredential(out uint minorStatus, IntPtr credentialHandle);
@@ -56,9 +56,9 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
         public static extern uint DeleteSecurityContext(out uint minorStatus, IntPtr securityContextHandle, IntPtr outputToken);
 
         [DllImport(GSSAPI_LIBRARY, EntryPoint = "gss_wrap")]
-        public static extern uint WrapMessage(out uint minorStatus, IntPtr securityContextHandle, int confidentialityRequested, int protectionType, GssInputBuffer inputBuffer, out int confidentialityState, out GssOutputBuffer outputBuffer);
+        public static extern uint WrapMessage(out uint minorStatus, IntPtr securityContextHandle, int confidentialityRequested, int protectionType, GssInputBuffer inputBuffer, out int confidentialityState, [MarshalAs(UnmanagedType.LPStruct)] GssOutputBuffer outputBuffer);
 
         [DllImport(GSSAPI_LIBRARY, EntryPoint = "gss_unwrap")]
-        public static extern uint UnwrapMessage(out uint minorStatus, IntPtr securityContextHandle, GssInputBuffer inputBuffer, out GssOutputBuffer outputBuffer, out int confidentialityState, out int qualityOfProtectionState);
+        public static extern uint UnwrapMessage(out uint minorStatus, IntPtr securityContextHandle, GssInputBuffer inputBuffer, [MarshalAs(UnmanagedType.LPStruct)] GssOutputBuffer outputBuffer, out int confidentialityState, out int qualityOfProtectionState);
     }
 }
