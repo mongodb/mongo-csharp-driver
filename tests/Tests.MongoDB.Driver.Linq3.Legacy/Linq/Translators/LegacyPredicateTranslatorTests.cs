@@ -188,7 +188,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereASub1NotEquals3Not()
         {
-            Assert<C>(c => !(c.A[1] != 3), 1, "{ \"a.1\" : 3 }");
+            Assert<C>(c => !(c.A[1] != 3), 1, "{ $nor : [{ 'a.1' : { $ne : 3 } }] }");
         }
 
         [Fact]
@@ -212,7 +212,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereBASub0EqualsFalseNot()
         {
-            Assert<C>(c => !(c.BA[0] == false), 5, "{ \"ba.0\" : { \"$ne\" : false } }");
+            Assert<C>(c => !(c.BA[0] == false), 5, "{ $nor : [{ 'ba.0' : false }] }");
         }
 
         [Fact]
@@ -224,13 +224,13 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereBASub0EqualsTrueNot()
         {
-            Assert<C>(c => !(c.BA[0] == true), 4, "{ \"ba.0\" : { \"$ne\" : true } }");
+            Assert<C>(c => !(c.BA[0] == true), 4, "{ $nor : [{ 'ba.0' : true }] }");
         }
 
         [Fact]
         public void TestWhereBASub0Not()
         {
-            Assert<C>(c => !c.BA[0], 4, "{ \"ba.0\" : { \"$ne\" : true } }");
+            Assert<C>(c => !c.BA[0], 4, "{ $nor : [{ 'ba.0' : true }] }");
         }
 
         [Fact]
@@ -242,7 +242,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereBEqualsFalseNot()
         {
-            Assert<C>(c => !(c.B == false), 1, "{ \"b\" : { \"$ne\" : false } }");
+            Assert<C>(c => !(c.B == false), 1, "{ $nor : [{ b : false }] }");
         }
 
         [Fact]
@@ -254,13 +254,13 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereBEqualsTrueNot()
         {
-            Assert<C>(c => !(c.B == true), 4, "{ \"b\" : { \"$ne\" : true } }");
+            Assert<C>(c => !(c.B == true), 4, "{ $nor : [{ b : true }] }");
         }
 
         [Fact]
         public void TestWhereBNot()
         {
-            Assert<C>(c => !c.B, 4, "{ \"b\" : { \"$ne\" : true } }");
+            Assert<C>(c => !c.B, 4, "{ $nor : [{ b : true }] }");
         }
 
         [Fact]
@@ -272,7 +272,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereDEquals11Not()
         {
-            Assert<C>(c => !(c.D == new D { Z = 11 }), 4, "{ \"d\" : { \"$ne\" : { \"z\" : 11 } } }");
+            Assert<C>(c => !(c.D == new D { Z = 11 }), 4, "{ $nor : [{ d : { z : 11 } }] }");
         }
 
         [Fact]
@@ -284,7 +284,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereDNotEquals11Not()
         {
-            Assert<C>(c => !(c.D != new D { Z = 11 }), 1, "{ \"d\" : { \"z\" : 11 } }");
+            Assert<C>(c => !(c.D != new D { Z = 11 }), 1, "{ $nor : [{ d : { $ne : { z : 11 } } }] }");
         }
 
         [Fact]
