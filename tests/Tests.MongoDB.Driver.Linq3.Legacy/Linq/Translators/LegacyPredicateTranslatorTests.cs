@@ -406,7 +406,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereLCountMethodEquals3Not()
         {
-            Assert<C>(c => !(c.L.Count() == 3), 4, "{ \"l\" : { \"$not\" : { \"$size\" : 3 } } }");
+            Assert<C>(c => !(c.L.Count() == 3), 4, "{ $nor : [{ l : { $size : 3 } }] }");
         }
 
         [Fact]
@@ -424,7 +424,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereLCountPropertyEquals3Not()
         {
-            Assert<C>(c => !(c.L.Count == 3), 4, "{ \"l\" : { \"$not\" : { \"$size\" : 3 } } }");
+            Assert<C>(c => !(c.L.Count == 3), 4, "{ $nor : [{ l : { $size : 3 } }] }");
         }
 
         [Fact]
@@ -436,7 +436,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereLCountPropertyNotEquals3()
         {
-            Assert<C>(c => c.L.Count != 3, 4, "{ \"l\" : { \"$not\" : { \"$size\" : 3 } } }");
+            Assert<C>(c => c.L.Count != 3, 4, "{ $nor : [{ l : { $size : 3 } }] }");
         }
 
         [Fact]

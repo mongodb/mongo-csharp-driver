@@ -21,13 +21,12 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
 {
     public static class ArrayLengthComparisonExpressionToFilterTranslator
     {
-        public static bool CanTranslate(Expression leftExpression, Expression rightExpression, out UnaryExpression arrayLengthExpression, out ConstantExpression sizeExpression)
+        public static bool CanTranslate(Expression leftExpression, Expression rightExpression, out UnaryExpression arrayLengthExpression, out Expression sizeExpression)
         {
-            if (leftExpression.NodeType == ExpressionType.ArrayLength &&
-                rightExpression.NodeType == ExpressionType.Constant)
+            if (leftExpression.NodeType == ExpressionType.ArrayLength)
             {
                 arrayLengthExpression = (UnaryExpression)leftExpression;
-                sizeExpression = (ConstantExpression)rightExpression;
+                sizeExpression = rightExpression;
                 return true;
             }
 
@@ -36,13 +35,14 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
             return false;
         }
 
-        public static AstFilter Translate(TranslationContext context, BinaryExpression expression, UnaryExpression arrayLengthExpression, ConstantExpression sizeExpression)
+        public static AstFilter Translate(TranslationContext context, BinaryExpression expression, UnaryExpression arrayLengthExpression, Expression sizeExpression)
         {
-            if (arrayLengthExpression.NodeType == ExpressionType.ArrayLength)
+            if (arrayLengthExpression.NodeType == ExpressionType.ArrayLength &&
+                sizeExpression is ConstantExpression sizeConstantExpression)
             {
                 var arrayExpression = arrayLengthExpression.Operand;
                 var arrayField = ExpressionToFilterFieldTranslator.Translate(context, arrayExpression);
-                var size = (int)sizeExpression.Value;
+                var size = (int)sizeConstantExpression.Value;
 
                 switch (expression.NodeType)
                 {
