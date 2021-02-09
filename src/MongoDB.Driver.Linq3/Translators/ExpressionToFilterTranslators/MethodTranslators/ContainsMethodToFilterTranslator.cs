@@ -30,6 +30,11 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             var method = expression.Method;
             var arguments = expression.Arguments;
 
+            if (StringContainsMethodToFilterTranslator.CanTranslate(expression))
+            {
+                return StringContainsMethodToFilterTranslator.Translate(context, expression);
+            }
+
             if (method.IsStatic &&
                 method.Name == "Contains" &&
                 method.ReturnType == typeof(bool) &&
