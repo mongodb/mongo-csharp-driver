@@ -21,13 +21,13 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
 {
     public static class ArrayLengthComparisonExpressionToFilterTranslator
     {
-        public static bool CanTranslate(BinaryExpression expression, out UnaryExpression arrayLengthExpression, out ConstantExpression sizeExpression)
+        public static bool CanTranslate(Expression leftExpression, Expression rightExpression, out UnaryExpression arrayLengthExpression, out ConstantExpression sizeExpression)
         {
-            if (expression.Left.NodeType == ExpressionType.ArrayLength &&
-                expression.Right.NodeType == ExpressionType.Constant)
+            if (leftExpression.NodeType == ExpressionType.ArrayLength &&
+                rightExpression.NodeType == ExpressionType.Constant)
             {
-                arrayLengthExpression = (UnaryExpression)expression.Left;
-                sizeExpression = (ConstantExpression)expression.Right;
+                arrayLengthExpression = (UnaryExpression)leftExpression;
+                sizeExpression = (ConstantExpression)rightExpression;
                 return true;
             }
 

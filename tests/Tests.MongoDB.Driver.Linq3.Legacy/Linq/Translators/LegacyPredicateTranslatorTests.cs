@@ -158,25 +158,25 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereASub1ModTwoEquals1()
         {
-            Assert<C>(c => c.A[1] % 2 == 1, 1, "{ \"a.1\" : { \"$mod\" : [NumberLong(2), NumberLong(1)] } }");
+            Assert<C>(c => c.A[1] % 2 == 1, 1, "{ 'a.1' : { $mod : [2, 1] } }");
         }
 
         [Fact]
         public void TestWhereASub1ModTwoEquals1Not()
         {
-            Assert<C>(c => !(c.A[1] % 2 == 1), 4, "{ \"a.1\" : { \"$not\" : { \"$mod\" : [NumberLong(2), NumberLong(1)] } } }");
+            Assert<C>(c => !(c.A[1] % 2 == 1), 4, "{ $nor : [{ 'a.1' : { $mod : [2, 1] } }] }");
         }
 
         [Fact]
         public void TestWhereASub1ModTwoNotEquals1()
         {
-            Assert<C>(c => c.A[1] % 2 != 1, 4, "{ \"a.1\" : { \"$not\" : { \"$mod\" : [NumberLong(2), NumberLong(1)] } } }");
+            Assert<C>(c => c.A[1] % 2 != 1, 4, "{ $nor : [{ 'a.1' : { $mod : [2, 1] } }] }");
         }
 
         [Fact]
         public void TestWhereASub1ModTwoNotEquals1Not()
         {
-            Assert<C>(c => !(c.A[1] % 2 != 1), 1, "{ \"a.1\" : { \"$mod\" : [NumberLong(2), NumberLong(1)] } }");
+            Assert<C>(c => !(c.A[1] % 2 != 1), 1, "{ 'a.1' : { $mod : [2, 1] } }");
         }
 
         [Fact]
@@ -460,25 +460,25 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereLSub1ModTwoEquals1()
         {
-            Assert<C>(c => c.L[1] % 2 == 1, 1, "{ \"l.1\" : { \"$mod\" : [NumberLong(2), NumberLong(1)] } }");
+            Assert<C>(c => c.L[1] % 2 == 1, 1, "{ 'l.1' : { $mod : [2, 1] } }");
         }
 
         [Fact]
         public void TestWhereLSub1ModTwoEquals1Not()
         {
-            Assert<C>(c => !(c.L[1] % 2 == 1), 4, "{ \"l.1\" : { \"$not\" : { \"$mod\" : [NumberLong(2), NumberLong(1)] } } }");
+            Assert<C>(c => !(c.L[1] % 2 == 1), 4, "{ $nor : [ { 'l.1' : { $mod : [2, 1] } }] }");
         }
 
         [Fact]
         public void TestWhereLSub1ModTwoNotEquals1()
         {
-            Assert<C>(c => c.L[1] % 2 != 1, 4, "{ \"l.1\" : { \"$not\" : { \"$mod\" : [NumberLong(2), NumberLong(1)] } } }");
+            Assert<C>(c => c.L[1] % 2 != 1, 4, "{ $nor : [ { 'l.1' : { $mod : [2, 1] } }] }");
         }
 
         [Fact]
         public void TestWhereLSub1ModTwoNotEquals1Not()
         {
-            Assert<C>(c => !(c.L[1] % 2 != 1), 1, "{ \"l.1\" : { \"$mod\" : [NumberLong(2), NumberLong(1)] } }");
+            Assert<C>(c => !(c.L[1] % 2 != 1), 1, "{ 'l.1' : { $mod : [2, 1] } }");
         }
 
         [Fact]
@@ -502,7 +502,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereLXModTwoEquals1Not()
         {
-            Assert<C>(c => !(c.LX % 2 == 1), 2, "{ \"lx\" : { \"$not\" : { \"$mod\" : [NumberLong(2), NumberLong(1)] } } }");
+            Assert<C>(c => !(c.LX % 2 == 1), 2, "{ $nor : [{ \"lx\" : { \"$mod\" : [NumberLong(2), NumberLong(1)] } }] }");
         }
 
         [Fact]
@@ -514,7 +514,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereLXModTwoNotEquals1()
         {
-            Assert<C>(c => c.LX % 2 != 1, 2, "{ \"lx\" : { \"$not\" : { \"$mod\" : [NumberLong(2), NumberLong(1)] } } }");
+            Assert<C>(c => c.LX % 2 != 1, 2, "{ $nor : [{ \"lx\" : { \"$mod\" : [NumberLong(2), NumberLong(1)] } }] }");
         }
 
         [Fact]
@@ -1121,49 +1121,49 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereXModOneEquals0AndXModTwoEquals0()
         {
-            Assert<C>(c => (c.X % 1 == 0) && (c.X % 2 == 0), 2, "{ \"$and\" : [{ \"x\" : { \"$mod\" : [NumberLong(1), NumberLong(0)] } }, { \"x\" : { \"$mod\" : [NumberLong(2), NumberLong(0)] } }] }");
+            Assert<C>(c => (c.X % 1 == 0) && (c.X % 2 == 0), 2, "{ \"$and\" : [{ \"x\" : { \"$mod\" : [1, 0] } }, { \"x\" : { \"$mod\" : [2, 0] } }] }");
         }
 
         [Fact]
         public void TestWhereXModOneEquals0AndXModTwoEquals0Not()
         {
-            Assert<C>(c => !((c.X % 1 == 0) && (c.X % 2 == 0)), 3, "{ \"$nor\" : [{ \"$and\" : [{ \"x\" : { \"$mod\" : [NumberLong(1), NumberLong(0)] } }, { \"x\" : { \"$mod\" : [NumberLong(2), NumberLong(0)] } }] }] }");
+            Assert<C>(c => !((c.X % 1 == 0) && (c.X % 2 == 0)), 3, "{ \"$nor\" : [{ \"$and\" : [{ \"x\" : { \"$mod\" : [1, 0] } }, { \"x\" : { \"$mod\" : [2, 0] } }] }] }");
         }
 
         [Fact]
         public void TestWhereXModOneEquals0AndXModTwoEquals0NotNot()
         {
-            Assert<C>(c => !!((c.X % 1 == 0) && (c.X % 2 == 0)), 2, "{ \"$or\" : [{ \"$and\" : [{ \"x\" : { \"$mod\" : [NumberLong(1), NumberLong(0)] } }, { \"x\" : { \"$mod\" : [NumberLong(2), NumberLong(0)] } }] }] }");
+            Assert<C>(c => !!((c.X % 1 == 0) && (c.X % 2 == 0)), 2, "{ \"$and\" : [{ \"x\" : { \"$mod\" : [1, 0] } }, { \"x\" : { \"$mod\" : [2, 0] } }] }");
         }
 
         [Fact]
         public void TestWhereXModTwoEquals1()
         {
-            Assert<C>(c => c.X % 2 == 1, 3, "{ \"x\" : { \"$mod\" : [NumberLong(2), NumberLong(1)] } }");
+            Assert<C>(c => c.X % 2 == 1, 3, "{ \"x\" : { \"$mod\" : [2, 1] } }");
         }
 
         [Fact]
         public void TestWhereXModTwoEquals1Not()
         {
-            Assert<C>(c => !(c.X % 2 == 1), 2, "{ \"x\" : { \"$not\" : { \"$mod\" : [NumberLong(2), NumberLong(1)] } } }");
+            Assert<C>(c => !(c.X % 2 == 1), 2, "{ $nor : [{ x : { $mod : [2, 1] } }] }");
         }
 
         [Fact]
         public void TestWhereXModTwoEquals1Reversed()
         {
-            Assert<C>(c => 1 == c.X % 2, 3, "{ \"x\" : { \"$mod\" : [NumberLong(2), NumberLong(1)] } }");
+            Assert<C>(c => 1 == c.X % 2, 3, "{ \"x\" : { \"$mod\" : [2, 1] } }");
         }
 
         [Fact]
         public void TestWhereXModTwoNotEquals1()
         {
-            Assert<C>(c => c.X % 2 != 1, 2, "{ \"x\" : { \"$not\" : { \"$mod\" : [NumberLong(2), NumberLong(1)] } } }");
+            Assert<C>(c => c.X % 2 != 1, 2, "{ $nor : [{ x : { $mod : [2, 1] } }] }");
         }
 
         [Fact]
         public void TestWhereXModTwoNotEquals1Not()
         {
-            Assert<C>(c => !(c.X % 2 != 1), 3, "{ \"x\" : { \"$mod\" : [NumberLong(2), NumberLong(1)] } }");
+            Assert<C>(c => !(c.X % 2 != 1), 3, "{ x : { $mod : [2, 1] } }");
         }
 
         [Fact]
