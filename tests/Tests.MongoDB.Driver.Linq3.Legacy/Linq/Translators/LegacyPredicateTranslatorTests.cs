@@ -454,7 +454,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereLSub1Equals3Not()
         {
-            Assert<C>(c => !(c.L[1] == 3), 4, "{ \"l.1\" : { \"$ne\" : 3 } }");
+            Assert<C>(c => !(c.L[1] == 3), 4, "{ $nor : [{ 'l.1' : 3 }] }");
         }
 
         [Fact]
@@ -490,7 +490,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereLSub1NotEquals3Not()
         {
-            Assert<C>(c => !(c.L[1] != 3), 1, "{ \"l.1\" : 3 }");
+            Assert<C>(c => !(c.L[1] != 3), 1, "{ $nor : [{ 'l.1' : { $ne : 3} }] }");
         }
 
         [Fact]
@@ -526,25 +526,25 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSASub0ContainsO()
         {
-            Assert<C>(c => c.SA[0].Contains("o"), 1, "{ \"sa.0\" : /o/s }");
+            Assert<C>(c => c.SA[0].Contains("o"), 1, "{ 'sa.0' : /o/ }");
         }
 
         [Fact]
         public void TestWhereSASub0ContainsONot()
         {
-            Assert<C>(c => !c.SA[0].Contains("o"), 4, "{ \"sa.0\" : { \"$not\" : /o/s } }");
+            Assert<C>(c => !c.SA[0].Contains("o"), 4, "{ $nor : [{ 'sa.0' : /o/ }] }");
         }
 
         [Fact]
         public void TestWhereSASub0EndsWithM()
         {
-            Assert<C>(c => c.SA[0].EndsWith("m"), 1, "{ \"sa.0\" : /m$/s }");
+            Assert<C>(c => c.SA[0].EndsWith("m"), 1, "{ 'sa.0' : /m$/ }");
         }
 
         [Fact]
         public void TestWhereSASub0EndsWithMNot()
         {
-            Assert<C>(c => !c.SA[0].EndsWith("m"), 4, "{ \"sa.0\" : { \"$not\" : /m$/s } }");
+            Assert<C>(c => !c.SA[0].EndsWith("m"), 4, "{ $nor : [{ 'sa.0' : /m$/ }] }");
         }
 
         [Fact]
@@ -594,19 +594,19 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSContainsAbc()
         {
-            Assert<C>(c => c.S.Contains("abc"), 1, "{ \"s\" : /abc/s }");
+            Assert<C>(c => c.S.Contains("abc"), 1, "{ s : /abc/ }");
         }
 
         [Fact]
         public void TestWhereSContainsAbcNot()
         {
-            Assert<C>(c => !c.S.Contains("abc"), 4, "{ \"s\" : { \"$not\" : /abc/s } }");
+            Assert<C>(c => !c.S.Contains("abc"), 4, "{ $nor : [{ s : /abc/ }] }");
         }
 
         [Fact]
         public void TestWhereSContainsDot()
         {
-            Assert<C>(c => c.S.Contains("."), 0, "{ \"s\" : /\\./s }");
+            Assert<C>(c => c.S.Contains("."), 0, "{ s : /\\./ }");
         }
 
         [Fact]
@@ -654,13 +654,13 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSEndsWithAbc()
         {
-            Assert<C>(c => c.S.EndsWith("abc"), 1, "{ \"s\" : /abc$/s }");
+            Assert<C>(c => c.S.EndsWith("abc"), 1, "{ s : /abc$/ }");
         }
 
         [Fact]
         public void TestWhereSEndsWithAbcNot()
         {
-            Assert<C>(c => !c.S.EndsWith("abc"), 4, "{ \"s\" : { \"$not\" : /abc$/s } }");
+            Assert<C>(c => !c.S.EndsWith("abc"), 4, "{ $nor : [{ s : /abc$/ }] }");
         }
 
         [Fact]
