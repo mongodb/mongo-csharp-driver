@@ -292,7 +292,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             Assert<C>(c => c.DA.Any(d => d.Z == 333), 1, "{ \"da\" : { \"$elemMatch\" : { \"z\" : 333 } } }");
 
-            Assert<C>(c => c.DA.Any(d => d.Z >= 222 && d.Z <= 444), 2, "{ \"da\" : { \"$elemMatch\" : { \"z\" : { \"$gte\" : 222, \"$lte\" : 444 } } } }");
+            Assert<C>(c => c.DA.Any(d => d.Z >= 222 && d.Z <= 444), 2, "{ da : { $elemMatch : { $and : [{ z : { $gte : 222 } }, { z : { $lte : 444 } }] } } }");
         }
 
         [Fact]
@@ -304,7 +304,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereEAContainsBNot()
         {
-            Assert<C>(c => !c.EA.Contains(E.B), 4, "{ \"ea\" : { \"$ne\" : 2 } }");
+            Assert<C>(c => !c.EA.Contains(E.B), 4, "{ $nor : [{ ea : 2 }] }");
         }
 
         [Fact]
@@ -316,7 +316,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereEASub0EqualsANot()
         {
-            Assert<C>(c => !(c.EA[0] == E.A), 4, "{ \"ea.0\" : { \"$ne\" : 1 } }");
+            Assert<C>(c => !(c.EA[0] == E.A), 4, "{ $nor : [{ 'ea.0' : 1 }] }");
         }
 
         [Fact]
@@ -328,7 +328,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereEASub0NotEqualsANot()
         {
-            Assert<C>(c => !(c.EA[0] != E.A), 1, "{ \"ea.0\" : 1 }");
+            Assert<C>(c => !(c.EA[0] != E.A), 1, "{ $nor : [{ 'ea.0' : { $ne : 1 } }] }");
         }
 
         [Fact]
@@ -340,7 +340,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereEEqualsANot()
         {
-            Assert<C>(c => !(c.E == E.A), 4, "{ \"e\" : { \"$ne\" : \"A\" } }");
+            Assert<C>(c => !(c.E == E.A), 4, "{ $nor : [{ e : 'A' }] }");
         }
 
         [Fact]
@@ -358,7 +358,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereENotEqualsANot()
         {
-            Assert<C>(c => !(c.E != E.A), 1, "{ \"e\" : \"A\" }");
+            Assert<C>(c => !(c.E != E.A), 1, "{ $nor : [{ e : { $ne : 'A' } }] }");
         }
 
         [Fact]
@@ -394,7 +394,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereLContains2Not()
         {
-            Assert<C>(c => !c.L.Contains(2), 4, "{ \"l\" : { \"$ne\" : 2 } }");
+            Assert<C>(c => !c.L.Contains(2), 4, "{ $nor : [{ l : 2 }] }");
         }
 
         [Fact]
