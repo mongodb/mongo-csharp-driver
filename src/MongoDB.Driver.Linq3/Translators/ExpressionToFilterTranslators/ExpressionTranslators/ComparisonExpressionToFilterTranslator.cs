@@ -34,9 +34,14 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
                 (leftExpression, rightExpression) = (rightExpression, leftExpression);
             }
 
-            if (ArrayLengthComparisonExpressionToFilterTranslator.CanTranslate(expression, out var arrayLengthExpression, out var sizeExpression))
+            if (ArrayLengthComparisonExpressionToFilterTranslator.CanTranslate(leftExpression, rightExpression, out var arrayLengthExpression, out var sizeExpression))
             {
                 return ArrayLengthComparisonExpressionToFilterTranslator.Translate(context, expression, arrayLengthExpression, sizeExpression);
+            }
+
+            if (ModuloComparisonExpressionToFilterTranslator.CanTranslate(leftExpression, rightExpression, out var moduloExpression, out var remainderExpression))
+            {
+                return ModuloComparisonExpressionToFilterTranslator.Translate(context, expression, moduloExpression, remainderExpression);
             }
 
             if (rightExpression is ConstantExpression constantValueExpression)
