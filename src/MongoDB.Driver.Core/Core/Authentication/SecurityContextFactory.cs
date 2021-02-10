@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-using System.Runtime.InteropServices;
+using System;
 using System.Security;
 using MongoDB.Driver.Core.Authentication.Libgssapi;
 using MongoDB.Driver.Core.Authentication.Sspi;
@@ -25,41 +25,47 @@ namespace MongoDB.Driver.Core.Authentication
     {
         public static ISecurityContext InitializeSecurityContext(string serviceName, string hostname, string realm, string authorizationId, SecureString password)
         {
-            if (OperatingSystemHelper.CurrentOperatingSystem == OperatingSystemPlatform.Windows)
+            var operatingSystemPlatform = OperatingSystemHelper.CurrentOperatingSystem;
+            switch (operatingSystemPlatform)
             {
-                SspiSecurityCredential credential = null;
-                try
+                case OperatingSystemPlatform.Windows:
                 {
-                    var servicePrincipalName = $"{serviceName}/{hostname}";
-                    if (!string.IsNullOrEmpty(realm))
+                    SspiSecurityCredential credential = null;
+                    try
                     {
-                        servicePrincipalName += $"@{realm}";
+                        var servicePrincipalName = $"{serviceName}/{hostname}";
+                        if (!string.IsNullOrEmpty(realm))
+                        {
+                            servicePrincipalName += $"@{realm}";
+                        }
+                        credential = SspiSecurityCredential.Acquire(SspiPackage.Kerberos, authorizationId, password);
+                        return new SspiSecurityContext(servicePrincipalName, credential);
                     }
-                    credential = SspiSecurityCredential.Acquire(SspiPackage.Kerberos, authorizationId, password);
-                    return new SspiSecurityContext(servicePrincipalName, credential);
+                    catch (Win32Exception)
+                    {
+                        credential?.Dispose();
+                        throw;
+                    }
                 }
-                catch (Win32Exception)
+                case OperatingSystemPlatform.Linux:
                 {
-                    credential?.Dispose();
-                    throw;
+                    GssapiServicePrincipalName servicePrincipalName = null;
+                    GssapiSecurityCredential credential = null;
+                    try
+                    {
+                        servicePrincipalName = GssapiServicePrincipalName.Create(serviceName, hostname, realm);
+                        credential = GssapiSecurityCredential.Acquire(authorizationId, password);
+                        return new GssapiSecurityContext(servicePrincipalName, credential);
+                    }
+                    catch (LibgssapiException)
+                    {
+                        servicePrincipalName?.Dispose();
+                        credential?.Dispose();
+                        throw;
+                    }
                 }
-            }
-            else
-            {
-                GssapiServicePrincipalName servicePrincipalName = null;
-                GssapiSecurityCredential credential = null;
-                try
-                {
-                    servicePrincipalName = GssapiServicePrincipalName.Create(serviceName, hostname, realm);
-                    credential = GssapiSecurityCredential.Acquire(authorizationId, password);
-                    return new GssapiSecurityContext(servicePrincipalName, credential);
-                }
-                catch (LibgssapiException)
-                {
-                    servicePrincipalName?.Dispose();
-                    credential?.Dispose();
-                    throw;
-                }
+                default:
+                    throw new NotSupportedException($"GSSAPI is not supported on {operatingSystemPlatform}.");
             }
         }
     }
