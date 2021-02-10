@@ -672,13 +672,13 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSIndexOfAnyBCStartIndex1Equals1()
         {
-            Assert<C>(c => c.S.IndexOfAny(new char[] { 'b', '-', 'c' }, 1) == 1, 1, "{ \"s\" : /^.{1}[^b\\-c]{0}[b\\-c]/s }");
+            Assert<C>(c => c.S.IndexOfAny(new char[] { 'b', '-', 'c' }, 1) == 1, 1, "{ \"s\" : /^.{1}[b\\-c]/s }");
         }
 
         [Fact]
         public void TestWhereSIndexOfAnyBCStartIndex1Count2Equals1()
         {
-            Assert<C>(c => c.S.IndexOfAny(new char[] { 'b', '-', 'c' }, 1, 2) == 1, 1, "{ \"s\" : /^.{1}(?=.{2})[^b\\-c]{0}[b\\-c]/s }");
+            Assert<C>(c => c.S.IndexOfAny(new char[] { 'b', '-', 'c' }, 1, 2) == 1, 1, "{ \"s\" : /^.{1}(?=.{2})[b\\-c]/s }");
         }
 
         [Fact]
@@ -690,13 +690,13 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSIndexOfBStartIndex1Equals1()
         {
-            Assert<C>(c => c.S.IndexOf('b', 1) == 1, 1, "{ \"s\" : /^.{1}[^b]{0}b/s }");
+            Assert<C>(c => c.S.IndexOf('b', 1) == 1, 1, "{ \"s\" : /^.{1}b/s }");
         }
 
         [Fact]
         public void TestWhereSIndexOfBStartIndex1Count2Equals1()
         {
-            Assert<C>(c => c.S.IndexOf('b', 1, 2) == 1, 1, "{ \"s\" : /^.{1}(?=.{2})[^b]{0}b/s }");
+            Assert<C>(c => c.S.IndexOf('b', 1, 2) == 1, 1, "{ \"s\" : /^.{1}(?=.{2})b/s }");
         }
 
         [Fact]
