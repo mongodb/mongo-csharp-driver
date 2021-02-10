@@ -21,7 +21,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
     [StructLayout(LayoutKind.Sequential)]
     internal class GssOutputBuffer : IDisposable
     {
-        private ulong length = 0;
+        private nuint length = 0;
         private IntPtr value = IntPtr.Zero;
 
         ~GssOutputBuffer()
@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
         {
             if (length > int.MaxValue)
             {
-                throw new InvalidOperationException("GssBuffer too large to convert to array.");
+                throw new InvalidOperationException("GssOutputBuffer too large to read into a managed array.");
             }
 
             var result = new byte[length];

@@ -21,12 +21,12 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
     [StructLayout(LayoutKind.Sequential)]
     internal sealed class GssInputBuffer : IDisposable
     {
-        private  ulong length;
+        private nuint length;
         private IntPtr value;
 
         public GssInputBuffer(string inputString)
         {
-            length = (ulong)inputString.Length;
+            length = (nuint)inputString.Length;
             value = Marshal.StringToHGlobalAnsi(inputString);
         }
 
@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
             var unmanagedArray = Marshal.AllocHGlobal(numBytes);
             Marshal.Copy(inputBytes, 0, unmanagedArray, numBytes);
 
-            length = (ulong)numBytes;
+            length = (nuint)numBytes;
             value = unmanagedArray;
         }
 
