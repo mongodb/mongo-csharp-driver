@@ -33,6 +33,7 @@ namespace MongoDB.Driver.Core.Misc
         private CancellationTokenSource _signalCancelationTokenSource;
 
         private readonly SemaphoreSlim _semaphore;
+        private readonly object _syncRoot;
 
         // constructors
         /// <summary>
@@ -44,24 +45,34 @@ namespace MongoDB.Driver.Core.Misc
             Ensure.IsBetween(count, 1, 1024, nameof(count));
 
             _semaphore = new SemaphoreSlim(count);
+            _syncRoot = new object();
 
             _signalCancelationTokenSource = new CancellationTokenSource();
         }
 
-        /// <summary>
-        /// Signals
-        /// </summary>
         public void Signal()
         {
-            _signalCancelationTokenSource?.Cancel();
+            if (!_signalCancelationTokenSource.IsCancellationRequested)
+            {
+                lock (_syncRoot)
+                {
+                    _signalCancelationTokenSource.Cancel();
+                }
+            }
         }
 
-        /// <summary>
-        /// Clears the signal
-        /// </summary>
         public void Reset()
         {
-            Interlocked.Exchange(ref _signalCancelationTokenSource, new CancellationTokenSource());
+            if (_signalCancelationTokenSource.IsCancellationRequested)
+            {
+                lock (_syncRoot)
+                {
+                    if (_signalCancelationTokenSource.IsCancellationRequested)
+                    {
+                        _signalCancelationTokenSource = new CancellationTokenSource();
+                    }
+                }
+            }
         }
 
         public SemaphoreWaitResult Wait(TimeSpan timeout, CancellationToken cancellationToken)
@@ -79,7 +90,7 @@ namespace MongoDB.Driver.Core.Misc
 
         public SemaphoreWaitResult WaitSignaled(TimeSpan timeout, CancellationToken cancellationToken)
         {
-            var (tokemSourceLinked, signalToken, signaled) = GetLinkedTokenAndCheckForSignaled(cancellationToken);
+            var (tokenSourceLinked, signalTokenSource, signaled) = GetLinkedTokenAndCheckForSignaled(cancellationToken);
 
             if (signaled)
             {
@@ -88,12 +99,12 @@ namespace MongoDB.Driver.Core.Misc
 
             try
             {
-                var entered = _semaphore.Wait(timeout, tokemSourceLinked.Token);
+                var entered = _semaphore.Wait(timeout, tokenSourceLinked.Token);
                 return entered ? SemaphoreWaitResult.Entered : SemaphoreWaitResult.TimedOut;
             }
             catch (OperationCanceledException)
             {
-                if (IsSignaled(signalToken, cancellationToken))
+                if (IsSignaled(signalTokenSource.Token, cancellationToken))
                 {
                     return SemaphoreWaitResult.Signaled;
                 }
@@ -104,7 +115,7 @@ namespace MongoDB.Driver.Core.Misc
 
         public async Task<SemaphoreWaitResult> WaitSignaledAsync(TimeSpan timeout, CancellationToken cancellationToken)
         {
-            var (tokemSourceLinked, signalToken, signaled) = GetLinkedTokenAndCheckForSignaled(cancellationToken);
+            var (tokemSourceLinked, signalTokenSource, signaled) = GetLinkedTokenAndCheckForSignaled(cancellationToken);
 
             if (signaled)
             {
@@ -118,7 +129,7 @@ namespace MongoDB.Driver.Core.Misc
             }
             catch (OperationCanceledException)
             {
-                if (IsSignaled(signalToken, cancellationToken))
+                if (IsSignaled(signalTokenSource.Token, cancellationToken))
                 {
                     return SemaphoreWaitResult.Signaled;
                 }
@@ -137,20 +148,20 @@ namespace MongoDB.Driver.Core.Misc
             _semaphore.Dispose();
         }
 
-        private (CancellationTokenSource TokenSourceLinked, CancellationToken SignalToken, bool Signaled) GetLinkedTokenAndCheckForSignaled(CancellationToken cancellationToken)
+        private (CancellationTokenSource TokenSourceLinked, CancellationTokenSource SignalTokenSource, bool Signaled) GetLinkedTokenAndCheckForSignaled(CancellationToken cancellationToken)
         {
-            var signalToken = _signalCancelationTokenSource.Token;
+            var signalTokenSource = _signalCancelationTokenSource;
 
-            if (IsSignaled(signalToken, cancellationToken))
+            if (IsSignaled(signalTokenSource.Token, cancellationToken))
             {
                 return (default, default, true);
             }
 
             var tokenSourceLinked = CancellationTokenSource.CreateLinkedTokenSource(
-                signalToken,
+                signalTokenSource.Token,
                 cancellationToken);
 
-            return (tokenSourceLinked, signalToken, false);
+            return (tokenSourceLinked, signalTokenSource, false);
         }
 
 #pragma warning disable CA1068 // CancellationToken parameters must come last

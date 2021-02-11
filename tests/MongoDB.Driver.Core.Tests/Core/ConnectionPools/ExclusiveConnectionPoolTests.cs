@@ -680,21 +680,23 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
         [Theory]
         [ParameterAttributeData]
-        public void CheckoutOut_returned_connection_maxConnecting([Values(true, false)] bool isAsync)
+        public void CheckoutOut_returned_connection_maxConnecting(
+            [Values(true, false)] bool isAsync,
+            [Values(1, 2)]int excessConnectingCount)
         {
             int maxConnecting = 2;
-            var excessConnectingCount = 2;
+            int initalAcquiredCount = excessConnectingCount;
             int threadsCount = maxConnecting + excessConnectingCount;
 
             var settings = _settings.With(
                 waitQueueSize: threadsCount,
                 maxConnecting: maxConnecting,
-                maxConnections: threadsCount,
-                waitQueueTimeout: TimeSpan.FromMilliseconds(2000),
+                maxConnections: maxConnecting + excessConnectingCount + initalAcquiredCount,
+                waitQueueTimeout: TimeSpan.FromSeconds(200),
                 minConnections: 0);
 
-            var blockedCountEvent = new CountdownEvent(maxConnecting);
-            var unblockEvent = new ManualResetEventSlim(false);
+            var allAcquiringCountEvent = new CountdownEvent(initalAcquiredCount + maxConnecting);
+            var unblockEvent = new ManualResetEventSlim(true);
 
             var mockConnectionFactory = new Mock<IConnectionFactory>();
             mockConnectionFactory
@@ -702,19 +704,36 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 .Returns(() =>
                 {
                     var connectionMock = new Mock<IConnection>();
+
+                    connectionMock
+                        .Setup(c => c.ConnectionId)
+                        .Returns(new ConnectionId(_serverId));
+
                     connectionMock
                         .Setup(c => c.Settings)
                         .Returns(new ConnectionSettings());
 
                     connectionMock
                         .Setup(c => c.Open(It.IsAny<CancellationToken>()))
-                        .Callback(BlockConnectionOpen);
+                        .Callback(() =>
+                        {
+                            if (allAcquiringCountEvent.CurrentCount > 0)
+                            {
+                                allAcquiringCountEvent.Signal();
+                            }
+
+                            unblockEvent.Wait();
+                        });
 
                     connectionMock
                         .Setup(c => c.OpenAsync(It.IsAny<CancellationToken>()))
                         .Returns(() =>
                         {
-                            BlockConnectionOpen();
+                            if (allAcquiringCountEvent.CurrentCount > 0)
+                            {
+                                allAcquiringCountEvent.Signal();
+                            }
+                            unblockEvent.Wait();
 
                             return Task.FromResult(0);
                         });
@@ -725,34 +744,66 @@ namespace MongoDB.Driver.Core.ConnectionPools
             using var subject = CreateSubject(settings, mockConnectionFactory.Object);
             subject.Initialize();
 
-            ExecuteOnNewThread(threadsCount, i =>
+            var connectionsAcquired = Enumerable.Range(0, initalAcquiredCount)
+                .Select(i => AcquireConnectionGeneric(subject, isAsync))
+                .ToArray();
+
+            var connectionsReused = new ConcurrentBag<ConnectionId>();
+
+            // block connections establishments
+            unblockEvent.Reset();
+
+            // schedule connections acquirement
+            ExecuteOnNewThread(threadsCount + 1, i =>
             {
-                if (i >= maxConnecting)
+                if (i == threadsCount)
                 {
-                    // wait until all connection establishments are blocked
-                    blockedCountEvent.Wait();
+                    // orchestrator thread
+                    // wait until all trying to connect
+                    do
+                    {
+                        Thread.Sleep(100);
+                    }
+                    while (subject.AvailableCount > 0);
 
-                    // unblock all connection establishments
-                    unblockEvent.Set();
+                    // return connections and unblock acquirements waiting for establishment
+                    foreach (var connection in connectionsAcquired)
+                    {
+                        connection.Dispose();
+                    }
                 }
+                else if (i >= maxConnecting)
+                {
+                    // wait until all establishments are in-flight
+                    allAcquiringCountEvent.Wait();
 
-                AcquireConnectionGeneric(subject, isAsync).Should().NotBeNull();
+                    // acquire reused connection
+                    var connection = AcquireConnectionGeneric(subject, isAsync);
+                    connectionsReused.Add(connection.ConnectionId);
+
+                    if (connectionsReused.Count == excessConnectingCount)
+                    {
+                        // unblock maxConnecting for clean up
+                        unblockEvent.Set();
+                    }
+                }
+                else
+                {
+                    // maximize establishments in-flight up to maxConnecting
+                    AcquireConnectionGeneric(subject, isAsync);
+                }
             });
 
-            void BlockConnectionOpen()
+            connectionsAcquired.Length.Should().Be(connectionsReused.Count);
+            foreach (var connectionAcquired in connectionsAcquired)
             {
-                if (blockedCountEvent.CurrentCount > 0)
-                {
-                    blockedCountEvent.Signal();
-                }
-
-                unblockEvent.Wait();
+                connectionsReused.Contains(connectionAcquired.ConnectionId);
             }
         }
 
         // private methods
         // TODO BD, use ThreadingUtilities from BsonTests.Helper
-        private static void ExecuteOnNewThread(int threadsCount, Action<int> action, int timeoutMilliseconds = 10000)
+        private static void ExecuteOnNewThread(int threadsCount, Action<int> action, int timeoutMilliseconds = 100000)
         {
             var actionsExecutedCount = 0;
 
@@ -765,7 +816,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     try
                     {
                         action(i);
-                        actionsExecutedCount++;
+                        Interlocked.Increment(ref actionsExecutedCount);
                     }
                     catch (Exception ex)
                     {
