@@ -42,6 +42,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         private readonly ConnectionPoolSettings _settings;
         private readonly InterlockedInt32 _state;
         private readonly SemaphoreSlim _waitQueue;
+        private readonly SemaphoreSlimSignalable _connectingQueue;
 
         private readonly Action<ConnectionPoolCheckingOutConnectionEvent> _checkingOutConnectionEventHandler;
         private readonly Action<ConnectionPoolCheckedOutConnectionEvent> _checkedOutConnectionEventHandler;
@@ -72,11 +73,13 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _connectionFactory = Ensure.IsNotNull(connectionFactory, nameof(connectionFactory));
             Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
 
-            _connectionHolder = new ListConnectionHolder(eventSubscriber);
+            _connectingQueue = new SemaphoreSlimSignalable(settings.MaxConnecting);
+            _connectionHolder = new ListConnectionHolder(eventSubscriber, _connectingQueue);
             _poolQueue = new WaitQueue(settings.MaxConnections);
 #pragma warning disable 618
             _waitQueue = new SemaphoreSlim(settings.WaitQueueSize);
 #pragma warning restore 618
+            _connectingQueue = new SemaphoreSlimSignalable(settings.MaxConnecting);
             _maintenanceCancellationTokenSource = new CancellationTokenSource();
             _state = new InterlockedInt32(State.Initial);
 
@@ -155,7 +158,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 ThrowIfNotOpen();
                 helper.EnterWaitQueue();
                 var enteredPool = _poolQueue.Wait(_settings.WaitQueueTimeout, cancellationToken);
-                return helper.EnteredPool(enteredPool);
+                return helper.EnteredPool(enteredPool, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -177,7 +180,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 ThrowIfNotOpen();
                 helper.EnterWaitQueue();
                 var enteredPool = await _poolQueue.WaitAsync(_settings.WaitQueueTimeout, cancellationToken).ConfigureAwait(false);
-                return helper.EnteredPool(enteredPool);
+
+                var connectionHandle = await helper.EnteredPoolAsync(enteredPool, cancellationToken).ConfigureAwait(false);
+                return connectionHandle;
             }
             catch (Exception ex)
             {
@@ -242,6 +247,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 _maintenanceCancellationTokenSource.Dispose();
                 _poolQueue.Dispose();
                 _waitQueue.Dispose();
+                _connectingQueue.Dispose();
                 if (_closedEventHandler != null)
                 {
                     _closedEventHandler(new ConnectionPoolClosedEvent(_serverId));
@@ -311,31 +317,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         return;
                     }
 
-                    if (_addingConnectionEventHandler != null)
+                    using (var connectionCreator = new ConnectionCreator(this))
                     {
-                        _addingConnectionEventHandler(new ConnectionPoolAddingConnectionEvent(_serverId, EventContext.OperationId));
-                    }
-
-                    var stopwatch = Stopwatch.StartNew();
-                    var connection = CreateNewConnection();
-                    // when adding in a connection, we need to open it because
-                    // the whole point of having a min pool size is to have
-                    // them available and ready...
-                    try
-                    {
-                        await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
-                    }
-                    catch (Exception)
-                    {
-                        connection.Dispose();
-                        throw;
-                    }
-                    _connectionHolder.Return(connection);
-                    stopwatch.Stop();
-
-                    if (_addedConnectionEventHandler != null)
-                    {
-                        _addedConnectionEventHandler(new ConnectionPoolAddedConnectionEvent(connection.ConnectionId, stopwatch.Elapsed, EventContext.OperationId));
+                        var connection = await connectionCreator.CreateOpenedAsync(cancellationToken).ConfigureAwait(false);
+                        _connectionHolder.Return(connection);
                     }
                 }
                 finally
@@ -442,25 +427,57 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 _stopwatch = Stopwatch.StartNew();
             }
 
-            public IConnectionHandle EnteredPool(bool enteredPool)
+            public IConnectionHandle EnteredPool(bool enteredPool, CancellationToken cancellationToken)
             {
                 _enteredPool = enteredPool;
+                PooledConnection connection = null;
+
                 if (enteredPool)
                 {
-                    var acquired = AcquireOrCreateConnection();
-                    _stopwatch.Stop();
-
-                    var handler = _pool._checkedOutConnectionEventHandler;
-                    if (handler != null)
+                    using (var connectionCreator = new ConnectionCreator(_pool))
                     {
-                        handler(new ConnectionPoolCheckedOutConnectionEvent(acquired.ConnectionId, _stopwatch.Elapsed, EventContext.OperationId));
+                        connection = connectionCreator.CreateOpenedOrReuse(cancellationToken);
                     }
-                    return acquired;
                 }
 
-                _stopwatch.Stop();
-                var message = string.Format("Timed out waiting for a connection after {0}ms.", _stopwatch.ElapsedMilliseconds);
-                throw new TimeoutException(message);
+                return FinalizePoolEnterance(connection);
+            }
+
+            public async Task<IConnectionHandle> EnteredPoolAsync(bool enteredPool, CancellationToken cancellationToken)
+            {
+                _enteredPool = enteredPool;
+                PooledConnection connection = null;
+
+                if (enteredPool)
+                {
+                    using (var connectionCreator = new ConnectionCreator(_pool))
+                    {
+                        connection = await connectionCreator.CreateOpenedOrReuseAsync(cancellationToken).ConfigureAwait(false);
+                    }
+                }
+
+                return FinalizePoolEnterance(connection);
+            }
+
+            private AcquiredConnection FinalizePoolEnterance(PooledConnection pooledConnection)
+            {
+                if (pooledConnection != null)
+                {
+                    var reference = new ReferenceCounted<PooledConnection>(pooledConnection, _pool.ReleaseConnection);
+                    var connectionHandle = new AcquiredConnection(_pool, reference);
+
+                    var checkedOutConnectionEvent = new ConnectionPoolCheckedOutConnectionEvent(connectionHandle.ConnectionId, _stopwatch.Elapsed, EventContext.OperationId);
+                    _pool._checkedOutConnectionEventHandler?.Invoke(checkedOutConnectionEvent);
+
+                    return connectionHandle;
+                }
+                else
+                {
+                    _stopwatch.Stop();
+
+                    var message = $"Timed out waiting for a connection after {_stopwatch.ElapsedMilliseconds}ms.";
+                    throw new TimeoutException(message);
+                }
             }
 
             public void Finally()
@@ -505,34 +522,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     handler(new ConnectionPoolCheckingOutConnectionFailedEvent(_pool._serverId, ex, EventContext.OperationId, reason));
                 }
             }
-
-            // private methods
-            private IConnectionHandle AcquireOrCreateConnection()
-            {
-                PooledConnection connection = _pool._connectionHolder.Acquire();
-                if (connection == null)
-                {
-                    var addingConnectionEventHandler = _pool._addingConnectionEventHandler;
-                    if (addingConnectionEventHandler != null)
-                    {
-                        addingConnectionEventHandler(new ConnectionPoolAddingConnectionEvent(_pool._serverId, EventContext.OperationId));
-                    }
-
-                    var stopwatch = Stopwatch.StartNew();
-                    connection = _pool.CreateNewConnection();
-                    stopwatch.Stop();
-
-                    var addedConnectionEventHandler = _pool._addedConnectionEventHandler;
-                    if (addedConnectionEventHandler != null)
-                    {
-                        addedConnectionEventHandler(new ConnectionPoolAddedConnectionEvent(connection.ConnectionId, stopwatch.Elapsed, EventContext.OperationId));
-                    }
-                }
-
-                var reference = new ReferenceCounted<PooledConnection>(connection, _pool.ReleaseConnection);
-                return new AcquiredConnection(_pool, reference);
-            }
-
         }
 
         private sealed class PooledConnection : IConnection
@@ -766,16 +755,18 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
         }
 
-        private class ListConnectionHolder
+        private class ListConnectionHolder : IDisposable
         {
+            private readonly SemaphoreSlimSignalable _semaphoreSlimSignalable;
             private readonly object _lock = new object();
             private readonly List<PooledConnection> _connections;
 
             private readonly Action<ConnectionPoolRemovingConnectionEvent> _removingConnectionEventHandler;
             private readonly Action<ConnectionPoolRemovedConnectionEvent> _removedConnectionEventHandler;
 
-            public ListConnectionHolder(IEventSubscriber eventSubscriber)
+            public ListConnectionHolder(IEventSubscriber eventSubscriber, SemaphoreSlimSignalable semaphoreSlimSignalable)
             {
+                _semaphoreSlimSignalable = semaphoreSlimSignalable;
                 _connections = new List<PooledConnection>();
 
                 eventSubscriber.TryGetEventHandler(out _removingConnectionEventHandler);
@@ -802,6 +793,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         RemoveConnection(connection);
                     }
                     _connections.Clear();
+
+                    SignalOrReset();
                 }
             }
 
@@ -818,6 +811,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
                             break;
                         }
                     }
+
+                    SignalOrReset();
                 }
             }
 
@@ -838,6 +833,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
                             return connection;
                         }
                     }
+
+                    SignalOrReset();
                 }
                 return null;
             }
@@ -847,6 +844,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 lock (_lock)
                 {
                     _connections.Add(connection);
+                    SignalOrReset();
                 }
             }
 
@@ -864,6 +862,162 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 if (_removedConnectionEventHandler != null)
                 {
                     _removedConnectionEventHandler(new ConnectionPoolRemovedConnectionEvent(connection.ConnectionId, stopwatch.Elapsed, EventContext.OperationId));
+                }
+            }
+
+            public void Dispose() => throw new NotImplementedException();
+
+            private void SignalOrReset()
+            {
+                // Should be invoked under lock only
+                if (_connections.Count == 0)
+                {
+                    // no connections are available, clear the signal flag
+                    _semaphoreSlimSignalable.Reset();
+                }
+                else
+                {
+                    // signal that connections are available
+                    _semaphoreSlimSignalable.Signal();
+                }
+            }
+        }
+
+        private sealed class ConnectionCreator : IDisposable
+        {
+            private readonly ExclusiveConnectionPool _pool;
+
+            private PooledConnection _connection;
+            private bool _disposeConnection;
+
+            private SemaphoreSlimSignalable.SemaphoreWaitResult _connectingWaitStatus;
+
+            private Stopwatch _stopwatch;
+
+            public ConnectionCreator(ExclusiveConnectionPool pool)
+            {
+                _pool = pool;
+                _connectingWaitStatus = SemaphoreSlimSignalable.SemaphoreWaitResult.None;
+                _connection = null;
+                _disposeConnection = true;
+                _stopwatch = null;
+            }
+
+            public async Task<PooledConnection> CreateOpenedAsync(CancellationToken cancellationToken)
+            {
+                var stopwatch = Stopwatch.StartNew();
+                _connectingWaitStatus = await _pool._connectingQueue.WaitAsync(_pool._settings.WaitQueueTimeout, cancellationToken).ConfigureAwait(false);
+                stopwatch.Stop();
+
+                if (_connectingWaitStatus == SemaphoreSlimSignalable.SemaphoreWaitResult.TimedOut)
+                {
+                    throw new TimeoutException($"Timed out waiting for in connecting queue after {stopwatch.ElapsedMilliseconds}ms.");
+                }
+
+                var connection = await CreateOpenedInternalAsync(cancellationToken).ConfigureAwait(false);
+                return connection;
+            }
+
+            public PooledConnection CreateOpenedOrReuse(CancellationToken cancellationToken)
+            {
+                var connection = _pool._connectionHolder.Acquire();
+
+                while (connection == null)
+                {
+                    var stopwatch = Stopwatch.StartNew();
+                    _connectingWaitStatus = _pool._connectingQueue.WaitSignaled(_pool._settings.WaitQueueTimeout, cancellationToken);
+                    stopwatch.Stop();
+
+                    connection = _connectingWaitStatus switch
+                    {
+                        SemaphoreSlimSignalable.SemaphoreWaitResult.Signaled => _pool._connectionHolder.Acquire(),
+                        SemaphoreSlimSignalable.SemaphoreWaitResult.Entered => CreateOpenedInternal(cancellationToken),
+                        SemaphoreSlimSignalable.SemaphoreWaitResult.TimedOut => throw new TimeoutException($"Timed out waiting for in connecting queue after {stopwatch.ElapsedMilliseconds}ms."),
+                        _ => throw new ArgumentOutOfRangeException(nameof(_connectingWaitStatus))
+                    };
+                }
+
+                return connection;
+            }
+
+            public async Task<PooledConnection> CreateOpenedOrReuseAsync(CancellationToken cancellationToken)
+            {
+                var connection = _pool._connectionHolder.Acquire();
+
+                while (connection == null)
+                {
+                    var stopwatch = Stopwatch.StartNew();
+                    _connectingWaitStatus = await _pool._connectingQueue.WaitSignaledAsync(_pool._settings.WaitQueueTimeout, cancellationToken).ConfigureAwait(false);
+                    stopwatch.Stop();
+
+                    connection = _connectingWaitStatus switch
+                    {
+                        SemaphoreSlimSignalable.SemaphoreWaitResult.Signaled => _pool._connectionHolder.Acquire(),
+                        SemaphoreSlimSignalable.SemaphoreWaitResult.Entered => await CreateOpenedInternalAsync(cancellationToken).ConfigureAwait(false),
+                        SemaphoreSlimSignalable.SemaphoreWaitResult.TimedOut => throw new TimeoutException($"Timed out waiting for in connecting queue after {stopwatch.ElapsedMilliseconds}ms."),
+                        _ => throw new ArgumentOutOfRangeException(nameof(_connectingWaitStatus))
+                    };
+                }
+
+                return connection;
+            }
+
+            // private methods
+            private PooledConnection CreateOpenedInternal(CancellationToken cancellationToken)
+            {
+                StartCreating(cancellationToken);
+
+                _connection.Open(cancellationToken);
+
+                FinishCreating();
+
+                return _connection;
+            }
+
+            private async Task<PooledConnection> CreateOpenedInternalAsync(CancellationToken cancellationToken)
+            {
+                StartCreating(cancellationToken);
+
+                await _connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+
+                FinishCreating();
+
+                return _connection;
+            }
+
+            private void StartCreating(CancellationToken cancellationToken)
+            {
+                var addingConnectionEvent = new ConnectionPoolAddingConnectionEvent(_pool._serverId, EventContext.OperationId);
+                _pool._addingConnectionEventHandler?.Invoke(addingConnectionEvent);
+
+                cancellationToken.ThrowIfCancellationRequested();
+
+                _stopwatch = Stopwatch.StartNew();
+                _connection = _pool.CreateNewConnection();
+            }
+
+            private void FinishCreating()
+            {
+                _stopwatch.Stop();
+
+                var connectionAddedEvent = new ConnectionPoolAddedConnectionEvent(_connection.ConnectionId, _stopwatch.Elapsed, EventContext.OperationId);
+                _pool._addedConnectionEventHandler?.Invoke(connectionAddedEvent);
+
+                // Only if reached this stage, connection should not be disposed
+                _disposeConnection = false;
+            }
+
+            public void Dispose()
+            {
+                if (_connectingWaitStatus == SemaphoreSlimSignalable.SemaphoreWaitResult.Entered)
+                {
+                    _pool._connectingQueue.Release();
+                }
+
+                if (_disposeConnection)
+                {
+                    // TODO SDAM spec: topology.handle_pre_handshake_error(error) # if possible, defer error handling to SDAM
+                    _connection?.Dispose();
                 }
             }
         }

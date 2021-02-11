@@ -52,6 +52,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
         private readonly static ServerId __serverId1 = new ServerId(__clusterId, __endPoint1);
         private readonly static ServerId __serverId2 = new ServerId(__clusterId, __endPoint2);
 
+        // TODO SDAM spec: Adapt the test to follow 
         [Theory]
         [ParameterAttributeData]
         public void Ensure_command_network_error_before_hadnshake_is_correctly_handled([Values(false, true)] bool async, [Values(false, true)] bool streamable)
@@ -177,22 +178,16 @@ namespace MongoDB.Driver.Core.Tests.Jira
             void SetupConnection(Mock<IConnectionHandle> mockConnectionHandle, ServerId serverId)
             {
                 mockConnectionHandle.SetupGet(c => c.ConnectionId).Returns(new ConnectionId(serverId));
-                mockConnectionHandle
-                    .Setup(c => c.Open(It.IsAny<CancellationToken>()))
-                    .Throws(CreateDnsException(mockConnectionHandle.Object.ConnectionId)); // throw command dns exception
-                mockConnectionHandle
-                    .Setup(c => c.OpenAsync(It.IsAny<CancellationToken>()))
-                    .Throws(CreateDnsException(mockConnectionHandle.Object.ConnectionId)); // throw command dns exception
             }
 
             void SetupConnectionPool(Mock<IConnectionPool> mockConnectionPool, IConnectionHandle connection)
             {
                 mockConnectionPool
                     .Setup(c => c.AcquireConnection(It.IsAny<CancellationToken>()))
-                    .Returns(connection);
+                    .Throws(CreateDnsException(connection.ConnectionId)); // throw command dns exception
                 mockConnectionPool
                     .Setup(c => c.AcquireConnectionAsync(It.IsAny<CancellationToken>()))
-                    .Returns(Task.FromResult(connection));
+                    .Throws(CreateDnsException(connection.ConnectionId)); // throw command dns exception
             }
 
             void SetupConnectionPoolFactory(Mock<IConnectionPoolFactory> mockFactory, IConnectionPool connectionPool, ServerId serverId, EndPoint endPoint)
@@ -240,6 +235,8 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 connectTimeout: TimeSpan.FromMilliseconds(1),
                 heartbeatInterval: __heartbeatInterval);
             var serverSettings = new ServerSettings(serverMonitorSettings.HeartbeatInterval);
+
+            var connectionPoolSettings = new ConnectionPoolSettings();
 
             var connectionPoolFactory = CreateAndSetupConnectionPoolFactory(serverInfoCollection);
             var serverMonitorConnectionFactory = CreateAndSetupServerMonitorConnectionFactory(hasNetworkErrorBeenTriggered, hasClusterBeenDisposed, streamable, serverInfoCollection);

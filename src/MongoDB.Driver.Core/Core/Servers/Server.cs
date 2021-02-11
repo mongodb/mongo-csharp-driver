@@ -161,23 +161,15 @@ namespace MongoDB.Driver.Core.Servers
         {
             ThrowIfNotOpen();
 
-            var connection = _connectionPool.AcquireConnection(cancellationToken);
             try
             {
-                // ignoring the user's cancellation token here because we don't
-                // want to throw this connection away simply because the user
-                // wanted to cancel their operation. It will be better for the
-                // collective to complete opening the connection than the throw
-                // it away.
-
-                connection.Open(CancellationToken.None); // This results in the initial isMaster being sent
+                var connection = _connectionPool.AcquireConnection(cancellationToken);
                 return new ServerChannel(this, connection);
             }
             catch (Exception ex)
             {
-                HandleBeforeHandshakeCompletesException(connection, ex);
-
-                connection.Dispose();
+                // TODO SDAM: handle connection establishment exceptions according to spec
+                HandleBeforeHandshakeCompletesException(null, ex);
                 throw;
             }
         }
@@ -186,22 +178,15 @@ namespace MongoDB.Driver.Core.Servers
         {
             ThrowIfNotOpen();
 
-            var connection = await _connectionPool.AcquireConnectionAsync(cancellationToken).ConfigureAwait(false);
             try
             {
-                // ignoring the user's cancellation token here because we don't
-                // want to throw this connection away simply because the user
-                // wanted to cancel their operation. It will be better for the
-                // collective to complete opening the connection than the throw
-                // it away.
-                await connection.OpenAsync(CancellationToken.None).ConfigureAwait(false);
+                var connection = await _connectionPool.AcquireConnectionAsync(cancellationToken).ConfigureAwait(false);
                 return new ServerChannel(this, connection);
             }
             catch (Exception ex)
             {
-                HandleBeforeHandshakeCompletesException(connection, ex);
-
-                connection.Dispose();
+                // TODO SDAM: handle connection establishment exceptions according to spec
+                HandleBeforeHandshakeCompletesException(null, ex);
                 throw;
             }
         }
@@ -314,7 +299,7 @@ namespace MongoDB.Driver.Core.Servers
 
             lock (_monitor.Lock)
             {
-                if (connection.Generation != _connectionPool.Generation)
+                if (connection?.Generation != _connectionPool.Generation)
                 {
                     return; // stale generation number
                 }
@@ -349,7 +334,7 @@ namespace MongoDB.Driver.Core.Servers
 
             lock (_monitor.Lock)
             {
-                if (connection.Generation != _connectionPool.Generation)
+                if (connection != null && connection.Generation != _connectionPool.Generation)
                 {
                     return; // stale generation number
                 }
