@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
 
             using (var spnBuffer = new GssInputBuffer(servicePrincipalName))
             {
-                var majorStatus = NativeMethods.ImportName(out var minorStatus, spnBuffer, in Oid.GSS_C_NT_HOSTBASED_SERVICE, out var spnName);
+                var majorStatus = NativeMethods.gss_import_name(out var minorStatus, spnBuffer, in Oid.GSS_C_NT_HOSTBASED_SERVICE, out var spnName);
                 Gss.ThrowIfError(majorStatus, minorStatus);
                 return new GssapiServicePrincipalName(spnName);
             }
@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
 
         protected override bool ReleaseHandle()
         {
-            var majorStatus = NativeMethods.ReleaseName(out var minorStatus, handle);
+            var majorStatus = NativeMethods.gss_release_name(out var minorStatus, handle);
             return majorStatus == 0 && minorStatus == 0;
         }
     }

@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
         {
             if (value != IntPtr.Zero)
             {
-                _ = NativeMethods.ReleaseBuffer(out _, this);
+                _ = NativeMethods.gss_release_buffer(out _, this);
             }
         }
     }

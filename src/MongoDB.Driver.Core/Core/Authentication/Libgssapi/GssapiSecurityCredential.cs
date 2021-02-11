@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
                 using (var nameBuffer = new GssInputBuffer(username))
                 {
                     uint minorStatus, majorStatus;
-                    majorStatus = NativeMethods.ImportName(out minorStatus, nameBuffer, in Oid.GSS_C_NT_USER_NAME, out gssName);
+                    majorStatus = NativeMethods.gss_import_name(out minorStatus, nameBuffer, in Oid.GSS_C_NT_USER_NAME, out gssName);
                     Gss.ThrowIfError(majorStatus, minorStatus);
 
                     GssapiSecurityCredential securityCredential;
@@ -37,12 +37,12 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
                     {
                         using (var passwordBuffer = new GssInputBuffer(SecureStringHelper.ToInsecureString(password)))
                         {
-                            majorStatus = NativeMethods.AcquireCredentialWithPassword(out minorStatus, gssName, passwordBuffer, uint.MaxValue, IntPtr.Zero, GssCredentialUsage.GSS_C_INITIATE, out securityCredential, IntPtr.Zero, out uint _);
+                            majorStatus = NativeMethods.gss_acquire_cred_with_password(out minorStatus, gssName, passwordBuffer, uint.MaxValue, IntPtr.Zero, GssCredentialUsage.GSS_C_INITIATE, out securityCredential, IntPtr.Zero, out uint _);
                         }
                     }
                     else
                     {
-                        majorStatus = NativeMethods.AcquireCredential(out minorStatus, gssName, uint.MaxValue, IntPtr.Zero, GssCredentialUsage.GSS_C_INITIATE, out securityCredential, IntPtr.Zero, out uint _);
+                        majorStatus = NativeMethods.gss_acquire_cred(out minorStatus, gssName, uint.MaxValue, IntPtr.Zero, GssCredentialUsage.GSS_C_INITIATE, out securityCredential, IntPtr.Zero, out uint _);
                     }
                     Gss.ThrowIfError(majorStatus, minorStatus);
                     return securityCredential;
@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
             {
                 if (gssName != IntPtr.Zero)
                 {
-                    _ = NativeMethods.ReleaseName(out _, gssName);
+                    _ = NativeMethods.gss_release_name(out _, gssName);
                 }
             }
         }
@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
 
         protected override bool ReleaseHandle()
         {
-            var majorStatus = NativeMethods.ReleaseCredential(out var minorStatus, base.handle);
+            var majorStatus = NativeMethods.gss_release_cred(out var minorStatus, base.handle);
             return majorStatus != 0 && minorStatus != 0;
         }
     }

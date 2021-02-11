@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
             using var inputToken = new GssInputBuffer(challenge);
             using var outputToken = new GssOutputBuffer();
             const GssFlags authenticationFlags = GssFlags.GSS_C_MUTUAL_FLAG | GssFlags.GSS_C_SEQUENCE_FLAG;
-            var majorStatus = NativeMethods.InitializeSecurityContext(out var minorStatus, _credential, in handle, _servicePrincipalName, IntPtr.Zero, authenticationFlags, 0, IntPtr.Zero, inputToken, out var _, outputToken, out var _, out var _);
+            var majorStatus = NativeMethods.gss_init_sec_context(out var minorStatus, _credential, in handle, _servicePrincipalName, IntPtr.Zero, authenticationFlags, 0, IntPtr.Zero, inputToken, out var _, outputToken, out var _, out var _);
             Gss.ThrowIfError(majorStatus, minorStatus);
 
             _isInitialized = true;
@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
         {
             using var inputBuffer = new GssInputBuffer(encryptedBytes);
             using var outputBuffer = new GssOutputBuffer();
-            var majorStatus = NativeMethods.UnwrapMessage(out uint minorStatus, handle, inputBuffer, outputBuffer, out int _, out int _);
+            var majorStatus = NativeMethods.gss_unwrap(out uint minorStatus, handle, inputBuffer, outputBuffer, out int _, out int _);
             Gss.ThrowIfError(majorStatus, minorStatus);
             return outputBuffer.ToByteArray();
         }
@@ -56,14 +56,14 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
         {
             using var inputBuffer = new GssInputBuffer(plainTextBytes);
             using var outputBuffer = new GssOutputBuffer();
-            var majorStatus = NativeMethods.WrapMessage(out uint minorStatus, handle, 0, 0, inputBuffer, out int _, outputBuffer);
+            var majorStatus = NativeMethods.gss_wrap(out uint minorStatus, handle, 0, 0, inputBuffer, out int _, outputBuffer);
             Gss.ThrowIfError(majorStatus, minorStatus);
             return outputBuffer.ToByteArray();
         }
 
         protected override bool ReleaseHandle()
         {
-            var majorStatus = NativeMethods.DeleteSecurityContext(out var minorStatus, handle, IntPtr.Zero);
+            var majorStatus = NativeMethods.gss_delete_sec_context(out var minorStatus, handle, IntPtr.Zero);
             return majorStatus == 0 && minorStatus == 0;
         }
 

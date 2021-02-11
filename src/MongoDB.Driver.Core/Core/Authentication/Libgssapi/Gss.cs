@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
                 do
                 {
                     using var outputBuffer = new GssOutputBuffer();
-                    var localMajorStatus = NativeMethods.DisplayStatus(out _, majorStatus, GssCode.GSS_C_GSS_CODE, in Oid.GSS_C_NO_OID, out messageContext, outputBuffer);
+                    var localMajorStatus = NativeMethods.gss_display_status(out _, majorStatus, GssCode.GSS_C_GSS_CODE, in Oid.GSS_C_NO_OID, out messageContext, outputBuffer);
                     if (localMajorStatus != 0)
                     {
                         throw new LibgssapiException("Error encountered while attempting to convert majorStatus {majorStatus} and minorStatus {minorStatus} to textual descriptions.");
@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
                 do
                 {
                     using var outputBuffer = new GssOutputBuffer();
-                    var localMajorStatus = NativeMethods.DisplayStatus(out _, minorStatus, GssCode.GSS_C_MECH_CODE, in Oid.GSS_C_NO_OID, out messageContext, outputBuffer);
+                    var localMajorStatus = NativeMethods.gss_display_status(out _, minorStatus, GssCode.GSS_C_MECH_CODE, in Oid.GSS_C_NO_OID, out messageContext, outputBuffer);
                     if (localMajorStatus != 0)
                     {
                         throw new LibgssapiException("Error encountered while attempting to convert majorStatus {majorStatus} and minorStatus {minorStatus} to textual descriptions.");
