@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace MongoDB.Driver.Core.Authentication.Libgssapi
@@ -21,26 +22,43 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
     {
         public static void ThrowIfError(uint majorStatus, uint minorStatus)
         {
-            string majorMessage = null;
-            string minorMessage = null;
+            var majorMessages = new List<string>();
+            var minorMessages = new List<string>();
 
             if (majorStatus != (uint)GssStatus.GSS_S_COMPLETE && majorStatus != (uint)GssStatus.GSS_S_CONTINUE_NEEDED)
             {
-                using var outputBuffer = new GssOutputBuffer();
-                _ = NativeMethods.DisplayStatus(out _, majorStatus, GssCode.GSS_C_GSS_CODE, in Oid.GSS_C_NO_OID, out uint _, outputBuffer);
-                majorMessage = Marshal.PtrToStringAnsi(outputBuffer.Value);
+                uint messageContext;
+                do
+                {
+                    using var outputBuffer = new GssOutputBuffer();
+                    var localMajorStatus = NativeMethods.DisplayStatus(out _, majorStatus, GssCode.GSS_C_GSS_CODE, in Oid.GSS_C_NO_OID, out messageContext, outputBuffer);
+                    if (localMajorStatus != 0)
+                    {
+                        throw new LibgssapiException("Error encountered while attempting to convert majorStatus {majorStatus} and minorStatus {minorStatus} to textual descriptions.");
+                    }
+                    majorMessages.Add(Marshal.PtrToStringAnsi(outputBuffer.Value));
+                } while (messageContext != 0);
             }
 
             if (minorStatus != 0)
             {
-                using var outputBuffer = new GssOutputBuffer();
-                _ = NativeMethods.DisplayStatus(out _, minorStatus, GssCode.GSS_C_MECH_CODE, in Oid.GSS_C_NO_OID, out uint _, outputBuffer);
-                minorMessage = Marshal.PtrToStringAnsi(outputBuffer.Value);
+                uint messageContext;
+                do
+                {
+                    using var outputBuffer = new GssOutputBuffer();
+                    var localMajorStatus = NativeMethods.DisplayStatus(out _, minorStatus, GssCode.GSS_C_MECH_CODE, in Oid.GSS_C_NO_OID, out messageContext, outputBuffer);
+                    if (localMajorStatus != 0)
+                    {
+                        throw new LibgssapiException("Error encountered while attempting to convert majorStatus {majorStatus} and minorStatus {minorStatus} to textual descriptions.");
+                    }
+                    minorMessages.Add(Marshal.PtrToStringAnsi(outputBuffer.Value));
+                } while (messageContext != 0);
             }
 
-            if (!string.IsNullOrEmpty(majorMessage) || !string.IsNullOrEmpty(minorMessage))
+            if (majorMessages.Count > 0 || minorMessages.Count > 0)
             {
-                throw new LibgssapiException(majorMessage, minorMessage);
+                var message = $"Libgssapi failure - majorStatus: {string.Join("; ", majorMessages)}; minorStatus: {string.Join("; ", minorMessages)}";
+                throw new LibgssapiException(message);
             }
         }
     }

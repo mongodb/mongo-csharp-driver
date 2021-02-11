@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
+
 #if NET452
 using System;
 using System.Runtime.Serialization;
@@ -31,9 +33,8 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
         /// <summary>
         /// Initializes a new instance of the <see cref="LibgssapiException"/> class.
         /// </summary>
-        /// <param name="majorErrorMessage">Error message from libgssapi majorStatus code.</param>
-        /// <param name="minorErrorMessage">Error message from libgssapi minorStatus code.</param>
-        public LibgssapiException(string majorErrorMessage, string minorErrorMessage) : base($"Libgssapi failure - majorStatus: {majorErrorMessage}; minorStatus: {minorErrorMessage}")
+        /// <param name="message">Error message from libgssapi.</param>
+        public LibgssapiException(string message) : base(message)
         {
         }
 
