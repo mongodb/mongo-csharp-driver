@@ -299,7 +299,7 @@ namespace MongoDB.Driver.Core.Servers
 
             lock (_monitor.Lock)
             {
-                if (connection?.Generation != _connectionPool.Generation)
+                if (connection != null && connection.Generation != _connectionPool.Generation)
                 {
                     return; // stale generation number
                 }

@@ -135,9 +135,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="maxConnecting">The maximum concurrently connecting connections.</param>
         /// <param name="waitQueueSize">Size of the wait queue.</param>
         /// <param name="waitQueueTimeout">The wait queue timeout.</param>
-        /// <returns>
-        /// A new ConnectionPoolSettings instance.
-        /// </returns>
+        /// <returns> A new ConnectionPoolSettings instance.</returns>
         public ConnectionPoolSettings With(
             Optional<TimeSpan> maintenanceInterval = default(Optional<TimeSpan>),
             Optional<int> maxConnections = default(Optional<int>),

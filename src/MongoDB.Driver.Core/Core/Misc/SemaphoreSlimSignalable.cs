@@ -84,7 +84,6 @@ namespace MongoDB.Driver.Core.Misc
         public async Task<SemaphoreWaitResult> WaitAsync(TimeSpan timeout, CancellationToken cancellationToken)
         {
             var entered = await _semaphore.WaitAsync(timeout, cancellationToken).ConfigureAwait(false);
-
             return entered ? SemaphoreWaitResult.Entered : SemaphoreWaitResult.TimedOut;
         }
 
