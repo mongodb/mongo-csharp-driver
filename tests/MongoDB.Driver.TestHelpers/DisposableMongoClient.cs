@@ -18,10 +18,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver.TestHelpers
 {
+    /// <summary>
+    /// This class is used in tests to close down the MongoClient cluster (and also the cluster for the internal MongoClient if there is one).
+    /// </summary>
     public class DisposableMongoClient : IMongoClient, IDisposable
     {
         private readonly IMongoClient wrapped;
@@ -237,6 +239,15 @@ namespace MongoDB.Driver.TestHelpers
         public void Dispose()
         {
             ClusterRegistry.Instance.UnregisterAndDisposeCluster(wrapped.Cluster);
+
+            if (wrapped is MongoClient mongoClient)
+            {
+                var internalClient = mongoClient.LibMongoCryptController?.InternalClient;
+                if (internalClient != null)
+                {
+                    ClusterRegistry.Instance.UnregisterAndDisposeCluster(internalClient.Cluster);
+                }
+            }
         }
     }
 }

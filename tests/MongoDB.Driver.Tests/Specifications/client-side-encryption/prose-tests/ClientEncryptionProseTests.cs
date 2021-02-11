@@ -26,7 +26,6 @@ using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
@@ -81,7 +80,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 .SkipWhen(SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard15)
                 .SkipWhen(SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard15);
 
-            var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "insert");
+            var eventCapturer = CreateEventCapturer(commandNameFilter: "insert");
             using (var client = ConfigureClient())
             using (var clientEncrypted = ConfigureClientEncrypted(kmsProviderFilter: "local", eventCapturer: eventCapturer))
             {
@@ -722,6 +721,213 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         }
 
         [SkippableTheory]
+        [MemberData(nameof(DeadlockTest_MemberData))]
+        public void DeadlockTest(
+            string _,
+            int maxPoolSize,
+            bool bypassAutoEncryption,
+            string keyVaultMongoClientKey,
+            int expectedNumberOfClients,
+            string[] clientEncryptedEventsExpectation,
+            string[] clientKeyVaultEventsExpectation,
+            bool async)
+        {
+            RequireServer.Check().Supports(Feature.ClientSideEncryption);
+            RequirePlatform
+                .Check()
+                .SkipWhen(SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard15)
+                .SkipWhen(SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard15);
+
+            var clientKeyVaultEventCapturer = CreateEventCapturer();
+            using (var client_keyvault = CreateMongoClient(maxPoolSize: 1, writeConcern: WriteConcern.WMajority, readConcern: ReadConcern.Majority, eventCapturer: clientKeyVaultEventCapturer))
+            using (var client_test = ConfigureClient(clearCollections: true, writeConcern: WriteConcern.WMajority, readConcern: ReadConcern.Majority))
+            {
+                var dataKeysCollection = GetCollection(client_test, __keyVaultCollectionNamespace);
+                var externalKey = JsonFileReader.Instance.Documents["external.external-key.json"];
+                Insert(dataKeysCollection, async, externalKey);
+
+                var externalSchema = JsonFileReader.Instance.Documents["external.external-schema.json"];
+                CreateCollection(client_test, __collCollectionNamespace, new BsonDocument("$jsonSchema", externalSchema));
+
+                using (var client_encryption = ConfigureClientEncryption(client_test.Wrapped as MongoClient, kmsProviderFilter: "local"))
+                {
+                    var value = "string0";
+                    var encryptionOptions = new EncryptOptions(
+                        algorithm: EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic.ToString(),
+                        alternateKeyName: "local");
+                    var ciphertext = ExplicitEncrypt(client_encryption, encryptionOptions, value, async);
+
+                    var eventCapturer = CreateEventCapturer().Capture<ClusterOpeningEvent>();
+
+                    using (var client_encrypted = ConfigureClientEncrypted(
+                        kmsProviderFilter: "local",
+                        maxPoolSize: maxPoolSize,
+                        bypassAutoEncryption: bypassAutoEncryption,
+                        eventCapturer: eventCapturer,
+                        externalKeyVaultClient: GetKeyVaultMongoClientByKey()))
+                    {
+                        IMongoCollection<BsonDocument> collCollection;
+                        if (client_encrypted.Settings.AutoEncryptionOptions.BypassAutoEncryption)
+                        {
+                            collCollection = GetCollection(client_test, __collCollectionNamespace);
+                            Insert(
+                                collCollection,
+                                async,
+                                new BsonDocument
+                                {
+                                    { "_id", 0 },
+                                    { "encrypted", ciphertext }
+                                });
+                        }
+                        else
+                        {
+                            collCollection = GetCollection(client_encrypted, __collCollectionNamespace);
+                            Insert(
+                                collCollection,
+                                async,
+                                new BsonDocument
+                                {
+                                    { "_id", 0 },
+                                    { "encrypted", value }
+                                });
+                        }
+
+                        collCollection = GetCollection(client_encrypted, __collCollectionNamespace);
+                        var findResult = Find(collCollection, BsonDocument.Parse("{ _id : 0 }"), async).Single();
+                        findResult.Should().Be($"{{ _id : 0, encrypted : '{value}' }}");
+                        var events = eventCapturer.Events.ToList();
+                        AssertEvents(events.OfType<CommandStartedEvent>(), clientEncryptedEventsExpectation);
+                        if (clientKeyVaultEventsExpectation != null)
+                        {
+                            AssertEvents(clientKeyVaultEventCapturer.Events.OfType<CommandStartedEvent>(), clientKeyVaultEventsExpectation);
+                        }
+
+                        AssertNumberOfClients(events.OfType<ClusterOpeningEvent>());
+                    }
+                }
+
+                IMongoClient GetKeyVaultMongoClientByKey()
+                {
+                    switch (keyVaultMongoClientKey)
+                    {
+                        case "client_keyvault":
+                            return client_keyvault;
+                        default:
+                            return null;
+                    }
+                }
+            }
+
+            void AssertEvents(IEnumerable<CommandStartedEvent> events, string[] expectedEventsDetails)
+            {
+                for (int i = 0; i < expectedEventsDetails.Length; i++)
+                {
+                    var arguments = expectedEventsDetails[i].Split(';');
+                    (string CommandName, string Database) expectedEventDetails = (arguments[0], arguments[1]);
+                    var @event = events.ElementAt(i);
+                    @event.DatabaseNamespace.DatabaseName.Should().Be(expectedEventDetails.Database);
+                    @event.CommandName.Should().Be(expectedEventDetails.CommandName);
+                }
+                events.Count().Should().Be(expectedEventsDetails.Count());
+            }
+
+            void AssertNumberOfClients(IEnumerable<ClusterOpeningEvent> events)
+            {
+                events.Count().Should().Be(expectedNumberOfClients);
+            }
+        }
+
+        public static IEnumerable<object[]> DeadlockTest_MemberData()
+        {
+            var testCases = new List<object[]>();
+            testCases.AddRange(
+                CasesWithAsync(
+                    name: "case 1",
+                    maxPoolSize: 1,
+                    bypassAutoEncryption: false,
+                    keyVaultMongoClient: null,
+                    expectedNumberOfClients: 2,
+                    clientEncryptedEventsExpectation:
+                    new[]
+                    {
+                        "listCollections;db",
+                        "find;keyvault",
+                        "insert;db",
+                        "find;db"
+                    },
+                    clientKeyVaultEventsExpectation: null));
+            testCases.AddRange(
+                CasesWithAsync(
+                    name: "case 2",
+                    maxPoolSize: 1,
+                    bypassAutoEncryption: false,
+                    keyVaultMongoClient: "client_keyvault",
+                    expectedNumberOfClients: 2,
+                    clientEncryptedEventsExpectation:
+                    new[]
+                    {
+                        "listCollections;db",
+                        "insert;db",
+                        "find;db"
+                    },
+                    clientKeyVaultEventsExpectation:
+                    new[]
+                    {
+                        "find;keyvault"
+                    }));
+            testCases.AddRange(
+                CasesWithAsync(
+                    name: "case 3",
+                    maxPoolSize: 1,
+                    bypassAutoEncryption: true,
+                    keyVaultMongoClient: null,
+                    expectedNumberOfClients: 2,
+                    clientEncryptedEventsExpectation:
+                    new[]
+                    {
+                        "find;db",
+                        "find;keyvault"
+                    },
+                    clientKeyVaultEventsExpectation: null));
+            testCases.AddRange(
+                CasesWithAsync(
+                    name: "case 4",
+                    maxPoolSize: 1,
+                    bypassAutoEncryption: true,
+                    keyVaultMongoClient: "client_keyvault",
+                    expectedNumberOfClients: 1,
+                    clientEncryptedEventsExpectation:
+                    new[]
+                    {
+                        "find;db",
+                    },
+                    clientKeyVaultEventsExpectation:
+                    new[]
+                    {
+                        "find;keyvault"
+                    }));
+
+            // cases 5-8 use "MaxPoolSize: 0" which is not supported by the c# driver
+
+            return testCases;
+
+            IEnumerable<object[]> CasesWithAsync(
+                string name,
+                int maxPoolSize,
+                bool bypassAutoEncryption,
+                string keyVaultMongoClient,
+                int expectedNumberOfClients,
+                string[] clientEncryptedEventsExpectation,
+                string[] clientKeyVaultEventsExpectation)
+            {
+                foreach (var async in new[] { true, false })
+                {
+                    yield return new object[] { name, maxPoolSize, bypassAutoEncryption, keyVaultMongoClient, expectedNumberOfClients, clientEncryptedEventsExpectation, clientKeyVaultEventsExpectation, async };
+                }
+            }
+        }
+
+        [SkippableTheory]
         [ParameterAttributeData]
         public void ExternalKeyVaultTest(
             [Values(false, true)] bool withExternalKeyVault,
@@ -733,9 +939,17 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 .SkipWhen(SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard15)
                 .SkipWhen(SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard15);
 
+            IMongoClient externalKeyVaultClient = null;
+            if (withExternalKeyVault)
+            {
+                var externalKeyVaultClientSettings = DriverTestConfiguration.GetClientSettings().Clone();
+                externalKeyVaultClientSettings.Credential = MongoCredential.FromComponents(null, null, "fake-user", "fake-pwd");
+                externalKeyVaultClient = new MongoClient(externalKeyVaultClientSettings);
+            }
+
             var clientEncryptedSchema = new BsonDocument("db.coll", JsonFileReader.Instance.Documents["external.external-schema.json"]);
             using (var client = ConfigureClient())
-            using (var clientEncrypted = ConfigureClientEncrypted(clientEncryptedSchema, withExternalKeyVault))
+            using (var clientEncrypted = ConfigureClientEncrypted(clientEncryptedSchema, externalKeyVaultClient: externalKeyVaultClient))
             using (var clientEncryption = ConfigureClientEncryption(clientEncrypted.Wrapped as MongoClient))
             {
                 var datakeys = GetCollection(client, __keyVaultCollectionNamespace);
@@ -857,9 +1071,13 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         }
 
         // private methods
-        private DisposableMongoClient ConfigureClient(bool clearCollections = true)
+        private DisposableMongoClient ConfigureClient(
+            bool clearCollections = true,
+            int? maxPoolSize = null,
+            WriteConcern writeConcern = null,
+            ReadConcern readConcern = null)
         {
-            var client = CreateMongoClient();
+            var client = CreateMongoClient(maxPoolSize: maxPoolSize, writeConcern: writeConcern, readConcern: readConcern);
             if (clearCollections)
             {
                 var clientKeyVaultDatabase = client.GetDatabase(__keyVaultCollectionNamespace.DatabaseNamespace.DatabaseName);
@@ -872,40 +1090,61 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
         private DisposableMongoClient ConfigureClientEncrypted(
             BsonDocument schemaMap = null,
-            bool withExternalKeyVault = false,
+            IMongoClient externalKeyVaultClient = null,
             string kmsProviderFilter = null,
             EventCapturer eventCapturer = null,
             Dictionary<string, object> extraOptions = null,
-            bool bypassAutoEncryption = false)
+            bool bypassAutoEncryption = false,
+            int? maxPoolSize = null)
         {
-            var kmsProviders = GetKmsProviders();
+            var configuredSettings = ConfigureClientEncryptedSettings(
+                schemaMap,
+                externalKeyVaultClient,
+                kmsProviderFilter,
+                eventCapturer,
+                extraOptions,
+                bypassAutoEncryption,
+                maxPoolSize);
 
-            var clientEncrypted =
-                CreateMongoClient(
-                    keyVaultNamespace: __keyVaultCollectionNamespace,
-                    schemaMapDocument: schemaMap,
-                    kmsProviders:
-                        kmsProviderFilter == null
-                            ? kmsProviders
-                            : kmsProviders
-                                .Where(c => c.Key == kmsProviderFilter)
-                                .ToDictionary(key => key.Key, value => value.Value),
-                    withExternalKeyVault: withExternalKeyVault,
-                    clusterConfigurator:
-                        eventCapturer != null
-                            ? c => c.Subscribe(eventCapturer)
-                            : (Action<ClusterBuilder>)null,
-                    extraOptions: extraOptions,
-                    bypassAutoEncryption: bypassAutoEncryption);
-            return clientEncrypted;
+            return DriverTestConfiguration.CreateDisposableClient(configuredSettings);
         }
 
-        private ClientEncryption ConfigureClientEncryption(MongoClient client, Action<string, Dictionary<string, object>> kmsProviderConfigurator = null)
+        private MongoClientSettings ConfigureClientEncryptedSettings(
+            BsonDocument schemaMap = null,
+            IMongoClient externalKeyVaultClient = null,
+            string kmsProviderFilter = null,
+            EventCapturer eventCapturer = null,
+            Dictionary<string, object> extraOptions = null,
+            bool bypassAutoEncryption = false,
+            int? maxPoolSize = null)
         {
+            var kmsProviders = GetKmsProviders(kmsProviderFilter: kmsProviderFilter);
+
+            var clientEncryptedSettings =
+                CreateMongoClientSettings(
+                    keyVaultNamespace: __keyVaultCollectionNamespace,
+                    schemaMapDocument: schemaMap,
+                    kmsProviders: kmsProviders,
+                    externalKeyVaultClient: externalKeyVaultClient,
+                    eventCapturer: eventCapturer,
+                    extraOptions: extraOptions,
+                    bypassAutoEncryption: bypassAutoEncryption,
+                    maxPoolSize: maxPoolSize);
+
+            return clientEncryptedSettings;
+        }
+
+        private ClientEncryption ConfigureClientEncryption(
+            MongoClient client,
+            Action<string, Dictionary<string, object>> kmsProviderConfigurator = null,
+            string kmsProviderFilter = null)
+        {
+            var kmsProviders = GetKmsProviders(kmsProviderConfigurator, kmsProviderFilter);
+
             var clientEncryptionOptions = new ClientEncryptionOptions(
                 keyVaultClient: client.Settings.AutoEncryptionOptions?.KeyVaultClient ?? client,
                 keyVaultNamespace: __keyVaultCollectionNamespace,
-                kmsProviders: GetKmsProviders(kmsProviderConfigurator));
+                kmsProviders: kmsProviders);
 
             return new ClientEncryption(clientEncryptionOptions);
         }
@@ -986,10 +1225,40 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             CollectionNamespace keyVaultNamespace = null,
             BsonDocument schemaMapDocument = null,
             IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders = null,
-            bool withExternalKeyVault = false,
-            Action<ClusterBuilder> clusterConfigurator = null,
+            IMongoClient externalKeyVaultClient = null,
+            EventCapturer eventCapturer = null,
             Dictionary<string, object> extraOptions = null,
-            bool bypassAutoEncryption = false)
+            bool bypassAutoEncryption = false,
+            int? maxPoolSize = null,
+            WriteConcern writeConcern = null,
+            ReadConcern readConcern = null)
+        {
+            var mongoClientSettings = CreateMongoClientSettings(
+                keyVaultNamespace,
+                schemaMapDocument,
+                kmsProviders,
+                externalKeyVaultClient,
+                eventCapturer,
+                extraOptions,
+                bypassAutoEncryption,
+                maxPoolSize,
+                writeConcern,
+                readConcern);
+
+            return DriverTestConfiguration.CreateDisposableClient(mongoClientSettings);
+        }
+
+        private MongoClientSettings CreateMongoClientSettings(
+            CollectionNamespace keyVaultNamespace = null,
+            BsonDocument schemaMapDocument = null,
+            IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders = null,
+            IMongoClient externalKeyVaultClient = null,
+            EventCapturer eventCapturer = null,
+            Dictionary<string, object> extraOptions = null,
+            bool bypassAutoEncryption = false,
+            int? maxPoolSize = null,
+            WriteConcern writeConcern = null,
+            ReadConcern readConcern = null)
         {
             var mongoClientSettings = DriverTestConfiguration.GetClientSettings().Clone();
 #pragma warning disable 618
@@ -998,9 +1267,32 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 mongoClientSettings.GuidRepresentation = GuidRepresentation.Unspecified;
             }
 #pragma warning restore 618
-            mongoClientSettings.ClusterConfigurator = clusterConfigurator;
+            if (eventCapturer != null)
+            {
+                mongoClientSettings.ClusterConfigurator = builder => builder.Subscribe(eventCapturer);
+            }
+            else
+            {
+                var globalClusterConfiguratorAction = mongoClientSettings.ClusterConfigurator;
+                mongoClientSettings.ClusterConfigurator = (b) => globalClusterConfiguratorAction(b); // we need to have a new instance of ClusterConfigurator
+            }
 
-            if (keyVaultNamespace != null || schemaMapDocument != null || kmsProviders != null || withExternalKeyVault)
+            if (maxPoolSize.HasValue)
+            {
+                mongoClientSettings.MaxConnectionPoolSize = maxPoolSize.Value;
+            }
+
+            if (writeConcern != null)
+            {
+                mongoClientSettings.WriteConcern = writeConcern;
+            }
+
+            if (readConcern != null)
+            {
+                mongoClientSettings.ReadConcern = readConcern;
+            }
+
+            if (keyVaultNamespace != null || schemaMapDocument != null || kmsProviders != null || externalKeyVaultClient != null)
             {
                 if (extraOptions == null)
                 {
@@ -1024,17 +1316,14 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     extraOptions: extraOptions,
                     bypassAutoEncryption: bypassAutoEncryption);
 
-                if (withExternalKeyVault)
+                if (externalKeyVaultClient != null)
                 {
-                    var externalKeyVaultClientSettings = DriverTestConfiguration.GetClientSettings().Clone();
-                    externalKeyVaultClientSettings.Credential = MongoCredential.FromComponents(null, null, "fake-user", "fake-pwd");
-                    var externalKeyVaultClient = new MongoClient(externalKeyVaultClientSettings);
-                    autoEncryptionOptions = autoEncryptionOptions.With(keyVaultClient: externalKeyVaultClient);
+                    autoEncryptionOptions = autoEncryptionOptions.With(keyVaultClient: Optional.Create(externalKeyVaultClient));
                 }
                 mongoClientSettings.AutoEncryptionOptions = autoEncryptionOptions;
             }
 
-            return new DisposableMongoClient(new MongoClient(mongoClientSettings));
+            return mongoClientSettings;
         }
 
         private void DropView(CollectionNamespace viewNamespace)
@@ -1137,7 +1426,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             defaultValue ??
             throw new Exception($"{variableName} environment variable must be configured on the machine.");
 
-        private IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> GetKmsProviders(Action<string, Dictionary<string, object>> kmsProviderConfigurator = null)
+        private IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> GetKmsProviders(
+            Action<string, Dictionary<string, object>> kmsProviderConfigurator = null,
+            string kmsProviderFilter = null)
         {
             var kmsProviders = new Dictionary<string, IReadOnlyDictionary<string, object>>();
 
@@ -1180,6 +1471,11 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             kmsProviderConfigurator?.Invoke("gcp", gcpKmsOptions);
             kmsProviders.Add("gcp", gcpKmsOptions);
 
+            if (kmsProviderFilter != null)
+            {
+                kmsProviders = kmsProviders.Where(c => c.Key == kmsProviderFilter).ToDictionary(c => c.Key, c => c.Value);
+            }
+
             return new ReadOnlyDictionary<string, IReadOnlyDictionary<string, object>>(kmsProviders);
         }
 
@@ -1195,6 +1491,27 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     };
             }
             return schemaMap;
+        }
+
+        private EventCapturer CreateEventCapturer(string commandNameFilter = null)
+        {
+            var defaultCommandsToNotCapture = new HashSet<string>
+            {
+                "isMaster",
+                "buildInfo",
+                "getLastError",
+                "authenticate",
+                "saslStart",
+                "saslContinue",
+                "getnonce"
+            };
+
+            return
+                new EventCapturer()
+                .Capture<CommandStartedEvent>(
+                    e =>
+                        !defaultCommandsToNotCapture.Contains(e.CommandName) &&
+                        (commandNameFilter == null || e.CommandName == commandNameFilter));
         }
 
         private void Insert(
