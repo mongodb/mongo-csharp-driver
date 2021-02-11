@@ -250,7 +250,7 @@ namespace MongoDB.Driver.Core.Authentication
             /// <param name="item">The disposable item.</param>
             public void RegisterItemForDisposal(IDisposable item)
             {
-                Ensure.IsNotNull(item, "item");
+                Ensure.IsNotNull(item, nameof(item));
                 _itemsNeedingDisposal.Add(item);
             }
 

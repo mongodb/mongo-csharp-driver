@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
             {
                 if (gssName != IntPtr.Zero)
                 {
-                    NativeMethods.ReleaseName(out _, gssName);
+                    _ = NativeMethods.ReleaseName(out _, gssName);
                 }
             }
         }

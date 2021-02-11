@@ -28,10 +28,12 @@ namespace MongoDB.Driver.Core.Authentication
         /// <param name="challenge">Challenge received from the MongoDB server.</param>
         /// <returns>Response to send back to the MongoDB server.</returns>
         byte[] Next(byte[] challenge);
+
         /// <summary>
         /// Whether the security context has been initialized.
         /// </summary>
         bool IsInitialized { get; }
+
         /// <summary>
         /// Decrypts ciphertext to plaintext.
         /// </summary>
@@ -39,6 +41,7 @@ namespace MongoDB.Driver.Core.Authentication
         /// <param name="encryptedBytes">Ciphertext to decrypt.</param>
         /// <returns>Decrypted plaintext.</returns>
         byte[] DecryptMessage(int messageLength, byte[] encryptedBytes);
+
         /// <summary>
         /// Encrypts plaintext to ciphertext.
         /// </summary>
