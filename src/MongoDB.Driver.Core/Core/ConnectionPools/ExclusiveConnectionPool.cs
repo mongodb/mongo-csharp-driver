@@ -79,7 +79,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
 #pragma warning disable 618
             _waitQueue = new SemaphoreSlim(settings.WaitQueueSize);
 #pragma warning restore 618
-            _connectingQueue = new SemaphoreSlimSignalable(settings.MaxConnecting);
             _maintenanceCancellationTokenSource = new CancellationTokenSource();
             _state = new InterlockedInt32(State.Initial);
 
