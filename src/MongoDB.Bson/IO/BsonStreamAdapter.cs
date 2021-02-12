@@ -462,7 +462,7 @@ namespace MongoDB.Bson.IO
                 using var rentedBuffer = ThreadStaticBuffer.GetBuffer(maxLengthToUseCStringUtf8EncodingWith);
 
                 var length = CStringUtf8Encoding.GetBytes(value, rentedBuffer.Bytes, 0, Utf8Encodings.Strict);
-                SetBytes(rentedBuffer.Bytes, length);
+                WriteBytes(rentedBuffer.Bytes, length);
             }
             else
             {
@@ -473,10 +473,10 @@ namespace MongoDB.Bson.IO
                     throw new ArgumentException("A CString cannot contain null bytes.", "value");
                 }
 
-                SetBytes(segment.Array, segment.Count);
+                WriteBytes(segment.Array, segment.Count);
             }
 
-            void SetBytes(byte[] bytes, int length)
+            void WriteBytes(byte[] bytes, int length)
             {
                 _stream.Write(bytes, 0, length);
                 _stream.WriteByte(0);
