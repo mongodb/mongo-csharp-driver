@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using DnsClient;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Connections;
@@ -243,39 +244,27 @@ namespace MongoDB.Driver.Core.Authentication
                 get { return _connectionId; }
             }
 
-            // methods
-            /// <inheritdoc/>
-            public void Dispose()
-            {
-                Dispose(true);
-                GC.SuppressFinalize(this);
-            }
-
             /// <summary>
             /// Registers the item for disposal.
             /// </summary>
             /// <param name="item">The disposable item.</param>
             public void RegisterItemForDisposal(IDisposable item)
             {
+                Ensure.IsNotNull(item, nameof(item));
                 _itemsNeedingDisposal.Add(item);
             }
 
-            private void Dispose(bool disposing)
+            /// <inheritdoc/>
+            public void Dispose()
             {
                 if (!_isDisposed)
                 {
-                    // disposal should happen in reverse order of registration.
-                    if (disposing && _itemsNeedingDisposal != null)
+                    for (int i = _itemsNeedingDisposal.Count - 1; i >= 0; i--)
                     {
-                        for (int i = _itemsNeedingDisposal.Count - 1; i >= 0; i--)
-                        {
-                            _itemsNeedingDisposal[i].Dispose();
-                        }
-
-                        _itemsNeedingDisposal.Clear();
-                        _itemsNeedingDisposal = null;
+                        _itemsNeedingDisposal[i].Dispose();
                     }
 
+                    _itemsNeedingDisposal.Clear();
                     _isDisposed = true;
                 }
             }
