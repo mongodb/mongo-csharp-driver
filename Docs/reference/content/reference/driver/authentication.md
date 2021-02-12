@@ -122,7 +122,11 @@ var settings = new MongoClientSettings
 
 ### GSSAPI/Kerberos
 
-[MongoDB Enterprise](http://www.mongodb.com/products/mongodb-enterprise) supports authentication using [Kerberos/GSSAPI](http://docs.mongodb.org/manual/core/authentication/#kerberos-authentication). To create a Kerberos/GSSAPI credential, use the following method:
+[MongoDB Enterprise](http://www.mongodb.com/products/mongodb-enterprise) supports authentication using [Kerberos/GSSAPI](http://docs.mongodb.org/manual/core/authentication/#kerberos-authentication). The .NET driver supports Kerberos/GSSAPI authentication on Windows and Linux.
+
+{{% note %}}Support for Kerberos/GSSAPI on Linux requires the shared library `libgssapi_krb5.so`. Please refer to your Linux package manager documentation for how to install this dependency if it is not already present on your system.{{% note %}}
+
+To create a Kerberos/GSSAPI credential, use the following method:
 
 ```csharp
 var credential = MongoCredential.CreateGssapiCredential(username, password);
@@ -131,12 +135,15 @@ var credential = MongoCredential.CreateGssapiCredential(username, password);
 Or via the connection string:
 
 ```
-mongodb://username%40REALM.com:password@myserver/?authMechanism=GSSAPI
+mongodb://username%40REALM.COM:password@myserver/?authMechanism=GSSAPI
 ```
 
 {{% note %}}Note that the username will need to have a REALM associated with it. When used in a connection string, `%40` is the escape character for the `@` symbol.{{% /note %}}
 
-If the process owner running your application is the same as the user needing authentication, you can omit the password:
+You can omit the password if:
+
+1. [Windows] The process owner running the application is the same as the user needing authentication.
+2. [Linux] The user has initialized their keytab via `kinit username@REALM.COM`.
 
 ```csharp
 var credential = MongoCredential.CreateGssapiCredential(username);
@@ -145,7 +152,7 @@ var credential = MongoCredential.CreateGssapiCredential(username);
 Or via the connection string:
 
 ```
-mongodb://username%40REALM.com@myserver/?authMechanism=GSSAPI
+mongodb://username%40REALM.COM@myserver/?authMechanism=GSSAPI
 ```
 
 Depending on the kerberos setup, it may be required to specify some additional properties. These may be specified in the connection string or via code.
