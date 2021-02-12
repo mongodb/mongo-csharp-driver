@@ -528,12 +528,14 @@ namespace MongoDB.Bson.IO
             }
             else
             {
-                var bytes = ThreadStaticBuffer.GetBuffer(length);
+                using var rentedBuffer = ThreadStaticBuffer.GetBuffer(length);
+                var bytes = rentedBuffer.Buffer;
                 this.ReadBytes(bytes, 0, length);
                 if (bytes[length - 1] != 0)
                 {
                     throw new FormatException("String is missing terminating null byte.");
                 }
+
                 return Utf8Helper.DecodeUtf8String(bytes, 0, length - 1, encoding);
             }
         }
@@ -569,27 +571,33 @@ namespace MongoDB.Bson.IO
             {
                 // Compare to 128 to preserve original behavior
                 const int maxLengthToUseCStringUtf8EncodingWith = 128;
-
-                byte[] bytes;
+          
                 if (maxLength <= maxLengthToUseCStringUtf8EncodingWith)
                 {
-                    bytes = ThreadStaticBuffer.GetBuffer(maxLengthToUseCStringUtf8EncodingWith);
-                    actualLength = CStringUtf8Encoding.GetBytes(value, bytes, 0, Utf8Encodings.Strict);
+                    using var acquiredBuffer = ThreadStaticBuffer.GetBuffer(maxLengthToUseCStringUtf8EncodingWith);
+                    actualLength = CStringUtf8Encoding.GetBytes(value, acquiredBuffer.Buffer, 0, Utf8Encodings.Strict);
+
+                    SetBytes(acquiredBuffer.Buffer, actualLength);
                 }
                 else
                 {
-                    var segmentEncoded = Utf8Encodings.Strict.GetBytesUsingThreadStaticBuffer(value);
-                    bytes = segmentEncoded.Array;
+                    using var rentedSegmentEncoded = Utf8Encodings.Strict.GetBytesUsingThreadStaticBuffer(value);
+                    var segmentEncoded = rentedSegmentEncoded.Segment;
                     actualLength = segmentEncoded.Count;
 
-                    if (Array.IndexOf<byte>(bytes, 0, 0, actualLength) != -1)
+                    if (Array.IndexOf<byte>(segmentEncoded.Array, 0, 0, actualLength) != -1)
                     {
                         throw new ArgumentException("A CString cannot contain null bytes.", "value");
                     }
+
+                    SetBytes(segmentEncoded.Array, actualLength);
                 }
 
-                _buffer.SetBytes(_position, bytes, 0, actualLength);
-                _buffer.SetByte(_position + actualLength, 0);
+                void SetBytes(byte[] bytes, int lenght)
+                {
+                    _buffer.SetBytes(_position, bytes, 0, actualLength);
+                    _buffer.SetByte(_position + actualLength, 0);
+                }
             }
 
             SetPositionAfterWrite(_position + actualLength + 1);
@@ -719,9 +727,9 @@ namespace MongoDB.Bson.IO
             }
             else
             {
-                var segmentEncoded = encoding.GetBytesUsingThreadStaticBuffer(value);
-                var bytes = segmentEncoded.Array;
-                actualLength = segmentEncoded.Count;
+                using var rentedSegmentEncoded = encoding.GetBytesUsingThreadStaticBuffer(value);
+                var bytes = rentedSegmentEncoded.Segment.Array;
+                actualLength = rentedSegmentEncoded.Segment.Count;
 
                 var lengthPlusOneBytes = BitConverter.GetBytes(actualLength + 1);
 

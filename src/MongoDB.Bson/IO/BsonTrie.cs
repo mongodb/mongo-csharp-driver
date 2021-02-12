@@ -14,8 +14,6 @@
 */
 
 using System;
-using System.IO;
-using System.Text;
 
 namespace MongoDB.Bson.IO
 {
@@ -57,10 +55,10 @@ namespace MongoDB.Bson.IO
         /// <param name="value">The value to add. The value can be null for reference types.</param>
         public void Add(string elementName, TValue value)
         {
-            var utf8 = Utf8Encodings.Strict.GetBytesUsingThreadStaticBuffer(elementName);
+            using var rentedSegment = Utf8Encodings.Strict.GetBytesUsingThreadStaticBuffer(elementName);
 
             var node = _root;
-            foreach (var keyByte in utf8)
+            foreach (var keyByte in rentedSegment.Segment)
             {
                 var child = node.GetChild(keyByte);
                 if (child == null)
@@ -152,8 +150,8 @@ namespace MongoDB.Bson.IO
         /// <returns>True if the value was found; otherwise, false.</returns>
         public bool TryGetValue(string elementName, out TValue value)
         {
-            var utf8 = Utf8Encodings.Strict.GetBytesUsingThreadStaticBuffer(elementName);
-            return TryGetValue(utf8, out value);
+            using var utf8 = Utf8Encodings.Strict.GetBytesUsingThreadStaticBuffer(elementName);
+            return TryGetValue(utf8.Segment, out value);
         }
     }
 

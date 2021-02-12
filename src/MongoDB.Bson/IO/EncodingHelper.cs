@@ -23,9 +23,26 @@ namespace MongoDB.Bson.IO
     /// </summary>
     internal static class EncodingHelper
     {
+        public struct DisposableSegment : IDisposable
+        {
+            private IDisposable DisposableData { get; set; }
+            public ArraySegment<byte> Segment { get; private set; }
+
+            public DisposableSegment(IDisposable disposableData, ArraySegment<byte> segment)
+            {
+                DisposableData = disposableData;
+                Segment = segment;
+            }
+
+            public void Dispose()
+            {
+                DisposableData?.Dispose();
+            }
+        }
+
         private static readonly ArraySegment<byte> __emptySegment = new ArraySegment<byte>(new byte[0]);
 
-        public static ArraySegment<byte> GetBytesUsingThreadStaticBuffer(this Encoding encoding, string value)
+        public static DisposableSegment GetBytesUsingThreadStaticBuffer(this Encoding encoding, string value)
         {
             if (encoding == null)
             {
@@ -40,17 +57,16 @@ namespace MongoDB.Bson.IO
             var length = value.Length;
             if (length == 0)
             {
-                return __emptySegment;
+                return new DisposableSegment(null, __emptySegment);
             }
 
             var maxSize = encoding.GetMaxByteCount(length);
-            var buffer = ThreadStaticBuffer.GetBuffer(maxSize);
+            var rentedBuffer = ThreadStaticBuffer.GetBuffer(maxSize);
 
-            var size = encoding.GetBytes(value, 0, length, buffer, 0);
+            var size = encoding.GetBytes(value, 0, length, rentedBuffer.Buffer, 0);
+            var segment = new ArraySegment<byte>(rentedBuffer.Buffer, 0, size);
 
-            var result = new ArraySegment<byte>(buffer, 0, size);
-
-            return result;
+            return new DisposableSegment(rentedBuffer, segment);
         }
     }
 }

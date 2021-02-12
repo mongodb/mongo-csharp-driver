@@ -370,7 +370,9 @@ namespace MongoDB.Bson.IO
             ThrowIfDisposed();
 
             var length = ReadInt32();
-            var bytes = ThreadStaticBuffer.GetBuffer(length);
+            using var rentedBuffer = ThreadStaticBuffer.GetBuffer(length);
+            var bytes = rentedBuffer.Buffer;
+
             this.ReadBytes(bytes, 0, length);
             if (bytes[length - 1] != 0)
             {
@@ -452,30 +454,33 @@ namespace MongoDB.Bson.IO
             }
             ThrowIfDisposed();
 
-            byte[] bytes;
-            int length;
 
             // Compare to 128 to preserve original behavior
             const int maxLengthToUseCStringUtf8EncodingWith = 128;
             if (CStringUtf8Encoding.GetMaxByteCount(value.Length) <= maxLengthToUseCStringUtf8EncodingWith)
             {
-                bytes = ThreadStaticBuffer.GetBuffer(maxLengthToUseCStringUtf8EncodingWith);
-                length = CStringUtf8Encoding.GetBytes(value, bytes, 0, Utf8Encodings.Strict);
+                using var rentedBuffer = ThreadStaticBuffer.GetBuffer(maxLengthToUseCStringUtf8EncodingWith);
+
+                var length = CStringUtf8Encoding.GetBytes(value, rentedBuffer.Buffer, 0, Utf8Encodings.Strict);
+                SetBytes(rentedBuffer.Buffer, length);
             }
             else
             {
-                var segment = Utf8Encodings.Strict.GetBytesUsingThreadStaticBuffer(value);
-                bytes = segment.Array;
-                length = segment.Count;
-
-                if (Array.IndexOf<byte>(bytes, 0, 0, length) != -1)
+                using var rentedSegment = Utf8Encodings.Strict.GetBytesUsingThreadStaticBuffer(value);
+                var segment = rentedSegment.Segment;
+                if (Array.IndexOf<byte>(segment.Array, 0, 0, segment.Count) != -1)
                 {
                     throw new ArgumentException("A CString cannot contain null bytes.", "value");
                 }
+
+                SetBytes(segment.Array, segment.Count);
             }
 
-            _stream.Write(bytes, 0, length);
-            _stream.WriteByte(0);
+            void SetBytes(byte[] bytes, int length)
+            {
+                _stream.Write(bytes, 0, length);
+                _stream.WriteByte(0);
+            }
         }
 
         /// <inheritdoc/>
@@ -547,7 +552,8 @@ namespace MongoDB.Bson.IO
             }
             ThrowIfDisposed();
 
-            var segment = encoding.GetBytesUsingThreadStaticBuffer(value);
+            using var rentedSegment = encoding.GetBytesUsingThreadStaticBuffer(value);
+            var segment = rentedSegment.Segment;
 
             WriteInt32(segment.Count + 1);
             _stream.Write(segment.Array, 0, segment.Count);

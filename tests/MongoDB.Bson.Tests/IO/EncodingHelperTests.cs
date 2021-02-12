@@ -46,11 +46,11 @@ namespace MongoDB.Bson.Tests.IO
         [Fact]
         public void GetBytesUsingThreadStaticBuffer_should_return_cached_empty_segment_when_value_is_empty_string()
         {
-            var segmentA = EncodingHelper.GetBytesUsingThreadStaticBuffer(Encoding.ASCII, "");
-            var segmentB = EncodingHelper.GetBytesUsingThreadStaticBuffer(Encoding.ASCII, "");
+            using var segmentA = EncodingHelper.GetBytesUsingThreadStaticBuffer(Encoding.ASCII, "");
+            using var segmentB = EncodingHelper.GetBytesUsingThreadStaticBuffer(Encoding.ASCII, "");
 
-            segmentA.Array.Length.Should().Be(0);
-            segmentA.Array.Should().BeSameAs(segmentB.Array);
+            segmentA.Segment.Array.Length.Should().Be(0);
+            segmentA.Segment.Array.Should().BeSameAs(segmentB.Segment.Array);
         }
 
         [Theory]
@@ -69,7 +69,8 @@ namespace MongoDB.Bson.Tests.IO
 
                 var str = GetString(maxStringSize);
 
-                var segment = encoding.GetBytesUsingThreadStaticBuffer(str);
+                using var rentedSegment = encoding.GetBytesUsingThreadStaticBuffer(str);
+                var segment = rentedSegment.Segment;
                 var encodedExpected = encoding.GetBytes(str);
                 var encodedActual = segment.ToArray();
 
@@ -97,7 +98,8 @@ namespace MongoDB.Bson.Tests.IO
                         var sizeCurrent = random.Next(8, maxSize);
                         var str = GetString(sizeCurrent);
 
-                        var segment = encoding.GetBytesUsingThreadStaticBuffer(str);
+                        using var rentedSegment = encoding.GetBytesUsingThreadStaticBuffer(str);
+                        var segment = rentedSegment.Segment;
                         var encodedExpected = encoding.GetBytes(str);
                         var encodedActual = segment.ToArray();
 

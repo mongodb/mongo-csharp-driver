@@ -26,6 +26,22 @@ namespace MongoDB.Bson.IO
     /// </summary>
     internal static class ThreadStaticBuffer
     {
+        public struct RentableBuffer : IDisposable
+        {
+            public byte[] Buffer { get; private set; }
+
+            public void Dispose()
+            {
+                if (!__isBufferInUse)
+                    throw new InvalidOperationException("Thread static buffer is not in use");
+
+                __isBufferInUse = false;
+            }
+
+            public static implicit operator RentableBuffer(byte[] buffer) =>
+                new RentableBuffer() { Buffer = buffer };
+        }
+
         private const int MinSize = 256;
         private const int MaxSize = 16384;
         private const int MaxAllocationSize = 1024 * 1024 * 1024; // 1GB
@@ -34,12 +50,22 @@ namespace MongoDB.Bson.IO
         [ThreadStatic]
         private static byte[] __buffer;
 
-        public static byte[] GetBuffer(int size)
+        [ThreadStatic]
+        private static bool __isBufferInUse;
+
+        public static RentableBuffer GetBuffer(int size)
         {
+            if (__isBufferInUse)
+            {
+                throw new InvalidOperationException("Thread static buffer is already in use");
+            }
+
             if (size <= 0 || size > MaxAllocationSize)
             {
                 throw new ArgumentOutOfRangeException(nameof(size), "Invalid requested buffer size");
             }
+
+            __isBufferInUse = true;
 
             if (size > MaxSize)
             {
