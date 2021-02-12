@@ -35,11 +35,6 @@ namespace MongoDB.Driver.Core.Misc
         private readonly SemaphoreSlim _semaphore;
         private readonly object _syncRoot;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SemaphoreSlimRequest" /> class.
-        /// </summary>
-        /// <param name="count">The count.</param>
         public SemaphoreSlimSignalable(int count)
         {
             Ensure.IsBetween(count, 1, 1024, nameof(count));
