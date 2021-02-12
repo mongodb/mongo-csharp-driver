@@ -26,20 +26,38 @@ namespace MongoDB.Bson.IO
     /// </summary>
     internal static class ThreadStaticBuffer
     {
-        public struct RentableBuffer : IDisposable
+        public interface IRentedBuffer : IDisposable
         {
-            public byte[] Buffer { get; private set; }
+            public byte[] Bytes { get; }
+        }
+
+        private struct RentedBuffer : IRentedBuffer
+        {
+            private readonly object _ownerThreadIdentifier;
+            private readonly byte[] _bytes;
+
+            public RentedBuffer(object ownerThreadIdentifier, byte[] bytes)
+            {
+                _ownerThreadIdentifier = ownerThreadIdentifier;
+                _bytes = bytes;
+            }
 
             public void Dispose()
             {
-                if (!__isBufferInUse)
-                    throw new InvalidOperationException("Thread static buffer is not in use");
+                if (_ownerThreadIdentifier != ThreadIdentifier)
+                {
+                    throw new InvalidOperationException("Attempt to return thread static buffer from the wrong thread.");
+                }
 
-                __isBufferInUse = false;
+                if (!__isBufferRented)
+                {
+                    throw new InvalidOperationException("Thread static buffer is not in use.");
+                }
+
+                __isBufferRented = false;
             }
 
-            public static implicit operator RentableBuffer(byte[] buffer) =>
-                new RentableBuffer() { Buffer = buffer };
+            public byte[] Bytes => _bytes;
         }
 
         private const int MinSize = 256;
@@ -51,25 +69,27 @@ namespace MongoDB.Bson.IO
         private static byte[] __buffer;
 
         [ThreadStatic]
-        private static bool __isBufferInUse;
+        private static bool __isBufferRented;
 
-        public static RentableBuffer GetBuffer(int size)
+        private static object ThreadIdentifier => __buffer ?? (__buffer = new byte[0]);
+
+        public static IRentedBuffer GetBuffer(int size)
         {
-            if (__isBufferInUse)
+            if (__isBufferRented)
             {
-                throw new InvalidOperationException("Thread static buffer is already in use");
+                throw new InvalidOperationException("Thread static buffer is already in use.");
             }
 
             if (size <= 0 || size > MaxAllocationSize)
             {
-                throw new ArgumentOutOfRangeException(nameof(size), "Invalid requested buffer size");
+                throw new ArgumentOutOfRangeException(nameof(size), "Invalid requested buffer size.");
             }
 
-            __isBufferInUse = true;
+            __isBufferRented = true;
 
             if (size > MaxSize)
             {
-                return new byte[size];
+                return new RentedBuffer(ThreadIdentifier, new byte[size]);
             }
 
             if (__buffer == null || __buffer.Length < size)
@@ -78,7 +98,7 @@ namespace MongoDB.Bson.IO
                 __buffer = new byte[newSize];
             }
 
-            return __buffer;
+            return new RentedBuffer(ThreadIdentifier, __buffer);
         }
     }
 }
