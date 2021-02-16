@@ -40,10 +40,7 @@ namespace MongoDB.Driver.Core.NativeLibraryLoader
         public virtual string GetLibraryBasePath()
         {
             var assembly = GetLibraryBaseAssembly();
-            var codeBase = assembly.CodeBase;
-            var uri = new Uri(codeBase);
-            var absolutePath = uri.AbsolutePath;
-            return Path.GetDirectoryName(absolutePath);
+            return Path.GetDirectoryName(assembly.Location);
         }
 
         public abstract string GetLibraryRelativePath(OperatingSystemPlatform currentPlatform);
@@ -57,7 +54,7 @@ namespace MongoDB.Driver.Core.NativeLibraryLoader
             var absolutePathsToCheck = new[]
             {
                 Path.Combine(libraryBasePath, libraryName),  // look in the current assembly folder
-                Path.Combine(libraryBasePath, @"..\..\", relativePath),
+                Path.Combine(libraryBasePath, "..", "..", relativePath),
                 Path.Combine(libraryBasePath, relativePath)
             };
 
