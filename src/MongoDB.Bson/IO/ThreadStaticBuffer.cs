@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Threading;
 
 namespace MongoDB.Bson.IO
 {
@@ -33,18 +34,18 @@ namespace MongoDB.Bson.IO
 
         private struct RentedBuffer : IRentedBuffer
         {
-            private readonly object _ownerThreadIdentifier;
+            private readonly int _ownerThreadId;
             private readonly byte[] _bytes;
 
-            public RentedBuffer(object ownerThreadIdentifier, byte[] bytes)
+            public RentedBuffer(int ownerThreadId, byte[] bytes)
             {
-                _ownerThreadIdentifier = ownerThreadIdentifier;
+                _ownerThreadId = ownerThreadId;
                 _bytes = bytes;
             }
 
             public void Dispose()
             {
-                if (_ownerThreadIdentifier != ThreadIdentifier)
+                if (_ownerThreadId != _threadId)
                 {
                     throw new InvalidOperationException("Attempt to return thread static buffer from the wrong thread.");
                 }
@@ -67,13 +68,12 @@ namespace MongoDB.Bson.IO
         // private static fields
         [ThreadStatic]
         private static byte[] __buffer;
-
         [ThreadStatic]
         private static bool __isBufferRented;
+        [ThreadStatic]
+        private static int _threadId;
 
-        private static object ThreadIdentifier => __buffer ?? (__buffer = new byte[0]);
-
-        public static IRentedBuffer GetBuffer(int size)
+        public static IRentedBuffer RentBuffer(int size)
         {
             if (__isBufferRented)
             {
@@ -87,9 +87,14 @@ namespace MongoDB.Bson.IO
 
             __isBufferRented = true;
 
+            if (_threadId == default)
+            {
+                _threadId = Thread.CurrentThread.ManagedThreadId;
+            }
+
             if (size > MaxSize)
             {
-                return new RentedBuffer(ThreadIdentifier, new byte[size]);
+                return new RentedBuffer(_threadId, new byte[size]);
             }
 
             if (__buffer == null || __buffer.Length < size)
@@ -98,7 +103,7 @@ namespace MongoDB.Bson.IO
                 __buffer = new byte[newSize];
             }
 
-            return new RentedBuffer(ThreadIdentifier, __buffer);
+            return new RentedBuffer(_threadId, __buffer);
         }
     }
 }

@@ -48,48 +48,48 @@ namespace MongoDB.Bson.Tests.IO
         [InlineData(-1)]
         [InlineData(-10)]
         [InlineData(1024 * 1024 * 1024 + 1)]
-        public void GetBuffer_should_throw_when_size_is_invalid(int size)
+        public void RentBuffer_should_throw_when_size_is_invalid(int size)
         {
-            var exception = Record.Exception(() => ThreadStaticBuffer.GetBuffer(size));
+            var exception = Record.Exception(() => ThreadStaticBuffer.RentBuffer(size));
             var e = exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
 
             e.ParamName.Should().Be("size");
         }
 
         [Fact]
-        public void GetBuffer_should_allow_checkout_after_checkin()
+        public void RentBuffer_should_allow_checkout_after_checkin()
         {
-            using (var rentableBufferFirst = ThreadStaticBuffer.GetBuffer(2))
+            using (var rentableBufferFirst = ThreadStaticBuffer.RentBuffer(2))
             {
                 rentableBufferFirst.Bytes.Should().NotBeNull();
             }
 
-            using var rentableBufferSecond = ThreadStaticBuffer.GetBuffer(2);
+            using var rentableBufferSecond = ThreadStaticBuffer.RentBuffer(2);
             rentableBufferSecond.Bytes.Should().NotBeNull();
         }
 
         [Fact]
-        public void GetBuffer_should_not_allow_checkout_without_checkin()
+        public void RentBuffer_should_not_allow_checkout_without_checkin()
         {
-            using (var rentedBuffer = ThreadStaticBuffer.GetBuffer(2))
+            using (var rentedBuffer = ThreadStaticBuffer.RentBuffer(2))
             {
-                var exception = Record.Exception(() => ThreadStaticBuffer.GetBuffer(2));
+                var exception = Record.Exception(() => ThreadStaticBuffer.RentBuffer(2));
                 exception.Should().BeOfType<InvalidOperationException>();
             }
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void GetBuffer_should_not_allow_checkin_buffer_from_other_thread(
+        public void RentBuffer_should_not_allow_checkin_buffer_from_other_thread(
             [Values(true, false)] bool rentBufferInOwnThread,
             [Values(128, 16385)] int size)
         {
-            var rentedBufferInOwnThread = rentBufferInOwnThread ? ThreadStaticBuffer.GetBuffer(size) : null;
+            var rentedBufferInOwnThread = rentBufferInOwnThread ? ThreadStaticBuffer.RentBuffer(size) : null;
             ThreadStaticBuffer.IRentedBuffer rentedBufferInOtherThread = null;
 
             ThreadingUtilities.ExecuteOnNewThread(1, i =>
             {
-                rentedBufferInOtherThread = ThreadStaticBuffer.GetBuffer(size);
+                rentedBufferInOtherThread = ThreadStaticBuffer.RentBuffer(size);
             });
 
             var exception = Record.Exception(() => rentedBufferInOtherThread.Dispose());
@@ -100,13 +100,13 @@ namespace MongoDB.Bson.Tests.IO
 
         [Theory]
         [MemberData(nameof(IncrementalSizeTestData))]
-        public void GetBuffer_incrementally_growing_buffer_size_expected_powerof2(params (int requestedSize, int expectedSize)[] sizes)
+        public void RentBuffer_incrementally_growing_buffer_size_expected_powerof2(params (int requestedSize, int expectedSize)[] sizes)
         {
             ThreadingUtilities.ExecuteOnNewThread(2, _ =>
             {
                 foreach (var (requestedSize, expectedSize) in sizes)
                 {
-                    using var rentedBuffer = ThreadStaticBuffer.GetBuffer(requestedSize);
+                    using var rentedBuffer = ThreadStaticBuffer.RentBuffer(requestedSize);
 
                     rentedBuffer.Bytes.Length.Should().Be(expectedSize);
                 }
@@ -119,14 +119,14 @@ namespace MongoDB.Bson.Tests.IO
         [InlineData(16386)]
         [InlineData(32767)]
         [InlineData(32769)]
-        public void GetBuffer_should_return_exact_size_when_requested_greater_than_maxsize(int requestedSize)
+        public void RentBuffer_should_return_exact_size_when_requested_greater_than_maxsize(int requestedSize)
         {
-            using var rentedBuffer = ThreadStaticBuffer.GetBuffer(requestedSize);
+            using var rentedBuffer = ThreadStaticBuffer.RentBuffer(requestedSize);
             rentedBuffer.Bytes.Length.Should().Be(requestedSize);
         }
 
         [Fact]
-        public void GetBuffer_should_return_different_instance_in_different_threads()
+        public void RentBuffer_should_return_different_instance_in_different_threads()
         {
             const int threadsCount = 2;
             const int size = 256;
@@ -136,7 +136,7 @@ namespace MongoDB.Bson.Tests.IO
             ThreadingUtilities.ExecuteOnNewThread(threadsCount, i =>
             {
                 byte[] bufferInstance;
-                using (var rentedBuffer = ThreadStaticBuffer.GetBuffer(size))
+                using (var rentedBuffer = ThreadStaticBuffer.RentBuffer(size))
                 {
                     rentedBuffer.Bytes.Length.Should().Be(size);
                     bufferInstance = rentedBuffer.Bytes;
@@ -147,7 +147,7 @@ namespace MongoDB.Bson.Tests.IO
                 {
                     newSize = (newSize >> 1) + 1;
 
-                    using var bufferCurrent = ThreadStaticBuffer.GetBuffer(newSize);
+                    using var bufferCurrent = ThreadStaticBuffer.RentBuffer(newSize);
                     bufferCurrent.Bytes.Should().BeSameAs(bufferInstance);
                 }
 

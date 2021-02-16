@@ -370,7 +370,7 @@ namespace MongoDB.Bson.IO
             ThrowIfDisposed();
 
             var length = ReadInt32();
-            using var rentedBuffer = ThreadStaticBuffer.GetBuffer(length);
+            using var rentedBuffer = ThreadStaticBuffer.RentBuffer(length);
             var bytes = rentedBuffer.Bytes;
 
             this.ReadBytes(bytes, 0, length);
@@ -459,7 +459,7 @@ namespace MongoDB.Bson.IO
             const int maxLengthToUseCStringUtf8EncodingWith = 128;
             if (CStringUtf8Encoding.GetMaxByteCount(value.Length) <= maxLengthToUseCStringUtf8EncodingWith)
             {
-                using var rentedBuffer = ThreadStaticBuffer.GetBuffer(maxLengthToUseCStringUtf8EncodingWith);
+                using var rentedBuffer = ThreadStaticBuffer.RentBuffer(maxLengthToUseCStringUtf8EncodingWith);
 
                 var length = CStringUtf8Encoding.GetBytes(value, rentedBuffer.Bytes, 0, Utf8Encodings.Strict);
                 WriteBytes(rentedBuffer.Bytes, length);
