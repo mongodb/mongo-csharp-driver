@@ -84,8 +84,13 @@ namespace MongoDB.Bson.Tests.IO
             [Values(true, false)] bool rentBufferInOwnThread,
             [Values(128, 16385)] int size)
         {
-            var rentedBufferInOwnThread = rentBufferInOwnThread ? ThreadStaticBuffer.RentBuffer(size) : null;
-            ThreadStaticBuffer.IRentedBuffer rentedBufferInOtherThread = null;
+            ThreadStaticBuffer.RentedBuffer rentedBufferInOwnThread = default;
+            ThreadStaticBuffer.RentedBuffer rentedBufferInOtherThread = default;
+
+            if (rentBufferInOwnThread)
+            {
+                rentedBufferInOwnThread = ThreadStaticBuffer.RentBuffer(size);
+            }
 
             ThreadingUtilities.ExecuteOnNewThread(1, i =>
             {
@@ -95,7 +100,10 @@ namespace MongoDB.Bson.Tests.IO
             var exception = Record.Exception(() => rentedBufferInOtherThread.Dispose());
             exception.Should().BeOfType<InvalidOperationException>();
 
-            rentedBufferInOwnThread?.Dispose();
+            if (rentBufferInOwnThread)
+            {
+                rentedBufferInOwnThread.Dispose();
+            }
         }
 
         [Theory]

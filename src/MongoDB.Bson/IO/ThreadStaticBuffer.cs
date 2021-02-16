@@ -27,12 +27,7 @@ namespace MongoDB.Bson.IO
     /// </summary>
     internal static class ThreadStaticBuffer
     {
-        public interface IRentedBuffer : IDisposable
-        {
-            public byte[] Bytes { get; }
-        }
-
-        private struct RentedBuffer : IRentedBuffer
+        public readonly struct RentedBuffer : IDisposable
         {
             private readonly int _ownerThreadId;
             private readonly byte[] _bytes;
@@ -73,7 +68,7 @@ namespace MongoDB.Bson.IO
         [ThreadStatic]
         private static int _threadId;
 
-        public static IRentedBuffer RentBuffer(int size)
+        public static RentedBuffer RentBuffer(int size)
         {
             if (__isBufferRented)
             {
