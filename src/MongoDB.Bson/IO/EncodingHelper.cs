@@ -23,10 +23,10 @@ namespace MongoDB.Bson.IO
     /// </summary>
     internal static class EncodingHelper
     {
-        public struct DisposableSegment : IDisposable
+        public readonly struct DisposableSegment : IDisposable
         {
-            private IDisposable DisposableData { get; set; }
-            public ArraySegment<byte> Segment { get; private set; }
+            private IDisposable DisposableData { get; }
+            public ArraySegment<byte> Segment { get; }
 
             public DisposableSegment(IDisposable disposableData, ArraySegment<byte> segment)
             {

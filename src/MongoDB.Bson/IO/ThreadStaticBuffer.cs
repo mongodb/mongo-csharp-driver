@@ -40,7 +40,7 @@ namespace MongoDB.Bson.IO
 
             public void Dispose()
             {
-                if (_ownerThreadId != _threadId)
+                if (_ownerThreadId != __threadId)
                 {
                     throw new InvalidOperationException("Attempt to return thread static buffer from the wrong thread.");
                 }
@@ -66,7 +66,7 @@ namespace MongoDB.Bson.IO
         [ThreadStatic]
         private static bool __isBufferRented;
         [ThreadStatic]
-        private static int _threadId;
+        private static int __threadId;
 
         public static RentedBuffer RentBuffer(int size)
         {
@@ -82,14 +82,14 @@ namespace MongoDB.Bson.IO
 
             __isBufferRented = true;
 
-            if (_threadId == default)
+            if (__threadId == default)
             {
-                _threadId = Thread.CurrentThread.ManagedThreadId;
+                __threadId = Thread.CurrentThread.ManagedThreadId;
             }
 
             if (size > MaxSize)
             {
-                return new RentedBuffer(_threadId, new byte[size]);
+                return new RentedBuffer(__threadId, new byte[size]);
             }
 
             if (__buffer == null || __buffer.Length < size)
@@ -98,7 +98,7 @@ namespace MongoDB.Bson.IO
                 __buffer = new byte[newSize];
             }
 
-            return new RentedBuffer(_threadId, __buffer);
+            return new RentedBuffer(__threadId, __buffer);
         }
     }
 }
