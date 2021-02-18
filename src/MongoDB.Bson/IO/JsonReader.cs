@@ -2089,15 +2089,8 @@ namespace MongoDB.Bson.IO
             }
             VerifyToken("}");
 
-            var hexString = uuidToken.StringValue.Replace("-", "");
-            var bytes = BsonUtils.ParseHexString(hexString);
-            if (bytes.Length != 16)
-            {
-                var message = string.Format("Invalid $uuid string: '{0}'.", hexString);
-                throw new FormatException(message);
-            }
-
-            return new BsonBinaryData(bytes, BsonBinarySubType.UuidStandard);
+            var guid = Guid.Parse(uuidToken.StringValue);
+            return new BsonBinaryData(guid, GuidRepresentation.Standard);
         }
 
         private BsonValue ParseUUIDConstructor(string uuidConstructorName)
