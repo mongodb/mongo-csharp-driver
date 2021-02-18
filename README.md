@@ -80,11 +80,11 @@ Contributing
 Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 
 ### Maintainers:
-* Vincent Kam               vincent.kam@mongodb.com
+* Boris Dogadov             boris.dogadov@mongodb.com
 * Dmitry Lukyanov           dmitry.lukyanov@mongodb.com
-* Mikalai Maruzenka         mikalai.mazurenka@mongodb.com
+* James Kovacs              james.kovacs@mongodb.com
+* Mikalai Mazurenka         mikalai.mazurenka@mongodb.com
 * Robert Stam               robert@mongodb.com
-* Craig Wilson              craig.wilson@mongodb.com
 
 ### Contributors:
 * Alexander Aramov          https://github.com/alex687
@@ -156,5 +156,7 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * TimTim                    https://github.com/wegylexy
 * Zhmayev Yaroslav          https://github.com/salaros
 * Aristarkh Zagorodnikov    https://github.com/onyxmaster
+* Vincent Kam               https://github.com/vincentkam
+* Craig Wilson              https://github.com/craiggwilson
 
 If you have contributed and we have neglected to add you to this list please contact one of the maintainers to be added to the list (with apologies).

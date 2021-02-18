@@ -4,7 +4,7 @@
     <IsOSX Condition="$([MSBuild]::IsOSPlatform('OSX'))">true</IsOSX>
     <IsLinux Condition="$([MSBuild]::IsOSPlatform('Linux'))">true</IsLinux>
   </PropertyGroup>
-  
+
   <PropertyGroup>
     <TargetFrameworks>netstandard1.5;netstandard2.0;netstandard2.1;net452</TargetFrameworks>
     <TargetFrameworks Condition="'$(IsWindows)'!='true'">netstandard1.5;netstandard2.0;netstandard2.1</TargetFrameworks>
@@ -19,18 +19,18 @@
     <Product>MongoDB.Driver.Core</Product>
     <Company>MongoDB Inc.</Company>
     <Copyright>Copyright © 2010-present MongoDB Inc.</Copyright>
-    <Description>Official MongoDB supported Driver Core library. See http://www.mongodb.org/display/DOCS/CSharp+Language+Center for more details.</Description>
-    <Authors>vincentkam;dmitry_lukyanov;rstam;craiggwilson</Authors>
+    <Description>Official MongoDB supported Driver Core library. See https://docs.mongodb.com/drivers/csharp/ for more details.</Description>
+    <Authors>MongoDB Inc.</Authors>
     <PackageIcon>packageIcon.png</PackageIcon>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageDescription>Core Component of the Official MongoDB .NET Driver.</PackageDescription>
-    <PackageProjectUrl>http://www.mongodb.org/display/DOCS/CSharp+Language+Center</PackageProjectUrl>
+    <PackageProjectUrl>https://docs.mongodb.com/drivers/csharp/</PackageProjectUrl>
     <PackageLicenseFile>License.txt</PackageLicenseFile>
     <PackageTags>mongodb;mongo;nosql</PackageTags>
     <PackageLanguage>en-US</PackageLanguage>
     <IncludeSymbols>true</IncludeSymbols>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" PrivateAssets="All" Version="1.0.0" />
   </ItemGroup>
