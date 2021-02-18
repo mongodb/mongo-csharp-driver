@@ -256,6 +256,8 @@ functions:
           export FLE_AZURE_CLIENT_SECRET=${FLE_AZURE_CLIENT_SECRET}
           export FLE_GCP_EMAIL=${FLE_GCP_EMAIL}
           export FLE_GCP_PRIVATE_KEY=${FLE_GCP_PRIVATE_KEY}
+          . ./evergreen/set-virtualenv.sh
+          . ./evergreen/set-temp-fle-aws-creds.sh
           ${PREPARE_SHELL}
           SSL=${SSL} evergreen/add-certs-if-needed.sh
           AUTH=${AUTH} \

@@ -147,8 +147,72 @@ Then for each element in ``tests``:
 
 #. Create a **new** MongoClient using ``clientOptions``.
 
-   #. If ``autoEncryptOpts`` includes ``aws``, ``azure``, and/or ``gcp`` as a KMS provider, pass in credentials from the environment.
-   #. If ``autoEncryptOpts`` does not include ``keyVaultNamespace``, default it to ``keyvault.datakeys``.
+   #. If ``autoEncryptOpts`` includes ``aws``, ``awsTemporary``, ``awsTemporaryNoSessionToken``,
+      ``azure``, and/or ``gcp`` as a KMS provider, pass in credentials from the environment.
+
+      - ``awsTemporary``, and ``awsTemporaryNoSessionToken`` require temporary
+        AWS credentials. These can be retrieved using the csfle `set-temp-creds.sh
+        <https://github.com/mongodb-labs/drivers-evergreen-tools/tree/master/.evergreen/csfle>`_
+        script.
+
+      - ``aws``, ``awsTemporary``, and ``awsTemporaryNoSessionToken`` are
+        mutually exclusive.
+
+        ``aws`` should be substituted with:
+
+        .. code:: javascript
+
+           "aws": {
+                "accessKeyId": <set from environment>,
+                "secretAccessKey": <set from environment>
+           }
+
+        ``awsTemporary`` should be substituted with:
+
+        .. code:: javascript
+
+           "aws": {
+                "accessKeyId": <set from environment>,
+                "secretAccessKey": <set from environment>
+                "sessionToken": <set from environment>
+           }
+
+        ``awsTemporaryNoSessionToken`` should be substituted with:
+
+        .. code:: javascript
+
+           "aws": {
+               "accessKeyId": <set from environment>,
+               "secretAccessKey": <set from environment>
+           }
+
+        ``gcp`` should be substituted with:
+
+        .. code:: javascript
+
+           "gcp": {
+               "email": <set from environment>,
+               "privateKey": <set from environment>,
+           }
+
+        ``azure`` should be substituted with:
+
+        .. code:: javascript
+
+           "azure": {
+               "tenantId": <set from environment>,
+               "clientId": <set from environment>,
+               "clientSecret": <set from environment>,
+           }
+
+        ``local`` should be substituted with:
+
+        .. code:: javascript
+
+           "local": { "key": <base64 decoding of LOCAL_MASTERKEY> }
+
+   #. If ``autoEncryptOpts`` does not include ``keyVaultNamespace``, default it
+      to ``keyvault.datakeys``.
 
 #. For each element in ``operations``:
 

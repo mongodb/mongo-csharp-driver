@@ -19,6 +19,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Encryption;
 using MongoDB.Driver.TestHelpers;
@@ -37,6 +38,13 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)
         {
+            if (testCase.Name.Contains("awsTemporary"))
+            {
+                // This test requires setting of some temporary environment variables that can be set by mongo orchestration or manually.
+                // Add this environment variable on your local machine only together with FLE_AWS_TEMP_* variables (note: they will be expired in 12 hours)
+                RequireEnvironment.Check().EnvironmentVariable("FLE_AWS_TEMPORARY_CREDS_ENABLED");
+            }
+
             RequirePlatform
                 .Check()
                 .SkipWhen(SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard15)
@@ -226,8 +234,29 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
             foreach (var kmsProvider in kmsProviders.Elements)
             {
                 var kmsOptions = new Dictionary<string, object>();
-                switch (kmsProvider.Name)
+                var kmsProviderName = kmsProvider.Name;
+                switch (kmsProviderName)
                 {
+                    case "awsTemporary":
+                        {
+                            kmsProviderName = "aws";
+                            var awsAccessKey = GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_TEMP_ACCESS_KEY_ID");
+                            var awsSecretAccessKey = GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_TEMP_SECRET_ACCESS_KEY");
+                            var awsSessionToken = GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_TEMP_SESSION_TOKEN");
+                            kmsOptions.Add("accessKeyId", awsAccessKey);
+                            kmsOptions.Add("secretAccessKey", awsSecretAccessKey);
+                            kmsOptions.Add("sessionToken", awsSessionToken);
+                        }
+                        break;
+                    case "awsTemporaryNoSessionToken":
+                        {
+                            kmsProviderName = "aws";
+                            var awsAccessKey = GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_TEMP_ACCESS_KEY_ID");
+                            var awsSecretAccessKey = GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_TEMP_SECRET_ACCESS_KEY");
+                            kmsOptions.Add("accessKeyId", awsAccessKey);
+                            kmsOptions.Add("secretAccessKey", awsSecretAccessKey);
+                        }
+                        break;
                     case "aws":
                         {
                             var awsAccessKey = GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_ACCESS_KEY_ID");
@@ -264,7 +293,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                     default:
                         throw new Exception($"Unexpected kms provider type {kmsProvider.Name}.");
                 }
-                providers.Add(kmsProvider.Name, kmsOptions);
+                providers.Add(kmsProviderName, kmsOptions);
             }
 
             return new ReadOnlyDictionary<string, IReadOnlyDictionary<string, object>>(providers);
