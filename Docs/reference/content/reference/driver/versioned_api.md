@@ -16,7 +16,7 @@ server semantics, to be declared on a client. During communication with a server
 API version will force the server to behave in a manner compatible with the API version. Declaring an API
 version on a client can be used to ensure consistent responses from a server, providing long term API
 stability for an application. The declared API version is applied to all commands run through the client, including those sent through
-the generic RunCommand helper.
+the generic RunCommand helper. Specifying versioned API options in the command document AND declaring an API version on the client is not supported and will lead to undefined behaviour.
 
 You can specify [`ServerApi`]({{< apiref "T_MongoDB_Driver_Core_ServerApi" >}}) via [`MongoClientSettings`]({{< apiref "T_MongoDB_Driver_MongoClientSettings" >}}):
 
