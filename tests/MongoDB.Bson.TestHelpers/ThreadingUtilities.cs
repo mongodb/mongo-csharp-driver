@@ -36,7 +36,7 @@ namespace MongoDB.Bson.TestHelpers
                     try
                     {
                         action(i);
-                        actionsExecutedCount++;
+                        Interlocked.Increment(ref actionsExecutedCount);
                     }
                     catch (Exception ex)
                     {

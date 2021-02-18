@@ -48,10 +48,4 @@
     <ProjectReference Include="..\..\src\MongoDB.Bson\MongoDB.Bson.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.5'">
-    <PackageReference Include="System.Threading.Thread">
-      <Version>4.3.0</Version>
-    </PackageReference>
-  </ItemGroup>
-
 </Project>
