@@ -443,13 +443,13 @@ Task("PackageNugetPackages")
         }
     });
 
-Task("PushToMyget")
+Task("PushToNuGet")
     .Does(() =>
     {
-        var mygetApiKey = EnvironmentVariable("MYGETAPIKEY");
-        if (mygetApiKey == null)
+        var nugetApiKey = EnvironmentVariable("NUGETAPIKEY");
+        if (nugetApiKey == null)
         {
-            throw new Exception("MYGETAPIKEY environment variable missing");
+            throw new Exception("NUGETAPIKEY environment variable missing");
         }
 
         var packageFiles = new List<FilePath>();
@@ -472,8 +472,8 @@ Task("PushToMyget")
 
         NuGetPush(packageFiles, new NuGetPushSettings
         {
-            ApiKey = mygetApiKey,
-            Source = "https://www.myget.org/F/mongodb/api/v2/package"
+            ApiKey = nugetApiKey,
+            Source = "https://api.nuget.org/v3/index.json"
         });
     });
 

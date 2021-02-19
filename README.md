@@ -3,9 +3,6 @@
 
 You can get the latest stable release from the [official Nuget.org feed](https://www.nuget.org/packages/MongoDB.Driver) or from our [github releases page](https://github.com/mongodb/mongo-csharp-driver/releases).
 
-If you'd like to work with the bleeding edge, you can use our [custom feed](https://www.myget.org/gallery/mongodb). Some packages on this feed are pre-release and, while they've passed all our tests, are not yet ready for production.
-
-
 Getting Started
 ---------------
 
