@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using FluentAssertions;
@@ -72,6 +73,48 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
                     .BeLessThan(TimeSpan.FromSeconds(2));
                 // Assert the client processes isMaster replies more frequently than 10 secs (approximately every 500ms)
             }
+        }
+
+        [SkippableFact]
+        public void Monitor_sleep_at_least_minHeartbeatFreqencyMS_between_checks()
+        {
+            var minVersion = new SemanticVersion(4, 9, 0, "");
+            RequireServer.Check().VersionGreaterThanOrEqualTo(minVersion);
+
+            const string appName = "SDAMMinHeartbeatFrequencyTest";
+
+            var failPointCommand = BsonDocument.Parse(
+                $@"{{
+                    configureFailPoint : 'failCommand',
+                    mode : {{ 'times' : 5 }},
+                    data :
+                    {{
+                        failCommands : [ 'isMaster' ],
+                        errorCode : 1234,
+                        appName : '{appName}'
+                    }}
+                }}");
+
+            var settings = DriverTestConfiguration.GetClientSettings();
+
+            // set settings.DirectConnection = true after removing obsolete ConnectionMode
+#pragma warning disable CS0618 // Type or member is obsolete
+            settings.ConnectionMode = ConnectionMode.Direct;
+#pragma warning restore CS0618 // Type or member is obsolete
+
+            settings.ApplicationName = appName;
+            settings.ServerSelectionTimeout = TimeSpan.FromSeconds(5);
+
+            var cluster = DriverTestConfiguration.Client.Cluster;
+            using var failPoint = FailPoint.Configure(cluster, NoCoreSession.NewHandle(), failPointCommand);
+            using var client = DriverTestConfiguration.CreateDisposableClient(settings);
+
+            var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+            var sw = Stopwatch.StartNew();
+            _ = database.RunCommand<BsonDocument>("{ ping : 1 }");
+            sw.Stop();
+
+            sw.ElapsedMilliseconds.Should().BeInRange(2000, 3500);
         }
 
         [SkippableFact]
