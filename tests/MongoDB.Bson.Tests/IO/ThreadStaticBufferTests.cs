@@ -92,7 +92,7 @@ namespace MongoDB.Bson.Tests.IO
                 rentedBufferInOwnThread = ThreadStaticBuffer.RentBuffer(size);
             }
 
-            ThreadingUtilities.ExecuteOnNewThread(1, i =>
+            ThreadingUtilities.ExecuteOnNewThreads(1, i =>
             {
                 rentedBufferInOtherThread = ThreadStaticBuffer.RentBuffer(size);
             });
@@ -110,7 +110,7 @@ namespace MongoDB.Bson.Tests.IO
         [MemberData(nameof(IncrementalSizeTestData))]
         public void RentBuffer_incrementally_growing_buffer_size_expected_powerof2(params (int requestedSize, int expectedSize)[] sizes)
         {
-            ThreadingUtilities.ExecuteOnNewThread(2, _ =>
+            ThreadingUtilities.ExecuteOnNewThreads(2, _ =>
             {
                 foreach (var (requestedSize, expectedSize) in sizes)
                 {
@@ -141,7 +141,7 @@ namespace MongoDB.Bson.Tests.IO
 
             var allBuffers = new ConcurrentBag<byte[]>();
 
-            ThreadingUtilities.ExecuteOnNewThread(threadsCount, i =>
+            ThreadingUtilities.ExecuteOnNewThreads(threadsCount, i =>
             {
                 byte[] bufferInstance;
                 using (var rentedBuffer = ThreadStaticBuffer.RentBuffer(size))

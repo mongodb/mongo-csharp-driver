@@ -47,7 +47,7 @@ namespace MongoDB.Bson.IO
 
                 if (!__isBufferRented)
                 {
-                    throw new InvalidOperationException("Thread static buffer is not in use.");
+                    throw new InvalidOperationException("Attempt to return a thread static buffer that is not in use.");
                 }
 
                 __isBufferRented = false;
@@ -77,7 +77,7 @@ namespace MongoDB.Bson.IO
 
             if (size <= 0 || size > MaxAllocationSize)
             {
-                throw new ArgumentOutOfRangeException(nameof(size), "Invalid requested buffer size.");
+                throw new ArgumentOutOfRangeException(nameof(size), size, $"Valid buffer size range is [1..{MaxAllocationSize}] bytes.");
             }
 
             __isBufferRented = true;

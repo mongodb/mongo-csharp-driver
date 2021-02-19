@@ -23,7 +23,7 @@ namespace MongoDB.Bson.TestHelpers
 {
     public static class ThreadingUtilities
     {
-        public static void ExecuteOnNewThread(int threadsCount, Action<int> action, int timeoutMilliseconds = 10000)
+        public static void ExecuteOnNewThreads(int threadsCount, Action<int> action, int timeoutMilliseconds = 10000)
         {
             var actionsExecutedCount = 0;
 

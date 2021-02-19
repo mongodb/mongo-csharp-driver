@@ -91,7 +91,7 @@ namespace MongoDB.Bson.Tests.IO
             var random = new Random();
             var encoding = Utf8Encodings.Strict;
 
-            ThreadingUtilities.ExecuteOnNewThread(threadsCount, _ =>
+            ThreadingUtilities.ExecuteOnNewThreads(threadsCount, _ =>
                 {
                     for (int j = 0; j < iterationsCount; j++)
                     {
