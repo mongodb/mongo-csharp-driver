@@ -78,7 +78,8 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
         [SkippableFact]
         public void Monitor_sleep_at_least_minHeartbeatFreqencyMS_between_checks()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("4.9.0");
+            var minVersion = new SemanticVersion(4, 9, 0, "");
+            RequireServer.Check().VersionGreaterThanOrEqualTo(minVersion);
 
             const string appName = "SDAMMinHeartbeatFrequencyTest";
 
