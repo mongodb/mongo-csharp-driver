@@ -81,8 +81,6 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
             RequireServer.Check().VersionGreaterThanOrEqualTo("4.9.0");
 
             const string appName = "SDAMMinHeartbeatFrequencyTest";
-            var heartbeatSuceededTimestamps = new ConcurrentQueue<DateTime>();
-            var heartbeatInterval = TimeSpan.FromMilliseconds(500);
 
             var failPointCommand = BsonDocument.Parse(
                 $@"{{
