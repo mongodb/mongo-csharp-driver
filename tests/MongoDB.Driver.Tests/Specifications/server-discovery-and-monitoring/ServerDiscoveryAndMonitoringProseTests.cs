@@ -95,7 +95,12 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
                 }}");
 
             var settings = DriverTestConfiguration.GetClientSettings();
-            settings.DirectConnection = true;
+
+            // set settings.DirectConnection = true after removing obsolete ConnectionMode
+#pragma warning disable CS0618 // Type or member is obsolete
+            settings.ConnectionMode = ConnectionMode.Direct;
+#pragma warning restore CS0618 // Type or member is obsolete
+
             settings.ApplicationName = appName;
             settings.ServerSelectionTimeout = TimeSpan.FromSeconds(5);
 
@@ -105,7 +110,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
 
             var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             var sw = Stopwatch.StartNew();
-            _ = database.RunCommand<BsonDocument>("{ ping : 1}");
+            _ = database.RunCommand<BsonDocument>("{ ping : 1 }");
             sw.Stop();
 
             sw.ElapsedMilliseconds.Should().BeInRange(2000, 3500);
