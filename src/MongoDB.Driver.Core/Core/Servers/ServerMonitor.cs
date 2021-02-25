@@ -107,7 +107,7 @@ namespace MongoDB.Driver.Core.Servers
                     _connection = null;
                 }
             }
-            toDispose.Dispose();
+            toDispose?.Dispose();
         }
 
         public void Dispose()
