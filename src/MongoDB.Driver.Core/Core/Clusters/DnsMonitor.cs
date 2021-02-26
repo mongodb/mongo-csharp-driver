@@ -68,7 +68,11 @@ namespace MongoDB.Driver.Core.Clusters
         // public methods
         public Thread Start()
         {
-            var thread = new Thread(ThreadStart);
+            var thread = new Thread(ThreadStart)
+            {
+                IsBackground = true
+            };
+
             thread.Start();
             return thread;
         }

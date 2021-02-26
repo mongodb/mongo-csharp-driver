@@ -18,18 +18,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
+using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
-using MongoDB.Driver.Core.Helpers;
+using MongoDB.Driver.Core.Tests.Core.Clusters;
 using Moq;
 using Xunit;
-using MongoDB.Bson;
-using MongoDB.Driver.Core.Tests.Core.Clusters;
-using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Core.Clusters
 {
@@ -298,6 +298,7 @@ namespace MongoDB.Driver.Core.Clusters
                 subject.Initialize();
 
                 subject._dnsMonitorThread().Should().NotBeNull();
+                subject._dnsMonitorThread().IsBackground.Should().BeTrue();
             }
         }
 
