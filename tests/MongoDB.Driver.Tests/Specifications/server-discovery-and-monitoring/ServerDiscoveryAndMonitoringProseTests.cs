@@ -96,6 +96,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
                 }}");
 
             var settings = DriverTestConfiguration.GetClientSettings();
+            settings.Servers = new[] { settings.Servers.First() };
 
             // set settings.DirectConnection = true after removing obsolete ConnectionMode
 #pragma warning disable CS0618 // Type or member is obsolete
