@@ -526,25 +526,25 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSASub0ContainsO()
         {
-            Assert<C>(c => c.SA[0].Contains("o"), 1, "{ 'sa.0' : /o/ }");
+            Assert<C>(c => c.SA[0].Contains("o"), 1, "{ 'sa.0' : /o/s }");
         }
 
         [Fact]
         public void TestWhereSASub0ContainsONot()
         {
-            Assert<C>(c => !c.SA[0].Contains("o"), 4, "{ $nor : [{ 'sa.0' : /o/ }] }");
+            Assert<C>(c => !c.SA[0].Contains("o"), 4, "{ $nor : [{ 'sa.0' : /o/s }] }");
         }
 
         [Fact]
         public void TestWhereSASub0EndsWithM()
         {
-            Assert<C>(c => c.SA[0].EndsWith("m"), 1, "{ 'sa.0' : /m$/ }");
+            Assert<C>(c => c.SA[0].EndsWith("m"), 1, "{ 'sa.0' : /m$/s }");
         }
 
         [Fact]
         public void TestWhereSASub0EndsWithMNot()
         {
-            Assert<C>(c => !c.SA[0].EndsWith("m"), 4, "{ $nor : [{ 'sa.0' : /m$/ }] }");
+            Assert<C>(c => !c.SA[0].EndsWith("m"), 4, "{ $nor : [{ 'sa.0' : /m$/s }] }");
         }
 
         [Fact]
@@ -588,25 +588,25 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSASub0StartsWithTNot()
         {
-            Assert<C>(c => !c.SA[0].StartsWith("T"), 4, "{ \"sa.0\" : { \"$not\" : /^T/s } }");
+            Assert<C>(c => !c.SA[0].StartsWith("T"), 4, "{ $nor : [{ \"sa.0\" : /^T/s }] }");
         }
 
         [Fact]
         public void TestWhereSContainsAbc()
         {
-            Assert<C>(c => c.S.Contains("abc"), 1, "{ s : /abc/ }");
+            Assert<C>(c => c.S.Contains("abc"), 1, "{ s : /abc/s }");
         }
 
         [Fact]
         public void TestWhereSContainsAbcNot()
         {
-            Assert<C>(c => !c.S.Contains("abc"), 4, "{ $nor : [{ s : /abc/ }] }");
+            Assert<C>(c => !c.S.Contains("abc"), 4, "{ $nor : [{ s : /abc/s }] }");
         }
 
         [Fact]
         public void TestWhereSContainsDot()
         {
-            Assert<C>(c => c.S.Contains("."), 0, "{ s : /\\./ }");
+            Assert<C>(c => c.S.Contains("."), 0, "{ s : /\\./s }");
         }
 
         [Fact]
@@ -654,13 +654,13 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSEndsWithAbc()
         {
-            Assert<C>(c => c.S.EndsWith("abc"), 1, "{ s : /abc$/ }");
+            Assert<C>(c => c.S.EndsWith("abc"), 1, "{ s : /abc$/s }");
         }
 
         [Fact]
         public void TestWhereSEndsWithAbcNot()
         {
-            Assert<C>(c => !c.S.EndsWith("abc"), 4, "{ $nor : [{ s : /abc$/ }] }");
+            Assert<C>(c => !c.S.EndsWith("abc"), 4, "{ $nor : [{ s : /abc$/s }] }");
         }
 
         [Fact]
@@ -818,7 +818,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSStartsWithAbcNot()
         {
-            Assert<C>(c => !c.S.StartsWith("abc"), 4, "{ \"s\" : { \"$not\" : /^abc/s } }");
+            Assert<C>(c => !c.S.StartsWith("abc"), 4, "{ $nor : [{ \"s\" : /^abc/s }] }");
         }
 
         [Fact]
@@ -848,44 +848,44 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSTrimContainsXyz()
         {
-            Assert<C>(c => c.S.Trim().Contains("xyz"), 1, "{ \"s\" : /^\\s*.*xyz.*\\s*$/s }");
+            Assert<C>(c => c.S.Trim().Contains("xyz"), 1, "{ \"s\" : /^\\s*(?!\\s).*xyz.*(?<!\\s)\\s*$/s }");
         }
 
         [Fact]
         public void TestWhereSTrimContainsXyzNot()
         {
-            Assert<C>(c => !c.S.Trim().Contains("xyz"), 4, "{ \"s\" : { \"$not\" : /^\\s*.*xyz.*\\s*$/s } }");
+            Assert<C>(c => !c.S.Trim().Contains("xyz"), 4, "{ $nor : [{ \"s\" : /^\\s*(?!\\s).*xyz.*(?<!\\s)\\s*$/s }] }");
         }
 
         [Fact]
         public void TestWhereSTrimEndsWithXyz()
         {
-            Assert<C>(c => c.S.Trim().EndsWith("xyz"), 1, "{ \"s\" : /^\\s*.*xyz\\s*$/s }");
+            Assert<C>(c => c.S.Trim().EndsWith("xyz"), 1, "{ \"s\" : /^\\s*(?!\\s).*xyz(?<!\\s)\\s*$/s }");
         }
 
         [Fact]
         public void TestWhereSTrimEndsWithXyzNot()
         {
-            Assert<C>(c => !c.S.Trim().EndsWith("xyz"), 4, "{ \"s\" : { \"$not\" : /^\\s*.*xyz\\s*$/s } }");
+            Assert<C>(c => !c.S.Trim().EndsWith("xyz"), 4, "{ $nor : [{ \"s\" : /^\\s*(?!\\s).*xyz(?<!\\s)\\s*$/s }] }");
         }
 
         [Fact]
         public void TestWhereSTrimStartsWithXyz()
         {
-            Assert<C>(c => c.S.Trim().StartsWith("xyz"), 1, "{ \"s\" : /^\\s*xyz.*\\s*$/s }");
+            Assert<C>(c => c.S.Trim().StartsWith("xyz"), 1, "{ \"s\" : /^\\s*(?!\\s)xyz.*(?<!\\s)\\s*$/s }");
         }
 
         [Fact]
         public void TestWhereSTrimStartsWithXyzNot()
         {
-            Assert<C>(c => !c.S.Trim().StartsWith("xyz"), 4, "{ \"s\" : { \"$not\" : /^\\s*xyz.*\\s*$/s } }");
+            Assert<C>(c => !c.S.Trim().StartsWith("xyz"), 4, "{ $nor : [{ \"s\" : /^\\s*(?!\\s)xyz.*(?<!\\s)\\s*$/s }] }");
         }
 
 #if NET452 || NETCOREAPP1_0        
         [Fact]
         public void TestWhereSTrimStartTrimEndToLowerContainsXyz()
         {
-            Assert<C>(c => c.S.TrimStart(' ', '.', '-', '\t').TrimEnd().ToLower().Contains("xyz"), 1, "{ \"s\" : /^[\\ \\.\\-\\t]*.*xyz.*\\s*$/is }");
+            Assert<C>(c => c.S.TrimStart(' ', '.', '-', '\t').TrimEnd().ToLower().Contains("xyz"), 1, "{ \"s\" : /^[\\ \\.\\-\\t]*(?![\\ \\.\\-\\t]).*xyz.*(?<!\\s)\\s*$/is }");
         }
 #endif    
 

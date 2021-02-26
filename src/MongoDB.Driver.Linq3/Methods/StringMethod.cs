@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Globalization;
 using System.Reflection;
 
 namespace MongoDB.Driver.Linq3.Misc
@@ -21,7 +22,10 @@ namespace MongoDB.Driver.Linq3.Misc
     public static class StringMethod
     {
         // private static fields
+        private static readonly MethodInfo __contains;
         private static readonly MethodInfo __endsWith;
+        private static readonly MethodInfo __endsWithWithComparisonType;
+        private static readonly MethodInfo __endsWithWithIgnoreCaseAndCulture;
         private static readonly MethodInfo __indexOfAny;
         private static readonly MethodInfo __indexOfAnyWithStartIndex;
         private static readonly MethodInfo __indexOfAnyWithStartIndexAndCount;
@@ -41,17 +45,29 @@ namespace MongoDB.Driver.Linq3.Misc
         private static readonly MethodInfo __splitWithCharsAndOptions;
         private static readonly MethodInfo __splitWithStringsAndCountAndOptions;
         private static readonly MethodInfo __splitWithStringsAndOptions;
+        private static readonly MethodInfo __startsWith;
+        private static readonly MethodInfo __startsWithWithComparisonType;
+        private static readonly MethodInfo __startsWithWithIgnoreCaseAndCulture;
         private static readonly MethodInfo __substring;
         private static readonly MethodInfo __substringWithLength;
         private static readonly MethodInfo __toLower;
         private static readonly MethodInfo __toLowerInvariant;
+        private static readonly MethodInfo __toLowerWithCulture;
         private static readonly MethodInfo __toUpper;
         private static readonly MethodInfo __toUpperInvariant;
+        private static readonly MethodInfo __toUpperWithCulture;
+        private static readonly MethodInfo __trim;
+        private static readonly MethodInfo __trimEnd;
+        private static readonly MethodInfo __trimStart;
+        private static readonly MethodInfo __trimWithChars;
 
         // static constructor
         static StringMethod()
         {
+            __contains = new Func<string, bool>("".Contains).Method;
             __endsWith = new Func<string, bool>("".EndsWith).Method;
+            __endsWithWithComparisonType = new Func<string, StringComparison, bool>("".EndsWith).Method;
+            __endsWithWithIgnoreCaseAndCulture = new Func<string, bool, CultureInfo, bool>("".EndsWith).Method;
             __indexOfAny = new Func<char[], int>("".IndexOfAny).Method;
             __indexOfAnyWithStartIndex = new Func<char[], int, int>("".IndexOfAny).Method;
             __indexOfAnyWithStartIndexAndCount = new Func<char[], int, int, int>("".IndexOfAny).Method;
@@ -71,16 +87,28 @@ namespace MongoDB.Driver.Linq3.Misc
             __splitWithCharsAndOptions = new Func<char[], StringSplitOptions, string[]>("".Split).Method;
             __splitWithStringsAndCountAndOptions = new Func<string[], int, StringSplitOptions, string[]>("".Split).Method;
             __splitWithStringsAndOptions = new Func<string[], StringSplitOptions, string[]>("".Split).Method;
+            __startsWith = new Func<string, bool>("".StartsWith).Method;
+            __startsWithWithComparisonType = new Func<string, StringComparison, bool>("".StartsWith).Method;
+            __startsWithWithIgnoreCaseAndCulture = new Func<string, bool, CultureInfo, bool>("".StartsWith).Method;
             __substring = new Func<int, string>("".Substring).Method;
             __substringWithLength = new Func<int, int, string>("".Substring).Method;
             __toLower = new Func<string>("".ToLower).Method;
             __toLowerInvariant = new Func<string>("".ToLowerInvariant).Method;
+            __toLowerWithCulture = new Func<CultureInfo, string>("".ToLower).Method;
             __toUpper = new Func<string>("".ToUpper).Method;
             __toUpperInvariant = new Func<string>("".ToUpperInvariant).Method;
+            __toUpperWithCulture = new Func<CultureInfo, string>("".ToUpper).Method;
+            __trim = new Func<string>("".Trim).Method;
+            __trimEnd = new Func<char[], string>("".TrimEnd).Method;
+            __trimStart = new Func<char[], string>("".TrimStart).Method;
+            __trimWithChars = new Func<char[], string>("".Trim).Method;
         }
 
         // public properties
+        public static MethodInfo Contains => __contains;
         public static MethodInfo EndsWith => __endsWith;
+        public static MethodInfo EndsWithWithComparisonType => __endsWithWithComparisonType;
+        public static MethodInfo EndsWithWithIgnoreCaseAndCulture => __endsWithWithIgnoreCaseAndCulture;
         public static MethodInfo IndexOfAny => __indexOfAny;
         public static MethodInfo IndexOfAnyWithStartIndex => __indexOfAnyWithStartIndex;
         public static MethodInfo IndexOfAnyWithStartIndexAndCount => __indexOfAnyWithStartIndexAndCount;
@@ -100,11 +128,20 @@ namespace MongoDB.Driver.Linq3.Misc
         public static MethodInfo SplitWithCharsAndOptions => __splitWithCharsAndOptions;
         public static MethodInfo SplitWithStringsAndCountAndOptions => __splitWithStringsAndCountAndOptions;
         public static MethodInfo SplitWithStringsAndOptions => __splitWithStringsAndOptions;
+        public static MethodInfo StartsWith => __startsWith;
+        public static MethodInfo StartsWithWithComparisonType => __startsWithWithComparisonType;
+        public static MethodInfo StartsWithWithIgnoreCaseAndCulture => __startsWithWithIgnoreCaseAndCulture;
         public static MethodInfo Substring => __substring;
         public static MethodInfo SubstringWithLength => __substringWithLength;
         public static MethodInfo ToLower => __toLower;
         public static MethodInfo ToLowerInvariant => __toLowerInvariant;
+        public static MethodInfo ToLowerWithCulture => __toLowerWithCulture;
         public static MethodInfo ToUpper => __toUpper;
         public static MethodInfo ToUpperInvariant => __toUpperInvariant;
+        public static MethodInfo ToUpperWithCulture => __toUpperWithCulture;
+        public static MethodInfo Trim => __trim;
+        public static MethodInfo TrimEnd => __trimEnd;
+        public static MethodInfo TrimStart => __trimStart;
+        public static MethodInfo TrimWithChars => __trimWithChars;
     }
 }

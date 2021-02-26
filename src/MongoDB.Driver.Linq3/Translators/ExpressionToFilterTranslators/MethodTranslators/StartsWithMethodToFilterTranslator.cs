@@ -15,20 +15,17 @@
 
 using System.Linq.Expressions;
 using MongoDB.Driver.Linq3.Ast.Filters;
+using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ExpressionTranslators;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodTranslators
 {
-    public static class MethodCallExpressionToFilterTranslator
+    public static class StartsWithMethodToFilterTranslator
     {
         public static AstFilter Translate(TranslationContext context, MethodCallExpression expression)
         {
-            switch (expression.Method.Name)
+            if (StringExpressionToRegexFilterTranslator.CanTranslate(expression))
             {
-                case "Any": return AnyMethodToFilterTranslator.Translate(context, expression);
-                case "Contains": return ContainsMethodToFilterTranslator.Translate(context, expression);
-                case "EndsWith": return EndsWithMethodToFilterTranslator.Translate(context, expression);
-                case "Equals": return EqualsMethodToFilterTranslator.Translate(context, expression);
-                case "StartsWith": return StartsWithMethodToFilterTranslator.Translate(context, expression);
+                return StringExpressionToRegexFilterTranslator.Translate(context, expression);
             }
 
             throw new ExpressionNotSupportedException(expression);
