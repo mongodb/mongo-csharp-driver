@@ -636,7 +636,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSEqualsMethodAbcNot()
         {
-            Assert<C>(c => !(c.S.Equals("abc")), 4, "{ \"s\" : { \"$ne\" : \"abc\" } }");
+            Assert<C>(c => !(c.S.Equals("abc")), 4, "{ $nor :[{ \"s\" : \"abc\" }] }");
         }
 
         [Fact]
@@ -648,7 +648,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSEqualsStaticMethodAbcNot()
         {
-            Assert<C>(c => !string.Equals(c.S, "abc"), 4, "{ \"s\" : { \"$ne\" : \"abc\" } }");
+            Assert<C>(c => !string.Equals(c.S, "abc"), 4, "{ $nor : [{ \"s\" : \"abc\" }] }");
         }
 
         [Fact]
