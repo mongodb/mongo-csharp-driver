@@ -17,6 +17,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -96,7 +97,8 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
                 }}");
 
             var settings = DriverTestConfiguration.GetClientSettings();
-            settings.Servers = new[] { settings.Servers.First() };
+            var serverAddress = settings.Servers.First();
+            settings.Servers = new[] { serverAddress };
 
             // set settings.DirectConnection = true after removing obsolete ConnectionMode
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -106,8 +108,8 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
             settings.ApplicationName = appName;
             settings.ServerSelectionTimeout = TimeSpan.FromSeconds(5);
 
-            var cluster = DriverTestConfiguration.Client.Cluster;
-            using var failPoint = FailPoint.Configure(cluster, NoCoreSession.NewHandle(), failPointCommand);
+            var server = DriverTestConfiguration.Client.Cluster.SelectServer(new EndPointServerSelector(new DnsEndPoint(serverAddress.Host, serverAddress.Port)), default);
+            using var failPoint = FailPoint.Configure(server, NoCoreSession.NewHandle(), failPointCommand);
             using var client = DriverTestConfiguration.CreateDisposableClient(settings);
 
             var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
