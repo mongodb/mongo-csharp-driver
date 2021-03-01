@@ -85,10 +85,10 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
             switch (expression.NodeType)
             {
                 case ExpressionType.Equal: return AstComparisonFilterOperator.Eq;
-                case ExpressionType.GreaterThan: return AstComparisonFilterOperator.Lte;
-                case ExpressionType.GreaterThanOrEqual: return AstComparisonFilterOperator.Lt;
-                case ExpressionType.LessThan: return AstComparisonFilterOperator.Gte;
-                case ExpressionType.LessThanOrEqual: return AstComparisonFilterOperator.Gt;
+                case ExpressionType.GreaterThan: return AstComparisonFilterOperator.Lt;
+                case ExpressionType.GreaterThanOrEqual: return AstComparisonFilterOperator.Lte;
+                case ExpressionType.LessThan: return AstComparisonFilterOperator.Gt;
+                case ExpressionType.LessThanOrEqual: return AstComparisonFilterOperator.Gte;
                 case ExpressionType.NotEqual: return AstComparisonFilterOperator.Ne;
                 default: throw new ExpressionNotSupportedException(expression);
             }
