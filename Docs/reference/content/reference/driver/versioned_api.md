@@ -29,11 +29,11 @@ var client = new MongoClient(settings);
 The [`ServerApi`]({{< apiref "T_MongoDB_Driver_Core_ServerApi" >}}) can be specified only when creating a [`MongoClient`]({{< apiref "T_MongoDB_Driver_MongoClient" >}}) and cannot be changed during the course of execution. Thus to run any command with a different
 API version or without declaring one, create a separate [`MongoClient`]({{< apiref "T_MongoDB_Driver_MongoClient" >}}) that declares the appropriate API version.
 
-The [`ServerApi`]({{< apiref "T_MongoDB_Driver_Core_ServerApi" >}}) consists of 3 fields. One mandatory: "serverApiVersion" and two optional: "strict" and "deprecationErrors".
+The [`ServerApi`]({{< apiref "T_MongoDB_Driver_Core_ServerApi" >}}) consists of 3 fields. One mandatory: `serverApiVersion` and two optional: `strict` and `deprecationErrors`.
 
 ### Server API version
 
-The [`ServerApiVersion`]({{< apiref "T_MongoDB_Driver_Core_ServerApiVersion" >}}) is a required parameter of [`ServerApi`]({{< apiref "T_MongoDB_Driver_Core_ServerApi" >}}) and represents the version number for server to behave in compatiblity with. Currently only version 1 is available. It can be acquired via constant field:
+The [`ServerApiVersion`]({{< apiref "T_MongoDB_Driver_Core_ServerApiVersion" >}}) is a required parameter of type [`ServerApi`]({{< apiref "T_MongoDB_Driver_Core_ServerApi" >}}) and represents the version number that the server should behave in compatiblity with. Currently only version 1 is available. It can be acquired via a static property:
 
 ```csharp
 var serverApiVersion = ServerApiVersion.V1;
@@ -41,7 +41,7 @@ var serverApiVersion = ServerApiVersion.V1;
 
 ### Strict flag
 
-The strict flag is optional and defaults to false. Setting true causes commands (or their specific behavior, like command options or aggregation pipeline stages) to fail if they are not part of the declared API version.
+The `strict` flag is optional and defaults to false. Setting `strict` to true causes commands (or their specific behavior, like command options or aggregation pipeline stages) to fail if they are not part of the declared API version.
 
 ```csharp
 var serverApi = new ServerApi(ServerApiVersion.V1, strict: true);
@@ -53,11 +53,11 @@ var result = collection.Distinct((FieldDefinition<BsonDocument, int>)"a.b", new 
 // MongoDB.Driver.MongoCommandException : Command distinct failed: Provided apiStrict:true, but the command distinct is not in API Version 1.
 ```
 
-### Deprecation errors flag
+### DeprecationErrors flag
 
-The deprecation errors flag is optional and defaults to false. Setting true causes commands (or their specific behavior) to fail with APIDeprecationError if they are deprecated in declared API version.
+The `deprecationErrors` flag is optional and defaults to false. Setting `deprecationErrors` to true causes commands (or their specific behavior) to fail with an error if they are deprecated in the declared API version.
 
-{{% note %}}Currently there are no deprecations in version 1, so theoretical example is used.{{% /note %}}
+{{% note %}}Currently there are no deprecations in version 1, so a theoretical example is used.{{% /note %}}
 
 ```csharp
 var serverApi = new ServerApi(ServerApiVersion.V1, deprecationErrors: true);
