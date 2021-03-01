@@ -99,12 +99,15 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
             if (expression is MethodCallExpression methodCallExpression)
             {
                 var method = methodCallExpression.Method;
-
-                switch (method.Name)
+                if (method.IsOneOf(__translatableMethods))
                 {
-                    case "Contains": return TranslateStartsWithOrContainsOrEndsWithMethod(context, methodCallExpression);
-                    case "EndsWith": return TranslateStartsWithOrContainsOrEndsWithMethod(context, methodCallExpression);
-                    case "StartsWith": return TranslateStartsWithOrContainsOrEndsWithMethod(context, methodCallExpression);
+                    switch (method.Name)
+                    {
+                        case "Contains":
+                        case "EndsWith":
+                        case "StartsWith":
+                            return TranslateStartsWithOrContainsOrEndsWithMethod(context, methodCallExpression);
+                    }
                 }
             }
 
