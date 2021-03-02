@@ -7,6 +7,21 @@ title = "What's New"
   identifier = "What's New"
   pre = "<i class='fa fa-star'></i>"
 +++
+## What's New in 2.12.0
+
+The main new features in 2.12.0 include:
+
+* Support for Hidden Indexes in MongoDB 4.4
+* Support for AWS temporary credentials in client-side field level encryption (CSFLE)
+* Support for Azure and GCP keystores in client-side field level encryption (CSFLE)
+* Support for client-side field level encryption (CSFLE) on Linux and Mac OSX
+* Support for GSSAPI/Kerberos on Linux
+* Support for .NET Standard 2.1
+* Various improvements in serialization performance
+* Fixed DNS failures in Kubernetes and Windows Subsystem for Linux (WSL/WSL2)
+* Fixed memory leak in heartbeat when cluster is inaccessible
+* Fixed SDAM deadlock when invalidating former primary
+
 ## What's New in 2.11.0
 
 The main new features in 2.11.0 support new features in MongoDB 4.4.0. These features include:
