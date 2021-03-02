@@ -23,10 +23,19 @@ namespace MongoDB.Driver.Core.TestHelpers
         private readonly IEnumerable<IDisposable> _disposables;
 
         /// <summary>
-        /// Creates a new DisposableBundle.
+        /// Initializes a new instance of the <see cref="DisposableBundle"/> class.
         /// </summary>
         /// <param name="disposables">Non-null sequence of IDisposables</param>
         public DisposableBundle(IEnumerable<IDisposable> disposables)
+        {
+            _disposables = disposables;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DisposableBundle"/> class.
+        /// </summary>
+        /// <param name="disposables">The IDisposables.</param>
+        public DisposableBundle(params IDisposable[] disposables)
         {
             _disposables = disposables;
         }
@@ -35,7 +44,7 @@ namespace MongoDB.Driver.Core.TestHelpers
         {
             foreach (var disposable in _disposables)
             {
-                disposable.Dispose();
+                disposable?.Dispose();
             }
         }
     }

@@ -931,7 +931,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     {
                         SemaphoreSlimSignalable.SemaphoreWaitResult.Signaled => _pool._connectionHolder.Acquire(),
                         SemaphoreSlimSignalable.SemaphoreWaitResult.Entered => CreateOpenedInternal(cancellationToken),
-                        SemaphoreSlimSignalable.SemaphoreWaitResult.TimedOut => throw new TimeoutException($"Timed out waiting for in connecting queue after {stopwatch.ElapsedMilliseconds}ms."),
+                        SemaphoreSlimSignalable.SemaphoreWaitResult.TimedOut => throw new TimeoutException($"Timed out waiting in connecting queue after {stopwatch.ElapsedMilliseconds}ms."),
                         _ => throw new ArgumentOutOfRangeException(nameof(_connectingWaitStatus))
                     };
                 }
@@ -953,7 +953,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     {
                         SemaphoreSlimSignalable.SemaphoreWaitResult.Signaled => _pool._connectionHolder.Acquire(),
                         SemaphoreSlimSignalable.SemaphoreWaitResult.Entered => await CreateOpenedInternalAsync(cancellationToken).ConfigureAwait(false),
-                        SemaphoreSlimSignalable.SemaphoreWaitResult.TimedOut => throw new TimeoutException($"Timed out waiting for in connecting queue after {stopwatch.ElapsedMilliseconds}ms."),
+                        SemaphoreSlimSignalable.SemaphoreWaitResult.TimedOut => throw new TimeoutException($"Timed out waiting in connecting queue after {stopwatch.ElapsedMilliseconds}ms."),
                         _ => throw new ArgumentOutOfRangeException(nameof(_connectingWaitStatus))
                     };
                 }

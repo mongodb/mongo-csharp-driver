@@ -26,7 +26,9 @@ using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Connections;
@@ -34,6 +36,7 @@ using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.TestHelpers;
 using Moq;
 using Xunit;
 
@@ -42,6 +45,7 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
     public class ConnectionMonitoringAndPoolingTestRunner
     {
         #region static
+
         private static readonly string[] __alwaysIgnoredEvents =
         {
             nameof(ConnectionPoolOpeningEvent),
@@ -53,8 +57,64 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
             nameof(ConnectionPoolClosingEvent),
             nameof(ConnectionPoolClearingEvent),
             nameof(ConnectionOpeningEvent),
-            nameof(ConnectionClosingEvent)
+            nameof(ConnectionClosingEvent),
+
+            nameof(ConnectionSendingMessagesEvent),
+            nameof(ConnectionSendingMessagesFailedEvent),
+            nameof(ConnectionSentMessagesEvent),
+            nameof(ConnectionReceivingMessageEvent),
+            nameof(ConnectionReceivingMessageFailedEvent),
+            nameof(ConnectionReceivedMessageEvent),
         };
+
+        private static class Schema
+        {
+            public readonly static string _path = nameof(_path);
+            public readonly static string version = nameof(version);
+            public readonly static string style = nameof(style);
+            public readonly static string description = nameof(description);
+            public readonly static string poolOptions = nameof(poolOptions);
+            public readonly static string operations = nameof(operations);
+            public readonly static string error = nameof(error);
+            public readonly static string events = nameof(events);
+            public readonly static string ignore = nameof(ignore);
+            public readonly static string async = nameof(async);
+
+            public static class Operations
+            {
+                public const string runOn = nameof(runOn);
+                public readonly static string failPoint = nameof(failPoint);
+            }
+
+            public static class Intergration
+            {
+                public readonly static string runOn = nameof(runOn);
+                public readonly static string failPoint = nameof(failPoint);
+            }
+
+            public static class Styles
+            {
+                public readonly static string unit = nameof(unit);
+                public readonly static string integration = nameof(integration);
+            }
+
+            public readonly static string[] AllFields = new[]
+            {
+                _path,
+                version,
+                style,
+                description,
+                poolOptions,
+                operations,
+                error,
+                events,
+                ignore,
+                async,
+                Intergration.runOn,
+                Intergration.failPoint,
+            };
+        }
+
         #endregion
 
         [SkippableTheory]
@@ -66,15 +126,16 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
             var tasks = new ConcurrentDictionary<string, Task>();
 
             var test = testCase.Test;
-            JsonDrivenHelper.EnsureAllFieldsAreValid(test, "_path", "version", "style", "description", "poolOptions", "operations", "error", "events", "ignore", "async");
-            EnsureAvailableStyle(test);
+            JsonDrivenHelper.EnsureAllFieldsAreValid(test, Schema.AllFields);
+            var isUnit = EnsureStyle(test) == Schema.Styles.unit;
+
+            var (connectionPool, failPoint, cluster) = SetupConnectionData(test, eventCapturer, isUnit);
+            using var disposableBundle = new DisposableBundle(connectionPool, failPoint, cluster);
+
             ResetConnectionId();
 
-            var connectionPool = SetupConnectionPool(test, eventCapturer);
-            connectionPool.Initialize();
-
-            var operations = testCase.Test.GetValue("operations").AsBsonArray;
-            var async = testCase.Test.GetValue("async").ToBoolean();
+            var operations = testCase.Test.GetValue(Schema.operations).AsBsonArray;
+            var async = testCase.Test.GetValue(Schema.async).ToBoolean();
             Exception exception = null;
             foreach (var operation in operations.Cast<BsonDocument>())
             {
@@ -216,6 +277,9 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
 
         private Task CreateTask(Action action)
         {
+            // This scheduler is used because the JSON tests description contains a statement
+            // that a Start test step should start a new thread, so we want to guarantee that each Task executes in its own thread.
+            // We're not 100% sure it's needed but we want to maximize isolation between Tasks just in case
             return Task.Factory.StartNew(
                 action,
                 CancellationToken.None,
@@ -223,16 +287,30 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
                 new ThreadPerTaskScheduler());
         }
 
-        private void EnsureAvailableStyle(BsonDocument test)
+        private string EnsureStyle(BsonDocument test)
         {
-            var style = test.GetValue("style").ToString();
-            switch (style)
+            var style = test.GetValue(Schema.style).ToString();
+
+            if (style == Schema.Styles.unit)
             {
-                case "unit":
-                    return;
-                default:
-                    throw new ArgumentException($"Unknown style {style}.");
+                foreach (var integratoinField in new[] { Schema.Intergration.failPoint, Schema.Intergration.runOn })
+                {
+                    if (test.TryGetValue(integratoinField, out _))
+                    {
+                        throw new FormatException($"Invalid field: {integratoinField} for {style} style.");
+                    }
+                }
             }
+            else if (style == Schema.Styles.integration)
+            {
+                // not further validations
+            }
+            else
+            {
+                throw new ArgumentException($"Unknown style {style}.");
+            }
+
+            return style;
         }
 
         private void ExecuteCheckIn(BsonDocument operation, ConcurrentDictionary<string, IConnection> map, out Exception exception)
@@ -323,6 +401,8 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
 
             switch (name)
             {
+                case "ready":
+                    break;
                 case "checkIn":
                     ExecuteCheckIn(operation, connectionMap, out exception);
                     break;
@@ -391,7 +471,14 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
                 ignoredEvents.AddRange(testCaseIgnoredEvent);
             }
 
-            return eventCapturer.Events.Where(c => ignoredEvents.Contains(c.GetType().Name.ToString()) != true).ToList();
+            return eventCapturer.Events
+                .Where(c =>
+                {
+                    var name = c.GetType().Name;
+
+                    return name.StartsWith("Connection") && !ignoredEvents.Contains(name);
+                })
+                .ToList();
         }
 
         private string MapErrorTypeToExpected(Exception exception, out string expectedErrorMessage)
@@ -402,7 +489,8 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
                     when objectDisposedException.Message == "Cannot access a disposed object.\r\nObject name: 'ExclusiveConnectionPool'.":
                     expectedErrorMessage = "Attempted to check out a connection from closed connection pool";
                     return "PoolClosedError";
-                case TimeoutException timeoutException when timeoutException.Message.Contains("Timed out waiting for a connection after"):
+                case TimeoutException timeoutException
+                    when timeoutException.Message.Contains("Timed out waiting for a connection after") || timeoutException.Message.Contains("Timed out waiting in connecting queue after"):
                     expectedErrorMessage = "Timed out while checking out a connection from connection pool";
                     return "WaitQueueTimeoutError";
                 default:
@@ -416,6 +504,7 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
             switch (expectedEventName)
             {
                 case "ConnectionPoolCreated":
+                case "ConnectionPoolReady":
                     return nameof(ConnectionPoolOpenedEvent);
                 case "ConnectionPoolClosed":
                     return nameof(ConnectionPoolClosedEvent);
@@ -449,9 +538,9 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
             connectionPoolSettings = new ConnectionPoolSettings();
             connectionSettings = new ConnectionSettings();
 
-            if (test.Contains("poolOptions"))
+            if (test.Contains(Schema.poolOptions))
             {
-                var poolOptionsDocument = test["poolOptions"].AsBsonDocument;
+                var poolOptionsDocument = test[Schema.poolOptions].AsBsonDocument;
                 foreach (var poolOption in poolOptionsDocument.Elements)
                 {
                     switch (poolOption.Name)
@@ -480,7 +569,57 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
             IdGeneratorReflector.__lastId(0);
         }
 
-        private IConnectionPool SetupConnectionPool(BsonDocument test, IEventSubscriber eventSubscriber)
+        private (IConnectionPool, FailPoint, ICluster) SetupConnectionData(BsonDocument test, IEventSubscriber eventSubscriber, bool isUnit)
+        {
+            ParseSettings(test, out var connectionPoolSettings, out var connectionSettings);
+
+            IConnectionPool connectionPool;
+            ICluster cluster = null;
+            FailPoint failPoint = null;
+
+            if (isUnit)
+            {
+                var endPoint = new DnsEndPoint("localhost", 27017);
+                var serverId = new ServerId(new ClusterId(), endPoint);
+
+                var connectionFactory = new Mock<IConnectionFactory>();
+                connectionFactory
+                    .Setup(c => c.CreateConnection(serverId, endPoint))
+                    .Returns(() =>
+                    {
+                        var connection = new MockConnection(serverId, connectionSettings, eventSubscriber);
+                        connection.Open(CancellationToken.None);
+                        return connection;
+                    });
+
+                connectionPool = new ExclusiveConnectionPool(
+                    serverId,
+                    endPoint,
+                    connectionPoolSettings,
+                    connectionFactory.Object,
+                    eventSubscriber);
+
+                connectionPool.Initialize();
+            }
+            else
+            {
+                failPoint = ConfigureFailPoint(test, CoreTestConfiguration.Cluster);
+
+                cluster = CoreTestConfiguration.CreateCluster(b =>
+                    b.ConfigureConnectionPool(c => c.With(
+                        maxConnections: connectionPoolSettings.MaxConnections,
+                        minConnections: connectionPoolSettings.MinConnections,
+                        waitQueueTimeout: connectionPoolSettings.WaitQueueTimeout))
+                    .Subscribe(eventSubscriber));
+
+                var server = cluster.SelectServer(WritableServerSelector.Instance, CancellationToken.None);
+                connectionPool = server._connectionPool();
+            }
+
+            return (connectionPool, failPoint, cluster);
+        }
+
+        private IConnectionPool SetupConnectionPoolMock(BsonDocument test, IEventSubscriber eventSubscriber)
         {
             var endPoint = new DnsEndPoint("localhost", 27017);
             var serverId = new ServerId(new ClusterId(), endPoint);
@@ -503,6 +642,18 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
                 eventSubscriber);
 
             return connectionPool;
+        }
+
+        protected FailPoint ConfigureFailPoint(BsonDocument test, ICluster cluster)
+        {
+            if (test.TryGetValue(Schema.Intergration.failPoint, out var failPoint))
+            {
+                var command = failPoint.AsBsonDocument;
+
+                return FailPoint.Configure(cluster, NoCoreSession.NewHandle(), command);
+            }
+
+            return null;
         }
 
         private void Start(BsonDocument operation, ConcurrentDictionary<string, Task> tasks)
@@ -561,33 +712,6 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
                 }
             }
         }
-
-        // This scheduler is used because the JSON tests description contains a statement
-        // that a Start test step should start a new thread, so we want to guarantee that each Task executes in its own thread.
-        // We're not 100% sure it's needed but we want to maximize isolation between Tasks just in case
-        // https://code.msdn.microsoft.com/Samples-for-Parallel-b4b76364/sourcecode?fileId=44488&pathId=2098696067
-        private class ThreadPerTaskScheduler : TaskScheduler
-        {
-            /// <summary>Gets the tasks currently scheduled to this scheduler.</summary> 
-            /// <remarks>This will always return an empty enumerable, as tasks are launched as soon as they're queued.</remarks> 
-            protected override IEnumerable<Task> GetScheduledTasks() { return Enumerable.Empty<Task>(); }
-
-            /// <summary>Starts a new thread to process the provided task.</summary> 
-            /// <param name="task">The task to be executed.</param> 
-            protected override void QueueTask(Task task)
-            {
-                new Thread(() => TryExecuteTask(task)) { IsBackground = true }.Start();
-            }
-
-            /// <summary>Runs the provided task on the current thread.</summary> 
-            /// <param name="task">The task to be executed.</param> 
-            /// <param name="taskWasPreviouslyQueued">Ignored.</param> 
-            /// <returns>Whether the task could be executed on the current thread.</returns> 
-            protected override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
-            {
-                return TryExecuteTask(task);
-            }
-        }
     }
 
     internal static class CmapEventsReflector
@@ -611,5 +735,10 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
     internal static class IdGeneratorReflector
     {
         public static void __lastId(int value) => Reflector.SetStaticFieldValue(typeof(IdGenerator<ConnectionId>), nameof(__lastId), value);
+    }
+
+    internal static class IServerReflector
+    {
+        public static IConnectionPool _connectionPool(this IServer server) => (IConnectionPool)Reflector.GetFieldValue(server, nameof(_connectionPool));
     }
 }

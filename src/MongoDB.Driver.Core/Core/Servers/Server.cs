@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Core.Servers
         private readonly ClusterConnectionMode _clusterConnectionMode;
         private readonly ConnectionModeSwitch _connectionModeSwitch;
 #pragma warning restore CS0618 // Type or member is obsolete
-        private IConnectionPool _connectionPool;
+        private readonly IConnectionPool _connectionPool;
         private readonly bool? _directConnection;
         private ServerDescription _currentDescription;
         private readonly EndPoint _endPoint;
