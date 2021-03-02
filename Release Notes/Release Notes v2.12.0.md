@@ -9,6 +9,7 @@ The main new features in 2.12.0 include:
 * Support for Azure and GCP keystores in client-side field level encryption (CSFLE)
 * Support for client-side field level encryption (CSFLE) on Linux and Mac OSX
 * Support for GSSAPI/Kerberos on Linux
+* Support for .NET Standard 2.1
 * Various improvements in serialization performance
 * Fixed DNS failures in Kubernetes and Windows Subsystem for Linux (WSL/WSL2)
 * Fixed memory leak in heartbeat when cluster is inaccessible
