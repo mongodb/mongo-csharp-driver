@@ -18,8 +18,8 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
-using MongoDB.Driver.Core.TestHelpers;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {
@@ -73,24 +73,15 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                 }
                 else
                 {
-                    _testState.Tasks[_name] = CreateTask(action);
+                    // We don't think this custom scheduler is necessary but we think it may have solved some test failures for reasons we don't understand
+                    // so we are leaving it in for now with a TODO to either remove this custom scheduler or actually understand what is going on
+                    _testState.Tasks[_name] = TasksUtils.CreateTaskOnOwnThread(action);
                 }
             }
             else
             {
                 throw new ArgumentException($"Task {_name} must be started before usage.");
             }
-        }
-
-        private Task CreateTask(Action action)
-        {
-            // We don't think this custom scheduler is necessary but we think it may have solved some test failures for reasons we don't understand
-            // so we are leaving it in for now with a TODO to either remove this custom scheduler or actually understand what is going on
-            return Task.Factory.StartNew(
-                action,
-                CancellationToken.None,
-                TaskCreationOptions.None,
-                new ThreadPerTaskScheduler());
         }
 
         private void SubTest(bool async)

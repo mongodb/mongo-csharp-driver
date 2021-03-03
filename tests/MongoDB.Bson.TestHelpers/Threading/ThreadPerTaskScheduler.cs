@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MongoDB.Driver.Core.TestHelpers
+namespace MongoDB.Bson.TestHelpers
 {
     // https://code.msdn.microsoft.com/Samples-for-Parallel-b4b76364/sourcecode?fileId=44488&pathId=2098696067
     public sealed class ThreadPerTaskScheduler : TaskScheduler
@@ -27,5 +28,19 @@ namespace MongoDB.Driver.Core.TestHelpers
         {
             return TryExecuteTask(task);
         }
+
+        public static Task CreateTask(Action action) =>
+            Task.Factory.StartNew(
+                action,
+                CancellationToken.None,
+                TaskCreationOptions.None,
+                new ThreadPerTaskScheduler());
+
+        public static Task CreateTask<T>(Func<T> function) =>
+            Task.Factory.StartNew(
+                function,
+                CancellationToken.None,
+                TaskCreationOptions.None,
+                new ThreadPerTaskScheduler());
     }
 }

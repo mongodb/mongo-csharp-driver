@@ -920,12 +920,12 @@ namespace MongoDB.Driver.Core.ConnectionPools
             public PooledConnection CreateOpenedOrReuse(CancellationToken cancellationToken)
             {
                 var connection = _pool._connectionHolder.Acquire();
+                var waitTimeout = _pool._settings.WaitQueueTimeout;
+                var stopwatch = Stopwatch.StartNew();
 
                 while (connection == null)
                 {
-                    var stopwatch = Stopwatch.StartNew();
-                    _connectingWaitStatus = _pool._connectingQueue.WaitSignaled(_pool._settings.WaitQueueTimeout, cancellationToken);
-                    stopwatch.Stop();
+                    _connectingWaitStatus = _pool._connectingQueue.WaitSignaled(waitTimeout, cancellationToken);
 
                     connection = _connectingWaitStatus switch
                     {
@@ -934,6 +934,13 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         SemaphoreSlimSignalable.SemaphoreWaitResult.TimedOut => throw new TimeoutException($"Timed out waiting in connecting queue after {stopwatch.ElapsedMilliseconds}ms."),
                         _ => throw new ArgumentOutOfRangeException(nameof(_connectingWaitStatus))
                     };
+
+                    waitTimeout = _pool._settings.WaitQueueTimeout - stopwatch.Elapsed;
+
+                    if (connection == null && waitTimeout <= TimeSpan.Zero)
+                    {
+                        throw TimoutException(stopwatch);
+                    }
                 }
 
                 return connection;
@@ -943,19 +950,27 @@ namespace MongoDB.Driver.Core.ConnectionPools
             {
                 var connection = _pool._connectionHolder.Acquire();
 
+                var waitTimeout = _pool._settings.WaitQueueTimeout;
+                var stopwatch = Stopwatch.StartNew();
+
                 while (connection == null)
                 {
-                    var stopwatch = Stopwatch.StartNew();
-                    _connectingWaitStatus = await _pool._connectingQueue.WaitSignaledAsync(_pool._settings.WaitQueueTimeout, cancellationToken).ConfigureAwait(false);
-                    stopwatch.Stop();
+                    _connectingWaitStatus = await _pool._connectingQueue.WaitSignaledAsync(waitTimeout, cancellationToken).ConfigureAwait(false);
 
                     connection = _connectingWaitStatus switch
                     {
                         SemaphoreSlimSignalable.SemaphoreWaitResult.Signaled => _pool._connectionHolder.Acquire(),
                         SemaphoreSlimSignalable.SemaphoreWaitResult.Entered => await CreateOpenedInternalAsync(cancellationToken).ConfigureAwait(false),
-                        SemaphoreSlimSignalable.SemaphoreWaitResult.TimedOut => throw new TimeoutException($"Timed out waiting in connecting queue after {stopwatch.ElapsedMilliseconds}ms."),
+                        SemaphoreSlimSignalable.SemaphoreWaitResult.TimedOut => throw TimoutException(stopwatch),
                         _ => throw new ArgumentOutOfRangeException(nameof(_connectingWaitStatus))
                     };
+
+                    waitTimeout = _pool._settings.WaitQueueTimeout - stopwatch.Elapsed;
+
+                    if (connection == null && waitTimeout <= TimeSpan.Zero)
+                    {
+                        throw TimoutException(stopwatch);
+                    }
                 }
 
                 return connection;
@@ -1005,6 +1020,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 // Only if reached this stage, connection should not be disposed
                 _disposeConnection = false;
             }
+
+            private Exception TimoutException(Stopwatch stopwatch) =>
+                new TimeoutException($"Timed out waiting in connecting queue after {stopwatch.ElapsedMilliseconds}ms.");
 
             public void Dispose()
             {

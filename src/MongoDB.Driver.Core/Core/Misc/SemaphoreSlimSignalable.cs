@@ -37,13 +37,15 @@ namespace MongoDB.Driver.Core.Misc
 
         public SemaphoreSlimSignalable(int count)
         {
-            Ensure.IsBetween(count, 1, 1024, nameof(count));
+            Ensure.IsBetween(count, 0, 1024, nameof(count));
 
             _semaphore = new SemaphoreSlim(count);
             _syncRoot = new object();
 
             _signalCancelationTokenSource = new CancellationTokenSource();
         }
+
+        public int Count => _semaphore.CurrentCount;
 
         public void Signal()
         {

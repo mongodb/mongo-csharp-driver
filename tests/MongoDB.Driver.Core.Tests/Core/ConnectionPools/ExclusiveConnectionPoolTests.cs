@@ -513,190 +513,25 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
         [Theory]
         [ParameterAttributeData]
-        public void CheckoutOut_maxConnecting_is_enforced(
+        public void AquireConnection_non_sufficient_reused_connections_should_timeout(
             [Values(true, false)]
-            bool isAsync,
-            [Values(1, 2, 4)]
-            int maxConnecting)
+            bool isAsync)
         {
-            int threadsCount = maxConnecting + 2;
-            int maxConnectingCurrent = 0;
-
-            var connectionOpenInFlightEvent = new CountdownEvent(maxConnecting);
-            var unblockEvent = new ManualResetEventSlim(false);
+            const int maxConnecting = 2;
+            const int initalAcquiredCount = 2;
+            const int maxAcquiringCount = 4;
+            const int queueTimeoutMS = 50;
 
             var settings = _settings.With(
-                waitQueueSize: threadsCount,
+                waitQueueSize: maxAcquiringCount + initalAcquiredCount + maxConnecting,
                 maxConnecting: maxConnecting,
-                maxConnections: threadsCount,
-                waitQueueTimeout: TimeSpan.FromSeconds(10),
+                maxConnections: maxAcquiringCount + initalAcquiredCount + maxConnecting,
+                waitQueueTimeout: TimeSpan.FromMilliseconds(queueTimeoutMS),
                 minConnections: 0);
 
-            var mockConnectionFactory = new Mock<IConnectionFactory>();
-            mockConnectionFactory
-                .Setup(c => c.CreateConnection(It.IsAny<ServerId>(), It.IsAny<EndPoint>()))
-                .Returns(() =>
-                {
-                    var connectionMock = new Mock<IConnection>();
-                    connectionMock
-                        .Setup(c => c.Settings)
-                        .Returns(new ConnectionSettings());
-
-                    connectionMock
-                        .Setup(c => c.Open(It.IsAny<CancellationToken>()))
-                        .Callback(BlockConnectionOpen);
-
-                    connectionMock
-                        .Setup(c => c.OpenAsync(It.IsAny<CancellationToken>()))
-                        .Returns(() =>
-                        {
-                            BlockConnectionOpen();
-                            return Task.FromResult(0);
-                        });
-
-                    return connectionMock.Object;
-                });
-
-            using var subject = CreateSubject(settings, mockConnectionFactory.Object);
-            subject.Initialize();
-
-            ExecuteOnNewThread(threadsCount + 1, i =>
-            {
-                if (i == threadsCount)
-                {
-                    // wait until open-connection in flight achieved maxConnecting
-                    connectionOpenInFlightEvent.Wait();
-
-                    // wait until all threads try to acquire connections
-                    do
-                    {
-                        Thread.Sleep(100);
-                    } while (subject.AvailableCount > 0);
-
-                    // unblock all open-connection in flight
-                    unblockEvent.Set();
-                }
-                else
-                {
-                    AcquireConnectionGeneric(subject, isAsync).Should().NotBeNull();
-                }
-            });
-
-            void BlockConnectionOpen()
-            {
-                // validate maxConnecting is respected
-                Interlocked.Increment(ref maxConnectingCurrent);
-                maxConnectingCurrent.Should().BeLessOrEqualTo(maxConnecting);
-
-                // notify connection in flight
-                if (connectionOpenInFlightEvent.CurrentCount > 0)
-                    connectionOpenInFlightEvent.Signal();
-
-                unblockEvent.Wait();
-
-                Interlocked.Decrement(ref maxConnectingCurrent);
-            }
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void CheckoutOut_maxConnecting_timeout(
-            [Values(true, false)]bool isAsync,
-            [Values(1, 2)]int excessConnectingCount)
-        {
-            int maxConnecting = 2;
-            int threadsCount = maxConnecting + excessConnectingCount;
-
-            var settings = _settings.With(
-                waitQueueSize: threadsCount,
-                maxConnecting: maxConnecting,
-                maxConnections: threadsCount,
-                waitQueueTimeout: TimeSpan.FromMilliseconds(50),
-                minConnections: 0);
-
-            var blockedCountEvent = new CountdownEvent(maxConnecting);
-            var unblockCountEvent = new CountdownEvent(excessConnectingCount);
-
-            var mockConnectionFactory = new Mock<IConnectionFactory>();
-            mockConnectionFactory
-                .Setup(c => c.CreateConnection(It.IsAny<ServerId>(), It.IsAny<EndPoint>()))
-                .Returns(() =>
-                {
-                    var connectionMock = new Mock<IConnection>();
-                    connectionMock
-                        .Setup(c => c.Settings)
-                        .Returns(new ConnectionSettings());
-
-                    connectionMock
-                        .Setup(c => c.Open(It.IsAny<CancellationToken>()))
-                        .Callback(() =>
-                        {
-                            if (blockedCountEvent.CurrentCount > 0)
-                            {
-                                blockedCountEvent.Signal();
-                            }
-
-                            unblockCountEvent.Wait();
-                        });
-
-                    connectionMock
-                        .Setup(c => c.OpenAsync(It.IsAny<CancellationToken>()))
-                        .Returns(() =>
-                        {
-                            if (blockedCountEvent.CurrentCount > 0)
-                            {
-                                blockedCountEvent.Signal();
-                            }
-
-                            unblockCountEvent.Wait();
-
-                            return Task.FromResult(0);
-                        });
-
-                    return connectionMock.Object;
-                });
-
-            using var subject = CreateSubject(settings, mockConnectionFactory.Object);
-            subject.Initialize();
-
-            ExecuteOnNewThread(threadsCount, i =>
-            {
-                if (i >= maxConnecting)
-                {
-                    blockedCountEvent.Wait();
-
-                    Record.Exception(() => AcquireConnectionGeneric(subject, isAsync))
-                        .Should()
-                        .BeOfType<TimeoutException>();
-
-                    unblockCountEvent.Signal();
-                }
-                else
-                {
-                    AcquireConnectionGeneric(subject, isAsync);
-                }
-            });
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void CheckoutOut_returned_connection_maxConnecting(
-            [Values(true, false)] bool isAsync,
-            [Values(1, 2)]int excessConnectingCount)
-        {
-            int maxConnecting = 2;
-            int initalAcquiredCount = excessConnectingCount;
-            int threadsCount = maxConnecting + excessConnectingCount;
-
-            var settings = _settings.With(
-                waitQueueSize: threadsCount,
-                maxConnecting: maxConnecting,
-                maxConnections: maxConnecting + excessConnectingCount + initalAcquiredCount,
-                waitQueueTimeout: TimeSpan.FromSeconds(200),
-                minConnections: 0);
-
-            var allAcquiringCountEvent = new CountdownEvent(initalAcquiredCount + maxConnecting);
-            var unblockEvent = new ManualResetEventSlim(true);
+            var allAcquiringCountEvent = new CountdownEvent(maxAcquiringCount + initalAcquiredCount);
+            var blockEstablishmentEvent = new ManualResetEventSlim(true);
+            var establishingCount = new CountdownEvent(maxConnecting + initalAcquiredCount);
 
             var mockConnectionFactory = new Mock<IConnectionFactory>();
             mockConnectionFactory
@@ -717,24 +552,24 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         .Setup(c => c.Open(It.IsAny<CancellationToken>()))
                         .Callback(() =>
                         {
-                            if (allAcquiringCountEvent.CurrentCount > 0)
+                            if (establishingCount.CurrentCount > 0)
                             {
-                                allAcquiringCountEvent.Signal();
+                                establishingCount.Signal();
                             }
 
-                            unblockEvent.Wait();
+                            blockEstablishmentEvent.Wait();
                         });
 
                     connectionMock
                         .Setup(c => c.OpenAsync(It.IsAny<CancellationToken>()))
                         .Returns(() =>
                         {
-                            if (allAcquiringCountEvent.CurrentCount > 0)
+                            if (establishingCount.CurrentCount > 0)
                             {
-                                allAcquiringCountEvent.Signal();
+                                establishingCount.Signal();
                             }
-                            unblockEvent.Wait();
 
+                            blockEstablishmentEvent.Wait();
                             return Task.FromResult(0);
                         });
 
@@ -748,57 +583,56 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 .Select(i => AcquireConnectionGeneric(subject, isAsync))
                 .ToArray();
 
-            var connectionsReused = new ConcurrentBag<ConnectionId>();
+            // block further establishments
+            blockEstablishmentEvent.Reset();
 
-            // block connections establishments
-            unblockEvent.Reset();
+            var allConnections = new List<IConnection>();
+            var actualTimeouts = 0;
+            var expectedTimeouts = maxAcquiringCount - maxConnecting;
 
-            // schedule connections acquirement
-            ExecuteOnNewThread(threadsCount + 1, i =>
+            ThreadingUtilities.ExecuteOnNewThreads(maxAcquiringCount + maxConnecting + 1, threadIndex =>
             {
-                if (i == threadsCount)
+                if (threadIndex < maxConnecting)
                 {
-                    // orchestrator thread
-                    // wait until all trying to connect
-                    do
-                    {
-                        Thread.Sleep(100);
-                    }
-                    while (subject.AvailableCount > 0);
+                    // maximize maxConnecting
+                    allAcquiringCountEvent.Signal();
+                    AcquireConnectionGeneric(subject, isAsync);
+                }
+                else if (threadIndex < maxConnecting + maxAcquiringCount)
+                {
+                    // wait until all maxConnecting maximized
+                    establishingCount.Wait();
+                    allAcquiringCountEvent.Signal();
 
-                    // return connections and unblock acquirements waiting for establishment
+                    try
+                    {
+                        AcquireConnectionGeneric(subject, isAsync);
+                    }
+                    catch (TimeoutException)
+                    {
+                        Interlocked.Increment(ref actualTimeouts);
+                    }
+
+                    // speedup the test
+                    if (expectedTimeouts == actualTimeouts)
+                    {
+                        blockEstablishmentEvent.Set();
+                    }
+                }
+                else
+                { 
+                    // wait until all trying to acquire
+                    allAcquiringCountEvent.Wait();
+
+                    // return connections
                     foreach (var connection in connectionsAcquired)
                     {
                         connection.Dispose();
                     }
                 }
-                else if (i >= maxConnecting)
-                {
-                    // wait until all establishments are in-flight
-                    allAcquiringCountEvent.Wait();
-
-                    // acquire reused connection
-                    var connection = AcquireConnectionGeneric(subject, isAsync);
-                    connectionsReused.Add(connection.ConnectionId);
-
-                    if (connectionsReused.Count == excessConnectingCount)
-                    {
-                        // unblock maxConnecting for clean up
-                        unblockEvent.Set();
-                    }
-                }
-                else
-                {
-                    // maximize establishments in-flight up to maxConnecting
-                    AcquireConnectionGeneric(subject, isAsync);
-                }
             });
 
-            connectionsAcquired.Length.Should().Be(connectionsReused.Count);
-            foreach (var connectionAcquired in connectionsAcquired)
-            {
-                connectionsReused.Contains(connectionAcquired.ConnectionId);
-            }
+            expectedTimeouts.Should().Be(expectedTimeouts);
         }
 
         // private methods
@@ -824,6 +658,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     }
                 });
 
+                thread.IsBackground = true;
                 thread.Start();
 
                 return thread;
@@ -844,6 +679,21 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
 
             actionsExecutedCount.Should().Be(threadsCount);
+        }
+
+        // private methods
+        private Task<IConnectionHandle>[] AcquireConnectionGeneric(
+            int threadsCount,
+            ExclusiveConnectionPool connectionPool,
+            bool async,
+            ManualResetEventSlim startEvent,
+            CancellationToken cancellationToken = default)
+        {
+            var tasks = async ?
+                TasksUtils.CreateTasks(threadsCount, _ => connectionPool.AcquireConnectionAsync(cancellationToken)) :
+                TasksUtils.CreateTasksOnOwnThread(threadsCount, _ => connectionPool.AcquireConnection(cancellationToken));
+
+            return tasks;
         }
 
         private static IConnection AcquireConnectionGeneric(ExclusiveConnectionPool subject, bool async)
