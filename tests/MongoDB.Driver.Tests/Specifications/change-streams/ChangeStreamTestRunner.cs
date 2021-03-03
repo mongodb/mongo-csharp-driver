@@ -569,7 +569,7 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
             {
                 get
                 {
-                    return "MongoDB.Driver.Tests.Specifications.change_streams.tests.";
+                    return "MongoDB.Driver.Tests.Specifications.change_streams.tests.legacy.";
                 }
             }
 
