@@ -53,6 +53,7 @@
       <NamespaceSummaryItem name="MongoDB.Driver.GeoJsonObjectModel" isDocumented="True">Classes used to build GeoJson objects in a type-safe manner.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="MongoDB.Driver.GeoJsonObjectModel.Serializers" isDocumented="True">GeoJson object model serializers.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="MongoDB.Driver.Core.Authentication" isDocumented="True">The MongoDB.Driver.Core.Authentication namespace contains classes related to authentication.</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="MongoDB.Driver.Core.Authentication.Libgssapi" isDocumented="False" />
       <NamespaceSummaryItem name="MongoDB.Driver.Core.Authentication.Sspi" isDocumented="False" />
       <NamespaceSummaryItem name="MongoDB.Driver.Core.Authentication.Vendored" isDocumented="True">The MongoDB.Driver.Core.Authentication.Vendored namespace contains types and classes vendored in to support authentication.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="MongoDB.Driver.Core.Bindings" isDocumented="True">The MongoDB.Driver.Core.Bindings namespace contains classes related to bindings.</NamespaceSummaryItem>
