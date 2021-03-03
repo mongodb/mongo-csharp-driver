@@ -69,7 +69,7 @@
       <div class="ssidebarwrapper">
         <h3>
           <a class="index-link" href="/mongo-csharp-driver/2.12/../">MongoDB .NET Driver</a>
-          <a class="version pull-right" href="/mongo-csharp-driver/2.12">2.11</a>
+          <a class="version pull-right" href="/mongo-csharp-driver/2.12">2.12</a>
         </h3>
 
         
@@ -3204,7 +3204,7 @@ var query = collection.AsQueryable()
 
 <h4 id="lookup">$lookup</h4>
 
-<p>The <a href="https://msdn.microsoft.com/en-us/library/bb549264.aspx"><code>GroupJoin</code></a> method is used to generate a <a href="http://docs.mongodb.org/manual/reference/operator/aggregation/lookup/
+<p>The <a href="https://msdn.microsoft.com/en-us/library/bb548539.aspx"><code>GroupJoin</code></a> method is used to generate a <a href="http://docs.mongodb.org/manual/reference/operator/aggregation/lookup/
 "><code>$lookup</code></a> stage.</p>
 
 <p>This operator can take on many forms, many of which are not supported by MongoDB. Therefore, only 2 forms are supported.</p>
@@ -3234,8 +3234,11 @@ var query = collection.AsQueryable()
 ]
 </code></pre>
 
-<p>.. note::
-   An anonymous type, as above, has a constructor with two parameters as required.</p>
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+An anonymous type, as above, has a constructor with two parameters as required.
+</div>
+</p>
 
 <p>Sometimes, the compiler will also generate this two-parameter anonymous type transparently. Below is an example of this with a custom projection:</p>
 
@@ -3412,22 +3415,6 @@ var result = collection.AsQueryable().Select(p =&gt; p.Age).Max();
 ]
 </code></pre>
 
-<h4 id="sum">Sum</h4>
-
-<p>All forms of <a href="https://msdn.microsoft.com/en-us/library/system.linq.queryable.Sum.aspx"><code>Sum</code></a> are supported.</p>
-
-<pre><code class="language-csharp">var result = collection.AsQueryable().Sum(p =&gt; p.Age);
-
-// or
-
-var result = collection.AsQueryable().Select(p =&gt; p.Age).Sum();
-</code></pre>
-
-<pre><code class="language-json">[
-    { $group: { _id: 1, __result: { $Sum: &quot;$Age&quot; } } }
-]
-</code></pre>
-
 <h4 id="oftype">OfType</h4>
 
 <p>All forms of <a href="https://msdn.microsoft.com/en-us/library/system.linq.queryable.oftype.aspx"><code>OfType</code></a> are supported.</p>
@@ -3500,7 +3487,7 @@ The limit here is 2 because the behavior of <code>Single</code> is to throw when
 
 <p>See <a href="#skip"><code>$skip</code></a>.</p>
 
-<h4 id="sum-1">Sum</h4>
+<h4 id="sum">Sum</h4>
 
 <p>All forms of <a href="https://msdn.microsoft.com/en-us/library/system.linq.queryable.sum.aspx"><code>Sum</code></a> are supported.</p>
 
@@ -3584,14 +3571,13 @@ var result = collection.AsQueryable().Select(p =&gt; p.Age).Sum();
 <li><a href="#groupby">GroupBy</a></li>
 <li><a href="#groupjoin">GroupJoin</a></li>
 <li><a href="#max">Max</a></li>
-<li><a href="#sum">Sum</a></li>
 <li><a href="#oftype">OfType</a></li>
 <li><a href="#orderby-orderbydescending-thenby-and-thenbydescending">OrderBy, OrderByDescending, ThenBy, and ThenByDescending</a></li>
 <li><a href="#select">Select</a></li>
 <li><a href="#selectmany">SelectMany</a></li>
 <li><a href="#single-and-singleordefault">Single and SingleOrDefault</a></li>
 <li><a href="#skip-1">Skip</a></li>
-<li><a href="#sum-1">Sum</a></li>
+<li><a href="#sum">Sum</a></li>
 <li><a href="#take">Take</a></li>
 <li><a href="#where">Where</a></li>
 </ul></li>
@@ -3616,7 +3602,7 @@ var result = collection.AsQueryable().Select(p =&gt; p.Age).Sum();
 <script type="text/javascript">
   var DOCUMENTATION_OPTIONS = {
    URL_ROOT:    "/mongo-csharp-driver/2.12",
-   VERSION:     "2.11",
+   VERSION:     "2.12",
    COLLAPSE_INDEX: false,
    FILE_SUFFIX: '.html',
    HAS_SOURCE:  true

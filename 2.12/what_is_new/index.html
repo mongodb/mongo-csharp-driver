@@ -69,7 +69,7 @@
       <div class="ssidebarwrapper">
         <h3>
           <a class="index-link" href="/mongo-csharp-driver/2.12/../">MongoDB .NET Driver</a>
-          <a class="version pull-right" href="/mongo-csharp-driver/2.12">2.11</a>
+          <a class="version pull-right" href="/mongo-csharp-driver/2.12">2.12</a>
         </h3>
 
         
@@ -2112,14 +2112,19 @@
 
 <h2 id="what-s-new-in-2-12-0">What&rsquo;s New in 2.12.0</h2>
 
-<p>This is a beta release for the 2.12.0 version of the driver.</p>
-
 <p>The main new features in 2.12.0 include:</p>
 
 <ul>
 <li>Support for Hidden Indexes in MongoDB 4.4</li>
+<li>Support for AWS temporary credentials in client-side field level encryption (CSFLE)</li>
 <li>Support for Azure and GCP keystores in client-side field level encryption (CSFLE)</li>
+<li>Support for client-side field level encryption (CSFLE) on Linux and Mac OSX</li>
+<li>Support for GSSAPI/Kerberos on Linux</li>
+<li>Support for .NET Standard 2.1</li>
+<li>Various improvements in serialization performance</li>
+<li>Fixed DNS failures in Kubernetes and Windows Subsystem for Linux (WSL/WSL2)</li>
 <li>Fixed memory leak in heartbeat when cluster is inaccessible</li>
+<li>Fixed SDAM deadlock when invalidating former primary</li>
 </ul>
 
 <h2 id="what-s-new-in-2-11-0">What&rsquo;s New in 2.11.0</h2>
@@ -2607,7 +2612,7 @@ await db.GetCollection&lt;dynamic&gt;(&quot;people&quot;).InsertOneAsync(person)
 <script type="text/javascript">
   var DOCUMENTATION_OPTIONS = {
    URL_ROOT:    "/mongo-csharp-driver/2.12",
-   VERSION:     "2.11",
+   VERSION:     "2.12",
    COLLAPSE_INDEX: false,
    FILE_SUFFIX: '.html',
    HAS_SOURCE:  true

@@ -69,7 +69,7 @@
       <div class="ssidebarwrapper">
         <h3>
           <a class="index-link" href="/mongo-csharp-driver/2.12/../">MongoDB .NET Driver</a>
-          <a class="version pull-right" href="/mongo-csharp-driver/2.12">2.11</a>
+          <a class="version pull-right" href="/mongo-csharp-driver/2.12">2.12</a>
         </h3>
 
         
@@ -2816,6 +2816,8 @@
 
     public int Age { get; set; }
 
+    public Dictionary&lt;string, Person&gt; Children { get; set; }
+
     public IEnumerable&lt;Pet&gt; Pets { get; set; }
 
     public int[] FavoriteNumbers { get; set; }
@@ -3002,12 +3004,18 @@ Find(p =&gt; !localAges.Contains(p.Age));
 
 <h4 id="not">$not</h4>
 
-<pre><code class="language-csharp">// no example yet
+<pre><code class="language-csharp">Find(p =&gt; !(p.Age &lt; 18))
+</code></pre>
+
+<pre><code class="language-json">{ Age: { $not: { $lt: 18 } } }
 </code></pre>
 
 <h4 id="nor">$nor</h4>
 
-<pre><code class="language-csharp">// no example yet
+<pre><code class="language-csharp">Find(p =&gt; !(p.Age &lt; 18 || p.Age &gt;= 65))
+</code></pre>
+
+<pre><code class="language-json">{ $nor: [{ Age: { $lt: 18 } }, { Age: { $gte: 65 } }] }
 </code></pre>
 
 <h3 id="element">Element</h3>
@@ -3017,12 +3025,18 @@ Find(p =&gt; !localAges.Contains(p.Age));
 
 <h4 id="exists">$exists</h4>
 
-<pre><code class="language-csharp">// no example yet
+<pre><code class="language-csharp">Find(p =&gt; p.Children.ContainsKey(&quot;John&quot;))
+</code></pre>
+
+<pre><code class="language-json">{ &quot;Children.John&quot;: { $exists: true } }
 </code></pre>
 
 <h4 id="type">$type</h4>
 
-<pre><code class="language-csharp">// no example yet
+<pre><code class="language-csharp">Find(Builders&lt;Person&gt;.Filter.Type(p =&gt; p.Name, BsonType.String))
+</code></pre>
+
+<pre><code class="language-json">{ &quot;Name&quot; : { &quot;$type&quot; : 2 } }
 </code></pre>
 
 <h3 id="evaluation">Evaluation</h3>
@@ -3032,13 +3046,71 @@ Find(p =&gt; !localAges.Contains(p.Age));
 
 <h4 id="mod">$mod</h4>
 
-<pre><code class="language-csharp">// no example yet
+<pre><code class="language-csharp">Find(p =&gt; p.Age % 2 == 0)
+</code></pre>
+
+<pre><code class="language-json">{ Age: { $mod: [NumberLong(2), NumberLong(0)] } }
 </code></pre>
 
 <h4 id="regex">$regex</h4>
 
-<pre><code class="language-csharp">// no example yet
+<hr />
+
+<pre><code class="language-csharp">Find(p =&gt; p.Name[0] == 'a')
 </code></pre>
+
+<pre><code class="language-json">{ Name: /^.{0}a/s }
+</code></pre>
+
+<hr />
+
+<pre><code class="language-csharp">Find(p =&gt; p.Name.Length &gt;= 5)
+</code></pre>
+
+<pre><code class="language-json">{ Name: /^.{5,}$/s }
+</code></pre>
+
+<hr />
+
+<pre><code>Find(p =&gt; p.Name.ToLower() == &quot;john&quot;)
+</code></pre>
+
+<pre><code class="language-json">{ Name: /^john$/i }
+</code></pre>
+
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+<code>ToLowerInvariant</code>, <code>ToUpper</code>, and <code>ToUpperInvariant</code> are also supported.
+</div>
+</p>
+
+<hr />
+
+<pre><code class="language-csharp">Find(p =&gt; p.Name.Contains(&quot;John&quot;))
+</code></pre>
+
+<pre><code class="language-json">{ Name: /John/s }
+</code></pre>
+
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+<code>StartsWith</code> and <code>EndsWith</code> are also supported.
+</div>
+</p>
+
+<hr />
+
+<pre><code class="language-csharp">Find(p =&gt; p.Name.ToLower().Contains(&quot;John&quot;))
+</code></pre>
+
+<pre><code class="language-json">{ Name: /John/is }
+</code></pre>
+
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+<code>ToLowerInvariant</code>, <code>ToUpper</code>, <code>ToUpperInvariant</code>, <code>Trim</code>, <code>TrimStart</code>, and <code>TrimEnd</code> are also supported for the first function call. <code>StartsWith</code> and <code>EndsWith</code> are also supported for the second function call.
+</div>
+</p>
 
 <h4 id="text">$text</h4>
 
@@ -3107,7 +3179,7 @@ Find(x =&gt; local.All(i =&gt; FavoriteNumbers.Contains(i));
 
 <p><div class="admonition note">
 <h5 class="admonition-title">Note</h5>
-<p>Depending on the complexity and the operators involved in the Any method call, the driver might eliminate the $elemMatch completely. For instance,</p>
+<p>Depending on the complexity and the operators involved in the Any method call, the driver might eliminate the <code>$elemMatch</code> completely. For instance,</p>
 
 <pre><code class="language-csharp">Find(x =&gt; x.Pets.Any(p =&gt; p.Name == &quot;Fluffy&quot;))
 </code></pre>
@@ -3711,7 +3783,7 @@ p =&gt; localSet.IsSubsetOf(p.FavoriteNumbers);
 
 <p>The .NET constant for day of week is 1 less than that in MongoDB. As such, we must subtract 1 from the MongoDB version in order for mapping back to the .NET type to be accurate.</p>
 
-<pre><code class="language-csharp">p =&gt; p.CreatedAtUtc.DayOfWeek);
+<pre><code class="language-csharp">p =&gt; p.CreatedAtUtc.DayOfWeek;
 </code></pre>
 
 <pre><code class="language-json">{ $subtract: [ { $dayOfWeek: '$CreatedAtUtc' }, 1 ] }
@@ -3719,7 +3791,7 @@ p =&gt; localSet.IsSubsetOf(p.FavoriteNumbers);
 
 <h4 id="year">$year</h4>
 
-<pre><code class="language-csharp">p =&gt; p.CreatedAtUtc.Year);
+<pre><code class="language-csharp">p =&gt; p.CreatedAtUtc.Year;
 </code></pre>
 
 <pre><code class="language-json">{ $year: '$CreatedAtUtc' }
@@ -3727,7 +3799,7 @@ p =&gt; localSet.IsSubsetOf(p.FavoriteNumbers);
 
 <h4 id="month">$month</h4>
 
-<pre><code class="language-csharp">p =&gt; p.CreatedAtUtc.Month);
+<pre><code class="language-csharp">p =&gt; p.CreatedAtUtc.Month;
 </code></pre>
 
 <pre><code class="language-json">{ $month: '$CreatedAtUtc' }
@@ -3740,7 +3812,7 @@ p =&gt; localSet.IsSubsetOf(p.FavoriteNumbers);
 
 <h4 id="hour">$hour</h4>
 
-<pre><code class="language-csharp">p =&gt; p.CreatedAtUtc.Hour);
+<pre><code class="language-csharp">p =&gt; p.CreatedAtUtc.Hour;
 </code></pre>
 
 <pre><code class="language-json">{ $hour: '$CreatedAtUtc' }
@@ -3748,7 +3820,7 @@ p =&gt; localSet.IsSubsetOf(p.FavoriteNumbers);
 
 <h4 id="minute">$minute</h4>
 
-<pre><code class="language-csharp">p =&gt; p.CreatedAtUtc.Minute);
+<pre><code class="language-csharp">p =&gt; p.CreatedAtUtc.Minute;
 </code></pre>
 
 <pre><code class="language-json">{ $minute: '$CreatedAtUtc' }
@@ -3756,7 +3828,7 @@ p =&gt; localSet.IsSubsetOf(p.FavoriteNumbers);
 
 <h4 id="second">$second</h4>
 
-<pre><code class="language-csharp">p =&gt; p.CreatedAtUtc.Second);
+<pre><code class="language-csharp">p =&gt; p.CreatedAtUtc.Second;
 </code></pre>
 
 <pre><code class="language-json">{ $second: '$CreatedAtUtc' }
@@ -3764,7 +3836,7 @@ p =&gt; localSet.IsSubsetOf(p.FavoriteNumbers);
 
 <h4 id="millisecond">$millisecond</h4>
 
-<pre><code class="language-csharp">p =&gt; p.CreatedAtUtc.Millisecond);
+<pre><code class="language-csharp">p =&gt; p.CreatedAtUtc.Millisecond;
 </code></pre>
 
 <pre><code class="language-json">{ $millisecond: '$CreatedAtUtc' }
@@ -4125,7 +4197,7 @@ These are only supported in a grouping expression.
 <script type="text/javascript">
   var DOCUMENTATION_OPTIONS = {
    URL_ROOT:    "/mongo-csharp-driver/2.12",
-   VERSION:     "2.11",
+   VERSION:     "2.12",
    COLLAPSE_INDEX: false,
    FILE_SUFFIX: '.html',
    HAS_SOURCE:  true

@@ -10,96 +10,6 @@
     <atom:link href="/mongo-csharp-driver/2.12/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
-      <title>GuidRepresentationMode</title>
-      <link>/mongo-csharp-driver/2.12/reference/bson/guidserialization/guidrepresentationmode/guidrepresentationmode/</link>
-      <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
-      
-      <guid>/mongo-csharp-driver/2.12/reference/bson/guidserialization/guidrepresentationmode/guidrepresentationmode/</guid>
-      <description>
-
-&lt;h2 id=&#34;guidrepresentationmode&#34;&gt;GuidRepresentationMode&lt;/h2&gt;
-
-&lt;p&gt;If we just abruptly changed the way the driver serialized Guids that would be a breaking change. In order to help applications
-migrate in an orderly fashion to the new way of handling Guids we have introduced a configurable &lt;code&gt;GuidRepresentationMode&lt;/code&gt;.
-In V2 mode the driver will handle Guids the same way that the v2.x versions have in the past. In V3 mode the driver
-will handle Guids in the new way. An application can opt-in to V3 mode to transition to the new way Guids are handled.
-In the v2.x versions of the driver V2 is the default mode but V3 mode is supported. In future v3.x versions of the driver
-V3 will be the default mode (and support for V2 mode will be removed).&lt;/p&gt;
-
-&lt;h3 id=&#34;guidrepresentationmode-v2-deprecated&#34;&gt;GuidRepresentationMode == V2 (Deprecated)&lt;/h3&gt;
-
-&lt;p&gt;In V2 mode the central principle is that all Guids in a collection must be represented the same way. In order to enforce
-this the representation of Guids is not controlled at the individual serializer level, but rather at the reader/writer
-level since the same reader/writer is used to read/write an entire document.&lt;/p&gt;
-
-&lt;p&gt;Read more about V2 mode &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/reference/bson/guidserialization/guidrepresentationmode/v2mode/&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h3 id=&#34;guidrepresentationmode-v3&#34;&gt;GuidRepresentationMode == V3&lt;/h3&gt;
-
-&lt;p&gt;In V3 mode the central principle is that the representation of Guids is controlled at the level of each individual
-property by configuring the serializer for that property. The recommendation is that all Guids in a
-collection be represented uniformly using the standard BsonBinaryData subtype 4, but when working with historical
-data it is acceptable for different Guid fields in the same document to be represented differently.&lt;/p&gt;
-
-&lt;p&gt;Read more about V3 mode &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/reference/bson/guidserialization/guidrepresentationmode/v3mode/&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h3 id=&#34;opting-in-to-v3-guidrepresentationmode&#34;&gt;Opting in to V3 GuidRepresentationMode&lt;/h3&gt;
-
-&lt;p&gt;An application must choose to use either the original V2 GuidRepresentationMode or the new V3 GuidRepresentationMode. It is
-not possible to mix use of both modes in the same application.&lt;/p&gt;
-
-&lt;p&gt;If you want to use V2 mode you don&amp;rsquo;t need to do anything because V2 is still the default.&lt;/p&gt;
-
-&lt;p&gt;If you want to use V3 mode execute the following line of code as early as possible in your application:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;BsonDefaults.GuidRepresentationMode = GuidRepresentationMode.V3;
-&lt;/code&gt;&lt;/pre&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>V2 mode</title>
-      <link>/mongo-csharp-driver/2.12/reference/bson/guidserialization/guidrepresentationmode/v2mode/</link>
-      <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
-      
-      <guid>/mongo-csharp-driver/2.12/reference/bson/guidserialization/guidrepresentationmode/v2mode/</guid>
-      <description>
-
-&lt;h2 id=&#34;v2-guidrepresentationmode-deprecated&#34;&gt;V2 GuidRepresentationMode (Deprecated)&lt;/h2&gt;
-
-&lt;p&gt;In V2 mode the central principle is that all Guids in a collection must be represented the same way. In order to enforce
-this the representation of Guids is not controlled at the individual serializer level, but rather at the reader/writer
-level since the same reader/writer is used to read/write an entire document.&lt;/p&gt;
-
-&lt;p&gt;All of the following properties and methods are only relevant to V2 mode and are now deprecated:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;BsonDefaults GuidRepresentation property&lt;/li&gt;
-&lt;li&gt;BsonBinaryData implicit conversion to or from Guid&lt;/li&gt;
-&lt;li&gt;BsonBinaryData constructor taking a Guid (without a GuidRepresentation)&lt;/li&gt;
-&lt;li&gt;BsonBinaryData constructor taking (byte[], BsonBinarySubType, GuidRepresentation)&lt;/li&gt;
-&lt;li&gt;BsonBinaryData GuidRepresentation property&lt;/li&gt;
-&lt;li&gt;BsonValue implicit conversion from Guid or Guid? (Nullable&amp;lt;Guid&amp;gt;)&lt;/li&gt;
-&lt;li&gt;BsonDocumentReaderSettings constructor taking a GuidRepresentation&lt;/li&gt;
-&lt;li&gt;BsonDocumentWriterSettings constructor taking a GuidRepresentation&lt;/li&gt;
-&lt;li&gt;BsonReaderSettings GuidRepresentation property&lt;/li&gt;
-&lt;li&gt;BsonWriterSettings GuidRepresentation property&lt;/li&gt;
-&lt;li&gt;IBsonReaderExtentions ReadBinaryDataWithGuidRepresentationUnspecified extension method&lt;/li&gt;
-&lt;li&gt;MongoClientSettings GuidRepresentation property&lt;/li&gt;
-&lt;li&gt;MongoCollectionSettings GuidRepresentation property&lt;/li&gt;
-&lt;li&gt;MongoDatabaseSettings GuidRepresentation property&lt;/li&gt;
-&lt;li&gt;MongoDefaults GuidRepresentation property&lt;/li&gt;
-&lt;li&gt;MongoUrl GuidRepresentation property&lt;/li&gt;
-&lt;li&gt;MongoUrlBuilder GuidRepresentation property&lt;/li&gt;
-&lt;li&gt;MongoGridFSSettings GuidRepresentation property&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Note: the BsonDefaults GuidRepresentationMode property is itself deprecated even though it is new because it is only
-intended to be use during the transition period and will be removed when support for V2 mode is removed.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
       <title>Background</title>
       <link>/mongo-csharp-driver/2.12/reference/bson/guidserialization/background/</link>
       <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
@@ -158,6 +68,78 @@ data it is acceptable for different Guid fields in the same document to be repre
     </item>
     
     <item>
+      <title>GuidRepresentationMode</title>
+      <link>/mongo-csharp-driver/2.12/reference/bson/guidserialization/guidrepresentationmode/guidrepresentationmode/</link>
+      <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.12/reference/bson/guidserialization/guidrepresentationmode/guidrepresentationmode/</guid>
+      <description>
+
+&lt;h2 id=&#34;guidrepresentationmode&#34;&gt;GuidRepresentationMode&lt;/h2&gt;
+
+&lt;p&gt;If we just abruptly changed the way the driver serialized Guids that would be a breaking change. In order to help applications
+migrate in an orderly fashion to the new way of handling Guids we have introduced a configurable &lt;code&gt;GuidRepresentationMode&lt;/code&gt;.
+In V2 mode the driver will handle Guids the same way that the v2.x versions have in the past. In V3 mode the driver
+will handle Guids in the new way. An application can opt-in to V3 mode to transition to the new way Guids are handled.
+In the v2.x versions of the driver V2 is the default mode but V3 mode is supported. In future v3.x versions of the driver
+V3 will be the default mode (and support for V2 mode will be removed).&lt;/p&gt;
+
+&lt;h3 id=&#34;guidrepresentationmode-v2-deprecated&#34;&gt;GuidRepresentationMode == V2 (Deprecated)&lt;/h3&gt;
+
+&lt;p&gt;In V2 mode the central principle is that all Guids in a collection must be represented the same way. In order to enforce
+this the representation of Guids is not controlled at the individual serializer level, but rather at the reader/writer
+level since the same reader/writer is used to read/write an entire document.&lt;/p&gt;
+
+&lt;p&gt;Read more about V2 mode &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/reference/bson/guidserialization/guidrepresentationmode/v2mode/&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;guidrepresentationmode-v3&#34;&gt;GuidRepresentationMode == V3&lt;/h3&gt;
+
+&lt;p&gt;In V3 mode the central principle is that the representation of Guids is controlled at the level of each individual
+property by configuring the serializer for that property. The recommendation is that all Guids in a
+collection be represented uniformly using the standard BsonBinaryData subtype 4, but when working with historical
+data it is acceptable for different Guid fields in the same document to be represented differently.&lt;/p&gt;
+
+&lt;p&gt;Read more about V3 mode &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/reference/bson/guidserialization/guidrepresentationmode/v3mode/&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;opting-in-to-v3-guidrepresentationmode&#34;&gt;Opting in to V3 GuidRepresentationMode&lt;/h3&gt;
+
+&lt;p&gt;An application must choose to use either the original V2 GuidRepresentationMode or the new V3 GuidRepresentationMode. It is
+not possible to mix use of both modes in the same application.&lt;/p&gt;
+
+&lt;p&gt;If you want to use V2 mode you don&amp;rsquo;t need to do anything because V2 is still the default.&lt;/p&gt;
+
+&lt;p&gt;If you want to use V3 mode execute the following line of code as early as possible in your application:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;BsonDefaults.GuidRepresentationMode = GuidRepresentationMode.V3;
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Guid Serialization</title>
+      <link>/mongo-csharp-driver/2.12/reference/bson/guidserialization/</link>
+      <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.12/reference/bson/guidserialization/</guid>
+      <description>
+
+&lt;h1 id=&#34;guid-serialization&#34;&gt;Guid serialization&lt;/h1&gt;
+
+&lt;p&gt;We are making changes to how Guids will be serialized in the future. For the time being the driver will
+continue to serialize Guids as it has in the past, in order to not break backward compatibility. You
+can opt-in to the new way of serializing Guids by setting the GuidRepresentationMode to V3.&lt;/p&gt;
+
+&lt;p&gt;The folowing sections contain more information:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;- &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/reference/bson/guidserialization/background/&#34;&gt;Background&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;- &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/reference/bson/guidserialization/guidrepresentationmode/guidrepresentationmode/&#34;&gt;GuidRepresentationMode&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;- &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/reference/bson/guidserialization/serializerchanges/serializerchanges/&#34;&gt;Serializer changes&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
       <title>GuidSerializer changes</title>
       <link>/mongo-csharp-driver/2.12/reference/bson/guidserialization/serializerchanges/guidserializerchanges/</link>
       <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
@@ -203,30 +185,6 @@ relying on the driver&amp;rsquo;s auto mapping to map C# classes to document sch
 &lt;p&gt;If most of your Guids use the same representation and only a few use a different representation, you could alternatively register
 a global GuidSerializer (as shown above) for the most commonly used representation, and only use the BsonGuidRepresentation attribute
 to mark the ones that use a different representation.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Guid Serialization</title>
-      <link>/mongo-csharp-driver/2.12/reference/bson/guidserialization/</link>
-      <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
-      
-      <guid>/mongo-csharp-driver/2.12/reference/bson/guidserialization/</guid>
-      <description>
-
-&lt;h1 id=&#34;guid-serialization&#34;&gt;Guid serialization&lt;/h1&gt;
-
-&lt;p&gt;We are making changes to how Guids will be serialized in the future. For the time being the driver will
-continue to serialize Guids as it has in the past, in order to not break backward compatibility. You
-can opt-in to the new way of serializing Guids by setting the GuidRepresentationMode to V3.&lt;/p&gt;
-
-&lt;p&gt;The folowing sections contain more information:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;- &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/reference/bson/guidserialization/background/&#34;&gt;Background&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;- &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/reference/bson/guidserialization/guidrepresentationmode/guidrepresentationmode/&#34;&gt;GuidRepresentationMode&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;- &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/reference/bson/guidserialization/serializerchanges/serializerchanges/&#34;&gt;Serializer changes&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
 </description>
     </item>
     
@@ -280,6 +238,48 @@ serializer will be globally used whenever an object serializer is needed and has
 var objectSerializer = new ObjectSerializer(objectDiscriminatorConvention, GuidRepresentation.Standard);
 BsonSerializer.RegisterSerializer(objectSerializer);
 &lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>V2 mode</title>
+      <link>/mongo-csharp-driver/2.12/reference/bson/guidserialization/guidrepresentationmode/v2mode/</link>
+      <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.12/reference/bson/guidserialization/guidrepresentationmode/v2mode/</guid>
+      <description>
+
+&lt;h2 id=&#34;v2-guidrepresentationmode-deprecated&#34;&gt;V2 GuidRepresentationMode (Deprecated)&lt;/h2&gt;
+
+&lt;p&gt;In V2 mode the central principle is that all Guids in a collection must be represented the same way. In order to enforce
+this the representation of Guids is not controlled at the individual serializer level, but rather at the reader/writer
+level since the same reader/writer is used to read/write an entire document.&lt;/p&gt;
+
+&lt;p&gt;All of the following properties and methods are only relevant to V2 mode and are now deprecated:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;BsonDefaults GuidRepresentation property&lt;/li&gt;
+&lt;li&gt;BsonBinaryData implicit conversion to or from Guid&lt;/li&gt;
+&lt;li&gt;BsonBinaryData constructor taking a Guid (without a GuidRepresentation)&lt;/li&gt;
+&lt;li&gt;BsonBinaryData constructor taking (byte[], BsonBinarySubType, GuidRepresentation)&lt;/li&gt;
+&lt;li&gt;BsonBinaryData GuidRepresentation property&lt;/li&gt;
+&lt;li&gt;BsonValue implicit conversion from Guid or Guid? (Nullable&amp;lt;Guid&amp;gt;)&lt;/li&gt;
+&lt;li&gt;BsonDocumentReaderSettings constructor taking a GuidRepresentation&lt;/li&gt;
+&lt;li&gt;BsonDocumentWriterSettings constructor taking a GuidRepresentation&lt;/li&gt;
+&lt;li&gt;BsonReaderSettings GuidRepresentation property&lt;/li&gt;
+&lt;li&gt;BsonWriterSettings GuidRepresentation property&lt;/li&gt;
+&lt;li&gt;IBsonReaderExtentions ReadBinaryDataWithGuidRepresentationUnspecified extension method&lt;/li&gt;
+&lt;li&gt;MongoClientSettings GuidRepresentation property&lt;/li&gt;
+&lt;li&gt;MongoCollectionSettings GuidRepresentation property&lt;/li&gt;
+&lt;li&gt;MongoDatabaseSettings GuidRepresentation property&lt;/li&gt;
+&lt;li&gt;MongoDefaults GuidRepresentation property&lt;/li&gt;
+&lt;li&gt;MongoUrl GuidRepresentation property&lt;/li&gt;
+&lt;li&gt;MongoUrlBuilder GuidRepresentation property&lt;/li&gt;
+&lt;li&gt;MongoGridFSSettings GuidRepresentation property&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Note: the BsonDefaults GuidRepresentationMode property is itself deprecated even though it is new because it is only
+intended to be use during the transition period and will be removed when support for V2 mode is removed.&lt;/p&gt;
 </description>
     </item>
     
@@ -428,13 +428,6 @@ client-side without any server-side configuration or directives. Client-side
 field level encryption supports workloads where applications must guarantee that
 unauthorized parties, including server administrators, cannot read the encrypted
 data.&lt;/p&gt;
-
-&lt;p&gt;&lt;div class=&#34;admonition important&#34;&gt;
-&lt;h5 class=&#34;admonition-title&#34;&gt;important&lt;/h5&gt;
-&lt;p&gt;Client-side field level encryption is supported only on Windows.&lt;/p&gt;
-
-&lt;/div&gt;
-&lt;/p&gt;
 
 &lt;h2 id=&#34;mongocryptd-configuration&#34;&gt;mongocryptd configuration&lt;/h2&gt;
 
@@ -1204,92 +1197,11 @@ settings.AllowInsecureTls = true;
 
 &lt;h3 id=&#34;gssapi-kerberos&#34;&gt;GSSAPI/Kerberos&lt;/h3&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://www.mongodb.com/products/mongodb-enterprise&#34;&gt;MongoDB Enterprise&lt;/a&gt; supports authentication using &lt;a href=&#34;http://docs.mongodb.org/manual/core/authentication/#kerberos-authentication&#34;&gt;Kerberos/GSSAPI&lt;/a&gt;. To create a Kerberos/GSSAPI credential, use the following method:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var credential = MongoCredential.CreateGssapiCredential(username, password);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Or via the connection string:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;mongodb://username%40REALM.com:password@myserver/?authMechanism=GSSAPI
-&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;a href=&#34;http://www.mongodb.com/products/mongodb-enterprise&#34;&gt;MongoDB Enterprise&lt;/a&gt; supports authentication using &lt;a href=&#34;http://docs.mongodb.org/manual/core/authentication/#kerberos-authentication&#34;&gt;Kerberos/GSSAPI&lt;/a&gt;. The .NET driver supports Kerberos/GSSAPI authentication on Windows and Linux.&lt;/p&gt;
 
 &lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
 &lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-Note that the username will need to have a REALM associated with it. When used in a connection string, &lt;code&gt;%40&lt;/code&gt; is the escape character for the &lt;code&gt;@&lt;/code&gt; symbol.
-&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;p&gt;If the process owner running your application is the same as the user needing authentication, you can omit the password:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var credential = MongoCredential.CreateGssapiCredential(username);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Or via the connection string:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;mongodb://username%40REALM.com@myserver/?authMechanism=GSSAPI
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Depending on the kerberos setup, it may be required to specify some additional properties. These may be specified in the connection string or via code.&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;&lt;strong&gt;CANONICALIZE_HOST_NAME&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;Uses the DNS server to retrieve the fully qualified domain name (FQDN) of the host.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;credential = credential.WithMechanismProperty(&amp;quot;CANONICALIZE_HOST_NAME&amp;quot;, &amp;quot;true&amp;quot;);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Or via the connection string:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;mongodb://username@myserver/?authMechanism=GSSAPI&amp;amp;authMechanismProperties=CANONICALIZE_HOSTNAME:true
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;strong&gt;REALM&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;This is used when the user&amp;rsquo;s realm is different from the service&amp;rsquo;s realm.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;credential = credential.WithMechanismProperty(&amp;quot;REALM&amp;quot;, &amp;quot;otherrealm&amp;quot;);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Or via the connection string:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;mongodb://username%40REALM.com@myserver/?authMechanism=GSSAPI&amp;amp;authMechanismProperties=REALM:otherrealm
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;strong&gt;SERVICE_NAME&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;This is used when the service&amp;rsquo;s name is different that the default &lt;code&gt;mongodb&lt;/code&gt;.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;credential = credential.WithMechanismProperty(&amp;quot;SERVICE_NAME&amp;quot;, &amp;quot;othername&amp;quot;);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Or via the connection string:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;mongodb://username%40REALM.com@myserver/?authMechanism=GSSAPI&amp;amp;authMechanismProperties=SERVICE_NAME:othername
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;In addition, it is possible to use multiple authentication mechanism properties either via code or in the connection string. In code, call &lt;code&gt;WithMechanismProperty&lt;/code&gt; multiple times. In the connection string, separate the entries with a &lt;code&gt;,&lt;/code&gt; (comma).&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;mongodb://username%40REALM.com@myserver/?authMechanism=GSSAPI&amp;amp;authMechanismProperties=SERVICE_NAME:othername,REALM:otherrealm
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;ldap-plain&#34;&gt;LDAP (PLAIN)&lt;/h3&gt;
-
-&lt;p&gt;&lt;a href=&#34;http://www.mongodb.com/products/mongodb-enterprise&#34;&gt;MongoDB Enterprise&lt;/a&gt; supports proxy authentication through a Lightweight Directory Access Protocol (LDAP) service. To create a credential of type LDAP use the following static factory method:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var credential = MongoCredential.CreatePlainCredential(&amp;quot;$external&amp;quot;, username, password);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Or via the connection string:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;mongodb://username:password@myserver/?authSource=$external&amp;amp;authMechanism=PLAIN
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
-&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-Note that the method refers to the plain authentication mechanism instead of LDAP because technically the driver is authenticating via the PLAIN SASL mechanism. This means that your credentials are in plain text on the wire. Therefore, PLAIN should only be used in conjunction with SSL.
+Support for Kerberos/GSSAPI on Linux requires the shared library &lt;code&gt;libgssapi_krb5.so&lt;/code&gt;. Please refer to your Linux package manager documentation for how to install this dependency if it is not already present on your system.&amp;lt;div class=&amp;ldquo;admonition
 &lt;/div&gt;
 &lt;/p&gt;
 </description>

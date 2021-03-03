@@ -59,16 +59,16 @@
     <HelpKINode Title="SingleChunkBuffer.AccessBackingBytes Method " Url="html/M_MongoDB_Bson_IO_SingleChunkBuffer_AccessBackingBytes.htm" />
   </HelpKINode>
   <HelpKINode Title="Acknowledged class">
-    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_Core_Operations_BulkWriteOperationResult_Acknowledged.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_BulkWriteResult_1_Acknowledged.htm" />
     <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_DeleteResult_Acknowledged.htm" />
     <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_ReplaceOneResult_Acknowledged.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_Core_Operations_BulkWriteOperationResult_Acknowledged.htm" />
     <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_UpdateResult_Acknowledged.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_BulkWriteResult_1_Acknowledged.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_DeleteResult_Acknowledged.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_BulkWriteResult_1_Acknowledged.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_ReplaceOneResult_Acknowledged.htm" />
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_Core_Operations_BulkWriteOperationResult_Acknowledged.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_ReplaceOneResult_Acknowledged.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_BulkWriteResult_1_Acknowledged.htm" />
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_UpdateResult_Acknowledged.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_DeleteResult_Acknowledged.htm" />
   </HelpKINode>
   <HelpKINode Title="Acknowledged property" Url="html/P_MongoDB_Driver_WriteConcern_Acknowledged.htm" />
   <HelpKINode Title="AcquireConnection method" Url="html/M_MongoDB_Driver_Core_ConnectionPools_IConnectionPool_AcquireConnection.htm" />
@@ -195,8 +195,8 @@
     <HelpKINode Title="WrappingCoreSession.AdvanceTransactionNumber Method " Url="html/M_MongoDB_Driver_Core_Bindings_WrappingCoreSession_AdvanceTransactionNumber.htm" />
   </HelpKINode>
   <HelpKINode Title="After enumeration member">
-    <HelpKINode Title="ReturnDocument Enumeration" Url="html/T_MongoDB_Driver_ReturnDocument.htm" />
     <HelpKINode Title="ReturnDocument Enumeration" Url="html/T_MongoDB_Driver_Core_Operations_ReturnDocument.htm" />
+    <HelpKINode Title="ReturnDocument Enumeration" Url="html/T_MongoDB_Driver_ReturnDocument.htm" />
   </HelpKINode>
   <HelpKINode Title="Aggregate method">
     <HelpKINode Title="IMongoCollection(TDocument).Aggregate Method " Url="html/Overload_MongoDB_Driver_IMongoCollection_1_Aggregate.htm" />
@@ -3979,10 +3979,10 @@
   <HelpKINode Title="Build method" Url="html/M_MongoDB_Driver_Builders_PushEachOptionsBuilder_1_Build.htm" />
   <HelpKINode Title="BuildCluster method" Url="html/M_MongoDB_Driver_Core_Configuration_ClusterBuilder_BuildCluster.htm" />
   <HelpKINode Title="Builder class">
-    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Bson_Serialization_BsonSerializationContext_Builder.htm" />
     <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Bson_Serialization_BsonDeserializationContext_Builder.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_BsonDeserializationContext_Builder.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Bson_Serialization_BsonSerializationContext_Builder.htm" />
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_BsonSerializationContext_Builder.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Bson_Serialization_BsonDeserializationContext_Builder.htm" />
   </HelpKINode>
   <HelpKINode Title="BuilderBase class">
     <HelpKINode Title="BuilderBase Class" Url="html/T_MongoDB_Driver_Builders_BuilderBase.htm" />
@@ -4081,6 +4081,7 @@
   <HelpKINode Title="BulkWriteConcernError.Code property" Url="html/P_MongoDB_Driver_Core_Operations_BulkWriteConcernError_Code.htm" />
   <HelpKINode Title="BulkWriteConcernError.CodeName property" Url="html/P_MongoDB_Driver_Core_Operations_BulkWriteConcernError_CodeName.htm" />
   <HelpKINode Title="BulkWriteConcernError.Details property" Url="html/P_MongoDB_Driver_Core_Operations_BulkWriteConcernError_Details.htm" />
+  <HelpKINode Title="BulkWriteConcernError.ErrorLabels property" Url="html/P_MongoDB_Driver_Core_Operations_BulkWriteConcernError_ErrorLabels.htm" />
   <HelpKINode Title="BulkWriteConcernError.Message property" Url="html/P_MongoDB_Driver_Core_Operations_BulkWriteConcernError_Message.htm" />
   <HelpKINode Title="BulkWriteError class">
     <HelpKINode Title="BulkWriteError Class" Url="html/T_MongoDB_Driver_BulkWriteError.htm" />
@@ -6532,6 +6533,7 @@
   <HelpKINode Title="ContainsAny&lt;TSource&gt; method" Url="html/M_MongoDB_Driver_Linq_LinqToMongo_ContainsAny__1.htm" />
   <HelpKINode Title="ContainsKey method" Url="html/M_MongoDB_Driver_CollectionStatsResult_IndexSizesResult_ContainsKey.htm" />
   <HelpKINode Title="ContainsSocketTimeoutException property" Url="html/P_MongoDB_Driver_MongoConnectionException_ContainsSocketTimeoutException.htm" />
+  <HelpKINode Title="ContainsTimeoutException property" Url="html/P_MongoDB_Driver_MongoConnectionException_ContainsTimeoutException.htm" />
   <HelpKINode Title="ContainsValue method">
     <HelpKINode Title="BsonDocument.ContainsValue Method " Url="html/M_MongoDB_Bson_BsonDocument_ContainsValue.htm" />
     <HelpKINode Title="MaterializedOnDemandBsonDocument.ContainsValue Method " Url="html/M_MongoDB_Bson_MaterializedOnDemandBsonDocument_ContainsValue.htm" />
@@ -7395,8 +7397,8 @@
   <HelpKINode Title="CursorIds property" Url="html/P_MongoDB_Driver_Core_WireProtocol_Messages_KillCursorsMessage_CursorIds.htm" />
   <HelpKINode Title="CursorNotFound property" Url="html/P_MongoDB_Driver_Core_WireProtocol_Messages_ReplyMessage_1_CursorNotFound.htm" />
   <HelpKINode Title="CursorType enumeration">
-    <HelpKINode Title="CursorType Enumeration" Url="html/T_MongoDB_Driver_Core_Operations_CursorType.htm" />
     <HelpKINode Title="CursorType Enumeration" Url="html/T_MongoDB_Driver_CursorType.htm" />
+    <HelpKINode Title="CursorType Enumeration" Url="html/T_MongoDB_Driver_Core_Operations_CursorType.htm" />
   </HelpKINode>
   <HelpKINode Title="CursorType property">
     <HelpKINode Title="FindCommandOperation(TDocument).CursorType Property " Url="html/P_MongoDB_Driver_Core_Operations_FindCommandOperation_1_CursorType.htm" />
@@ -7686,6 +7688,7 @@
   <HelpKINode Title="DecryptAsync method" Url="html/M_MongoDB_Driver_Encryption_ClientEncryption_DecryptAsync.htm" />
   <HelpKINode Title="DecryptFields method" Url="html/M_MongoDB_Driver_Core_WireProtocol_IBinaryDocumentFieldDecryptor_DecryptFields.htm" />
   <HelpKINode Title="DecryptFieldsAsync method" Url="html/M_MongoDB_Driver_Core_WireProtocol_IBinaryDocumentFieldDecryptor_DecryptFieldsAsync.htm" />
+  <HelpKINode Title="DecryptMessage method" Url="html/M_MongoDB_Driver_Core_Authentication_ISecurityContext_DecryptMessage.htm" />
   <HelpKINode Title="DeepClone method">
     <HelpKINode Title="BsonArray.DeepClone Method " Url="html/M_MongoDB_Bson_BsonArray_DeepClone.htm" />
     <HelpKINode Title="BsonDocument.DeepClone Method " Url="html/M_MongoDB_Bson_BsonDocument_DeepClone.htm" />
@@ -9001,6 +9004,7 @@
   <HelpKINode Title="Encrypted enumeration member" Url="html/T_MongoDB_Bson_BsonBinarySubType.htm" />
   <HelpKINode Title="EncryptFields method" Url="html/M_MongoDB_Driver_Core_WireProtocol_IBinaryCommandFieldEncryptor_EncryptFields.htm" />
   <HelpKINode Title="EncryptFieldsAsync method" Url="html/M_MongoDB_Driver_Core_WireProtocol_IBinaryCommandFieldEncryptor_EncryptFieldsAsync.htm" />
+  <HelpKINode Title="EncryptMessage method" Url="html/M_MongoDB_Driver_Core_Authentication_ISecurityContext_EncryptMessage.htm" />
   <HelpKINode Title="EncryptOptions class">
     <HelpKINode Title="EncryptOptions Class" Url="html/T_MongoDB_Driver_Encryption_EncryptOptions.htm" />
     <HelpKINode Title="constructor" Url="html/M_MongoDB_Driver_Encryption_EncryptOptions__ctor.htm" />
@@ -9291,12 +9295,12 @@
   <HelpKINode Title="EnumSerializer&lt;TEnum&gt;.Representation property" Url="html/P_MongoDB_Bson_Serialization_Serializers_EnumSerializer_1_Representation.htm" />
   <HelpKINode Title="EnumSerializer&lt;TEnum&gt;.Serialize method" Url="html/M_MongoDB_Bson_Serialization_Serializers_EnumSerializer_1_Serialize.htm" />
   <HelpKINode Title="EnumSerializer&lt;TEnum&gt;.WithRepresentation method" Url="html/M_MongoDB_Bson_Serialization_Serializers_EnumSerializer_1_WithRepresentation.htm" />
+  <HelpKINode Title="Eq method" Url="html/Overload_MongoDB_Driver_FilterDefinitionBuilder_1_Eq.htm" />
   <HelpKINode Title="EQ method">
     <HelpKINode Title="Query(TDocument).EQ Method " Url="html/Overload_MongoDB_Driver_Builders_Query_1_EQ.htm" />
     <HelpKINode Title="Query.EQ Method " Url="html/M_MongoDB_Driver_Builders_Query_EQ.htm" />
     <HelpKINode Title="QueryBuilder(TDocument).EQ Method " Url="html/Overload_MongoDB_Driver_Builders_QueryBuilder_1_EQ.htm" />
   </HelpKINode>
-  <HelpKINode Title="Eq method" Url="html/Overload_MongoDB_Driver_FilterDefinitionBuilder_1_Eq.htm" />
   <HelpKINode Title="Equality operator">
     <HelpKINode Title="BsonArray.Equality Operator " Url="html/M_MongoDB_Bson_BsonArray_op_Equality.htm" />
     <HelpKINode Title="BsonBinaryData.Equality Operator " Url="html/M_MongoDB_Bson_BsonBinaryData_op_Equality.htm" />
@@ -9420,7 +9424,11 @@
     <HelpKINode Title="DocumentValidationAction Enumeration" Url="html/T_MongoDB_Driver_DocumentValidationAction.htm" />
   </HelpKINode>
   <HelpKINode Title="Error property" Url="html/P_MongoDB_Driver_SystemProfileInfo_Error.htm" />
-  <HelpKINode Title="ErrorLabels property" Url="html/P_MongoDB_Driver_MongoException_ErrorLabels.htm" />
+  <HelpKINode Title="ErrorLabels property">
+    <HelpKINode Title="BulkWriteConcernError.ErrorLabels Property " Url="html/P_MongoDB_Driver_Core_Operations_BulkWriteConcernError_ErrorLabels.htm" />
+    <HelpKINode Title="MongoException.ErrorLabels Property " Url="html/P_MongoDB_Driver_MongoException_ErrorLabels.htm" />
+    <HelpKINode Title="WriteConcernError.ErrorLabels Property " Url="html/P_MongoDB_Driver_WriteConcernError_ErrorLabels.htm" />
+  </HelpKINode>
   <HelpKINode Title="ErrorMessage property">
     <HelpKINode Title="CommandResult.ErrorMessage Property " Url="html/P_MongoDB_Driver_CommandResult_ErrorMessage.htm" />
     <HelpKINode Title="MongoCommandException.ErrorMessage Property " Url="html/P_MongoDB_Driver_MongoCommandException_ErrorMessage.htm" />
@@ -9830,8 +9838,8 @@
   <HelpKINode Title="ExpressionVisitor class">
     <HelpKINode Title="ExpressionVisitor Class" Url="html/T_MongoDB_Driver_Linq_ExpressionVisitor.htm" />
     <HelpKINode Title="ExpressionVisitor Class" Url="html/T_MongoDB_Bson_Serialization_ExpressionVisitor.htm" />
-    <HelpKINode Title="constructor" Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor__ctor.htm" />
     <HelpKINode Title="constructor" Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor__ctor.htm" />
+    <HelpKINode Title="constructor" Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor__ctor.htm" />
     <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_Linq_ExpressionVisitor.htm" />
     <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Bson_Serialization_ExpressionVisitor.htm" />
   </HelpKINode>
@@ -9864,24 +9872,24 @@
   <HelpKINode Title="ExpressionVisitor(Of T).VisitTypeBinary method" Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_1_VisitTypeBinary.htm" />
   <HelpKINode Title="ExpressionVisitor(Of T).VisitUnary method" Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_1_VisitUnary.htm" />
   <HelpKINode Title="ExpressionVisitor.ExpressionVisitor constructor">
-    <HelpKINode Title="ExpressionVisitor Constructor " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor__ctor.htm" />
     <HelpKINode Title="ExpressionVisitor Constructor " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor__ctor.htm" />
+    <HelpKINode Title="ExpressionVisitor Constructor " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor__ctor.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor.Visit method">
     <HelpKINode Title="ExpressionVisitor.Visit Method " Url="html/Overload_MongoDB_Bson_Serialization_ExpressionVisitor_Visit.htm" />
     <HelpKINode Title="ExpressionVisitor.Visit Method " Url="html/Overload_MongoDB_Driver_Linq_ExpressionVisitor_Visit.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor.VisitBinary method">
-    <HelpKINode Title="ExpressionVisitor.VisitBinary Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitBinary.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitBinary Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitBinary.htm" />
+    <HelpKINode Title="ExpressionVisitor.VisitBinary Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitBinary.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor.VisitConditional method">
     <HelpKINode Title="ExpressionVisitor.VisitConditional Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitConditional.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitConditional Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitConditional.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor.VisitConstant method">
-    <HelpKINode Title="ExpressionVisitor.VisitConstant Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitConstant.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitConstant Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitConstant.htm" />
+    <HelpKINode Title="ExpressionVisitor.VisitConstant Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitConstant.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor.VisitElementInit method">
     <HelpKINode Title="ExpressionVisitor.VisitElementInit Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitElementInit.htm" />
@@ -9892,40 +9900,40 @@
     <HelpKINode Title="ExpressionVisitor.VisitElementInitList Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitElementInitList.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor.VisitInvocation method">
-    <HelpKINode Title="ExpressionVisitor.VisitInvocation Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitInvocation.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitInvocation Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitInvocation.htm" />
+    <HelpKINode Title="ExpressionVisitor.VisitInvocation Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitInvocation.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor.VisitLambda method">
     <HelpKINode Title="ExpressionVisitor.VisitLambda Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitLambda.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitLambda Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitLambda.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor.VisitListInit method">
-    <HelpKINode Title="ExpressionVisitor.VisitListInit Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitListInit.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitListInit Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitListInit.htm" />
+    <HelpKINode Title="ExpressionVisitor.VisitListInit Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitListInit.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor.VisitMember method">
-    <HelpKINode Title="ExpressionVisitor.VisitMember Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitMember.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitMember Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitMember.htm" />
+    <HelpKINode Title="ExpressionVisitor.VisitMember Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitMember.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor.VisitMemberAssignment method">
-    <HelpKINode Title="ExpressionVisitor.VisitMemberAssignment Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitMemberAssignment.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitMemberAssignment Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitMemberAssignment.htm" />
+    <HelpKINode Title="ExpressionVisitor.VisitMemberAssignment Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitMemberAssignment.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor.VisitMemberBinding method">
     <HelpKINode Title="ExpressionVisitor.VisitMemberBinding Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitMemberBinding.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitMemberBinding Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitMemberBinding.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor.VisitMemberBindingList method">
-    <HelpKINode Title="ExpressionVisitor.VisitMemberBindingList Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitMemberBindingList.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitMemberBindingList Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitMemberBindingList.htm" />
+    <HelpKINode Title="ExpressionVisitor.VisitMemberBindingList Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitMemberBindingList.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor.VisitMemberInit method">
     <HelpKINode Title="ExpressionVisitor.VisitMemberInit Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitMemberInit.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitMemberInit Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitMemberInit.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor.VisitMemberListBinding method">
-    <HelpKINode Title="ExpressionVisitor.VisitMemberListBinding Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitMemberListBinding.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitMemberListBinding Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitMemberListBinding.htm" />
+    <HelpKINode Title="ExpressionVisitor.VisitMemberListBinding Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitMemberListBinding.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor.VisitMemberMemberBinding method">
     <HelpKINode Title="ExpressionVisitor.VisitMemberMemberBinding Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitMemberMemberBinding.htm" />
@@ -9936,12 +9944,12 @@
     <HelpKINode Title="ExpressionVisitor.VisitMethodCall Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitMethodCall.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor.VisitNew method">
-    <HelpKINode Title="ExpressionVisitor.VisitNew Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitNew.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitNew Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitNew.htm" />
+    <HelpKINode Title="ExpressionVisitor.VisitNew Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitNew.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor.VisitNewArray method">
-    <HelpKINode Title="ExpressionVisitor.VisitNewArray Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitNewArray.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitNewArray Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitNewArray.htm" />
+    <HelpKINode Title="ExpressionVisitor.VisitNewArray Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitNewArray.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor.VisitParameter method">
     <HelpKINode Title="ExpressionVisitor.VisitParameter Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitParameter.htm" />
@@ -9952,8 +9960,8 @@
     <HelpKINode Title="ExpressionVisitor.VisitTypeBinary Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitTypeBinary.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor.VisitUnary method">
-    <HelpKINode Title="ExpressionVisitor.VisitUnary Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitUnary.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitUnary Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitUnary.htm" />
+    <HelpKINode Title="ExpressionVisitor.VisitUnary Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitUnary.htm" />
   </HelpKINode>
   <HelpKINode Title="ExpressionVisitor&lt;T&gt; class">
     <HelpKINode Title="ExpressionVisitor(T) Class" Url="html/T_MongoDB_Driver_Linq_ExpressionVisitor_1.htm" />
@@ -11477,16 +11485,16 @@
   <HelpKINode Title="GeoHaystackSearchArgs.SetAdditionalField method" Url="html/Overload_MongoDB_Driver_GeoHaystackSearchArgs_SetAdditionalField.htm" />
   <HelpKINode Title="GeoHaystackSearchAs method" Url="html/Overload_MongoDB_Driver_MongoCollection_GeoHaystackSearchAs.htm" />
   <HelpKINode Title="GeoHaystackSearchHit class">
-    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_GeoHaystackSearchResult_1_GeoHaystackSearchHit.htm" />
     <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_GeoHaystackSearchResult_GeoHaystackSearchHit.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_GeoHaystackSearchResult_1_GeoHaystackSearchHit.htm" />
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_GeoHaystackSearchResult_GeoHaystackSearchHit.htm" />
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_GeoHaystackSearchResult_1_GeoHaystackSearchHit.htm" />
   </HelpKINode>
   <HelpKINode Title="GeoHaystackSearchHits class">
-    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_GeoHaystackSearchResult_1_GeoHaystackSearchHits.htm" />
     <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_GeoHaystackSearchResult_GeoHaystackSearchHits.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_GeoHaystackSearchResult_GeoHaystackSearchHits.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_GeoHaystackSearchResult_1_GeoHaystackSearchHits.htm" />
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_GeoHaystackSearchResult_1_GeoHaystackSearchHits.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_GeoHaystackSearchResult_GeoHaystackSearchHits.htm" />
   </HelpKINode>
   <HelpKINode Title="GeoHaystackSearchOptions class">
     <HelpKINode Title="GeoHaystackSearchOptions Class" Url="html/T_MongoDB_Driver_Builders_GeoHaystackSearchOptions.htm" />
@@ -12615,8 +12623,8 @@
   <HelpKINode Title="GeoNearHits class">
     <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_GeoNearResult_GeoNearHits.htm" />
     <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_GeoNearResult_1_GeoNearHits.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_GeoNearResult_1_GeoNearHits.htm" />
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_GeoNearResult_GeoNearHits.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_GeoNearResult_1_GeoNearHits.htm" />
   </HelpKINode>
   <HelpKINode Title="GeoNearOperation(Of TResult) class">
     <HelpKINode Title="GeoNearOperation(TResult) Class" Url="html/T_MongoDB_Driver_Core_Operations_GeoNearOperation_1.htm" />
@@ -13906,18 +13914,26 @@
   <HelpKINode Title="GssapiAuthenticator.RealmPropertyName property" Url="html/P_MongoDB_Driver_Core_Authentication_GssapiAuthenticator_RealmPropertyName.htm" />
   <HelpKINode Title="GssapiAuthenticator.ServiceNamePropertyName property" Url="html/P_MongoDB_Driver_Core_Authentication_GssapiAuthenticator_ServiceNamePropertyName.htm" />
   <HelpKINode Title="GssapiAuthenticator.ServiceRealmPropertyName property" Url="html/P_MongoDB_Driver_Core_Authentication_GssapiAuthenticator_ServiceRealmPropertyName.htm" />
+  <HelpKINode Title="GssapiException class">
+    <HelpKINode Title="GssapiException Class" Url="html/T_MongoDB_Driver_Core_Authentication_GssapiException.htm" />
+    <HelpKINode Title="constructor" Url="html/Overload_MongoDB_Driver_Core_Authentication_GssapiException__ctor.htm" />
+    <HelpKINode Title="events" Url="html/Events_T_MongoDB_Driver_Core_Authentication_GssapiException.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_Core_Authentication_GssapiException.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_Core_Authentication_GssapiException.htm" />
+  </HelpKINode>
+  <HelpKINode Title="GssapiException.GssapiException constructor" Url="html/Overload_MongoDB_Driver_Core_Authentication_GssapiException__ctor.htm" />
+  <HelpKINode Title="Gt method" Url="html/Overload_MongoDB_Driver_FilterDefinitionBuilder_1_Gt.htm" />
   <HelpKINode Title="GT method">
     <HelpKINode Title="Query(TDocument).GT Method " Url="html/Overload_MongoDB_Driver_Builders_Query_1_GT.htm" />
     <HelpKINode Title="Query.GT Method " Url="html/M_MongoDB_Driver_Builders_Query_GT.htm" />
     <HelpKINode Title="QueryBuilder(TDocument).GT Method " Url="html/Overload_MongoDB_Driver_Builders_QueryBuilder_1_GT.htm" />
   </HelpKINode>
-  <HelpKINode Title="Gt method" Url="html/Overload_MongoDB_Driver_FilterDefinitionBuilder_1_Gt.htm" />
+  <HelpKINode Title="Gte method" Url="html/Overload_MongoDB_Driver_FilterDefinitionBuilder_1_Gte.htm" />
   <HelpKINode Title="GTE method">
-    <HelpKINode Title="Query.GTE Method " Url="html/M_MongoDB_Driver_Builders_Query_GTE.htm" />
     <HelpKINode Title="Query(TDocument).GTE Method " Url="html/Overload_MongoDB_Driver_Builders_Query_1_GTE.htm" />
+    <HelpKINode Title="Query.GTE Method " Url="html/M_MongoDB_Driver_Builders_Query_GTE.htm" />
     <HelpKINode Title="QueryBuilder(TDocument).GTE Method " Url="html/Overload_MongoDB_Driver_Builders_QueryBuilder_1_GTE.htm" />
   </HelpKINode>
-  <HelpKINode Title="Gte method" Url="html/Overload_MongoDB_Driver_FilterDefinitionBuilder_1_Gte.htm" />
   <HelpKINode Title="Guid to BsonBinaryData conversion" Url="html/M_MongoDB_Bson_BsonBinaryData_op_Implicit_1.htm" />
   <HelpKINode Title="Guid to BsonValue conversion" Url="html/M_MongoDB_Bson_BsonValue_op_Implicit_8.htm" />
   <HelpKINode Title="GuidConverter class">
@@ -16930,6 +16946,15 @@
     <HelpKINode Title="BsonSerializationContext.Builder.IsDynamicType Property " Url="html/P_MongoDB_Bson_Serialization_BsonSerializationContext_Builder_IsDynamicType.htm" />
     <HelpKINode Title="BsonSerializationContext.IsDynamicType Property " Url="html/P_MongoDB_Bson_Serialization_BsonSerializationContext_IsDynamicType.htm" />
   </HelpKINode>
+  <HelpKINode Title="ISecurityContext interface">
+    <HelpKINode Title="ISecurityContext Interface" Url="html/T_MongoDB_Driver_Core_Authentication_ISecurityContext.htm" />
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_Core_Authentication_ISecurityContext.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_Core_Authentication_ISecurityContext.htm" />
+  </HelpKINode>
+  <HelpKINode Title="ISecurityContext.DecryptMessage method" Url="html/M_MongoDB_Driver_Core_Authentication_ISecurityContext_DecryptMessage.htm" />
+  <HelpKINode Title="ISecurityContext.EncryptMessage method" Url="html/M_MongoDB_Driver_Core_Authentication_ISecurityContext_EncryptMessage.htm" />
+  <HelpKINode Title="ISecurityContext.IsInitialized property" Url="html/P_MongoDB_Driver_Core_Authentication_ISecurityContext_IsInitialized.htm" />
+  <HelpKINode Title="ISecurityContext.Next method" Url="html/M_MongoDB_Driver_Core_Authentication_ISecurityContext_Next.htm" />
   <HelpKINode Title="IsEmpty method">
     <HelpKINode Title="AscendingGuidGenerator.IsEmpty Method " Url="html/M_MongoDB_Bson_Serialization_IdGenerators_AscendingGuidGenerator_IsEmpty.htm" />
     <HelpKINode Title="BsonBinaryDataGuidGenerator.IsEmpty Method " Url="html/M_MongoDB_Bson_Serialization_IdGenerators_BsonBinaryDataGuidGenerator_IsEmpty.htm" />
@@ -17008,7 +17033,10 @@
   <HelpKINode Title="IsInfiniteOrGreaterThanOrEqualToZero method" Url="html/M_MongoDB_Driver_Core_Misc_Ensure_IsInfiniteOrGreaterThanOrEqualToZero.htm" />
   <HelpKINode Title="IsInfiniteOrGreaterThanZero method" Url="html/M_MongoDB_Driver_Core_Misc_Ensure_IsInfiniteOrGreaterThanZero.htm" />
   <HelpKINode Title="IsInfinity method" Url="html/M_MongoDB_Bson_Decimal128_IsInfinity.htm" />
-  <HelpKINode Title="IsInitialized property" Url="html/P_MongoDB_Driver_Core_Servers_IClusterableServer_IsInitialized.htm" />
+  <HelpKINode Title="IsInitialized property">
+    <HelpKINode Title="IClusterableServer.IsInitialized Property " Url="html/P_MongoDB_Driver_Core_Servers_IClusterableServer_IsInitialized.htm" />
+    <HelpKINode Title="ISecurityContext.IsInitialized Property " Url="html/P_MongoDB_Driver_Core_Authentication_ISecurityContext_IsInitialized.htm" />
+  </HelpKINode>
   <HelpKINode Title="IsInt32 property" Url="html/P_MongoDB_Bson_BsonValue_IsInt32.htm" />
   <HelpKINode Title="IsInt64 property" Url="html/P_MongoDB_Bson_BsonValue_IsInt64.htm" />
   <HelpKINode Title="IsInTransaction property">
@@ -18191,17 +18219,17 @@
   <HelpKINode Title="LookupSerializer method" Url="html/Overload_MongoDB_Bson_Serialization_BsonSerializer_LookupSerializer.htm" />
   <HelpKINode Title="Lower enumeration member" Url="html/T_MongoDB_Driver_CollationCaseFirst.htm" />
   <HelpKINode Title="LT method">
-    <HelpKINode Title="QueryBuilder(TDocument).LT Method " Url="html/Overload_MongoDB_Driver_Builders_QueryBuilder_1_LT.htm" />
     <HelpKINode Title="Query(TDocument).LT Method " Url="html/Overload_MongoDB_Driver_Builders_Query_1_LT.htm" />
     <HelpKINode Title="Query.LT Method " Url="html/M_MongoDB_Driver_Builders_Query_LT.htm" />
+    <HelpKINode Title="QueryBuilder(TDocument).LT Method " Url="html/Overload_MongoDB_Driver_Builders_QueryBuilder_1_LT.htm" />
   </HelpKINode>
   <HelpKINode Title="Lt method" Url="html/Overload_MongoDB_Driver_FilterDefinitionBuilder_1_Lt.htm" />
-  <HelpKINode Title="Lte method" Url="html/Overload_MongoDB_Driver_FilterDefinitionBuilder_1_Lte.htm" />
   <HelpKINode Title="LTE method">
     <HelpKINode Title="Query(TDocument).LTE Method " Url="html/Overload_MongoDB_Driver_Builders_Query_1_LTE.htm" />
     <HelpKINode Title="Query.LTE Method " Url="html/M_MongoDB_Driver_Builders_Query_LTE.htm" />
     <HelpKINode Title="QueryBuilder(TDocument).LTE Method " Url="html/Overload_MongoDB_Driver_Builders_QueryBuilder_1_LTE.htm" />
   </HelpKINode>
+  <HelpKINode Title="Lte method" Url="html/Overload_MongoDB_Driver_FilterDefinitionBuilder_1_Lte.htm" />
   <HelpKINode Title="Machine property">
     <HelpKINode Title="BsonObjectId.Machine Property " Url="html/P_MongoDB_Bson_BsonObjectId_Machine.htm" />
     <HelpKINode Title="ObjectId.Machine Property " Url="html/P_MongoDB_Bson_ObjectId_Machine.htm" />
@@ -18846,8 +18874,8 @@
   <HelpKINode Title="MemberType property" Url="html/P_MongoDB_Bson_Serialization_BsonMemberMap_MemberType.htm" />
   <HelpKINode Title="MemberTypeIsBsonValue property" Url="html/P_MongoDB_Bson_Serialization_BsonMemberMap_MemberTypeIsBsonValue.htm" />
   <HelpKINode Title="Merge enumeration member">
-    <HelpKINode Title="MapReduceOutputMode Enumeration" Url="html/T_MongoDB_Driver_MapReduceOutputMode.htm" />
     <HelpKINode Title="MapReduceOutputMode Enumeration" Url="html/T_MongoDB_Driver_Core_Operations_MapReduceOutputMode.htm" />
+    <HelpKINode Title="MapReduceOutputMode Enumeration" Url="html/T_MongoDB_Driver_MapReduceOutputMode.htm" />
     <HelpKINode Title="MergeStageWhenMatched Enumeration" Url="html/T_MongoDB_Driver_MergeStageWhenMatched.htm" />
   </HelpKINode>
   <HelpKINode Title="Merge method">
@@ -19595,6 +19623,7 @@
   </HelpKINode>
   <HelpKINode Title="MongoConnectionException.ConnectionId property" Url="html/P_MongoDB_Driver_MongoConnectionException_ConnectionId.htm" />
   <HelpKINode Title="MongoConnectionException.ContainsSocketTimeoutException property" Url="html/P_MongoDB_Driver_MongoConnectionException_ContainsSocketTimeoutException.htm" />
+  <HelpKINode Title="MongoConnectionException.ContainsTimeoutException property" Url="html/P_MongoDB_Driver_MongoConnectionException_ContainsTimeoutException.htm" />
   <HelpKINode Title="MongoConnectionException.GetObjectData method" Url="html/M_MongoDB_Driver_MongoConnectionException_GetObjectData.htm" />
   <HelpKINode Title="MongoConnectionException.IsNetworkException property" Url="html/P_MongoDB_Driver_MongoConnectionException_IsNetworkException.htm" />
   <HelpKINode Title="MongoConnectionException.MongoConnectionException constructor" Url="html/Overload_MongoDB_Driver_MongoConnectionException__ctor.htm" />
@@ -20432,8 +20461,10 @@
   <HelpKINode Title="MongoDB.Driver.Core.Authentication.AuthenticatorFactory class" Url="html/T_MongoDB_Driver_Core_Authentication_AuthenticatorFactory.htm" />
   <HelpKINode Title="MongoDB.Driver.Core.Authentication.DefaultAuthenticator class" Url="html/T_MongoDB_Driver_Core_Authentication_DefaultAuthenticator.htm" />
   <HelpKINode Title="MongoDB.Driver.Core.Authentication.GssapiAuthenticator class" Url="html/T_MongoDB_Driver_Core_Authentication_GssapiAuthenticator.htm" />
+  <HelpKINode Title="MongoDB.Driver.Core.Authentication.GssapiException class" Url="html/T_MongoDB_Driver_Core_Authentication_GssapiException.htm" />
   <HelpKINode Title="MongoDB.Driver.Core.Authentication.IAuthenticator interface" Url="html/T_MongoDB_Driver_Core_Authentication_IAuthenticator.htm" />
   <HelpKINode Title="MongoDB.Driver.Core.Authentication.IAuthenticatorFactory interface" Url="html/T_MongoDB_Driver_Core_Authentication_IAuthenticatorFactory.htm" />
+  <HelpKINode Title="MongoDB.Driver.Core.Authentication.ISecurityContext interface" Url="html/T_MongoDB_Driver_Core_Authentication_ISecurityContext.htm" />
   <HelpKINode Title="MongoDB.Driver.Core.Authentication.MongoAWSAuthenticator class" Url="html/T_MongoDB_Driver_Core_Authentication_MongoAWSAuthenticator.htm" />
   <HelpKINode Title="MongoDB.Driver.Core.Authentication.MongoDBCRAuthenticator class" Url="html/T_MongoDB_Driver_Core_Authentication_MongoDBCRAuthenticator.htm" />
   <HelpKINode Title="MongoDB.Driver.Core.Authentication.MongoDBX509Authenticator class" Url="html/T_MongoDB_Driver_Core_Authentication_MongoDBX509Authenticator.htm" />
@@ -22410,9 +22441,9 @@
   </HelpKINode>
   <HelpKINode Title="Nanoseconds enumeration member" Url="html/T_MongoDB_Bson_Serialization_Options_TimeSpanUnits.htm" />
   <HelpKINode Title="NE method">
-    <HelpKINode Title="QueryBuilder(TDocument).NE Method " Url="html/Overload_MongoDB_Driver_Builders_QueryBuilder_1_NE.htm" />
     <HelpKINode Title="Query(TDocument).NE Method " Url="html/Overload_MongoDB_Driver_Builders_Query_1_NE.htm" />
     <HelpKINode Title="Query.NE Method " Url="html/M_MongoDB_Driver_Builders_Query_NE.htm" />
+    <HelpKINode Title="QueryBuilder(TDocument).NE Method " Url="html/Overload_MongoDB_Driver_Builders_QueryBuilder_1_NE.htm" />
   </HelpKINode>
   <HelpKINode Title="Ne method" Url="html/Overload_MongoDB_Driver_FilterDefinitionBuilder_1_Ne.htm" />
   <HelpKINode Title="Near method">
@@ -22447,6 +22478,7 @@
   <HelpKINode Title="NewLineChars field" Url="html/F_MongoDB_Driver_Core_WireProtocol_Messages_Encoders_MessageEncoderSettingsName_NewLineChars.htm" />
   <HelpKINode Title="NewLineChars property" Url="html/P_MongoDB_Bson_IO_JsonWriterSettings_NewLineChars.htm" />
   <HelpKINode Title="NewServerDescription property" Url="html/P_MongoDB_Driver_Core_Servers_ServerDescriptionChangedEventArgs_NewServerDescription.htm" />
+  <HelpKINode Title="Next method" Url="html/M_MongoDB_Driver_Core_Authentication_ISecurityContext_Next.htm" />
   <HelpKINode Title="Nin method" Url="html/Overload_MongoDB_Driver_FilterDefinitionBuilder_1_Nin.htm" />
   <HelpKINode Title="NoCoreSession class">
     <HelpKINode Title="NoCoreSession Class" Url="html/T_MongoDB_Driver_Core_Bindings_NoCoreSession.htm" />
@@ -22516,8 +22548,8 @@
   </HelpKINode>
   <HelpKINode Title="NonIgnorable enumeration member" Url="html/T_MongoDB_Driver_CollationAlternate.htm" />
   <HelpKINode Title="NonTailable enumeration member">
-    <HelpKINode Title="CursorType Enumeration" Url="html/T_MongoDB_Driver_CursorType.htm" />
     <HelpKINode Title="CursorType Enumeration" Url="html/T_MongoDB_Driver_Core_Operations_CursorType.htm" />
+    <HelpKINode Title="CursorType Enumeration" Url="html/T_MongoDB_Driver_CursorType.htm" />
   </HelpKINode>
   <HelpKINode Title="Noop enumeration member" Url="html/T_MongoDB_Driver_Core_Compression_CompressorType.htm" />
   <HelpKINode Title="NoOpElementNameValidator class">
@@ -24980,8 +25012,8 @@
   <HelpKINode Title="RecordCount property" Url="html/P_MongoDB_Driver_ValidateCollectionResult_RecordCount.htm" />
   <HelpKINode Title="RecoveryToken property" Url="html/P_MongoDB_Driver_Core_Bindings_CoreTransaction_RecoveryToken.htm" />
   <HelpKINode Title="Reduce enumeration member">
-    <HelpKINode Title="MapReduceOutputMode Enumeration" Url="html/T_MongoDB_Driver_MapReduceOutputMode.htm" />
     <HelpKINode Title="MapReduceOutputMode Enumeration" Url="html/T_MongoDB_Driver_Core_Operations_MapReduceOutputMode.htm" />
+    <HelpKINode Title="MapReduceOutputMode Enumeration" Url="html/T_MongoDB_Driver_MapReduceOutputMode.htm" />
   </HelpKINode>
   <HelpKINode Title="Reduce method" Url="html/Overload_MongoDB_Driver_MapReduceOutputOptions_Reduce.htm" />
   <HelpKINode Title="ReduceFunction property">
@@ -25915,8 +25947,8 @@
   </HelpKINode>
   <HelpKINode Title="Return enumeration member" Url="html/T_MongoDB_Driver_Core_WireProtocol_CommandResponseHandling.htm" />
   <HelpKINode Title="ReturnDocument enumeration">
-    <HelpKINode Title="ReturnDocument Enumeration" Url="html/T_MongoDB_Driver_ReturnDocument.htm" />
     <HelpKINode Title="ReturnDocument Enumeration" Url="html/T_MongoDB_Driver_Core_Operations_ReturnDocument.htm" />
+    <HelpKINode Title="ReturnDocument Enumeration" Url="html/T_MongoDB_Driver_ReturnDocument.htm" />
   </HelpKINode>
   <HelpKINode Title="ReturnDocument property">
     <HelpKINode Title="FindOneAndReplaceOperation(TResult).ReturnDocument Property " Url="html/P_MongoDB_Driver_Core_Operations_FindOneAndReplaceOperation_1_ReturnDocument.htm" />
@@ -27734,10 +27766,10 @@
   </HelpKINode>
   <HelpKINode Title="Stale enumeration member" Url="html/T_MongoDB_Driver_Core_Events_ConnectionClosedReason.htm" />
   <HelpKINode Title="Standalone enumeration member">
+    <HelpKINode Title="ClusterConnectionMode Enumeration" Url="html/T_MongoDB_Driver_Core_Clusters_ClusterConnectionMode.htm" />
     <HelpKINode Title="ClusterType Enumeration" Url="html/T_MongoDB_Driver_Core_Clusters_ClusterType.htm" />
     <HelpKINode Title="ConnectionMode Enumeration" Url="html/T_MongoDB_Driver_ConnectionMode.htm" />
     <HelpKINode Title="ServerType Enumeration" Url="html/T_MongoDB_Driver_Core_Servers_ServerType.htm" />
-    <HelpKINode Title="ClusterConnectionMode Enumeration" Url="html/T_MongoDB_Driver_Core_Clusters_ClusterConnectionMode.htm" />
   </HelpKINode>
   <HelpKINode Title="StandAlone enumeration member" Url="html/T_MongoDB_Driver_MongoServerInstanceType.htm" />
   <HelpKINode Title="Standard enumeration member" Url="html/T_MongoDB_Bson_GuidRepresentation.htm" />
@@ -29154,16 +29186,16 @@
   <HelpKINode Title="UInt64Serializer.WithConverter method" Url="html/M_MongoDB_Bson_Serialization_Serializers_UInt64Serializer_WithConverter.htm" />
   <HelpKINode Title="UInt64Serializer.WithRepresentation method" Url="html/M_MongoDB_Bson_Serialization_Serializers_UInt64Serializer_WithRepresentation.htm" />
   <HelpKINode Title="Unacknowledged class">
+    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_DeleteResult_Unacknowledged.htm" />
     <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_Core_Operations_BulkWriteOperationResult_Unacknowledged.htm" />
     <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_ReplaceOneResult_Unacknowledged.htm" />
     <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_UpdateResult_Unacknowledged.htm" />
     <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_BulkWriteResult_1_Unacknowledged.htm" />
-    <HelpKINode Title="methods" Url="html/Methods_T_MongoDB_Driver_DeleteResult_Unacknowledged.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_ReplaceOneResult_Unacknowledged.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_BulkWriteResult_1_Unacknowledged.htm" />
-    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_UpdateResult_Unacknowledged.htm" />
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_DeleteResult_Unacknowledged.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_BulkWriteResult_1_Unacknowledged.htm" />
     <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_Core_Operations_BulkWriteOperationResult_Unacknowledged.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_UpdateResult_Unacknowledged.htm" />
+    <HelpKINode Title="properties" Url="html/Properties_T_MongoDB_Driver_ReplaceOneResult_Unacknowledged.htm" />
   </HelpKINode>
   <HelpKINode Title="Unacknowledged property" Url="html/P_MongoDB_Driver_WriteConcern_Unacknowledged.htm" />
   <HelpKINode Title="Uncategorized enumeration member" Url="html/T_MongoDB_Driver_ServerErrorCategory.htm" />
@@ -30130,8 +30162,8 @@
     <HelpKINode Title="ExpressionFormatter.VisitConditional Method " Url="html/M_MongoDB_Driver_Linq_ExpressionFormatter_VisitConditional.htm" />
     <HelpKINode Title="ExpressionPrettyPrinter.VisitConditional Method " Url="html/M_MongoDB_Driver_Linq_ExpressionPrettyPrinter_VisitConditional.htm" />
     <HelpKINode Title="ExpressionVisitor(T).VisitConditional Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_1_VisitConditional.htm" />
-    <HelpKINode Title="ExpressionVisitor.VisitConditional Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitConditional.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitConditional Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitConditional.htm" />
+    <HelpKINode Title="ExpressionVisitor.VisitConditional Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitConditional.htm" />
   </HelpKINode>
   <HelpKINode Title="VisitConstant method">
     <HelpKINode Title="ExpressionFormatter.VisitConstant Method " Url="html/M_MongoDB_Driver_Linq_ExpressionFormatter_VisitConstant.htm" />
@@ -30180,15 +30212,15 @@
     <HelpKINode Title="ExpressionFormatter.VisitMember Method " Url="html/M_MongoDB_Driver_Linq_ExpressionFormatter_VisitMember.htm" />
     <HelpKINode Title="ExpressionPrettyPrinter.VisitMember Method " Url="html/M_MongoDB_Driver_Linq_ExpressionPrettyPrinter_VisitMember.htm" />
     <HelpKINode Title="ExpressionVisitor(T).VisitMember Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_1_VisitMember.htm" />
-    <HelpKINode Title="ExpressionVisitor.VisitMember Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitMember.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitMember Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitMember.htm" />
+    <HelpKINode Title="ExpressionVisitor.VisitMember Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitMember.htm" />
   </HelpKINode>
   <HelpKINode Title="VisitMemberAssignment method">
     <HelpKINode Title="ExpressionFormatter.VisitMemberAssignment Method " Url="html/M_MongoDB_Driver_Linq_ExpressionFormatter_VisitMemberAssignment.htm" />
     <HelpKINode Title="ExpressionPrettyPrinter.VisitMemberAssignment Method " Url="html/M_MongoDB_Driver_Linq_ExpressionPrettyPrinter_VisitMemberAssignment.htm" />
     <HelpKINode Title="ExpressionVisitor(T).VisitMemberAssignment Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_1_VisitMemberAssignment.htm" />
-    <HelpKINode Title="ExpressionVisitor.VisitMemberAssignment Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitMemberAssignment.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitMemberAssignment Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitMemberAssignment.htm" />
+    <HelpKINode Title="ExpressionVisitor.VisitMemberAssignment Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitMemberAssignment.htm" />
   </HelpKINode>
   <HelpKINode Title="VisitMemberBinding method">
     <HelpKINode Title="ExpressionFormatter.VisitMemberBinding Method " Url="html/M_MongoDB_Driver_Linq_ExpressionFormatter_VisitMemberBinding.htm" />
@@ -30201,8 +30233,8 @@
     <HelpKINode Title="ExpressionFormatter.VisitMemberBindingList Method " Url="html/M_MongoDB_Driver_Linq_ExpressionFormatter_VisitMemberBindingList.htm" />
     <HelpKINode Title="ExpressionPrettyPrinter.VisitMemberBindingList Method " Url="html/M_MongoDB_Driver_Linq_ExpressionPrettyPrinter_VisitMemberBindingList.htm" />
     <HelpKINode Title="ExpressionVisitor(T).VisitMemberBindingList Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_1_VisitMemberBindingList.htm" />
-    <HelpKINode Title="ExpressionVisitor.VisitMemberBindingList Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitMemberBindingList.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitMemberBindingList Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitMemberBindingList.htm" />
+    <HelpKINode Title="ExpressionVisitor.VisitMemberBindingList Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitMemberBindingList.htm" />
   </HelpKINode>
   <HelpKINode Title="VisitMemberInit method">
     <HelpKINode Title="ExpressionFormatter.VisitMemberInit Method " Url="html/M_MongoDB_Driver_Linq_ExpressionFormatter_VisitMemberInit.htm" />
@@ -30222,8 +30254,8 @@
     <HelpKINode Title="ExpressionFormatter.VisitMemberMemberBinding Method " Url="html/M_MongoDB_Driver_Linq_ExpressionFormatter_VisitMemberMemberBinding.htm" />
     <HelpKINode Title="ExpressionPrettyPrinter.VisitMemberMemberBinding Method " Url="html/M_MongoDB_Driver_Linq_ExpressionPrettyPrinter_VisitMemberMemberBinding.htm" />
     <HelpKINode Title="ExpressionVisitor(T).VisitMemberMemberBinding Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_1_VisitMemberMemberBinding.htm" />
-    <HelpKINode Title="ExpressionVisitor.VisitMemberMemberBinding Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitMemberMemberBinding.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitMemberMemberBinding Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitMemberMemberBinding.htm" />
+    <HelpKINode Title="ExpressionVisitor.VisitMemberMemberBinding Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitMemberMemberBinding.htm" />
   </HelpKINode>
   <HelpKINode Title="VisitMethodCall method">
     <HelpKINode Title="ExpressionFormatter.VisitMethodCall Method " Url="html/M_MongoDB_Driver_Linq_ExpressionFormatter_VisitMethodCall.htm" />
@@ -30259,15 +30291,15 @@
     <HelpKINode Title="ExpressionFormatter.VisitTypeBinary Method " Url="html/M_MongoDB_Driver_Linq_ExpressionFormatter_VisitTypeBinary.htm" />
     <HelpKINode Title="ExpressionPrettyPrinter.VisitTypeBinary Method " Url="html/M_MongoDB_Driver_Linq_ExpressionPrettyPrinter_VisitTypeBinary.htm" />
     <HelpKINode Title="ExpressionVisitor(T).VisitTypeBinary Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_1_VisitTypeBinary.htm" />
-    <HelpKINode Title="ExpressionVisitor.VisitTypeBinary Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitTypeBinary.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitTypeBinary Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitTypeBinary.htm" />
+    <HelpKINode Title="ExpressionVisitor.VisitTypeBinary Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitTypeBinary.htm" />
   </HelpKINode>
   <HelpKINode Title="VisitUnary method">
     <HelpKINode Title="ExpressionFormatter.VisitUnary Method " Url="html/M_MongoDB_Driver_Linq_ExpressionFormatter_VisitUnary.htm" />
     <HelpKINode Title="ExpressionPrettyPrinter.VisitUnary Method " Url="html/M_MongoDB_Driver_Linq_ExpressionPrettyPrinter_VisitUnary.htm" />
     <HelpKINode Title="ExpressionVisitor(T).VisitUnary Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_1_VisitUnary.htm" />
-    <HelpKINode Title="ExpressionVisitor.VisitUnary Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitUnary.htm" />
     <HelpKINode Title="ExpressionVisitor.VisitUnary Method " Url="html/M_MongoDB_Driver_Linq_ExpressionVisitor_VisitUnary.htm" />
+    <HelpKINode Title="ExpressionVisitor.VisitUnary Method " Url="html/M_MongoDB_Bson_Serialization_ExpressionVisitor_VisitUnary.htm" />
   </HelpKINode>
   <HelpKINode Title="VotingMembers property" Url="html/P_MongoDB_Driver_CreateIndexCommitQuorum_VotingMembers.htm" />
   <HelpKINode Title="W property">
@@ -30835,6 +30867,7 @@
   <HelpKINode Title="WriteConcernError.Code property" Url="html/P_MongoDB_Driver_WriteConcernError_Code.htm" />
   <HelpKINode Title="WriteConcernError.CodeName property" Url="html/P_MongoDB_Driver_WriteConcernError_CodeName.htm" />
   <HelpKINode Title="WriteConcernError.Details property" Url="html/P_MongoDB_Driver_WriteConcernError_Details.htm" />
+  <HelpKINode Title="WriteConcernError.ErrorLabels property" Url="html/P_MongoDB_Driver_WriteConcernError_ErrorLabels.htm" />
   <HelpKINode Title="WriteConcernError.Message property" Url="html/P_MongoDB_Driver_WriteConcernError_Message.htm" />
   <HelpKINode Title="WriteConcernResult class">
     <HelpKINode Title="WriteConcernResult Class" Url="html/T_MongoDB_Driver_WriteConcernResult.htm" />
