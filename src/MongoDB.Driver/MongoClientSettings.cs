@@ -62,6 +62,7 @@ namespace MongoDB.Driver
         private bool _retryWrites;
         private ConnectionStringScheme _scheme;
         private string _sdamLogFilename;
+        private ServerApi _serverApi;
         private List<MongoServerAddress> _servers;
         private TimeSpan _serverSelectionTimeout;
         private TimeSpan _socketTimeout;
@@ -116,6 +117,7 @@ namespace MongoDB.Driver
             _retryWrites = true;
             _scheme = ConnectionStringScheme.MongoDB;
             _sdamLogFilename = null;
+            _serverApi = null;
             _servers = new List<MongoServerAddress> { new MongoServerAddress("localhost") };
             _serverSelectionTimeout = MongoDefaults.ServerSelectionTimeout;
             _socketTimeout = MongoDefaults.SocketTimeout;
@@ -575,6 +577,19 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the server API.
+        /// </summary>
+        public ServerApi ServerApi
+        {
+            get { return _serverApi; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _serverApi = value;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the address of the server (see also Servers if using more than one address).
         /// </summary>
         public MongoServerAddress Server
@@ -919,6 +934,7 @@ namespace MongoDB.Driver
             clone._localThreshold = _localThreshold;
             clone._scheme = _scheme;
             clone._sdamLogFilename = _sdamLogFilename;
+            clone._serverApi = _serverApi;
             clone._servers = new List<MongoServerAddress>(_servers);
             clone._serverSelectionTimeout = _serverSelectionTimeout;
             clone._socketTimeout = _socketTimeout;
@@ -982,6 +998,7 @@ namespace MongoDB.Driver
                 _localThreshold == rhs._localThreshold &&
                 _scheme == rhs._scheme &&
                 _sdamLogFilename == rhs._sdamLogFilename &&
+                _serverApi == rhs._serverApi &&
                 _servers.SequenceEqual(rhs._servers) &&
                 _serverSelectionTimeout == rhs._serverSelectionTimeout &&
                 _socketTimeout == rhs._socketTimeout &&
@@ -1063,6 +1080,7 @@ namespace MongoDB.Driver
                 .Hash(_localThreshold)
                 .Hash(_scheme)
                 .Hash(_sdamLogFilename)
+                .Hash(_serverApi)
                 .HashElements(_servers)
                 .Hash(_serverSelectionTimeout)
                 .Hash(_socketTimeout)
@@ -1135,6 +1153,10 @@ namespace MongoDB.Driver
             {
                 sb.AppendFormat("SDAMLogFileName={0};", _sdamLogFilename);
             }
+            if (_serverApi != null)
+            {
+                sb.AppendFormat("ServerApi={0};", _serverApi);
+            }
             sb.AppendFormat("Servers={0};", string.Join(",", _servers.Select(s => s.ToString()).ToArray()));
             sb.AppendFormat("ServerSelectionTimeout={0};", _serverSelectionTimeout);
             sb.AppendFormat("SocketTimeout={0};", _socketTimeout);
@@ -1182,6 +1204,7 @@ namespace MongoDB.Driver
                 _scheme,
                 _sdamLogFilename,
                 MongoDefaults.TcpSendBufferSize, // TODO: add SendBufferSize to MongoClientSettings?
+                _serverApi,
                 _servers.ToList(),
                 _serverSelectionTimeout,
                 _socketTimeout,

@@ -42,6 +42,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.MaxServerSelectionWaitQueueSize.Should().Be(500);
             subject.ReplicaSetName.Should().Be(null);
             subject.Scheme.Should().Be(ConnectionStringScheme.MongoDB);
+            subject.ServerApi.Should().BeNull();
             subject.ServerSelectionTimeout.Should().Be(TimeSpan.FromSeconds(30));
         }
 
@@ -198,6 +199,25 @@ namespace MongoDB.Driver.Core.Configuration
             subject.MaxServerSelectionWaitQueueSize.Should().Be(__defaults.MaxServerSelectionWaitQueueSize);
             subject.ReplicaSetName.Should().Be(__defaults.ReplicaSetName);
             subject.Scheme.Should().Be(scheme);
+            subject.ServerSelectionTimeout.Should().Be(__defaults.ServerSelectionTimeout);
+        }
+
+        [Fact]
+        public void constructor_with_serverApi_should_initialize_instance()
+        {
+            var serverApi = new ServerApi(ServerApiVersion.V1, true, true);
+
+            var subject = new ClusterSettings(serverApi: serverApi);
+
+#pragma warning disable CS0618 // Type or member is obsolete
+            subject.ConnectionMode.Should().Be(__defaults.ConnectionMode);
+#pragma warning restore CS0618 // Type or member is obsolete
+            subject.EndPoints.Should().EqualUsing(__defaults.EndPoints, EndPointHelper.EndPointEqualityComparer);
+            subject.LocalThreshold.Should().Be(__defaults.LocalThreshold);
+            subject.MaxServerSelectionWaitQueueSize.Should().Be(__defaults.MaxServerSelectionWaitQueueSize);
+            subject.ReplicaSetName.Should().Be(__defaults.ReplicaSetName);
+            subject.Scheme.Should().Be(__defaults.Scheme);
+            subject.ServerApi.Should().Be(serverApi);
             subject.ServerSelectionTimeout.Should().Be(__defaults.ServerSelectionTimeout);
         }
 
@@ -371,6 +391,27 @@ namespace MongoDB.Driver.Core.Configuration
             result.MaxServerSelectionWaitQueueSize.Should().Be(subject.MaxServerSelectionWaitQueueSize);
             result.ReplicaSetName.Should().Be(subject.ReplicaSetName);
             result.Scheme.Should().Be(newScheme);
+            result.ServerSelectionTimeout.Should().Be(subject.ServerSelectionTimeout);
+        }
+
+        [Fact]
+        public void With_serverApi_should_return_expected_result()
+        {
+            var oldServerApi = new ServerApi(ServerApiVersion.V1, true, true);
+            var newServerApi = new ServerApi(ServerApiVersion.V1);
+            var subject = new ClusterSettings(serverApi: oldServerApi);
+
+            var result = subject.With(serverApi: newServerApi);
+
+#pragma warning disable CS0618 // Type or member is obsolete
+            result.ConnectionMode.Should().Be(subject.ConnectionMode);
+#pragma warning restore CS0618 // Type or member is obsolete
+            result.EndPoints.Should().EqualUsing(subject.EndPoints, EndPointHelper.EndPointEqualityComparer);
+            result.LocalThreshold.Should().Be(subject.LocalThreshold);
+            result.MaxServerSelectionWaitQueueSize.Should().Be(subject.MaxServerSelectionWaitQueueSize);
+            result.ReplicaSetName.Should().Be(subject.ReplicaSetName);
+            result.Scheme.Should().Be(subject.Scheme);
+            result.ServerApi.Should().Be(newServerApi);
             result.ServerSelectionTimeout.Should().Be(subject.ServerSelectionTimeout);
         }
 

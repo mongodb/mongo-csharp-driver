@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-using System.Text;
+using System;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
@@ -45,8 +45,19 @@ namespace MongoDB.Driver.Core.Authentication
         /// Initializes a new instance of the <see cref="PlainAuthenticator"/> class.
         /// </summary>
         /// <param name="credential">The credential.</param>
+        [Obsolete("Use the newest overload instead.")]
         public PlainAuthenticator(UsernamePasswordCredential credential)
-            : base(new PlainMechanism(credential))
+            : this(credential, serverApi: null)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PlainAuthenticator"/> class.
+        /// </summary>
+        /// <param name="credential">The credential.</param>
+        /// <param name="serverApi">The server API.</param>
+        public PlainAuthenticator(UsernamePasswordCredential credential, ServerApi serverApi)
+            : base(new PlainMechanism(credential), serverApi)
         {
             _databaseName = credential.Source;
         }

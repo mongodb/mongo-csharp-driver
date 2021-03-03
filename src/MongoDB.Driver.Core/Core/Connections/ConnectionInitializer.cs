@@ -33,11 +33,16 @@ namespace MongoDB.Driver.Core.Connections
     {
         private readonly BsonDocument _clientDocument;
         private readonly IReadOnlyList<CompressorConfiguration> _compressors;
+        private readonly ServerApi _serverApi;
 
-        public ConnectionInitializer(string applicationName, IReadOnlyList<CompressorConfiguration> compressors)
+        public ConnectionInitializer(
+            string applicationName,
+            IReadOnlyList<CompressorConfiguration> compressors,
+            ServerApi serverApi)
         {
             _clientDocument = ClientDocumentHelper.CreateClientDocument(applicationName);
             _compressors = Ensure.IsNotNull(compressors, nameof(compressors));
+            _serverApi = serverApi;
         }
 
         public ConnectionDescription InitializeConnection(IConnection connection, CancellationToken cancellationToken)
@@ -45,10 +50,10 @@ namespace MongoDB.Driver.Core.Connections
             Ensure.IsNotNull(connection, nameof(connection));
             var authenticators = connection.Settings.AuthenticatorFactories.Select(f => f.Create()).ToList();
             var isMasterCommand = CreateInitialIsMasterCommand(authenticators);
-            var isMasterProtocol = IsMasterHelper.CreateProtocol(isMasterCommand);
+            var isMasterProtocol = IsMasterHelper.CreateProtocol(isMasterCommand, _serverApi);
             var isMasterResult = IsMasterHelper.GetResult(connection, isMasterProtocol, cancellationToken);
 
-            var buildInfoProtocol = CreateBuildInfoProtocol();
+            var buildInfoProtocol = CreateBuildInfoProtocol(_serverApi);
             var buildInfoResult = new BuildInfoResult(buildInfoProtocol.Execute(connection, cancellationToken));
 
             var description = new ConnectionDescription(connection.ConnectionId, isMasterResult, buildInfoResult);
@@ -64,7 +69,7 @@ namespace MongoDB.Driver.Core.Connections
             {
                 try
                 {
-                    var getLastErrorProtocol = CreateGetLastErrorProtocol();
+                    var getLastErrorProtocol = CreateGetLastErrorProtocol(_serverApi);
                     var getLastErrorResult = getLastErrorProtocol.Execute(connection, cancellationToken);
 
                     description = UpdateConnectionIdWithServerValue(description, getLastErrorResult);
@@ -83,10 +88,10 @@ namespace MongoDB.Driver.Core.Connections
             Ensure.IsNotNull(connection, nameof(connection));
             var authenticators = connection.Settings.AuthenticatorFactories.Select(f => f.Create()).ToList();
             var isMasterCommand = CreateInitialIsMasterCommand(authenticators);
-            var isMasterProtocol = IsMasterHelper.CreateProtocol(isMasterCommand);
+            var isMasterProtocol = IsMasterHelper.CreateProtocol(isMasterCommand, _serverApi);
             var isMasterResult = await IsMasterHelper.GetResultAsync(connection, isMasterProtocol, cancellationToken).ConfigureAwait(false);
 
-            var buildInfoProtocol = CreateBuildInfoProtocol();
+            var buildInfoProtocol = CreateBuildInfoProtocol(_serverApi);
             var buildInfoResult = new BuildInfoResult(await buildInfoProtocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false));
 
             var description = new ConnectionDescription(connection.ConnectionId, isMasterResult, buildInfoResult);
@@ -102,7 +107,7 @@ namespace MongoDB.Driver.Core.Connections
             {
                 try
                 {
-                    var getLastErrorProtocol = CreateGetLastErrorProtocol();
+                    var getLastErrorProtocol = CreateGetLastErrorProtocol(_serverApi);
                     var getLastErrorResult = await getLastErrorProtocol
                         .ExecuteAsync(connection, cancellationToken)
                         .ConfigureAwait(false);
@@ -119,19 +124,28 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         // private methods
-        private CommandWireProtocol<BsonDocument> CreateBuildInfoProtocol()
+        private CommandWireProtocol<BsonDocument> CreateBuildInfoProtocol(ServerApi serverApi)
         {
+            var buildInfoServerApi =
+                serverApi != null
+                    ? new ServerApi(
+                        serverApi.Version,
+                        strict: false, // buildInfo is not part of server API version 1 so we must skip strict flag, otherwise initialize will fail
+                        deprecationErrors: serverApi.DeprecationErrors)
+                    : null;
+
             var buildInfoCommand = new BsonDocument("buildInfo", 1);
             var buildInfoProtocol = new CommandWireProtocol<BsonDocument>(
                 databaseNamespace: DatabaseNamespace.Admin,
                 command: buildInfoCommand,
                 slaveOk: true,
                 resultSerializer: BsonDocumentSerializer.Instance,
-                messageEncoderSettings: null);
+                messageEncoderSettings: null,
+                serverApi: buildInfoServerApi);
             return buildInfoProtocol;
         }
 
-        private CommandWireProtocol<BsonDocument> CreateGetLastErrorProtocol()
+        private CommandWireProtocol<BsonDocument> CreateGetLastErrorProtocol(ServerApi serverApi)
         {
             var getLastErrorCommand = new BsonDocument("getLastError", 1);
             var getLastErrorProtocol = new CommandWireProtocol<BsonDocument>(
@@ -139,7 +153,8 @@ namespace MongoDB.Driver.Core.Connections
                 command: getLastErrorCommand,
                 slaveOk: true,
                 resultSerializer: BsonDocumentSerializer.Instance,
-                messageEncoderSettings: null);
+                messageEncoderSettings: null,
+                serverApi: serverApi);
             return getLastErrorProtocol;
         }
 

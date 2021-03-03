@@ -14,15 +14,14 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
 using MongoDB.Bson.IO;
+#if NET452
 using MongoDB.Driver.Core.Authentication.Vendored;
-using MongoDB.Driver.Core.Connections;
+#endif
 using MongoDB.Driver.Core.Misc;
 
 // use our vendored version of Rfc2898DeriveBytes because .NET Standard 1.5 and .NET Framework 4.5 do not support
@@ -54,13 +53,29 @@ namespace MongoDB.Driver.Core.Authentication
         /// passwords may not work unless they are normalized into Unicode Normalization Form KC beforehand.
         /// </summary>
         /// <param name="credential">The credential.</param>
+        [Obsolete("Use the newest overload instead.")]
         public ScramSha256Authenticator(UsernamePasswordCredential credential)
-            : this(credential, new DefaultRandomStringGenerator())
+            : this(credential, serverApi: null)
         {
         }
 
-        internal ScramSha256Authenticator(UsernamePasswordCredential credential, IRandomStringGenerator randomStringGenerator)
-            : base(credential, HashAlgorithmName.SHA256, randomStringGenerator, H256, Hi256, Hmac256, new ScramCache())
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ScramSha256Authenticator"/> class.
+        /// In .NET Standard, this class does not normalize the password in <paramref name="credential"/>, so non-ASCII
+        /// passwords may not work unless they are normalized into Unicode Normalization Form KC beforehand.
+        /// </summary>
+        /// <param name="credential">The credential.</param>
+        /// <param name="serverApi">The server API.</param>
+        public ScramSha256Authenticator(UsernamePasswordCredential credential, ServerApi serverApi)
+            : this(credential, new DefaultRandomStringGenerator(), serverApi)
+        {
+        }
+
+        internal ScramSha256Authenticator(
+            UsernamePasswordCredential credential,
+            IRandomStringGenerator randomStringGenerator,
+            ServerApi serverApi)
+            : base(credential, HashAlgorithmName.SHA256, randomStringGenerator, H256, Hi256, Hmac256, new ScramCache(), serverApi)
         {
         }
 

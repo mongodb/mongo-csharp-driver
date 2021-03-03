@@ -14,16 +14,11 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
-using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Servers;
 using Moq;
@@ -40,9 +35,10 @@ namespace MongoDB.Driver.Core.Connections
             var eventSubscriber = new Mock<IEventSubscriber>().Object;
 
             Action act = () => new BinaryConnectionFactory(
-                null,
+                settings: null,
                 streamFactory,
-                eventSubscriber);
+                eventSubscriber,
+                serverApi: null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -54,8 +50,9 @@ namespace MongoDB.Driver.Core.Connections
 
             Action act = () => new BinaryConnectionFactory(
                 new ConnectionSettings(),
-                null,
-                eventSubscriber);
+                streamFactory: null,
+                eventSubscriber,
+                serverApi: null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -68,7 +65,8 @@ namespace MongoDB.Driver.Core.Connections
             var subject = new BinaryConnectionFactory(
                 new ConnectionSettings(),
                 streamFactory,
-                eventSubscriber);
+                eventSubscriber,
+                serverApi: null);
 
             Action act = () => subject.CreateConnection(null, new DnsEndPoint("localhost", 27017));
             act.ShouldThrow<ArgumentNullException>();
@@ -82,7 +80,8 @@ namespace MongoDB.Driver.Core.Connections
             var subject = new BinaryConnectionFactory(
                 new ConnectionSettings(),
                 streamFactory,
-                eventSubscriber);
+                eventSubscriber,
+                serverApi: null);
 
             var serverId = new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017));
 
@@ -95,10 +94,12 @@ namespace MongoDB.Driver.Core.Connections
         {
             var streamFactory = new Mock<IStreamFactory>().Object;
             var eventSubscriber = new Mock<IEventSubscriber>().Object;
+            var serverApi = new ServerApi(ServerApiVersion.V1, true, true);
             var subject = new BinaryConnectionFactory(
                 new ConnectionSettings(),
                 streamFactory,
-                eventSubscriber);
+                eventSubscriber,
+                serverApi);
 
             var serverId = new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017));
 

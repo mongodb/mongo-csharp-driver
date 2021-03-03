@@ -63,7 +63,10 @@ namespace MongoDB.Driver.Core.Connections
             return authenticators.Count == 1 ? authenticators[0].CustomizeInitialIsMasterCommand(command) : command;
         }
 
-        internal static CommandWireProtocol<BsonDocument> CreateProtocol(BsonDocument isMasterCommand, CommandResponseHandling commandResponseHandling = CommandResponseHandling.Return)
+        internal static CommandWireProtocol<BsonDocument> CreateProtocol(
+            BsonDocument isMasterCommand,
+            ServerApi serverApi,
+            CommandResponseHandling commandResponseHandling = CommandResponseHandling.Return)
         {
             return new CommandWireProtocol<BsonDocument>(
                 databaseNamespace: DatabaseNamespace.Admin,
@@ -71,7 +74,8 @@ namespace MongoDB.Driver.Core.Connections
                 slaveOk: true,
                 commandResponseHandling: commandResponseHandling,
                 resultSerializer: BsonDocumentSerializer.Instance,
-                messageEncoderSettings: null);
+                messageEncoderSettings: null,
+                serverApi);
         }
 
         internal static IsMasterResult GetResult(

@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Tests.Specifications.auth
                 var expectedMechanismProperties = expectedCredential["mechanism_properties"];
                 if (mongoCredential.Mechanism == GssapiAuthenticator.MechanismName)
                 {
-                    var gssapiAuthenticator = (GssapiAuthenticator)mongoCredential.ToAuthenticator();
+                    var gssapiAuthenticator = (GssapiAuthenticator)mongoCredential.ToAuthenticator(serverApi: null);
                     if (expectedMechanismProperties.IsBsonNull)
                     {
                         var serviceName = gssapiAuthenticator._mechanism_serviceName();

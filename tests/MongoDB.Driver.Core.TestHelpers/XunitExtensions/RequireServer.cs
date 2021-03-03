@@ -14,12 +14,8 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using Xunit;
@@ -243,6 +239,18 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
                             if (actualVersion > maxServerVersion)
                             {
                                 return false;
+                            }
+                        }
+                        break;
+                    case "serverParameters":
+                        {
+                            var serverParameters = CoreTestConfiguration.GetServerParameters();
+                            foreach (var parameter in item.Value.AsBsonDocument)
+                            {
+                                if (serverParameters[parameter.Name] != parameter.Value)
+                                {
+                                    return false;
+                                }
                             }
                         }
                         break;

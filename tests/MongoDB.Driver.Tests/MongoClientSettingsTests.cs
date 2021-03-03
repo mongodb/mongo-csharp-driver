@@ -103,6 +103,7 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore 618
             settings.SslSettings = new SslSettings { CheckCertificateRevocation = false };
             settings.SdamLogFilename = "stdout";
+            settings.ServerApi = new ServerApi(ServerApiVersion.V1, true, true);
 
             var clone = settings.Clone();
             Assert.Equal(settings, clone);
@@ -244,6 +245,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(ConnectionStringScheme.MongoDB, settings.Scheme);
             Assert.Equal(_localHost, settings.Server);
             Assert.Equal(_localHost, settings.Servers.First());
+            Assert.Equal(null, settings.ServerApi);
             Assert.Equal(1, settings.Servers.Count());
             Assert.Equal(MongoDefaults.ServerSelectionTimeout, settings.ServerSelectionTimeout);
             Assert.Equal(MongoDefaults.SocketTimeout, settings.SocketTimeout);
@@ -466,6 +468,10 @@ namespace MongoDB.Driver.Tests
 
             clone = settings.Clone();
             clone.Scheme = ConnectionStringScheme.MongoDBPlusSrv;
+            Assert.False(clone.Equals(settings));
+
+            clone = settings.Clone();
+            clone.ServerApi = new ServerApi(ServerApiVersion.V1, true, true);
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
@@ -1014,6 +1020,23 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void TestServerApi()
+        {
+            var settings = new MongoClientSettings();
+            settings.ServerApi.Should().BeNull();
+
+            var serverApi = new ServerApi(ServerApiVersion.V1, true, true);
+            settings.ServerApi = serverApi;
+            settings.ServerApi.Should().Be(serverApi);
+
+            settings.Freeze();
+            settings.ServerApi.Should().Be(serverApi);
+            var exception = Record.Exception(() => { settings.ServerApi = serverApi; });
+
+            exception.Should().BeOfType<InvalidOperationException>();
+        }
+
+        [Fact]
         public void TestServersWithOneServer()
         {
             var settings = new MongoClientSettings();
@@ -1223,6 +1246,7 @@ namespace MongoDB.Driver.Tests
 #pragma warning disable 618
             var credential = MongoCredential.CreateMongoCRCredential("source", "username", "password");
 #pragma warning restore 618
+            var serverApi = new ServerApi(ServerApiVersion.V1, true, true);
             var servers = new[] { new MongoServerAddress("localhost") };
             var sslSettings = new SslSettings
             {
@@ -1251,6 +1275,7 @@ namespace MongoDB.Driver.Tests
                 ReplicaSetName = "rs",
                 Scheme = ConnectionStringScheme.MongoDB,
                 SdamLogFilename = "pokédex",
+                ServerApi = serverApi,
                 Servers = servers,
                 ServerSelectionTimeout = TimeSpan.FromSeconds(6),
                 SocketTimeout = TimeSpan.FromSeconds(4),
@@ -1293,6 +1318,7 @@ namespace MongoDB.Driver.Tests
             result.Scheme.Should().Be(subject.Scheme);
             result.SdamLogFilename.Should().Be(subject.SdamLogFilename);
             result.SendBufferSize.Should().Be(MongoDefaults.TcpSendBufferSize);
+            result.ServerApi.Should().Be(subject.ServerApi);
             result.Servers.Should().Equal(subject.Servers);
             result.ServerSelectionTimeout.Should().Be(subject.ServerSelectionTimeout);
             result.SocketTimeout.Should().Be(subject.SocketTimeout);

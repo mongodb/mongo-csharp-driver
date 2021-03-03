@@ -24,6 +24,8 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -40,7 +42,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
         [Fact]
         public void Constructor_should_throw_connection_endpoint_is_null()
         {
-            var exception = Record.Exception(() => new RoundTripTimeMonitor(Mock.Of<IConnectionFactory>(), __serverId, null, TimeSpan.Zero));
+            var exception = Record.Exception(() => new RoundTripTimeMonitor(Mock.Of<IConnectionFactory>(), __serverId, endpoint: null, TimeSpan.Zero, serverApi: null));
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("endpoint");
         }
@@ -48,7 +50,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
         [Fact]
         public void Constructor_should_throw_connection_factory_is_null()
         {
-            var exception = Record.Exception(() => new RoundTripTimeMonitor(null, __serverId, __endPoint, TimeSpan.Zero));
+            var exception = Record.Exception(() => new RoundTripTimeMonitor(connectionFactory: null, __serverId, __endPoint, TimeSpan.Zero, serverApi: null));
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("connectionFactory");
         }
@@ -56,7 +58,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
         [Fact]
         public void Constructor_should_throw_connection_serverId_is_null()
         {
-            var exception = Record.Exception(() => new RoundTripTimeMonitor(Mock.Of<IConnectionFactory>(), null, __endPoint, TimeSpan.Zero));
+            var exception = Record.Exception(() => new RoundTripTimeMonitor(Mock.Of<IConnectionFactory>(), serverId: null, __endPoint, TimeSpan.Zero, serverApi: null));
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("serverId");
         }
@@ -147,6 +149,40 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
             subject._disposed().Should().BeTrue();
         }
 
+        [Fact]
+        public void RunAsync_should_use_serverApi()
+        {
+            var serverApi = new ServerApi(ServerApiVersion.V1);
+            var eventCapturer = new EventCapturer();
+            var streamFactory = new TcpStreamFactory();
+            var mockEventSubscriber = new Mock<IEventSubscriber>().Object;
+
+            var connection = new MockConnection(__serverId);
+
+            var mockConnectionFactory = new Mock<IConnectionFactory>();
+            mockConnectionFactory
+                .Setup(x => x.CreateConnection(__serverId, __endPoint))
+                .Returns(connection);
+
+            using (var subject = new RoundTripTimeMonitor(
+                mockConnectionFactory.Object,
+                __serverId,
+                __endPoint,
+                TimeSpan.FromMilliseconds(10),
+                serverApi))
+            {
+                subject.RunAsync().ConfigureAwait(false);
+
+                SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
+            }
+
+            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            sentMessages.Count.Should().Be(1);
+
+            var requestId = sentMessages[0]["requestId"].AsInt32;
+            sentMessages[0].Should().Be($"{{ opcode : \"query\", requestId : {requestId}, database : \"admin\", collection : \"$cmd\", batchSize : -1, slaveOk : true, query : {{ isMaster : 1, apiVersion : \"1\" }} }}");
+        }
+
         // private methods
         private RoundTripTimeMonitor CreateSubject(
             TimeSpan frequency,
@@ -166,7 +202,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
                 mockConnectionFactory.Object,
                 __serverId,
                 __endPoint,
-                frequency);
+                frequency,
+                serverApi: null);
         }
 
         private ConnectionDescription CreateConnectionDescription()

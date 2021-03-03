@@ -59,7 +59,8 @@ namespace MongoDB.Driver.Core.WireProtocol
                 null, // postWriteAction
                 responseHandling,
                 BsonDocumentSerializer.Instance,
-                messageEncoderSettings);
+                messageEncoderSettings,
+                null); // serverApi
 
             var mockConnection = new Mock<IConnection>();
             var commandResponse = MessageHelper.BuildCommandResponse(CreateRawBsonDocument(new BsonDocument("ok", 1)));
@@ -135,7 +136,8 @@ namespace MongoDB.Driver.Core.WireProtocol
                 null, // postWriteAction
                 CommandResponseHandling.Return,
                 BsonDocumentSerializer.Instance,
-                messageEncoderSettings);
+                messageEncoderSettings,
+                null); // serverApi
 
             var mockConnection = new Mock<IConnection>();
 
@@ -163,7 +165,8 @@ namespace MongoDB.Driver.Core.WireProtocol
                 null, // postWriteAction
                 CommandResponseHandling.NoResponseExpected,
                 BsonDocumentSerializer.Instance,
-                messageEncoderSettings);
+                messageEncoderSettings,
+                null); // serverApi
 
             var mockConnection = new Mock<IConnection>();
 
@@ -190,7 +193,8 @@ namespace MongoDB.Driver.Core.WireProtocol
                 null, // postWriteAction
                 CommandResponseHandling.Return,
                 BsonDocumentSerializer.Instance,
-                messageEncoderSettings);
+                messageEncoderSettings,
+                null); // serverApi
 
             var mockConnection = new Mock<IConnection>();
 
@@ -218,7 +222,8 @@ namespace MongoDB.Driver.Core.WireProtocol
                 null, // postWriteAction
                 CommandResponseHandling.NoResponseExpected,
                 BsonDocumentSerializer.Instance,
-                messageEncoderSettings);
+                messageEncoderSettings,
+                null); // serverApi
 
             var mockConnection = new Mock<IConnection>();
 

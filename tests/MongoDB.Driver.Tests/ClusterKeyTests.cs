@@ -66,6 +66,7 @@ namespace MongoDB.Driver.Tests
         [InlineData("Scheme", true)]
         [InlineData("SdamLogFileName", true)]
         [InlineData("SendBufferSize", true)]
+        [InlineData("ServerApi", true)]
         [InlineData("Servers", false)]
         [InlineData("ServerSelectionTimeout", true)]
         [InlineData("SocketTimeout", true)]
@@ -192,6 +193,7 @@ namespace MongoDB.Driver.Tests
             var scheme = ConnectionStringScheme.MongoDB;
             var sdamLogFileName = "stdout";
             var sendBufferSize = 1;
+            var serverApi = new ServerApi(ServerApiVersion.V1, true, true);
             var servers = new[] { new MongoServerAddress("localhost") };
             var serverSelectionTimeout = TimeSpan.FromSeconds(6);
             var socketTimeout = TimeSpan.FromSeconds(4);
@@ -246,6 +248,7 @@ namespace MongoDB.Driver.Tests
                     case "Scheme": scheme = ConnectionStringScheme.MongoDBPlusSrv; break;
                     case "SdamLogFileName": sdamLogFileName = "different"; break;
                     case "SendBufferSize": sendBufferSize = 2; break;
+                    case "ServerApi": serverApi = new ServerApi(ServerApiVersion.V1); break;
                     case "Servers": servers = new[] { new MongoServerAddress("different") }; break;
                     case "ServerSelectionTimeout": serverSelectionTimeout = TimeSpan.FromSeconds(98); break;
                     case "SocketTimeout": socketTimeout = TimeSpan.FromSeconds(99); break;
@@ -282,6 +285,7 @@ namespace MongoDB.Driver.Tests
                 scheme,
                 sdamLogFileName,
                 sendBufferSize,
+                serverApi,
                 servers,
                 serverSelectionTimeout,
                 socketTimeout,
@@ -325,6 +329,7 @@ namespace MongoDB.Driver.Tests
             var scheme = ConnectionStringScheme.MongoDB;
             var sdamLogFileName = "stdout";
             var sendBufferSize = 1;
+            var serverApi = new ServerApi(ServerApiVersion.V1, true, true);
             var servers = new[] { new MongoServerAddress("localhost") };
             var serverSelectionTimeout = TimeSpan.FromSeconds(6);
             var socketTimeout = TimeSpan.FromSeconds(4);
@@ -362,6 +367,7 @@ namespace MongoDB.Driver.Tests
                 scheme,
                 sdamLogFileName,
                 sendBufferSize,
+                serverApi,
                 servers,
                 serverSelectionTimeout,
                 socketTimeout,

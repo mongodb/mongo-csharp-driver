@@ -14,14 +14,11 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Runtime.InteropServices.ComTypes;
 using System.Security.Cryptography;
 using System.Text;
-using MongoDB.Bson.IO;
+#if NET452
 using MongoDB.Driver.Core.Authentication.Vendored;
-using MongoDB.Driver.Core.Connections;
+#endif
 using MongoDB.Driver.Core.Misc;
 
 // use our vendored version of Rfc2898DeriveBytes because .NET Standard 1.5 and .NET Framework 4.5 do not support
@@ -49,13 +46,27 @@ namespace MongoDB.Driver.Core.Authentication
         /// Initializes a new instance of the <see cref="ScramSha1Authenticator"/> class.
         /// </summary>
         /// <param name="credential">The credential.</param>
+        [Obsolete("Use the newest overload instead.")]
         public ScramSha1Authenticator(UsernamePasswordCredential credential)
-            : this(credential, new DefaultRandomStringGenerator())
+            : this(credential, serverApi: null)
         {
         }
 
-        internal ScramSha1Authenticator(UsernamePasswordCredential credential, IRandomStringGenerator randomStringGenerator)
-            : base(credential, HashAlgorithmName.SHA1, randomStringGenerator, H1, Hi1, Hmac1, new ScramCache())
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ScramSha1Authenticator"/> class.
+        /// </summary>
+        /// <param name="credential">The credential.</param>
+        /// <param name="serverApi">The server API.</param>
+        public ScramSha1Authenticator(UsernamePasswordCredential credential, ServerApi serverApi)
+            : this(credential, new DefaultRandomStringGenerator(), serverApi)
+        {
+        }
+
+        internal ScramSha1Authenticator(
+            UsernamePasswordCredential credential,
+            IRandomStringGenerator randomStringGenerator,
+            ServerApi serverApi)
+            : base(credential, HashAlgorithmName.SHA1, randomStringGenerator, H1, Hi1, Hmac1, new ScramCache(), serverApi)
         {
         }
 

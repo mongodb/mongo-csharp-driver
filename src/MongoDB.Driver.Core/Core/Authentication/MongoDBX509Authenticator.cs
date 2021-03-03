@@ -43,15 +43,28 @@ namespace MongoDB.Driver.Core.Authentication
 
         // fields
         private readonly string _username;
+        private readonly ServerApi _serverApi;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoDBX509Authenticator"/> class.
         /// </summary>
         /// <param name="username">The username.</param>
+        [Obsolete("Use the newest overload instead.")]
         public MongoDBX509Authenticator(string username)
+            : this(username, serverApi: null)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MongoDBX509Authenticator"/> class.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        /// <param name="serverApi">The server API.</param>
+        public MongoDBX509Authenticator(string username, ServerApi serverApi)
         {
             _username = Ensure.IsNullOrNotEmpty(username, nameof(username));
+            _serverApi = serverApi; // can be null
         }
 
         // properties
@@ -132,11 +145,12 @@ namespace MongoDB.Driver.Core.Authentication
             var command = CreateAuthenticateCommand();
 
             var protocol = new CommandWireProtocol<BsonDocument>(
-                new DatabaseNamespace("$external"),
-                command,
-                true,
-                BsonDocumentSerializer.Instance,
-                null);
+                databaseNamespace: new DatabaseNamespace("$external"),
+                command: command,
+                slaveOk: true,
+                resultSerializer: BsonDocumentSerializer.Instance,
+                messageEncoderSettings: null,
+                serverApi: _serverApi);
 
             return protocol;
         }

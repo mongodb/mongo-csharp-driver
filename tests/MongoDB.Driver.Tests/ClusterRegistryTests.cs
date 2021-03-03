@@ -47,6 +47,7 @@ namespace MongoDB.Driver.Tests
 #pragma warning disable 618
             var credentials = new List<MongoCredential> { MongoCredential.CreateMongoCRCredential("source", "username", "password") };
 #pragma warning restore 618
+            var serverApi = new ServerApi(ServerApiVersion.V1, true, true);
             var servers = new[] { new MongoServerAddress("localhost"), new MongoServerAddress("127.0.0.1", 30000), new MongoServerAddress("[::1]", 27018) };
             var sslSettings = new SslSettings
             {
@@ -89,6 +90,7 @@ namespace MongoDB.Driver.Tests
                 scheme: ConnectionStringScheme.MongoDB,
                 sdamLogFilename: "sdam.log",
                 sendBufferSize: 10,
+                serverApi: serverApi,
                 servers: servers,
                 serverSelectionTimeout: TimeSpan.FromSeconds(11),
                 socketTimeout: TimeSpan.FromSeconds(12),
@@ -116,6 +118,7 @@ namespace MongoDB.Driver.Tests
                 cluster.Settings.ReplicaSetName.Should().Be(clusterKey.ReplicaSetName);
                 cluster.Settings.SchemaMap.Should().BeEquivalentTo(schemaMap);
                 cluster.Settings.Scheme.Should().Be(clusterKey.Scheme);
+                cluster.Settings.ServerApi.Should().Be(clusterKey.ServerApi);
                 cluster.Settings.ServerSelectionTimeout.Should().Be(clusterKey.ServerSelectionTimeout);
 
                 cluster.Description.Servers.Select(s => s.EndPoint).Should().BeEquivalentTo(expectedEndPoints);

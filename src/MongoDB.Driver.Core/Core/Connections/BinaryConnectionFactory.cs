@@ -33,12 +33,16 @@ namespace MongoDB.Driver.Core.Connections
         private readonly IStreamFactory _streamFactory;
 
         // constructors
-        public BinaryConnectionFactory(ConnectionSettings settings, IStreamFactory streamFactory, IEventSubscriber eventSubscriber)
+        public BinaryConnectionFactory(
+            ConnectionSettings settings,
+            IStreamFactory streamFactory,
+            IEventSubscriber eventSubscriber,
+            ServerApi serverApi)
         {
             _settings = Ensure.IsNotNull(settings, nameof(settings));
             _streamFactory = Ensure.IsNotNull(streamFactory, nameof(streamFactory));
             _eventSubscriber = Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
-            _connectionInitializer = new ConnectionInitializer(settings.ApplicationName, settings.Compressors);
+            _connectionInitializer = new ConnectionInitializer(settings.ApplicationName, settings.Compressors, serverApi);
         }
 
         // methods

@@ -413,7 +413,7 @@ namespace MongoDB.Driver
         }
 
         // internal methods
-        internal IAuthenticator ToAuthenticator()
+        internal IAuthenticator ToAuthenticator(ServerApi serverApi)
         {
             var passwordEvidence = _evidence as PasswordEvidence;
             if (passwordEvidence != null)
@@ -426,56 +426,60 @@ namespace MongoDB.Driver
 
                 if (_mechanism == null)
                 {
-                    return new DefaultAuthenticator(credential);
+                    return new DefaultAuthenticator(credential, serverApi);
                 }
 #pragma warning disable 618
                 if (_mechanism == MongoDBCRAuthenticator.MechanismName)
                 {
-                    return new MongoDBCRAuthenticator(credential);
+                    return new MongoDBCRAuthenticator(credential, serverApi);
 #pragma warning restore 618
                 }
                 if (_mechanism == ScramSha1Authenticator.MechanismName)
                 {
-                    return new ScramSha1Authenticator(credential);
+                    return new ScramSha1Authenticator(credential, serverApi);
                 }
                 if (_mechanism == ScramSha256Authenticator.MechanismName)
                 {
-                    return new ScramSha256Authenticator(credential);
+                    return new ScramSha256Authenticator(credential, serverApi);
                 }
                 if (_mechanism == PlainAuthenticator.MechanismName)
                 {
-                    return new PlainAuthenticator(credential);
+                    return new PlainAuthenticator(credential, serverApi);
                 }
                 if (_mechanism == GssapiAuthenticator.MechanismName)
                 {
                     return new GssapiAuthenticator(
                         credential,
-                        _mechanismProperties.Select(x => new KeyValuePair<string, string>(x.Key, x.Value.ToString())));
+                        _mechanismProperties.Select(x => new KeyValuePair<string, string>(x.Key, x.Value.ToString())),
+                        serverApi);
                 }
                 if (_mechanism == MongoAWSAuthenticator.MechanismName)
                 {
                     return new MongoAWSAuthenticator(
                         credential,
-                        _mechanismProperties.Select(x => new KeyValuePair<string, string>(x.Key, x.Value.ToString())));
+                        _mechanismProperties.Select(x => new KeyValuePair<string, string>(x.Key, x.Value.ToString())),
+                        serverApi);
                 }
             }
             else if (_identity.Source == "$external" && _evidence is ExternalEvidence)
             {
                 if (_mechanism == MongoDBX509Authenticator.MechanismName)
                 {
-                    return new MongoDBX509Authenticator(_identity.Username);
+                    return new MongoDBX509Authenticator(_identity.Username, serverApi);
                 }
                 if (_mechanism == GssapiAuthenticator.MechanismName)
                 {
                     return new GssapiAuthenticator(
                         _identity.Username,
-                        _mechanismProperties.Select(x => new KeyValuePair<string, string>(x.Key, x.Value.ToString())));
+                        _mechanismProperties.Select(x => new KeyValuePair<string, string>(x.Key, x.Value.ToString())),
+                        serverApi);
                 }
                 if (_mechanism == MongoAWSAuthenticator.MechanismName)
                 {
                     return new MongoAWSAuthenticator(
                         _identity.Username,
-                        _mechanismProperties.Select(x => new KeyValuePair<string, string>(x.Key, x.Value.ToString())));
+                        _mechanismProperties.Select(x => new KeyValuePair<string, string>(x.Key, x.Value.ToString())),
+                        serverApi);
                 }
             }
 

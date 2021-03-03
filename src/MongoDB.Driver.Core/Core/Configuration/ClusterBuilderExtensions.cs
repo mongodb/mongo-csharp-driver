@@ -52,8 +52,43 @@ namespace MongoDB.Driver.Core.Configuration
         /// </summary>
         /// <param name="builder">The cluster builder.</param>
         /// <param name="connectionString">The connection string.</param>
+        /// <param name="serverApi">The server API.</param>
+        /// <returns>A reconfigured cluster builder.</returns>
+        public static ClusterBuilder ConfigureWithConnectionString(
+            this ClusterBuilder builder,
+            string connectionString,
+            ServerApi serverApi)
+        {
+            Ensure.IsNotNull(builder, nameof(builder));
+            Ensure.IsNotNullOrEmpty(connectionString, nameof(connectionString));
+
+            var parsedConnectionString = new ConnectionString(connectionString);
+
+            return ConfigureWithConnectionString(builder, parsedConnectionString, serverApi);
+        }
+
+        /// <summary>
+        /// Configures a cluster builder from a connection string.
+        /// </summary>
+        /// <param name="builder">The cluster builder.</param>
+        /// <param name="connectionString">The connection string.</param>
         /// <returns>A reconfigured cluster builder.</returns>
         public static ClusterBuilder ConfigureWithConnectionString(this ClusterBuilder builder, ConnectionString connectionString)
+        {
+            return ConfigureWithConnectionString(builder, connectionString, serverApi: null);
+        }
+
+        /// <summary>
+        /// Configures a cluster builder from a connection string.
+        /// </summary>
+        /// <param name="builder">The cluster builder.</param>
+        /// <param name="connectionString">The connection string.</param>
+        /// <param name="serverApi">The server API.</param>
+        /// <returns>A reconfigured cluster builder.</returns>
+        public static ClusterBuilder ConfigureWithConnectionString(
+            this ClusterBuilder builder,
+            ConnectionString connectionString,
+            ServerApi serverApi)
         {
             Ensure.IsNotNull(builder, nameof(builder));
             Ensure.IsNotNull(connectionString, nameof(connectionString));
@@ -123,7 +158,7 @@ namespace MongoDB.Driver.Core.Configuration
             // Connection
             if (connectionString.Username != null)
             {
-                var authenticatorFactory = new AuthenticatorFactory(() => CreateAuthenticator(connectionString));
+                var authenticatorFactory = new AuthenticatorFactory(() => CreateAuthenticator(connectionString, serverApi));
                 builder = builder.ConfigureConnection(s => s.With(authenticatorFactories: new[] { authenticatorFactory }));
             }
             if (connectionString.ApplicationName != null)
@@ -229,11 +264,10 @@ namespace MongoDB.Driver.Core.Configuration
             return "admin";
         }
 
-        private static IAuthenticator CreateAuthenticator(ConnectionString connectionString)
+        private static IAuthenticator CreateAuthenticator(ConnectionString connectionString, ServerApi serverApi)
         {
             if (connectionString.Password != null)
             {
-
                 var credential = new UsernamePasswordCredential(
                         GetAuthSource(connectionString),
                         connectionString.Username,
@@ -241,48 +275,48 @@ namespace MongoDB.Driver.Core.Configuration
 
                 if (connectionString.AuthMechanism == null)
                 {
-                    return new DefaultAuthenticator(credential);
+                    return new DefaultAuthenticator(credential, serverApi);
                 }
 #pragma warning disable 618
                 else if (connectionString.AuthMechanism == MongoDBCRAuthenticator.MechanismName)
                 {
-                    return new MongoDBCRAuthenticator(credential);
+                    return new MongoDBCRAuthenticator(credential, serverApi);
 #pragma warning restore 618
                 }
                 else if (connectionString.AuthMechanism == ScramSha1Authenticator.MechanismName)
                 {
-                    return new ScramSha1Authenticator(credential);
+                    return new ScramSha1Authenticator(credential, serverApi);
                 }
                 else if (connectionString.AuthMechanism == ScramSha256Authenticator.MechanismName)
                 {
-                    return new ScramSha256Authenticator(credential);
+                    return new ScramSha256Authenticator(credential, serverApi);
                 }
                 else if (connectionString.AuthMechanism == PlainAuthenticator.MechanismName)
                 {
-                    return new PlainAuthenticator(credential);
+                    return new PlainAuthenticator(credential, serverApi);
                 }
                 else if (connectionString.AuthMechanism == GssapiAuthenticator.MechanismName)
                 {
-                    return new GssapiAuthenticator(credential, connectionString.AuthMechanismProperties);
+                    return new GssapiAuthenticator(credential, connectionString.AuthMechanismProperties, serverApi);
                 }
                 else if (connectionString.AuthMechanism == MongoAWSAuthenticator.MechanismName)
                 {
-                    return new MongoAWSAuthenticator(credential, connectionString.AuthMechanismProperties);
+                    return new MongoAWSAuthenticator(credential, connectionString.AuthMechanismProperties, serverApi);
                 }
             }
             else
             {
                 if (connectionString.AuthMechanism == MongoDBX509Authenticator.MechanismName)
                 {
-                    return new MongoDBX509Authenticator(connectionString.Username);
+                    return new MongoDBX509Authenticator(connectionString.Username, serverApi);
                 }
                 else if (connectionString.AuthMechanism == GssapiAuthenticator.MechanismName)
                 {
-                    return new GssapiAuthenticator(connectionString.Username, connectionString.AuthMechanismProperties);
+                    return new GssapiAuthenticator(connectionString.Username, connectionString.AuthMechanismProperties, serverApi);
                 }
                 else if (connectionString.AuthMechanism == MongoAWSAuthenticator.MechanismName)
                 {
-                    return new MongoAWSAuthenticator(connectionString.Username, connectionString.AuthMechanismProperties);
+                    return new MongoAWSAuthenticator(connectionString.Username, connectionString.AuthMechanismProperties, serverApi);
                 }
             }
 

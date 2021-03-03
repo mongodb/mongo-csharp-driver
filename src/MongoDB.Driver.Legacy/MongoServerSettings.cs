@@ -1213,6 +1213,7 @@ namespace MongoDB.Driver
                 _scheme,
                 _sdamLogFilename,
                 MongoDefaults.TcpSendBufferSize,
+                serverApi: null, // not supported for legacy
                 _servers.ToList(),
                 _serverSelectionTimeout,
                 _socketTimeout,

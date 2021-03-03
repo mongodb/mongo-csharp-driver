@@ -305,6 +305,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             var retryWrites = true;
             var useMultipleShardRouters = false;
             var writeConcern = WriteConcern.Acknowledged;
+            ServerApi serverApi = null;
 
             foreach (var element in entity)
             {
@@ -312,15 +313,6 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 {
                     case "id":
                         // handled on higher level
-                        break;
-                    case "useMultipleMongoses":
-                        useMultipleShardRouters = element.Value.AsBoolean;
-                        break;
-                    case "observeEvents":
-                        eventTypesToCapture.AddRange(element.Value.AsBsonArray.Select(x => x.AsString));
-                        break;
-                    case "ignoreCommandMonitoringEvents":
-                        commandNamesToSkip.AddRange(element.Value.AsBsonArray.Select(x => x.AsString));
                         break;
                     case "uriOptions":
                         foreach (var option in element.Value.AsBsonDocument)
@@ -344,6 +336,49 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                 default:
                                     throw new FormatException($"Unrecognized client uriOption name: '{option.Name}'.");
                             }
+                        }
+                        break;
+                    case "useMultipleMongoses":
+                        useMultipleShardRouters = element.Value.AsBoolean;
+                        break;
+                    case "observeEvents":
+                        eventTypesToCapture.AddRange(element.Value.AsBsonArray.Select(x => x.AsString));
+                        break;
+                    case "ignoreCommandMonitoringEvents":
+                        commandNamesToSkip.AddRange(element.Value.AsBsonArray.Select(x => x.AsString));
+                        break;
+                    case "serverApi":
+                        ServerApiVersion serverApiVersion = null;
+                        bool? serverApiStrict = null;
+                        bool? serverApiDeprecationErrors = null;
+                        foreach (var option in element.Value.AsBsonDocument)
+                        {
+                            switch (option.Name)
+                            {
+                                case "version":
+                                    var serverApiVersionString = option.Value.AsString;
+                                    switch (serverApiVersionString)
+                                    {
+                                        case "1":
+                                            serverApiVersion = ServerApiVersion.V1;
+                                            break;
+                                        default:
+                                            throw new FormatException($"Unrecognized serverApi version: '{serverApiVersionString}'.");
+                                    }
+                                    break;
+                                case "strict":
+                                    serverApiStrict = option.Value.AsBoolean;
+                                    break;
+                                case "deprecationErrors":
+                                    serverApiDeprecationErrors = option.Value.AsBoolean;
+                                    break;
+                                default:
+                                    throw new FormatException($"Unrecognized client serverApi option name: '{option.Name}'.");
+                            }
+                        }
+                        if (serverApiVersion != null)
+                        {
+                            serverApi = new ServerApi(serverApiVersion, serverApiStrict, serverApiDeprecationErrors);
                         }
                         break;
                     default:
@@ -387,6 +422,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     {
                         settings.ClusterConfigurator = c => c.Subscribe(localEventCapturer);
                     }
+                    settings.ServerApi = serverApi;
                 },
                 useMultipleShardRouters);
         }

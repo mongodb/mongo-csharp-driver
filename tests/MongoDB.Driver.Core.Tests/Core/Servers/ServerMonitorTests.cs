@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Core.Servers
         [Fact]
         public void Constructor_should_throw_when_serverId_is_null()
         {
-            Action act = () => new ServerMonitor(null, __endPoint, Mock.Of<IConnectionFactory>(), __serverMonitorSettings, new EventCapturer());
+            Action act = () => new ServerMonitor(null, __endPoint, Mock.Of<IConnectionFactory>(), __serverMonitorSettings, new EventCapturer(), serverApi: null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Core.Servers
         [Fact]
         public void Constructor_should_throw_when_endPoint_is_null()
         {
-            Action act = () => new ServerMonitor(__serverId, null, Mock.Of<IConnectionFactory>(), __serverMonitorSettings, new EventCapturer());
+            Action act = () => new ServerMonitor(__serverId, null, Mock.Of<IConnectionFactory>(), __serverMonitorSettings, new EventCapturer(), serverApi: null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Core.Servers
         [Fact]
         public void Constructor_should_throw_when_connectionFactory_is_null()
         {
-            Action act = () => new ServerMonitor(__serverId, __endPoint, null, __serverMonitorSettings, new EventCapturer());
+            Action act = () => new ServerMonitor(__serverId, __endPoint, null, __serverMonitorSettings, new EventCapturer(), serverApi: null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Core.Servers
         [Fact]
         public void Constructor_should_throw_when_eventSubscriber_is_null()
         {
-            Action act = () => new ServerMonitor(__serverId, __endPoint, Mock.Of<IConnectionFactory>(), __serverMonitorSettings, null);
+            Action act = () => new ServerMonitor(__serverId, __endPoint, Mock.Of<IConnectionFactory>(), __serverMonitorSettings, eventSubscriber: null, serverApi: null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -80,7 +80,7 @@ namespace MongoDB.Driver.Core.Servers
         [Fact]
         public void Constructor_should_throw_when_roundTripTimeMonitor_is_null()
         {
-            var exception = Record.Exception(() => new ServerMonitor(__serverId, __endPoint, Mock.Of<IConnectionFactory>(), __serverMonitorSettings, new EventCapturer(), roundTripTimeMonitor: null));
+            var exception = Record.Exception(() => new ServerMonitor(__serverId, __endPoint, Mock.Of<IConnectionFactory>(), __serverMonitorSettings, new EventCapturer(), roundTripTimeMonitor: null, serverApi: null));
 
             exception.Should().BeOfType<ArgumentNullException>();
         }
@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Core.Servers
         [Fact]
         public void Constructor_should_throw_when_serverMonitorSettings_is_null()
         {
-            var exception = Record.Exception(() => new ServerMonitor(__serverId, __endPoint, Mock.Of<IConnectionFactory>(), null, new EventCapturer()));
+            var exception = Record.Exception(() => new ServerMonitor(__serverId, __endPoint, Mock.Of<IConnectionFactory>(), serverMonitorSettings: null, new EventCapturer(), serverApi: null));
 
             exception.Should().BeOfType<ArgumentNullException>();
         }
@@ -320,8 +320,38 @@ namespace MongoDB.Driver.Core.Servers
             capturedEvents.Any().Should().BeFalse();
         }
 
+        [Fact]
+        public void ServerMonitor_should_use_serverApi()
+        {
+            var serverApi = new ServerApi(ServerApiVersion.V1);
+
+            MockConnection connection;
+
+            using (var subject = CreateSubject(out connection, out _, out _, serverApi: serverApi))
+            {
+                SetupHeartbeatConnection(connection, isStreamable: true, autoFillStreamingResponses: false);
+                connection.EnqueueCommandResponseMessage(CreateStreamableCommandResponseMessage(true), null);
+
+                subject.Initialize();
+
+                SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(4)).Should().BeTrue();
+            }
+
+            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            sentMessages.Count.Should().Be(1);
+
+            var requestId = sentMessages[0]["requestId"].AsInt32;
+            sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {requestId}, responseTo : 0, exhaustAllowed : true, sections : [ {{ payloadType : 0, document : {{ isMaster : 1, topologyVersion : {{ processId : ObjectId(\"000000000000000000000000\"), counter : NumberLong(0) }}, maxAwaitTimeMS : NumberLong(86400000), $db : \"admin\", apiVersion : \"1\" }} }} ] }}");
+        }
+
         // private methods
-        private ServerMonitor CreateSubject(out MockConnection connection, out Mock<IConnectionFactory> mockConnectionFactory, out Mock<IRoundTripTimeMonitor> mockRoundTripTimeMonitor, EventCapturer eventCapturer = null, bool captureConnectionEvents = false)
+        private ServerMonitor CreateSubject(
+            out MockConnection connection,
+            out Mock<IConnectionFactory> mockConnectionFactory,
+            out Mock<IRoundTripTimeMonitor> mockRoundTripTimeMonitor,
+            EventCapturer eventCapturer = null,
+            bool captureConnectionEvents = false,
+            ServerApi serverApi = null)
         {
             mockRoundTripTimeMonitor = new Mock<IRoundTripTimeMonitor>();
             mockRoundTripTimeMonitor.Setup(m => m.RunAsync()).Returns(Task.FromResult(true));
@@ -345,7 +375,8 @@ namespace MongoDB.Driver.Core.Servers
                 mockConnectionFactory.Object,
                 __serverMonitorSettings,
                 eventCapturer ?? new EventCapturer(),
-                mockRoundTripTimeMonitor.Object);
+                mockRoundTripTimeMonitor.Object,
+                serverApi);
         }
 
         private void SetupHeartbeatConnection(MockConnection connection, bool isStreamable = false, bool autoFillStreamingResponses = true)

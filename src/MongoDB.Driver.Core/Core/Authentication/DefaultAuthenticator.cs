@@ -35,6 +35,7 @@ namespace MongoDB.Driver.Core.Authentication
         // fields
         private readonly UsernamePasswordCredential _credential;
         private readonly IRandomStringGenerator _randomStringGenerator;
+        private readonly ServerApi _serverApi;
         private IAuthenticator _speculativeAuthenticator;
 
         // constructors
@@ -42,15 +43,31 @@ namespace MongoDB.Driver.Core.Authentication
         /// Initializes a new instance of the <see cref="DefaultAuthenticator"/> class.
         /// </summary>
         /// <param name="credential">The credential.</param>
+        [Obsolete("Use the newest overload instead.")]
         public DefaultAuthenticator(UsernamePasswordCredential credential)
-            : this(credential, new DefaultRandomStringGenerator())
+            : this(credential, new DefaultRandomStringGenerator(), serverApi: null)
         {
         }
 
-        internal DefaultAuthenticator(UsernamePasswordCredential credential, IRandomStringGenerator randomStringGenerator)
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DefaultAuthenticator"/> class.
+        /// </summary>
+        /// <param name="credential">The credential.</param>
+        /// <param name="serverApi">The server API.</param>
+        public DefaultAuthenticator(UsernamePasswordCredential credential, ServerApi serverApi)
+            : this(credential, new DefaultRandomStringGenerator(), serverApi)
+        {
+        }
+
+        internal DefaultAuthenticator(
+            UsernamePasswordCredential credential,
+            IRandomStringGenerator randomStringGenerator,
+            ServerApi serverApi)
         {
             _credential = Ensure.IsNotNull(credential, nameof(credential));
             _randomStringGenerator = Ensure.IsNotNull(randomStringGenerator, nameof(randomStringGenerator));
+            _serverApi = serverApi;
         }
 
         // properties
@@ -71,7 +88,7 @@ namespace MongoDB.Driver.Core.Authentication
                 && Feature.ScramSha256Authentication.IsSupported(description.ServerVersion))
             {
                 var command = CustomizeInitialIsMasterCommand(IsMasterHelper.CreateCommand());
-                var isMasterProtocol = IsMasterHelper.CreateProtocol(command);
+                var isMasterProtocol = IsMasterHelper.CreateProtocol(command, _serverApi);
                 var isMasterResult = IsMasterHelper.GetResult(connection, isMasterProtocol, cancellationToken);
                 var mergedIsMasterResult = new IsMasterResult(description.IsMasterResult.Wrapped.Merge(isMasterResult.Wrapped));
                 description = new ConnectionDescription(
@@ -97,7 +114,7 @@ namespace MongoDB.Driver.Core.Authentication
                 && Feature.ScramSha256Authentication.IsSupported(description.ServerVersion))
             {
                 var command = CustomizeInitialIsMasterCommand(IsMasterHelper.CreateCommand());
-                var isMasterProtocol = IsMasterHelper.CreateProtocol(command);
+                var isMasterProtocol = IsMasterHelper.CreateProtocol(command, _serverApi);
                 var isMasterResult = await IsMasterHelper.GetResultAsync(connection, isMasterProtocol, cancellationToken).ConfigureAwait(false);
                 var mergedIsMasterResult = new IsMasterResult(description.IsMasterResult.Wrapped.Merge(isMasterResult.Wrapped));
                 description = new ConnectionDescription(
@@ -110,13 +127,12 @@ namespace MongoDB.Driver.Core.Authentication
             await authenticator.AuthenticateAsync(connection, description, cancellationToken).ConfigureAwait(false);
         }
 
-
         /// <inheritdoc/>
         public BsonDocument CustomizeInitialIsMasterCommand(BsonDocument isMasterCommand)
         {
             var saslSupportedMechs = CreateSaslSupportedMechsRequest(_credential.Source, _credential.Username);
             isMasterCommand = isMasterCommand.Merge(saslSupportedMechs);
-            _speculativeAuthenticator = new ScramSha256Authenticator(_credential, _randomStringGenerator);
+            _speculativeAuthenticator = new ScramSha256Authenticator(_credential, _randomStringGenerator, _serverApi);
             return _speculativeAuthenticator.CustomizeInitialIsMasterCommand(isMasterCommand);
         }
 
@@ -135,15 +151,15 @@ namespace MongoDB.Driver.Core.Authentication
                 // If SCRAM-SHA-256 is present in the list of mechanisms, then it MUST be used as the default;
                 // otherwise, SCRAM-SHA-1 MUST be used as the default, regardless of whether SCRAM-SHA-1 is in the list.
                 return description.IsMasterResult.SaslSupportedMechs.Contains("SCRAM-SHA-256")
-                    ? (IAuthenticator)new ScramSha256Authenticator(_credential, _randomStringGenerator)
-                    : new ScramSha1Authenticator(_credential, _randomStringGenerator);
+                    ? (IAuthenticator)new ScramSha256Authenticator(_credential, _randomStringGenerator, _serverApi)
+                    : new ScramSha1Authenticator(_credential, _randomStringGenerator, _serverApi);
             }
             // If saslSupportedMechs is not present in the isMaster results for mechanism negotiation, then SCRAM-SHA-1
             // MUST be used when talking to servers >= 3.0. Prior to server 3.0, MONGODB-CR MUST be used.
 #pragma warning disable 618
             return Feature.ScramSha1Authentication.IsSupported(description.ServerVersion)
-                    ? (IAuthenticator)new ScramSha1Authenticator(_credential, _randomStringGenerator)
-                    : new MongoDBCRAuthenticator(_credential);
+                    ? (IAuthenticator)new ScramSha1Authenticator(_credential, _randomStringGenerator, _serverApi)
+                    : new MongoDBCRAuthenticator(_credential, _serverApi);
 #pragma warning restore 618
         }
 

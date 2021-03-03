@@ -23,7 +23,6 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.WireProtocol.Messages;
 using Xunit;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
@@ -36,7 +35,11 @@ namespace MongoDB.Driver.Core.Authentication
         private static readonly UsernamePasswordCredential __credential = new UsernamePasswordCredential("source", "user", "pencil");
         private static readonly ClusterId __clusterId = new ClusterId();
         private static readonly ServerId __serverId = new ServerId(__clusterId, new DnsEndPoint("localhost", 27017));
-        private static readonly ConnectionDescription __description = new ConnectionDescription(
+        private static readonly ConnectionDescription __descriptionCommandWireProtocol = new ConnectionDescription(
+            new ConnectionId(__serverId),
+            new IsMasterResult(new BsonDocument("ok", 1).Add("ismaster", 1)),
+            new BuildInfoResult(new BsonDocument("version", "4.7.0")));
+        private static readonly ConnectionDescription __descriptionQueryWireProtocol = new ConnectionDescription(
             new ConnectionId(__serverId),
             new IsMasterResult(new BsonDocument("ok", 1).Add("ismaster", 1)),
             new BuildInfoResult(new BsonDocument("version", "2.6.0")));
@@ -44,9 +47,87 @@ namespace MongoDB.Driver.Core.Authentication
         [Fact]
         public void Constructor_should_throw_an_ArgumentNullException_when_credential_is_null()
         {
-            Action act = () => new ScramSha1Authenticator(null);
+            Action act = () => new ScramSha1Authenticator(credential: null, serverApi: null);
 
             act.ShouldThrow<ArgumentNullException>();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Authenticate_should_send_serverApi_with_command_wire_protocol(
+            [Values(false, true)] bool useServerApi,
+            [Values(false, true)] bool async)
+        {
+            var serverApi = useServerApi ? new ServerApi(ServerApiVersion.V1, true, true) : null;
+            var randomStringGenerator = new ConstantRandomStringGenerator("fyko+d2lbbFgONRv9qkxdawL");
+
+            var subject = new ScramSha1Authenticator(__credential, randomStringGenerator, serverApi);
+
+            var connection = new MockConnection(__serverId);
+            var saslStartResponse = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson("{ conversationId : 1, payload : BinData(0,'cj1meWtvK2QybGJiRmdPTlJ2OXFreGRhd0xIbytWZ2s3cXZVT0tVd3VXTElXZzRsLzlTcmFHTUhFRSxzPXJROVpZM01udEJldVAzRTFURFZDNHc9PSxpPTEwMDAw'), done : false, ok : 1 }"));
+            connection.EnqueueCommandResponseMessage(saslStartResponse);
+            var saslContinueResponse = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson("{ conversationId : 1, payload : BinData(0,'dj1VTVdlSTI1SkQxeU5ZWlJNcFo0Vkh2aFo5ZTA9'), done : true, ok : 1}"));
+            connection.EnqueueCommandResponseMessage(saslContinueResponse);
+            connection.Description = __descriptionCommandWireProtocol;
+
+            if (async)
+            {
+                subject.AuthenticateAsync(connection, __descriptionCommandWireProtocol, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None);
+            }
+
+            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
+
+            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            sentMessages.Count.Should().Be(2);
+
+            var actualRequestId0 = sentMessages[0]["requestId"].AsInt32;
+            var actualRequestId1 = sentMessages[1]["requestId"].AsInt32;
+            var expectedServerApiString = useServerApi ? ", apiVersion : \"1\", apiStrict : true, apiDeprecationErrors : true" : "";
+            sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {actualRequestId0}, responseTo : 0, sections : [ {{ payloadType : 0, document : {{ saslStart : 1, mechanism : \"SCRAM-SHA-1\", payload : new BinData(0, \"biwsbj11c2VyLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdM\"), options : {{ \"skipEmptyExchange\" : true }}, $db : \"source\"{expectedServerApiString} }} }} ] }}");
+            sentMessages[1].Should().Be($"{{ opcode : \"opmsg\", requestId : {actualRequestId1}, responseTo : 0, sections : [ {{ payloadType : 0, document : {{ saslContinue : 1, conversationId : 1, payload : new BinData(0, \"Yz1iaXdzLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdMSG8rVmdrN3F2VU9LVXd1V0xJV2c0bC85U3JhR01IRUUscD1NQzJUOEJ2Ym1XUmNrRHc4b1dsNUlWZ2h3Q1k9\"), $db : \"source\"{expectedServerApiString} }} }} ] }}");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Authenticate_should_send_serverApi_with_query_wire_protocol(
+            [Values(false, true)] bool useServerApi,
+            [Values(false, true)] bool async)
+        {
+            var serverApi = useServerApi ? new ServerApi(ServerApiVersion.V1, true, true) : null;
+            var randomStringGenerator = new ConstantRandomStringGenerator("fyko+d2lbbFgONRv9qkxdawL");
+
+            var subject = new ScramSha1Authenticator(__credential, randomStringGenerator, serverApi);
+
+            var connection = new MockConnection(__serverId);
+            var saslStartReply = MessageHelper.BuildReply(RawBsonDocumentHelper.FromJson("{ conversationId : 1, payload : BinData(0,'cj1meWtvK2QybGJiRmdPTlJ2OXFreGRhd0xIbytWZ2s3cXZVT0tVd3VXTElXZzRsLzlTcmFHTUhFRSxzPXJROVpZM01udEJldVAzRTFURFZDNHc9PSxpPTEwMDAw'), done : false, ok : 1 }"));
+            connection.EnqueueReplyMessage(saslStartReply);
+            var saslContinueReply = MessageHelper.BuildReply(RawBsonDocumentHelper.FromJson("{ conversationId : 1, payload : BinData(0,'dj1VTVdlSTI1SkQxeU5ZWlJNcFo0Vkh2aFo5ZTA9'), done : true, ok : 1}"));
+            connection.EnqueueReplyMessage(saslContinueReply);
+            connection.Description = __descriptionQueryWireProtocol;
+
+            if (async)
+            {
+                subject.AuthenticateAsync(connection, __descriptionQueryWireProtocol, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.Authenticate(connection, __descriptionQueryWireProtocol, CancellationToken.None);
+            }
+
+            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
+
+            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            sentMessages.Count.Should().Be(2);
+
+            var actualRequestId0 = sentMessages[0]["requestId"].AsInt32;
+            var actualRequestId1 = sentMessages[1]["requestId"].AsInt32;
+            var expectedServerApiString = useServerApi ? ", apiVersion : \"1\", apiStrict : true, apiDeprecationErrors : true" : "";
+            sentMessages[0].Should().Be($"{{ opcode : \"query\", requestId : {actualRequestId0}, database : \"source\", collection : \"$cmd\", batchSize : -1, slaveOk : true, query : {{ saslStart : 1, mechanism : \"SCRAM-SHA-1\", payload : new BinData(0, \"biwsbj11c2VyLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdM\"), options : {{ \"skipEmptyExchange\" : true }}{expectedServerApiString} }} }}");
+            sentMessages[1].Should().Be($"{{ opcode : \"query\", requestId : {actualRequestId1}, database : \"source\", collection : \"$cmd\", batchSize : -1, slaveOk : true, query : {{ saslContinue : 1, conversationId : 1, payload : new BinData(0, \"Yz1iaXdzLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdMSG8rVmdrN3F2VU9LVXd1V0xJV2c0bC85U3JhR01IRUUscD1NQzJUOEJ2Ym1XUmNrRHc4b1dsNUlWZ2h3Q1k9\"){expectedServerApiString} }} }}");
         }
 
         [Theory]
@@ -55,7 +136,7 @@ namespace MongoDB.Driver.Core.Authentication
             [Values(false, true)]
             bool async)
         {
-            var subject = new ScramSha1Authenticator(__credential);
+            var subject = new ScramSha1Authenticator(__credential, serverApi: null);
 
             var reply = MessageHelper.BuildNoDocumentsReturnedReply<RawBsonDocument>();
             var connection = new MockConnection(__serverId);
@@ -64,11 +145,11 @@ namespace MongoDB.Driver.Core.Authentication
             Action act;
             if (async)
             {
-                act = () => subject.AuthenticateAsync(connection, __description, CancellationToken.None).GetAwaiter().GetResult();
+                act = () => subject.AuthenticateAsync(connection, __descriptionQueryWireProtocol, CancellationToken.None).GetAwaiter().GetResult();
             }
             else
             {
-                act = () => subject.Authenticate(connection, __description, CancellationToken.None);
+                act = () => subject.Authenticate(connection, __descriptionQueryWireProtocol, CancellationToken.None);
             }
 
             act.ShouldThrow<MongoAuthenticationException>();
@@ -81,7 +162,7 @@ namespace MongoDB.Driver.Core.Authentication
             bool async)
         {
             var randomStringGenerator = new ConstantRandomStringGenerator("fyko+d2lbbFgONRv9qkxdawL");
-            var subject = new ScramSha1Authenticator(__credential, randomStringGenerator);
+            var subject = new ScramSha1Authenticator(__credential, randomStringGenerator, serverApi: null);
 
             var saslStartReply = MessageHelper.BuildReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{conversationId: 1, payload: BinData(0,'cj1meWtvLWQybGJiRmdPTlJ2OXFreGRhd0xIbytWZ2s3cXZVT0tVd3VXTElXZzRsLzlTcmFHTUhFRSxzPXJROVpZM01udEJldVAzRTFURFZDNHc9PSxpPTEwMDAw'), done: false, ok: 1}"));
@@ -92,11 +173,11 @@ namespace MongoDB.Driver.Core.Authentication
             Action act;
             if (async)
             {
-                act = () => subject.AuthenticateAsync(connection, __description, CancellationToken.None).GetAwaiter().GetResult();
+                act = () => subject.AuthenticateAsync(connection, __descriptionQueryWireProtocol, CancellationToken.None).GetAwaiter().GetResult();
             }
             else
             {
-                act = () => subject.Authenticate(connection, __description, CancellationToken.None);
+                act = () => subject.Authenticate(connection, __descriptionQueryWireProtocol, CancellationToken.None);
             }
 
             act.ShouldThrow<MongoAuthenticationException>();
@@ -109,7 +190,7 @@ namespace MongoDB.Driver.Core.Authentication
             bool async)
         {
             var randomStringGenerator = new ConstantRandomStringGenerator("fyko+d2lbbFgONRv9qkxdawL");
-            var subject = new ScramSha1Authenticator(__credential, randomStringGenerator);
+            var subject = new ScramSha1Authenticator(__credential, randomStringGenerator, serverApi: null);
 
             var saslStartReply = MessageHelper.BuildReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{conversationId: 1, payload: BinData(0,'cj1meWtvK2QybGJiRmdPTlJ2OXFreGRhd0xIbytWZ2s3cXZVT0tVd3VXTElXZzRsLzlTcmFHTUhFRSxzPXJROVpZM01udEJldVAzRTFURFZDNHc9PSxpPTEwMDAw'), done: false, ok: 1}"));
@@ -123,11 +204,11 @@ namespace MongoDB.Driver.Core.Authentication
             Action act;
             if (async)
             {
-                act = () => subject.AuthenticateAsync(connection, __description, CancellationToken.None).GetAwaiter().GetResult();
+                act = () => subject.AuthenticateAsync(connection, __descriptionQueryWireProtocol, CancellationToken.None).GetAwaiter().GetResult();
             }
             else
             {
-                act = () => subject.Authenticate(connection, __description, CancellationToken.None);
+                act = () => subject.Authenticate(connection, __descriptionQueryWireProtocol, CancellationToken.None);
             }
 
             act.ShouldThrow<MongoAuthenticationException>();
@@ -141,7 +222,7 @@ namespace MongoDB.Driver.Core.Authentication
             [Values(false, true)] bool async)
         {
             var randomStringGenerator = new ConstantRandomStringGenerator("fyko+d2lbbFgONRv9qkxdawL");
-            var subject = new ScramSha1Authenticator(__credential, randomStringGenerator);
+            var subject = new ScramSha1Authenticator(__credential, randomStringGenerator, serverApi: null);
 
             var saslStartReply = MessageHelper.BuildReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{ conversationId : 1, payload : BinData(0,'cj1meWtvK2QybGJiRmdPTlJ2OXFreGRhd0xIbytWZ2s3cXZVT0tVd3VXTElXZzRsLzlTcmFHTUhFRSxzPXJROVpZM01udEJldVAzRTFURFZDNHc9PSxpPTEwMDAw'), done : false, ok : 1}"));
@@ -157,7 +238,7 @@ namespace MongoDB.Driver.Core.Authentication
                     ok : 1 }"));
 
             var connection = new MockConnection(__serverId);
-            var isMasterResult = (BsonDocument)__description.IsMasterResult.Wrapped.Clone();
+            var isMasterResult = (BsonDocument)__descriptionQueryWireProtocol.IsMasterResult.Wrapped.Clone();
             if (useSpeculativeAuthenticate)
             {
                 isMasterResult.Add("speculativeAuthenticate", saslStartReply.Documents[0].ToBsonDocument());
@@ -166,7 +247,7 @@ namespace MongoDB.Driver.Core.Authentication
             /* set buildInfoResult to 3.4 to force authenticator to use Query Message Wire Protocol because MockConnection
              * does not support OP_MSG */
             connection.Description = new ConnectionDescription(
-                __description.ConnectionId, new IsMasterResult(isMasterResult), new BuildInfoResult(new BsonDocument("version", "3.4")));
+                __descriptionQueryWireProtocol.ConnectionId, new IsMasterResult(isMasterResult), new BuildInfoResult(new BsonDocument("version", "3.4")));
 
             BsonDocument isMasterCommand = null;
             if (useSpeculativeAuthenticate)
@@ -273,7 +354,7 @@ namespace MongoDB.Driver.Core.Authentication
             [Values(false, true)] bool async)
         {
             var randomStringGenerator = new ConstantRandomStringGenerator("fyko+d2lbbFgONRv9qkxdawL");
-            var subject = new ScramSha1Authenticator(__credential, randomStringGenerator);
+            var subject = new ScramSha1Authenticator(__credential, randomStringGenerator, serverApi: null);
 
             var saslStartReply = MessageHelper.BuildReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson(
@@ -287,12 +368,12 @@ namespace MongoDB.Driver.Core.Authentication
 
             if (async)
             {
-                subject.AuthenticateAsync(connection, __description, CancellationToken.None).GetAwaiter()
+                subject.AuthenticateAsync(connection, __descriptionQueryWireProtocol, CancellationToken.None).GetAwaiter()
                     .GetResult();
             }
             else
             {
-                subject.Authenticate(connection, __description, CancellationToken.None);
+                subject.Authenticate(connection, __descriptionQueryWireProtocol, CancellationToken.None);
             }
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should()

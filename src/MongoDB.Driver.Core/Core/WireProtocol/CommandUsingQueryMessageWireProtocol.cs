@@ -48,6 +48,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         private readonly ReadPreference _readPreference;
         private readonly CommandResponseHandling _responseHandling;
         private readonly IBsonSerializer<TCommandResult> _resultSerializer;
+        private readonly ServerApi _serverApi;
         private readonly ICoreSession _session;
 
         // constructors
@@ -62,7 +63,8 @@ namespace MongoDB.Driver.Core.WireProtocol
             CommandResponseHandling responseHandling,
             IBsonSerializer<TCommandResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings,
-            Action<IMessageEncoderPostProcessor> postWriteAction)
+            Action<IMessageEncoderPostProcessor> postWriteAction,
+            ServerApi serverApi)
         {
             if (responseHandling != CommandResponseHandling.Return && responseHandling != CommandResponseHandling.Ignore)
             {
@@ -80,6 +82,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             _resultSerializer = Ensure.IsNotNull(resultSerializer, nameof(resultSerializer));
             _messageEncoderSettings = messageEncoderSettings;
             _postWriteAction = postWriteAction; // can be null
+            _serverApi = serverApi; // can be null
         }
 
         // public properties
@@ -351,6 +354,18 @@ namespace MongoDB.Driver.Core.WireProtocol
                     {
                         throw new MongoClientException("Sessions are not supported.");
                     }
+                }
+            }
+            if (!_session.IsInTransaction && _serverApi != null)
+            {
+                extraElements.Add(new BsonElement("apiVersion", _serverApi.Version.ToString()));
+                if (_serverApi.Strict.HasValue)
+                {
+                    extraElements.Add(new BsonElement("apiStrict", _serverApi.Strict.Value));
+                }
+                if (_serverApi.DeprecationErrors.HasValue)
+                {
+                    extraElements.Add(new BsonElement("apiDeprecationErrors", _serverApi.DeprecationErrors.Value));
                 }
             }
             if (_session.ClusterTime != null)

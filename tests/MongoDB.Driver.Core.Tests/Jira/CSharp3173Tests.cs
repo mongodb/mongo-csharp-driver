@@ -233,7 +233,8 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 connectionMode: __clusterConnectionMode,
                 connectionModeSwitch: __connectionModeSwitch,
                 serverSelectionTimeout: TimeSpan.FromSeconds(30),
-                endPoints: serverInfoCollection.Select(c => c.Endpoint).ToArray());
+                endPoints: serverInfoCollection.Select(c => c.Endpoint).ToArray(),
+                serverApi: null);
 
             var serverMonitorSettings = new ServerMonitorSettings(
                 connectTimeout: TimeSpan.FromMilliseconds(1),
@@ -242,9 +243,9 @@ namespace MongoDB.Driver.Core.Tests.Jira
 
             var connectionPoolFactory = CreateAndSetupConnectionPoolFactory(serverInfoCollection);
             var serverMonitorConnectionFactory = CreateAndSetupServerMonitorConnectionFactory(hasNetworkErrorBeenTriggered, hasClusterBeenDisposed, streamable, serverInfoCollection);
-            var serverMonitorFactory = new ServerMonitorFactory(serverMonitorSettings, serverMonitorConnectionFactory, eventCapturer);
+            var serverMonitorFactory = new ServerMonitorFactory(serverMonitorSettings, serverMonitorConnectionFactory, eventCapturer, serverApi: null);
 
-            var serverFactory = new ServerFactory(__clusterConnectionMode, __connectionModeSwitch, __directConnection, serverSettings, connectionPoolFactory, serverMonitorFactory, eventCapturer);
+            var serverFactory = new ServerFactory(__clusterConnectionMode, __connectionModeSwitch, __directConnection, serverSettings, connectionPoolFactory, serverMonitorFactory, eventCapturer, serverApi: null);
 
             return new MultiServerCluster(clusterSettings, serverFactory, eventCapturer);
         }

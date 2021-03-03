@@ -33,6 +33,7 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.WireProtocol;
@@ -57,6 +58,7 @@ namespace MongoDB.Driver.Core.Servers
         private EventCapturer _capturedEvents;
         private Mock<IServerMonitor> _mockServerMonitor;
         private Mock<IServerMonitorFactory> _mockServerMonitorFactory;
+        private ServerApi _serverApi;
         private ServerSettings _settings;
         private Server _subject;
 
@@ -84,15 +86,24 @@ namespace MongoDB.Driver.Core.Servers
             _mockServerMonitorFactory.Setup(f => f.Create(It.IsAny<ServerId>(), _endPoint)).Returns(_mockServerMonitor.Object);
 
             _capturedEvents = new EventCapturer();
+            _serverApi = new ServerApi(ServerApiVersion.V1, true, true);
             _settings = new ServerSettings(heartbeatInterval: Timeout.InfiniteTimeSpan);
 
-            _subject = new Server(_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, _mockConnectionPoolFactory.Object, _mockServerMonitorFactory.Object, _capturedEvents);
+            _subject = new Server(_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, _mockConnectionPoolFactory.Object, _mockServerMonitorFactory.Object, _capturedEvents, _serverApi);
+        }
+
+        [Fact]
+        public void Constructor_should_not_throw_when_serverApi_is_null()
+        {
+            Action act = () => new Server(_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, _mockConnectionPoolFactory.Object, _mockServerMonitorFactory.Object, _capturedEvents, null);
+
+            act.ShouldNotThrow();
         }
 
         [Fact]
         public void Constructor_should_throw_when_settings_is_null()
         {
-            Action act = () => new Server(_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, null, _endPoint, _mockConnectionPoolFactory.Object, _mockServerMonitorFactory.Object, _capturedEvents);
+            Action act = () => new Server(_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, null, _endPoint, _mockConnectionPoolFactory.Object, _mockServerMonitorFactory.Object, _capturedEvents, _serverApi);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -100,7 +111,7 @@ namespace MongoDB.Driver.Core.Servers
         [Fact]
         public void Constructor_should_throw_when_clusterId_is_null()
         {
-            Action act = () => new Server(null, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, _mockConnectionPoolFactory.Object, _mockServerMonitorFactory.Object, _capturedEvents);
+            Action act = () => new Server(null, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, _mockConnectionPoolFactory.Object, _mockServerMonitorFactory.Object, _capturedEvents, _serverApi);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -108,7 +119,7 @@ namespace MongoDB.Driver.Core.Servers
         [Fact]
         public void Constructor_should_throw_when_clusterClock_is_null()
         {
-            Action act = () => new Server(_clusterId, null, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, _mockConnectionPoolFactory.Object, _mockServerMonitorFactory.Object, _capturedEvents);
+            Action act = () => new Server(_clusterId, null, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, _mockConnectionPoolFactory.Object, _mockServerMonitorFactory.Object, _capturedEvents, _serverApi);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -116,7 +127,7 @@ namespace MongoDB.Driver.Core.Servers
         [Fact]
         public void Constructor_should_throw_when_endPoint_is_null()
         {
-            Action act = () => new Server(_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, null, _mockConnectionPoolFactory.Object, _mockServerMonitorFactory.Object, _capturedEvents);
+            Action act = () => new Server(_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, null, _mockConnectionPoolFactory.Object, _mockServerMonitorFactory.Object, _capturedEvents, _serverApi);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -124,7 +135,7 @@ namespace MongoDB.Driver.Core.Servers
         [Fact]
         public void Constructor_should_throw_when_connectionPoolFactory_is_null()
         {
-            Action act = () => new Server(_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, null, _mockServerMonitorFactory.Object, _capturedEvents);
+            Action act = () => new Server(_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, null, _mockServerMonitorFactory.Object, _capturedEvents, _serverApi);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -132,7 +143,7 @@ namespace MongoDB.Driver.Core.Servers
         [Fact]
         public void Constructor_should_throw_when_serverMonitorFactory_is_null()
         {
-            Action act = () => new Server(_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, _mockConnectionPoolFactory.Object, null, _capturedEvents);
+            Action act = () => new Server(_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, _mockConnectionPoolFactory.Object, null, _capturedEvents, _serverApi);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -140,7 +151,7 @@ namespace MongoDB.Driver.Core.Servers
         [Fact]
         public void Constructor_should_throw_when_eventSubscriber_is_null()
         {
-            Action act = () => new Server(_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, _mockConnectionPoolFactory.Object, _mockServerMonitorFactory.Object, null);
+            Action act = () => new Server(_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, _mockConnectionPoolFactory.Object, _mockServerMonitorFactory.Object, null, _serverApi);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -198,7 +209,8 @@ namespace MongoDB.Driver.Core.Servers
                 _endPoint,
                 mockConnectionPoolFactory.Object,
                 _mockServerMonitorFactory.Object,
-                _capturedEvents);
+                _capturedEvents,
+                _serverApi);
             server.Initialize();
 
             var exception = Record.Exception(() =>
@@ -306,7 +318,7 @@ namespace MongoDB.Driver.Core.Servers
             var mockServerMonitorFactory = new Mock<IServerMonitorFactory>();
             mockServerMonitorFactory.Setup(f => f.Create(It.IsAny<ServerId>(), _endPoint)).Returns(mockServerMonitor.Object);
 
-            var subject = new Server(_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, mockConnectionPoolFactory.Object, mockServerMonitorFactory.Object, _capturedEvents);
+            var subject = new Server(_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, mockConnectionPoolFactory.Object, mockServerMonitorFactory.Object, _capturedEvents, _serverApi);
             subject.Initialize();
 
             IChannelHandle channel = null;
@@ -368,7 +380,7 @@ namespace MongoDB.Driver.Core.Servers
             mockServerMonitor.SetupGet(m => m.Lock).Returns(new object());
             var mockServerMonitorFactory = new Mock<IServerMonitorFactory>();
             mockServerMonitorFactory.Setup(f => f.Create(It.IsAny<ServerId>(), _endPoint)).Returns(mockServerMonitor.Object);
-            var subject = new Server(_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, mockConnectionPoolFactory.Object, mockServerMonitorFactory.Object, _capturedEvents);
+            var subject = new Server(_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, mockConnectionPoolFactory.Object, mockServerMonitorFactory.Object, _capturedEvents, _serverApi);
             subject.Initialize();
             var heartbeatDescription = mockMonitorServerInitialDescription.With(reasonChanged: "Heartbeat", type: ServerType.Standalone);
             mockServerMonitor.Setup(m => m.Description).Returns(heartbeatDescription);
@@ -721,6 +733,69 @@ namespace MongoDB.Driver.Core.Servers
                 session.ClusterTime.Should().Be(actualClusterTime);
                 server.ClusterClock.ClusterTime.Should().Be(actualClusterTime);
             }
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Command_should_use_serverApi([Values(false, true)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.CommandMessage);
+
+            var serverApi = new ServerApi(ServerApiVersion.V1);
+            var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "ping");
+            var builder = CoreTestConfiguration
+                .ConfigureCluster(new ClusterBuilder())
+                .Subscribe(eventCapturer)
+                .ConfigureCluster(x => x.With(serverApi: serverApi));
+
+            using (var cluster = CoreTestConfiguration.CreateCluster(builder))
+            using (var session = cluster.StartSession())
+            {
+                var cancellationToken = CancellationToken.None;
+                var server = (Server)cluster.SelectServer(WritableServerSelector.Instance, cancellationToken);
+                using (var channel = server.GetChannel(cancellationToken))
+                {
+                    var command = BsonDocument.Parse("{ ping : 1 }");
+                    if (async)
+                    {
+                        channel
+                            .CommandAsync(
+                                session,
+                                ReadPreference.Primary,
+                                DatabaseNamespace.Admin,
+                                command,
+                                null, // payloads
+                                NoOpElementNameValidator.Instance,
+                                null, // additionalOptions
+                                null, // postWriteAction
+                                CommandResponseHandling.Return,
+                                BsonDocumentSerializer.Instance,
+                                new MessageEncoderSettings(),
+                                cancellationToken)
+                            .GetAwaiter()
+                            .GetResult();
+                    }
+                    else
+                    {
+                        channel.Command(
+                            session,
+                            ReadPreference.Primary,
+                            DatabaseNamespace.Admin,
+                            command,
+                            null, // payloads
+                            NoOpElementNameValidator.Instance,
+                            null, // additionalOptions
+                            null, // postWriteAction
+                            CommandResponseHandling.Return,
+                            BsonDocumentSerializer.Instance,
+                            new MessageEncoderSettings(),
+                            cancellationToken);
+                    }
+                }
+            }
+
+            var commandStartedEvent = eventCapturer.Next().Should().BeOfType<CommandStartedEvent>().Subject;
+            commandStartedEvent.Command["apiVersion"].AsString.Should().Be("1");
         }
     }
 

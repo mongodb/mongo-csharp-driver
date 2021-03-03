@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.Connections
         public void AddClientDocumentToCommand_with_ConnectionInitializer_client_document_should_return_expected_result()
         {
             var command = IsMasterHelper.CreateCommand();
-            var connectionInitializer = new ConnectionInitializer("test", new CompressorConfiguration[0]);
+            var connectionInitializer = new ConnectionInitializer("test", new CompressorConfiguration[0], serverApi: null);
             var subjectClientDocument = (BsonDocument)Reflector.GetFieldValue(connectionInitializer, "_clientDocument");
             var result = IsMasterHelper.AddClientDocumentToCommand(command, subjectClientDocument);
 

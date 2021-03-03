@@ -38,33 +38,51 @@ namespace MongoDB.Driver.Tests.Specifications.unified_test_format
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)
         {
-            Run(schemaVersion: testCase.Shared["schemaVersion"].AsString,
-                testSetRunOnRequirements: testCase.Shared.GetValue("runOnRequirements", null)?.AsBsonArray,
-                testRunOnRequirements: testCase.Test.GetValue("runOnRequirements", null)?.AsBsonArray,
-                entities: testCase.Shared.GetValue("createEntities", null)?.AsBsonArray,
-                initialData: testCase.Shared.GetValue("initialData", null)?.AsBsonArray,
-                test: testCase.Test);
+            // Top-level fields
+            var schemaVersion = testCase.Shared["schemaVersion"].AsString; // cannot be null
+            var testSetRunOnRequirements = testCase.Shared.GetValue("runOnRequirements", null)?.AsBsonArray;
+            var entities = testCase.Shared.GetValue("createEntities", null)?.AsBsonArray;
+            var initialData = testCase.Shared.GetValue("initialData", null)?.AsBsonArray;
+            // Test fields
+            var runOnRequirements = testCase.Test.GetValue("runOnRequirements", null)?.AsBsonArray;
+            var skipReason = testCase.Test.GetValue("skipReason", null)?.AsString;
+            var operations = testCase.Test["operations"].AsBsonArray; // cannot be null
+            var expectEvents = testCase.Test.GetValue("expectEvents", null)?.AsBsonArray;
+            var outcome = testCase.Test.GetValue("outcome", null)?.AsBsonArray;
+            var async = testCase.Test["async"].AsBoolean; // cannot be null
+
+            Run(schemaVersion, testSetRunOnRequirements, entities, initialData, runOnRequirements, skipReason, operations, expectEvents, outcome, async);
         }
 
         public void Run(
             string schemaVersion,
             BsonArray testSetRunOnRequirements,
-            BsonArray testRunOnRequirements,
             BsonArray entities,
             BsonArray initialData,
-            BsonDocument test)
+            BsonArray runOnRequirements,
+            string skipReason,
+            BsonArray operations,
+            BsonArray expectedEvents,
+            BsonArray outcome,
+            bool async)
         {
-            if (!schemaVersion.StartsWith("1.0"))
+            var schemaSemanticVersion = SemanticVersion.Parse(schemaVersion);
+            if (schemaSemanticVersion < new SemanticVersion(1, 0, 0) ||
+                schemaSemanticVersion > new SemanticVersion(1, 1, 0))
             {
-                throw new FormatException("Schema is not 1.0.");
+                throw new FormatException($"Schema version '{schemaVersion}' is not supported.");
             }
             if (testSetRunOnRequirements != null)
             {
                 RequireServer.Check().RunOn(testSetRunOnRequirements);
             }
-            if (testRunOnRequirements != null)
+            if (runOnRequirements != null)
             {
-                RequireServer.Check().RunOn(testRunOnRequirements);
+                RequireServer.Check().RunOn(runOnRequirements);
+            }
+            if (skipReason != null)
+            {
+                throw new SkipException($"Test skipped because '{skipReason}'.");
             }
             KillOpenTransactions(DriverTestConfiguration.Client);
 
@@ -75,19 +93,19 @@ namespace MongoDB.Driver.Tests.Specifications.unified_test_format
                 AddInitialData(DriverTestConfiguration.Client, initialData);
             }
 
-            foreach (var operationItem in test["operations"].AsBsonArray)
+            foreach (var operation in operations)
             {
                 var cancellationToken = CancellationToken.None;
-                AssertOperation(operationItem.AsBsonDocument, test["async"].AsBoolean, cancellationToken);
+                AssertOperation(operation.AsBsonDocument, async, cancellationToken);
             }
 
-            if (test.AsBsonDocument.TryGetValue("expectEvents", out var expectedEvents))
+            if (expectedEvents != null)
             {
-                AssertEvents(expectedEvents.AsBsonArray, _entityMap);
+                AssertEvents(expectedEvents, _entityMap);
             }
-            if (test.AsBsonDocument.TryGetValue("outcome", out var expectedOutcome))
+            if (outcome != null)
             {
-                AssertOutcome(DriverTestConfiguration.Client, expectedOutcome.AsBsonArray);
+                AssertOutcome(DriverTestConfiguration.Client, outcome);
             }
         }
 
@@ -223,6 +241,10 @@ namespace MongoDB.Driver.Tests.Specifications.unified_test_format
                 actualResult.Result.Should().BeNull();
 
                 new UnifiedErrorMatcher().AssertErrorsMatch(actualResult.Exception, expectedError.AsBsonDocument);
+            }
+            else
+            {
+                actualResult.Exception.Should().BeNull();
             }
             if (operation.TryGetValue("saveResultAsEntity", out var saveResultAsEntity))
             {

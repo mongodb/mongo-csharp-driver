@@ -116,7 +116,8 @@ namespace MongoDB.Driver.Core.Helpers
                             endPoint,
                             mockConnectionPoolFactory.Object,
                             mockMonitorFactory.Object,
-                            _eventSubscriber),
+                            _eventSubscriber,
+                            serverApi: null),
                         Monitor = mockMonitor.Object
                     };
                 }

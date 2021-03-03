@@ -47,6 +47,7 @@ namespace MongoDB.Driver.Core.Configuration
         private readonly string _replicaSetName;
         private readonly IReadOnlyDictionary<string, BsonDocument> _schemaMap;
         private readonly ConnectionStringScheme _scheme;
+        private readonly ServerApi _serverApi;
         private readonly TimeSpan _serverSelectionTimeout;
         private readonly IServerSelector _preServerSelector;
         private readonly IServerSelector _postServerSelector;
@@ -63,6 +64,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="localThreshold">The local threshold.</param>
         /// <param name="maxServerSelectionWaitQueueSize">Maximum size of the server selection wait queue.</param>
         /// <param name="replicaSetName">Name of the replica set.</param>
+        /// <param name="serverApi">The server API.</param>
         /// <param name="serverSelectionTimeout">The server selection timeout.</param>
         /// <param name="preServerSelector">The pre server selector.</param>
         /// <param name="postServerSelector">The post server selector.</param>
@@ -79,6 +81,7 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<TimeSpan> localThreshold = default,
             Optional<int> maxServerSelectionWaitQueueSize = default(Optional<int>),
             Optional<string> replicaSetName = default(Optional<string>),
+            Optional<ServerApi> serverApi = default(Optional<ServerApi>),
             Optional<TimeSpan> serverSelectionTimeout = default(Optional<TimeSpan>),
             Optional<IServerSelector> preServerSelector = default(Optional<IServerSelector>),
             Optional<IServerSelector> postServerSelector = default(Optional<IServerSelector>),
@@ -95,6 +98,7 @@ namespace MongoDB.Driver.Core.Configuration
             _localThreshold = Ensure.IsGreaterThanOrEqualToZero(localThreshold.WithDefault(TimeSpan.FromMilliseconds(15)), "localThreshold");
             _maxServerSelectionWaitQueueSize = Ensure.IsGreaterThanOrEqualToZero(maxServerSelectionWaitQueueSize.WithDefault(500), "maxServerSelectionWaitQueueSize");
             _replicaSetName = replicaSetName.WithDefault(null);
+            _serverApi = serverApi.WithDefault(null);
             _serverSelectionTimeout = Ensure.IsGreaterThanOrEqualToZero(serverSelectionTimeout.WithDefault(TimeSpan.FromSeconds(30)), "serverSelectionTimeout");
             _preServerSelector = preServerSelector.WithDefault(null);
             _postServerSelector = postServerSelector.WithDefault(null);
@@ -228,6 +232,17 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
+        /// Gets the server API.
+        /// </summary>
+        /// <value>
+        /// The server API.
+        /// </value>
+        public ServerApi ServerApi
+        {
+            get { return _serverApi; }
+        }
+
+        /// <summary>
         /// Gets the server selection timeout.
         /// </summary>
         /// <value>
@@ -272,6 +287,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="localThreshold">The local threshold.</param>
         /// <param name="maxServerSelectionWaitQueueSize">Maximum size of the server selection wait queue.</param>
         /// <param name="replicaSetName">Name of the replica set.</param>
+        /// <param name="serverApi">The server API.</param>
         /// <param name="serverSelectionTimeout">The server selection timeout.</param>
         /// <param name="preServerSelector">The pre server selector.</param>
         /// <param name="postServerSelector">The post server selector.</param>
@@ -289,6 +305,7 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<TimeSpan> localThreshold = default(Optional<TimeSpan>),
             Optional<int> maxServerSelectionWaitQueueSize = default(Optional<int>),
             Optional<string> replicaSetName = default(Optional<string>),
+            Optional<ServerApi> serverApi = default(Optional<ServerApi>),
             Optional<TimeSpan> serverSelectionTimeout = default(Optional<TimeSpan>),
             Optional<IServerSelector> preServerSelector = default(Optional<IServerSelector>),
             Optional<IServerSelector> postServerSelector = default(Optional<IServerSelector>),
@@ -304,6 +321,7 @@ namespace MongoDB.Driver.Core.Configuration
                 localThreshold: localThreshold.WithDefault(_localThreshold),
                 maxServerSelectionWaitQueueSize: maxServerSelectionWaitQueueSize.WithDefault(_maxServerSelectionWaitQueueSize),
                 replicaSetName: replicaSetName.WithDefault(_replicaSetName),
+                serverApi: serverApi.WithDefault(_serverApi),
                 serverSelectionTimeout: serverSelectionTimeout.WithDefault(_serverSelectionTimeout),
                 preServerSelector: Optional.Create(preServerSelector.WithDefault(_preServerSelector)),
                 postServerSelector: Optional.Create(postServerSelector.WithDefault(_postServerSelector)),

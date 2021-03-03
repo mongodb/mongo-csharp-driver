@@ -68,6 +68,7 @@ namespace MongoDB.Driver.Core.Servers
         private readonly ServerId _serverId;
         private readonly ServerSettings _settings;
         private readonly InterlockedInt32 _state;
+        private readonly ServerApi _serverApi;
 
         private readonly Action<ServerOpeningEvent> _openingEventHandler;
         private readonly Action<ServerOpenedEvent> _openedEventHandler;
@@ -80,18 +81,19 @@ namespace MongoDB.Driver.Core.Servers
 
         // constructors
         public Server(
-           ClusterId clusterId,
-           IClusterClock clusterClock,
+            ClusterId clusterId,
+            IClusterClock clusterClock,
 #pragma warning disable CS0618 // Type or member is obsolete
             ClusterConnectionMode clusterConnectionMode,
-           ConnectionModeSwitch connectionModeSwitch,
+            ConnectionModeSwitch connectionModeSwitch,
 #pragma warning restore CS0618 // Type or member is obsolete
             bool? directConnection,
-           ServerSettings settings,
-           EndPoint endPoint,
-           IConnectionPoolFactory connectionPoolFactory,
-           IServerMonitorFactory serverMonitorFactory,
-           IEventSubscriber eventSubscriber)
+            ServerSettings settings,
+            EndPoint endPoint,
+            IConnectionPoolFactory connectionPoolFactory,
+            IServerMonitorFactory serverMonitorFactory,
+            IEventSubscriber eventSubscriber,
+            ServerApi serverApi)
         {
             ClusterConnectionModeHelper.EnsureConnectionModeValuesAreValid(clusterConnectionMode, connectionModeSwitch, directConnection);
 
@@ -112,6 +114,7 @@ namespace MongoDB.Driver.Core.Servers
             _monitor = serverMonitorFactory.Create(_serverId, _endPoint);
             _baseDescription = new ServerDescription(_serverId, endPoint, reasonChanged: "ServerInitialDescription", heartbeatInterval: settings.HeartbeatInterval);
             _currentDescription = _baseDescription;
+            _serverApi = serverApi;
 
             eventSubscriber.TryGetEventHandler(out _openingEventHandler);
             eventSubscriber.TryGetEventHandler(out _openedEventHandler);
@@ -701,7 +704,8 @@ namespace MongoDB.Driver.Core.Servers
                     postWriteAction,
                     responseHandling,
                     resultSerializer,
-                    messageEncoderSettings);
+                    messageEncoderSettings,
+                    _server._serverApi);
 
                 return ExecuteProtocol(protocol, session, cancellationToken);
             }
@@ -802,7 +806,8 @@ namespace MongoDB.Driver.Core.Servers
                     postWriteAction,
                     responseHandling,
                     resultSerializer,
-                    messageEncoderSettings);
+                    messageEncoderSettings,
+                    _server._serverApi);
 
                 return ExecuteProtocolAsync(protocol, session, cancellationToken);
             }

@@ -42,18 +42,21 @@ namespace MongoDB.Driver.Core.Servers
         private readonly TimeSpan _heartbeatInterval;
         private readonly object _lock = new object();
         private IConnection _roundTripTimeConnection;
+        private readonly ServerApi _serverApi;
         private readonly ServerId _serverId;
 
         public RoundTripTimeMonitor(
             IConnectionFactory connectionFactory,
             ServerId serverId,
             EndPoint endpoint,
-            TimeSpan heartbeatInterval)
+            TimeSpan heartbeatInterval,
+            ServerApi serverApi)
         {
             _connectionFactory = Ensure.IsNotNull(connectionFactory, nameof(connectionFactory));
             _serverId = Ensure.IsNotNull(serverId, nameof(serverId));
             _endPoint = Ensure.IsNotNull(endpoint, nameof(endpoint));
             _heartbeatInterval = heartbeatInterval;
+            _serverApi = serverApi;
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationToken = _cancellationTokenSource.Token;
         }
@@ -95,7 +98,7 @@ namespace MongoDB.Driver.Core.Servers
                     else
                     {
                         var isMasterCommand = IsMasterHelper.CreateCommand();
-                        var isMasterProtocol = IsMasterHelper.CreateProtocol(isMasterCommand);
+                        var isMasterProtocol = IsMasterHelper.CreateProtocol(isMasterCommand, _serverApi);
 
                         var stopwatch = Stopwatch.StartNew();
                         var isMasterResult = await IsMasterHelper.GetResultAsync(_roundTripTimeConnection, isMasterProtocol, _cancellationToken).ConfigureAwait(false);

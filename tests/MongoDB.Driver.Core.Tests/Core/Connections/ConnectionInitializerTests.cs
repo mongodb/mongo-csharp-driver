@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.Connections
 
         public ConnectionInitializerTests()
         {
-            _subject = new ConnectionInitializer("test", new[] { new CompressorConfiguration(CompressorType.Zlib) });
+            _subject = new ConnectionInitializer("test", new[] { new CompressorConfiguration(CompressorType.Zlib) }, serverApi: null);
         }
 
         [Theory]
@@ -161,6 +161,60 @@ namespace MongoDB.Driver.Core.Connections
 
         [Theory]
         [ParameterAttributeData]
+        public void InitializeConnection_should_send_serverApi_in_isMaster_and_buildInfo(
+            [Values(false, true)] bool useServerApi,
+            [Values(false, true)] bool async)
+        {
+            var serverApi = useServerApi ? new ServerApi(ServerApiVersion.V1, true, true) : null;
+
+            var isMasterReply = MessageHelper.BuildReply(RawBsonDocumentHelper.FromJson("{ ok : 1, connectionId : 1 }"));
+            var buildInfoReply = MessageHelper.BuildReply(RawBsonDocumentHelper.FromJson("{ ok : 1, version : \"4.2.0\" }"));
+
+            var connection = new MockConnection(__serverId);
+            connection.EnqueueReplyMessage(isMasterReply);
+            connection.EnqueueReplyMessage(buildInfoReply);
+
+            var subject = new ConnectionInitializer("test", new[] { new CompressorConfiguration(CompressorType.Zlib) }, serverApi);
+
+            ConnectionDescription result;
+            if (async)
+            {
+                result = subject.InitializeConnectionAsync(connection, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                result = subject.InitializeConnection(connection, CancellationToken.None);
+            }
+
+            result.ConnectionId.ServerValue.Should().Be(1);
+
+            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
+
+            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            sentMessages.Count.Should().Be(2);
+
+            var actualRequestId1 = sentMessages[1]["requestId"].AsInt32;
+
+            sentMessages[0]["opcode"].AsString.Should().Be("query");
+            sentMessages[0]["query"]["isMaster"].AsInt32.Should().Be(1);
+            if (useServerApi)
+            {
+                sentMessages[0]["query"]["apiVersion"].AsString.Should().Be("1");
+                sentMessages[0]["query"]["apiStrict"].AsBoolean.Should().Be(true);
+                sentMessages[0]["query"]["apiDeprecationErrors"].AsBoolean.Should().Be(true);
+            }
+            else
+            {
+                sentMessages[0]["query"].AsBsonDocument.TryGetElement("apiVersion", out _).Should().BeFalse();
+                sentMessages[0]["query"].AsBsonDocument.TryGetElement("apiStrict", out _).Should().BeFalse();
+                sentMessages[0]["query"].AsBsonDocument.TryGetElement("apiDeprecationErrors", out _).Should().BeFalse();
+            }
+            var expectedServerApiBuildInfoString = useServerApi ? ", apiVersion : \"1\", apiStrict : false, apiDeprecationErrors : true" : "";
+            sentMessages[1].Should().Be($"{{ opcode : \"query\", requestId : {actualRequestId1}, database : \"admin\", collection : \"$cmd\", batchSize : -1, slaveOk : true, query : {{ buildInfo : 1{expectedServerApiBuildInfoString} }}}}");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void InitializeConnectionA_should_build_the_ConnectionDescription_correctly(
             [Values("noop", "zlib", "snappy", "zstd")] string compressorType,
             [Values(false, true)] bool async)
@@ -211,11 +265,11 @@ namespace MongoDB.Driver.Core.Connections
             switch (authenticatorType)
             {
                 case "SCRAM-SHA-1":
-                    return new ScramSha1Authenticator(credentials);
+                    return new ScramSha1Authenticator(credentials, serverApi: null);
                 case "SCRAM-SHA-256":
-                    return new ScramSha256Authenticator(credentials);
+                    return new ScramSha256Authenticator(credentials, serverApi: null);
                 case "default":
-                    return new DefaultAuthenticator(credentials);
+                    return new DefaultAuthenticator(credentials, serverApi: null);
                 default:
                     throw new Exception("Invalid authenticator type.");
             }

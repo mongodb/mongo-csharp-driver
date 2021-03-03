@@ -228,7 +228,8 @@ namespace MongoDB.Driver.Core.Configuration
             var connectionFactory = new BinaryConnectionFactory(
                 _connectionSettings,
                 streamFactory,
-                _eventAggregator);
+                _eventAggregator,
+                _clusterSettings.ServerApi);
 
             return new ExclusiveConnectionPoolFactory(
                 _connectionPoolSettings,
@@ -245,6 +246,8 @@ namespace MongoDB.Driver.Core.Configuration
             var connectionModeSwitch = _clusterSettings.ConnectionModeSwitch;
             var connectionMode = connectionModeSwitch == ConnectionModeSwitch.UseConnectionMode ? _clusterSettings.ConnectionMode : default;
             var directConnection = connectionModeSwitch == ConnectionModeSwitch.UseDirectConnection ? _clusterSettings.DirectConnection : default;
+#pragma warning restore CS0618 // Type or member is obsolete
+
             return new ServerFactory(
                 connectionMode,
                 connectionModeSwitch,
@@ -252,8 +255,8 @@ namespace MongoDB.Driver.Core.Configuration
                 _serverSettings,
                 connectionPoolFactory,
                 serverMonitorFactory,
-                _eventAggregator);
-#pragma warning restore CS0618 // Type or member is obsolete
+                _eventAggregator,
+                _clusterSettings.ServerApi);
         }
 
         private IServerMonitorFactory CreateServerMonitorFactory()
@@ -286,12 +289,14 @@ namespace MongoDB.Driver.Core.Configuration
             var serverMonitorConnectionFactory = new BinaryConnectionFactory(
                 serverMonitorConnectionSettings,
                 serverMonitorStreamFactory,
-                new EventAggregator());
+                new EventAggregator(),
+                _clusterSettings.ServerApi);
 
             return new ServerMonitorFactory(
                 serverMonitorSettings,
                 serverMonitorConnectionFactory,
-                _eventAggregator);
+                _eventAggregator,
+                _clusterSettings.ServerApi);
         }
 
         private IStreamFactory CreateTcpStreamFactory(TcpStreamSettings tcpStreamSettings)

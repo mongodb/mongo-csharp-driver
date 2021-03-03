@@ -291,6 +291,19 @@ namespace MongoDB.Driver
             }
         }
 
+        public static BsonDocument GetServerParameters()
+        {
+            using (var session = StartSession())
+            using (var binding = CreateReadBinding(session))
+            {
+                var command = new BsonDocument("getParameter", new BsonString("*"));
+                var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
+                var serverParameters = operation.Execute(binding, CancellationToken.None);
+
+                return serverParameters;
+            }
+        }
+
         public static string GetStorageEngine()
         {
             using (var session = StartSession())

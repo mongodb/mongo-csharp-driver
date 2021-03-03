@@ -14,7 +14,6 @@
 */
 
 using System.Net;
-using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
@@ -26,18 +25,24 @@ namespace MongoDB.Driver.Core.Servers
         private readonly IConnectionFactory _connectionFactory;
         private readonly IEventSubscriber _eventSubscriber;
         private readonly ServerMonitorSettings _serverMonitorSettings;
+        private readonly ServerApi _serverApi;
 
-        public ServerMonitorFactory(ServerMonitorSettings serverMonitorSettings, IConnectionFactory connectionFactory, IEventSubscriber eventSubscriber)
+        public ServerMonitorFactory(
+            ServerMonitorSettings serverMonitorSettings,
+            IConnectionFactory connectionFactory,
+            IEventSubscriber eventSubscriber,
+            ServerApi serverApi)
         {
             _serverMonitorSettings = Ensure.IsNotNull(serverMonitorSettings, nameof(serverMonitorSettings));
             _connectionFactory = Ensure.IsNotNull(connectionFactory, nameof(connectionFactory));
             _eventSubscriber = Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
+            _serverApi = serverApi;
         }
 
         /// <inheritdoc/>
         public IServerMonitor Create(ServerId serverId, EndPoint endPoint)
         {
-            return new ServerMonitor(serverId, endPoint, _connectionFactory, _serverMonitorSettings, _eventSubscriber);
+            return new ServerMonitor(serverId, endPoint, _connectionFactory, _serverMonitorSettings, _eventSubscriber, _serverApi);
         }
     }
 }

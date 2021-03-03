@@ -54,6 +54,7 @@ namespace MongoDB.Driver
         private readonly ConnectionStringScheme _scheme;
         private readonly string _sdamLogFilename;
         private readonly int _sendBufferSize;
+        private readonly ServerApi _serverApi;
         private readonly IReadOnlyList<MongoServerAddress> _servers;
         private readonly TimeSpan _serverSelectionTimeout;
         private readonly TimeSpan _socketTimeout;
@@ -90,6 +91,7 @@ namespace MongoDB.Driver
             ConnectionStringScheme scheme,
             string sdamLogFilename,
             int sendBufferSize,
+            ServerApi serverApi,
             IReadOnlyList<MongoServerAddress> servers,
             TimeSpan serverSelectionTimeout,
             TimeSpan socketTimeout,
@@ -124,6 +126,7 @@ namespace MongoDB.Driver
             _scheme = scheme;
             _sdamLogFilename = sdamLogFilename;
             _sendBufferSize = sendBufferSize;
+            _serverApi = serverApi;
             _servers = servers;
             _serverSelectionTimeout = serverSelectionTimeout;
             _socketTimeout = socketTimeout;
@@ -184,6 +187,7 @@ namespace MongoDB.Driver
         public ConnectionStringScheme Scheme { get { return _scheme; } }
         public string SdamLogFilename { get { return _sdamLogFilename; } }
         public int SendBufferSize { get { return _sendBufferSize; } }
+        public ServerApi ServerApi { get { return _serverApi; } }
         public IReadOnlyList<MongoServerAddress> Servers { get { return _servers; } }
         public TimeSpan ServerSelectionTimeout { get { return _serverSelectionTimeout; } }
         public TimeSpan SocketTimeout { get { return _socketTimeout; } }
@@ -235,6 +239,7 @@ namespace MongoDB.Driver
                 _scheme == rhs._scheme &&
                 _sdamLogFilename == rhs._sdamLogFilename &&
                 _sendBufferSize == rhs._sendBufferSize &&
+                _serverApi == rhs._serverApi &&
                 _servers.SequenceEqual(rhs._servers) &&
                 _serverSelectionTimeout == rhs._serverSelectionTimeout &&
                 _socketTimeout == rhs._socketTimeout &&

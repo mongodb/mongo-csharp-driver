@@ -48,6 +48,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         private readonly ReadPreference _readPreference;
         private readonly CommandResponseHandling _responseHandling;
         private readonly IBsonSerializer<TCommandResult> _resultSerializer;
+        private readonly ServerApi _serverApi;
         private readonly ICoreSession _session;
         // streamable fields
         private bool _moreToCome = false; // MoreToCome from the previous response
@@ -65,7 +66,8 @@ namespace MongoDB.Driver.Core.WireProtocol
             CommandResponseHandling responseHandling,
             IBsonSerializer<TCommandResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings,
-            Action<IMessageEncoderPostProcessor> postWriteAction)
+            Action<IMessageEncoderPostProcessor> postWriteAction,
+            ServerApi serverApi)
         {
             if (responseHandling != CommandResponseHandling.Return &&
                 responseHandling != CommandResponseHandling.NoResponseExpected &&
@@ -85,6 +87,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             _resultSerializer = Ensure.IsNotNull(resultSerializer, nameof(resultSerializer));
             _messageEncoderSettings = messageEncoderSettings;
             _postWriteAction = postWriteAction; // can be null
+            _serverApi = serverApi; // can be null
 
             if (messageEncoderSettings != null)
             {
@@ -373,8 +376,16 @@ namespace MongoDB.Driver.Core.WireProtocol
                     {
                         AddIfNotAlreadyAdded("readConcern", readConcern);
                     }
+                    if (_serverApi != null)
+                    {
+                        AddServerApiElementsIfNecessaryAndNotAlreadyAdded();
+                    }
                 }
                 AddIfNotAlreadyAdded("autocommit", false);
+            }
+            else if (_serverApi != null)
+            {
+                AddServerApiElementsIfNecessaryAndNotAlreadyAdded();
             }
 
             var elementAppendingSerializer = new ElementAppendingSerializer<BsonDocument>(BsonDocumentSerializer.Instance, extraElements, writerSettingsConfigurator);
@@ -400,6 +411,25 @@ namespace MongoDB.Driver.Core.WireProtocol
                     return true;
                 }
             }
+
+            void AddServerApiElementsIfNecessaryAndNotAlreadyAdded()
+            {
+                var commandName = _command.GetElement(0).Name;
+                if (commandName == "getMore")
+                {
+                    return;
+                }
+
+                AddIfNotAlreadyAdded("apiVersion", _serverApi.Version.ToString());
+                if (_serverApi.Strict.HasValue)
+                {
+                    AddIfNotAlreadyAdded("apiStrict", _serverApi.Strict.Value);
+                }
+                if (_serverApi.DeprecationErrors.HasValue)
+                {
+                    AddIfNotAlreadyAdded("apiDeprecationErrors", _serverApi.DeprecationErrors.Value);
+                }
+            }
         }
 
         private bool IsRetryableWriteExceptionAndDeploymentDoesNotSupportRetryableWrites(MongoCommandException exception)
@@ -410,7 +440,6 @@ namespace MongoDB.Driver.Core.WireProtocol
                 exception.Result.TryGetValue("errmsg", out var errmsg) &&
                 errmsg.AsString.StartsWith("Transaction numbers", StringComparison.Ordinal);
         }
-
 
         private void MessageWasProbablySent(CommandRequestMessage message)
         {

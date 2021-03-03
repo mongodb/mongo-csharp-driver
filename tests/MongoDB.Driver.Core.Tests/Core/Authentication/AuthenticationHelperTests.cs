@@ -57,6 +57,7 @@ namespace MongoDB.Driver.Core.Authentication
                 new ConnectionId(new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017))),
                 new IsMasterResult(new BsonDocument("ok", 1)),
                 new BuildInfoResult(new BsonDocument("version", "2.8.0")));
+            var serverApi = new ServerApi(ServerApiVersion.V1, true, true);
 
             var mockAuthenticator = new Mock<IAuthenticator>();
             var settings = new ConnectionSettings(authenticatorFactories: new[] { new AuthenticatorFactory(() => mockAuthenticator.Object) });
@@ -90,6 +91,7 @@ namespace MongoDB.Driver.Core.Authentication
                 new ConnectionId(new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017))),
                 new IsMasterResult(new BsonDocument("ok", 1).Add("setName", "rs").Add("arbiterOnly", true)),
                 new BuildInfoResult(new BsonDocument("version", "2.8.0")));
+            var serverApi = new ServerApi(ServerApiVersion.V1, true, true);
 
             var mockAuthenticator = new Mock<IAuthenticator>();
             var settings = new ConnectionSettings(authenticatorFactories: new[] { new AuthenticatorFactory(() => mockAuthenticator.Object) });

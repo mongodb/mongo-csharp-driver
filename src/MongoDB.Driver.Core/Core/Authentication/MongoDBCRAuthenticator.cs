@@ -16,7 +16,6 @@
 using System;
 using System.Security;
 using System.Security.Cryptography;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -49,6 +48,7 @@ namespace MongoDB.Driver.Core.Authentication
 
         // fields
         private readonly UsernamePasswordCredential _credential;
+        private readonly ServerApi _serverApi;
 
         // constructors
         /// <summary>
@@ -56,8 +56,19 @@ namespace MongoDB.Driver.Core.Authentication
         /// </summary>
         /// <param name="credential">The credential.</param>
         public MongoDBCRAuthenticator(UsernamePasswordCredential credential)
+            : this(credential, serverApi: null)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MongoDBCRAuthenticator"/> class.
+        /// </summary>
+        /// <param name="credential">The credential.</param>
+        /// <param name="serverApi">The server API.</param>
+        public MongoDBCRAuthenticator(UsernamePasswordCredential credential, ServerApi serverApi)
         {
             _credential = Ensure.IsNotNull(credential, nameof(credential));
+            _serverApi = serverApi; // can be null
         }
 
         // properties
@@ -124,11 +135,12 @@ namespace MongoDB.Driver.Core.Authentication
                 { "key", CreateKey(_credential.Username, _credential.Password, nonce) }
             };
             var protocol = new CommandWireProtocol<BsonDocument>(
-                new DatabaseNamespace(_credential.Source),
-                command,
-                true,
-                BsonDocumentSerializer.Instance,
-                null);
+                databaseNamespace: new DatabaseNamespace(_credential.Source),
+                command: command,
+                slaveOk: true,
+                resultSerializer: BsonDocumentSerializer.Instance,
+                messageEncoderSettings: null,
+                serverApi: _serverApi);
             return protocol;
         }
 
@@ -142,11 +154,12 @@ namespace MongoDB.Driver.Core.Authentication
         {
             var command = new BsonDocument("getnonce", 1);
             var protocol = new CommandWireProtocol<BsonDocument>(
-                new DatabaseNamespace(_credential.Source),
-                command,
-                true,
-                BsonDocumentSerializer.Instance,
-                null);
+                databaseNamespace: new DatabaseNamespace(_credential.Source),
+                command: command,
+                slaveOk: true,
+                resultSerializer: BsonDocumentSerializer.Instance,
+                messageEncoderSettings: null,
+                serverApi: _serverApi);
             return protocol;
         }
 

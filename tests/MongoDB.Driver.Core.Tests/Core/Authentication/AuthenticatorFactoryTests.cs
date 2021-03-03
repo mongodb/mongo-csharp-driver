@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication
         [Fact]
         public void Create_should_create_authenticator_based_on_the_provided_delegate()
         {
-            var subject = new AuthenticatorFactory(() => new PlainAuthenticator(new UsernamePasswordCredential("source", "user", "password")));
+            var subject = new AuthenticatorFactory(() => new PlainAuthenticator(new UsernamePasswordCredential("source", "user", "password"), serverApi: null));
             var authenticator = subject.Create();
 
             var typedAuthenticator = authenticator.Should().BeOfType<PlainAuthenticator>().Subject;
@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication
         [Fact]
         public void Multiple_Create_calls_should_return_different_authenticators_instances()
         {
-            var subject = new AuthenticatorFactory(() => new PlainAuthenticator(new UsernamePasswordCredential("source", "user", "password")));
+            var subject = new AuthenticatorFactory(() => new PlainAuthenticator(new UsernamePasswordCredential("source", "user", "password"), serverApi: null));
             var authenticator1 = subject.Create();
             var authenticator2 = subject.Create();
 

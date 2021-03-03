@@ -33,12 +33,21 @@ namespace MongoDB.Driver.Core.Servers
         private readonly bool? _directConnection;
         private readonly IServerMonitorFactory _serverMonitorFactory;
         private readonly IEventSubscriber _eventSubscriber;
+        private readonly ServerApi _serverApi;
         private readonly ServerSettings _settings;
 
         // constructors
+        public ServerFactory(
 #pragma warning disable CS0618 // Type or member is obsolete
-        public ServerFactory(ClusterConnectionMode clusterConnectionMode, ConnectionModeSwitch connectionModeSwitch, bool? directConnection, ServerSettings settings, IConnectionPoolFactory connectionPoolFactory, IServerMonitorFactory serverMonitoryFactory, IEventSubscriber eventSubscriber)
+            ClusterConnectionMode clusterConnectionMode,
+            ConnectionModeSwitch connectionModeSwitch,
 #pragma warning restore CS0618 // Type or member is obsolete
+            bool? directConnection,
+            ServerSettings settings,
+            IConnectionPoolFactory connectionPoolFactory,
+            IServerMonitorFactory serverMonitoryFactory,
+            IEventSubscriber eventSubscriber,
+            ServerApi serverApi)
         {
             ClusterConnectionModeHelper.EnsureConnectionModeValuesAreValid(clusterConnectionMode, connectionModeSwitch, directConnection);
 
@@ -49,6 +58,7 @@ namespace MongoDB.Driver.Core.Servers
             _connectionPoolFactory = Ensure.IsNotNull(connectionPoolFactory, nameof(connectionPoolFactory));
             _serverMonitorFactory = Ensure.IsNotNull(serverMonitoryFactory, nameof(serverMonitoryFactory));
             _eventSubscriber = Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
+            _serverApi = serverApi; // can be null
         }
 
         // methods
@@ -65,7 +75,8 @@ namespace MongoDB.Driver.Core.Servers
                 endPoint,
                 _connectionPoolFactory,
                 _serverMonitorFactory,
-                _eventSubscriber);
+                _eventSubscriber,
+                _serverApi);
         }
     }
 }

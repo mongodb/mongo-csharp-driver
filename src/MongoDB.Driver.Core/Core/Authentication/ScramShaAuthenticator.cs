@@ -68,12 +68,36 @@ namespace MongoDB.Driver.Core.Authentication
         /// <param name="h">The H function to use.</param>
         /// <param name="hi">The Hi function to use.</param>
         /// <param name="hmac">The Hmac function to use.</param>
-        protected ScramShaAuthenticator(UsernamePasswordCredential credential,
+        [Obsolete("Use the newest overload instead.")]
+        protected ScramShaAuthenticator(
+            UsernamePasswordCredential credential,
             HashAlgorithmName hashAlgorithmName,
             H h,
             Hi hi,
             Hmac hmac)
-            : this(credential, hashAlgorithmName, new DefaultRandomStringGenerator(), h, hi, hmac, new ScramCache()) { }
+            : this(credential, hashAlgorithmName, h, hi, hmac, serverApi: null)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ScramShaAuthenticator"/> class.
+        /// </summary>
+        /// <param name="credential">The credential.</param>
+        /// <param name="hashAlgorithmName">The hash algorithm name.</param>
+        /// <param name="h">The H function to use.</param>
+        /// <param name="hi">The Hi function to use.</param>
+        /// <param name="hmac">The Hmac function to use.</param>
+        /// <param name="serverApi">The server API.</param>
+        protected ScramShaAuthenticator(
+            UsernamePasswordCredential credential,
+            HashAlgorithmName hashAlgorithmName,
+            H h,
+            Hi hi,
+            Hmac hmac,
+            ServerApi serverApi)
+            : this(credential, hashAlgorithmName, new DefaultRandomStringGenerator(), h, hi, hmac, new ScramCache(), serverApi)
+        {
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ScramShaAuthenticator"/> class.
@@ -85,6 +109,7 @@ namespace MongoDB.Driver.Core.Authentication
         /// <param name="hi">The Hi function to use.</param>
         /// <param name="hmac">The Hmac function to use.</param>
         /// <param name="cache">The cache to use.</param>
+        /// <param name="serverApi">The server API.</param>
         internal ScramShaAuthenticator(
             UsernamePasswordCredential credential,
             HashAlgorithmName hashAlgorithName,
@@ -92,8 +117,9 @@ namespace MongoDB.Driver.Core.Authentication
             H h,
             Hi hi,
             Hmac hmac,
-            ScramCache cache)
-            : base(new ScramShaMechanism(credential, hashAlgorithName, randomStringGenerator, h, hi, hmac, cache))
+            ScramCache cache,
+            ServerApi serverApi)
+            : base(new ScramShaMechanism(credential, hashAlgorithName, randomStringGenerator, h, hi, hmac, cache), serverApi)
         {
             _databaseName = credential.Source;
         }

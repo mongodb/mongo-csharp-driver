@@ -39,6 +39,7 @@ namespace MongoDB.Driver.Core.Servers
         private readonly object _lock = new object();
         private readonly CancellationTokenSource _monitorCancellationTokenSource; // used to cancel the entire monitor
         private readonly IRoundTripTimeMonitor _roundTripTimeMonitor;
+        private readonly ServerApi _serverApi;
         private readonly ServerId _serverId;
         private readonly InterlockedInt32 _state;
         private readonly ServerMonitorSettings _serverMonitorSettings;
@@ -50,7 +51,13 @@ namespace MongoDB.Driver.Core.Servers
 
         public event EventHandler<ServerDescriptionChangedEventArgs> DescriptionChanged;
 
-        public ServerMonitor(ServerId serverId, EndPoint endPoint, IConnectionFactory connectionFactory, ServerMonitorSettings serverMonitorSettings, IEventSubscriber eventSubscriber)
+        public ServerMonitor(
+            ServerId serverId,
+            EndPoint endPoint,
+            IConnectionFactory connectionFactory,
+            ServerMonitorSettings serverMonitorSettings,
+            IEventSubscriber eventSubscriber,
+            ServerApi serverApi)
             : this(
                 serverId,
                 endPoint,
@@ -61,11 +68,20 @@ namespace MongoDB.Driver.Core.Servers
                     connectionFactory,
                     serverId,
                     endPoint,
-                    Ensure.IsNotNull(serverMonitorSettings, nameof(serverMonitorSettings)).HeartbeatInterval))
+                    Ensure.IsNotNull(serverMonitorSettings, nameof(serverMonitorSettings)).HeartbeatInterval,
+                    serverApi),
+                serverApi)
         {
         }
 
-        public ServerMonitor(ServerId serverId, EndPoint endPoint, IConnectionFactory connectionFactory, ServerMonitorSettings serverMonitorSettings, IEventSubscriber eventSubscriber, IRoundTripTimeMonitor roundTripTimeMonitor)
+        public ServerMonitor(
+            ServerId serverId,
+            EndPoint endPoint,
+            IConnectionFactory connectionFactory,
+            ServerMonitorSettings serverMonitorSettings,
+            IEventSubscriber eventSubscriber,
+            IRoundTripTimeMonitor roundTripTimeMonitor,
+            ServerApi serverApi)
         {
             _monitorCancellationTokenSource = new CancellationTokenSource();
             _serverId = Ensure.IsNotNull(serverId, nameof(serverId));
@@ -82,6 +98,7 @@ namespace MongoDB.Driver.Core.Servers
             eventSubscriber.TryGetEventHandler(out _heartbeatSucceededEventHandler);
             eventSubscriber.TryGetEventHandler(out _heartbeatFailedEventHandler);
             eventSubscriber.TryGetEventHandler(out _sdamInformationEventHandler);
+            _serverApi = serverApi;
 
             _heartbeatCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_monitorCancellationTokenSource.Token);
         }
@@ -168,7 +185,7 @@ namespace MongoDB.Driver.Core.Servers
                 isMasterCommand = IsMasterHelper.CreateCommand();
             }
 
-            return IsMasterHelper.CreateProtocol(isMasterCommand, commandResponseHandling);
+            return IsMasterHelper.CreateProtocol(isMasterCommand, _serverApi, commandResponseHandling);
         }
 
         private async Task<IConnection> InitializeConnectionAsync(CancellationToken cancellationToken) // called setUpConnection in spec

@@ -112,7 +112,14 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
     {
         public OperationResult Convert(ReplaceOneResult result)
         {
-            throw new NotImplementedException("Specification requirements are not clear on result format.");
+            var document = new BsonDocument
+            {
+                { "acknowledged", result.IsAcknowledged },
+                { "matchedCount", result.MatchedCount },
+                { "modifiedCount", result.ModifiedCount }
+            };
+
+            return OperationResult.FromResult(document);
         }
     }
 }

@@ -200,8 +200,23 @@ namespace MongoDB.Driver.Core.Authentication
         /// </summary>
         /// <param name="credential">The credentials.</param>
         /// <param name="properties">The properties.</param>
+        [Obsolete("Use the newest overload instead.")]
         public MongoAWSAuthenticator(UsernamePasswordCredential credential, IEnumerable<KeyValuePair<string, string>> properties)
-            : this(credential, properties, new DefaultRandomByteGenerator(), SystemClock.Instance)
+            : this(credential, properties, serverApi: null)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MongoAWSAuthenticator"/> class.
+        /// </summary>
+        /// <param name="credential">The credentials.</param>
+        /// <param name="properties">The properties.</param>
+        /// <param name="serverApi">The server API.</param>
+        public MongoAWSAuthenticator(
+            UsernamePasswordCredential credential,
+            IEnumerable<KeyValuePair<string, string>> properties,
+            ServerApi serverApi)
+            : this(credential, properties, new DefaultRandomByteGenerator(), SystemClock.Instance, serverApi)
         {
         }
 
@@ -210,8 +225,23 @@ namespace MongoDB.Driver.Core.Authentication
         /// </summary>
         /// <param name="username">The username.</param>
         /// <param name="properties">The properties.</param>
+        [Obsolete("Use the newest overload instead.")]
         public MongoAWSAuthenticator(string username, IEnumerable<KeyValuePair<string, string>> properties)
-            : this(username, properties, new DefaultRandomByteGenerator(), SystemClock.Instance)
+            : this(username, properties, serverApi: null)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MongoAWSAuthenticator"/> class.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        /// <param name="properties">The properties.</param>
+        /// <param name="serverApi">The server API.</param>
+        public MongoAWSAuthenticator(
+            string username,
+            IEnumerable<KeyValuePair<string, string>> properties,
+            ServerApi serverApi)
+            : this(username, properties, new DefaultRandomByteGenerator(), SystemClock.Instance, serverApi)
         {
         }
 
@@ -219,8 +249,9 @@ namespace MongoDB.Driver.Core.Authentication
             UsernamePasswordCredential credential,
             IEnumerable<KeyValuePair<string, string>> properties,
             IRandomByteGenerator randomByteGenerator,
-            IClock clock)
-            : base(CreateMechanism(credential, properties, randomByteGenerator, clock))
+            IClock clock,
+            ServerApi serverApi)
+            : base(CreateMechanism(credential, properties, randomByteGenerator, clock), serverApi)
         {
         }
 
@@ -228,8 +259,9 @@ namespace MongoDB.Driver.Core.Authentication
             string username,
             IEnumerable<KeyValuePair<string, string>> properties,
             IRandomByteGenerator randomByteGenerator,
-            IClock clock)
-            : base(CreateMechanism(username, null, properties, randomByteGenerator, clock))
+            IClock clock,
+            ServerApi serverApi)
+            : base(CreateMechanism(username, null, properties, randomByteGenerator, clock), serverApi)
         {
         }
 
