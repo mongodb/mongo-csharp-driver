@@ -577,6 +577,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             using var subject = CreateSubject(settings, mockConnectionFactory.Object);
             subject.Initialize();
 
+            subject.PendingCount.Should().Be(0);
             var connectionsAcquired = Enumerable.Range(0, initalAcquiredCount)
                 .Select(i => AcquireConnectionGeneric(subject, isAsync))
                 .ToArray();
@@ -600,6 +601,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 {
                     // wait until all maxConnecting maximized
                     establishingCount.Wait();
+                    subject.PendingCount.Should().Be(maxConnecting);
+
                     allAcquiringCountEvent.Signal();
 
                     try
@@ -631,6 +634,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             });
 
             expectedTimeouts.Should().Be(expectedTimeouts);
+            subject.PendingCount.Should().Be(0);
         }
 
         // private methods

@@ -147,6 +147,15 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
         }
 
+        public int PendingCount
+        {
+            get
+            {
+                ThrowIfDisposed();
+                return MongoCoreDefaults.ConnectionPool.MaxConnecting - _connectingQueue.Count;
+            }
+        }
+
         // public methods
         public IConnectionHandle AcquireConnection(CancellationToken cancellationToken)
         {
