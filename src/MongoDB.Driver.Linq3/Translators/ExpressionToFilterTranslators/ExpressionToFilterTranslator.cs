@@ -18,6 +18,7 @@ using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq3.Ast.Filters;
 using MongoDB.Driver.Linq3.Misc;
+using MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslators;
 using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ExpressionTranslators;
 using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodTranslators;
 using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators;
@@ -28,6 +29,33 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators
     {
         // public methods
         public static AstFilter Translate(TranslationContext context, Expression expression)
+        {
+            try
+            {
+                return TranslateUsingQueryOperators(context, expression);
+            }
+            catch (ExpressionNotSupportedException)
+            {
+                return TranslateUsingAggregationOperators(context, expression);
+            }
+        }
+
+        public static AstFilter TranslateLambda(TranslationContext context, LambdaExpression lambdaExpression, IBsonSerializer parameterSerializer)
+        {
+            var parameterExpression = lambdaExpression.Parameters.Single();
+            var parameterSymbol = new Symbol(parameterExpression.Name, parameterSerializer);
+            var lambdaContext = context.WithSymbolAsCurrent(parameterExpression, parameterSymbol);
+            return Translate(lambdaContext, lambdaExpression.Body);
+        }
+
+        // private methods
+        private static AstFilter TranslateUsingAggregationOperators(TranslationContext context, Expression expression)
+        {
+            var expressionTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, expression);
+            return new AstExprFilter(expressionTranslation.Ast);
+        }
+
+        private static AstFilter TranslateUsingQueryOperators(TranslationContext context, Expression expression)
         {
             switch (expression.NodeType)
             {
@@ -62,14 +90,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators
 
             var field = ExpressionToFilterFieldTranslator.Translate(context, expression);
             return new AstComparisonFilter(AstComparisonFilterOperator.Eq, field, true);
-        }
-
-        public static AstFilter TranslateLambda(TranslationContext context, LambdaExpression lambdaExpression, IBsonSerializer parameterSerializer)
-        {
-            var parameterExpression = lambdaExpression.Parameters.Single();
-            var parameterSymbol = new Symbol(parameterExpression.Name, parameterSerializer);
-            var lambdaContext = context.WithSymbolAsCurrent(parameterExpression, parameterSymbol);
-            return Translate(lambdaContext, lambdaExpression.Body);
         }
     }
 }
