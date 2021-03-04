@@ -88,62 +88,15 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             if (IsStringIndexOfMethod(expression, out var objectExpression, out var valueExpression, out var startIndexExpression, out var countExpression, out var comparisonTypeExpression))
             {
                 var objectTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, objectExpression);
+                var valueTranslation = TranslateValue();
+                var startIndexTranslation = startIndexExpression == null ? null : ExpressionToAggregationExpressionTranslator.Translate(context, startIndexExpression);
+                var countTranslation = countExpression == null ? null : ExpressionToAggregationExpressionTranslator.Translate(context, countExpression);
+                var ordinal = GetOrdinalFromComparisonType();
 
-                AggregationExpression valueTranslation;
-                if (valueExpression.Type == typeof(char))
-                {
-                    if (!(valueExpression is ConstantExpression constantExpression))
-                    {
-                        goto notSupported;
-                    }
-                    var c = (char)constantExpression.Value;
-                    var value = new string(c, 1);
-                    valueTranslation = new AggregationExpression(valueExpression, value, new StringSerializer());
-                }
-                else
-                {
-                    valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
-                }
-
-                AggregationExpression startIndexTranslation = null;
-                if (startIndexExpression != null)
-                {
-                    startIndexTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, startIndexExpression);
-                }
-
-                AggregationExpression countTranslation = null;
-                if (countExpression != null)
-                {
-                    countTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, countExpression);
-                }
-
-                if (comparisonTypeExpression != null)
-                {
-                    if (!(comparisonTypeExpression is ConstantExpression constantExpression))
-                    {
-                        goto notSupported;
-                    }
-
-                    var comparisonType = (StringComparison)constantExpression.Value;
-                    switch (comparisonType)
-                    {
-                        case StringComparison.CurrentCulture:
-                        case StringComparison.Ordinal:
-                            break;
-
-                        default:
-                            goto notSupported;
-                    }
-                }
-
-                AstExpression endAst = null;
-                if (countTranslation != null)
-                {
-                    endAst = new AstNaryExpression(AstNaryOperator.Add, startIndexTranslation.Ast, countTranslation.Ast);
-                }
+                var endAst = CreateEndAst(startIndexTranslation?.Ast, countTranslation?.Ast);
 
                 AstExpression ast;
-                if (expression.Method.IsOneOf(__indexOfBytesMethods))
+                if (expression.Method.IsOneOf(__indexOfBytesMethods) || ordinal)
                 {
                     ast = new AstIndexOfBytesExpression(objectTranslation.Ast, valueTranslation.Ast, startIndexTranslation?.Ast, endAst);
                 }
@@ -155,8 +108,64 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 return new AggregationExpression(expression, ast, new Int32Serializer());
             }
 
-        notSupported:
             throw new ExpressionNotSupportedException(expression);
+
+            AggregationExpression TranslateValue()
+            {
+                if (valueExpression.Type == typeof(char))
+                {
+                    if (valueExpression is ConstantExpression constantExpression)
+                    {
+                        var c = (char)constantExpression.Value;
+                        var value = new string(c, 1);
+                        return new AggregationExpression(valueExpression, value, new StringSerializer());
+                    }
+                }
+                else
+                {
+                    return ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
+                }
+
+                throw new ExpressionNotSupportedException(expression);
+            }
+
+            bool GetOrdinalFromComparisonType()
+            {
+                if (comparisonTypeExpression == null)
+                {
+                    return false;
+                }
+
+                if (comparisonTypeExpression is ConstantExpression comparisonTypeConstantExpression)
+                {
+                    var comparisonType = (StringComparison)comparisonTypeConstantExpression.Value;
+                    switch (comparisonType)
+                    {
+                        case StringComparison.CurrentCulture: return false;
+                        case StringComparison.Ordinal: return true;
+                    }
+                }
+
+                throw new ExpressionNotSupportedException(expression);
+            }
+
+            AstExpression CreateEndAst(AstExpression startIndexAst, AstExpression countAst)
+            {
+                if (startIndexAst == null || countAst == null)
+                {
+                    return null;
+                }
+
+                if (startIndexAst is AstConstantExpression startIndexConstantAst &&
+                    countAst is AstConstantExpression countConstantAst)
+                {
+                    var startIndex = (int)startIndexConstantAst.Value;
+                    var count = (int)countConstantAst.Value;
+                    return new AstConstantExpression(startIndex + count);
+                }
+
+                return new AstNaryExpression(AstNaryOperator.Add, startIndexAst, countAst);
+            }
         }
 
         private static bool IsStringIndexOfMethod(
