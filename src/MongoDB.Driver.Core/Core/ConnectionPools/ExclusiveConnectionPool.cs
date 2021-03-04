@@ -573,12 +573,32 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             public void Open(CancellationToken cancellationToken)
             {
-                _connection.Open(cancellationToken);
+                try
+                {
+                    _connection.Open(cancellationToken);
+                }
+                catch (MongoConnectionException ex)
+                {
+                    // TODO temporary workaround for propagating exception generation to server
+                    // Will be reconsider after SDAM spec error handling adjustments
+                    ex.Generation = Generation;
+                    throw;
+                }
             }
 
-            public Task OpenAsync(CancellationToken cancellationToken)
+            public async Task OpenAsync(CancellationToken cancellationToken)
             {
-                return _connection.OpenAsync(cancellationToken);
+                try
+                {
+                    await _connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+                }
+                catch (MongoConnectionException ex)
+                {
+                    // TODO temporary workaround for propagating exception generation to server
+                    // Will be reconsider after SDAM spec error handling adjustments
+                    ex.Generation = Generation;
+                    throw;
+                }
             }
 
             public ResponseMessage ReceiveMessage(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)

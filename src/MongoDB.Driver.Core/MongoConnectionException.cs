@@ -33,6 +33,7 @@ namespace MongoDB.Driver
     {
         // fields
         private readonly ConnectionId _connectionId;
+        private int? _generation = null;
 
         // constructors
         /// <summary>
@@ -77,6 +78,23 @@ namespace MongoDB.Driver
         public ConnectionId ConnectionId
         {
             get { return _connectionId; }
+        }
+
+        // properties
+        // TODO temporary property for propagating exception generation to server
+        // Will be reconsider after SDAM spec error handling adjustments
+        internal int? Generation
+        {
+            get { return _generation; }
+            set
+            {
+                if (_generation != null)
+                {
+                    throw new InvalidOperationException("Generation is already set");
+                }
+
+                _generation = value;
+            }
         }
 
         /// <summary>

@@ -109,7 +109,18 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
             var buildInfoResult = new BuildInfoResult(new BsonDocument { { "version", serverVersion } });
             mockConnection.SetupGet(c => c.Description)
                 .Returns(new ConnectionDescription(connectionId, isMasterResult, buildInfoResult));
-            var generation = applicationError.Contains("generation") ? applicationError["generation"].AsInt32 : 0;
+
+            int generation = 0;
+            if (applicationError.Contains("generation"))
+            {
+                generation = applicationError["generation"].AsInt32;
+
+                if (simulatedException is MongoConnectionException mongoConnectionException)
+                {
+                    mongoConnectionException.Generation = generation;
+                }
+            }
+            
             mockConnection.SetupGet(c => c.Generation).Returns(generation);
             var when = applicationError["when"].AsString;
             switch (when)

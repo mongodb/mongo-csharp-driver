@@ -299,16 +299,19 @@ namespace MongoDB.Driver.Core.Servers
 
             lock (_monitor.Lock)
             {
-                if (connection != null && connection.Generation != _connectionPool.Generation)
+                if (ex is MongoConnectionException mongoConnectionException)
                 {
-                    return; // stale generation number
-                }
+                    if (mongoConnectionException.Generation != null &&
+                        mongoConnectionException.Generation != _connectionPool.Generation)
+                    {
+                        return; // stale generation number
+                    }
 
-                if (ex is MongoConnectionException mongoConnectionException &&
-                    mongoConnectionException.IsNetworkException &&
-                    !mongoConnectionException.ContainsTimeoutException)
-                {
-                    _monitor.CancelCurrentCheck();
+                    if (mongoConnectionException.IsNetworkException &&
+                        !mongoConnectionException.ContainsTimeoutException)
+                    {
+                        _monitor.CancelCurrentCheck();
+                    }
                 }
 
                 var description = Description; // use Description property to access _description value safely
@@ -332,24 +335,26 @@ namespace MongoDB.Driver.Core.Servers
                 return;
             }
 
-            lock (_monitor.Lock)
+            if (ex is MongoConnectionException mongoConnectionException)
             {
-                if (connection != null && connection.Generation != _connectionPool.Generation)
+                lock (_monitor.Lock)
                 {
-                    return; // stale generation number
-                }
+                    if (mongoConnectionException.Generation != null &&
+                        mongoConnectionException.Generation != _connectionPool.Generation)
+                    {
+                        return; // stale generation number
+                    }
 
-                if (ex is MongoConnectionException mongoConnectionException &&
-                    mongoConnectionException.IsNetworkException &&
-                    !mongoConnectionException.ContainsTimeoutException)
-                {
-                    _monitor.CancelCurrentCheck();
-                }
+                    if (mongoConnectionException.IsNetworkException &&
+                        !mongoConnectionException.ContainsTimeoutException)
+                    {
+                        _monitor.CancelCurrentCheck();
+                    }
 
-                if (ex is MongoConnectionException connectionException &&
-                    (connectionException.IsNetworkException || connectionException.ContainsTimeoutException))
-                {
-                    Invalidate($"ChannelException during handshake: {ex}.", clearConnectionPool: true, responseTopologyVersion: null);
+                    if (mongoConnectionException.IsNetworkException || mongoConnectionException.ContainsTimeoutException)
+                    {
+                        Invalidate($"ChannelException during handshake: {ex}.", clearConnectionPool: true, responseTopologyVersion: null);
+                    }
                 }
             }
         }
