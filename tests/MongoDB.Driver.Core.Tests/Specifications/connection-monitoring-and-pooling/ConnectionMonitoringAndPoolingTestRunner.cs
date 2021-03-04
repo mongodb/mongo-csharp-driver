@@ -37,6 +37,7 @@ using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 
@@ -121,11 +122,13 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
         [ClassData(typeof(TestCaseFactory))]
         public void RunTestDefinition(JsonDrivenTestCase testCase)
         {
+            var test = testCase.Test;
+            CheckServerRequirements(test);
+
             var connectionMap = new ConcurrentDictionary<string, IConnection>();
             var eventCapturer = new EventCapturer();
             var tasks = new ConcurrentDictionary<string, Task>();
 
-            var test = testCase.Test;
             JsonDrivenHelper.EnsureAllFieldsAreValid(test, Schema.AllFields);
             var isUnit = EnsureStyle(test) == Schema.Styles.unit;
 
@@ -692,6 +695,14 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
             else
             {
                 throw new Exception($"The task {waitThread} must be configured before waiting.");
+            }
+        }
+
+        private void CheckServerRequirements(BsonDocument document)
+        {
+            if (document.TryGetValue(Schema.Intergration.runOn, out var runOn))
+            {
+                RequireServer.Check().RunOn(runOn.AsBsonArray);
             }
         }
 

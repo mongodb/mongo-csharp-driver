@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -636,66 +635,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
         }
 
         // private methods
-        // TODO BD, use ThreadingUtilities from BsonTests.Helper
-        private static void ExecuteOnNewThread(int threadsCount, Action<int> action, int timeoutMilliseconds = 100000)
-        {
-            var actionsExecutedCount = 0;
-
-            var exceptions = new ConcurrentBag<Exception>();
-
-            var threads = Enumerable.Range(0, threadsCount).Select(i =>
-            {
-                var thread = new Thread(_ =>
-                {
-                    try
-                    {
-                        action(i);
-                        Interlocked.Increment(ref actionsExecutedCount);
-                    }
-                    catch (Exception ex)
-                    {
-                        exceptions.Add(ex);
-                    }
-                });
-
-                thread.IsBackground = true;
-                thread.Start();
-
-                return thread;
-            })
-            .ToArray();
-
-            foreach (var thread in threads)
-            {
-                if (!thread.Join(timeoutMilliseconds))
-                {
-                    throw new TimeoutException();
-                }
-            }
-
-            if (exceptions.Any())
-            {
-                throw exceptions.First();
-            }
-
-            actionsExecutedCount.Should().Be(threadsCount);
-        }
-
-        // private methods
-        private Task<IConnectionHandle>[] AcquireConnectionGeneric(
-            int threadsCount,
-            ExclusiveConnectionPool connectionPool,
-            bool async,
-            ManualResetEventSlim startEvent,
-            CancellationToken cancellationToken = default)
-        {
-            var tasks = async ?
-                TasksUtils.CreateTasks(threadsCount, _ => connectionPool.AcquireConnectionAsync(cancellationToken)) :
-                TasksUtils.CreateTasksOnOwnThread(threadsCount, _ => connectionPool.AcquireConnection(cancellationToken));
-
-            return tasks;
-        }
-
         private static IConnection AcquireConnectionGeneric(ExclusiveConnectionPool subject, bool async)
         {
             if (async)
