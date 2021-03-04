@@ -24,21 +24,24 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
 {
     public static class ContainsMethodToAggregationExpressionTranslator
     {
+        // public methods
         public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
-            if (IsContainsMethod(expression, out var sourceExpression, out var valueExpression))
+            if (IsEnumerableContainsMethod(expression, out var sourceExpression, out var valueExpression))
             {
-                var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
-                var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
-                var ast = new AstBinaryExpression(AstBinaryOperator.In, valueTranslation.Ast, sourceTranslation.Ast);
+                return TranslateEnumerableContains(context, expression, sourceExpression, valueExpression);
+            }
 
-                return new AggregationExpression(expression, ast, new BooleanSerializer());
+            if (expression.Method.Is(StringMethod.Contains))
+            {
+                return StartsWithContainsOrEndsWithMethodToAggregationExpressionTranslator.Translate(context, expression);
             }
 
             throw new ExpressionNotSupportedException(expression);
         }
 
-        private static bool IsContainsMethod(MethodCallExpression expression, out Expression sourceExpression, out Expression valueExpression)
+        // private methods
+        private static bool IsEnumerableContainsMethod(MethodCallExpression expression, out Expression sourceExpression, out Expression valueExpression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -63,6 +66,15 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             }
 
             return false;
+        }
+
+        private static AggregationExpression TranslateEnumerableContains(TranslationContext context, Expression expression, Expression sourceExpression, Expression valueExpression)
+        {
+            var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
+            var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
+            var ast = new AstBinaryExpression(AstBinaryOperator.In, valueTranslation.Ast, sourceTranslation.Ast);
+
+            return new AggregationExpression(expression, ast, new BooleanSerializer());
         }
     }
 }

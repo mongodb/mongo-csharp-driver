@@ -87,6 +87,10 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 case "StandardDeviationSample":
                     return StandardDeviationMethodsToAggregationExpressionTranslator.Translate(context, expression);
 
+                case "StartsWith":
+                case "EndsWith":
+                    return StartsWithContainsOrEndsWithMethodToAggregationExpressionTranslator.Translate(context, expression);
+
                 case "Substring":
                 case "SubstrBytes":
                     return SubstringMethodToAggregationExpressionTranslator.Translate(context, expression);
@@ -96,6 +100,11 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 case "ToUpper":
                 case "ToUpperInvariant":
                     return ToLowerOrToUpperMethodToAggregationExpressionTranslator.Translate(context, expression);
+
+                case "Trim":
+                case "TrimEnd":
+                case "TrimStart":
+                    return TrimMethodToAggregationExpressionTranslator.Translate(context, expression);
             }
 
             throw new ExpressionNotSupportedException(expression);

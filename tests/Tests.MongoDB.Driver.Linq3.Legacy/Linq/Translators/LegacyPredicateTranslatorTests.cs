@@ -526,25 +526,25 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSASub0ContainsO()
         {
-            Assert<C>(c => c.SA[0].Contains("o"), 1, "{ 'sa.0' : /o/s }");
+            Assert<C>(c => c.SA[0].Contains("o"), 1, "{ $expr : { $gte : [{ $indexOfCP : [{ $arrayElemAt : ['$sa', 0] }, 'o'] }, 0] } }");
         }
 
         [Fact]
         public void TestWhereSASub0ContainsONot()
         {
-            Assert<C>(c => !c.SA[0].Contains("o"), 4, "{ $nor : [{ 'sa.0' : /o/s }] }");
+            Assert<C>(c => !c.SA[0].Contains("o"), 4, "{ $nor : [ { $expr : { $gte : [{ $indexOfCP : [{ $arrayElemAt : ['$sa', 0] }, 'o'] }, 0] } }] }");
         }
 
         [Fact]
         public void TestWhereSASub0EndsWithM()
         {
-            Assert<C>(c => c.SA[0].EndsWith("m"), 1, "{ 'sa.0' : /m$/s }");
+            Assert<C>(c => c.SA[0].EndsWith("m"), 1, "{ $expr : { $let : { vars : { string : { $arrayElemAt : ['$sa', 0] } }, in : { $gte : [{ $indexOfCP : ['$$string', 'm', { $subtract : [{ $strLenCP : '$$string' }, 1] }] }, 0] } } } }");
         }
 
         [Fact]
         public void TestWhereSASub0EndsWithMNot()
         {
-            Assert<C>(c => !c.SA[0].EndsWith("m"), 4, "{ $nor : [{ 'sa.0' : /m$/s }] }");
+            Assert<C>(c => !c.SA[0].EndsWith("m"), 4, "{ $nor : [{ $expr : { $let : { vars : { string : { $arrayElemAt : ['$sa', 0] } }, in : { $gte : [{ $indexOfCP : ['$$string', 'm', { $subtract : [{ $strLenCP : '$$string' }, 1] }] }, 0] } } } }] }");
         }
 
         [Fact]
@@ -582,31 +582,31 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSASub0StartsWithT()
         {
-            Assert<C>(c => c.SA[0].StartsWith("T"), 1, "{ \"sa.0\" : /^T/s }");
+            Assert<C>(c => c.SA[0].StartsWith("T"), 1, "{ $expr : { $eq : [{ $indexOfCP : [{ $arrayElemAt : ['$sa', 0 ] }, 'T'] }, 0] } }");
         }
 
         [Fact]
         public void TestWhereSASub0StartsWithTNot()
         {
-            Assert<C>(c => !c.SA[0].StartsWith("T"), 4, "{ $nor : [{ \"sa.0\" : /^T/s }] }");
+            Assert<C>(c => !c.SA[0].StartsWith("T"), 4, "{ $nor : [{ $expr : { $eq : [{ $indexOfCP : [{ $arrayElemAt : ['$sa', 0 ] }, 'T'] }, 0] } }] }");
         }
 
         [Fact]
         public void TestWhereSContainsAbc()
         {
-            Assert<C>(c => c.S.Contains("abc"), 1, "{ s : /abc/s }");
+            Assert<C>(c => c.S.Contains("abc"), 1, "{ $expr : { $gte : [{ $indexOfCP : ['$s', 'abc' ] }, 0] } }");
         }
 
         [Fact]
         public void TestWhereSContainsAbcNot()
         {
-            Assert<C>(c => !c.S.Contains("abc"), 4, "{ $nor : [{ s : /abc/s }] }");
+            Assert<C>(c => !c.S.Contains("abc"), 4, "{ $nor : [{ $expr : { $gte : [{ $indexOfCP : ['$s', 'abc' ] }, 0] } }] }");
         }
 
         [Fact]
         public void TestWhereSContainsDot()
         {
-            Assert<C>(c => c.S.Contains("."), 0, "{ s : /\\./s }");
+            Assert<C>(c => c.S.Contains("."), 0, "{ $expr : { $gte : [{ $indexOfCP : ['$s', '.' ] }, 0] } }");
         }
 
         [Fact]
@@ -654,13 +654,13 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSEndsWithAbc()
         {
-            Assert<C>(c => c.S.EndsWith("abc"), 1, "{ s : /abc$/s }");
+            Assert<C>(c => c.S.EndsWith("abc"), 1, "{ $expr : { $gte : [{ $indexOfCP : ['$s', 'abc', { $subtract : [{ $strLenCP : '$s' }, 3] }] }, 0] } }");
         }
 
         [Fact]
         public void TestWhereSEndsWithAbcNot()
         {
-            Assert<C>(c => !c.S.EndsWith("abc"), 4, "{ $nor : [{ s : /abc$/s }] }");
+            Assert<C>(c => !c.S.EndsWith("abc"), 4, "{ $nor : [{ $expr : { $gte : [{ $indexOfCP : ['$s', 'abc', { $subtract : [{ $strLenCP : '$s' }, 3] }] }, 0] } }] }");
         }
 
         [Fact]
@@ -812,13 +812,13 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSStartsWithAbc()
         {
-            Assert<C>(c => c.S.StartsWith("abc"), 1, "{ \"s\" : /^abc/s }");
+            Assert<C>(c => c.S.StartsWith("abc"), 1, "{ $expr : { $eq : [{ $indexOfCP : ['$s', 'abc'] }, 0] } }");
         }
 
         [Fact]
         public void TestWhereSStartsWithAbcNot()
         {
-            Assert<C>(c => !c.S.StartsWith("abc"), 4, "{ $nor : [{ \"s\" : /^abc/s }] }");
+            Assert<C>(c => !c.S.StartsWith("abc"), 4, "{ $nor : [{ $expr : { $eq : [{ $indexOfCP : ['$s', 'abc'] }, 0] } }] }");
         }
 
         [Fact]
@@ -848,44 +848,44 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSTrimContainsXyz()
         {
-            Assert<C>(c => c.S.Trim().Contains("xyz"), 1, "{ \"s\" : /^\\s*(?!\\s).*xyz.*(?<!\\s)\\s*$/s }");
+            Assert<C>(c => c.S.Trim().Contains("xyz"), 1, "{ $expr : { $gte : [{ $indexOfCP : [{ $trim : { input : '$s' } }, 'xyz'] }, 0] } }");
         }
 
         [Fact]
         public void TestWhereSTrimContainsXyzNot()
         {
-            Assert<C>(c => !c.S.Trim().Contains("xyz"), 4, "{ $nor : [{ \"s\" : /^\\s*(?!\\s).*xyz.*(?<!\\s)\\s*$/s }] }");
+            Assert<C>(c => !c.S.Trim().Contains("xyz"), 4, "{ $nor : [{ $expr : { $gte : [{ $indexOfCP : [{ $trim : { input : '$s' } }, 'xyz'] }, 0] } }] }");
         }
 
         [Fact]
         public void TestWhereSTrimEndsWithXyz()
         {
-            Assert<C>(c => c.S.Trim().EndsWith("xyz"), 1, "{ \"s\" : /^\\s*(?!\\s).*xyz(?<!\\s)\\s*$/s }");
+            Assert<C>(c => c.S.Trim().EndsWith("xyz"), 1, "{ $expr : { $let : { vars : { string : { $trim : { input : '$s' } } }, in : { $gte : [{ $indexOfCP : ['$$string', 'xyz', { $subtract : [{ $strLenCP : '$$string' }, 3] }] }, 0] } } } }");
         }
 
         [Fact]
         public void TestWhereSTrimEndsWithXyzNot()
         {
-            Assert<C>(c => !c.S.Trim().EndsWith("xyz"), 4, "{ $nor : [{ \"s\" : /^\\s*(?!\\s).*xyz(?<!\\s)\\s*$/s }] }");
+            Assert<C>(c => !c.S.Trim().EndsWith("xyz"), 4, "{ $nor : [{ $expr : { $let : { vars : { string : { $trim : { input : '$s' } } }, in : { $gte : [{ $indexOfCP : ['$$string', 'xyz', { $subtract : [{ $strLenCP : '$$string' }, 3] }] }, 0] } } } }] }");
         }
 
         [Fact]
         public void TestWhereSTrimStartsWithXyz()
         {
-            Assert<C>(c => c.S.Trim().StartsWith("xyz"), 1, "{ \"s\" : /^\\s*(?!\\s)xyz.*(?<!\\s)\\s*$/s }");
+            Assert<C>(c => c.S.Trim().StartsWith("xyz"), 1, "{ $expr : { $eq : [{ $indexOfCP : [{ $trim : { input : '$s' } }, 'xyz'] }, 0] } }");
         }
 
         [Fact]
         public void TestWhereSTrimStartsWithXyzNot()
         {
-            Assert<C>(c => !c.S.Trim().StartsWith("xyz"), 4, "{ $nor : [{ \"s\" : /^\\s*(?!\\s)xyz.*(?<!\\s)\\s*$/s }] }");
+            Assert<C>(c => !c.S.Trim().StartsWith("xyz"), 4, "{ $nor : [{ $expr : { $eq : [{ $indexOfCP : [{ $trim : { input : '$s' } }, 'xyz'] }, 0] } }] }");
         }
 
 #if NET452 || NETCOREAPP1_0        
         [Fact]
         public void TestWhereSTrimStartTrimEndToLowerContainsXyz()
         {
-            Assert<C>(c => c.S.TrimStart(' ', '.', '-', '\t').TrimEnd().ToLower().Contains("xyz"), 1, "{ \"s\" : /^[\\ \\.\\-\\t]*(?![\\ \\.\\-\\t]).*xyz.*(?<!\\s)\\s*$/is }");
+            Assert<C>(c => c.S.TrimStart(' ', '.', '-', '\t').TrimEnd().ToLower().Contains("xyz"), 1, "{ $expr : { $gte : [{ $indexOfCP : [{ $toLower : { $rtrim : { input : { $ltrim : { input : '$s', chars : ' .-\t' } } } } }, 'xyz'] }, 0] } }");
         }
 #endif    
 
