@@ -684,37 +684,37 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSIndexOfBEquals1()
         {
-            Assert<C>(c => c.S.IndexOf('b') == 1, 1, "{ \"s\" : /^[^b]{1}b/s }");
+            Assert<C>(c => c.S.IndexOf('b') == 1, 1, "{ $expr : { $eq : [{ $indexOfCP : ['$s', 'b'] }, 1] } }");
         }
 
         [Fact]
         public void TestWhereSIndexOfBStartIndex1Equals1()
         {
-            Assert<C>(c => c.S.IndexOf('b', 1) == 1, 1, "{ \"s\" : /^.{1}b/s }");
+            Assert<C>(c => c.S.IndexOf('b', 1) == 1, 1, "{ $expr : { $eq : [{ $indexOfCP : ['$s', 'b', 1] }, 1] } }");
         }
 
         [Fact]
         public void TestWhereSIndexOfBStartIndex1Count2Equals1()
         {
-            Assert<C>(c => c.S.IndexOf('b', 1, 2) == 1, 1, "{ \"s\" : /^.{1}(?=.{2})b/s }");
+            Assert<C>(c => c.S.IndexOf('b', 1, 2) == 1, 1, "{ $expr : { $eq : [{ $indexOfCP : ['$s', 'b', 1, 3] }, 1] } }");
         }
 
         [Fact]
         public void TestWhereSIndexOfXyzEquals3()
         {
-            Assert<C>(c => c.S.IndexOf("xyz") == 3, 1, "{ \"s\" : /^(?!.{0,2}xyz).{3}xyz/s }");
+            Assert<C>(c => c.S.IndexOf("xyz") == 3, 1, "{ $expr : { $eq : [{ $indexOfCP : ['$s', 'xyz'] }, 3] } }");
         }
 
         [Fact]
         public void TestWhereSIndexOfXyzStartIndex1Equals3()
         {
-            Assert<C>(c => c.S.IndexOf("xyz", 1) == 3, 1, "{ \"s\" : /^.{1}(?!.{0,1}xyz).{2}xyz/s }");
+            Assert<C>(c => c.S.IndexOf("xyz", 1) == 3, 1, "{ $expr : { $eq : [{ $indexOfCP : ['$s', 'xyz', 1] }, 3] } }");
         }
 
         [Fact]
         public void TestWhereSIndexOfXyzStartIndex1Count5Equals3()
         {
-            Assert<C>(c => c.S.IndexOf("xyz", 1, 5) == 3, 1, "{ \"s\" : /^.{1}(?=.{5})(?!.{0,1}xyz).{2}xyz/s }");
+            Assert<C>(c => c.S.IndexOf("xyz", 1, 5) == 3, 1, "{ $expr : { $eq : [{ $indexOfCP : ['$s', 'xyz', 1, 6] }, 3] } }");
         }
 
         [Fact]
