@@ -516,14 +516,13 @@ namespace MongoDB.Driver.Core.ConnectionPools
             [Values(true, false)]
             bool isAsync)
         {
-            const int maxConnecting = 2;
+            int maxConnecting = MongoCoreDefaults.ConnectionPool.MaxConnecting;
             const int initalAcquiredCount = 2;
             const int maxAcquiringCount = 4;
             const int queueTimeoutMS = 50;
 
             var settings = _settings.With(
                 waitQueueSize: maxAcquiringCount + initalAcquiredCount + maxConnecting,
-                maxConnecting: maxConnecting,
                 maxConnections: maxAcquiringCount + initalAcquiredCount + maxConnecting,
                 waitQueueTimeout: TimeSpan.FromMilliseconds(queueTimeoutMS),
                 minConnections: 0);

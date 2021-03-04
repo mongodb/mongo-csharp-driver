@@ -73,7 +73,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _connectionFactory = Ensure.IsNotNull(connectionFactory, nameof(connectionFactory));
             Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
 
-            _connectingQueue = new SemaphoreSlimSignalable(settings.MaxConnecting);
+            _connectingQueue = new SemaphoreSlimSignalable(MongoCoreDefaults.ConnectionPool.MaxConnecting);
             _connectionHolder = new ListConnectionHolder(eventSubscriber, _connectingQueue);
             _poolQueue = new WaitQueue(settings.MaxConnections);
 #pragma warning disable 618
