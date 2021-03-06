@@ -27,9 +27,6 @@
   },
   "operations": [
     {
-      "name": "ready"
-    },
-    {
       "name": "start",
       "target": "thread1"
     },
@@ -101,7 +98,6 @@
     "ConnectionCheckedIn",
     "ConnectionCheckedOut",
     "ConnectionClosed",
-    "ConnectionPoolCreated",
-    "ConnectionPoolReady"
+    "ConnectionPoolCreated"
   ]
 }

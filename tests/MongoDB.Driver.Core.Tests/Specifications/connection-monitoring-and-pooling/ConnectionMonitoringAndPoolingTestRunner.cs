@@ -404,8 +404,6 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
 
             switch (name)
             {
-                case "ready":
-                    break;
                 case "checkIn":
                     ExecuteCheckIn(operation, connectionMap, out exception);
                     break;
@@ -507,7 +505,6 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
             switch (expectedEventName)
             {
                 case "ConnectionPoolCreated":
-                case "ConnectionPoolReady":
                     return nameof(ConnectionPoolOpenedEvent);
                 case "ConnectionPoolClosed":
                     return nameof(ConnectionPoolClosedEvent);

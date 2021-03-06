@@ -80,7 +80,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                 if (enteredPool)
                 {
-                    using (var connectionCreator = new ConnectionCreator(_pool))
+                    var timeSpentInWaitQueue = _stopwatch.Elapsed;
+                    using (var connectionCreator = new ConnectionCreator(_pool, _pool._settings.WaitQueueTimeout - timeSpentInWaitQueue))
                     {
                         connection = connectionCreator.CreateOpenedOrReuse(cancellationToken);
                     }
@@ -96,7 +97,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                 if (enteredPool)
                 {
-                    using (var connectionCreator = new ConnectionCreator(_pool))
+                    var timeSpentInWaitQueue = _stopwatch.Elapsed;
+                    using (var connectionCreator = new ConnectionCreator(_pool, _pool._settings.WaitQueueTimeout - timeSpentInWaitQueue))
                     {
                         connection = await connectionCreator.CreateOpenedOrReuseAsync(cancellationToken).ConfigureAwait(false);
                     }
@@ -550,6 +552,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         private sealed class ConnectionCreator : IDisposable
         {
             private readonly ExclusiveConnectionPool _pool;
+            private readonly TimeSpan _connectingTimeout;
 
             private PooledConnection _connection;
             private bool _disposeConnection;
@@ -558,9 +561,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             private Stopwatch _stopwatch;
 
-            public ConnectionCreator(ExclusiveConnectionPool pool)
+            public ConnectionCreator(ExclusiveConnectionPool pool, TimeSpan connectingTimeout)
             {
                 _pool = pool;
+                _connectingTimeout = connectingTimeout;
                 _connectingWaitStatus = SemaphoreSlimSignalable.SemaphoreWaitResult.None;
                 _connection = null;
                 _disposeConnection = true;
@@ -570,7 +574,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             public async Task<PooledConnection> CreateOpenedAsync(CancellationToken cancellationToken)
             {
                 var stopwatch = Stopwatch.StartNew();
-                _connectingWaitStatus = await _pool._connectingQueue.WaitAsync(_pool._settings.WaitQueueTimeout, cancellationToken).ConfigureAwait(false);
+                _connectingWaitStatus = await _pool._connectingQueue.WaitAsync(_connectingTimeout, cancellationToken).ConfigureAwait(false);
                 stopwatch.Stop();
 
                 if (_connectingWaitStatus == SemaphoreSlimSignalable.SemaphoreWaitResult.TimedOut)
@@ -585,7 +589,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             public PooledConnection CreateOpenedOrReuse(CancellationToken cancellationToken)
             {
                 var connection = _pool._connectionHolder.Acquire();
-                var waitTimeout = _pool._settings.WaitQueueTimeout;
+                var waitTimeout = _connectingTimeout;
                 var stopwatch = Stopwatch.StartNew();
 
                 while (connection == null)
@@ -604,7 +608,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         _ => throw new ArgumentOutOfRangeException(nameof(_connectingWaitStatus))
                     };
 
-                    waitTimeout = _pool._settings.WaitQueueTimeout - stopwatch.Elapsed;
+                    waitTimeout = _connectingTimeout - stopwatch.Elapsed;
 
                     if (connection == null && waitTimeout <= TimeSpan.Zero)
                     {
@@ -619,7 +623,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             {
                 var connection = _pool._connectionHolder.Acquire();
 
-                var waitTimeout = _pool._settings.WaitQueueTimeout;
+                var waitTimeout = _connectingTimeout;
                 var stopwatch = Stopwatch.StartNew();
 
                 while (connection == null)
@@ -638,7 +642,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         _ => throw new ArgumentOutOfRangeException(nameof(_connectingWaitStatus))
                     };
 
-                    waitTimeout = _pool._settings.WaitQueueTimeout - stopwatch.Elapsed;
+                    waitTimeout = _connectingTimeout - stopwatch.Elapsed;
 
                     if (connection == null && waitTimeout <= TimeSpan.Zero)
                     {

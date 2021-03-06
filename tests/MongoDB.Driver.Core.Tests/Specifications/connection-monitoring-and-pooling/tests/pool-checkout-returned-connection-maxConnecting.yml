@@ -18,7 +18,6 @@ poolOptions:
   maxPoolSize: 10
   waitQueueTimeoutMS: 5000
 operations:
-  - name: ready
   # check out a connection and hold on to it.
   - name: checkOut
     label: conn0
@@ -79,7 +78,6 @@ events:
   - type: ConnectionCheckedOut
     address: 42
 ignore:
-  - ConnectionPoolReady
   - ConnectionClosed
   - ConnectionReady
   - ConnectionPoolCreated
