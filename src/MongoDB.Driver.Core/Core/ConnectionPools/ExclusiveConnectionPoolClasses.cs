@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -470,14 +471,12 @@ namespace MongoDB.Driver.Core.ConnectionPools
             {
                 lock (_lock)
                 {
-                    for (int i = 0; i < _connections.Count; i++)
+                    var expiredConnections = _connections.Where(c => c.IsExpired).ToArray();
+
+                    foreach (var connection in expiredConnections)
                     {
-                        if (_connections[i].IsExpired)
-                        {
-                            RemoveConnection(_connections[i]);
-                            _connections.RemoveAt(i);
-                            break;
-                        }
+                        RemoveConnection(connection);
+                        _connections.Remove(connection);
                     }
 
                     SignalOrReset();
@@ -486,25 +485,29 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             public PooledConnection Acquire()
             {
+                PooledConnection result = null;
+
                 lock (_lock)
                 {
-                    if (_connections.Count > 0)
+                    while (_connections.Count > 0 && result == null)
                     {
-                        var connection = _connections[_connections.Count - 1];
+                        var connection = _connections.Last();
                         _connections.RemoveAt(_connections.Count - 1);
+
                         if (connection.IsExpired)
                         {
                             RemoveConnection(connection);
                         }
                         else
                         {
-                            return connection;
+                            result = connection;
                         }
                     }
 
                     SignalOrReset();
                 }
-                return null;
+
+                return result;
             }
 
             public void Return(PooledConnection connection)
