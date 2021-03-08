@@ -671,7 +671,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
 
             // ensure removed events are received in subsequent order, meaning all expired connections where removed in same pass
-            _capturedEvents.WaitForOrThrowIfTimeout(events => events.Count() == connectionsCount * 2, TimeSpan.FromMilliseconds(200));
+            _capturedEvents.WaitForOrThrowIfTimeout(events => events.Count() == connectionsCount * 2, TimeSpan.FromSeconds(10));
 
             _capturedEvents.Events
                 .Take(connectionsCount * 2)
