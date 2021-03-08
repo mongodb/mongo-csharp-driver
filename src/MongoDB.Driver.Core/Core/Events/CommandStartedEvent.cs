@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
@@ -28,6 +29,7 @@ namespace MongoDB.Driver.Core.Events
         private readonly string _commandName;
         private readonly ConnectionId _connectionId;
         private readonly DatabaseNamespace _databaseNamespace;
+        private readonly DateTime _observedAt;
         private readonly long? _operationId;
         private readonly int _requestId;
 
@@ -48,6 +50,7 @@ namespace MongoDB.Driver.Core.Events
             _connectionId = Ensure.IsNotNull(connectionId, "connectionId");
             _operationId = operationId;
             _requestId = requestId;
+            _observedAt = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -80,6 +83,14 @@ namespace MongoDB.Driver.Core.Events
         public DatabaseNamespace DatabaseNamespace
         {
             get { return _databaseNamespace; }
+        }
+
+        /// <summary>
+        /// Gets the observed at time.
+        /// </summary>
+        public DateTime ObservedAt
+        {
+            get { return _observedAt; }
         }
 
         /// <summary>

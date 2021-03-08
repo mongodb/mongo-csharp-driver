@@ -14,17 +14,20 @@
 */
 
 using System;
+using System.Threading;
 using MongoDB.Bson;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
     public class UnifiedTestOperationFactory
     {
-        private UnifiedEntityMap _entityMap;
+        private readonly UnifiedEntityMap _entityMap;
+        private readonly CancellationToken _terminationCancellationToken;
 
-        public UnifiedTestOperationFactory(UnifiedEntityMap entityMap)
+        public UnifiedTestOperationFactory(UnifiedEntityMap entityMap, CancellationToken terminationCancellationToken)
         {
             _entityMap = entityMap;
+            _terminationCancellationToken = terminationCancellationToken;
         }
 
         public IUnifiedTestOperation CreateOperation(string operationName, string targetEntityId, BsonDocument operationArguments)
@@ -58,6 +61,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                             return new UnifiedAssertSessionUnpinnedOperationBuilder(_entityMap).Build(operationArguments);
                         case "failPoint":
                             return new UnifiedFailPointOperationBuilder(_entityMap).Build(operationArguments);
+                        case "loop":
+                            return new UnifiedLoopOperationBuilder(_entityMap, _terminationCancellationToken).Build(operationArguments);
                         case "targetedFailPoint":
                             return new UnifiedTargetedFailPointOperationBuilder(_entityMap).Build(operationArguments);
                         default:

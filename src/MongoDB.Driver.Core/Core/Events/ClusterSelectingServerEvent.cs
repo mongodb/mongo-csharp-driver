@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 
@@ -24,6 +25,7 @@ namespace MongoDB.Driver.Core.Events
     public struct ClusterSelectingServerEvent
     {
         private readonly ClusterDescription _clusterDescription;
+        private readonly DateTime _observedAt;
         private readonly long? _operationId;
         private readonly IServerSelector _serverSelector;
 
@@ -38,6 +40,7 @@ namespace MongoDB.Driver.Core.Events
             _clusterDescription = clusterDescription;
             _serverSelector = serverSelector;
             _operationId = operationId;
+            _observedAt = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -54,6 +57,14 @@ namespace MongoDB.Driver.Core.Events
         public ClusterDescription ClusterDescription
         {
             get { return _clusterDescription; }
+        }
+
+        /// <summary>
+        /// Gets the observed at time.
+        /// </summary>
+        public DateTime ObservedAt
+        {
+            get { return _observedAt; }
         }
 
         /// <summary>

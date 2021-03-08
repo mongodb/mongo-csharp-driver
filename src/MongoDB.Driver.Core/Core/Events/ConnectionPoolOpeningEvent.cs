@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Servers;
@@ -26,6 +27,7 @@ namespace MongoDB.Driver.Core.Events
     {
         private readonly ServerId _serverId;
         private readonly ConnectionPoolSettings _connectionPoolSettings;
+        private readonly DateTime _observedAt;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConnectionPoolOpeningEvent"/> struct.
@@ -36,6 +38,7 @@ namespace MongoDB.Driver.Core.Events
         {
             _serverId = serverId;
             _connectionPoolSettings = connectionPoolSettings;
+            _observedAt = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -52,6 +55,14 @@ namespace MongoDB.Driver.Core.Events
         public ConnectionPoolSettings ConnectionPoolSettings
         {
             get { return _connectionPoolSettings; }
+        }
+
+        /// <summary>
+        /// Gets the observed at time.
+        /// </summary>
+        public DateTime ObservedAt
+        {
+            get { return _observedAt; }
         }
 
         /// <summary>

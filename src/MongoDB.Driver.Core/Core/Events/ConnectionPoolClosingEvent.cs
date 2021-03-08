@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Servers;
 
@@ -23,6 +24,7 @@ namespace MongoDB.Driver.Core.Events
     /// </summary>
     public struct ConnectionPoolClosingEvent
     {
+        private readonly DateTime _observedAt;
         private readonly ServerId _serverId;
 
         /// <summary>
@@ -32,6 +34,7 @@ namespace MongoDB.Driver.Core.Events
         public ConnectionPoolClosingEvent(ServerId serverId)
         {
             _serverId = serverId;
+            _observedAt = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -40,6 +43,14 @@ namespace MongoDB.Driver.Core.Events
         public ClusterId ClusterId
         {
             get { return _serverId.ClusterId; }
+        }
+
+        /// <summary>
+        /// Gets the observed at time.
+        /// </summary>
+        public DateTime ObservedAt
+        {
+            get { return _observedAt; }
         }
 
         /// <summary>

@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Core.Events
         private readonly ConnectionCheckOutFailedReason _reason;
         private readonly ServerId _serverId;
         private readonly Exception _exception;
+        private readonly DateTime _observedAt;
         private readonly long? _operationId;
 
         /// <summary>
@@ -46,6 +47,7 @@ namespace MongoDB.Driver.Core.Events
             _exception = exception;
             _operationId = operationId;
             _reason = reason;
+            _observedAt = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -62,6 +64,14 @@ namespace MongoDB.Driver.Core.Events
         public Exception Exception
         {
             get { return _exception; }
+        }
+
+        /// <summary>
+        /// Gets the observed at time.
+        /// </summary>
+        public DateTime ObservedAt
+        {
+            get { return _observedAt; }
         }
 
         /// <summary>

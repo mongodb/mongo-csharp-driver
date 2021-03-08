@@ -28,6 +28,7 @@ namespace MongoDB.Driver.Core.Events
         private readonly string _commandName;
         private readonly ConnectionId _connectionId;
         private readonly TimeSpan _duration;
+        private readonly DateTime _observedAt;
         private readonly long? _operationId;
         private readonly int _requestId;
         private readonly BsonDocument _reply;
@@ -49,6 +50,7 @@ namespace MongoDB.Driver.Core.Events
             _operationId = operationId;
             _requestId = requestId;
             _duration = duration;
+            _observedAt = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -73,6 +75,14 @@ namespace MongoDB.Driver.Core.Events
         public TimeSpan Duration
         {
             get { return _duration; }
+        }
+
+        /// <summary>
+        /// Gets the observed at time.
+        /// </summary>
+        public DateTime ObservedAt
+        {
+            get { return _observedAt; }
         }
 
         /// <summary>

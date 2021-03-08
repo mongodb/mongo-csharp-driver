@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
@@ -26,6 +27,7 @@ namespace MongoDB.Driver.Core.Events
     public struct ConnectionSendingMessagesEvent
     {
         private readonly ConnectionId _connectionId;
+        private readonly DateTime _observedAt;
         private readonly long? _operationId;
         private readonly IReadOnlyList<int> _requestIds;
 
@@ -40,6 +42,7 @@ namespace MongoDB.Driver.Core.Events
             _connectionId = connectionId;
             _requestIds = requestIds;
             _operationId = operationId;
+            _observedAt = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -64,6 +67,14 @@ namespace MongoDB.Driver.Core.Events
         public IReadOnlyList<int> RequestIds
         {
             get { return _requestIds; }
+        }
+
+        /// <summary>
+        /// Gets the observed at time.
+        /// </summary>
+        public DateTime ObservedAt
+        {
+            get { return _observedAt; }
         }
 
         /// <summary>

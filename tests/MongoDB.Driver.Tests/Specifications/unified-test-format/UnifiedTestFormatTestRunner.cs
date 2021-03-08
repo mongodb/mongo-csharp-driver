@@ -21,6 +21,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -29,10 +30,23 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Specifications.unified_test_format
 {
-    public sealed class UnifiedTestFormatTestRunner : IDisposable
+    public sealed class UnifiedTestFormatTestRunner : IDisposable // TODO: rename
     {
+        private readonly bool _allowKillSessions;
         private UnifiedEntityMap _entityMap;
-        private List<FailPoint> _failPoints = new List<FailPoint>();
+        private readonly List<FailPoint> _failPoints = new List<FailPoint>();
+        private readonly CancellationToken _terminationCancellationToken;
+
+        public UnifiedTestFormatTestRunner(
+            bool allowKillSessions = true, // TODO: temporal change
+            CancellationToken terminationCancellationToken = default)
+        {
+            _allowKillSessions = allowKillSessions;
+            _terminationCancellationToken = terminationCancellationToken;
+        }
+
+        // public properties
+        public UnifiedEntityMap EntityMap => _entityMap;
 
         [SkippableTheory]
         [ClassData(typeof(TestCaseFactory))]
@@ -68,7 +82,7 @@ namespace MongoDB.Driver.Tests.Specifications.unified_test_format
         {
             var schemaSemanticVersion = SemanticVersion.Parse(schemaVersion);
             if (schemaSemanticVersion < new SemanticVersion(1, 0, 0) ||
-                schemaSemanticVersion > new SemanticVersion(1, 1, 0))
+                schemaSemanticVersion > new SemanticVersion(1, 2, 0))
             {
                 throw new FormatException($"Schema version '{schemaVersion}' is not supported.");
             }
@@ -84,7 +98,11 @@ namespace MongoDB.Driver.Tests.Specifications.unified_test_format
             {
                 throw new SkipException($"Test skipped because '{skipReason}'.");
             }
-            KillOpenTransactions(DriverTestConfiguration.Client);
+
+            if (_allowKillSessions)
+            {
+                KillOpenTransactions(DriverTestConfiguration.Client);
+            }
 
             _entityMap = new UnifiedEntityMapBuilder().Build(entities);
 
@@ -96,7 +114,7 @@ namespace MongoDB.Driver.Tests.Specifications.unified_test_format
             foreach (var operation in operations)
             {
                 var cancellationToken = CancellationToken.None;
-                AssertOperation(operation.AsBsonDocument, async, cancellationToken);
+                CreateAndRunOperation(operation.AsBsonDocument, async, cancellationToken);
             }
 
             if (expectedEvents != null)
@@ -161,14 +179,14 @@ namespace MongoDB.Driver.Tests.Specifications.unified_test_format
             foreach (var eventItem in eventItems)
             {
                 var clientId = eventItem["client"].AsString;
-                var eventCapturer = entityMap.GetEventCapturer(clientId);
+                var eventCapturer = entityMap.EventCapturers[clientId];
                 var actualEvents = eventCapturer.Events;
 
                 unifiedEventMatcher.AssertEventsMatch(actualEvents, eventItem["events"].AsBsonArray);
             }
         }
 
-        private void AssertOperation(BsonDocument operationDocument, bool async, CancellationToken cancellationToken)
+        private void CreateAndRunOperation(BsonDocument operationDocument, bool async, CancellationToken cancellationToken)
         {
             var operation = CreateOperation(operationDocument, _entityMap);
 
@@ -183,14 +201,14 @@ namespace MongoDB.Driver.Tests.Specifications.unified_test_format
                 case IUnifiedSpecialTestOperation specialOperation:
                     specialOperation.Execute();
                     break;
-                case IUnifiedWithTransactionOperation withTransactionOperation:
+                case IUnifiedOperationWithCreateAndRunOperationCallback operationWithCreateAndRunCallback:
                     if (async)
                     {
-                        withTransactionOperation.ExecuteAsync(AssertOperation, cancellationToken).GetAwaiter().GetResult();
+                        operationWithCreateAndRunCallback.ExecuteAsync(CreateAndRunOperation, cancellationToken).GetAwaiter().GetResult();
                     }
                     else
                     {
-                        withTransactionOperation.Execute(AssertOperation, cancellationToken);
+                        operationWithCreateAndRunCallback.Execute(CreateAndRunOperation, cancellationToken);
                     }
                     break;
                 case IUnifiedFailPointOperation failPointOperation:
@@ -265,7 +283,7 @@ namespace MongoDB.Driver.Tests.Specifications.unified_test_format
 
         private IUnifiedTestOperation CreateOperation(BsonDocument operation, UnifiedEntityMap entityMap)
         {
-            var factory = new UnifiedTestOperationFactory(entityMap);
+            var factory = new UnifiedTestOperationFactory(entityMap, _terminationCancellationToken);
 
             var operationName = operation["name"].AsString;
             var operationTarget = operation["object"].AsString;

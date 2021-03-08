@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Core.Events
     {
         private readonly ConnectionId _connectionId;
         private readonly TimeSpan _duration;
+        private readonly DateTime _observedAt;
         private readonly long? _operationId;
 
         /// <summary>
@@ -40,6 +41,7 @@ namespace MongoDB.Driver.Core.Events
             _connectionId = connectionId;
             _duration = duration;
             _operationId = operationId;
+            _observedAt = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -64,6 +66,14 @@ namespace MongoDB.Driver.Core.Events
         public TimeSpan Duration
         {
             get { return _duration; }
+        }
+
+        /// <summary>
+        /// Gets the observed at time.
+        /// </summary>
+        public DateTime ObservedAt
+        {
+            get { return _observedAt; }
         }
 
         /// <summary>

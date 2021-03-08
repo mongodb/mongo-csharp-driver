@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
@@ -27,6 +28,7 @@ namespace MongoDB.Driver.Core.Events
     {
         private readonly ConnectionId _connectionId;
         private readonly ConnectionSettings _connectionSettings;
+        private readonly DateTime _observedAt;
         private readonly long? _operationId;
 
         /// <summary>
@@ -40,6 +42,7 @@ namespace MongoDB.Driver.Core.Events
             _connectionId = connectionId;
             _connectionSettings = connectionSettings;
             _operationId = operationId;
+            _observedAt = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -64,6 +67,14 @@ namespace MongoDB.Driver.Core.Events
         public ConnectionSettings ConnectionSettings
         {
             get { return _connectionSettings; }
+        }
+
+        /// <summary>
+        /// Gets the observed at time.
+        /// </summary>
+        public DateTime ObservedAt
+        {
+            get { return _observedAt; }
         }
 
         /// <summary>

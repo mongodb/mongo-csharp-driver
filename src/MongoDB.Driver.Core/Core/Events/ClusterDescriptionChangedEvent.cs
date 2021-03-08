@@ -24,6 +24,7 @@ namespace MongoDB.Driver.Core.Events
     public struct ClusterDescriptionChangedEvent
     {
         private readonly ClusterDescription _oldDescription;
+        private readonly DateTime _observedAt;
         private readonly ClusterDescription _newDescription;
 
         /// <summary>
@@ -35,6 +36,7 @@ namespace MongoDB.Driver.Core.Events
         {
             _oldDescription = oldDescription;
             _newDescription = newDescription;
+            _observedAt = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -43,6 +45,14 @@ namespace MongoDB.Driver.Core.Events
         public ClusterId ClusterId
         {
             get { return NewDescription.ClusterId; }
+        }
+
+        /// <summary>
+        /// Gets the observed at time.
+        /// </summary>
+        public DateTime ObservedAt
+        {
+            get { return _observedAt; }
         }
 
         /// <summary>

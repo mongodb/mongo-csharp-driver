@@ -21,6 +21,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.TestHelpers;
 
 namespace MongoDB.Driver.Core
 {
@@ -46,6 +47,15 @@ namespace MongoDB.Driver.Core
                 predicate = o => true;
             }
             _eventsToCapture.Add(typeof(TEvent), o => predicate((TEvent)o));
+            return this;
+        }
+
+        public EventCapturer CaptureBySpecName(string specEventName, IEnumerable<string> commandNotTocapture = null, bool useDefaltCommandNotToCapture = true)
+        {
+            var eventType = EventSpecMapper.GetEventName(specEventName);
+            _eventsToCapture.Add(
+                eventType,
+                o => CommandCapturer.ShouldCapture(o, commandNotTocapture, useDefaltCommandNotToCapture)); // only command events use predicate filters
             return this;
         }
 
@@ -112,7 +122,7 @@ namespace MongoDB.Driver.Core
             var index = Task.WaitAny(notifyTask, Task.Delay(timeout));
             if (index != 0)
             {
-                throw new Exception(message != null ? message(timeout) : $"Waiting for the expected event exceeded the timeout {timeout}.") ;
+                throw new Exception(message != null ? message(timeout) : $"Waiting for the expected event exceeded the timeout {timeout}.");
             }
         }
 
@@ -161,6 +171,33 @@ namespace MongoDB.Driver.Core
 
         private class CommandCapturer
         {
+            #region static
+            private static string[] __defaultCommandNamesNotToCapturer = new[]
+            {
+                "authenticate",
+                "buildInfo",
+                "configureFailPoint",
+                "getLastError",
+                "getnonce",
+                "isMaster",
+                "saslContinue",
+                "saslStart"
+            };
+
+            public static bool ShouldCapture(object @event, IEnumerable<string> commandsNotTocapture, bool useDefaltCommandNotToCapture)
+            {
+                return @event switch
+                {
+                    CommandStartedEvent typedEvent => !GetCommandNotToCapture().Contains(typedEvent.CommandName),
+                    CommandFailedEvent typedEvent => !GetCommandNotToCapture().Contains(typedEvent.CommandName),
+                    CommandSucceededEvent typedEvent => !GetCommandNotToCapture().Contains(typedEvent.CommandName),
+                    _ => true,
+                };
+
+                IEnumerable<string> GetCommandNotToCapture() => useDefaltCommandNotToCapture ? Enumerable.Concat(commandsNotTocapture, __defaultCommandNamesNotToCapturer) : commandsNotTocapture;
+            }
+            #endregion
+
             private readonly EventCapturer _parent;
 
             public CommandCapturer(EventCapturer parent)

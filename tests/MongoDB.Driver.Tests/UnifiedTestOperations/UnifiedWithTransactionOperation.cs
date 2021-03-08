@@ -20,7 +20,7 @@ using MongoDB.Bson;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
-    public class UnifiedWithTransactionOperation : IUnifiedWithTransactionOperation
+    public class UnifiedWithTransactionOperation : IUnifiedOperationWithCreateAndRunOperationCallback
     {
         private readonly BsonArray _operations;
         private readonly TransactionOptions _options;

@@ -29,6 +29,7 @@ namespace MongoDB.Driver.Core.Events
         private readonly ConnectionId _connectionId;
         private readonly TimeSpan _duration;
         private readonly Exception _exception;
+        private readonly DateTime _observedAt;
         private readonly long? _operationId;
         private readonly int _requestId;
 
@@ -49,6 +50,7 @@ namespace MongoDB.Driver.Core.Events
             _operationId = operationId;
             _requestId = requestId;
             _duration = duration;
+            _observedAt = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -81,6 +83,14 @@ namespace MongoDB.Driver.Core.Events
         public Exception Failure
         {
             get { return _exception; }
+        }
+
+        /// <summary>
+        /// Gets the observed at time.
+        /// </summary>
+        public DateTime ObservedAt
+        {
+            get { return _observedAt; }
         }
 
         /// <summary>

@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
@@ -26,6 +27,7 @@ namespace MongoDB.Driver.Core.Events
     {
         private readonly bool _awaited;
         private readonly ConnectionId _connectionId;
+        private readonly DateTime _observedAt; 
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ServerHeartbeatStartedEvent"/> struct.
@@ -36,6 +38,7 @@ namespace MongoDB.Driver.Core.Events
         {
             _awaited = awaited;
             _connectionId = connectionId;
+            _observedAt = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -57,6 +60,14 @@ namespace MongoDB.Driver.Core.Events
         public ConnectionId ConnectionId
         {
             get { return _connectionId; }
+        }
+
+        /// <summary>
+        /// Gets the observed at time.
+        /// </summary>
+        public DateTime ObservedAt
+        {
+            get { return _observedAt; }
         }
 
         /// <summary>

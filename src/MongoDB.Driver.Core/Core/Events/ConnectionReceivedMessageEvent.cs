@@ -29,6 +29,7 @@ namespace MongoDB.Driver.Core.Events
         private readonly TimeSpan _deserializationDuration;
         private readonly TimeSpan _networkDuration;
         private readonly int _length;
+        private readonly DateTime _observedAt;
         private readonly long? _operationId;
         private readonly int _responseTo;
 
@@ -49,6 +50,7 @@ namespace MongoDB.Driver.Core.Events
             _networkDuration = networkDuration;
             _deserializationDuration = deserializationDuration;
             _operationId = operationId;
+            _observedAt = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -97,6 +99,14 @@ namespace MongoDB.Driver.Core.Events
         public int Length
         {
             get { return _length; }
+        }
+
+        /// <summary>
+        /// Gets the observed at time.
+        /// </summary>
+        public DateTime ObservedAt
+        {
+            get { return _observedAt; }
         }
 
         /// <summary>

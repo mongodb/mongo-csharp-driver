@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Core.Events
     /// </summary>
     public struct ServerOpenedEvent
     {
+        private readonly DateTime _observedAt;
         private readonly ServerId _serverId;
         private readonly ServerSettings _serverSettings;
         private readonly TimeSpan _duration;
@@ -40,6 +41,7 @@ namespace MongoDB.Driver.Core.Events
             _serverId = serverId;
             _serverSettings = serverSettings;
             _duration = duration;
+            _observedAt = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -56,6 +58,14 @@ namespace MongoDB.Driver.Core.Events
         public TimeSpan Duration
         {
             get { return _duration; }
+        }
+
+        /// <summary>
+        /// Gets the observed at time.
+        /// </summary>
+        public DateTime ObservedAt
+        {
+            get { return _observedAt; }
         }
 
         /// <summary>

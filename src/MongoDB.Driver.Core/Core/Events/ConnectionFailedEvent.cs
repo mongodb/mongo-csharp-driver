@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Core.Events
     {
         private readonly ConnectionId _connectionId;
         private readonly Exception _exception;
+        private readonly DateTime _observedAt;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConnectionFailedEvent"/> struct.
@@ -37,6 +38,7 @@ namespace MongoDB.Driver.Core.Events
         {
             _connectionId = connectionId;
             _exception = exception;
+            _observedAt = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -64,6 +66,14 @@ namespace MongoDB.Driver.Core.Events
         public Exception Exception
         {
             get { return _exception; }
+        }
+
+        /// <summary>
+        /// Gets the observed at time.
+        /// </summary>
+        public DateTime ObservedAt
+        {
+            get { return _observedAt; }
         }
 
         /// <summary>

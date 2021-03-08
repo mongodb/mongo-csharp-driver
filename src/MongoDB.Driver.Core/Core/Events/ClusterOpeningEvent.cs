@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 
@@ -25,6 +26,7 @@ namespace MongoDB.Driver.Core.Events
     {
         private readonly ClusterId _clusterId;
         private readonly ClusterSettings _clusterSettings;
+        private readonly DateTime _observedAt;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ClusterOpeningEvent"/> struct.
@@ -35,6 +37,7 @@ namespace MongoDB.Driver.Core.Events
         {
             _clusterId = clusterId;
             _clusterSettings = clusterSettings;
+            _observedAt = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -51,6 +54,14 @@ namespace MongoDB.Driver.Core.Events
         public ClusterSettings ClusterSettings
         {
             get { return _clusterSettings; }
+        }
+
+        /// <summary>
+        /// Gets the observed at time.
+        /// </summary>
+        public DateTime ObservedAt
+        {
+            get { return _observedAt; }
         }
     }
 }

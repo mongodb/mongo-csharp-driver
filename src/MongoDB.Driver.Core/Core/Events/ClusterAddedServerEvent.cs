@@ -24,8 +24,9 @@ namespace MongoDB.Driver.Core.Events
     /// </summary>
     public struct ClusterAddedServerEvent
     {
-        private readonly ServerId _serverId;
         private readonly TimeSpan _duration;
+        private readonly DateTime _observedAt;
+        private readonly ServerId _serverId;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ClusterAddedServerEvent" /> struct.
@@ -36,6 +37,7 @@ namespace MongoDB.Driver.Core.Events
         {
             _serverId = serverId;
             _duration = duration;
+            _observedAt = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -52,6 +54,14 @@ namespace MongoDB.Driver.Core.Events
         public TimeSpan Duration
         {
             get { return _duration; }
+        }
+
+        /// <summary>
+        /// Gets the observed at time.
+        /// </summary>
+        public DateTime ObservedAt
+        {
+            get { return _observedAt; }
         }
 
         /// <summary>

@@ -212,7 +212,7 @@ namespace MongoDB.Driver.Core.Configuration
             var connectionModeSwitch = connectionString.ConnectionModeSwitch;
             var connectionMode = connectionModeSwitch == ConnectionModeSwitch.UseConnectionMode ? connectionString.Connect : default;
             var directConnection = connectionModeSwitch == ConnectionModeSwitch.UseDirectConnection ? connectionString.DirectConnection : default;
-            builder = builder.ConfigureCluster(s => s.With(connectionMode: connectionMode, connectionModeSwitch: connectionModeSwitch, directConnection: directConnection));
+            builder = builder.ConfigureCluster(s => s.With(connectionMode: connectionMode, connectionModeSwitch: connectionModeSwitch, directConnection: directConnection, scheme: connectionString.Scheme));
 #pragma warning restore CS0618 // Type or member is obsolete
             if (connectionString.Hosts.Count > 0)
             {

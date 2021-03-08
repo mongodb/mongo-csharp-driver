@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Core;
-using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.GridFS;
 using MongoDB.Driver.TestHelpers;
 
@@ -33,9 +32,13 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         private readonly Dictionary<string, DisposableMongoClient> _clients;
         private readonly Dictionary<string, IMongoCollection<BsonDocument>> _collections;
         private readonly Dictionary<string, IMongoDatabase> _databases;
+        private readonly Dictionary<string, BsonArray> _errorDocumentsMap;
+        private readonly Dictionary<string, BsonArray> _failureDocumentsMap;
+        private readonly Dictionary<string, long> _iterationCounts;
         private readonly Dictionary<string, BsonValue> _results;
         private readonly Dictionary<string, IClientSessionHandle> _sessions;
         private readonly Dictionary<string, BsonDocument> _sessionIds;
+        private readonly Dictionary<string, long> _successCounts;
 
         // public constructors
         public UnifiedEntityMap(
@@ -45,9 +48,13 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             Dictionary<string, DisposableMongoClient> clients,
             Dictionary<string, IMongoCollection<BsonDocument>> collections,
             Dictionary<string, IMongoDatabase> databases,
+            Dictionary<string, BsonArray> errorDocumentsMap,
+            Dictionary<string, BsonArray> failureDocumentsMap,
+            Dictionary<string, long> iterationCounts,
             Dictionary<string, BsonValue> results,
             Dictionary<string, IClientSessionHandle> sessions,
-            Dictionary<string, BsonDocument> sessionIds)
+            Dictionary<string, BsonDocument> sessionIds,
+            Dictionary<string, long> successCounts)
         {
             _buckets = buckets;
             _changeStreams = changeStreams;
@@ -55,10 +62,21 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             _clients = clients;
             _collections = collections;
             _databases = databases;
+            _errorDocumentsMap = errorDocumentsMap;
+            _failureDocumentsMap = failureDocumentsMap;
+            _iterationCounts = iterationCounts;
             _results = results;
             _sessions = sessions;
             _sessionIds = sessionIds;
+            _successCounts = successCounts;
         }
+
+        // public properties
+        public Dictionary<string, BsonArray> ErrorDocumentsMap => _errorDocumentsMap;
+        public Dictionary<string, EventCapturer> EventCapturers => _clientEventCapturers;
+        public Dictionary<string, BsonArray> FailureDocumentsMap => _failureDocumentsMap;
+        public Dictionary<string, long> IterationCounts => _iterationCounts;
+        public Dictionary<string, long> SuccessCounts => _successCounts;
 
         // public methods
         public void AddChangeStream(string changeStreamId, IEnumerator<ChangeStreamDocument<BsonDocument>> changeStream)
@@ -121,11 +139,6 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             return _databases[databaseId];
         }
 
-        public EventCapturer GetEventCapturer(string clientId)
-        {
-            return _clientEventCapturers[clientId];
-        }
-
         public BsonValue GetResult(string resultId)
         {
             return _results[resultId];
@@ -182,9 +195,13 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             var clients = new Dictionary<string, DisposableMongoClient>();
             var collections = new Dictionary<string, IMongoCollection<BsonDocument>>();
             var databases = new Dictionary<string, IMongoDatabase>();
+            var errorDocumentsMap = new Dictionary<string, BsonArray>();
+            var failureDocumentsMap = new Dictionary<string, BsonArray>();
+            var iterationCounts = new Dictionary<string, long>();
             var results = new Dictionary<string, BsonValue>();
             var sessions = new Dictionary<string, IClientSessionHandle>();
             var sessionIds = new Dictionary<string, BsonDocument>();
+            var successCounts = new Dictionary<string, long>();
 
             if (entitiesArray != null)
             {
@@ -213,9 +230,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                             {
                                 throw new Exception($"Client entity with id '{id}' already exists.");
                             }
-                            CreateClient(entity, out var client, out var eventCapturer);
+                            var client = CreateClient(entity, id, clientEventCapturers);
                             clients.Add(id, client);
-                            clientEventCapturers.Add(id, eventCapturer);
                             break;
                         case "collection":
                             if (collections.ContainsKey(id))
@@ -256,9 +272,13 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 clients,
                 collections,
                 databases,
+                errorDocumentsMap,
+                failureDocumentsMap,
+                iterationCounts,
                 results,
                 sessions,
-                sessionIds);
+                sessionIds,
+                successCounts);
         }
 
         // private methods
@@ -285,21 +305,13 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             return new GridFSBucket(database);
         }
 
-        private void CreateClient(BsonDocument entity, out DisposableMongoClient client, out EventCapturer eventCapturer)
+        private DisposableMongoClient CreateClient(
+            BsonDocument entity,
+            string clientId,
+            Dictionary<string, EventCapturer> clientEventCapturers)
         {
-            var eventTypesToCapture = new List<string>();
-            var commandNamesToSkip = new List<string>
-            {
-                "authenticate",
-                "buildInfo",
-                "configureFailPoint",
-                "getLastError",
-                "getnonce",
-                "isMaster",
-                "saslContinue",
-                "saslStart"
-            };
-
+            var commandNamesToSkipInEvents = new List<string>();
+            List<(string Key, IEnumerable<string> Events, List<string> CommandNotToCapture)> eventTypesToCapture = new ();
             var readConcern = ReadConcern.Default;
             var retryReads = true;
             var retryWrites = true;
@@ -342,10 +354,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         useMultipleShardRouters = element.Value.AsBoolean;
                         break;
                     case "observeEvents":
-                        eventTypesToCapture.AddRange(element.Value.AsBsonArray.Select(x => x.AsString));
+                        var observeEvents = element.Value.AsBsonArray.Select(x => x.AsString);
+                        eventTypesToCapture.Add((clientId, observeEvents, commandNamesToSkipInEvents));
                         break;
                     case "ignoreCommandMonitoringEvents":
-                        commandNamesToSkip.AddRange(element.Value.AsBsonArray.Select(x => x.AsString));
+                        commandNamesToSkipInEvents.AddRange(element.Value.AsBsonArray.Select(x => x.AsString));
                         break;
                     case "serverApi":
                         ServerApiVersion serverApiVersion = null;
@@ -381,36 +394,34 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                             serverApi = new ServerApi(serverApiVersion, serverApiStrict, serverApiDeprecationErrors);
                         }
                         break;
+                    case "storeEventsAsEntities":
+                        var eventsBatches = element.Value.AsBsonArray;
+                        foreach (var batch in eventsBatches.Cast<BsonDocument>())
+                        {
+                            var id = batch["id"].AsString;
+                            var events = batch["events"].AsBsonArray.Select(e => e.AsString);
+                            eventTypesToCapture.Add((id, events, CommandNotToCapture: null));
+                        }
+                        break;
                     default:
                         throw new FormatException($"Unrecognized client entity field: '{element.Name}'.");
                 }
             }
 
-            eventCapturer = null;
             if (eventTypesToCapture.Count > 0)
             {
-                eventCapturer = new EventCapturer();
-                foreach (var eventTypeToCapture in eventTypesToCapture)
+                foreach (var eventsDetails in eventTypesToCapture)
                 {
-                    switch (eventTypeToCapture)
+                    var eventCapturer = new EventCapturer();
+                    foreach (var @event in eventsDetails.Events)
                     {
-                        case "commandStartedEvent":
-                            eventCapturer = eventCapturer.Capture<CommandStartedEvent>(x => !commandNamesToSkip.Contains(x.CommandName));
-                            break;
-                        case "commandSucceededEvent":
-                            eventCapturer = eventCapturer.Capture<CommandSucceededEvent>(x => !commandNamesToSkip.Contains(x.CommandName));
-                            break;
-                        case "commandFailedEvent":
-                            eventCapturer = eventCapturer.Capture<CommandFailedEvent>(x => !commandNamesToSkip.Contains(x.CommandName));
-                            break;
-                        default:
-                            throw new FormatException($"Invalid event name: {eventTypeToCapture}.");
+                        eventCapturer = eventCapturer.CaptureBySpecName(@event, eventsDetails.CommandNotToCapture);
                     }
+                    clientEventCapturers.Add(eventsDetails.Key, eventCapturer);
                 }
             }
 
-            var localEventCapturer = eventCapturer; // copy value of eventCapturer ref variable to a local variable (to avoid error CS1628)
-            client = DriverTestConfiguration.CreateDisposableClient(
+            return DriverTestConfiguration.CreateDisposableClient(
                 settings =>
                 {
                     settings.RetryReads = retryReads;
@@ -418,11 +429,17 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     settings.ReadConcern = readConcern;
                     settings.WriteConcern = writeConcern;
                     settings.HeartbeatInterval = TimeSpan.FromMilliseconds(5); // the default value for spec tests
-                    if (localEventCapturer != null)
-                    {
-                        settings.ClusterConfigurator = c => c.Subscribe(localEventCapturer);
-                    }
                     settings.ServerApi = serverApi;
+                    if (clientEventCapturers.Count > 0)
+                    {
+                        settings.ClusterConfigurator = c =>
+                        {
+                            foreach (var eventCapturer in clientEventCapturers)
+                            {
+                                c.Subscribe(eventCapturer.Value);
+                            }
+                        };
+                    }
                 },
                 useMultipleShardRouters);
         }

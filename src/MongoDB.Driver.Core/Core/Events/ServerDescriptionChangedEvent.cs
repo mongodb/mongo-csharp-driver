@@ -24,6 +24,7 @@ namespace MongoDB.Driver.Core.Events
     /// </summary>
     public struct ServerDescriptionChangedEvent
     {
+        private readonly DateTime _observedAt;
         private readonly ServerDescription _oldDescription;
         private readonly ServerDescription _newDescription;
 
@@ -36,6 +37,7 @@ namespace MongoDB.Driver.Core.Events
         {
             _oldDescription = oldDescription;
             _newDescription = newDescription;
+            _observedAt = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -52,6 +54,14 @@ namespace MongoDB.Driver.Core.Events
         public ServerDescription NewDescription
         {
             get { return _newDescription; }
+        }
+
+        /// <summary>
+        /// Gets the observed at time.
+        /// </summary>
+        public DateTime ObservedAt
+        {
+            get { return _observedAt; }
         }
 
         /// <summary>
