@@ -652,7 +652,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             using var subject = CreateSubject(settings, mockConnectionFactory.Object);
             subject.Initialize();
 
-            _capturedEvents.WaitForOrThrowIfTimeout(events => events.Where(e => e is ConnectionCreatedEvent).Count() == connectionsCount, TimeSpan.FromMilliseconds(200));
+            _capturedEvents.WaitForOrThrowIfTimeout(events => events.Where(e => e is ConnectionCreatedEvent).Count() == connectionsCount, TimeSpan.FromSeconds(10));
             subject.DormantCount.Should().Be(connectionsCount);
 
             // expired some of the connections
