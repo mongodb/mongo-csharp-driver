@@ -107,9 +107,9 @@ namespace MongoDB.Driver.Core.Operations
                         // In the event this aggregation is run against a non-existent namespace, a NamespaceNotFound(26) error will be returned during execution.
                         return 0;
                     }
-                    var result = cursor.ToList(cancellationToken);
+                    var results = cursor.ToList(cancellationToken);
 
-                    return ExtractCountFromAggregationResult(result);
+                    return ExtractCountFromAggregationResults(results);
                 }
                 else
                 {
@@ -140,9 +140,9 @@ namespace MongoDB.Driver.Core.Operations
                         // In the event this aggregation is run against a non-existent namespace, a NamespaceNotFound(26) error will be returned during execution.
                         return 0;
                     }
-                    var result = await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
+                    var results = await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
 
-                    return ExtractCountFromAggregationResult(result);
+                    return ExtractCountFromAggregationResults(results);
                 }
                 else
                 {
@@ -192,12 +192,12 @@ namespace MongoDB.Driver.Core.Operations
             return countOperation;
         }
 
-        private long ExtractCountFromAggregationResult(List<BsonDocument> result) =>
-            result.Count switch
+        private long ExtractCountFromAggregationResults(List<BsonDocument> results) =>
+            results.Count switch
             {
                 0 => 0,
-                1 => result[0]["n"].ToInt64(),
-                _ => throw new MongoClientException($"Expected aggregate command for {nameof(EstimatedDocumentCountOperation)} to return 1 document, but got {result.Count}."),
+                1 => results[0]["n"].ToInt64(),
+                _ => throw new MongoClientException($"Expected aggregate command for {nameof(EstimatedDocumentCountOperation)} to return 1 document, but got {results.Count}."),
             };
     }
 }
