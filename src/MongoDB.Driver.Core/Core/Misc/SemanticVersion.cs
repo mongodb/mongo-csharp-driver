@@ -366,6 +366,15 @@ namespace MongoDB.Driver.Core.Misc
             return !(b < a);
         }
 
+        // internal methods
+        internal int CompareToAsReleased(SemanticVersion other)
+        {
+            var aReleased = new SemanticVersion(_major, _minor, _patch);
+            var bReleased = new SemanticVersion(other._major, other._minor, other._patch);
+            return aReleased.CompareTo(bReleased);
+        }
+
+        // private methods
         private ServerVersion AsServerVersion()
         {
             return new ServerVersion(_major, _minor, _patch, _preRelease);

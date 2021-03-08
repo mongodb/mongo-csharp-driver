@@ -951,9 +951,9 @@ namespace MongoDB.Driver
             };
         }
 
-        private CountOperation CreateEstimatedDocumentCountOperation(EstimatedDocumentCountOptions options)
+        private EstimatedDocumentCountOperation CreateEstimatedDocumentCountOperation(EstimatedDocumentCountOptions options)
         {
-            return new CountOperation(_collectionNamespace, _messageEncoderSettings)
+            return new EstimatedDocumentCountOperation(_collectionNamespace, _messageEncoderSettings)
             {
                 MaxTime = options?.MaxTime,
                 RetryRequested = _database.Client.Settings.RetryReads

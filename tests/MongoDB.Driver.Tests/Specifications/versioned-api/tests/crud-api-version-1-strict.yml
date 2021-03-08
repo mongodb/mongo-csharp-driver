@@ -116,7 +116,10 @@ tests:
               command:
                 update: *collectionName
                 updates:
-                  - { q: { _id: 2 }, u: { $inc: { x: 1 } } }
+                  - q: { _id: 2 }
+                    u: { $inc: { x: 1 } }
+                    multi: { $$unsetOrMatches: false }
+                    upsert: { $$unsetOrMatches: false }
                 <<: *expectedApiVersion
           - commandStartedEvent:
               command:
@@ -128,7 +131,10 @@ tests:
               command:
                 update: *collectionName
                 updates:
-                  - { q: { _id: { $gt: 1 } }, u: { $inc: { x: 1 } }, multi: true }
+                  - q: { _id: { $gt: 1 } }
+                    u: { $inc: { x: 1 } }
+                    multi: true
+                    upsert: { $$unsetOrMatches: false }
                 <<: *expectedApiVersion
           - commandStartedEvent:
               command:
@@ -140,7 +146,10 @@ tests:
               command:
                 update: *collectionName
                 updates:
-                  - { q: { _id: 4 }, u: { _id: 4, x: 44 }, upsert: true }
+                  - q: { _id: 4 }
+                    u: { _id: 4, x: 44 }
+                    multi: { $$unsetOrMatches: false }
+                    upsert: true
                 <<: *expectedApiVersion
 
   - description: "countDocuments appends declared API version"
@@ -216,7 +225,9 @@ tests:
                 <<: *expectedApiVersion
 
   - description: "estimatedDocumentCount appends declared API version"
-    skipReason: "DRIVERS-1437 count was removed from API version 1"
+    skipReason: "DRIVERS-1561 collStats is not in API version 1"
+    runOnRequirements:
+      - minServerVersion: "4.9.0" # $collStats is not used in estimatedDocumentCount on < 4.9
     operations:
       - name: estimatedDocumentCount
         object: *collection
@@ -226,7 +237,10 @@ tests:
         events:
           - commandStartedEvent:
               command:
-                count: *collectionName
+                aggregate: *collectionName
+                pipeline: &pipeline
+                  - $collStats: { count: {} }
+                  - $group: { _id: 1, n: { $sum: $count }}
                 <<: *expectedApiVersion
 
   - description: "find command with declared API version appends to the command, but getMore does not"
@@ -357,7 +371,10 @@ tests:
               command:
                 update: *collectionName
                 updates:
-                  - { q: { _id: 4 }, u: { _id: 4, x: 44 }, upsert: true }
+                  - q: { _id: 4 }
+                    u: { _id: 4, x: 44 }
+                    multi: { $$unsetOrMatches: false }
+                    upsert: true
                 <<: *expectedApiVersion
 
   - description: "updateMany appends declared API version"
@@ -374,7 +391,10 @@ tests:
               command:
                 update: *collectionName
                 updates:
-                  - { q: { _id: { $gt: 1 } }, u: { $inc: { x: 1 } }, multi: true }
+                  - q: { _id: { $gt: 1 } }
+                    u: { $inc: { x: 1 } }
+                    multi: true
+                    upsert: { $$unsetOrMatches: false }
                 <<: *expectedApiVersion
 
   - description: "updateOne appends declared API version"
@@ -391,5 +411,8 @@ tests:
               command:
                 update: *collectionName
                 updates:
-                  - { q: { _id: 2 }, u: { $inc: { x: 1 } } }
+                  - q: { _id: 2 }
+                    u: { $inc: { x: 1 } }
+                    multi: { $$unsetOrMatches: false }
+                    upsert: { $$unsetOrMatches: false }
                 <<: *expectedApiVersion

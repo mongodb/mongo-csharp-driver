@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -75,18 +76,20 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             var collection = _entityMap.GetCollection(targetCollectionId);
 
-            EstimatedDocumentCountOptions options = null;
-
-            foreach (var argument in arguments)
+            var estimatedDocumentCountOptions = new EstimatedDocumentCountOptions();
+            foreach (var argument in arguments ?? Enumerable.Empty<BsonElement>())
             {
                 switch (argument.Name)
                 {
+                    case "maxTimeMS":
+                        estimatedDocumentCountOptions.MaxTime = TimeSpan.FromMilliseconds(argument.Value.AsInt32);
+                        break;
                     default:
-                        throw new FormatException($"Invalid EstimatedDocumentCountOperation argument name: '{argument.Name}'.");
+                        throw new FormatException($"Invalid {nameof(UnifiedEstimatedDocumentCountOperation)} argument name: '{argument.Name}'.");
                 }
             }
 
-            return new UnifiedEstimatedDocumentCountOperation(collection, options);
+            return new UnifiedEstimatedDocumentCountOperation(collection, estimatedDocumentCountOptions);
         }
     }
 }

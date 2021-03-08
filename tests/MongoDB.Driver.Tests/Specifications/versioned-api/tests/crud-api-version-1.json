@@ -298,6 +298,12 @@
                         "$inc": {
                           "x": 1
                         }
+                      },
+                      "multi": {
+                        "$$unsetOrMatches": false
+                      },
+                      "upsert": {
+                        "$$unsetOrMatches": false
                       }
                     }
                   ],
@@ -350,7 +356,10 @@
                           "x": 1
                         }
                       },
-                      "multi": true
+                      "multi": true,
+                      "upsert": {
+                        "$$unsetOrMatches": false
+                      }
                     }
                   ],
                   "apiVersion": "1",
@@ -393,6 +402,9 @@
                       "u": {
                         "_id": 4,
                         "x": 44
+                      },
+                      "multi": {
+                        "$$unsetOrMatches": false
                       },
                       "upsert": true
                     }
@@ -587,7 +599,12 @@
       ]
     },
     {
-      "description": "estimatedDocumentCount appends declared API version",
+      "description": "estimatedDocumentCount appends declared API version on less than 4.9.0",
+      "runOnRequirements": [
+        {
+          "maxServerVersion": "4.8.99"
+        }
+      ],
       "operations": [
         {
           "name": "estimatedDocumentCount",
@@ -603,6 +620,55 @@
               "commandStartedEvent": {
                 "command": {
                   "count": "test",
+                  "apiVersion": "1",
+                  "apiStrict": {
+                    "$$unsetOrMatches": false
+                  },
+                  "apiDeprecationErrors": true
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "estimatedDocumentCount appends declared API version on 4.9.0 or greater",
+      "runOnRequirements": [
+        {
+          "minServerVersion": "4.9.0"
+        }
+      ],
+      "operations": [
+        {
+          "name": "estimatedDocumentCount",
+          "object": "collection",
+          "arguments": {}
+        }
+      ],
+      "expectEvents": [
+        {
+          "client": "client",
+          "events": [
+            {
+              "commandStartedEvent": {
+                "command": {
+                  "aggregate": "test",
+                  "pipeline": [
+                    {
+                      "$collStats": {
+                        "count": {}
+                      }
+                    },
+                    {
+                      "$group": {
+                        "_id": 1,
+                        "n": {
+                          "$sum": "$count"
+                        }
+                      }
+                    }
+                  ],
                   "apiVersion": "1",
                   "apiStrict": {
                     "$$unsetOrMatches": false
@@ -943,6 +1009,9 @@
                         "_id": 4,
                         "x": 44
                       },
+                      "multi": {
+                        "$$unsetOrMatches": false
+                      },
                       "upsert": true
                     }
                   ],
@@ -998,7 +1067,10 @@
                           "x": 1
                         }
                       },
-                      "multi": true
+                      "multi": true,
+                      "upsert": {
+                        "$$unsetOrMatches": false
+                      }
                     }
                   ],
                   "apiVersion": "1",
@@ -1048,6 +1120,12 @@
                         "$inc": {
                           "x": 1
                         }
+                      },
+                      "multi": {
+                        "$$unsetOrMatches": false
+                      },
+                      "upsert": {
+                        "$$unsetOrMatches": false
                       }
                     }
                   ],
