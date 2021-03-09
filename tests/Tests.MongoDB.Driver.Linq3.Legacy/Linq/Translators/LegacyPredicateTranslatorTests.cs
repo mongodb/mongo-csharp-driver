@@ -1064,7 +1064,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereXGreaterThan1Not()
         {
-            Assert<C>(c => !(c.X > 1), 1, "{ \"x\" : { \"$not\" : { \"$gt\" : 1 } } }");
+            Assert<C>(c => !(c.X > 1), 1, "{ $nor : [{ x : { $gt : 1 } }] }");
         }
 
         [Fact]
@@ -1082,7 +1082,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereXGreaterThanOrEquals1Not()
         {
-            Assert<C>(c => !(c.X >= 1), 0, "{ \"x\" : { \"$not\" : { \"$gte\" : 1 } } }");
+            Assert<C>(c => !(c.X >= 1), 0, "{ $nor : [{ x : { $gte : 1 } }] }");
         }
 
         [Fact]
@@ -1100,7 +1100,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereXLessThan1Not()
         {
-            Assert<C>(c => !(c.X < 1), 5, "{ \"x\" : { \"$not\" : { \"$lt\" : 1 } } }");
+            Assert<C>(c => !(c.X < 1), 5, "{ $nor : [{ x : { $lt : 1 } }] }");
         }
 
         [Fact]
@@ -1118,7 +1118,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereXLessThanOrEquals1Not()
         {
-            Assert<C>(c => !(c.X <= 1), 4, "{ \"x\" : { \"$not\" : { \"$lte\" : 1 } } }");
+            Assert<C>(c => !(c.X <= 1), 4, "{ $nor : [{ x : { $lte : 1 } }] }");
         }
 
         [Fact]
