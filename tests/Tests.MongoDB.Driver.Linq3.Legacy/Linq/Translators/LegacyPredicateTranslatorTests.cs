@@ -890,13 +890,13 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             Assert<C>(c => !c.S.Trim().StartsWith("xyz"), 4, "{ $nor : [{ $expr : { $eq : [{ $indexOfCP : [{ $trim : { input : '$s' } }, 'xyz'] }, 0] } }] }");
         }
 
-#if NET452 || NETCOREAPP1_0        
+#if NET452 || NETCOREAPP1_0
         [Fact]
         public void TestWhereSTrimStartTrimEndToLowerContainsXyz()
         {
             Assert<C>(c => c.S.TrimStart(' ', '.', '-', '\t').TrimEnd().ToLower().Contains("xyz"), 1, "{ $expr : { $gte : [{ $indexOfCP : [{ $toLower : { $rtrim : { input : { $ltrim : { input : '$s', chars : ' .-\t' } } } } }, 'xyz'] }, 0] } }");
         }
-#endif    
+#endif
 
         [Fact]
         public void TestWhereSToLowerEqualsConstantLowerCaseValue()
@@ -992,31 +992,31 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereXEquals1AndYEquals11()
         {
-            Assert<C>(c => c.X == 1 & c.Y == 11, 1, "{ \"x\" : 1, \"y\" : 11 }");
+            Assert<C>(c => c.X == 1 & c.Y == 11, 1, "{ $and : [{ x : 1 }, { y : 11 }] }");
         }
 
         [Fact]
         public void TestWhereXEquals1AndAlsoYEquals11()
         {
-            Assert<C>(c => c.X == 1 && c.Y == 11, 1, "{ \"x\" : 1, \"y\" : 11 }");
+            Assert<C>(c => c.X == 1 && c.Y == 11, 1, "{ $and : [{ x : 1}, { y : 11 }] }");
         }
 
         [Fact]
         public void TestWhereXEquals1AndYEquals11Not()
         {
-            Assert<C>(c => !(c.X == 1 && c.Y == 11), 4, "{ \"$nor\" : [{ \"x\" : 1, \"y\" : 11 }] }");
+            Assert<C>(c => !(c.X == 1 && c.Y == 11), 4, "{ $nor : [{ $and : [{ x : 1 }, { y : 11 }] }] }");
         }
 
         [Fact]
         public void TestWhereXEquals1AndYEquals11AndZEquals11()
         {
-            Assert<C>(c => c.X == 1 && c.Y == 11 && c.D.Z == 11, 1, "{ \"x\" : 1, \"y\" : 11, \"d.z\" : 11 }");
+            Assert<C>(c => c.X == 1 && c.Y == 11 && c.D.Z == 11, 1, "{ $and : [{ $and : [{ x : 1 }, { y : 11 }] }, { 'd.z' : 11 }] }");
         }
 
         [Fact]
         public void TestWhereXEquals1Not()
         {
-            Assert<C>(c => !(c.X == 1), 4, "{ \"x\" : { \"$ne\" : 1 } }");
+            Assert<C>(c => !(c.X == 1), 4, "{ $nor : [{ x : 1 }] }");
         }
 
         [Fact]
@@ -1034,7 +1034,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereXEquals1OrYEquals33Not()
         {
-            Assert<C>(c => !(c.X == 1 || c.Y == 33), 3, "{ \"$nor\" : [{ \"x\" : 1 }, { \"y\" : 33 }] }");
+            Assert<C>(c => !(c.X == 1 || c.Y == 33), 3, "{ $nor : [{ $or : [{ x : 1}, { y : 33 }] }] }");
         }
 
         [Fact]
@@ -1052,13 +1052,13 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereXGreaterThan1AndLessThan3()
         {
-            Assert<C>(c => c.X > 1 && c.X < 3, 1, "{ \"x\" : { \"$gt\" : 1, \"$lt\" : 3 } }");
+            Assert<C>(c => c.X > 1 && c.X < 3, 1, "{ $and : [{ x : { $gt : 1 } }, { x : { $lt : 3 } }] }");
         }
 
         [Fact]
         public void TestWhereXGreaterThan1AndLessThan3Not()
         {
-            Assert<C>(c => !(c.X > 1 && c.X < 3), 4, "{ \"$nor\" : [{ \"x\" : { \"$gt\" : 1, \"$lt\" : 3 } }] }");
+            Assert<C>(c => !(c.X > 1 && c.X < 3), 4, "{ $nor : [{ $and : [{ x : { $gt : 1 } }, { x : { $lt : 3 } }] }] }");
         }
 
         [Fact]
@@ -1184,7 +1184,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereXNotEquals1Not()
         {
-            Assert<C>(c => !(c.X != 1), 1, "{ \"x\" : 1 }");
+            Assert<C>(c => !(c.X != 1), 1, "{ $nor : [{ x : { $ne : 1 } }] }");
         }
 
         private void Assert<TDocument>(Expression<Func<TDocument, bool>> expression, int expectedCount, string expectedFilter)
