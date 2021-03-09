@@ -761,49 +761,49 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSLengthEquals3()
         {
-            Assert<C>(c => c.S.Length == 3, 1, "{ \"s\" : /^.{3}$/s }");
+            Assert<C>(c => c.S != null && c.S.Length == 3, 1, "{ $and : [{ s : { $ne : null } }, { $expr : { $eq : [{ $strLenCP : '$s'} , 3] } }] }");
         }
 
         [Fact]
         public void TestWhereSLengthEquals3Not()
         {
-            Assert<C>(c => !(c.S.Length == 3), 4, "{ \"s\" : { \"$not\" : /^.{3}$/s } }");
+            Assert<C>(c => c.S != null && !(c.S.Length == 3), 1, "{ $and : [{ s : { $ne : null } }, { $nor : [{ $expr : { $eq : [{ $strLenCP : '$s'} , 3] } }] }] }");
         }
 
         [Fact]
         public void TestWhereSLengthGreaterThan3()
         {
-            Assert<C>(c => c.S.Length > 3, 1, "{ \"s\" : /^.{4,}$/s }");
+            Assert<C>(c => c.S != null && c.S.Length > 3, 1, "{ $and : [{ s : { $ne : null } }, { $expr : { $gt : [{ $strLenCP : '$s'} , 3] } }] }");
         }
 
         [Fact]
         public void TestWhereSLengthGreaterThanOrEquals3()
         {
-            Assert<C>(c => c.S.Length >= 3, 2, "{ \"s\" : /^.{3,}$/s }");
+            Assert<C>(c => c.S != null && c.S.Length >= 3, 2, "{ $and : [{ s : { $ne : null } }, { $expr : { $gte : [{ $strLenCP : '$s'} , 3] } }] }");
         }
 
         [Fact]
         public void TestWhereSLengthLessThan3()
         {
-            Assert<C>(c => c.S.Length < 3, 0, "{ \"s\" : /^.{0,2}$/s }");
+            Assert<C>(c => c.S != null && c.S.Length < 3, 0, "{ $and : [{ s : { $ne : null } }, { $expr : { $lt : [{ $strLenCP : '$s'} , 3] } }] }");
         }
 
         [Fact]
         public void TestWhereSLengthLessThanOrEquals3()
         {
-            Assert<C>(c => c.S.Length <= 3, 1, "{ \"s\" : /^.{0,3}$/s }");
+            Assert<C>(c => c.S != null && c.S.Length <= 3, 1, "{ $and : [{ s : { $ne : null } }, { $expr : { $lte : [{ $strLenCP : '$s'} , 3] } }] }");
         }
 
         [Fact]
         public void TestWhereSLengthNotEquals3()
         {
-            Assert<C>(c => c.S.Length != 3, 4, "{ \"s\" : { \"$not\" : /^.{3}$/s } }");
+            Assert<C>(c => c.S != null && c.S.Length != 3, 1, "{ $and : [{ s : { $ne : null } }, { $expr : { $ne : [{ $strLenCP : '$s'} , 3] } }] }");
         }
 
         [Fact]
         public void TestWhereSLengthNotEquals3Not()
         {
-            Assert<C>(c => !(c.S.Length != 3), 1, "{ \"s\" : /^.{3}$/s }");
+            Assert<C>(c => c.S != null && !(c.S.Length != 3), 1, "{ $and : [{ s : { $ne : null } }, { $nor : [{ $expr : { $ne : [{ $strLenCP : '$s'} , 3] } }] }] }");
         }
 
         [Fact]
@@ -1198,11 +1198,10 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             var context = new TranslationContext(symbolTable);
             var filterAst = ExpressionToFilterTranslator.Translate(context, expression.Body);
             var renderedFilter = (BsonDocument)filterAst.Render();
-            var filter = new BsonDocumentFilterDefinition<C>(renderedFilter);
-
-            var list = __collection.FindSync<TDocument>(filter).ToList();
-
             renderedFilter.Should().Be(expectedFilter);
+
+            var filter = new BsonDocumentFilterDefinition<C>(renderedFilter);
+            var list = __collection.FindSync<TDocument>(filter).ToList();
             list.Count.Should().Be(expectedCount);
         }
 
