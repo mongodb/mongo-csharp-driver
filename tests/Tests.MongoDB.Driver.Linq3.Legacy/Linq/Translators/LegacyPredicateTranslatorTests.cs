@@ -666,19 +666,28 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSIndexOfAnyBDashCEquals1()
         {
-            Assert<C>(c => c.S.IndexOfAny(new char[] { 'b', '-', 'c' }) == 1, 1, "{ \"s\" : /^[^b\\-c]{1}[b\\-c]/s }");
+            var expression = CreateIndexOfAnyExpression("'$s'", "b-c");
+            var expectedFilter = "{ $expr : { $eq : [" + expression + ", 1] } }";
+
+            Assert<C>(c => c.S.IndexOfAny(new char[] { 'b', '-', 'c' }) == 1, 1, expectedFilter);
         }
 
         [Fact]
         public void TestWhereSIndexOfAnyBCStartIndex1Equals1()
         {
-            Assert<C>(c => c.S.IndexOfAny(new char[] { 'b', '-', 'c' }, 1) == 1, 1, "{ \"s\" : /^.{1}[b\\-c]/s }");
+            var expression = CreateIndexOfAnyExpression("'$s'", "b-c", startIndex: "1");
+            var expectedFilter = "{ $expr : { $eq : [" + expression + ", 1] } }";
+
+            Assert<C>(c => c.S.IndexOfAny(new char[] { 'b', '-', 'c' }, 1) == 1, 1, expectedFilter);
         }
 
         [Fact]
         public void TestWhereSIndexOfAnyBCStartIndex1Count2Equals1()
         {
-            Assert<C>(c => c.S.IndexOfAny(new char[] { 'b', '-', 'c' }, 1, 2) == 1, 1, "{ \"s\" : /^.{1}(?=.{2})[b\\-c]/s }");
+            var expression = CreateIndexOfAnyExpression("'$s'", "b-c", startIndex: "1", end: "3");
+            var expectedFilter = "{ $expr : { $eq : [" + expression + ", 1] } }";
+
+            Assert<C>(c => c.S.IndexOfAny(new char[] { 'b', '-', 'c' }, 1, 2) == 1, 1, expectedFilter);
         }
 
         [Fact]
@@ -1195,6 +1204,57 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             renderedFilter.Should().Be(expectedFilter);
             list.Count.Should().Be(expectedCount);
+        }
+
+        private string CreateIndexOfAnyExpression(
+            string s,
+            string anyOf,
+            string startIndexVar = null,
+            string startIndex = null,
+            string countVar = null,
+            string count = null,
+            string end = null)
+        {
+            // indexOfChar => { $indexOfCP : ['$$string', { $substrCP : [<anyOf>, '$$anyOfIndex', 1] }, '$$startIndex', '$$end' }
+            var indexOfCPArgs = "'$$string', { $substrCP : ['" + anyOf + "', '$$anyOfIndex', 1] }";
+            if (startIndex != null)
+            {
+                indexOfCPArgs += ", " + startIndex;
+            }
+            if (end != null)
+            {
+                indexOfCPArgs += ", " + end;
+            }
+            var expression = "{ $indexOfCP : [" + indexOfCPArgs + "] }";
+
+            // computeIndexes => { $map : { input : { $range : [0, anyOf.Length] }, as : 'anyOfIndex', in : <indexOfChar> } }
+            expression = "{ $map : { input : { $range : [0, " + anyOf.Length + "] }, as : 'anyOfIndex', in : " + expression + " } }";
+
+            // minResult => { $min : { $filter : { input : <computeIndexes>, as : 'result', cond : { $gte : ['$$result', 0] } } } }
+            expression = "{ $min : { $filter : { input : " + expression + ", as : 'result', cond : { $gte : ['$$result', 0] } } } }";
+
+            // topLevel => { $cond : [{ $eq : ['$$string', null] }, null, { $ifNull : [<minResult>, -1] }] }
+            expression = "{ $cond : { if : { $eq : ['$$string', null] }, then : null, else : { $ifNull : [" + expression + ", -1] } } }";
+
+            // computeEnd => { $let : { vars : { end : { $add : ['$$startIndex', '$$count'] } } } }
+            if (startIndexVar != null || countVar != null)
+            {
+                expression = "{ $let : { vars : { end : { $add : ['$$startIndex', " + count + "] } }, in : " + expression + " } }";
+            }
+
+            // s.IndexOfAny(anyOf, startIndex, count) => { $let : { vars : { string : <s>, startIndex : <startIndex>, count : <count> }, in : <computeEnd> } }
+            var vars = "string : " + s;
+            if (startIndexVar != null)
+            {
+                vars += ", startIndex : " + startIndexVar;
+            }
+            if (countVar != null)
+            {
+                vars += ", count : " + countVar;
+            }
+            expression = "{ $let : { vars : { " + vars + " }, in : " + expression + " } }";
+
+            return expression;
         }
 
         private enum E
