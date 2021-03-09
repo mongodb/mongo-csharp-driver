@@ -226,7 +226,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
                         {
                             var actualVersion = CoreTestConfiguration.ServerVersion;
                             var minServerVersion = SemanticVersion.Parse(item.Value.AsString);
-                            if (actualVersion.CompareToAsReleased(minServerVersion) < 0)
+                            if (SemanticVersionCompareToAsReleased(actualVersion, minServerVersion) < 0)
                             {
                                 return false;
                             }
@@ -236,7 +236,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
                         {
                             var actualVersion = CoreTestConfiguration.ServerVersion;
                             var maxServerVersion = SemanticVersion.Parse(item.Value.AsString);
-                            if (actualVersion > maxServerVersion)
+                            if (SemanticVersionCompareToAsReleased(actualVersion, maxServerVersion) > 0)
                             {
                                 return false;
                             }
@@ -283,6 +283,13 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
                 case "sharded": return Clusters.ClusterType.Sharded;
                 default: throw new ArgumentException($"Invalid topology: \"{topology}\".", nameof(topology));
             }
+        }
+
+        private int SemanticVersionCompareToAsReleased(SemanticVersion a, SemanticVersion b)
+        {
+            var aReleased = new SemanticVersion(a.Major, a.Minor, a.Patch);
+            var bReleased = new SemanticVersion(b.Major, b.Minor, b.Patch);
+            return aReleased.CompareTo(bReleased);
         }
     }
 }
