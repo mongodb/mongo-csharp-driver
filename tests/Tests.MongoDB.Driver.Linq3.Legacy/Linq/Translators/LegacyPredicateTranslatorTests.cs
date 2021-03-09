@@ -901,73 +901,73 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSToLowerEqualsConstantLowerCaseValue()
         {
-            Assert<C>(c => c.S.ToLower() == "abc", 1, "{ \"s\" : /^abc$/i }");
+            Assert<C>(c => c.S.ToLower() == "abc", 1, "{ $expr : { $eq : [{ $toLower : '$s' }, 'abc'] } }");
         }
 
         [Fact]
         public void TestWhereSToLowerDoesNotEqualConstantLowerCaseValue()
         {
-            Assert<C>(c => c.S.ToLower() != "abc", 4, "{ \"s\" : { \"$not\" : /^abc$/i } }");
+            Assert<C>(c => c.S.ToLower() != "abc", 4, "{ $expr : { $ne : [{ $toLower : '$s' }, 'abc'] } }");
         }
 
         [Fact]
         public void TestWhereSToLowerEqualsConstantMixedCaseValue()
         {
-            Assert<C>(c => c.S.ToLower() == "Abc", 0, "{ \"_id\" : { \"$type\" : -1 } }");
+            Assert<C>(c => c.S.ToLower() == "Abc", 0, "{ $expr : { $eq : [{ $toLower : '$s' }, 'Abc'] } }");
         }
 
         [Fact]
         public void TestWhereSToLowerDoesNotEqualConstantMixedCaseValue()
         {
-            Assert<C>(c => c.S.ToLower() != "Abc", 5, "{ }");
+            Assert<C>(c => c.S.ToLower() != "Abc", 5, "{ $expr : { $ne : [{ $toLower : '$s' }, 'Abc'] } }");
         }
 
         [Fact]
         public void TestWhereSToLowerEqualsNullValue()
         {
-            Assert<C>(c => c.S.ToLower() == null, 3, "{ \"s\" : null }");
+            Assert<C>(c => c.S.ToLower() == null, 0, "{ $expr : { $eq : [{ $toLower : '$s' }, null] } }");
         }
 
         [Fact]
         public void TestWhereSToLowerDoesNotEqualNullValue()
         {
-            Assert<C>(c => c.S.ToLower() != null, 2, "{ \"s\" : { \"$ne\" : null } }");
+            Assert<C>(c => c.S.ToLower() != null, 5, "{ $expr : { $ne : [{ $toLower : '$s' }, null] } }");
         }
 
         [Fact]
         public void TestWhereSToUpperEqualsConstantLowerCaseValue()
         {
-            Assert<C>(c => c.S.ToUpper() == "abc", 0, "{ \"_id\" : { \"$type\" : -1 } }");
+            Assert<C>(c => c.S.ToUpper() == "abc", 0, "{ $expr : { $eq : [{ $toUpper : '$s' }, 'abc'] } }");
         }
 
         [Fact]
         public void TestWhereSToUpperDoesNotEqualConstantLowerCaseValue()
         {
-            Assert<C>(c => c.S.ToUpper() != "abc", 5, "{ }");
+            Assert<C>(c => c.S.ToUpper() != "abc", 5, "{ $expr : { $ne : [{ $toUpper : '$s' }, 'abc'] } }");
         }
 
         [Fact]
         public void TestWhereSToUpperEqualsConstantMixedCaseValue()
         {
-            Assert<C>(c => c.S.ToUpper() == "Abc", 0, "{ \"_id\" : { \"$type\" : -1 } }");
+            Assert<C>(c => c.S.ToUpper() == "Abc", 0, "{ $expr : { $eq : [{ $toUpper : '$s' }, 'Abc'] } }");
         }
 
         [Fact]
         public void TestWhereSToUpperDoesNotEqualConstantMixedCaseValue()
         {
-            Assert<C>(c => c.S.ToUpper() != "Abc", 5, "{ }");
+            Assert<C>(c => c.S.ToUpper() != "Abc", 5, "{ $expr : { $ne : [{ $toUpper : '$s' }, 'Abc'] } }");
         }
 
         [Fact]
         public void TestWhereSToUpperEqualsNullValue()
         {
-            Assert<C>(c => c.S.ToUpper() == null, 3, "{ \"s\" : null }");
+            Assert<C>(c => c.S.ToUpper() == null, 0, "{ $expr : { $eq : [{ $toUpper : '$s' }, null] } }");
         }
 
         [Fact]
         public void TestWhereSToUpperDoesNotEqualNullValue()
         {
-            Assert<C>(c => c.S.ToUpper() != null, 2, "{ \"s\" : { \"$ne\" : null } }");
+            Assert<C>(c => c.S.ToUpper() != null, 5, "{ $expr : { $ne : [{ $toUpper : '$s' }, null] } }");
         }
 
         [Fact]
