@@ -107,6 +107,8 @@ namespace MongoDB.Driver.Core.Servers
 
             // propagate event to upper levels, this will be called only once
             TriggerServerDescriptionChanged(this, eventArgs);
+
+            ConnectionPool.SetReady();
         }
 
         public override void Invalidate(string reasonInvalidated, bool clearConnectionPool, TopologyVersion topologyVersion)

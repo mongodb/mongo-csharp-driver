@@ -5,6 +5,7 @@ poolOptions:
   maxPoolSize: 1
   waitQueueTimeoutMS: 20
 operations:
+  - name: ready
   # Check out only possible connection
   - name: checkOut
     label: conn0
@@ -27,15 +28,21 @@ error:
   message: Timed out while checking out a connection from connection pool
 events:
   - type: ConnectionCheckOutStarted
+    address: 42
   - type: ConnectionCheckedOut
     connectionId: 42
+    address: 42
   - type: ConnectionCheckOutStarted
+    address: 42
   - type: ConnectionCheckOutFailed
     reason: timeout
+    address: 42
   - type: ConnectionCheckedIn
     connectionId: 42
+    address: 42
 ignore:
   - ConnectionCreated
   - ConnectionReady
   - ConnectionClosed
   - ConnectionPoolCreated
+  - ConnectionPoolReady

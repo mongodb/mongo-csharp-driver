@@ -4,6 +4,7 @@ description: must destroy and must not check out an idle connection if found whi
 poolOptions:
   maxIdleTimeMS: 10
 operations:
+  - name: ready
   - name: checkOut
     label: conn
   - name: checkIn
@@ -17,15 +18,20 @@ events:
     options: 42
   - type: ConnectionCheckedOut
     connectionId: 1
+    address: 42
   - type: ConnectionCheckedIn
     connectionId: 1
+    address: 42
   # In between these, wait so connection becomes idle
   - type: ConnectionClosed
     connectionId: 1
     reason: idle
+    address: 42
   - type: ConnectionCheckedOut
     connectionId: 2
+    address: 42
 ignore:
   - ConnectionReady
+  - ConnectionPoolReady
   - ConnectionCreated
   - ConnectionCheckOutStarted

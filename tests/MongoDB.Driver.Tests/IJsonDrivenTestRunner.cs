@@ -24,6 +24,8 @@ namespace MongoDB.Driver.Tests
     public interface IJsonDrivenTestRunner
     {
         ICluster FailPointCluster { get; }
+        IServer FailPointServer { get; }
+
         void ConfigureFailPoint(IServer server, ICoreSessionHandle session, BsonDocument failCommand);
         Task ConfigureFailPointAsync(IServer server, ICoreSessionHandle session, BsonDocument failCommand);
     }

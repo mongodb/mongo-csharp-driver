@@ -61,12 +61,12 @@ namespace MongoDB.Driver.Core.ConnectionPools
         Task<IConnectionHandle> AcquireConnectionAsync(CancellationToken cancellationToken);
 
         /// <summary>
-        /// Clears the connection pool.
+        /// Clears the connection pool and marks it as paused.
         /// </summary>
         void Clear();
 
         /// <summary>
-        /// Clears the connection pool.
+        /// Clears the connection pool for the specified service.
         /// </summary>
         /// <param name="serviceId">The service id.</param>
         void Clear(ObjectId serviceId);
@@ -77,6 +77,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
         /// <param name="serviceId">The optional service Id.</param>
         /// <returns>The connection pool generation.</returns>
         int GetGeneration(ObjectId? serviceId);
+
+        /// <summary>
+        /// Marks the pool as ready.
+        /// </summary>
+        void SetReady();
 
         /// <summary>
         /// Initializes the connection pool.

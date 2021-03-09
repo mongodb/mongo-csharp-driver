@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
 
             var heartbeatInterval = TimeSpan.FromMilliseconds(500);
             eventCapturer.Clear();
-            using (var client = CreateClient(eventCapturer, heartbeatInterval))
+            using (var client = CreateClient(null, eventCapturer, heartbeatInterval))
             {
                 eventCapturer.WaitForOrThrowIfTimeout(
                     events => events.Count() > 3, // wait for at least 3 events
@@ -128,7 +128,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
             var eventCapturer = new EventCapturer().Capture<ServerDescriptionChangedEvent>();
 
             var heartbeatInterval = TimeSpan.FromMilliseconds(500);
-            using (var client = CreateClient(eventCapturer, heartbeatInterval, applicationName: "streamingRttTest"))
+            using (var client = CreateClient(null, eventCapturer, heartbeatInterval, applicationName: "streamingRttTest"))
             {
                 // Run a find command to wait for the server to be discovered.
                 _ = client
@@ -172,17 +172,77 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
             }
         }
 
-        // private methods
-        private DisposableMongoClient CreateClient(EventCapturer eventCapturer, TimeSpan heartbeatInterval, string applicationName = null)
+        [SkippableFact]
+        public void SDAMPoolManagementTestProseTest_connectionpool_cleared_on_failed_ismaster()
         {
-            var clonedClient = DriverTestConfiguration.Client.Settings.Clone();
-            return DriverTestConfiguration.CreateDisposableClient(
-                (clientSettings) =>
+            var minVersion = new SemanticVersion(4, 9, 0, "");
+            RequireServer.Check().VersionGreaterThanOrEqualTo(minVersion);
+
+            const string appName = "SDAMPoolManagementTest";
+            var heartbeatInterval = TimeSpan.FromMilliseconds(100);
+            var eventsWaitTimeout = TimeSpan.FromMilliseconds(5000);
+
+            var failPointCommand = BsonDocument.Parse(
+                $@"{{
+                    configureFailPoint : 'failCommand',
+                    mode : {{ 'times' : 2 }},
+                    data :
+                    {{
+                        failCommands : [ 'isMaster' ],
+                        errorCode : 1234,
+                        appName : '{appName}'
+                    }}
+                }}");
+
+            var settings = DriverTestConfiguration.GetClientSettings();
+            var serverAddress = settings.Servers.First();
+            settings.Servers = new[] { serverAddress };
+
+            // set settings.DirectConnection = true after removing obsolete ConnectionMode
+#pragma warning disable CS0618 // Type or member is obsolete
+            settings.ConnectionMode = ConnectionMode.Direct;
+#pragma warning restore CS0618 // Type or member is obsolete
+
+            settings.ApplicationName = appName;
+
+            var eventCapturer = new EventCapturer()
+               .Capture<ConnectionPoolReadyEvent>()
+               .Capture<ConnectionPoolClearedEvent>()
+               .Capture<ServerHeartbeatSucceededEvent>()
+               .Capture<ServerHeartbeatFailedEvent>();
+
+            using var client = CreateClient(settings, eventCapturer, heartbeatInterval, appName);
+
+            eventCapturer.WaitForOrThrowIfTimeout(new[]
                 {
-                    clientSettings.ApplicationName = applicationName;
-                    clientSettings.HeartbeatInterval = heartbeatInterval;
-                    clientSettings.ClusterConfigurator = builder => builder.Subscribe(eventCapturer);
-                });
+                    typeof(ConnectionPoolReadyEvent),
+                    typeof(ServerHeartbeatSucceededEvent),
+                },
+                eventsWaitTimeout);
+            eventCapturer.Clear();
+
+            var failpointServer = DriverTestConfiguration.Client.Cluster.SelectServer(new EndPointServerSelector(new DnsEndPoint(serverAddress.Host, serverAddress.Port)), default);
+            using var failPoint = FailPoint.Configure(failpointServer, NoCoreSession.NewHandle(), failPointCommand);
+
+            eventCapturer.WaitForOrThrowIfTimeout(new[]
+                {
+                    typeof(ServerHeartbeatFailedEvent),
+                    typeof(ConnectionPoolClearedEvent),
+                    typeof(ConnectionPoolReadyEvent),
+                    typeof(ServerHeartbeatSucceededEvent),
+                },
+                eventsWaitTimeout);
+        }
+
+        // private methods
+        private DisposableMongoClient CreateClient(MongoClientSettings mongoClientSettings, EventCapturer eventCapturer, TimeSpan heartbeatInterval, string applicationName = null)
+        {
+            var clonedClientSettings = mongoClientSettings ?? DriverTestConfiguration.Client.Settings.Clone();
+            clonedClientSettings.ApplicationName = applicationName;
+            clonedClientSettings.HeartbeatInterval = heartbeatInterval;
+            clonedClientSettings.ClusterConfigurator = builder => builder.Subscribe(eventCapturer);
+
+            return DriverTestConfiguration.CreateDisposableClient(clonedClientSettings);
         }
     }
 

@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Core.Servers
     /// <summary>
     /// Represents a server in a MongoDB cluster.
     /// </summary>
-    internal abstract class Server : IClusterableServer
+    internal abstract class Server : IClusterableServer, IConnectionExceptionHandler
     {
         // fields
         private readonly IClusterClock _clusterClock;
@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Core.Servers
             Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
 
             _serverId = new ServerId(clusterId, endPoint);
-            _connectionPool = Ensure.IsNotNull(connectionPoolFactory, nameof(connectionPoolFactory)).CreateConnectionPool(_serverId, endPoint);
+            _connectionPool = Ensure.IsNotNull(connectionPoolFactory, nameof(connectionPoolFactory)).CreateConnectionPool(_serverId, endPoint, this);
             _state = new InterlockedInt32(State.Initial);
             _serverApi = serverApi;
             _outstandingOperationsCount = 0;
@@ -114,6 +114,10 @@ namespace MongoDB.Driver.Core.Servers
         int IClusterableServer.OutstandingOperationsCount => Interlocked.CompareExchange(ref _outstandingOperationsCount, 0, 0);
 
         // public methods
+
+        void IConnectionExceptionHandler.HandleExceptionOnOpen(Exception exception) =>
+            HandleBeforeHandshakeCompletesException(exception);
+
         public void Dispose()
         {
             if (_state.TryChange(State.Disposed))
@@ -219,6 +223,20 @@ namespace MongoDB.Driver.Core.Servers
 
         // protected methods
         protected abstract void InitializeSubClass();
+
+        protected bool IsStandaloneTopology()
+        {
+#pragma warning disable CS0618 // Type or member is obsolete
+            if (_connectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
+            {
+                return _directConnection.GetValueOrDefault();
+            }
+            else
+            {
+                return _clusterConnectionMode == ClusterConnectionMode.Standalone;
+            }
+#pragma warning restore CS0618 // Type or member is obsolete
+        }
 
         protected bool IsStateChangeException(Exception ex) => ex is MongoNotPrimaryException || ex is MongoNodeIsRecoveringException;
 

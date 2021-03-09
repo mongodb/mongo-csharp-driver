@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
     public class ExclusiveConnectionPoolFactoryTests
     {
         private IConnectionFactory _connectionFactory;
+        private IConnectionExceptionHandler _connectionExceptionHandler;
         private IEventSubscriber _eventSubscriber;
         private DnsEndPoint _endPoint;
         private ServerId _serverId;
@@ -38,6 +39,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
         public ExclusiveConnectionPoolFactoryTests()
         {
             _connectionFactory = new Mock<IConnectionFactory>().Object;
+            _connectionExceptionHandler = new Mock<IConnectionExceptionHandler>().Object;
+
             _endPoint = new DnsEndPoint("localhost", 27017);
             _serverId = new ServerId(new ClusterId(), _endPoint);
             _eventSubscriber = new Mock<IEventSubscriber>().Object;
@@ -77,7 +80,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         {
             var subject = new ExclusiveConnectionPoolFactory(_settings, _connectionFactory, _eventSubscriber);
 
-            Action act = () => subject.CreateConnectionPool(null, _endPoint);
+            Action act = () => subject.CreateConnectionPool(null, _endPoint, _connectionExceptionHandler);
             act.ShouldThrow<ArgumentNullException>();
         }
 
@@ -86,7 +89,16 @@ namespace MongoDB.Driver.Core.ConnectionPools
         {
             var subject = new ExclusiveConnectionPoolFactory(_settings, _connectionFactory, _eventSubscriber);
 
-            Action act = () => subject.CreateConnectionPool(_serverId, null);
+            Action act = () => subject.CreateConnectionPool(_serverId, null, _connectionExceptionHandler);
+            act.ShouldThrow<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void CreateConnectionPool_should_throw_when_exception_handler_is_null()
+        {
+            var subject = new ExclusiveConnectionPoolFactory(_settings, _connectionFactory, _eventSubscriber);
+
+            Action act = () => subject.CreateConnectionPool(null, _endPoint, null);
             act.ShouldThrow<ArgumentNullException>();
         }
 
@@ -95,7 +107,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         {
             var subject = new ExclusiveConnectionPoolFactory(_settings, _connectionFactory, _eventSubscriber);
 
-            var result = subject.CreateConnectionPool(_serverId, _endPoint);
+            var result = subject.CreateConnectionPool(_serverId, _endPoint, _connectionExceptionHandler);
 
             result.Should().NotBeNull();
             result.Should().BeOfType<ExclusiveConnectionPool>();

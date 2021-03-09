@@ -5,6 +5,7 @@ poolOptions:
   maxPoolSize: 1
   waitQueueTimeoutMS: 5000
 operations:
+  - name: ready
     # Check out sole connection in pool
   - name: checkOut
     label: conn0
@@ -81,30 +82,45 @@ operations:
     target: thread4
 events:
   - type: ConnectionCheckOutStarted
+    address: 42
   - type: ConnectionCheckedOut
     connectionId: 42
+    address: 42
   - type: ConnectionCheckOutStarted
+    address: 42
   - type: ConnectionCheckOutStarted
+    address: 42
   - type: ConnectionCheckOutStarted
+    address: 42
   - type: ConnectionCheckOutStarted
+    address: 42
   - type: ConnectionCheckedIn
     connectionId: 42
+    address: 42
   - type: ConnectionCheckedOut
     connectionId: 42
+    address: 42
   - type: ConnectionCheckedIn
     connectionId: 42
+    address: 42
   - type: ConnectionCheckedOut
     connectionId: 42
+    address: 42
   - type: ConnectionCheckedIn
     connectionId: 42
+    address: 42
   - type: ConnectionCheckedOut
     connectionId: 42
+    address: 42
   - type: ConnectionCheckedIn
     connectionId: 42
+    address: 42
   - type: ConnectionCheckedOut
     connectionId: 42
+    address: 42
 ignore:
   - ConnectionCreated
   - ConnectionReady
   - ConnectionClosed
+  - ConnectionPoolReady
   - ConnectionPoolCreated

@@ -113,32 +113,35 @@ namespace MongoDB.Driver.Core.Servers
 
         protected override void HandleBeforeHandshakeCompletesException(Exception ex)
         {
-            if (ex is MongoAuthenticationException)
+            if (ex is not MongoConnectionException connectionException)
             {
-                ConnectionPool.Clear();
+                // non connection exception
                 return;
             }
 
-            if (ex is MongoConnectionException mongoConnectionException)
+            var (invalidateAndClear, cancelCheck) = ex switch
+            {
+                MongoAuthenticationException => (invalidateAndClear: true, cancelCheck: false),
+                _ => (invalidateAndClear: connectionException.IsNetworkException || connectionException.ContainsTimeoutException,
+                      cancelCheck: connectionException.IsNetworkException && !connectionException.ContainsTimeoutException)
+            };
+
+            if (invalidateAndClear)
             {
                 lock (_monitor.Lock)
                 {
-                    if (mongoConnectionException.Generation != null &&
-                        mongoConnectionException.Generation != ConnectionPool.Generation)
+                    if (connectionException.Generation != null && connectionException.Generation != ConnectionPool.Generation)
                     {
-                        return; // stale generation number
+                        // stale generation number
+                        return;
                     }
 
-                    if (mongoConnectionException.IsNetworkException &&
-                        !mongoConnectionException.ContainsTimeoutException)
+                    if (cancelCheck)
                     {
                         _monitor.CancelCurrentCheck();
                     }
 
-                    if (mongoConnectionException.IsNetworkException || mongoConnectionException.ContainsTimeoutException)
-                    {
-                        Invalidate($"ChannelException during handshake: {ex}.", clearConnectionPool: true, topologyVersion: null);
-                    }
+                    Invalidate($"ChannelException during handshake: {ex}.", clearConnectionPool: true, topologyVersion: null);
                 }
             }
         }
@@ -212,9 +215,15 @@ namespace MongoDB.Driver.Core.Servers
 
         private void OnDescriptionChanged(object sender, ServerDescriptionChangedEventArgs e)
         {
-            if (e.NewServerDescription.HeartbeatException != null)
+            var newDescription = e.NewServerDescription;
+            if (newDescription.HeartbeatException != null)
             {
                 ConnectionPool.Clear();
+            }
+            else if (newDescription.IsDataBearing ||
+                (newDescription.Type == ServerType.Unknown && IsStandaloneTopology()))
+            {
+                ConnectionPool.SetReady();
             }
 
             // propagate event to upper levels

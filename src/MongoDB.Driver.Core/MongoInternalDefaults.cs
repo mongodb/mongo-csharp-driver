@@ -21,5 +21,7 @@ namespace MongoDB.Driver
         {
             public const int MaxConnecting = 2;
         }
+
+        public const int SingleServerSelectionTimeoutMS = 1000;
     }
 }
