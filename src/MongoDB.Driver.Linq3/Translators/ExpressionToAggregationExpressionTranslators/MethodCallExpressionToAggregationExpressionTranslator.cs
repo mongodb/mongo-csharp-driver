@@ -75,6 +75,9 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 case "IndexOfBytes":
                     return IndexOfMethodToAggregationExpressionTranslator.Translate(context, expression);
 
+                case "IndexOfAny":
+                    return IndexOfAnyMethodToAggregationExpressionTranslator.Translate(context, expression);
+
                 case "Log":
                 case "Log10":
                     return LogMethodToAggregationExpressionTranslator.Translate(context, expression);
