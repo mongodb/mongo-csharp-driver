@@ -161,7 +161,8 @@ namespace MongoDB.Driver.Tests
                     }
                 });
 
-                Assert.True(result.Response.Contains("stages"));
+                var response = result.Response;
+                Assert.True(response.Contains("stages") || response.Contains("queryPlanner")); // #2 AggregateExplain
             }
         }
 
@@ -1627,9 +1628,11 @@ namespace MongoDB.Driver.Tests
         }
 #pragma warning restore
 
-        [Fact]
+        [SkippableFact]
         public void TestGeoHaystackSearch()
         {
+            RequireServer.Check().VersionLessThan(new SemanticVersion(4, 9, 0, "")); // #4 GeoHaystack
+
             if (_primary.InstanceType != MongoServerInstanceType.ShardRouter)
             {
                 _collection.Drop();
@@ -1661,9 +1664,11 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestGeoHaystackSearchWithMaxTime()
         {
+            RequireServer.Check().VersionLessThan(new SemanticVersion(4, 9, 0, "")); // #4 GeoHaystack
+
             if (_primary.Supports(FeatureId.MaxTime))
             {
                 if (_primary.InstanceType != MongoServerInstanceType.ShardRouter)
@@ -1695,9 +1700,11 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestGeoHaystackSearch_Typed()
         {
+            RequireServer.Check().VersionLessThan(new SemanticVersion(4, 9, 0, "")); // #4 GeoHaystack
+
             if (_primary.InstanceType != MongoServerInstanceType.ShardRouter)
             {
                 _collection.Drop();
@@ -2686,10 +2693,10 @@ namespace MongoDB.Driver.Tests
             });
 
             Assert.True(result.Ok);
-            Assert.True(result.Duration >= TimeSpan.Zero);
-            Assert.Equal(9, result.EmitCount);
-            Assert.Equal(5, result.OutputCount);
-            Assert.Equal(3, result.InputCount);
+            //Assert.True(result.Duration >= TimeSpan.Zero); // #1 MapReduce
+            //Assert.Equal(9, result.EmitCount); // #1 MapReduce
+            //Assert.Equal(5, result.OutputCount); // #1 MapReduce
+            //Assert.Equal(3, result.InputCount); // #1 MapReduce
             result.CollectionName.Should().NotBeNullOrEmpty();
 
             var expectedCounts = new Dictionary<string, int>
@@ -2760,10 +2767,10 @@ namespace MongoDB.Driver.Tests
                 });
 
                 Assert.True(result.Ok);
-                Assert.True(result.Duration >= TimeSpan.Zero);
-                Assert.Equal(9, result.EmitCount);
-                Assert.Equal(5, result.OutputCount);
-                Assert.Equal(3, result.InputCount);
+                //Assert.True(result.Duration >= TimeSpan.Zero); // #1 MapReduce
+                //Assert.Equal(9, result.EmitCount); // #1 MapReduce
+                //Assert.Equal(5, result.OutputCount); // #1 MapReduce
+                //Assert.Equal(3, result.InputCount); // #1 MapReduce
                 result.CollectionName.Should().BeNullOrEmpty();
 
                 var expectedCounts = new Dictionary<string, int>
@@ -2871,10 +2878,10 @@ namespace MongoDB.Driver.Tests
                 });
 
                 Assert.True(result.Ok);
-                Assert.True(result.Duration >= TimeSpan.Zero);
-                Assert.Equal(9, result.EmitCount);
-                Assert.Equal(5, result.OutputCount);
-                Assert.Equal(3, result.InputCount);
+                //Assert.True(result.Duration >= TimeSpan.Zero); // #1 MapReduce
+                //Assert.Equal(9, result.EmitCount); // #1 MapReduce
+                //Assert.Equal(5, result.OutputCount); // #1 MapReduce
+                //Assert.Equal(3, result.InputCount); // #1 MapReduce
                 result.CollectionName.Should().BeNullOrEmpty();
 
                 var expectedCounts = new Dictionary<string, int>
@@ -2996,7 +3003,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestReIndex()
         {
-            if (_primary.InstanceType != MongoServerInstanceType.ShardRouter)
+            if (_primary.InstanceType == MongoServerInstanceType.StandAlone) // #7 ReIndex
             {
                 _collection.Drop();
                 _collection.Insert(new BsonDocument("x", 1));

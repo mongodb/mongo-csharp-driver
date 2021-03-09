@@ -88,8 +88,16 @@ namespace MongoDB.Driver.Tests.Builders
                     .SetWildcardProjection(c => c.Id, false));
             var indexes = collection.GetIndexes();
             var index = indexes.RawDocuments.Single(i => i["name"].AsString == "custom");
+
             index["key"]["$**"].AsInt32.Should().Be(1);
-            index["wildcardProjection"].ToBsonDocument().Should().Be(BsonDocument.Parse("{ b : 1, _id : 0 }"));
+            if (CoreTestConfiguration.ServerVersion >= new SemanticVersion(4, 5, 0, "")) // #6 WildcardProjection
+            {
+                index["wildcardProjection"].Should().Be(BsonDocument.Parse("{ b : true, _id : false }"));
+            }
+            else
+            {
+                index["wildcardProjection"].Should().Be(BsonDocument.Parse("{ b: 1, _id: 0 }"));
+            }
         }
 
         [Fact]

@@ -83,4 +83,12 @@ fi
 for var in TMP TEMP NUGET_PACKAGES NUGET_HTTP_CACHE_PATH APPDATA; do 
   export $var=z:\\data\\tmp; 
 done
+
+# fix GitVersion attempting to find master branch
+git fetch origin +refs/heads/*:refs/remotes/origin/* --unshallow
+# fix MsBuild implicitly using PLATFORM environment variable
+unset PLATFORM
+# fix MsBuild implicitly using VERSION environment variable
+unset VERSION
+
 powershell.exe .\\build.ps1 -target ${TARGET}
