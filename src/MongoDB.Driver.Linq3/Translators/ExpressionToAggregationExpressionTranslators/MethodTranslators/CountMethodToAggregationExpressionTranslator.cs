@@ -54,11 +54,16 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             if (method.IsOneOf(__countMethods))
             {
                 var sourceExpression = arguments[0];
-
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
+
                 AstExpression ast;
                 if (method.IsOneOf(__countWithPredicateMethods))
                 {
+                    if (sourceExpression.Type == typeof(string))
+                    {
+                        throw new ExpressionNotSupportedException(expression);
+                    }
+
                     var predicateLambda = (LambdaExpression)arguments[1];
                     var sourceItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
                     var predicateTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, predicateLambda, sourceItemSerializer);
@@ -70,7 +75,14 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 }
                 else
                 {
-                    ast = new AstUnaryExpression(AstUnaryOperator.Size, sourceTranslation.Ast);
+                    if (sourceExpression.Type == typeof(string))
+                    {
+                        ast = new AstUnaryExpression(AstUnaryOperator.StrLenCP, sourceTranslation.Ast);
+                    }
+                    else
+                    {
+                        ast = new AstUnaryExpression(AstUnaryOperator.Size, sourceTranslation.Ast);
+                    }
                 }
                 var serializer = GetSerializer(expression);
 
