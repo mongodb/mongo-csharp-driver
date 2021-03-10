@@ -15,6 +15,7 @@
 
 using System;
 using System.Globalization;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace MongoDB.Driver.Linq3.Misc
@@ -26,6 +27,7 @@ namespace MongoDB.Driver.Linq3.Misc
         private static readonly MethodInfo __endsWith;
         private static readonly MethodInfo __endsWithWithComparisonType;
         private static readonly MethodInfo __endsWithWithIgnoreCaseAndCulture;
+        private static readonly MethodInfo __getChars;
         private static readonly MethodInfo __indexOfAny;
         private static readonly MethodInfo __indexOfAnyWithStartIndex;
         private static readonly MethodInfo __indexOfAnyWithStartIndexAndCount;
@@ -68,6 +70,7 @@ namespace MongoDB.Driver.Linq3.Misc
             __endsWith = new Func<string, bool>("".EndsWith).Method;
             __endsWithWithComparisonType = new Func<string, StringComparison, bool>("".EndsWith).Method;
             __endsWithWithIgnoreCaseAndCulture = new Func<string, bool, CultureInfo, bool>("".EndsWith).Method;
+            __getChars = GetMethodInfo((string s, int index) => s[index]);
             __indexOfAny = new Func<char[], int>("".IndexOfAny).Method;
             __indexOfAnyWithStartIndex = new Func<char[], int, int>("".IndexOfAny).Method;
             __indexOfAnyWithStartIndexAndCount = new Func<char[], int, int, int>("".IndexOfAny).Method;
@@ -109,6 +112,7 @@ namespace MongoDB.Driver.Linq3.Misc
         public static MethodInfo EndsWith => __endsWith;
         public static MethodInfo EndsWithWithComparisonType => __endsWithWithComparisonType;
         public static MethodInfo EndsWithWithIgnoreCaseAndCulture => __endsWithWithIgnoreCaseAndCulture;
+        public static MethodInfo GetChars => __getChars;
         public static MethodInfo IndexOfAny => __indexOfAny;
         public static MethodInfo IndexOfAnyWithStartIndex => __indexOfAnyWithStartIndex;
         public static MethodInfo IndexOfAnyWithStartIndexAndCount => __indexOfAnyWithStartIndexAndCount;
@@ -143,5 +147,11 @@ namespace MongoDB.Driver.Linq3.Misc
         public static MethodInfo TrimEnd => __trimEnd;
         public static MethodInfo TrimStart => __trimStart;
         public static MethodInfo TrimWithChars => __trimWithChars;
+
+        private static MethodInfo GetMethodInfo<TObject, TArg1, TResult>(Expression<Func<TObject, TArg1, TResult>> lambdaExpression)
+        {
+            var methodCallExpression = (MethodCallExpression)lambdaExpression.Body;
+            return methodCallExpression.Method;
+        }
     }
 }
