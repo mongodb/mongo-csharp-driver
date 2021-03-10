@@ -91,7 +91,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 { "operationType", result.OperationType.ToString().ToLowerInvariant() },
                 { "ns", ConvertNamespace(result.CollectionNamespace) },
-                { "fullDocument", result.FullDocument }
+                { "fullDocument", () => result.FullDocument, result.FullDocument != null },
+                { "updateDescription", () => ConvertUpdateDescription(result.UpdateDescription), result.UpdateDescription != null }
             };
 
             return OperationResult.FromResult(document);
@@ -105,5 +106,13 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 { "coll", collectionNamespace.CollectionName }
             };
         }
+
+        private BsonDocument ConvertUpdateDescription(ChangeStreamUpdateDescription updateDescription) =>
+            new BsonDocument
+            {
+                { "updatedFields", () => updateDescription.UpdatedFields, updateDescription.UpdatedFields != null },
+                { "removedFields", () => new BsonArray(updateDescription.RemovedFields), updateDescription.RemovedFields != null },
+                { "truncatedArrays", () => updateDescription.TruncatedArrays, updateDescription.TruncatedArrays != null },
+            };
     }
 }
