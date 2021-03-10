@@ -1233,7 +1233,7 @@ namespace MongoDB.Driver
 
         [Theory]
         [ParameterAttributeData]
-        public void EstimatedDocumentCount_should_execute_a_CountOperation(
+        public void EstimatedDocumentCount_should_execute_an_EstimatedDocumentCount_operation(
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject<BsonDocument>();
@@ -1255,16 +1255,11 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetReadCall<long>();
             VerifySessionAndCancellationToken(call, null, cancellationToken);
 
-            var operation = call.Operation.Should().BeOfType<CountOperation>().Subject;
-            operation.Collation.Should().BeNull();
+            var operation = call.Operation.Should().BeOfType<EstimatedDocumentCountOperation>().Subject;
             operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
-            operation.Filter.Should().BeNull();
-            operation.Hint.Should().BeNull();
-            operation.Limit.Should().NotHaveValue();
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.ReadConcern.Should().Be(ReadConcern.Default);
             operation.RetryRequested.Should().BeTrue();
-            operation.Skip.Should().NotHaveValue();
         }
 
         [Theory]

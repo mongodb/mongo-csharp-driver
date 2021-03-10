@@ -366,6 +366,7 @@ namespace MongoDB.Driver.Core.Misc
             return !(b < a);
         }
 
+        // private methods
         private ServerVersion AsServerVersion()
         {
             return new ServerVersion(_major, _minor, _patch, _preRelease);

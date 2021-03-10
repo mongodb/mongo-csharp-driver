@@ -313,7 +313,12 @@ namespace MongoDB.Driver.Tests.Specifications.crud
         private class TestCaseFactory : JsonDrivenTestCaseFactory
         {
             // protected properties
-            protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.crud.tests.";
+            protected override string[] PathPrefixes =>
+                new[]
+                {
+                    "MongoDB.Driver.Tests.Specifications.crud.tests.v1",
+                    "MongoDB.Driver.Tests.Specifications.crud.tests.v2"
+                };
 
             // protected methods
             protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)

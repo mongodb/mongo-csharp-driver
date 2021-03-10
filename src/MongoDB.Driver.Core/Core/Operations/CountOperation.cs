@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents a count operation.
     /// </summary>
-    public class CountOperation : IReadOperation<long>
+    public class CountOperation : IReadOperation<long>, IExecutableInRetryableReadContext<long>
     {
         // fields
         private Collation _collation;
@@ -198,10 +198,16 @@ namespace MongoDB.Driver.Core.Operations
 
             using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationToken))
             {
-                var operation = CreateOperation(context);
-                var document = operation.Execute(context, cancellationToken);
-                return document["n"].ToInt64();
+                return Execute(context, cancellationToken);
             }
+        }
+
+        /// <inheritdoc/>
+        public long Execute(RetryableReadContext context, CancellationToken cancellationToken)
+        {
+            var operation = CreateOperation(context);
+            var document = operation.Execute(context, cancellationToken);
+            return document["n"].ToInt64();
         }
 
         /// <inheritdoc/>
@@ -211,12 +217,19 @@ namespace MongoDB.Driver.Core.Operations
 
             using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
             {
-                var operation = CreateOperation(context);
-                var document = await operation.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
-                return document["n"].ToInt64();
+                return await ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
             }
         }
 
+        /// <inheritdoc/>
+        public async Task<long> ExecuteAsync(RetryableReadContext context, CancellationToken cancellationToken)
+        {
+            var operation = CreateOperation(context);
+            var document = await operation.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
+            return document["n"].ToInt64();
+        }
+
+        // private methods
         private ReadCommandOperation<BsonDocument> CreateOperation(RetryableReadContext context)
         {
             var command = CreateCommand(context.Channel.ConnectionDescription, context.Binding.Session);
