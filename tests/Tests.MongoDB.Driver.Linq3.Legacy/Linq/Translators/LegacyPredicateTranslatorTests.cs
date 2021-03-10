@@ -833,25 +833,25 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSSub1EqualsB()
         {
-            Assert<C>(c => c.S[1] == 'b', 1, "{ \"s\" : /^.{1}b/s }");
+            Assert<C>(c => c.S[1] == 'b', 1, "{ $expr : { $eq : [{ $substrCP : ['$s', 1, 1] }, 'b'] } }");
         }
 
         [Fact]
         public void TestWhereSSub1EqualsBNot()
         {
-            Assert<C>(c => !(c.S[1] == 'b'), 4, "{ \"s\" : { \"$not\" : /^.{1}b/s } }");
+            Assert<C>(c => !(c.S[1] == 'b'), 4, "{ $nor : [{ $expr : { $eq : [{ $substrCP : ['$s', 1, 1] }, 'b'] } }] }");
         }
 
         [Fact]
         public void TestWhereSSub1NotEqualsB()
         {
-            Assert<C>(c => c.S[1] != 'b', 1, "{ \"s\" : /^.{1}[^b]/s }");
+            Assert<C>(c => c.S[1] != 'b', 4, "{ $expr : { $ne : [{ $substrCP : ['$s', 1, 1] }, 'b'] } }");
         }
 
         [Fact]
         public void TestWhereSSub1NotEqualsBNot()
         {
-            Assert<C>(c => !(c.S[1] != 'b'), 4, "{ \"s\" : { \"$not\" : /^.{1}[^b]/s } }");
+            Assert<C>(c => !(c.S[1] != 'b'), 1, "{ $nor : [{ $expr : { $ne : [{ $substrCP : ['$s', 1, 1] }, 'b'] } }] }");
         }
 
         [Fact]
