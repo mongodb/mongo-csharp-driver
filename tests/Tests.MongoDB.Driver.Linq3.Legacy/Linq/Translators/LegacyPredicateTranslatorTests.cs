@@ -612,7 +612,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSCountEquals3()
         {
-            Assert<C>(c => c.S.Count() == 3, 1, "{ \"s\" : /^.{3}$/s }");
+            Assert<C>(c => c.S != null && c.S.Count() == 3, 1, "{ $and : [{ s : { $ne : null } }, { $expr : { $eq : [{ $strLenCP : '$s' }, 3] } }] }");
         }
 
         [Fact]

@@ -49,9 +49,13 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
                 var method = leftMethodCallExpression.Method;
                 if (method.IsOneOf(EnumerableMethod.Count, EnumerableMethod.LongCount))
                 {
-                    enumerableExpression = leftMethodCallExpression.Arguments[0];
-                    sizeExpression = rightExpression;
-                    return true;
+                    var sourceExpression = leftMethodCallExpression.Arguments[0];
+                    if (sourceExpression.Type != typeof(string))
+                    {
+                        enumerableExpression = leftMethodCallExpression.Arguments[0];
+                        sizeExpression = rightExpression;
+                        return true;
+                    }
                 }
             }
 
