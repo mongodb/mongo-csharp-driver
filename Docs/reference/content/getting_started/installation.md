@@ -11,12 +11,11 @@ title = "Installation"
 
 ## System Requirements
 
-The Nuget packages target two versions of the .NET frameworks: net45 and netstandard1.5. The net45 target allows the driver to be used with the full .NET Framework 
-version 4.5 and later, and the netstandard1.5 target allows the driver to be used with any framework that supports netstandard1.5, which includes .NET Core 1.0.
+The NuGet packages include support for four target framework monikers (TFMs): net452, netstandard1.5, netstandard2.0, and netstandard2.1. The net452 target allows the driver to be used with the full .NET Framework version 4.5.2 and later. The netstandardX.Y TFMs allow the driver to be used with any .NET implementation supporting that TFM. This includes support for various versions of .NET Core as well as .NET 5.0 and above.
 
-## Nuget Installation
+## NuGet Installation
 
-[Nuget](http://www.nuget.org/) is the simplest way to get the driver. There are 5 packages available on nuget.
+[NuGet](http://www.nuget.org/) is the simplest way to get the driver. There are 5 packages available on nuget.
 
 - [MongoDB.Driver](http://www.nuget.org/packages/mongodb.driver): The new driver. It is mostly free of any legacy code and should be used for all new projects. More documentation can be found in the [reference guide]({{< relref "reference\driver\index.md" >}}).
 - [MongoDB.Driver.Core](http://www.nuget.org/packages/mongodb.driver.core): The core of the driver and a dependency of MongoDB.Driver. You will probably not use this package directly. More documentation can be found in the [reference guide]({{< relref "reference\driver_core\index.md" >}}).
