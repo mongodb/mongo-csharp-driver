@@ -618,13 +618,13 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSEqualsAbc()
         {
-            Assert<C>(c => c.S == "abc", 1, "{ \"s\" : \"abc\" }");
+            Assert<C>(c => c.S == "abc", 1, "{ s : 'abc' }");
         }
 
         [Fact]
         public void TestWhereSEqualsAbcNot()
         {
-            Assert<C>(c => !(c.S == "abc"), 4, "{ \"s\" : { \"$ne\" : \"abc\" } }");
+            Assert<C>(c => !(c.S == "abc"), 4, "{ $nor : [{ s : 'abc' }] }");
         }
 
         [Fact]
@@ -809,13 +809,13 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSNotEqualsAbc()
         {
-            Assert<C>(c => c.S != "abc", 4, "{ \"s\" : { \"$ne\" : \"abc\" } }");
+            Assert<C>(c => c.S != "abc", 4, "{ s : { $ne : 'abc' } }");
         }
 
         [Fact]
         public void TestWhereSNotEqualsAbcNot()
         {
-            Assert<C>(c => !(c.S != "abc"), 1, "{ \"s\" : \"abc\" }");
+            Assert<C>(c => !(c.S != "abc"), 1, "{ $nor : [{ s : { $ne : 'abc' } }] }");
         }
 
         [Fact]
