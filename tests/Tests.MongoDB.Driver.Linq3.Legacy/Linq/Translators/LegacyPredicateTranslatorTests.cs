@@ -558,7 +558,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         public void TestWhereSASub0IsMatchNot()
         {
             var regex = new Regex(@"^T");
-            Assert<C>(c => !regex.IsMatch(c.SA[0]), 4, "{ \"sa.0\" : { \"$not\" : /^T/ } }");
+            Assert<C>(c => !regex.IsMatch(c.SA[0]), 4, "{ $nor : [{ \"sa.0\" : /^T/ }] }");
         }
 
         [Fact]
@@ -570,7 +570,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSASub0IsMatchStaticNot()
         {
-            Assert<C>(c => !Regex.IsMatch(c.SA[0], "^T"), 4, "{ \"sa.0\" : { \"$not\" : /^T/ } }");
+            Assert<C>(c => !Regex.IsMatch(c.SA[0], "^T"), 4, "{ $nor :[{ \"sa.0\" : /^T/ }] }");
         }
 
         [Fact]
@@ -737,7 +737,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         public void TestWhereSIsMatchNot()
         {
             var regex = new Regex(@"^abc");
-            Assert<C>(c => !regex.IsMatch(c.S), 4, "{ \"s\" : { \"$not\" : /^abc/ } }");
+            Assert<C>(c => !regex.IsMatch(c.S), 4, "{ $nor : [{ \"s\" : /^abc/ }] }");
         }
 
         [Fact]
@@ -749,7 +749,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSIsMatchStaticNot()
         {
-            Assert<C>(c => !Regex.IsMatch(c.S, "^abc"), 4, "{ \"s\" : { \"$not\" : /^abc/ } }");
+            Assert<C>(c => !Regex.IsMatch(c.S, "^abc"), 4, "{ $nor : [{ \"s\" : /^abc/ }] }");
         }
 
         [Fact]
