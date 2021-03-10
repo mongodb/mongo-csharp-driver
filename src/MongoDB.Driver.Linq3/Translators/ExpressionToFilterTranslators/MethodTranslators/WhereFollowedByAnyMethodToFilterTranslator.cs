@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
     {
         public static bool CanTranslate(MethodCallExpression expression, out MethodCallExpression whereExpression, out MethodCallExpression anyExpression)
         {
-            if (expression.Method.Is(EnumerableMethod.Any))
+            if (expression.Method.Is(EnumerableMethod.AnyWithPredicate))
             {
                 anyExpression = expression;
                 var anySourceExpression = anyExpression.Arguments[0];

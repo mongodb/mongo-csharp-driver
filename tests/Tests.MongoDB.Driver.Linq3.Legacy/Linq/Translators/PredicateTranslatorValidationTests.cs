@@ -233,40 +233,35 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         }
 
         [Fact]
-        public void Should_throw_the_exception_when_a_child_expression_uses_parameters_from_grandparents()
+        public void Should_not_throw_the_exception_when_a_child_expression_uses_parameters_from_grandparents()
         {
             Setup();
 
             Expression<Func<TestObject, bool>> expr = (a) => a.Collection1.Any(b => b.Collection1.Any(c => a.Value1 == 2));
 
-            var exception = Assert.Throws<ExpressionNotSupportedException>(() => Translate(CreateWhereQuery(expr)));
-            //exception.Message.Should().Be(string.Format(NotSupportErrorMessageTemplate, "{document}{Collection1}.Where(Any({document}{Collection1}.Where(({document}{Value1} == 2))))", "a"));
+            AssertWhere(expr, "{ $match : { $expr : { $anyElementTrue : [{ $map : { input : '$Collection1', as : 'b', in : { $anyElementTrue : [{ $map : { input : '$$b.Collection1', as : 'c', in : { $eq : ['$Value1', 2] } } }] } } }] } } }");
         }
 
         [Fact]
-        public void Should_throw_the_exception_when_a_child_expression_uses_parameters_from_parents()
+        public void Should_not_throw_the_exception_when_a_child_expression_uses_parameters_from_parents()
         {
             Setup();
 
             Expression<Func<TestObject, bool>> expr = (a) => a.Collection1.Any(b => a.Value1 == 2);
-            var exception = Assert.Throws<ExpressionNotSupportedException>(() => Translate(CreateWhereQuery(expr)));
-            //exception.Message.Should().Be(string.Format(NotSupportErrorMessageTemplate, "{document}{Collection1}.Where(({document}{Value1} == 2))", "a"));
+            AssertWhere(expr, "{ $match : { $expr : { $anyElementTrue : [{ $map : { input : '$Collection1', as : 'b', in : { $eq : ['$Value1', 2] } } }] } } }");
 
             expr = (a) => a.Collection1.Any(b => b.Value1 == 2 && a.Value1 == 3);
-            exception = Assert.Throws<ExpressionNotSupportedException>(() => Translate(CreateWhereQuery(expr)));
-            //exception.Message.Should().Be(string.Format(NotSupportErrorMessageTemplate, "{document}{Collection1}.Where((({document}{Value1} == 2) AndAlso ({document}{Value1} == 3)))", "a"));
+            AssertWhere(expr, "{ $match : { $expr : { $anyElementTrue : [{ $map : { input : '$Collection1', as : 'b', in : { $and : [{ $eq : ['$$b.Value1', 2] }, { $eq : ['$Value1', 3] }] } } }] } } }");
 
             expr = (a) => a.Collection3.Any(b => a.Value2);
-            exception = Assert.Throws<ExpressionNotSupportedException>(() => Translate(CreateWhereQuery(expr)));
-            //exception.Message.Should().Be(string.Format(NotSupportErrorMessageTemplate, "{document}{Collection3}.Where({document}{Value2})", "a"));
+            AssertWhere(expr, "{ $match : { $expr : { $anyElementTrue : [{ $map : { input : '$Collection3', as : 'b', in : '$Value2' } }] } } }");
 
             expr = (a) => a.Collection1.Where(b => a.Value1 == 2).Any();
-            exception = Assert.Throws<ExpressionNotSupportedException>(() => Translate(CreateWhereQuery(expr)));
-            //exception.Message.Should().Be(string.Format(NotSupportErrorMessageTemplate, "{document}{Collection1}.Where(({document}{Value1} == 2))", "a"));
+            AssertWhere(expr, "{ $match : { $expr : { $gt : [{ $size : { $filter : { input : '$Collection1', as : 'b', cond : { $eq : ['$Value1', 2] } } } }, 0] } } }");
         }
 
         [Fact]
-        public void Should_throw_the_exception_when_there_is_the_parent_parameter_in_the_child_expression_and_there_are_several_conditions()
+        public void Should_not_throw_the_exception_when_there_is_the_parent_parameter_in_the_child_expression_and_there_are_several_conditions()
         {
             Setup();
 
@@ -274,15 +269,13 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
                 (a) =>
                     a.Collection1.Any(c => c.Value1 == 3) &&
                     a.Collection1.Any(d => a.Value1 != 4);
-            var exception = Assert.Throws<ExpressionNotSupportedException>(() => Translate(CreateWhereQuery(expr)));
-            //exception.Message.Should().Be(string.Format(NotSupportErrorMessageTemplate, "{document}{Collection1}.Where(({document}{Value1} != 4))", "a"));
+            AssertWhere(expr, "{ $match : { $and : [{ Collection1 : { $elemMatch : { 'Value1' : 3 } } }, { $expr : { $anyElementTrue : [{ $map : { input : '$Collection1', as : 'd', in : { $ne : ['$Value1', 4] } } }] } }] } }");
 
             expr =
                 (a) => a.Collection1
                     .Any(
                         c => c.Value1 != 3 && c.Collection1.Any(d => a.Value1 != 5));
-            exception = Assert.Throws<ExpressionNotSupportedException>(() => Translate(CreateWhereQuery(expr)));
-            //exception.Message.Should().Be(string.Format(NotSupportErrorMessageTemplate, "{document}{Collection1}.Where((({document}{Value1} != 3) AndAlso Any({document}{Collection1}.Where(({document}{Value1} != 5)))))", "a"));
+            AssertWhere(expr, "{ $match : { $expr : { $anyElementTrue : [{ $map : { input : '$Collection1', as : 'c', in : { $and : [{ $ne : ['$$c.Value1', 3] }, { $anyElementTrue : [{ $map : { input : '$$c.Collection1', as : 'd', in : { $ne : ['$Value1', 5] } } }] }] } } }] }  } }");
         }
 
         // private methods

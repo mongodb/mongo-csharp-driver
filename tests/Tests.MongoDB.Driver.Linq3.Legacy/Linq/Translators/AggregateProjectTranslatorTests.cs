@@ -613,7 +613,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             result.Value.Result.Should().Be(6);
 
             result = Project(x => new { Result = x.A.IndexOfBytes("e", 4, 2) });
-            result.Projection.Should().Be("{ Result: { \"$indexOfBytes\": [\"$A\", \"e\", 4, { $add: [4, 2] }] }, _id: 0 }");
+            result.Projection.Should().Be("{ Result: { \"$indexOfBytes\": [\"$A\", \"e\", 4, 6] }, _id: 0 }");
             result.Value.Result.Should().Be(-1);
         }
 
@@ -639,11 +639,11 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             result.Value.Result.Should().Be(6);
 
             result = Project(x => new { Result = x.A.IndexOf('e', 4, 2) }, __codePointTranslationOptions);
-            result.Projection.Should().Be("{ Result: { \"$indexOfCP\": [\"$A\", \"e\", 4, { $add: [4, 2] }] }, _id: 0 }");
+            result.Projection.Should().Be("{ Result: { \"$indexOfCP\": [\"$A\", \"e\", 4, 6] }, _id: 0 }");
             result.Value.Result.Should().Be(-1);
 
             result = Project(x => new { Result = x.A.IndexOf("e", 4, 2) }, __codePointTranslationOptions);
-            result.Projection.Should().Be("{ Result: { \"$indexOfCP\": [\"$A\", \"e\", 4, { $add: [4, 2] }] }, _id: 0 }");
+            result.Projection.Should().Be("{ Result: { \"$indexOfCP\": [\"$A\", \"e\", 4, 6] }, _id: 0 }");
             result.Value.Result.Should().Be(-1);
         }
 
