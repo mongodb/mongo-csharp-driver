@@ -14,15 +14,10 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Connections;
-using MongoDB.Driver.Core.Events;
 
 namespace MongoDB.Driver.Core.Servers
 {
@@ -117,5 +112,13 @@ namespace MongoDB.Driver.Core.Servers
         /// Requests a heartbeat as soon as possible.
         /// </summary>
         void RequestHeartbeat();
+
+        /// <summary>
+        /// Gets the outstanding operations count.
+        /// </summary>
+        /// <value>
+        /// The outstanding operations count.
+        /// </value>
+        int OutstandingOperationsCount { get; }
     }
 }

@@ -410,16 +410,24 @@ namespace MongoDB.Driver.Core.Clusters
         private class SelectServerHelper : IDisposable
         {
             private readonly Cluster _cluster;
+            private readonly List<IClusterableServer> _connectedServers;
+            private readonly List<ServerDescription> _connectedServerDescriptions;
             private ClusterDescription _description;
             private Task _descriptionChangedTask;
             private bool _serverSelectionWaitQueueEntered;
             private readonly IServerSelector _selector;
+            private readonly OperationsCountServerSelector _operationCountServerSelector;
             private readonly Stopwatch _stopwatch;
             private readonly DateTime _timeoutAt;
 
             public SelectServerHelper(Cluster cluster, IServerSelector selector)
             {
                 _cluster = cluster;
+
+                _connectedServers = new List<IClusterableServer>(_cluster._description?.Servers?.Count ?? 1);
+                _connectedServerDescriptions = new List<ServerDescription>(_connectedServers.Count);
+                _operationCountServerSelector = new OperationsCountServerSelector(_connectedServers);
+
                 _selector = DecorateSelector(selector);
                 _stopwatch = Stopwatch.StartNew();
                 _timeoutAt = DateTime.UtcNow + _cluster.Settings.ServerSelectionTimeout;
@@ -489,36 +497,47 @@ namespace MongoDB.Driver.Core.Clusters
 
                 MongoIncompatibleDriverException.ThrowIfNotSupported(_description);
 
-                var connectedServers = _description.Servers.Where(s => s.State == ServerState.Connected);
-                var selectedServers = _selector.SelectServers(_description, connectedServers).ToList();
+                _connectedServers.Clear();
+                _connectedServerDescriptions.Clear();
 
-                while (selectedServers.Count > 0)
+                foreach (var description in _description.Servers)
                 {
-                    var server = selectedServers.Count == 1 ?
-                        selectedServers[0] :
-                        __randomServerSelector.SelectServers(_description, selectedServers).Single();
-
-                    IClusterableServer selectedServer;
-                    if (_cluster.TryGetServer(server.EndPoint, out selectedServer))
+                    if (description.State == ServerState.Connected &&
+                        _cluster.TryGetServer(description.EndPoint, out var server))
                     {
-                        _stopwatch.Stop();
-                        var selectedServerEventHandler = _cluster._selectedServerEventHandler;
-                        if (selectedServerEventHandler != null)
-                        {
-                            selectedServerEventHandler(new ClusterSelectedServerEvent(
-                                _description,
-                                _selector,
-                                server,
-                                _stopwatch.Elapsed,
-                                EventContext.OperationId));
-                        }
-                        return selectedServer;
+                        _connectedServers.Add(server);
+                        _connectedServerDescriptions.Add(description);
                     }
-
-                    selectedServers.Remove(server);
                 }
 
-                return null;
+                var selectedServersDescriptions = _selector
+                    .SelectServers(_description, _connectedServerDescriptions)
+                    .ToList();
+
+                IServer selectedServer = null;
+
+                if (selectedServersDescriptions.Count > 0)
+                {
+                    var selectedServerDescription = selectedServersDescriptions.Count == 1
+                        ? selectedServersDescriptions[0]
+                        : __randomServerSelector.SelectServers(_description, selectedServersDescriptions).Single();
+
+                    selectedServer = _connectedServers.FirstOrDefault(s => EndPointHelper.Equals(s.EndPoint, selectedServerDescription.EndPoint));
+                }
+
+                if (selectedServer != null)
+                {
+                    _stopwatch.Stop();
+
+                    _cluster._selectedServerEventHandler?.Invoke(new ClusterSelectedServerEvent(
+                        _description,
+                        _selector,
+                        selectedServer.Description,
+                        _stopwatch.Elapsed,
+                        EventContext.OperationId));
+                }
+
+                return selectedServer;
             }
 
             public void WaitingForDescriptionToChange()
@@ -554,6 +573,7 @@ namespace MongoDB.Driver.Core.Clusters
                 }
 
                 allSelectors.Add(_cluster._latencyLimitingServerSelector);
+                allSelectors.Add(_operationCountServerSelector);
 
                 return new CompositeServerSelector(allSelectors);
             }

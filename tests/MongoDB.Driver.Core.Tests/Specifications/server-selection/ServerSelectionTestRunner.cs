@@ -30,7 +30,6 @@ namespace MongoDB.Driver.Specifications.server_selection
     public class ServerSelectionTestRunner
     {
         private ClusterId _clusterId = new ClusterId();
-        private DateTime _utcNow = DateTime.UtcNow;
 
         [Theory]
         [ClassData(typeof(TestCaseFactory))]
@@ -42,7 +41,8 @@ namespace MongoDB.Driver.Specifications.server_selection
 
             var error = definition.GetValue("error", false).ToBoolean();
             var heartbeatInterval = TimeSpan.FromMilliseconds(definition.GetValue("heartbeatFrequencyMS", 10000).ToInt64());
-            var clusterDescription = BuildClusterDescription((BsonDocument)definition["topology_description"], heartbeatInterval);
+            var clusterDescription = ServerSelectionTestHelper.BuildClusterDescription((BsonDocument)definition["topology_description"], heartbeatInterval);
+
             IServerSelector selector;
             if (definition.GetValue("operation", "read").AsString == "write")
             {
@@ -86,12 +86,12 @@ namespace MongoDB.Driver.Specifications.server_selection
 
         private void RunNonErrorTest(BsonDocument definition, ClusterDescription clusterDescription, IServerSelector selector, TimeSpan heartbeatInterval)
         {
-            var suitableServers = BuildServerDescriptions((BsonArray)definition["suitable_servers"], heartbeatInterval).ToList();
+            var suitableServers = ServerSelectionTestHelper.BuildServerDescriptions((BsonArray)definition["suitable_servers"], _clusterId, heartbeatInterval);
             var selectedServers = selector.SelectServers(clusterDescription, clusterDescription.Servers).ToList();
             AssertServers(suitableServers, selectedServers);
 
             selector = new CompositeServerSelector(new[] { selector, new LatencyLimitingServerSelector(TimeSpan.FromMilliseconds(15)) });
-            var inLatencyWindowServers = BuildServerDescriptions((BsonArray)definition["in_latency_window"], heartbeatInterval).ToList();
+            var inLatencyWindowServers = ServerSelectionTestHelper.BuildServerDescriptions((BsonArray)definition["in_latency_window"], _clusterId, heartbeatInterval);
             selectedServers = selector.SelectServers(clusterDescription, clusterDescription.Servers).ToList();
             AssertServers(inLatencyWindowServers, selectedServers);
         }
@@ -136,120 +136,6 @@ namespace MongoDB.Driver.Specifications.server_selection
             }
 
             return new ReadPreference(mode, tagSets, maxStaleness);
-        }
-
-        private ClusterDescription BuildClusterDescription(BsonDocument topologyDescription, TimeSpan heartbeatInterval)
-        {
-            JsonDrivenHelper.EnsureAllFieldsAreValid(topologyDescription, "servers", "type");
-
-            var clusterType = GetClusterType(topologyDescription["type"].ToString());
-            var servers = BuildServerDescriptions((BsonArray)topologyDescription["servers"], heartbeatInterval);
-
-#pragma warning disable CS0618 // Type or member is obsolete
-            return new ClusterDescription(_clusterId, ClusterConnectionMode.Automatic, clusterType, servers);
-#pragma warning restore CS0618 // Type or member is obsolete
-        }
-
-        private IEnumerable<ServerDescription> BuildServerDescriptions(BsonArray serverDescriptions, TimeSpan heartbeatInterval)
-        {
-            return serverDescriptions.Select(x => BuildServerDescription((BsonDocument)x, heartbeatInterval));
-        }
-
-        private ClusterType GetClusterType(string type)
-        {
-            if (type.StartsWith("ReplicaSet"))
-            {
-                return ClusterType.ReplicaSet;
-            }
-
-            if (type == "Sharded")
-            {
-                return ClusterType.Sharded;
-            }
-
-            if (type == "Single")
-            {
-                return ClusterType.Standalone;
-            }
-
-            if (type == "Unknown")
-            {
-                return ClusterType.Unknown;
-            }
-
-            throw new NotSupportedException("Unknown topology type: " + type);
-        }
-
-        private ServerDescription BuildServerDescription(BsonDocument serverDescription, TimeSpan heartbeatInterval)
-        {
-            JsonDrivenHelper.EnsureAllFieldsAreValid(serverDescription, "address", "avg_rtt_ms", "tags", "type", "lastUpdateTime", "lastWrite", "maxWireVersion");
-
-            var endPoint = EndPointHelper.Parse(serverDescription["address"].ToString());
-            var averageRoundTripTime = TimeSpan.FromMilliseconds(serverDescription.GetValue("avg_rtt_ms", 0.0).ToDouble());
-            var type = GetServerType(serverDescription["type"].ToString());
-            TagSet tagSet = null;
-            if (serverDescription.Contains("tags"))
-            {
-                tagSet = BuildTagSet((BsonDocument)serverDescription["tags"]);
-            }
-            DateTime lastWriteTimestamp;
-            if (serverDescription.Contains("lastWrite"))
-            {
-                lastWriteTimestamp = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(serverDescription["lastWrite"]["lastWriteDate"].ToInt64());
-            }
-            else
-            {
-                lastWriteTimestamp = _utcNow;
-            }
-            var maxWireVersion = serverDescription.GetValue("maxWireVersion", 5).ToInt32();
-            var wireVersionRange = new Range<int>(0, maxWireVersion);
-            var serverVersion = maxWireVersion == 5 ? new SemanticVersion(3, 4, 0) : new SemanticVersion(3, 2, 0);
-            DateTime lastUpdateTimestamp;
-            if (serverDescription.Contains("lastUpdateTime"))
-            {
-                lastUpdateTimestamp = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(serverDescription.GetValue("lastUpdateTime", 0).ToInt64());
-            }
-            else
-            {
-                lastUpdateTimestamp = _utcNow;
-            }
-
-            var serverId = new ServerId(_clusterId, endPoint);
-            return new ServerDescription(
-                serverId,
-                endPoint,
-                averageRoundTripTime: averageRoundTripTime,
-                type: type,
-                lastUpdateTimestamp: lastUpdateTimestamp,
-                lastWriteTimestamp: lastWriteTimestamp,
-                heartbeatInterval: heartbeatInterval,
-                wireVersionRange: wireVersionRange,
-                version: serverVersion,
-                tags: tagSet,
-                state: ServerState.Connected);
-        }
-
-        private ServerType GetServerType(string type)
-        {
-            switch (type)
-            {
-                case "RSPrimary":
-                    return ServerType.ReplicaSetPrimary;
-                case "RSSecondary":
-                    return ServerType.ReplicaSetSecondary;
-                case "RSArbiter":
-                    return ServerType.ReplicaSetArbiter;
-                case "RSGhost":
-                    return ServerType.ReplicaSetGhost;
-                case "RSOther":
-                    return ServerType.ReplicaSetOther;
-                case "Mongos":
-                    return ServerType.ShardRouter;
-                case "Standalone":
-                    return ServerType.Standalone;
-                default:
-                    return ServerType.Unknown;
-            }
         }
 
         private TagSet BuildTagSet(BsonDocument tagSet)

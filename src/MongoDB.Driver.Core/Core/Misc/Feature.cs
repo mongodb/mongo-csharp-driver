@@ -60,6 +60,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __eval = new Feature("Eval", new SemanticVersion(0, 0, 0), new SemanticVersion(4, 1, 0, ""));
         private static readonly Feature __explainCommand = new Feature("ExplainCommand", new SemanticVersion(3, 0, 0));
         private static readonly Feature __failPoints = new Feature("FailPoints", new SemanticVersion(2, 4, 0));
+        private static readonly Feature __failPointsBlockConnection = new Feature("FailPointsBlockConnection", new SemanticVersion(4, 2, 9));
         private static readonly Feature __failPointsFailCommand = new Feature("FailPointsFailCommand", new SemanticVersion(4, 0, 0));
         private static readonly Feature __failPointsFailCommandForSharded = new Feature("FailPointsFailCommandForSharded", new SemanticVersion(4, 1, 5));
         private static readonly FindAllowDiskUseFeature __findAllowDiskUse = new FindAllowDiskUseFeature("FindAllowDiskUse", new SemanticVersion(4, 4, 0, ""));
@@ -287,6 +288,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the fail points feature.
         /// </summary>
         public static Feature FailPoints => __failPoints;
+
+        /// <summary>
+        /// Gets the fail points block connection feature.
+        /// </summary>
+        public static Feature FailPointsBlockConnection => __failPointsBlockConnection;
 
         /// <summary>
         /// Gets the fail points fail command feature.

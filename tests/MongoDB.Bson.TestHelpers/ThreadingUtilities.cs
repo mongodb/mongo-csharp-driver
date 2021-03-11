@@ -28,6 +28,7 @@ namespace MongoDB.Bson.TestHelpers
             var actionsExecutedCount = 0;
 
             var exceptions = new ConcurrentBag<Exception>();
+            var startEvent = new ManualResetEventSlim(false);
 
             var threads = Enumerable.Range(0, threadsCount).Select(i =>
             {
@@ -35,6 +36,11 @@ namespace MongoDB.Bson.TestHelpers
                 {
                     try
                     {
+                        if (!startEvent.Wait(timeoutMilliseconds))
+                        {
+                            throw new TimeoutException();
+                        }
+
                         action(i);
                         Interlocked.Increment(ref actionsExecutedCount);
                     }
@@ -44,11 +50,14 @@ namespace MongoDB.Bson.TestHelpers
                     }
                 });
 
+                thread.IsBackground = true;
                 thread.Start();
 
                 return thread;
             })
             .ToArray();
+
+            startEvent.Set();
 
             foreach (var thread in threads)
             {
