@@ -980,7 +980,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereTripleOr()
         {
-            Assert<C>(c => c.X == 1 || c.Y == 33 || c.S == "x is 1", 2, "{ $or : [{ $or : [{ x : 1 }, { y : 33 }] }, { s : 'x is 1' }] }");
+            Assert<C>(c => c.X == 1 || c.Y == 33 || c.S == "x is 1", 2, "{ $or : [{ x : 1 }, { y : 33 }, { s : 'x is 1' }] }");
         }
 
         [Fact]
