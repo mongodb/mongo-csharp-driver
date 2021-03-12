@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
             {
                 var leftTranslation = ExpressionToFilterTranslator.Translate(context, leftExpression);
                 var rightTranslation = ExpressionToFilterTranslator.Translate(context, rightExpression);
-                return new AstOrFilter(leftTranslation, rightTranslation);
+                return AstOrFilter.CreateFlattened(leftTranslation, rightTranslation);
             }
 
             throw new ExpressionNotSupportedException(expression);
