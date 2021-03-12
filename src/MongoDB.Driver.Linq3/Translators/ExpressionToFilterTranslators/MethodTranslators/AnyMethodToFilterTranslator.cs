@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             {
                 return new AstAndFilter(
                     new AstComparisonFilter(AstComparisonFilterOperator.Ne, sourceField, BsonNull.Value),
-                    new AstNotFilter(new AstSizeFilter(sourceField, 0)));
+                    new AstNorFilter(new AstSizeFilter(sourceField, 0)));
             }
 
             if (method.Is(EnumerableMethod.AnyWithPredicate))

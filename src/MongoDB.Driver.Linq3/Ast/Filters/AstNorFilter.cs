@@ -13,26 +13,29 @@
 * limitations under the License.
 */
 
+using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstNotFilter : AstFilter
+    public sealed class AstNorFilter : AstFilter
     {
-        private readonly AstFilter _arg;
+        private readonly AstFilter[] _args;
 
-        public AstNotFilter(AstFilter arg)
+        public AstNorFilter(params AstFilter[] args)
         {
-            _arg = Ensure.IsNotNull(arg, nameof(arg));
+            Ensure.IsNotNull(args, nameof(args));
+            Ensure.That(args.Length > 0, "Args length cannot be zero.", nameof(args));
+            _args = args;
         }
 
-        public AstFilter Arg => _arg;
+        public AstFilter[] Args => _args;
         public override AstNodeType NodeType => AstNodeType.NotFilter;
 
         public override BsonValue Render()
         {
-            return new BsonDocument("$nor", new BsonArray { _arg.Render() });
+            return new BsonDocument("$nor", new BsonArray(_args.Select(a => a.Render())));
         }
     }
 }

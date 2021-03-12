@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
                         return new AstSizeFilter(arrayField, size);
 
                     case ExpressionType.NotEqual:
-                        return new AstNotFilter(new AstSizeFilter(arrayField, size));
+                        return new AstNorFilter(new AstSizeFilter(arrayField, size));
                 }
 
             }
