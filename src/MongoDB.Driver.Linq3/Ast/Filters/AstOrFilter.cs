@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 
@@ -20,22 +21,21 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
 {
     public sealed class AstOrFilter : AstFilter
     {
-        private readonly AstFilter _arg1;
-        private readonly AstFilter _arg2;
+        private readonly AstFilter[] _args;
 
-        public AstOrFilter(AstFilter arg1, AstFilter arg2)
+        public AstOrFilter(params AstFilter[] args)
         {
-            _arg1 = Ensure.IsNotNull(arg1, nameof(arg1));
-            _arg2 = Ensure.IsNotNull(arg2, nameof(arg2));
+            Ensure.IsNotNull(args, nameof(args));
+            Ensure.That(args.Length > 0, "Args length cannot be zero.", nameof(args));
+            _args = args;
         }
 
-        public AstFilter Arg1 => _arg1;
-        public AstFilter Arg2 => _arg2;
+        public AstFilter[] Args => _args;
         public override AstNodeType NodeType => AstNodeType.OrFilter;
 
         public override BsonValue Render()
         {
-            return new BsonDocument("$or", new BsonArray { _arg1.Render(), _arg2.Render() });
+            return new BsonDocument("$or", new BsonArray(_args.Select(a => a.Render())));
         }
     }
 }
