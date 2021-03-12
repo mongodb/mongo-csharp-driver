@@ -974,7 +974,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         public void TestWhereTripleAnd()
         {
             // the query is a bit odd in order to force the built query to be promoted to $and form
-            Assert<C>(c => c.X >= 0 && c.X >= 1 && c.Y == 11, 2, "{ $and : [{ $and : [{ x : { $gte : 0 }}, { x : { $gte : 1 } }] }, { y : 11 }] }");
+            Assert<C>(c => c.X >= 0 && c.X >= 1 && c.Y == 11, 2, "{ $and : [{ x : { $gte : 0 } }, { x : { $gte : 1 } }, { y : 11 }] }");
         }
 
         [Fact]
@@ -1010,7 +1010,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereXEquals1AndYEquals11AndZEquals11()
         {
-            Assert<C>(c => c.X == 1 && c.Y == 11 && c.D.Z == 11, 1, "{ $and : [{ $and : [{ x : 1 }, { y : 11 }] }, { 'd.z' : 11 }] }");
+            Assert<C>(c => c.X == 1 && c.Y == 11 && c.D.Z == 11, 1, "{ $and : [{ x : 1 }, { y : 11 }, { 'd.z' : 11 }] }");
         }
 
         [Fact]
