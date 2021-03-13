@@ -18,34 +18,24 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstComparisonFilter : AstFilter
+    public sealed class AstComparisonFilterOperation : AstFilterOperation
     {
-        private readonly AstFilterField _field;
         private readonly AstComparisonFilterOperator _operator;
         private readonly BsonValue _value;
 
-        public AstComparisonFilter(AstComparisonFilterOperator @operator, AstFilterField field, BsonValue value)
+        public AstComparisonFilterOperation(AstComparisonFilterOperator @operator, BsonValue value)
         {
             _operator = @operator;
-            _field = Ensure.IsNotNull(field, nameof(field));
             _value = Ensure.IsNotNull(value, nameof(value));
         }
 
-        public AstFilterField Field => _field;
-        public override AstNodeType NodeType => AstNodeType.ComparisonFilter;
+        public override AstNodeType NodeType => AstNodeType.ComparisonFilterOperation;
         public AstComparisonFilterOperator Operator => _operator;
         public BsonValue Value => _value;
 
         public override BsonValue Render()
         {
-            if (_operator == AstComparisonFilterOperator.Eq && _value.BsonType != BsonType.RegularExpression)
-            {
-                return new BsonDocument(_field.Path, _value);
-            }
-            else
-            {
-                return new BsonDocument(_field.Path, new BsonDocument(_operator.Render(), _value));
-            }
+            return new BsonDocument(_operator.Render(), _value);
         }
     }
 }

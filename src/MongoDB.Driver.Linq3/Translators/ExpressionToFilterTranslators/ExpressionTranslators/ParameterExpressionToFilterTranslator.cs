@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
                 if (context.SymbolTable.TryGetSymbol(expression, out var symbol))
                 {
                     var field = new AstFilterField(symbol.Name, new BooleanSerializer()); // TODO: use known serializer
-                    return new AstComparisonFilter(AstComparisonFilterOperator.Eq, field, true);
+                    return AstFilter.Eq(field, true);
                 }
             }
 

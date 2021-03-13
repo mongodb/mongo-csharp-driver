@@ -47,10 +47,10 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
                 switch (expression.NodeType)
                 {
                     case ExpressionType.Equal:
-                        return new AstSizeFilter(arrayField, size);
+                        return AstFilter.Size(arrayField, size);
 
                     case ExpressionType.NotEqual:
-                        return new AstNorFilter(new AstSizeFilter(arrayField, size));
+                        return AstFilter.Not(AstFilter.Size(arrayField, size));
                 }
 
             }

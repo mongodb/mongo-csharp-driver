@@ -19,24 +19,21 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstElemMatchFilter : AstFilter
+    public sealed class AstElemMatchFilterOperation : AstFilterOperation
     {
-        private readonly AstFilterField _field;
         private readonly AstFilter _filter; // note: using "$elem" to represent the implied element values
 
-        public AstElemMatchFilter(AstFilterField field, AstFilter filter)
+        public AstElemMatchFilterOperation(AstFilter filter)
         {
-            _field = Ensure.IsNotNull(field, nameof(field));
             _filter = Ensure.IsNotNull(filter, nameof(filter));
         }
 
-        public AstFilterField Field => _field;
         public AstFilter Filter => _filter;
-        public override AstNodeType NodeType => AstNodeType.ElemMatchFilter;
+        public override AstNodeType NodeType => AstNodeType.ElemMatchFilterOperation;
 
         public override BsonValue Render()
         {
-            return new BsonDocument(_field.Path, new BsonDocument("$elemMatch", RewriteElemMatchFilter(_filter.Render())));
+            return new BsonDocument("$elemMatch", RewriteElemMatchFilter(_filter.Render()));
         }
 
         // TODO: this implementation is incomplete

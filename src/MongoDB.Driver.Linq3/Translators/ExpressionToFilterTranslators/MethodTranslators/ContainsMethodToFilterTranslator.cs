@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
                 var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceField.Serializer);
                 var value = constantItemExpression.Value;
                 var serializedValue = SerializationHelper.SerializeValue(itemSerializer, value);
-                return new AstComparisonFilter(AstComparisonFilterOperator.Eq, sourceField, serializedValue);
+                return AstFilter.Eq(sourceField, serializedValue);
             }
 
             if (sourceExpression is ConstantExpression constantSourceExpression)
@@ -83,7 +83,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
                 var itemField = ExpressionToFilterFieldTranslator.Translate(context, itemExpression);
                 var sourceValues = (IEnumerable)constantSourceExpression.Value;
                 var serializedValues = SerializationHelper.SerializeValues(itemField.Serializer, sourceValues);
-                return new AstInFilter(itemField, serializedValues);
+                return AstFilter.In(itemField, serializedValues);
             }
 
             throw new ExpressionNotSupportedException(expression);

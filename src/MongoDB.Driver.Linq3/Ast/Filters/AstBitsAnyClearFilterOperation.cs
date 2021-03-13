@@ -13,30 +13,26 @@
 * limitations under the License.
 */
 
-using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstNorFilter : AstFilter
+    public sealed class AstBitsAnyClearFilterOperation : AstFilterOperation
     {
-        private readonly AstFilter[] _filters;
+        private readonly BsonValue _bitmask;
 
-        public AstNorFilter(params AstFilter[] filters)
+        public AstBitsAnyClearFilterOperation(BsonValue bitmask)
         {
-            Ensure.IsNotNull(filters, nameof(filters));
-            Ensure.That(filters.Length > 0, "Filters length cannot be zero.", nameof(filters));
-            Ensure.That(!filters.Contains(null), "Filters cannot contain null.", nameof(filters));
-            _filters = filters;
+            _bitmask = Ensure.IsNotNull(bitmask, nameof(bitmask));
         }
 
-        public AstFilter[] Filters => _filters;
-        public override AstNodeType NodeType => AstNodeType.NorFilter;
+        public BsonValue Bitmask => _bitmask;
+        public override AstNodeType NodeType => AstNodeType.BitsAnyClearFilterOperation;
 
         public override BsonValue Render()
         {
-            return new BsonDocument("$nor", new BsonArray(_filters.Select(a => a.Render())));
+            return new BsonDocument("$bitsAnyClear", _bitmask);
         }
     }
 }

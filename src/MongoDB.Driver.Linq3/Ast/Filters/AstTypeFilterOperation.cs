@@ -21,25 +21,21 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstTypeFilter : AstFilter
+    public sealed class AstTypeFilterOperation : AstFilterOperation
     {
-        private readonly AstFilterField _field;
         private readonly IReadOnlyList<BsonType> _types;
 
-        public AstTypeFilter(AstFilterField field, BsonType type)
+        public AstTypeFilterOperation(BsonType type)
         {
-            _field = Ensure.IsNotNull(field, nameof(field));
             _types = new List<BsonType> { type }.AsReadOnly();
         }
 
-        public AstTypeFilter(AstFilterField field, IEnumerable<BsonType> types)
+        public AstTypeFilterOperation(IEnumerable<BsonType> types)
         {
-            _field = Ensure.IsNotNull(field, nameof(field));
             _types = Ensure.IsNotNull(types, nameof(types)).ToList().AsReadOnly();
         }
 
-        public AstFilterField Field => _field;
-        public override AstNodeType NodeType => AstNodeType.TypeFilter;
+        public override AstNodeType NodeType => AstNodeType.TypeFilterOperation;
         public BsonType Type => _types.Single();
         public IReadOnlyList<BsonType> Types => _types;
 
@@ -48,11 +44,11 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
             if (_types.Count == 1)
             {
                 var type = _types[0];
-                return new BsonDocument(_field.Path, new BsonDocument("$type", MapBsonTypeToString(type)));
+                return new BsonDocument("$type", MapBsonTypeToString(type));
             }
             else
             {
-                return new BsonDocument(_field.Path, new BsonDocument("$type", new BsonArray(_types.Select(type => MapBsonTypeToString(type)))));
+                return new BsonDocument("$type", new BsonArray(_types.Select(type => MapBsonTypeToString(type))));
             }
         }
 

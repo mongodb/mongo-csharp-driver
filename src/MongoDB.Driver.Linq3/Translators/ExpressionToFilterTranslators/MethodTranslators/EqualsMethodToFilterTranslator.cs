@@ -65,12 +65,10 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             {
                 var value = constantExpression2.Value;
                 var serializedValue = SerializationHelper.SerializeValue(field.Serializer, value);
-                return new AstComparisonFilter(AstComparisonFilterOperator.Eq, field, serializedValue);
+                return AstFilter.Eq(field, serializedValue);
             }
-            else
-            {
-                throw new ExpressionNotSupportedException(expression2);
-            }
+
+            throw new ExpressionNotSupportedException(expression2);
         }
     }
 }

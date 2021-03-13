@@ -18,30 +18,27 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstCenterFilter : AstFilter
+    public sealed class AstGeoWithinCenterSphereFilterOperation : AstFilterOperation
     {
-        private readonly AstFilterField _field;
         private readonly BsonValue _radius;
         private readonly BsonValue _x;
         private readonly BsonValue _y;
 
-        public AstCenterFilter(AstFilterField field, BsonValue x, BsonValue y, BsonValue radius)
+        public AstGeoWithinCenterSphereFilterOperation(BsonValue x, BsonValue y, BsonValue radius)
         {
-            _field = Ensure.IsNotNull(field, nameof(field));
             _x = Ensure.IsNotNull(x, nameof(x));
             _y = Ensure.IsNotNull(y, nameof(y));
             _radius = Ensure.IsNotNull(radius, nameof(radius));
         }
 
-        public AstFilterField Field => _field;
-        public override AstNodeType NodeType => AstNodeType.CenterFilter;
+        public override AstNodeType NodeType => AstNodeType.GeoWithinCenterSphereFilterOperation;
         public BsonValue Radius => _radius;
         public BsonValue X => _x;
         public BsonValue Y => _y;
 
         public override BsonValue Render()
         {
-            return new BsonDocument(_field.Path, new BsonDocument("$geoWithin", new BsonDocument("$center", new BsonArray { new BsonArray { _x, _y }, _radius })));
+            return new BsonDocument("$geoWithin", new BsonDocument("$centerSphere", new BsonArray { new BsonArray { _x, _y }, _radius }));
         }
     }
 }

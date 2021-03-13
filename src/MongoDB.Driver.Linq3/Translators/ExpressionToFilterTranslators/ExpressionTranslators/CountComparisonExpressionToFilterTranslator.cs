@@ -70,7 +70,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
 
             if (TryConvertSizeExpressionToBsonValue(sizeExpression, out var size))
             {
-                var compareCountFilter = new AstSizeFilter(field, size);
+                var compareCountFilter = AstFilter.Size(field, size);
                 switch (expression.NodeType)
                 {
                     case ExpressionType.Equal: return compareCountFilter;

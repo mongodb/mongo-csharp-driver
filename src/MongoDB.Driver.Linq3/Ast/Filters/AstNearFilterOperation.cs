@@ -18,28 +18,24 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstNearFilter : AstFilter
+    public sealed class AstNearFilterOperation : AstFilterOperation
     {
-        private readonly AstFilterField _field;
         private readonly BsonDocument _geometry;
         private readonly BsonValue _maxDistance;
         private readonly BsonValue _minDistance;
 
-        public AstNearFilter(
-            AstFilterField field,
+        public AstNearFilterOperation(
             BsonDocument geometry,
             BsonValue maxDistance = default,
             BsonValue minDistance = default)
         {
-            _field = Ensure.IsNotNull(field, nameof(field));
             _geometry = Ensure.IsNotNull(geometry, nameof(geometry));
             _maxDistance = maxDistance; // optional
             _minDistance = minDistance; // optional
         }
 
-        public AstFilterField Field => _field;
         public BsonDocument Geometry => _geometry;
-        public override AstNodeType NodeType => AstNodeType.NearFilter;
+        public override AstNodeType NodeType => AstNodeType.NearFilterOperation;
         public BsonValue MaxDistance => _maxDistance;
         public BsonValue MinDistance => _minDistance;
 
@@ -47,15 +43,11 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
         {
             return new BsonDocument
             {
-                { _field.Path, new BsonDocument
+                { "$near", new BsonDocument
                     {
-                        { "$near", new BsonDocument
-                            {
-                                { "$geometry", _geometry },
-                                { "$maxDistance", _maxDistance, _maxDistance != default },
-                                { "$minDistance", _minDistance, _minDistance != default }
-                            }
-                        }
+                        { "$geometry", _geometry },
+                        { "$maxDistance", _maxDistance, _maxDistance != default },
+                        { "$minDistance", _minDistance, _minDistance != default }
                     }
                 }
             };

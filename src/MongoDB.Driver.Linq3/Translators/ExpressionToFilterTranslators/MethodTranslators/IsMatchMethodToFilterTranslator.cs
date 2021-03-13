@@ -96,7 +96,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
         {
             var inputFieldAst = ExpressionToFilterFieldTranslator.Translate(context, inputExpression);
             var regularExpression = new BsonRegularExpression(regex);
-            return new AstRegexFilter(inputFieldAst, regularExpression.Pattern, regularExpression.Options);
+            return AstFilter.Regex(inputFieldAst, regularExpression.Pattern, regularExpression.Options);
         }
     }
 }

@@ -13,31 +13,26 @@
 * limitations under the License.
 */
 
-using System.Collections.Generic;
-using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstAllFilter : AstFilter
+    public sealed class AstExistsFilterOperation : AstFilterOperation
     {
-        private readonly AstFilterField _field;
-        private readonly IReadOnlyList<BsonValue> _values;
+        private readonly bool _exists;
 
-        public AstAllFilter(AstFilterField field, IEnumerable<BsonValue> values)
+        public AstExistsFilterOperation(bool exists = true)
         {
-            _field = Ensure.IsNotNull(field, nameof(field));
-            _values = Ensure.IsNotNull(values, nameof(values)).ToList().AsReadOnly();
+            _exists = exists;
         }
 
-        public AstFilterField Field => _field;
-        public override AstNodeType NodeType => AstNodeType.AllFilter;
-        public IReadOnlyList<BsonValue> Values => _values;
+        public bool Exists => _exists;
+        public override AstNodeType NodeType => AstNodeType.ExistsFilterOperation;
 
         public override BsonValue Render()
         {
-            return new BsonDocument(_field.Path, new BsonDocument("$all", new BsonArray(_values)));
+            return new BsonDocument("$exists", _exists);
         }
     }
 }

@@ -74,7 +74,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereAAny()
         {
-            Assert<C>(c => c.A.Any(), 1, "{ $and : [{ a : { $ne : null } }, { $nor : [{ a : { $size : 0 } }] } ] }");
+            Assert<C>(c => c.A.Any(), 1, "{ $and : [{ a : { $ne : null } }, { a : { $not : { $size : 0 } } } ] }");
         }
 
         [Fact]
@@ -134,13 +134,13 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereALengthNotEquals3()
         {
-            Assert<C>(c => c.A.Length != 3, 4, "{ $nor : [{ a : { $size : 3 } }] }");
+            Assert<C>(c => c.A.Length != 3, 4, "{ a : { $not : { $size : 3 } } }");
         }
 
         [Fact]
         public void TestWhereALengthNotEquals3Not()
         {
-            Assert<C>(c => !(c.A.Length != 3), 1, "{ \"a\" : { \"$size\" : 3 } }");
+            Assert<C>(c => !(c.A.Length != 3), 1, "{ $nor : [{ a : { $not : { $size : 3 } } }] }");
         }
 
         [Fact]

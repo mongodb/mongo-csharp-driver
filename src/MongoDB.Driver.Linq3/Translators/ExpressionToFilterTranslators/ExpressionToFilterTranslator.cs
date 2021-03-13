@@ -88,8 +88,13 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators
                     return ParameterExpressionToFilterTranslator.Translate(context, (ParameterExpression)expression);
             }
 
-            var field = ExpressionToFilterFieldTranslator.Translate(context, expression);
-            return new AstComparisonFilter(AstComparisonFilterOperator.Eq, field, true);
+            if (expression.Type == typeof(bool))
+            {
+                var field = ExpressionToFilterFieldTranslator.Translate(context, expression);
+                return AstFilter.Eq(field, true);
+            }
+
+            throw new ExpressionNotSupportedException(expression);
         }
     }
 }

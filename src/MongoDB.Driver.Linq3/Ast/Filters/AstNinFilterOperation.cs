@@ -13,32 +13,28 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstRegexFilter : AstFilter
+    public sealed class AstNinFilterOperation : AstFilterOperation
     {
-        private readonly AstFilterField _field;
-        private readonly string _options;
-        private readonly string _pattern;
+        private readonly IReadOnlyList<BsonValue> _values;
 
-        public AstRegexFilter(AstFilterField field, string pattern, string options)
+        public AstNinFilterOperation(IEnumerable<BsonValue> values)
         {
-            _field = Ensure.IsNotNull(field, nameof(field));
-            _pattern = Ensure.IsNotNull(pattern, nameof(pattern));
-            _options = Ensure.IsNotNull(options, nameof(options));
+            _values = Ensure.IsNotNull(values, nameof(values)).ToList().AsReadOnly();
         }
 
-        public AstFilterField Field => _field;
-        public override AstNodeType NodeType => AstNodeType.RegexFilter;
-        public string Options => _options;
-        public string Pattern => _pattern;
+        public override AstNodeType NodeType => AstNodeType.NinFilterOperation;
+        public IReadOnlyList<BsonValue> Values => _values;
 
         public override BsonValue Render()
         {
-            return new BsonDocument(_field.Path, new BsonRegularExpression(_pattern, _options));
+            return new BsonDocument("$nin", new BsonArray(_values));
         }
     }
 }

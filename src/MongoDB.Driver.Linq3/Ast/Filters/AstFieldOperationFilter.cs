@@ -18,30 +18,33 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstCenterSphereFilter : AstFilter
+    public sealed class AstFieldOperationFilter : AstFilter
     {
         private readonly AstFilterField _field;
-        private readonly BsonValue _radius;
-        private readonly BsonValue _x;
-        private readonly BsonValue _y;
+        private readonly AstFilterOperation _operation;
 
-        public AstCenterSphereFilter(AstFilterField field, BsonValue x, BsonValue y, BsonValue radius)
+        public AstFieldOperationFilter(AstFilterField field, AstFilterOperation operation)
         {
             _field = Ensure.IsNotNull(field, nameof(field));
-            _x = Ensure.IsNotNull(x, nameof(x));
-            _y = Ensure.IsNotNull(y, nameof(y));
-            _radius = Ensure.IsNotNull(radius, nameof(radius));
+            _operation = Ensure.IsNotNull(operation, nameof(operation));
         }
 
         public AstFilterField Field => _field;
-        public override AstNodeType NodeType => AstNodeType.CenterSphereFilter;
-        public BsonValue Radius => _radius;
-        public BsonValue X => _x;
-        public BsonValue Y => _y;
+        public override AstNodeType NodeType => AstNodeType.FieldOperationFilter;
+        public AstFilterOperation Operation => _operation;
 
         public override BsonValue Render()
         {
-            return new BsonDocument(_field.Path, new BsonDocument("$geoWithin", new BsonDocument("$centerSphere", new BsonArray { new BsonArray { _x, _y }, _radius })));
+            if (_operation is AstComparisonFilterOperation comparisonOperation &&
+                comparisonOperation.Operator == AstComparisonFilterOperator.Eq &&
+                comparisonOperation.Value.BsonType != BsonType.RegularExpression)
+            {
+                return new BsonDocument(_field.Path, comparisonOperation.Value); // implied $eq
+            }
+            else
+            {
+                return new BsonDocument(_field.Path, _operation.Render());
+            }
         }
     }
 }

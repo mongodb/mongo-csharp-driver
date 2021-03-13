@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                 }
                 var discriminatorField = new AstFilterField(discriminatorElementName, BsonValueSerializer.Instance);
                 var discriminatorValue = discriminatorConvention.GetDiscriminator(nominalType, actualType);
-                var filter = new AstComparisonFilter(AstComparisonFilterOperator.Eq, discriminatorField, discriminatorValue);
+                var filter = AstFilter.Eq(discriminatorField, discriminatorValue);
                 var actualSerializer = BsonSerializer.LookupSerializer(actualType); // TODO: use known serializer
                 if (pipeline.OutputSerializer is IWrappedValueSerializer)
                 {

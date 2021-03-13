@@ -18,24 +18,21 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstSizeFilter : AstFilter
+    public sealed class AstGeoIntersectsFilterOperation : AstFilterOperation
     {
-        private readonly AstFilterField _field;
-        private readonly BsonValue _size;
+        private readonly BsonDocument _geometry;
 
-        public AstSizeFilter(AstFilterField field, BsonValue size)
+        public AstGeoIntersectsFilterOperation(BsonDocument geometry)
         {
-            _field = Ensure.IsNotNull(field, nameof(field));
-            _size = Ensure.IsNotNull(size, nameof(size));
+            _geometry = Ensure.IsNotNull(geometry, nameof(geometry));
         }
 
-        public AstFilterField Field => _field;
-        public override AstNodeType NodeType => AstNodeType.SizeFilter;
-        public BsonValue Size => _size;
+        public BsonDocument Geometry => _geometry;
+        public override AstNodeType NodeType => AstNodeType.GeoIntersectsFilterOperation;
 
         public override BsonValue Render()
         {
-            return new BsonDocument(_field.Path, new BsonDocument("$size", _size));
+            return new BsonDocument("$geoIntersects", new BsonDocument("$geometry", _geometry));
         }
     }
 }
