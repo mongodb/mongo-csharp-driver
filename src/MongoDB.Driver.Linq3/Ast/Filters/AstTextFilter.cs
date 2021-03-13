@@ -22,18 +22,15 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
     {
         private readonly bool? _caseSensitive;
         private readonly bool? _diacriticSensitive;
-        private readonly AstFilterField _field;
         private readonly string _language;
         private readonly string _search;
 
         public AstTextFilter(
-            AstFilterField field,
             string search,
             string language = default,
             bool? caseSensitive = default,
             bool? diacriticSensitive = default)
         {
-            _field = Ensure.IsNotNull(field, nameof(field));
             _search = Ensure.IsNotNull(search, nameof(search));
             _language = language; // optional
             _caseSensitive = caseSensitive; // optional
@@ -42,7 +39,6 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
 
         public bool? CaseSensitive => _caseSensitive;
         public bool? DiacriticSensitive => _diacriticSensitive;
-        public AstFilterField Field => _field;
         public string Language => _language;
         public override AstNodeType NodeType => AstNodeType.TextFilter;
         public string Search => _search;

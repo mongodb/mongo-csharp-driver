@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
                             var elementName = propertySerializationInfo.ElementName;
                             var elementSerializer = propertySerializationInfo.Serializer;
                             var field = new AstFilterField(elementName, elementSerializer);
-                            return new AstComparisonFilter(AstComparisonFilterOperator.Eq, field, value: true);
+                            return AstFilter.Eq(field, true);
                         }
                     }
                 }

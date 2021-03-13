@@ -18,38 +18,31 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstBoxFilter : AstFilter
+    public sealed class AstGeoWithinBoxFilterOperation : AstFilterOperation
     {
         private readonly BsonArray _bottomLeftCoordinates;
-        private readonly AstFilterField _field;
         private readonly BsonArray _upperRightCoordinates;
 
-        public AstBoxFilter(AstFilterField field, BsonArray bottomLeftCoordinates, BsonArray upperRightCoordinates)
+        public AstGeoWithinBoxFilterOperation(BsonArray bottomLeftCoordinates, BsonArray upperRightCoordinates)
         {
-            _field = Ensure.IsNotNull(field, nameof(field));
             _bottomLeftCoordinates = Ensure.IsNotNull(bottomLeftCoordinates, nameof(bottomLeftCoordinates));
             _upperRightCoordinates = Ensure.IsNotNull(upperRightCoordinates, nameof(upperRightCoordinates));
         }
 
         public BsonArray BottomLeftCoordinates => _bottomLeftCoordinates;
-        public AstFilterField Field => _field;
-        public override AstNodeType NodeType => AstNodeType.BoxFilter;
+        public override AstNodeType NodeType => AstNodeType.GeoWithinBoxFilterOperation;
         public BsonArray UpperRightCoordinates => _upperRightCoordinates;
 
         public override BsonValue Render()
         {
             return new BsonDocument
             {
-                { _field.Path, new BsonDocument
+                { "$geoWithin", new BsonDocument
                     {
-                        { "$geoWithin", new BsonDocument
+                        { "$box", new BsonArray
                             {
-                                { "$box", new BsonArray
-                                    {
-                                        _bottomLeftCoordinates,
-                                        _upperRightCoordinates,
-                                    }
-                                }
+                                _bottomLeftCoordinates,
+                                _upperRightCoordinates,
                             }
                         }
                     }

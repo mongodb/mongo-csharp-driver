@@ -13,29 +13,28 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstBitsAllClearFilter : AstFilter
+    public sealed class AstInFilterOperation : AstFilterOperation
     {
-        private readonly AstFilterField _field;
-        private readonly BsonValue _bitmask;
+        private readonly IReadOnlyList<BsonValue> _values;
 
-        public AstBitsAllClearFilter(AstFilterField field, BsonValue bitmask)
+        public AstInFilterOperation(IEnumerable<BsonValue> values)
         {
-            _field = Ensure.IsNotNull(field, nameof(field));
-            _bitmask = Ensure.IsNotNull(bitmask, nameof(bitmask));
+            _values = Ensure.IsNotNull(values, nameof(values)).ToList().AsReadOnly();
         }
 
-        public BsonValue Bitmask => _bitmask;
-        public AstFilterField Field => _field;
-        public override AstNodeType NodeType => AstNodeType.BitsAllClearFilter;
+        public override AstNodeType NodeType => AstNodeType.InFilterOperation;
+        public IReadOnlyList<BsonValue> Values => _values;
 
         public override BsonValue Render()
         {
-            return new BsonDocument(_field.Path, new BsonDocument("$bitsAllClear", _bitmask));
+            return new BsonDocument("$in", new BsonArray(_values));
         }
     }
 }

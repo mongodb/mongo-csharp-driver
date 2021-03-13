@@ -30,10 +30,10 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
 
                 if (operandTranslation is AstNorFilter innerNorFilter)
                 {
-                    var innerArgs = innerNorFilter.Args;
-                    if (innerArgs.Length == 1)
+                    var innerFilters = innerNorFilter.Filters;
+                    if (innerFilters.Length == 1)
                     {
-                        return innerArgs[0];
+                        return innerFilters[0];
                     }
                 }
 

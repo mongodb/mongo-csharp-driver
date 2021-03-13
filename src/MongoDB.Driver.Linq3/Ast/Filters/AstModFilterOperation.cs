@@ -18,27 +18,24 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstModFilter : AstFilter
+    public sealed class AstModFilterOperation : AstFilterOperation
     {
         private readonly BsonValue _divisor;
-        private readonly AstFilterField _field;
         private readonly BsonValue _remainder;
 
-        public AstModFilter(AstFilterField field, BsonValue divisor, BsonValue remainder)
+        public AstModFilterOperation(BsonValue divisor, BsonValue remainder)
         {
-            _field = Ensure.IsNotNull(field, nameof(field));
             _divisor = Ensure.IsNotNull(divisor, nameof(divisor));
             _remainder = Ensure.IsNotNull(remainder, nameof(remainder));
         }
 
         public BsonValue Divisor => _divisor;
-        public AstFilterField Field => _field;
-        public override AstNodeType NodeType => AstNodeType.ModFilter;
+        public override AstNodeType NodeType => AstNodeType.ModFilterOperation;
         public BsonValue Remainder => _remainder;
 
         public override BsonValue Render()
         {
-            return new BsonDocument(_field.Path, new BsonDocument("$mod", new BsonArray { _divisor, _remainder }));
+            return new BsonDocument("$mod", new BsonArray { _divisor, _remainder });
         }
     }
 }

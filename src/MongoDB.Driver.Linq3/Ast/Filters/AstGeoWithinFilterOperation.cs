@@ -18,24 +18,21 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstExistsFilter : AstFilter
+    public sealed class AstGeoWithinFilterOperation : AstFilterOperation
     {
-        private readonly bool _exists;
-        private readonly AstFilterField _field;
+        private readonly BsonDocument _geometry;
 
-        public AstExistsFilter(AstFilterField field, bool exists = true)
+        public AstGeoWithinFilterOperation(BsonDocument geometry)
         {
-            _field = Ensure.IsNotNull(field, nameof(field));
-            _exists = exists;
+            _geometry = Ensure.IsNotNull(geometry, nameof(geometry));
         }
 
-        public bool Exists => _exists;
-        public AstFilterField Field => _field;
-        public override AstNodeType NodeType => AstNodeType.ExistsFilter;
+        public BsonDocument Geometry => _geometry;
+        public override AstNodeType NodeType => AstNodeType.GeoWithinFilterOperation;
 
         public override BsonValue Render()
         {
-            return new BsonDocument(_field.Path, new BsonDocument("$exists", _exists));
+            return new BsonDocument("$geoWithin", new BsonDocument("$geometry", _geometry));
         }
     }
 }

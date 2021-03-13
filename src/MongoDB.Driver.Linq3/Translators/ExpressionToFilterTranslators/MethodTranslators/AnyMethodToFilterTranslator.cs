@@ -46,8 +46,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             if (method.Is(EnumerableMethod.Any))
             {
                 return new AstAndFilter(
-                    new AstComparisonFilter(AstComparisonFilterOperator.Ne, sourceField, BsonNull.Value),
-                    new AstNorFilter(new AstSizeFilter(sourceField, 0)));
+                    AstFilter.Ne(sourceField, BsonNull.Value),
+                    AstFilter.Not(AstFilter.Size(sourceField, 0)));
             }
 
             if (method.Is(EnumerableMethod.AnyWithPredicate))
@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
                 var predicateSymbolTable = new SymbolTable(parameterExpression, parameterSymbol); // only one symbol is visible inside an $elemMatch
                 var predicateContext = new TranslationContext(predicateSymbolTable);
                 var predicateFilter = ExpressionToFilterTranslator.Translate(predicateContext, predicateLambda.Body);
-                return new AstElemMatchFilter(sourceField, predicateFilter);
+                return AstFilter.ElemMatch(sourceField, predicateFilter);
             }
 
             throw new ExpressionNotSupportedException(expression);

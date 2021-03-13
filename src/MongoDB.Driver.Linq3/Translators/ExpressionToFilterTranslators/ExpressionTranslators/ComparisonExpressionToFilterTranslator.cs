@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
                 var field = ExpressionToFilterFieldTranslator.Translate(context, leftExpression);
                 var value = constantValueExpression.Value;
                 var serializedValue = SerializationHelper.SerializeValue(field.Serializer, value);
-                return new AstComparisonFilter(comparisonOperator, field, serializedValue);
+                return AstFilter.Compare(field, comparisonOperator, serializedValue);
             }
 
             throw new ExpressionNotSupportedException(expression);

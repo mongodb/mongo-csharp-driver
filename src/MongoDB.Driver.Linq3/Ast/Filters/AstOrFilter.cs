@@ -23,60 +23,60 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
     public sealed class AstOrFilter : AstFilter
     {
         #region static
-        public static AstOrFilter CreateFlattened(params AstFilter[] args)
+        public static AstOrFilter CreateFlattened(params AstFilter[] filters)
         {
-            Ensure.IsNotNull(args, nameof(args));
-            Ensure.That(args.Length > 0, "Args length cannot be zero.", nameof(args));
-            Ensure.That(!args.Contains(null), "Args cannot contain null.", nameof(args));
+            Ensure.IsNotNull(filters, nameof(filters));
+            Ensure.That(filters.Length > 0, "Filters length cannot be zero.", nameof(filters));
+            Ensure.That(!filters.Contains(null), "Filters cannot contain null.", nameof(filters));
 
-            return new AstOrFilter(Flatten(args));
+            return new AstOrFilter(Flatten(filters));
 
-            AstFilter[] Flatten(AstFilter[] args)
+            AstFilter[] Flatten(AstFilter[] filters)
             {
-                if (args.Length == 2 && args[0].NodeType != AstNodeType.OrFilter && args[1].NodeType != AstNodeType.OrFilter)
+                if (filters.Length == 2 && filters[0].NodeType != AstNodeType.OrFilter && filters[1].NodeType != AstNodeType.OrFilter)
                 {
-                    return args;
+                    return filters;
                 }
 
-                if (args.Any(a => a is AstOrFilter))
+                if (filters.Any(f => f is AstOrFilter))
                 {
-                    var flattenedArgs = new List<AstFilter>();
-                    foreach (var arg in args)
+                    var flattenedFilters = new List<AstFilter>();
+                    foreach (var filter in filters)
                     {
-                        if (arg is AstOrFilter orFilterArg)
+                        if (filter is AstOrFilter orFilter)
                         {
-                            flattenedArgs.AddRange(orFilterArg.Args);
+                            flattenedFilters.AddRange(orFilter.Filters);
                         }
                         else
                         {
-                            flattenedArgs.Add(arg);
+                            flattenedFilters.Add(filter);
                         }
                     }
 
-                    return flattenedArgs.ToArray();
+                    return flattenedFilters.ToArray();
                 }
 
-                return args;
+                return filters;
             }
         }
         #endregion
 
-        private readonly AstFilter[] _args;
+        private readonly AstFilter[] _filters;
 
-        public AstOrFilter(params AstFilter[] args)
+        public AstOrFilter(params AstFilter[] filters)
         {
-            Ensure.IsNotNull(args, nameof(args));
-            Ensure.That(args.Length > 0, "Args length cannot be zero.", nameof(args));
-            Ensure.That(!args.Contains(null), "Args cannot contain null.", nameof(args));
-            _args = args;
+            Ensure.IsNotNull(filters, nameof(filters));
+            Ensure.That(filters.Length > 0, "Filters length cannot be zero.", nameof(filters));
+            Ensure.That(!filters.Contains(null), "Filters cannot contain null.", nameof(filters));
+            _filters = filters;
         }
 
-        public AstFilter[] Args => _args;
+        public AstFilter[] Filters => _filters;
         public override AstNodeType NodeType => AstNodeType.OrFilter;
 
         public override BsonValue Render()
         {
-            return new BsonDocument("$or", new BsonArray(_args.Select(a => a.Render())));
+            return new BsonDocument("$or", new BsonArray(_filters.Select(a => a.Render())));
         }
     }
 }

@@ -13,31 +13,26 @@
 * limitations under the License.
 */
 
-using System.Collections.Generic;
-using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstInFilter : AstFilter
+    public sealed class AstSizeFilterOperation : AstFilterOperation
     {
-        private readonly AstFilterField _field;
-        private readonly IReadOnlyList<BsonValue> _values;
+        private readonly BsonValue _size;
 
-        public AstInFilter(AstFilterField field, IEnumerable<BsonValue> values)
+        public AstSizeFilterOperation(BsonValue size)
         {
-            _field = Ensure.IsNotNull(field, nameof(field));
-            _values = Ensure.IsNotNull(values, nameof(values)).ToList().AsReadOnly();
+            _size = Ensure.IsNotNull(size, nameof(size));
         }
 
-        public AstFilterField Field => _field;
-        public override AstNodeType NodeType => AstNodeType.InFilter;
-        public IReadOnlyList<BsonValue> Values => _values;
+        public override AstNodeType NodeType => AstNodeType.SizeFilterOperation;
+        public BsonValue Size => _size;
 
         public override BsonValue Render()
         {
-            return new BsonDocument(_field.Path, new BsonDocument("$in", new BsonArray(_values)));
+            return new BsonDocument("$size", _size);
         }
     }
 }
