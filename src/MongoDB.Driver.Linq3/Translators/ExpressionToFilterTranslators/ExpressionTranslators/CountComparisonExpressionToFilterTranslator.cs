@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
                 switch (expression.NodeType)
                 {
                     case ExpressionType.Equal: return compareCountFilter;
-                    case ExpressionType.NotEqual: return new AstNorFilter(compareCountFilter);
+                    case ExpressionType.NotEqual: return AstFilter.Not(compareCountFilter);
                 }
             }
 

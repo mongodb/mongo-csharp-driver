@@ -67,7 +67,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
                         return moduloComparisonAst;
 
                     case ExpressionType.NotEqual:
-                        return new AstNorFilter(moduloComparisonAst);
+                        return AstFilter.Not(moduloComparisonAst);
                 }
             }
 
