@@ -51,14 +51,34 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
             return new AstFieldOperationFilter(field, new AstComparisonFilterOperation(AstComparisonFilterOperator.Ne, value));
         }
 
-        public static AstFieldOperationFilter Not(AstFieldOperationFilter filter)
+        public static AstFilter Not(AstFilter filter)
         {
-            return new AstFieldOperationFilter(filter.Field, new AstNotFilterOperation(filter.Operation));
-        }
+            if (filter is AstFieldOperationFilter fieldOperationFilter)
+            {
+                if (fieldOperationFilter.Operation is AstNotFilterOperation notFilterOperation)
+                {
+                    return new AstFieldOperationFilter(fieldOperationFilter.Field, notFilterOperation.Operation);
+                }
 
-        public static AstNorFilter Nor(params AstFilter[] filters)
-        {
-            return new AstNorFilter(filters);
+                if (fieldOperationFilter.Operation is AstComparisonFilterOperation comparisonFilterOperation)
+                {
+                    var comparisonOperator = comparisonFilterOperation.Operator;
+                    if (comparisonOperator == AstComparisonFilterOperator.Eq || comparisonOperator == AstComparisonFilterOperator.Ne)
+                    {
+                        var oppositeComparisonOperator = comparisonOperator == AstComparisonFilterOperator.Eq ? AstComparisonFilterOperator.Ne : AstComparisonFilterOperator.Eq;
+                        return new AstFieldOperationFilter(fieldOperationFilter.Field, new AstComparisonFilterOperation(oppositeComparisonOperator, comparisonFilterOperation.Value));
+                    }
+                }
+
+                return new AstFieldOperationFilter(fieldOperationFilter.Field, new AstNotFilterOperation(fieldOperationFilter.Operation));
+            }
+
+            if (filter is AstNorFilter norFilter && norFilter.Filters.Length == 1)
+            {
+                return norFilter.Filters[0];
+            }
+
+            return new AstNorFilter(filter);
         }
 
         public static AstFieldOperationFilter Regex(AstFilterField field, string pattern, string options)

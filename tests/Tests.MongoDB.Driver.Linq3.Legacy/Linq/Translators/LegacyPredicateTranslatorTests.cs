@@ -110,7 +110,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereAContains2Not()
         {
-            Assert<C>(c => !c.A.Contains(2), 4, "{ $nor : [{ a : 2 }] }");
+            Assert<C>(c => !c.A.Contains(2), 4, "{ a : { $not : { $elemMatch : { $eq : 2 } } } }");
         }
 
         [Fact]
@@ -122,7 +122,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereALengthEquals3Not()
         {
-            Assert<C>(c => !(c.A.Length == 3), 4, "{ $nor : [{ a : { $size : 3 } }] }");
+            Assert<C>(c => !(c.A.Length == 3), 4, "{ \"a\" : { \"$not\" : { \"$size\" : 3 } } }");
         }
 
         [Fact]
@@ -134,13 +134,13 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereALengthNotEquals3()
         {
-            Assert<C>(c => c.A.Length != 3, 4, "{ a : { $not : { $size : 3 } } }");
+            Assert<C>(c => c.A.Length != 3, 4, "{ \"a\" : { \"$not\" : { \"$size\" : 3 } } }");
         }
 
         [Fact]
         public void TestWhereALengthNotEquals3Not()
         {
-            Assert<C>(c => !(c.A.Length != 3), 1, "{ $nor : [{ a : { $not : { $size : 3 } } }] }");
+            Assert<C>(c => !(c.A.Length != 3), 1, "{ \"a\" : { \"$size\" : 3 } }");
         }
 
         [Fact]
@@ -152,7 +152,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereASub1Equals3Not()
         {
-            Assert<C>(c => !(c.A[1] == 3), 4, "{ $nor : [{ 'a.1' : 3 }] }");
+            Assert<C>(c => !(c.A[1] == 3), 4, "{ \"a.1\" : { \"$ne\" : 3 } }");
         }
 
         [Fact]
@@ -164,13 +164,13 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereASub1ModTwoEquals1Not()
         {
-            Assert<C>(c => !(c.A[1] % 2 == 1), 4, "{ $nor : [{ 'a.1' : { $mod : [2, 1] } }] }");
+            Assert<C>(c => !(c.A[1] % 2 == 1), 4, "{ 'a.1' : { $not : { $mod : [2, 1] } } }");
         }
 
         [Fact]
         public void TestWhereASub1ModTwoNotEquals1()
         {
-            Assert<C>(c => c.A[1] % 2 != 1, 4, "{ $nor : [{ 'a.1' : { $mod : [2, 1] } }] }");
+            Assert<C>(c => c.A[1] % 2 != 1, 4, "{ 'a.1' : { $not : { $mod : [2, 1] } } }");
         }
 
         [Fact]
@@ -188,7 +188,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereASub1NotEquals3Not()
         {
-            Assert<C>(c => !(c.A[1] != 3), 1, "{ $nor : [{ 'a.1' : { $ne : 3 } }] }");
+            Assert<C>(c => !(c.A[1] != 3), 1, "{ \"a.1\" : 3 }");
         }
 
         [Fact]
@@ -212,7 +212,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereBASub0EqualsFalseNot()
         {
-            Assert<C>(c => !(c.BA[0] == false), 5, "{ $nor : [{ 'ba.0' : false }] }");
+            Assert<C>(c => !(c.BA[0] == false), 5, "{ \"ba.0\" : { \"$ne\" : false } }");
         }
 
         [Fact]
@@ -224,13 +224,13 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereBASub0EqualsTrueNot()
         {
-            Assert<C>(c => !(c.BA[0] == true), 4, "{ $nor : [{ 'ba.0' : true }] }");
+            Assert<C>(c => !(c.BA[0] == true), 4, "{ \"ba.0\" : { \"$ne\" : true } }");
         }
 
         [Fact]
         public void TestWhereBASub0Not()
         {
-            Assert<C>(c => !c.BA[0], 4, "{ $nor : [{ 'ba.0' : true }] }");
+            Assert<C>(c => !c.BA[0], 4, "{ \"ba.0\" : { \"$ne\" : true } }");
         }
 
         [Fact]
@@ -242,7 +242,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereBEqualsFalseNot()
         {
-            Assert<C>(c => !(c.B == false), 1, "{ $nor : [{ b : false }] }");
+            Assert<C>(c => !(c.B == false), 1, "{ \"b\" : { \"$ne\" : false } }");
         }
 
         [Fact]
@@ -254,13 +254,13 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereBEqualsTrueNot()
         {
-            Assert<C>(c => !(c.B == true), 4, "{ $nor : [{ b : true }] }");
+            Assert<C>(c => !(c.B == true), 4, "{ \"b\" : { \"$ne\" : true } }");
         }
 
         [Fact]
         public void TestWhereBNot()
         {
-            Assert<C>(c => !c.B, 4, "{ $nor : [{ b : true }] }");
+            Assert<C>(c => !c.B, 4, "{ \"b\" : { \"$ne\" : true } }");
         }
 
         [Fact]
@@ -272,7 +272,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereDEquals11Not()
         {
-            Assert<C>(c => !(c.D == new D { Z = 11 }), 4, "{ $nor : [{ d : { z : 11 } }] }");
+            Assert<C>(c => !(c.D == new D { Z = 11 }), 4, "{ \"d\" : { \"$ne\" : { \"z\" : 11 } } }");
         }
 
         [Fact]
@@ -284,7 +284,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereDNotEquals11Not()
         {
-            Assert<C>(c => !(c.D != new D { Z = 11 }), 1, "{ $nor : [{ d : { $ne : { z : 11 } } }] }");
+            Assert<C>(c => !(c.D != new D { Z = 11 }), 1, "{ \"d\" : { \"z\" : 11 } }");
         }
 
         [Fact]
@@ -304,7 +304,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereEAContainsBNot()
         {
-            Assert<C>(c => !c.EA.Contains(E.B), 4, "{ $nor : [{ ea : 2 }] }");
+            Assert<C>(c => !c.EA.Contains(E.B), 4, "{ ea : { $not : { $elemMatch : { $eq : 2 } } } }");
         }
 
         [Fact]
@@ -316,7 +316,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereEASub0EqualsANot()
         {
-            Assert<C>(c => !(c.EA[0] == E.A), 4, "{ $nor : [{ 'ea.0' : 1 }] }");
+            Assert<C>(c => !(c.EA[0] == E.A), 4, "{ \"ea.0\" : { \"$ne\" : 1 } }");
         }
 
         [Fact]
@@ -328,7 +328,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereEASub0NotEqualsANot()
         {
-            Assert<C>(c => !(c.EA[0] != E.A), 1, "{ $nor : [{ 'ea.0' : { $ne : 1 } }] }");
+            Assert<C>(c => !(c.EA[0] != E.A), 1, "{ \"ea.0\" : 1 }");
         }
 
         [Fact]
@@ -340,7 +340,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereEEqualsANot()
         {
-            Assert<C>(c => !(c.E == E.A), 4, "{ $nor : [{ e : 'A' }] }");
+            Assert<C>(c => !(c.E == E.A), 4, "{ \"e\" : { \"$ne\" : \"A\" } }");
         }
 
         [Fact]
@@ -358,7 +358,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereENotEqualsANot()
         {
-            Assert<C>(c => !(c.E != E.A), 1, "{ $nor : [{ e : { $ne : 'A' } }] }");
+            Assert<C>(c => !(c.E != E.A), 1, "{ \"e\" : \"A\" }");
         }
 
         [Fact]
@@ -394,7 +394,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereLContains2Not()
         {
-            Assert<C>(c => !c.L.Contains(2), 4, "{ $nor : [{ l : 2 }] }");
+            Assert<C>(c => !c.L.Contains(2), 4, "{ l : { $not : { $elemMatch : { $eq : 2 } } } }");
         }
 
         [Fact]
@@ -406,7 +406,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereLCountMethodEquals3Not()
         {
-            Assert<C>(c => !(c.L.Count() == 3), 4, "{ $nor : [{ l : { $size : 3 } }] }");
+            Assert<C>(c => !(c.L.Count() == 3), 4, "{ \"l\" : { \"$not\" : { \"$size\" : 3 } } }");
         }
 
         [Fact]
@@ -424,7 +424,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereLCountPropertyEquals3Not()
         {
-            Assert<C>(c => !(c.L.Count == 3), 4, "{ $nor : [{ l : { $size : 3 } }] }");
+            Assert<C>(c => !(c.L.Count == 3), 4, "{ \"l\" : { \"$not\" : { \"$size\" : 3 } } }");
         }
 
         [Fact]
@@ -436,7 +436,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereLCountPropertyNotEquals3()
         {
-            Assert<C>(c => c.L.Count != 3, 4, "{ $nor : [{ l : { $size : 3 } }] }");
+            Assert<C>(c => c.L.Count != 3, 4, "{ \"l\" : { \"$not\" : { \"$size\" : 3 } } }");
         }
 
         [Fact]
@@ -454,7 +454,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereLSub1Equals3Not()
         {
-            Assert<C>(c => !(c.L[1] == 3), 4, "{ $nor : [{ 'l.1' : 3 }] }");
+            Assert<C>(c => !(c.L[1] == 3), 4, "{ \"l.1\" : { \"$ne\" : 3 } }");
         }
 
         [Fact]
@@ -466,13 +466,13 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereLSub1ModTwoEquals1Not()
         {
-            Assert<C>(c => !(c.L[1] % 2 == 1), 4, "{ $nor : [ { 'l.1' : { $mod : [2, 1] } }] }");
+            Assert<C>(c => !(c.L[1] % 2 == 1), 4, "{ 'l.1' : { $not : { $mod : [2, 1] } } }");
         }
 
         [Fact]
         public void TestWhereLSub1ModTwoNotEquals1()
         {
-            Assert<C>(c => c.L[1] % 2 != 1, 4, "{ $nor : [ { 'l.1' : { $mod : [2, 1] } }] }");
+            Assert<C>(c => c.L[1] % 2 != 1, 4, "{ 'l.1' : { $not : { $mod : [2, 1] } } }");
         }
 
         [Fact]
@@ -490,7 +490,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereLSub1NotEquals3Not()
         {
-            Assert<C>(c => !(c.L[1] != 3), 1, "{ $nor : [{ 'l.1' : { $ne : 3} }] }");
+            Assert<C>(c => !(c.L[1] != 3), 1, "{ \"l.1\" : 3 }");
         }
 
         [Fact]
@@ -502,7 +502,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereLXModTwoEquals1Not()
         {
-            Assert<C>(c => !(c.LX % 2 == 1), 2, "{ $nor : [{ \"lx\" : { \"$mod\" : [NumberLong(2), NumberLong(1)] } }] }");
+            Assert<C>(c => !(c.LX % 2 == 1), 2, "{ \"lx\" : { \"$not\" : { \"$mod\" : [NumberLong(2), NumberLong(1)] } } }");
         }
 
         [Fact]
@@ -514,7 +514,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereLXModTwoNotEquals1()
         {
-            Assert<C>(c => c.LX % 2 != 1, 2, "{ $nor : [{ \"lx\" : { \"$mod\" : [NumberLong(2), NumberLong(1)] } }] }");
+            Assert<C>(c => c.LX % 2 != 1, 2, "{ \"lx\" : { \"$not\" : { \"$mod\" : [NumberLong(2), NumberLong(1)] } } }");
         }
 
         [Fact]
@@ -558,7 +558,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         public void TestWhereSASub0IsMatchNot()
         {
             var regex = new Regex(@"^T");
-            Assert<C>(c => !regex.IsMatch(c.SA[0]), 4, "{ $nor : [{ \"sa.0\" : /^T/ }] }");
+            Assert<C>(c => !regex.IsMatch(c.SA[0]), 4, "{ \"sa.0\" : { \"$not\" : /^T/ } }");
         }
 
         [Fact]
@@ -570,7 +570,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSASub0IsMatchStaticNot()
         {
-            Assert<C>(c => !Regex.IsMatch(c.SA[0], "^T"), 4, "{ $nor :[{ \"sa.0\" : /^T/ }] }");
+            Assert<C>(c => !Regex.IsMatch(c.SA[0], "^T"), 4, "{ \"sa.0\" : { \"$not\" : /^T/ } }");
         }
 
         [Fact]
@@ -618,13 +618,13 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSEqualsAbc()
         {
-            Assert<C>(c => c.S == "abc", 1, "{ s : 'abc' }");
+            Assert<C>(c => c.S == "abc", 1, "{ \"s\" : \"abc\" }");
         }
 
         [Fact]
         public void TestWhereSEqualsAbcNot()
         {
-            Assert<C>(c => !(c.S == "abc"), 4, "{ $nor : [{ s : 'abc' }] }");
+            Assert<C>(c => !(c.S == "abc"), 4, "{ \"s\" : { \"$ne\" : \"abc\" } }");
         }
 
         [Fact]
@@ -636,7 +636,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSEqualsMethodAbcNot()
         {
-            Assert<C>(c => !(c.S.Equals("abc")), 4, "{ $nor :[{ \"s\" : \"abc\" }] }");
+            Assert<C>(c => !(c.S.Equals("abc")), 4, "{ \"s\" : { \"$ne\" : \"abc\" } }");
         }
 
         [Fact]
@@ -648,7 +648,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSEqualsStaticMethodAbcNot()
         {
-            Assert<C>(c => !string.Equals(c.S, "abc"), 4, "{ $nor : [{ \"s\" : \"abc\" }] }");
+            Assert<C>(c => !string.Equals(c.S, "abc"), 4, "{ \"s\" : { \"$ne\" : \"abc\" } }");
         }
 
         [Fact]
@@ -737,7 +737,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         public void TestWhereSIsMatchNot()
         {
             var regex = new Regex(@"^abc");
-            Assert<C>(c => !regex.IsMatch(c.S), 4, "{ $nor : [{ \"s\" : /^abc/ }] }");
+            Assert<C>(c => !regex.IsMatch(c.S), 4, "{ \"s\" : { \"$not\" : /^abc/ } }");
         }
 
         [Fact]
@@ -749,7 +749,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSIsMatchStaticNot()
         {
-            Assert<C>(c => !Regex.IsMatch(c.S, "^abc"), 4, "{ $nor : [{ \"s\" : /^abc/ }] }");
+            Assert<C>(c => !Regex.IsMatch(c.S, "^abc"), 4, "{ \"s\" : { \"$not\" : /^abc/ } }");
         }
 
         [Fact]
@@ -809,13 +809,13 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSNotEqualsAbc()
         {
-            Assert<C>(c => c.S != "abc", 4, "{ s : { $ne : 'abc' } }");
+            Assert<C>(c => c.S != "abc", 4, "{ \"s\" : { \"$ne\" : \"abc\" } }");
         }
 
         [Fact]
         public void TestWhereSNotEqualsAbcNot()
         {
-            Assert<C>(c => !(c.S != "abc"), 1, "{ $nor : [{ s : { $ne : 'abc' } }] }");
+            Assert<C>(c => !(c.S != "abc"), 1, "{ \"s\" : \"abc\" }");
         }
 
         [Fact]
@@ -1016,7 +1016,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereXEquals1Not()
         {
-            Assert<C>(c => !(c.X == 1), 4, "{ $nor : [{ x : 1 }] }");
+            Assert<C>(c => !(c.X == 1), 4, "{ \"x\" : { \"$ne\" : 1 } }");
         }
 
         [Fact]
@@ -1064,7 +1064,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereXGreaterThan1Not()
         {
-            Assert<C>(c => !(c.X > 1), 1, "{ $nor : [{ x : { $gt : 1 } }] }");
+            Assert<C>(c => !(c.X > 1), 1, "{ \"x\" : { \"$not\" : { \"$gt\" : 1 } } }");
         }
 
         [Fact]
@@ -1082,7 +1082,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereXGreaterThanOrEquals1Not()
         {
-            Assert<C>(c => !(c.X >= 1), 0, "{ $nor : [{ x : { $gte : 1 } }] }");
+            Assert<C>(c => !(c.X >= 1), 0, "{ \"x\" : { \"$not\" : { \"$gte\" : 1 } } }");
         }
 
         [Fact]
@@ -1100,7 +1100,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereXLessThan1Not()
         {
-            Assert<C>(c => !(c.X < 1), 5, "{ $nor : [{ x : { $lt : 1 } }] }");
+            Assert<C>(c => !(c.X < 1), 5, "{ \"x\" : { \"$not\" : { \"$lt\" : 1 } } }");
         }
 
         [Fact]
@@ -1118,7 +1118,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereXLessThanOrEquals1Not()
         {
-            Assert<C>(c => !(c.X <= 1), 4, "{ $nor : [{ x : { $lte : 1 } }] }");
+            Assert<C>(c => !(c.X <= 1), 4, "{ \"x\" : { \"$not\" : { \"$lte\" : 1 } } }");
         }
 
         [Fact]
@@ -1154,7 +1154,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereXModTwoEquals1Not()
         {
-            Assert<C>(c => !(c.X % 2 == 1), 2, "{ $nor : [{ x : { $mod : [2, 1] } }] }");
+            Assert<C>(c => !(c.X % 2 == 1), 2, "{ x : { $not : { $mod : [2, 1] } } }");
         }
 
         [Fact]
@@ -1166,7 +1166,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereXModTwoNotEquals1()
         {
-            Assert<C>(c => c.X % 2 != 1, 2, "{ $nor : [{ x : { $mod : [2, 1] } }] }");
+            Assert<C>(c => c.X % 2 != 1, 2, "{ x : { $not : { $mod : [2, 1] } } }");
         }
 
         [Fact]
@@ -1184,7 +1184,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereXNotEquals1Not()
         {
-            Assert<C>(c => !(c.X != 1), 1, "{ $nor : [{ x : { $ne : 1 } }] }");
+            Assert<C>(c => !(c.X != 1), 1, "{ \"x\" : 1 }");
         }
 
         private void Assert<TDocument>(Expression<Func<TDocument, bool>> expression, int expectedCount, string expectedFilter)
