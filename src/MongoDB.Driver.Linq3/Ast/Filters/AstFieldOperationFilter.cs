@@ -41,6 +41,15 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
             {
                 return new BsonDocument(_field.Path, comparisonOperation.Value); // implied $eq
             }
+            else if(
+                _operation is AstElemMatchFilterOperation elemMatchOperation &&
+                elemMatchOperation.Filter is AstFieldOperationFilter fieldOperationFilter &&
+                fieldOperationFilter.Field.Path == "$elem" &&
+                fieldOperationFilter.Operation is AstComparisonFilterOperation elemMatchComparisonOperation &&
+                elemMatchComparisonOperation.Operator == AstComparisonFilterOperator.Eq)
+            {
+                return new BsonDocument(_field.Path, elemMatchComparisonOperation.Value); // implied contains
+            }
             else
             {
                 return new BsonDocument(_field.Path, _operation.Render());

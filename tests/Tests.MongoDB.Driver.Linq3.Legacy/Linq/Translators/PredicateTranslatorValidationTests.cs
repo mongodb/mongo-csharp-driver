@@ -153,7 +153,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             Expression<Func<TestObject, bool>> expr = (a) => a.Collection3.Any(b => b);
             AssertWhere(
                 expr,
-                @"{ $match : { Collection3 : { $elemMatch : { $eq : true } } } }");
+                @"{ $match : { Collection3 : true } }");
 
             expr = (a) => a.Collection3.Any(b => b && b);
             AssertWhere(
