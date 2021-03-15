@@ -64,6 +64,10 @@ provision_compressor () {
 ############################################
 #            Main Program                  #
 ############################################
+
+echo "Adding certificates"
+./.evergreen/add-certs-if-needed.sh
+
 echo "Initial MongoDB URI:" $MONGODB_URI
 # Provision the correct connection string and set up SSL if needed
 if [ "$TOPOLOGY" == "sharded_cluster" ]; then
@@ -114,8 +118,15 @@ for var in TMP TEMP NUGET_PACKAGES NUGET_HTTP_CACHE_PATH APPDATA; do
 done
 
 if [[ "$CLIENT_PEM" != "nil" ]]; then
-  CLIENT_PEM=${CLIENT_PEM} source evergreen/convert-client-cert-to-pkcs12.sh
+  CLIENT_PEM=${CLIENT_PEM} source .evergreen/convert-client-cert-to-pkcs12.sh
 fi
+
+# fix GitVersion attempting to find master branch
+git fetch origin +refs/heads/*:refs/remotes/origin/* --unshallow
+# fix MsBuild implicitly using PLATFORM environment variable
+unset PLATFORM
+# fix MsBuild implicitly using VERSION environment variable
+unset VERSION
 
 if [[ -z "$MONGO_X509_CLIENT_CERTIFICATE_PATH" && -z "$MONGO_X509_CLIENT_CERTIFICATE_PASSWORD" ]]; then
   powershell.exe '.\build.ps1 -target' $TARGET
