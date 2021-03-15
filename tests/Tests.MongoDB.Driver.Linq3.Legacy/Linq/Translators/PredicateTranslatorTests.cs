@@ -990,7 +990,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             Assert(
                 x => x.A.Contains("some"),
                 1,
-                "{A: /some/s}");
+                "{ $expr : { $gte : [{ $indexOfCP : ['$A', 'some'] }, 0] } }");
         }
 
         [Fact]
@@ -999,7 +999,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             Assert(
                 x => x.A.Contains("."),
                 0,
-                "{A: /\\./s}");
+                "{ $expr : { $gte : [{ $indexOfCP : ['$A', '.'] }, 0] } }");
         }
 
         [Fact]
@@ -1008,7 +1008,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             Assert(
                 x => !x.A.Contains("some"),
                 1,
-                "{A: {$not: /some/s}}");
+                "{ $nor : [{ $expr : { $gte : [{ $indexOfCP : ['$A', 'some'] }, 0] } }] }");
         }
 
         [Fact]
@@ -1017,7 +1017,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             Assert(
                 x => x.A.EndsWith("some"),
                 1,
-                "{A: /some$/s}");
+                "{ $expr : { $gte : [{ $indexOfCP : ['$A', 'some', { $subtract : [{ $strLenCP : '$A' }, 4] }] }, 0] }}");
         }
 
         [Fact]
@@ -1026,7 +1026,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             Assert(
                 x => x.A.StartsWith("some"),
                 0,
-                "{A: /^some/s}");
+                "{ $expr : { $eq : [{ $indexOfCP : ['$A', 'some'] }, 0] }}");
         }
 
         [Fact]
