@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
                 var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceField.Serializer);
                 var value = constantItemExpression.Value;
                 var serializedValue = SerializationHelper.SerializeValue(itemSerializer, value);
-                return AstFilter.Eq(sourceField, serializedValue);
+                return AstFilter.ElemMatch(sourceField, AstFilter.Eq(new AstFilterField("$elem", itemSerializer), serializedValue));
             }
 
             if (sourceExpression is ConstantExpression constantSourceExpression)
