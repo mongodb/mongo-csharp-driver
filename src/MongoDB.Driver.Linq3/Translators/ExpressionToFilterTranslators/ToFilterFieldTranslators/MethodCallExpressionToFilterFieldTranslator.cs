@@ -24,6 +24,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilte
         {
             switch (expression.Method.Name)
             {
+                case "ElementAt": return ElementAtMethodToFilterFieldTranslator.Translate(context, expression);
                 case "First": return FirstMethodToFilterFieldTranslator.Translate(context, expression);
                 case "get_Item": return GetItemMethodToFilterFieldTranslator.Translate(context, expression);
             }
