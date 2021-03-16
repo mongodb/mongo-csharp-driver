@@ -15,20 +15,32 @@
 
 using System.Linq.Expressions;
 using MongoDB.Driver.Linq3.Ast.Filters;
+using MongoDB.Driver.Linq3.Methods;
+using MongoDB.Driver.Linq3.Misc;
+using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodTranslators
 {
-    public static class MethodCallExpressionToFilterTranslator
+    public static class HasFlagMethodToFilterTranslator
     {
+        // public static methods
         public static AstFilter Translate(TranslationContext context, MethodCallExpression expression)
         {
-            switch (expression.Method.Name)
+            var method = expression.Method;
+            var arguments = expression.Arguments;
+
+            if (method.Is(EnumMethod.HasFlag))
             {
-                case "Any": return AnyMethodToFilterTranslator.Translate(context, expression);
-                case "Contains": return ContainsMethodToFilterTranslator.Translate(context, expression);
-                case "Equals": return EqualsMethodToFilterTranslator.Translate(context, expression);
-                case "HasFlag": return HasFlagMethodToFilterTranslator.Translate(context, expression);
-                case "IsMatch": return IsMatchMethodToFilterTranslator.Translate(context, expression);
+                var fieldExpression = expression.Object;
+                var field = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
+
+                var flagExpression = arguments[0];
+                if (flagExpression is ConstantExpression flagConstantExpression)
+                {
+                    var flag = flagConstantExpression.Value;
+                    var serializedFlag = SerializationHelper.SerializeValue(field.Serializer, flag);
+                    return AstFilter.BitsAllSet(field, serializedFlag);
+                }
             }
 
             throw new ExpressionNotSupportedException(expression);
