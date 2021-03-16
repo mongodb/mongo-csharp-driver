@@ -700,7 +700,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             Assert(
                 x => x.M[1] % 2 == 0,
                 1,
-                "{'M.1': {$mod: [NumberLong(2), NumberLong(0)]}}");
+                "{ 'M.1' : { $mod : [2, 0] } }");
         }
 
         [Fact]
@@ -709,7 +709,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             Assert(
                 x => x.M[1] % 3 != 2,
                 1,
-                "{'M.1': {$not: {$mod: [NumberLong(3), NumberLong(2)]}}}");
+                "{ 'M.1' : { $not : { $mod : [3, 2] } } }");
         }
 
         [Fact]
