@@ -39,6 +39,11 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
                 return ArrayLengthComparisonExpressionToFilterTranslator.Translate(context, expression, arrayLengthExpression, sizeExpression);
             }
 
+            if (CompareToComparisonExpressionToFilterTranslator.CanTranslate(leftExpression))
+            {
+                return CompareToComparisonExpressionToFilterTranslator.Translate(context, expression, leftExpression, comparisonOperator, rightExpression);
+            }
+
             if (CountComparisonExpressionToFilterTranslator.CanTranslate(leftExpression, rightExpression, out var countExpression, out sizeExpression))
             {
                 return CountComparisonExpressionToFilterTranslator.Translate(context, expression, countExpression, sizeExpression);
