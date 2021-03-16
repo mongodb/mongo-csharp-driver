@@ -90,6 +90,16 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
                     }
                 }
 
+                if (fieldOperationFilter.Operation is AstInFilterOperation inFilterOperation)
+                {
+                    return new AstFieldOperationFilter(fieldOperationFilter.Field, new AstNinFilterOperation(inFilterOperation.Values));
+                }
+
+                if (fieldOperationFilter.Operation is AstNinFilterOperation ninFilterOperation)
+                {
+                    return new AstFieldOperationFilter(fieldOperationFilter.Field, new AstInFilterOperation(ninFilterOperation.Values));
+                }
+
                 return new AstFieldOperationFilter(fieldOperationFilter.Field, new AstNotFilterOperation(fieldOperationFilter.Operation));
             }
 
