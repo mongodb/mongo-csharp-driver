@@ -21,6 +21,26 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
     public abstract class AstFilter : AstNode
     {
         #region static
+        public static AstFieldOperationFilter BitsAllClear(AstFilterField field, BsonValue bitMask)
+        {
+            return new AstFieldOperationFilter(field, new AstBitsAllClearFilterOperation(bitMask));
+        }
+
+        public static AstFieldOperationFilter BitsAllSet(AstFilterField field, BsonValue bitMask)
+        {
+            return new AstFieldOperationFilter(field, new AstBitsAllSetFilterOperation(bitMask));
+        }
+
+        public static AstFieldOperationFilter BitsAnyClear(AstFilterField field, BsonValue bitMask)
+        {
+            return new AstFieldOperationFilter(field, new AstBitsAnyClearFilterOperation(bitMask));
+        }
+
+        public static AstFieldOperationFilter BitsAnySet(AstFilterField field, BsonValue bitMask)
+        {
+            return new AstFieldOperationFilter(field, new AstBitsAnySetFilterOperation(bitMask));
+        }
+
         public static AstFieldOperationFilter Compare(AstFilterField field, AstComparisonFilterOperator comparisonOperator, BsonValue value)
         {
             return new AstFieldOperationFilter(field, new AstComparisonFilterOperation(comparisonOperator, value));
