@@ -416,7 +416,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             AssertUsingCustomCollection(
                 c => !c.M.Any(a => !x.Contains(a)),
-                "{ M : { '$not' : { '$elemMatch' : { '$not' : { '$in' : [1, 2] } } } } }");
+                "{ M : { '$not' : { '$elemMatch' : { '$nin' : [1, 2] } } } } ");
         }
 
         [Fact]
@@ -447,7 +447,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             AssertUsingCustomCollection(
                 c => c.M.Any(a => !x.Contains(a)),
-                "{ M : { '$elemMatch' : { '$not' : { '$in' : [1, 2] } } } }"
+                "{ M : { '$elemMatch' : { '$nin' : [1, 2] } } } "
             );
         }
 
