@@ -125,6 +125,16 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
                 }
             }
 
+            if (CoreTestConfiguration.ServerVersion >= new SemanticVersion(4, 1, 5, "")) // Test issue
+            {
+                switch (definition["description"].AsString)
+                {
+                    case "A successful insert one command with write errors":
+                    case "A successful insert many command with write errors":
+                        throw new SkipTestException("Test ignored because of CSHARP-2444");
+                }
+            }
+
             var database = __client
                 .GetDatabase(databaseName);
             var collection = database

@@ -332,7 +332,10 @@ namespace MongoDB.Driver
 
                 // supported in 2.6.0 and newer but not on mongos
                 case FeatureId.ParallelScanCommand:
-                    return BuildInfo.Version >= new Version(2, 6, 0) && InstanceType != MongoServerInstanceType.ShardRouter;
+                    return
+                        BuildInfo.Version >= new Version(2, 6, 0) &&
+                        BuildInfo.Version < new Version(4, 1, 0) && // #1 ParallelScan
+                        InstanceType != MongoServerInstanceType.ShardRouter;
 
                 default:
                     return false;

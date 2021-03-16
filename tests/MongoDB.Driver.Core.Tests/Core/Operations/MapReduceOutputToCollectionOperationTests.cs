@@ -314,7 +314,7 @@ namespace MongoDB.Driver.Core.Operations
 
             ExecuteOperation(subject, async);
 
-            ReadAllFromCollection(_outputCollectionNamespace).Should().Equal(
+            ReadAllFromCollection(_outputCollectionNamespace).Should().BeEquivalentTo( // #5 MapReduce
                 BsonDocument.Parse("{ _id : 1, value : 3 }"),
                 BsonDocument.Parse("{ _id : 2, value : 4 }"));
         }
@@ -356,7 +356,7 @@ namespace MongoDB.Driver.Core.Operations
                     BsonDocument.Parse("{ _id : 2, value : 4 }")
                 };
             }
-            ReadAllFromCollection(_outputCollectionNamespace).Should().Equal(expectedResults);
+            ReadAllFromCollection(_outputCollectionNamespace).Should().BeEquivalentTo(expectedResults); // #5 MapReduce
         }
 
         [SkippableTheory]
@@ -375,7 +375,7 @@ namespace MongoDB.Driver.Core.Operations
 
             ExecuteOperation(subject, async);
 
-            ReadAllFromCollection(_outputCollectionNamespace).Should().Equal(
+            ReadAllFromCollection(_outputCollectionNamespace).Should().BeEquivalentTo( // #5 MapReduce
                 BsonDocument.Parse("{ _id : 1, value : 1 }"),
                 BsonDocument.Parse("{ _id : 2, value : 4 }"));
         }
@@ -396,7 +396,7 @@ namespace MongoDB.Driver.Core.Operations
 
             ExecuteOperation(subject, async);
 
-            ReadAllFromCollection(_outputCollectionNamespace).Should().Equal(
+            ReadAllFromCollection(_outputCollectionNamespace).Should().BeEquivalentTo( // #5 MapReduce
                 BsonDocument.Parse("{ _id : 1, value : -3 }"),
                 BsonDocument.Parse("{ _id : 2, value : -4 }"));
         }
@@ -421,7 +421,7 @@ namespace MongoDB.Driver.Core.Operations
         //    ExecuteOperation(subject, async);
 
         //    // the results are the same either way, but at least we're smoke testing JavaScriptMode
-        //    ReadAllFromCollection(_outputCollectionNamespace).Should().Equal(
+        //    ReadAllFromCollection(_outputCollectionNamespace).Should().BeEquivalentTo( // #5 MapReduce
         //        BsonDocument.Parse("{ _id : 1, value : 3 }"),
         //        BsonDocument.Parse("{ _id : 2, value : 4 }"));
         //}
@@ -447,7 +447,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 new BsonDocument { { "_id", 1 }, { "value", limit == 1 ? 1 : 3 } }
             };
-            ReadAllFromCollection(_outputCollectionNamespace).Should().Equal(expectedResults);
+            ReadAllFromCollection(_outputCollectionNamespace).Should().BeEquivalentTo(expectedResults); // #5 MapReduce
         }
 
         [SkippableTheory]
@@ -469,7 +469,7 @@ namespace MongoDB.Driver.Core.Operations
             ExecuteOperation(subject, async);
 
             // results should be the same whether MaxTime was used or not
-            ReadAllFromCollection(_outputCollectionNamespace).Should().Equal(
+            ReadAllFromCollection(_outputCollectionNamespace).Should().BeEquivalentTo( // #5 MapReduce
                 BsonDocument.Parse("{ _id : 1, value : 3 }"),
                 BsonDocument.Parse("{ _id : 2, value : 4 }"));
         }
@@ -492,7 +492,7 @@ namespace MongoDB.Driver.Core.Operations
 
             ExecuteOperation(subject, async);
 
-            ReadAllFromCollection(_outputCollectionNamespace).Should().Equal(
+            ReadAllFromCollection(_outputCollectionNamespace).Should().BeEquivalentTo( // #5 MapReduce
                 BsonDocument.Parse("{ _id : 1, value : 3 }"),
                 BsonDocument.Parse("{ _id : 2, value : 4 }"));
         }
@@ -532,7 +532,7 @@ namespace MongoDB.Driver.Core.Operations
                     BsonDocument.Parse("{ _id : 2, value : 4 }")
                 };
             }
-            ReadAllFromCollection(_outputCollectionNamespace).Should().Equal(expectedResults);
+            ReadAllFromCollection(_outputCollectionNamespace).Should().BeEquivalentTo(expectedResults); // #5 MapReduce
         }
 
         [Theory]

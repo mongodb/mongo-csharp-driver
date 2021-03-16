@@ -17,7 +17,7 @@ tests:
             - _id: 1
             - _id: 1
         result:
-          errorCodeName: DuplicateKey
+          #errorCodeName: DuplicateKey #4 DuplicateKey
           errorLabelsOmit: ["TransientTransactionError", "UnknownTransactionCommitResult"]
       - name: abortTransaction
         object: session0
