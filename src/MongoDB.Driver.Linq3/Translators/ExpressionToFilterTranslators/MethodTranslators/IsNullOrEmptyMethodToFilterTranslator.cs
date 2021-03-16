@@ -14,22 +14,27 @@
 */
 
 using System.Linq.Expressions;
+using MongoDB.Bson;
 using MongoDB.Driver.Linq3.Ast.Filters;
+using MongoDB.Driver.Linq3.Misc;
+using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodTranslators
 {
-    public static class MethodCallExpressionToFilterTranslator
+    public static class IsNullOrEmptyMethodToFilterTranslator
     {
+        // public static methods
         public static AstFilter Translate(TranslationContext context, MethodCallExpression expression)
         {
-            switch (expression.Method.Name)
+            var method = expression.Method;
+            var arguments = expression.Arguments;
+
+            if (method.Is(StringMethod.IsNullOrEmpty))
             {
-                case "Any": return AnyMethodToFilterTranslator.Translate(context, expression);
-                case "Contains": return ContainsMethodToFilterTranslator.Translate(context, expression);
-                case "Equals": return EqualsMethodToFilterTranslator.Translate(context, expression);
-                case "HasFlag": return HasFlagMethodToFilterTranslator.Translate(context, expression);
-                case "IsMatch": return IsMatchMethodToFilterTranslator.Translate(context, expression);
-                case "IsNullOrEmpty": return IsNullOrEmptyMethodToFilterTranslator.Translate(context, expression);
+                var fieldExpression = arguments[0];
+                var field = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
+
+                return AstFilter.In(field, new BsonValue[] { BsonNull.Value, "" });
             }
 
             throw new ExpressionNotSupportedException(expression);
