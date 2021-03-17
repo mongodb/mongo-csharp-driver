@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 
@@ -33,42 +32,7 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
 
         public override BsonValue Render()
         {
-            return new BsonDocument("$elemMatch", RewriteElemMatchFilter(_filter.Render()));
-        }
-
-        // TODO: this implementation is incomplete
-        private BsonValue RewriteElemMatchFilter(BsonValue filter)
-        {
-            if (filter is BsonDocument filterDocument && filterDocument.ElementCount == 1)
-            {
-                var elementName = filterDocument.GetElement(0).Name;
-                if (elementName == "$elem")
-                {
-                    var condition = filterDocument[0];
-                    if (condition is BsonDocument conditionDocument &&
-                        conditionDocument.ElementCount > 0 &&
-                        conditionDocument.GetElement(0).Name.StartsWith("$"))
-                    {
-                        return condition; // TODO: recurse
-                    }
-                    return new BsonDocument("$eq", condition);
-                }
-
-                if (elementName.StartsWith("$elem."))
-                {
-                    var subFieldName = elementName.Substring(6);
-                    filterDocument.SetElement(0, new BsonElement(subFieldName, filterDocument[0]));
-                    return filterDocument;
-                }
-
-                if (elementName == "$and" || elementName == "$or")
-                {
-                    var rewrittenClauses = filterDocument[0].AsBsonArray.Select(clause => RewriteElemMatchFilter(clause));
-                    return new BsonDocument(elementName, new BsonArray(rewrittenClauses));
-                }
-            }
-
-            return filter;
+            return new BsonDocument("$elemMatch", _filter.Render());
         }
     }
 }
