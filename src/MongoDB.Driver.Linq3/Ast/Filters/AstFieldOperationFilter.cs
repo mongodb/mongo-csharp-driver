@@ -35,11 +35,21 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
 
         public override BsonValue Render()
         {
+            var fieldPath = _field.Path;
+            if (fieldPath == "$elem")
+            {
+                return _operation.Render();
+            }
+            if (fieldPath.StartsWith("$elem."))
+            {
+                fieldPath = fieldPath.Substring(6);
+            }
+
             if (_operation is AstComparisonFilterOperation comparisonOperation &&
                 comparisonOperation.Operator == AstComparisonFilterOperator.Eq &&
                 comparisonOperation.Value.BsonType != BsonType.RegularExpression)
             {
-                return new BsonDocument(_field.Path, comparisonOperation.Value); // implied $eq
+                return new BsonDocument(fieldPath, comparisonOperation.Value); // implied $eq
             }
             else if(
                 _operation is AstElemMatchFilterOperation elemMatchOperation &&
@@ -48,11 +58,11 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
                 fieldOperationFilter.Operation is AstComparisonFilterOperation elemMatchComparisonOperation &&
                 elemMatchComparisonOperation.Operator == AstComparisonFilterOperator.Eq)
             {
-                return new BsonDocument(_field.Path, elemMatchComparisonOperation.Value); // implied contains
+                return new BsonDocument(fieldPath, elemMatchComparisonOperation.Value); // implied $elemMatch with $eq
             }
             else
             {
-                return new BsonDocument(_field.Path, _operation.Render());
+                return new BsonDocument(fieldPath, _operation.Render());
             }
         }
     }
