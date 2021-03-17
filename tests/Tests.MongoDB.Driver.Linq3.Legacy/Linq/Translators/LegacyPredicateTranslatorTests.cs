@@ -74,7 +74,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereAAny()
         {
-            Assert<C>(c => c.A.Any(), 1, "{ $and : [{ a : { $ne : null } }, { a : { $not : { $size : 0 } } } ] }");
+            Assert<C>(c => c.A.Any(), 1, "{ \"a\" : { \"$ne\" : null, \"$not\" : { \"$size\" : 0 } } }");
         }
 
         [Fact]
@@ -292,7 +292,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             Assert<C>(c => c.DA.Any(d => d.Z == 333), 1, "{ \"da\" : { \"$elemMatch\" : { \"z\" : 333 } } }");
 
-            Assert<C>(c => c.DA.Any(d => d.Z >= 222 && d.Z <= 444), 2, "{ da : { $elemMatch : { $and : [{ z : { $gte : 222 } }, { z : { $lte : 444 } }] } } }");
+            Assert<C>(c => c.DA.Any(d => d.Z >= 222 && d.Z <= 444), 2, "{ \"da\" : { \"$elemMatch\" : { \"z\" : { \"$gte\" : 222, \"$lte\" : 444 } } } }");
         }
 
         [Fact]
@@ -974,13 +974,13 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         public void TestWhereTripleAnd()
         {
             // the query is a bit odd in order to force the built query to be promoted to $and form
-            Assert<C>(c => c.X >= 0 && c.X >= 1 && c.Y == 11, 2, "{ $and : [{ x : { $gte : 0 } }, { x : { $gte : 1 } }, { y : 11 }] }");
+            Assert<C>(c => c.X >= 0 && c.X >= 1 && c.Y == 11, 2, "{ \"$and\" : [{ \"x\" : { \"$gte\" : 0 } }, { \"x\" : { \"$gte\" : 1 } }, { \"y\" : 11 }] }");
         }
 
         [Fact]
         public void TestWhereTripleOr()
         {
-            Assert<C>(c => c.X == 1 || c.Y == 33 || c.S == "x is 1", 2, "{ $or : [{ x : 1 }, { y : 33 }, { s : 'x is 1' }] }");
+            Assert<C>(c => c.X == 1 || c.Y == 33 || c.S == "x is 1", 2, "{ \"$or\" : [{ \"x\" : 1 }, { \"y\" : 33 }, { \"s\" : \"x is 1\" }] }");
         }
 
         [Fact]
@@ -992,25 +992,25 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereXEquals1AndYEquals11()
         {
-            Assert<C>(c => c.X == 1 & c.Y == 11, 1, "{ $and : [{ x : 1 }, { y : 11 }] }");
+            Assert<C>(c => c.X == 1 & c.Y == 11, 1, "{ \"x\" : 1, \"y\" : 11 }");
         }
 
         [Fact]
         public void TestWhereXEquals1AndAlsoYEquals11()
         {
-            Assert<C>(c => c.X == 1 && c.Y == 11, 1, "{ $and : [{ x : 1}, { y : 11 }] }");
+            Assert<C>(c => c.X == 1 && c.Y == 11, 1, "{ \"x\" : 1, \"y\" : 11 }");
         }
 
         [Fact]
         public void TestWhereXEquals1AndYEquals11Not()
         {
-            Assert<C>(c => !(c.X == 1 && c.Y == 11), 4, "{ $nor : [{ $and : [{ x : 1 }, { y : 11 }] }] }");
+            Assert<C>(c => !(c.X == 1 && c.Y == 11), 4, "{ \"$nor\" : [{ \"x\" : 1, \"y\" : 11 }] }");
         }
 
         [Fact]
         public void TestWhereXEquals1AndYEquals11AndZEquals11()
         {
-            Assert<C>(c => c.X == 1 && c.Y == 11 && c.D.Z == 11, 1, "{ $and : [{ x : 1 }, { y : 11 }, { 'd.z' : 11 }] }");
+            Assert<C>(c => c.X == 1 && c.Y == 11 && c.D.Z == 11, 1, "{ \"x\" : 1, \"y\" : 11, \"d.z\" : 11 }");
         }
 
         [Fact]
@@ -1034,7 +1034,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereXEquals1OrYEquals33Not()
         {
-            Assert<C>(c => !(c.X == 1 || c.Y == 33), 3, "{ $nor : [{ $or : [{ x : 1}, { y : 33 }] }] }");
+            Assert<C>(c => !(c.X == 1 || c.Y == 33), 3, "{ $nor : [{ $or : [{ x : 1 }, { y : 33 }] }] }");
         }
 
         [Fact]
@@ -1052,13 +1052,13 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereXGreaterThan1AndLessThan3()
         {
-            Assert<C>(c => c.X > 1 && c.X < 3, 1, "{ $and : [{ x : { $gt : 1 } }, { x : { $lt : 3 } }] }");
+            Assert<C>(c => c.X > 1 && c.X < 3, 1, "{ \"x\" : { \"$gt\" : 1, \"$lt\" : 3 } }");
         }
 
         [Fact]
         public void TestWhereXGreaterThan1AndLessThan3Not()
         {
-            Assert<C>(c => !(c.X > 1 && c.X < 3), 4, "{ $nor : [{ $and : [{ x : { $gt : 1 } }, { x : { $lt : 3 } }] }] }");
+            Assert<C>(c => !(c.X > 1 && c.X < 3), 4, "{ \"$nor\" : [{ \"x\" : { \"$gt\" : 1, \"$lt\" : 3 } }] }");
         }
 
         [Fact]
