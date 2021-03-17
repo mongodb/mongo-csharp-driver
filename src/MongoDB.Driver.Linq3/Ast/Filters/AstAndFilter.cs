@@ -76,7 +76,100 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
 
         public override BsonValue Render()
         {
-            return new BsonDocument("$and", new BsonArray(_filters.Select(a => a.Render())));
+            if (TryRenderAsImplicitAnd(_filters, out var renderedAsImplicitAnd))
+            {
+                return renderedAsImplicitAnd;
+            }
+            else
+            {
+                return new BsonDocument("$and", new BsonArray(_filters.Select(f => f.Render())));
+            }
+        }
+
+        private bool TryRenderAsImplicitAnd(AstFilter[] filters, out BsonDocument renderedAsImplicitAnd)
+        {
+            renderedAsImplicitAnd = new BsonDocument();
+
+            foreach (var filter in filters)
+            {
+                if (!(filter is AstFieldOperationFilter fieldOperationFilter))
+                {
+                    return false;
+                }
+
+                if (!OperationCanBeUsedInImplicitAnd(fieldOperationFilter.Operation))
+                {
+                    return false;
+                }
+
+                var renderedFilter = filter.Render() as BsonDocument;
+                if (renderedFilter == null || renderedFilter.ElementCount != 1)
+                {
+                    return false;
+                }
+
+                var fieldPath = renderedFilter.GetElement(0).Name;
+                if (fieldPath.StartsWith("$"))
+                {
+                    // this case occurs when { $elem : { $op : args } } is rendered as { $op : args } inside an $elemMatch
+                    if (renderedAsImplicitAnd.Contains(fieldPath))
+                    {
+                        return false;
+                    }
+                    renderedAsImplicitAnd.Merge(renderedFilter);
+                }
+                else
+                {
+                    var fieldValue = renderedAsImplicitAnd.GetValue(fieldPath, null);
+                    if (fieldValue == null)
+                    {
+                        renderedAsImplicitAnd.Merge(renderedFilter);
+                    }
+                    else
+                    {
+                        var fieldDocument = fieldValue as BsonDocument;
+                        if (fieldDocument == null)
+                        {
+                            return false;
+                        }
+
+                        var renderedOperation = renderedFilter[0] as BsonDocument;
+                        if (renderedOperation == null || renderedOperation.ElementCount != 1)
+                        {
+                            return false;
+                        }
+
+                        var operatorName = renderedOperation.GetElement(0).Name;
+                        if (!operatorName.StartsWith("$") || fieldDocument.Contains(operatorName))
+                        {
+                            return false;
+                        }
+
+                        fieldDocument.Merge(renderedOperation);
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        private bool OperationCanBeUsedInImplicitAnd(AstFilterOperation operation)
+        {
+            switch (operation.NodeType)
+            {
+                case AstNodeType.GeoIntersectsFilterOperation:
+                case AstNodeType.GeoNearStage:
+                case AstNodeType.GeoWithinBoxFilterOperation:
+                case AstNodeType.GeoWithinCenterFilterOperation:
+                case AstNodeType.GeoWithinCenterSphereFilterOperation:
+                case AstNodeType.GeoWithinFilterOperation:
+                case AstNodeType.NearFilterOperation:
+                case AstNodeType.NearSphereFilterOperation:
+                    return false;
+
+                default:
+                    return true;
+            }
         }
     }
 }

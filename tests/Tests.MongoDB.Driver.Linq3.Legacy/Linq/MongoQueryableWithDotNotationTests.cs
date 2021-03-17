@@ -37,7 +37,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             var result = subject.Where(c => c.ExtraInfo.Type == 1 && c.ExtraInfo.NotNullableType == 1);
 
-            AssertStage(result, "{ \"$match\" : { $and : [{ \"ExtraInfo.Type\" : 1 }, { \"ExtraInfo.NotNullableType\" : 1 }] } }");
+            AssertStage(result, "{ \"$match\" : { \"ExtraInfo.Type\" : 1, \"ExtraInfo.NotNullableType\" : 1 } }");
         }
 
         [Fact]

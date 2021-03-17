@@ -78,7 +78,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             AssertWhere(expr, "{ $match : { Collection1 : { $elemMatch : { Collection1 : { $elemMatch : { Collection2 : { $in : [1, 2] } } } } } } }");
 
             expr = (a) => a.Collection1.Any(b => b.Collection2 != null && b.Collection1.Any(c => local.Any(d => c.Collection2.Contains(d))));
-            AssertWhere(expr, "{ $match : { Collection1 : { $elemMatch : { $and : [{ Collection2 : { $ne : null } }, { Collection1 : { $elemMatch : { Collection2 : { $in : [1, 2 ] } } } }] } } } }");
+            AssertWhere(expr, "{ $match : { Collection1 : { $elemMatch : { Collection2 : { $ne : null }, Collection1 : { $elemMatch : { Collection2 : { $in : [1, 2 ] } } } } } } }");
 
             expr = (a) => a.Collection1.Any(
                 b =>
@@ -94,19 +94,13 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
                     $match : {
                         Collection1 : {
                             $elemMatch : {
-                                $and : [
-                                    { Collection1 : { $ne : null } },
-                                    {
-                                        Collection1 : {
-                                            $elemMatch : {
-                                                $and : [
-                                                    { Collection2 : { $in : [1, 2] } },
-                                                    { Collection3 : { $in : [true, false] } }
-                                                ]
-                                            }
-                                        }
+                                Collection1 : {
+                                    $ne : null,
+                                    $elemMatch : {
+                                        Collection2 : { $in : [1, 2] },
+                                        Collection3 : { $in : [true, false] }
                                     }
-                                ]
+                                }
                             }
                         }
                     }
@@ -126,19 +120,13 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
                     $match : {
                         Collection1 : {
                             $elemMatch : {
-                                $and : [
-                                    { Collection1 : { $ne : null } },
-                                    {
-                                        Collection1 : {
-                                            $elemMatch : {
-                                                $and : [
-                                                    { Collection1 : { $elemMatch : { Value1 : 2 } } },
-                                                    { Collection3 : { $in : [true, false] }}
-                                                ]
-                                            }
-                                        }
+                                Collection1 : {
+                                    $ne : null,
+                                    $elemMatch : {
+                                        Collection1 : { $elemMatch : { Value1 : 2 } },
+                                        Collection3 : { $in : [true, false] }
                                     }
-                                ]
+                                }
                             }
                         }
                     }
@@ -175,7 +163,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             AssertWhere(
                 expr,
-                @"{ $match : { Collection1 : { $elemMatch : { $and : [{ Collection1 : { $elemMatch : { Value1 : { $ne : 2 } } } }, { Value1 : 3 }] } } } }");
+                @"{ $match : { Collection1 : { $elemMatch : { Collection1 : { $elemMatch : { Value1 : { $ne : 2 } } }, Value1 : 3 } } } }");
         }
 
         [Fact]
@@ -199,7 +187,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             AssertWhere(
                 expr,
-                @"{ $match : { Collection1 : { $elemMatch : { $and : [{ Value1 : { $ne : 3 } }, { Collection1 : { $elemMatch : { Value1 : { $ne : 5 } } } }] } } } }");
+                @"{ $match : { Collection1 : { $elemMatch : { Value1 : { $ne : 3 }, Collection1 : { $elemMatch : { Value1 : { $ne : 5 } } } } } } }");
         }
 
 
