@@ -15,8 +15,11 @@
 
 using System.Linq.Expressions;
 using System.Reflection;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq3.Ast.Filters;
+using MongoDB.Driver.Linq3.Methods;
+using MongoDB.Driver.Linq3.Misc;
 using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ExpressionTranslators
@@ -25,26 +28,21 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
     {
         public static AstFilter Translate(TranslationContext context, MemberExpression expression)
         {
-            var containerExpression = expression.Expression;
             var memberInfo = expression.Member;
 
-            // TODO: since ExpressionToFilterTranslator now translates 'f' to '{ f : true }' this class might no longer be needed
-            if (expression.Type == typeof(bool))
+            if (memberInfo is PropertyInfo propertyInfo)
             {
-                if (memberInfo is PropertyInfo propertyInfo)
+                if (propertyInfo.Is(NullableProperty.HasValue))
                 {
-                    var containerField = ExpressionToFilterFieldTranslator.Translate(context, containerExpression);
-                    var containerSerializer = containerField.Serializer;
-                    if (containerSerializer is IBsonDocumentSerializer containerDocumentSerializer)
-                    {
-                        if (containerDocumentSerializer.TryGetMemberSerializationInfo(propertyInfo.Name, out var propertySerializationInfo))
-                        {
-                            var elementName = propertySerializationInfo.ElementName;
-                            var elementSerializer = propertySerializationInfo.Serializer;
-                            var field = new AstFilterField(elementName, elementSerializer);
-                            return AstFilter.Eq(field, true);
-                        }
-                    }
+                    var fieldExpression = expression.Expression;
+                    var field = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
+                    return AstFilter.Ne(field, BsonNull.Value);
+                }
+
+                if (propertyInfo.PropertyType == typeof(bool))
+                {
+                    var field = ExpressionToFilterFieldTranslator.Translate(context, expression);
+                    return AstFilter.Eq(field, true);
                 }
             }
 
