@@ -28,16 +28,24 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators
     public static class ExpressionToFilterTranslator
     {
         // public methods
-        public static AstFilter Translate(TranslationContext context, Expression expression)
+        public static AstFilter Translate(TranslationContext context, Expression expression, bool exprOk = true)
         {
+            AstFilter filter;
             try
             {
-                return TranslateUsingQueryOperators(context, expression);
+                filter = TranslateUsingQueryOperators(context, expression);
             }
             catch (ExpressionNotSupportedException)
             {
-                return TranslateUsingAggregationOperators(context, expression);
+                filter = TranslateUsingAggregationOperators(context, expression);
             }
+
+            if (filter.UsesExpr && !exprOk)
+            {
+                throw new ExpressionNotSupportedException(expression);
+            }
+
+            return filter;
         }
 
         public static AstFilter TranslateLambda(TranslationContext context, LambdaExpression lambdaExpression, IBsonSerializer parameterSerializer)
