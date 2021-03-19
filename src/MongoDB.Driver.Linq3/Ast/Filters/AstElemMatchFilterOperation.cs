@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 
@@ -24,7 +25,9 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
 
         public AstElemMatchFilterOperation(AstFilter filter)
         {
-            _filter = Ensure.IsNotNull(filter, nameof(filter));
+            Ensure.IsNotNull(filter, nameof(filter));
+            Ensure.That(!filter.UsesExpr, "$elemMatch does not support $expr filters.", nameof(filter));
+            _filter = filter;
         }
 
         public AstFilter Filter => _filter;
