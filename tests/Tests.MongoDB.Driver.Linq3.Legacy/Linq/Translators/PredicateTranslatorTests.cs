@@ -138,7 +138,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             Assert(
                 x => x.G.Any(g => g.E.I.Any(i => i == "insecure")),
                 1,
-                "{ \"G.E.I\" : { '$elemMatch' : { '$eq': 'insecure' } } }");
+                "{ G : { $elemMatch : { 'E.I': 'insecure' } } }");
         }
 
         [Fact]
@@ -147,7 +147,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             Assert(
                 x => x.G.Any(g => g.Ids.Any(i => i == ObjectId.Parse("111111111111111111111111"))),
                 1,
-                "{ 'G.Ids' : { '$elemMatch' : { '$eq' : ObjectId('111111111111111111111111') } } }");
+                "{ G : { '$elemMatch' : { Ids : ObjectId('111111111111111111111111') } } }");
         }
 
         [Fact]
@@ -169,7 +169,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             Assert(
                 x => x.G.Any(g => g == c1),
                 1,
-                "{ \"G\" : { \"$elemMatch\" : { \"Ids\" : null, \"D\" : \"Dolphin\", \"E\" : { \"F\" : 55, \"H\" : 66, \"S\": null, \"I\" : [\"insecure\"], \"C\" : null }, \"S\" : null, \"X\" : null, \"Y\" : null, \"Z\" : null } } }");
+                "{ \"G\" : { \"Ids\" : null, \"D\" : \"Dolphin\", \"E\" : { \"F\" : 55, \"H\" : 66, \"S\": null, \"I\" : [\"insecure\"], \"C\" : null }, \"S\" : null, \"X\" : null, \"Y\" : null, \"Z\" : null } }");
         }
 
         [Fact]
@@ -247,22 +247,22 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             Assert(
                 i => i.G.Any(g => g.Y.S.Any(s => s.Z.Any(z => z.C.E.C.X.Any()))),
                 1,
-                "{ \"G.Y.S.Z\" : { $elemMatch : { \"C.E.C.X\" : { $ne : null, $not : { $size : 0 } } } } }");
+                "{ G : { $elemMatch : { 'Y.S' : { $elemMatch : { Z : { $elemMatch : { 'C.E.C.X' : { $ne : null, $not : { $size : 0 } } } } } } } } }");
 
             Assert(
                 i => i.G.Any(g => g.Y.S.Any(s => s.Z.Any(z => z.C.X.Any(x => x.F == 4)))),
                 1,
-                "{ \"G.Y.S.Z.C.X\" : { $elemMatch : { \"F\" : 4 } } }");
+                "{ G : { $elemMatch : { 'Y.S' : { $elemMatch : { Z : { $elemMatch : { 'C.X' : { $elemMatch : { F : 4 } } } } } } } } }");
 
             Assert(
                 i => i.G.Any(g => g.D == "Don't" && g.S.Any(s => s.Z.Any(x => x.H == 0))),
                 1,
-                "{ G : { $elemMatch : { \"D\" : \"Don't\", \"S.Z\" : { $elemMatch : { \"H\" : 0 } } } } }");
+                "{ G : { $elemMatch : { D : \"Don't\", S : { $elemMatch : { Z : { $elemMatch : { H : 0 } } } } } } }");
 
             Assert(
                 i => i.G.Any(g => g.D == "Don't" && g.Y.S.Any(s => s.Z.Any(x => x.H == 0))),
                 1,
-                "{ G : { $elemMatch : { \"D\" : \"Don't\", \"Y.S.Z\" : { $elemMatch : { \"H\" : 0 } } } } }");
+                "{ G : { $elemMatch : { D : \"Don't\", 'Y.S' : { $elemMatch : { Z : { $elemMatch : { H : 0 } } } } } } }");
 
             Assert(
                 i => i.G.Any(g => g.D == "Don't" && g.S.Any(s => s.E == null && s.Z.Any(x => x.H == 0))),
@@ -277,12 +277,12 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             Assert(
                 i => i.G.Any(g => g.D == "Don't" && g.Y.S.Any(s => s.E == null && s.Z.Any(z => z.C.X.Any(x => x.F == 4)))),
                 1,
-                "{ G:  { $elemMatch : { \"D\" : \"Don't\", \"Y.S\" : { $elemMatch : { \"E\" : null, \"Z.C.X\" : { $elemMatch : { \"F\" : 4 } } } } } } }");
+                "{ G :  { $elemMatch : { D : \"Don't\", 'Y.S' : { $elemMatch : { E : null, Z : { $elemMatch : { 'C.X' : { $elemMatch : { F : 4 } } } } } } } } }");
 
             Assert(
                 i => i.G.Any(g => g.D == "Don't" && g.Y.S.Any(s => s.E == null && s.Z.Any(z => z.C.X.Any(x => x.F == 4 && x.H == 0)))),
                 1,
-                "{ G : { $elemMatch : { \"D\" : \"Don't\", \"Y.S\" : { $elemMatch : { \"E\" : null, \"Z.C.X\" : { $elemMatch : { \"F\" : 4, \"H\" : 0 } } } } } } }");
+                "{ G : { $elemMatch : { D : \"Don't\", 'Y.S' : { $elemMatch : { E : null, Z : { $elemMatch : { 'C.X' : { $elemMatch : { F : 4, H : 0 } } } } } } } } }");
 
             Assert(
                 i => i.G.Any(g => g.D == "Don't" && g.Y.S.Any(s => s.E == null && s.Z.Any(z => z.F == 1 && z.C.X.Any(x => x.F == 4 && x.H == 0)))),
@@ -296,9 +296,9 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
                          g.S.Any(s => s.D == "Delilah" && s.Z.Any(z => z.F == 1 && z.H == 0))),
                 1,
                 @"{ G : { $elemMatch : {
-                    ""D"" : ""Don't"",
-                    ""Y.S.Z.C.X"" : { $elemMatch : { ""F"" : 4 } },
-                    ""S"" : { $elemMatch : { ""D"" : ""Delilah"", ""Z"" : { $elemMatch : { ""F"" : 1, ""H"" : 0 } } } }
+                    D : ""Don't"",
+                    'Y.S' : { $elemMatch: { Z : { $elemMatch : { 'C.X' : { $elemMatch : { F : 4 } } } } } },
+                    S : { $elemMatch : { D : 'Delilah', Z : { $elemMatch : { F : 1, H : 0 } } } }
                 } } }");
 
             Assert(
@@ -396,7 +396,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             Assert(
                 x => x.G.Any(g => g.S.Any(s => s.D == "Delilah")),
                 1,
-                "{ \"G.S\" : { $elemMatch : { \"D\" : \"Delilah\" } } }");
+                "{ G : { $elemMatch : { S : { $elemMatch : { D : 'Delilah' } } } } }");
 
             Assert(
                 x => x.G.Any(g => g.D == "Don't" && g.S.Any(s => s.D == "Delilah")),
@@ -426,7 +426,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             AssertUsingCustomCollection(
                 c => !c.M.Any(a => x.Contains(a)),
-                "{ M : { '$not' : { '$elemMatch' : { '$in' : [1, 2] } } } }");
+                "{ M : { '$nin' : [1, 2] } }");
         }
 
         [Fact]
@@ -436,8 +436,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             AssertUsingCustomCollection(
                 c => c.M.Any(a => x.Contains(a)),
-                "{ M : { '$elemMatch' : { '$in' : [1, 2] } } }"
-                );
+                "{ M : { '$in' : [1, 2] } }");
         }
 
         [Fact]
@@ -461,8 +460,8 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             Assert(
                 x => x.G.Any(g => !g.S.Any(s => s.D == "Delilah")),
-                1,
-                "{\"G.S\" : { $not : { $elemMatch : { \"D\" : \"Delilah\" } } } }");
+                2,
+                "{ G : { $elemMatch : { S : { $not : { $elemMatch : { \"D\" : \"Delilah\" } } } } } }");
         }
 
         [Fact]
