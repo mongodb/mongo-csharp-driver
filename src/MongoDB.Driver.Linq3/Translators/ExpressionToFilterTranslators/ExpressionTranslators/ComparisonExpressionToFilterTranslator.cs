@@ -59,15 +59,58 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
                 return ModuloComparisonExpressionToFilterTranslator.Translate(context, expression, moduloExpression, remainderExpression);
             }
 
-            if (rightExpression is ConstantExpression constantValueExpression)
+            if (rightExpression is ConstantExpression rightConstantExpression)
             {
+                var comparand = rightConstantExpression.Value;
+
+                if (leftExpression.Type == typeof(bool) &&
+                    (comparisonOperator == AstComparisonFilterOperator.Eq || comparisonOperator == AstComparisonFilterOperator.Ne) &&
+                    rightConstantExpression.Type == typeof(bool))
+                {
+                    return TranslateComparisonToBooleanConstant(context, expression, leftExpression, comparisonOperator, (bool)comparand);
+                }
+
                 var field = ExpressionToFilterFieldTranslator.Translate(context, leftExpression);
-                var value = constantValueExpression.Value;
-                var serializedValue = SerializationHelper.SerializeValue(field.Serializer, value);
-                return AstFilter.Compare(field, comparisonOperator, serializedValue);
+                var serializedComparand = SerializationHelper.SerializeValue(field.Serializer, comparand);
+                return AstFilter.Compare(field, comparisonOperator, serializedComparand);
             }
 
             throw new ExpressionNotSupportedException(expression);
+        }
+
+        private static AstFilter TranslateComparisonToBooleanConstant(TranslationContext context, Expression expression, Expression leftExpression, AstComparisonFilterOperator comparisonOperator, bool comparand)
+        {
+            var filter = ExpressionToFilterTranslator.Translate(context, leftExpression);
+
+            if (filter is AstFieldOperationFilter fieldOperationFilter &&
+                fieldOperationFilter.Operation is AstComparisonFilterOperation comparisonOperation &&
+                comparisonOperation.Operator == AstComparisonFilterOperator.Eq &&
+                comparisonOperation.Value == true)
+            {
+                var field = fieldOperationFilter.Field;
+
+                switch (comparisonOperator)
+                {
+                    case AstComparisonFilterOperator.Eq:
+                        return AstFilter.Eq(field, comparand);
+                    case AstComparisonFilterOperator.Ne:
+                        return AstFilter.Ne(field, comparand);
+                    default:
+                        throw new ExpressionNotSupportedException(expression);
+                }
+            }
+            else
+            {
+                switch (comparisonOperator)
+                {
+                    case AstComparisonFilterOperator.Eq:
+                        return comparand ? filter : AstFilter.Not(filter);
+                    case AstComparisonFilterOperator.Ne:
+                        return comparand ? AstFilter.Not(filter) : filter;
+                    default:
+                        throw new ExpressionNotSupportedException(expression);
+                }
+            }
         }
 
         private static AstComparisonFilterOperator GetComparisonOperator(Expression expression)
