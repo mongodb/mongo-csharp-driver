@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
 
         public AstExpression Expression => _expression;
         public override AstNodeType NodeType => AstNodeType.ExprFilter;
+        public override bool UsesExpr => true;
 
         public override BsonValue Render()
         {

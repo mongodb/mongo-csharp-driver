@@ -14,6 +14,7 @@
 */
 
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using MongoDB.Bson;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
@@ -21,6 +22,17 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
     public abstract class AstFilter : AstNode
     {
         #region static
+        // public static methods
+        public static AstFilter All(AstFilterField field, IEnumerable<BsonValue> values)
+        {
+            return new AstFieldOperationFilter(field, new AstAllFilterOperation(values));
+        }
+
+        public static AstFilter And(params AstFilter[] filters)
+        {
+            return AstAndFilter.CreateFlattened(filters);
+        }
+
         public static AstFieldOperationFilter BitsAllClear(AstFilterField field, BsonValue bitMask)
         {
             return new AstFieldOperationFilter(field, new AstBitsAllClearFilterOperation(bitMask));
@@ -39,6 +51,14 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
         public static AstFieldOperationFilter BitsAnySet(AstFilterField field, BsonValue bitMask)
         {
             return new AstFieldOperationFilter(field, new AstBitsAnySetFilterOperation(bitMask));
+        }
+
+        public static AstFilter Combine(AstFilter optionalFilter1, AstFilter optionalFilter2)
+        {
+            return
+                optionalFilter1 == null ? optionalFilter2 :
+                optionalFilter2 == null ? null :
+                AstFilter.And(optionalFilter1, optionalFilter2);
         }
 
         public static AstFieldOperationFilter Compare(AstFilterField field, AstComparisonFilterOperator comparisonOperator, BsonValue value)
@@ -122,5 +142,7 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
         }
         #endregion
 
+        // public properties
+        public virtual bool UsesExpr => false;
     }
 }

@@ -33,6 +33,7 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
 
         public AstFilter[] Filters => _filters;
         public override AstNodeType NodeType => AstNodeType.NorFilter;
+        public override bool UsesExpr => _filters.Any(f => f.UsesExpr);
 
         public override BsonValue Render()
         {
