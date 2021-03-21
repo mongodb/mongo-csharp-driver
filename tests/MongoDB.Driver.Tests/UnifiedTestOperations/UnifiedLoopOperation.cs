@@ -18,6 +18,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
@@ -42,10 +43,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             string storeSuccessesAsEntity,
             CancellationToken terminatorCancellationToken)
         {
-            _entityMap = entityMap;
+            _entityMap = Ensure.IsNotNull(entityMap, nameof(entityMap));
             _errorDescriptionDocuments = new BsonArray();
             _failureDescriptionDocuments = new BsonArray();
-            _loopOperations = loopOperations;
+            _loopOperations = Ensure.IsNotNull(loopOperations, nameof(loopOperations));
             _storeErrorsAsEntity = storeErrorsAsEntity;
             _storeFailuresAsEntity = storeFailuresAsEntity;
             _storeIterationsAsEntity = storeIterationsAsEntity;
@@ -121,8 +122,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             long GetCurrentTimeMilliseconds()
             {
-                var Jan1st1970 = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-                return (long)(DateTime.UtcNow - Jan1st1970).TotalMilliseconds / 1000;
+                return (long)(DateTime.UtcNow - BsonConstants.UnixEpoch).TotalMilliseconds / 1000;
             }
         }
 

@@ -87,8 +87,7 @@ namespace AstrolabeWorkloadExecutor
 
         private static double GetCurrentTimeSeconds(DateTime observedAt)
         {
-            var Jan1st1970 = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            return (double)(observedAt - Jan1st1970).TotalMilliseconds / 1000;
+            return (double)(observedAt - BsonConstants.UnixEpoch).TotalMilliseconds / 1000;
         }
     }
 }
