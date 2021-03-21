@@ -340,14 +340,14 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
                     g => g.X != null && g.X.Any(
                         x => x.S.EndsWith("lue 1"))),
                 1,
-                @"{ G : { '$ne' : null, '$elemMatch' : { 'X' : { '$ne' : null }, 'X.S' : /lue\ 1$/s } } }");
+                @"{ $and : [{ G : { $ne : null } }, { $expr : { $anyElementTrue : [{ $map : { input : '$G', as : 'g', in : { $and : [{ $ne : ['$$g.X', null] }, { $anyElementTrue : [{ $map : { input : '$$g.X', as : 'x', in : { $gte : [{ $indexOfCP : ['$$x.S', 'lue 1', { $subtract : [{ $strLenCP : '$$x.S' }, 5] }] }, 0] } } }] }] } } }]  } }]  }");
 
             Assert(
                 r => r.G != null && r.G.Any(
                     g => g.X != null && g.X.Any(
                         x => x.C.D.EndsWith("lue 2"))),
                 1,
-                @"{ G : { '$ne' : null, '$elemMatch' : { 'X' : { '$ne' : null }, 'X.C.D' : /lue\ 2$/s } } }");
+                @"{ $and : [{ G : { $ne : null } }, { $expr : { $anyElementTrue : [{ $map : { input : '$G', as : 'g', in : { $and : [{ $ne : ['$$g.X', null] }, { $anyElementTrue : [{ $map : { input : '$$g.X', as : 'x', in : { $gte : [{ $indexOfCP : ['$$x.C.D', 'lue 2', { $subtract : [{ $strLenCP : '$$x.C.D' }, 5] }] }, 0] } } }] }] } } }]  } }]  }");
         }
 
         [Fact]
@@ -375,14 +375,14 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
                     g => g.X != null && g.X.Any(
                         x => x.S.StartsWith("value"))),
                 1,
-                "{ G : { '$ne' : null, '$elemMatch' : { 'X' : { '$ne' : null }, 'X.S' : /^value/s } } }");
+                "{ $and : [{ G : { $ne : null } }, { $expr : { $anyElementTrue : [{ $map : { input : '$G', as : 'g', in : { $and : [{ $ne : ['$$g.X', null] }, { $anyElementTrue : [{ $map : { input : '$$g.X', as : 'x', in : { $eq : [{ $indexOfCP : ['$$x.S', 'value'] } , 0] } } }]  }] } } }] } }] }");
 
             Assert(
                 r => r.G != null && r.G.Any(
                     g => g.X != null && g.X.Any(
                         x => x.C.D.StartsWith("value"))),
                 1,
-                "{ G : { '$ne' : null, '$elemMatch' : { 'X' : { '$ne' : null }, 'X.C.D' : /^value/s } } }");
+                "{ $and : [{ G : { $ne : null } }, { $expr : { $anyElementTrue : [{ $map : { input : '$G', as : 'g', in : { $and : [{ $ne : ['$$g.X', null] }, { $anyElementTrue : [{ $map : { input : '$$g.X', as : 'x', in : { $eq : [{ $indexOfCP : ['$$x.C.D', 'value'] } , 0] } } }]  }] } } }] } }] }");
         }
 
         [Fact]
@@ -486,7 +486,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             Assert(
                 x => x.C.E.I.Any(i => i.StartsWith("ick")),
                 1,
-                "{\"C.E.I\": /^ick/s}");
+                "{ $expr : { $anyElementTrue : [{ $map : { input : '$C.E.I', as : 'i', in : { $eq : [{ $indexOfCP : ['$$i', 'ick'] }, 0] } } }] } }");
 
             // this isn't a legal query, as in, there isn't any
             // way to render this legally for the server...
