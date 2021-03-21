@@ -24,7 +24,6 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Tests.Specifications.unified_test_format;
 using MongoDB.Driver.Tests.UnifiedTestOperations;
 
 namespace WorkloadExecutor
@@ -124,7 +123,7 @@ namespace WorkloadExecutor
 
             var factory = new TestCaseFactory();
             var testCase = factory.CreateTestCase(driverWorkload, async);
-            using (var runner = new UnifiedTestFormatTestRunner(
+            using (var runner = new UnifiedTestFormatProcessor(
                 allowKillSessions: false,
                 terminationCancellationToken: cancellationToken))
             {

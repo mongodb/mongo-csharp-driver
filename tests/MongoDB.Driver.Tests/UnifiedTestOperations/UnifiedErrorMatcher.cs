@@ -20,7 +20,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 
-namespace MongoDB.Driver.Tests.Specifications.unified_test_format
+namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
     public class UnifiedErrorMatcher
     {

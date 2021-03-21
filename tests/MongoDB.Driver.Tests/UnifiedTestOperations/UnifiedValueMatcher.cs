@@ -23,7 +23,7 @@ using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Tests.UnifiedTestOperations;
 using Xunit.Sdk;
 
-namespace MongoDB.Driver.Tests.Specifications.unified_test_format
+namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
     public class UnifiedValueMatcher
     {
