@@ -73,7 +73,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Project(x => new { Result = x.C.E.F + x.C.E.H });
 
-            result.Projection.Should().Be("{ Result : { $add : ['$C.E.F', '$C.E.H'] }, _id : 0 }");
+            result.Projection.Should().Be("{ Result: { \"$add\": [\"$C.E.F\", \"$C.E.H\"] }, _id: 0 }");
 
             result.Value.Result.Should().Be(33);
         }
@@ -770,7 +770,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.M.Max() });
 
-            result.Projection.Should().Be("{ Result : { $max : '$M' }, _id: 0 }");
+            result.Projection.Should().Be("{ Result: { \"$max\": \"$M\" }, _id: 0 }");
 
             result.Value.Result.Should().Be(5);
         }
@@ -782,7 +782,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.G.Max(g => g.E.F) });
 
-            result.Projection.Should().Be("{ Result : { $max : '$G.E.F' }, _id : 0 }");
+            result.Projection.Should().Be("{ Result: { \"$max\": \"$G.E.F\" }, _id: 0 }");
 
             result.Value.Result.Should().Be(55);
         }
@@ -794,7 +794,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.J.Millisecond });
 
-            result.Projection.Should().Be("{ Result: { \"$millisecond\": \"$J\" }, _id : 0 }");
+            result.Projection.Should().Be("{ Result: { \"$millisecond\": \"$J\" }, _id: 0 }");
 
             result.Value.Result.Should().Be(16);
         }
@@ -806,7 +806,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.M.Min() });
 
-            result.Projection.Should().Be("{ Result : { $min : '$M' }, _id : 0 }");
+            result.Projection.Should().Be("{ Result: { \"$min\": \"$M\" }, _id: 0 }");
 
             result.Value.Result.Should().Be(2);
         }
@@ -818,7 +818,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.G.Min(g => g.E.F) });
 
-            result.Projection.Should().Be("{ Result : { $min : '$G.E.F' }, _id : 0 }");
+            result.Projection.Should().Be("{ Result: { \"$min\": \"$G.E.F\" }, _id: 0 }");
 
             result.Value.Result.Should().Be(33);
         }
@@ -858,7 +858,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Project(x => new { Result = x.C.E.F * x.C.E.H });
 
-            result.Projection.Should().Be("{ Result : { $multiply : ['$C.E.F', '$C.E.H'] }, _id : 0 }");
+            result.Projection.Should().Be("{ Result: { \"$multiply\": [\"$C.E.F\", \"$C.E.H\"] }, _id: 0 }");
 
             result.Value.Result.Should().Be(242);
         }
@@ -1163,7 +1163,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.M.Count() });
 
-            result.Projection.Should().Be("{ Result : { $size : '$M' }, _id : 0 }");
+            result.Projection.Should().Be("{ Result: { \"$size\": \"$M\" }, _id: 0 }");
 
             result.Value.Result.Should().Be(3);
         }
@@ -1187,7 +1187,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.L.Count });
 
-            result.Projection.Should().Be("{ Result: { $size : \"$L\" }, _id : 0 }");
+            result.Projection.Should().Be("{ Result: { \"$size\": \"$L\" }, _id: 0 }");
 
             result.Value.Result.Should().Be(3);
         }
@@ -1626,7 +1626,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.M.Sum() });
 
-            result.Projection.Should().Be("{ Result : { $sum : '$M' }, _id : 0 }");
+            result.Projection.Should().Be("{ Result: { \"$sum\": \"$M\" }, _id: 0 }");
 
             result.Value.Result.Should().Be(11);
         }
@@ -1638,7 +1638,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.G.Sum(g => g.E.F) });
 
-            result.Projection.Should().Be("{ Result : { $sum : '$G.E.F' }, _id : 0 }");
+            result.Projection.Should().Be("{ Result: { \"$sum\": \"$G.E.F\" }, _id: 0 }");
 
             result.Value.Result.Should().Be(88);
         }
@@ -1764,14 +1764,6 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
         private ProjectedResult<TResult> Project<TResult>(Expression<Func<Root, TResult>> projector, ExpressionTranslationOptions translationOptions)
         {
-            //var serializer = BsonSerializer.SerializerRegistry.GetSerializer<Root>();
-            //var projectionInfo = AggregateProjectTranslator.Translate(projector, serializer, BsonSerializer.SerializerRegistry, translationOptions);
-
-            //var pipelineOperator = new BsonDocument("$project", projectionInfo.Document);
-            //var result = __collection.Aggregate()
-            //    .Project(new BsonDocumentProjectionDefinition<Root, TResult>(projectionInfo.Document, projectionInfo.ProjectionSerializer))
-            //    .First();
-
             var query = __collection.AsQueryable3().Select(projector);
 
             var provider = (MongoQueryProvider<Root>)query.Provider;

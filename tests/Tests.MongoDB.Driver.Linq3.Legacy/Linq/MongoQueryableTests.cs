@@ -127,7 +127,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
 
             Assert(query,
                 1,
-                "{ $match : { B : { $in : ['Baloon', 'Balloon'] } } }",
+                "{ $match: { 'B': { '$in': ['Baloon', 'Balloon'] } } }",
                 "{ $group : { '_id': '$A', _elements : { $push : '$$ROOT' } } }",
                 "{ $project : { _v : { $max : '$_elements.C' }, _id : 0 } }"); // TODO: push accumulators back to $group
         }
