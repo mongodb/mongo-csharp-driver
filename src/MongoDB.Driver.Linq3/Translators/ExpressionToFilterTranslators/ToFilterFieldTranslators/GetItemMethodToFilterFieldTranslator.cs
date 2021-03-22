@@ -13,8 +13,11 @@
 * limitations under the License.
 */
 
+using System.Collections.ObjectModel;
 using System.Linq.Expressions;
+using System.Reflection;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Options;
 using MongoDB.Driver.Linq3.Ast.Filters;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators
@@ -31,22 +34,56 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilte
                 method.Name == "get_Item" &&
                 arguments.Count == 1)
             {
-                var objectExpression = expression.Object;
+                var fieldExpression = expression.Object;
                 var indexExpression = arguments[0];
 
-                var enumerableFieldAst = ExpressionToFilterFieldTranslator.TranslateEnumerable(context, objectExpression);
-                if (enumerableFieldAst.Serializer is IBsonArraySerializer arraySerializer &&
-                    arraySerializer.TryGetItemSerializationInfo(out var itemSerializationInfo))
+                if (indexExpression is ConstantExpression indexConstantExpression)
                 {
-                    var itemSerializer = itemSerializationInfo.Serializer;
-                    if (method.ReturnType.IsAssignableFrom(itemSerializer.ValueType))
+                    if (indexConstantExpression.Type == typeof(int))
                     {
-                        if (indexExpression.Type == typeof(int) && indexExpression is ConstantExpression indexConstantExpression)
-                        {
-                            var index = (int)indexConstantExpression.Value;
-                            return enumerableFieldAst.CreateFilterSubField(index.ToString(), itemSerializer);
-                        }
+                        var index = (int)indexConstantExpression.Value;
+                        return TranslateWithIntIndex(context, expression, method, fieldExpression, index);
                     }
+
+                    if (indexConstantExpression.Type == typeof(string))
+                    {
+                        var index = (string)indexConstantExpression.Value;
+                        return TranslateWithStringIndex(context, expression, method, fieldExpression, index);
+                    }
+                }
+            }
+
+            throw new ExpressionNotSupportedException(expression);
+        }
+
+        private static AstFilterField TranslateWithIntIndex(TranslationContext context, MethodCallExpression expression, MethodInfo method, Expression fieldExpression, int index)
+        {
+            var field = ExpressionToFilterFieldTranslator.TranslateEnumerable(context, fieldExpression);
+
+            if (field.Serializer is IBsonArraySerializer arraySerializer &&
+                arraySerializer.TryGetItemSerializationInfo(out var itemSerializationInfo))
+            {
+                var itemSerializer = itemSerializationInfo.Serializer;
+                if (method.ReturnType.IsAssignableFrom(itemSerializer.ValueType))
+                {
+                    return field.CreateFilterSubField(index.ToString(), itemSerializer);
+                }
+            }
+
+            throw new ExpressionNotSupportedException(expression);
+        }
+
+        private static AstFilterField TranslateWithStringIndex(TranslationContext context, MethodCallExpression expression, MethodInfo method, Expression fieldExpression, string index)
+        {
+            var field = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
+
+            if (field.Serializer is IBsonDictionarySerializer dictionarySerializer &&
+                dictionarySerializer.DictionaryRepresentation == DictionaryRepresentation.Document)
+            {
+                var valueSerializer = dictionarySerializer.ValueSerializer;
+                if (method.ReturnType.IsAssignableFrom(valueSerializer.ValueType))
+                {
+                    return field.CreateFilterSubField(index, valueSerializer);
                 }
             }
 
