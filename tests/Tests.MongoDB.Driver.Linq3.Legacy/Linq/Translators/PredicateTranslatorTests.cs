@@ -23,6 +23,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Linq3;
 using MongoDB.Driver.Linq3.Misc;
 using MongoDB.Driver.Linq3.Translators;
 using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators;
@@ -540,10 +541,14 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             Expression<Func<C, bool>> filter = x => x.D == "Don't";
 
+            var exception = Record.Exception(() =>
             Assert(
                 x => x.G.AsQueryable().Any(filter),
                 1,
-                "{ 'G' : { '$elemMatch' : { 'D' : \"Don't\" } } }");
+                "{ 'G' : { '$elemMatch' : { 'D' : \"Don't\" } } }")
+            );
+
+            exception.Should().BeOfType<ExpressionNotSupportedException>();
         }
 
         [SkippableFact]
