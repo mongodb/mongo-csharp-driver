@@ -94,6 +94,9 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators
 
                 case ExpressionType.Parameter:
                     return ParameterExpressionToFilterTranslator.Translate(context, (ParameterExpression)expression);
+
+                case ExpressionType.TypeIs:
+                    return TypeIsExpressionToFilterTranslator.Translate(context, (TypeBinaryExpression)expression);
             }
 
             if (expression.Type == typeof(bool))
