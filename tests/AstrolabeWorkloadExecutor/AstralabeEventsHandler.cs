@@ -39,12 +39,12 @@ namespace AstrolabeWorkloadExecutor
                 _ when specEventName.StartsWith("Command") => specEventName switch
                 {
                     "CommandStartedEvent" =>
-                        CreateCommandEventDocument(specEventName, @event.ObservedAt, @event.CommandName, @event.RequestId)
+                        CreateCommandEventDocument(specEventName, (DateTime)@event.ObservedAt, (string)@event.CommandName, (int)@event.RequestId)
                         .Add("databaseName", @event.DatabaseNamespace.ToString()),
-                    "CommandSucceededEvent" => CreateCommandEventDocument(specEventName, @event.ObservedAt, @event.CommandName, @event.RequestId)
-                        .Add("duration", @event.Duration),
-                    "CommandFailedEvent" => CreateCommandEventDocument(specEventName, @event.ObservedAt, @event.CommandName, @event.RequestId)
-                        .Add("duration", @event.Duration)
+                    "CommandSucceededEvent" => CreateCommandEventDocument(specEventName, (DateTime)@event.ObservedAt, (string)@event.CommandName, (int)@event.RequestId)
+                        .Add("duration", ((TimeSpan)@event.Duration).TotalMilliseconds),
+                    "CommandFailedEvent" => CreateCommandEventDocument(specEventName, (DateTime)@event.ObservedAt, (string)@event.CommandName, (int)@event.RequestId)
+                        .Add("duration", ((TimeSpan)@event.Duration).TotalMilliseconds)
                         .Add("failure", @event.Failure.ToString()),
                     _ => throw new Exception($"Unsupported command spec event {specEventName}."),
                 },
@@ -52,9 +52,9 @@ namespace AstrolabeWorkloadExecutor
             };
 
             bool ConnectionEventWithOnlyServerId(string name) =>
-                name.Contains("Connection")
+                name.StartsWith("Connection")
                 &&
-                (specEventName.Contains("Failed") || specEventName.EndsWith("StartedEvent"));
+                (specEventName.Equals("ConnectionCheckOutFailedEvent") || specEventName.Equals("ConnectionCheckOutStartedEvent"));
         }
 
         private static BsonDocument CreateCmapEventDocument(string eventName, DateTime observedAt, ServerId serverId) =>

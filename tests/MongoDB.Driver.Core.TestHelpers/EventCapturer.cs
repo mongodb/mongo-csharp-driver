@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Core
             var eventType = EventSpecMapper.GetEventName(specEventName);
             _eventsToCapture.Add(
                 eventType,
-                o => CommandCapturer.ShouldCapture(o, commandNotTocapture, useDefaltCommandNotToCapture)); // only command events use predicate filters
+                o => CommandCapturer.ShouldCapture(o, commandNotTocapture ?? Enumerable.Empty<string>(), useDefaltCommandNotToCapture)); // only command events use predicate filters
             return this;
         }
 
