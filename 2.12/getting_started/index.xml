@@ -281,12 +281,11 @@ Highest scoring document: { &amp;quot;_id&amp;quot; : 1, &amp;quot;content&amp;q
 
 &lt;h2 id=&#34;system-requirements&#34;&gt;System Requirements&lt;/h2&gt;
 
-&lt;p&gt;The Nuget packages target two versions of the .NET frameworks: net45 and netstandard1.5. The net45 target allows the driver to be used with the full .NET Framework
-version 4.5 and later, and the netstandard1.5 target allows the driver to be used with any framework that supports netstandard1.5, which includes .NET Core 1.0.&lt;/p&gt;
+&lt;p&gt;The NuGet packages include support for four target framework monikers (TFMs): net452, netstandard1.5, netstandard2.0, and netstandard2.1. The net452 target allows the driver to be used with the full .NET Framework version 4.5.2 and later. The netstandardX.Y TFMs allow the driver to be used with any .NET implementation supporting that TFM. This includes support for various versions of .NET Core as well as .NET 5.0 and above.&lt;/p&gt;
 
-&lt;h2 id=&#34;nuget-installation&#34;&gt;Nuget Installation&lt;/h2&gt;
+&lt;h2 id=&#34;nuget-installation&#34;&gt;NuGet Installation&lt;/h2&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://www.nuget.org/&#34;&gt;Nuget&lt;/a&gt; is the simplest way to get the driver. There are 5 packages available on nuget.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;http://www.nuget.org/&#34;&gt;NuGet&lt;/a&gt; is the simplest way to get the driver. There are 5 packages available on nuget.&lt;/p&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;http://www.nuget.org/packages/mongodb.driver&#34;&gt;MongoDB.Driver&lt;/a&gt;: The new driver. It is mostly free of any legacy code and should be used for all new projects. More documentation can be found in the &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/reference/driver/&#34;&gt;reference guide&lt;/a&gt;.&lt;/li&gt;
