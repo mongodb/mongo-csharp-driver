@@ -3,7 +3,7 @@
   "schemaVersion": "1.1",
   "runOnRequirements": [
     {
-      "minServerVersion": "4.7"
+      "minServerVersion": "4.9"
     }
   ],
   "createEntities": [
@@ -608,12 +608,6 @@
     },
     {
       "description": "estimatedDocumentCount appends declared API version",
-      "skipReason": "DRIVERS-1561 collStats is not in API version 1",
-      "runOnRequirements": [
-        {
-          "minServerVersion": "4.9.0"
-        }
-      ],
       "operations": [
         {
           "name": "estimatedDocumentCount",
