@@ -18,11 +18,10 @@ using System.Net;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
-using MongoDB.Driver.TestHelpers;
 
 namespace AstrolabeWorkloadExecutor
 {
-    public static class AstralabeEventsHandler
+    public static class AstrolabeEventsHandler
     {
         // public methods
         public static BsonDocument CreateEventDocument(dynamic @event)
@@ -57,6 +56,7 @@ namespace AstrolabeWorkloadExecutor
                 (specEventName.Equals("ConnectionCheckOutFailedEvent") || specEventName.Equals("ConnectionCheckOutStartedEvent"));
         }
 
+        // privat methods
         private static BsonDocument CreateCmapEventDocument(string eventName, DateTime observedAt, ServerId serverId) =>
             new BsonDocument
             {
@@ -78,7 +78,6 @@ namespace AstrolabeWorkloadExecutor
                 { "requestId", requestId }
             };
 
-        // private methods
         private static string GetAddress(ServerId serverId)
         {
             var endpoint = serverId.EndPoint;

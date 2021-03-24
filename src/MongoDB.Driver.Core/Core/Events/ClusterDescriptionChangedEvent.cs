@@ -23,8 +23,8 @@ namespace MongoDB.Driver.Core.Events
     /// </summary>
     public struct ClusterDescriptionChangedEvent
     {
-        private readonly ClusterDescription _oldDescription;
         private readonly DateTime _observedAt;
+        private readonly ClusterDescription _oldDescription;
         private readonly ClusterDescription _newDescription;
 
         /// <summary>
