@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -41,7 +42,7 @@ namespace MongoDB.Bson.Serialization
         private static HashSet<Type> __discriminatedTypes = new HashSet<Type>();
         private static BsonSerializerRegistry __serializerRegistry;
         private static TypeMappingSerializationProvider __typeMappingSerializationProvider;
-        private static HashSet<Type> __typesWithRegisteredKnownTypes = new HashSet<Type>();
+        private static ConcurrentDictionary<Type, Type> __typesWithRegisteredKnownTypes = new ConcurrentDictionary<Type, Type>();
 
         private static bool __useNullIdChecker = false;
         private static bool __useZeroIdChecker = false;
@@ -679,23 +680,15 @@ namespace MongoDB.Bson.Serialization
         // internal static methods
         internal static void EnsureKnownTypesAreRegistered(Type nominalType)
         {
-            __configLock.EnterReadLock();
-            try
+            if (__typesWithRegisteredKnownTypes.ContainsKey(nominalType))
             {
-                if (__typesWithRegisteredKnownTypes.Contains(nominalType))
-                {
-                    return;
-                }
-            }
-            finally
-            {
-                __configLock.ExitReadLock();
+                return;
             }
 
             __configLock.EnterWriteLock();
             try
             {
-                if (!__typesWithRegisteredKnownTypes.Contains(nominalType))
+                if (!__typesWithRegisteredKnownTypes.ContainsKey(nominalType))
                 {
                     // only call LookupClassMap for classes with a BsonKnownTypesAttribute
 #if NET452
@@ -709,7 +702,7 @@ namespace MongoDB.Bson.Serialization
                         LookupSerializer(nominalType);
                     }
 
-                    __typesWithRegisteredKnownTypes.Add(nominalType);
+                    __typesWithRegisteredKnownTypes[nominalType] = nominalType;
                 }
             }
             finally
