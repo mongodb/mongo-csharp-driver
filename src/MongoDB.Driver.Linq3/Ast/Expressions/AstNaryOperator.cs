@@ -20,7 +20,6 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
     public enum AstNaryOperator
     {
         Add,
-        AllElementsTrue,
         Avg,
         Concat,
         ConcatArrays,
@@ -42,7 +41,6 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
             switch (@operator)
             {
                 case AstNaryOperator.Add: return "$add";
-                case AstNaryOperator.AllElementsTrue: return "$allElementsTrue";
                 case AstNaryOperator.Avg: return "$avg";
                 case AstNaryOperator.Concat: return "$concat";
                 case AstNaryOperator.ConcatArrays: return "$concatArrays";

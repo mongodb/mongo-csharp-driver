@@ -95,7 +95,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var result = Project(x => new { Result = x.G.All(g => g.E.F > 30) });
 
-            result.Projection.Should().Be("{ Result: { $reduce : { input : '$G', initialValue : true, in : { $cond : { if : '$$value', then : { $gt : ['$$this.E.F', 30] }, else : false } } } }, _id : 0 }");
+            result.Projection.Should().Be("{ Result: { \"$allElementsTrue\" : [{ \"$map\": { input: \"$G\", as: \"g\", in: { \"$gt\": [\"$$g.E.F\", 30 ] } } }] }, _id: 0 }");
 
             result.Value.Result.Should().BeTrue();
         }

@@ -33,16 +33,15 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
                 var predicateParameter = predicateExpression.Parameters[0];
                 var predicateParameterSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
-                var predicateContext = context.WithSymbol(predicateParameter, new Symbol("$this", predicateParameterSerializer));
+                var predicateContext = context.WithSymbol(predicateParameter, new Symbol("$" + predicateParameter.Name, predicateParameterSerializer));
                 var predicateTranslation = ExpressionToAggregationExpressionTranslator.Translate(predicateContext, predicateExpression.Body);
 
-                var ast = new AstReduceExpression(
-                    input: sourceTranslation.Ast,
-                    initialValue: true,
-                    @in: new AstCondExpression(
-                        @if: new AstFieldExpression("$value"),
-                        then: predicateTranslation.Ast,
-                        @else: false));
+                var ast = new AstUnaryExpression(
+                    AstUnaryOperator.AllElementsTrue,
+                    new AstMapExpression(
+                        input: sourceTranslation.Ast,
+                        @as: predicateParameter.Name,
+                        @in: predicateTranslation.Ast));
 
                 return new AggregationExpression(expression, ast, new BooleanSerializer());
             }
