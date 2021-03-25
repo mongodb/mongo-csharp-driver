@@ -16,6 +16,7 @@
 using System.Linq.Expressions;
 using MongoDB.Driver.Linq3.Ast.Filters;
 using MongoDB.Driver.Linq3.Misc;
+using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodTranslators;
 using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ExpressionTranslators
@@ -57,6 +58,11 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
             if (ModuloComparisonExpressionToFilterTranslator.CanTranslate(leftExpression, rightExpression, out var moduloExpression, out var remainderExpression))
             {
                 return ModuloComparisonExpressionToFilterTranslator.Translate(context, expression, moduloExpression, remainderExpression);
+            }
+
+            if (StringExpressionToRegexFilterTranslator.CanTranslateComparisonExpression(leftExpression, comparisonOperator, rightExpression))
+            {
+                return StringExpressionToRegexFilterTranslator.TranslateComparisonExpression(context, expression, leftExpression, comparisonOperator, rightExpression);
             }
 
             if (rightExpression is ConstantExpression rightConstantExpression)
