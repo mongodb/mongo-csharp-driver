@@ -67,6 +67,17 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             return false;
         }
 
+        public static bool CanTranslateComparisonExpression(Expression leftExpression, AstComparisonFilterOperator comparisonOperator, Expression rightExpression)
+        {
+            // (int)S[i] == c
+            if (IsGetCharsComparison(leftExpression))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         public static AstFilter Translate(TranslationContext context, Expression expression)
         {
             if (expression is MethodCallExpression methodCallExpression)
@@ -82,6 +93,16 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
                             return TranslateStartsWithOrContainsOrEndsWith(context, methodCallExpression);
                     }
                 }
+            }
+
+            throw new ExpressionNotSupportedException(expression);
+        }
+
+        public static AstFilter TranslateComparisonExpression(TranslationContext context, Expression expression, Expression leftExpression, AstComparisonFilterOperator comparisonOperator, Expression rightExpression)
+        {
+            if (IsGetCharsComparison(leftExpression))
+            {
+                return TranslateGetCharsComparison(context, expression, leftExpression, comparisonOperator, rightExpression);
             }
 
             throw new ExpressionNotSupportedException(expression);
@@ -106,6 +127,24 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
         private static string CreateOptions(Modifiers modifiers)
         {
             return (modifiers.IgnoreCase || modifiers.ToLower || modifiers.ToUpper) ? "is" : "s";
+        }
+
+        private static string EscapeCharacterSet(params char[] chars)
+        {
+            var escaped = new StringBuilder();
+            foreach (var c in chars)
+            {
+                switch (c)
+                {
+                    case ' ': escaped.Append("\\ "); break; // space doesn't really need to be escaped but LINQ2 escaped it
+                    case '.': escaped.Append("\\."); break; // dot doesn't really need to be escaped (in a character class) but LINQ2 escaped it
+                    case '-': escaped.Append("\\-"); break;
+                    case '^': escaped.Append("\\^"); break;
+                    case '\t': escaped.Append("\\t"); break;
+                    default: escaped.Append(c); break;
+                }
+            }
+            return escaped.ToString();
         }
 
         private static TValue GetConstantValue<TValue>(Expression expression)
@@ -137,27 +176,26 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
                 }
                 else
                 {
-                    return EscapeTrimChars(trimChars);
+                    return EscapeCharacterSet(trimChars);
+                }
+            }
+        }
+
+        private static bool IsGetCharsComparison(Expression leftExpression)
+        {
+            if (leftExpression is UnaryExpression leftUnaryExpression &&
+                leftUnaryExpression.NodeType == ExpressionType.Convert &&
+                leftUnaryExpression.Type == typeof(int) &&
+                leftUnaryExpression.Operand is MethodCallExpression leftMethodCallExpression)
+            {
+                var method = leftMethodCallExpression.Method;
+                if (method.Is(StringMethod.GetChars))
+                {
+                    return true;
                 }
             }
 
-            string EscapeTrimChars(char[] trimChars)
-            {
-                var result = new StringBuilder();
-                foreach (var c in trimChars)
-                {
-                    switch (c)
-                    {
-                        case ' ': result.Append("\\ "); break; // space doesn't really need to be escaped but LINQ2 escaped it
-                        case '.': result.Append("\\."); break; // dot doesn't really need to be escaped (in a character class) but LINQ2 escaped it
-                        case '-': result.Append("\\-"); break;
-                        case '^': result.Append("\\^"); break;
-                        case '\t': result.Append("\\t"); break;
-                        default: result.Append(c); break;
-                    }
-                }
-                return result.ToString();
-            }
+            return false;
         }
 
         private static Modifiers TranslateCulture(Modifiers modifiers, Expression cultureExpression)
@@ -169,6 +207,33 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             }
 
             throw new ExpressionNotSupportedException(cultureExpression);
+        }
+
+        private static AstFilter TranslateGetCharsComparison(TranslationContext context, Expression expression, Expression leftExpression, AstComparisonFilterOperator comparisonOperator, Expression rightExpression)
+        {
+            var leftConvertExpression = (UnaryExpression)leftExpression;
+            var leftGetCharsExpression = (MethodCallExpression)leftConvertExpression.Operand;
+
+            var fieldExpression = leftGetCharsExpression.Object;
+            var (field, modifiers) = TranslateField(context, fieldExpression);
+
+            var indexExpression = leftGetCharsExpression.Arguments[0];
+            var index = GetConstantValue<int>(indexExpression);
+
+            var comparand = GetConstantValue<int>(rightExpression);
+            var comparandChar = (char)comparand;
+            var comparandString = new string(comparandChar, 1);
+
+            if (comparisonOperator == AstComparisonFilterOperator.Eq || comparisonOperator == AstComparisonFilterOperator.Ne)
+            {
+                var pattern = comparisonOperator == AstComparisonFilterOperator.Eq ?
+                    $".{{{index}}}{Regex.Escape(comparandString)}.*" :
+                    $".{{{index}}}[^{EscapeCharacterSet(comparandChar)}].*";
+
+                return CreateFilter(field, modifiers, pattern);
+            }
+
+            throw new ExpressionNotSupportedException(expression);
         }
 
         private static AstFilter TranslateStartsWithOrContainsOrEndsWith(TranslationContext context, MethodCallExpression expression)
