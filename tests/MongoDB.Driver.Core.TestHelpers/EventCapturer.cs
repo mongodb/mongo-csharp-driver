@@ -50,12 +50,12 @@ namespace MongoDB.Driver.Core
             return this;
         }
 
-        public EventCapturer CaptureBySpecName(string specEventName, IEnumerable<string> commandNotTocapture = null, bool useDefaltCommandNotToCapture = true)
+        public EventCapturer CaptureBySpecName(string specEventName, IEnumerable<string> commandNotTocapture = null, bool useDefaltCommandsNotToCapture = true)
         {
-            var eventType = EventSpecMapper.GetEventName(specEventName);
+            var eventType = EventSpecMapper.GetEventType(specEventName);
             _eventsToCapture.Add(
                 eventType,
-                o => CommandCapturer.ShouldCapture(o, commandNotTocapture ?? Enumerable.Empty<string>(), useDefaltCommandNotToCapture)); // only command events use predicate filters
+                o => CommandCapturer.ShouldCapture(o, commandNotTocapture ?? Enumerable.Empty<string>(), useDefaltCommandsNotToCapture)); // only command events use predicate filters
             return this;
         }
 
@@ -184,17 +184,17 @@ namespace MongoDB.Driver.Core
                 "saslStart"
             };
 
-            public static bool ShouldCapture(object @event, IEnumerable<string> commandsNotTocapture, bool useDefaltCommandNotToCapture)
+            public static bool ShouldCapture(object @event, IEnumerable<string> commandsNotTocapture, bool useDefaltCommandsNotToCapture)
             {
                 return @event switch
                 {
-                    CommandStartedEvent typedEvent => !GetCommandNotToCapture().Contains(typedEvent.CommandName),
-                    CommandFailedEvent typedEvent => !GetCommandNotToCapture().Contains(typedEvent.CommandName),
-                    CommandSucceededEvent typedEvent => !GetCommandNotToCapture().Contains(typedEvent.CommandName),
+                    CommandStartedEvent typedEvent => !GetCommandsNotToCapture().Contains(typedEvent.CommandName),
+                    CommandFailedEvent typedEvent => !GetCommandsNotToCapture().Contains(typedEvent.CommandName),
+                    CommandSucceededEvent typedEvent => !GetCommandsNotToCapture().Contains(typedEvent.CommandName),
                     _ => true,
                 };
 
-                IEnumerable<string> GetCommandNotToCapture() => useDefaltCommandNotToCapture ? Enumerable.Concat(commandsNotTocapture, __defaultCommandNamesNotToCapturer) : commandsNotTocapture;
+                IEnumerable<string> GetCommandsNotToCapture() => useDefaltCommandsNotToCapture ? Enumerable.Concat(commandsNotTocapture, __defaultCommandNamesNotToCapturer) : commandsNotTocapture;
             }
             #endregion
 

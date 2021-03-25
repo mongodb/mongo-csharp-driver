@@ -25,11 +25,11 @@ namespace MongoDB.Driver.TestHelpers
         private static Dictionary<string, Type> __eventsMap = new Dictionary<string, Type>
         {
             { "PoolCreatedEvent", typeof(ConnectionPoolOpenedEvent) },
-            { "PoolReadyEvent", typeof(object) }, // TODO
+            { "PoolReadyEvent", null }, // TODO:
             { "PoolClearedEvent", typeof(ConnectionPoolClearedEvent) },
             { "PoolClosedEvent", typeof(ConnectionPoolClosedEvent) },
             { "ConnectionCreatedEvent", typeof(ConnectionCreatedEvent) },
-            { "ConnectionReadyEvent", typeof(Enum) },
+            { "ConnectionReadyEvent", null }, // TODO:
             { "ConnectionClosedEvent", typeof(ConnectionClosedEvent) },
             { "ConnectionCheckOutStartedEvent", typeof(ConnectionPoolCheckingOutConnectionEvent) },
             { "ConnectionCheckOutFailedEvent", typeof(ConnectionPoolCheckingOutConnectionFailedEvent) },
@@ -41,6 +41,6 @@ namespace MongoDB.Driver.TestHelpers
         };
 
         public static string GetSpecEventName(string eventName) => __eventsMap.Single(e => e.Value.Name.ToLower() == eventName.ToLower()).Key;
-        public static Type GetEventName(string specEventName) => __eventsMap.Single(e => e.Key.ToLower() == specEventName.ToLower()).Value;
+        public static Type GetEventType(string specEventName) => __eventsMap.Single(e => e.Key.ToLower() == specEventName.ToLower()).Value;
     }
 }

@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         private readonly CancellationToken _terminationCancellationToken;
 
         public UnifiedTestFormatProcessor(
-            bool allowKillSessions = true, // TODO: temporary change
+            bool allowKillSessions = true, // TODO: should be removed after SERVER-54216
             CancellationToken terminationCancellationToken = default)
         {
             _allowKillSessions = allowKillSessions;

@@ -137,6 +137,7 @@ namespace WorkloadExecutor
         {
             Console.Write($"\ndotnet cancel workload> Canceling the workload task...");
             cancellationTokenSource.Cancel();
+            Console.WriteLine($"Done.");
         }
 
         private static void HandleCancel(
