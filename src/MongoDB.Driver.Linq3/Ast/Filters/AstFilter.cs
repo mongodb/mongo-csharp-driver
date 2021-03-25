@@ -81,6 +81,11 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
             return new AstFieldOperationFilter(field, new AstInFilterOperation(values));
         }
 
+        public static AstFieldOperationFilter MatchesNothing(AstFilterField field)
+        {
+            return new AstFieldOperationFilter(field, new AstTypeFilterOperation((BsonType)(-1)));
+        }
+
         public static AstFieldOperationFilter Mod(AstFilterField field, BsonValue divisor, BsonValue remainder)
         {
             return new AstFieldOperationFilter(field, new AstModFilterOperation(divisor, remainder));

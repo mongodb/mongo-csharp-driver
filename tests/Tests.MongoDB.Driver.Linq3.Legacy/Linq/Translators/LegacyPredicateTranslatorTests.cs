@@ -526,25 +526,25 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSASub0ContainsO()
         {
-            Assert<C>(c => c.SA[0].Contains("o"), 1, "{ $expr : { $gte : [{ $indexOfCP : [{ $arrayElemAt : ['$sa', 0] }, 'o'] }, 0] } }");
+            Assert<C>(c => c.SA[0].Contains("o"), 1, "{ \"sa.0\" : /o/s }");
         }
 
         [Fact]
         public void TestWhereSASub0ContainsONot()
         {
-            Assert<C>(c => !c.SA[0].Contains("o"), 4, "{ $nor : [ { $expr : { $gte : [{ $indexOfCP : [{ $arrayElemAt : ['$sa', 0] }, 'o'] }, 0] } }] }");
+            Assert<C>(c => !c.SA[0].Contains("o"), 4, "{ \"sa.0\" : { \"$not\" : /o/s } }");
         }
 
         [Fact]
         public void TestWhereSASub0EndsWithM()
         {
-            Assert<C>(c => c.SA[0].EndsWith("m"), 1, "{ $expr : { $let : { vars : { string : { $arrayElemAt : ['$sa', 0] } }, in : { $gte : [{ $indexOfCP : ['$$string', 'm', { $subtract : [{ $strLenCP : '$$string' }, 1] }] }, 0] } } } }");
+            Assert<C>(c => c.SA[0].EndsWith("m"), 1, "{ \"sa.0\" : /m$/s }");
         }
 
         [Fact]
         public void TestWhereSASub0EndsWithMNot()
         {
-            Assert<C>(c => !c.SA[0].EndsWith("m"), 4, "{ $nor : [{ $expr : { $let : { vars : { string : { $arrayElemAt : ['$sa', 0] } }, in : { $gte : [{ $indexOfCP : ['$$string', 'm', { $subtract : [{ $strLenCP : '$$string' }, 1] }] }, 0] } } } }] }");
+            Assert<C>(c => !c.SA[0].EndsWith("m"), 4, "{ \"sa.0\" : { \"$not\" : /m$/s } }");
         }
 
         [Fact]
@@ -582,37 +582,37 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSASub0StartsWithT()
         {
-            Assert<C>(c => c.SA[0].StartsWith("T"), 1, "{ $expr : { $eq : [{ $indexOfCP : [{ $arrayElemAt : ['$sa', 0 ] }, 'T'] }, 0] } }");
+            Assert<C>(c => c.SA[0].StartsWith("T"), 1, "{ \"sa.0\" : /^T/s }");
         }
 
         [Fact]
         public void TestWhereSASub0StartsWithTNot()
         {
-            Assert<C>(c => !c.SA[0].StartsWith("T"), 4, "{ $nor : [{ $expr : { $eq : [{ $indexOfCP : [{ $arrayElemAt : ['$sa', 0 ] }, 'T'] }, 0] } }] }");
+            Assert<C>(c => !c.SA[0].StartsWith("T"), 4, "{ \"sa.0\" : { \"$not\" : /^T/s } }");
         }
 
         [Fact]
         public void TestWhereSContainsAbc()
         {
-            Assert<C>(c => c.S.Contains("abc"), 1, "{ $expr : { $gte : [{ $indexOfCP : ['$s', 'abc' ] }, 0] } }");
+            Assert<C>(c => c.S.Contains("abc"), 1, "{ \"s\" : /abc/s }");
         }
 
         [Fact]
         public void TestWhereSContainsAbcNot()
         {
-            Assert<C>(c => !c.S.Contains("abc"), 4, "{ $nor : [{ $expr : { $gte : [{ $indexOfCP : ['$s', 'abc' ] }, 0] } }] }");
+            Assert<C>(c => !c.S.Contains("abc"), 4, "{ \"s\" : { \"$not\" : /abc/s } }");
         }
 
         [Fact]
         public void TestWhereSContainsDot()
         {
-            Assert<C>(c => c.S.Contains("."), 0, "{ $expr : { $gte : [{ $indexOfCP : ['$s', '.' ] }, 0] } }");
+            Assert<C>(c => c.S.Contains("."), 0, "{ \"s\" : /\\./s }");
         }
 
         [Fact]
         public void TestWhereSCountEquals3()
         {
-            Assert<C>(c => c.S != null && c.S.Count() == 3, 1, "{ $and : [{ s : { $ne : null } }, { $expr : { $eq : [{ $strLenCP : '$s' }, 3] } }] }");
+            Assert<C>(c => c.S.Count() == 3, 1, "{ \"s\" : /^.{3}$/s }");
         }
 
         [Fact]
@@ -654,76 +654,67 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSEndsWithAbc()
         {
-            Assert<C>(c => c.S.EndsWith("abc"), 1, "{ $expr : { $gte : [{ $indexOfCP : ['$s', 'abc', { $subtract : [{ $strLenCP : '$s' }, 3] }] }, 0] } }");
+            Assert<C>(c => c.S.EndsWith("abc"), 1, "{ \"s\" : /abc$/s }");
         }
 
         [Fact]
         public void TestWhereSEndsWithAbcNot()
         {
-            Assert<C>(c => !c.S.EndsWith("abc"), 4, "{ $nor : [{ $expr : { $gte : [{ $indexOfCP : ['$s', 'abc', { $subtract : [{ $strLenCP : '$s' }, 3] }] }, 0] } }] }");
+            Assert<C>(c => !c.S.EndsWith("abc"), 4, "{ \"s\" : { \"$not\" : /abc$/s } }");
         }
 
         [Fact]
         public void TestWhereSIndexOfAnyBDashCEquals1()
         {
-            var expression = CreateIndexOfAnyExpression("'$s'", "b-c");
-            var expectedFilter = "{ $expr : { $eq : [" + expression + ", 1] } }";
-
-            Assert<C>(c => c.S.IndexOfAny(new char[] { 'b', '-', 'c' }) == 1, 1, expectedFilter);
+            Assert<C>(c => c.S.IndexOfAny(new char[] { 'b', '-', 'c' }) == 1, 1, "{ \"s\" : /^[^b\\-c]{1}[b\\-c]/s }");
         }
 
         [Fact]
         public void TestWhereSIndexOfAnyBCStartIndex1Equals1()
         {
-            var expression = CreateIndexOfAnyExpression("'$s'", "b-c", startIndex: "1");
-            var expectedFilter = "{ $expr : { $eq : [" + expression + ", 1] } }";
-
-            Assert<C>(c => c.S.IndexOfAny(new char[] { 'b', '-', 'c' }, 1) == 1, 1, expectedFilter);
+            Assert<C>(c => c.S.IndexOfAny(new char[] { 'b', '-', 'c' }, 1) == 1, 1, "{ \"s\" : /^.{1}[^b\\-c]{0}[b\\-c]/s }");
         }
 
         [Fact]
         public void TestWhereSIndexOfAnyBCStartIndex1Count2Equals1()
         {
-            var expression = CreateIndexOfAnyExpression("'$s'", "b-c", startIndex: "1", end: "3");
-            var expectedFilter = "{ $expr : { $eq : [" + expression + ", 1] } }";
-
-            Assert<C>(c => c.S.IndexOfAny(new char[] { 'b', '-', 'c' }, 1, 2) == 1, 1, expectedFilter);
+            Assert<C>(c => c.S.IndexOfAny(new char[] { 'b', '-', 'c' }, 1, 2) == 1, 1, "{ \"s\" : /^.{1}(?=.{2})[^b\\-c]{0}[b\\-c]/s }");
         }
 
         [Fact]
         public void TestWhereSIndexOfBEquals1()
         {
-            Assert<C>(c => c.S.IndexOf('b') == 1, 1, "{ $expr : { $eq : [{ $indexOfCP : ['$s', 'b'] }, 1] } }");
+            Assert<C>(c => c.S.IndexOf('b') == 1, 1, "{ \"s\" : /^[^b]{1}b/s }");
         }
 
         [Fact]
         public void TestWhereSIndexOfBStartIndex1Equals1()
         {
-            Assert<C>(c => c.S.IndexOf('b', 1) == 1, 1, "{ $expr : { $eq : [{ $indexOfCP : ['$s', 'b', 1] }, 1] } }");
+            Assert<C>(c => c.S.IndexOf('b', 1) == 1, 1, "{ \"s\" : /^.{1}[^b]{0}b/s }");
         }
 
         [Fact]
         public void TestWhereSIndexOfBStartIndex1Count2Equals1()
         {
-            Assert<C>(c => c.S.IndexOf('b', 1, 2) == 1, 1, "{ $expr : { $eq : [{ $indexOfCP : ['$s', 'b', 1, 3] }, 1] } }");
+            Assert<C>(c => c.S.IndexOf('b', 1, 2) == 1, 1, "{ \"s\" : /^.{1}(?=.{2})[^b]{0}b/s }");
         }
 
         [Fact]
         public void TestWhereSIndexOfXyzEquals3()
         {
-            Assert<C>(c => c.S.IndexOf("xyz") == 3, 1, "{ $expr : { $eq : [{ $indexOfCP : ['$s', 'xyz'] }, 3] } }");
+            Assert<C>(c => c.S.IndexOf("xyz") == 3, 1, "{ \"s\" : /^(?!.{0,2}xyz).{3}xyz/s }");
         }
 
         [Fact]
         public void TestWhereSIndexOfXyzStartIndex1Equals3()
         {
-            Assert<C>(c => c.S.IndexOf("xyz", 1) == 3, 1, "{ $expr : { $eq : [{ $indexOfCP : ['$s', 'xyz', 1] }, 3] } }");
+            Assert<C>(c => c.S.IndexOf("xyz", 1) == 3, 1, "{ \"s\" : /^.{1}(?!.{0,1}xyz).{2}xyz/s }");
         }
 
         [Fact]
         public void TestWhereSIndexOfXyzStartIndex1Count5Equals3()
         {
-            Assert<C>(c => c.S.IndexOf("xyz", 1, 5) == 3, 1, "{ $expr : { $eq : [{ $indexOfCP : ['$s', 'xyz', 1, 6] }, 3] } }");
+            Assert<C>(c => c.S.IndexOf("xyz", 1, 5) == 3, 1, "{ \"s\" : /^.{1}(?=.{5})(?!.{0,1}xyz).{2}xyz/s }");
         }
 
         [Fact]
@@ -761,49 +752,49 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSLengthEquals3()
         {
-            Assert<C>(c => c.S != null && c.S.Length == 3, 1, "{ $and : [{ s : { $ne : null } }, { $expr : { $eq : [{ $strLenCP : '$s'} , 3] } }] }");
+            Assert<C>(c => c.S.Length == 3, 1, "{ \"s\" : /^.{3}$/s }");
         }
 
         [Fact]
         public void TestWhereSLengthEquals3Not()
         {
-            Assert<C>(c => c.S != null && !(c.S.Length == 3), 1, "{ $and : [{ s : { $ne : null } }, { $nor : [{ $expr : { $eq : [{ $strLenCP : '$s'} , 3] } }] }] }");
+            Assert<C>(c => !(c.S.Length == 3), 4, "{ \"s\" : { \"$not\" : /^.{3}$/s } }");
         }
 
         [Fact]
         public void TestWhereSLengthGreaterThan3()
         {
-            Assert<C>(c => c.S != null && c.S.Length > 3, 1, "{ $and : [{ s : { $ne : null } }, { $expr : { $gt : [{ $strLenCP : '$s'} , 3] } }] }");
+            Assert<C>(c => c.S.Length > 3, 1, "{ \"s\" : /^.{4,}$/s }");
         }
 
         [Fact]
         public void TestWhereSLengthGreaterThanOrEquals3()
         {
-            Assert<C>(c => c.S != null && c.S.Length >= 3, 2, "{ $and : [{ s : { $ne : null } }, { $expr : { $gte : [{ $strLenCP : '$s'} , 3] } }] }");
+            Assert<C>(c => c.S.Length >= 3, 2, "{ \"s\" : /^.{3,}$/s }");
         }
 
         [Fact]
         public void TestWhereSLengthLessThan3()
         {
-            Assert<C>(c => c.S != null && c.S.Length < 3, 0, "{ $and : [{ s : { $ne : null } }, { $expr : { $lt : [{ $strLenCP : '$s'} , 3] } }] }");
+            Assert<C>(c => c.S.Length < 3, 0, "{ \"s\" : /^.{0,2}$/s }");
         }
 
         [Fact]
         public void TestWhereSLengthLessThanOrEquals3()
         {
-            Assert<C>(c => c.S != null && c.S.Length <= 3, 1, "{ $and : [{ s : { $ne : null } }, { $expr : { $lte : [{ $strLenCP : '$s'} , 3] } }] }");
+            Assert<C>(c => c.S.Length <= 3, 1, "{ \"s\" : /^.{0,3}$/s }");
         }
 
         [Fact]
         public void TestWhereSLengthNotEquals3()
         {
-            Assert<C>(c => c.S != null && c.S.Length != 3, 1, "{ $and : [{ s : { $ne : null } }, { $expr : { $ne : [{ $strLenCP : '$s'} , 3] } }] }");
+            Assert<C>(c => c.S.Length != 3, 4, "{ \"s\" : { \"$not\" : /^.{3}$/s } }");
         }
 
         [Fact]
         public void TestWhereSLengthNotEquals3Not()
         {
-            Assert<C>(c => c.S != null && !(c.S.Length != 3), 1, "{ $and : [{ s : { $ne : null } }, { $nor : [{ $expr : { $ne : [{ $strLenCP : '$s'} , 3] } }] }] }");
+            Assert<C>(c => !(c.S.Length != 3), 1, "{ \"s\" : /^.{3}$/s }");
         }
 
         [Fact]
@@ -821,153 +812,153 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSStartsWithAbc()
         {
-            Assert<C>(c => c.S.StartsWith("abc"), 1, "{ $expr : { $eq : [{ $indexOfCP : ['$s', 'abc'] }, 0] } }");
+            Assert<C>(c => c.S.StartsWith("abc"), 1, "{ \"s\" : /^abc/s }");
         }
 
         [Fact]
         public void TestWhereSStartsWithAbcNot()
         {
-            Assert<C>(c => !c.S.StartsWith("abc"), 4, "{ $nor : [{ $expr : { $eq : [{ $indexOfCP : ['$s', 'abc'] }, 0] } }] }");
+            Assert<C>(c => !c.S.StartsWith("abc"), 4, "{ \"s\" : { \"$not\" : /^abc/s } }");
         }
 
         [Fact]
         public void TestWhereSSub1EqualsB()
         {
-            Assert<C>(c => c.S[1] == 'b', 1, "{ $expr : { $eq : [{ $substrCP : ['$s', 1, 1] }, 'b'] } }");
+            Assert<C>(c => c.S[1] == 'b', 1, "{ \"s\" : /^.{1}b/s }");
         }
 
         [Fact]
         public void TestWhereSSub1EqualsBNot()
         {
-            Assert<C>(c => !(c.S[1] == 'b'), 4, "{ $nor : [{ $expr : { $eq : [{ $substrCP : ['$s', 1, 1] }, 'b'] } }] }");
+            Assert<C>(c => !(c.S[1] == 'b'), 4, "{ \"s\" : { \"$not\" : /^.{1}b/s } }");
         }
 
         [Fact]
         public void TestWhereSSub1NotEqualsB()
         {
-            Assert<C>(c => c.S[1] != 'b', 4, "{ $expr : { $ne : [{ $substrCP : ['$s', 1, 1] }, 'b'] } }");
+            Assert<C>(c => c.S[1] != 'b', 1, "{ \"s\" : /^.{1}[^b]/s }");
         }
 
         [Fact]
         public void TestWhereSSub1NotEqualsBNot()
         {
-            Assert<C>(c => !(c.S[1] != 'b'), 1, "{ $nor : [{ $expr : { $ne : [{ $substrCP : ['$s', 1, 1] }, 'b'] } }] }");
+            Assert<C>(c => !(c.S[1] != 'b'), 4, "{ \"s\" : { \"$not\" : /^.{1}[^b]/s } }");
         }
 
         [Fact]
         public void TestWhereSTrimContainsXyz()
         {
-            Assert<C>(c => c.S.Trim().Contains("xyz"), 1, "{ $expr : { $gte : [{ $indexOfCP : [{ $trim : { input : '$s' } }, 'xyz'] }, 0] } }");
+            Assert<C>(c => c.S.Trim().Contains("xyz"), 1, "{ \"s\" : /^\\s*(?!\\s).*xyz.*(?<!\\s)\\s*$/s }");
         }
 
         [Fact]
         public void TestWhereSTrimContainsXyzNot()
         {
-            Assert<C>(c => !c.S.Trim().Contains("xyz"), 4, "{ $nor : [{ $expr : { $gte : [{ $indexOfCP : [{ $trim : { input : '$s' } }, 'xyz'] }, 0] } }] }");
+            Assert<C>(c => !c.S.Trim().Contains("xyz"), 4, "{ \"s\" : { \"$not\" : /^\\s*(?!\\s).*xyz.*(?<!\\s)\\s*$/s } }");
         }
 
         [Fact]
         public void TestWhereSTrimEndsWithXyz()
         {
-            Assert<C>(c => c.S.Trim().EndsWith("xyz"), 1, "{ $expr : { $let : { vars : { string : { $trim : { input : '$s' } } }, in : { $gte : [{ $indexOfCP : ['$$string', 'xyz', { $subtract : [{ $strLenCP : '$$string' }, 3] }] }, 0] } } } }");
+            Assert<C>(c => c.S.Trim().EndsWith("xyz"), 1, "{ \"s\" : /^\\s*(?!\\s).*xyz(?<!\\s)\\s*$/s }");
         }
 
         [Fact]
         public void TestWhereSTrimEndsWithXyzNot()
         {
-            Assert<C>(c => !c.S.Trim().EndsWith("xyz"), 4, "{ $nor : [{ $expr : { $let : { vars : { string : { $trim : { input : '$s' } } }, in : { $gte : [{ $indexOfCP : ['$$string', 'xyz', { $subtract : [{ $strLenCP : '$$string' }, 3] }] }, 0] } } } }] }");
+            Assert<C>(c => !c.S.Trim().EndsWith("xyz"), 4, "{ \"s\" : { \"$not\" : /^\\s*(?!\\s).*xyz(?<!\\s)\\s*$/s } }");
         }
 
         [Fact]
         public void TestWhereSTrimStartsWithXyz()
         {
-            Assert<C>(c => c.S.Trim().StartsWith("xyz"), 1, "{ $expr : { $eq : [{ $indexOfCP : [{ $trim : { input : '$s' } }, 'xyz'] }, 0] } }");
+            Assert<C>(c => c.S.Trim().StartsWith("xyz"), 1, "{ \"s\" : /^\\s*(?!\\s)xyz.*(?<!\\s)\\s*$/s }");
         }
 
         [Fact]
         public void TestWhereSTrimStartsWithXyzNot()
         {
-            Assert<C>(c => !c.S.Trim().StartsWith("xyz"), 4, "{ $nor : [{ $expr : { $eq : [{ $indexOfCP : [{ $trim : { input : '$s' } }, 'xyz'] }, 0] } }] }");
+            Assert<C>(c => !c.S.Trim().StartsWith("xyz"), 4, "{ \"s\" : { \"$not\" : /^\\s*(?!\\s)xyz.*(?<!\\s)\\s*$/s } }");
         }
 
 #if NET452 || NETCOREAPP1_0
         [Fact]
         public void TestWhereSTrimStartTrimEndToLowerContainsXyz()
         {
-            Assert<C>(c => c.S.TrimStart(' ', '.', '-', '\t').TrimEnd().ToLower().Contains("xyz"), 1, "{ $expr : { $gte : [{ $indexOfCP : [{ $toLower : { $rtrim : { input : { $ltrim : { input : '$s', chars : ' .-\t' } } } } }, 'xyz'] }, 0] } }");
+            Assert<C>(c => c.S.TrimStart(' ', '.', '-', '\t').TrimEnd().ToLower().Contains("xyz"), 1, "{ \"s\" : /^[\\ \\.\\-\\t]*(?=[^\\ \\.\\-\\t]).*xyz.*(?<!\\s)\\s*$/is }");
         }
 #endif
 
         [Fact]
         public void TestWhereSToLowerEqualsConstantLowerCaseValue()
         {
-            Assert<C>(c => c.S.ToLower() == "abc", 1, "{ $expr : { $eq : [{ $toLower : '$s' }, 'abc'] } }");
+            Assert<C>(c => c.S.ToLower() == "abc", 1, "{ \"s\" : /^abc$/i }");
         }
 
         [Fact]
         public void TestWhereSToLowerDoesNotEqualConstantLowerCaseValue()
         {
-            Assert<C>(c => c.S.ToLower() != "abc", 4, "{ $expr : { $ne : [{ $toLower : '$s' }, 'abc'] } }");
+            Assert<C>(c => c.S.ToLower() != "abc", 4, "{ \"s\" : { \"$not\" : /^abc$/i } }");
         }
 
         [Fact]
         public void TestWhereSToLowerEqualsConstantMixedCaseValue()
         {
-            Assert<C>(c => c.S.ToLower() == "Abc", 0, "{ $expr : { $eq : [{ $toLower : '$s' }, 'Abc'] } }");
+            Assert<C>(c => c.S.ToLower() == "Abc", 0, "{ \"_id\" : { \"$type\" : -1 } }");
         }
 
         [Fact]
         public void TestWhereSToLowerDoesNotEqualConstantMixedCaseValue()
         {
-            Assert<C>(c => c.S.ToLower() != "Abc", 5, "{ $expr : { $ne : [{ $toLower : '$s' }, 'Abc'] } }");
+            Assert<C>(c => c.S.ToLower() != "Abc", 5, "{ }");
         }
 
         [Fact]
         public void TestWhereSToLowerEqualsNullValue()
         {
-            Assert<C>(c => c.S.ToLower() == null, 0, "{ $expr : { $eq : [{ $toLower : '$s' }, null] } }");
+            Assert<C>(c => c.S.ToLower() == null, 3, "{ \"s\" : null }");
         }
 
         [Fact]
         public void TestWhereSToLowerDoesNotEqualNullValue()
         {
-            Assert<C>(c => c.S.ToLower() != null, 5, "{ $expr : { $ne : [{ $toLower : '$s' }, null] } }");
+            Assert<C>(c => c.S.ToLower() != null, 2, "{ \"s\" : { \"$ne\" : null } }");
         }
 
         [Fact]
         public void TestWhereSToUpperEqualsConstantLowerCaseValue()
         {
-            Assert<C>(c => c.S.ToUpper() == "abc", 0, "{ $expr : { $eq : [{ $toUpper : '$s' }, 'abc'] } }");
+            Assert<C>(c => c.S.ToUpper() == "abc", 0, "{ \"_id\" : { \"$type\" : -1 } }");
         }
 
         [Fact]
         public void TestWhereSToUpperDoesNotEqualConstantLowerCaseValue()
         {
-            Assert<C>(c => c.S.ToUpper() != "abc", 5, "{ $expr : { $ne : [{ $toUpper : '$s' }, 'abc'] } }");
+            Assert<C>(c => c.S.ToUpper() != "abc", 5, "{ }");
         }
 
         [Fact]
         public void TestWhereSToUpperEqualsConstantMixedCaseValue()
         {
-            Assert<C>(c => c.S.ToUpper() == "Abc", 0, "{ $expr : { $eq : [{ $toUpper : '$s' }, 'Abc'] } }");
+            Assert<C>(c => c.S.ToUpper() == "Abc", 0, "{ \"_id\" : { \"$type\" : -1 } }");
         }
 
         [Fact]
         public void TestWhereSToUpperDoesNotEqualConstantMixedCaseValue()
         {
-            Assert<C>(c => c.S.ToUpper() != "Abc", 5, "{ $expr : { $ne : [{ $toUpper : '$s' }, 'Abc'] } }");
+            Assert<C>(c => c.S.ToUpper() != "Abc", 5, "{ }");
         }
 
         [Fact]
         public void TestWhereSToUpperEqualsNullValue()
         {
-            Assert<C>(c => c.S.ToUpper() == null, 0, "{ $expr : { $eq : [{ $toUpper : '$s' }, null] } }");
+            Assert<C>(c => c.S.ToUpper() == null, 3, "{ \"s\" : null }");
         }
 
         [Fact]
         public void TestWhereSToUpperDoesNotEqualNullValue()
         {
-            Assert<C>(c => c.S.ToUpper() != null, 5, "{ $expr : { $ne : [{ $toUpper : '$s' }, null] } }");
+            Assert<C>(c => c.S.ToUpper() != null, 2, "{ \"s\" : { \"$ne\" : null } }");
         }
 
         [Fact]
@@ -1203,57 +1194,6 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             var filter = new BsonDocumentFilterDefinition<C>(renderedFilter);
             var list = __collection.FindSync<TDocument>(filter).ToList();
             list.Count.Should().Be(expectedCount);
-        }
-
-        private string CreateIndexOfAnyExpression(
-            string s,
-            string anyOf,
-            string startIndexVar = null,
-            string startIndex = null,
-            string countVar = null,
-            string count = null,
-            string end = null)
-        {
-            // indexOfChar => { $indexOfCP : ['$$string', { $substrCP : [<anyOf>, '$$anyOfIndex', 1] }, '$$startIndex', '$$end' }
-            var indexOfCPArgs = "'$$string', { $substrCP : ['" + anyOf + "', '$$anyOfIndex', 1] }";
-            if (startIndex != null)
-            {
-                indexOfCPArgs += ", " + startIndex;
-            }
-            if (end != null)
-            {
-                indexOfCPArgs += ", " + end;
-            }
-            var expression = "{ $indexOfCP : [" + indexOfCPArgs + "] }";
-
-            // computeIndexes => { $map : { input : { $range : [0, anyOf.Length] }, as : 'anyOfIndex', in : <indexOfChar> } }
-            expression = "{ $map : { input : { $range : [0, " + anyOf.Length + "] }, as : 'anyOfIndex', in : " + expression + " } }";
-
-            // minResult => { $min : { $filter : { input : <computeIndexes>, as : 'result', cond : { $gte : ['$$result', 0] } } } }
-            expression = "{ $min : { $filter : { input : " + expression + ", as : 'result', cond : { $gte : ['$$result', 0] } } } }";
-
-            // topLevel => { $cond : [{ $eq : ['$$string', null] }, null, { $ifNull : [<minResult>, -1] }] }
-            expression = "{ $cond : { if : { $eq : ['$$string', null] }, then : null, else : { $ifNull : [" + expression + ", -1] } } }";
-
-            // computeEnd => { $let : { vars : { end : { $add : ['$$startIndex', '$$count'] } } } }
-            if (startIndexVar != null || countVar != null)
-            {
-                expression = "{ $let : { vars : { end : { $add : ['$$startIndex', " + count + "] } }, in : " + expression + " } }";
-            }
-
-            // s.IndexOfAny(anyOf, startIndex, count) => { $let : { vars : { string : <s>, startIndex : <startIndex>, count : <count> }, in : <computeEnd> } }
-            var vars = "string : " + s;
-            if (startIndexVar != null)
-            {
-                vars += ", startIndex : " + startIndexVar;
-            }
-            if (countVar != null)
-            {
-                vars += ", count : " + countVar;
-            }
-            expression = "{ $let : { vars : { " + vars + " }, in : " + expression + " } }";
-
-            return expression;
         }
 
         private enum E
