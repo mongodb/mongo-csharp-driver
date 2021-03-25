@@ -123,13 +123,13 @@ namespace WorkloadExecutor
 
             var factory = new TestCaseFactory();
             var testCase = factory.CreateTestCase(driverWorkload, async);
-            using (var runner = new UnifiedTestFormatProcessor(
+            using (var testsExecutor = new UnifiedTestFormatExecutor(
                 allowKillSessions: false,
                 terminationCancellationToken: cancellationToken))
             {
-                runner.Run(testCase);
+                testsExecutor.Run(testCase);
                 Console.WriteLine("dotnet ExecuteWorkload> Returning...");
-                return runner.EntityMap;
+                return testsExecutor.EntityMap;
             }
         }
 

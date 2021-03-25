@@ -25,18 +25,18 @@ namespace MongoDB.Driver.Tests.Specifications.unified_test_format
 {
     public sealed class UnifiedTestFormatNegativeTestRunner : IDisposable
     {
-        private readonly UnifiedTestFormatProcessor _unifiedTestFormatTestRunner = new UnifiedTestFormatProcessor();
+        private readonly UnifiedTestFormatExecutor _unifiedTestFormatExecutor = new UnifiedTestFormatExecutor();
 
         public void Dispose()
         {
-            _unifiedTestFormatTestRunner.Dispose();
+            _unifiedTestFormatExecutor.Dispose();
         }
 
         [Theory]
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)
         {
-            var exception = Record.Exception(() => _unifiedTestFormatTestRunner.Run(testCase));
+            var exception = Record.Exception(() => _unifiedTestFormatExecutor.Run(testCase));
 
             exception.Should().NotBeNull();
         }

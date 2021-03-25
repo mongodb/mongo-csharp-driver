@@ -28,15 +28,15 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
-    public sealed class UnifiedTestFormatProcessor : IDisposable
+    public sealed class UnifiedTestFormatExecutor : IDisposable
     {
         private readonly bool _allowKillSessions;
         private UnifiedEntityMap _entityMap;
         private readonly List<FailPoint> _failPoints = new List<FailPoint>();
         private readonly CancellationToken _terminationCancellationToken;
 
-        public UnifiedTestFormatProcessor(
-            bool allowKillSessions = true, // TODO: should be removed after SERVER-54216
+        public UnifiedTestFormatExecutor(
+            bool allowKillSessions = true, // TODO: should be removed after SERVER-54216 
             CancellationToken terminationCancellationToken = default)
         {
             _allowKillSessions = allowKillSessions;

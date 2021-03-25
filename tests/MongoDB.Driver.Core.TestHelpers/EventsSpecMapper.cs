@@ -40,7 +40,7 @@ namespace MongoDB.Driver.TestHelpers
             { "CommandFailedEvent", typeof(CommandFailedEvent) },
         };
 
-        public static string GetSpecEventName(string eventName) => __eventsMap.Single(e => e.Value.Name.ToLower() == eventName.ToLower()).Key;
-        public static Type GetEventType(string specEventName) => __eventsMap.Single(e => e.Key.ToLower() == specEventName.ToLower()).Value;
+        public static string GetSpecEventName(string eventName) => __eventsMap.SingleOrDefault(e => e.Value?.Name?.ToLower() == eventName.ToLower()).Key;
+        public static Type GetEventType(string specEventName) => __eventsMap.SingleOrDefault(e => e.Key.ToLower() == specEventName.ToLower()).Value;
     }
 }

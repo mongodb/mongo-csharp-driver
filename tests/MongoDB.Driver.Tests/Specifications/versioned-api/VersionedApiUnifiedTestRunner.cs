@@ -27,9 +27,9 @@ namespace MongoDB.Driver.Tests.Specifications.versioned_api
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)
         {
-            using (var runner = new UnifiedTestFormatProcessor())
+            using (var testsExecutor = new UnifiedTestFormatExecutor())
             {
-                runner.Run(testCase);
+                testsExecutor.Run(testCase);
             }
         }
 

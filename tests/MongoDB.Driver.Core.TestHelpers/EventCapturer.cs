@@ -53,9 +53,12 @@ namespace MongoDB.Driver.Core
         public EventCapturer CaptureBySpecName(string specEventName, IEnumerable<string> commandNotTocapture = null, bool useDefaltCommandsNotToCapture = true)
         {
             var eventType = EventSpecMapper.GetEventType(specEventName);
-            _eventsToCapture.Add(
-                eventType,
-                o => CommandCapturer.ShouldCapture(o, commandNotTocapture ?? Enumerable.Empty<string>(), useDefaltCommandsNotToCapture)); // only command events use predicate filters
+            if (eventType != null) // TODO: this condition should be removed when we will have a full events mapping
+            {
+                _eventsToCapture.Add(
+                    eventType,
+                    o => CommandCapturer.ShouldCapture(o, commandNotTocapture ?? Enumerable.Empty<string>(), useDefaltCommandsNotToCapture)); // only command events use predicate filters
+            }
             return this;
         }
 

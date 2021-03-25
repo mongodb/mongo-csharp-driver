@@ -230,8 +230,12 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                             {
                                 throw new Exception($"Client entity with id '{id}' already exists.");
                             }
-                            var client = CreateClient(entity, id, clientEventCapturers);
+                            var client = CreateClient(entity, out var createdEventCapturers);
                             clients.Add(id, client);
+                            foreach (var createdEventCapturer in createdEventCapturers)
+                            {
+                                clientEventCapturers.Add(createdEventCapturer.Key, createdEventCapturer.Value);
+                            }
                             break;
                         case "collection":
                             if (collections.ContainsKey(id))
@@ -305,11 +309,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             return new GridFSBucket(database);
         }
 
-        private DisposableMongoClient CreateClient(
-            BsonDocument entity,
-            string clientId,
-            Dictionary<string, EventCapturer> clientEventCapturers)
+        private DisposableMongoClient CreateClient(BsonDocument entity, out Dictionary<string, EventCapturer> clientEventCapturers)
         {
+            clientEventCapturers = new Dictionary<string, EventCapturer>();
+            string clientId = null;
             var commandNamesToSkipInEvents = new List<string>();
             List<(string Key, IEnumerable<string> Events, List<string> CommandNotToCapture)> eventTypesToCapture = new ();
             var readConcern = ReadConcern.Default;
@@ -324,7 +327,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 switch (element.Name)
                 {
                     case "id":
-                        // handled on higher level
+                        clientId = element.Value.AsString;
                         break;
                     case "uriOptions":
                         foreach (var option in element.Value.AsBsonDocument)
@@ -421,6 +424,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 }
             }
 
+            var eventCapturers = clientEventCapturers.Select(c => c.Value);
             return DriverTestConfiguration.CreateDisposableClient(
                 settings =>
                 {
@@ -430,13 +434,13 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     settings.WriteConcern = writeConcern;
                     settings.HeartbeatInterval = TimeSpan.FromMilliseconds(5); // the default value for spec tests
                     settings.ServerApi = serverApi;
-                    if (clientEventCapturers.Count > 0)
+                    if (eventCapturers.Count() > 0)
                     {
                         settings.ClusterConfigurator = c =>
                         {
-                            foreach (var eventCapturer in clientEventCapturers)
+                            foreach (var eventCapturer in eventCapturers)
                             {
-                                c.Subscribe(eventCapturer.Value);
+                                c.Subscribe(eventCapturer);
                             }
                         };
                     }

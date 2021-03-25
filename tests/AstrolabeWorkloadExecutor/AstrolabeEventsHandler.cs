@@ -18,6 +18,7 @@ using System.Net;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.TestHelpers;
 
 namespace AstrolabeWorkloadExecutor
 {
@@ -31,10 +32,10 @@ namespace AstrolabeWorkloadExecutor
 
             return specEventName switch
             {
-                _ when specEventName.StartsWith("Connection") && !ConnectionEventWithOnlyServerId(specEventName)
-                => CreateCmapEventDocument(specEventName, @event.ObservedAt, @event.ConnectionId),
-                _ when specEventName.StartsWith("Pool") || ConnectionEventWithOnlyServerId(specEventName)
-                => CreateCmapEventDocument(specEventName, @event.ObservedAt, @event.ServerId),
+                _ when specEventName.StartsWith("Connection") && !ConnectionEventWithOnlyServerId(specEventName) =>
+                    CreateCmapEventDocument(specEventName, @event.ObservedAt, @event.ConnectionId),
+                _ when specEventName.StartsWith("Pool") || ConnectionEventWithOnlyServerId(specEventName) =>
+                    CreateCmapEventDocument(specEventName, @event.ObservedAt, @event.ServerId),
                 _ when specEventName.StartsWith("Command") => specEventName switch
                 {
                     "CommandStartedEvent" =>
