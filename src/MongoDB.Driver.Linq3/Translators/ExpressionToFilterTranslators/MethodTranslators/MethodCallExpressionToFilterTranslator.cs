@@ -25,10 +25,12 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             switch (expression.Method.Name)
             {
                 case "Contains": return ContainsMethodToFilterTranslator.Translate(context, expression);
+                case "EndsWith": return EndsWithMethodToFilterTranslator.Translate(context, expression);
                 case "Equals": return EqualsMethodToFilterTranslator.Translate(context, expression);
                 case "HasFlag": return HasFlagMethodToFilterTranslator.Translate(context, expression);
                 case "IsMatch": return IsMatchMethodToFilterTranslator.Translate(context, expression);
                 case "IsNullOrEmpty": return IsNullOrEmptyMethodToFilterTranslator.Translate(context, expression);
+                case "StartsWith": return StartsWithMethodToFilterTranslator.Translate(context, expression);
 
                 case "All":
                 case "Any":

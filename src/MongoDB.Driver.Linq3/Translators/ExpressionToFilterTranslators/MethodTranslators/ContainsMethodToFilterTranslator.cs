@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using MongoDB.Driver.Linq3.Ast.Filters;
 using MongoDB.Driver.Linq3.Misc;
-using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ExpressionTranslators;
 using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodTranslators
@@ -28,6 +27,11 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
     {
         public static AstFilter Translate(TranslationContext context, MethodCallExpression expression)
         {
+            if (StringExpressionToRegexFilterTranslator.CanTranslate(expression))
+            {
+                return StringExpressionToRegexFilterTranslator.Translate(context, expression);
+            }
+
             var method = expression.Method;
             var arguments = expression.Arguments;
 
