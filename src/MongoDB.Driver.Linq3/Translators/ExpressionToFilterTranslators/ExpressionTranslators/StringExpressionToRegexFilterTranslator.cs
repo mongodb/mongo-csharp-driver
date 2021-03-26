@@ -78,8 +78,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
                 return true;
             }
 
-            // document.S.Length == n
-            if (IsStringLengthComparison(leftExpression))
+            // document.S.Length == n or document.S.Count() == n
+            if (IsStringLengthComparison(leftExpression) || IsStringCountComparison(leftExpression))
             {
                 return true;
             }
@@ -125,7 +125,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
                 return TranslateStringComparison(context, expression, leftExpression, comparisonOperator, rightExpression);
             }
 
-            if (IsStringLengthComparison(leftExpression))
+            if (IsStringLengthComparison(leftExpression) || IsStringCountComparison(leftExpression))
             {
                 return TranslateStringLengthComparison(context, expression, leftExpression, comparisonOperator, rightExpression);
             }    
@@ -218,17 +218,20 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             return leftExpression.Type == typeof(string);
         }
 
+        private static bool IsStringCountComparison(Expression leftExpression)
+        {
+            return
+                leftExpression is MethodCallExpression leftMethodCallExpression &&
+                leftMethodCallExpression.Method.Is(EnumerableMethod.Count) &&
+                leftMethodCallExpression.Arguments[0].Type == typeof(string);
+        }
+
         private static bool IsStringLengthComparison(Expression leftExpression)
         {
-            if (leftExpression is MemberExpression leftMemberExpression &&
-                leftMemberExpression != null &&
+            return
+                leftExpression is MemberExpression leftMemberExpression &&
                 leftMemberExpression.Member is PropertyInfo propertyInfo &&
-                propertyInfo.Is(StringProperty.Length))
-            {
-                return true;
-            }
-
-            return false;
+                propertyInfo.Is(StringProperty.Length);
         }
 
         private static Modifiers TranslateCulture(Modifiers modifiers, Expression cultureExpression)
@@ -411,8 +414,20 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
 
         private static AstFilter TranslateStringLengthComparison(TranslationContext context, Expression expression, Expression leftExpression, AstComparisonFilterOperator comparisonOperator, Expression rightExpression)
         {
-            var leftMemberExpression = (MemberExpression)leftExpression;
-            var fieldExpression = leftMemberExpression.Expression;
+            Expression fieldExpression;
+            if (IsStringLengthComparison(leftExpression))
+            {
+                fieldExpression = ((MemberExpression)leftExpression).Expression;
+            }
+            else if (IsStringCountComparison(leftExpression))
+            {
+                fieldExpression = ((MethodCallExpression)leftExpression).Arguments[0];
+            }
+            else
+            {
+                throw new ExpressionNotSupportedException(expression);
+            }
+
             var (field, modifiers) = TranslateField(context, fieldExpression);
 
             var comparand = rightExpression.GetConstantValue<int>();
