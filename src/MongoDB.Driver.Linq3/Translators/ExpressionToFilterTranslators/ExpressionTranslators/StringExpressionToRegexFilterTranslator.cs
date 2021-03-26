@@ -19,6 +19,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using MongoDB.Bson;
 using MongoDB.Driver.Linq3.Ast.Filters;
 using MongoDB.Driver.Linq3.ExtensionMethods;
 using MongoDB.Driver.Linq3.Methods;
@@ -379,9 +380,10 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
                 }
                 else
                 {
-                    if (modifiers.IsAllDefaults())
+                    if (modifiers.IsAllDefaults() || comparand == null)
                     {
-                        return comparisonOperator == AstComparisonFilterOperator.Eq ? AstFilter.Eq(field, comparand) : AstFilter.Ne(field, comparand);
+                        BsonValue value = comparand == null ? BsonNull.Value : BsonString.Create(comparand);
+                        return comparisonOperator == AstComparisonFilterOperator.Eq ? AstFilter.Eq(field, value) : AstFilter.Ne(field, value);
                     }
                     else
                     {
@@ -401,8 +403,9 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             static bool IsImpossibleMatch(Modifiers modifiers, string comparand)
             {
                 return
-                    (modifiers.ToLower && comparand != comparand.ToLower()) ||
-                    (modifiers.ToUpper && comparand != comparand.ToUpper());
+                    comparand != null && (
+                        (modifiers.ToLower && comparand != comparand.ToLower()) ||
+                        (modifiers.ToUpper && comparand != comparand.ToUpper()));
             }
         }
 
