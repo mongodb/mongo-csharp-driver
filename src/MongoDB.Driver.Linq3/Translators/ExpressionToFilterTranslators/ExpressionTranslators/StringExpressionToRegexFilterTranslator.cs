@@ -20,6 +20,8 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using MongoDB.Driver.Linq3.Ast.Filters;
+using MongoDB.Driver.Linq3.ExtensionMethods;
+using MongoDB.Driver.Linq3.Methods;
 using MongoDB.Driver.Linq3.Misc;
 using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators;
 
@@ -75,6 +77,12 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
                 return true;
             }
 
+            // s.Length == n
+            if (IsStringLengthComparison(leftExpression))
+            {
+                return true;
+            }
+
             return false;
         }
 
@@ -105,6 +113,11 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
                 return TranslateGetCharsComparison(context, expression, leftExpression, comparisonOperator, rightExpression);
             }
 
+            if (IsStringLengthComparison(leftExpression))
+            {
+                return TranslateStringLengthComparison(context, expression, leftExpression, comparisonOperator, rightExpression);
+            }    
+
             throw new ExpressionNotSupportedException(expression);
         }
 
@@ -118,7 +131,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             }
             if (combinedPattern.EndsWith(".*$"))
             {
-                combinedPattern = combinedPattern.Remove(combinedPattern.Length - 3);
+                combinedPattern = combinedPattern.Substring(0, combinedPattern.Length - 3);
             }
             var options = CreateOptions(modifiers);
             return AstFilter.Regex(field, combinedPattern, options);
@@ -147,16 +160,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             return escaped.ToString();
         }
 
-        private static TValue GetConstantValue<TValue>(Expression expression)
-        {
-            if (expression is ConstantExpression constantExpression)
-            {
-                return (TValue)constantExpression.Value;
-            }
-
-            throw new ExpressionNotSupportedException(expression);
-        }
-
         private static string GetEscapedTrimChars(MethodCallExpression methodCallWithTrimCharsExpression)
         {
             var method = methodCallWithTrimCharsExpression.Method;
@@ -169,7 +172,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             else
             {
                 var trimCharsExpression = arguments[0];
-                var trimChars = GetConstantValue<char[]>(trimCharsExpression);
+                var trimChars = trimCharsExpression.GetConstantValue<char[]>();
                 if (trimChars == null || trimChars.Length == 0)
                 {
                     return null;
@@ -198,9 +201,22 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             return false;
         }
 
+        private static bool IsStringLengthComparison(Expression leftExpression)
+        {
+            if (leftExpression is MemberExpression leftMemberExpression &&
+                leftMemberExpression != null &&
+                leftMemberExpression.Member is PropertyInfo propertyInfo &&
+                propertyInfo.Is(StringProperty.Length))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         private static Modifiers TranslateCulture(Modifiers modifiers, Expression cultureExpression)
         {
-            var culture = GetConstantValue<CultureInfo>(cultureExpression);
+            var culture = cultureExpression.GetConstantValue<CultureInfo>();
             if (culture.Equals(CultureInfo.CurrentCulture))
             {
                 return modifiers;
@@ -218,9 +234,9 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             var (field, modifiers) = TranslateField(context, fieldExpression);
 
             var indexExpression = leftGetCharsExpression.Arguments[0];
-            var index = GetConstantValue<int>(indexExpression);
+            var index = indexExpression.GetConstantValue<int>();
 
-            var comparand = GetConstantValue<int>(rightExpression);
+            var comparand = rightExpression.GetConstantValue<int>();
             var comparandChar = (char)comparand;
             var comparandString = new string(comparandChar, 1);
 
@@ -242,7 +258,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             var arguments = expression.Arguments;
 
             var (field, modifiers) = TranslateField(context, expression.Object);
-            var value = GetConstantValue<string>(arguments[0]);
+            var value = arguments[0].GetConstantValue<string>();
 
             if (method.IsOneOf(StringMethod.StartsWithWithComparisonType, StringMethod.EndsWithWithComparisonType))
             {
@@ -284,7 +300,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
 
         private static Modifiers TranslateComparisonType(Modifiers modifiers, Expression comparisonTypeExpression)
         {
-            var comparisonType = GetConstantValue<StringComparison>(comparisonTypeExpression);
+            var comparisonType = comparisonTypeExpression.GetConstantValue<StringComparison>();
             switch (comparisonType)
             {
                 case StringComparison.CurrentCulture:
@@ -316,7 +332,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
 
         private static Modifiers TranslateIgnoreCase(Modifiers modifiers, Expression ignoreCaseExpression)
         {
-            modifiers.IgnoreCase = GetConstantValue<bool>(ignoreCaseExpression);
+            modifiers.IgnoreCase = ignoreCaseExpression.GetConstantValue<bool>();
             return modifiers;
         }
 
@@ -332,6 +348,32 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             }
 
             throw new ExpressionNotSupportedException(modifierExpression);
+        }
+
+        private static AstFilter TranslateStringLengthComparison(TranslationContext context, Expression expression, Expression leftExpression, AstComparisonFilterOperator comparisonOperator, Expression rightExpression)
+        {
+            var leftMemberExpression = (MemberExpression)leftExpression;
+            var fieldExpression = leftMemberExpression.Expression;
+            var (field, modifiers) = TranslateField(context, fieldExpression);
+
+            var comparand = rightExpression.GetConstantValue<int>();
+            var pattern = comparisonOperator switch
+            {
+                AstComparisonFilterOperator.Eq => $".{{{comparand}}}",
+                AstComparisonFilterOperator.Ne => $".{{{comparand}}}", // $not will be applied below
+                AstComparisonFilterOperator.Lt => $".{{0,{comparand - 1}}}",
+                AstComparisonFilterOperator.Lte => $".{{0,{comparand}}}",
+                AstComparisonFilterOperator.Gt => $".{{{comparand + 1},}}",
+                AstComparisonFilterOperator.Gte => $".{{{comparand},}}",
+                _ => throw new ExpressionNotSupportedException(expression)
+            };
+
+            var filter = CreateFilter(field, modifiers, pattern);
+            if (comparisonOperator == AstComparisonFilterOperator.Ne)
+            {
+                filter = AstFilter.Not(filter);
+            }
+            return filter;
         }
 
         private static Modifiers TranslateToLower(Modifiers modifiers, MethodCallExpression toLowerExpression)
