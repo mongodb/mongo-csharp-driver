@@ -57,7 +57,7 @@ namespace AstrolabeWorkloadExecutor
                 (specEventName.Equals("ConnectionCheckOutFailedEvent") || specEventName.Equals("ConnectionCheckOutStartedEvent"));
         }
 
-        // privat methods
+        // private methods
         private static BsonDocument CreateCmapEventDocument(string eventName, DateTime observedAt, ServerId serverId) =>
             new BsonDocument
             {
@@ -85,9 +85,6 @@ namespace AstrolabeWorkloadExecutor
             return ((DnsEndPoint)endpoint).Host + ":" + ((DnsEndPoint)endpoint).Port;
         }
 
-        private static double GetCurrentTimeSeconds(DateTime observedAt)
-        {
-            return (double)(observedAt - BsonConstants.UnixEpoch).TotalMilliseconds / 1000;
-        }
+        private static double GetCurrentTimeSeconds(DateTime observedAt) => (double)(observedAt - BsonConstants.UnixEpoch).TotalMilliseconds / 1000;
     }
 }
