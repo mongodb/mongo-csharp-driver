@@ -555,11 +555,12 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.IndexOptionsDefaults);
+            RequireServer.Check().Supports(Feature.IndexOptionsDefaults).ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet); // #3 mmapv1
             DropCollection();
+            var storageEngine = CoreTestConfiguration.GetStorageEngine();
             var indexOptionDefaults = new BsonDocument
             {
-                {  "storageEngine", new BsonDocument("mmapv1", new BsonDocument()) }
+                {  "storageEngine", new BsonDocument(storageEngine, new BsonDocument()) } // #3 mmapv1
             };
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
             {

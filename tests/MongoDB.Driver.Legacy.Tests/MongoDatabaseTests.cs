@@ -83,11 +83,12 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestCreateCollectionSetIndexOptionDefaults()
         {
-            RequireServer.Check().Supports(Feature.IndexOptionsDefaults);
+            RequireServer.Check().Supports(Feature.IndexOptionsDefaults).ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet); // #3 mmapv1
             var collection = _database.GetCollection("testindexoptiondefaults");
             collection.Drop();
             Assert.False(collection.Exists());
-            var storageEngineOptions = new BsonDocument("mmapv1", new BsonDocument());
+            var storageEngine = CoreTestConfiguration.GetStorageEngine(); // #3 mmapv1
+            var storageEngineOptions = new BsonDocument(storageEngine, new BsonDocument());
             var indexOptionDefaults = new IndexOptionDefaults { StorageEngine = storageEngineOptions };
             var expectedIndexOptionDefaultsDocument = new BsonDocument("storageEngine", storageEngineOptions);
             var options = CollectionOptions.SetIndexOptionDefaults(indexOptionDefaults);
@@ -109,8 +110,11 @@ namespace MongoDB.Driver.Tests
             var storageEngineOptions = new BsonDocument
             {
                 { "wiredTiger", new BsonDocument("configString", "block_compressor=zlib") },
-                { "mmapv1", new BsonDocument() }
             };
+            if (CoreTestConfiguration.ServerVersion < new SemanticVersion(4, 1, 0)) // #3 mmapv1
+            {
+                storageEngineOptions.Add("mmapv1", new BsonDocument());
+            }
             var options = CollectionOptions.SetStorageEngineOptions(storageEngineOptions);
             _database.CreateCollection(collection.Name, options);
 

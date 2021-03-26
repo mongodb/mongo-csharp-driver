@@ -58,7 +58,7 @@ Task("BuildNet45")
         DotNetBuild(solutionFile, settings => settings
             .SetConfiguration(configuration)
             .SetVerbosity(Verbosity.Minimal)
-            .WithProperty("TargetFrameworkVersion", "v4.5"));
+            .WithProperty("TargetFrameworkVersion", "v4.5.2")); // Fix EG host not having 4.5 framework
 
         EnsureDirectoryExists(artifactsBinNet45Directory);
         foreach (var projectName in srcProjectNames)

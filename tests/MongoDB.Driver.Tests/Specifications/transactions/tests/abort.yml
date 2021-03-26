@@ -297,7 +297,7 @@ tests:
           document:
             _id: 1
         result:
-          errorCodeName: DuplicateKey
+          #errorCodeName: DuplicateKey #4 DuplicateKey
           errorLabelsOmit: ["TransientTransactionError", "UnknownTransactionCommitResult"]
       # Make sure the server aborted the transaction.
       - name: insertOne

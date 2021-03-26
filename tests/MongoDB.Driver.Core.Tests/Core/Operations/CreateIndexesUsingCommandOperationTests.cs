@@ -302,7 +302,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             RequireServer.Check().Supports(Feature.CreateIndexesCommand);
             DropCollection();
-            var expireAfter = TimeSpan.FromSeconds(1.5);
+            var expireAfter = TimeSpan.FromSeconds(1); // #11 Rounding
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) { ExpireAfter = expireAfter } };
             var subject = new CreateIndexesUsingCommandOperation(_collectionNamespace, requests, _messageEncoderSettings);
 

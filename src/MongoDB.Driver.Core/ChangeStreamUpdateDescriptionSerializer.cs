@@ -59,11 +59,12 @@ namespace MongoDB.Driver
                     case "updatedFields":
                         updatedFields = BsonDocumentSerializer.Instance.Deserialize(context);
                         break;
-
                     case "removedFields":
                         removedFields = __stringArraySerializer.Deserialize(context);
                         break;
-
+                    case "truncatedArrays":
+                        BsonArraySerializer.Instance.Deserialize(context); // #12 truncatedArrays
+                        break;
                     default:
                         throw new FormatException($"Invalid field name: \"{fieldName}\".");
                 }

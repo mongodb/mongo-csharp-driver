@@ -137,7 +137,7 @@ namespace MongoDB.Driver.Core.Operations
             var cursor = ExecuteOperation(subject, async);
             var results = ReadCursorToEnd(cursor, async);
 
-            results.Should().Equal(
+            results.Should().BeEquivalentTo( // #5 MapReduce
                 BsonDocument.Parse("{ _id : 1, value : 3 }"),
                 BsonDocument.Parse("{ _id : 2, value : 4 }"));
         }
@@ -180,7 +180,7 @@ namespace MongoDB.Driver.Core.Operations
                     BsonDocument.Parse("{ _id : 2, value : 4 }")
                 };
             }
-            results.Should().Equal(expectedResults);
+            results.Should().BeEquivalentTo(expectedResults); // #5 MapReduce
         }
 
         [SkippableTheory]
@@ -200,7 +200,7 @@ namespace MongoDB.Driver.Core.Operations
             var cursor = ExecuteOperation(subject, async);
             var results = ReadCursorToEnd(cursor, async);
 
-            results.Should().Equal(
+            results.Should().BeEquivalentTo( // #5 MapReduce
                 BsonDocument.Parse("{ _id : 1, value : 1 }"),
                 BsonDocument.Parse("{ _id : 2, value : 4 }"));
         }
@@ -222,7 +222,7 @@ namespace MongoDB.Driver.Core.Operations
             var cursor = ExecuteOperation(subject, async);
             var results = ReadCursorToEnd(cursor, async);
 
-            results.Should().Equal(
+            results.Should().BeEquivalentTo( // #5 MapReduce
                 BsonDocument.Parse("{ _id : 1, value : -3 }"),
                 BsonDocument.Parse("{ _id : 2, value : -4 }"));
         }
@@ -248,7 +248,7 @@ namespace MongoDB.Driver.Core.Operations
         //    var results = ReadCursorToEnd(cursor, async);
 
         //    // the results are the same either way, but at least we're smoke testing JavaScriptMode
-        //    results.Should().Equal(
+        //    results.Should().BeEquivalentTo( // #5 MapReduce
         //        BsonDocument.Parse("{ _id : 1, value : 3 }"),
         //        BsonDocument.Parse("{ _id : 2, value : 4 }"));
         //}
@@ -275,7 +275,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 new BsonDocument { { "_id", 1 }, { "value", limit == 1 ? 1 : 3 } }
             };
-            results.Should().Equal(expectedResults);
+            results.Should().BeEquivalentTo(expectedResults); // #5 MapReduce
         }
 
         [SkippableTheory]
@@ -298,7 +298,7 @@ namespace MongoDB.Driver.Core.Operations
             var results = ReadCursorToEnd(cursor, async);
 
             // results should be the same whether MaxTime was used or not
-            results.Should().Equal(
+            results.Should().BeEquivalentTo( // #5 MapReduce
                 BsonDocument.Parse("{ _id : 1, value : 3 }"),
                 BsonDocument.Parse("{ _id : 2, value : 4 }"));
         }
@@ -323,7 +323,7 @@ namespace MongoDB.Driver.Core.Operations
             var cursor = ExecuteOperation(subject, async);
             var results = ReadCursorToEnd(cursor, async);
 
-            results.Should().Equal(
+            results.Should().BeEquivalentTo( // #5 MapReduce
                 BsonDocument.Parse("{ _id : 1, value : 3 }"),
                 BsonDocument.Parse("{ _id : 2, value : 4 }"));
         }
@@ -342,6 +342,7 @@ namespace MongoDB.Driver.Core.Operations
             var cursor = ExecuteOperation(subject, async);
             var results = ReadCursorToEnd(cursor, async);
 
+            results.Sort(); // #5 MapReduce
             results.Should().Equal(3, 4);
         }
 
@@ -364,7 +365,7 @@ namespace MongoDB.Driver.Core.Operations
             var cursor = ExecuteOperation(subject, async);
             var results = ReadCursorToEnd(cursor, async);
 
-            results.Should().Equal(
+            results.Should().BeEquivalentTo( // #5 MapReduce
                 BsonDocument.Parse("{ _id : 1, value : 3 }"),
                 BsonDocument.Parse("{ _id : 2, value : 4 }"));
         }
@@ -405,7 +406,7 @@ namespace MongoDB.Driver.Core.Operations
                     BsonDocument.Parse("{ _id : 2, value : 4 }")
                 };
             }
-            results.Should().Equal(expectedResults);
+            results.Should().BeEquivalentTo(expectedResults); // #5 MapReduce
         }
 
         [Theory]
