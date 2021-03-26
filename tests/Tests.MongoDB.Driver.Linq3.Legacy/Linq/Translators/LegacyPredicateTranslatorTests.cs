@@ -892,13 +892,13 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         [Fact]
         public void TestWhereSToLowerEqualsConstantLowerCaseValue()
         {
-            Assert<C>(c => c.S.ToLower() == "abc", 1, "{ \"s\" : /^abc$/i }");
+            Assert<C>(c => c.S.ToLower() == "abc", 1, "{ \"s\" : /^abc$/is }");
         }
 
         [Fact]
         public void TestWhereSToLowerDoesNotEqualConstantLowerCaseValue()
         {
-            Assert<C>(c => c.S.ToLower() != "abc", 4, "{ \"s\" : { \"$not\" : /^abc$/i } }");
+            Assert<C>(c => c.S.ToLower() != "abc", 4, "{ \"s\" : { \"$not\" : /^abc$/is } }");
         }
 
         [Fact]

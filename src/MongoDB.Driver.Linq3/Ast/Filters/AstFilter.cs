@@ -14,7 +14,6 @@
 */
 
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using MongoDB.Bson;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
@@ -81,9 +80,14 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
             return new AstFieldOperationFilter(field, new AstInFilterOperation(values));
         }
 
-        public static AstFieldOperationFilter MatchesNothing(AstFilterField field)
+        public static AstFilter MatchesEverything()
         {
-            return new AstFieldOperationFilter(field, new AstTypeFilterOperation((BsonType)(-1)));
+            return new AstMatchesEverythingFilter();
+        }
+
+        public static AstFilter MatchesNothing()
+        {
+            return new AstMatchesNothingFilter();
         }
 
         public static AstFieldOperationFilter Mod(AstFilterField field, BsonValue divisor, BsonValue remainder)
@@ -131,6 +135,16 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
             if (filter is AstNorFilter norFilter && norFilter.Filters.Length == 1)
             {
                 return norFilter.Filters[0];
+            }
+
+            if (filter.NodeType == AstNodeType.MatchesEverythingFilter)
+            {
+                return AstFilter.MatchesNothing();
+            }
+
+            if (filter.NodeType == AstNodeType.MatchesNothingFilter)
+            {
+                return AstFilter.MatchesEverything();
             }
 
             return new AstNorFilter(filter);

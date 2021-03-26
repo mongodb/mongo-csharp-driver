@@ -71,14 +71,20 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
 
         public static bool CanTranslateComparisonExpression(Expression leftExpression, AstComparisonFilterOperator comparisonOperator, Expression rightExpression)
         {
-            // (int)S[i] == c
+            // (int)document.S[i] == c
             if (IsGetCharsComparison(leftExpression))
             {
                 return true;
             }
 
-            // s.Length == n
+            // document.S.Length == n
             if (IsStringLengthComparison(leftExpression))
+            {
+                return true;
+            }
+
+            // document.S == "abc"
+            if (IsStringComparison(leftExpression))
             {
                 return true;
             }
@@ -111,6 +117,11 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             if (IsGetCharsComparison(leftExpression))
             {
                 return TranslateGetCharsComparison(context, expression, leftExpression, comparisonOperator, rightExpression);
+            }
+
+            if (IsStringComparison(leftExpression))
+            {
+                return TranslateStringComparison(context, expression, leftExpression, comparisonOperator, rightExpression);
             }
 
             if (IsStringLengthComparison(leftExpression))
@@ -201,6 +212,11 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             return false;
         }
 
+        private static bool IsStringComparison(Expression leftExpression)
+        {
+            return leftExpression.Type == typeof(string);
+        }
+
         private static bool IsStringLengthComparison(Expression leftExpression)
         {
             if (leftExpression is MemberExpression leftMemberExpression &&
@@ -272,7 +288,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
 
             if (IsImpossibleMatch(modifiers, value))
             {
-                return AstFilter.MatchesNothing(field);
+                return AstFilter.MatchesNothing();
             }
             else
             {
@@ -348,6 +364,46 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             }
 
             throw new ExpressionNotSupportedException(modifierExpression);
+        }
+
+        private static AstFilter TranslateStringComparison(TranslationContext context, Expression expression, Expression leftExpression, AstComparisonFilterOperator comparisonOperator, Expression rightExpression)
+        {
+            var (field, modifiers) = TranslateField(context, leftExpression);
+            var comparand = rightExpression.GetConstantValue<string>();
+
+            if (comparisonOperator == AstComparisonFilterOperator.Eq || comparisonOperator == AstComparisonFilterOperator.Ne)
+            {
+                if (IsImpossibleMatch(modifiers, comparand))
+                {
+                    return comparisonOperator == AstComparisonFilterOperator.Eq ? AstFilter.MatchesNothing() : AstFilter.MatchesEverything();
+                }
+                else
+                {
+                    if (modifiers.IsAllDefaults())
+                    {
+                        return comparisonOperator == AstComparisonFilterOperator.Eq ? AstFilter.Eq(field, comparand) : AstFilter.Ne(field, comparand);
+                    }
+                    else
+                    {
+                        var pattern = Regex.Escape(comparand);
+                        var filter = CreateFilter(field, modifiers, pattern);
+                        if (comparisonOperator == AstComparisonFilterOperator.Ne)
+                        {
+                            filter = AstFilter.Not(filter);
+                        }
+                        return filter;
+                    }
+                }
+            }
+
+            throw new ExpressionNotSupportedException(expression);
+
+            static bool IsImpossibleMatch(Modifiers modifiers, string comparand)
+            {
+                return
+                    (modifiers.ToLower && comparand != comparand.ToLower()) ||
+                    (modifiers.ToUpper && comparand != comparand.ToUpper());
+            }
         }
 
         private static AstFilter TranslateStringLengthComparison(TranslationContext context, Expression expression, Expression leftExpression, AstComparisonFilterOperator comparisonOperator, Expression rightExpression)
@@ -458,6 +514,16 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             public bool ToUpper { get; set; }
             public string LeadingPattern { get; set; }
             public string TrailingPattern { get; set; }
+
+            public bool IsAllDefaults()
+            {
+                return
+                    IgnoreCase == false &&
+                    ToLower == false &&
+                    ToUpper == false &&
+                    LeadingPattern == "" &&
+                    TrailingPattern == "";
+            }
         }
     }
 }
