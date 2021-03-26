@@ -76,6 +76,8 @@ namespace MongoDB.Driver.Linq3.Ast
         LookupStage,
         LTrimExpression,
         MapExpression,
+        MatchesEverythingFilter,
+        MatchesNothingFilter,
         MatchStage,
         MergeStage,
         ModFilterOperation,
