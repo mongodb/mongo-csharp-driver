@@ -28,5 +28,5 @@ See respective ticket: [CSHARP-3249: Skip geoSearch and geoHaystack tests when r
 10. 🦖 `ReIndex` command fails on replica set and sharded cluster configurations, but works on standalone as it used to. This operation is part of legacy API. See respective change in 2.11.0 driver: [CSHARP-3058: Make 'reIndex' a standalone-only command](https://jira.mongodb.org/browse/CSHARP-3058)
 11. `CreateIndexesOperation` result field `expireAfterSeconds` value is rounded since server version 4.9.0.
 See respective ticket: [CSHARP-3294: Fix CreateIndexesOperationTests tests on latests](https://jira.mongodb.org/browse/CSHARP-3294)
-12. `trunkatedArrays` field is not handled in `ChangeStreamDocument.UpdateDescription` property deserialization, causing the access to the property throw and exception `System.FormatException : Invalid field name: "truncatedArrays".` since server version 4.9.0. Other properties work as intended.
+12. `truncatedArrays` field is not handled in `ChangeStreamDocument.UpdateDescription` property deserialization, causing the access to the property throw and exception `System.FormatException : Invalid field name: "truncatedArrays".` since server version 4.9.0. Other properties work as intended.
 See respective ticket: [CSHARP-3212: Add new field truncatedArrays into cursor.nextBatch.updateDescription](https://jira.mongodb.org/browse/CSHARP-3212)
