@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
 
             var databaseName = GetDatabaseName(definition);
             var collectionName = GetCollectionName(definition);
-            DropCollection(databaseName, collectionName);
+            RemoveCollectionData(databaseName, collectionName); // #9 DropCollection
             PrepareData(databaseName, collectionName, definition);
 
             using (var client = CreateDisposableClient(_capturedEvents))
@@ -260,6 +260,13 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                         .InsertMany(documents);
                 }
             }
+        }
+
+        private void RemoveCollectionData(string databaseName, string collectionName)
+        {
+            var database = DriverTestConfiguration.Client.GetDatabase(databaseName);
+            var collection = database.GetCollection<BsonDocument>(collectionName).WithWriteConcern(WriteConcern.WMajority);
+            collection.DeleteMany(FilterDefinition<BsonDocument>.Empty);
         }
 
         private void SkipTestIfNeeded(BsonDocument definition, BsonDocument test)

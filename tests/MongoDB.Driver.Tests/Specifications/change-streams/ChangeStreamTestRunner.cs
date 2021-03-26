@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -258,19 +259,19 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
         {
             var result = new List<ChangeStreamDocument<BsonDocument>>();
             var resultDocument = test["result"].AsBsonDocument;
-            if (!resultDocument.TryGetValue("success", out var successNode))
-            {
-                // skip an empty batch which is the result of an initial "aggregate" change stream request
-                // next `MoveNext` will call a server
-                cursor.MoveNext();
-            }
-            int expectedNumberOfDocuments = successNode?.AsBsonArray.Count ?? 0;
+            var successNode = resultDocument.GetValue("success", null)?.AsBsonArray; // CSHARP-2891
 
+            var stopwatch = Stopwatch.StartNew();
             while (async ? cursor.MoveNextAsync().GetAwaiter().GetResult() : cursor.MoveNext())
             {
                 result.AddRange(cursor.Current);
 
-                if (result.Count >= expectedNumberOfDocuments)
+                if (successNode != null && result.Count >= successNode.Count)
+                {
+                    break;
+                }
+
+                if (stopwatch.Elapsed > TimeSpan.FromSeconds(10)) // 10 seconds is enough time to receive all the required change documents or for an exception to be thrown
                 {
                     break;
                 }

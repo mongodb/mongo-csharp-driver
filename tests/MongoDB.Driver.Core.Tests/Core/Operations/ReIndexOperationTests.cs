@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterTypes(ClusterType.Standalone); // #7 ReIndex
             EnsureCollectionExists();
             var subject = new ReIndexOperation(_collectionNamespace, _messageEncoderSettings);
 
@@ -111,7 +111,7 @@ namespace MongoDB.Driver.Core.Operations
         public void Execute_should_send_session_id_when_supported(
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterTypes(ClusterType.Standalone); // #7 ReIndex
             EnsureCollectionExists();
             var subject = new ReIndexOperation(_collectionNamespace, _messageEncoderSettings);
 
