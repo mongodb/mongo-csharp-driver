@@ -17,7 +17,7 @@ See respective ticket: [CSHARP-3294: Fix CreateIndexesOperationTests tests on la
 See respective ticket: [CSHARP-3078: Fix test CreateIndex_with_wildcardProjection_should_create_expected_index on latest](https://jira.mongodb.org/browse/CSHARP-3078)
 7. 🦖 `ReIndex` command fails on replica set configuration, but works on standalone as it used to. This operation is part of legacy API.
 See respective change in 2.11.0 driver: [CSHARP-3058: Make 'reIndex' a standalone-only command](https://jira.mongodb.org/browse/CSHARP-3058)
-8. `trunkatedArrays` field is not handled in `ChangeStreamDocument.UpdateDescription` property deserialization, causing the access to the property throw and exception `System.FormatException : Invalid field name: "truncatedArrays".` since server version 4.9.0. Other properties work as intended.
+8. `truncatedArrays` field is not handled in `ChangeStreamDocument.UpdateDescription` property deserialization, causing the access to the property throw and exception `System.FormatException : Invalid field name: "truncatedArrays".` since server version 4.9.0. Other properties work as intended.
 See respective ticket: [CSHARP-3212: Add new field truncatedArrays into cursor.nextBatch.updateDescription](https://jira.mongodb.org/browse/CSHARP-3212)
 9. Droppping collections on admin database in sharded cluster throws exception since server version 4.7.0.
 See respective ticket: [CSHARP-3065: Don't use admin database for FLE tests](https://jira.mongodb.org/browse/CSHARP-3065)
