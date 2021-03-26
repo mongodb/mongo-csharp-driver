@@ -13,22 +13,21 @@
 * limitations under the License.
 */
 
-using System.Reflection;
+using System.Linq.Expressions;
 
-namespace MongoDB.Driver.Linq3.Methods
+namespace MongoDB.Driver.Linq3.ExtensionMethods
 {
-    public static class NullableProperty
+    public static class ExpressionExtensions
     {
-        // private static fields
-        private static readonly PropertyInfo __hasValue;
-
-        // static constructor
-        static NullableProperty()
+        public static TValue GetConstantValue<TValue>(this Expression expression)
         {
-            __hasValue = Property.Info((int? n) => n.HasValue);
+            if (expression is ConstantExpression constantExpression)
+            {
+                return (TValue)constantExpression.Value;
+            }
+
+            throw new ExpressionNotSupportedException(expression);
         }
 
-        // public properties
-        public static PropertyInfo HasValue => __hasValue;
     }
 }
