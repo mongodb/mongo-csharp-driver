@@ -230,9 +230,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                             {
                                 throw new Exception($"Client entity with id '{id}' already exists.");
                             }
-                            var client = CreateClient(entity, out var createdEventCapturers);
-                            clients.Add(id, client);
-                            foreach (var createdEventCapturer in createdEventCapturers)
+                            var clientDetails = CreateClient(entity);
+                            clients.Add(id, clientDetails.Client);
+                            foreach (var createdEventCapturer in clientDetails.ClientEventCapturers)
                             {
                                 clientEventCapturers.Add(createdEventCapturer.Key, createdEventCapturer.Value);
                             }
@@ -309,9 +309,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             return new GridFSBucket(database);
         }
 
-        private DisposableMongoClient CreateClient(BsonDocument entity, out Dictionary<string, EventCapturer> clientEventCapturers)
+        private (DisposableMongoClient Client, Dictionary<string, EventCapturer> ClientEventCapturers) CreateClient(BsonDocument entity)
         {
-            clientEventCapturers = new Dictionary<string, EventCapturer>();
+            var clientEventCapturers = new Dictionary<string, EventCapturer>();
             string clientId = null;
             var commandNamesToSkipInEvents = new List<string>();
             List<(string Key, IEnumerable<string> Events, List<string> CommandNotToCapture)> eventTypesToCapture = new ();
@@ -424,8 +424,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 }
             }
 
-            var eventCapturers = clientEventCapturers.Select(c => c.Value);
-            return DriverTestConfiguration.CreateDisposableClient(
+            var eventCapturers = clientEventCapturers.Select(c => c.Value).ToArray();
+            var client = DriverTestConfiguration.CreateDisposableClient(
                 settings =>
                 {
                     settings.RetryReads = retryReads;
@@ -434,7 +434,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     settings.WriteConcern = writeConcern;
                     settings.HeartbeatInterval = TimeSpan.FromMilliseconds(5); // the default value for spec tests
                     settings.ServerApi = serverApi;
-                    if (eventCapturers.Count() > 0)
+                    if (eventCapturers.Length > 0)
                     {
                         settings.ClusterConfigurator = c =>
                         {
@@ -446,6 +446,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     }
                 },
                 useMultipleShardRouters);
+
+            return (client, clientEventCapturers);
         }
 
         private IMongoCollection<BsonDocument> CreateCollection(BsonDocument entity, Dictionary<string, IMongoDatabase> databases)

@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Core
             {
                 _eventsToCapture.Add(
                     eventType,
-                    o => CommandCapturer.ShouldCapture(o, commandNotTocapture ?? Enumerable.Empty<string>(), useDefaltCommandsNotToCapture)); // only command events use predicate filters
+                    CommandCapturer.ShouldCapture(commandNotTocapture ?? Enumerable.Empty<string>(), useDefaltCommandsNotToCapture));
             }
             return this;
         }
@@ -187,17 +187,17 @@ namespace MongoDB.Driver.Core
                 "saslStart"
             };
 
-            public static bool ShouldCapture(object @event, IEnumerable<string> commandsNotTocapture, bool useDefaltCommandsNotToCapture)
+            public static Func<object, bool> ShouldCapture(IEnumerable<string> commandsNotTocapture, bool useDefaltCommandsNotToCapture)
             {
-                return @event switch
+                var hashtable = new HashSet<string>(useDefaltCommandsNotToCapture ? Enumerable.Concat(commandsNotTocapture, __defaultCommandNamesNotToCapturer) : commandsNotTocapture);
+
+                return o => o switch
                 {
-                    CommandStartedEvent typedEvent => !GetCommandsNotToCapture().Contains(typedEvent.CommandName),
-                    CommandFailedEvent typedEvent => !GetCommandsNotToCapture().Contains(typedEvent.CommandName),
-                    CommandSucceededEvent typedEvent => !GetCommandsNotToCapture().Contains(typedEvent.CommandName),
+                    CommandStartedEvent typedEvent => !hashtable.Contains(typedEvent.CommandName),
+                    CommandFailedEvent typedEvent => !hashtable.Contains(typedEvent.CommandName),
+                    CommandSucceededEvent typedEvent => !hashtable.Contains(typedEvent.CommandName),
                     _ => true,
                 };
-
-                IEnumerable<string> GetCommandsNotToCapture() => useDefaltCommandsNotToCapture ? Enumerable.Concat(commandsNotTocapture, __defaultCommandNamesNotToCapturer) : commandsNotTocapture;
             }
             #endregion
 

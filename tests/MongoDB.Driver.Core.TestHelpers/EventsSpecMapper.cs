@@ -22,25 +22,36 @@ namespace MongoDB.Driver.TestHelpers
 {
     public static class EventSpecMapper
     {
-        private static Dictionary<string, Type> __eventsMap = new Dictionary<string, Type>
-        {
-            { "PoolCreatedEvent", typeof(ConnectionPoolOpenedEvent) },
-            { "PoolReadyEvent", null }, // TODO:
-            { "PoolClearedEvent", typeof(ConnectionPoolClearedEvent) },
-            { "PoolClosedEvent", typeof(ConnectionPoolClosedEvent) },
-            { "ConnectionCreatedEvent", typeof(ConnectionCreatedEvent) },
-            { "ConnectionReadyEvent", null }, // TODO:
-            { "ConnectionClosedEvent", typeof(ConnectionClosedEvent) },
-            { "ConnectionCheckOutStartedEvent", typeof(ConnectionPoolCheckingOutConnectionEvent) },
-            { "ConnectionCheckOutFailedEvent", typeof(ConnectionPoolCheckingOutConnectionFailedEvent) },
-            { "ConnectionCheckedOutEvent", typeof(ConnectionPoolCheckedOutConnectionEvent) },
-            { "ConnectionCheckedInEvent", typeof(ConnectionPoolCheckedInConnectionEvent) },
-            { "CommandStartedEvent", typeof(CommandStartedEvent) },
-            { "CommandSucceededEvent", typeof(CommandSucceededEvent) },
-            { "CommandFailedEvent", typeof(CommandFailedEvent) },
-        };
+        private static readonly Dictionary<string, Type> __specEventToEvent;
+        private static readonly Dictionary<string, string> __eventToSpecEvent;
 
-        public static string GetSpecEventName(string eventName) => __eventsMap.SingleOrDefault(e => e.Value?.Name?.ToLower() == eventName.ToLower()).Key;
-        public static Type GetEventType(string specEventName) => __eventsMap.SingleOrDefault(e => e.Key.ToLower() == specEventName.ToLower()).Value;
+        static EventSpecMapper()
+        {
+            var mapping = new[]
+            {
+                ( "PoolCreatedEvent", typeof(ConnectionPoolOpenedEvent) ),
+                ( "PoolReadyEvent", null ), // TODO:
+                ( "PoolClearedEvent", typeof(ConnectionPoolClearedEvent) ),
+                ( "PoolClosedEvent", typeof(ConnectionPoolClosedEvent) ),
+                ( "ConnectionCreatedEvent", typeof(ConnectionCreatedEvent) ),
+                ( "ConnectionReadyEvent", null ), // TODO:
+                ( "ConnectionClosedEvent", typeof(ConnectionClosedEvent) ),
+                ( "ConnectionCheckOutStartedEvent", typeof(ConnectionPoolCheckingOutConnectionEvent) ),
+                ( "ConnectionCheckOutFailedEvent", typeof(ConnectionPoolCheckingOutConnectionFailedEvent) ),
+                ( "ConnectionCheckedOutEvent", typeof(ConnectionPoolCheckedOutConnectionEvent) ),
+                ( "ConnectionCheckedInEvent", typeof(ConnectionPoolCheckedInConnectionEvent) ),
+                ( "CommandStartedEvent", typeof(CommandStartedEvent) ),
+                ( "CommandSucceededEvent", typeof(CommandSucceededEvent) ),
+                ( "CommandFailedEvent", typeof(CommandFailedEvent))
+            };
+
+            __specEventToEvent = mapping.ToDictionary(p => p.Item1.ToLowerInvariant(), p => p.Item2);
+            __eventToSpecEvent = mapping
+                .Where(p => p.Item2 != null) // TODO remove null filter
+                .ToDictionary(p => p.Item2.Name.ToLowerInvariant(), p => p.Item1);
+        }
+
+        public static string GetSpecEventName(string eventName) => __eventToSpecEvent[eventName.ToLowerInvariant()];
+        public static Type GetEventType(string specEventName) => __specEventToEvent[specEventName.ToLowerInvariant()];
     }
 }

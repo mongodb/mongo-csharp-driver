@@ -32,7 +32,7 @@ namespace WorkloadExecutor
     {
         public static void Main(string[] args)
         {
-            Ensure.IsEqualTo(args.Count(), 2, "WorkloadExecutorArgumentsCount");
+            Ensure.IsEqualTo(args.Length, 2, nameof(args.Length));
 
             var connectionString = args[0];
             var driverWorkload = BsonDocument.Parse(args[1]);
@@ -42,9 +42,9 @@ namespace WorkloadExecutor
             ConsoleCancelEventHandler cancelHandler = (o, e) => HandleCancel(e, cancellationTokenSource);
 
             var resultsDir = Environment.GetEnvironmentVariable("RESULTS_DIR");
-            var eventsPath = resultsDir == null ? "events.json" : Path.Combine(resultsDir, "events.json");
-            var resultsPath = resultsDir == null ? "results.json" : Path.Combine(resultsDir, "results.json");
-            Console.WriteLine($"dotnet main> Results will be written to {resultsPath}...");
+            var eventsPath = Path.Combine(resultsDir ?? "", "events.json");
+            var resultsPath = Path.Combine(resultsDir ?? "", "results.json");
+            Console.WriteLine($"dotnet main> Results will be written to {resultsPath},\nEvents will be written to {eventsPath}...");
 
             Console.CancelKeyPress += cancelHandler;
 
@@ -66,11 +66,11 @@ namespace WorkloadExecutor
 
                 Console.CancelKeyPress -= cancelHandler;
 
-                Console.WriteLine("dotnet main finally> Writing final results file");
+                Console.WriteLine("dotnet main finally> Writing final results and events files");
                 WriteToFile(resultsPath, resultDetails.ResultsJson);
                 WriteToFile(eventsPath, resultDetails.EventsJson);
 
-                // ensure all messages are propagated to the astralable time immediately
+                // ensure all messages are propagated to the astrolabe time immediately
                 Console.Error.Flush();
                 Console.Out.Flush();
             }
@@ -78,6 +78,8 @@ namespace WorkloadExecutor
 
         private static (string EventsJson, string ResultsJson) HandleWorkloadResult(UnifiedEntityMap entityMap)
         {
+            Ensure.IsNotNull(entityMap, nameof(entityMap));
+
             var iterationsCount = GetValueOrDefault(entityMap.IterationCounts, "iterations", @default: -1);
             var successesCount = GetValueOrDefault(entityMap.SuccessCounts, "successes", @default: -1);
 
@@ -89,7 +91,7 @@ namespace WorkloadExecutor
             var events = new BsonArray();
             if (entityMap.EventCapturers.TryGetValue("events", out var eventCapturer))
             {
-                var specEvents = eventCapturer.Events.Select(e => AstrolabeEventsHandler.CreateEventDocument(e));
+                var specEvents = eventCapturer.Events.Select(AstrolabeEventsHandler.CreateEventDocument);
                 events.AddRange(specEvents);
             }
 
