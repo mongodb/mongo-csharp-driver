@@ -42,7 +42,8 @@ namespace MongoDB.Bson.Serialization
         private static HashSet<Type> __discriminatedTypes = new HashSet<Type>();
         private static BsonSerializerRegistry __serializerRegistry;
         private static TypeMappingSerializationProvider __typeMappingSerializationProvider;
-        private static ConcurrentDictionary<Type, Type> __typesWithRegisteredKnownTypes = new ConcurrentDictionary<Type, Type>();
+        // ConcurrentDictionary<Type, object> is being used as a concurrent set of Type. The values will always be null.
+        private static ConcurrentDictionary<Type, object> __typesWithRegisteredKnownTypes = new ConcurrentDictionary<Type, object>();
 
         private static bool __useNullIdChecker = false;
         private static bool __useZeroIdChecker = false;
@@ -702,7 +703,10 @@ namespace MongoDB.Bson.Serialization
                         LookupSerializer(nominalType);
                     }
 
-                    __typesWithRegisteredKnownTypes[nominalType] = nominalType;
+                    // NOTE: The nominalType MUST be added to __typesWithRegisteredKnownTypes after all registration
+                    //       work is done to ensure that other threads don't access a partially registered nominalType
+                    //       when performing the initial check above outside the __config lock.
+                    __typesWithRegisteredKnownTypes[nominalType] = null;
                 }
             }
             finally
