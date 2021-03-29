@@ -17,45 +17,61 @@ using System;
 using System.Net;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Servers;
-using MongoDB.Driver.TestHelpers;
 
 namespace AstrolabeWorkloadExecutor
 {
     public static class AstrolabeEventsHandler
     {
         // public methods
-        public static BsonDocument CreateEventDocument(dynamic @event)
-        {
-            var eventName = @event.GetType().Name;
-            string specEventName = EventSpecMapper.GetSpecEventName(eventName);
-
-            return specEventName switch
+        public static BsonDocument CreateEventDocument(object @event) =>
+            @event switch
             {
-                _ when specEventName.StartsWith("Connection") && !ConnectionEventWithOnlyServerId(specEventName) =>
-                    CreateCmapEventDocument(specEventName, @event.ObservedAt, @event.ConnectionId),
-                _ when specEventName.StartsWith("Pool") || ConnectionEventWithOnlyServerId(specEventName) =>
-                    CreateCmapEventDocument(specEventName, @event.ObservedAt, @event.ServerId),
-                _ when specEventName.StartsWith("Command") => specEventName switch
-                {
-                    "CommandStartedEvent" =>
-                        CreateCommandEventDocument(specEventName, (DateTime)@event.ObservedAt, (string)@event.CommandName, (int)@event.RequestId)
-                        .Add("databaseName", @event.DatabaseNamespace.ToString()),
-                    "CommandSucceededEvent" => CreateCommandEventDocument(specEventName, (DateTime)@event.ObservedAt, (string)@event.CommandName, (int)@event.RequestId)
-                        .Add("duration", ((TimeSpan)@event.Duration).TotalMilliseconds),
-                    "CommandFailedEvent" => CreateCommandEventDocument(specEventName, (DateTime)@event.ObservedAt, (string)@event.CommandName, (int)@event.RequestId)
-                        .Add("duration", ((TimeSpan)@event.Duration).TotalMilliseconds)
-                        .Add("failure", @event.Failure.ToString()),
-                    _ => throw new Exception($"Unsupported command spec event {specEventName}."),
-                },
-                _ => throw new Exception($"Unexpected spec event {specEventName}."),
-            };
+                CommandStartedEvent typedEvent =>
+                    CreateCommandEventDocument("CommandStartedEvent", typedEvent.ObservedAt, typedEvent.CommandName, typedEvent.RequestId)
+                    .Add("databaseName", typedEvent.DatabaseNamespace.ToString()),
 
-            bool ConnectionEventWithOnlyServerId(string name) =>
-                name.StartsWith("Connection")
-                &&
-                (specEventName.Equals("ConnectionCheckOutFailedEvent") || specEventName.Equals("ConnectionCheckOutStartedEvent"));
-        }
+                CommandSucceededEvent typedEvent =>
+                    CreateCommandEventDocument("CommandSucceededEvent", typedEvent.ObservedAt, typedEvent.CommandName, typedEvent.RequestId)
+                    .Add("duration", typedEvent.Duration.TotalMilliseconds),
+
+                CommandFailedEvent typedEvent =>
+                    CreateCommandEventDocument("CommandFailedEvent", typedEvent.ObservedAt, typedEvent.CommandName, typedEvent.RequestId)
+                    .Add("duration", typedEvent.Duration.TotalMilliseconds)
+                    .Add("failure", typedEvent.Failure.ToString()),
+
+                ConnectionPoolOpenedEvent typedEvent =>
+                    CreateCmapEventDocument("PoolCreatedEvent", typedEvent.ObservedAt, typedEvent.ServerId),
+
+                ConnectionPoolClearedEvent typedEvent =>
+                    CreateCmapEventDocument("PoolClearedEvent", typedEvent.ObservedAt, typedEvent.ServerId),
+
+                ConnectionPoolClosedEvent typedEvent =>
+                    CreateCmapEventDocument("PoolClosedEvent", typedEvent.ObservedAt, typedEvent.ServerId),
+
+                ConnectionCreatedEvent typedEvent =>
+                    CreateCmapEventDocument("ConnectionCreatedEvent", typedEvent.ObservedAt, typedEvent.ConnectionId),
+
+                ConnectionClosedEvent typedEvent =>
+                    CreateCmapEventDocument("ConnectionClosedEvent", typedEvent.ObservedAt, typedEvent.ConnectionId),
+                    //.Add("reason", typedEvent.Reason) TODO: should be implemented in the scope of CSHARP-3219
+
+                ConnectionPoolCheckingOutConnectionEvent typedEvent =>
+                    CreateCmapEventDocument("ConnectionCheckOutStartedEvent", typedEvent.ObservedAt, typedEvent.ServerId),
+
+                ConnectionPoolCheckingOutConnectionFailedEvent typedEvent =>
+                    CreateCmapEventDocument("ConnectionCheckOutFailedEvent", typedEvent.ObservedAt, typedEvent.ServerId)
+                    .Add("reason", typedEvent.Reason),
+
+                ConnectionPoolCheckedOutConnectionEvent typedEvent =>
+                    CreateCmapEventDocument("ConnectionCheckedOutEvent", typedEvent.ObservedAt, typedEvent.ConnectionId),
+
+                ConnectionPoolCheckedInConnectionEvent typedEvent =>
+                    CreateCmapEventDocument("ConnectionCheckedInEvent", typedEvent.ObservedAt, typedEvent.ConnectionId),
+
+                _ => throw new FormatException($"Unrecognized event type: '{@event.GetType()}'."),
+            };
 
         // private methods
         private static BsonDocument CreateCmapEventDocument(string eventName, DateTime observedAt, ServerId serverId) =>

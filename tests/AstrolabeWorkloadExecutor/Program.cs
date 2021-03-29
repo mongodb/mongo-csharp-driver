@@ -55,25 +55,18 @@ namespace WorkloadExecutor
                 async = true;
             }
 
-            UnifiedEntityMap entityMap = null;
-            try
-            {
-                entityMap = ExecuteWorkload(connectionString, driverWorkload, async, cancellationTokenSource.Token);
-            }
-            finally
-            {
-                var resultDetails = HandleWorkloadResult(entityMap: entityMap);
+            var entityMap = ExecuteWorkload(connectionString, driverWorkload, async, cancellationTokenSource.Token);
+            var resultDetails = HandleWorkloadResult(entityMap: entityMap);
 
-                Console.CancelKeyPress -= cancelHandler;
+            Console.CancelKeyPress -= cancelHandler;
 
-                Console.WriteLine("dotnet main finally> Writing final results and events files");
-                WriteToFile(resultsPath, resultDetails.ResultsJson);
-                WriteToFile(eventsPath, resultDetails.EventsJson);
+            Console.WriteLine("dotnet main finally> Writing final results and events files");
+            WriteToFile(resultsPath, resultDetails.ResultsJson);
+            WriteToFile(eventsPath, resultDetails.EventsJson);
 
-                // ensure all messages are propagated to the astrolabe time immediately
-                Console.Error.Flush();
-                Console.Out.Flush();
-            }
+            // ensure all messages are propagated to the astrolabe time immediately
+            Console.Error.Flush();
+            Console.Out.Flush();
         }
 
         private static (string EventsJson, string ResultsJson) HandleWorkloadResult(UnifiedEntityMap entityMap)

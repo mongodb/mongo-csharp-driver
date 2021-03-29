@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.GridFS;
 using MongoDB.Driver.TestHelpers;
 
@@ -413,13 +414,22 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             if (eventTypesToCapture.Count > 0)
             {
+                var defaultCommandNamesToSkip = new List<string>
+                {
+                    "authenticate",
+                    "buildInfo",
+                    "configureFailPoint",
+                    "getLastError",
+                    "getnonce",
+                    "isMaster",
+                    "saslContinue",
+                    "saslStart"
+                };
+
                 foreach (var eventsDetails in eventTypesToCapture)
                 {
-                    var eventCapturer = new EventCapturer();
-                    foreach (var @event in eventsDetails.Events)
-                    {
-                        eventCapturer = eventCapturer.CaptureBySpecName(@event, eventsDetails.CommandNotToCapture);
-                    }
+                    var commandNamesNotToCapture = Enumerable.Concat(eventsDetails.CommandNotToCapture ?? Enumerable.Empty<string>(), defaultCommandNamesToSkip);
+                    var eventCapturer = CreateEventCapturer(eventsDetails.Events, commandNamesNotToCapture);
                     clientEventCapturers.Add(eventsDetails.Key, eventCapturer);
                 }
             }
@@ -517,6 +527,63 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             }
 
             return client.GetDatabase(databaseName);
+        }
+
+        private EventCapturer CreateEventCapturer(IEnumerable<string> eventTypesToCapture, IEnumerable<string> commandNamesToSkip)
+        {
+            var eventCapturer = new EventCapturer();
+
+            foreach (var eventTypeToCapture in eventTypesToCapture)
+            {
+                switch (eventTypeToCapture.ToLowerInvariant())
+                {
+                    case "commandstartedevent":
+                        eventCapturer = eventCapturer.Capture<CommandStartedEvent>(x => !commandNamesToSkip.Contains(x.CommandName));
+                        break;
+                    case "commandsucceededevent":
+                        eventCapturer = eventCapturer.Capture<CommandSucceededEvent>(x => !commandNamesToSkip.Contains(x.CommandName));
+                        break;
+                    case "commandfailedevent":
+                        eventCapturer = eventCapturer.Capture<CommandFailedEvent>(x => !commandNamesToSkip.Contains(x.CommandName));
+                        break;
+                    case "poolcreatedevent":
+                        eventCapturer = eventCapturer.Capture<ConnectionPoolOpenedEvent>();
+                        break;
+                    case "poolclearedevent":
+                        eventCapturer = eventCapturer.Capture<ConnectionPoolClearedEvent>();
+                        break;
+                    case "poolclosedevent":
+                        eventCapturer = eventCapturer.Capture<ConnectionPoolClosedEvent>();
+                        break;
+                    case "connectioncreatedevent":
+                        eventCapturer = eventCapturer.Capture<ConnectionCreatedEvent>();
+                        break;
+                    case "connectionclosedevent":
+                        eventCapturer = eventCapturer.Capture<ConnectionClosedEvent>();
+                        break;
+                    case "connectionreadyevent":
+                        // do nothing
+                        break;
+                    case "connectioncheckoutstartedevent":
+                        eventCapturer = eventCapturer.Capture<ConnectionPoolCheckingOutConnectionEvent>();
+                        break;
+                    case "connectioncheckoutfailedevent":
+                        eventCapturer = eventCapturer.Capture<ConnectionPoolCheckingOutConnectionFailedEvent>();
+                        break;
+                    case "connectioncheckedoutevent":
+                        eventCapturer = eventCapturer.Capture<ConnectionPoolCheckedOutConnectionEvent>();
+                        break;
+                    case "connectioncheckedinevent":
+                        eventCapturer = eventCapturer.Capture<ConnectionPoolCheckedInConnectionEvent>();
+                        break;
+                    case "poolreadyevent":
+                        // do nothing
+                        break;
+                    default:
+                        throw new FormatException($"Invalid event name: {eventTypeToCapture}.");
+                }
+            }
+            return eventCapturer;
         }
 
         private IClientSessionHandle CreateSession(BsonDocument entity, Dictionary<string, DisposableMongoClient> clients)
