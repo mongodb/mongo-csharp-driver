@@ -562,7 +562,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         eventCapturer = eventCapturer.Capture<ConnectionClosedEvent>();
                         break;
                     case "connectionreadyevent":
-                        // do nothing
+                        eventCapturer = eventCapturer.Capture<ConnectionOpenedEvent>();
                         break;
                     case "connectioncheckoutstartedevent":
                         eventCapturer = eventCapturer.Capture<ConnectionPoolCheckingOutConnectionEvent>();
@@ -577,7 +577,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         eventCapturer = eventCapturer.Capture<ConnectionPoolCheckedInConnectionEvent>();
                         break;
                     case "poolreadyevent":
-                        // do nothing
+                        // should be handled in the scope of CSHARP-3509
                         break;
                     default:
                         throw new FormatException($"Invalid event name: {eventTypeToCapture}.");

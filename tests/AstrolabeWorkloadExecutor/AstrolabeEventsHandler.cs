@@ -70,6 +70,9 @@ namespace AstrolabeWorkloadExecutor
                 ConnectionPoolCheckedInConnectionEvent typedEvent =>
                     CreateCmapEventDocument("ConnectionCheckedInEvent", typedEvent.ObservedAt, typedEvent.ConnectionId),
 
+                ConnectionOpenedEvent typedEvent =>
+                    CreateCmapEventDocument("ConnectionReadyEvent", typedEvent.ObservedAt, typedEvent.ConnectionId),
+
                 _ => throw new FormatException($"Unrecognized event type: '{@event.GetType()}'."),
             };
 
