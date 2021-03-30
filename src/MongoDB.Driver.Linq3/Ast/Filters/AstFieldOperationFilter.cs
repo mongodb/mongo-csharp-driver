@@ -51,19 +51,26 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
             {
                 return new BsonDocument(fieldPath, comparisonOperation.Value); // implied $eq
             }
-            else if(
+
+            if (
                 _operation is AstElemMatchFilterOperation elemMatchOperation &&
                 elemMatchOperation.Filter is AstFieldOperationFilter fieldOperationFilter &&
-                fieldOperationFilter.Field.Path == "$elem" &&
-                fieldOperationFilter.Operation is AstComparisonFilterOperation elemMatchComparisonOperation &&
-                elemMatchComparisonOperation.Operator == AstComparisonFilterOperator.Eq)
+                fieldOperationFilter.Field.Path == "$elem")
             {
-                return new BsonDocument(fieldPath, elemMatchComparisonOperation.Value); // implied $elemMatch with $eq
+                if (fieldOperationFilter.Operation is AstComparisonFilterOperation elemMatchComparisonOperation &&
+                    elemMatchComparisonOperation.Operator == AstComparisonFilterOperator.Eq &&
+                    elemMatchComparisonOperation.Value.BsonType != BsonType.RegularExpression)
+                {
+                    return new BsonDocument(fieldPath, elemMatchComparisonOperation.Value); // implied $elemMatch with $eq
+                }
+
+                if (fieldOperationFilter.Operation is AstRegexFilterOperation elemMatchRegexOperation)
+                {
+                    return new BsonDocument(fieldPath, elemMatchRegexOperation.Render()); // implied $elemMatch with $regex
+                }
             }
-            else
-            {
-                return new BsonDocument(fieldPath, _operation.Render());
-            }
+
+            return new BsonDocument(fieldPath, _operation.Render());
         }
     }
 }
