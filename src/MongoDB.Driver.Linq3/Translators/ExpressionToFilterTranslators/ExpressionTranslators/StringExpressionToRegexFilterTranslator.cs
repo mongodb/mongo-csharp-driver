@@ -15,6 +15,7 @@
 
 using System;
 using System.Globalization;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
@@ -31,12 +32,86 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
     public static class StringExpressionToRegexFilterTranslator
     {
         // private static fields
+        private static MethodInfo[] __indexOfAnyMethods;
+        private static MethodInfo[] __indexOfMethods;
+        private static MethodInfo[] __indexOfWithCharMethods;
+        private static MethodInfo[] __indexOfWithComparisonTypeMethods;
+        private static MethodInfo[] __indexOfWithCountMethods;
+        private static MethodInfo[] __indexOfWithStartIndexMethods;
+        private static MethodInfo[] __indexOfWithStringMethods;
         private static MethodInfo[] __modifierMethods;
         private static MethodInfo[] __translatableMethods;
 
         // static constructor
         static StringExpressionToRegexFilterTranslator()
         {
+            __indexOfAnyMethods = new[]
+            {
+                StringMethod.IndexOfAny,
+                StringMethod.IndexOfAnyWithStartIndex,
+                StringMethod.IndexOfAnyWithStartIndexAndCount,
+            };
+
+            __indexOfMethods = new[]
+            {
+                StringMethod.IndexOfAny,
+                StringMethod.IndexOfAnyWithStartIndex,
+                StringMethod.IndexOfAnyWithStartIndexAndCount,
+                StringMethod.IndexOfWithChar,
+                StringMethod.IndexOfWithCharAndStartIndex,
+                StringMethod.IndexOfWithCharAndStartIndexAndCount,
+                StringMethod.IndexOfWithString,
+                StringMethod.IndexOfWithStringAndComparisonType,
+                StringMethod.IndexOfWithStringAndStartIndex,
+                StringMethod.IndexOfWithStringAndStartIndexAndComparisonType,
+                StringMethod.IndexOfWithStringAndStartIndexAndCount,
+                StringMethod.IndexOfWithStringAndStartIndexAndCountAndComparisonType
+            };
+
+            __indexOfWithCharMethods = new[]
+            {
+                StringMethod.IndexOfWithChar,
+                StringMethod.IndexOfWithCharAndStartIndex,
+                StringMethod.IndexOfWithCharAndStartIndexAndCount,
+            };
+
+            __indexOfWithComparisonTypeMethods = new[]
+            {
+                StringMethod.IndexOfWithStringAndComparisonType,
+                StringMethod.IndexOfWithStringAndStartIndexAndComparisonType,
+                StringMethod.IndexOfWithStringAndStartIndexAndCountAndComparisonType
+            };
+
+            __indexOfWithCountMethods = new[]
+            {
+                StringMethod.IndexOfAnyWithStartIndexAndCount,
+                StringMethod.IndexOfWithCharAndStartIndexAndCount,
+                StringMethod.IndexOfWithStringAndStartIndexAndCount,
+                StringMethod.IndexOfWithStringAndStartIndexAndCountAndComparisonType
+            };
+
+            __indexOfWithStartIndexMethods = new[]
+            {
+                StringMethod.IndexOfAnyWithStartIndex,
+                StringMethod.IndexOfAnyWithStartIndexAndCount,
+                StringMethod.IndexOfWithCharAndStartIndex,
+                StringMethod.IndexOfWithCharAndStartIndexAndCount,
+                StringMethod.IndexOfWithStringAndStartIndex,
+                StringMethod.IndexOfWithStringAndStartIndexAndComparisonType,
+                StringMethod.IndexOfWithStringAndStartIndexAndCount,
+                StringMethod.IndexOfWithStringAndStartIndexAndCountAndComparisonType
+            };
+
+            __indexOfWithStringMethods = new[]
+            {
+                StringMethod.IndexOfWithString,
+                StringMethod.IndexOfWithStringAndComparisonType,
+                StringMethod.IndexOfWithStringAndStartIndex,
+                StringMethod.IndexOfWithStringAndStartIndexAndComparisonType,
+                StringMethod.IndexOfWithStringAndStartIndexAndCount,
+                StringMethod.IndexOfWithStringAndStartIndexAndCountAndComparisonType
+            };
+
             __modifierMethods = new[]
             {
                 StringMethod.ToLower,
@@ -78,17 +153,23 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
                 return true;
             }
 
+            // document.S == "abc"
+            if (IsStringComparison(leftExpression))
+            {
+                return true;
+            }
+
+            // document.S.IndexOf('a') == n etc...
+            if (IsStringIndexOfComparison(leftExpression))
+            {
+                return true;
+            }
             // document.S.Length == n or document.S.Count() == n
             if (IsStringLengthComparison(leftExpression) || IsStringCountComparison(leftExpression))
             {
                 return true;
             }
 
-            // document.S == "abc"
-            if (IsStringComparison(leftExpression))
-            {
-                return true;
-            }
 
             return false;
         }
@@ -125,6 +206,11 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
                 return TranslateStringComparison(context, expression, leftExpression, comparisonOperator, rightExpression);
             }
 
+            if (IsStringIndexOfComparison(leftExpression))
+            {
+                return TranslateStringIndexOfComparison(context, expression, leftExpression, comparisonOperator, rightExpression);
+            }
+
             if (IsStringLengthComparison(leftExpression) || IsStringCountComparison(leftExpression))
             {
                 return TranslateStringLengthComparison(context, expression, leftExpression, comparisonOperator, rightExpression);
@@ -134,7 +220,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
         }
 
         // private static methods
-        private static AstFilter CreateFilter(AstFilterField field, Modifiers modifiers, string pattern)
+        private static AstFilter CreateRegexFilter(AstFilterField field, Modifiers modifiers, string pattern)
         {
             var combinedPattern = "^" + modifiers.LeadingPattern + pattern + modifiers.TrailingPattern + "$";
             if (combinedPattern.StartsWith("^.*"))
@@ -145,11 +231,11 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             {
                 combinedPattern = combinedPattern.Substring(0, combinedPattern.Length - 3);
             }
-            var options = CreateOptions(modifiers);
+            var options = CreateRegexOptions(modifiers);
             return AstFilter.Regex(field, combinedPattern, options);
         }
 
-        private static string CreateOptions(Modifiers modifiers)
+        private static string CreateRegexOptions(Modifiers modifiers)
         {
             return (modifiers.IgnoreCase || modifiers.ToLower || modifiers.ToUpper) ? "is" : "s";
         }
@@ -226,12 +312,35 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
                 leftMethodCallExpression.Arguments[0].Type == typeof(string);
         }
 
+        private static bool IsStringIndexOfComparison(Expression leftExpression)
+        {
+            return
+                leftExpression is MethodCallExpression leftMethodCallExpression &&
+                leftMethodCallExpression.Method.IsOneOf(__indexOfMethods);
+        }
+
         private static bool IsStringLengthComparison(Expression leftExpression)
         {
             return
                 leftExpression is MemberExpression leftMemberExpression &&
                 leftMemberExpression.Member is PropertyInfo propertyInfo &&
                 propertyInfo.Is(StringProperty.Length);
+        }
+
+        private static Modifiers TranslateComparisonType(Modifiers modifiers, Expression comparisonTypeExpression)
+        {
+            var comparisonType = comparisonTypeExpression.GetConstantValue<StringComparison>();
+            switch (comparisonType)
+            {
+                case StringComparison.CurrentCulture:
+                    return modifiers;
+
+                case StringComparison.CurrentCultureIgnoreCase:
+                    modifiers.IgnoreCase = true;
+                    return modifiers;
+            }
+
+            throw new ExpressionNotSupportedException(comparisonTypeExpression);
         }
 
         private static Modifiers TranslateCulture(Modifiers modifiers, Expression cultureExpression)
@@ -266,72 +375,10 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
                     $".{{{index}}}{Regex.Escape(comparandString)}.*" :
                     $".{{{index}}}[^{EscapeCharacterSet(comparandChar)}].*";
 
-                return CreateFilter(field, modifiers, pattern);
+                return CreateRegexFilter(field, modifiers, pattern);
             }
 
             throw new ExpressionNotSupportedException(expression);
-        }
-
-        private static AstFilter TranslateStartsWithOrContainsOrEndsWith(TranslationContext context, MethodCallExpression expression)
-        {
-            var method = expression.Method;
-            var arguments = expression.Arguments;
-
-            var (field, modifiers) = TranslateField(context, expression.Object);
-            var value = arguments[0].GetConstantValue<string>();
-
-            if (method.IsOneOf(StringMethod.StartsWithWithComparisonType, StringMethod.EndsWithWithComparisonType))
-            {
-                modifiers = TranslateComparisonType(modifiers, arguments[1]);
-            }
-            if (method.IsOneOf(StringMethod.StartsWithWithIgnoreCaseAndCulture, StringMethod.EndsWithWithIgnoreCaseAndCulture))
-            {
-                modifiers = TranslateIgnoreCase(modifiers, arguments[1]);
-                modifiers = TranslateCulture(modifiers, arguments[2]);
-            }
-
-            if (IsImpossibleMatch(modifiers, value))
-            {
-                return AstFilter.MatchesNothing();
-            }
-            else
-            {
-                return CreateFilter(field, modifiers, CreatePattern(method.Name, value));
-            }
-
-            string CreatePattern(string methodName, string value)
-            {
-                return methodName switch
-                {
-                    "Contains" => ".*" + Regex.Escape(value) + ".*",
-                    "EndsWith" => ".*" + Regex.Escape(value),
-                    "StartsWith" => Regex.Escape(value) + ".*",
-                    _ => throw new InvalidOperationException()
-                };
-            }
-
-            bool IsImpossibleMatch(Modifiers modifiers, string value)
-            {
-                return
-                    (modifiers.ToLower && value != value.ToLower()) ||
-                    (modifiers.ToUpper && value != value.ToUpper());
-            }
-        }
-
-        private static Modifiers TranslateComparisonType(Modifiers modifiers, Expression comparisonTypeExpression)
-        {
-            var comparisonType = comparisonTypeExpression.GetConstantValue<StringComparison>();
-            switch (comparisonType)
-            {
-                case StringComparison.CurrentCulture:
-                    return modifiers;
-
-                case StringComparison.CurrentCultureIgnoreCase:
-                    modifiers.IgnoreCase = true;
-                    return modifiers;
-            }
-
-            throw new ExpressionNotSupportedException(comparisonTypeExpression);
         }
 
         private static (AstFilterField, Modifiers) TranslateField(TranslationContext context, Expression fieldExpression)
@@ -370,6 +417,52 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             throw new ExpressionNotSupportedException(modifierExpression);
         }
 
+        private static AstFilter TranslateStartsWithOrContainsOrEndsWith(TranslationContext context, MethodCallExpression expression)
+        {
+            var method = expression.Method;
+            var arguments = expression.Arguments;
+
+            var (field, modifiers) = TranslateField(context, expression.Object);
+            var value = arguments[0].GetConstantValue<string>();
+
+            if (method.IsOneOf(StringMethod.StartsWithWithComparisonType, StringMethod.EndsWithWithComparisonType))
+            {
+                modifiers = TranslateComparisonType(modifiers, arguments[1]);
+            }
+            if (method.IsOneOf(StringMethod.StartsWithWithIgnoreCaseAndCulture, StringMethod.EndsWithWithIgnoreCaseAndCulture))
+            {
+                modifiers = TranslateIgnoreCase(modifiers, arguments[1]);
+                modifiers = TranslateCulture(modifiers, arguments[2]);
+            }
+
+            if (IsImpossibleMatch(modifiers, value))
+            {
+                return AstFilter.MatchesNothing();
+            }
+            else
+            {
+                return CreateRegexFilter(field, modifiers, CreatePattern(method.Name, value));
+            }
+
+            string CreatePattern(string methodName, string value)
+            {
+                return methodName switch
+                {
+                    "Contains" => ".*" + Regex.Escape(value) + ".*",
+                    "EndsWith" => ".*" + Regex.Escape(value),
+                    "StartsWith" => Regex.Escape(value) + ".*",
+                    _ => throw new InvalidOperationException()
+                };
+            }
+
+            bool IsImpossibleMatch(Modifiers modifiers, string value)
+            {
+                return
+                    (modifiers.ToLower && value != value.ToLower()) ||
+                    (modifiers.ToUpper && value != value.ToUpper());
+            }
+        }
+
         private static AstFilter TranslateStringComparison(TranslationContext context, Expression expression, Expression leftExpression, AstComparisonFilterOperator comparisonOperator, Expression rightExpression)
         {
             var (field, modifiers) = TranslateField(context, leftExpression);
@@ -391,7 +484,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
                     else
                     {
                         var pattern = Regex.Escape(comparand);
-                        var filter = CreateFilter(field, modifiers, pattern);
+                        var filter = CreateRegexFilter(field, modifiers, pattern);
                         if (comparisonOperator == AstComparisonFilterOperator.Ne)
                         {
                             filter = AstFilter.Not(filter);
@@ -409,6 +502,133 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
                     comparand != null && (
                         (modifiers.ToLower && comparand != comparand.ToLower()) ||
                         (modifiers.ToUpper && comparand != comparand.ToUpper()));
+            }
+        }
+
+        private static AstFilter TranslateStringIndexOfComparison(TranslationContext context, Expression expression, Expression leftExpression, AstComparisonFilterOperator comparisonOperator, Expression rightExpression)
+        {
+            var leftMethodCallExpression = (MethodCallExpression)leftExpression;
+            var method = leftMethodCallExpression.Method;
+            var arguments = leftMethodCallExpression.Arguments;
+
+            var fieldExpression = leftMethodCallExpression.Object;
+            var (field, modifiers) = TranslateField(context, fieldExpression);
+
+            var startIndex = 0;
+            if (method.IsOneOf(__indexOfWithStartIndexMethods))
+            {
+                var startIndexExpression = arguments[1];
+                startIndex = startIndexExpression.GetConstantValue<int>();
+                if (startIndex < 0)
+                {
+                    throw new ExpressionNotSupportedException(startIndexExpression);
+                }
+            }
+
+            var count = (int?)null;
+            if (method.IsOneOf(__indexOfWithCountMethods))
+            {
+                var countExpression = arguments[2];
+                count = countExpression.GetConstantValue<int>();
+                if (count < 0)
+                {
+                    throw new ExpressionNotSupportedException(countExpression);
+                }
+            }
+
+            var comparand = rightExpression.GetConstantValue<int>();
+
+            if (method.IsOneOf(__indexOfAnyMethods, __indexOfWithCharMethods))
+            {
+                char[] anyOf;
+                if (method.IsOneOf(__indexOfAnyMethods))
+                {
+                    var anyOfExpression = arguments[0];
+                    anyOf = anyOfExpression.GetConstantValue<char[]>();
+                }
+                else
+                if (method.IsOneOf(__indexOfWithCharMethods))
+                {
+                    var valueExpression = arguments[0];
+                    var value = valueExpression.GetConstantValue<char>();
+                    anyOf = new char[] { value };
+                }
+                else
+                {
+                    throw new ExpressionNotSupportedException(expression);
+                }
+
+                var escapedSet = EscapeCharacterSet(anyOf);
+                var pattern = "";
+                if (startIndex > 0)
+                {
+                    pattern += $".{{{startIndex}}}"; // advance to startIndex
+                }
+                if (count.HasValue)
+                {
+                    pattern += $"(?=.{{{count.Value}}})"; // verify string is long enough
+                }
+                var noEarlyMatchCount = comparand - startIndex;
+                if (noEarlyMatchCount > 0)
+                {
+                    pattern += $"[^{escapedSet}]{{{noEarlyMatchCount}}}"; // advance to comparand while verifing there are no earlier matches
+                }
+                if (anyOf.Length == 1)
+                {
+                    pattern += escapedSet; // verify presence of [escapedSet] at comparand (no brackets needed for single character)
+                }
+                else
+                {
+                    pattern += $"[{escapedSet}]"; // verify presence of [escapedSet] at comparand
+                }
+                pattern += ".*";
+
+                return CreateFilter(expression, field, modifiers, comparisonOperator, pattern);
+            }
+
+            if (method.IsOneOf(__indexOfWithStringMethods))
+            {
+                var valueExpression = arguments[0];
+                var value = valueExpression.GetConstantValue<string>();
+                var escapedValue = Regex.Escape(value);
+
+                if (method.IsOneOf(__indexOfWithComparisonTypeMethods))
+                {
+                    var comparisonTypeExpression = arguments.Last();
+                    modifiers = TranslateComparisonType(modifiers, comparisonTypeExpression);
+                }
+
+                var pattern = "";
+                if (startIndex > 0)
+                {
+                    pattern += $".{{{startIndex}}}"; // advance to startIndex
+                }
+                if (count.HasValue)
+                {
+                    pattern += $"(?=.{{{count.Value}}})"; // verify string is long enough
+                }
+                var noEarlyMatchCount = (comparand - startIndex) - 1;
+                if (noEarlyMatchCount > 0)
+                {
+                    pattern += $"(?!.{{0,{noEarlyMatchCount}}}{escapedValue})"; // verify there are no earlier matches
+                }
+                var advanceToComparandCount = comparand - startIndex;
+                pattern += $".{{{advanceToComparandCount}}}{escapedValue}.*"; // advance to comparand and verify presence of value at comparand
+
+                return CreateFilter(expression, field, modifiers, comparisonOperator, pattern);
+            }
+
+            throw new ExpressionNotSupportedException(expression);
+
+            static AstFilter CreateFilter(Expression expression, AstFilterField field, Modifiers modifiers, AstComparisonFilterOperator comparisonOperator, string pattern)
+            {
+                var filter = CreateRegexFilter(field, modifiers, pattern);
+                return comparisonOperator switch
+                {
+                    AstComparisonFilterOperator.Eq => filter,
+                    AstComparisonFilterOperator.Ne => AstFilter.Not(filter),
+                    _ => throw new ExpressionNotSupportedException(expression)
+                };
             }
         }
 
@@ -442,7 +662,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
                 _ => throw new ExpressionNotSupportedException(expression)
             };
 
-            var filter = CreateFilter(field, modifiers, pattern);
+            var filter = CreateRegexFilter(field, modifiers, pattern);
             if (comparisonOperator == AstComparisonFilterOperator.Ne)
             {
                 filter = AstFilter.Not(filter);
