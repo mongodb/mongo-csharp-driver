@@ -387,16 +387,19 @@ namespace MongoDB.Driver.Core.Servers
             RequestHeartbeat();
         }
 
-        private bool IsNotMaster(ServerErrorCode code, string message)
+        private bool IsNotMaster(ServerErrorCode? code, string message)
         {
-            switch (code)
+            if (code.HasValue)
             {
-                case ServerErrorCode.NotMaster: // 10107
-                case ServerErrorCode.NotMasterNoSlaveOk: // 13435
-                    return true;
+                switch (code.Value)
+                {
+                    case ServerErrorCode.LegacyNotPrimary: // 10058
+                    case ServerErrorCode.NotMaster: // 10107
+                    case ServerErrorCode.NotMasterNoSlaveOk: // 13435
+                        return true;
+                }
             }
-
-            if (message != null)
+            else if (message != null)
             {
                 if (message.IndexOf("not master", StringComparison.OrdinalIgnoreCase) != -1 &&
                     message.IndexOf("not master or secondary", StringComparison.OrdinalIgnoreCase) == -1)
@@ -415,7 +418,7 @@ namespace MongoDB.Driver.Core.Servers
                 IsNotMaster((ServerErrorCode)commandException.Code, commandException.ErrorMessage);
         }
 
-        private bool IsStateChangeError(ServerErrorCode code, string message)
+        private bool IsStateChangeError(ServerErrorCode? code, string message)
         {
             return IsNotMaster(code, message) || IsRecovering(code, message);
         }
@@ -437,19 +440,21 @@ namespace MongoDB.Driver.Core.Servers
             return exception is MongoCommandException commandException && IsShutdownError((ServerErrorCode)commandException.Code);
         }
 
-        private bool IsRecovering(ServerErrorCode code, string message)
+        private bool IsRecovering(ServerErrorCode? code, string message)
         {
-            switch (code)
+            if (code.HasValue)
             {
-                case ServerErrorCode.InterruptedAtShutdown: // 11600
-                case ServerErrorCode.InterruptedDueToReplStateChange: // 11602
-                case ServerErrorCode.NotMasterOrSecondary: // 13436
-                case ServerErrorCode.PrimarySteppedDown: // 189
-                case ServerErrorCode.ShutdownInProgress: // 91
-                    return true;
+                switch (code.Value)
+                {
+                    case ServerErrorCode.InterruptedAtShutdown: // 11600
+                    case ServerErrorCode.InterruptedDueToReplStateChange: // 11602
+                    case ServerErrorCode.NotMasterOrSecondary: // 13436
+                    case ServerErrorCode.PrimarySteppedDown: // 189
+                    case ServerErrorCode.ShutdownInProgress: // 91
+                        return true;
+                }
             }
-
-            if (message != null)
+            else if (message != null)
             {
                 if (message.IndexOf("not master or secondary", StringComparison.OrdinalIgnoreCase) != -1 ||
                     message.IndexOf("node is recovering", StringComparison.OrdinalIgnoreCase) != -1)
@@ -511,7 +516,7 @@ namespace MongoDB.Driver.Core.Servers
             var commandException = exception as MongoCommandException;
             if (commandException != null)
             {
-                var code = (ServerErrorCode)commandException.Code;
+                var code = (ServerErrorCode?)commandException.Result.GetValue("code", null)?.ToInt32();
                 var message = commandException.ErrorMessage;
 
                 if (IsStateChangeError(code, message))
@@ -527,7 +532,7 @@ namespace MongoDB.Driver.Core.Servers
                     var writeConcernError = response["writeConcernError"].AsBsonDocument;
                     if (writeConcernError != null)
                     {
-                        code = (ServerErrorCode)writeConcernError.GetValue("code", -1).ToInt32();
+                        code = (ServerErrorCode?)writeConcernError.GetValue("code", null)?.ToInt32();
                         message = writeConcernError.GetValue("errmsg", null)?.AsString;
 
                         if (IsStateChangeError(code, message))

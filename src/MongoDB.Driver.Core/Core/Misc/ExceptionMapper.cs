@@ -119,12 +119,12 @@ namespace MongoDB.Driver.Core.Misc
         /// <returns>The exception, or null if no exception necessary.</returns>
         public static Exception MapNotPrimaryOrNodeIsRecovering(ConnectionId connectionId, BsonDocument command, BsonDocument response, string errorMessageFieldName)
         {
-            BsonValue codeBsonValue;
-            if (response.TryGetValue("code", out codeBsonValue) && codeBsonValue.IsNumeric)
+            if (response.TryGetValue("code", out var codeBsonValue) && codeBsonValue.IsNumeric)
             {
                 var code = (ServerErrorCode)codeBsonValue.ToInt32();
                 switch (code)
                 {
+                    case ServerErrorCode.LegacyNotPrimary:
                     case ServerErrorCode.NotMaster:
                     case ServerErrorCode.NotMasterNoSlaveOk:
                         return new MongoNotPrimaryException(connectionId, command, response);
@@ -137,9 +137,7 @@ namespace MongoDB.Driver.Core.Misc
                         return new MongoNodeIsRecoveringException(connectionId, command, response);
                 }
             }
-
-            BsonValue errorMessageBsonValue;
-            if (response.TryGetValue(errorMessageFieldName, out errorMessageBsonValue) && errorMessageBsonValue.IsString)
+            else if (response.TryGetValue(errorMessageFieldName, out var errorMessageBsonValue) && errorMessageBsonValue.IsString)
             {
                 var errorMessage = errorMessageBsonValue.ToString();
                 if (errorMessage.IndexOf("node is recovering", StringComparison.OrdinalIgnoreCase) != -1 ||

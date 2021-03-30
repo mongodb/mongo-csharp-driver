@@ -183,8 +183,19 @@ namespace MongoDB.Driver.Core.Misc
             Assert.IsType<MongoExecutionTimeoutException>(ex);
         }
 
+        [Fact]
+        public void MapNotPrimaryOrNodeIsRecovering_should_ignore_errmsg_if_code_is_present()
+        {
+            var connectionId = CreateConnectionId();
+            var response = BsonDocument.Parse("{ ok : 0, code : 1, errmsg : '...not master...' }");
+
+            var result = ExceptionMapper.MapNotPrimaryOrNodeIsRecovering(connectionId, null, response, "errmsg");
+
+            result.Should().BeNull();
+        }
 
         [Theory]
+        [InlineData(ServerErrorCode.LegacyNotPrimary, typeof(MongoNotPrimaryException))]
         [InlineData(ServerErrorCode.NotMaster, typeof(MongoNotPrimaryException))]
         [InlineData(ServerErrorCode.NotMasterNoSlaveOk, typeof(MongoNotPrimaryException))]
         [InlineData(ServerErrorCode.InterruptedAtShutdown, typeof(MongoNodeIsRecoveringException))]
