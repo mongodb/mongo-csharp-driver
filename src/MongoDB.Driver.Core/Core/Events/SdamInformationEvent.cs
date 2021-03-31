@@ -22,8 +22,8 @@ namespace MongoDB.Driver.Core.Events
     /// </summary>
     public struct SdamInformationEvent
     {
-        private readonly DateTime _observedAt;
         private readonly Lazy<string> _message;
+        private readonly DateTime _timestamp;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SdamInformationEvent"/> struct.
@@ -41,21 +41,18 @@ namespace MongoDB.Driver.Core.Events
         public SdamInformationEvent(Lazy<string> message)
         {
             _message = message;
-            _observedAt = DateTime.UtcNow;
-        }
-
-        /// <summary>
-        /// Gets the observed at time.
-        /// </summary>
-        public DateTime ObservedAt
-        {
-            get { return _observedAt; }
+            _timestamp = DateTime.UtcNow;
         }
 
         /// <summary>
         /// Gets the message.
         /// </summary>
         public string Message => _message.Value;
+
+        /// <summary>
+        /// Gets the timestamp.
+        /// </summary>
+        public DateTime Timestamp => _timestamp;
 
         /// <inheritdoc />
         public override string ToString()

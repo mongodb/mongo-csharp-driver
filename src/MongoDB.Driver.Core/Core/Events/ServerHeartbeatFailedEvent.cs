@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Core.Events
         private readonly bool _awaited;
         private readonly ConnectionId _connectionId;
         private readonly Exception _exception;
-        private readonly DateTime _observedAt;
+        private readonly DateTime _timestamp;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ServerHeartbeatFailedEvent"/> struct.
@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Core.Events
             _awaited = awaited;
             _connectionId = connectionId;
             _exception = exception;
-            _observedAt = DateTime.UtcNow;
+            _timestamp = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -74,19 +74,19 @@ namespace MongoDB.Driver.Core.Events
         }
 
         /// <summary>
-        /// Gets the observed at time.
-        /// </summary>
-        public DateTime ObservedAt
-        {
-            get { return _observedAt; }
-        }
-
-        /// <summary>
         /// Gets the server identifier.
         /// </summary>
         public ServerId ServerId
         {
             get { return _connectionId.ServerId; }
+        }
+
+        /// <summary>
+        /// Gets the timestamp.
+        /// </summary>
+        public DateTime Timestamp
+        {
+            get { return _timestamp; }
         }
     }
 }

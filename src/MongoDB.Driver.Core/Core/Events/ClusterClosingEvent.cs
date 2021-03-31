@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Core.Events
     public struct ClusterClosingEvent
     {
         private readonly ClusterId _clusterId;
-        private readonly DateTime _observedAt;
+        private readonly DateTime _timestamp;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ClusterClosingEvent"/> struct.
@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Core.Events
         public ClusterClosingEvent(ClusterId clusterId)
         {
             _clusterId = clusterId;
-            _observedAt = DateTime.UtcNow;
+            _timestamp = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -45,11 +45,11 @@ namespace MongoDB.Driver.Core.Events
         }
 
         /// <summary>
-        /// Gets the observed at time.
+        /// Gets the timestamp.
         /// </summary>
-        public DateTime ObservedAt
+        public DateTime Timestamp
         {
-            get { return _observedAt; }
+            get { return _timestamp; }
         }
     }
 }

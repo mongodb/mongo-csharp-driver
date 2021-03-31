@@ -25,9 +25,9 @@ namespace MongoDB.Driver.Core.Events
     /// </summary>
     public struct ServerOpeningEvent
     {
-        private readonly DateTime _observedAt;
         private readonly ServerId _serverId;
         private readonly ServerSettings _serverSettings;
+        private readonly DateTime _timestamp;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ServerOpeningEvent"/> struct.
@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Core.Events
         {
             _serverId = serverId;
             _serverSettings = serverSettings;
-            _observedAt = DateTime.UtcNow;
+            _timestamp = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -47,14 +47,6 @@ namespace MongoDB.Driver.Core.Events
         public ClusterId ClusterId
         {
             get { return _serverId.ClusterId; }
-        }
-
-        /// <summary>
-        /// Gets the observed at time.
-        /// </summary>
-        public DateTime ObservedAt
-        {
-            get { return _observedAt; }
         }
 
         /// <summary>
@@ -71,6 +63,14 @@ namespace MongoDB.Driver.Core.Events
         public ServerSettings ServerSettings
         {
             get { return _serverSettings; }
+        }
+
+        /// <summary>
+        /// Gets the timestamp.
+        /// </summary>
+        public DateTime Timestamp
+        {
+            get { return _timestamp; }
         }
     }
 }

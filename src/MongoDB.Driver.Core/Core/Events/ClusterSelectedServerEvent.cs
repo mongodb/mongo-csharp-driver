@@ -26,11 +26,11 @@ namespace MongoDB.Driver.Core.Events
     public struct ClusterSelectedServerEvent
     {
         private readonly ClusterDescription _clusterDescription;
-        private readonly DateTime _observedAt;
+        private readonly TimeSpan _duration;
         private readonly long? _operationId;
         private readonly IServerSelector _serverSelector;
         private readonly ServerDescription _selectedServer;
-        private readonly TimeSpan _duration;
+        private readonly DateTime _timestamp;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ClusterSelectedServerEvent" /> struct.
@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Core.Events
             _selectedServer = selectedServer;
             _duration = duration;
             _operationId = operationId;
-            _observedAt = DateTime.UtcNow;
+            _timestamp = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -75,14 +75,6 @@ namespace MongoDB.Driver.Core.Events
         }
 
         /// <summary>
-        /// Gets the observed at time.
-        /// </summary>
-        public DateTime ObservedAt
-        {
-            get { return _observedAt; }
-        }
-
-        /// <summary>
         /// Gets the operation identifier.
         /// </summary>
         public long? OperationId
@@ -104,6 +96,14 @@ namespace MongoDB.Driver.Core.Events
         public ServerDescription SelectedServer
         {
             get { return _selectedServer; }
+        }
+
+        /// <summary>
+        /// Gets the timestamp.
+        /// </summary>
+        public DateTime Timestamp
+        {
+            get { return _timestamp; }
         }
     }
 }

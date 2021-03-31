@@ -24,10 +24,10 @@ namespace MongoDB.Driver.Core.Events
     /// </summary>
     public struct ClusterRemovedServerEvent
     {
-        private readonly DateTime _observedAt;
-        private readonly ServerId _serverId;
-        private readonly string _reason;
         private readonly TimeSpan _duration;
+        private readonly string _reason;
+        private readonly ServerId _serverId;
+        private readonly DateTime _timestamp;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ClusterRemovedServerEvent"/> struct.
@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.Events
             _serverId = serverId;
             _reason = reason;
             _duration = duration;
-            _observedAt = DateTime.UtcNow;
+            _timestamp = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -60,14 +60,6 @@ namespace MongoDB.Driver.Core.Events
         }
 
         /// <summary>
-        /// Gets the observed at time.
-        /// </summary>
-        public DateTime ObservedAt
-        {
-            get { return _observedAt; }
-        }
-
-        /// <summary>
         /// Gets the reason the server was removed.
         /// </summary>
         public string Reason
@@ -81,6 +73,14 @@ namespace MongoDB.Driver.Core.Events
         public ServerId ServerId
         {
             get { return _serverId; }
+        }
+
+        /// <summary>
+        /// Gets the timestamp.
+        /// </summary>
+        public DateTime Timestamp
+        {
+            get { return _timestamp; }
         }
     }
 }

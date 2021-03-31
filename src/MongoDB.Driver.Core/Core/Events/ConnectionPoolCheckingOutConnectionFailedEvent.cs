@@ -27,8 +27,8 @@ namespace MongoDB.Driver.Core.Events
         private readonly ConnectionCheckOutFailedReason _reason;
         private readonly ServerId _serverId;
         private readonly Exception _exception;
-        private readonly DateTime _observedAt;
         private readonly long? _operationId;
+        private readonly DateTime _timestamp;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConnectionPoolCheckingOutConnectionFailedEvent" /> struct.
@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Core.Events
             _exception = exception;
             _operationId = operationId;
             _reason = reason;
-            _observedAt = DateTime.UtcNow;
+            _timestamp = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -64,14 +64,6 @@ namespace MongoDB.Driver.Core.Events
         public Exception Exception
         {
             get { return _exception; }
-        }
-
-        /// <summary>
-        /// Gets the observed at time.
-        /// </summary>
-        public DateTime ObservedAt
-        {
-            get { return _observedAt; }
         }
 
         /// <summary>
@@ -96,6 +88,14 @@ namespace MongoDB.Driver.Core.Events
         public ServerId ServerId
         {
             get { return _serverId; }
+        }
+
+        /// <summary>
+        /// Gets the timestamp.
+        /// </summary>
+        public DateTime Timestamp
+        {
+            get { return _timestamp; }
         }
     }
 }

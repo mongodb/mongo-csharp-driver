@@ -24,8 +24,8 @@ namespace MongoDB.Driver.Core.Events
     /// </summary>
     public struct ConnectionPoolClosedEvent
     {
-        private readonly DateTime _observedAt;
         private readonly ServerId _serverId;
+        private readonly DateTime _timestamp;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConnectionPoolClosedEvent"/> struct.
@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.Events
         public ConnectionPoolClosedEvent(ServerId serverId)
         {
             _serverId = serverId;
-            _observedAt = DateTime.UtcNow;
+            _timestamp = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -46,19 +46,19 @@ namespace MongoDB.Driver.Core.Events
         }
 
         /// <summary>
-        /// Gets the observed at time.
-        /// </summary>
-        public DateTime ObservedAt
-        {
-            get { return _observedAt; }
-        }
-
-        /// <summary>
         /// Gets the server identifier.
         /// </summary>
         public ServerId ServerId
         {
             get { return _serverId; }
+        }
+
+        /// <summary>
+        /// Gets the timestamp.
+        /// </summary>
+        public DateTime Timestamp
+        {
+            get { return _timestamp; }
         }
     }
 }

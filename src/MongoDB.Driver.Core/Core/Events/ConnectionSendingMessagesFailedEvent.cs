@@ -28,9 +28,9 @@ namespace MongoDB.Driver.Core.Events
     {
         private readonly ConnectionId _connectionId;
         private readonly Exception _exception;
-        private readonly DateTime _observedAt;
         private readonly long? _operationId;
         private readonly IReadOnlyList<int> _requestIds;
+        private readonly DateTime _timestamp;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConnectionSendingMessagesFailedEvent" /> struct.
@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Core.Events
             _requestIds = requestIds;
             _exception = exception;
             _operationId = operationId;
-            _observedAt = DateTime.UtcNow;
+            _timestamp = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -73,14 +73,6 @@ namespace MongoDB.Driver.Core.Events
         }
 
         /// <summary>
-        /// Gets the observed at time.
-        /// </summary>
-        public DateTime ObservedAt
-        {
-            get { return _observedAt; }
-        }
-
-        /// <summary>
         /// Gets the operation identifier.
         /// </summary>
         public long? OperationId
@@ -102,6 +94,14 @@ namespace MongoDB.Driver.Core.Events
         public ServerId ServerId
         {
             get { return _connectionId.ServerId; }
+        }
+
+        /// <summary>
+        /// Gets the timestamp.
+        /// </summary>
+        public DateTime Timestamp
+        {
+            get { return _timestamp; }
         }
     }
 }

@@ -20,7 +20,6 @@ using System.Linq;
 using System.Threading;
 using AstrolabeWorkloadExecutor;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Misc;
@@ -36,19 +35,18 @@ namespace WorkloadExecutor
 
             var connectionString = args[0];
             var driverWorkload = BsonDocument.Parse(args[1]);
-            Console.WriteLine($"Income document: {driverWorkload}");
 
             var cancellationTokenSource = new CancellationTokenSource();
             ConsoleCancelEventHandler cancelHandler = (o, e) => HandleCancel(e, cancellationTokenSource);
 
-            var resultsDir = Environment.GetEnvironmentVariable("RESULTS_DIR");
-            var eventsPath = Path.Combine(resultsDir ?? "", "events.json");
-            var resultsPath = Path.Combine(resultsDir ?? "", "results.json");
+            var resultsDir = Environment.GetEnvironmentVariable("RESULTS_DIR") ?? "";
+            var eventsPath = Path.Combine(resultsDir, "events.json");
+            var resultsPath = Path.Combine(resultsDir, "results.json");
             Console.WriteLine($"dotnet main> Results will be written to {resultsPath},\nEvents will be written to {eventsPath}...");
 
             Console.CancelKeyPress += cancelHandler;
 
-            Console.WriteLine("dotnet main> Starting workload executor...");
+            Console.WriteLine($"dotnet main> Starting workload executor...");
 
             if (!bool.TryParse(Environment.GetEnvironmentVariable("ASYNC"), out bool async))
             {
@@ -60,7 +58,7 @@ namespace WorkloadExecutor
 
             Console.CancelKeyPress -= cancelHandler;
 
-            Console.WriteLine("dotnet main finally> Writing final results and events files");
+            Console.WriteLine($"dotnet main finally> Writing final results and events files");
             WriteToFile(resultsPath, resultDetails.ResultsJson);
             WriteToFile(eventsPath, resultDetails.EventsJson);
 
@@ -81,33 +79,17 @@ namespace WorkloadExecutor
             var failuresDocuments = GetValueOrDefault(entityMap.FailureDocumentsMap, "failures", @default: new BsonArray());
             var failuresCount = failuresDocuments.Count;
 
-            var events = new BsonArray();
+            string eventsJson = "[]";
             if (entityMap.EventCapturers.TryGetValue("events", out var eventCapturer))
             {
-                var specEvents = eventCapturer.Events.Select(AstrolabeEventsHandler.CreateEventDocument);
-                events.AddRange(specEvents);
+                var formattedEvents = eventCapturer.Events.Select(AstrolabeEventsHandler.CreateEventDocument);
+                eventsJson = $"[{string.Join(",", formattedEvents)}]";
             }
 
-            var eventsDocument = new BsonDocument
-            {
-                { "events", events },
-                { "errors", errorDocuments },
-                { "failures", failuresDocuments }
-            };
+            var eventsDocument = @$"{{ ""events"" : {eventsJson}, ""errors"" : {errorDocuments}, ""failures"" : {failuresDocuments} }}";
+            var resultsDocument = $@"{{ ""numErrors"" : {errorCount}, ""numFailures"" : {failuresCount}, ""numSuccesses"" : {successesCount},  ""numIterations"" : {iterationsCount} }}";
 
-            var resultsDocument = new BsonDocument
-            {
-                { "numErrors", errorCount },
-                { "numFailures", failuresCount },
-                { "numSuccesses", successesCount },
-                { "numIterations", iterationsCount }
-            };
-
-            var jsonWritterSettings = new JsonWriterSettings
-            {
-                OutputMode = JsonOutputMode.RelaxedExtendedJson
-            };
-            return (eventsDocument.ToJson(jsonWritterSettings), resultsDocument.ToJson(jsonWritterSettings));
+            return (eventsDocument, resultsDocument);
 
             T GetValueOrDefault<T>(Dictionary<string, T> dictionary, string key, T @default) => dictionary.TryGetValue(key, out var value) ? value : @default;
         }
@@ -123,14 +105,14 @@ namespace WorkloadExecutor
                 terminationCancellationToken: cancellationToken))
             {
                 testsExecutor.Run(testCase);
-                Console.WriteLine("dotnet ExecuteWorkload> Returning...");
+                Console.WriteLine($"dotnet ExecuteWorkload> Returning...");
                 return testsExecutor.EntityMap;
             }
         }
 
         private static void CancelWorkloadTask(CancellationTokenSource cancellationTokenSource)
         {
-            Console.Write($"\ndotnet cancel workload> Canceling the workload task...");
+            Console.Write($"dotnet cancel workload> Canceling the workload task...");
             cancellationTokenSource.Cancel();
             Console.WriteLine($"Done.");
         }

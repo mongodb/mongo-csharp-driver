@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Core.Events
         private readonly ClusterId _clusterId;
         private readonly ClusterSettings _clusterSettings;
         private readonly TimeSpan _duration;
-        private readonly DateTime _observedAt;
+        private readonly DateTime _timestamp;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ClusterOpenedEvent"/> struct.
@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.Events
             _clusterId = clusterId;
             _clusterSettings = clusterSettings;
             _duration = duration;
-            _observedAt = DateTime.UtcNow;
+            _timestamp = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -68,11 +68,11 @@ namespace MongoDB.Driver.Core.Events
         }
 
         /// <summary>
-        /// Gets the observed at time.
+        /// Gets the timestamp.
         /// </summary>
-        public DateTime ObservedAt
+        public DateTime Timestamp
         {
-            get { return _observedAt; }
+            get { return _timestamp; }
         }
     }
 }

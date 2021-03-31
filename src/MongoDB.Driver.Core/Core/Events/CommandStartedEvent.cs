@@ -29,9 +29,9 @@ namespace MongoDB.Driver.Core.Events
         private readonly string _commandName;
         private readonly ConnectionId _connectionId;
         private readonly DatabaseNamespace _databaseNamespace;
-        private readonly DateTime _observedAt;
         private readonly long? _operationId;
         private readonly int _requestId;
+        private readonly DateTime _timestamp;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommandStartedEvent" /> class.
@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Core.Events
             _connectionId = Ensure.IsNotNull(connectionId, "connectionId");
             _operationId = operationId;
             _requestId = requestId;
-            _observedAt = DateTime.UtcNow;
+            _timestamp = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -86,14 +86,6 @@ namespace MongoDB.Driver.Core.Events
         }
 
         /// <summary>
-        /// Gets the observed at time.
-        /// </summary>
-        public DateTime ObservedAt
-        {
-            get { return _observedAt; }
-        }
-
-        /// <summary>
         /// Gets the operation identifier.
         /// </summary>
         public long? OperationId
@@ -107,6 +99,14 @@ namespace MongoDB.Driver.Core.Events
         public int RequestId
         {
             get { return _requestId; }
+        }
+
+        /// <summary>
+        /// Gets the timestamp.
+        /// </summary>
+        public DateTime Timestamp
+        {
+            get { return _timestamp; }
         }
     }
 }

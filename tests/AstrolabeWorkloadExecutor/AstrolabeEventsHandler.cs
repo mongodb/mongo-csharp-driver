@@ -25,85 +25,90 @@ namespace AstrolabeWorkloadExecutor
     public static class AstrolabeEventsHandler
     {
         // public methods
-        public static BsonDocument CreateEventDocument(object @event) =>
+        public static string CreateEventDocument(object @event) =>
             @event switch
             {
                 CommandStartedEvent typedEvent =>
-                    CreateCommandEventDocument("CommandStartedEvent", typedEvent.ObservedAt, typedEvent.CommandName, typedEvent.RequestId)
-                    .Add("databaseName", typedEvent.DatabaseNamespace.ToString()),
+                    CreateCommandEventDocument(
+                        "CommandStartedEvent",
+                        typedEvent.Timestamp,
+                        typedEvent.CommandName,
+                        typedEvent.RequestId,
+                        $", databaseName : '{typedEvent.DatabaseNamespace}'"),
 
                 CommandSucceededEvent typedEvent =>
-                    CreateCommandEventDocument("CommandSucceededEvent", typedEvent.ObservedAt, typedEvent.CommandName, typedEvent.RequestId)
-                    .Add("duration", typedEvent.Duration.TotalMilliseconds),
+                    CreateCommandEventDocument(
+                        "CommandSucceededEvent",
+                        typedEvent.Timestamp,
+                        typedEvent.CommandName,
+                        typedEvent.RequestId,
+                        $", duration : '{typedEvent.Duration.TotalMilliseconds}'"),
 
                 CommandFailedEvent typedEvent =>
-                    CreateCommandEventDocument("CommandFailedEvent", typedEvent.ObservedAt, typedEvent.CommandName, typedEvent.RequestId)
-                    .Add("duration", typedEvent.Duration.TotalMilliseconds)
-                    .Add("failure", typedEvent.Failure.ToString()),
+                    CreateCommandEventDocument(
+                        "CommandFailedEvent",
+                        typedEvent.Timestamp,
+                        typedEvent.CommandName,
+                        typedEvent.RequestId,
+                        $", duration : '{typedEvent.Duration.TotalMilliseconds}', failure : '{typedEvent.Failure}'"),
 
                 ConnectionPoolOpenedEvent typedEvent =>
-                    CreateCmapEventDocument("PoolCreatedEvent", typedEvent.ObservedAt, typedEvent.ServerId),
+                    CreateCmapEventDocument("PoolCreatedEvent", typedEvent.Timestamp, typedEvent.ServerId),
 
                 ConnectionPoolClearedEvent typedEvent =>
-                    CreateCmapEventDocument("PoolClearedEvent", typedEvent.ObservedAt, typedEvent.ServerId),
+                    CreateCmapEventDocument("PoolClearedEvent", typedEvent.Timestamp, typedEvent.ServerId),
 
                 ConnectionPoolClosedEvent typedEvent =>
-                    CreateCmapEventDocument("PoolClosedEvent", typedEvent.ObservedAt, typedEvent.ServerId),
+                    CreateCmapEventDocument("PoolClosedEvent", typedEvent.Timestamp, typedEvent.ServerId),
 
                 ConnectionCreatedEvent typedEvent =>
-                    CreateCmapEventDocument("ConnectionCreatedEvent", typedEvent.ObservedAt, typedEvent.ConnectionId),
+                    CreateCmapEventDocument("ConnectionCreatedEvent", typedEvent.Timestamp, typedEvent.ConnectionId),
 
                 ConnectionClosedEvent typedEvent =>
-                    CreateCmapEventDocument("ConnectionClosedEvent", typedEvent.ObservedAt, typedEvent.ConnectionId),
-                    //.Add("reason", typedEvent.Reason) TODO: should be implemented in the scope of CSHARP-3219
+                    CreateCmapEventDocument(
+                        "ConnectionClosedEvent",
+                        typedEvent.Timestamp,
+                        typedEvent.ConnectionId),
+                        // $", reason : '{typedEvent.Reason}'"); // TODO: should be implemented in the scope of CSHARP-3219
 
                 ConnectionPoolCheckingOutConnectionEvent typedEvent =>
-                    CreateCmapEventDocument("ConnectionCheckOutStartedEvent", typedEvent.ObservedAt, typedEvent.ServerId),
+                    CreateCmapEventDocument("ConnectionCheckOutStartedEvent", typedEvent.Timestamp, typedEvent.ServerId),
 
                 ConnectionPoolCheckingOutConnectionFailedEvent typedEvent =>
-                    CreateCmapEventDocument("ConnectionCheckOutFailedEvent", typedEvent.ObservedAt, typedEvent.ServerId)
-                    .Add("reason", typedEvent.Reason),
+                    CreateCmapEventDocument(
+                        "ConnectionCheckOutFailedEvent",
+                        typedEvent.Timestamp,
+                        typedEvent.ServerId,
+                        $", reason : '{typedEvent.Reason}'"),
 
                 ConnectionPoolCheckedOutConnectionEvent typedEvent =>
-                    CreateCmapEventDocument("ConnectionCheckedOutEvent", typedEvent.ObservedAt, typedEvent.ConnectionId),
+                    CreateCmapEventDocument("ConnectionCheckedOutEvent", typedEvent.Timestamp, typedEvent.ConnectionId),
 
                 ConnectionPoolCheckedInConnectionEvent typedEvent =>
-                    CreateCmapEventDocument("ConnectionCheckedInEvent", typedEvent.ObservedAt, typedEvent.ConnectionId),
+                    CreateCmapEventDocument("ConnectionCheckedInEvent", typedEvent.Timestamp, typedEvent.ConnectionId),
 
                 ConnectionOpenedEvent typedEvent =>
-                    CreateCmapEventDocument("ConnectionReadyEvent", typedEvent.ObservedAt, typedEvent.ConnectionId),
+                    CreateCmapEventDocument("ConnectionReadyEvent", typedEvent.Timestamp, typedEvent.ConnectionId),
 
                 _ => throw new FormatException($"Unrecognized event type: '{@event.GetType()}'."),
             };
 
         // private methods
-        private static BsonDocument CreateCmapEventDocument(string eventName, DateTime observedAt, ServerId serverId) =>
-            new BsonDocument
-            {
-                { "name", eventName },
-                { "observedAt", GetCurrentTimeSeconds(observedAt) },
-                { "address", GetAddress(serverId) }
-            };
+        private static string CreateCmapEventDocument(string eventName, DateTime timestamp, ServerId serverId, string customJsonNodeWithComma = "") =>
+            $"{{ name : '{eventName}',  observedAt : '{GetCurrentTimeSeconds(timestamp)}', address : '{GetAddress(serverId)}'{customJsonNodeWithComma} }}";
 
-        public static BsonDocument CreateCmapEventDocument(string eventName, DateTime observedAt, ConnectionId connectionId) =>
-            CreateCmapEventDocument(eventName, observedAt, connectionId.ServerId)
-            .Add("connectionId", connectionId.LocalValue);
+        public static string CreateCmapEventDocument(string eventName, DateTime timestamp, ConnectionId connectionId) =>
+            CreateCmapEventDocument(eventName, timestamp, connectionId.ServerId, $", connectionId : {connectionId.LocalValue}");
 
-        public static BsonDocument CreateCommandEventDocument(string eventName, DateTime observedAt, string commandName, int requestId) =>
-            new BsonDocument
-            {
-                { "name", eventName },
-                { "observedAt", GetCurrentTimeSeconds(observedAt) },
-                { "commandName", commandName },
-                { "requestId", requestId }
-            };
+        public static string CreateCommandEventDocument(string eventName, DateTime timestamp, string commandName, int requestId, string customJsonNodeWithComma = "") =>
+            $"{{ name : '{eventName}',  observedAt : '{GetCurrentTimeSeconds(timestamp)}', commandName : '{commandName}', requestId : '{requestId}'{customJsonNodeWithComma} }}";
 
         private static string GetAddress(ServerId serverId)
         {
-            var endpoint = serverId.EndPoint;
-            return ((DnsEndPoint)endpoint).Host + ":" + ((DnsEndPoint)endpoint).Port;
+            var endpoint = (DnsEndPoint)serverId.EndPoint;
+            return $"{endpoint.Host}:{endpoint.Port}";
         }
 
-        private static double GetCurrentTimeSeconds(DateTime observedAt) => (double)(observedAt - BsonConstants.UnixEpoch).TotalMilliseconds / 1000;
+        private static double GetCurrentTimeSeconds(DateTime timestamp) => (double)(timestamp - BsonConstants.UnixEpoch).TotalMilliseconds / 1000;
     }
 }

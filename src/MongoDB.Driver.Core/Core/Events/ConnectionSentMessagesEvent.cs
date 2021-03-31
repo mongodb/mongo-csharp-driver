@@ -30,9 +30,9 @@ namespace MongoDB.Driver.Core.Events
         private readonly TimeSpan _networkDuration;
         private readonly TimeSpan _serializationDuration;
         private readonly int _length;
-        private readonly DateTime _observedAt;
         private readonly long? _operationId;
         private readonly IReadOnlyList<int> _requestIds;
+        private readonly DateTime _timestamp;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConnectionSentMessagesEvent" /> struct.
@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Core.Events
             _networkDuration = networkDuration;
             _serializationDuration = serializationDuration;
             _operationId = operationId;
-            _observedAt = DateTime.UtcNow;
+            _timestamp = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -84,14 +84,6 @@ namespace MongoDB.Driver.Core.Events
         public TimeSpan NetworkDuration
         {
             get { return _networkDuration; }
-        }
-
-        /// <summary>
-        /// Gets the observed at time.
-        /// </summary>
-        public DateTime ObservedAt
-        {
-            get { return _observedAt; }
         }
 
         /// <summary>
@@ -132,6 +124,14 @@ namespace MongoDB.Driver.Core.Events
         public ServerId ServerId
         {
             get { return _connectionId.ServerId; }
+        }
+
+        /// <summary>
+        /// Gets the timestamp.
+        /// </summary>
+        public DateTime Timestamp
+        {
+            get { return _timestamp; }
         }
     }
 }
