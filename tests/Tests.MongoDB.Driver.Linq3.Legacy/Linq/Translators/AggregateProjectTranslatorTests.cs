@@ -83,7 +83,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var result = Project(x => new { Result = x.Id + x.C.E.F + x.C.E.H });
 
-            result.Projection.Should().Be("{ Result : { $add : [{ $add : ['$_id', '$C.E.F'] }, '$C.E.H'] }, _id : 0 }");
+            result.Projection.Should().Be("{ Result: { \"$add\": [\"$_id\", \"$C.E.F\", \"$C.E.H\"] }, _id: 0 }");
 
             result.Value.Result.Should().Be(43);
         }

@@ -51,7 +51,26 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
                 return new AstConstantExpression(value);
             }
 
-            return new AstNaryExpression(AstNaryOperator.Add, args);
+            if (args.Any(arg => arg is AstNaryExpression naryExpression && naryExpression.Operator == AstNaryOperator.Add))
+            {
+                var flattenedArgs = new List<AstExpression>();
+                foreach (var arg in args)
+                {
+                    if (arg is AstNaryExpression naryExpression && naryExpression.Operator == AstNaryOperator.Add)
+                    {
+                        flattenedArgs.AddRange(naryExpression.Args);
+                    }
+                    else
+                    {
+                        flattenedArgs.Add(arg);
+                    }
+                }
+                return new AstNaryExpression(AstNaryOperator.Add, flattenedArgs);
+            }
+            else
+            {
+                return new AstNaryExpression(AstNaryOperator.Add, args);
+            }
         }
 
         public static AstExpression And(params AstExpression[] args)
