@@ -29,11 +29,6 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
             _args = Ensure.IsNotNull(args, nameof(args)).ToList().AsReadOnly();
         }
 
-        public AstAndExpression(params AstExpression[] args)
-            : this((IEnumerable<AstExpression>)args)
-        {
-        }
-
         public IReadOnlyList<AstExpression> Args => _args;
         public override AstNodeType NodeType => AstNodeType.AndExpression;
 
