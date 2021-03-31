@@ -156,15 +156,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                     return null;
                 }
 
-                if (startIndexAst is AstConstantExpression startIndexConstantAst &&
-                    countAst is AstConstantExpression countConstantAst)
-                {
-                    var startIndex = (int)startIndexConstantAst.Value;
-                    var count = (int)countConstantAst.Value;
-                    return new AstConstantExpression(startIndex + count);
-                }
-
-                return new AstNaryExpression(AstNaryOperator.Add, startIndexAst, countAst);
+                return AstExpression.Add(startIndexAst, countAst);
             }
         }
 
