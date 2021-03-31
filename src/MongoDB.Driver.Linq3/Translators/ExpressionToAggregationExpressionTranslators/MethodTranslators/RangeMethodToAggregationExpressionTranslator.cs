@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 {
                     ast = new AstRangeExpression(
                         start: startTranslation.Ast,
-                        end: new AstNaryExpression(AstNaryOperator.Add, startTranslation.Ast, countTranslation.Ast));
+                        end: AstExpression.Add(startTranslation.Ast, countTranslation.Ast));
                 }
                 else
                 {
@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                         vars: new[] { new AstComputedField("start", startTranslation.Ast), new AstComputedField("count", countTranslation.Ast) },
                         @in: new AstRangeExpression(
                             start: startVariable,
-                            end: new AstNaryExpression(AstNaryOperator.Add, startVariable, countVariable)));
+                            end: AstExpression.Add(startVariable, countVariable)));
                 }
                 var serializer = IEnumerableSerializer.Create(new Int32Serializer());
 
@@ -62,7 +62,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
         private static bool IsSimple(AggregationExpression translation)
         {
             var ast = translation.Ast;
-            return ast.NodeType == Ast.AstNodeType.ConstantExpression || ast.NodeType == Ast.AstNodeType.FieldExpression;
+            return ast.NodeType == AstNodeType.ConstantExpression || ast.NodeType == AstNodeType.FieldExpression;
         }
     }
 }

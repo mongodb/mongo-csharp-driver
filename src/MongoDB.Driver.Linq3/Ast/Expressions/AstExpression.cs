@@ -13,12 +13,15 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Bson;
 
 namespace MongoDB.Driver.Linq3.Ast.Expressions
 {
     public abstract class AstExpression : AstNode
     {
+        // public implicit conversions
         public static implicit operator AstExpression(BsonValue value)
         {
             return new AstConstantExpression(value);
@@ -37,6 +40,31 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
         public static implicit operator AstExpression(string value)
         {
             return new AstConstantExpression(value);
+        }
+
+        // public static methods
+        public static AstExpression Add(params AstExpression[] args)
+        {
+            if (AllArgsAreConstantInt32s(args, out var values))
+            {
+                var sum = values.Sum();
+                return new AstConstantExpression(sum);
+            }
+
+            return new AstNaryExpression(AstNaryOperator.Add, args);
+        }
+
+        // private static methods
+        private static bool AllArgsAreConstantInt32s(AstExpression[] args, out List<int> values)
+        {
+            if (args.All(arg => arg is AstConstantExpression constantExpression && constantExpression.Value.BsonType == BsonType.Int32))
+            {
+                values = args.Select(arg => ((AstConstantExpression)arg).Value.AsInt32).ToList();
+                return true;
+            }
+
+            values = null;
+            return false;
         }
     }
 }

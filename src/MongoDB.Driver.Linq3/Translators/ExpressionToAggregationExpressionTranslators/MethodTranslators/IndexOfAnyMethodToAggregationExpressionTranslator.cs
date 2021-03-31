@@ -178,18 +178,15 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                     return (null, null);
                 }
 
-                if (startIndexAst is AstConstantExpression startIndexConstantExpression &&
-                    countAst is AstConstantExpression countConstantExpression)
+                var endAst = AstExpression.Add(startIndexAst, countAst);
+                if (endAst.NodeType == AstNodeType.ConstantExpression)
                 {
-                    var startIndex = startIndexConstantExpression.Value.AsInt32;
-                    var count = countConstantExpression.Value.AsInt32;
-                    var endAst = new AstConstantExpression(startIndex + count);
                     return (null, endAst);
                 }
                 else
                 {
-                    var endVar = new AstComputedField("end", new AstNaryExpression(AstNaryOperator.Add, startIndexAst, countAst));
-                    var endAst = new AstFieldExpression("$end");
+                    var endVar = new AstComputedField("end", endAst);
+                    endAst = new AstFieldExpression("$end");
                     return (endVar, endAst);
                 }
             }
