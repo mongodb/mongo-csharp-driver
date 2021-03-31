@@ -7,6 +7,15 @@ title = "What's New"
   identifier = "What's New"
   pre = "<i class='fa fa-star'></i>"
 +++
+## What's New in 2.13.0-beta1
+
+The main new features in 2.13.0-beta1 include:
+
+* Versioned MongoDB API for Drivers
+* Implemented change stream oplog parsing code for delta oplog entries
+* `estimatedDocumentCount()` now uses the `$collStats` aggregation stage instead of the `count` command
+* Reduced lock contention in BsonSerializer.LookupActualType
+
 ## What's New in 2.12.0
 
 The main new features in 2.12.0 include:

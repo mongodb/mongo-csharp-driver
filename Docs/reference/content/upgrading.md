@@ -11,6 +11,6 @@ title = "Upgrading"
 
 ## Breaking Changes
 
-### Backwards compatibility with driver version 2.7.0–2.11.x
+### Backwards compatibility with driver version 2.7.0–2.12.x
 
 No known backward compatibility issues.
