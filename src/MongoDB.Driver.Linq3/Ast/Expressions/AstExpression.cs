@@ -47,14 +47,56 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
         {
             if (AllArgsAreConstantInt32s(args, out var values))
             {
-                var sum = values.Sum();
-                return new AstConstantExpression(sum);
+                var value = values.Sum();
+                return new AstConstantExpression(value);
             }
 
             return new AstNaryExpression(AstNaryOperator.Add, args);
         }
 
+        public static AstExpression And(params AstExpression[] args)
+        {
+            if (AllArgsAreConstantBools(args, out var values))
+            {
+                var value = values.All(value => value);
+                return new AstConstantExpression(value);
+            }
+
+            if (args.Any(arg => arg.NodeType == AstNodeType.AndExpression))
+            {
+                var flattenedArgs = new List<AstExpression>();
+                foreach (var arg in args)
+                {
+                    if (arg is AstAndExpression andExpression)
+                    {
+                        flattenedArgs.AddRange(andExpression.Args);
+                    }
+                    else
+                    {
+                        flattenedArgs.Add(arg);
+                    }
+                }
+                return new AstAndExpression(flattenedArgs);
+            }
+            else
+            {
+                return new AstAndExpression(args);
+            }
+        }
+
         // private static methods
+        private static bool AllArgsAreConstantBools(AstExpression[] args, out List<bool> values)
+        {
+            if (args.All(arg => arg is AstConstantExpression constantExpression && constantExpression.Value.BsonType == BsonType.Boolean))
+            {
+                values = args.Select(arg => ((AstConstantExpression)arg).Value.AsBoolean).ToList();
+                return true;
+            }
+
+            values = null;
+            return false;
+        }
+
         private static bool AllArgsAreConstantInt32s(AstExpression[] args, out List<int> values)
         {
             if (args.All(arg => arg is AstConstantExpression constantExpression && constantExpression.Value.BsonType == BsonType.Int32))
