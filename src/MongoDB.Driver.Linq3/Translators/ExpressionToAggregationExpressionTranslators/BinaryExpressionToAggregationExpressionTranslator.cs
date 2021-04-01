@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 case ExpressionType.LessThan: binaryOperator = AstBinaryOperator.Lt; break;
                 case ExpressionType.LessThanOrEqual: binaryOperator = AstBinaryOperator.Lte; break;
                 case ExpressionType.Modulo: binaryOperator = AstBinaryOperator.Mod; break;
-                case ExpressionType.Multiply: binaryOperator = AstBinaryOperator.Multiply; break;
+                case ExpressionType.Multiply: naryOperator = AstNaryOperator.Multiply; break;
                 case ExpressionType.NotEqual: binaryOperator = AstBinaryOperator.Ne; break;
                 case ExpressionType.Power: binaryOperator = AstBinaryOperator.Pow; break;
                 case ExpressionType.Subtract: binaryOperator = AstBinaryOperator.Subtract; break;
@@ -71,9 +71,13 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 var leftTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, expression.Left);
                 var rightTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, expression.Right);
 
-                var ast = binaryOperator != null ?
-                    (AstExpression)new AstBinaryExpression(binaryOperator.Value, leftTranslation.Ast, rightTranslation.Ast) :
-                    (AstExpression)new AstNaryExpression(naryOperator.Value, leftTranslation.Ast, rightTranslation.Ast);
+                var ast = expression.NodeType switch
+                {
+                    ExpressionType.Multiply => AstExpression.Multiply(leftTranslation.Ast, rightTranslation.Ast),
+                    _ when binaryOperator.HasValue => new AstBinaryExpression(binaryOperator.Value, leftTranslation.Ast, rightTranslation.Ast),
+                    _ when naryOperator.HasValue => new AstNaryExpression(naryOperator.Value, leftTranslation.Ast, rightTranslation.Ast),
+                    _ => throw new ExpressionNotSupportedException(expression)
+                };
                 var serializer = BsonSerializer.LookupSerializer(expression.Type); // TODO: get correct serializer
 
                 return new AggregationExpression(expression, ast, serializer);

@@ -32,7 +32,6 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
         Lt,
         Lte,
         Mod,
-        Multiply,
         Ne,
         Pow,
         Round,
@@ -63,7 +62,6 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
                 case AstBinaryOperator.Lt: return "$lt";
                 case AstBinaryOperator.Lte: return "$lte";
                 case AstBinaryOperator.Mod: return "$mod";
-                case AstBinaryOperator.Multiply: return "$multiply";
                 case AstBinaryOperator.Ne: return "$ne";
                 case AstBinaryOperator.Pow: return "$pow";
                 case AstBinaryOperator.Round: return "$round";
