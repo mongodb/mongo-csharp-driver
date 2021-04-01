@@ -67,10 +67,8 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
                 }
                 return new AstNaryExpression(AstNaryOperator.Add, flattenedArgs);
             }
-            else
-            {
-                return new AstNaryExpression(AstNaryOperator.Add, args);
-            }
+
+            return new AstNaryExpression(AstNaryOperator.Add, args);
         }
 
         public static AstExpression And(params AstExpression[] args)
@@ -97,10 +95,31 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
                 }
                 return new AstAndExpression(flattenedArgs);
             }
-            else
+
+            return new AstAndExpression(args);
+        }
+
+        public static AstExpression Multiply(params AstExpression[] args)
+        {
+            if (args.Any(arg => arg is AstNaryExpression naryExpression && naryExpression.Operator == AstNaryOperator.Multiply))
             {
-                return new AstAndExpression(args);
+                var flattenedArgs = new List<AstExpression>();
+                foreach (var arg in args)
+                {
+                    if (arg is AstNaryExpression naryExpression && naryExpression.Operator == AstNaryOperator.Multiply)
+                    {
+                        flattenedArgs.AddRange(naryExpression.Args);
+                    }
+                    else
+                    {
+                        flattenedArgs.Add(arg);
+                    }
+                }
+                return new AstNaryExpression(AstNaryOperator.Multiply, flattenedArgs);
             }
+
+
+            return new AstNaryExpression(AstNaryOperator.Multiply, args);
         }
 
         // private static methods

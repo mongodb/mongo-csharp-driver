@@ -864,11 +864,11 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         }
 
         [Fact]
-        public void Should_translate_multiply_nested()
+        public void Should_translate_multiply_flattened()
         {
             var result = Project(x => new { Result = x.Id * x.C.E.F * x.C.E.H });
 
-            result.Projection.Should().Be("{ Result : { $multiply : [{ $multiply : ['$_id', '$C.E.F'] }, '$C.E.H'] }, _id : 0 }");
+            result.Projection.Should().Be("{ Result: { \"$multiply\": [\"$_id\", \"$C.E.F\", \"$C.E.H\"] }, _id: 0 }");
 
             result.Value.Result.Should().Be(2420);
         }
