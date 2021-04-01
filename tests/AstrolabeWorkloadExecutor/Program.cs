@@ -42,7 +42,8 @@ namespace WorkloadExecutor
             var resultsDir = Environment.GetEnvironmentVariable("RESULTS_DIR") ?? "";
             var eventsPath = Path.Combine(resultsDir, "events.json");
             var resultsPath = Path.Combine(resultsDir, "results.json");
-            Console.WriteLine($"dotnet main> Results will be written to {resultsPath},\nEvents will be written to {eventsPath}...");
+            Console.WriteLine($"dotnet main> Results will be written to {resultsPath}");
+            Console.WriteLine($"dotnet main> Events will be written to {eventsPath}");
 
             Console.CancelKeyPress += cancelHandler;
 
@@ -59,8 +60,8 @@ namespace WorkloadExecutor
             Console.CancelKeyPress -= cancelHandler;
 
             Console.WriteLine($"dotnet main finally> Writing final results and events files");
-            WriteToFile(resultsPath, resultDetails.ResultsJson);
-            WriteToFile(eventsPath, resultDetails.EventsJson);
+            File.WriteAllText(resultsPath, resultDetails.ResultsJson);
+            File.WriteAllText(eventsPath, resultDetails.EventsJson);
 
             // ensure all messages are propagated to the astrolabe time immediately
             Console.Error.Flush();
@@ -126,11 +127,6 @@ namespace WorkloadExecutor
             CancelWorkloadTask(cancellationTokenSource);
         }
 
-        private static void WriteToFile(string path, string json)
-        {
-            File.WriteAllText(path, json);
-        }
-
         internal class TestCaseFactory : JsonDrivenTestCaseFactory
         {
             public JsonDrivenTestCase CreateTestCase(BsonDocument driverWorkload, bool async)
@@ -141,7 +137,8 @@ namespace WorkloadExecutor
                 return testCase;
             }
 
-            protected override string GetTestCaseName(BsonDocument shared, BsonDocument test, int index) => $"Astrolabe command line arguments:{base.GetTestName(test, index)}";
+            protected override string GetTestCaseName(BsonDocument shared, BsonDocument test, int index) =>
+                $"Astrolabe command line arguments:{base.GetTestName(test, index)}";
         }
     }
 }
