@@ -54,8 +54,7 @@ namespace WorkloadExecutor
                 async = true;
             }
 
-            var entityMap = ExecuteWorkload(connectionString, driverWorkload, async, cancellationTokenSource.Token);
-            var resultDetails = HandleWorkloadResult(entityMap: entityMap);
+            var resultDetails = ExecuteWorkload(connectionString, driverWorkload, async, cancellationTokenSource.Token);
 
             Console.CancelKeyPress -= cancelHandler;
 
@@ -95,7 +94,7 @@ namespace WorkloadExecutor
             T GetValueOrDefault<T>(Dictionary<string, T> dictionary, string key, T @default) => dictionary.TryGetValue(key, out var value) ? value : @default;
         }
 
-        private static UnifiedEntityMap ExecuteWorkload(string connectionString, BsonDocument driverWorkload, bool async, CancellationToken cancellationToken)
+        private static (string EventsJson, string ResultsJson) ExecuteWorkload(string connectionString, BsonDocument driverWorkload, bool async, CancellationToken cancellationToken)
         {
             Environment.SetEnvironmentVariable("MONGODB_URI", connectionString); // force using atlas connection string in our internal test connection strings
 
@@ -107,7 +106,7 @@ namespace WorkloadExecutor
             {
                 testsExecutor.Run(testCase);
                 Console.WriteLine($"dotnet ExecuteWorkload> Returning...");
-                return testsExecutor.EntityMap;
+                return HandleWorkloadResult(entityMap: testsExecutor.EntityMap);
             }
         }
 
