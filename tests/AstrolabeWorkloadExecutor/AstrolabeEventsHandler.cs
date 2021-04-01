@@ -97,10 +97,10 @@ namespace AstrolabeWorkloadExecutor
         private static string CreateCmapEventDocument(string eventName, DateTime timestamp, ServerId serverId, string customJsonNodeWithComma = "") =>
             $"{{ name : '{eventName}',  observedAt : '{GetCurrentTimeSeconds(timestamp)}', address : '{GetAddress(serverId)}'{customJsonNodeWithComma} }}";
 
-        public static string CreateCmapEventDocument(string eventName, DateTime timestamp, ConnectionId connectionId) =>
+        private static string CreateCmapEventDocument(string eventName, DateTime timestamp, ConnectionId connectionId) =>
             CreateCmapEventDocument(eventName, timestamp, connectionId.ServerId, $", connectionId : {connectionId.LocalValue}");
 
-        public static string CreateCommandEventDocument(string eventName, DateTime timestamp, string commandName, int requestId, string customJsonNodeWithComma = "") =>
+        private static string CreateCommandEventDocument(string eventName, DateTime timestamp, string commandName, int requestId, string customJsonNodeWithComma = "") =>
             $"{{ name : '{eventName}',  observedAt : '{GetCurrentTimeSeconds(timestamp)}', commandName : '{commandName}', requestId : '{requestId}'{customJsonNodeWithComma} }}";
 
         private static string GetAddress(ServerId serverId)
