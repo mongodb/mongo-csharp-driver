@@ -82,8 +82,12 @@ namespace WorkloadExecutor
             string eventsJson = "[]";
             if (entityMap.EventCapturers.TryGetValue("events", out var eventCapturer))
             {
-                var formattedEvents = eventCapturer.Events.Select(AstrolabeEventsHandler.CreateEventDocument);
-                eventsJson = $"[{string.Join(",", formattedEvents)}]";
+                var eventsJsonBuilder = new AstrolabeEventsJsonBuilder();
+                foreach (var @event in eventCapturer.Events)
+                {
+                    eventsJsonBuilder.Append(@event);
+                }
+                eventsJson = eventsJsonBuilder.ToString();
             }
 
             var eventsDocument = @$"{{ ""events"" : {eventsJson}, ""errors"" : {errorDocuments}, ""failures"" : {failuresDocuments} }}";

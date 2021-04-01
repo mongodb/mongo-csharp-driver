@@ -15,6 +15,7 @@
 
 using System;
 using System.Net;
+using System.Text;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
@@ -22,10 +23,20 @@ using MongoDB.Driver.Core.Servers;
 
 namespace AstrolabeWorkloadExecutor
 {
-    public static class AstrolabeEventsHandler
+    public class AstrolabeEventsJsonBuilder
     {
+        private readonly StringBuilder _builder = new StringBuilder();
+
         // public methods
-        public static string CreateEventDocument(object @event) =>
+        public void Append(object @event)
+        {
+            var eventDocument = CreateEventDocument(@event);
+            _builder.Append(eventDocument);
+        }
+
+
+        // private methods
+        private string CreateEventDocument(object @event) =>
             @event switch
             {
                 CommandStartedEvent typedEvent =>
@@ -93,22 +104,19 @@ namespace AstrolabeWorkloadExecutor
                 _ => throw new FormatException($"Unrecognized event type: '{@event.GetType()}'."),
             };
 
-        // private methods
-        private static string CreateCmapEventDocument(string eventName, DateTime timestamp, ServerId serverId, string customJsonNodeWithComma = "") =>
-            $"{{ name : '{eventName}',  observedAt : '{GetCurrentTimeSeconds(timestamp)}', address : '{GetAddress(serverId)}'{customJsonNodeWithComma} }}";
+        private string CreateCmapEventDocument(string eventName, DateTime timestamp, ServerId serverId, string customJsonNodeWithComma = "") =>
+            $"{{ name : '{eventName}',  observedAt : '{BsonUtils.ToSecondsSinceEpoch(timestamp)}', address : '{GetAddress(serverId)}'{customJsonNodeWithComma} }}";
 
-        private static string CreateCmapEventDocument(string eventName, DateTime timestamp, ConnectionId connectionId) =>
+        private string CreateCmapEventDocument(string eventName, DateTime timestamp, ConnectionId connectionId) =>
             CreateCmapEventDocument(eventName, timestamp, connectionId.ServerId, $", connectionId : {connectionId.LocalValue}");
 
-        private static string CreateCommandEventDocument(string eventName, DateTime timestamp, string commandName, int requestId, string customJsonNodeWithComma = "") =>
-            $"{{ name : '{eventName}',  observedAt : '{GetCurrentTimeSeconds(timestamp)}', commandName : '{commandName}', requestId : '{requestId}'{customJsonNodeWithComma} }}";
+        private string CreateCommandEventDocument(string eventName, DateTime timestamp, string commandName, int requestId, string customJsonNodeWithComma = "") =>
+            $"{{ name : '{eventName}',  observedAt : '{BsonUtils.ToSecondsSinceEpoch(timestamp)}', commandName : '{commandName}', requestId : '{requestId}'{customJsonNodeWithComma} }}";
 
-        private static string GetAddress(ServerId serverId)
+        private string GetAddress(ServerId serverId)
         {
             var endpoint = (DnsEndPoint)serverId.EndPoint;
             return $"{endpoint.Host}:{endpoint.Port}";
         }
-
-        private static double GetCurrentTimeSeconds(DateTime timestamp) => (double)(timestamp - BsonConstants.UnixEpoch).TotalMilliseconds / 1000;
     }
 }

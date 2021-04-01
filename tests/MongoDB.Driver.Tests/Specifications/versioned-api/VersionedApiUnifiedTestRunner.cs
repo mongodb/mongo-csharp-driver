@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Tests.Specifications.versioned_api
         {
             using (var testsExecutor = new UnifiedTestFormatExecutor())
             {
-                testsExecutor.Run(testCase);
+                testsExecutor.Run(testCase)?.Dispose();
             }
         }
 

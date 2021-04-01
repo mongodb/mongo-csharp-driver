@@ -54,76 +54,51 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             _terminatorCancellationToken = terminatorCancellationToken;
         }
 
-        public void Execute(Action<BsonDocument, bool, CancellationToken> createAndRunOperationCallback, CancellationToken cancellationToken)
+        public void Execute(Action<BsonDocument, UnifiedEntityMap, bool, CancellationToken> createAndRunOperationCallback, UnifiedEntityMap unifiedEntityMap, CancellationToken cancellationToken)
         {
-            int iterationsCount = 0;
-            int successfulOperationsCount = 0;
-            while (!_terminatorCancellationToken.IsCancellationRequested)
-            {
-                foreach (var operation in _loopOperations.Select(o => o.DeepClone().AsBsonDocument))
-                {
-                    try
-                    {
-                        createAndRunOperationCallback(operation, false, cancellationToken);
-                        successfulOperationsCount++;
-                    }
-                    catch (Exception ex)
-                    {
-                        if (!TryHandleException(ex))
-                        {
-                            throw;
-                        }
-                        break;
-                    }
-                }
-                iterationsCount++;
-            }
-
-            HandleResults(iterationsCount, successfulOperationsCount);
+            Execute(createAndRunOperationCallback, unifiedEntityMap, async: false, cancellationToken);
         }
 
-        public Task ExecuteAsync(Action<BsonDocument, bool, CancellationToken> createAndRunOperationCallback, CancellationToken cancellationToken)
+        public Task ExecuteAsync(Action<BsonDocument, UnifiedEntityMap, bool, CancellationToken> createAndRunOperationCallback, UnifiedEntityMap unifiedEntityMap, CancellationToken cancellationToken)
         {
-            int iterationsCount = 0;
-            int successfulOperationsCount = 0;
-            while (!_terminatorCancellationToken.IsCancellationRequested)
-            {
-                foreach (var operation in _loopOperations.Select(o => o.DeepClone().AsBsonDocument))
-                {
-                    try
-                    {
-                        createAndRunOperationCallback(operation, true, cancellationToken);
-                        successfulOperationsCount++;
-                    }
-                    catch (Exception ex)
-                    {
-                        if (!TryHandleException(ex))
-                        {
-                            throw;
-                        }
-                        break;
-                    }
-                }
-                iterationsCount++;
-            }
-
-            HandleResults(iterationsCount, successfulOperationsCount);
+            Execute(createAndRunOperationCallback, unifiedEntityMap, async: true, cancellationToken);
             return Task.FromResult(true);
         }
 
         // private methods
-        private BsonDocument CreateDocumentFromException(Exception ex)
-        {
-            return new BsonDocument
+        private BsonDocument CreateDocumentFromException(Exception ex) =>
+            new BsonDocument
             {
                 { "error", ex.ToString() },
-                { "time", GetCurrentTimeMilliseconds() }
+                { "time", BsonUtils.ToSecondsSinceEpoch(DateTime.UtcNow) }
             };
 
-            long GetCurrentTimeMilliseconds()
+        private void Execute(Action<BsonDocument, UnifiedEntityMap, bool, CancellationToken> createAndRunOperationCallback, UnifiedEntityMap unifiedEntityMap, bool async, CancellationToken cancellationToken)
+        {
+            int iterationsCount = 0;
+            int successfulOperationsCount = 0;
+            while (!_terminatorCancellationToken.IsCancellationRequested)
             {
-                return (long)(DateTime.UtcNow - BsonConstants.UnixEpoch).TotalMilliseconds / 1000;
+                foreach (var operation in _loopOperations.Select(o => o.DeepClone().AsBsonDocument))
+                {
+                    try
+                    {
+                        createAndRunOperationCallback(operation, unifiedEntityMap, async, cancellationToken);
+                        successfulOperationsCount++;
+                    }
+                    catch (Exception ex)
+                    {
+                        if (!TryHandleException(ex))
+                        {
+                            throw;
+                        }
+                        break;
+                    }
+                }
+                iterationsCount++;
             }
+
+            HandleResults(iterationsCount, successfulOperationsCount);
         }
 
         private void HandleResults(long iterationsCount, long successfulOperationsCount)
