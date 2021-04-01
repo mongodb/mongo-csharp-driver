@@ -583,6 +583,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         throw new FormatException($"Invalid event name: {eventTypeToCapture}.");
                 }
             }
+
             return eventCapturer;
         }
 
