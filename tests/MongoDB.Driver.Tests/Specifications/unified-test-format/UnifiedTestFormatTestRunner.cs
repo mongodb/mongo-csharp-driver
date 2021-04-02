@@ -24,10 +24,10 @@ using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Tests.Specifications.unified_test_format;
+using MongoDB.Driver.Tests.UnifiedTestOperations;
 using Xunit;
 
-namespace MongoDB.Driver.Tests.UnifiedTestOperations
+namespace MongoDB.Driver.Tests.Specifications.unified_test_format
 {
     public sealed class UnifiedTestFormatTestRunner : IDisposable
     {
@@ -47,6 +47,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         // public properties
         public UnifiedEntityMap EntityMap => _entityMap;
 
+        [SkippableTheory]
+        [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)
         {
             // Top-level fields

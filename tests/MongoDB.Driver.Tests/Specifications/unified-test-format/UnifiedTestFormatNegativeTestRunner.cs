@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
-using MongoDB.Driver.Tests.UnifiedTestOperations;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Specifications.unified_test_format

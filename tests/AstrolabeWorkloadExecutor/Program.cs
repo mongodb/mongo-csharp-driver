@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using AstrolabeWorkloadExecutor;
 using MongoDB.Bson;
@@ -83,12 +84,12 @@ namespace WorkloadExecutor
             string eventsJson = "[]";
             if (entityMap.EventCapturers.TryGetValue("events", out var eventCapturer))
             {
-                var eventsJsonBuilder = new AstrolabeEventsJsonBuilder();
+                var stringBuilder = new StringBuilder();
                 foreach (var @event in eventCapturer.Events)
                 {
-                    eventsJsonBuilder.Append(@event);
+                    stringBuilder.Append(@event);
                 }
-                eventsJson = eventsJsonBuilder.ToString();
+                eventsJson = stringBuilder.ToString();
             }
 
             var eventsDocument = @$"{{ ""events"" : {eventsJson}, ""errors"" : {errorDocuments}, ""failures"" : {failuresDocuments} }}";

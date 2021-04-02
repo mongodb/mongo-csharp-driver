@@ -15,7 +15,6 @@
 
 using System;
 using System.Net;
-using System.Text;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
@@ -23,20 +22,10 @@ using MongoDB.Driver.Core.Servers;
 
 namespace AstrolabeWorkloadExecutor
 {
-    public class AstrolabeEventsJsonBuilder
+    public static class AstrolabeEventsHandler
     {
-        private readonly StringBuilder _builder = new StringBuilder();
-
         // public methods
-        public void Append(object @event)
-        {
-            var eventDocument = CreateEventDocument(@event);
-            _builder.Append(eventDocument);
-        }
-
-
-        // private methods
-        private string CreateEventDocument(object @event) =>
+        public static string CreateEventDocument(object @event) =>
             @event switch
             {
                 CommandStartedEvent typedEvent =>
@@ -104,16 +93,16 @@ namespace AstrolabeWorkloadExecutor
                 _ => throw new FormatException($"Unrecognized event type: '{@event.GetType()}'."),
             };
 
-        private string CreateCmapEventDocument(string eventName, DateTime timestamp, ServerId serverId, string customJsonNodeWithComma = "") =>
+        private static string CreateCmapEventDocument(string eventName, DateTime timestamp, ServerId serverId, string customJsonNodeWithComma = "") =>
             $"{{ name : '{eventName}',  observedAt : '{BsonUtils.ToSecondsSinceEpoch(timestamp)}', address : '{GetAddress(serverId)}'{customJsonNodeWithComma} }}";
 
-        private string CreateCmapEventDocument(string eventName, DateTime timestamp, ConnectionId connectionId) =>
+        private static string CreateCmapEventDocument(string eventName, DateTime timestamp, ConnectionId connectionId) =>
             CreateCmapEventDocument(eventName, timestamp, connectionId.ServerId, $", connectionId : {connectionId.LocalValue}");
 
-        private string CreateCommandEventDocument(string eventName, DateTime timestamp, string commandName, int requestId, string customJsonNodeWithComma = "") =>
+        private static string CreateCommandEventDocument(string eventName, DateTime timestamp, string commandName, int requestId, string customJsonNodeWithComma = "") =>
             $"{{ name : '{eventName}',  observedAt : '{BsonUtils.ToSecondsSinceEpoch(timestamp)}', commandName : '{commandName}', requestId : '{requestId}'{customJsonNodeWithComma} }}";
 
-        private string GetAddress(ServerId serverId)
+        private static string GetAddress(ServerId serverId)
         {
             var endpoint = (DnsEndPoint)serverId.EndPoint;
             return $"{endpoint.Host}:{endpoint.Port}";
