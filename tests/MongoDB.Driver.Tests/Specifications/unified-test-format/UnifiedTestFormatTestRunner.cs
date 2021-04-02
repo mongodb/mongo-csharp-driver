@@ -79,6 +79,8 @@ namespace MongoDB.Driver.Tests.Specifications.unified_test_format
             BsonArray outcome,
             bool async)
         {
+            Ensure.IsNull(_entityMap, nameof(_entityMap)); // ensure that we don't call Run more than once
+
             var schemaSemanticVersion = SemanticVersion.Parse(schemaVersion);
             if (schemaSemanticVersion < new SemanticVersion(1, 0, 0) ||
                 schemaSemanticVersion > new SemanticVersion(1, 2, 0))
