@@ -85,10 +85,13 @@ namespace WorkloadExecutor
             if (entityMap.EventCapturers.TryGetValue("events", out var eventCapturer))
             {
                 var stringBuilder = new StringBuilder();
+                stringBuilder.Append("[");
                 foreach (var @event in eventCapturer.Events)
                 {
                     stringBuilder.Append(@event);
+                    stringBuilder.Append(",");
                 }
+                stringBuilder.Append("]");
                 eventsJson = stringBuilder.ToString();
             }
 
