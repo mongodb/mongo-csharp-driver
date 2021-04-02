@@ -86,10 +86,14 @@ namespace WorkloadExecutor
             {
                 var stringBuilder = new StringBuilder();
                 stringBuilder.Append("[");
-                foreach (var @event in eventCapturer.Events)
+                for (int i = 0; i < eventCapturer.Events.Count; i++)
                 {
-                    stringBuilder.Append(@event);
-                    stringBuilder.Append(",");
+                    object @event = eventCapturer.Events[i];
+                    stringBuilder.Append(AstrolabeEventsHandler.CreateEventDocument(@event));
+                    if (i < eventCapturer.Events.Count - 1)
+                    {
+                        stringBuilder.Append(",");
+                    }
                 }
                 stringBuilder.Append("]");
                 eventsJson = stringBuilder.ToString();
