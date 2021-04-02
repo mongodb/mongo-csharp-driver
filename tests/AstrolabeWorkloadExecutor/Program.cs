@@ -88,8 +88,7 @@ namespace WorkloadExecutor
                 stringBuilder.Append("[");
                 for (int i = 0; i < eventCapturer.Events.Count; i++)
                 {
-                    object @event = eventCapturer.Events[i];
-                    stringBuilder.Append(AstrolabeEventsHandler.CreateEventDocument(@event));
+                    stringBuilder.Append(AstrolabeEventsHandler.CreateEventDocument(eventCapturer.Events[i]));
                     if (i < eventCapturer.Events.Count - 1)
                     {
                         stringBuilder.Append(",");

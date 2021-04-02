@@ -34,6 +34,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         private readonly Dictionary<string, IMongoCollection<BsonDocument>> _collections;
         private readonly Dictionary<string, IMongoDatabase> _databases;
         private readonly Dictionary<string, BsonArray> _errorDocumentsMap;
+        private bool _disposed;
         private readonly Dictionary<string, BsonArray> _failureDocumentsMap;
         private readonly Dictionary<string, long> _iterationCounts;
         private readonly Dictionary<string, BsonValue> _results;
@@ -73,116 +74,184 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         }
 
         // public properties
-        public Dictionary<string, BsonArray> ErrorDocumentsMap => _errorDocumentsMap;
-        public Dictionary<string, EventCapturer> EventCapturers => _clientEventCapturers;
-        public Dictionary<string, BsonArray> FailureDocumentsMap => _failureDocumentsMap;
-        public Dictionary<string, long> IterationCounts => _iterationCounts;
-        public Dictionary<string, long> SuccessCounts => _successCounts;
+        public Dictionary<string, BsonArray> ErrorDocumentsMap
+        {
+            get
+            {
+                ThrowIfDisposed();
+                return _errorDocumentsMap;
+            }
+        }
+        public Dictionary<string, EventCapturer> EventCapturers
+        {
+            get
+            {
+                ThrowIfDisposed();
+                return _clientEventCapturers;
+            }
+        }
+
+        public Dictionary<string, BsonArray> FailureDocumentsMap
+        {
+            get
+            {
+                ThrowIfDisposed();
+                return _failureDocumentsMap;
+            }
+        }
+
+        public Dictionary<string, long> IterationCounts
+        {
+            get
+            {
+                ThrowIfDisposed();
+                return _iterationCounts;
+            }
+        }
+
+        public Dictionary<string, long> SuccessCounts
+        {
+            get
+            {
+                ThrowIfDisposed();
+                return _successCounts;
+            }
+        }
 
         // public methods
         public void AddChangeStream(string changeStreamId, IEnumerator<ChangeStreamDocument<BsonDocument>> changeStream)
         {
+            ThrowIfDisposed();
             _changeStreams.Add(changeStreamId, changeStream);
         }
 
         public void AddResult(string resultId, BsonValue value)
         {
+            ThrowIfDisposed();
             _results.Add(resultId, value);
         }
 
         public void Dispose()
         {
-            if (_changeStreams != null)
+            if (!_disposed)
             {
-                foreach (var changeStream in _changeStreams.Values)
+                if (_changeStreams != null)
                 {
-                    changeStream?.Dispose();
+                    foreach (var changeStream in _changeStreams.Values)
+                    {
+                        changeStream?.Dispose();
+                    }
                 }
-            }
-            if (_sessions != null)
-            {
-                foreach (var session in _sessions.Values)
+                if (_sessions != null)
                 {
-                    session?.Dispose();
+                    foreach (var session in _sessions.Values)
+                    {
+                        session?.Dispose();
+                    }
                 }
-            }
-            if (_clients != null)
-            {
-                foreach (var client in _clients.Values)
+                if (_clients != null)
                 {
-                    client?.Dispose();
+                    foreach (var client in _clients.Values)
+                    {
+                        client?.Dispose();
+                    }
                 }
+
+                _disposed = true;
             }
         }
 
         public IGridFSBucket GetBucket(string bucketId)
         {
+            ThrowIfDisposed();
             return _buckets[bucketId];
         }
 
         public IEnumerator<ChangeStreamDocument<BsonDocument>> GetChangeStream(string changeStreamId)
         {
+            ThrowIfDisposed();
             return _changeStreams[changeStreamId];
         }
 
         public IMongoClient GetClient(string clientId)
         {
+            ThrowIfDisposed();
             return _clients[clientId];
         }
 
         public IMongoCollection<BsonDocument> GetCollection(string collectionId)
         {
+            ThrowIfDisposed();
             return _collections[collectionId];
         }
 
         public IMongoDatabase GetDatabase(string databaseId)
         {
+            ThrowIfDisposed();
             return _databases[databaseId];
         }
 
         public BsonValue GetResult(string resultId)
         {
+            ThrowIfDisposed();
             return _results[resultId];
         }
 
         public IClientSessionHandle GetSession(string sessionId)
         {
+            ThrowIfDisposed();
             return _sessions[sessionId];
         }
 
         public BsonDocument GetSessionId(string sessionId)
         {
+            ThrowIfDisposed();
             return _sessionIds[sessionId];
         }
 
         public bool HasBucket(string bucketId)
         {
+            ThrowIfDisposed();
             return _buckets.ContainsKey(bucketId);
         }
 
         public bool HasChangeStream(string changeStreamId)
         {
+            ThrowIfDisposed();
             return _changeStreams.ContainsKey(changeStreamId);
         }
 
         public bool HasClient(string clientId)
         {
+            ThrowIfDisposed();
             return _clients.ContainsKey(clientId);
         }
 
         public bool HasCollection(string collectionId)
         {
+            ThrowIfDisposed();
             return _collections.ContainsKey(collectionId);
         }
 
         public bool HasDatabase(string databaseId)
         {
+            ThrowIfDisposed();
             return _databases.ContainsKey(databaseId);
         }
 
         public bool HasSession(string sessionId)
         {
+            ThrowIfDisposed();
             return _sessions.ContainsKey(sessionId);
+        }
+
+        // private methods
+        private void ThrowIfDisposed()
+        {
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(nameof(UnifiedEntityMap));
+            }
         }
     }
 
