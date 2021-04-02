@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -271,9 +270,10 @@ namespace MongoDB.Driver.Core.Connections
                 var commandName = command.GetElement(0).Name;
                 var databaseName = command["$db"].AsString;
                 var databaseNamespace = new DatabaseNamespace(databaseName);
-                if (ShouldRedactMessage(commandName, command))
+                var shouldRedactCommand = ShouldRedactCommand(command);
+                if (shouldRedactCommand)
                 {
-                    command = new BsonDocument();
+                        command = new BsonDocument();
                 }
 
                 if (_startedEvent != null)
@@ -298,7 +298,8 @@ namespace MongoDB.Driver.Core.Connections
                         OperationId = operationId,
                         Stopwatch = stopwatch,
                         QueryNamespace = new CollectionNamespace(databaseNamespace, "$cmd"),
-                        ExpectedResponseType = decodedMessage.MoreToCome ? ExpectedResponseType.None : ExpectedResponseType.Command
+                        ExpectedResponseType = decodedMessage.MoreToCome ? ExpectedResponseType.None : ExpectedResponseType.Command,
+                        ShouldRedactReply = shouldRedactCommand
                     });
                 }
             }
@@ -318,7 +319,7 @@ namespace MongoDB.Driver.Core.Connections
                 return;
             }
 
-            if (ShouldRedactMessage(state.CommandName, reply))
+            if (state.ShouldRedactReply)
             {
                 reply = new BsonDocument();
             }
@@ -589,12 +590,14 @@ namespace MongoDB.Driver.Core.Connections
                 var isCommand = IsCommand(decodedMessage.CollectionNamespace);
                 string commandName;
                 BsonDocument command;
+                var shouldRedactCommand = false;
                 if (isCommand)
                 {
                     command = decodedMessage.Query;
                     var firstElement = command.GetElement(0);
                     commandName = firstElement.Name;
-                    if (ShouldRedactMessage(commandName, command))
+                    shouldRedactCommand = ShouldRedactCommand(command);
+                    if (shouldRedactCommand)
                     {
                         command = new BsonDocument();
                     }
@@ -631,7 +634,8 @@ namespace MongoDB.Driver.Core.Connections
                         OperationId = operationId,
                         Stopwatch = stopwatch,
                         QueryNamespace = decodedMessage.CollectionNamespace,
-                        ExpectedResponseType = isCommand ? ExpectedResponseType.Command : ExpectedResponseType.Query
+                        ExpectedResponseType = isCommand ? ExpectedResponseType.Command : ExpectedResponseType.Query,
+                        ShouldRedactReply = shouldRedactCommand
                     });
                 }
             }
@@ -675,7 +679,7 @@ namespace MongoDB.Driver.Core.Connections
                     (state.ExpectedResponseType != ExpectedResponseType.Query && replyMessage.Documents.Count == 0))
                 {
                     var queryFailureDocument = replyMessage.QueryFailureDocument;
-                    if (ShouldRedactMessage(state.CommandName, queryFailureDocument))
+                    if (state.ShouldRedactReply)
                     {
                         queryFailureDocument = new BsonDocument();
                     }
@@ -730,7 +734,7 @@ namespace MongoDB.Driver.Core.Connections
                 return;
             }
 
-            if (ShouldRedactMessage(state.CommandName, reply))
+            if (state.ShouldRedactReply)
             {
                 reply = new BsonDocument();
             }
@@ -1088,23 +1092,25 @@ namespace MongoDB.Driver.Core.Connections
             return collectionNamespace.Equals(collectionNamespace.DatabaseNamespace.CommandCollection);
         }
 
-        private static bool ShouldRedactMessage(string commandName, BsonDocument command)
+        private static bool ShouldRedactCommand(BsonDocument command)
         {
+            var commandName = command.GetElement(0).Name;
             switch (commandName.ToLowerInvariant())
             {
+                // string constants MUST all be lowercase for the case-insensitive comparison to work
                 case "authenticate":
-                case "saslStart":
-                case "saslContinue":
+                case "saslstart":
+                case "saslcontinue":
                 case "getnonce":
-                case "createUser":
-                case "updateUser":
+                case "createuser":
+                case "updateuser":
                 case "copydbgetnonce":
                 case "copydbsaslstart":
                 case "copydb":
                     return true;
 
-                case "isMaster":
-                    return command.Contains("speculativeAuthenticate");
+                case "ismaster":
+                    return command.Names.Any(n => n.ToLowerInvariant() == "speculativeauthenticate");
 
                 default:
                     return false;
@@ -1129,6 +1135,7 @@ namespace MongoDB.Driver.Core.Connections
             public ExpectedResponseType ExpectedResponseType;
             public BsonDocument NoResponseResponse;
             public BsonValue UpsertedId;
+            public bool ShouldRedactReply;
         }
     }
 }
