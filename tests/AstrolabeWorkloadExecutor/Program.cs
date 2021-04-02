@@ -51,25 +51,22 @@ namespace WorkloadExecutor
 
             Console.WriteLine($"dotnet main> Starting workload executor...");
 
-            if (!bool.TryParse(Environment.GetEnvironmentVariable("ASYNC"), out bool async))
-            {
-                async = true;
-            }
+            var async = bool.Parse(Environment.GetEnvironmentVariable("ASYNC") ?? throw new Exception($"ASYNC environment variable must be configured."));
 
-            var resultDetails = ExecuteWorkload(connectionString, driverWorkload, async, cancellationTokenSource.Token);
+            var (resultsJson, eventsJson) = ExecuteWorkload(connectionString, driverWorkload, async, cancellationTokenSource.Token);
 
             Console.CancelKeyPress -= cancelHandler;
 
             Console.WriteLine($"dotnet main finally> Writing final results and events files");
-            File.WriteAllText(resultsPath, resultDetails.ResultsJson);
-            File.WriteAllText(eventsPath, resultDetails.EventsJson);
+            File.WriteAllText(resultsPath, resultsJson);
+            File.WriteAllText(eventsPath, eventsJson);
 
-            // ensure all messages are propagated to the astrolabe time immediately
+            // ensure all messages are propagated to the astrolabe immediately
             Console.Error.Flush();
             Console.Out.Flush();
         }
 
-        private static (string EventsJson, string ResultsJson) HandleWorkloadResult(UnifiedEntityMap entityMap)
+        private static (string EventsJson, string ResultsJson) CreateWorkloadResult(UnifiedEntityMap entityMap)
         {
             Ensure.IsNotNull(entityMap, nameof(entityMap));
 
@@ -119,7 +116,7 @@ namespace WorkloadExecutor
             {
                 testRunner.Run(testCase);
                 Console.WriteLine($"dotnet ExecuteWorkload> Returning...");
-                return HandleWorkloadResult(entityMap: testRunner.EntityMap);
+                return CreateWorkloadResult(entityMap: testRunner.EntityMap);
             }
         }
 
