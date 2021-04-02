@@ -84,6 +84,7 @@ namespace WorkloadExecutor
             string eventsJson = "[]";
             if (entityMap.EventCapturers.TryGetValue("events", out var eventCapturer))
             {
+                Console.WriteLine($"dotnet events> Number of generated events {eventCapturer.Count}");
                 var stringBuilder = new StringBuilder();
                 stringBuilder.Append("[");
                 for (int i = 0; i < eventCapturer.Events.Count; i++)
