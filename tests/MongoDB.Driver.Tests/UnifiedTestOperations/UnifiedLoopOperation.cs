@@ -79,7 +79,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             int successfulOperationsCount = 0;
             while (!_terminatorCancellationToken.IsCancellationRequested)
             {
-                foreach (var operation in _loopOperations.Select(o => o.DeepClone().AsBsonDocument))
+                foreach (var operation in _loopOperations.Select(o => o.DeepClone().AsBsonDocument))  // the further operations can mutate the passed input documents
+                                                                                                      // due to auto adding _id from the server response
                 {
                     try
                     {
