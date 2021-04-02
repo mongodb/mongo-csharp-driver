@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Tests.Specifications.unified_test_format
         {
             using (var testsExecutor = new UnifiedTestFormatExecutor())
             {
-                testsExecutor.Run(testCase)?.Dispose();
+                testsExecutor.Run(testCase);
             }
         }
 

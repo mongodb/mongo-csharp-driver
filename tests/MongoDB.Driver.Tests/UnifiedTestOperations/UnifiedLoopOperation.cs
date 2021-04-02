@@ -54,14 +54,14 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             _terminatorCancellationToken = terminatorCancellationToken;
         }
 
-        public void Execute(Action<BsonDocument, UnifiedEntityMap, bool, CancellationToken> createAndRunOperationCallback, UnifiedEntityMap unifiedEntityMap, CancellationToken cancellationToken)
+        public void Execute(Action<BsonDocument, bool, CancellationToken> createAndRunOperationCallback, CancellationToken cancellationToken)
         {
-            Execute(createAndRunOperationCallback, unifiedEntityMap, async: false, cancellationToken);
+            Execute(createAndRunOperationCallback, async: false, cancellationToken);
         }
 
-        public Task ExecuteAsync(Action<BsonDocument, UnifiedEntityMap, bool, CancellationToken> createAndRunOperationCallback, UnifiedEntityMap unifiedEntityMap, CancellationToken cancellationToken)
+        public Task ExecuteAsync(Action<BsonDocument, bool, CancellationToken> createAndRunOperationCallback, CancellationToken cancellationToken)
         {
-            Execute(createAndRunOperationCallback, unifiedEntityMap, async: true, cancellationToken);
+            Execute(createAndRunOperationCallback, async: true, cancellationToken);
             return Task.FromResult(true);
         }
 
@@ -73,7 +73,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 { "time", BsonUtils.ToSecondsSinceEpoch(DateTime.UtcNow) }
             };
 
-        private void Execute(Action<BsonDocument, UnifiedEntityMap, bool, CancellationToken> createAndRunOperationCallback, UnifiedEntityMap unifiedEntityMap, bool async, CancellationToken cancellationToken)
+        private void Execute(Action<BsonDocument, bool, CancellationToken> createAndRunOperationCallback, bool async, CancellationToken cancellationToken)
         {
             int iterationsCount = 0;
             int successfulOperationsCount = 0;
@@ -83,7 +83,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 {
                     try
                     {
-                        createAndRunOperationCallback(operation, unifiedEntityMap, async, cancellationToken);
+                        createAndRunOperationCallback(operation, async, cancellationToken);
                         successfulOperationsCount++;
                     }
                     catch (Exception ex)

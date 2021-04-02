@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Tests.Specifications.unified_test_format
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)
         {
-            var exception = Record.Exception(() => _unifiedTestFormatExecutor.Run(testCase)?.Dispose());
+            var exception = Record.Exception(() => _unifiedTestFormatExecutor.Run(testCase));
 
             exception.Should().NotBeNull();
         }
