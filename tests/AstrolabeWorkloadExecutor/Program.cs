@@ -23,6 +23,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Tests.Specifications.unified_test_format;
 using MongoDB.Driver.Tests.UnifiedTestOperations;
 
 namespace WorkloadExecutor
@@ -104,13 +105,13 @@ namespace WorkloadExecutor
 
             var factory = new TestCaseFactory();
             var testCase = factory.CreateTestCase(driverWorkload, async);
-            using (var testsExecutor = new UnifiedTestFormatExecutor(
+            using (var testRunner = new UnifiedTestFormatTestRunner(
                 allowKillSessions: false,
                 terminationCancellationToken: cancellationToken))
             {
-                testsExecutor.Run(testCase);
+                testRunner.Run(testCase);
                 Console.WriteLine($"dotnet ExecuteWorkload> Returning...");
-                return HandleWorkloadResult(entityMap: testsExecutor.EntityMap);
+                return HandleWorkloadResult(entityMap: testRunner.EntityMap);
             }
         }
 

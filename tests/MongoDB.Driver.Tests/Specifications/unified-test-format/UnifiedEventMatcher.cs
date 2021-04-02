@@ -22,7 +22,7 @@ using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Events;
 using Xunit.Sdk;
 
-namespace MongoDB.Driver.Tests.UnifiedTestOperations
+namespace MongoDB.Driver.Tests.Specifications.unified_test_format
 {
     public class UnifiedEventMatcher
     {
