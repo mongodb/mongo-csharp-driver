@@ -34,14 +34,14 @@ namespace MongoDB.Driver.Tests.Specifications.unified_test_format
         private readonly bool _allowKillSessions;
         private UnifiedEntityMap _entityMap;
         private readonly List<FailPoint> _failPoints = new List<FailPoint>();
-        private readonly CancellationToken _terminationCancellationToken;
+        private readonly Dictionary<string, object> _additionalArgs;
 
         public UnifiedTestFormatTestRunner(
             bool allowKillSessions = true, // TODO: should be removed after SERVER-54216 
-            CancellationToken terminationCancellationToken = default)
+            Dictionary<string, object> additionalArgs = null)
         {
             _allowKillSessions = allowKillSessions;
-            _terminationCancellationToken = terminationCancellationToken;
+            _additionalArgs = additionalArgs; // can be null
         }
 
         // public properties
@@ -287,7 +287,7 @@ namespace MongoDB.Driver.Tests.Specifications.unified_test_format
 
         private IUnifiedTestOperation CreateOperation(BsonDocument operation, UnifiedEntityMap entityMap)
         {
-            var factory = new UnifiedTestOperationFactory(entityMap, _terminationCancellationToken);
+            var factory = new UnifiedTestOperationFactory(entityMap, _additionalArgs);
 
             var operationName = operation["name"].AsString;
             var operationTarget = operation["object"].AsString;

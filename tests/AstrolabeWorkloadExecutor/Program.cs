@@ -108,12 +108,14 @@ namespace WorkloadExecutor
         {
             Environment.SetEnvironmentVariable("MONGODB_URI", connectionString); // force using atlas connection string in our internal test connection strings
 
-            var factory = new TestCaseFactory();
-            var testCase = factory.CreateTestCase(driverWorkload, async);
+            var additionalArgs = new Dictionary<string, object>();
+            additionalArgs["AstrolabeCancellationToken"] = cancellationToken;
             using (var testRunner = new UnifiedTestFormatTestRunner(
                 allowKillSessions: false,
-                terminationCancellationToken: cancellationToken))
+                additionalArgs: additionalArgs))
             {
+                var factory = new TestCaseFactory();
+                var testCase = factory.CreateTestCase(driverWorkload, async);
                 testRunner.Run(testCase);
                 Console.WriteLine($"dotnet ExecuteWorkload> Returning...");
                 return CreateWorkloadResult(entityMap: testRunner.EntityMap);
