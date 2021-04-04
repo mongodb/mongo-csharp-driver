@@ -21,6 +21,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -35,13 +36,16 @@ namespace MongoDB.Driver.Tests.Specifications.unified_test_format
         private UnifiedEntityMap _entityMap;
         private readonly List<FailPoint> _failPoints = new List<FailPoint>();
         private readonly Dictionary<string, object> _additionalArgs;
+        private readonly Dictionary<string, IEventsFormatter> _eventsFormatters;
 
         public UnifiedTestFormatTestRunner(
             bool allowKillSessions = true, // TODO: should be removed after SERVER-54216 
-            Dictionary<string, object> additionalArgs = null)
+            Dictionary<string, object> additionalArgs = null,
+            Dictionary<string, IEventsFormatter> eventsFormatters = null)
         {
             _allowKillSessions = allowKillSessions;
             _additionalArgs = additionalArgs; // can be null
+            _eventsFormatters = eventsFormatters;
         }
 
         // public properties
@@ -105,7 +109,7 @@ namespace MongoDB.Driver.Tests.Specifications.unified_test_format
                 KillOpenTransactions(DriverTestConfiguration.Client);
             }
 
-            _entityMap = new UnifiedEntityMapBuilder().Build(entities);
+            _entityMap = new UnifiedEntityMapBuilder(_eventsFormatters).Build(entities);
 
             if (initialData != null)
             {

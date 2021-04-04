@@ -24,18 +24,30 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core
 {
+    public interface IEventsFormatter
+    {
+        object Format(object @event);
+    }
+
+    public interface IEventsFormatter<TResult> : IEventsFormatter
+    {
+        new TResult Format(object @event);
+    }
+
     public class EventCapturer : IEventSubscriber
     {
         private Action<IEnumerable<object>, object> _addEventAction;
         private readonly Queue<object> _capturedEvents;
+        private readonly IEventsFormatter _eventsFormatter;
         private readonly Dictionary<Type, Func<object, bool>> _eventsToCapture;
         private readonly object _lock = new object();
         private readonly IEventSubscriber _subscriber;
 
-        public EventCapturer()
+        public EventCapturer(IEventsFormatter eventFormatter = null)
         {
             _capturedEvents = new Queue<object>();
             _subscriber = new ReflectionEventSubscriber(new CommandCapturer(this));
+            _eventsFormatter = eventFormatter; // can be null
             _eventsToCapture = new Dictionary<Type, Func<object, bool>>();
         }
 
@@ -152,9 +164,10 @@ namespace MongoDB.Driver.Core
                 return;
             }
 
+            var formattedEvent = _eventsFormatter != null ? _eventsFormatter.Format(@event) : @event;
             lock (_lock)
             {
-                _capturedEvents.Enqueue(@event);
+                _capturedEvents.Enqueue(formattedEvent);
                 _addEventAction?.Invoke(_capturedEvents, @event);
             }
         }

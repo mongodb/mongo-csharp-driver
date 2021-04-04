@@ -23,6 +23,7 @@ using AstrolabeWorkloadExecutor;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver;
+using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Tests.Specifications.unified_test_format;
 using MongoDB.Driver.Tests.UnifiedTestOperations;
@@ -53,7 +54,7 @@ namespace WorkloadExecutor
 
             var async = bool.Parse(Environment.GetEnvironmentVariable("ASYNC") ?? throw new Exception($"ASYNC environment variable must be configured."));
 
-            var (resultsJson, eventsJson) = ExecuteWorkload(connectionString, driverWorkload, async, cancellationTokenSource.Token);
+            var (eventsJson, resultsJson) = ExecuteWorkload(connectionString, driverWorkload, async, cancellationTokenSource.Token);
 
             Console.CancelKeyPress -= cancelHandler;
 
@@ -82,18 +83,7 @@ namespace WorkloadExecutor
             if (entityMap.EventCapturers.TryGetValue("events", out var eventCapturer))
             {
                 Console.WriteLine($"dotnet events> Number of generated events {eventCapturer.Count}");
-                var stringBuilder = new StringBuilder();
-                stringBuilder.Append("[");
-                for (int i = 0; i < eventCapturer.Events.Count; i++)
-                {
-                    stringBuilder.Append(AstrolabeEventsHandler.CreateEventDocument(eventCapturer.Events[i]));
-                    if (i < eventCapturer.Events.Count - 1)
-                    {
-                        stringBuilder.Append(",");
-                    }
-                }
-                stringBuilder.Append("]");
-                eventsJson = stringBuilder.ToString();
+                eventsJson = $"[{string.Join(",", eventCapturer.Events.Cast<string>().ToArray())}]"; // events should already be formatted
             }
 
             var eventsDocument = @$"{{ ""events"" : {eventsJson}, ""errors"" : {errorDocuments}, ""failures"" : {failuresDocuments} }}";
@@ -108,11 +98,18 @@ namespace WorkloadExecutor
         {
             Environment.SetEnvironmentVariable("MONGODB_URI", connectionString); // force using atlas connection string in our internal test connection strings
 
-            var additionalArgs = new Dictionary<string, object>();
-            additionalArgs["AstrolabeCancellationToken"] = cancellationToken;
+            var additionalArgs = new Dictionary<string, object>()
+            {
+                { "AstrolabeCancellationToken", cancellationToken }
+            };
+            var eventsFormatters = new Dictionary<string, IEventsFormatter>()
+            {
+                { "events", new AstrolabeEventsFormatter() }
+            };
             using (var testRunner = new UnifiedTestFormatTestRunner(
                 allowKillSessions: false,
-                additionalArgs: additionalArgs))
+                additionalArgs: additionalArgs,
+                eventsFormatter: eventsFormatters))
             {
                 var factory = new TestCaseFactory();
                 var testCase = factory.CreateTestCase(driverWorkload, async);

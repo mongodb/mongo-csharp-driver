@@ -257,6 +257,13 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
     public class UnifiedEntityMapBuilder
     {
+        private readonly Dictionary<string, IEventsFormatter> _eventsFormatters;
+
+        public UnifiedEntityMapBuilder(Dictionary<string, IEventsFormatter> eventsFormatters)
+        {
+            _eventsFormatters = eventsFormatters ?? new ();
+        }
+
         public UnifiedEntityMap Build(BsonArray entitiesArray)
         {
             var buckets = new Dictionary<string, IGridFSBucket>();
@@ -498,7 +505,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 foreach (var eventsDetails in eventTypesToCapture)
                 {
                     var commandNamesNotToCapture = Enumerable.Concat(eventsDetails.CommandNotToCapture ?? Enumerable.Empty<string>(), defaultCommandNamesToSkip);
-                    var eventCapturer = CreateEventCapturer(eventsDetails.Events, commandNamesNotToCapture);
+                    var eventsFormatter = _eventsFormatters.TryGetValue(eventsDetails.Key, out var formatter);
+                    var eventCapturer = CreateEventCapturer(eventsDetails.Events, commandNamesNotToCapture, formatter);
                     clientEventCapturers.Add(eventsDetails.Key, eventCapturer);
                 }
             }
@@ -598,9 +606,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             return client.GetDatabase(databaseName);
         }
 
-        private EventCapturer CreateEventCapturer(IEnumerable<string> eventTypesToCapture, IEnumerable<string> commandNamesToSkip)
+        private EventCapturer CreateEventCapturer(IEnumerable<string> eventTypesToCapture, IEnumerable<string> commandNamesToSkip, IEventsFormatter eventsFormatter)
         {
-            var eventCapturer = new EventCapturer();
+            var eventCapturer = new EventCapturer(eventsFormatter);
 
             foreach (var eventTypeToCapture in eventTypesToCapture)
             {
