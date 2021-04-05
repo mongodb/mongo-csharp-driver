@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
             _in = Ensure.IsNotNull(@in, nameof(@in));
         }
 
-        public AstExpression In => _in;
+        public new AstExpression In => _in;
         public AstExpression InitialValue => _initialValue;
         public AstExpression Input => _input;
         public override AstNodeType NodeType => AstNodeType.ReduceExpression;

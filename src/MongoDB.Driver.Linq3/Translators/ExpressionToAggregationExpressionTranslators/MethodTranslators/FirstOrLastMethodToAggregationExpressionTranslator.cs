@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
 
                 var index = method.Name == "First" ? 0 : -1;
-                var ast = new AstBinaryExpression(AstBinaryOperator.ArrayElemAt, sourceTranslation.Ast, index);
+                var ast = AstExpression.ArrayElemAt(sourceTranslation.Ast, index);
                 var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
 
                 return new AggregationExpression(expression, ast, itemSerializer);

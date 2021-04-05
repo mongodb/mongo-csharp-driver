@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             classMap.MapConstructor(constructorInfo, constructorArgumentNames);
             classMap.Freeze();
 
-            var ast = new AstComputedDocumentExpression(computedFields);
+            var ast = AstExpression.ComputedDocument(computedFields);
             var serializerType = typeof(BsonClassMapSerializer<>).MakeGenericType(expression.Type);
             var serializer = (IBsonSerializer)Activator.CreateInstance(serializerType, classMap);
 

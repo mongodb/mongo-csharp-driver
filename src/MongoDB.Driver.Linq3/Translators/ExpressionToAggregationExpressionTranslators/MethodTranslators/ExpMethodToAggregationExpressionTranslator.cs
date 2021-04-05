@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
 
                 argumentExpression = ConvertHelper.RemoveUnnecessaryConvert(argumentExpression, impliedType: typeof(double));
                 var argumentTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, argumentExpression);
-                var ast = new AstUnaryExpression(AstUnaryOperator.Exp, argumentTranslation.Ast);
+                var ast = AstExpression.Exp(argumentTranslation.Ast);
 
                 return new AggregationExpression(expression, ast, new DoubleSerializer());
             }

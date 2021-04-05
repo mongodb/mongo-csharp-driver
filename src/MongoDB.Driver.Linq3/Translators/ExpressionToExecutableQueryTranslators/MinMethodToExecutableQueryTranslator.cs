@@ -79,13 +79,13 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                     }
                     else
                     {
-                        minArgument = new AstComputedDocumentExpression(new[] { new AstComputedField("_v", selectorTranslation.Ast) });
+                        minArgument = AstExpression.ComputedDocument(new[] { new AstComputedField("_v", selectorTranslation.Ast) });
                         minSerializer = WrappedValueSerializer.Create(selectorTranslation.Serializer);
                     }
                 }
                 else
                 {
-                    minArgument = new AstFieldExpression("$ROOT");
+                    minArgument = AstExpression.Field("$ROOT");
                     minSerializer = pipeline.OutputSerializer;
                 }
 
@@ -93,8 +93,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                     minSerializer,
                     new AstGroupStage(
                         id: BsonNull.Value,
-                        fields: new AstComputedField("_min", new AstUnaryExpression(AstUnaryOperator.Min, minArgument))),
-                    new AstReplaceRootStage(new AstFieldExpression("_min")));
+                        fields: new AstComputedField("_min", AstExpression.Min(minArgument))),
+                    new AstReplaceRootStage(AstExpression.Field("_min")));
 
                 return new ExecutableQuery<TDocument, TOutput, TOutput>(
                     provider.Collection,

@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 computedFields.Add(new AstComputedField(elementName, valueTranslation.Ast));
             }
 
-            var ast = new AstComputedDocumentExpression(computedFields);
+            var ast = AstExpression.ComputedDocument(computedFields);
             var serializer = BsonSerializer.LookupSerializer(expression.Type);
 
             return new AggregationExpression(expression, ast, serializer);

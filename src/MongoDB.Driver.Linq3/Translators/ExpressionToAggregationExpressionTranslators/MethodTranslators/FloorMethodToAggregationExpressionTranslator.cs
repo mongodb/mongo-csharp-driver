@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 var serverType = method.GetParameters()[0].ParameterType;
                 argumentExpression = ConvertHelper.RemoveUnnecessaryConvert(argumentExpression, impliedType: serverType);
                 var argumentTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, argumentExpression);
-                var ast = new AstUnaryExpression(AstUnaryOperator.Floor, argumentTranslation.Ast);
+                var ast = AstExpression.Floor(argumentTranslation.Ast);
                 var serializer = BsonSerializer.LookupSerializer(expression.Type);
 
                 return new AggregationExpression(expression, ast, serializer);

@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                         //BsonDocument.Parse("{ $project : { _id : 0, _v : \"$$ROOT\" } }"));
                         new AstProjectStage(
                             new AstProjectStageExcludeFieldSpecification("_id"),
-                            new AstProjectStageComputedFieldSpecification(new AstComputedField("_v", new AstFieldExpression("$ROOT")))));
+                            new AstProjectStageComputedFieldSpecification(new AstComputedField("_v", AstExpression.Field("$ROOT")))));
                 }
 
                 var itemValue = ((ConstantExpression)item).Value;

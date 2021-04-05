@@ -30,20 +30,6 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
         public string Path => _path;
         public override AstNodeType NodeType => AstNodeType.FieldExpression;
 
-        public AstFieldExpression CreateSubField(string subFieldName)
-        {
-            Ensure.IsNotNull(subFieldName, nameof(subFieldName));
-
-            if (_path == "$CURRENT")
-            {
-                return new AstFieldExpression(subFieldName);
-            }
-            else
-            {
-                return new AstFieldExpression(_path + "." + subFieldName);
-            }
-        }
-
         public override BsonValue Render()
         {
             return "$" + _path;

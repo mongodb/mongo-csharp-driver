@@ -54,15 +54,15 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                     var funcContext = context.WithSymbols((accumulatorParameter, accumulatorSymbol), (itemParameter, itemSymbol));
                     var funcTranslation = ExpressionToAggregationExpressionTranslator.Translate(funcContext, funcExpression.Body);
 
-                    var sourceField = new AstFieldExpression("$source");
-                    var ast = new AstLetExpression(
-                        vars: new[] { new AstComputedField("source", sourceTranslation.Ast) },
-                        @in: new AstCondExpression(
-                            @if: new AstBinaryExpression(AstBinaryOperator.Lte, new AstUnaryExpression(AstUnaryOperator.Size, sourceField), 1),
-                            @then: new AstBinaryExpression(AstBinaryOperator.ArrayElemAt, sourceField, 0),
-                            @else: new AstReduceExpression(
-                                input: new AstSliceExpression(sourceField, 1, int.MaxValue),
-                                initialValue: new AstBinaryExpression(AstBinaryOperator.ArrayElemAt, sourceField, 0),
+                    var sourceField = AstExpression.Field("$source");
+                    var ast = AstExpression.Let(
+                        var: new AstComputedField("source", sourceTranslation.Ast),
+                        @in: AstExpression.Cond(
+                            @if: AstExpression.Lte(AstExpression.Size(sourceField), 1),
+                            @then: AstExpression.ArrayElemAt(sourceField, 0),
+                            @else: AstExpression.Reduce(
+                                input: AstExpression.Slice(sourceField, 1, int.MaxValue),
+                                initialValue: AstExpression.ArrayElemAt(sourceField, 0),
                                 @in: funcTranslation.Ast)));
 
                     return new AggregationExpression(expression, ast, itemSerializer);
@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                     var funcContext = context.WithSymbols((accumulatorParameter, accumulatorSymbol), (itemParameter, itemSymbol));
                     var funcTranslation = ExpressionToAggregationExpressionTranslator.Translate(funcContext, funcExpression.Body);
 
-                    var ast = (AstExpression)new AstReduceExpression(
+                    var ast = AstExpression.Reduce(
                         input: sourceTranslation.Ast,
                         initialValue: seedTranslation.Ast,
                         @in: funcTranslation.Ast);
@@ -97,8 +97,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                         var resultSelectorContext = context.WithSymbol(resultSelectorParameter, resultSelectorSymbol);
                         var resultSelectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(resultSelectorContext, resultSelectorExpression.Body);
 
-                        ast = new AstLetExpression(
-                            vars: new[] { new AstComputedField(resultSelectorParameter.Name, ast) },
+                        ast = AstExpression.Let(
+                            var: new AstComputedField(resultSelectorParameter.Name, ast),
                             @in: resultSelectorTranslation.Ast);
                         serializer = BsonSerializer.LookupSerializer(resultSelectorExpression.ReturnType); // TODO: use known serializer
                     }

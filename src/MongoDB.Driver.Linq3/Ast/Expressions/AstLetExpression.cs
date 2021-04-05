@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
             _in = Ensure.IsNotNull(@in, nameof(@in));
         }
 
-        public AstExpression In => _in;
+        public new AstExpression In => _in;
         public override AstNodeType NodeType => AstNodeType.LetExpression;
         public IReadOnlyList<AstComputedField> Vars => _vars;
 

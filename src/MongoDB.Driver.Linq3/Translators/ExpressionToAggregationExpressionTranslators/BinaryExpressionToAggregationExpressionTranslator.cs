@@ -48,42 +48,28 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                     return OrExpressionToAggregationExpressionTranslator.Translate(context, expression);
             }
 
-            AstBinaryOperator? binaryOperator = null;
-            AstNaryOperator? naryOperator = null;
-            switch (expression.NodeType)
+            var leftTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, expression.Left);
+            var rightTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, expression.Right);
+
+            var ast = expression.NodeType switch
             {
-                case ExpressionType.Coalesce: binaryOperator = AstBinaryOperator.IfNull; break;
-                case ExpressionType.Divide: binaryOperator = AstBinaryOperator.Divide; break;
-                case ExpressionType.Equal: binaryOperator = AstBinaryOperator.Eq; break;
-                case ExpressionType.GreaterThan: binaryOperator = AstBinaryOperator.Gt; break;
-                case ExpressionType.GreaterThanOrEqual: binaryOperator = AstBinaryOperator.Gte; break;
-                case ExpressionType.LessThan: binaryOperator = AstBinaryOperator.Lt; break;
-                case ExpressionType.LessThanOrEqual: binaryOperator = AstBinaryOperator.Lte; break;
-                case ExpressionType.Modulo: binaryOperator = AstBinaryOperator.Mod; break;
-                case ExpressionType.Multiply: naryOperator = AstNaryOperator.Multiply; break;
-                case ExpressionType.NotEqual: binaryOperator = AstBinaryOperator.Ne; break;
-                case ExpressionType.Power: binaryOperator = AstBinaryOperator.Pow; break;
-                case ExpressionType.Subtract: binaryOperator = AstBinaryOperator.Subtract; break;
-            }
+                ExpressionType.Coalesce => AstExpression.IfNull(leftTranslation.Ast, rightTranslation.Ast),
+                ExpressionType.Divide => AstExpression.Divide(leftTranslation.Ast, rightTranslation.Ast),
+                ExpressionType.Equal => AstExpression.Eq(leftTranslation.Ast, rightTranslation.Ast),
+                ExpressionType.GreaterThan => AstExpression.Gt(leftTranslation.Ast, rightTranslation.Ast),
+                ExpressionType.GreaterThanOrEqual => AstExpression.Gte(leftTranslation.Ast, rightTranslation.Ast),
+                ExpressionType.LessThan => AstExpression.Lt(leftTranslation.Ast, rightTranslation.Ast),
+                ExpressionType.LessThanOrEqual => AstExpression.Lte(leftTranslation.Ast, rightTranslation.Ast),
+                ExpressionType.Modulo => AstExpression.Mod(leftTranslation.Ast, rightTranslation.Ast),
+                ExpressionType.Multiply => AstExpression.Multiply(leftTranslation.Ast, rightTranslation.Ast),
+                ExpressionType.NotEqual => AstExpression.Ne(leftTranslation.Ast, rightTranslation.Ast),
+                ExpressionType.Power => AstExpression.Pow(leftTranslation.Ast, rightTranslation.Ast),
+                ExpressionType.Subtract => AstExpression.Subtract(leftTranslation.Ast, rightTranslation.Ast),
+                _ => throw new ExpressionNotSupportedException(expression)
+            };
+            var serializer = BsonSerializer.LookupSerializer(expression.Type); // TODO: get correct serializer
 
-            if (binaryOperator != null | naryOperator != null)
-            {
-                var leftTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, expression.Left);
-                var rightTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, expression.Right);
-
-                var ast = expression.NodeType switch
-                {
-                    ExpressionType.Multiply => AstExpression.Multiply(leftTranslation.Ast, rightTranslation.Ast),
-                    _ when binaryOperator.HasValue => new AstBinaryExpression(binaryOperator.Value, leftTranslation.Ast, rightTranslation.Ast),
-                    _ when naryOperator.HasValue => new AstNaryExpression(naryOperator.Value, leftTranslation.Ast, rightTranslation.Ast),
-                    _ => throw new ExpressionNotSupportedException(expression)
-                };
-                var serializer = BsonSerializer.LookupSerializer(expression.Type); // TODO: get correct serializer
-
-                return new AggregationExpression(expression, ast, serializer);
-            }
-
-            throw new ExpressionNotSupportedException(expression);
+            return new AggregationExpression(expression, ast, serializer);
         }
     }
 }

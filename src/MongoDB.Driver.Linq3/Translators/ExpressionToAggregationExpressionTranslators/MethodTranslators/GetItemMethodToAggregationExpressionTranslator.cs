@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             {
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
                 var indexTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, indexExpression);
-                var ast = new AstBinaryExpression(AstBinaryOperator.ArrayElemAt, sourceTranslation.Ast, indexTranslation.Ast);
+                var ast = AstExpression.ArrayElemAt(sourceTranslation.Ast, indexTranslation.Ast);
                 var serializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
 
                 return new AggregationExpression(expression, ast, serializer);
@@ -45,13 +45,13 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                     AstExpression ast;
                     if (sourceTranslation.Ast is AstFieldExpression sourceFieldAst)
                     {
-                        ast = sourceFieldAst.CreateSubField(keyValue);
+                        ast = AstExpression.SubField(sourceFieldAst, keyValue);
                     }
                     else
                     {
-                        ast = new AstLetExpression(
-                            vars: new[] { new AstComputedField("this", sourceTranslation.Ast) },
-                            @in: new AstFieldExpression($"$this.{keyValue}"));
+                        ast = AstExpression.Let(
+                            var: new AstComputedField("this", sourceTranslation.Ast),
+                            @in: AstExpression.Field($"$this.{keyValue}"));
                     }
                     var valueSerializer = GetDictionaryValueSerializer(sourceTranslation.Serializer);
 

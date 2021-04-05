@@ -41,12 +41,12 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 AstExpression ast;
                 if (skipExpression == null)
                 {
-                    ast = new AstSliceExpression(sourceTranslation.Ast, countTranslation.Ast);
+                    ast = AstExpression.Slice(sourceTranslation.Ast, countTranslation.Ast);
                 }
                 else
                 {
                     var skipTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, skipExpression);
-                    ast = new AstSliceExpression(sourceTranslation.Ast, skipTranslation.Ast, countTranslation.Ast);
+                    ast = AstExpression.Slice(sourceTranslation.Ast, skipTranslation.Ast, countTranslation.Ast);
                 }
                 var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
                 var serializer = IEnumerableSerializer.Create(itemSerializer);

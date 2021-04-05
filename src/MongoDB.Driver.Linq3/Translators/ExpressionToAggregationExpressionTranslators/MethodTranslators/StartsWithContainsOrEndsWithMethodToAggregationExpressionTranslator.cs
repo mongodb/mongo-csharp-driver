@@ -109,18 +109,12 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
 
                 AstExpression CreateStartsWithAst()
                 {
-                    return new AstBinaryExpression(
-                        AstBinaryOperator.Eq,
-                        new AstIndexOfCPExpression(stringAst, substringAst),
-                        0);
+                    return AstExpression.Eq(AstExpression.IndexOfCP(stringAst, substringAst), 0);
                 }
 
                 AstExpression CreateContainsAst()
                 {
-                    return new AstBinaryExpression(
-                        AstBinaryOperator.Gte,
-                        new AstIndexOfCPExpression(stringAst, substringAst),
-                        0);
+                    return AstExpression.Gte(AstExpression.IndexOfCP(stringAst, substringAst), 0);
                 }
 
                 AstExpression CreateEndsWithAst()
@@ -128,15 +122,11 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                     var vars = new List<AstComputedField>();
                     var stringSimpleAst = CreateSimpleAst(stringAst, vars, "string");
                     var substringSimpleAst = CreateSimpleAst(substringAst, vars, "substring");
-                    var startAst = new AstBinaryExpression(
-                        AstBinaryOperator.Subtract,
+                    var startAst = AstExpression.Subtract(
                         CreateStrlenCPAst(stringSimpleAst),
                         CreateStrlenCPAst(substringSimpleAst));
                         
-                    var ast = new AstBinaryExpression(
-                        AstBinaryOperator.Gte,
-                        new AstIndexOfCPExpression(stringSimpleAst, substringSimpleAst, startAst),
-                        0);
+                    var ast = AstExpression.Gte(AstExpression.IndexOfCP(stringSimpleAst, substringSimpleAst, startAst), 0);
 
                     if (vars.Count == 0)
                     {
@@ -144,7 +134,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                     }
                     else
                     {
-                        return new AstLetExpression(vars, ast);
+                        return AstExpression.Let(vars, ast);
                     }
                 }
 
@@ -156,7 +146,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                     }
 
                     vars.Add(new AstComputedField(name, ast));
-                    return new AstFieldExpression("$" + name);
+                    return AstExpression.Field("$" + name);
                 }
 
                 AstExpression CreateStrlenCPAst(AstExpression valueAst)
@@ -168,7 +158,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                     }
                     else
                     {
-                        return new AstUnaryExpression(AstUnaryOperator.StrLenCP, valueAst);
+                        return AstExpression.StrLenCP(valueAst);
                     }
                             
                 }
@@ -215,7 +205,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 }
                 else
                 {
-                    return new AstUnaryExpression(AstUnaryOperator.ToLower, ast);
+                    return AstExpression.ToLower(ast);
                 }
             }
         }

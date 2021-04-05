@@ -84,11 +84,11 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 var args = new List<AstExpression>();
                 args.AddRange(naryExpression.Args);
                 args.Add(rightTranslation.Ast);
-                ast = new AstNaryExpression(AstNaryOperator.Concat, args);
+                ast = AstExpression.Concat(args);
             }
             else
             {
-                ast = new AstNaryExpression(AstNaryOperator.Concat, leftTranslation.Ast, rightTranslation.Ast);
+                ast = AstExpression.Concat(leftTranslation.Ast, rightTranslation.Ast);
             }
 
             return new AggregationExpression(expression, ast, new StringSerializer());

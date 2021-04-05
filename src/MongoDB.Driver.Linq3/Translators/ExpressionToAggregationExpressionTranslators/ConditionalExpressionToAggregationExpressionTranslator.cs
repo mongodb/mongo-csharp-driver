@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             var testTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, testExpression);
             var ifTrueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, ifTrueExpression);
             var ifFalseTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, ifFalseExpression);
-            var ast = new AstCondExpression(testTranslation.Ast, ifTrueTranslation.Ast, ifFalseTranslation.Ast);
+            var ast = AstExpression.Cond(testTranslation.Ast, ifTrueTranslation.Ast, ifFalseTranslation.Ast);
             var serializer = BsonSerializer.LookupSerializer(expression.Type); // TODO: use known serializer
 
             return new AggregationExpression(expression, ast, serializer);

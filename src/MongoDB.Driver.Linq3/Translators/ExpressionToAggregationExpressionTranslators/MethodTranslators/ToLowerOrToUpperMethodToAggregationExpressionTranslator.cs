@@ -30,8 +30,9 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 var stringExpression = expression.Object;
 
                 var stringTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, stringExpression);
-                var @operator = method.IsOneOf(StringMethod.ToLower, StringMethod.ToLowerInvariant) ? AstUnaryOperator.ToLower : AstUnaryOperator.ToUpper;
-                var ast = new AstUnaryExpression(@operator, stringTranslation.Ast);
+                var ast = method.IsOneOf(StringMethod.ToLower, StringMethod.ToLowerInvariant) ?
+                    AstExpression.ToLower(stringTranslation.Ast) :
+                    AstExpression.ToUpper(stringTranslation.Ast);
 
                 return new AggregationExpression(expression, ast, new StringSerializer());
             }

@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             {
                 case ExpressionType.Convert:
                 case ExpressionType.Not:
-                    return UnaryExpressionToAggregationTranslator.Translate(context, (UnaryExpression)expression);
+                    return UnaryExpressionToAggregationExpressionTranslator.Translate(context, (UnaryExpression)expression);
 
                 case ExpressionType.Add:
                 case ExpressionType.And:
@@ -118,13 +118,13 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
         {
             if (astExpression is AstFieldExpression astFieldExpression)
             {
-                return astFieldExpression.CreateSubField(fieldName);
+                return AstExpression.SubField(astFieldExpression, fieldName);
             }
             else
             {
-                return new AstLetExpression(
-                    vars: new[] { new AstComputedField("this", astExpression) },
-                    @in: new AstFieldExpression($"$this.{fieldName}"));
+                return AstExpression.Let(
+                    var: new AstComputedField("this", astExpression),
+                    @in: AstExpression.Field($"$this.{fieldName}"));
             }
         }
     }

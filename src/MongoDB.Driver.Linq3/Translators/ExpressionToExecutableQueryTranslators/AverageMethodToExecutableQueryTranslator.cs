@@ -132,7 +132,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                 else
                 {
                     Throw.If(!(sourceSerializer is IWrappedValueSerializer), "Expected sourceSerializer to be an IWrappedValueSerializer.", nameof(sourceSerializer));
-                    avgExpression = new AstFieldExpression("_v");
+                    avgExpression = AstExpression.Field("_v");
                 }
 
                 var outputValueType = GetValueType(expression);
@@ -143,7 +143,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                     outputWrappedValueSerializer,
                     new AstGroupStage(
                         id: BsonNull.Value,
-                        fields: new AstComputedField("_v", new AstUnaryExpression(AstUnaryOperator.Avg, avgExpression))),
+                        fields: new AstComputedField("_v", AstUnaryExpression.Avg(avgExpression))),
                     new AstProjectStage(new AstProjectStageExcludeIdSpecification()));
 
                 return new ExecutableQuery<TDocument, TOutput, TOutput>(

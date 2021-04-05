@@ -20,20 +20,6 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
 {
     public sealed class AstMapExpression : AstExpression
     {
-        #region static
-        public static AstExpression Create(AstExpression input, string @as, AstExpression @in)
-        {
-            var prefix = "$" + @as + ".";
-            if (input is AstFieldExpression inputField && @in is AstFieldExpression inField && inField.Path.StartsWith(prefix))
-            {
-                var subFieldName = inField.Path.Substring(prefix.Length);
-                return inputField.CreateSubField(subFieldName);
-            }
-
-            return new AstMapExpression(input, @as, @in);
-        }
-        #endregion
-
         private readonly string _as;
         private readonly AstExpression _in;
         private readonly AstExpression _input;
@@ -49,7 +35,7 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
         }
 
         public string As => _as;
-        public AstExpression In => _in;
+        public new AstExpression In => _in;
         public AstExpression Input => _input;
         public override AstNodeType NodeType => AstNodeType.MapExpression;
 

@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
 
         public AstTrimExpression(
             AstExpression input,
-            AstExpression chars)
+            AstExpression chars = null)
         {
             _input = Ensure.IsNotNull(input, nameof(input));
             _chars = chars;

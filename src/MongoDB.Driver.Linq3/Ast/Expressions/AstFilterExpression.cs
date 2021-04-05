@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
         }
 
         public string As => _as;
-        public AstExpression Cond => _cond;
+        public new AstExpression Cond => _cond;
         public AstExpression Input => _input;
         public override AstNodeType NodeType => AstNodeType.FilterExpression;
 

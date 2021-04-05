@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 var stringExpression = expression.Expression;
 
                 var stringTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, stringExpression);
-                var ast = new AstUnaryExpression(AstUnaryOperator.StrLenCP, stringTranslation.Ast);
+                var ast = AstExpression.StrLenCP(stringTranslation.Ast);
 
                 return new AggregationExpression(expression, ast, new Int32Serializer());
             }

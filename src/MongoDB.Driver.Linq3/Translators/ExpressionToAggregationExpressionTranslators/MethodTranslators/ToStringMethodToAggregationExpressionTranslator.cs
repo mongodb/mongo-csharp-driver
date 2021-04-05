@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
 
             var dateTimeTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, dateTimeExpression);
             var formatTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, formatExpression);
-            var ast = new AstDateToStringExpression(dateTimeTranslation.Ast, formatTranslation.Ast);
+            var ast = AstExpression.DateToString(dateTimeTranslation.Ast, formatTranslation.Ast);
 
             translation = new AggregationExpression(expression, ast, new StringSerializer());
             return true;
@@ -70,7 +70,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             var objectExpression = expression.Object;
 
             var objectTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, objectExpression);
-            var ast = new AstUnaryExpression(AstUnaryOperator.ToString, objectTranslation.Ast);
+            var ast = AstExpression.ToString(objectTranslation.Ast);
 
             translation = new AggregationExpression(expression, ast, new StringSerializer());
             return true;
