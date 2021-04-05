@@ -543,6 +543,11 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
 
         public static AstExpression StrLenCP(AstExpression arg)
         {
+            if (arg is AstConstantExpression constantExpression && constantExpression.Value.BsonType == BsonType.String)
+            {
+                var value = constantExpression.Value.AsString;
+                return value;
+            }
             return new AstUnaryExpression(AstUnaryOperator.StrLenCP, arg);
         }
 
@@ -592,6 +597,12 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
 
         public static AstExpression ToLower(AstExpression arg)
         {
+            if (arg is AstConstantExpression constantExpression && constantExpression.Value.BsonType == BsonType.String)
+            {
+                var value = constantExpression.Value.AsString;
+                return value.ToLowerInvariant();
+            }
+
             return new AstUnaryExpression(AstUnaryOperator.ToLower, arg);
         }
 
@@ -602,6 +613,12 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
 
         public static AstExpression ToUpper(AstExpression arg)
         {
+            if (arg is AstConstantExpression constantExpression && constantExpression.Value.BsonType == BsonType.String)
+            {
+                var value = constantExpression.Value.AsString;
+                return value.ToUpperInvariant();
+            }
+
             return new AstUnaryExpression(AstUnaryOperator.ToUpper, arg);
         }
 

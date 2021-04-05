@@ -87,8 +87,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 var substringAst = valueTranslation.Ast;
                 if (ignoreCase)
                 {
-                    stringAst = ToLower(stringAst);
-                    substringAst = ToLower(stringAst);
+                    stringAst = AstExpression.ToLower(stringAst);
+                    substringAst = AstExpression.ToLower(stringAst);
                 }
 
                 var ast = CreateAst(method.Name, stringAst, substringAst);
@@ -123,8 +123,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                     var stringSimpleAst = CreateSimpleAst(stringAst, vars, "string");
                     var substringSimpleAst = CreateSimpleAst(substringAst, vars, "substring");
                     var startAst = AstExpression.Subtract(
-                        CreateStrlenCPAst(stringSimpleAst),
-                        CreateStrlenCPAst(substringSimpleAst));
+                        AstExpression.StrLenCP(stringSimpleAst),
+                        AstExpression.StrLenCP(substringSimpleAst));
                         
                     var ast = AstExpression.Gte(AstExpression.IndexOfCP(stringSimpleAst, substringSimpleAst, startAst), 0);
 
@@ -147,20 +147,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
 
                     vars.Add(new AstComputedField(name, ast));
                     return AstExpression.Field("$" + name);
-                }
-
-                AstExpression CreateStrlenCPAst(AstExpression valueAst)
-                {
-                    if (valueAst is AstConstantExpression valueConstantAst)
-                    {
-                        var value = (string)valueConstantAst.Value;
-                        return value.Length;
-                    }
-                    else
-                    {
-                        return AstExpression.StrLenCP(valueAst);
-                    }
-                            
                 }
             }
 
@@ -194,19 +180,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 }
 
                 throw new ExpressionNotSupportedException(expression);
-            }
-
-            AstExpression ToLower(AstExpression ast)
-            {
-                if (ast is AstConstantExpression astConstant)
-                {
-                    var value = astConstant.Value.AsString;
-                    return value.ToLower();
-                }
-                else
-                {
-                    return AstExpression.ToLower(ast);
-                }
             }
         }
     }
