@@ -53,9 +53,9 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 AstExpression ast =
                     method.Name switch
                     {
-                        "Trim" => new AstTrimExpression(objectTranslation.Ast, trimCharsValue),
-                        "TrimEnd" => new AstRTrimExpression(objectTranslation.Ast, trimCharsValue),
-                        "TrimStart" => new AstLTrimExpression(objectTranslation.Ast, trimCharsValue),
+                        "Trim" => AstExpression.Trim(objectTranslation.Ast, trimCharsValue),
+                        "TrimEnd" => AstExpression.RTrim(objectTranslation.Ast, trimCharsValue),
+                        "TrimStart" => AstExpression.LTrim(objectTranslation.Ast, trimCharsValue),
                         _ => throw new InvalidOperationException()
                     };
 
@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 if (trimCharsExpression is ConstantExpression trimCharsConstantExpression)
                 {
                     var trimChars = (char[])trimCharsConstantExpression.Value;
-                    return trimChars.Length == 0 ? null : new AstConstantExpression(new string(trimChars));
+                    return trimChars.Length == 0 ? null : AstExpression.Constant(new string(trimChars));
                 }
 
                 throw new ExpressionNotSupportedException(trimCharsExpression);

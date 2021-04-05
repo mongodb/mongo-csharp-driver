@@ -18,23 +18,19 @@ using MongoDB.Driver.Linq3.Ast.Expressions;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslators
 {
-    public static class UnaryExpressionToAggregationTranslator
+    public static class UnaryExpressionToAggregationExpressionTranslator
     {
         public static AggregationExpression Translate(TranslationContext context, UnaryExpression expression)
         {
-            AstUnaryOperator? @operator = null;
             switch (expression.NodeType)
             {
-                case ExpressionType.Convert: return ConvertUnaryExpressionToAggregationExpressionTranslator.Translate(context, expression);
-                case ExpressionType.Not: @operator = AstUnaryOperator.Not; break;
-            }
+                case ExpressionType.Convert:
+                    return ConvertUnaryExpressionToAggregationExpressionTranslator.Translate(context, expression);
 
-            if (@operator != null)
-            {
-                var operandTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, expression.Operand);
-                var ast = new AstUnaryExpression(@operator.Value, operandTranslation.Ast);
-
-                return new AggregationExpression(expression, ast, operandTranslation.Serializer);
+                case ExpressionType.Not:
+                    var operandTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, expression.Operand);
+                    var ast = AstExpression.Not(operandTranslation.Ast);
+                    return new AggregationExpression(expression, ast, operandTranslation.Serializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

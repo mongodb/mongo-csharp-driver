@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 var sourceExpression = expression.Arguments[0];
 
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
-                var ast = new AstUnaryExpression(AstUnaryOperator.ReverseArray, sourceTranslation.Ast);
+                var ast = AstExpression.ReverseArray(sourceTranslation.Ast);
                 var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
                 var serializer = IEnumerableSerializer.Create(itemSerializer);
 

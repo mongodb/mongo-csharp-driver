@@ -67,21 +67,21 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                     var predicateLambda = (LambdaExpression)arguments[1];
                     var sourceItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
                     var predicateTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, predicateLambda, sourceItemSerializer);
-                    var filteredSourceAst = new AstFilterExpression(
+                    var filteredSourceAst = AstExpression.Filter(
                         input: sourceTranslation.Ast,
                         cond: predicateTranslation.Ast,
                         @as: predicateLambda.Parameters[0].Name);
-                    ast = new AstUnaryExpression(AstUnaryOperator.Size, filteredSourceAst);
+                    ast = AstExpression.Size(filteredSourceAst);
                 }
                 else
                 {
                     if (sourceExpression.Type == typeof(string))
                     {
-                        ast = new AstUnaryExpression(AstUnaryOperator.StrLenCP, sourceTranslation.Ast);
+                        ast = AstExpression.StrLenCP(sourceTranslation.Ast);
                     }
                     else
                     {
-                        ast = new AstUnaryExpression(AstUnaryOperator.Size, sourceTranslation.Ast);
+                        ast = AstExpression.Size(sourceTranslation.Ast);
                     }
                 }
                 var serializer = GetSerializer(expression);

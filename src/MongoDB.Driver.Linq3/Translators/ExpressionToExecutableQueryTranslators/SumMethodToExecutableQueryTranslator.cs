@@ -156,7 +156,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                 else
                 {
                     Throw.If(!(sourceSerializer is IWrappedValueSerializer), "Expected sourceSerializer to be an IWrappedValueSerializer.", nameof(sourceSerializer));
-                    arg = new AstFieldExpression("_v");
+                    arg = AstExpression.Field("_v");
                 }
 
                 var outputValueType = method.IsOneOf(__sumAsyncMethods) ? expression.Type.GetGenericArguments()[0] : expression.Type;
@@ -167,7 +167,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                     outputWrappedValueSerializer,
                     new AstGroupStage(
                         id: BsonNull.Value,
-                        fields: new AstComputedField("_v", new AstUnaryExpression(AstUnaryOperator.Sum, arg))),
+                        fields: new AstComputedField("_v", AstExpression.Sum(arg))),
                     new AstProjectStage(new AstProjectStageExcludeIdSpecification()));
 
                 return new ExecutableQuery<TDocument, TOutput, TOutput>(

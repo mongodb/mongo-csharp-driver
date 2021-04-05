@@ -57,14 +57,14 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             var fieldInfo = DocumentSerializerHelper.GetFieldInfo(containerTranslation.Serializer, member.Name);
             if (containerTranslation.Ast is AstFieldExpression fieldExpression)
             {
-                var ast = fieldExpression.CreateSubField(fieldInfo.ElementName);
+                var ast = AstExpression.SubField(fieldExpression, fieldInfo.ElementName);
                 return new AggregationExpression(expression, ast, fieldInfo.Serializer);
             }
             else
             {
-                var ast = new AstLetExpression(
-                    new[] { new AstComputedField("this", containerTranslation.Ast) },
-                    new AstFieldExpression($"$this.{fieldInfo.ElementName}"));
+                var ast = AstExpression.Let(
+                    new AstComputedField("this", containerTranslation.Ast),
+                    AstExpression.Field($"$this.{fieldInfo.ElementName}"));
                 return new AggregationExpression(expression, ast, fieldInfo.Serializer);
             }
 
@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 var containerType = container.Expression.Type;
                 if (containerType.Implements(typeof(ICollection)) || containerType.Implements(typeof(ICollection<>)))
                 {
-                    var ast = new AstUnaryExpression(AstUnaryOperator.Size, container.Ast);
+                    var ast = AstExpression.Size(container.Ast);
                     var serializer = BsonSerializer.LookupSerializer(propertyInfo.PropertyType);
 
                     result = new AggregationExpression(expression, ast, serializer);
@@ -103,10 +103,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
 
                 if (propertyInfo.Name == "DayOfWeek")
                 {
-                    ast = new AstBinaryExpression(
-                        AstBinaryOperator.Subtract,
-                        new AstDatePartExpression(AstDatePart.DayOfWeek, container.Ast),
-                        1);
+                    ast = AstExpression.Subtract(AstExpression.DatePart(AstDatePart.DayOfWeek, container.Ast), 1);
                     serializer = new EnumSerializer<DayOfWeek>(BsonType.Int32);
                 }
                 else
@@ -126,7 +123,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                         case "Year": datePart = AstDatePart.Year; break;
                         default: return false;
                     }
-                    ast = new AstDatePartExpression(datePart, container.Ast);
+                    ast = AstExpression.DatePart(datePart, container.Ast);
                     serializer = new Int32Serializer();
                 }
 

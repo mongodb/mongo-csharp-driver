@@ -98,11 +98,11 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 AstExpression ast;
                 if (expression.Method.IsOneOf(__indexOfBytesMethods) || ordinal)
                 {
-                    ast = new AstIndexOfBytesExpression(objectTranslation.Ast, valueTranslation.Ast, startIndexTranslation?.Ast, endAst);
+                    ast = AstExpression.IndexOfBytes(objectTranslation.Ast, valueTranslation.Ast, startIndexTranslation?.Ast, endAst);
                 }
                 else
                 {
-                    ast = new AstIndexOfCPExpression(objectTranslation.Ast, valueTranslation.Ast, startIndexTranslation?.Ast, endAst);
+                    ast = AstExpression.IndexOfCP(objectTranslation.Ast, valueTranslation.Ast, startIndexTranslation?.Ast, endAst);
                 }
 
                 return new AggregationExpression(expression, ast, new Int32Serializer());

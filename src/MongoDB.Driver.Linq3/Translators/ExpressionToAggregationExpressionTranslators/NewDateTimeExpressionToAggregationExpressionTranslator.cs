@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 var secondTranslation = secondExpression != null ? ExpressionToAggregationExpressionTranslator.Translate(context, secondExpression) : null;
                 var millisecondTranslation = millisecondExpression != null ? ExpressionToAggregationExpressionTranslator.Translate(context, millisecondExpression) : null;
 
-                var ast = new AstDateFromPartsExpression(yearTranslation.Ast, monthTranslation.Ast, dayTranslation.Ast, hourTranslation?.Ast, minuteTranslation?.Ast, secondTranslation?.Ast, millisecondTranslation?.Ast);
+                var ast = AstExpression.DateFromParts(yearTranslation.Ast, monthTranslation.Ast, dayTranslation.Ast, hourTranslation?.Ast, minuteTranslation?.Ast, secondTranslation?.Ast, millisecondTranslation?.Ast);
                 var serializer = new DateTimeSerializer(); // TODO: get correct serializer;
 
                 return new AggregationExpression(expression, ast, serializer);

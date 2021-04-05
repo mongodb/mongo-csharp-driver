@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                             new AstProjectStageComputedFieldSpecification(
                                 new AstComputedField(
                                     "_v",
-                                    new AstMapExpression(
+                                    AstExpression.Map(
                                         input: collectionSelectorTranslation.Ast,
                                         @as: resultSelectorCollectionItemParameterExpression.Name,
                                         @in: resultSelectorTranslation.Ast))),

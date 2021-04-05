@@ -316,7 +316,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
                 var sourceSerializer = pipeline.OutputSerializer;
 
-                var @operator = method.IsOneOf(__standardDeviationPopulationMethods) ? AstUnaryOperator.StdDevPop : AstUnaryOperator.StdDevSamp;
+                var stdDevOperator = method.IsOneOf(__standardDeviationPopulationMethods) ? AstUnaryOperator.StdDevPop : AstUnaryOperator.StdDevSamp;
                 AstExpression arg;
                 if (method.IsOneOf(__standardDeviationWithSelectorMethods))
                 {
@@ -326,7 +326,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                 }
                 else
                 {
-                    arg = new AstFieldExpression("_v");
+                    arg = AstExpression.Field("_v");
                 }
                 var outputValueType = method.IsOneOf(__standardDeviationAsyncMethods) ? expression.Type.GetGenericArguments()[0] : expression.Type;
                 var outputValueSerializer = BsonSerializer.LookupSerializer(outputValueType);
@@ -336,7 +336,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                     outputWrappedValueSerializer,
                     new AstGroupStage(
                         id: BsonNull.Value,
-                        new AstComputedField("_v", new AstUnaryExpression(@operator, arg))),
+                        new AstComputedField("_v", AstExpression.StdDev(stdDevOperator, arg))),
                     new AstProjectStage(new AstProjectStageExcludeIdSpecification()));
 
                 var finalizer = method.IsOneOf(__standardDeviationNullableMethods) ? __singleOrDefaultFinalizer : __singleFinalizer;

@@ -50,40 +50,37 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 AstExpression ast;
                 if (anyOf.Length == 0)
                 {
-                    ast = new AstConstantExpression(0);
+                    ast = AstExpression.Constant(0);
                 }
                 else
                 {
                     // indexOfChar => { $indexOfCP : ['$$string', { $substrCP : [<anyOf>, '$$anyOfIndex', 1] }, '$$startIndex', '$$end' }
-                    var charAst = new AstTernaryExpression(AstTernaryOperator.SubstrCP, anyOf, new AstFieldExpression("$anyOfIndex"), 1);
-                    ast = new AstIndexOfCPExpression(stringAst, charAst, startIndexAst, endAst);
+                    var charAst = AstExpression.SubstrCP(anyOf, AstExpression.Field("$anyOfIndex"), 1);
+                    ast = AstExpression.IndexOfCP(stringAst, charAst, startIndexAst, endAst);
 
                     // computeIndexes => { $map : { input : { $range : [0, anyOf.Length] }, as : 'anyOfIndex', in : <indexOfChar> } }
-                    ast = new AstMapExpression(
-                        input: new AstRangeExpression(0, anyOf.Length),
+                    ast = AstExpression.Map(
+                        input: AstExpression.Range(0, anyOf.Length),
                         @as: "anyOfIndex",
                         @in: ast);
 
                     // minResult => { $min : { $filter : { input : <computeIndexes>, as : 'result', cond : { $gte : ['$$result', 0] } } } }
-                    ast = new AstUnaryExpression(
-                        AstUnaryOperator.Min,
-                        new AstFilterExpression(
+                    ast = AstExpression.Min(
+                        AstExpression.Filter(
                             input: ast,
-                            cond: new AstBinaryExpression(AstBinaryOperator.Gte, new AstFieldExpression("$result"), 0),
+                            cond: AstExpression.Gte(AstExpression.Field("$result"), 0),
                             @as: "result"));
 
                     // topLevel => { $cond : [{ $eq : ['$$string', null] }, null, { $ifNull : [<minResult>, -1] }] }
-                    ast = new AstCondExpression(
-                        @if: new AstBinaryExpression(AstBinaryOperator.Eq, stringAst, BsonNull.Value),
+                    ast = AstExpression.Cond(
+                        @if: AstExpression.Eq(stringAst, BsonNull.Value),
                         then: BsonNull.Value,
-                        @else: new AstBinaryExpression(AstBinaryOperator.IfNull, ast, -1));
+                        @else: AstExpression.IfNull(ast, -1));
 
                     // computeEnd => { $let : { vars : { end : { $add : ['$$startIndex', '$$count'] } }, in : <topLevel> } }
                     if (endVar != null)
                     {
-                        ast = new AstLetExpression(
-                            vars: new[] { endVar },
-                            @in: ast);
+                        ast = AstExpression.Let(var: endVar, @in: ast);
                     }
 
                     // s.IndexOfAny(anyOf, startIndex, count) => { $let : { vars : { string : <s>, startIndex : <startIndex>, count : <count> }, in : <computeEnd> } }
@@ -97,7 +94,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                     {
                         vars.Add(countVar);
                     }
-                    ast = new AstLetExpression(vars, @in: ast);
+                    ast = AstExpression.Let(vars, @in: ast);
                 }
 
                 return new AggregationExpression(expression, ast, new Int32Serializer());
@@ -109,7 +106,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             {
                 var stringTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, objectExpression);
                 var stringVar = new AstComputedField("string", stringTranslation.Ast);
-                var stringAst = new AstFieldExpression("$string");
+                var stringAst = AstExpression.Field("$string");
                 return (stringVar, stringAst);
             }
 
@@ -143,7 +140,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 else
                 {
                     var startIndexVar = new AstComputedField("startIndex", startIndexAst);
-                    startIndexAst = new AstFieldExpression("$startIndex");
+                    startIndexAst = AstExpression.Field("$startIndex");
                     return (startIndexVar, startIndexAst);
                 }
             }
@@ -166,7 +163,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 else
                 {
                     var countVar = new AstComputedField("count", countAst);
-                    countAst = new AstFieldExpression("$count");
+                    countAst = AstExpression.Field("$count");
                     return (countVar, countAst);
                 }
             }
@@ -186,7 +183,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 else
                 {
                     var endVar = new AstComputedField("end", endAst);
-                    endAst = new AstFieldExpression("$end");
+                    endAst = AstExpression.Field("$end");
                     return (endVar, endAst);
                 }
             }

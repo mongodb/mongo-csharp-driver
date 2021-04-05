@@ -112,7 +112,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 {
                     goto notSupported;
                 }
-                var ast = (AstExpression)new AstBinaryExpression(AstBinaryOperator.Split, stringTranslation.Ast, delimiter);
+                var ast = AstExpression.Split(stringTranslation.Ast, delimiter);
                 var options = StringSplitOptions.None;
                 if (optionsExpression != null)
                 {
@@ -124,15 +124,15 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 }
                 if (options == StringSplitOptions.RemoveEmptyEntries)
                 {
-                    ast = new AstFilterExpression(
+                    ast = AstExpression.Filter(
                         input: ast,
-                        cond: new AstBinaryExpression(AstBinaryOperator.Ne, new AstFieldExpression("$item"), ""),
+                        cond: AstExpression.Ne(AstExpression.Field("$item"), ""),
                         @as: "item");
                 }
                 if (countExpression != null)
                 {
                     var countTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, countExpression);
-                    ast = new AstSliceExpression(ast, countTranslation.Ast);
+                    ast = AstExpression.Slice(ast, countTranslation.Ast);
                 }
                 var serializer = new ArraySerializer<string>(new StringSerializer());
 

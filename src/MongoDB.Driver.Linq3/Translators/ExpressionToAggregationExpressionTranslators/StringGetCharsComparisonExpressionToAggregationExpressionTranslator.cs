@@ -52,9 +52,9 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
 
                 if (TryGetComparisonOperator(expression.NodeType, out var comparisonOperator))
                 {
-                    var ast = new AstBinaryExpression(
+                    var ast = AstExpression.Comparison(
                         comparisonOperator,
-                        new AstTernaryExpression(AstTernaryOperator.SubstrCP, objectTranslation.Ast, indexTranslation.Ast, 1),
+                        AstExpression.SubstrCP(objectTranslation.Ast, indexTranslation.Ast, 1),
                         comparand);
                     return new AggregationExpression(expression, ast, new BooleanSerializer());
                 }

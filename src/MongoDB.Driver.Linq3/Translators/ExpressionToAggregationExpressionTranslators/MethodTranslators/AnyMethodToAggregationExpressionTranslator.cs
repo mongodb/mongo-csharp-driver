@@ -30,10 +30,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
             if (expression.Method.Is(EnumerableMethod.Any))
             {
-                var ast = new AstBinaryExpression(
-                    AstBinaryOperator.Gt,
-                    new AstUnaryExpression(AstUnaryOperator.Size, sourceTranslation.Ast),
-                    0);
+                var ast = AstExpression.Gt(AstExpression.Size(sourceTranslation.Ast), 0);
 
                 return new AggregationExpression(expression, ast, new BooleanSerializer());
             }
@@ -46,9 +43,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 var predicateContext = context.WithSymbol(predicateParameter, new Symbol("$" + predicateParameter.Name, predicateParameterSerializer));
                 var predicateTranslation = ExpressionToAggregationExpressionTranslator.Translate(predicateContext, predicateExpression.Body);
 
-                var ast = new AstUnaryExpression(
-                    AstUnaryOperator.AnyElementTrue,
-                    new AstMapExpression(
+                var ast = AstExpression.AnyElementTrue(
+                    AstExpression.Map(
                         input: sourceTranslation.Ast,
                         @as: predicateParameter.Name,
                         @in: predicateTranslation.Ast));

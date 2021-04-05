@@ -62,7 +62,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
 
             var lhsTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, lhsExpression);
             var rhsTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, rhsExpression);
-            var ast = new AstBinaryExpression(AstBinaryOperator.Eq, lhsTranslation.Ast, rhsTranslation.Ast);
+            var ast = AstExpression.Eq(lhsTranslation.Ast, rhsTranslation.Ast);
 
             return new AggregationExpression(expression, ast, new BooleanSerializer());
         }
@@ -114,15 +114,12 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             {
                 case StringComparison.CurrentCulture:
                 case StringComparison.Ordinal:
-                    ast = new AstBinaryExpression(AstBinaryOperator.Eq, lhsTranslation.Ast, rhsTranslation.Ast);
+                    ast = AstExpression.Eq(lhsTranslation.Ast, rhsTranslation.Ast);
                     break;
 
                 case StringComparison.CurrentCultureIgnoreCase:
                 case StringComparison.OrdinalIgnoreCase:
-                    ast = new AstBinaryExpression(
-                        AstBinaryOperator.Eq,
-                        new AstBinaryExpression(AstBinaryOperator.StrCaseCmp, lhsTranslation.Ast, rhsTranslation.Ast),
-                        0);
+                    ast = AstExpression.Eq(AstExpression.StrCaseCmp(lhsTranslation.Ast, rhsTranslation.Ast), 0);
                     break;
 
                 default:

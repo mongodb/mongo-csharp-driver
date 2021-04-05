@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             var stringExpression = expression.Arguments[0];
 
             var stringTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, stringExpression);
-            var ast = new AstDateFromStringExpression(stringTranslation.Ast);
+            var ast = AstExpression.DateFromString(stringTranslation.Ast);
 
             return new AggregationExpression(expression, ast, new DateTimeSerializer());
         }

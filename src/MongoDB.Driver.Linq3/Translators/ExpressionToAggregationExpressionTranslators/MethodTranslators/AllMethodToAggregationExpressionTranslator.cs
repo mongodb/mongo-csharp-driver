@@ -36,9 +36,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 var predicateContext = context.WithSymbol(predicateParameter, new Symbol("$" + predicateParameter.Name, predicateParameterSerializer));
                 var predicateTranslation = ExpressionToAggregationExpressionTranslator.Translate(predicateContext, predicateExpression.Body);
 
-                var ast = new AstUnaryExpression(
-                    AstUnaryOperator.AllElementsTrue,
-                    new AstMapExpression(
+                var ast = AstExpression.AllElementsTrue(
+                    AstExpression.Map(
                         input: sourceTranslation.Ast,
                         @as: predicateParameter.Name,
                         @in: predicateTranslation.Ast));

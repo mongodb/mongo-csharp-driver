@@ -38,8 +38,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
             {
                 pipeline.AddStages(
                     pipeline.OutputSerializer,
-                    new AstGroupStage(new AstFieldExpression("$ROOT"), Enumerable.Empty<AstComputedField>()),
-                    new AstReplaceRootStage(new AstFieldExpression("_id")));
+                    new AstGroupStage(AstExpression.Field("$ROOT"), Enumerable.Empty<AstComputedField>()),
+                    new AstReplaceRootStage(AstExpression.Field("_id")));
 
                 return pipeline;
             }

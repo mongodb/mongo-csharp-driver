@@ -37,17 +37,17 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 AstExpression ast;
                 if (IsSimple(startTranslation) && IsSimple(countTranslation))
                 {
-                    ast = new AstRangeExpression(
+                    ast = AstExpression.Range(
                         start: startTranslation.Ast,
                         end: AstExpression.Add(startTranslation.Ast, countTranslation.Ast));
                 }
                 else
                 {
-                    var startVariable = new AstFieldExpression("$start");
-                    var countVariable = new AstFieldExpression("$count");
-                    ast = new AstLetExpression(
+                    var startVariable = AstExpression.Field("$start");
+                    var countVariable = AstExpression.Field("$count");
+                    ast = AstExpression.Let(
                         vars: new[] { new AstComputedField("start", startTranslation.Ast), new AstComputedField("count", countTranslation.Ast) },
-                        @in: new AstRangeExpression(
+                        @in: AstExpression.Range(
                             start: startVariable,
                             end: AstExpression.Add(startVariable, countVariable)));
                 }

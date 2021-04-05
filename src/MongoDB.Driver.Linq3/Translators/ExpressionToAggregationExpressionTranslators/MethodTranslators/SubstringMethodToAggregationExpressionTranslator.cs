@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 expression.NodeType == AstNodeType.FieldExpression;
         }
 
-        private static AggregationExpression TranslateHelper(TranslationContext context, Expression expression, Expression stringExpression, Expression startIndexExpression, Expression lengthExpression, AstTernaryOperator substringOperator)
+        private static AggregationExpression TranslateHelper(TranslationContext context, Expression expression, Expression stringExpression, Expression startIndexExpression, Expression lengthExpression, AstTernaryOperator substrOperator)
         {
             var stringTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, stringExpression);
             var startIndexTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, startIndexExpression);
@@ -64,12 +64,12 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             AstExpression ast;
             if (lengthExpression == null)
             {
-                var lengthOperator = substringOperator == AstTernaryOperator.SubstrCP ? AstUnaryOperator.StrLenCP : AstUnaryOperator.StrLenBytes;
+                var strlenOperator = substrOperator == AstTernaryOperator.SubstrCP ? AstUnaryOperator.StrLenCP : AstUnaryOperator.StrLenBytes;
                 if (IsSimple(stringTranslation.Ast) && IsSimple(startIndexTranslation.Ast))
                 {
-                    var lengthAst = new AstUnaryExpression(lengthOperator, stringTranslation.Ast);
-                    var countAst = new AstBinaryExpression(AstBinaryOperator.Subtract, lengthAst, startIndexTranslation.Ast);
-                    ast = new AstTernaryExpression(substringOperator, stringTranslation.Ast, startIndexTranslation.Ast, countAst);
+                    var lengthAst = AstExpression.StrLen(strlenOperator, stringTranslation.Ast);
+                    var countAst = AstExpression.Subtract(lengthAst, startIndexTranslation.Ast);
+                    ast = AstExpression.Substr(substrOperator, stringTranslation.Ast, startIndexTranslation.Ast, countAst);
                 }
                 else
                 {
@@ -78,18 +78,18 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                             new AstComputedField("string", stringTranslation.Ast),
                             new AstComputedField("index", startIndexTranslation.Ast)
                     };
-                    var stringField = new AstFieldExpression("$string");
-                    var indexField = new AstFieldExpression("$index");
-                    var lengthAst = new AstUnaryExpression(lengthOperator, stringField);
-                    var countAst = new AstBinaryExpression(AstBinaryOperator.Subtract, lengthAst, indexField);
-                    var inAst = new AstTernaryExpression(substringOperator, stringField, indexField, countAst);
-                    ast = new AstLetExpression(vars, inAst);
+                    var stringField = AstExpression.Field("$string");
+                    var indexField = AstExpression.Field("$index");
+                    var lengthAst = AstExpression.StrLen(strlenOperator, stringField);
+                    var countAst = AstExpression.Subtract(lengthAst, indexField);
+                    var inAst = AstExpression.Substr(substrOperator, stringField, indexField, countAst);
+                    ast = AstExpression.Let(vars, inAst);
                 }
             }
             else
             {
                 var lengthTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, lengthExpression);
-                ast = new AstTernaryExpression(substringOperator, stringTranslation.Ast, startIndexTranslation.Ast, lengthTranslation.Ast);
+                ast = AstExpression.Substr(substrOperator, stringTranslation.Ast, startIndexTranslation.Ast, lengthTranslation.Ast);
             }
 
             return new AggregationExpression(expression, ast, new StringSerializer());

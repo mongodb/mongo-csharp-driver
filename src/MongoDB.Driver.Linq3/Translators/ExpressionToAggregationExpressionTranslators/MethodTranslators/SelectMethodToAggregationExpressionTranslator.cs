@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 var selectorParameterSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
                 var selectorContext = context.WithSymbol(selectorParameter, new Symbol("$" + selectorParameter.Name, selectorParameterSerializer));
                 var translatedSelector = ExpressionToAggregationExpressionTranslator.Translate(selectorContext, selectorExpression.Body);
-                var ast = AstMapExpression.Create(
+                var ast = AstExpression.Map(
                     sourceTranslation.Ast,
                     selectorParameter.Name,
                     translatedSelector.Ast);

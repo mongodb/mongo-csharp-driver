@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             {
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
                 var otherTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, otherExpression);
-                var ast = new AstBinaryExpression(AstBinaryOperator.SetIsSubset, sourceTranslation.Ast, otherTranslation.Ast);
+                var ast = AstExpression.SetIsSubset(sourceTranslation.Ast, otherTranslation.Ast);
 
                 return new AggregationExpression(expression, ast, new BooleanSerializer());
             }

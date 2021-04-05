@@ -87,13 +87,13 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                 {
                     if (sourceSerializer is IWrappedValueSerializer wrappedSerializer)
                     {
-                        elementAst = new AstFieldExpression("_v");
+                        elementAst = AstExpression.Field("_v");
                         elementSerializer = wrappedSerializer.ValueSerializer;
 
                     }
                     else
                     {
-                        elementAst = new AstFieldExpression("$ROOT");
+                        elementAst = AstExpression.Field("$ROOT");
                         elementSerializer = sourceSerializer;
                     }
                 }
@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                     groupingSerializer,
                     new AstGroupStage(
                         id: keySelectorTranslation.Ast,
-                        fields: new AstComputedField("_elements", new AstUnaryExpression(AstUnaryOperator.Push, elementAst))));
+                        fields: new AstComputedField("_elements", AstExpression.Push(elementAst))));
 
                 if (method.IsOneOf(__groupByMethodsWithResultSelector))
                 {

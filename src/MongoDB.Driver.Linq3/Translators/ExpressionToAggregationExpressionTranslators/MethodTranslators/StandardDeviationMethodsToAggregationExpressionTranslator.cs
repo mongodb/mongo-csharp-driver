@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (IsStandardDeviationMethod(method, out var @operator))
+            if (IsStandardDeviationMethod(method, out var stddevOperator))
             {
                 if (arguments.Count == 1 || arguments.Count == 2)
                 {
@@ -47,14 +47,14 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                         var selectorParameterSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
                         var selectorContext = context.WithSymbol(selectorParameter, new Symbol("$" + selectorParameter.Name, selectorParameterSerializer));
                         var selectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(selectorContext, selectorExpression.Body);
-                        var selectorAst = AstMapExpression.Create(
+                        var selectorAst = AstExpression.Map(
                             input: sourceTranslation.Ast,
                             @as: selectorParameter.Name,
                             @in: selectorTranslation.Ast);
                         var selectorResultSerializer = BsonSerializer.LookupSerializer(selectorExpression.ReturnType);
                         sourceTranslation = new AggregationExpression(selectorExpression, selectorAst, selectorResultSerializer);
                     }
-                    var ast = new AstUnaryExpression(@operator, sourceTranslation.Ast);
+                    var ast = AstExpression.StdDev(stddevOperator, sourceTranslation.Ast);
                     var serializer = BsonSerializer.LookupSerializer(expression.Type);
 
                     return new AggregationExpression(expression, ast, serializer);
@@ -64,16 +64,16 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             throw new ExpressionNotSupportedException(expression);
         }
 
-        private static bool IsStandardDeviationMethod(MethodInfo methodInfo, out AstUnaryOperator @operator)
+        private static bool IsStandardDeviationMethod(MethodInfo methodInfo, out AstUnaryOperator stddevOperator)
         {
-            @operator = default;
+            stddevOperator = default;
 
             if (methodInfo.DeclaringType == typeof(EnumerableExtensions))
             {
                 switch (methodInfo.Name)
                 {
-                    case "StandardDeviationPopulation": @operator = AstUnaryOperator.StdDevPop; return true;
-                    case "StandardDeviationSample": @operator = AstUnaryOperator.StdDevSamp; return true;
+                    case "StandardDeviationPopulation": stddevOperator = AstUnaryOperator.StdDevPop; return true;
+                    case "StandardDeviationSample": stddevOperator = AstUnaryOperator.StdDevSamp; return true;
                 }
             }
 

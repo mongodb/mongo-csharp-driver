@@ -36,12 +36,13 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 {
                     var newBaseExpression = expression.Arguments[1];
                     var newBaseTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, newBaseExpression);
-                    ast = new AstBinaryExpression(AstBinaryOperator.Log, argumentTranslation.Ast, newBaseTranslation.Ast);
+                    ast = AstExpression.Log(argumentTranslation.Ast, newBaseTranslation.Ast);
                 }
                 else
                 {
-                    var @operator = expression.Method.Is(MathMethod.Log10) ? AstUnaryOperator.Log10 : AstUnaryOperator.Ln;
-                    ast = new AstUnaryExpression(@operator, argumentTranslation.Ast);
+                    ast = expression.Method.Is(MathMethod.Log10) ?
+                        AstExpression.Log10(argumentTranslation.Ast) :
+                        AstExpression.Ln(argumentTranslation.Ast);
                 }
 
                 return new AggregationExpression(expression, ast, new DoubleSerializer());

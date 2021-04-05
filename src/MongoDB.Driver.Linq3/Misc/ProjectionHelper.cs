@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Linq3.Misc
                 {
                     if (ValueNeedsToBeQuoted(constantExpression.Value))
                     {
-                        projectedField = new AstComputedField(computedField.Name, new AstUnaryExpression(AstUnaryOperator.Literal, constantExpression));
+                        projectedField = new AstComputedField(computedField.Name, AstExpression.Literal(constantExpression));
                     }
                 }
                 specifications.Add(new AstProjectStageComputedFieldSpecification(projectedField));
