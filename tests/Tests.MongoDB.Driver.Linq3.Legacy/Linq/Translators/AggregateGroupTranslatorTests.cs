@@ -214,11 +214,13 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         }
 
         [Fact]
-        public void Should_throw_an_exception_when_last_is_used_with_a_predicate()
+        public void Should_translate_last_with_a_predicate()
         {
-            Action act = () => Group(x => x.A, g => new { g.Last(x => x.A == "bin").B });
+            var result = Group(x => x.A, g => new { g.Last(x => x.A != "").B }); // TODO: there is an issue when no items match the predicate for Last
 
-            act.ShouldThrow<NotSupportedException>();
+            result.Projection.Should().Be("{ $project : { B : { $let : { vars : { this : { $arrayElemAt : [{ $filter : { input : '$_elements', as : 'x', cond : { $ne : ['$$x.A', ''] } } }, -1] } }, in : '$$this.B' } }, _id : 0 } }");
+
+            result.Value.B.Should().Be("Baby");
         }
 
         [Fact]
