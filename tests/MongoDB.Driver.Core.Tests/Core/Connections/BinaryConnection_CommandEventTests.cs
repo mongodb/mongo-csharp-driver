@@ -50,21 +50,25 @@ namespace MongoDB.Driver.Core.Connections
 
         public static IEnumerable<object[]> GetPotentiallyRedactedCommandTestCases()
         {
-            var potentiallyRedactedCommands = new[]
+            return new object[][]
             {
-                "authenticate",
-                "saslStart",
-                "saslContinue",
-                "getnonce",
-                "createUser",
-                "updateUser",
-                "copydbgetnonce",
-                "copydbsaslstart",
-                "copydb",
-                "isMaster",
+                // string commandJson, bool shouldBeRedacted
+                new object[] { "{ xyz : 1 }", false },
+                new object[] { "{ authenticate : 1 }", true },
+                new object[] { "{ saslStart : 1 }", true },
+                new object[] { "{ saslContinue : 1 }", true },
+                new object[] { "{ getnonce : 1 }", true },
+                new object[] { "{ createUser : 1 }", true },
+                new object[] { "{ updateUser : 1 }", true },
+                new object[] { "{ copydbgetnonce : 1 }", true },
+                new object[] { "{ copydbsaslstart : 1 }", true },
+                new object[] { "{ copydb : 1 }", true },
+                new object[] { "{ authenticate : 1 }", true },
+                new object[] { "{ isMaster : 1 }", false },
+                new object[] { "{ isMaster : 1, speculativeAuthenticate : { } }", true },
             };
-            return potentiallyRedactedCommands.Select(c => new object[] { c });
         }
+
         public BinaryConnection_CommandEventTests()
         {
             _capturedEvents = new EventCapturer()
@@ -144,13 +148,10 @@ namespace MongoDB.Driver.Core.Connections
 
         [Theory]
         [MemberData(nameof(GetPotentiallyRedactedCommandTestCases))]
-        public void Should_process_a_redacted_command(string commandName)
+        public void Should_process_a_redacted_command(string commandJson, bool shouldBeRedacted)
         {
-            var command = BsonDocument.Parse($"{{ {commandName}: 1, extra: true }}");
-            command = ModifyMessageToTriggerConditionToRedact(commandName, command);
-
+            var command = BsonDocument.Parse(commandJson);
             var reply = BsonDocument.Parse("{ ok: 1, extra: true }");
-            reply = ModifyMessageToTriggerConditionToRedact(commandName, reply);
 
             var requestMessage = MessageHelper.BuildCommand(
                 command,
@@ -163,17 +164,11 @@ namespace MongoDB.Driver.Core.Connections
                 responseTo: requestMessage.RequestId);
             ReceiveMessages(replyMessage);
 
-
-            var commandStartedCommandShouldBeRedacted = CommandEventHelperReflector.ShouldRedactMessage(commandName, command);
-            var commandSucceededCommandShouldBeRedacted = CommandEventHelperReflector.ShouldRedactMessage(commandName, replyMessage.Documents[0]);
-            var commandStartedCommandExpectedElementCount = commandStartedCommandShouldBeRedacted ? 0 : command.ElementCount;
-            var commandSucceededCommandExpectedElementCount = commandSucceededCommandShouldBeRedacted ? 0 : reply.ElementCount;
-
             var commandStartedEvent = (CommandStartedEvent)_capturedEvents.Next();
             var commandSucceededEvent = (CommandSucceededEvent)_capturedEvents.Next();
 
             commandStartedEvent.CommandName.Should().Be(command.GetElement(0).Name);
-            commandStartedEvent.Command.ElementCount.Should().Be(commandStartedCommandExpectedElementCount);
+            commandStartedEvent.Command.Should().Be(shouldBeRedacted ? new BsonDocument() : command);
             commandStartedEvent.ConnectionId.Should().Be(_subject.ConnectionId);
             commandStartedEvent.DatabaseNamespace.Should().Be(MessageHelper.DefaultDatabaseNamespace);
             commandStartedEvent.OperationId.Should().Be(EventContext.OperationId);
@@ -183,7 +178,7 @@ namespace MongoDB.Driver.Core.Connections
             commandSucceededEvent.ConnectionId.Should().Be(commandStartedEvent.ConnectionId);
             commandSucceededEvent.Duration.Should().BeGreaterThan(TimeSpan.Zero);
             commandSucceededEvent.OperationId.Should().Be(commandStartedEvent.OperationId);
-            commandSucceededEvent.Reply.ElementCount.Should().Be(commandSucceededCommandExpectedElementCount);
+            commandSucceededEvent.Reply.Should().Be(shouldBeRedacted ? new BsonDocument() : reply);
             commandSucceededEvent.RequestId.Should().Be(commandStartedEvent.RequestId);
         }
 
@@ -224,13 +219,10 @@ namespace MongoDB.Driver.Core.Connections
 
         [Theory]
         [MemberData(nameof(GetPotentiallyRedactedCommandTestCases))]
-        public void Should_process_a_redacted_failed_command(string commandName)
+        public void Should_process_a_redacted_failed_command(string commandJson, bool shouldBeRedacted)
         {
-            var command = BsonDocument.Parse($"{{ {commandName}: 1, extra: true }}");
-            command = ModifyMessageToTriggerConditionToRedact(commandName, command);
-
+            var command = BsonDocument.Parse(commandJson);
             var reply = BsonDocument.Parse("{ ok: 0, extra: true }");
-            reply = ModifyMessageToTriggerConditionToRedact(commandName, reply);
 
             var requestMessage = MessageHelper.BuildCommand(
                 command,
@@ -243,16 +235,11 @@ namespace MongoDB.Driver.Core.Connections
                 responseTo: requestMessage.RequestId);
             ReceiveMessages(replyMessage);
 
-            var commandStartedCommandShouldBeRedacted = CommandEventHelperReflector.ShouldRedactMessage(commandName, command);
-            var commandSucceededCommandShouldBeRedacted = CommandEventHelperReflector.ShouldRedactMessage(commandName, replyMessage.Documents[0]);
-            var commandStartedCommandExpectedElementCount = commandStartedCommandShouldBeRedacted ? 0 : command.ElementCount;
-            var commandSucceededCommandExpectedElementCount = commandSucceededCommandShouldBeRedacted ? 0 : reply.ElementCount;
-
             var commandStartedEvent = (CommandStartedEvent)_capturedEvents.Next();
             var commandFailedEvent = (CommandFailedEvent)_capturedEvents.Next();
 
             commandStartedEvent.CommandName.Should().Be(command.GetElement(0).Name);
-            commandStartedEvent.Command.ElementCount.Should().Be(commandStartedCommandExpectedElementCount);
+            commandStartedEvent.Command.Should().Be(shouldBeRedacted ? new BsonDocument() : command);
             commandStartedEvent.ConnectionId.Should().Be(_subject.ConnectionId);
             commandStartedEvent.DatabaseNamespace.Should().Be(MessageHelper.DefaultDatabaseNamespace);
             commandStartedEvent.OperationId.Should().Be(EventContext.OperationId);
@@ -265,7 +252,7 @@ namespace MongoDB.Driver.Core.Connections
             commandFailedEvent.RequestId.Should().Be(commandStartedEvent.RequestId);
             commandFailedEvent.Failure.Should().BeOfType<MongoCommandException>();
             var exception = (MongoCommandException)commandFailedEvent.Failure;
-            exception.Result.ElementCount.Should().Be(commandSucceededCommandExpectedElementCount);
+            exception.Result.Should().Be(shouldBeRedacted ? new BsonDocument() : reply);
         }
 
         [Fact]
@@ -982,24 +969,5 @@ namespace MongoDB.Driver.Core.Connections
                 _subject.ReceiveMessageAsync(message.ResponseTo, encoderSelector, _messageEncoderSettings, CancellationToken.None).Wait();
             }
         }
-
-        private static BsonDocument ModifyMessageToTriggerConditionToRedact(string commandName, BsonDocument command)
-        {
-            switch (commandName)
-            {
-                case "isMaster":
-                    command.Add("speculativeAuthenticate", new BsonDocument("db", "authSource"));
-                    break;
-            }
-
-            return command;
-        }
-    }
-
-    internal static class CommandEventHelperReflector
-    {
-        public static bool ShouldRedactMessage(string commandName, BsonDocument command) =>
-            (bool)Reflector.InvokeStatic(typeof(CommandEventHelper), nameof(ShouldRedactMessage), commandName, command);
-
     }
 }
