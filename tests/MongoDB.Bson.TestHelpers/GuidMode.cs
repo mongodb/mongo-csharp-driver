@@ -14,7 +14,7 @@
 */
 
 using System.Collections.Generic;
-using System.Linq;
+using MongoDB.Bson.IO;
 using Xunit.Abstractions;
 
 namespace MongoDB.Bson.TestHelpers
@@ -36,24 +36,6 @@ namespace MongoDB.Bson.TestHelpers
         // public static properties
         public static IReadOnlyList<GuidMode> All => __all;
 
-        public static GuidMode Current
-        {
-            get
-            {
-#pragma warning disable 618
-                var currentMode = BsonDefaults.GuidRepresentationMode;
-                if (currentMode == GuidRepresentationMode.V2)
-                {
-                    return new GuidMode(currentMode, BsonDefaults.GuidRepresentation);
-                }
-                else
-                {
-                    return new GuidMode(currentMode);
-                }
-#pragma warning restore 618
-            }
-        }
-
         // public static methods
         public static void Set(GuidRepresentationMode guidRepresentationMode, GuidRepresentation guidRepresentation = GuidRepresentation.Unspecified)
         {
@@ -62,9 +44,17 @@ namespace MongoDB.Bson.TestHelpers
         }
         #endregion
 
+        // private fields
+        private BsonBinaryReaderSettings _defaultBsonBinaryReaderSettings;
+        private BsonBinaryWriterSettings _defaultBsonBinaryWriterSettings;
+        private BsonDocumentReaderSettings _defaultBsonDocumentReaderSettings;
+        private BsonDocumentWriterSettings _defaultBsonDocumentWriterSettings;
+        private JsonReaderSettings _defaultJsonReaderSettings;
+        private JsonWriterSettings _defaultJsonWriterSettings;
         private GuidRepresentationMode _guidRepresentationMode;
         private GuidRepresentation _guidRepresentation;
 
+        // constructors
         public GuidMode()
         {
             _guidRepresentationMode = GuidRepresentationMode.V2;
@@ -77,9 +67,33 @@ namespace MongoDB.Bson.TestHelpers
             _guidRepresentation = guidRepresentation;
         }
 
+        // public properties
         public GuidRepresentationMode GuidRepresentationMode => _guidRepresentationMode;
 
         public GuidRepresentation GuidRepresentation => _guidRepresentation;
+
+        // public methods
+        public static GuidMode CaptureCurrentSettings()
+        {
+#pragma warning disable 618
+            GuidMode settings;
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                settings = new GuidMode(BsonDefaults.GuidRepresentationMode, BsonDefaults.GuidRepresentation);
+            }
+            else
+            {
+                settings = new GuidMode(BsonDefaults.GuidRepresentationMode);
+            }
+            settings._defaultBsonBinaryReaderSettings = BsonBinaryReaderSettings.Defaults;
+            settings._defaultBsonBinaryWriterSettings = BsonBinaryWriterSettings.Defaults;
+            settings._defaultBsonDocumentReaderSettings = BsonDocumentReaderSettings.Defaults;
+            settings._defaultBsonDocumentWriterSettings = BsonDocumentWriterSettings.Defaults;
+            settings._defaultJsonReaderSettings = JsonReaderSettings.Defaults;
+            settings._defaultJsonWriterSettings = JsonWriterSettings.Defaults;
+            return settings;
+#pragma warning restore 618
+        }
 
         public void Deserialize(IXunitSerializationInfo info)
         {
@@ -107,6 +121,12 @@ namespace MongoDB.Bson.TestHelpers
             {
                 BsonDefaults.GuidRepresentation = _guidRepresentation;
             }
+            BsonBinaryReaderSettings.Defaults = _defaultBsonBinaryReaderSettings;
+            BsonBinaryWriterSettings.Defaults = _defaultBsonBinaryWriterSettings;
+            BsonDocumentReaderSettings.Defaults = _defaultBsonDocumentReaderSettings;
+            BsonDocumentWriterSettings.Defaults = _defaultBsonDocumentWriterSettings;
+            JsonReaderSettings.Defaults = _defaultJsonReaderSettings;
+            JsonWriterSettings.Defaults = _defaultJsonWriterSettings;
 #pragma warning restore 618
         }
 

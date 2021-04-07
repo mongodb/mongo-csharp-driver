@@ -24,7 +24,7 @@ namespace MongoDB.Bson.TestHelpers
 
         public override void Before(MethodInfo methodUnderTest)
         {
-            _originalSettings = GuidMode.Current;
+            _originalSettings = GuidMode.CaptureCurrentSettings();
             base.Before(methodUnderTest);
         }
 
