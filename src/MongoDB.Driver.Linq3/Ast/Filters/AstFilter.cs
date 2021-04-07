@@ -14,7 +14,9 @@
 */
 
 using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
@@ -29,7 +31,28 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
 
         public static AstFilter And(params AstFilter[] filters)
         {
-            return AstAndFilter.CreateFlattened(filters);
+            Ensure.IsNotNull(filters, nameof(filters));
+            Ensure.That(filters.Length > 0, "And must have at least one filter.", nameof(filters));
+            Ensure.That(filters.All(f => f != null), "filters cannot contain nulls.", nameof(filters));
+
+            if (filters.Any(f => f.NodeType == AstNodeType.AndFilter))
+            {
+                var flattenedFilters = new List<AstFilter>();
+                foreach (var filter in filters)
+                {
+                    if (filter is AstAndFilter andFilter)
+                    {
+                        flattenedFilters.AddRange(andFilter.Filters);
+                    }
+                    else
+                    {
+                        flattenedFilters.Add(filter);
+                    }
+                }
+                return new AstAndFilter(flattenedFilters);
+            }
+
+            return new AstAndFilter(filters);
         }
 
         public static AstFieldOperationFilter BitsAllClear(AstFilterField field, BsonValue bitMask)
