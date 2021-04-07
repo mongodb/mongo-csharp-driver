@@ -18,11 +18,13 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
@@ -68,6 +70,22 @@ namespace MongoDB.Driver.Core.Operations
             subject.MaxTime.Should().NotHaveValue();
             subject.ReadConcern.Should().BeNull();
             subject.WriteConcern.Should().BeNull();
+        }
+
+        [Theory]
+        [InlineData("{ $out : 'collection' }", "{ $out : 'collection' }")]
+        [InlineData("{ $out : { db : 'database', coll : 'collection' } }", "{ $out : 'collection' }")]
+        [InlineData("{ $out : { db : 'differentdatabase', coll : 'collection' } }", "{ $out : { db : 'differentdatabase', coll : 'collection' } }")]
+        [InlineData("{ $out : { s3 : { } } }", "{ $out : { s3 : { } } }")]
+        public void Constructor_should_simplify_out_stage_when_possible(string outStageJson, string expectedOutStageJson)
+        {
+            var databaseNamespace = new DatabaseNamespace("database");
+            var pipeline = new[] { BsonDocument.Parse(outStageJson) };
+            var messageEncoderSettings = new MessageEncoderSettings();
+
+            var subject = new AggregateToCollectionOperation(databaseNamespace, pipeline, messageEncoderSettings);
+
+            subject.Pipeline.Last().Should().Be(BsonDocument.Parse(expectedOutStageJson));
         }
 
         [Fact]
