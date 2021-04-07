@@ -27,8 +27,8 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
         public AstAndExpression(IEnumerable<AstExpression> args)
         {
             _args = Ensure.IsNotNull(args, nameof(args)).ToList().AsReadOnly();
-            Ensure.That(_args.Count > 0, "Args cannot be empty.", nameof(args));
-            Ensure.That(_args.All(a => a != null), "Args cannot contain nulls.", nameof(args));
+            Ensure.That(_args.Count > 0, "args cannot be empty.", nameof(args));
+            Ensure.That(!_args.Contains(null), "args cannot contain null.", nameof(args));
         }
 
         public IReadOnlyList<AstExpression> Args => _args;
