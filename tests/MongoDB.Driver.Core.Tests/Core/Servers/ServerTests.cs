@@ -447,12 +447,13 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         [Theory]
-        [InlineData((ServerErrorCode)(-1), false)]
+        [InlineData(null, false)]
+        [InlineData((ServerErrorCode)1, false)]
         [InlineData(ServerErrorCode.LegacyNotPrimary, true)]
         [InlineData(ServerErrorCode.NotMaster, true)]
         [InlineData(ServerErrorCode.NotMasterNoSlaveOk, true)]
         [InlineData(ServerErrorCode.NotMasterOrSecondary, false)]
-        internal void IsNotMaster_should_return_expected_result_for_code(ServerErrorCode code, bool expectedResult)
+        internal void IsNotMaster_should_return_expected_result_for_code(ServerErrorCode? code, bool expectedResult)
         {
             _subject.Initialize();
 
@@ -468,7 +469,7 @@ namespace MongoDB.Driver.Core.Servers
         [Fact]
         internal void IsNotMaster_should_return_expected_result_for_code_with_conflicting_message()
         {
-            var code = (ServerErrorCode)(-1);
+            var code = (ServerErrorCode)1;
             var message = "not master";
 
             _subject.Initialize();
@@ -497,10 +498,11 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         [Theory]
-        [InlineData((ServerErrorCode)(-1), false)]
+        [InlineData(null, false)]
+        [InlineData((ServerErrorCode)1, false)]
         [InlineData(ServerErrorCode.NotMaster, true)]
         [InlineData(ServerErrorCode.InterruptedAtShutdown, true)]
-        internal void IsStateChangeError_should_return_expected_result(ServerErrorCode code, bool expectedResult)
+        internal void IsStateChangeError_should_return_expected_result(ServerErrorCode? code, bool expectedResult)
         {
             _subject.Initialize();
 
@@ -510,13 +512,14 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         [Theory]
-        [InlineData((ServerErrorCode)(-1), false)]
+        [InlineData(null, false)]
+        [InlineData((ServerErrorCode)1, false)]
         [InlineData(ServerErrorCode.InterruptedAtShutdown, true)]
         [InlineData(ServerErrorCode.InterruptedDueToReplStateChange, true)]
         [InlineData(ServerErrorCode.NotMasterOrSecondary, true)]
         [InlineData(ServerErrorCode.PrimarySteppedDown, true)]
         [InlineData(ServerErrorCode.ShutdownInProgress, true)]
-        internal void IsRecovering_should_return_expected_result_for_code(ServerErrorCode code, bool expectedResult)
+        internal void IsRecovering_should_return_expected_result_for_code(ServerErrorCode? code, bool expectedResult)
         {
             _subject.Initialize();
 
@@ -532,7 +535,7 @@ namespace MongoDB.Driver.Core.Servers
         [Fact]
         internal void IsRecovering_should_return_expected_result_for_code_with_conflicting_message()
         {
-            var code = (ServerErrorCode)(-1);
+            var code = (ServerErrorCode)1;
             var message = "not master or secondary";
 
             _subject.Initialize();
@@ -608,14 +611,14 @@ namespace MongoDB.Driver.Core.Servers
 
         [Theory]
         [InlineData(null, null, false)]
-        [InlineData((ServerErrorCode)(-1), null, false)]
+        [InlineData((ServerErrorCode)1, null, false)]
         [InlineData(ServerErrorCode.NotMaster, null, true)]
         [InlineData(ServerErrorCode.InterruptedAtShutdown, null, true)]
         [InlineData(null, "abc", false)]
         [InlineData(null, "not master", true)]
         [InlineData(null, "not master or secondary", true)]
         [InlineData(null, "node is recovering", true)]
-        [InlineData((ServerErrorCode)(-1), "not master", false)]
+        [InlineData((ServerErrorCode)1, "not master", false)]
         internal void ShouldInvalidateServer_should_return_expected_result_for_MongoCommandException(ServerErrorCode? code, string message, bool expectedResult)
         {
             _subject.Initialize();
@@ -638,13 +641,14 @@ namespace MongoDB.Driver.Core.Servers
 
         [Theory]
         [InlineData(null, null, false)]
-        [InlineData((ServerErrorCode)(-1), null, false)]
+        [InlineData((ServerErrorCode)1, null, false)]
         [InlineData(ServerErrorCode.NotMaster, null, true)]
         [InlineData(ServerErrorCode.InterruptedAtShutdown, null, true)]
         [InlineData(null, "abc", false)]
         [InlineData(null, "not master", true)]
         [InlineData(null, "not master or secondary", true)]
         [InlineData(null, "node is recovering", true)]
+        [InlineData((ServerErrorCode)1, "not master", false)]
         internal void ShouldInvalidateServer_should_return_expected_result_for_MongoWriteConcernException(ServerErrorCode? code, string message, bool expectedResult)
         {
             _subject.Initialize();
