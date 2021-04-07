@@ -32,8 +32,8 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
         public static AstFilter And(params AstFilter[] filters)
         {
             Ensure.IsNotNull(filters, nameof(filters));
-            Ensure.That(filters.Length > 0, "And must have at least one filter.", nameof(filters));
-            Ensure.That(filters.All(f => f != null), "filters cannot contain nulls.", nameof(filters));
+            Ensure.That(filters.Length > 0, "filters cannot be empty.", nameof(filters));
+            Ensure.That(!filters.Contains(null), "filters cannot contain null.", nameof(filters));
 
             if (filters.Any(f => f.NodeType == AstNodeType.AndFilter))
             {
@@ -171,6 +171,32 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
             }
 
             return new AstNorFilter(filter);
+        }
+
+        public static AstFilter Or(params AstFilter[] filters)
+        {
+            Ensure.IsNotNull(filters, nameof(filters));
+            Ensure.That(filters.Length > 0, "filters cannot be empty.", nameof(filters));
+            Ensure.That(!filters.Contains(null), "filters cannot contain null.", nameof(filters));
+
+            if (filters.Any(f => f.NodeType == AstNodeType.OrFilter))
+            {
+                var flattenedFilters = new List<AstFilter>();
+                foreach (var filter in filters)
+                {
+                    if (filter is AstOrFilter orFilter)
+                    {
+                        flattenedFilters.AddRange(orFilter.Filters);
+                    }
+                    else
+                    {
+                        flattenedFilters.Add(filter);
+                    }
+                }
+                return new AstOrFilter(flattenedFilters);
+            }
+
+            return new AstOrFilter(filters);
         }
 
         public static AstFieldOperationFilter Regex(AstFilterField field, string pattern, string options)

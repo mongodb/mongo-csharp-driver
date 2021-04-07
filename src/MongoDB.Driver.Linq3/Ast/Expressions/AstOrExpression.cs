@@ -27,6 +27,8 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
         public AstOrExpression(IEnumerable<AstExpression> args)
         {
             _args = Ensure.IsNotNull(args, nameof(args)).ToList().AsReadOnly();
+            Ensure.That(_args.Count > 0, "args cannot be empty.", nameof(args));
+            Ensure.That(!_args.Contains(null), "args cannot contain null.", nameof(args));
         }
 
         public AstOrExpression(params AstExpression[] args)
@@ -39,25 +41,7 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
 
         public override BsonValue Render()
         {
-            var flattenedArgs = new List<BsonValue>();
-
-            foreach (var arg in _args)
-            {
-                var renderedArg = arg.Render();
-                if (renderedArg is BsonDocument document && document.ElementCount == 1 && document.GetElement(0).Name == "$or")
-                {
-                    foreach (BsonDocument flattenedArg in document[0].AsBsonArray)
-                    {
-                        flattenedArgs.Add(flattenedArg);
-                    }
-                }
-                else
-                {
-                    flattenedArgs.Add(renderedArg);
-                }
-            }
-
-            return new BsonDocument("$or", new BsonArray(flattenedArgs));
+            return new BsonDocument("$or", new BsonArray(_args.Select(a => a.Render())));
         }
     }
 }

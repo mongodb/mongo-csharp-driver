@@ -27,8 +27,8 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
         public AstAndFilter(IEnumerable<AstFilter> filters)
         {
             _filters = Ensure.IsNotNull(filters, nameof(filters)).ToList().AsReadOnly();
-            Ensure.That(_filters.Count > 0, "Filters cannot be empty.", nameof(filters));
-            Ensure.That(_filters.All(f => f != null), "Filters cannot contain nulls.", nameof(filters));
+            Ensure.That(_filters.Count > 0, "filters cannot be empty.", nameof(filters));
+            Ensure.That(!_filters.Contains(null), "filters cannot contain null.", nameof(filters));
         }
 
         public IReadOnlyList<AstFilter> Filters => _filters;

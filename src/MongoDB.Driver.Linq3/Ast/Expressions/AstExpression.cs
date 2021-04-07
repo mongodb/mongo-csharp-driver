@@ -91,8 +91,8 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
         public static AstExpression And(params AstExpression[] args)
         {
             Ensure.IsNotNull(args, nameof(args));
-            Ensure.That(args.Length > 0, "And must have at least one arg.", nameof(args));
-            Ensure.That(args.All(a => a != null), "Args cannot contain nulls.", nameof(args));
+            Ensure.That(args.Length > 0, "args cannot be empty.", nameof(args));
+            Ensure.That(!args.Contains(null), "args cannot contain null.", nameof(args));
 
             if (AllArgsAreConstantBools(args, out var values))
             {
@@ -418,6 +418,27 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
 
         public static AstExpression Or(params AstExpression[] args)
         {
+            Ensure.IsNotNull(args, nameof(args));
+            Ensure.That(args.Length > 0, "args cannot be empty.", nameof(args));
+            Ensure.That(!args.Contains(null), "args cannot contain null.", nameof(args));
+
+            if (args.Any(a => a.NodeType == AstNodeType.OrExpression))
+            {
+                var flattenedArgs = new List<AstExpression>();
+                foreach (var arg in args)
+                {
+                    if (arg is AstOrExpression orExpression)
+                    {
+                        flattenedArgs.AddRange(orExpression.Args);
+                    }
+                    else
+                    {
+                        flattenedArgs.Add(arg);
+                    }
+                }
+                return new AstOrExpression(flattenedArgs);
+            }
+
             return new AstOrExpression(args);
         }
 

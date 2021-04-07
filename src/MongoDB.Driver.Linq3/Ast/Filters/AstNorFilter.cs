@@ -26,8 +26,8 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
         public AstNorFilter(params AstFilter[] filters)
         {
             Ensure.IsNotNull(filters, nameof(filters));
-            Ensure.That(filters.Length > 0, "Filters length cannot be zero.", nameof(filters));
-            Ensure.That(!filters.Contains(null), "Filters cannot contain null.", nameof(filters));
+            Ensure.That(filters.Length > 0, "filter cannot be empty.", nameof(filters));
+            Ensure.That(!filters.Contains(null), "filters cannot contain null.", nameof(filters));
             _filters = filters;
         }
 
