@@ -89,6 +89,33 @@ not possible to mix use of both modes in the same application.&lt;/p&gt;
     </item>
     
     <item>
+      <title>V3 mode</title>
+      <link>/mongo-csharp-driver/2.12/reference/bson/guidserialization/guidrepresentationmode/v3mode/</link>
+      <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.12/reference/bson/guidserialization/guidrepresentationmode/v3mode/</guid>
+      <description>
+
+&lt;h2 id=&#34;v3-guidrepresentationmode&#34;&gt;V3 GuidRepresentationMode&lt;/h2&gt;
+
+&lt;p&gt;In V3 mode the central principle is that the representation of Guids is controlled at the level of each individual
+property of a document by configuring the serializer for that property. The recommendation is that all Guids in a
+collection be represented uniformly using the standard BsonBinaryData subtype 4, but when working with historical
+data it is acceptable for different Guid fields in the same document to be represented differently.&lt;/p&gt;
+
+&lt;p&gt;The following existing methods behave differently in V3 mode:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;BsonBinaryReader.ReadBinaryData method ignores readerSettings.GuidRepresentation&lt;/li&gt;
+&lt;li&gt;BsonBinaryWriter.WriteBinaryData method ignores writerSettings.GuidRepresentation&lt;/li&gt;
+&lt;li&gt;JsonReader ReadBinaryData method ignores readerSettings.GuidRepresentation&lt;/li&gt;
+&lt;li&gt;JsonWriter ignores writerSettings.GuidRepresentation&lt;/li&gt;
+&lt;li&gt;BsonBinaryData ToGuid without GuidRepresentation argument is only valid for sub type 4&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
       <title>V2 mode</title>
       <link>/mongo-csharp-driver/2.12/reference/bson/guidserialization/guidrepresentationmode/v2mode/</link>
       <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
@@ -155,33 +182,6 @@ can opt-in to the new way of serializing Guids by setting the GuidRepresentation
     </item>
     
     <item>
-      <title>V3 mode</title>
-      <link>/mongo-csharp-driver/2.12/reference/bson/guidserialization/guidrepresentationmode/v3mode/</link>
-      <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
-      
-      <guid>/mongo-csharp-driver/2.12/reference/bson/guidserialization/guidrepresentationmode/v3mode/</guid>
-      <description>
-
-&lt;h2 id=&#34;v3-guidrepresentationmode&#34;&gt;V3 GuidRepresentationMode&lt;/h2&gt;
-
-&lt;p&gt;In V3 mode the central principle is that the representation of Guids is controlled at the level of each individual
-property of a document by configuring the serializer for that property. The recommendation is that all Guids in a
-collection be represented uniformly using the standard BsonBinaryData subtype 4, but when working with historical
-data it is acceptable for different Guid fields in the same document to be represented differently.&lt;/p&gt;
-
-&lt;p&gt;The following existing methods behave differently in V3 mode:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;BsonBinaryReader.ReadBinaryData method ignores readerSettings.GuidRepresentation&lt;/li&gt;
-&lt;li&gt;BsonBinaryWriter.WriteBinaryData method ignores writerSettings.GuidRepresentation&lt;/li&gt;
-&lt;li&gt;JsonReader ReadBinaryData method ignores readerSettings.GuidRepresentation&lt;/li&gt;
-&lt;li&gt;JsonWriter ignores writerSettings.GuidRepresentation&lt;/li&gt;
-&lt;li&gt;BsonBinaryData ToGuid without GuidRepresentation argument is only valid for sub type 4&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
       <title>GuidSerializer changes</title>
       <link>/mongo-csharp-driver/2.12/reference/bson/guidserialization/serializerchanges/guidserializerchanges/</link>
       <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
@@ -231,25 +231,6 @@ to mark the ones that use a different representation.&lt;/p&gt;
     </item>
     
     <item>
-      <title>Serializer changes</title>
-      <link>/mongo-csharp-driver/2.12/reference/bson/guidserialization/serializerchanges/serializerchanges/</link>
-      <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
-      
-      <guid>/mongo-csharp-driver/2.12/reference/bson/guidserialization/serializerchanges/serializerchanges/</guid>
-      <description>
-
-&lt;h1 id=&#34;serializer-changes&#34;&gt;Serializer changes&lt;/h1&gt;
-
-&lt;p&gt;The following sections describe changes to the two serializers to handle Guids differently:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;- &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/reference/bson/guidserialization/serializerchanges/guidserializerchanges/&#34;&gt;GuidSerializer changes&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;- &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/reference/bson/guidserialization/serializerchanges/objectserializerchanges/&#34;&gt;ObjectSerializer changes&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
       <title>ObjectSerializer changes</title>
       <link>/mongo-csharp-driver/2.12/reference/bson/guidserialization/serializerchanges/objectserializerchanges/</link>
       <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
@@ -280,6 +261,25 @@ serializer will be globally used whenever an object serializer is needed and has
 var objectSerializer = new ObjectSerializer(objectDiscriminatorConvention, GuidRepresentation.Standard);
 BsonSerializer.RegisterSerializer(objectSerializer);
 &lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Serializer changes</title>
+      <link>/mongo-csharp-driver/2.12/reference/bson/guidserialization/serializerchanges/serializerchanges/</link>
+      <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.12/reference/bson/guidserialization/serializerchanges/serializerchanges/</guid>
+      <description>
+
+&lt;h1 id=&#34;serializer-changes&#34;&gt;Serializer changes&lt;/h1&gt;
+
+&lt;p&gt;The following sections describe changes to the two serializers to handle Guids differently:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;- &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/reference/bson/guidserialization/serializerchanges/guidserializerchanges/&#34;&gt;GuidSerializer changes&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;- &lt;a href=&#34;/mongo-csharp-driver/2.12/mongo-csharp-driver/2.12/reference/bson/guidserialization/serializerchanges/objectserializerchanges/&#34;&gt;ObjectSerializer changes&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
 </description>
     </item>
     
