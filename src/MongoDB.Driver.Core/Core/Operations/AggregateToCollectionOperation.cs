@@ -296,17 +296,21 @@ namespace MongoDB.Driver.Core.Operations
             var lastStageName = lastStage.GetElement(0).Name;
             if (lastStageName == "$out" && lastStage["$out"] is BsonDocument outDocument)
             {
-                var outputDatabaseName = outDocument["db"].AsString;
-                if (outputDatabaseName == _databaseNamespace.DatabaseName)
+                if (outDocument.TryGetValue("db", out var db) && db.IsString &&
+                    outDocument.TryGetValue("coll", out var coll) && coll.IsString)
                 {
-                    var outputCollectionName = outDocument["coll"].AsString;
-                    var simplifiedOutStage = lastStage.Clone().AsBsonDocument;
-                    simplifiedOutStage["$out"] = outputCollectionName;
+                    var outputDatabaseName = db.AsString;
+                    if (outputDatabaseName == _databaseNamespace.DatabaseName)
+                    {
+                        var outputCollectionName = coll.AsString;
+                        var simplifiedOutStage = lastStage.Clone().AsBsonDocument;
+                        simplifiedOutStage["$out"] = outputCollectionName;
 
-                    var modifiedPipeline = new List<BsonDocument>(pipeline);
-                    modifiedPipeline[modifiedPipeline.Count - 1] = simplifiedOutStage;
+                        var modifiedPipeline = new List<BsonDocument>(pipeline);
+                        modifiedPipeline[modifiedPipeline.Count - 1] = simplifiedOutStage;
 
-                    return modifiedPipeline;
+                        return modifiedPipeline;
+                    }
                 }
             }
 
