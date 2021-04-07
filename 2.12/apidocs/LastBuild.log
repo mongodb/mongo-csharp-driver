@@ -1,96 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shfbBuild product="Sandcastle Help File Builder and Tools" version="2020.3.6.0" projectFile="C:\build\mongo-csharp-driver-v2.12.1\Docs\Api\CSharpDriverDocs.shfbproj" started="2021-03-23 11:23:57 AM">
+<shfbBuild product="Sandcastle Help File Builder and Tools" version="2019.11.17.0" projectFile="C:\build\mongo-csharp-driver-v2.12.2\Docs\Api\CSharpDriverDocs.shfbproj" started="4/7/2021 10:03:39 PM">
 <buildStep step="Initializing">
 Finding tools...
 The Sandcastle tools are located in &#39;C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\&#39;
 Searching for HTML Help 1 compiler...
 Found HTML Help 1 compiler in &#39;C:\Program Files (x86)\HTML Help Workshop\&#39;
 Locating components in the following folder(s):
-    C:\build\mongo-csharp-driver-v2.12.1\Docs\Api\..\..\packages\
-    C:\build\mongo-csharp-driver-v2.12.1\Docs\Api
+    C:\build\mongo-csharp-driver-v2.12.2\Docs\Api\..\..\packages\
+    C:\build\mongo-csharp-driver-v2.12.2\Docs\Api
     C:\ProgramData\EWSoftware\Sandcastle Help File Builder\Components and Plug-Ins\
     C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\
 Using framework reflection data for &#39;.NET Framework 4.5&#39; located in &#39;C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\Data\.NETFramework&#39;
 Using presentation style &#39;VS2013&#39; located in &#39;C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013&#39;
 Loading and initializing plug-ins...
-Additional Reference Links Version 2020.3.6.0
-Copyright &#169; 2006-2020, Eric Woodruff, All Rights Reserved
-Lightweight Website Style Version 2020.3.6.0
-Copyright &#169; 2006-2020, Eric Woodruff, All Rights Reserved
+Additional Reference Links Version 2019.11.17.0
+Copyright &#169; 2006-2019, Eric Woodruff, All Rights Reserved
+Lightweight Website Style Version 2019.11.17.0
+Copyright &#169; 2006-2019, Eric Woodruff, All Rights Reserved
 Portions Copyright &#169; 2014, Sam Harwell, All Rights Reserved
 -------------------------------
 Clearing any prior web/markdown output...
 </buildStep>
 <buildStep step="ValidatingDocumentationSources">
 Validating and copying documentation source information
-Source: C:\build\mongo-csharp-driver-v2.12.1\artifacts\bin\net452\MongoDB.Bson.dll
-    Found assembly &#39;C:\build\mongo-csharp-driver-v2.12.1\artifacts\bin\net452\MongoDB.Bson.dll&#39;
-Source: C:\build\mongo-csharp-driver-v2.12.1\artifacts\bin\net452\MongoDB.Bson.xml
-Source: C:\build\mongo-csharp-driver-v2.12.1\artifacts\bin\net452\MongoDB.Driver.Core.dll
-    Found assembly &#39;C:\build\mongo-csharp-driver-v2.12.1\artifacts\bin\net452\MongoDB.Driver.Core.dll&#39;
-Source: C:\build\mongo-csharp-driver-v2.12.1\artifacts\bin\net452\MongoDB.Driver.Core.XML
-Source: C:\build\mongo-csharp-driver-v2.12.1\artifacts\bin\net452\MongoDB.Driver.dll
-    Found assembly &#39;C:\build\mongo-csharp-driver-v2.12.1\artifacts\bin\net452\MongoDB.Driver.dll&#39;
-Source: C:\build\mongo-csharp-driver-v2.12.1\artifacts\bin\net452\MongoDB.Driver.xml
-Source: C:\build\mongo-csharp-driver-v2.12.1\artifacts\bin\net452\MongoDB.Driver.GridFS.dll
-    Found assembly &#39;C:\build\mongo-csharp-driver-v2.12.1\artifacts\bin\net452\MongoDB.Driver.GridFS.dll&#39;
-Source: C:\build\mongo-csharp-driver-v2.12.1\artifacts\bin\net452\MongoDB.Driver.GridFS.xml
-Source: C:\build\mongo-csharp-driver-v2.12.1\artifacts\bin\net452\MongoDB.Driver.Legacy.dll
-    Found assembly &#39;C:\build\mongo-csharp-driver-v2.12.1\artifacts\bin\net452\MongoDB.Driver.Legacy.dll&#39;
-Source: C:\build\mongo-csharp-driver-v2.12.1\artifacts\bin\net452\MongoDB.Driver.Legacy.xml
+Source: C:\build\mongo-csharp-driver-v2.12.2\artifacts\bin\net452\MongoDB.Bson.dll
+    Found assembly &#39;C:\build\mongo-csharp-driver-v2.12.2\artifacts\bin\net452\MongoDB.Bson.dll&#39;
+Source: C:\build\mongo-csharp-driver-v2.12.2\artifacts\bin\net452\MongoDB.Bson.xml
+Source: C:\build\mongo-csharp-driver-v2.12.2\artifacts\bin\net452\MongoDB.Driver.Core.dll
+    Found assembly &#39;C:\build\mongo-csharp-driver-v2.12.2\artifacts\bin\net452\MongoDB.Driver.Core.dll&#39;
+Source: C:\build\mongo-csharp-driver-v2.12.2\artifacts\bin\net452\MongoDB.Driver.Core.XML
+Source: C:\build\mongo-csharp-driver-v2.12.2\artifacts\bin\net452\MongoDB.Driver.dll
+    Found assembly &#39;C:\build\mongo-csharp-driver-v2.12.2\artifacts\bin\net452\MongoDB.Driver.dll&#39;
+Source: C:\build\mongo-csharp-driver-v2.12.2\artifacts\bin\net452\MongoDB.Driver.xml
+Source: C:\build\mongo-csharp-driver-v2.12.2\artifacts\bin\net452\MongoDB.Driver.GridFS.dll
+    Found assembly &#39;C:\build\mongo-csharp-driver-v2.12.2\artifacts\bin\net452\MongoDB.Driver.GridFS.dll&#39;
+Source: C:\build\mongo-csharp-driver-v2.12.2\artifacts\bin\net452\MongoDB.Driver.GridFS.xml
+Source: C:\build\mongo-csharp-driver-v2.12.2\artifacts\bin\net452\MongoDB.Driver.Legacy.dll
+    Found assembly &#39;C:\build\mongo-csharp-driver-v2.12.2\artifacts\bin\net452\MongoDB.Driver.Legacy.dll&#39;
+Source: C:\build\mongo-csharp-driver-v2.12.2\artifacts\bin\net452\MongoDB.Driver.Legacy.xml
 
 Copying XML comments files
-    C:\build\mongo-csharp-driver-v2.12.1\artifacts\bin\net452\MongoDB.Bson.xml -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\MongoDB.Bson.xml
-    C:\build\mongo-csharp-driver-v2.12.1\artifacts\bin\net452\MongoDB.Driver.Core.xml -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\MongoDB.Driver.Core.xml
-    C:\build\mongo-csharp-driver-v2.12.1\artifacts\bin\net452\MongoDB.Driver.xml -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\MongoDB.Driver.xml
-    C:\build\mongo-csharp-driver-v2.12.1\artifacts\bin\net452\MongoDB.Driver.GridFS.xml -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\MongoDB.Driver.GridFS.xml
-    C:\build\mongo-csharp-driver-v2.12.1\artifacts\bin\net452\MongoDB.Driver.Legacy.xml -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\MongoDB.Driver.Legacy.xml
+    C:\build\mongo-csharp-driver-v2.12.2\artifacts\bin\net452\MongoDB.Bson.xml -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\MongoDB.Bson.xml
+    C:\build\mongo-csharp-driver-v2.12.2\artifacts\bin\net452\MongoDB.Driver.Core.xml -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\MongoDB.Driver.Core.xml
+    C:\build\mongo-csharp-driver-v2.12.2\artifacts\bin\net452\MongoDB.Driver.xml -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\MongoDB.Driver.xml
+    C:\build\mongo-csharp-driver-v2.12.2\artifacts\bin\net452\MongoDB.Driver.GridFS.xml -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\MongoDB.Driver.GridFS.xml
+    C:\build\mongo-csharp-driver-v2.12.2\artifacts\bin\net452\MongoDB.Driver.Legacy.xml -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\MongoDB.Driver.Legacy.xml
 </buildStep>
 <buildStep step="GenerateSharedContent">
 Generating shared content files (en-US, English (United States))...
 <plugIn name="Lightweight Website Style" behavior="After" priority="1000">
-</plugIn>    Last step completed in 00:00:00.0260
+</plugIn>    Last step completed in 00:00:00.0390
 </buildStep>
 <buildStep step="GenerateApiFilter">
 Generating API filter for MRefBuilder...
-    Last step completed in 00:00:00.0951
+    Last step completed in 00:00:00.0950
 </buildStep>
 <buildStep step="GenerateReflectionInfo">
 Generating reflection information...
 [C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Current\Bin\amd64\MSBuild.exe - GenerateRefInfo.proj]
-Build started 2021-03-23 11:23:59 AM.
-Project &quot;C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\GenerateRefInfo.proj&quot; on node 1 (default targets).
+Build started 4/7/2021 10:03:42 PM.
+Project &quot;C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\GenerateRefInfo.proj&quot; on node 1 (default targets).
 PrepareForBuild:
   Creating directory &quot;obj\Debug\&quot;.
 GenerateRefInfo:
-  MRefBuilder (v2020.3.6.0)
-  Copyright c 2006-2020, Microsoft Corporation, All Rights Reserved.
-  Portions Copyright c 2006-2020, Eric Woodruff, All Rights Reserved.
+  MRefBuilder (v2019.11.17.0)
+  Copyright c 2006-2019, Microsoft Corporation, All Rights Reserved.
+  Portions Copyright c 2006-2019, Eric Woodruff, All Rights Reserved.
   No source code context base path specified.  Source context information is unavailable.
   Loaded 5 assemblies for reflection and 1 dependency assemblies.
   Wrote information on 36 namespaces, 1252 types, and 10717 members
-  Copying file from &quot;C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\reflection.org&quot; to &quot;C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\reflection.all&quot;.
-  XslTransform (v2020.3.6.0)
-  Copyright c 2006-2020, Microsoft Corporation, All Rights Reserved.
-  Portions Copyright c 2006-2020, Eric Woodruff, All Rights Reserved.
+  Copying file from &quot;C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\reflection.org&quot; to &quot;C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\reflection.all&quot;.
+  XslTransform (v2019.11.17.0)
+  Copyright c 2006-2019, Microsoft Corporation, All Rights Reserved.
+  Portions Copyright c 2006-2019, Eric Woodruff, All Rights Reserved.
   Applying XSL transformation &#39;C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\ProductionTransforms\MergeDuplicates.xsl&#39;.
-Done Building Project &quot;C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\GenerateRefInfo.proj&quot; (default targets).
-    Last step completed in 00:00:03.1500
+Done Building Project &quot;C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\GenerateRefInfo.proj&quot; (default targets).
+    Last step completed in 00:00:06.9988
 </buildStep>
 <buildStep step="TransformReflectionInfo">
 Transforming reflection output...
 [C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Current\Bin\amd64\MSBuild.exe - TransformManifest.proj]
-Build started 2021-03-23 11:24:02 AM.
-Project &quot;C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\TransformManifest.proj&quot; on node 1 (default targets).
+Build started 4/7/2021 10:03:49 PM.
+Project &quot;C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\TransformManifest.proj&quot; on node 1 (default targets).
 TransformManifest:
-  XslTransform (v2020.3.6.0)
-  Copyright c 2006-2020, Microsoft Corporation, All Rights Reserved.
-  Portions Copyright c 2006-2020, Eric Woodruff, All Rights Reserved.
+  XslTransform (v2019.11.17.0)
+  Copyright c 2006-2019, Microsoft Corporation, All Rights Reserved.
+  Portions Copyright c 2006-2019, Eric Woodruff, All Rights Reserved.
   Applying XSL transformation &#39;C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\\ProductionTransforms\ApplyVSDocModel.xsl&#39;.
-  Copying file from &quot;C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\reflection.xml&quot; to &quot;C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\reflection.nofilenames&quot;.
-  XslTransform (v2020.3.6.0)
-  Copyright c 2006-2020, Microsoft Corporation, All Rights Reserved.
-  Portions Copyright c 2006-2020, Eric Woodruff, All Rights Reserved.
+  Copying file from &quot;C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\reflection.xml&quot; to &quot;C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\reflection.nofilenames&quot;.
+  XslTransform (v2019.11.17.0)
+  Copyright c 2006-2019, Microsoft Corporation, All Rights Reserved.
+  Portions Copyright c 2006-2019, Eric Woodruff, All Rights Reserved.
   Applying XSL transformation &#39;C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\ProductionTransforms\AddFilenames.xsl&#39;.
     Unique name M_MongoDB_Bson_BsonArray__ctor_1 generated for M:MongoDB.Bson.BsonArray.#ctor(System.Collections.Generic.IEnumerable{MongoDB.Bson.BsonValue})
     Unique name M_MongoDB_Bson_BsonArray__ctor_2 generated for M:MongoDB.Bson.BsonArray.#ctor(System.Collections.Generic.IEnumerable{MongoDB.Bson.ObjectId})
@@ -1970,19 +1970,19 @@ TransformManifest:
     Unique name M_MongoDB_Driver_Linq_MongoQueryable_1__ctor_1 generated for M:MongoDB.Driver.Linq.MongoQueryable`1.#ctor(MongoDB.Driver.Linq.MongoQueryProvider,System.Linq.Expressions.Expression)
     Unique name M_MongoDB_Driver_Linq_MongoQueryTranslator_Translate_1 generated for M:MongoDB.Driver.Linq.MongoQueryTranslator.Translate(System.Linq.IQueryable)
     Unique name M_MongoDB_Driver_Wrappers_BaseWrapper__ctor_1 generated for M:MongoDB.Driver.Wrappers.BaseWrapper.#ctor(System.Type,System.Object)
-  XslTransform (v2020.3.6.0)
-  Copyright c 2006-2020, Microsoft Corporation, All Rights Reserved.
-  Portions Copyright c 2006-2020, Eric Woodruff, All Rights Reserved.
+  XslTransform (v2019.11.17.0)
+  Copyright c 2006-2019, Microsoft Corporation, All Rights Reserved.
+  Portions Copyright c 2006-2019, Eric Woodruff, All Rights Reserved.
   Applying XSL transformation &#39;C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\ProductionTransforms\ReflectionToManifest.xsl&#39;.
-Done Building Project &quot;C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\TransformManifest.proj&quot; (default targets).
-    Last step completed in 00:00:09.9546
+Done Building Project &quot;C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\TransformManifest.proj&quot; (default targets).
+    Last step completed in 00:00:18.8701
 </buildStep>
 <buildStep step="GenerateNamespaceSummaries">
 Generating namespace summary information...
 <plugIn name="Additional Reference Links" behavior="Before" priority="1000">
 Performing partial builds on additional targets&#39; projects
 
-Building C:\build\mongo-csharp-driver-v2.12.1\Docs\Api\LibMongocryptDocs.shfbproj
+Building C:\build\mongo-csharp-driver-v2.12.2\Docs\Api\LibMongocryptDocs.shfbproj
 Initializing
 ValidatingDocumentationSources
 GenerateSharedContent
@@ -1990,260 +1990,260 @@ GenerateApiFilter
 GenerateReflectionInfo
 TransformReflectionInfo
 Completed
-</plugIn>    Last step completed in 00:00:02.7498
+</plugIn>    Last step completed in 00:00:04.4187
 </buildStep>
 <buildStep step="GenerateInheritedDocumentation">
 Generating inherited documentation...
 <plugIn name="Additional Reference Links" behavior="Before" priority="1000">
-Adding references to C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\GenerateInheritedDocs.config...
+Adding references to C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\GenerateInheritedDocs.config...
 </plugIn>[C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Current\Bin\amd64\MSBuild.exe - GenerateInheritedDocs.proj]
-Sandcastle Help File Builder and Tools, version 2020.3.6.0
-Copyright c 2006-2020, Eric Woodruff, All Rights Reserved
+Sandcastle Help File Builder and Tools, version 2019.11.17.0
+Copyright c 2006-2019, Eric Woodruff, All Rights Reserved
 E-Mail: Eric@EWoodruff.us
 
 Reflection information will be retrieved from &#39;reflection.xml&#39;
-Reflection information will be retrieved from &#39;C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\75B8D6C\reflection.xml&#39;
+Reflection information will be retrieved from &#39;C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\35640CC7\reflection.xml&#39;
 Inherited documentation will be written to &#39;_InheritedDocs_.xml&#39;
 Indexing C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\*.xml
-Indexing C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\MongoDB.Bson.xml
-Indexing C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\MongoDB.Driver.Core.xml
-Indexing C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\MongoDB.Driver.xml
-Indexing C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\MongoDB.Driver.GridFS.xml
-Indexing C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\MongoDB.Driver.Legacy.xml
+Indexing C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\MongoDB.Bson.xml
+Indexing C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\MongoDB.Driver.Core.xml
+Indexing C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\MongoDB.Driver.xml
+Indexing C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\MongoDB.Driver.GridFS.xml
+Indexing C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\MongoDB.Driver.Legacy.xml
 Indexed 170284 members in 125 file(s).  5 file(s) to scan for &lt;inheritdoc /&gt; tags.
 Merging inherited documentation...
 
 
 Documentation merged successfully
-    Last step completed in 00:00:05.4083
+    Last step completed in 00:00:11.5792
 </buildStep>
 <buildStep step="CopyAdditionalContent">
 Copying additional content files...
 No additional content to copy
-    Last step completed in 00:00:00.0070
+    Last step completed in 00:00:00.0050
 </buildStep>
 <buildStep step="MergeTablesOfContents">
 Merging conceptual and additional tables of contents...
-    Last step completed in 00:00:00.0020
+    Last step completed in 00:00:00.0010
 </buildStep>
 <buildStep step="GenerateIntermediateTableOfContents">
 Generating intermediate table of contents file...
 [C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Current\Bin\amd64\MSBuild.exe - GenerateIntermediateTOC.proj]
-Build started 2021-03-23 11:24:20 AM.
-Project &quot;C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\GenerateIntermediateTOC.proj&quot; on node 1 (default targets).
+Build started 4/7/2021 10:04:24 PM.
+Project &quot;C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\GenerateIntermediateTOC.proj&quot; on node 1 (default targets).
 GenerateIntermediateTOC:
-  XslTransform (v2020.3.6.0)
-  Copyright c 2006-2020, Microsoft Corporation, All Rights Reserved.
-  Portions Copyright c 2006-2020, Eric Woodruff, All Rights Reserved.
+  XslTransform (v2019.11.17.0)
+  Copyright c 2006-2019, Microsoft Corporation, All Rights Reserved.
+  Portions Copyright c 2006-2019, Eric Woodruff, All Rights Reserved.
   Applying XSL transformation &#39;C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\\ProductionTransforms\CreateVSToc.xsl&#39;.
-Done Building Project &quot;C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\GenerateIntermediateTOC.proj&quot; (default targets).
+Done Building Project &quot;C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\GenerateIntermediateTOC.proj&quot; (default targets).
 Generating conceptual content intermediate TOC file...
-    Last step completed in 00:00:01.1493
+    Last step completed in 00:00:01.9108
 </buildStep>
 <buildStep step="CreateBuildAssemblerConfigs">
 Creating Sandcastle configuration files...
 <plugIn name="Additional Reference Links" behavior="Before" priority="1000">
 Adding additional reference link namespaces...
 </plugIn>    sandcastle.config
-    Last step completed in 00:00:00.4420
+    Last step completed in 00:00:00.8515
 </buildStep>
 <buildStep step="MergeCustomConfigs">
 Merging custom build component configurations
-C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\sandcastle.config
+C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\sandcastle.config
   Updating reference topic configurations.
     Added configuration for &#39;IntelliSense Component&#39; after &#39;Show Missing Documentation Component&#39; (instance 1)
   No conceptual content.  Removing conceptual content components.
 <plugIn name="Additional Reference Links" behavior="After" priority="1000">
 
-Adding references to C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\sandcastle.config...
-</plugIn>    Last step completed in 00:00:00.0220
+Adding references to C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\sandcastle.config...
+</plugIn>    Last step completed in 00:00:00.0270
 </buildStep>
 <buildStep step="BuildTopics">
 Building help topics...
 [C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Current\Bin\amd64\MSBuild.exe - BuildTopics.proj]
-Build started 2021-03-23 11:24:22 AM.
-Project &quot;C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\BuildTopics.proj&quot; on node 1 (default targets).
+Build started 4/7/2021 10:04:26 PM.
+Project &quot;C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\BuildTopics.proj&quot; on node 1 (default targets).
 BuildTopics:
-  BuildAssembler (v2020.3.6.0)
-  Copyright c 2006-2020, Microsoft Corporation, All Rights Reserved.
-  Portions Copyright c 2006-2020, Eric Woodruff, All Rights Reserved.
+  BuildAssembler (v2019.11.17.0)
+  Copyright c 2006-2019, Microsoft Corporation, All Rights Reserved.
+  Portions Copyright c 2006-2019, Eric Woodruff, All Rights Reserved.
   Loading configuration...
   Processing topics...
   Processed 15047 topic(s)
   CopyFromIndexComponent: &quot;reflection&quot; in-memory cache entries used: 15 of 15.
   CopyFromIndexComponent: &quot;comments&quot; in-memory cache entries used: 8 of 30.
-Done Building Project &quot;C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\BuildTopics.proj&quot; (default targets).
-    Last step completed in 00:01:38.3009
+Done Building Project &quot;C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\BuildTopics.proj&quot; (default targets).
+    Last step completed in 00:02:44.2655
 </buildStep>
 <buildStep step="CombiningIntermediateTocFiles">
 Combining conceptual and API intermediate TOC files...
-    Last step completed in 00:00:00.1161
+    Last step completed in 00:00:00.1230
 </buildStep>
 <buildStep step="ExtractingHtmlInfo">
 Extracting HTML info for HTML Help 1 and/or website...
 [C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Current\Bin\amd64\MSBuild.exe - ExtractHtmlInfo.proj]
-Sandcastle Help File Builder and Tools, version 2020.3.6.0
-Copyright c 2006-2020, Eric Woodruff, All Rights Reserved
+Sandcastle Help File Builder and Tools, version 2019.11.17.0
+Copyright c 2006-2019, Eric Woodruff, All Rights Reserved
 E-Mail: Eric@EWoodruff.us
 
 Using LCID &#39;1033&#39;, code page &#39;65001&#39;, encoding charset &#39;UTF-8&#39;.
 
-Processing Help 1 files in C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1
+Processing Help 1 files in C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1
 Processed 15047 HTML files
 Sorting keywords and generating See Also indices
-Saving HTML Help 1 keyword index to C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\CSharpDriverDocs.hhk
-Saving HTML Help 1 table of contents to C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\CSharpDriverDocs.hhc
+Saving HTML Help 1 keyword index to C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\CSharpDriverDocs.hhk
+Saving HTML Help 1 table of contents to C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\CSharpDriverDocs.hhc
 
-Processing website files in C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website
+Processing website files in C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website
 Processed 15047 HTML files
 Sorting keywords and generating See Also indices
-Saving website keyword index to C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\WebKI.xml
-Saving website table of contents to C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\WebTOC.xml
-    Last step completed in 00:00:14.3185
+Saving website keyword index to C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\WebKI.xml
+Saving website table of contents to C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\WebTOC.xml
+    Last step completed in 00:00:22.6124
 </buildStep>
 <buildStep step="CopyStandardHelpContent">
 Copying standard help content...
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\AlertCaution.png -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\AlertCaution.png
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\AlertNote.png -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\AlertNote.png
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\AlertSecurity.png -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\AlertSecurity.png
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\CFW.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\CFW.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\CodeExample.png -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\CodeExample.png
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\favicon.ico -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\favicon.ico
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privclass.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\privclass.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privdelegate.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\privdelegate.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privenumeration.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\privenumeration.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privevent.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\privevent.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privextension.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\privextension.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privfield.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\privfield.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privinterface.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\privinterface.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privmethod.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\privmethod.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privproperty.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\privproperty.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privstructure.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\privstructure.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protclass.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\protclass.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protdelegate.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\protdelegate.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protenumeration.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\protenumeration.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protevent.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\protevent.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protextension.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\protextension.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protfield.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\protfield.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protinterface.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\protinterface.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protmethod.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\protmethod.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protoperator.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\protoperator.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protproperty.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\protproperty.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protstructure.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\protstructure.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubclass.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\pubclass.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubdelegate.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\pubdelegate.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubenumeration.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\pubenumeration.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubevent.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\pubevent.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubextension.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\pubextension.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubfield.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\pubfield.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubinterface.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\pubinterface.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubmethod.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\pubmethod.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\puboperator.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\puboperator.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubproperty.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\pubproperty.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubstructure.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\pubstructure.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\SectionCollapsed.png -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\SectionCollapsed.png
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\SectionExpanded.png -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\SectionExpanded.png
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\slMobile.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\slMobile.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\static.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\static.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\xna.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\icons\xna.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\scripts\branding.js -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\scripts\branding.js
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-cs-CZ.css -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\styles\branding-cs-CZ.css
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-de-DE.css -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\styles\branding-de-DE.css
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-en-US.css -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\styles\branding-en-US.css
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-es-ES.css -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\styles\branding-es-ES.css
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-fr-FR.css -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\styles\branding-fr-FR.css
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-Help1.css -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\styles\branding-Help1.css
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-HelpViewer.css -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\styles\branding-HelpViewer.css
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-it-IT.css -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\styles\branding-it-IT.css
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-ja-JP.css -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\styles\branding-ja-JP.css
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-ko-KR.css -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\styles\branding-ko-KR.css
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-pl-PL.css -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\styles\branding-pl-PL.css
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-pt-BR.css -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\styles\branding-pt-BR.css
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-ru-RU.css -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\styles\branding-ru-RU.css
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-tr-TR.css -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\styles\branding-tr-TR.css
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-Website.css -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\styles\branding-Website.css
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-zh-CN.css -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\styles\branding-zh-CN.css
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-zh-TW.css -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\styles\branding-zh-TW.css
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding.css -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\styles\branding.css
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\AlertCaution.png -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\AlertCaution.png
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\AlertNote.png -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\AlertNote.png
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\AlertSecurity.png -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\AlertSecurity.png
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\CFW.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\CFW.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\CodeExample.png -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\CodeExample.png
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\favicon.ico -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\favicon.ico
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privclass.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\privclass.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privdelegate.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\privdelegate.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privenumeration.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\privenumeration.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privevent.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\privevent.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privextension.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\privextension.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privfield.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\privfield.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privinterface.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\privinterface.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privmethod.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\privmethod.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privproperty.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\privproperty.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privstructure.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\privstructure.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protclass.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\protclass.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protdelegate.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\protdelegate.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protenumeration.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\protenumeration.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protevent.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\protevent.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protextension.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\protextension.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protfield.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\protfield.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protinterface.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\protinterface.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protmethod.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\protmethod.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protoperator.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\protoperator.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protproperty.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\protproperty.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protstructure.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\protstructure.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubclass.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\pubclass.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubdelegate.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\pubdelegate.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubenumeration.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\pubenumeration.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubevent.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\pubevent.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubextension.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\pubextension.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubfield.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\pubfield.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubinterface.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\pubinterface.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubmethod.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\pubmethod.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\puboperator.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\puboperator.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubproperty.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\pubproperty.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubstructure.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\pubstructure.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\SectionCollapsed.png -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\SectionCollapsed.png
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\SectionExpanded.png -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\SectionExpanded.png
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\slMobile.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\slMobile.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\static.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\static.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\xna.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\xna.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\scripts\branding.js -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\scripts\branding.js
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-cs-CZ.css -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\styles\branding-cs-CZ.css
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-de-DE.css -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\styles\branding-de-DE.css
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-en-US.css -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\styles\branding-en-US.css
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-es-ES.css -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\styles\branding-es-ES.css
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-fr-FR.css -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\styles\branding-fr-FR.css
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-Help1.css -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\styles\branding-Help1.css
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-HelpViewer.css -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\styles\branding-HelpViewer.css
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-it-IT.css -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\styles\branding-it-IT.css
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-ja-JP.css -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\styles\branding-ja-JP.css
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-ko-KR.css -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\styles\branding-ko-KR.css
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-pl-PL.css -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\styles\branding-pl-PL.css
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-pt-BR.css -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\styles\branding-pt-BR.css
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-ru-RU.css -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\styles\branding-ru-RU.css
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-tr-TR.css -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\styles\branding-tr-TR.css
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-Website.css -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\styles\branding-Website.css
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-zh-CN.css -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\styles\branding-zh-CN.css
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-zh-TW.css -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\styles\branding-zh-TW.css
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding.css -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\styles\branding.css
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\Web\index.html -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\index.html
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\Web\search.html -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\search.html
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\Web\SearchHelp.aspx -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\SearchHelp.aspx
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\Web\SearchHelp.inc.php -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\SearchHelp.inc.php
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\Web\SearchHelp.php -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\SearchHelp.php
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\Web\Web.Config -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\Web.Config
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\Web\html\GeneralError.htm -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\html\GeneralError.htm
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\Web\html\PageNotFound.htm -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\html\PageNotFound.htm
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\Web\icons\Search.png -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\Search.png
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\Web\icons\TocClose.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\TocClose.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\Web\icons\TocCollapsed.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\TocCollapsed.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\Web\icons\TocExpanded.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\TocExpanded.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\Web\icons\TocOpen.gif -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\icons\TocOpen.gif
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\Web\scripts\branding-Website.js -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\scripts\branding-Website.js
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\Web\scripts\clipboard.min.js -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\scripts\clipboard.min.js
-C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\Web\scripts\jquery-3.3.1.min.js -&gt; C:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\Website\scripts\jquery-3.3.1.min.js
-    Last step completed in 00:00:08.4950
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\AlertCaution.png -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\AlertCaution.png
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\AlertNote.png -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\AlertNote.png
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\AlertSecurity.png -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\AlertSecurity.png
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\CFW.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\CFW.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\CodeExample.png -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\CodeExample.png
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\favicon.ico -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\favicon.ico
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privclass.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\privclass.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privdelegate.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\privdelegate.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privenumeration.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\privenumeration.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privevent.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\privevent.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privextension.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\privextension.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privfield.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\privfield.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privinterface.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\privinterface.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privmethod.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\privmethod.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privproperty.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\privproperty.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privstructure.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\privstructure.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protclass.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\protclass.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protdelegate.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\protdelegate.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protenumeration.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\protenumeration.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protevent.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\protevent.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protextension.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\protextension.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protfield.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\protfield.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protinterface.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\protinterface.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protmethod.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\protmethod.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protoperator.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\protoperator.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protproperty.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\protproperty.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protstructure.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\protstructure.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubclass.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\pubclass.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubdelegate.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\pubdelegate.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubenumeration.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\pubenumeration.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubevent.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\pubevent.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubextension.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\pubextension.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubfield.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\pubfield.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubinterface.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\pubinterface.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubmethod.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\pubmethod.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\puboperator.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\puboperator.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubproperty.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\pubproperty.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubstructure.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\pubstructure.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\SectionCollapsed.png -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\SectionCollapsed.png
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\SectionExpanded.png -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\SectionExpanded.png
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\slMobile.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\slMobile.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\static.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\static.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\xna.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\icons\xna.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\scripts\branding.js -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\scripts\branding.js
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-cs-CZ.css -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\styles\branding-cs-CZ.css
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-de-DE.css -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\styles\branding-de-DE.css
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-en-US.css -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\styles\branding-en-US.css
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-es-ES.css -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\styles\branding-es-ES.css
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-fr-FR.css -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\styles\branding-fr-FR.css
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-Help1.css -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\styles\branding-Help1.css
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-HelpViewer.css -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\styles\branding-HelpViewer.css
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-it-IT.css -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\styles\branding-it-IT.css
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-ja-JP.css -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\styles\branding-ja-JP.css
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-ko-KR.css -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\styles\branding-ko-KR.css
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-pl-PL.css -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\styles\branding-pl-PL.css
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-pt-BR.css -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\styles\branding-pt-BR.css
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-ru-RU.css -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\styles\branding-ru-RU.css
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-tr-TR.css -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\styles\branding-tr-TR.css
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-Website.css -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\styles\branding-Website.css
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-zh-CN.css -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\styles\branding-zh-CN.css
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-zh-TW.css -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\styles\branding-zh-TW.css
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding.css -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\styles\branding.css
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\AlertCaution.png -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\AlertCaution.png
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\AlertNote.png -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\AlertNote.png
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\AlertSecurity.png -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\AlertSecurity.png
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\CFW.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\CFW.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\CodeExample.png -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\CodeExample.png
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\favicon.ico -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\favicon.ico
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privclass.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\privclass.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privdelegate.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\privdelegate.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privenumeration.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\privenumeration.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privevent.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\privevent.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privextension.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\privextension.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privfield.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\privfield.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privinterface.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\privinterface.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privmethod.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\privmethod.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privproperty.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\privproperty.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\privstructure.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\privstructure.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protclass.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\protclass.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protdelegate.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\protdelegate.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protenumeration.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\protenumeration.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protevent.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\protevent.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protextension.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\protextension.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protfield.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\protfield.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protinterface.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\protinterface.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protmethod.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\protmethod.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protoperator.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\protoperator.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protproperty.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\protproperty.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\protstructure.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\protstructure.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubclass.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\pubclass.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubdelegate.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\pubdelegate.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubenumeration.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\pubenumeration.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubevent.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\pubevent.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubextension.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\pubextension.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubfield.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\pubfield.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubinterface.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\pubinterface.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubmethod.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\pubmethod.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\puboperator.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\puboperator.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubproperty.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\pubproperty.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\pubstructure.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\pubstructure.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\SectionCollapsed.png -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\SectionCollapsed.png
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\SectionExpanded.png -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\SectionExpanded.png
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\slMobile.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\slMobile.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\static.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\static.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\icons\xna.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\xna.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\scripts\branding.js -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\scripts\branding.js
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-cs-CZ.css -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\styles\branding-cs-CZ.css
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-de-DE.css -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\styles\branding-de-DE.css
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-en-US.css -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\styles\branding-en-US.css
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-es-ES.css -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\styles\branding-es-ES.css
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-fr-FR.css -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\styles\branding-fr-FR.css
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-Help1.css -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\styles\branding-Help1.css
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-HelpViewer.css -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\styles\branding-HelpViewer.css
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-it-IT.css -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\styles\branding-it-IT.css
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-ja-JP.css -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\styles\branding-ja-JP.css
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-ko-KR.css -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\styles\branding-ko-KR.css
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-pl-PL.css -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\styles\branding-pl-PL.css
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-pt-BR.css -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\styles\branding-pt-BR.css
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-ru-RU.css -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\styles\branding-ru-RU.css
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-tr-TR.css -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\styles\branding-tr-TR.css
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-Website.css -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\styles\branding-Website.css
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-zh-CN.css -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\styles\branding-zh-CN.css
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding-zh-TW.css -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\styles\branding-zh-TW.css
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\styles\branding.css -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\styles\branding.css
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\Web\index.html -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\index.html
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\Web\search.html -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\search.html
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\Web\SearchHelp.aspx -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\SearchHelp.aspx
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\Web\SearchHelp.inc.php -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\SearchHelp.inc.php
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\Web\SearchHelp.php -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\SearchHelp.php
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\Web\Web.Config -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\Web.Config
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\Web\html\GeneralError.htm -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\html\GeneralError.htm
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\Web\html\PageNotFound.htm -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\html\PageNotFound.htm
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\Web\icons\Search.png -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\Search.png
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\Web\icons\TocClose.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\TocClose.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\Web\icons\TocCollapsed.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\TocCollapsed.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\Web\icons\TocExpanded.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\TocExpanded.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\Web\icons\TocOpen.gif -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\icons\TocOpen.gif
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\Web\scripts\branding-Website.js -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\scripts\branding-Website.js
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\Web\scripts\clipboard.min.js -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\scripts\clipboard.min.js
+C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013\Web\scripts\jquery-3.3.1.min.js -&gt; C:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\Website\scripts\jquery-3.3.1.min.js
+    Last step completed in 00:00:00.6290
 </buildStep>
 <buildStep step="GenerateHelpFormatTableOfContents">
 Generating HTML Help 1 table of contents file...
@@ -2251,11 +2251,11 @@ Generating HTML Help 1 table of contents file...
 </buildStep>
 <buildStep step="GenerateHelpFileIndex">
 Generating HTML Help 1 index file...
-    Last step completed in 00:00:00.0010
+    Last step completed in 00:00:00.0020
 </buildStep>
 <buildStep step="GenerateHelpProject">
 Generating HTML Help 1 project file...
-    Last step completed in 00:00:00.1331
+    Last step completed in 00:00:00.1360
 </buildStep>
 <buildStep step="CompilingHelpFile">
 Compiling HTML Help 1 file...
@@ -2264,13 +2264,13 @@ Compiling HTML Help 1 file...
   
   
   
-  Compiling c:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\CSharpDriverDocs.chm
+  Compiling c:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\CSharpDriverDocs.chm
   
   
   
   
   
-  Compile time: 1 minute, 9 seconds
+  Compile time: 1 minute, 27 seconds
   
   15,049	Topics
   
@@ -2284,11 +2284,11 @@ Compiling HTML Help 1 file...
   
   
   
-  Created c:\build\mongo-csharp-driver-v2.12.1\artifacts\docs\ApiDocs-2.12.1\Working\Output\HtmlHelp1\CSharpDriverDocs.chm, 14,904,044 bytes
+  Created c:\build\mongo-csharp-driver-v2.12.2\artifacts\docs\ApiDocs-2.12.2\Working\Output\HtmlHelp1\CSharpDriverDocs.chm, 14,858,868 bytes
   
-  Compression decreased file by 155,911,846 bytes.
+  Compression decreased file by 155,957,022 bytes.
   
-    Last step completed in 00:01:12.0956
+    Last step completed in 00:01:27.8652
 </buildStep>
 <buildStep step="GenerateHelpFormatTableOfContents">
 Generating website table of contents file...
@@ -2299,7 +2299,7 @@ Generating full-text index for the website...
 
 <plugIn name="Lightweight Website Style" behavior="After" priority="1000">
 Adding lightweight search and TOC elements to each topic...
-</plugIn>    Last step completed in 00:00:12.3582
+</plugIn>    Last step completed in 00:00:23.7583
 </buildStep>
 <buildStep step="CopyingWebsiteFiles">
 Copying website files to output folder...
@@ -2343,15 +2343,15 @@ Copied 18000 files
 Copied 18500 files
 Copied 19000 files
 Copied 19156 files for the website content
-    Last step completed in 00:00:16.5417
+    Last step completed in 00:00:36.7530
 </buildStep>
 <buildStep step="CleanIntermediates">
 Removing intermediate files...
-    Last step completed in 00:00:04.0719
+    Last step completed in 00:00:06.5990
 </buildStep>
 <buildStep step="Completed">
 
-Build completed successfully at 2021-03-23 11:28:08 AM.  Total time: 00:04:10.6165
+Build completed successfully at 4/7/2021 10:10:09 PM.  Total time: 00:06:29.4037
 
 </buildStep>
 </shfbBuild>
