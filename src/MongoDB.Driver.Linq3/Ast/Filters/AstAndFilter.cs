@@ -22,56 +22,16 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
 {
     public sealed class AstAndFilter : AstFilter
     {
-        #region static
-        public static AstAndFilter CreateFlattened(params AstFilter[] filters)
+        private readonly IReadOnlyList<AstFilter> _filters;
+
+        public AstAndFilter(IEnumerable<AstFilter> filters)
         {
-            Ensure.IsNotNull(filters, nameof(filters));
-            Ensure.That(filters.Length > 0, "Filters length cannot be zero.", nameof(filters));
-            Ensure.That(!filters.Contains(null), "Filters cannot contain null.", nameof(filters));
-
-            return new AstAndFilter(Flatten(filters));
-
-            AstFilter[] Flatten(AstFilter[] filters)
-            {
-                if (filters.Length == 2 && filters[0].NodeType != AstNodeType.AndFilter && filters[1].NodeType != AstNodeType.AndFilter)
-                {
-                    return filters;
-                }
-
-                if (filters.Any(a => a is AstAndFilter))
-                {
-                    var flattenedFilters = new List<AstFilter>();
-                    foreach (var filter in filters)
-                    {
-                        if (filter is AstAndFilter andFilter)
-                        {
-                            flattenedFilters.AddRange(andFilter.Filters);
-                        }
-                        else
-                        {
-                            flattenedFilters.Add(filter);
-                        }
-                    }
-
-                    return flattenedFilters.ToArray();
-                }
-
-                return filters;
-            }
-        }
-        #endregion
-
-        private readonly AstFilter[] _filters;
-
-        public AstAndFilter(params AstFilter[] filters)
-        {
-            Ensure.IsNotNull(filters, nameof(filters));
-            Ensure.That(filters.Length > 0, "Filters length cannot be zero.", nameof(filters));
-            Ensure.That(!filters.Contains(null), "Filters cannot contain null.", nameof(filters));
-            _filters = filters;
+            _filters = Ensure.IsNotNull(filters, nameof(filters)).ToList().AsReadOnly();
+            Ensure.That(_filters.Count > 0, "Filters cannot be empty.", nameof(filters));
+            Ensure.That(_filters.All(f => f != null), "Filters cannot contain nulls.", nameof(filters));
         }
 
-        public AstFilter[] Filters => _filters;
+        public IReadOnlyList<AstFilter> Filters => _filters;
         public override AstNodeType NodeType => AstNodeType.AndFilter;
         public override bool UsesExpr => _filters.Any(f => f.UsesExpr);
 
@@ -87,7 +47,7 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
             }
         }
 
-        private bool TryRenderAsImplicitAnd(AstFilter[] filters, out BsonDocument renderedAsImplicitAnd)
+        private bool TryRenderAsImplicitAnd(IReadOnlyList<AstFilter> filters, out BsonDocument renderedAsImplicitAnd)
         {
             renderedAsImplicitAnd = new BsonDocument();
 

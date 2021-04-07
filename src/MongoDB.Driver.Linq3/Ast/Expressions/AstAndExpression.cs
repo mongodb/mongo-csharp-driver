@@ -27,6 +27,8 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
         public AstAndExpression(IEnumerable<AstExpression> args)
         {
             _args = Ensure.IsNotNull(args, nameof(args)).ToList().AsReadOnly();
+            Ensure.That(_args.Count > 0, "Args cannot be empty.", nameof(args));
+            Ensure.That(_args.All(a => a != null), "Args cannot contain nulls.", nameof(args));
         }
 
         public IReadOnlyList<AstExpression> Args => _args;
@@ -34,25 +36,7 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
 
         public override BsonValue Render()
         {
-            var flattenedArgs = new List<BsonValue>();
-
-            foreach (var arg in _args)
-            {
-                var renderedArg = arg.Render();
-                if (renderedArg is BsonDocument document && document.ElementCount == 1 && document.GetElement(0).Name == "$and")
-                {
-                    foreach (BsonDocument flattenedArg in document[0].AsBsonArray)
-                    {
-                        flattenedArgs.Add(flattenedArg);
-                    }
-                }
-                else
-                {
-                    flattenedArgs.Add(renderedArg);
-                }
-            }
-
-            return new BsonDocument("$and", new BsonArray(flattenedArgs));
+            return new BsonDocument("$and", new BsonArray(_args.Select(a => a.Render())));
         }
     }
 }
