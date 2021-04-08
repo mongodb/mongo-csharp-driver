@@ -123,7 +123,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             else
             {
                 return AstExpression.Let(
-                    var: new AstComputedField("this", astExpression),
+                    var: AstExpression.ComputedField("this", astExpression),
                     @in: AstExpression.Field($"$this.{fieldName}"));
             }
         }

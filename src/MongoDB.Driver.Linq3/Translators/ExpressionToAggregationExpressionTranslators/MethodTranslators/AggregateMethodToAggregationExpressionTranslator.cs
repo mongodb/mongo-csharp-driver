@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
 
                     var sourceField = AstExpression.Field("$source");
                     var ast = AstExpression.Let(
-                        var: new AstComputedField("source", sourceTranslation.Ast),
+                        var: AstExpression.ComputedField("source", sourceTranslation.Ast),
                         @in: AstExpression.Cond(
                             @if: AstExpression.Lte(AstExpression.Size(sourceField), 1),
                             @then: AstExpression.ArrayElemAt(sourceField, 0),
@@ -98,7 +98,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                         var resultSelectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(resultSelectorContext, resultSelectorExpression.Body);
 
                         ast = AstExpression.Let(
-                            var: new AstComputedField(resultSelectorParameter.Name, ast),
+                            var: AstExpression.ComputedField(resultSelectorParameter.Name, ast),
                             @in: resultSelectorTranslation.Ast);
                         serializer = BsonSerializer.LookupSerializer(resultSelectorExpression.ReturnType); // TODO: use known serializer
                     }

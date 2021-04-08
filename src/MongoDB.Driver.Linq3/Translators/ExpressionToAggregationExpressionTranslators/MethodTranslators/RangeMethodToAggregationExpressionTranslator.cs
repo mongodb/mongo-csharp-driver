@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                     var startVariable = AstExpression.Field("$start");
                     var countVariable = AstExpression.Field("$count");
                     ast = AstExpression.Let(
-                        vars: new[] { new AstComputedField("start", startTranslation.Ast), new AstComputedField("count", countTranslation.Ast) },
+                        vars: AstExpression.ComputedFields(("start", startTranslation.Ast), ("count", countTranslation.Ast)),
                         @in: AstExpression.Range(
                             start: startVariable,
                             end: AstExpression.Add(startVariable, countVariable)));

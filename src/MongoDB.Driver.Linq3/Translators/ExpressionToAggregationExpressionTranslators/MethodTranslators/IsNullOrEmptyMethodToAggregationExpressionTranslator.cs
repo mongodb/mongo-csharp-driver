@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 else
                 {
                     ast = AstExpression.Let(
-                        var: new AstComputedField("this", stringTranslation.Ast),
+                        var: AstExpression.ComputedField("this", stringTranslation.Ast),
                         @in: AstExpression.Or(
                             AstExpression.Eq(AstExpression.Field("$this"), BsonNull.Value),
                             AstExpression.Eq(AstExpression.Field("$this"), "")));

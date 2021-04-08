@@ -164,6 +164,16 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
             return new AstComputedDocumentExpression(fields);
         }
 
+        public static AstComputedField ComputedField(string name, AstExpression value)
+        {
+            return new AstComputedField(name, value);
+        }
+
+        public static IEnumerable<AstComputedField> ComputedFields(params (string name, AstExpression value)[] fields)
+        {
+            return fields.Select(field => AstExpression.ComputedField(field.name, field.value));
+        }
+
         public static AstExpression Concat(IEnumerable<AstExpression> args)
         {
             return new AstNaryExpression(AstNaryOperator.Concat, args);

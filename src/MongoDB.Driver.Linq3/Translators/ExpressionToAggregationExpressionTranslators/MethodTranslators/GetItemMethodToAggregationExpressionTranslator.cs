@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                     else
                     {
                         ast = AstExpression.Let(
-                            var: new AstComputedField("this", sourceTranslation.Ast),
+                            var: AstExpression.ComputedField("this", sourceTranslation.Ast),
                             @in: AstExpression.Field($"$this.{keyValue}"));
                     }
                     var valueSerializer = GetDictionaryValueSerializer(sourceTranslation.Serializer);
