@@ -522,11 +522,13 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         [Theory]
-        [InlineData((ServerErrorCode)(-1), false)]
+        [InlineData(null, false)]
+        [InlineData((ServerErrorCode)1, false)]
+        [InlineData(ServerErrorCode.LegacyNotPrimary, true)]
         [InlineData(ServerErrorCode.NotMaster, true)]
         [InlineData(ServerErrorCode.NotMasterNoSlaveOk, true)]
         [InlineData(ServerErrorCode.NotMasterOrSecondary, false)]
-        internal void IsNotMaster_should_return_expected_result_for_code(ServerErrorCode code, bool expectedResult)
+        internal void IsNotMaster_should_return_expected_result_for_code(ServerErrorCode? code, bool expectedResult)
         {
             _subject.Initialize();
 
@@ -539,6 +541,19 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
+        [Fact]
+        internal void IsNotMaster_should_return_expected_result_for_code_with_conflicting_message()
+        {
+            var code = (ServerErrorCode)1;
+            var message = "not master";
+
+            _subject.Initialize();
+
+            var result = _subject.IsNotMaster(code, message);
+
+            result.Should().BeFalse();
+        }
+        
         [Theory]
         [InlineData(null, false)]
         [InlineData("abc", false)]
@@ -548,20 +563,21 @@ namespace MongoDB.Driver.Core.Servers
         {
             _subject.Initialize();
 
-            var result = _subject.IsNotMaster((ServerErrorCode)(-1), message);
+            var result = _subject.IsNotMaster(null, message);
 
             result.Should().Be(expectedResult);
             if (result)
             {
-                _subject.IsRecovering((ServerErrorCode)(-1), message).Should().BeFalse();
+                _subject.IsRecovering(null, message).Should().BeFalse();
             }
         }
 
         [Theory]
-        [InlineData((ServerErrorCode)(-1), false)]
+        [InlineData(null, false)]
+        [InlineData((ServerErrorCode)1, false)]
         [InlineData(ServerErrorCode.NotMaster, true)]
         [InlineData(ServerErrorCode.InterruptedAtShutdown, true)]
-        internal void IsStateChangeError_should_return_expected_result(ServerErrorCode code, bool expectedResult)
+        internal void IsStateChangeError_should_return_expected_result(ServerErrorCode? code, bool expectedResult)
         {
             _subject.Initialize();
 
@@ -571,13 +587,14 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         [Theory]
-        [InlineData((ServerErrorCode)(-1), false)]
+        [InlineData(null, false)]
+        [InlineData((ServerErrorCode)1, false)]
         [InlineData(ServerErrorCode.InterruptedAtShutdown, true)]
         [InlineData(ServerErrorCode.InterruptedDueToReplStateChange, true)]
         [InlineData(ServerErrorCode.NotMasterOrSecondary, true)]
         [InlineData(ServerErrorCode.PrimarySteppedDown, true)]
         [InlineData(ServerErrorCode.ShutdownInProgress, true)]
-        internal void IsRecovering_should_return_expected_result_for_code(ServerErrorCode code, bool expectedResult)
+        internal void IsRecovering_should_return_expected_result_for_code(ServerErrorCode? code, bool expectedResult)
         {
             _subject.Initialize();
 
@@ -590,6 +607,19 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
+        [Fact]
+        internal void IsRecovering_should_return_expected_result_for_code_with_conflicting_message()
+        {
+            var code = (ServerErrorCode)1;
+            var message = "not master or secondary";
+
+            _subject.Initialize();
+
+            var result = _subject.IsRecovering(code, message);
+
+            result.Should().BeFalse();
+        }
+
         [Theory]
         [InlineData(null, false)]
         [InlineData("abc", false)]
@@ -599,12 +629,12 @@ namespace MongoDB.Driver.Core.Servers
         {
             _subject.Initialize();
 
-            var result = _subject.IsRecovering((ServerErrorCode)(-1), message);
+            var result = _subject.IsRecovering(null, message);
 
             result.Should().Be(expectedResult);
             if (result)
             {
-                _subject.IsNotMaster((ServerErrorCode)(-1), message).Should().BeFalse();
+                _subject.IsNotMaster(null, message).Should().BeFalse();
             }
         }
 
@@ -656,13 +686,14 @@ namespace MongoDB.Driver.Core.Servers
 
         [Theory]
         [InlineData(null, null, false)]
-        [InlineData((ServerErrorCode)(-1), null, false)]
+        [InlineData((ServerErrorCode)1, null, false)]
         [InlineData(ServerErrorCode.NotMaster, null, true)]
         [InlineData(ServerErrorCode.InterruptedAtShutdown, null, true)]
         [InlineData(null, "abc", false)]
         [InlineData(null, "not master", true)]
         [InlineData(null, "not master or secondary", true)]
         [InlineData(null, "node is recovering", true)]
+        [InlineData((ServerErrorCode)1, "not master", false)]
         internal void ShouldInvalidateServer_should_return_expected_result_for_MongoCommandException(ServerErrorCode? code, string message, bool expectedResult)
         {
             _subject.Initialize();
@@ -685,13 +716,14 @@ namespace MongoDB.Driver.Core.Servers
 
         [Theory]
         [InlineData(null, null, false)]
-        [InlineData((ServerErrorCode)(-1), null, false)]
+        [InlineData((ServerErrorCode)1, null, false)]
         [InlineData(ServerErrorCode.NotMaster, null, true)]
         [InlineData(ServerErrorCode.InterruptedAtShutdown, null, true)]
         [InlineData(null, "abc", false)]
         [InlineData(null, "not master", true)]
         [InlineData(null, "not master or secondary", true)]
         [InlineData(null, "node is recovering", true)]
+        [InlineData((ServerErrorCode)1, "not master", false)]
         internal void ShouldInvalidateServer_should_return_expected_result_for_MongoWriteConcernException(ServerErrorCode? code, string message, bool expectedResult)
         {
             _subject.Initialize();
@@ -945,22 +977,19 @@ namespace MongoDB.Driver.Core.Servers
             Reflector.Invoke(server, nameof(HandleChannelException), connection, ex);
         }
 
-        public static bool IsNotMaster(this Server server, ServerErrorCode code, string message)
+        public static bool IsNotMaster(this Server server, ServerErrorCode? code, string message)
         {
-            var methodInfo = typeof(Server).GetMethod(nameof(IsNotMaster), BindingFlags.NonPublic | BindingFlags.Instance);
-            return (bool)methodInfo.Invoke(server, new object[] { code, message });
+            return (bool)Reflector.Invoke(server, nameof(IsNotMaster), code, message);
         }
 
-        public static bool IsStateChangeError(this Server server, ServerErrorCode code, string message)
+        public static bool IsStateChangeError(this Server server, ServerErrorCode? code, string message)
         {
-            var methodInfo = typeof(Server).GetMethod(nameof(IsStateChangeError), BindingFlags.NonPublic | BindingFlags.Instance);
-            return (bool)methodInfo.Invoke(server, new object[] { code, message });
+            return (bool)Reflector.Invoke(server, nameof(IsStateChangeError), code, message);
         }
 
-        public static bool IsRecovering(this Server server, ServerErrorCode code, string message)
+        public static bool IsRecovering(this Server server, ServerErrorCode? code, string message)
         {
-            var methodInfo = typeof(Server).GetMethod(nameof(IsRecovering), BindingFlags.NonPublic | BindingFlags.Instance);
-            return (bool)methodInfo.Invoke(server, new object[] { code, message });
+            return (bool)Reflector.Invoke(server, nameof(IsRecovering), code, message);
         }
 
         public static bool ShouldInvalidateServer(this Server server,

@@ -30,6 +30,7 @@ namespace MongoDB.Driver
         Interrupted = 11601,
         InterruptedAtShutdown = 11600,
         InterruptedDueToReplStateChange = 11602,
+        LegacyNotPrimary = 10058,
         MaxTimeMSExpired = 50,
         NamespaceNotFound = 26,
         NetworkTimeout = 89,

@@ -73,6 +73,7 @@ namespace MongoDB.Driver.Core.Operations
                 ServerErrorCode.PrimarySteppedDown,
                 ServerErrorCode.ExceededTimeLimit,
                 ServerErrorCode.SocketException,
+                ServerErrorCode.LegacyNotPrimary,
                 ServerErrorCode.NotMaster,
                 ServerErrorCode.InterruptedAtShutdown,
                 ServerErrorCode.InterruptedDueToReplStateChange,
@@ -208,6 +209,7 @@ namespace MongoDB.Driver.Core.Operations
                     {
                         case ServerErrorCode.InterruptedAtShutdown:
                         case ServerErrorCode.InterruptedDueToReplStateChange:
+                        case ServerErrorCode.LegacyNotPrimary:
                         case ServerErrorCode.NotMaster:
                         case ServerErrorCode.NotMasterNoSlaveOk:
                         case ServerErrorCode.NotMasterOrSecondary:
