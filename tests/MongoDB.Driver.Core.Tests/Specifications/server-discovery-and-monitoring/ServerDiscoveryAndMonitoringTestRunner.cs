@@ -84,8 +84,7 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
                 case "command":
                     var response = applicationError["response"].AsBsonDocument;
                     var command = new BsonDocument("Link", "start!");
-                    simulatedException = ExceptionMapper.MapNotPrimaryOrNodeIsRecovering(connectionId, command, response, "errmsg");
-                    Ensure.IsNotNull(simulatedException, nameof(simulatedException));
+                    simulatedException = ExceptionMapper.MapNotPrimaryOrNodeIsRecovering(connectionId, command, response, "errmsg"); // can return null
                     break;
                 case "network":
                     {
@@ -104,24 +103,33 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
             }
 
             var mockConnection = new Mock<IConnectionHandle>();
+
             var isMasterResult = new IsMasterResult(new BsonDocument { { "compressors", new BsonArray() } });
             var serverVersion = WireVersionHelper.MapWireVersionToServerVersion(maxWireVersion);
             var buildInfoResult = new BuildInfoResult(new BsonDocument { { "version", serverVersion } });
-            mockConnection.SetupGet(c => c.Description)
+            mockConnection
+                .SetupGet(c => c.Description)
                 .Returns(new ConnectionDescription(connectionId, isMasterResult, buildInfoResult));
+
             var generation = applicationError.Contains("generation") ? applicationError["generation"].AsInt32 : 0;
-            mockConnection.SetupGet(c => c.Generation).Returns(generation);
-            var when = applicationError["when"].AsString;
-            switch (when)
+            mockConnection
+                .SetupGet(c => c.Generation)
+                .Returns(generation);
+
+            if (simulatedException != null)
             {
-                case "beforeHandshakeCompletes":
-                    server.HandleBeforeHandshakeCompletesException(mockConnection.Object, simulatedException);
-                    break;
-                case "afterHandshakeCompletes":
-                    server.HandleChannelException(mockConnection.Object, simulatedException);
-                    break;
-                default:
-                    throw new ArgumentException($"Unsupported value of {when} for when.");
+                var when = applicationError["when"].AsString;
+                switch (when)
+                {
+                    case "beforeHandshakeCompletes":
+                        server.HandleBeforeHandshakeCompletesException(mockConnection.Object, simulatedException);
+                        break;
+                    case "afterHandshakeCompletes":
+                        server.HandleChannelException(mockConnection.Object, simulatedException);
+                        break;
+                    default:
+                        throw new ArgumentException($"Unsupported value of {when} for when.");
+                }
             }
         }
 
