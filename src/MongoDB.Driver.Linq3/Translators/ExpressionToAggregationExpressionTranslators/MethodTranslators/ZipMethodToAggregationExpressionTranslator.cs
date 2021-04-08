@@ -52,11 +52,11 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                     input: AstExpression.Zip(new[] { firstTranslation.Ast, secondTranslation.Ast }),
                     @as: "z__",
                     @in: AstExpression.Let(
-                        vars: new[]
-                        {
-                            new AstComputedField(resultSelectorParameter1.Name, AstExpression.ArrayElemAt(AstExpression.Field("$z__"), 0)),
-                            new AstComputedField(resultSelectorParameter2.Name, AstExpression.ArrayElemAt(AstExpression.Field("$z__"), 1))
-                        },
+                        vars: AstExpression.ComputedFields
+                        (
+                            (resultSelectorParameter1.Name, AstExpression.ArrayElemAt(AstExpression.Field("$z__"), 0)),
+                            (resultSelectorParameter2.Name, AstExpression.ArrayElemAt(AstExpression.Field("$z__"), 1))
+                        ),
                         @in: resultSelectorTranslation.Ast));
                 var serializer = IEnumerableSerializer.Create(resultSelectorTranslation.Serializer);
 
