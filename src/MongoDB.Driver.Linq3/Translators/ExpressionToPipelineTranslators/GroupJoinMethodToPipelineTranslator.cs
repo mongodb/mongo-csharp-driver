@@ -41,8 +41,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                 var outerSerializer = pipeline.OutputSerializer;
 
                 var wrapOuterStage = AstStage.Project(
-                    new AstProjectStageComputedFieldSpecification(AstExpression.ComputedField("_outer", AstExpression.Field("$ROOT"))),
-                    new AstProjectStageExcludeIdSpecification());
+                    AstProject.Set("_outer", AstExpression.Field("$ROOT")),
+                    AstProject.ExcludeId());
                 var wrappedOuterSerializer = WrappedValueSerializer.Create("_outer", outerSerializer);
 
                 var innerExpression = arguments[1];
@@ -70,7 +70,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                     .WithSymbol(outerParameter, outerSymbol)
                     .WithSymbol(innerParameter, innerSymbol);
                 var resultSelectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(resultSelectorContext, resultSelectorLambda.Body);
-                var (projectStage, newOutputSerializer) = ProjectionHelper.CreateProjectStage(pipeline, resultSelectorTranslation);
+                var (projectStage, newOutputSerializer) = ProjectionHelper.CreateProjectStage(resultSelectorTranslation);
 
                 pipeline.AddStages(
                     newOutputSerializer,

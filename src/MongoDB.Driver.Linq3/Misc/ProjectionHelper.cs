@@ -21,33 +21,26 @@ using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Ast.Stages;
 using MongoDB.Driver.Linq3.Serializers;
 using MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslators;
-using MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators;
 
 namespace MongoDB.Driver.Linq3.Misc
 {
     public static class ProjectionHelper
     {
         // public static methods
-        public static void AddProjectStage(Pipeline pipeline, AggregationExpression expression)
-        {
-            var (projectStage, newOutputSerializer) = CreateProjectStage(pipeline, expression);
-            pipeline.AddStages(newOutputSerializer, projectStage);
-        }
-
-        public static (AstProjectStage, IBsonSerializer) CreateProjectStage(Pipeline pipeline, AggregationExpression expression)
+        public static (AstProjectStage, IBsonSerializer) CreateProjectStage(AggregationExpression expression)
         {
             if (expression.Ast.NodeType == AstNodeType.ComputedDocumentExpression)
             {
-                return CreateComputedDocumentProjectStage(pipeline, expression);
+                return CreateComputedDocumentProjectStage(expression);
             }
             else
             {
-                return CreateWrappedValueProjectStage(pipeline, expression);
+                return CreateWrappedValueProjectStage(expression);
             }
         }
 
         // private static methods
-        private static (AstProjectStage, IBsonSerializer) CreateComputedDocumentProjectStage(Pipeline pipeline, AggregationExpression expression)
+        private static (AstProjectStage, IBsonSerializer) CreateComputedDocumentProjectStage(AggregationExpression expression)
         {
             var computedDocument = (AstComputedDocumentExpression)expression.Ast;
 
@@ -56,21 +49,23 @@ namespace MongoDB.Driver.Linq3.Misc
             var isIdProjected = false;
             foreach (var computedField in computedDocument.Fields)
             {
-                var projectedField = computedField;
-                if (computedField.Value is AstConstantExpression constantExpression)
+                var name = computedField.Name;
+                var value = computedField.Value;
+
+                if (value is AstConstantExpression astConstantExpression)
                 {
-                    if (ValueNeedsToBeQuoted(constantExpression.Value))
+                    if (ValueNeedsToBeQuoted(astConstantExpression.Value))
                     {
-                        projectedField = AstExpression.ComputedField(computedField.Name, AstExpression.Literal(constantExpression));
+                        value = AstExpression.Literal(value);
                     }
                 }
-                specifications.Add(new AstProjectStageComputedFieldSpecification(projectedField));
+                specifications.Add(AstProject.Set(name, value));
                 isIdProjected |= computedField.Name == "_id";
             }
 
             if (!isIdProjected)
             {
-                specifications.Add(new AstProjectStageExcludeIdSpecification());
+                specifications.Add(AstProject.ExcludeId());
             }
 
             var projectStage = AstStage.Project(specifications);
@@ -94,13 +89,13 @@ namespace MongoDB.Driver.Linq3.Misc
             }
         }
 
-        private static (AstProjectStage, IBsonSerializer) CreateWrappedValueProjectStage(Pipeline pipeline, AggregationExpression expression)
+        private static (AstProjectStage, IBsonSerializer) CreateWrappedValueProjectStage(AggregationExpression expression)
         {
             var wrappedValueSerializer = WrappedValueSerializer.Create(expression.Serializer);
             var projectStage =
                 AstStage.Project(
-                    new AstProjectStageComputedFieldSpecification(new Ast.AstComputedField("_v", expression.Ast)),
-                    new AstProjectStageExcludeIdSpecification());
+                    AstProject.Set("_v", expression.Ast),
+                    AstProject.ExcludeId());
 
             return (projectStage, wrappedValueSerializer);
         }

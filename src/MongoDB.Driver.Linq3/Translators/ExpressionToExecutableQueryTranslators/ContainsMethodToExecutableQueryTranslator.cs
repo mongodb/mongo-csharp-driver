@@ -57,8 +57,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                         wrappedValueSerializer,
                         //BsonDocument.Parse("{ $project : { _id : 0, _v : \"$$ROOT\" } }"));
                         AstStage.Project(
-                            new AstProjectStageExcludeFieldSpecification("_id"),
-                            new AstProjectStageComputedFieldSpecification(AstExpression.ComputedField("_v", AstExpression.Field("$ROOT")))));
+                            AstProject.ExcludeId(),
+                            AstProject.Set("_v", AstExpression.Field("$ROOT"))));
                 }
 
                 var itemValue = ((ConstantExpression)item).Value;
@@ -73,8 +73,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                     AstStage.Match(filter),
                     AstStage.Limit(1),
                     AstStage.Project(
-                        new AstProjectStageExcludeFieldSpecification("_id"),
-                        new AstProjectStageComputedFieldSpecification(AstExpression.ComputedField("_v", BsonNull.Value))));
+                        AstProject.ExcludeId(),
+                        AstProject.Set("_v", BsonNull.Value)));
                 return new ExecutableQuery<TDocument, string, bool>(
                     provider.Collection,
                     provider.Options,
