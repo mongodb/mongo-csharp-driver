@@ -21,26 +21,26 @@ namespace MongoDB.Driver.Linq3.Ast
 {
     public sealed class AstComputedField
     {
-        private readonly AstExpression _expression;
         private readonly string _name;
+        private readonly AstExpression _value;
 
-        public AstComputedField(string name, AstExpression expression)
+        public AstComputedField(string name, AstExpression value)
         {
             _name = Ensure.IsNotNull(name, nameof(name));
-            _expression = Ensure.IsNotNull(expression, nameof(expression));
+            _value = Ensure.IsNotNull(value, nameof(value));
         }
 
-        public AstExpression Expression => _expression;
         public string Name => _name;
+        public AstExpression Value => _value;
 
         public BsonElement Render()
         {
-            return new BsonElement(_name, _expression.Render());
+            return new BsonElement(_name, _value.Render());
         }
 
         public override string ToString()
         {
-            return $"\"{_name}\" : {_expression.Render().ToJson()}";
+            return $"\"{_name}\" : {_value.Render().ToJson()}";
         }
     }
 }

@@ -336,7 +336,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                     outputWrappedValueSerializer,
                     new AstGroupStage(
                         id: BsonNull.Value,
-                        new AstComputedField("_v", AstExpression.StdDev(stdDevOperator, arg))),
+                        AstExpression.ComputedField("_v", AstExpression.StdDev(stdDevOperator, arg))),
                     new AstProjectStage(new AstProjectStageExcludeIdSpecification()));
 
                 var finalizer = method.IsOneOf(__standardDeviationNullableMethods) ? __singleOrDefaultFinalizer : __singleFinalizer;

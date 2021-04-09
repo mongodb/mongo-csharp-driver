@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                     }
                     else
                     {
-                        maxArgument = AstExpression.ComputedDocument(new[] { new AstComputedField("_v", selectorTranslation.Ast) });
+                        maxArgument = AstExpression.ComputedDocument(new[] { AstExpression.ComputedField("_v", selectorTranslation.Ast) });
                         maxSerializer = WrappedValueSerializer.Create(selectorTranslation.Serializer);
                     }
                 }
@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                     maxSerializer,
                     new AstGroupStage(
                         id: BsonNull.Value,
-                        fields: new AstComputedField("_max", AstExpression.Max(maxArgument))),
+                        fields: AstExpression.ComputedField("_max", AstExpression.Max(maxArgument))),
                     new AstReplaceRootStage(AstExpression.Field("_max")));
 
                 return new ExecutableQuery<TDocument, TOutput, TOutput>(

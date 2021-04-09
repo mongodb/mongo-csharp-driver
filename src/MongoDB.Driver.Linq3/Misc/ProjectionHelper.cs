@@ -57,11 +57,11 @@ namespace MongoDB.Driver.Linq3.Misc
             foreach (var computedField in computedDocument.Fields)
             {
                 var projectedField = computedField;
-                if (computedField.Expression is AstConstantExpression constantExpression)
+                if (computedField.Value is AstConstantExpression constantExpression)
                 {
                     if (ValueNeedsToBeQuoted(constantExpression.Value))
                     {
-                        projectedField = new AstComputedField(computedField.Name, AstExpression.Literal(constantExpression));
+                        projectedField = AstExpression.ComputedField(computedField.Name, AstExpression.Literal(constantExpression));
                     }
                 }
                 specifications.Add(new AstProjectStageComputedFieldSpecification(projectedField));

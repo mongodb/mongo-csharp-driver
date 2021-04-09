@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                         resultWrappedValueSerializer,
                         new AstProjectStage(
                             new AstProjectStageComputedFieldSpecification(
-                                new AstComputedField(
+                                AstExpression.ComputedField(
                                     "_v",
                                     AstExpression.Map(
                                         input: collectionSelectorTranslation.Ast,

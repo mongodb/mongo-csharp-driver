@@ -145,7 +145,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                         return ast;
                     }
 
-                    vars.Add(new AstComputedField(name, ast));
+                    vars.Add(AstExpression.ComputedField(name, ast));
                     return AstExpression.Field("$" + name);
                 }
             }
