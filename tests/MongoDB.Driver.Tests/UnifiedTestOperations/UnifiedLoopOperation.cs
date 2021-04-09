@@ -19,6 +19,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
@@ -128,19 +129,35 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         private bool TryHandleException(Exception ex)
         {
-            // If the driver's unified test format does not distinguish between errors and failures, and reports one but not the other,
-            // the workload executor MUST set the non-reported entry to the empty array.
-            if (_storeFailuresAsEntity != null)
+            if (ex is AssertionException)
             {
-                _failureDescriptionDocuments.Add(CreateDocumentFromException(ex));
-            }
-            else if (_storeErrorsAsEntity != null)
-            {
-                _errorDescriptionDocuments.Add(CreateDocumentFromException(ex));
+                if (_storeFailuresAsEntity != null)
+                {
+                    _failureDescriptionDocuments.Add(CreateDocumentFromException(ex));
+                }
+                else if (_storeErrorsAsEntity != null)
+                {
+                    _errorDescriptionDocuments.Add(CreateDocumentFromException(ex));
+                }
+                else
+                {
+                    return false;
+                }
             }
             else
-            {
-                return false;
+            { 
+                if (_storeErrorsAsEntity != null)
+                {
+                    _errorDescriptionDocuments.Add(CreateDocumentFromException(ex));
+                }
+                else if (_storeFailuresAsEntity != null)
+                {
+                    _failureDescriptionDocuments.Add(CreateDocumentFromException(ex));
+                }
+                else
+                {
+                    return false;
+                }
             }
 
             return true;
