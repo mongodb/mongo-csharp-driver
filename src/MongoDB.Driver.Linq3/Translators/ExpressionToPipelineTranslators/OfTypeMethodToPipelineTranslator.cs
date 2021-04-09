@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
 
                 pipeline.AddStages(
                     actualSerializer,
-                    new AstMatchStage(filter));
+                    AstStage.Match(filter));
 
                 return pipeline;
             }

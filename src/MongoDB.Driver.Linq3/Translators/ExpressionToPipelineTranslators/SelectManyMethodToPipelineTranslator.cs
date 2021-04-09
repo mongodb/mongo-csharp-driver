@@ -47,10 +47,10 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
 
                 pipeline.AddStages(
                     resultWrappedValueSerializer,
-                    new AstProjectStage(
+                    AstStage.Project(
                         new AstProjectStageComputedFieldSpecification(new Ast.AstComputedField("_v", selectorTranslation.Ast)),
                         new AstProjectStageExcludeIdSpecification()),
-                    new AstUnwindStage("_v"));
+                    AstStage.Unwind("_v"));
 
                 return pipeline;
             }
@@ -73,10 +73,10 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
 
                     pipeline.AddStages(
                         resultWrappedValueSerializer,
-                        new AstProjectStage(
+                        AstStage.Project(
                             new AstProjectStageComputedFieldSpecification(new Ast.AstComputedField("_v", collectionSelectorTranslation.Ast)),
                             new AstProjectStageExcludeIdSpecification()),
-                        new AstUnwindStage("_v"));
+                        AstStage.Unwind("_v"));
                 }
                 else
                 {
@@ -91,7 +91,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
 
                     pipeline.AddStages(
                         resultWrappedValueSerializer,
-                        new AstProjectStage(
+                        AstStage.Project(
                             new AstProjectStageComputedFieldSpecification(
                                 AstExpression.ComputedField(
                                     "_v",
@@ -100,7 +100,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                                         @as: resultSelectorCollectionItemParameterExpression.Name,
                                         @in: resultSelectorTranslation.Ast))),
                             new AstProjectStageExcludeIdSpecification()),
-                        new AstUnwindStage("_v"));
+                        AstStage.Unwind("_v"));
                 }
 
                 return pipeline;

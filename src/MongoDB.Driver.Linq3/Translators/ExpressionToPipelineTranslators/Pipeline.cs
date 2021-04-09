@@ -25,24 +25,24 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
     {
         // private fields
         private IBsonSerializer _outputSerializer;
-        private readonly List<AstPipelineStage> _stages;
+        private readonly List<AstStage> _stages;
 
         // constructors
         public Pipeline(IBsonSerializer inputSerializer)
         {
-            _stages = new List<AstPipelineStage>();
+            _stages = new List<AstStage>();
             _outputSerializer = inputSerializer;
         }
 
         // public properties
         public IBsonSerializer OutputSerializer => _outputSerializer;
 
-        public IReadOnlyList<AstPipelineStage> Stages => _stages.AsReadOnly();
+        public IReadOnlyList<AstStage> Stages => _stages.AsReadOnly();
 
         // public methods
         public void AddStages(
             IBsonSerializer newOutputSerializer,
-            params AstPipelineStage[] stages)
+            params AstStage[] stages)
         {
             _stages.AddRange(stages);
             _outputSerializer = newOutputSerializer;
@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
 
         public void ReplaceLastStage(
             IBsonSerializer newOutputSerializer,
-            AstPipelineStage newLastStage)
+            AstStage newLastStage)
         {
             _stages[_stages.Count - 1] = newLastStage;
             _outputSerializer = newOutputSerializer;

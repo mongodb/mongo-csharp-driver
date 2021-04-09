@@ -91,10 +91,10 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
 
                 pipeline.AddStages(
                     minSerializer,
-                    new AstGroupStage(
+                    AstStage.Group(
                         id: BsonNull.Value,
                         fields: AstExpression.ComputedField("_min", AstExpression.Min(minArgument))),
-                    new AstReplaceRootStage(AstExpression.Field("_min")));
+                    AstStage.ReplaceRoot(AstExpression.Field("_min")));
 
                 return new ExecutableQuery<TDocument, TOutput, TOutput>(
                     provider.Collection,

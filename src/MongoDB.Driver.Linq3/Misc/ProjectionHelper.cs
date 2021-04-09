@@ -73,7 +73,7 @@ namespace MongoDB.Driver.Linq3.Misc
                 specifications.Add(new AstProjectStageExcludeIdSpecification());
             }
 
-            var projectStage = new AstProjectStage(specifications);
+            var projectStage = AstStage.Project(specifications);
 
             return (projectStage, expression.Serializer);
 
@@ -98,7 +98,7 @@ namespace MongoDB.Driver.Linq3.Misc
         {
             var wrappedValueSerializer = WrappedValueSerializer.Create(expression.Serializer);
             var projectStage =
-                new AstProjectStage(
+                AstStage.Project(
                     new AstProjectStageComputedFieldSpecification(new Ast.AstComputedField("_v", expression.Ast)),
                     new AstProjectStageExcludeIdSpecification());
 

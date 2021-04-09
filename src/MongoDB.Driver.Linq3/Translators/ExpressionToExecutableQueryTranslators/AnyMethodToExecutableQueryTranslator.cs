@@ -74,13 +74,13 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
 
                     pipeline.AddStages(
                         pipeline.OutputSerializer,
-                        new AstMatchStage(filterTranslation));
+                        AstStage.Match(filterTranslation));
                 }
 
                 pipeline.AddStages(
                     __outputSerializer,
-                    new AstLimitStage(1),
-                    new AstProjectStage(
+                    AstStage.Limit(1),
+                    AstStage.Project(
                         new AstProjectStageExcludeFieldSpecification("_id"),
                         new AstProjectStageComputedFieldSpecification(new Ast.AstComputedField("_v", BsonNull.Value))));
 

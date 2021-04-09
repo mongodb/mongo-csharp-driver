@@ -23,15 +23,15 @@ namespace MongoDB.Driver.Linq3.Ast
 {
     public sealed class AstPipeline : AstNode
     {
-        private readonly IReadOnlyList<AstPipelineStage> _stages;
+        private readonly IReadOnlyList<AstStage> _stages;
 
-        public AstPipeline(IEnumerable<AstPipelineStage> stages)
+        public AstPipeline(IEnumerable<AstStage> stages)
         {
             _stages = Ensure.IsNotNull(stages, nameof(stages)).ToList().AsReadOnly();
         }
 
         public override AstNodeType NodeType => AstNodeType.Pipeline;
-        public IReadOnlyList<AstPipelineStage> Stages => _stages;
+        public IReadOnlyList<AstStage> Stages => _stages;
 
         public override BsonValue Render()
         {

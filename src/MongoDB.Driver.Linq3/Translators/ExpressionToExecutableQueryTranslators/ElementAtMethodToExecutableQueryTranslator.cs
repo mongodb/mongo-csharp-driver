@@ -43,8 +43,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                     pipeline.OutputSerializer,
                     //new BsonDocument("$skip", indexValue),
                     //new BsonDocument("$limit", 1));
-                    new AstSkipStage(indexValue),
-                    new AstLimitStage(1));
+                    AstStage.Skip(indexValue),
+                    AstStage.Limit(1));
 
                 return new ExecutableQuery<TDocument, TOutput, TOutput>(
                     provider.Collection,

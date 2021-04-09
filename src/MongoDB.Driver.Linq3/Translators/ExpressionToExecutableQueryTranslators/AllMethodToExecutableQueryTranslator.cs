@@ -58,8 +58,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                     __outputSerializer,
                     //new BsonDocument("$limit", 1),
                     //new BsonDocument("$project", new BsonDocument { { "_id", 0 }, { "_v", BsonNull.Value } }));
-                    new AstLimitStage(1),
-                    new AstProjectStage(
+                    AstStage.Limit(1),
+                    AstStage.Project(
                         new AstProjectStageExcludeFieldSpecification("_id"),
                         new AstProjectStageComputedFieldSpecification(AstExpression.ComputedField("_v", BsonNull.Value))));
 

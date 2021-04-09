@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Linq3.Ast.Stages
         public override BsonValue Render() => new BsonDocument("$meta", "textScore");
     }
 
-    public sealed class AstSortStage : AstPipelineStage
+    public sealed class AstSortStage : AstStage
     {
         private readonly IReadOnlyList<AstSortStageField> _fields;
 

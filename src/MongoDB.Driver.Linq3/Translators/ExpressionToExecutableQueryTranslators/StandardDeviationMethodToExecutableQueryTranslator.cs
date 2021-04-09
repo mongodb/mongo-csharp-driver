@@ -334,10 +334,10 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
 
                 pipeline.AddStages(
                     outputWrappedValueSerializer,
-                    new AstGroupStage(
+                    AstStage.Group(
                         id: BsonNull.Value,
                         AstExpression.ComputedField("_v", AstExpression.StdDev(stdDevOperator, arg))),
-                    new AstProjectStage(new AstProjectStageExcludeIdSpecification()));
+                    AstStage.Project(new AstProjectStageExcludeIdSpecification()));
 
                 var finalizer = method.IsOneOf(__standardDeviationNullableMethods) ? __singleOrDefaultFinalizer : __singleFinalizer;
 

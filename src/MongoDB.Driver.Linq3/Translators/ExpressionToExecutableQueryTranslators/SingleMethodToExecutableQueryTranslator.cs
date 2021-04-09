@@ -83,12 +83,12 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                     var filter = ExpressionToFilterTranslator.TranslateLambda(context, predicateLambda, parameterSerializer: pipeline.OutputSerializer);
                     pipeline.AddStages(
                         pipeline.OutputSerializer,
-                        new AstMatchStage(filter));
+                        AstStage.Match(filter));
                 }
 
                 pipeline.AddStages(
                     pipeline.OutputSerializer,
-                    new AstLimitStage(2));
+                    AstStage.Limit(2));
 
                 var finalizer = method.IsOneOf(__singleOrDefaultMethods) ? __singleOrDefaultFinalizer : __singleFinalizer;
 

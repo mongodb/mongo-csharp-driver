@@ -18,7 +18,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Stages
 {
-    public sealed class AstLimitStage : AstPipelineStage
+    public sealed class AstLimitStage : AstStage
     {
         private readonly long _limit;
 
@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Linq3.Ast.Stages
             _limit = Ensure.IsGreaterThanZero(limit, nameof(limit));
         }
 
-        public long Limit => _limit;
+        public new long Limit => _limit;
         public override AstNodeType NodeType => AstNodeType.LimitStage;
 
         public override BsonValue Render()

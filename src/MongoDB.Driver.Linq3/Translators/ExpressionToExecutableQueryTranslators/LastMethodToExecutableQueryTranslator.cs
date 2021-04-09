@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                     pipeline.OutputSerializer,
                     //new BsonDocument("$group", new BsonDocument { { "_id", BsonNull.Value }, { "_last", new BsonDocument("$last", "$$ROOT") } }),
                     //new BsonDocument("$replaceRoot", new BsonDocument("newRoot", "$_last")));
-                    new AstGroupStage(
+                    AstStage.Group(
                         id: BsonNull.Value,
                         fields: AstExpression.ComputedField("_last", AstExpression.Last(AstExpression.Field("$ROOT")))));
 

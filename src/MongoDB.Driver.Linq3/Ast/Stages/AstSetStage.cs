@@ -19,7 +19,7 @@ using System.Linq;
 
 namespace MongoDB.Driver.Linq3.Ast.Stages
 {
-    public sealed class AstSetStage : AstPipelineStage
+    public sealed class AstSetStage : AstStage
     {
         private readonly IReadOnlyList<AstComputedField> _fields;
 

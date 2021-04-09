@@ -18,7 +18,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Stages
 {
-    public sealed class AstGeoNearStage : AstPipelineStage
+    public sealed class AstGeoNearStage : AstStage
     {
         private readonly string _distanceField;
         private readonly double? _distanceMultiplier;

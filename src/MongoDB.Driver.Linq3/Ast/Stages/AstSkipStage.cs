@@ -18,7 +18,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Stages
 {
-    public sealed class AstSkipStage : AstPipelineStage
+    public sealed class AstSkipStage : AstStage
     {
         private readonly long _skip;
 
@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Linq3.Ast.Stages
         }
 
         public override AstNodeType NodeType => AstNodeType.LimitStage;
-        public long Skip => _skip;
+        public new long Skip => _skip;
 
         public override BsonValue Render()
         {
