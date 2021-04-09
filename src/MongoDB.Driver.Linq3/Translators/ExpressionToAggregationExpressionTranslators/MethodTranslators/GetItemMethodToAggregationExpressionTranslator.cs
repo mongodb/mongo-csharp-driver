@@ -36,23 +36,13 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 return new AggregationExpression(expression, ast, serializer);
             }
 
-            if (IsDictionaryGetItemMethodWithStringIndex(expression, out sourceExpression, out indexExpression))
+            if (IsDictionaryGetItemMethodWithStringKey(expression, out sourceExpression, out var keyExpression))
             {
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
-                if (indexExpression is ConstantExpression indexConstantExpression)
+                if (keyExpression is ConstantExpression keyConstantExpression)
                 {
-                    var keyValue = (string)indexConstantExpression.Value;
-                    AstExpression ast;
-                    if (sourceTranslation.Ast is AstFieldExpression sourceFieldAst)
-                    {
-                        ast = AstExpression.SubField(sourceFieldAst, keyValue);
-                    }
-                    else
-                    {
-                        ast = AstExpression.Let(
-                            var: AstExpression.ComputedField("this", sourceTranslation.Ast),
-                            @in: AstExpression.Field($"$this.{keyValue}"));
-                    }
+                    var key = (string)keyConstantExpression.Value;
+                    var ast = AstExpression.SubField(sourceTranslation.Ast, key);
                     var valueSerializer = GetDictionaryValueSerializer(sourceTranslation.Serializer);
 
                     return new AggregationExpression(expression, ast, valueSerializer);
@@ -100,7 +90,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             return false;
         }
 
-        private static bool IsDictionaryGetItemMethodWithStringIndex(MethodCallExpression expression, out Expression sourceExpression, out Expression indexExpression)
+        private static bool IsDictionaryGetItemMethodWithStringKey(MethodCallExpression expression, out Expression sourceExpression, out Expression keyExpression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -108,7 +98,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             if (!method.IsStatic && method.Name == "get_Item")
             {
                 sourceExpression = expression.Object;
-                indexExpression = arguments[0];
+                keyExpression = arguments[0];
 
                 if (sourceExpression.Type.TryGetIDictionaryGenericInterface(out var sourceDictionaryInterface))
                 {
@@ -117,7 +107,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                     var sourceValueType = sourceTypeParameters[1];
                     if (sourceKeyType == typeof(string) && expression.Type == sourceValueType)
                     {
-                        if (indexExpression.Type == typeof(string))
+                        if (keyExpression.Type == typeof(string))
                         {
                             return true;
                         }
@@ -126,7 +116,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             }
 
             sourceExpression = null;
-            indexExpression = null;
+            keyExpression = null;
             return false;
         }
     }

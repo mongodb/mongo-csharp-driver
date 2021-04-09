@@ -55,20 +55,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             }
 
             var fieldInfo = DocumentSerializerHelper.GetFieldInfo(containerTranslation.Serializer, member.Name);
-            if (containerTranslation.Ast is AstFieldExpression fieldExpression)
-            {
-                var ast = AstExpression.SubField(fieldExpression, fieldInfo.ElementName);
-                return new AggregationExpression(expression, ast, fieldInfo.Serializer);
-            }
-            else
-            {
-                var ast = AstExpression.Let(
-                    AstExpression.ComputedField("this", containerTranslation.Ast),
-                    AstExpression.Field($"$this.{fieldInfo.ElementName}"));
-                return new AggregationExpression(expression, ast, fieldInfo.Serializer);
-            }
-
-            throw new ExpressionNotSupportedException(expression);
+            var ast = AstExpression.SubField(containerTranslation.Ast, fieldInfo.ElementName);
+            return new AggregationExpression(expression, ast, fieldInfo.Serializer);
         }
 
         private static bool TryTranslateCollectionCountProperty(MemberExpression expression, AggregationExpression container, MemberInfo memberInfo, out AggregationExpression result)

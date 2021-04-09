@@ -34,5 +34,17 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
         {
             return "$" + _path;
         }
+
+        public AstFieldExpression SubField(string subFieldName)
+        {
+            if (_path == "$CURRENT")
+            {
+                return new AstFieldExpression(subFieldName);
+            }
+            else
+            {
+                return new AstFieldExpression(_path + "." + subFieldName);
+            }
+        }
     }
 }
