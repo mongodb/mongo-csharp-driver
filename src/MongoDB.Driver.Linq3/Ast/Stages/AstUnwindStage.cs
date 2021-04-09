@@ -18,7 +18,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Stages
 {
-    public sealed class AstUnwindStage : AstPipelineStage
+    public sealed class AstUnwindStage : AstStage
     {
         private readonly string _field;
         private readonly string _includeArrayIndex;

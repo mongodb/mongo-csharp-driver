@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Linq3.Ast.Stages
         }
     }
 
-    public sealed class AstFacetStage : AstPipelineStage
+    public sealed class AstFacetStage : AstStage
     {
         private readonly IReadOnlyList<AstFacetStageFacet> _facets;
 

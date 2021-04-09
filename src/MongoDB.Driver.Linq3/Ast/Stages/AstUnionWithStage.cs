@@ -18,7 +18,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Stages
 {
-    public sealed class AstUnionWithStage : AstPipelineStage
+    public sealed class AstUnionWithStage : AstStage
     {
         private readonly string _collection;
         private readonly AstPipeline _pipeline;

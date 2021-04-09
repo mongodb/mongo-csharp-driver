@@ -18,7 +18,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Stages
 {
-    public sealed class AstSampleStage : AstPipelineStage
+    public sealed class AstSampleStage : AstStage
     {
         private readonly long _size;
 

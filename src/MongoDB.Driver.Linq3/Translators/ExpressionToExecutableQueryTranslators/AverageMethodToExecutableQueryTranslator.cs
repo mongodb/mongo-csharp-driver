@@ -141,10 +141,10 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
 
                 pipeline.AddStages(
                     outputWrappedValueSerializer,
-                    new AstGroupStage(
+                    AstStage.Group(
                         id: BsonNull.Value,
                         fields: AstExpression.ComputedField("_v", AstUnaryExpression.Avg(avgExpression))),
-                    new AstProjectStage(new AstProjectStageExcludeIdSpecification()));
+                    AstStage.Project(new AstProjectStageExcludeIdSpecification()));
 
                 return new ExecutableQuery<TDocument, TOutput, TOutput>(
                     provider.Collection,

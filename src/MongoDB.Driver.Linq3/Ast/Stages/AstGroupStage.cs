@@ -21,7 +21,7 @@ using System.Linq;
 
 namespace MongoDB.Driver.Linq3.Ast.Stages
 {
-    public sealed class AstGroupStage : AstPipelineStage
+    public sealed class AstGroupStage : AstStage
     {
         private readonly IReadOnlyList<AstComputedField> _fields;
         private readonly AstExpression _id;
@@ -33,13 +33,6 @@ namespace MongoDB.Driver.Linq3.Ast.Stages
             _id = Ensure.IsNotNull(id, nameof(id));
             _fields = Ensure.IsNotNull(fields, nameof(fields)).ToList().AsReadOnly();
             Ensure.That(!_fields.Any(f => f.Name == "_id"), "An accumulator field of a $group stage cannot be named \"_id\".", nameof(fields));
-        }
-
-        public AstGroupStage(
-            AstExpression id,
-            params AstComputedField[] fields)
-            : this(id, (IEnumerable<AstComputedField>)fields)
-        {
         }
 
         public IReadOnlyList<AstComputedField> Fields => _fields;

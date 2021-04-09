@@ -20,7 +20,7 @@ using System.Linq;
 
 namespace MongoDB.Driver.Linq3.Ast.Stages
 {
-    public sealed class AstUnsetStage : AstPipelineStage
+    public sealed class AstUnsetStage : AstStage
     {
         private IReadOnlyList<string> _fields;
 

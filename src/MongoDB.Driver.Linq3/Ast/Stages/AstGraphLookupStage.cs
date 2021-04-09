@@ -20,7 +20,7 @@ using MongoDB.Driver.Linq3.Ast.Filters;
 
 namespace MongoDB.Driver.Linq3.Ast.Stages
 {
-    public sealed class AstGraphLookupStage : AstPipelineStage
+    public sealed class AstGraphLookupStage : AstStage
     {
         private readonly string _as;
         private readonly string _connectFromField;

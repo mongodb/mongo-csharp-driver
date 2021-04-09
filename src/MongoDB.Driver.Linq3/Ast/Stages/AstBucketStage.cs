@@ -21,7 +21,7 @@ using System.Linq;
 
 namespace MongoDB.Driver.Linq3.Ast.Stages
 {
-    public sealed class AstBucketStage : AstPipelineStage
+    public sealed class AstBucketStage : AstStage
     {
         private readonly IReadOnlyList<BsonValue> _boundaries;
         private readonly BsonValue _default;

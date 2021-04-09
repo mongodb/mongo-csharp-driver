@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Linq3.Ast.Stages
         }
     }
 
-    public sealed class AstCollStatsStage : AstPipelineStage
+    public sealed class AstCollStatsStage : AstStage
     {
         private readonly AstCollStatsStageCount _count;
         private readonly AstCollStatsStageLatencyStats _latencyStats;
@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Linq3.Ast.Stages
             _queryExecStats = queryExecStats; // can be null
         }
 
-        public AstCollStatsStageCount Count => _count;
+        public new AstCollStatsStageCount Count => _count;
         public AstCollStatsStageLatencyStats LatencyStats => _latencyStats;
         public override AstNodeType NodeType => AstNodeType.CollStatsStage;
         public AstCollStatsStageQueryExecStats QueryExecStats => _queryExecStats;

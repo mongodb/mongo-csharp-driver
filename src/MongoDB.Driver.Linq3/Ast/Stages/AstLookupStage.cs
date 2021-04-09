@@ -70,7 +70,7 @@ namespace MongoDB.Driver.Linq3.Ast.Stages
         }
     }
 
-    public sealed class AstLookupStage : AstPipelineStage
+    public sealed class AstLookupStage : AstStage
     {
         private readonly string _as;
         private readonly string _from;
@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Linq3.Ast.Stages
 
         public string As => _as;
         public string From => _from;
-        public AstLookupStageMatch Match => _match;
+        public new AstLookupStageMatch Match => _match;
         public override AstNodeType NodeType => AstNodeType.LookupStage;
 
         public override BsonValue Render()

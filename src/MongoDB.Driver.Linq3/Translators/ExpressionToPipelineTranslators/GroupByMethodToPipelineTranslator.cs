@@ -101,7 +101,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                 var groupingSerializer = IGroupingSerializer.Create(keySerializer, elementSerializer);
                 pipeline.AddStages(
                     groupingSerializer,
-                    new AstGroupStage(
+                    AstStage.Group(
                         id: keySelectorTranslation.Ast,
                         fields: AstExpression.ComputedField("_elements", AstExpression.Push(elementAst))));
 

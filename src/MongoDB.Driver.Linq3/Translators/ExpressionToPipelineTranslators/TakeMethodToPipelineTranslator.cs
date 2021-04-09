@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
 
                     pipeline.AddStages(
                         pipeline.OutputSerializer,
-                        new AstLimitStage(count));
+                        AstStage.Limit(count));
 
                     return pipeline;
                 }

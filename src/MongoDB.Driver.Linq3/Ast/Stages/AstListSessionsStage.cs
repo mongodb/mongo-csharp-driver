@@ -18,7 +18,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Stages
 {
-    public sealed class AstListSessionsStage : AstPipelineStage
+    public sealed class AstListSessionsStage : AstStage
     {
         private readonly BsonDocument _options;
 

@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, outerExpression);
                 var outerSerializer = pipeline.OutputSerializer;
 
-                var wrapOuterStage = new AstProjectStage(
+                var wrapOuterStage = AstStage.Project(
                     new AstProjectStageComputedFieldSpecification(AstExpression.ComputedField("_outer", AstExpression.Field("$ROOT"))),
                     new AstProjectStageExcludeIdSpecification());
                 var wrappedOuterSerializer = WrappedValueSerializer.Create("_outer", outerSerializer);
@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                 var innerKeySelectorLambda = ExpressionHelper.Unquote(arguments[3]);
                 var foreignFieldPath = GetForeignFieldPath(context, innerKeySelectorLambda, innerSerializer);
 
-                var lookupStage = new AstLookupStage(
+                var lookupStage = AstStage.Lookup(
                     from: innerQueryProvider.CollectionName,
                     match: new AstLookupStageEqualityMatch(localFieldPath, foreignFieldPath),
                     @as: "_inner");

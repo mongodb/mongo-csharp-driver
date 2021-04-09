@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Linq3.Ast.Stages
         Fail
     }
 
-    public sealed class AstMergeStage : AstPipelineStage
+    public sealed class AstMergeStage : AstStage
     {
         private readonly string _intoCollection;
         private readonly string _intoDatabase;

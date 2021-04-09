@@ -92,18 +92,13 @@ namespace MongoDB.Driver.Linq3.Ast.Stages
         }
     }
 
-    public sealed class AstProjectStage : AstPipelineStage
+    public sealed class AstProjectStage : AstStage
     {
         private readonly IReadOnlyList<AstProjectStageSpecification> _specifications;
 
         public AstProjectStage(IEnumerable<AstProjectStageSpecification> specifications)
         {
             _specifications = Ensure.IsNotNull(specifications, nameof(specifications)).ToList().AsReadOnly();
-        }
-
-        public AstProjectStage(params AstProjectStageSpecification[] specifications)
-            : this((IEnumerable<AstProjectStageSpecification>)specifications)
-        {
         }
 
         public override AstNodeType NodeType => AstNodeType.ProjectStage;

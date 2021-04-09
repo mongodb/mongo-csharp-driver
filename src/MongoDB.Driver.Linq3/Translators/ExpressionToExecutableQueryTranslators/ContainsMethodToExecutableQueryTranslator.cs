@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                     pipeline.AddStages(
                         wrappedValueSerializer,
                         //BsonDocument.Parse("{ $project : { _id : 0, _v : \"$$ROOT\" } }"));
-                        new AstProjectStage(
+                        AstStage.Project(
                             new AstProjectStageExcludeFieldSpecification("_id"),
                             new AstProjectStageComputedFieldSpecification(AstExpression.ComputedField("_v", AstExpression.Field("$ROOT")))));
                 }
@@ -70,9 +70,9 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                     //new BsonDocument("$match", serializedWrappedValue),
                     //new BsonDocument("$limit", 1),
                     //new BsonDocument("$project", new BsonDocument { { "_id", 0 }, { "_v", BsonNull.Value } }));
-                    new AstMatchStage(filter),
-                    new AstLimitStage(1),
-                    new AstProjectStage(
+                    AstStage.Match(filter),
+                    AstStage.Limit(1),
+                    AstStage.Project(
                         new AstProjectStageExcludeFieldSpecification("_id"),
                         new AstProjectStageComputedFieldSpecification(AstExpression.ComputedField("_v", BsonNull.Value))));
                 return new ExecutableQuery<TDocument, string, bool>(

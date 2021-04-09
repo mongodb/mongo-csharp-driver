@@ -71,12 +71,12 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                     var filter = ExpressionToFilterTranslator.TranslateLambda(context, predicateLambda, parameterSerializer: pipeline.OutputSerializer);
                     pipeline.AddStages(
                         pipeline.OutputSerializer,
-                        new AstMatchStage(filter));
+                        AstStage.Match(filter));
                 }
 
                 pipeline.AddStages(
                     __wrappedInt32Serializer,
-                    new AstCountStage("_v"));
+                    AstStage.Count("_v"));
 
                 return new ExecutableQuery<TDocument, int, int>(
                     provider.Collection,

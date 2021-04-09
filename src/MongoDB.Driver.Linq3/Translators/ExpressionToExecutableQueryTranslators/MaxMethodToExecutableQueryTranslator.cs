@@ -91,10 +91,10 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
 
                 pipeline.AddStages(
                     maxSerializer,
-                    new AstGroupStage(
+                    AstStage.Group(
                         id: BsonNull.Value,
                         fields: AstExpression.ComputedField("_max", AstExpression.Max(maxArgument))),
-                    new AstReplaceRootStage(AstExpression.Field("_max")));
+                    AstStage.ReplaceRoot(AstExpression.Field("_max")));
 
                 return new ExecutableQuery<TDocument, TOutput, TOutput>(
                     provider.Collection,
