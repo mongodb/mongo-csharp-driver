@@ -117,7 +117,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                         .WithSymbol(keyParameter, keySymbol)
                         .WithSymbol(elementsParameter, elementsSymbol);
                     var resultSelectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(resultSelectContext, resultSelectorLambda.Body);
-                    ProjectionHelper.AddProjectStage(pipeline, resultSelectorTranslation);
+                    var (projectStage, projectionSerializer) = ProjectionHelper.CreateProjectStage(resultSelectorTranslation);
+                    pipeline.AddStages(projectionSerializer, projectStage);
                 }
 
                 return pipeline;

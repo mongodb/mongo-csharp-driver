@@ -15,80 +15,88 @@
 
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Linq3.Ast.Expressions;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace MongoDB.Driver.Linq3.Ast.Stages
 {
+    public static class AstProject
+    {
+        public static AstProjectStageSpecification Exclude(string path)
+        {
+            return new AstProjectStageExcludeFieldSpecification(path);
+        }
+
+        public static AstProjectStageSpecification ExcludeId()
+        {
+            return new AstProjectStageExcludeFieldSpecification("_id");
+        }
+
+        public static AstProjectStageSpecification Include(string path)
+        {
+            return new AstProjectStageIncludeFieldSpecification(path);
+        }
+
+        public static AstProjectStageSpecification Set(string path, AstExpression value)
+        {
+            return new AstProjectStageSetFieldSpecification(path, value);
+        }
+    }
+
     public abstract class AstProjectStageSpecification
     {
         public abstract BsonElement Render();
     }
 
-    public sealed class AstProjectStageComputedFieldSpecification : AstProjectStageSpecification
-    {
-        private readonly AstComputedField _field;
-
-        public AstProjectStageComputedFieldSpecification(AstComputedField field)
-        {
-            _field = Ensure.IsNotNull(field, nameof(field));
-        }
-
-        public override BsonElement Render()
-        {
-            var rendered = _field.Render();
-            switch (rendered.Value.BsonType)
-            {
-                case BsonType.Boolean:
-                case BsonType.Int32:
-                case BsonType.Int64:
-                case BsonType.Double:
-                    rendered = new BsonElement(rendered.Name, new BsonDocument("$literal", rendered.Value));
-                    break;
-            }
-            return rendered;
-        }
-    }
-
     public sealed class AstProjectStageExcludeFieldSpecification : AstProjectStageSpecification
     {
-        private readonly string _field;
+        private readonly string _path;
 
-        public AstProjectStageExcludeFieldSpecification(string field)
+        public AstProjectStageExcludeFieldSpecification(string path)
         {
-            _field = Ensure.IsNotNullOrEmpty(field, nameof(field));
+            _path = Ensure.IsNotNullOrEmpty(path, nameof(path));
         }
 
-        public string Field => _field;
+        public string Path => _path;
 
         public override BsonElement Render()
         {
-            return new BsonElement(_field, 0);
-        }
-    }
-
-    public sealed class AstProjectStageExcludeIdSpecification : AstProjectStageSpecification
-    {
-        public override BsonElement Render()
-        {
-            return new BsonElement("_id", 0);
+            return new BsonElement(_path, 0);
         }
     }
 
     public sealed class AstProjectStageIncludeFieldSpecification : AstProjectStageSpecification
     {
-        private readonly string _field;
+        private readonly string _path;
 
-        public AstProjectStageIncludeFieldSpecification(string field)
+        public AstProjectStageIncludeFieldSpecification(string path)
         {
-            _field = Ensure.IsNotNullOrEmpty(field, nameof(field));
+            _path = Ensure.IsNotNullOrEmpty(path, nameof(path));
         }
 
-        public string Field => _field;
+        public string Path => _path;
 
         public override BsonElement Render()
         {
-            return new BsonElement(_field, 1);
+            return new BsonElement(_path, 1);
+        }
+    }
+
+    public sealed class AstProjectStageSetFieldSpecification : AstProjectStageSpecification
+    {
+        private readonly string _path;
+        private readonly AstExpression _value;
+
+        public AstProjectStageSetFieldSpecification(string path, AstExpression value)
+        {
+            _path = Ensure.IsNotNull(path, nameof(path));
+            _value = Ensure.IsNotNull(value, nameof(value));
+        }
+
+        public override BsonElement Render()
+        {
+            return new BsonElement(_path, _value.Render());
         }
     }
 

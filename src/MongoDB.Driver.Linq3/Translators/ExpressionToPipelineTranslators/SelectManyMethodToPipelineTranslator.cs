@@ -48,8 +48,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                 pipeline.AddStages(
                     resultWrappedValueSerializer,
                     AstStage.Project(
-                        new AstProjectStageComputedFieldSpecification(new Ast.AstComputedField("_v", selectorTranslation.Ast)),
-                        new AstProjectStageExcludeIdSpecification()),
+                        AstProject.Set("_v", selectorTranslation.Ast),
+                        AstProject.ExcludeId()),
                     AstStage.Unwind("_v"));
 
                 return pipeline;
@@ -74,8 +74,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                     pipeline.AddStages(
                         resultWrappedValueSerializer,
                         AstStage.Project(
-                            new AstProjectStageComputedFieldSpecification(new Ast.AstComputedField("_v", collectionSelectorTranslation.Ast)),
-                            new AstProjectStageExcludeIdSpecification()),
+                            AstProject.Set("_v", collectionSelectorTranslation.Ast),
+                            AstProject.ExcludeId()),
                         AstStage.Unwind("_v"));
                 }
                 else
@@ -88,18 +88,16 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                     var resultSelectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(resultSelectorContext, resultSelectorLambdaExpression.Body);
                     var resultValueSerializer = resultSelectorTranslation.Serializer;
                     var resultWrappedValueSerializer = WrappedValueSerializer.Create(resultValueSerializer);
+                    var resultAst = AstExpression.Map(
+                        input: collectionSelectorTranslation.Ast,
+                        @as: resultSelectorCollectionItemParameterExpression.Name,
+                        @in: resultSelectorTranslation.Ast);
 
                     pipeline.AddStages(
                         resultWrappedValueSerializer,
                         AstStage.Project(
-                            new AstProjectStageComputedFieldSpecification(
-                                AstExpression.ComputedField(
-                                    "_v",
-                                    AstExpression.Map(
-                                        input: collectionSelectorTranslation.Ast,
-                                        @as: resultSelectorCollectionItemParameterExpression.Name,
-                                        @in: resultSelectorTranslation.Ast))),
-                            new AstProjectStageExcludeIdSpecification()),
+                            AstProject.Set("_v", resultAst),
+                            AstProject.ExcludeId()),
                         AstStage.Unwind("_v"));
                 }
 

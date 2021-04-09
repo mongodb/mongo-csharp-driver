@@ -144,7 +144,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                     AstStage.Group(
                         id: BsonNull.Value,
                         fields: AstExpression.ComputedField("_v", AstUnaryExpression.Avg(avgExpression))),
-                    AstStage.Project(new AstProjectStageExcludeIdSpecification()));
+                    AstStage.Project(AstProject.ExcludeId()));
 
                 return new ExecutableQuery<TDocument, TOutput, TOutput>(
                     provider.Collection,

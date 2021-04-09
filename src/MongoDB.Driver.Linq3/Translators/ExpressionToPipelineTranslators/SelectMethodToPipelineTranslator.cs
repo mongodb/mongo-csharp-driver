@@ -43,7 +43,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                     return pipeline; // ignore identity projection: Select(x => x)
                 }
                 var selectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, selectorLambdaExpression, sourceSerializer, asCurrentSymbol: true);
-                ProjectionHelper.AddProjectStage(pipeline, selectorTranslation);
+                var (projectStage, projectionSerializer) = ProjectionHelper.CreateProjectStage(selectorTranslation);
+                pipeline.AddStages(projectionSerializer, projectStage);
 
                 return pipeline;
             }
