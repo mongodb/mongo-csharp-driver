@@ -582,17 +582,18 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
             return new AstUnaryExpression(AstUnaryOperator.StrLenCP, arg);
         }
 
-        public static AstExpression SubField(AstFieldExpression fieldExpression, string subFieldName)
+        public static AstExpression SubField(AstExpression expression, string subFieldName)
         {
+            Ensure.IsNotNull(expression, nameof(expression));
             Ensure.IsNotNull(subFieldName, nameof(subFieldName));
 
-            if (fieldExpression.Path == "$CURRENT")
+            if (expression is AstFieldExpression fieldExpression)
             {
-                return AstExpression.Field(subFieldName);
+                return fieldExpression.SubField(subFieldName);
             }
             else
             {
-                return AstExpression.Field(fieldExpression.Path + "." + subFieldName);
+                return AstExpression.Let(AstExpression.ComputedField("this", expression), AstExpression.Field($"$this.{subFieldName}"));
             }
         }
 

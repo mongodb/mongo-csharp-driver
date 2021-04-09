@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 var enumerableFieldName = wrappedEnumerableSerializer.EnumerableFieldName;
                 var enumerableElementSerializer = wrappedEnumerableSerializer.EnumerableElementSerializer;
                 var enumerableSerializer = IEnumerableSerializer.Create(enumerableElementSerializer);
-                var ast = CreateFieldReference(aggregateExpression.Ast, enumerableFieldName);
+                var ast = AstExpression.SubField(aggregateExpression.Ast, enumerableFieldName);
                 return new AggregationExpression(aggregateExpression.Expression, ast, enumerableSerializer);
             }
 
@@ -111,21 +111,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             var parameterSymbol = new Symbol('$' + parameterExpression.Name, parameterSerializer);
             var lambdaContext = asCurrentSymbol ? context.WithSymbolAsCurrent(parameterExpression, parameterSymbol) : context.WithSymbol(parameterExpression, parameterSymbol);
             return Translate(lambdaContext, lambdaExpression.Body);
-        }
-
-        // TODO: this probably needs to be moved to a helper class so that it can be used in more places
-        private static AstExpression CreateFieldReference(AstExpression astExpression, string fieldName)
-        {
-            if (astExpression is AstFieldExpression astFieldExpression)
-            {
-                return AstExpression.SubField(astFieldExpression, fieldName);
-            }
-            else
-            {
-                return AstExpression.Let(
-                    var: AstExpression.ComputedField("this", astExpression),
-                    @in: AstExpression.Field($"$this.{fieldName}"));
-            }
         }
     }
 }
