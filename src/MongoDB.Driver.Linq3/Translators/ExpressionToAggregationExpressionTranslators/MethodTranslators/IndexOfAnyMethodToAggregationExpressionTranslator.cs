@@ -105,7 +105,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             (AstComputedField, AstExpression) TranslateObject(Expression objectExpression)
             {
                 var stringTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, objectExpression);
-                var stringVar = new AstComputedField("string", stringTranslation.Ast);
+                var stringVar = AstExpression.ComputedField("string", stringTranslation.Ast);
                 var stringAst = AstExpression.Field("$string");
                 return (stringVar, stringAst);
             }
@@ -139,7 +139,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 }
                 else
                 {
-                    var startIndexVar = new AstComputedField("startIndex", startIndexAst);
+                    var startIndexVar = AstExpression.ComputedField("startIndex", startIndexAst);
                     startIndexAst = AstExpression.Field("$startIndex");
                     return (startIndexVar, startIndexAst);
                 }
@@ -162,7 +162,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 }
                 else
                 {
-                    var countVar = new AstComputedField("count", countAst);
+                    var countVar = AstExpression.ComputedField("count", countAst);
                     countAst = AstExpression.Field("$count");
                     return (countVar, countAst);
                 }
@@ -182,7 +182,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 }
                 else
                 {
-                    var endVar = new AstComputedField("end", endAst);
+                    var endVar = AstExpression.ComputedField("end", endAst);
                     endAst = AstExpression.Field("$end");
                     return (endVar, endAst);
                 }

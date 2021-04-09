@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 var fieldTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, fieldExpression);
                 var memberSerializer = fieldTranslation.Serializer ?? BsonSerializer.LookupSerializer(fieldExpression.Type);
                 classMap.MapProperty(member.Name).SetSerializer(memberSerializer);
-                computedFields.Add(new AstComputedField(member.Name, fieldTranslation.Ast));
+                computedFields.Add(AstExpression.ComputedField(member.Name, fieldTranslation.Ast));
             }
 
             var constructorInfo = expression.Type.GetConstructors().Single();

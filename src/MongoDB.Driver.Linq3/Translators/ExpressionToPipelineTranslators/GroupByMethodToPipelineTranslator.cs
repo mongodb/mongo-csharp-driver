@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                     groupingSerializer,
                     new AstGroupStage(
                         id: keySelectorTranslation.Ast,
-                        fields: new AstComputedField("_elements", AstExpression.Push(elementAst))));
+                        fields: AstExpression.ComputedField("_elements", AstExpression.Push(elementAst))));
 
                 if (method.IsOneOf(__groupByMethodsWithResultSelector))
                 {

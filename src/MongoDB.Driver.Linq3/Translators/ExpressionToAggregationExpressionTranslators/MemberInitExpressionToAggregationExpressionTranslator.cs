@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
 
                 var fieldName = GetFieldName(constructorParameter);
                 var argumentTanslation = ExpressionToAggregationExpressionTranslator.Translate(context, argumentExpression);
-                computedFields.Add(new AstComputedField(fieldName, argumentTanslation.Ast));
+                computedFields.Add(AstExpression.ComputedField(fieldName, argumentTanslation.Ast));
             }
 
             foreach (var binding in expression.Bindings)
@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 var elementName = memberSerializationInfo.ElementName;
                 var valueExpression = memberAssignment.Expression;
                 var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
-                computedFields.Add(new AstComputedField(elementName, valueTranslation.Ast));
+                computedFields.Add(AstExpression.ComputedField(elementName, valueTranslation.Ast));
             }
 
             var ast = AstExpression.ComputedDocument(computedFields);

@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                 var outerSerializer = pipeline.OutputSerializer;
 
                 var wrapOuterStage = new AstProjectStage(
-                    new AstProjectStageComputedFieldSpecification(new AstComputedField("_outer", AstExpression.Field("$ROOT"))),
+                    new AstProjectStageComputedFieldSpecification(AstExpression.ComputedField("_outer", AstExpression.Field("$ROOT"))),
                     new AstProjectStageExcludeIdSpecification());
                 var wrappedOuterSerializer = WrappedValueSerializer.Create("_outer", outerSerializer);
 

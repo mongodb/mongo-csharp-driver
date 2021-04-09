@@ -75,8 +75,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 {
                     var vars = new[]
                     {
-                            new AstComputedField("string", stringTranslation.Ast),
-                            new AstComputedField("index", startIndexTranslation.Ast)
+                            AstExpression.ComputedField("string", stringTranslation.Ast),
+                            AstExpression.ComputedField("index", startIndexTranslation.Ast)
                     };
                     var stringField = AstExpression.Field("$string");
                     var indexField = AstExpression.Field("$index");
