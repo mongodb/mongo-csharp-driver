@@ -14,10 +14,10 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+#if !NETCOREAPP1_1
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+#endif
 using FluentAssertions;
 using Xunit;
 
@@ -42,5 +42,24 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Message.Should().Be("message");
             result.InnerException.Should().BeSameAs(innerException);
         }
+
+#if !NETCOREAPP1_1
+        [Fact]
+        public void Serialization_should_work()
+        {
+            var subject = new GridFSException("message", new Exception("inner"));
+
+            var formatter = new BinaryFormatter();
+            using (var stream = new MemoryStream())
+            {
+                formatter.Serialize(stream, subject);
+                stream.Position = 0;
+                var rehydrated = (GridFSException)formatter.Deserialize(stream);
+
+                rehydrated.Message.Should().Be(subject.Message);
+                rehydrated.InnerException.Message.Should().Be(subject.InnerException.Message);
+            }
+        }
+#endif
     }
 }

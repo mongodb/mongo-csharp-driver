@@ -13,9 +13,10 @@
 * limitations under the License.
 */
 
+#if !NETSTANDARD1_5
 using System;
+#endif
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
@@ -23,7 +24,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents the results of an operation performed with an acknowledged WriteConcern.
     /// </summary>
-#if NET452
+#if !NETSTANDARD1_5
     [Serializable]
 #endif
     public class WriteConcernResult

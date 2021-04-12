@@ -14,8 +14,7 @@
 */
 
 using System;
-
-#if NET452
+#if !NETSTANDARD1_5
 using System.Runtime.Serialization;
 #endif
 
@@ -24,7 +23,7 @@ namespace MongoDB.Driver.Core.Authentication
     /// <summary>
     /// Thrown from a GSSAPI-related method.
     /// </summary>
-#if NET452
+#if !NETSTANDARD1_5
     [Serializable]
 #endif
     public class GssapiException : Exception
@@ -44,7 +43,7 @@ namespace MongoDB.Driver.Core.Authentication
         {
         }
 
-#if NET452
+#if !NETSTANDARD1_5
         /// <summary>
         /// Initializes a new instance of the <see cref="GssapiException" /> class.
         /// </summary>

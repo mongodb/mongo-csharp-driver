@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Core.Misc
             }
         }
 
-#if NET452
+#if !NETSTANDARD1_5
         /// <summary>
         /// Gets the object data required to serialize an end point.
         /// </summary>

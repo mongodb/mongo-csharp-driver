@@ -14,8 +14,6 @@
 */
 
 using System;
-using System.Net;
-using System.Net.Sockets;
 using System.Text.RegularExpressions;
 using MongoDB.Bson.IO;
 
@@ -24,7 +22,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// The address of a MongoDB server.
     /// </summary>
-#if NET452
+#if !NETSTANDARD1_5
     [Serializable]
 #endif
     public class MongoServerAddress : IEquatable<MongoServerAddress>

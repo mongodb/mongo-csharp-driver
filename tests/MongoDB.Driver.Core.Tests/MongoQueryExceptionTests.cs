@@ -13,9 +13,11 @@
 * limitations under the License.
 */
 
+#if !NETCOREAPP1_1
 using System.IO;
+#endif
 using System.Net;
-#if NET452
+#if !NETCOREAPP1_1
 using System.Runtime.Serialization.Formatters.Binary;
 #endif
 using FluentAssertions;
@@ -46,7 +48,7 @@ namespace MongoDB.Driver
             subject.QueryResult.Should().Be(_queryResult);
         }
 
-#if NET452
+#if !NETCOREAPP1_1
         [Fact]
         public void Serialization_should_work()
         {

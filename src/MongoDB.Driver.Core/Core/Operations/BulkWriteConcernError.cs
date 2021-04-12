@@ -13,7 +13,9 @@
 * limitations under the License.
 */
 
+#if !NETSTANDARD1_5
 using System;
+#endif
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
@@ -23,7 +25,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents the details of a write concern error.
     /// </summary>
-#if NET452
+#if !NETSTANDARD1_5
     [Serializable]
 #endif
     public sealed class BulkWriteConcernError

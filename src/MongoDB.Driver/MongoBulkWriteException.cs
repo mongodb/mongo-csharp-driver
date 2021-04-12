@@ -13,10 +13,12 @@
 * limitations under the License.
 */
 
+#if !NETSTANDARD1_5
 using System;
+#endif
 using System.Collections.Generic;
 using System.Linq;
-#if NET452
+#if !NETSTANDARD1_5
 using System.Runtime.Serialization;
 #endif
 using System.Text;
@@ -28,7 +30,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a bulk write exception.
     /// </summary>
-#if NET452
+#if !NETSTANDARD1_5
     [Serializable]
 #endif
     public abstract class MongoBulkWriteException : MongoServerException
@@ -60,7 +62,7 @@ namespace MongoDB.Driver
             }
         }
 
-#if NET452
+#if !NETSTANDARD1_5
         /// <summary>
         /// Initializes a new instance of the MongoQueryException class (this overload supports deserialization).
         /// </summary>
@@ -99,7 +101,7 @@ namespace MongoDB.Driver
         }
 
         // methods
-#if NET452
+#if !NETSTANDARD1_5
         /// <summary>
         /// Gets the object data.
         /// </summary>
@@ -137,7 +139,7 @@ namespace MongoDB.Driver
     /// Represents a bulk write exception.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-#if NET452
+#if !NETSTANDARD1_5
     [Serializable]
 #endif
     public sealed class MongoBulkWriteException<TDocument> : MongoBulkWriteException
@@ -168,7 +170,7 @@ namespace MongoDB.Driver
             _unprocessedRequests = unprocessedRequests.ToList();
         }
 
-#if NET452
+#if !NETSTANDARD1_5
         /// <summary>
         /// Initializes a new instance of the MongoQueryException class (this overload supports deserialization).
         /// </summary>
@@ -203,7 +205,7 @@ namespace MongoDB.Driver
         }
 
         // methods
-#if NET452
+#if !NETSTANDARD1_5
         /// <summary>
         /// Gets the object data.
         /// </summary>

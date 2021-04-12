@@ -14,20 +14,8 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-#if NET452
-using System.Runtime.Serialization;
-#endif
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
-using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Connections
@@ -35,7 +23,7 @@ namespace MongoDB.Driver.Core.Connections
     /// <summary>
     /// Represents a connection identifier.
     /// </summary>
-#if NET452
+#if !NETSTANDARD1_5
     [Serializable]
 #endif
     public sealed class ConnectionId : IEquatable<ConnectionId>

@@ -13,8 +13,8 @@
 * limitations under the License.
 */
 
+#if !NETSTANDARD1_5
 using System;
-#if NET452
 using System.Runtime.Serialization;
 #endif
 using MongoDB.Bson;
@@ -25,7 +25,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB node is recovering exception.
     /// </summary>
-#if NET452
+#if !NETSTANDARD1_5
     [Serializable]
 #endif
     public class MongoNodeIsRecoveringException : MongoCommandException
@@ -60,7 +60,7 @@ namespace MongoDB.Driver
         {
         }
 
-#if NET452
+#if !NETSTANDARD1_5
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoNodeIsRecoveringException"/> class.
         /// </summary>

@@ -13,9 +13,11 @@
 * limitations under the License.
 */
 
+#if !NETSTANDARD1_5
 using System;
+#endif
 using System.Linq;
-#if NET452
+#if !NETSTANDARD1_5
 using System.Runtime.Serialization;
 #endif
 using MongoDB.Driver.Core.Clusters;
@@ -27,7 +29,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB incompatible driver exception.
     /// </summary>
-#if NET452
+#if !NETSTANDARD1_5
     [Serializable]
 #endif
     public class MongoIncompatibleDriverException : MongoClientException
@@ -82,7 +84,7 @@ namespace MongoDB.Driver
         {
         }
 
-#if NET452
+#if !NETSTANDARD1_5
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoIncompatibleDriverException"/> class.
         /// </summary>

@@ -14,13 +14,16 @@
 */
 
 using System;
+#if !NETSTANDARD1_5
+using System.Runtime.Serialization;
+#endif
 
 namespace MongoDB.Bson
 {
     /// <summary>
     /// Indicates that an attribute restricted to one member has been applied to multiple members.
     /// </summary>
-#if NET452
+#if !NETSTANDARD1_5
     [Serializable]
 #endif
     public class DuplicateBsonMemberMapAttributeException : BsonException
@@ -45,15 +48,13 @@ namespace MongoDB.Bson
         {
         }
 
-#if NET452
+#if !NETSTANDARD1_5
         /// <summary>
         /// Initializes a new instance of the <see cref="DuplicateBsonMemberMapAttributeException" /> class.
         /// </summary>
         /// <param name="info">The info.</param>
         /// <param name="context">The context.</param>
-        protected DuplicateBsonMemberMapAttributeException(
-          System.Runtime.Serialization.SerializationInfo info,
-          System.Runtime.Serialization.StreamingContext context)
+        protected DuplicateBsonMemberMapAttributeException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }

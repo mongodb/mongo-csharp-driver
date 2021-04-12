@@ -13,18 +13,17 @@
 * limitations under the License.
 */
 
-#if NET452
+using System;
+#if !NETSTANDARD1_5
 using System.Runtime.Serialization;
 #endif
-
-using System;
 
 namespace MongoDB.Driver.Encryption
 {
     /// <summary>
     /// Represents an encryption exception.
     /// </summary>
-#if NET452
+#if !NETSTANDARD1_5
     [Serializable]
 #endif
     public class MongoEncryptionException : MongoClientException
@@ -37,5 +36,17 @@ namespace MongoDB.Driver.Encryption
             : base($"Encryption related exception: {innerException.Message}.", innerException)
         {
         }
+
+#if !NETSTANDARD1_5
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MongoEncryptionException"/> class (this overload used by deserialization).
+        /// </summary>
+        /// <param name="info">The SerializationInfo.</param>
+        /// <param name="context">The StreamingContext.</param>
+        protected MongoEncryptionException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+        }
+#endif
     }
 }

@@ -13,14 +13,16 @@
 * limitations under the License.
 */
 
+#if !NETSTANDARD1_5
 using System;
+#endif
 
 namespace MongoDB.Bson
 {
     /// <summary>
     /// Represents the type of a BSON element.
     /// </summary>
-#if NET452
+#if !NETSTANDARD1_5
     [Serializable]
 #endif
     public enum BsonType

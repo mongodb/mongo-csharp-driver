@@ -13,12 +13,13 @@
 * limitations under the License.
 */
 
+#if !NETSTANDARD1_5
 using System;
+#endif
 using System.Net;
-#if NET452
+#if !NETSTANDARD1_5
 using System.Runtime.Serialization;
 #endif
-using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
@@ -26,7 +27,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB connection pool wait queue full exception.
     /// </summary>
-#if NET452
+#if !NETSTANDARD1_5
     [Serializable]
 #endif
     public class MongoWaitQueueFullException : MongoClientException
@@ -58,7 +59,7 @@ namespace MongoDB.Driver
         {
         }
 
-#if NET452
+#if !NETSTANDARD1_5
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoWaitQueueFullException"/> class.
         /// </summary>

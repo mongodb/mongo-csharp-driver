@@ -22,7 +22,7 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents a BSON value (this is an abstract class, see the various subclasses).
     /// </summary>
-#if NET452
+#if !NETSTANDARD1_5
     [Serializable]
 #endif
     public abstract class BsonValue : IComparable<BsonValue>, IConvertible, IEquatable<BsonValue>

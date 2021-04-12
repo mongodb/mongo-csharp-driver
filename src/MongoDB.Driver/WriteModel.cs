@@ -14,10 +14,10 @@
 */
 
 using System;
-using MongoDB.Bson;
-using MongoDB.Driver.Core.Operations;
 using System.Collections.Generic;
 using System.Linq;
+using MongoDB.Bson;
+using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver
 {
@@ -25,7 +25,7 @@ namespace MongoDB.Driver
     /// Base class for a write model.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-#if NET452
+#if !NETSTANDARD1_5
     [Serializable]
 #endif
     public abstract class WriteModel<TDocument>

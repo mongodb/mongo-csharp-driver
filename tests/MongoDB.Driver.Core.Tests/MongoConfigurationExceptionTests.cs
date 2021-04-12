@@ -14,8 +14,8 @@
 */
 
 using System;
+#if !NETCOREAPP1_1
 using System.IO;
-#if NET452
 using System.Runtime.Serialization.Formatters.Binary;
 #endif
 using FluentAssertions;
@@ -46,7 +46,7 @@ namespace MongoDB.Driver
             subject.InnerException.Should().BeSameAs(_innerException);
         }
 
-#if NET452
+#if !NETCOREAPP1_1
         [Fact]
         public void Serialization_should_work()
         {

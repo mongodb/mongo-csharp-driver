@@ -13,8 +13,8 @@
 * limitations under the License.
 */
 
+#if !NETSTANDARD1_5
 using System;
-#if NET452
 using System.Runtime.Serialization;
 #endif
 using MongoDB.Driver.Core.Connections;
@@ -24,7 +24,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB connection failed exception.
     /// </summary>
-#if NET452
+#if !NETSTANDARD1_5
     [Serializable]
 #endif
     public class MongoConnectionClosedException : MongoConnectionException
@@ -39,7 +39,7 @@ namespace MongoDB.Driver
         {
         }
 
-#if NET452
+#if !NETSTANDARD1_5
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoConnectionClosedException"/> class.
         /// </summary>

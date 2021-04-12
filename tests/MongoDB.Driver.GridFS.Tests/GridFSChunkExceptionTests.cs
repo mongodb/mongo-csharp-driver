@@ -14,12 +14,11 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+#if !NETCOREAPP1_1
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+#endif
 using FluentAssertions;
-using MongoDB.Bson;
 using Xunit;
 
 namespace MongoDB.Driver.GridFS.Tests
@@ -59,5 +58,23 @@ namespace MongoDB.Driver.GridFS.Tests
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("reason");
         }
+
+#if !NETCOREAPP1_1
+        [Fact]
+        public void Serialization_should_work()
+        {
+            var subject = new GridFSChunkException(123, 2, "missing");
+
+            var formatter = new BinaryFormatter();
+            using (var stream = new MemoryStream())
+            {
+                formatter.Serialize(stream, subject);
+                stream.Position = 0;
+                var rehydrated = (GridFSChunkException)formatter.Deserialize(stream);
+
+                rehydrated.Message.Should().Be(subject.Message);
+            }
+        }
+#endif
     }
 }

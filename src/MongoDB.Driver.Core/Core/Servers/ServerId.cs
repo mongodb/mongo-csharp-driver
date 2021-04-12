@@ -14,9 +14,11 @@
 */
 
 using System;
+#if !NETSTANDARD1_5
 using System.Collections.Generic;
+#endif
 using System.Net;
-#if NET452
+#if !NETSTANDARD1_5
 using System.Runtime.Serialization;
 #endif
 using MongoDB.Driver.Core.Clusters;
@@ -28,7 +30,7 @@ namespace MongoDB.Driver.Core.Servers
     /// <summary>
     /// Represents a server identifier.
     /// </summary>
-#if NET452
+#if !NETSTANDARD1_5
     [Serializable]
     public sealed class ServerId : IEquatable<ServerId>, ISerializable
 #else
@@ -56,7 +58,7 @@ namespace MongoDB.Driver.Core.Servers
                 .GetHashCode();
         }
 
-#if NET452
+#if !NETSTANDARD1_5
         private ServerId(SerializationInfo info, StreamingContext context)
         {
             _clusterId = (ClusterId)info.GetValue("_clusterId", typeof(ClusterId));
@@ -123,7 +125,7 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         // explicit interface implementations
-#if NET452
+#if !NETSTANDARD1_5
         void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("_clusterId", _clusterId);
