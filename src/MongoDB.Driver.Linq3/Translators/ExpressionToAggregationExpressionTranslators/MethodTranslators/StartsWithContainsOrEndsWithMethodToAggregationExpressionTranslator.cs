@@ -97,56 +97,33 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
 
             throw new ExpressionNotSupportedException(expression);
 
-            AstExpression CreateAst(string methodName, AstExpression stringAst, AstExpression substringAst)
+            static AstExpression CreateAst(string methodName, AstExpression stringAst, AstExpression substringAst)
             {
                 return methodName switch
                 {
-                    "StartsWith" => CreateStartsWithAst(),
-                    "Contains" => CreateContainsAst(),
-                    "EndsWith" => CreateEndsWithAst(),
+                    "StartsWith" => CreateStartsWithAst(stringAst, substringAst),
+                    "Contains" => CreateContainsAst(stringAst, substringAst),
+                    "EndsWith" => CreateEndsWithAst(stringAst, substringAst),
                     _ => throw new InvalidOperationException()
                 };
 
-                AstExpression CreateStartsWithAst()
+                static AstExpression CreateStartsWithAst(AstExpression stringAst, AstExpression substringAst)
                 {
                     return AstExpression.Eq(AstExpression.IndexOfCP(stringAst, substringAst), 0);
                 }
 
-                AstExpression CreateContainsAst()
+                static AstExpression CreateContainsAst(AstExpression stringAst, AstExpression substringAst)
                 {
                     return AstExpression.Gte(AstExpression.IndexOfCP(stringAst, substringAst), 0);
                 }
 
-                AstExpression CreateEndsWithAst()
+                static AstExpression CreateEndsWithAst(AstExpression stringAst, AstExpression substringAst)
                 {
-                    var vars = new List<AstComputedField>();
-                    var stringSimpleAst = CreateSimpleAst(stringAst, vars, "string");
-                    var substringSimpleAst = CreateSimpleAst(substringAst, vars, "substring");
-                    var startAst = AstExpression.Subtract(
-                        AstExpression.StrLenCP(stringSimpleAst),
-                        AstExpression.StrLenCP(substringSimpleAst));
-                        
+                    var (stringVar, stringSimpleAst) = AstExpression.UseVarIfNotSimple("string", stringAst);
+                    var (substringVar, substringSimpleAst) = AstExpression.UseVarIfNotSimple("substring", substringAst);
+                    var startAst = AstExpression.Subtract(AstExpression.StrLenCP(stringSimpleAst), AstExpression.StrLenCP(substringSimpleAst));                      
                     var ast = AstExpression.Gte(AstExpression.IndexOfCP(stringSimpleAst, substringSimpleAst, startAst), 0);
-
-                    if (vars.Count == 0)
-                    {
-                        return ast;
-                    }
-                    else
-                    {
-                        return AstExpression.Let(vars, ast);
-                    }
-                }
-
-                AstExpression CreateSimpleAst(AstExpression ast, List<AstComputedField> vars, string name)
-                {
-                    if (ast.NodeType == AstNodeType.ConstantExpression || ast.NodeType == AstNodeType.FieldExpression)
-                    {
-                        return ast;
-                    }
-
-                    vars.Add(AstExpression.ComputedField(name, ast));
-                    return AstExpression.Field("$" + name);
+                    return AstExpression.Let(stringVar, substringVar, ast);
                 }
             }
 

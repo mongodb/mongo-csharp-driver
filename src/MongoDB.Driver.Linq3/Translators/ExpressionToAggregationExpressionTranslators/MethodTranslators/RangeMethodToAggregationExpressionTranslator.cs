@@ -34,23 +34,12 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
 
                 var startTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, startExpression);
                 var countTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, countExpression);
-                AstExpression ast;
-                if (IsSimple(startTranslation) && IsSimple(countTranslation))
-                {
-                    ast = AstExpression.Range(
-                        start: startTranslation.Ast,
-                        end: AstExpression.Add(startTranslation.Ast, countTranslation.Ast));
-                }
-                else
-                {
-                    var startVariable = AstExpression.Field("$start");
-                    var countVariable = AstExpression.Field("$count");
-                    ast = AstExpression.Let(
-                        vars: AstExpression.ComputedFields(("start", startTranslation.Ast), ("count", countTranslation.Ast)),
-                        @in: AstExpression.Range(
-                            start: startVariable,
-                            end: AstExpression.Add(startVariable, countVariable)));
-                }
+                var (startVar, startSimpleAst) = AstExpression.UseVarIfNotSimple("start", startTranslation.Ast);
+                var (countVar, countSimpleAst) = AstExpression.UseVarIfNotSimple("count", countTranslation.Ast);
+                var ast = AstExpression.Let(
+                    startVar,
+                    countVar,
+                    AstExpression.Range(startSimpleAst, end: AstExpression.Add(startSimpleAst, countSimpleAst)));
                 var serializer = IEnumerableSerializer.Create(new Int32Serializer());
 
                 return new AggregationExpression(expression, ast, serializer);

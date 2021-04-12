@@ -323,7 +323,45 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
 
         public static AstExpression Let(AstComputedField var, AstExpression @in)
         {
-            return new AstLetExpression(new[] { var }, @in);
+            if (var == null)
+            {
+                return @in;
+            }
+            else
+            {
+                return new AstLetExpression(new[] { var }, @in);
+            }
+        }
+
+        public static AstExpression Let(AstComputedField var1, AstComputedField var2, AstExpression @in)
+        {
+            if (var1 == null && var2 == null)
+            {
+                return @in;
+            }
+            else
+            {
+                var vars = new List<AstComputedField>(2);
+                if (var1 != null) { vars.Add(var1); }
+                if (var2 != null) { vars.Add(var2); }
+                return new AstLetExpression(vars, @in);
+            }
+        }
+
+        public static AstExpression Let(AstComputedField var1, AstComputedField var2, AstComputedField var3, AstExpression @in)
+        {
+            if (var1 == null && var2 == null && var3 == null)
+            {
+                return @in;
+            }
+            else
+            {
+                var vars = new List<AstComputedField>(2);
+                if (var1 != null) { vars.Add(var1); }
+                if (var2 != null) { vars.Add(var2); }
+                if (var3 != null) { vars.Add(var3); }
+                return new AstLetExpression(vars, @in);
+            }
         }
 
         public static AstExpression Let(IEnumerable<AstComputedField> vars, AstExpression @in)
@@ -662,6 +700,28 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
         public static AstExpression Trunc(AstExpression arg)
         {
             return new AstUnaryExpression(AstUnaryOperator.Trunc, arg);
+        }
+
+        public static (AstComputedField, AstExpression) UseVarIfNotSimple(string name, AstExpression expression)
+        {
+            if (IsSimple(expression))
+            {
+                return (null, expression);
+            }
+            else
+            {
+                var var = AstExpression.ComputedField(name, expression);
+                var simpleAst = AstExpression.Field("$" + name);
+                return (var, simpleAst);
+            }
+
+            static bool IsSimple(AstExpression expression)
+            {
+                return
+                    expression == null ||
+                    expression.NodeType == AstNodeType.ConstantExpression ||
+                    expression.NodeType == AstNodeType.FieldExpression;
+            }
         }
 
         public static AstExpression Zip(IEnumerable<AstExpression> inputs, bool? useLongestLength = null, AstExpression defaults = null)
