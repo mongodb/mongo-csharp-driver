@@ -15,19 +15,21 @@
 
 using System.Linq;
 using System.Linq.Expressions;
+using MongoDB.Driver.Linq3.Ast;
+using MongoDB.Driver.Linq3.Ast.Stages;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
 {
     public static class ExpressionToPipelineTranslator
     {
         // public static methods
-        public static Pipeline Translate(TranslationContext context, Expression expression)
+        public static AstPipeline Translate(TranslationContext context, Expression expression)
         {
             if (expression.NodeType == ExpressionType.Constant)
             {
                 var query = (IQueryable)((ConstantExpression)expression).Value;
                 var provider = (MongoQueryProvider)query.Provider;
-                return new Pipeline(provider.DocumentSerializer);
+                return new AstPipeline(Enumerable.Empty<AstStage>(), provider.DocumentSerializer);
             }
 
             var methodCallExpression = (MethodCallExpression)expression;

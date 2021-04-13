@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
     public static class DistinctMethodToPipelineTranslator
     {
         // public static methods
-        public static Pipeline Translate(TranslationContext context, MethodCallExpression expression)
+        public static AstPipeline Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
 
             if (method.Is(QueryableMethod.Distinct))
             {
-                pipeline.AddStages(
+                pipeline = pipeline.AddStages(
                     pipeline.OutputSerializer,
                     AstStage.Group(AstExpression.Field("$ROOT"), Enumerable.Empty<AstComputedField>()),
                     AstStage.ReplaceRoot(AstExpression.Field("_id")));

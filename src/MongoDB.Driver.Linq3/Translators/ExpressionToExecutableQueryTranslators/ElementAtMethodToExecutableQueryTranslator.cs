@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
 
                 var indexValue = (int)((ConstantExpression)index).Value;
 
-                pipeline.AddStages(
+                pipeline = pipeline.AddStages(
                     pipeline.OutputSerializer,
                     //new BsonDocument("$skip", indexValue),
                     //new BsonDocument("$limit", 1));

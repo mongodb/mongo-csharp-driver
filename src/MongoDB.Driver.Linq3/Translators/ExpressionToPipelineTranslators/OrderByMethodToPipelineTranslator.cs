@@ -17,6 +17,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Linq3.Ast;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Ast.Stages;
 using MongoDB.Driver.Linq3.Methods;
@@ -28,7 +29,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
     public static class OrderByMethodToPipelineTranslator
     {
         // public static methods
-        public static Pipeline Translate(TranslationContext context, MethodCallExpression expression)
+        public static AstPipeline Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -46,7 +47,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                 {
                     case "OrderBy":
                     case "OrderByDescending":
-                        pipeline.AddStages(
+                        pipeline = pipeline.AddStages(
                             pipeline.OutputSerializer,
                             //new BsonDocument("$sort", new BsonDocument(sortElement)));
                             AstStage.Sort(new[] { sortField }));
@@ -59,7 +60,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                         //sortDocument.Add(sortElement);
                         var sortStage = (AstSortStage)pipeline.Stages.Last();
                         var newSortStage = sortStage.AddSortField(sortField);
-                        pipeline.ReplaceLastStage(pipeline.OutputSerializer, newSortStage);
+                        pipeline = pipeline.ReplaceLastStage(pipeline.OutputSerializer, newSortStage);
                         break;
                 }
 

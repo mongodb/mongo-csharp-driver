@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
 
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, source);
 
-                pipeline.AddStages(
+                pipeline = pipeline.AddStages(
                     pipeline.OutputSerializer,
                     //new BsonDocument("$group", new BsonDocument { { "_id", BsonNull.Value }, { "_last", new BsonDocument("$last", "$$ROOT") } }),
                     //new BsonDocument("$replaceRoot", new BsonDocument("newRoot", "$_last")));

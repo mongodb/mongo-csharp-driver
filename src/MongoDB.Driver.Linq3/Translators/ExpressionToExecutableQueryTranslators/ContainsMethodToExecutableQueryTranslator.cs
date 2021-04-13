@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                     var valueType = source.Type.GetGenericArguments()[0];
                     var valueSerializer = pipeline.OutputSerializer;
                     var wrappedValueSerializer = WrappedValueSerializer.Create(valueSerializer);
-                    pipeline.AddStages(
+                    pipeline = pipeline.AddStages(
                         wrappedValueSerializer,
                         //BsonDocument.Parse("{ $project : { _id : 0, _v : \"$$ROOT\" } }"));
                         AstStage.Project(
@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                 var serializedWrappedValue = SerializationHelper.SerializeValue(pipeline.OutputSerializer, itemValue);
 
                 AstFilter filter = null; // TODO; serializedWrappedValue
-                pipeline.AddStages(
+                pipeline = pipeline.AddStages(
                     __outputSerializer,
                     //new BsonDocument("$match", serializedWrappedValue),
                     //new BsonDocument("$limit", 1),

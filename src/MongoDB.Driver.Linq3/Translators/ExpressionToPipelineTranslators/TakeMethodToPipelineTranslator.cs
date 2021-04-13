@@ -14,6 +14,7 @@
 */
 
 using System.Linq.Expressions;
+using MongoDB.Driver.Linq3.Ast;
 using MongoDB.Driver.Linq3.Ast.Stages;
 using MongoDB.Driver.Linq3.Methods;
 using MongoDB.Driver.Linq3.Misc;
@@ -23,7 +24,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
     public static class TakeMethodToPipelineTranslator
     {
         // public static methods
-        public static Pipeline Translate(TranslationContext context, MethodCallExpression expression)
+        public static AstPipeline Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -38,7 +39,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                 {
                     var count = (int)constantExpression.Value;
 
-                    pipeline.AddStages(
+                    pipeline = pipeline.AddStages(
                         pipeline.OutputSerializer,
                         AstStage.Limit(count));
 

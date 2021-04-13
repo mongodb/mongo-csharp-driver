@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,7 +20,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq3.Ast;
 using MongoDB.Driver.Linq3.Ast.PipelineOptimizer;
-using MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators
 {
@@ -52,7 +50,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
         private readonly IMongoCollection<TDocument> _collection;
         private readonly IExecutableQueryFinalizer<TOutput, TResult> _finalizer;
         private readonly AggregateOptions _options;
-        private readonly IBsonSerializer<TOutput> _outputSerializer;
         private readonly AstPipeline _pipeline;
         private readonly AstPipeline _unoptimizedPipeline;
 
@@ -60,14 +57,13 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
         public ExecutableQuery(
             IMongoCollection<TDocument> collection,
             AggregateOptions options,
-            Pipeline pipeline,
+            AstPipeline unoptimizedPipeline,
             IExecutableQueryFinalizer<TOutput, TResult> finalizer)
         {
             _collection = collection;
             _options = options;
-            _unoptimizedPipeline = new AstPipeline(pipeline.Stages);
-            _pipeline = AstPipelineOptimizer.Optimize(_unoptimizedPipeline);
-            _outputSerializer = (IBsonSerializer<TOutput>)pipeline.OutputSerializer;
+            _unoptimizedPipeline = unoptimizedPipeline;
+            _pipeline = AstPipelineOptimizer.Optimize(unoptimizedPipeline);
             _finalizer = finalizer;
         }
 
@@ -106,11 +102,16 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
             return await _finalizer.FinalizeAsync(cursor, cancellationToken).ConfigureAwait(false);
         }
 
+        public override string ToString()
+        {
+            return $"{_collection.CollectionNamespace}.Aggregate({_pipeline})";
+        }
+
         // private methods
         private BsonDocumentStagePipelineDefinition<TDocument, TOutput> CreatePipelineDefinition()
         {
             var stages = _pipeline.Stages.Select(s => (BsonDocument)s.Render());
-            return new BsonDocumentStagePipelineDefinition<TDocument, TOutput>(stages, _outputSerializer);
+            return new BsonDocumentStagePipelineDefinition<TDocument, TOutput>(stages, (IBsonSerializer<TOutput>)_pipeline.OutputSerializer);
         }
     }
 }
