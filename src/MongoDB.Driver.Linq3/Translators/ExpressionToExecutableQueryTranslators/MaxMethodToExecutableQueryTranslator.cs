@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                     maxSerializer = pipeline.OutputSerializer;
                 }
 
-                pipeline.AddStages(
+                pipeline = pipeline.AddStages(
                     maxSerializer,
                     AstStage.Group(
                         id: BsonNull.Value,

@@ -14,6 +14,7 @@
 */
 
 using System.Linq.Expressions;
+using MongoDB.Driver.Linq3.Ast;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Ast.Stages;
 using MongoDB.Driver.Linq3.Methods;
@@ -26,7 +27,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
     public static class SelectMethodToPipelineTranslator
     {
         // public static methods
-        public static Pipeline Translate(TranslationContext context, MethodCallExpression expression)
+        public static AstPipeline Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -44,7 +45,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                 }
                 var selectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, selectorLambdaExpression, sourceSerializer, asCurrentSymbol: true);
                 var (projectStage, projectionSerializer) = ProjectionHelper.CreateProjectStage(selectorTranslation);
-                pipeline.AddStages(projectionSerializer, projectStage);
+                pipeline = pipeline.AddStages(projectionSerializer, projectStage);
 
                 return pipeline;
             }

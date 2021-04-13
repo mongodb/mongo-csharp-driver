@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
 
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, source);
 
-                pipeline.AddStages(
+                pipeline = pipeline.AddStages(
                     __outputSerializer,
                     //new BsonDocument("$limit", 1),
                     //new BsonDocument("$project", new BsonDocument { { "_id", 0 }, { "_v", BsonNull.Value } }));

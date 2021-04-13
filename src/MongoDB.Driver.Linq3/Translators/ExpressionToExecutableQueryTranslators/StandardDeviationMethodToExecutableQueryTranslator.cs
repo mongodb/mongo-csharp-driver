@@ -332,7 +332,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                 var outputValueSerializer = BsonSerializer.LookupSerializer(outputValueType);
                 var outputWrappedValueSerializer = WrappedValueSerializer.Create(outputValueSerializer);
 
-                pipeline.AddStages(
+                pipeline = pipeline.AddStages(
                     outputWrappedValueSerializer,
                     AstStage.Group(
                         id: BsonNull.Value,

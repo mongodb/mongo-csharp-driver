@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
     public static class SelectManyMethodToPipelineTranslator
     {
         // public static methods
-        public static Pipeline Translate(TranslationContext context, MethodCallExpression expression)
+        public static AstPipeline Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                 var resultValueSerializer = ArraySerializerHelper.GetItemSerializer(selectorTranslation.Serializer);
                 var resultWrappedValueSerializer = WrappedValueSerializer.Create(resultValueSerializer);
 
-                pipeline.AddStages(
+                pipeline = pipeline.AddStages(
                     resultWrappedValueSerializer,
                     AstStage.Project(
                         AstProject.Set("_v", selectorTranslation.Ast),
@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                     var resultValueSerializer = collectionItemSerializer;
                     var resultWrappedValueSerializer = WrappedValueSerializer.Create(resultValueSerializer);
 
-                    pipeline.AddStages(
+                    pipeline = pipeline.AddStages(
                         resultWrappedValueSerializer,
                         AstStage.Project(
                             AstProject.Set("_v", collectionSelectorTranslation.Ast),
@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                         @as: resultSelectorCollectionItemParameterExpression.Name,
                         @in: resultSelectorTranslation.Ast);
 
-                    pipeline.AddStages(
+                    pipeline = pipeline.AddStages(
                         resultWrappedValueSerializer,
                         AstStage.Project(
                             AstProject.Set("_v", resultAst),
