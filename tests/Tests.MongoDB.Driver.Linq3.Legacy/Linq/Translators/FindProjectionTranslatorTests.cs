@@ -30,6 +30,7 @@ namespace Tests.MongoDB.Driver.Linq2.Legacy.Translators
 {
     public class FindProjectionTranslatorTests
     {
+#if false
         [Fact]
         public void Should_not_translate_identity()
         {
@@ -351,5 +352,6 @@ namespace Tests.MongoDB.Driver.Linq2.Legacy.Translators
 
             public E E1 { get; set; }
         }
+#endif
     }
 }
