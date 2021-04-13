@@ -36,16 +36,17 @@ namespace MongoDB.Driver.Tests.Specifications.unified_test_format
         private UnifiedEntityMap _entityMap;
         private readonly List<FailPoint> _failPoints = new List<FailPoint>();
         private readonly Dictionary<string, object> _additionalArgs;
-        private readonly Dictionary<string, IEventsFormatter> _eventsFormatters;
+        private readonly Dictionary<string, IEventFormatter> _eventFormatters;
+        private bool _runHasBeenCalled;
 
         public UnifiedTestFormatTestRunner(
             bool allowKillSessions = true, // TODO: should be removed after SERVER-54216 
             Dictionary<string, object> additionalArgs = null,
-            Dictionary<string, IEventsFormatter> eventsFormatters = null)
+            Dictionary<string, IEventFormatter> eventFormatters = null)
         {
             _allowKillSessions = allowKillSessions;
             _additionalArgs = additionalArgs; // can be null
-            _eventsFormatters = eventsFormatters;
+            _eventFormatters = eventFormatters;
         }
 
         // public properties
@@ -83,7 +84,14 @@ namespace MongoDB.Driver.Tests.Specifications.unified_test_format
             BsonArray outcome,
             bool async)
         {
-            Ensure.IsNull(_entityMap, nameof(_entityMap)); // ensure that we don't call Run more than once
+            if (!_runHasBeenCalled)
+            {
+                _runHasBeenCalled = true;
+            }
+            else
+            {
+                throw new Exception("The test suite has already been run.");
+            }
 
             var schemaSemanticVersion = SemanticVersion.Parse(schemaVersion);
             if (schemaSemanticVersion < new SemanticVersion(1, 0, 0) ||
@@ -109,7 +117,7 @@ namespace MongoDB.Driver.Tests.Specifications.unified_test_format
                 KillOpenTransactions(DriverTestConfiguration.Client);
             }
 
-            _entityMap = new UnifiedEntityMapBuilder(_eventsFormatters).Build(entities);
+            _entityMap = new UnifiedEntityMapBuilder(_eventFormatters).Build(entities);
 
             if (initialData != null)
             {

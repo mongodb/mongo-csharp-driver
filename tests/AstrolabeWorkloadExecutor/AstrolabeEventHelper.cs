@@ -22,7 +22,7 @@ using MongoDB.Driver.Core.Servers;
 
 namespace AstrolabeWorkloadExecutor
 {
-    public static class AstrolabeEventsHandler
+    public static class AstrolabeEventHelper
     {
         // public methods
         public static BsonDocument CreateEventDocument(object @event) =>

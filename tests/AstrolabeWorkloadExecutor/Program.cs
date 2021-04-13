@@ -39,8 +39,8 @@ namespace WorkloadExecutor
             var connectionString = args[0];
             var driverWorkload = BsonDocument.Parse(args[1]);
 
-            var cancellationTokenSource = new CancellationTokenSource();
-            ConsoleCancelEventHandler cancelHandler = (o, e) => HandleCancel(e, cancellationTokenSource);
+            var astrolabeCancellationTokenSource = new CancellationTokenSource();
+            ConsoleCancelEventHandler cancelHandler = (o, e) => HandleCancel(e, astrolabeCancellationTokenSource);
 
             var resultsDir = Environment.GetEnvironmentVariable("RESULTS_DIR") ?? "";
             var eventsPath = Path.Combine(resultsDir, "events.json");
@@ -54,7 +54,7 @@ namespace WorkloadExecutor
 
             var async = bool.Parse(Environment.GetEnvironmentVariable("ASYNC") ?? throw new Exception($"ASYNC environment variable must be configured."));
 
-            var (eventsJson, resultsJson) = ExecuteWorkload(connectionString, driverWorkload, async, cancellationTokenSource.Token);
+            var (eventsJson, resultsJson) = ExecuteWorkload(connectionString, driverWorkload, async, astrolabeCancellationTokenSource.Token);
 
             Console.CancelKeyPress -= cancelHandler;
 
@@ -94,22 +94,22 @@ namespace WorkloadExecutor
             T GetValueOrDefault<T>(Dictionary<string, T> dictionary, string key, T @default) => dictionary.TryGetValue(key, out var value) ? value : @default;
         }
 
-        private static (string EventsJson, string ResultsJson) ExecuteWorkload(string connectionString, BsonDocument driverWorkload, bool async, CancellationToken cancellationToken)
+        private static (string EventsJson, string ResultsJson) ExecuteWorkload(string connectionString, BsonDocument driverWorkload, bool async, CancellationToken astrolabeCancellationToken)
         {
             Environment.SetEnvironmentVariable("MONGODB_URI", connectionString); // force using atlas connection string in our internal test connection strings
 
             var additionalArgs = new Dictionary<string, object>()
             {
-                { "AstrolabeCancellationToken", cancellationToken }
+                { "UnifiedLoopOperationLoopCancellationToken", astrolabeCancellationToken }
             };
-            var eventsFormatters = new Dictionary<string, IEventsFormatter>()
+            var eventFormatters = new Dictionary<string, IEventFormatter>()
             {
-                { "events", new AstrolabeEventsFormatter() }
+                { "events", new AstrolabeEventFormatter() } // "events" matches to the "storeEventsAsEntities.id" in the driverWorkload document
             };
             using (var testRunner = new UnifiedTestFormatTestRunner(
                 allowKillSessions: false,
                 additionalArgs: additionalArgs,
-                eventsFormatter: eventsFormatters))
+                eventFormatters: eventFormatters))
             {
                 var factory = new TestCaseFactory();
                 var testCase = factory.CreateTestCase(driverWorkload, async);
@@ -119,20 +119,20 @@ namespace WorkloadExecutor
             }
         }
 
-        private static void CancelWorkloadTask(CancellationTokenSource cancellationTokenSource)
+        private static void CancelWorkloadTask(CancellationTokenSource astrolabeCancellationTokenSource)
         {
             Console.Write($"dotnet cancel workload> Canceling the workload task...");
-            cancellationTokenSource.Cancel();
+            astrolabeCancellationTokenSource.Cancel();
             Console.WriteLine($"Done.");
         }
 
         private static void HandleCancel(
             ConsoleCancelEventArgs args,
-            CancellationTokenSource cancellationTokenSource)
+            CancellationTokenSource astrolabeCancellationTokenSource)
         {
             // We set the Cancel property to true to prevent the process from terminating
             args.Cancel = true;
-            CancelWorkloadTask(cancellationTokenSource);
+            CancelWorkloadTask(astrolabeCancellationTokenSource);
         }
 
         internal class TestCaseFactory : JsonDrivenTestCaseFactory

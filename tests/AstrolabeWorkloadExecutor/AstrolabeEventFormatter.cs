@@ -19,7 +19,7 @@ using MongoDB.Driver.Core;
 
 namespace AstrolabeWorkloadExecutor
 {
-    public class AstrolabeEventsFormatter : IEventsFormatter<string>
+    public class AstrolabeEventFormatter : IEventFormatter<string>
     {
         public string Format(object @event)
         {
@@ -27,10 +27,10 @@ namespace AstrolabeWorkloadExecutor
             {
                 OutputMode = JsonOutputMode.RelaxedExtendedJson
             };
-            return AstrolabeEventsHandler.CreateEventDocument(@event).ToJson(jsonWritterSettings);
+            return AstrolabeEventHelper.CreateEventDocument(@event).ToJson(jsonWritterSettings);
         }
 
         // explicit implementation
-        object IEventsFormatter.Format(object @event) => Format(@event);
+        object IEventFormatter.Format(object @event) => Format(@event);
     }
 }

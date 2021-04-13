@@ -19,6 +19,7 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.GridFS;
 using MongoDB.Driver.TestHelpers;
 
@@ -257,11 +258,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
     public class UnifiedEntityMapBuilder
     {
-        private readonly Dictionary<string, IEventsFormatter> _eventsFormatters;
+        private readonly Dictionary<string, IEventFormatter> _eventFormatters;
 
-        public UnifiedEntityMapBuilder(Dictionary<string, IEventsFormatter> eventsFormatters)
+        public UnifiedEntityMapBuilder(Dictionary<string, IEventFormatter> eventFormatters)
         {
-            _eventsFormatters = eventsFormatters ?? new ();
+            _eventFormatters = eventFormatters ?? new ();
         }
 
         public UnifiedEntityMap Build(BsonArray entitiesArray)
@@ -307,9 +308,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                             {
                                 throw new Exception($"Client entity with id '{id}' already exists.");
                             }
-                            var clientDetails = CreateClient(entity);
-                            clients.Add(id, clientDetails.Client);
-                            foreach (var createdEventCapturer in clientDetails.ClientEventCapturers)
+                            var (client, eventCapturers) = CreateClient(entity);
+                            clients.Add(id, client);
+                            foreach (var createdEventCapturer in eventCapturers)
                             {
                                 clientEventCapturers.Add(createdEventCapturer.Key, createdEventCapturer.Value);
                             }
@@ -435,7 +436,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         break;
                     case "observeEvents":
                         var observeEvents = element.Value.AsBsonArray.Select(x => x.AsString);
-                        eventTypesToCapture.Add((clientId, observeEvents, commandNamesToSkipInEvents));
+                        eventTypesToCapture.Add(
+                            (Key: Ensure.IsNotNull(clientId, nameof(clientId)),
+                             Events: observeEvents,
+                             CommandNotToCapture: commandNamesToSkipInEvents));
                         break;
                     case "ignoreCommandMonitoringEvents":
                         commandNamesToSkipInEvents.AddRange(element.Value.AsBsonArray.Select(x => x.AsString));
@@ -505,7 +509,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 foreach (var eventsDetails in eventTypesToCapture)
                 {
                     var commandNamesNotToCapture = Enumerable.Concat(eventsDetails.CommandNotToCapture ?? Enumerable.Empty<string>(), defaultCommandNamesToSkip);
-                    var eventsFormatter = _eventsFormatters.TryGetValue(eventsDetails.Key, out var formatter);
+                    _ = _eventFormatters.TryGetValue(eventsDetails.Key, out var formatter);
                     var eventCapturer = CreateEventCapturer(eventsDetails.Events, commandNamesNotToCapture, formatter);
                     clientEventCapturers.Add(eventsDetails.Key, eventCapturer);
                 }
@@ -606,9 +610,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             return client.GetDatabase(databaseName);
         }
 
-        private EventCapturer CreateEventCapturer(IEnumerable<string> eventTypesToCapture, IEnumerable<string> commandNamesToSkip, IEventsFormatter eventsFormatter)
+        private EventCapturer CreateEventCapturer(IEnumerable<string> eventTypesToCapture, IEnumerable<string> commandNamesToSkip, IEventFormatter eventFormatter)
         {
-            var eventCapturer = new EventCapturer(eventsFormatter);
+            var eventCapturer = new EventCapturer(eventFormatter);
 
             foreach (var eventTypeToCapture in eventTypesToCapture)
             {

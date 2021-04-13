@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         private readonly string _storeFailuresAsEntity;
         private readonly string _storeIterationsAsEntity;
         private readonly string _storeSuccessesAsEntity;
-        private readonly CancellationToken _terminatorCancellationToken;
+        private readonly CancellationToken _loopCancellationToken;
 
         public UnifiedLoopOperation(
             UnifiedEntityMap entityMap,
@@ -43,17 +43,17 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             string storeFailuresAsEntity,
             string storeIterationsAsEntity,
             string storeSuccessesAsEntity,
-            CancellationToken terminatorCancellationToken)
+            CancellationToken loopCancellationToken)
         {
             _entityMap = Ensure.IsNotNull(entityMap, nameof(entityMap));
             _errorDescriptionDocuments = new BsonArray();
             _failureDescriptionDocuments = new BsonArray();
             _loopOperations = Ensure.IsNotNull(loopOperations, nameof(loopOperations));
-            _storeErrorsAsEntity = storeErrorsAsEntity;
-            _storeFailuresAsEntity = storeFailuresAsEntity;
-            _storeIterationsAsEntity = storeIterationsAsEntity;
-            _storeSuccessesAsEntity = storeSuccessesAsEntity;
-            _terminatorCancellationToken = terminatorCancellationToken;
+            _storeErrorsAsEntity = storeErrorsAsEntity; // can be null
+            _storeFailuresAsEntity = storeFailuresAsEntity; // can be null
+            _storeIterationsAsEntity = storeIterationsAsEntity; // can be null
+            _storeSuccessesAsEntity = storeSuccessesAsEntity; // can be null
+            _loopCancellationToken = loopCancellationToken;
         }
 
         public void Execute(Action<BsonDocument, bool, CancellationToken> createAndRunOperationCallback, CancellationToken cancellationToken)
@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             int iterationsCount = 0;
             int successfulOperationsCount = 0;
-            while (!_terminatorCancellationToken.IsCancellationRequested)
+            while (!_loopCancellationToken.IsCancellationRequested)
             {
                 foreach (var operation in _loopOperations.Select(o => o.DeepClone().AsBsonDocument))  // the further operations can mutate the passed input documents
                                                                                                       // due to auto adding _id from the server response
@@ -145,7 +145,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 }
             }
             else
-            { 
+            {
                 if (_storeErrorsAsEntity != null)
                 {
                     _errorDescriptionDocuments.Add(CreateDocumentFromException(ex));
@@ -167,12 +167,12 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
     public class UnifiedLoopOperationBuilder
     {
         private readonly UnifiedEntityMap _entityMap;
-        private readonly CancellationToken _terminationCancellationToken;
+        private readonly CancellationToken _loopCancellationToken;
 
         public UnifiedLoopOperationBuilder(UnifiedEntityMap entityMap, Dictionary<string, object> additionalArgs)
         {
             _entityMap = entityMap;
-            _terminationCancellationToken = (CancellationToken)Ensure.IsNotNull(additionalArgs, nameof(additionalArgs))["AstrolabeCancellationToken"];
+            _loopCancellationToken = (CancellationToken)Ensure.IsNotNull(additionalArgs, nameof(additionalArgs))["UnifiedLoopOperationLoopCancellationToken"];
         }
 
         public UnifiedLoopOperation Build(BsonDocument arguments)
@@ -214,7 +214,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 storeFailuresAsEntity,
                 storeIterationsAsEntity,
                 storeSuccessesAsEntity,
-                _terminationCancellationToken);
+                _loopCancellationToken);
         }
     }
 }
