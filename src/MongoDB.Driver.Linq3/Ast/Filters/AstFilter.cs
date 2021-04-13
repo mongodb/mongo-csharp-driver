@@ -16,7 +16,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Linq3.Ast.Expressions;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
@@ -96,6 +98,16 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
         public static AstFieldOperationFilter Eq(AstFilterField field, BsonValue value)
         {
             return new AstFieldOperationFilter(field, new AstComparisonFilterOperation(AstComparisonFilterOperator.Eq, value));
+        }
+
+        public static AstFilter Expr(AstExpression expression)
+        {
+            return new AstExprFilter(expression);
+        }
+
+        public static AstFilterField Field(string path, IBsonSerializer serializer)
+        {
+            return new AstFilterField(path, serializer);
         }
 
         public static AstFieldOperationFilter In(AstFilterField field, IEnumerable<BsonValue> values)

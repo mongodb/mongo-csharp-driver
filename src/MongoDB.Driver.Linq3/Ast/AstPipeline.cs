@@ -24,6 +24,13 @@ namespace MongoDB.Driver.Linq3.Ast
 {
     public sealed class AstPipeline : AstNode
     {
+        #region static
+        public static AstPipeline Empty(IBsonSerializer outputSerializer)
+        {
+            return new AstPipeline(Enumerable.Empty<AstStage>(), outputSerializer);
+        }
+        #endregion
+
         private IBsonSerializer _outputSerializer;
         private readonly IReadOnlyList<AstStage> _stages;
 

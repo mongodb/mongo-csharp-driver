@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilte
                 containingFieldSerializerType.GetGenericTypeDefinition() == typeof(NullableSerializer<>))
             {
                 var valueSerializer = ((IChildSerializerConfigurable)containingFieldSerializer).ChildSerializer;
-                return new AstFilterField(containingFieldAst.Path, valueSerializer);
+                return AstFilter.Field(containingFieldAst.Path, valueSerializer);
             }
 
             throw new ExpressionNotSupportedException(memberExpression);

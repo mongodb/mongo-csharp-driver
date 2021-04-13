@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators
         private static AstFilter TranslateUsingAggregationOperators(TranslationContext context, Expression expression)
         {
             var expressionTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, expression);
-            return new AstExprFilter(expressionTranslation.Ast);
+            return AstFilter.Expr(expressionTranslation.Ast);
         }
 
         private static AstFilter TranslateUsingQueryOperators(TranslationContext context, Expression expression)

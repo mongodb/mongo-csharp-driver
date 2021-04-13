@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
             {
                 var query = (IQueryable)((ConstantExpression)expression).Value;
                 var provider = (MongoQueryProvider)query.Provider;
-                return new AstPipeline(Enumerable.Empty<AstStage>(), provider.DocumentSerializer);
+                return AstPipeline.Empty(provider.DocumentSerializer);
             }
 
             var methodCallExpression = (MethodCallExpression)expression;

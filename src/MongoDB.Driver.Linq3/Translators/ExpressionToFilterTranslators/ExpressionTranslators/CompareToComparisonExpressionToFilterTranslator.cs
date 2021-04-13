@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
                         var rightConstantValue = (int)rightConstantExpression.Value;
                         if (rightConstantValue == 0)
                         {
-                            return new AstFieldOperationFilter(field, new AstComparisonFilterOperation(comparisonOperator, serializedValue));
+                            return AstFilter.Compare(field, comparisonOperator, serializedValue);
                         }
                     }
                 }
