@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                 return new ExecutableQuery<TDocument, int, int>(
                     provider.Collection,
                     provider.Options,
-                    pipeline.ToPipelineDefinition<TDocument, int>(),
+                    pipeline,
                     _finalizer);
             }
 

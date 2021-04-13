@@ -1815,7 +1815,8 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
             var provider = (MongoQueryProvider<Root>)queryable.Provider;
             var executableQuery = ExpressionToExecutableQueryTranslator.Translate<Root, T>(provider, queryable.Expression);
 
-            executableQuery.Stages.Should().Equal(expectedStages.Select(x => BsonDocument.Parse(x)));
+            var stages = executableQuery.Pipeline.Stages.Select(s => s.Render());
+            stages.Should().Equal(expectedStages.Select(x => BsonDocument.Parse(x)));
 
             // async
             var results = queryable.ToListAsync().GetAwaiter().GetResult();

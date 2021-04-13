@@ -56,12 +56,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
             _outputSerializer = newOutputSerializer;
         }
 
-        public BsonDocumentStagePipelineDefinition<TInput, TOutput> ToPipelineDefinition<TInput, TOutput>()
-        {
-            var renderedStages = _stages.Select(s => s.Render().AsBsonDocument);
-            return new BsonDocumentStagePipelineDefinition<TInput, TOutput>(renderedStages, (IBsonSerializer<TOutput>)_outputSerializer);
-        }
-
         public override string ToString()
         {
             return new BsonArray(_stages.Select(s => s.Render())).ToJson();

@@ -290,7 +290,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             var provider = (MongoQueryProvider<TestObject>)queryable.Provider;
             var executableQuery = ExpressionToExecutableQueryTranslator.Translate<TestObject, T>(provider, queryable.Expression);
-            return executableQuery.Stages;
+            return executableQuery.Pipeline.Stages.Select(s => (BsonDocument)s.Render()).ToArray();
         }
 
         private IQueryable<TestObject> CreateWhereQuery(Expression<Func<TestObject, bool>> expression)

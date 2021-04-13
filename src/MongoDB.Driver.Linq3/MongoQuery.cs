@@ -87,7 +87,7 @@ namespace MongoDB.Driver.Linq3
             try
             {
                 var executableQuery = ExpressionToExecutableQueryTranslator.Translate<TDocument, TOutput>(_provider, _expression);
-                return $"[{string.Join(", ", executableQuery.Stages.Select(s => s.ToJson()))}]";
+                return executableQuery.Pipeline.ToString();
             }
             catch (Exception ex)
             {
