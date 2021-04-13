@@ -52,6 +52,7 @@ namespace MongoDB.Driver.Linq3.Ast
         FieldOperationFilter,
         FilterExpression,
         FilterField,
+        FindProjection,
         FunctionExpression,
         GeoIntersectsFilterOperation,
         GeoNearStage,
