@@ -47,7 +47,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Jira
 
             var executableQuery = ExpressionToExecutableQueryTranslator.Translate<Item, ProjectedItem>(provider, queryable.Expression);
 
-            var stages = executableQuery.Stages;
+            var stages = executableQuery.Pipeline.Stages.Select(s => s.Render());
             var expectedStages = new string[]
             {
                 @"

@@ -1768,7 +1768,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
 
             var provider = (MongoQueryProvider<Root>)query.Provider;
             var executableQuery = ExpressionToExecutableQueryTranslator.Translate<Root, TResult>(provider, query.Expression);
-            var projection = executableQuery.Stages[0]["$project"].AsBsonDocument;
+            var projection = executableQuery.Pipeline.Stages.First().Render()["$project"].AsBsonDocument;
             var value = query.FirstOrDefault();
 
             return new ProjectedResult<TResult>

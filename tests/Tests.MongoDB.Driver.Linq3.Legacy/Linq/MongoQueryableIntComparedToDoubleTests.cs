@@ -120,7 +120,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
         {
             var provider = (MongoQueryProvider<T>)queryable.Provider;
             var executableQuery = ExpressionToExecutableQueryTranslator.Translate<T, T>(provider, queryable.Expression);
-            return executableQuery.Stages;
+            return executableQuery.Pipeline.Stages.Select(s => (BsonDocument)s.Render()).ToArray();
         }
     }
 }
