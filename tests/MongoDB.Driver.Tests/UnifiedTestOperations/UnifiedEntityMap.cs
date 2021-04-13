@@ -509,7 +509,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 foreach (var eventsDetails in eventTypesToCapture)
                 {
                     var commandNamesNotToCapture = Enumerable.Concat(eventsDetails.CommandNotToCapture ?? Enumerable.Empty<string>(), defaultCommandNamesToSkip);
-                    _ = _eventFormatters.TryGetValue(eventsDetails.Key, out var formatter);
+                    var formatter = _eventFormatters.ContainsKey(eventsDetails.Key) ? _eventFormatters[eventsDetails.Key] : null;
                     var eventCapturer = CreateEventCapturer(eventsDetails.Events, commandNamesNotToCapture, formatter);
                     clientEventCapturers.Add(eventsDetails.Key, eventCapturer);
                 }

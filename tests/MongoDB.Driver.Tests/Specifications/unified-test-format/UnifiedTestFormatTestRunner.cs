@@ -84,14 +84,11 @@ namespace MongoDB.Driver.Tests.Specifications.unified_test_format
             BsonArray outcome,
             bool async)
         {
-            if (!_runHasBeenCalled)
+            if (_runHasBeenCalled)
             {
-                _runHasBeenCalled = true;
+                throw new InvalidOperationException("The test suite has already been run.");
             }
-            else
-            {
-                throw new Exception("The test suite has already been run.");
-            }
+            _runHasBeenCalled = true;
 
             var schemaSemanticVersion = SemanticVersion.Parse(schemaVersion);
             if (schemaSemanticVersion < new SemanticVersion(1, 0, 0) ||

@@ -13,9 +13,14 @@
 * limitations under the License.
 */
 
+using System;
+using System.Net;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Servers;
 
 namespace AstrolabeWorkloadExecutor
 {
@@ -27,10 +32,107 @@ namespace AstrolabeWorkloadExecutor
             {
                 OutputMode = JsonOutputMode.RelaxedExtendedJson
             };
-            return AstrolabeEventHelper.CreateEventDocument(@event).ToJson(jsonWritterSettings);
+            return CreateEventDocument(@event).ToJson(jsonWritterSettings);
         }
 
         // explicit implementation
         object IEventFormatter.Format(object @event) => Format(@event);
+
+        // private methods
+        public BsonDocument CreateEventDocument(object @event) =>
+         @event switch
+         {
+             CommandStartedEvent typedEvent =>
+                 CreateCommandEventDocument(
+                     "CommandStartedEvent",
+                     typedEvent.Timestamp,
+                     typedEvent.CommandName,
+                     typedEvent.RequestId)
+                 .Add("databaseName", typedEvent.DatabaseNamespace.DatabaseName),
+
+             CommandSucceededEvent typedEvent =>
+                 CreateCommandEventDocument(
+                     "CommandSucceededEvent",
+                     typedEvent.Timestamp,
+                     typedEvent.CommandName,
+                     typedEvent.RequestId)
+                 .Add("duration", typedEvent.Duration.TotalMilliseconds),
+
+             CommandFailedEvent typedEvent =>
+                 CreateCommandEventDocument(
+                     "CommandFailedEvent",
+                     typedEvent.Timestamp,
+                     typedEvent.CommandName,
+                     typedEvent.RequestId)
+                 .Add("duration", typedEvent.Duration.TotalMilliseconds)
+                 .Add("failure", typedEvent.Failure.ToString()),
+
+             ConnectionPoolOpenedEvent typedEvent =>
+                 CreateCmapEventDocument("PoolCreatedEvent", typedEvent.Timestamp, typedEvent.ServerId),
+
+             ConnectionPoolClearedEvent typedEvent =>
+                 CreateCmapEventDocument("PoolClearedEvent", typedEvent.Timestamp, typedEvent.ServerId),
+
+             ConnectionPoolClosedEvent typedEvent =>
+                 CreateCmapEventDocument("PoolClosedEvent", typedEvent.Timestamp, typedEvent.ServerId),
+
+             ConnectionCreatedEvent typedEvent =>
+                 CreateCmapEventDocument("ConnectionCreatedEvent", typedEvent.Timestamp, typedEvent.ConnectionId),
+
+             ConnectionClosedEvent typedEvent =>
+                 CreateCmapEventDocument(
+                     "ConnectionClosedEvent",
+                     typedEvent.Timestamp,
+                     typedEvent.ConnectionId),
+                //.Add("reason", typedEvent.Reason), // TODO: should be implemented in the scope of CSHARP-3219
+
+                ConnectionPoolCheckingOutConnectionEvent typedEvent =>
+                 CreateCmapEventDocument("ConnectionCheckOutStartedEvent", typedEvent.Timestamp, typedEvent.ServerId),
+
+             ConnectionPoolCheckingOutConnectionFailedEvent typedEvent =>
+                 CreateCmapEventDocument(
+                     "ConnectionCheckOutFailedEvent",
+                     typedEvent.Timestamp,
+                     typedEvent.ServerId)
+                 .Add("reason", typedEvent.Reason),
+
+             ConnectionPoolCheckedOutConnectionEvent typedEvent =>
+                 CreateCmapEventDocument("ConnectionCheckedOutEvent", typedEvent.Timestamp, typedEvent.ConnectionId),
+
+             ConnectionPoolCheckedInConnectionEvent typedEvent =>
+                 CreateCmapEventDocument("ConnectionCheckedInEvent", typedEvent.Timestamp, typedEvent.ConnectionId),
+
+             ConnectionOpenedEvent typedEvent =>
+                 CreateCmapEventDocument("ConnectionReadyEvent", typedEvent.Timestamp, typedEvent.ConnectionId),
+
+             _ => throw new FormatException($"Unrecognized event type: '{@event.GetType()}'."),
+         };
+
+        private BsonDocument CreateCmapEventDocument(string eventName, DateTime timestamp, ServerId serverId) =>
+            new BsonDocument
+            {
+                { "name", eventName },
+                { "observedAt", BsonUtils.ToSecondsSinceEpoch(timestamp) },
+                { "address", GetAddress(serverId) }
+            };
+
+        private BsonDocument CreateCmapEventDocument(string eventName, DateTime timestamp, ConnectionId connectionId) =>
+            CreateCmapEventDocument(eventName, timestamp, connectionId.ServerId)
+            .Add("connectionId", connectionId.LocalValue);
+
+        private static BsonDocument CreateCommandEventDocument(string eventName, DateTime timestamp, string commandName, int requestId, string customJsonNodeWithComma = "") =>
+            new BsonDocument
+            {
+                { "name", eventName },
+                { "observedAt", BsonUtils.ToSecondsSinceEpoch(timestamp) },
+                { "commandName", commandName },
+                { "requestId", requestId }
+            };
+
+        private string GetAddress(ServerId serverId)
+        {
+            var endpoint = (DnsEndPoint)serverId.EndPoint;
+            return $"{endpoint.Host}:{endpoint.Port}";
+        }
     }
 }
