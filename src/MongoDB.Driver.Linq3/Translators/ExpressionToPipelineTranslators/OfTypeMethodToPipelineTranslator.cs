@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                 {
                     discriminatorElementName = "_v." + discriminatorElementName;
                 }
-                var discriminatorField = new AstFilterField(discriminatorElementName, BsonValueSerializer.Instance);
+                var discriminatorField = AstFilter.Field(discriminatorElementName, BsonValueSerializer.Instance);
                 var discriminatorValue = discriminatorConvention.GetDiscriminator(nominalType, actualType);
                 var filter = AstFilter.Eq(discriminatorField, discriminatorValue);
                 var actualSerializer = BsonSerializer.LookupSerializer(actualType); // TODO: use known serializer

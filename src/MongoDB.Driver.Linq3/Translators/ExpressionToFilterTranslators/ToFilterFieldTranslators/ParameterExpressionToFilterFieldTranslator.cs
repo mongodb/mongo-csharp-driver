@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilte
             {
                 var fieldName = symbol == symbolTable.Current ? "$CURRENT" : symbol.Name;
                 var fieldSerializer = symbol.Serializer;
-                var fieldAst = new AstFilterField(fieldName, fieldSerializer);
+                var fieldAst = AstFilter.Field(fieldName, fieldSerializer);
 
                 if (fieldSerializer is IWrappedValueSerializer wrappedValueSerializer)
                 {

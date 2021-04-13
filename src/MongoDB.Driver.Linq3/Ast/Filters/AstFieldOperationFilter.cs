@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
             _operation = Ensure.IsNotNull(operation, nameof(operation));
         }
 
-        public AstFilterField Field => _field;
+        public new AstFilterField Field => _field;
         public override AstNodeType NodeType => AstNodeType.FieldOperationFilter;
         public AstFilterOperation Operation => _operation;
 
