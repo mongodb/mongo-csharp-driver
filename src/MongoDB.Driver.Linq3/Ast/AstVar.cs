@@ -19,28 +19,28 @@ using MongoDB.Driver.Linq3.Ast.Expressions;
 
 namespace MongoDB.Driver.Linq3.Ast
 {
-    public sealed class AstComputedField
+    public sealed class AstVar
     {
-        private readonly string _path;
+        private readonly string _name;
         private readonly AstExpression _value;
 
-        public AstComputedField(string path, AstExpression value)
+        public AstVar(string name, AstExpression value)
         {
-            _path = Ensure.IsNotNull(path, nameof(path));
+            _name = Ensure.IsNotNull(name, nameof(name));
             _value = Ensure.IsNotNull(value, nameof(value));
         }
 
-        public string Path => _path;
+        public string Name => _name;
         public AstExpression Value => _value;
 
         public BsonElement Render()
         {
-            return new BsonElement(_path, _value.Render());
+            return new BsonElement(_name, _value.Render());
         }
 
         public override string ToString()
         {
-            return $"\"{_path}\" : {_value.Render().ToJson()}";
+            return $"\"{_name}\" : {_value.Render().ToJson()}";
         }
     }
 }

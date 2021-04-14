@@ -23,10 +23,10 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
     public sealed class AstLetExpression : AstExpression
     {
         private readonly AstExpression _in;
-        private readonly IReadOnlyList<AstComputedField> _vars;
+        private readonly IReadOnlyList<AstVar> _vars;
 
         public AstLetExpression(
-            IEnumerable<AstComputedField> vars,
+            IEnumerable<AstVar> vars,
             AstExpression @in)
         {
             _vars = Ensure.IsNotNull(vars, nameof(vars)).ToList().AsReadOnly();
@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
 
         public new AstExpression In => _in;
         public override AstNodeType NodeType => AstNodeType.LetExpression;
-        public IReadOnlyList<AstComputedField> Vars => _vars;
+        public IReadOnlyList<AstVar> Vars => _vars;
 
         public override BsonValue Render()
         {

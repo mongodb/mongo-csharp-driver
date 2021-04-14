@@ -89,10 +89,10 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
 
             throw new ExpressionNotSupportedException(expression);
 
-            (AstComputedField, AstExpression) TranslateObject(Expression objectExpression)
+            (AstVar, AstExpression) TranslateObject(Expression objectExpression)
             {
                 var stringTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, objectExpression);
-                var stringVar = AstExpression.ComputedField("string", stringTranslation.Ast);
+                var stringVar = AstExpression.Var("string", stringTranslation.Ast);
                 var stringAst = AstExpression.Field("$string");
                 return (stringVar, stringAst);
             }
@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 throw new ExpressionNotSupportedException(expression);
             }
 
-            (AstComputedField, AstExpression) TranslateStartIndex(ReadOnlyCollection<Expression> arguments)
+            (AstVar, AstExpression) TranslateStartIndex(ReadOnlyCollection<Expression> arguments)
             {
                 if (arguments.Count < 2)
                 {
@@ -121,7 +121,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 return AstExpression.UseVarIfNotSimple("startIndex", startIndexTranslation.Ast);
             }
 
-            (AstComputedField, AstExpression) TranslateCount(ReadOnlyCollection<Expression> arguments)
+            (AstVar, AstExpression) TranslateCount(ReadOnlyCollection<Expression> arguments)
             {
                 if (arguments.Count < 3)
                 {
@@ -133,7 +133,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 return AstExpression.UseVarIfNotSimple("count", countTranslation.Ast);
             }
 
-            (AstComputedField, AstExpression) ComputeEnd(AstExpression startIndexAst, AstExpression countAst)
+            (AstVar, AstExpression) ComputeEnd(AstExpression startIndexAst, AstExpression countAst)
             {
                 if (countAst == null)
                 {
