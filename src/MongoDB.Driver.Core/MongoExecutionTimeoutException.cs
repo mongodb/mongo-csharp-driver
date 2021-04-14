@@ -88,6 +88,7 @@ namespace MongoDB.Driver
         public MongoExecutionTimeoutException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            _result = (BsonDocument)info.GetValue("_result", typeof(BsonDocument));
         }
 #endif
 
@@ -110,5 +111,14 @@ namespace MongoDB.Driver
         /// The name of the error code.
         /// </value>
         public string CodeName => _result?.GetValue("codeName", null)?.AsString;
+
+#if !NETSTANDARD1_5
+        /// <inheritdoc/>
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("_result", _result);
+        }
+#endif
     }
 }

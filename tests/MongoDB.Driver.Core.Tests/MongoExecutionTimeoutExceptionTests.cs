@@ -22,6 +22,9 @@ using System.Net;
 using System.Runtime.Serialization.Formatters.Binary;
 #endif
 using FluentAssertions;
+#if !NETCOREAPP1_1
+using MongoDB.Bson;
+#endif
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
@@ -59,7 +62,7 @@ namespace MongoDB.Driver
         [Fact]
         public void Serialization_should_work()
         {
-            var subject = new MongoExecutionTimeoutException(_connectionId, _message, _innerException);
+            var subject = new MongoExecutionTimeoutException(_connectionId, _message, _innerException, new BsonDocument("code", 1234));
 
             var formatter = new BinaryFormatter();
             using (var stream = new MemoryStream())
@@ -68,9 +71,10 @@ namespace MongoDB.Driver
                 stream.Position = 0;
                 var rehydrated = (MongoExecutionTimeoutException)formatter.Deserialize(stream);
 
+                rehydrated.Code.Should().Be(subject.Code);
                 rehydrated.ConnectionId.Should().Be(subject.ConnectionId);
+                rehydrated.InnerException.Message.Should().Be(subject.InnerException.Message);
                 rehydrated.Message.Should().Be(subject.Message);
-                rehydrated.InnerException.Message.Should().Be(subject.InnerException.Message); // Exception does not override Equals
             }
         }
 #endif
