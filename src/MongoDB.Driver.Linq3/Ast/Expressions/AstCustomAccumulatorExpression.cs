@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
             string accumulate,
             IEnumerable<AstExpression> accumulateArgs,
             string merge,
-            string finalize)
+            string finalize = null)
         {
             _lang = Ensure.IsNotNullOrEmpty(lang, nameof(lang));
             _init = Ensure.IsNotNullOrEmpty(init, nameof(init));

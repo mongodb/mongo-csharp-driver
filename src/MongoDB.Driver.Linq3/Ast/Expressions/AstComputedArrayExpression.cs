@@ -29,25 +29,12 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
             _items = Ensure.IsNotNull(items, nameof(items)).ToList().AsReadOnly();
         }
 
-        public AstComputedArrayExpression(params AstExpression[] items)
-            : this((IEnumerable<AstExpression>)items)
-        {
-        }
-
         public IReadOnlyList<AstExpression> Items => _items;
         public override AstNodeType NodeType => AstNodeType.ComputedArrayExpression;
 
         public override BsonValue Render()
         {
-            var renderedItems = new List<BsonValue>();
-
-            foreach (var item in _items)
-            {
-                var renderedItem = item.Render();
-                renderedItems.Add(renderedItem);
-            }
-
-            return new BsonArray(renderedItems);
+            return new BsonArray(_items.Select(item => item.Render()));
         }
     }
 }

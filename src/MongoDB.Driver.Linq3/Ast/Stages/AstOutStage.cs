@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Linq3.Ast.Stages
         {
             return
                 _outputDatabase == null ?
-                    (BsonValue)BsonString.Create(_outputCollection) :
+                    BsonString.Create(_outputCollection) :
                     new BsonDocument { { "db", _outputDatabase }, { "coll", _outputCollection } };
         }
     }
