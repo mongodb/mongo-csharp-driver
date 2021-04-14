@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Linq3.Misc
             var isIdProjected = false;
             foreach (var computedField in computedDocument.Fields)
             {
-                var name = computedField.Name;
+                var path = computedField.Path;
                 var value = computedField.Value;
 
                 if (value is AstConstantExpression astConstantExpression)
@@ -59,8 +59,8 @@ namespace MongoDB.Driver.Linq3.Misc
                         value = AstExpression.Literal(value);
                     }
                 }
-                specifications.Add(AstProject.Set(name, value));
-                isIdProjected |= computedField.Name == "_id";
+                specifications.Add(AstProject.Set(path, value));
+                isIdProjected |= path == "_id";
             }
 
             if (!isIdProjected)

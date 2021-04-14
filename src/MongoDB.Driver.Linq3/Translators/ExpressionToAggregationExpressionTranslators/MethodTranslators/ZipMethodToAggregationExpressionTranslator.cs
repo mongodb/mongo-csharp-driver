@@ -52,11 +52,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                     input: AstExpression.Zip(new[] { firstTranslation.Ast, secondTranslation.Ast }),
                     @as: "z__",
                     @in: AstExpression.Let(
-                        vars: AstExpression.ComputedFields
-                        (
-                            (resultSelectorParameter1.Name, AstExpression.ArrayElemAt(AstExpression.Field("$z__"), 0)),
-                            (resultSelectorParameter2.Name, AstExpression.ArrayElemAt(AstExpression.Field("$z__"), 1))
-                        ),
+                        AstExpression.Var(resultSelectorParameter1.Name, AstExpression.ArrayElemAt(AstExpression.Field("$z__"), 0)),
+                        AstExpression.Var(resultSelectorParameter2.Name, AstExpression.ArrayElemAt(AstExpression.Field("$z__"), 1)),
                         @in: resultSelectorTranslation.Ast));
                 var serializer = IEnumerableSerializer.Create(resultSelectorTranslation.Serializer);
 

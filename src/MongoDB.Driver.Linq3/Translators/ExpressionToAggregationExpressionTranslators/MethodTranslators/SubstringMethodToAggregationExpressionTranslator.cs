@@ -73,17 +73,14 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 }
                 else
                 {
-                    var vars = new[]
-                    {
-                            AstExpression.ComputedField("string", stringTranslation.Ast),
-                            AstExpression.ComputedField("index", startIndexTranslation.Ast)
-                    };
+                    var stringVar = AstExpression.Var("string", stringTranslation.Ast);
+                    var indexVar = AstExpression.Var("index", startIndexTranslation.Ast);
                     var stringField = AstExpression.Field("$string");
                     var indexField = AstExpression.Field("$index");
                     var lengthAst = AstExpression.StrLen(strlenOperator, stringField);
                     var countAst = AstExpression.Subtract(lengthAst, indexField);
                     var inAst = AstExpression.Substr(substrOperator, stringField, indexField, countAst);
-                    ast = AstExpression.Let(vars, inAst);
+                    ast = AstExpression.Let(stringVar, indexVar, inAst);
                 }
             }
             else

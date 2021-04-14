@@ -321,7 +321,7 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
             return new AstUnaryExpression(AstUnaryOperator.Last, array);
         }
 
-        public static AstExpression Let(AstComputedField var, AstExpression @in)
+        public static AstExpression Let(AstVar var, AstExpression @in)
         {
             if (var == null)
             {
@@ -333,7 +333,7 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
             }
         }
 
-        public static AstExpression Let(AstComputedField var1, AstComputedField var2, AstExpression @in)
+        public static AstExpression Let(AstVar var1, AstVar var2, AstExpression @in)
         {
             if (var1 == null && var2 == null)
             {
@@ -341,14 +341,14 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
             }
             else
             {
-                var vars = new List<AstComputedField>(2);
+                var vars = new List<AstVar>(2);
                 if (var1 != null) { vars.Add(var1); }
                 if (var2 != null) { vars.Add(var2); }
                 return new AstLetExpression(vars, @in);
             }
         }
 
-        public static AstExpression Let(AstComputedField var1, AstComputedField var2, AstComputedField var3, AstExpression @in)
+        public static AstExpression Let(AstVar var1, AstVar var2, AstVar var3, AstExpression @in)
         {
             if (var1 == null && var2 == null && var3 == null)
             {
@@ -356,7 +356,7 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
             }
             else
             {
-                var vars = new List<AstComputedField>(2);
+                var vars = new List<AstVar>(2);
                 if (var1 != null) { vars.Add(var1); }
                 if (var2 != null) { vars.Add(var2); }
                 if (var3 != null) { vars.Add(var3); }
@@ -364,7 +364,7 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
             }
         }
 
-        public static AstExpression Let(IEnumerable<AstComputedField> vars, AstExpression @in)
+        public static AstExpression Let(IEnumerable<AstVar> vars, AstExpression @in)
         {
             return new AstLetExpression(vars, @in);
         }
@@ -631,7 +631,7 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
             }
             else
             {
-                return AstExpression.Let(AstExpression.ComputedField("this", expression), AstExpression.Field($"$this.{subFieldName}"));
+                return AstExpression.Let(AstExpression.Var("this", expression), AstExpression.Field($"$this.{subFieldName}"));
             }
         }
 
@@ -702,7 +702,7 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
             return new AstUnaryExpression(AstUnaryOperator.Trunc, arg);
         }
 
-        public static (AstComputedField, AstExpression) UseVarIfNotSimple(string name, AstExpression expression)
+        public static (AstVar, AstExpression) UseVarIfNotSimple(string name, AstExpression expression)
         {
             if (IsSimple(expression))
             {
@@ -710,7 +710,7 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
             }
             else
             {
-                var var = AstExpression.ComputedField(name, expression);
+                var var = AstExpression.Var(name, expression);
                 var simpleAst = AstExpression.Field("$" + name);
                 return (var, simpleAst);
             }
@@ -722,6 +722,11 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
                     expression.NodeType == AstNodeType.ConstantExpression ||
                     expression.NodeType == AstNodeType.FieldExpression;
             }
+        }
+
+        public static AstVar Var(string name, AstExpression value)
+        {
+            return new AstVar(name, value);
         }
 
         public static AstExpression Zip(IEnumerable<AstExpression> inputs, bool? useLongestLength = null, AstExpression defaults = null)
