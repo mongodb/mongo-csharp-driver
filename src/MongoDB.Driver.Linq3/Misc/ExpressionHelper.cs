@@ -19,7 +19,7 @@ namespace MongoDB.Driver.Linq3.Misc
 {
     public static class ExpressionHelper
     {
-        public static LambdaExpression Unquote(Expression expression)
+        public static LambdaExpression UnquoteLambda(Expression expression)
         {
             Throw.IfNull(expression, nameof(expression));
             Throw.If(expression.NodeType != ExpressionType.Quote, "NodeType must be Quote.", nameof(expression));

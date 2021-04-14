@@ -28,13 +28,13 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             if (expression.Method.Is(EnumerableMethod.Select))
             {
                 var sourceExpression = expression.Arguments[0];
-                var selectorExpression = (LambdaExpression)expression.Arguments[1];
+                var selectorLambda = (LambdaExpression)expression.Arguments[1];
 
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
-                var selectorParameter = selectorExpression.Parameters[0];
+                var selectorParameter = selectorLambda.Parameters[0];
                 var selectorParameterSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
                 var selectorContext = context.WithSymbol(selectorParameter, new Symbol("$" + selectorParameter.Name, selectorParameterSerializer));
-                var translatedSelector = ExpressionToAggregationExpressionTranslator.Translate(selectorContext, selectorExpression.Body);
+                var translatedSelector = ExpressionToAggregationExpressionTranslator.Translate(selectorContext, selectorLambda.Body);
                 var ast = AstExpression.Map(
                     sourceTranslation.Ast,
                     selectorParameter.Name,

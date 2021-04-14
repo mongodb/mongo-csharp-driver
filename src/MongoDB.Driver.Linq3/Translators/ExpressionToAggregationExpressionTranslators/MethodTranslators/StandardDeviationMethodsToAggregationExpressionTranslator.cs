@@ -34,25 +34,25 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 if (arguments.Count == 1 || arguments.Count == 2)
                 {
                     var sourceExpression = arguments[0];
-                    LambdaExpression selectorExpression = null;
+                    LambdaExpression selectorLambda = null;
                     if (arguments.Count == 2)
                     {
-                        selectorExpression = (LambdaExpression)arguments[1];
+                        selectorLambda = (LambdaExpression)arguments[1];
                     }
 
                     var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
-                    if (selectorExpression != null)
+                    if (selectorLambda != null)
                     {
-                        var selectorParameter = selectorExpression.Parameters[0];
+                        var selectorParameter = selectorLambda.Parameters[0];
                         var selectorParameterSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
                         var selectorContext = context.WithSymbol(selectorParameter, new Symbol("$" + selectorParameter.Name, selectorParameterSerializer));
-                        var selectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(selectorContext, selectorExpression.Body);
+                        var selectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(selectorContext, selectorLambda.Body);
                         var selectorAst = AstExpression.Map(
                             input: sourceTranslation.Ast,
                             @as: selectorParameter.Name,
                             @in: selectorTranslation.Ast);
-                        var selectorResultSerializer = BsonSerializer.LookupSerializer(selectorExpression.ReturnType);
-                        sourceTranslation = new AggregationExpression(selectorExpression, selectorAst, selectorResultSerializer);
+                        var selectorResultSerializer = BsonSerializer.LookupSerializer(selectorLambda.ReturnType);
+                        sourceTranslation = new AggregationExpression(selectorLambda, selectorAst, selectorResultSerializer);
                     }
                     var ast = AstExpression.StdDev(stddevOperator, sourceTranslation.Ast);
                     var serializer = BsonSerializer.LookupSerializer(expression.Type);

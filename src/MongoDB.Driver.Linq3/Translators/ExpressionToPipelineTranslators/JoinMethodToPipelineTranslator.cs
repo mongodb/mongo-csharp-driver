@@ -49,10 +49,10 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                 var innerQueryProvider = GetMongoQueryProvider(innerExpression);
                 var innerSerializer = innerQueryProvider.DocumentSerializer;
 
-                var outerKeySelectorLambda = ExpressionHelper.Unquote(arguments[2]);
+                var outerKeySelectorLambda = ExpressionHelper.UnquoteLambda(arguments[2]);
                 var localFieldPath = GetLocalFieldPath(context, outerKeySelectorLambda, wrappedOuterSerializer);
 
-                var innerKeySelectorLambda = ExpressionHelper.Unquote(arguments[3]);
+                var innerKeySelectorLambda = ExpressionHelper.UnquoteLambda(arguments[3]);
                 var foreignFieldPath = GetForeignFieldPath(context, innerKeySelectorLambda, innerSerializer);
 
                 var lookupStage = AstStage.Lookup(
@@ -62,7 +62,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
 
                 var unwindStage = AstStage.Unwind("_inner");
 
-                var resultSelectorLambda = ExpressionHelper.Unquote(arguments[4]);
+                var resultSelectorLambda = ExpressionHelper.UnquoteLambda(arguments[4]);
                 var outerParameter = resultSelectorLambda.Parameters[0];
                 var outerSymbol = new Symbol("_outer", outerSerializer);
                 var innerParameter = resultSelectorLambda.Parameters[1];
