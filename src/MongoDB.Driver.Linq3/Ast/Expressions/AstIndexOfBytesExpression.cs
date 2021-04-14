@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
             _string = Ensure.IsNotNull(@string, nameof(@string));
             _value = Ensure.IsNotNull(value, nameof(value));
             _start = start;
-            _end = Ensure.That(end, (_) => end == null || start != null, nameof(end), "If end is specified then start must be specified also.");
+            _end = Ensure.That(end, _ => end == null || start != null, nameof(end), "If end is specified then start must be specified also.");
         }
 
         public AstExpression End => _end;

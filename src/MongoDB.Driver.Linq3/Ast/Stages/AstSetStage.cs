@@ -33,12 +33,7 @@ namespace MongoDB.Driver.Linq3.Ast.Stages
 
         public override BsonValue Render()
         {
-            return new BsonDocument("$set", RenderFields());
-        }
-
-        private BsonDocument RenderFields()
-        {
-            return new BsonDocument(_fields.Select(f => f.Render()));
+            return new BsonDocument("$set", new BsonDocument(_fields.Select(f => f.Render())));
         }
     }
 }

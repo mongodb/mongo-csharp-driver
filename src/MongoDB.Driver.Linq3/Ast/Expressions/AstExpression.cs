@@ -296,9 +296,9 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
             return new AstBinaryExpression(AstBinaryOperator.Gte, arg1, arg2);
         }
 
-        public static AstExpression IfNull(AstExpression expression, AstExpression replacement)
+        public static AstExpression IfNull(AstExpression arg, AstExpression replacement)
         {
-            return new AstBinaryExpression(AstBinaryOperator.IfNull, expression, replacement);
+            return new AstBinaryExpression(AstBinaryOperator.IfNull, arg, replacement);
         }
 
         public static AstExpression In(AstExpression value, AstExpression array)
@@ -306,7 +306,7 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
             return new AstBinaryExpression(AstBinaryOperator.In, value, array);
         }
 
-        public static AstExpression IndexOfBytes(AstExpression @string, AstExpression value, AstExpression start, AstExpression end)
+        public static AstExpression IndexOfBytes(AstExpression @string, AstExpression value, AstExpression start = null, AstExpression end = null)
         {
             return new AstIndexOfBytesExpression(@string, value, start, end);
         }

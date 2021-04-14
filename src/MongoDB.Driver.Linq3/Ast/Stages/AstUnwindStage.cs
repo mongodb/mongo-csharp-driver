@@ -20,23 +20,23 @@ namespace MongoDB.Driver.Linq3.Ast.Stages
 {
     public sealed class AstUnwindStage : AstStage
     {
-        private readonly string _field;
+        private readonly string _path;
         private readonly string _includeArrayIndex;
         private readonly bool? _preserveNullAndEmptyArrays;
 
         public AstUnwindStage(
-            string field,
+            string path,
             string includeArrayIndex = null,
             bool? preserveNullAndEmptyArrays = null)
         {
-            _field = Ensure.IsNotNull(field, nameof(field));
+            _path = Ensure.IsNotNull(path, nameof(path));
             _includeArrayIndex = includeArrayIndex;
             _preserveNullAndEmptyArrays = preserveNullAndEmptyArrays;
         }
 
-        public string Field => _field;
         public string IncludeArrayIndex => _includeArrayIndex;
         public override AstNodeType NodeType => AstNodeType.UnwindStage;
+        public string Path => _path;
         public bool? PreserveNullAndEmptyArrays => _preserveNullAndEmptyArrays;
 
         public override BsonValue Render()
@@ -48,13 +48,13 @@ namespace MongoDB.Driver.Linq3.Ast.Stages
         {
             if (_includeArrayIndex == null && _preserveNullAndEmptyArrays == null)
             {
-                return "$" + _field;
+                return "$" + _path;
             }
             else
             {
                 return new BsonDocument
                 {
-                    { "path", _field },
+                    { "path", "$" + _path },
                     { "includeArrayIndex", _includeArrayIndex, _includeArrayIndex != null },
                     { "preserveNullAndEmptyArrays", () => _preserveNullAndEmptyArrays.Value, _preserveNullAndEmptyArrays != null }
                 };

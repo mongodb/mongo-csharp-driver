@@ -28,6 +28,5 @@ namespace MongoDB.Driver.Linq3.ExtensionMethods
 
             throw new ExpressionNotSupportedException(expression);
         }
-
     }
 }
