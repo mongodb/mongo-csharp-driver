@@ -40,8 +40,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
 
             if (method.Is(QueryableMethod.SelectMany))
             {
-                var selectorLambdaExpression = ExpressionHelper.Unquote(arguments[1]);
-                var selectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, selectorLambdaExpression, sourceSerializer, asCurrentSymbol: true);
+                var selectorLambda = ExpressionHelper.UnquoteLambda(arguments[1]);
+                var selectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, selectorLambda, sourceSerializer, asCurrentSymbol: true);
                 var resultValueSerializer = ArraySerializerHelper.GetItemSerializer(selectorTranslation.Serializer);
                 var resultWrappedValueSerializer = WrappedValueSerializer.Create(resultValueSerializer);
 
@@ -57,15 +57,15 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
 
             if (method.Is(QueryableMethod.SelectManyWithCollectionSelectorAndResultSelector))
             {
-                var collectionSelectorLambdaExpression = ExpressionHelper.Unquote(arguments[1]);
-                var collectionSelectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, collectionSelectorLambdaExpression, sourceSerializer, asCurrentSymbol: true);
+                var collectionSelectorLambda = ExpressionHelper.UnquoteLambda(arguments[1]);
+                var collectionSelectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, collectionSelectorLambda, sourceSerializer, asCurrentSymbol: true);
                 var collectionItemSerializer = ArraySerializerHelper.GetItemSerializer(collectionSelectorTranslation.Serializer);
 
-                var resultSelectorLambdaExpression = ExpressionHelper.Unquote(arguments[2]);
-                var resultSelectorSourceParameterExpression = resultSelectorLambdaExpression.Parameters[0];
-                var resultSelectorCollectionItemParameterExpression = resultSelectorLambdaExpression.Parameters[1];
+                var resultSelectorLambda = ExpressionHelper.UnquoteLambda(arguments[2]);
+                var resultSelectorSourceParameterExpression = resultSelectorLambda.Parameters[0];
+                var resultSelectorCollectionItemParameterExpression = resultSelectorLambda.Parameters[1];
 
-                if (resultSelectorLambdaExpression.Body == resultSelectorCollectionItemParameterExpression)
+                if (resultSelectorLambda.Body == resultSelectorCollectionItemParameterExpression)
                 {
                     // special case identity resultSelector: (x, y) => y
                     var resultValueSerializer = collectionItemSerializer;
@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                     var resultSelectorContext = context
                         .WithSymbolAsCurrent(resultSelectorSourceParameterExpression, resultSelectorSourceParameterSymbol)
                         .WithSymbol(resultSelectorCollectionItemParameterExpression, resultSelectorCollectionItemParameterSymbol);
-                    var resultSelectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(resultSelectorContext, resultSelectorLambdaExpression.Body);
+                    var resultSelectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(resultSelectorContext, resultSelectorLambda.Body);
                     var resultValueSerializer = resultSelectorTranslation.Serializer;
                     var resultWrappedValueSerializer = WrappedValueSerializer.Create(resultValueSerializer);
                     var resultAst = AstExpression.Map(

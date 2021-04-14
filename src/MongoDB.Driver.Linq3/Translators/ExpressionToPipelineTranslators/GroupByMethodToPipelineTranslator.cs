@@ -70,16 +70,16 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
                 var sourceSerializer = pipeline.OutputSerializer;
 
-                var keySelectorLambdaExpression = ExpressionHelper.Unquote(arguments[1]);
-                var keySelectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, keySelectorLambdaExpression, sourceSerializer, asCurrentSymbol: true);
+                var keySelectorLambda = ExpressionHelper.UnquoteLambda(arguments[1]);
+                var keySelectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, keySelectorLambda, sourceSerializer, asCurrentSymbol: true);
                 var keySerializer = keySelectorTranslation.Serializer;
 
                 AstExpression elementAst;
                 IBsonSerializer elementSerializer;
                 if (method.IsOneOf(__groupByMethodsWithElementSelector))
                 {
-                    var elementLambdaExpression = ExpressionHelper.Unquote(arguments[2]);
-                    var elementTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, elementLambdaExpression, sourceSerializer, asCurrentSymbol: true);
+                    var elementLambda = ExpressionHelper.UnquoteLambda(arguments[2]);
+                    var elementTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, elementLambda, sourceSerializer, asCurrentSymbol: true);
                     elementAst = elementTranslation.Ast;
                     elementSerializer = elementTranslation.Serializer;
                 }
@@ -107,7 +107,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
 
                 if (method.IsOneOf(__groupByMethodsWithResultSelector))
                 {
-                    var resultSelectorLambda = ExpressionHelper.Unquote(arguments.Last());
+                    var resultSelectorLambda = ExpressionHelper.UnquoteLambda(arguments.Last());
                     var keyParameter = resultSelectorLambda.Parameters[0];
                     var keySymbol = new Symbol("_id", keySerializer);
                     var elementsParameter = resultSelectorLambda.Parameters[1];

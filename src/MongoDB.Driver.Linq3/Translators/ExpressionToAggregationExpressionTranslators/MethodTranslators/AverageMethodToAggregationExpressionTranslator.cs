@@ -57,21 +57,21 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             if (method.IsOneOf(__averageMethods))
             {
                 var sourceExpression = arguments[0];
-                var selectorExpression = arguments.Count == 2 ? (LambdaExpression)arguments[1] : null;
+                var selectorLambda = arguments.Count == 2 ? (LambdaExpression)arguments[1] : null;
 
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
                 var sourceItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
                 AstExpression ast;
-                if (selectorExpression == null)
+                if (selectorLambda == null)
                 {
                     ast = AstExpression.Avg(sourceTranslation.Ast);
                 }
                 else
                 {
-                    var selectorParameter = selectorExpression.Parameters[0];
+                    var selectorParameter = selectorLambda.Parameters[0];
                     var selectorSymbol = new Symbol("$" + selectorParameter.Name, sourceItemSerializer);
                     var selectorContext = context.WithSymbol(selectorParameter, selectorSymbol);
-                    var selectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(selectorContext, selectorExpression.Body);
+                    var selectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(selectorContext, selectorLambda.Body);
 
                     ast = AstExpression.Avg(
                         AstExpression.Map(

@@ -320,7 +320,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                 AstExpression arg;
                 if (method.IsOneOf(__standardDeviationWithSelectorMethods))
                 {
-                    var selectorLambda = ExpressionHelper.Unquote(arguments[1]);
+                    var selectorLambda = ExpressionHelper.UnquoteLambda(arguments[1]);
                     var selectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, selectorLambda, sourceSerializer, asCurrentSymbol: true);
                     arg = selectorTranslation.Ast;
                 }

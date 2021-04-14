@@ -39,9 +39,9 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
 
             if (method.IsOneOf(QueryableMethod.OrderBy, QueryableMethod.OrderByDescending, QueryableMethod.ThenBy, QueryableMethod.ThenByDescending))
             {
-                var keySelector = ExpressionHelper.Unquote(arguments[1]);
+                var keySelectorLambda = ExpressionHelper.UnquoteLambda(arguments[1]);
 
-                var sortField = CreateSortField(context, method.Name, keySelector, parameterSerializer: pipeline.OutputSerializer);
+                var sortField = CreateSortField(context, method.Name, keySelectorLambda, parameterSerializer: pipeline.OutputSerializer);
 
                 switch (method.Name)
                 {

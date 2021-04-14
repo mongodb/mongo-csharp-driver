@@ -43,11 +43,11 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 }
                 else
                 {
-                    var selectorExpression = (LambdaExpression)arguments[1];
-                    var selectorParameter = selectorExpression.Parameters[0];
+                    var selectorLambda = (LambdaExpression)arguments[1];
+                    var selectorParameter = selectorLambda.Parameters[0];
                     var selectorParameterSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
                     var selectorContext = context.WithSymbol(selectorParameter, new Misc.Symbol("$" + selectorParameter.Name, selectorParameterSerializer));
-                    var selectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(selectorContext, selectorExpression.Body);
+                    var selectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(selectorContext, selectorLambda.Body);
 
                     var mappedArray =
                         AstExpression.Map(

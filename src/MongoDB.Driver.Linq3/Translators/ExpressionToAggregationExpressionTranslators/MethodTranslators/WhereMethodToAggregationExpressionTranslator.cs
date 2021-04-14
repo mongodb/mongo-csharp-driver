@@ -28,13 +28,13 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             if (expression.Method.Is(EnumerableMethod.Where))
             {
                 var sourceExpression = expression.Arguments[0];
-                var predicateExpression = (LambdaExpression)expression.Arguments[1];
+                var predicateLambda = (LambdaExpression)expression.Arguments[1];
 
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
-                var predicateParameter = predicateExpression.Parameters[0];
+                var predicateParameter = predicateLambda.Parameters[0];
                 var predicateParameterSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
                 var predicateContext = context.WithSymbol(predicateParameter, new Symbol("$" + predicateParameter.Name, predicateParameterSerializer));
-                var translatedPredicate = ExpressionToAggregationExpressionTranslator.Translate(predicateContext, predicateExpression.Body);
+                var translatedPredicate = ExpressionToAggregationExpressionTranslator.Translate(predicateContext, predicateLambda.Body);
                 var ast = AstExpression.Filter(
                     sourceTranslation.Ast,
                     translatedPredicate.Ast,

@@ -16,7 +16,6 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Linq3.Ast;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Methods;
 using MongoDB.Driver.Linq3.Misc;
@@ -45,14 +44,14 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
 
                 if (method.Is(EnumerableMethod.Aggregate))
                 {
-                    var funcExpression = (LambdaExpression)arguments[1];
-                    var funcParameters = funcExpression.Parameters;
+                    var funcLambda = (LambdaExpression)arguments[1];
+                    var funcParameters = funcLambda.Parameters;
                     var accumulatorParameter = funcParameters[0];
                     var itemParameter = funcParameters[1];
                     var accumulatorSymbol = new Symbol("$value", itemSerializer); // note: MQL uses $$value for the accumulator
                     var itemSymbol = new Symbol("$this", itemSerializer);
                     var funcContext = context.WithSymbols((accumulatorParameter, accumulatorSymbol), (itemParameter, itemSymbol));
-                    var funcTranslation = ExpressionToAggregationExpressionTranslator.Translate(funcContext, funcExpression.Body);
+                    var funcTranslation = ExpressionToAggregationExpressionTranslator.Translate(funcContext, funcLambda.Body);
 
                     var sourceField = AstExpression.Field("$source");
                     var ast = AstExpression.Let(
@@ -72,15 +71,15 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                     var seedExpression = arguments[1];
                     var seedTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, seedExpression);
 
-                    var funcExpression = (LambdaExpression)arguments[2];
-                    var funcParameters = funcExpression.Parameters;
+                    var funcLambda = (LambdaExpression)arguments[2];
+                    var funcParameters = funcLambda.Parameters;
                     var accumulatorParameter = funcParameters[0];
                     var itemParameter = funcParameters[1];
                     var accumulatorSerializer = BsonSerializer.LookupSerializer(accumulatorParameter.Type); // TODO: use known serializer
                     var accumulatorSymbol = new Symbol("$value", accumulatorSerializer); // note: MQL uses $$value for the accumulator
                     var itemSymbol = new Symbol("$this", itemSerializer);
                     var funcContext = context.WithSymbols((accumulatorParameter, accumulatorSymbol), (itemParameter, itemSymbol));
-                    var funcTranslation = ExpressionToAggregationExpressionTranslator.Translate(funcContext, funcExpression.Body);
+                    var funcTranslation = ExpressionToAggregationExpressionTranslator.Translate(funcContext, funcLambda.Body);
 
                     var ast = AstExpression.Reduce(
                         input: sourceTranslation.Ast,
@@ -90,17 +89,17 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
 
                     if (method.Is(EnumerableMethod.AggregateWithSeedFuncAndResultSelector))
                     {
-                        var resultSelectorExpression = (LambdaExpression)arguments[3];
-                        var resultSelectorParameter = resultSelectorExpression.Parameters[0];
+                        var resultSelectorLambda = (LambdaExpression)arguments[3];
+                        var resultSelectorParameter = resultSelectorLambda.Parameters[0];
                         var resultSelectorParameterSerializer = BsonSerializer.LookupSerializer(resultSelectorParameter.Type); // TODO: use known serializer
                         var resultSelectorSymbol = new Symbol("$" + resultSelectorParameter.Name, resultSelectorParameterSerializer);
                         var resultSelectorContext = context.WithSymbol(resultSelectorParameter, resultSelectorSymbol);
-                        var resultSelectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(resultSelectorContext, resultSelectorExpression.Body);
+                        var resultSelectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(resultSelectorContext, resultSelectorLambda.Body);
 
                         ast = AstExpression.Let(
                             var: AstExpression.Var(resultSelectorParameter.Name, ast),
                             @in: resultSelectorTranslation.Ast);
-                        serializer = BsonSerializer.LookupSerializer(resultSelectorExpression.ReturnType); // TODO: use known serializer
+                        serializer = BsonSerializer.LookupSerializer(resultSelectorLambda.ReturnType); // TODO: use known serializer
                     }
 
                     return new AggregationExpression(expression, ast, serializer);

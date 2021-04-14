@@ -38,9 +38,9 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
             {
                 var predicate = arguments[1];
 
-                var lambda = ExpressionHelper.Unquote(predicate);
-                var whereContext = context.WithSymbolAsCurrent(lambda.Parameters[0], new Symbol("$ROOT", pipeline.OutputSerializer));
-                var filter = ExpressionToFilterTranslator.Translate(whereContext, lambda.Body);
+                var predicateLambda = ExpressionHelper.UnquoteLambda(predicate);
+                var whereContext = context.WithSymbolAsCurrent(predicateLambda.Parameters[0], new Symbol("$ROOT", pipeline.OutputSerializer));
+                var filter = ExpressionToFilterTranslator.Translate(whereContext, predicateLambda.Body);
 
                 pipeline = pipeline.AddStages(
                     pipeline.OutputSerializer,

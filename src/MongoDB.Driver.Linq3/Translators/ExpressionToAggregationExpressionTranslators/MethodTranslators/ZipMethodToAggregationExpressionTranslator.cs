@@ -36,17 +36,17 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             {
                 var firstExpression = arguments[0];
                 var secondExpression = arguments[1];
-                var resultSelectorExpression = (LambdaExpression)arguments[2];
+                var resultSelectorLambda = (LambdaExpression)arguments[2];
 
                 var firstTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, firstExpression);
                 var secondTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, secondExpression);
-                var resultSelectorParameters = resultSelectorExpression.Parameters;
+                var resultSelectorParameters = resultSelectorLambda.Parameters;
                 var resultSelectorParameter1 = resultSelectorParameters[0];
                 var resultSelectorParameter2 = resultSelectorParameters[1];
                 var resultSelectorSymbol1 = new Symbol("$" + resultSelectorParameter1.Name, BsonSerializer.LookupSerializer(resultSelectorParameter1.Type));
                 var resultSelectorSymbol2 = new Symbol("$" + resultSelectorParameter2.Name, BsonSerializer.LookupSerializer(resultSelectorParameter2.Type));
                 var resultSelectorContext = context.WithSymbols((resultSelectorParameter1, resultSelectorSymbol1), (resultSelectorParameter2, resultSelectorSymbol2));
-                var resultSelectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(resultSelectorContext, resultSelectorExpression.Body);
+                var resultSelectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(resultSelectorContext, resultSelectorLambda.Body);
 
                 var ast = AstExpression.Map(
                     input: AstExpression.Zip(new[] { firstTranslation.Ast, secondTranslation.Ast }),

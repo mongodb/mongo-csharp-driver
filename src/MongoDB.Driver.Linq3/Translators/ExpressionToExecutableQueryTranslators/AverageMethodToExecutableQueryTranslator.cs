@@ -125,7 +125,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                 AstExpression avgExpression;
                 if (method.IsOneOf(__averageWithSelectorMethods))
                 {
-                    var selectorLambda = ExpressionHelper.Unquote(arguments[1]);
+                    var selectorLambda = ExpressionHelper.UnquoteLambda(arguments[1]);
                     var selectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, selectorLambda, sourceSerializer, asCurrentSymbol: true);
                     avgExpression = selectorTranslation.Ast;
                 }
