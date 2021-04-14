@@ -207,7 +207,12 @@ namespace MongoDB.Driver.Linq3.Ast.Stages
             return new AstSkipStage(skip);
         }
 
-        public static AstSortStage Sort(IEnumerable<AstSortStageField> fields)
+        public static AstSortStage Sort(IEnumerable<AstSortField> fields)
+        {
+            return new AstSortStage(fields);
+        }
+
+        public static AstSortStage Sort(params AstSortField[] fields)
         {
             return new AstSortStage(fields);
         }

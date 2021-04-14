@@ -20,67 +20,75 @@ using System.Linq;
 
 namespace MongoDB.Driver.Linq3.Ast.Stages
 {
-    public sealed class AstSortStageField
+    public static class AstSort
     {
-        private readonly string _field;
-        private readonly AstSortStageSortOrder _order;
-
-        public AstSortStageField(string field, AstSortStageSortOrder order)
+        public static AstSortField Field(string path, AstSortOrder order)
         {
-            _field = Ensure.IsNotNull(field, nameof(field));
-            _order = Ensure.IsNotNull(order, nameof(order));
-        }
-
-        public string Field => _field;
-        public AstSortStageSortOrder Order => _order;
-
-        public BsonElement Render()
-        {
-            return new BsonElement(_field, _order.Render());
+            return new AstSortField(path, order);
         }
     }
 
-    public abstract class AstSortStageSortOrder
+    public sealed class AstSortField
     {
-        private readonly static AstSortStageSortOrder __ascending = new AstSortStageAscendingSortOrder();
-        private readonly static AstSortStageSortOrder __descending = new AstSortStageDescendingSortOrder();
-        private readonly static AstSortStageSortOrder __metaTextScore = new AstSortStageMetaTextScoreSortOrder();
+        private readonly string _path;
+        private readonly AstSortOrder _order;
 
-        public static AstSortStageSortOrder Ascending => __ascending;
-        public static AstSortStageSortOrder Descending => __descending;
-        public static AstSortStageSortOrder MetaTextScore => __metaTextScore;
+        public AstSortField(string path, AstSortOrder order)
+        {
+            _path = Ensure.IsNotNull(path, nameof(path));
+            _order = Ensure.IsNotNull(order, nameof(order));
+        }
+
+        public AstSortOrder Order => _order;
+        public string Path => _path;
+
+        public BsonElement Render()
+        {
+            return new BsonElement(_path, _order.Render());
+        }
+    }
+
+    public abstract class AstSortOrder
+    {
+        private readonly static AstSortOrder __ascending = new AstAscendingSortOrder();
+        private readonly static AstSortOrder __descending = new AstDescendingSortOrder();
+        private readonly static AstSortOrder __metaTextScore = new AstMetaTextScoreSortOrder();
+
+        public static AstSortOrder Ascending => __ascending;
+        public static AstSortOrder Descending => __descending;
+        public static AstSortOrder MetaTextScore => __metaTextScore;
 
         public abstract BsonValue Render();
     }
 
-    public sealed class AstSortStageAscendingSortOrder : AstSortStageSortOrder
+    public sealed class AstAscendingSortOrder : AstSortOrder
     {
         public override BsonValue Render() => 1;
     }
 
-    public sealed class AstSortStageDescendingSortOrder : AstSortStageSortOrder
+    public sealed class AstDescendingSortOrder : AstSortOrder
     {
         public override BsonValue Render() => -1;
     }
 
-    public sealed class AstSortStageMetaTextScoreSortOrder : AstSortStageSortOrder
+    public sealed class AstMetaTextScoreSortOrder : AstSortOrder
     {
         public override BsonValue Render() => new BsonDocument("$meta", "textScore");
     }
 
     public sealed class AstSortStage : AstStage
     {
-        private readonly IReadOnlyList<AstSortStageField> _fields;
+        private readonly IReadOnlyList<AstSortField> _fields;
 
-        public AstSortStage(IEnumerable<AstSortStageField> fields)
+        public AstSortStage(IEnumerable<AstSortField> fields)
         {
             _fields = Ensure.IsNotNull(fields, nameof(fields)).ToList().AsReadOnly();
         }
 
-        public IReadOnlyList<AstSortStageField> Fields => _fields;
+        public IReadOnlyList<AstSortField> Fields => _fields;
         public override AstNodeType NodeType => AstNodeType.SortStage;
 
-        public AstSortStage AddSortField(AstSortStageField field)
+        public AstSortStage AddSortField(AstSortField field)
         {
             Ensure.IsNotNull(field, nameof(field));
             return new AstSortStage(_fields.Concat(new[] { field }));

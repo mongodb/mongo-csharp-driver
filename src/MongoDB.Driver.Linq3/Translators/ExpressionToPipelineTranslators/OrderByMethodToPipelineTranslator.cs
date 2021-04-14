@@ -47,19 +47,13 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                 {
                     case "OrderBy":
                     case "OrderByDescending":
-                        pipeline = pipeline.AddStages(
-                            pipeline.OutputSerializer,
-                            //new BsonDocument("$sort", new BsonDocument(sortElement)));
-                            AstStage.Sort(new[] { sortField }));
+                        pipeline = pipeline.AddStages(pipeline.OutputSerializer, AstStage.Sort(sortField));
                         break;
 
                     case "ThenBy":
                     case "ThenByDescending":
-                        //var sortStage = pipeline.Stages.Last();
-                        //var sortDocument = sortStage["$sort"].AsBsonDocument;
-                        //sortDocument.Add(sortElement);
-                        var sortStage = (AstSortStage)pipeline.Stages.Last();
-                        var newSortStage = sortStage.AddSortField(sortField);
+                        var oldSortStage = (AstSortStage)pipeline.Stages.Last();
+                        var newSortStage = oldSortStage.AddSortField(sortField);
                         pipeline = pipeline.ReplaceLastStage(pipeline.OutputSerializer, newSortStage);
                         break;
                 }
@@ -71,17 +65,17 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
         }
 
         // private static methods
-        private static AstSortStageField CreateSortField(TranslationContext context, string methodName, LambdaExpression keySelector, IBsonSerializer parameterSerializer)
+        private static AstSortField CreateSortField(TranslationContext context, string methodName, LambdaExpression keySelector, IBsonSerializer parameterSerializer)
         {
             var fieldPath = GetFieldPath(context, keySelector, parameterSerializer);
             switch (methodName)
             {
                 case "OrderBy":
                 case "ThenBy":
-                    return new AstSortStageField(fieldPath, new AstSortStageAscendingSortOrder());
+                    return AstSort.Field(fieldPath, AstSortOrder.Ascending);
                 case "OrderByDescending":
                 case "ThenByDescending":
-                    return new AstSortStageField(fieldPath, new AstSortStageDescendingSortOrder());
+                    return AstSort.Field(fieldPath, AstSortOrder.Descending);
                 default:
                     throw new ArgumentException("Unexpected method name.", nameof(methodName));
             }
