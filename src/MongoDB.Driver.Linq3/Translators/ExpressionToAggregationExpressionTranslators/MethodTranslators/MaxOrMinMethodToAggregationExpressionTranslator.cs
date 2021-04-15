@@ -31,7 +31,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             if (method.DeclaringType == typeof(Enumerable) && (method.Name == "Max" || method.Name == "Min"))
             {
                 var sourceExpression = arguments[0];
-
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
                 AstExpression ast;
                 IBsonSerializer serializer;
@@ -48,7 +47,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                     var selectorParameterSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
                     var selectorContext = context.WithSymbol(selectorParameter, new Misc.Symbol("$" + selectorParameter.Name, selectorParameterSerializer));
                     var selectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(selectorContext, selectorLambda.Body);
-
                     var mappedArray =
                         AstExpression.Map(
                             input: sourceTranslation.Ast,
@@ -57,7 +55,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                     ast = method.Name == "Max" ? AstExpression.Max(mappedArray) : AstExpression.Min(mappedArray);
                     serializer = selectorTranslation.Serializer;
                 }
-
                 return new AggregationExpression(expression, ast, serializer);
             }
 

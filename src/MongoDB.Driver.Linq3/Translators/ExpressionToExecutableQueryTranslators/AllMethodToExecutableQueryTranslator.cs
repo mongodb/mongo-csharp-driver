@@ -40,19 +40,20 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
         // public static methods
         public static ExecutableQuery<TDocument, bool> Translate<TDocument>(MongoQueryProvider<TDocument> provider, TranslationContext context, MethodCallExpression expression)
         {
-            if (expression.Method.Is(QueryableMethod.All))
-            {
-                var source = expression.Arguments[0];
-                var predicateExpression = expression.Arguments[1];
+            var method = expression.Method;
+            var arguments = expression.Arguments;
 
+            if (method.Is(QueryableMethod.All))
+            {
+                var source = arguments[0];
+                var tsource = source.Type.GetGenericArguments()[0];
+                var predicateExpression = arguments[1];
                 var predicateLambda = ExpressionHelper.UnquoteLambda(predicateExpression);
                 var inverseBody = Expression.Not(predicateLambda.Body);
                 var inverseLambda = Expression.Lambda(inverseBody, predicateLambda.Parameters[0]);
                 var inversePredicateExpression = Expression.Quote(inverseLambda);
-                var tsource = source.Type.GetGenericArguments()[0];
-                source = Expression.Call(QueryableMethod.MakeWhere(tsource), source, inversePredicateExpression);
-
-                var pipeline = ExpressionToPipelineTranslator.Translate(context, source);
+                var sourceWithInversePredicate = Expression.Call(QueryableMethod.MakeWhere(tsource), source, inversePredicateExpression);
+                var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceWithInversePredicate);
 
                 pipeline = pipeline.AddStages(
                     __outputSerializer,

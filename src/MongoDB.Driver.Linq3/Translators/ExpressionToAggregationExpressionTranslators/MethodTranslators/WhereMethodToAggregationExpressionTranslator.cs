@@ -25,12 +25,14 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
     {
         public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
-            if (expression.Method.Is(EnumerableMethod.Where))
-            {
-                var sourceExpression = expression.Arguments[0];
-                var predicateLambda = (LambdaExpression)expression.Arguments[1];
+            var method = expression.Method;
+            var arguments = expression.Arguments;
 
+            if (method.Is(EnumerableMethod.Where))
+            {
+                var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
+                var predicateLambda = (LambdaExpression)arguments[1];
                 var predicateParameter = predicateLambda.Parameters[0];
                 var predicateParameterSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
                 var predicateContext = context.WithSymbol(predicateParameter, new Symbol("$" + predicateParameter.Name, predicateParameterSerializer));
@@ -39,7 +41,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                     sourceTranslation.Ast,
                     translatedPredicate.Ast,
                     predicateParameter.Name);
-
                 return new AggregationExpression(expression, ast, sourceTranslation.Serializer);
             }
 

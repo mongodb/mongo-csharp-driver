@@ -58,9 +58,9 @@ namespace MongoDB.Driver.Linq3.Translators
             return newContext;
         }
 
-        public TranslationContext WithSymbols(params ValueTuple<ParameterExpression, Symbol>[] tuples)
+        public TranslationContext WithSymbols(params (ParameterExpression, Symbol)[] symbols)
         {
-            var newSymbolTable = _symbolTable.WithSymbols(tuples);
+            var newSymbolTable = _symbolTable.WithSymbols(symbols);
             var newContext = new TranslationContext(newSymbolTable);
             return newContext;
         }

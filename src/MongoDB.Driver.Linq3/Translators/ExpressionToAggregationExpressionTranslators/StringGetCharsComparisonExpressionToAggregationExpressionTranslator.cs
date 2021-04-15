@@ -46,10 +46,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             {
                 var objectExpression = getCharsExpression.Object;
                 var objectTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, objectExpression);
-
                 var indexExpression = arguments[0];
                 var indexTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, indexExpression);
-
                 if (TryGetComparisonOperator(expression.NodeType, out var comparisonOperator))
                 {
                     var ast = AstExpression.Comparison(

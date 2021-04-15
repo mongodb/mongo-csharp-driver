@@ -91,6 +91,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 var enumerableElementSerializer = wrappedEnumerableSerializer.EnumerableElementSerializer;
                 var enumerableSerializer = IEnumerableSerializer.Create(enumerableElementSerializer);
                 var ast = AstExpression.SubField(aggregateExpression.Ast, enumerableFieldName);
+
                 return new AggregationExpression(aggregateExpression.Expression, ast, enumerableSerializer);
             }
 

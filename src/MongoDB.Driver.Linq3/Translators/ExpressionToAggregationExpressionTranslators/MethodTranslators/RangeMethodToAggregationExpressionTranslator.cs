@@ -27,21 +27,22 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
     {
         public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
-            if (expression.Method.Is(EnumerableMethod.Range))
-            {
-                var startExpression = expression.Arguments[0];
-                var countExpression = expression.Arguments[1];
+            var method = expression.Method;
+            var arguments = expression.Arguments;
 
+            if (method.Is(EnumerableMethod.Range))
+            {
+                var startExpression = arguments[0];
                 var startTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, startExpression);
-                var countTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, countExpression);
                 var (startVar, startSimpleAst) = AstExpression.UseVarIfNotSimple("start", startTranslation.Ast);
+                var countExpression = arguments[1];
+                var countTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, countExpression);
                 var (countVar, countSimpleAst) = AstExpression.UseVarIfNotSimple("count", countTranslation.Ast);
                 var ast = AstExpression.Let(
                     startVar,
                     countVar,
                     AstExpression.Range(startSimpleAst, end: AstExpression.Add(startSimpleAst, countSimpleAst)));
                 var serializer = IEnumerableSerializer.Create(new Int32Serializer());
-
                 return new AggregationExpression(expression, ast, serializer);
             }
 

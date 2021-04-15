@@ -32,8 +32,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             if (method.Is(StringMethod.IsNullOrEmpty))
             {
                 var stringExpression = arguments[0];
-
                 var stringTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, stringExpression);
+
                 AstExpression ast;
                 if (IsSimple(stringTranslation.Ast))
                 {

@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                         ast = AstExpression.Size(sourceTranslation.Ast);
                     }
                 }
-                var serializer = GetSerializer(expression);
+                var serializer = GetSerializer(expression.Type);
 
                 return new AggregationExpression(expression, ast, serializer);
             }
@@ -92,9 +92,9 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             throw new ExpressionNotSupportedException(expression);
         }
 
-        private static IBsonSerializer GetSerializer(Expression expression)
+        private static IBsonSerializer GetSerializer(Type type)
         {
-            if (expression.Type == typeof(int))
+            if (type == typeof(int))
             {
                 return new Int32Serializer();
             }

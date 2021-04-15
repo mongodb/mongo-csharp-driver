@@ -41,40 +41,43 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
         // public static methods
         public static ExecutableQuery<TDocument, bool> Translate<TDocument>(MongoQueryProvider<TDocument> provider, TranslationContext context, MethodCallExpression expression)
         {
-            if (expression.Method.Is(QueryableMethod.Contains))
-            {
-                var source = expression.Arguments[0];
-                var item = expression.Arguments[1];
+            var method = expression.Method;
+            var arguments = expression.Arguments;
 
+            if (method.Is(QueryableMethod.Contains))
+            {
+                var source = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, source);
 
-                if (!(pipeline.OutputSerializer is IWrappedValueSerializer))
+                IBsonSerializer valueSerializer;
+                if (pipeline.OutputSerializer is IWrappedValueSerializer wrappedValueSerializer)
                 {
-                    var valueType = source.Type.GetGenericArguments()[0];
-                    var valueSerializer = pipeline.OutputSerializer;
-                    var wrappedValueSerializer = WrappedValueSerializer.Create(valueSerializer);
+                    valueSerializer = wrappedValueSerializer.ValueSerializer;
+                }
+                else
+                {
+                    valueSerializer = pipeline.OutputSerializer;
+                    wrappedValueSerializer = WrappedValueSerializer.Create(valueSerializer);
                     pipeline = pipeline.AddStages(
                         wrappedValueSerializer,
-                        //BsonDocument.Parse("{ $project : { _id : 0, _v : \"$$ROOT\" } }"));
                         AstStage.Project(
                             AstProject.ExcludeId(),
                             AstProject.Set("_v", AstExpression.Field("$ROOT"))));
                 }
 
+                var item = arguments[1];
                 var itemValue = ((ConstantExpression)item).Value;
-                var serializedWrappedValue = SerializationHelper.SerializeValue(pipeline.OutputSerializer, itemValue);
+                var serializedValue = SerializationHelper.SerializeValue(pipeline.OutputSerializer, itemValue);
 
-                AstFilter filter = null; // TODO; serializedWrappedValue
+                AstFilter filter = AstFilter.Eq(AstFilter.Field("_v", valueSerializer), serializedValue);
                 pipeline = pipeline.AddStages(
                     __outputSerializer,
-                    //new BsonDocument("$match", serializedWrappedValue),
-                    //new BsonDocument("$limit", 1),
-                    //new BsonDocument("$project", new BsonDocument { { "_id", 0 }, { "_v", BsonNull.Value } }));
                     AstStage.Match(filter),
                     AstStage.Limit(1),
                     AstStage.Project(
                         AstProject.ExcludeId(),
                         AstProject.Set("_v", BsonNull.Value)));
+
                 return new ExecutableQuery<TDocument, string, bool>(
                     provider.Collection,
                     provider.Options,

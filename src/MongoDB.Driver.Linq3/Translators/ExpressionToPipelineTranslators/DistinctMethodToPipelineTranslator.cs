@@ -31,11 +31,11 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            var source = arguments[0];
-            var pipeline = ExpressionToPipelineTranslator.Translate(context, source);
-
             if (method.Is(QueryableMethod.Distinct))
             {
+                var source = arguments[0];
+                var pipeline = ExpressionToPipelineTranslator.Translate(context, source);
+
                 pipeline = pipeline.AddStages(
                     pipeline.OutputSerializer,
                     AstStage.Group(AstExpression.Field("$ROOT"), Enumerable.Empty<AstComputedField>()),

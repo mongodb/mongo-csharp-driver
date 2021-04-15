@@ -98,12 +98,10 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
 
                     var nominalType = ArraySerializerHelper.GetItemSerializer(sourceField.Serializer).ValueType;
                     var actualType = method.GetGenericArguments()[0];
-
                     var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(actualType);
                     var discriminatorField = AstFilter.Field(discriminatorConvention.ElementName, BsonValueSerializer.Instance);
                     var discriminatorValue = discriminatorConvention.GetDiscriminator(nominalType, actualType);
                     var ofTypeFilter = AstFilter.Eq(discriminatorField, discriminatorValue);
-
                     var actualTypeSerializer = BsonSerializer.LookupSerializer(actualType); // TODO: use known serializers
                     var enumerableActualTypeSerializer = IEnumerableSerializer.Create(actualTypeSerializer);
                     var actualTypeSourceField = AstFilter.Field(sourceField.Path, enumerableActualTypeSerializer);

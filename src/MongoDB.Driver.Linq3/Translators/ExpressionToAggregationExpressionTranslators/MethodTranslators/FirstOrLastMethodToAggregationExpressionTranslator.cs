@@ -31,7 +31,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             {
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
-
                 var array = sourceTranslation.Ast;
                 var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
 
@@ -48,7 +47,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
 
                 var index = method.Name == "First" ? 0 : -1;
                 var ast = AstExpression.ArrayElemAt(array, index);
-
                 return new AggregationExpression(expression, ast, itemSerializer);
             }
 

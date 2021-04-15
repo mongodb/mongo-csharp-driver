@@ -33,16 +33,16 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
 
         public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
-            if (expression.Method.IsOneOf(__absMethods))
+            var method = expression.Method;
+            var arguments = expression.Arguments;
+
+            if (method.IsOneOf(__absMethods))
             {
-                var valueExpression = expression.Arguments[0];
-
-                var serverType = expression.Type;
-                valueExpression = ConvertHelper.RemoveUnnecessaryConvert(valueExpression, serverType);
-                var argumentTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
-                var ast = AstExpression.Abs(argumentTranslation.Ast);
-
-                return new AggregationExpression(expression, ast, argumentTranslation.Serializer);
+                var valueExpression = arguments[0];
+                var valueExpressionWithConvertsRemoved = ConvertHelper.RemoveUnnecessaryConvert(valueExpression, impliedType: expression.Type);
+                var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpressionWithConvertsRemoved);
+                var ast = AstExpression.Abs(valueTranslation.Ast);
+                return new AggregationExpression(expression, ast, valueTranslation.Serializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

@@ -66,10 +66,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             {
                 var objectExpression = expression.Object;
                 var objectTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, objectExpression);
-
                 var valueExpression = arguments[0];
                 var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
-
                 bool ignoreCase = false;
                 if (method.IsOneOf(__withComparisonTypeMethods))
                 {
@@ -82,7 +80,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                     var cultureExpression = arguments[2];
                     ignoreCase = GetIgnoreCaseFromIgnoreCaseAndCulture(ignoreCaseExpression, cultureExpression);
                 }
-
                 var stringAst = objectTranslation.Ast;
                 var substringAst = valueTranslation.Ast;
                 if (ignoreCase)
@@ -90,7 +87,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                     stringAst = AstExpression.ToLower(stringAst);
                     substringAst = AstExpression.ToLower(stringAst);
                 }
-
                 var ast = CreateAst(method.Name, stringAst, substringAst);
                 return new AggregationExpression(expression, ast, new BooleanSerializer());
             }

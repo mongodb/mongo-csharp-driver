@@ -25,26 +25,27 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
     {
         public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
-            if (expression.Method.IsOneOf(MathMethod.Log, MathMethod.LogWithNewBase, MathMethod.Log10))
-            {
-                var argumentExpression = expression.Arguments[0];
+            var method = expression.Method;
+            var arguments = expression.Arguments;
 
-                argumentExpression = ConvertHelper.RemoveUnnecessaryConvert(argumentExpression, typeof(double));
-                var argumentTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, argumentExpression);
+            if (method.IsOneOf(MathMethod.Log, MathMethod.LogWithNewBase, MathMethod.Log10))
+            {
+                var argumentExpression = arguments[0];
+                var argumentExpressionWithConvertRemoved = ConvertHelper.RemoveUnnecessaryConvert(argumentExpression, typeof(double));
+                var argumentTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, argumentExpressionWithConvertRemoved);
                 AstExpression ast;
-                if (expression.Method.Is(MathMethod.LogWithNewBase))
+                if (method.Is(MathMethod.LogWithNewBase))
                 {
-                    var newBaseExpression = expression.Arguments[1];
+                    var newBaseExpression = arguments[1];
                     var newBaseTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, newBaseExpression);
                     ast = AstExpression.Log(argumentTranslation.Ast, newBaseTranslation.Ast);
                 }
                 else
                 {
-                    ast = expression.Method.Is(MathMethod.Log10) ?
+                    ast = method.Is(MathMethod.Log10) ?
                         AstExpression.Log10(argumentTranslation.Ast) :
                         AstExpression.Ln(argumentTranslation.Ast);
                 }
-
                 return new AggregationExpression(expression, ast, new DoubleSerializer());
             }
 

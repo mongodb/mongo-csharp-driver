@@ -49,6 +49,20 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             EnumerableMethod.AverageSingleWithSelector
         };
 
+        private static MethodInfo[] __averageWithSelectorMethods =
+        {
+            EnumerableMethod.AverageDecimalWithSelector,
+            EnumerableMethod.AverageDoubleWithSelector,
+            EnumerableMethod.AverageInt32WithSelector,
+            EnumerableMethod.AverageInt64WithSelector,
+            EnumerableMethod.AverageNullableDecimalWithSelector,
+            EnumerableMethod.AverageNullableDoubleWithSelector,
+            EnumerableMethod.AverageNullableInt32WithSelector,
+            EnumerableMethod.AverageNullableInt64WithSelector,
+            EnumerableMethod.AverageNullableSingleWithSelector,
+            EnumerableMethod.AverageSingleWithSelector
+        };
+
         public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
@@ -57,18 +71,14 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             if (method.IsOneOf(__averageMethods))
             {
                 var sourceExpression = arguments[0];
-                var selectorLambda = arguments.Count == 2 ? (LambdaExpression)arguments[1] : null;
-
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
-                var sourceItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
+
                 AstExpression ast;
-                if (selectorLambda == null)
+                if (method.IsOneOf(__averageWithSelectorMethods))
                 {
-                    ast = AstExpression.Avg(sourceTranslation.Ast);
-                }
-                else
-                {
+                    var selectorLambda = (LambdaExpression)arguments[1];
                     var selectorParameter = selectorLambda.Parameters[0];
+                    var sourceItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
                     var selectorSymbol = new Symbol("$" + selectorParameter.Name, sourceItemSerializer);
                     var selectorContext = context.WithSymbol(selectorParameter, selectorSymbol);
                     var selectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(selectorContext, selectorLambda.Body);
@@ -78,6 +88,10 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                             input: sourceTranslation.Ast,
                             @as: selectorParameter.Name,
                             @in: selectorTranslation.Ast));
+                }
+                else
+                {
+                    ast = AstExpression.Avg(sourceTranslation.Ast);
                 }
                 var serializer = BsonSerializer.LookupSerializer(expression.Type); // TODO: find more specific serializer?
 

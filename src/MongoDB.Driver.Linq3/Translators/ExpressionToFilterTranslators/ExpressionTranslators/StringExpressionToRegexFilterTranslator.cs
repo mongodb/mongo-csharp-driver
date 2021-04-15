@@ -358,7 +358,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
         {
             var leftConvertExpression = (UnaryExpression)leftExpression;
             var leftGetCharsExpression = (MethodCallExpression)leftConvertExpression.Operand;
-
             var fieldExpression = leftGetCharsExpression.Object;
             var (field, modifiers) = TranslateField(context, fieldExpression);
 
@@ -424,7 +423,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
 
             var (field, modifiers) = TranslateField(context, expression.Object);
             var value = arguments[0].GetConstantValue<string>();
-
             if (method.IsOneOf(StringMethod.StartsWithWithComparisonType, StringMethod.EndsWithWithComparisonType))
             {
                 modifiers = TranslateComparisonType(modifiers, arguments[1]);

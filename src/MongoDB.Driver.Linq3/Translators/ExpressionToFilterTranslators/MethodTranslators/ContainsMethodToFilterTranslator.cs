@@ -41,9 +41,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
                 arguments.Count == 2)
             {
                 var sourceExpression = arguments[0];
-                var itemExpression = arguments[1];
-
                 var sourceType = sourceExpression.Type;
+                var itemExpression = arguments[1];
                 var itemType = itemExpression.Type;
                 if (TypeImplementsIEnumerable(sourceType, itemType))
                 {
@@ -57,9 +56,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
                 arguments.Count == 1)
             {
                 var sourceExpression = expression.Object;
-                var itemExpression = arguments[0];
-
                 var sourceType = sourceExpression.Type;
+                var itemExpression = arguments[0];
                 var itemType = itemExpression.Type;
                 if (TypeImplementsIEnumerable(sourceType, itemType))
                 {

@@ -32,13 +32,11 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             if (method.Is(EnumerableMethod.ToArray))
             {
                 var sourceExpression = arguments[0];
-
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
                 var arrayItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
                 var arrayItemType = arrayItemSerializer.ValueType;
                 var arraySerializerType = typeof(ArraySerializer<>).MakeGenericType(arrayItemType);
                 var arraySerializer = (IBsonSerializer)Activator.CreateInstance(arraySerializerType, arrayItemSerializer);
-
                 return new AggregationExpression(expression, sourceTranslation.Ast, arraySerializer);
             }
 
