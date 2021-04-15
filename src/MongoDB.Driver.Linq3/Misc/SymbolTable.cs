@@ -86,12 +86,12 @@ namespace MongoDB.Driver.Linq3.Misc
             return newSymbolTable;
         }
 
-        public SymbolTable WithSymbols(params ValueTuple<ParameterExpression, Symbol>[] symbols)
+        public SymbolTable WithSymbols(params (ParameterExpression, Symbol)[] symbols)
         {
             var newSymbolTable = new SymbolTable(this);
-            foreach (var tuple in symbols)
+            foreach (var (parameter, symbol) in symbols)
             {
-                newSymbolTable._symbols.Add(tuple.Item1, tuple.Item2);
+                newSymbolTable._symbols.Add(parameter, symbol);
             }
             return newSymbolTable;
         }

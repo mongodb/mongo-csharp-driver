@@ -34,27 +34,27 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
         // public methods
         public static ExecutableQuery<TDocument, TOutput> Translate<TDocument>(MongoQueryProvider<TDocument> provider, TranslationContext context, MethodCallExpression expression)
         {
-            if (expression.Method.IsOneOf(QueryableMethod.Last, QueryableMethod.LastWithPredicate, QueryableMethod.LastOrDefault, QueryableMethod.LastOrDefaultWithPredicate))
+            var method = expression.Method;
+            var arguments = expression.Arguments;
+
+            if (method.IsOneOf(QueryableMethod.Last, QueryableMethod.LastWithPredicate, QueryableMethod.LastOrDefault, QueryableMethod.LastOrDefaultWithPredicate))
             {
-                var source = expression.Arguments[0];
-                if (expression.Method.IsOneOf(QueryableMethod.LastWithPredicate, QueryableMethod.LastOrDefaultWithPredicate))
+                var source = arguments[0];
+                if (method.IsOneOf(QueryableMethod.LastWithPredicate, QueryableMethod.LastOrDefaultWithPredicate))
                 {
-                    var predicate = expression.Arguments[1];
+                    var predicate = arguments[1];
                     var tsource = source.Type.GetGenericArguments()[0];
                     source = Expression.Call(QueryableMethod.MakeWhere(tsource), source, predicate);
                 }
-
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, source);
 
                 pipeline = pipeline.AddStages(
                     pipeline.OutputSerializer,
-                    //new BsonDocument("$group", new BsonDocument { { "_id", BsonNull.Value }, { "_last", new BsonDocument("$last", "$$ROOT") } }),
-                    //new BsonDocument("$replaceRoot", new BsonDocument("newRoot", "$_last")));
                     AstStage.Group(
                         id: BsonNull.Value,
                         fields: AstExpression.ComputedField("_last", AstExpression.Last(AstExpression.Field("$ROOT")))));
 
-                var finalizer = expression.Method.Name == "LastOrDefault" ? __singleOrDefaultFinalizer : __singleFinalizer;
+                var finalizer = method.Name == "LastOrDefault" ? __singleOrDefaultFinalizer : __singleFinalizer;
 
                 return new ExecutableQuery<TDocument, TOutput, TOutput>(
                     provider.Collection,

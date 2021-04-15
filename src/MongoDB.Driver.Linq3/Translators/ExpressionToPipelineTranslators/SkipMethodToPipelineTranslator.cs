@@ -29,21 +29,20 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            var source = arguments[0];
-            var pipeline = ExpressionToPipelineTranslator.Translate(context, source);
-
             if (method.Is(QueryableMethod.Skip))
             {
-                var count = arguments[1];
+                var source = arguments[0];
+                var pipeline = ExpressionToPipelineTranslator.Translate(context, source);
 
-                if (count.NodeType == ExpressionType.Constant)
+                var countExpression = arguments[1];
+                if (countExpression.NodeType == ExpressionType.Constant)
                 {
-                    var countValue = (int)((ConstantExpression)count).Value;
+                    var count = (int)((ConstantExpression)countExpression).Value;
 
                     pipeline = pipeline.AddStages(
                         pipeline.OutputSerializer,
                         //new BsonDocument("$skip", countValue));
-                        AstStage.Skip(countValue));
+                        AstStage.Skip(count));
 
                     return pipeline;
                 }

@@ -25,13 +25,14 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
     {
         public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
-            if (expression.Method.Is(MongoDBLinqExtensionsMethod.StrLenBytes))
-            {
-                var stringExpression = expression.Arguments[0];
+            var method = expression.Method;
+            var arguments = expression.Arguments;
 
+            if (method.Is(MongoDBLinqExtensionsMethod.StrLenBytes))
+            {
+                var stringExpression = arguments[0];
                 var stringTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, stringExpression);
                 var ast = AstExpression.StrLenBytes(stringTranslation.Ast);
-
                 return new AggregationExpression(expression, ast, new Int32Serializer());
             }
 

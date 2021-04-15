@@ -30,19 +30,19 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
         // public static methods
         public static ExecutableQuery<TDocument, TOutput> Translate<TDocument>(MongoQueryProvider<TDocument> provider, TranslationContext context, MethodCallExpression expression)
         {
-            if (expression.Method.Is(QueryableMethod.ElementAt))
-            {
-                var source = expression.Arguments[0];
-                var index = expression.Arguments[1];
+            var method = expression.Method;
+            var arguments = expression.Arguments;
 
+            if (method.Is(QueryableMethod.ElementAt))
+            {
+                var source = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, source);
 
+                var index = arguments[1];
                 var indexValue = (int)((ConstantExpression)index).Value;
 
                 pipeline = pipeline.AddStages(
                     pipeline.OutputSerializer,
-                    //new BsonDocument("$skip", indexValue),
-                    //new BsonDocument("$limit", 1));
                     AstStage.Skip(indexValue),
                     AstStage.Limit(1));
 

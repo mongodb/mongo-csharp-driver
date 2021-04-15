@@ -15,6 +15,7 @@
 
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Linq3.Ast.Expressions;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslators
 {
@@ -24,7 +25,9 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
         {
             var valueSerializer = BsonSerializer.LookupSerializer(expression.Type); // TODO: use known serializer
             var serializedValue = valueSerializer.ToBsonValue(expression.Value);
-            return new AggregationExpression(expression, serializedValue, valueSerializer);
+            var ast = AstExpression.Constant(serializedValue);
+
+            return new AggregationExpression(expression, ast, valueSerializer);
         }
     }
 }

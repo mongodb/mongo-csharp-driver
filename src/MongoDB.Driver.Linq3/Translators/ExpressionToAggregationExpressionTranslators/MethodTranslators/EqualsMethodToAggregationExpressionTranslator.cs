@@ -27,12 +27,14 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
     {
         public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
-            if (IsStringEqualsMethod(expression.Method))
+            var method = expression.Method;
+
+            if (IsStringEqualsMethod(method))
             {
                 return TranslateStringEqualsMethod(context, expression);
             }
 
-            if (IsInstanceEqualsMethod(expression.Method))
+            if (IsInstanceEqualsMethod(method))
             {
                 return TranslateInstanceEqualsMethod(context, expression);
             }
@@ -58,12 +60,10 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
         private static AggregationExpression TranslateInstanceEqualsMethod(TranslationContext context, MethodCallExpression expression)
         {
             var lhsExpression = expression.Object;
-            var rhsExpression = expression.Arguments[0];
-
             var lhsTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, lhsExpression);
+            var rhsExpression = expression.Arguments[0];
             var rhsTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, rhsExpression);
             var ast = AstExpression.Eq(lhsTranslation.Ast, rhsTranslation.Ast);
-
             return new AggregationExpression(expression, ast, new BooleanSerializer());
         }
 

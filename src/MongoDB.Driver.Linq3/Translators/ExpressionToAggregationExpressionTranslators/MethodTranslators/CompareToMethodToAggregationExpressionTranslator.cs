@@ -24,15 +24,16 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
     {
         public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
-            if (IsInstanceCompareToMethod(expression.Method))
+            var method = expression.Method;
+            var arguments = expression.Arguments;
+
+            if (IsInstanceCompareToMethod(method))
             {
                 var objectExpression = expression.Object;
-                var otherExpression = expression.Arguments[0];
-
                 var objectTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, objectExpression);
+                var otherExpression = arguments[0];
                 var otherTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, otherExpression);
                 var ast = AstExpression.Cmp(objectTranslation.Ast, otherTranslation.Ast);
-
                 return new AggregationExpression(expression, ast, new Int32Serializer());
             }
 

@@ -26,7 +26,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
         public static AggregationExpression Translate(TranslationContext context, UnaryExpression expression)
         {
             var operandExpression = expression.Operand;
-
             var operandTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, operandExpression);
 
             var expressionType = expression.Type;
@@ -40,6 +39,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                     Type valueSerializerType = typeof(IBsonSerializer<>).MakeGenericType(valueType);
                     var constructorInfo = nullableSerializerType.GetConstructor(new[] { valueSerializerType });
                     var nullableSerializer = (IBsonSerializer)constructorInfo.Invoke(new[] { operandTranslation.Serializer });
+
                     return new AggregationExpression(expression, operandTranslation.Ast, nullableSerializer);
                 }
             }

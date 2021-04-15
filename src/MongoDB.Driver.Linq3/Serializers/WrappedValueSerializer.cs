@@ -21,7 +21,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Serializers
 {
-    public interface IWrappedValueSerializer
+    public interface IWrappedValueSerializer : IBsonSerializer
     {
         string FieldName { get; }
         IBsonSerializer ValueSerializer { get; }
@@ -102,16 +102,16 @@ namespace MongoDB.Driver.Linq3.Serializers
 
     public static class WrappedValueSerializer
     {
-        public static IBsonSerializer Create(IBsonSerializer valueSerializer)
+        public static IWrappedValueSerializer Create(IBsonSerializer valueSerializer)
         {
             return Create("_v", valueSerializer);
         }
 
-        public static IBsonSerializer Create(string fieldName, IBsonSerializer valueSerializer)
+        public static IWrappedValueSerializer Create(string fieldName, IBsonSerializer valueSerializer)
         {
             var valueType = valueSerializer.ValueType;
             var wrappedValueSerializerType = typeof(WrappedValueSerializer<>).MakeGenericType(valueType);
-            return (IBsonSerializer)Activator.CreateInstance(wrappedValueSerializerType, fieldName, valueSerializer);
+            return (IWrappedValueSerializer)Activator.CreateInstance(wrappedValueSerializerType, fieldName, valueSerializer);
         }
     }
 }

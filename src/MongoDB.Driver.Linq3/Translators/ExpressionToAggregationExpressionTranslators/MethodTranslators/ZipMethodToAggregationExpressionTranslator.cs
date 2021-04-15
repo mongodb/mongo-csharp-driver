@@ -35,11 +35,10 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             if (method.Is(EnumerableMethod.Zip))
             {
                 var firstExpression = arguments[0];
-                var secondExpression = arguments[1];
-                var resultSelectorLambda = (LambdaExpression)arguments[2];
-
                 var firstTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, firstExpression);
+                var secondExpression = arguments[1];
                 var secondTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, secondExpression);
+                var resultSelectorLambda = (LambdaExpression)arguments[2];
                 var resultSelectorParameters = resultSelectorLambda.Parameters;
                 var resultSelectorParameter1 = resultSelectorParameters[0];
                 var resultSelectorParameter2 = resultSelectorParameters[1];
@@ -47,7 +46,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 var resultSelectorSymbol2 = new Symbol("$" + resultSelectorParameter2.Name, BsonSerializer.LookupSerializer(resultSelectorParameter2.Type));
                 var resultSelectorContext = context.WithSymbols((resultSelectorParameter1, resultSelectorSymbol1), (resultSelectorParameter2, resultSelectorSymbol2));
                 var resultSelectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(resultSelectorContext, resultSelectorLambda.Body);
-
                 var ast = AstExpression.Map(
                     input: AstExpression.Zip(new[] { firstTranslation.Ast, secondTranslation.Ast }),
                     @as: "z__",
@@ -56,7 +54,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                         AstExpression.Var(resultSelectorParameter2.Name, AstExpression.ArrayElemAt(AstExpression.Field("$z__"), 1)),
                         @in: resultSelectorTranslation.Ast));
                 var serializer = IEnumerableSerializer.Create(resultSelectorTranslation.Serializer);
-
                 return new AggregationExpression(expression, ast, serializer);
             }
 

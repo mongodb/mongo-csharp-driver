@@ -45,8 +45,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
-            sourceExpression = null;
-            valueExpression = null;
 
             if (method.Is(EnumerableMethod.Contains))
             {
@@ -59,12 +57,13 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             {
                 sourceExpression = expression.Object;
                 valueExpression = arguments[0];
-
                 var ienumerableInterface = sourceExpression.Type.GetIEnumerableGenericInterface();
                 var itemType = ienumerableInterface.GetGenericArguments()[0];
                 return itemType == valueExpression.Type;
             }
 
+            sourceExpression = null;
+            valueExpression = null;
             return false;
         }
 

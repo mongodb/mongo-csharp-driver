@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                     pipeline.OutputSerializer,
                     AstStage.Limit(1));
 
-                var finalizer = expression.Method.Name == "FirstOrDefault" ? __firstOrDefaultFinalizer : __firstFinalizer;
+                var finalizer = method.Name == "FirstOrDefault" ? __firstOrDefaultFinalizer : __firstFinalizer;
 
                 return new ExecutableQuery<TDocument, TOutput, TOutput>(
                     provider.Collection,

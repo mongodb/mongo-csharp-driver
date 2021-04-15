@@ -31,13 +31,11 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             if (method.IsOneOf(MathMethod.CeilingWithDecimal, MathMethod.CeilingWithDouble))
             {
                 var argumentExpression = arguments[0];
-
                 var serverType = method.GetParameters()[0].ParameterType;
-                argumentExpression = ConvertHelper.RemoveUnnecessaryConvert(argumentExpression, impliedType: serverType);
-                var argumentTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, argumentExpression);
+                var argumentExpressionWithConvertRemoved = ConvertHelper.RemoveUnnecessaryConvert(argumentExpression, impliedType: serverType);
+                var argumentTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, argumentExpressionWithConvertRemoved);
                 var ast = AstExpression.Ceil(argumentTranslation.Ast);
                 var serializer = BsonSerializer.LookupSerializer(expression.Type);
-
                 return new AggregationExpression(expression, ast, serializer);
             }
 

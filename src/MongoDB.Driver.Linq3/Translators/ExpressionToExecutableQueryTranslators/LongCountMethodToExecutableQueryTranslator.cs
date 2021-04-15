@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                 var source = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, source);
 
-                if (expression.Method.IsOneOf(__longCountWithPredicateMethods))
+                if (method.IsOneOf(__longCountWithPredicateMethods))
                 {
                     var predicateLambda = ExpressionHelper.UnquoteLambda(arguments[1]);
                     var filter = ExpressionToFilterTranslator.TranslateLambda(context, predicateLambda, parameterSerializer: pipeline.OutputSerializer);

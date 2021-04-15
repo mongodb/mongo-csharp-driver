@@ -24,13 +24,14 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
     {
         public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
-            if (expression.Method.Is(EnumerableMethod.Distinct))
-            {
-                var sourceExpression = expression.Arguments[0];
+            var method = expression.Method;
+            var arguments = expression.Arguments;
 
+            if (method.Is(EnumerableMethod.Distinct))
+            {
+                var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
                 var ast = AstExpression.SetIntersection(sourceTranslation.Ast);
-
                 return new AggregationExpression(expression, ast, sourceTranslation.Serializer);
             }
 

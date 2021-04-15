@@ -57,10 +57,9 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             if (method.IsOneOf(__sumMethods))
             {
                 var sourceExpression = arguments[0];
-                var selectorLambda = arguments.Count == 2 ? (LambdaExpression)arguments[1] : null;
-
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
                 var sourceItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
+                var selectorLambda = arguments.Count == 2 ? (LambdaExpression)arguments[1] : null;
                 AstExpression ast;
                 IBsonSerializer serializer;
                 if (selectorLambda == null)
@@ -74,7 +73,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                     var selectorSymbol = new Symbol("$" + selectorParameter.Name, sourceItemSerializer);
                     var selectorContext = context.WithSymbol(selectorParameter, selectorSymbol);
                     var selectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(selectorContext, selectorLambda.Body);
-
                     ast = AstExpression.Sum(
                         AstExpression.Map(
                             input: sourceTranslation.Ast,
@@ -82,7 +80,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                             @in: selectorTranslation.Ast));
                     serializer = selectorTranslation.Serializer;
                 }
-
                 return new AggregationExpression(expression, ast, serializer);
             }
 

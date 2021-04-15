@@ -60,14 +60,17 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
         // public static methods
         public static ExecutableQuery<TDocument, bool> Translate<TDocument>(MongoQueryProvider<TDocument> provider, TranslationContext context, MethodCallExpression expression)
         {
-            if (expression.Method.IsOneOf(__anyMethods))
+            var method = expression.Method;
+            var arguments = expression.Arguments;
+
+            if (method.IsOneOf(__anyMethods))
             {
-                var sourceExpression = expression.Arguments[0];
+                var sourceExpression = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
 
-                if (expression.Method.IsOneOf(__anyWithPredicateMethods))
+                if (method.IsOneOf(__anyWithPredicateMethods))
                 {
-                    var predicateLambda = ExpressionHelper.UnquoteLambda(expression.Arguments[1]);
+                    var predicateLambda = ExpressionHelper.UnquoteLambda(arguments[1]);
                     var predicateParameter = predicateLambda.Parameters[0];
                     var predicateContext = context.WithSymbolAsCurrent(predicateParameter, new Symbol(predicateParameter.Name, pipeline.OutputSerializer));
                     var filterTranslation = ExpressionToFilterTranslator.Translate(predicateContext, predicateLambda.Body);

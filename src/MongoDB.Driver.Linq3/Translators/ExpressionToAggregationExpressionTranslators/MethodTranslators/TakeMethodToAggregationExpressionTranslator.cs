@@ -25,10 +25,13 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
     {
         public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
-            if (expression.Method.Is(EnumerableMethod.Take))
+            var method = expression.Method;
+            var arguments = expression.Arguments;
+
+            if (method.Is(EnumerableMethod.Take))
             {
-                var sourceExpression = expression.Arguments[0];
-                var countExpression = expression.Arguments[1];
+                var sourceExpression = arguments[0];
+                var countExpression = arguments[1];
                 Expression skipExpression = null;
                 if (sourceExpression is MethodCallExpression sourceSkipExpression && sourceSkipExpression.Method.Is(EnumerableMethod.Skip))
                 {

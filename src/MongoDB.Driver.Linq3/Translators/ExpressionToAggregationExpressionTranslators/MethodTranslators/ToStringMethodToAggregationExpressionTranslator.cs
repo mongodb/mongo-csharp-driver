@@ -38,20 +38,18 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
-            translation = null;
 
             if (method.DeclaringType != typeof(DateTime) || method.IsStatic || method.ReturnType != typeof(string) || method.Name != "ToString" || arguments.Count != 1 || arguments[0].Type != typeof(string))
             {
+                translation = null;
                 return false;
             }
 
             var dateTimeExpression = expression.Object;
-            var formatExpression = arguments[0];
-
             var dateTimeTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, dateTimeExpression);
+            var formatExpression = arguments[0];
             var formatTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, formatExpression);
             var ast = AstExpression.DateToString(dateTimeTranslation.Ast, formatTranslation.Ast);
-
             translation = new AggregationExpression(expression, ast, new StringSerializer());
             return true;
         }
