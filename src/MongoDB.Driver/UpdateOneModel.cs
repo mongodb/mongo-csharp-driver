@@ -13,11 +13,11 @@
 * limitations under the License.
 */
 
-using MongoDB.Driver.Core.Misc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
@@ -25,7 +25,7 @@ namespace MongoDB.Driver
     /// Model for updating a single document.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-#if NET452
+#if !NETSTANDARD1_5
     [Serializable]
 #endif
     public sealed class UpdateOneModel<TDocument> : WriteModel<TDocument>

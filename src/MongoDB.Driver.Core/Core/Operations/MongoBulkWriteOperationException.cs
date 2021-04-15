@@ -13,11 +13,11 @@
 * limitations under the License.
 */
 
+#if !NETSTANDARD1_5
 using System;
+#endif
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-#if NET452
+#if !NETSTANDARD1_5
 using System.Runtime.Serialization;
 #endif
 using System.Text;
@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents a bulk write operation exception.
     /// </summary>
-#if NET452
+#if !NETSTANDARD1_5
     [Serializable]
 #endif
     public class MongoBulkWriteOperationException : MongoServerException
@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-#if NET452
+#if !NETSTANDARD1_5
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoBulkWriteOperationException" /> class.
         /// </summary>
@@ -136,7 +136,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-#if NET452
+#if !NETSTANDARD1_5
         /// <inheritdoc/>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {

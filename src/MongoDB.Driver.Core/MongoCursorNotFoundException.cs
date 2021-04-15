@@ -13,8 +13,8 @@
 * limitations under the License.
 */
 
+#if !NETSTANDARD1_5
 using System;
-#if NET452
 using System.Runtime.Serialization;
 #endif
 using MongoDB.Bson;
@@ -26,7 +26,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB cursor not found exception.
     /// </summary>
-#if NET452
+#if !NETSTANDARD1_5
     [Serializable]
 #endif
     public class MongoCursorNotFoundException : MongoQueryException
@@ -59,7 +59,7 @@ namespace MongoDB.Driver
             _cursorId = cursorId;
         }
 
-#if NET452
+#if !NETSTANDARD1_5
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoCursorNotFoundException"/> class.
         /// </summary>
@@ -85,7 +85,7 @@ namespace MongoDB.Driver
         }
 
         // methods
-#if NET452
+#if !NETSTANDARD1_5
         /// <inheritdoc/>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {

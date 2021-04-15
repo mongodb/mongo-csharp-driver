@@ -15,7 +15,7 @@
 
 using System;
 using System.Net.Sockets;
-#if NET452
+#if !NETSTANDARD1_5
 using System.Runtime.Serialization;
 #endif
 using MongoDB.Driver.Core.Connections;
@@ -26,7 +26,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB connection exception.
     /// </summary>
-#if NET452
+#if !NETSTANDARD1_5
     [Serializable]
 #endif
     public class MongoConnectionException : MongoException
@@ -57,7 +57,7 @@ namespace MongoDB.Driver
             _connectionId = Ensure.IsNotNull(connectionId, nameof(connectionId));
         }
 
-#if NET452
+#if !NETSTANDARD1_5
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoConnectionException"/> class.
         /// </summary>
@@ -129,7 +129,7 @@ namespace MongoDB.Driver
         public virtual bool IsNetworkException => true; // true in subclasses, only if they can be considered as a network error
 
         // methods
-#if NET452
+#if !NETSTANDARD1_5
         /// <inheritdoc/>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {

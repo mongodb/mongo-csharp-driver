@@ -15,16 +15,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using MongoDB.Bson;
 
 namespace MongoDB.Driver.Core.Operations
 {
     /// <summary>
     /// Represents the result of a bulk write operation.
     /// </summary>
-#if NET452
+#if !NETSTANDARD1_5
     [Serializable]
 #endif
     public abstract class BulkWriteOperationResult
@@ -133,8 +130,8 @@ namespace MongoDB.Driver.Core.Operations
         /// <summary>
         /// Represents the result of an acknowledged bulk write operation.
         /// </summary>
-#if NET452
-    [Serializable]
+#if !NETSTANDARD1_5
+        [Serializable]
 #endif
         public class Acknowledged : BulkWriteOperationResult
         {
@@ -227,8 +224,8 @@ namespace MongoDB.Driver.Core.Operations
         /// <summary>
         /// Represents the result of an unacknowledged BulkWrite operation.
         /// </summary>
-#if NET452
-    [Serializable]
+#if !NETSTANDARD1_5
+        [Serializable]
 #endif
         public class Unacknowledged : BulkWriteOperationResult
         {

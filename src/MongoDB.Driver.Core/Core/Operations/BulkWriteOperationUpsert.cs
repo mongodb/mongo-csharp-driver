@@ -13,21 +13,18 @@
 * limitations under the License.
 */
 
+#if !NETSTANDARD1_5
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
+#endif
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Operations
 {
     /// <summary>
     /// Represents the information about one Upsert.
     /// </summary>
-#if NET452
+#if !NETSTANDARD1_5
     [Serializable]
 #endif
     public class BulkWriteOperationUpsert
@@ -76,4 +73,3 @@ namespace MongoDB.Driver.Core.Operations
         }
     }
 }
-

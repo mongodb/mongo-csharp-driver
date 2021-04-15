@@ -13,9 +13,7 @@
 * limitations under the License.
 */
 
-using System.Collections.Generic;
-
-#if NET452
+#if !NETSTANDARD1_5
 using System;
 using System.Runtime.Serialization;
 #endif
@@ -25,7 +23,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
     /// <summary>
     /// Represents a Libgssapi exception.
     /// </summary>
-#if NET452
+#if !NETSTANDARD1_5
     [Serializable]
 #endif
     public class LibgssapiException : GssapiException
@@ -38,7 +36,7 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
         {
         }
 
-#if NET452
+#if !NETSTANDARD1_5
         /// <summary>
         /// Initializes a new instance of the <see cref="LibgssapiException" /> class.
         /// </summary>

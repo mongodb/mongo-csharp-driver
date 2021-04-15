@@ -14,7 +14,7 @@
 */
 
 using System;
-#if NET452
+#if !NETSTANDARD1_5
 using System.Runtime.Serialization;
 #endif
 
@@ -23,7 +23,7 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents a truncation exception.
     /// </summary>
-#if NET452
+#if !NETSTANDARD1_5
     [Serializable]
 #endif
     public class TruncationException : BsonException
@@ -56,7 +56,7 @@ namespace MongoDB.Bson
         {
         }
 
-#if NET452
+#if !NETSTANDARD1_5
         /// <summary>
         /// Initializes a new instance of the TruncationException class (this overload used by deserialization).
         /// </summary>

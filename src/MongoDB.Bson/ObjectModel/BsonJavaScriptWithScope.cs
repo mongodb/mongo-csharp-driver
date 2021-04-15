@@ -20,7 +20,7 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents a BSON JavaScript value with a scope.
     /// </summary>
-#if NET452
+#if !NETSTANDARD1_5
     [Serializable]
 #endif
     public class BsonJavaScriptWithScope : BsonJavaScript, IComparable<BsonJavaScriptWithScope>, IEquatable<BsonJavaScriptWithScope>

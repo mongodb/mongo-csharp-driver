@@ -13,14 +13,15 @@
 * limitations under the License.
 */
 
-using System;
+#if !NETCOREAPP1_1
+using System.IO;
+#endif
 using System.Net;
+#if !NETCOREAPP1_1
+using System.Runtime.Serialization.Formatters.Binary;
+#endif
 using FluentAssertions;
-using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Connections;
-using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Servers;
 using Xunit;
 
 
@@ -81,5 +82,25 @@ namespace MongoDB.Driver.Core.Servers
             var subject = new ServerId(__clusterId, __endPoint);
             subject.ToString().Should().Be("{ ClusterId : 1, EndPoint : \"Unspecified/localhost:27017\" }");
         }
+
+#if !NETCOREAPP1_1
+        [Fact]
+        public void Serialization_should_work()
+        {
+            var subject = new ServerId(__clusterId, __endPoint);
+
+            var formatter = new BinaryFormatter();
+            using (var stream = new MemoryStream())
+            {
+                formatter.Serialize(stream, subject);
+                stream.Position = 0;
+                var rehydrated = (ServerId)formatter.Deserialize(stream);
+
+                rehydrated.Should().Be(subject);
+                rehydrated.ClusterId.Should().Be(subject.ClusterId);
+                rehydrated.EndPoint.Should().Be(subject.EndPoint);
+            }
+        }
+#endif
     }
 }

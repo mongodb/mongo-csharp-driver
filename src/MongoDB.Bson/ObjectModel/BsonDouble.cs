@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Globalization;
 using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson
@@ -23,7 +22,7 @@ namespace MongoDB.Bson
     /// Represents a BSON double value.
     /// </summary>
     /// <seealso cref="MongoDB.Bson.BsonValue" />
-#if NET452
+#if !NETSTANDARD1_5
     [Serializable]
 #endif
     public class BsonDouble : BsonValue, IComparable<BsonDouble>, IEquatable<BsonDouble>

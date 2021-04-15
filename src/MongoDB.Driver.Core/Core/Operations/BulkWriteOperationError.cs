@@ -13,12 +13,10 @@
 * limitations under the License.
 */
 
+#if !NETSTANDARD1_5
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
+#endif
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
@@ -26,7 +24,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents the details of a write error for a particular request.
     /// </summary>
-#if NET452
+#if !NETSTANDARD1_5
     [Serializable]
 #endif
     public sealed class BulkWriteOperationError
@@ -130,4 +128,3 @@ namespace MongoDB.Driver.Core.Operations
         }
     }
 }
-

@@ -14,7 +14,7 @@
 */
 
 using System;
-#if NET452
+#if !NETSTANDARD1_5
 using System.Runtime.Serialization;
 #endif
 using System.Text;
@@ -25,7 +25,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a write exception.
     /// </summary>
-#if NET452
+#if !NETSTANDARD1_5
     [Serializable]
 #endif
     public class MongoWriteException : MongoServerException
@@ -70,7 +70,7 @@ namespace MongoDB.Driver
             }
         }
 
-#if NET452
+#if !NETSTANDARD1_5
         /// <summary>
         /// Initializes a new instance of the MongoQueryException class (this overload supports deserialization).
         /// </summary>
@@ -109,7 +109,7 @@ namespace MongoDB.Driver
         }
 
         // methods
-#if NET452
+#if !NETSTANDARD1_5
         /// <summary>
         /// Gets the object data.
         /// </summary>

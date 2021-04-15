@@ -13,20 +13,17 @@
 * limitations under the License.
 */
 
+#if !NETSTANDARD1_5
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
+#endif
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver
 {
     /// <summary>
     /// Represents the details of a write error.
     /// </summary>
-#if NET452
+#if !NETSTANDARD1_5
     [Serializable]
 #endif
     public class WriteError

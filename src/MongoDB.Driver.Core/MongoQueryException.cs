@@ -13,12 +13,11 @@
 * limitations under the License.
 */
 
+#if !NETSTANDARD1_5
 using System;
-#if NET452
 using System.Runtime.Serialization;
 #endif
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver
@@ -26,7 +25,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB query exception.
     /// </summary>
-#if NET452
+#if !NETSTANDARD1_5
     [Serializable]
 #endif
     public class MongoQueryException : MongoServerException
@@ -50,7 +49,7 @@ namespace MongoDB.Driver
             _queryResult = queryResult;
         }
 
-#if NET452
+#if !NETSTANDARD1_5
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoQueryException"/> class.
         /// </summary>
@@ -88,7 +87,7 @@ namespace MongoDB.Driver
         }
 
         // methods
-#if NET452
+#if !NETSTANDARD1_5
         /// <inheritdoc/>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {

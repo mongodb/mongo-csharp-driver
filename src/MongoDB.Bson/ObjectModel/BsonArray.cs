@@ -25,7 +25,7 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents a BSON array.
     /// </summary>
-#if NET452
+#if !NETSTANDARD1_5
     [Serializable]
 #endif
     public class BsonArray : BsonValue, IComparable<BsonArray>, IEquatable<BsonArray>, IList<BsonValue>

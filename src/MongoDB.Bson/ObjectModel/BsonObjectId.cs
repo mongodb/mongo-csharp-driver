@@ -20,7 +20,7 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents a BSON ObjectId value (see also ObjectId).
     /// </summary>
-#if NET452
+#if !NETSTANDARD1_5
     [Serializable]
 #endif
     public class BsonObjectId : BsonValue, IComparable<BsonObjectId>, IEquatable<BsonObjectId>

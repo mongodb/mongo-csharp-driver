@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-#if NET452
+#if !NETSTANDARD1_5
 using System;
 using System.Runtime.Serialization;
 #endif
@@ -25,7 +25,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB write concern exception.
     /// </summary>
-#if NET452
+#if !NETSTANDARD1_5
     [Serializable]
 #endif
     public class MongoWriteConcernException : MongoCommandException
@@ -63,7 +63,7 @@ namespace MongoDB.Driver
             AddErrorLabelsFromWriteConcernResult(this, _writeConcernResult);
         }
 
-#if NET452
+#if !NETSTANDARD1_5
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoWriteConcernException"/> class.
         /// </summary>
@@ -91,7 +91,7 @@ namespace MongoDB.Driver
         }
 
         // methods
-#if NET452
+#if !NETSTANDARD1_5
         /// <inheritdoc/>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
