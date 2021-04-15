@@ -43,31 +43,14 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             throw new ExpressionNotSupportedException(expression);
         }
 
-        private static Type GetServerType(Type arg1Type, Type arg2Type)
-        {
-            if (arg1Type == typeof(decimal) || arg2Type == typeof(decimal))
-            {
-                return typeof(decimal);
-            }
-            else
-            {
-                return typeof(double);
-            }
-        }
-
         private static AggregationExpression TranslateNumericAddition(TranslationContext context, BinaryExpression expression)
         {
-            var leftExpression = expression.Left;
-            var rightExpression = expression.Right;
-
-            var serverType = GetServerType(leftExpression.Type, rightExpression.Type);
-            leftExpression = ConvertHelper.RemoveUnnecessaryConvert(leftExpression, impliedType: serverType);
-            rightExpression = ConvertHelper.RemoveUnnecessaryConvert(rightExpression, impliedType: serverType);
+            var leftExpression = ConvertHelper.RemoveWideningConvert(expression.Left);
             var leftTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, leftExpression);
+            var rightExpression = ConvertHelper.RemoveWideningConvert(expression.Right);
             var rightTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, rightExpression);
             var ast = AstExpression.Add(leftTranslation.Ast, rightTranslation.Ast);
             var serializer = BsonSerializer.LookupSerializer(expression.Type);
-
             return new AggregationExpression(expression, ast, serializer);
         }
 
