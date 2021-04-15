@@ -30,9 +30,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
 
             if (method.IsOneOf(MathMethod.Log, MathMethod.LogWithNewBase, MathMethod.Log10))
             {
-                var argumentExpression = arguments[0];
-                var argumentExpressionWithConvertRemoved = ConvertHelper.RemoveUnnecessaryConvert(argumentExpression, typeof(double));
-                var argumentTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, argumentExpressionWithConvertRemoved);
+                var argumentExpression = ConvertHelper.RemoveWideningConvert(arguments[0]);
+                var argumentTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, argumentExpression);
                 AstExpression ast;
                 if (method.Is(MathMethod.LogWithNewBase))
                 {

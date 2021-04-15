@@ -20,33 +20,40 @@ namespace MongoDB.Driver.Linq3.Misc
 {
     public static class ConvertHelper
     {
-        public static Expression RemoveUnnecessaryConvert(Expression expression, Type impliedType)
+        public static Expression RemoveWideningConvert(Expression expression)
         {
             if (expression.NodeType == ExpressionType.Convert)
             {
-                var unaryExpression = (UnaryExpression)expression;
-                if (CanConvertBeRemoved(unaryExpression, impliedType))
+                var convertExpression = (UnaryExpression)expression;
+                var sourceType = convertExpression.Operand.Type;
+                var targetType = expression.Type;
+                if (IsWideningConvert(sourceType, targetType))
                 {
-                    return unaryExpression.Operand;
+                    return convertExpression.Operand;
                 }
             }
 
             return expression;
-        }
 
-        private static bool CanConvertBeRemoved(UnaryExpression unaryExpression, Type impliedType)
-        {
-            if (unaryExpression.Type == impliedType)
+            static bool IsWideningConvert(Type sourceType, Type targetType)
             {
-                return true;
-            }
+                if (sourceType == typeof(int))
+                {
+                    return targetType == typeof(long) || targetType == typeof(double) || targetType == typeof(decimal);
+                }
 
-            if (unaryExpression.Type == typeof(long) && unaryExpression.Operand.Type == typeof(int))
-            {
-                return true;
-            }
+                if (sourceType == typeof(long))
+                {
+                    return targetType == typeof(double) || targetType == typeof(decimal);
+                }
 
-            return false;
+                if (sourceType == typeof(double))
+                {
+                    return targetType == typeof(decimal);
+                }
+
+                return false;
+            }
         }
     }
 }
