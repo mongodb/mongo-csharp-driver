@@ -15,9 +15,9 @@
 
 using System;
 using System.Collections.Generic;
-using MongoDB.Driver.Linq3.Misc;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Serializers
 {
@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Linq3.Serializers
         // constructors
         public IEnumerableSerializer(IBsonSerializer<TItem> itemSerializer)
         {
-            _itemSerializer = Throw.IfNull(itemSerializer, nameof(itemSerializer));
+            _itemSerializer = Ensure.IsNotNull(itemSerializer, nameof(itemSerializer));
         }
 
         // public methods

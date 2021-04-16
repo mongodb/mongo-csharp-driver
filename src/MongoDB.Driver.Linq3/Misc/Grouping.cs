@@ -16,6 +16,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Misc
 {
@@ -29,7 +30,7 @@ namespace MongoDB.Driver.Linq3.Misc
         public Grouping(TKey key, List<TElement> elements)
         {
             _key = key;
-            _elements = Throw.IfNull(elements, nameof(elements));
+            _elements = Ensure.IsNotNull(elements, nameof(elements));
         }
 
         // public properties

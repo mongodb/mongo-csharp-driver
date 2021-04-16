@@ -13,8 +13,8 @@
 * limitations under the License.
 */
 
-using System;
 using System.Linq.Expressions;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq3.Misc;
 
 namespace MongoDB.Driver.Linq3.Translators
@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Linq3.Translators
 
         public TranslationContext(SymbolTable symbolTable)
         {
-            _symbolTable = Throw.IfNull(symbolTable, nameof(symbolTable));
+            _symbolTable = Ensure.IsNotNull(symbolTable, nameof(symbolTable));
         }
 
         // public properties
