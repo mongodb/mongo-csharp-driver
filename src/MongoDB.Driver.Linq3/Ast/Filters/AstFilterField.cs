@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
         public override AstNodeType NodeType => AstNodeType.FilterField;
         public IBsonSerializer Serializer => _serializer;
 
-        public AstFilterField CreateFilterSubField(string subFieldName, IBsonSerializer subFieldSerializer)
+        public AstFilterField SubField(string subFieldName, IBsonSerializer subFieldSerializer)
         {
             Ensure.IsNotNull(subFieldName, nameof(subFieldName));
 

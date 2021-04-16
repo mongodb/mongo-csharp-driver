@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilte
                         arraySerializer.TryGetItemSerializationInfo(out var itemSerializationInfo))
                     {
                         var itemSerializer = itemSerializationInfo.Serializer;
-                        return sourceField.CreateFilterSubField(index.ToString(), itemSerializer);
+                        return sourceField.SubField(index.ToString(), itemSerializer);
                     }
                 }
 

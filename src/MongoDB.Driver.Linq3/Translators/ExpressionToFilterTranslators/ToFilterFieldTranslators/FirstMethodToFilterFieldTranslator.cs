@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilte
                     var itemSerializer = itemSerializationInfo.Serializer;
                     if (method.ReturnType.IsAssignableFrom(itemSerializer.ValueType))
                     {
-                        return enumerableFieldAst.CreateFilterSubField("0", itemSerializer);
+                        return enumerableFieldAst.SubField("0", itemSerializer);
                     }
                 }
             }

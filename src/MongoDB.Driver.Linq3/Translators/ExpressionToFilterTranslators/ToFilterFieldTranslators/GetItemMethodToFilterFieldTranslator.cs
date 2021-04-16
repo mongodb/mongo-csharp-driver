@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilte
                 var itemSerializer = itemSerializationInfo.Serializer;
                 if (method.ReturnType.IsAssignableFrom(itemSerializer.ValueType))
                 {
-                    return field.CreateFilterSubField(index.ToString(), itemSerializer);
+                    return field.SubField(index.ToString(), itemSerializer);
                 }
             }
 
@@ -83,7 +83,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilte
                 var valueSerializer = dictionarySerializer.ValueSerializer;
                 if (method.ReturnType.IsAssignableFrom(valueSerializer.ValueType))
                 {
-                    return field.CreateFilterSubField(index, valueSerializer);
+                    return field.SubField(index, valueSerializer);
                 }
             }
 

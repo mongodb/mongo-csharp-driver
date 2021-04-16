@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
                 var nominalType = fieldExpression.Type;
                 var actualType = expression.TypeOperand;
                 var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(actualType);
-                var discriminatorField = field.CreateFilterSubField(discriminatorConvention.ElementName, BsonValueSerializer.Instance);
+                var discriminatorField = field.SubField(discriminatorConvention.ElementName, BsonValueSerializer.Instance);
                 var discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType);
 
                 return AstFilter.Eq(discriminatorField, discriminator);
