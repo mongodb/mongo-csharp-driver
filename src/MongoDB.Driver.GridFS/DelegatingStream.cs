@@ -13,11 +13,10 @@
 * limitations under the License.
 */
 
+#if !NETSTANDARD1_5
 using System;
-using System.IO;
-#if NET452
-using System.Runtime.Remoting;
 #endif
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -42,7 +41,7 @@ namespace MongoDB.Driver.GridFS
             _wrappedStream = wrappedStream;
         }
 
-        // properties        
+        // properties
         /// <inheritdoc/>
         public override bool CanRead
         {
@@ -95,7 +94,7 @@ namespace MongoDB.Driver.GridFS
         }
 
         // methods
-#if NET452
+#if !NETSTANDARD1_5
         /// <inheritdoc/>
         public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
         {
@@ -103,7 +102,7 @@ namespace MongoDB.Driver.GridFS
         }
 #endif
 
-#if NET452
+#if !NETSTANDARD1_5
         /// <inheritdoc/>
         public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
         {
@@ -111,7 +110,7 @@ namespace MongoDB.Driver.GridFS
         }
 #endif
 
-#if NET452
+#if !NETSTANDARD1_5
         /// <inheritdoc/>
         public override void Close()
         {
@@ -125,15 +124,7 @@ namespace MongoDB.Driver.GridFS
             return _wrappedStream.CopyToAsync(destination, bufferSize, cancellationToken);
         }
 
-#if NET452
-       /// <inheritdoc/>
-        public override ObjRef CreateObjRef(Type requestedType)
-        {
-            return _wrappedStream.CreateObjRef(requestedType);
-        }
-#endif
-
-#if NET452
+#if !NETSTANDARD1_5
         /// <inheritdoc/>
         [Obsolete("Not supported by DelegatingStream.")]
         protected override WaitHandle CreateWaitHandle()
@@ -151,7 +142,7 @@ namespace MongoDB.Driver.GridFS
             }
         }
 
-#if NET452
+#if !NETSTANDARD1_5
         /// <inheritdoc/>
         public override int EndRead(IAsyncResult asyncResult)
         {
@@ -159,7 +150,7 @@ namespace MongoDB.Driver.GridFS
         }
 #endif
 
-#if NET452
+#if !NETSTANDARD1_5
         /// <inheritdoc/>
         public override void EndWrite(IAsyncResult asyncResult)
         {
@@ -191,26 +182,8 @@ namespace MongoDB.Driver.GridFS
             return _wrappedStream.GetHashCode();
         }
 
-#if NET452
-       /// <inheritdoc/>
-        public override object InitializeLifetimeService()
-        {
-            return _wrappedStream.InitializeLifetimeService();
-        }
-#endif
-
-#if NET452
-        /// <inheritdoc/>
-        [Obsolete("Not supported by DelegatingStream.")]
-        protected override void ObjectInvariant()
-        {
-            throw new NotSupportedException();
-        }
-#endif
-
         /// <inheritdoc/>
         public override int Read(byte[] buffer, int offset, int count)
-
         {
             return _wrappedStream.Read(buffer, offset, count);
         }

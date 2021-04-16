@@ -162,7 +162,7 @@ namespace MongoDB.Bson.IO
         }
 
         // methods
-#if NET452
+#if !NETSTANDARD1_5
         /// <inheritdoc/>
         public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
         {
@@ -171,7 +171,7 @@ namespace MongoDB.Bson.IO
         }
 #endif
 
-#if NET452
+#if !NETSTANDARD1_5
         /// <inheritdoc/>
         public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
         {
@@ -180,7 +180,7 @@ namespace MongoDB.Bson.IO
         }
 #endif
 
-#if NET452
+#if !NETSTANDARD1_5
         /// <inheritdoc/>
         public override void Close()
         {
@@ -212,7 +212,7 @@ namespace MongoDB.Bson.IO
             base.Dispose(disposing);
         }
 
-#if NET452
+#if !NETSTANDARD1_5
         /// <inheritdoc/>
         public override int EndRead(IAsyncResult asyncResult)
         {
@@ -221,7 +221,7 @@ namespace MongoDB.Bson.IO
         }
 #endif
 
-#if NET452
+#if !NETSTANDARD1_5
         /// <inheritdoc/>
         public override void EndWrite(IAsyncResult asyncResult)
         {
