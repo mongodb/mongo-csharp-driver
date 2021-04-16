@@ -53,7 +53,7 @@ namespace MongoDB.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-#if NET452
+#if !NETCOREAPP1_1
         [Fact]
         public void BeginRead_should_call_wrapped_stream()
         {
@@ -74,7 +74,7 @@ namespace MongoDB.Bson.Tests
         }
 #endif
 
-#if NET452
+#if !NETCOREAPP1_1
         [Fact]
         public void BeginRead_should_throw_when_subject_is_diposed()
         {
@@ -93,7 +93,7 @@ namespace MongoDB.Bson.Tests
         }
 #endif
 
-#if NET452
+#if !NETCOREAPP1_1
         [Fact]
         public void BeginWrite_should_call_wrapped_stream()
         {
@@ -114,7 +114,7 @@ namespace MongoDB.Bson.Tests
         }
 #endif
 
-#if NET452
+#if !NETCOREAPP1_1
         [Fact]
         public void BeginWrite_should_throw_when_subject_is_disposed()
         {
@@ -245,7 +245,7 @@ namespace MongoDB.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-#if NET452
+#if !NETCOREAPP1_1
         [Fact]
         public void Close_can_be_called_multiple_times()
         {
@@ -260,7 +260,7 @@ namespace MongoDB.Bson.Tests
         }
 #endif
 
-#if NET452
+#if !NETCOREAPP1_1
         [Fact]
         public void Close_should_dispose_subject()
         {
@@ -355,7 +355,7 @@ namespace MongoDB.Bson.Tests
             subjectReflector._disposed.Should().BeTrue();
         }
 
-#if NET452
+#if !NETCOREAPP1_1
         [Fact]
         public void Dispose_should_dispose_stream_once_when_Disposed_is_called_more_than_once()
         {
@@ -369,7 +369,7 @@ namespace MongoDB.Bson.Tests
         }
 #endif
 
-#if NET452
+#if !NETCOREAPP1_1
        [Theory]
         [ParameterAttributeData]
         public void Dispose_should_dispose_stream_only_when_it_owns_it(
@@ -397,7 +397,7 @@ namespace MongoDB.Bson.Tests
             subjectReflector._disposed.Should().BeTrue();
         }
 
-#if NET452
+#if !NETCOREAPP1_1
         [Fact]
         public void EndRead_should_call_wrapped_stream()
         {
@@ -414,7 +414,7 @@ namespace MongoDB.Bson.Tests
         }
 #endif
 
-#if NET452
+#if !NETCOREAPP1_1
         [Fact]
         public void EndRead_should_throw_when_subject_is_disposed()
         {
@@ -429,7 +429,7 @@ namespace MongoDB.Bson.Tests
         }
 #endif
 
-#if NET452
+#if !NETCOREAPP1_1
         [Fact]
         public void EndWrite_should_call_wrapped_stream()
         {
@@ -443,7 +443,7 @@ namespace MongoDB.Bson.Tests
         }
 #endif
 
-#if NET452
+#if !NETCOREAPP1_1
         [Fact]
         public void EndWrite_should_throw_when_subject_is_disposed()
         {
