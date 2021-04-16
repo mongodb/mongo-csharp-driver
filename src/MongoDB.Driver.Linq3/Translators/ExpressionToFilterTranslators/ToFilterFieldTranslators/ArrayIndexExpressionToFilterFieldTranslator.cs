@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilte
                     var index = (int)constantIndexExpression.Value;
                     var arrayField = ExpressionToFilterFieldTranslator.Translate(context, arrayExpression);
                     var itemSerializer = ArraySerializerHelper.GetItemSerializer(arrayField.Serializer);
-                    return arrayField.CreateFilterSubField(index.ToString(), itemSerializer);
+                    return arrayField.SubField(index.ToString(), itemSerializer);
                 }
             }
 

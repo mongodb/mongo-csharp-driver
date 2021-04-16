@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilte
             if (serializer is IWrappedEnumerableSerializer wrappedEnumerableSerializer)
             {
                 var enumerableSerializer = IEnumerableSerializer.Create(wrappedEnumerableSerializer.EnumerableElementSerializer);
-                resolvedFieldAst = resolvedFieldAst.CreateFilterSubField(wrappedEnumerableSerializer.EnumerableFieldName, enumerableSerializer);
+                resolvedFieldAst = resolvedFieldAst.SubField(wrappedEnumerableSerializer.EnumerableFieldName, enumerableSerializer);
             }
 
             return resolvedFieldAst;

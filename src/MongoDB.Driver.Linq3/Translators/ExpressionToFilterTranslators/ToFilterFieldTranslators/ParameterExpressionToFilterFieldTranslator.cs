@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilte
 
                 if (fieldSerializer is IWrappedValueSerializer wrappedValueSerializer)
                 {
-                    fieldAst = fieldAst.CreateFilterSubField("_v", wrappedValueSerializer.ValueSerializer);
+                    fieldAst = fieldAst.SubField("_v", wrappedValueSerializer.ValueSerializer);
                 }
 
                 return fieldAst; ;

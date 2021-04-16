@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilte
             {
                 var subFieldName = memberSerializationInfo.ElementName;
                 var subFieldSerializer = memberSerializationInfo.Serializer;
-                return containingFieldAst.CreateFilterSubField(subFieldName, subFieldSerializer);
+                return containingFieldAst.SubField(subFieldName, subFieldSerializer);
             }
 
             if (memberExpression.Expression.Type.IsConstructedGenericType &&
