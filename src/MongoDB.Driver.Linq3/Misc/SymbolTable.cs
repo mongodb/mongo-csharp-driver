@@ -13,10 +13,10 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Misc
 {
@@ -34,15 +34,15 @@ namespace MongoDB.Driver.Linq3.Misc
 
         public SymbolTable(ParameterExpression parameter, Symbol symbol)
         {
-            Throw.IfNull(parameter, nameof(parameter));
-            Throw.IfNull(symbol, nameof(symbol));
+            Ensure.IsNotNull(parameter, nameof(parameter));
+            Ensure.IsNotNull(symbol, nameof(symbol));
             _symbols = new Dictionary<ParameterExpression, Symbol>() { { parameter, symbol } };
         }
 
         public SymbolTable(SymbolTable other)
             : this()
         {
-            Throw.IfNull(other, nameof(other));
+            Ensure.IsNotNull(other, nameof(other));
             _current = other.Current;
             _symbols = new Dictionary<ParameterExpression, Symbol>(other._symbols);
         }

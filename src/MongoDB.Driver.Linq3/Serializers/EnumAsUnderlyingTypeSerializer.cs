@@ -14,9 +14,9 @@
 */
 
 using System;
-using MongoDB.Driver.Linq3.Misc;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Serializers
 {
@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Linq3.Serializers
         // constructors
         public EnumAsUnderlyingTypeSerializer(IBsonSerializer<TEnum> enumSerializer)
         {
-            _enumSerializer = Throw.IfNull(enumSerializer, nameof(enumSerializer));
+            _enumSerializer = Ensure.IsNotNull(enumSerializer, nameof(enumSerializer));
         }
 
         // public methods

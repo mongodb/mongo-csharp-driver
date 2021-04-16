@@ -16,7 +16,7 @@
 using System;
 using System.Linq;
 using System.Threading;
-using MongoDB.Driver.Linq3.Misc;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3
 {
@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Linq3
     {
         public static IQueryable<T> WithCancellationToken<T>(this IQueryable<T> queryable, CancellationToken cancellationToken)
         {
-            Throw.IfNull(queryable, nameof(queryable));
+            Ensure.IsNotNull(queryable, nameof(queryable));
 
             if (!(queryable.Provider is MongoQueryProvider provider))
             {
@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Linq3
 
         public static IQueryable<T> WithOptions<T>(this IQueryable<T> queryable, AggregateOptions options)
         {
-            Throw.IfNull(queryable, nameof(queryable));
+            Ensure.IsNotNull(queryable, nameof(queryable));
 
             if (!(queryable.Provider is MongoQueryProvider provider))
             {
@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Linq3
 
         public static IQueryable<T> WithSession<T>(this IQueryable<T> queryable, IClientSessionHandle session)
         {
-            Throw.IfNull(queryable, nameof(queryable));
+            Ensure.IsNotNull(queryable, nameof(queryable));
 
             if (!(queryable.Provider is MongoQueryProvider provider))
             {

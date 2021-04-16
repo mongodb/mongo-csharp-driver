@@ -19,15 +19,15 @@ using System.Reflection;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Linq3.Ast;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Ast.Stages;
 using MongoDB.Driver.Linq3.Methods;
 using MongoDB.Driver.Linq3.Misc;
 using MongoDB.Driver.Linq3.Serializers;
 using MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslators;
-using MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators;
 using MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators.Finalizers;
+using MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators
 {
@@ -131,7 +131,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                 }
                 else
                 {
-                    Throw.If(!(sourceSerializer is IWrappedValueSerializer), "Expected sourceSerializer to be an IWrappedValueSerializer.", nameof(sourceSerializer));
+                    Ensure.That(sourceSerializer is IWrappedValueSerializer, "Expected sourceSerializer to be an IWrappedValueSerializer.", nameof(sourceSerializer));
                     avgExpression = AstExpression.Field("_v");
                 }
 

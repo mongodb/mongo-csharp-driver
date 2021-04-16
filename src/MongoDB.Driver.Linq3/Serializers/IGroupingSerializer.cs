@@ -20,7 +20,7 @@ using MongoDB.Driver.Linq3.Misc;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using static MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators.MaxOrMinMethodToAggregationExpressionTranslator;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Serializers
 {
@@ -33,8 +33,8 @@ namespace MongoDB.Driver.Linq3.Serializers
         // constructors
         public IGroupingSerializer(IBsonSerializer<TKey> keySerializer, IBsonSerializer<TElement> elementSerializer)
         {
-            _keySerializer = Throw.IfNull(keySerializer, nameof(keySerializer));
-            _elementSerializer = Throw.IfNull(elementSerializer, nameof(elementSerializer));
+            _keySerializer = Ensure.IsNotNull(keySerializer, nameof(keySerializer));
+            _elementSerializer = Ensure.IsNotNull(elementSerializer, nameof(elementSerializer));
         }
 
         // public properties

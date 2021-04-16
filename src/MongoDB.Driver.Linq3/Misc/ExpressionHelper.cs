@@ -14,6 +14,7 @@
 */
 
 using System.Linq.Expressions;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Misc
 {
@@ -21,8 +22,8 @@ namespace MongoDB.Driver.Linq3.Misc
     {
         public static LambdaExpression UnquoteLambda(Expression expression)
         {
-            Throw.IfNull(expression, nameof(expression));
-            Throw.If(expression.NodeType != ExpressionType.Quote, "NodeType must be Quote.", nameof(expression));
+            Ensure.IsNotNull(expression, nameof(expression));
+            Ensure.That(expression.NodeType == ExpressionType.Quote, "NodeType must be Quote.", nameof(expression));
             var unaryExpression = (UnaryExpression)expression;
             return (LambdaExpression)unaryExpression.Operand;
         }

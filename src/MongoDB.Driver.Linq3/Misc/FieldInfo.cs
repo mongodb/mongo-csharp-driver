@@ -14,6 +14,7 @@
 */
 
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Misc
 {
@@ -26,8 +27,8 @@ namespace MongoDB.Driver.Linq3.Misc
         // constructors
         public FieldInfo(string elementName, IBsonSerializer serializer)
         {
-            _elementName = Throw.IfNullOrEmpty(elementName, nameof(elementName));
-            _serializer = Throw.IfNull(serializer, nameof(serializer));
+            _elementName = Ensure.IsNotNullOrEmpty(elementName, nameof(elementName));
+            _serializer = Ensure.IsNotNull(serializer, nameof(serializer));
         }
 
         // public properties

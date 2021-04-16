@@ -17,7 +17,7 @@ using System;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Linq3.Misc;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators;
 
 namespace MongoDB.Driver.Linq3.Serializers
@@ -46,8 +46,8 @@ namespace MongoDB.Driver.Linq3.Serializers
         // constructors
         public GroupByKeyElementSerializer(IBsonSerializer<TKey> keySerializer, IBsonSerializer<TElement> elementSerializer)
         {
-            _keySerializer = Throw.IfNull(keySerializer, nameof(keySerializer));
-            _elementSerializer = Throw.IfNull(elementSerializer, nameof(elementSerializer));
+            _keySerializer = Ensure.IsNotNull(keySerializer, nameof(keySerializer));
+            _elementSerializer = Ensure.IsNotNull(elementSerializer, nameof(elementSerializer));
         }
 
         // public properties
