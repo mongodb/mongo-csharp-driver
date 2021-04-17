@@ -14,8 +14,8 @@
 */
 
 using System;
-using System.Linq.Expressions;
 using System.Reflection;
+using MongoDB.Driver.Linq3.Reflection;
 
 namespace MongoDB.Driver.Linq3.Constructors
 {
@@ -27,19 +27,13 @@ namespace MongoDB.Driver.Linq3.Constructors
 
         static DateTimeConstructor()
         {
-            __withYearMonthDay = GetConstructor(() => new DateTime(0, 0, 0));
-            __withYearMonthDayHourMinuteSecond = GetConstructor(() => new DateTime(0, 0, 0, 0, 0, 0 ));
-            __withYearMonthDayHourMinuteSecondMillisecond = GetConstructor(() => new DateTime(0, 0, 0, 0, 0, 0, 0));
+            __withYearMonthDay = ReflectionInfo.Constructor((int year, int month, int day) => new DateTime(year, month, day));
+            __withYearMonthDayHourMinuteSecond = ReflectionInfo.Constructor((int year, int month, int day, int hour, int minute, int second) => new DateTime(year, month, day, hour, minute, second));
+            __withYearMonthDayHourMinuteSecondMillisecond = ReflectionInfo.Constructor((int year, int month, int day, int hour, int minute, int second, int millisecond) => new DateTime(year, month, day, hour, minute, second, millisecond));
         }
 
         public static ConstructorInfo WithYearMonthDay=> __withYearMonthDay;
         public static ConstructorInfo WithYearMonthDayHourMinuteSecond => __withYearMonthDayHourMinuteSecond;
         public static ConstructorInfo WithYearMonthDayHourMinuteSecondMillisecond => __withYearMonthDayHourMinuteSecondMillisecond;
-
-        private static ConstructorInfo GetConstructor(Expression<Func<DateTime>> lambda)
-        {
-            var body = (NewExpression)lambda.Body;
-            return body.Constructor;
-        }
     }
 }
