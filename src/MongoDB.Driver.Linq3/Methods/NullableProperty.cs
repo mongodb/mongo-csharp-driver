@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Linq3.Methods
         // static constructor
         static NullableProperty()
         {
-            __hasValue = Property.Info((int? n) => n.HasValue);
+            __hasValue = ReflectionInfo.Property((int? n) => n.HasValue);
         }
 
         // public properties

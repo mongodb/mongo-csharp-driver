@@ -26,12 +26,10 @@ namespace MongoDB.Driver.Linq3.Methods
         // static constructor
         static EnumMethod()
         {
-            __hasFlag = new Func<Enum, bool>(new E().HasFlag).Method;
+            __hasFlag = ReflectionInfo.Method((Enum e, Enum flag) => e.HasFlag(flag));
         }
 
         // public properties
         public static MethodInfo HasFlag => __hasFlag;
-
-        private enum E { A = 0 };
     }
 }

@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Reflection;
 
 namespace MongoDB.Driver.Linq3.Methods
@@ -30,11 +29,11 @@ namespace MongoDB.Driver.Linq3.Methods
         // static constructor
         static MongoDBLinqExtensionsMethod()
         {
-            __indexOfBytesWithValue = new Func<string, string, int>(MongoDBLinqExtensions.IndexOfBytes).Method;
-            __indexOfBytesWithValueAndStartIndex = new Func<string, string, int, int>(MongoDBLinqExtensions.IndexOfBytes).Method;
-            __indexOfBytesWithValueAndStartIndexAndCount = new Func<string, string, int, int, int>(MongoDBLinqExtensions.IndexOfBytes).Method;
-            __strLenBytes = new Func<string, int>(MongoDBLinqExtensions.StrLenBytes).Method;
-            __substrBytes = new Func<string, int, int , string>(MongoDBLinqExtensions.SubstrBytes).Method;
+            __indexOfBytesWithValue = ReflectionInfo.Method((string s, string value) => s.IndexOfBytes(value));
+            __indexOfBytesWithValueAndStartIndex = ReflectionInfo.Method((string s, string value, int startIndex) => s.IndexOfBytes(value, startIndex));
+            __indexOfBytesWithValueAndStartIndexAndCount = ReflectionInfo.Method((string s, string value, int startIndex, int count) => s.IndexOfBytes(value, startIndex, count));
+            __strLenBytes = ReflectionInfo.Method((string s) => s.StrLenBytes());
+            __substrBytes = ReflectionInfo.Method((string s, int startIndex, int length) => s.SubstrBytes(startIndex, length));
         }
 
         // public properties

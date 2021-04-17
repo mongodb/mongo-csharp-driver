@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -29,9 +28,9 @@ namespace MongoDB.Driver.Linq3.Methods
         // static constructor
         static RegexMethod()
         {
-            __isMatch = new Func<string, bool>(new Regex("").IsMatch).Method;
-            __staticIsMatch = new Func<string, string, bool>(Regex.IsMatch).Method;
-            __staticIsMatchWithOptions = new Func<string, string, RegexOptions, bool>(Regex.IsMatch).Method;
+            __isMatch = ReflectionInfo.Method((Regex regex, string input) => regex.IsMatch(input));
+            __staticIsMatch = ReflectionInfo.Method((string input, string pattern) => Regex.IsMatch(input, pattern));
+            __staticIsMatchWithOptions = ReflectionInfo.Method((string input, string pattern, RegexOptions options) => Regex.IsMatch(input, pattern, options));
         }
 
         // public properties

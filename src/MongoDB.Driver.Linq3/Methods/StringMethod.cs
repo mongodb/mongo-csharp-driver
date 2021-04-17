@@ -15,8 +15,8 @@
 
 using System;
 using System.Globalization;
-using System.Linq.Expressions;
 using System.Reflection;
+using MongoDB.Driver.Linq3.Methods;
 
 namespace MongoDB.Driver.Linq3.Misc
 {
@@ -66,45 +66,45 @@ namespace MongoDB.Driver.Linq3.Misc
         // static constructor
         static StringMethod()
         {
-            __contains = new Func<string, bool>("".Contains).Method;
-            __endsWith = new Func<string, bool>("".EndsWith).Method;
-            __endsWithWithComparisonType = new Func<string, StringComparison, bool>("".EndsWith).Method;
-            __endsWithWithIgnoreCaseAndCulture = new Func<string, bool, CultureInfo, bool>("".EndsWith).Method;
-            __getChars = GetMethodInfo((string s, int index) => s[index]);
-            __indexOfAny = new Func<char[], int>("".IndexOfAny).Method;
-            __indexOfAnyWithStartIndex = new Func<char[], int, int>("".IndexOfAny).Method;
-            __indexOfAnyWithStartIndexAndCount = new Func<char[], int, int, int>("".IndexOfAny).Method;
-            __indexOfWithChar = new Func<char, int>("".IndexOf).Method;
-            __indexOfWithCharAndStartIndex = new Func<char, int, int>("".IndexOf).Method;
-            __indexOfWithCharAndStartIndexAndCount = new Func<char, int, int, int>("".IndexOf).Method;
-            __indexOfWithString = new Func<string, int>("".IndexOf).Method;
-            __indexOfWithStringAndStartIndex = new Func<string, int, int>("".IndexOf).Method;
-            __indexOfWithStringAndStartIndexAndCount = new Func<string, int, int, int>("".IndexOf).Method;
-            __indexOfWithStringAndComparisonType = new Func<string, StringComparison, int>("".IndexOf).Method;
-            __indexOfWithStringAndStartIndexAndComparisonType = new Func<string, int, StringComparison, int>("".IndexOf).Method;
-            __indexOfWithStringAndStartIndexAndCountAndComparisonType = new Func<string, int, int, StringComparison, int>("".IndexOf).Method;
-            __isNullOrEmpty = new Func<string, bool>(string.IsNullOrEmpty).Method;
-            __splitWithChars = new Func<char[], string[]>("".Split).Method;
-            __splitWithCharsAndCount = new Func<char[], int, string[]>("".Split).Method;
-            __splitWithCharsAndCountAndOptions = new Func<char[], int, StringSplitOptions, string[]>("".Split).Method;
-            __splitWithCharsAndOptions = new Func<char[], StringSplitOptions, string[]>("".Split).Method;
-            __splitWithStringsAndCountAndOptions = new Func<string[], int, StringSplitOptions, string[]>("".Split).Method;
-            __splitWithStringsAndOptions = new Func<string[], StringSplitOptions, string[]>("".Split).Method;
-            __startsWith = new Func<string, bool>("".StartsWith).Method;
-            __startsWithWithComparisonType = new Func<string, StringComparison, bool>("".StartsWith).Method;
-            __startsWithWithIgnoreCaseAndCulture = new Func<string, bool, CultureInfo, bool>("".StartsWith).Method;
-            __substring = new Func<int, string>("".Substring).Method;
-            __substringWithLength = new Func<int, int, string>("".Substring).Method;
-            __toLower = new Func<string>("".ToLower).Method;
-            __toLowerInvariant = new Func<string>("".ToLowerInvariant).Method;
-            __toLowerWithCulture = new Func<CultureInfo, string>("".ToLower).Method;
-            __toUpper = new Func<string>("".ToUpper).Method;
-            __toUpperInvariant = new Func<string>("".ToUpperInvariant).Method;
-            __toUpperWithCulture = new Func<CultureInfo, string>("".ToUpper).Method;
-            __trim = new Func<string>("".Trim).Method;
-            __trimEnd = new Func<char[], string>("".TrimEnd).Method;
-            __trimStart = new Func<char[], string>("".TrimStart).Method;
-            __trimWithChars = new Func<char[], string>("".Trim).Method;
+            __contains = ReflectionInfo.Method((string s, string value) => s.Contains(value));
+            __endsWith = ReflectionInfo.Method((string s, string value) => s.EndsWith(value));
+            __endsWithWithComparisonType = ReflectionInfo.Method((string s, string value, StringComparison comparisonType) => s.EndsWith(value, comparisonType));
+            __endsWithWithIgnoreCaseAndCulture = ReflectionInfo.Method((string s, string value, bool ignoreCase, CultureInfo culture) => s.EndsWith(value, ignoreCase, culture));
+            __getChars = ReflectionInfo.Method((string s, int index) => s[index]);
+            __indexOfAny = ReflectionInfo.Method((string s, char[] anyOf) => s.IndexOfAny(anyOf));
+            __indexOfAnyWithStartIndex = ReflectionInfo.Method((string s, char[] anyOf, int startIndex) => s.IndexOfAny(anyOf, startIndex));
+            __indexOfAnyWithStartIndexAndCount = ReflectionInfo.Method((string s, char[] anyOf, int startIndex, int count) => s.IndexOfAny(anyOf, startIndex, count));
+            __indexOfWithChar = ReflectionInfo.Method((string s, char value) => s.IndexOf(value));
+            __indexOfWithCharAndStartIndex = ReflectionInfo.Method((string s, char value, int startIndex) => s.IndexOf(value, startIndex));
+            __indexOfWithCharAndStartIndexAndCount = ReflectionInfo.Method((string s, char value, int startIndex, int count) => s.IndexOf(value, startIndex, count));
+            __indexOfWithString = ReflectionInfo.Method((string s, string value) => s.IndexOf(value));
+            __indexOfWithStringAndStartIndex = ReflectionInfo.Method((string s, string value, int startIndex) => s.IndexOf(value, startIndex));
+            __indexOfWithStringAndStartIndexAndCount = ReflectionInfo.Method((string s, string value, int startIndex, int count) => s.IndexOf(value, startIndex, count));
+            __indexOfWithStringAndComparisonType = ReflectionInfo.Method((string s, string value, StringComparison comparisonType) => s.IndexOf(value, comparisonType));
+            __indexOfWithStringAndStartIndexAndComparisonType = ReflectionInfo.Method((string s, string value, int startIndex, StringComparison comparisonType) => s.IndexOf(value, startIndex, comparisonType));
+            __indexOfWithStringAndStartIndexAndCountAndComparisonType = ReflectionInfo.Method((string s, string value, int startIndex, int count, StringComparison comparisonType) => s.IndexOf(value, startIndex, count, comparisonType));
+            __isNullOrEmpty = ReflectionInfo.Method((string value) => string.IsNullOrEmpty(value));
+            __splitWithChars = ReflectionInfo.Method((string s, char[] separator) => s.Split(separator));
+            __splitWithCharsAndCount = ReflectionInfo.Method((string s, char[] separator, int count) => s.Split(separator, count));
+            __splitWithCharsAndCountAndOptions = ReflectionInfo.Method((string s, char[] separator, int count, StringSplitOptions options) => s.Split(separator, count, options));
+            __splitWithCharsAndOptions = ReflectionInfo.Method((string s, char[] separator, StringSplitOptions options) => s.Split(separator, options));
+            __splitWithStringsAndCountAndOptions = ReflectionInfo.Method((string s, string[] separator, int count, StringSplitOptions options) => s.Split(separator, count, options));
+            __splitWithStringsAndOptions = ReflectionInfo.Method((string s, string[] separator, StringSplitOptions options) => s.Split(separator, options));
+            __startsWith = ReflectionInfo.Method((string s, string value) => s.StartsWith(value));
+            __startsWithWithComparisonType = ReflectionInfo.Method((string s, string value, StringComparison comparisonType) => s.StartsWith(value, comparisonType));
+            __startsWithWithIgnoreCaseAndCulture = ReflectionInfo.Method((string s, string value, bool ignoreCase, CultureInfo culture) => s.StartsWith(value, ignoreCase, culture));
+            __substring = ReflectionInfo.Method((string s, int startIndex) => s.Substring(startIndex));
+            __substringWithLength = ReflectionInfo.Method((string s, int startIndex, int length) => s.Substring(startIndex, length));
+            __toLower = ReflectionInfo.Method((string s) => s.ToLower());
+            __toLowerInvariant = ReflectionInfo.Method((string s) => s.ToLowerInvariant());
+            __toLowerWithCulture = ReflectionInfo.Method((string s, CultureInfo culture) => s.ToLower(culture));
+            __toUpper = ReflectionInfo.Method((string s) => s.ToUpper());
+            __toUpperInvariant = ReflectionInfo.Method((string s) => s.ToUpperInvariant());
+            __toUpperWithCulture = ReflectionInfo.Method((string s, CultureInfo culture) => s.ToUpper(culture));
+            __trim = ReflectionInfo.Method((string s) => s.Trim());
+            __trimEnd = ReflectionInfo.Method((string s, char[] trimChars) => s.TrimEnd(trimChars));
+            __trimStart = ReflectionInfo.Method((string s, char[] trimChars) => s.TrimStart(trimChars));
+            __trimWithChars = ReflectionInfo.Method((string s, char[] trimChars) => s.Trim(trimChars));
         }
 
         // public properties
@@ -147,11 +147,5 @@ namespace MongoDB.Driver.Linq3.Misc
         public static MethodInfo TrimEnd => __trimEnd;
         public static MethodInfo TrimStart => __trimStart;
         public static MethodInfo TrimWithChars => __trimWithChars;
-
-        private static MethodInfo GetMethodInfo<TObject, TArg1, TResult>(Expression<Func<TObject, TArg1, TResult>> lambdaExpression)
-        {
-            var methodCallExpression = (MethodCallExpression)lambdaExpression.Body;
-            return methodCallExpression.Method;
-        }
     }
 }

@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Reflection;
 
 namespace MongoDB.Driver.Linq3.Methods
@@ -27,8 +26,8 @@ namespace MongoDB.Driver.Linq3.Methods
         // static constructor
         static ObjectMethod()
         {
-            __equals = new Func<object, bool>(new object().Equals).Method;
-            __toString = new Func<string>(new object().ToString).Method;
+            __equals = ReflectionInfo.Method((object o, object obj) => o.Equals(obj));
+            __toString = ReflectionInfo.Method((object o) => o.ToString());
         }
 
         // public properties

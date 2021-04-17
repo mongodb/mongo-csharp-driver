@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Linq3.Methods
         // static constructor
         static StringProperty()
         {
-            __Length = Property.Info((string s) => s.Length);
+            __Length = ReflectionInfo.Property((string s) => s.Length);
         }
 
         // public properties
