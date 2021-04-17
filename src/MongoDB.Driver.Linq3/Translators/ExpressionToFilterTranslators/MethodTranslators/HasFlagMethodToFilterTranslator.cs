@@ -15,8 +15,8 @@
 
 using System.Linq.Expressions;
 using MongoDB.Driver.Linq3.Ast.Filters;
-using MongoDB.Driver.Linq3.Methods;
 using MongoDB.Driver.Linq3.Misc;
+using MongoDB.Driver.Linq3.Reflection;
 using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodTranslators

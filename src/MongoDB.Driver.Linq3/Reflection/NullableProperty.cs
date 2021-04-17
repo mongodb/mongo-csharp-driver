@@ -13,23 +13,22 @@
 * limitations under the License.
 */
 
-using System;
 using System.Reflection;
 
-namespace MongoDB.Driver.Linq3.Methods
+namespace MongoDB.Driver.Linq3.Reflection
 {
-    public static class DateTimeMethod
+    public static class NullableProperty
     {
         // private static fields
-        private static readonly MethodInfo __parse;
+        private static readonly PropertyInfo __hasValue;
 
         // static constructor
-        static DateTimeMethod()
+        static NullableProperty()
         {
-            __parse = ReflectionInfo.Method((string s) => DateTime.Parse(s));
+            __hasValue = ReflectionInfo.Property((int? n) => n.HasValue);
         }
 
         // public properties
-        public static MethodInfo Parse => __parse;
+        public static PropertyInfo HasValue => __hasValue;
     }
 }

@@ -23,8 +23,8 @@ using System.Text.RegularExpressions;
 using MongoDB.Bson;
 using MongoDB.Driver.Linq3.Ast.Filters;
 using MongoDB.Driver.Linq3.ExtensionMethods;
-using MongoDB.Driver.Linq3.Methods;
 using MongoDB.Driver.Linq3.Misc;
+using MongoDB.Driver.Linq3.Reflection;
 using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodTranslators

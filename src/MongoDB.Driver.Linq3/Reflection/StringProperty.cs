@@ -15,20 +15,20 @@
 
 using System.Reflection;
 
-namespace MongoDB.Driver.Linq3.Methods
+namespace MongoDB.Driver.Linq3.Reflection
 {
-    public static class NullableProperty
+    public static class StringProperty
     {
         // private static fields
-        private static readonly PropertyInfo __hasValue;
+        private static readonly PropertyInfo __Length;
 
         // static constructor
-        static NullableProperty()
+        static StringProperty()
         {
-            __hasValue = ReflectionInfo.Property((int? n) => n.HasValue);
+            __Length = ReflectionInfo.Property((string s) => s.Length);
         }
 
         // public properties
-        public static PropertyInfo HasValue => __hasValue;
+        public static PropertyInfo Length => __Length;
     }
 }

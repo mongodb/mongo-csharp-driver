@@ -19,7 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace MongoDB.Driver.Linq3.Methods
+namespace MongoDB.Driver.Linq3.Reflection
 {
     public static class EnumerableMethod
     {
