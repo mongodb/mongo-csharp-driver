@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Linq3.Methods
         // static constructor
         static DateTimeMethod()
         {
-            __parse = new Func<string, DateTime>(DateTime.Parse).Method;
+            __parse = ReflectionInfo.Method((string s) => DateTime.Parse(s));
         }
 
         // public properties

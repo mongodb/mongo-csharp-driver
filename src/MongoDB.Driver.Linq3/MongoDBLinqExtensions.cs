@@ -19,27 +19,27 @@ namespace MongoDB.Driver.Linq3
 {
     public static class MongoDBLinqExtensions
     {
-        public static int IndexOfBytes(this string instance, string value)
+        public static int IndexOfBytes(this string s, string value)
         {
             throw new NotImplementedException();
         }
 
-        public static int IndexOfBytes(this string instance, string value, int startIndex)
+        public static int IndexOfBytes(this string s, string value, int startIndex)
         {
             throw new NotImplementedException();
         }
 
-        public static int IndexOfBytes(this string instance, string value, int startIndex, int count)
+        public static int IndexOfBytes(this string s, string value, int startIndex, int count)
         {
             throw new NotImplementedException();
         }
 
-        public static int StrLenBytes(this string instance)
+        public static int StrLenBytes(this string s)
         {
             throw new NotImplementedException();
         }
 
-        public static string SubstrBytes(this string instance, int startIndex, int length)
+        public static string SubstrBytes(this string s, int startIndex, int length)
         {
             throw new NotImplementedException();
         }

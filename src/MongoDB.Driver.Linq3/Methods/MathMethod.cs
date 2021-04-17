@@ -41,22 +41,22 @@ namespace MongoDB.Driver.Linq3.Methods
         // static constructor
         static MathMethod()
         {
-            __absDecimal = new Func<decimal, decimal>(Math.Abs).Method;
-            __absDouble = new Func<double, double>(Math.Abs).Method;
-            __absInt32 = new Func<int, int>(Math.Abs).Method;
-            __absInt64 = new Func<long, long>(Math.Abs).Method;
-            __ceilingWithDecimal = new Func<decimal, decimal>(Math.Ceiling).Method;
-            __ceilingWithDouble = new Func<double, double>(Math.Ceiling).Method;
-            __exp = new Func<double, double>(Math.Exp).Method;
-            __floorWithDecimal = new Func<decimal, decimal>(Math.Floor).Method;
-            __floorWithDouble = new Func<double, double>(Math.Floor).Method;
-            __log = new Func<double, double>(Math.Log).Method;
-            __logWithNewBase = new Func<double, double, double>(Math.Log).Method;
-            __log10 = new Func<double, double>(Math.Log10).Method;
-            __pow = new Func<double, double, double>(Math.Pow).Method;
-            __sqrt = new Func<double, double>(Math.Sqrt).Method;
-            __truncateDecimal = new Func<decimal, decimal>(Math.Truncate).Method;
-            __truncateDouble = new Func<double, double>(Math.Truncate).Method;
+            __absDecimal = ReflectionInfo.Method((decimal value) => Math.Abs(value));
+            __absDouble = ReflectionInfo.Method((double value) => Math.Abs(value));
+            __absInt32 = ReflectionInfo.Method((int value) => Math.Abs(value));
+            __absInt64 = ReflectionInfo.Method((long value) => Math.Abs(value));
+            __ceilingWithDecimal = ReflectionInfo.Method((decimal d) => Math.Ceiling(d));
+            __ceilingWithDouble = ReflectionInfo.Method((double a) => Math.Ceiling(a));
+            __exp = ReflectionInfo.Method((double d) => Math.Exp(d));
+            __floorWithDecimal = ReflectionInfo.Method((decimal d) => Math.Floor(d));
+            __floorWithDouble = ReflectionInfo.Method((double d) => Math.Floor(d));
+            __log = ReflectionInfo.Method((double d) => Math.Log(d));
+            __logWithNewBase = ReflectionInfo.Method((double a, double newBase) => Math.Log(a, newBase));
+            __log10 = ReflectionInfo.Method((double d) => Math.Log10(d));
+            __pow = ReflectionInfo.Method((double x, double y) => Math.Pow(x, y));
+            __sqrt = ReflectionInfo.Method((double d) => Math.Sqrt(d));
+            __truncateDecimal = ReflectionInfo.Method((decimal d) => Math.Truncate(d));
+            __truncateDouble = ReflectionInfo.Method((double d) => Math.Truncate(d));
         }
 
         // public properties
