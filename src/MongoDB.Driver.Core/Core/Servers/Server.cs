@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Core.Servers
         private readonly ClusterConnectionMode _clusterConnectionMode;
         private readonly ConnectionModeSwitch _connectionModeSwitch;
 #pragma warning restore CS0618 // Type or member is obsolete
-        private IConnectionPool _connectionPool;
+        private readonly IConnectionPool _connectionPool;
         private readonly bool? _directConnection;
         private ServerDescription _currentDescription;
         private readonly EndPoint _endPoint;
@@ -165,32 +165,18 @@ namespace MongoDB.Driver.Core.Servers
         public IChannelHandle GetChannel(CancellationToken cancellationToken)
         {
             ThrowIfNotOpen();
-            IConnectionHandle connection = null;
 
             try
             {
                 Interlocked.Increment(ref _outstandingOperationsCount);
-                connection = _connectionPool.AcquireConnection(cancellationToken);
-
-                // ignoring the user's cancellation token here because we don't
-                // want to throw this connection away simply because the user
-                // wanted to cancel their operation. It will be better for the
-                // collective to complete opening the connection than the throw
-                // it away.
-                connection.Open(CancellationToken.None); // This results in the initial isMaster being sent
+                var connection = _connectionPool.AcquireConnection(cancellationToken);
                 return new ServerChannel(this, connection);
             }
             catch (Exception ex)
             {
                 Interlocked.Decrement(ref _outstandingOperationsCount);
 
-                if (connection != null)
-                {
-                    HandleBeforeHandshakeCompletesException(connection, ex);
-
-                    connection.Dispose();
-                }
-
+                HandleBeforeHandshakeCompletesException(ex);
                 throw;
             }
         }
@@ -198,32 +184,18 @@ namespace MongoDB.Driver.Core.Servers
         public async Task<IChannelHandle> GetChannelAsync(CancellationToken cancellationToken)
         {
             ThrowIfNotOpen();
-            IConnectionHandle connection = null;
 
             try
             {
                 Interlocked.Increment(ref _outstandingOperationsCount);
-                connection = await _connectionPool.AcquireConnectionAsync(cancellationToken).ConfigureAwait(false);
-
-                // ignoring the user's cancellation token here because we don't
-                // want to throw this connection away simply because the user
-                // wanted to cancel their operation. It will be better for the
-                // collective to complete opening the connection than the throw
-                // it away.
-                await connection.OpenAsync(CancellationToken.None).ConfigureAwait(false);
+                var connection = await _connectionPool.AcquireConnectionAsync(cancellationToken).ConfigureAwait(false);
                 return new ServerChannel(this, connection);
             }
             catch (Exception ex)
             {
                 Interlocked.Decrement(ref _outstandingOperationsCount);
 
-                if (connection != null)
-                {
-                    HandleBeforeHandshakeCompletesException(connection, ex);
-
-                    connection.Dispose();
-                }
-
+                HandleBeforeHandshakeCompletesException(ex);
                 throw;
             }
         }
@@ -336,16 +308,19 @@ namespace MongoDB.Driver.Core.Servers
 
             lock (_monitor.Lock)
             {
-                if (connection.Generation != _connectionPool.Generation)
+                if (ex is MongoConnectionException mongoConnectionException)
                 {
-                    return; // stale generation number
-                }
+                    if (mongoConnectionException.Generation != null &&
+                        mongoConnectionException.Generation != _connectionPool.Generation)
+                    {
+                        return; // stale generation number
+                    }
 
-                if (ex is MongoConnectionException mongoConnectionException &&
-                    mongoConnectionException.IsNetworkException &&
-                    !mongoConnectionException.ContainsTimeoutException)
-                {
-                    _monitor.CancelCurrentCheck();
+                    if (mongoConnectionException.IsNetworkException &&
+                        !mongoConnectionException.ContainsTimeoutException)
+                    {
+                        _monitor.CancelCurrentCheck();
+                    }
                 }
 
                 var description = Description; // use Description property to access _description value safely
@@ -361,7 +336,7 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
-        private void HandleBeforeHandshakeCompletesException(IConnection connection, Exception ex)
+        private void HandleBeforeHandshakeCompletesException(Exception ex)
         {
             if (ex is MongoAuthenticationException)
             {
@@ -369,24 +344,26 @@ namespace MongoDB.Driver.Core.Servers
                 return;
             }
 
-            lock (_monitor.Lock)
+            if (ex is MongoConnectionException mongoConnectionException)
             {
-                if (connection.Generation != _connectionPool.Generation)
+                lock (_monitor.Lock)
                 {
-                    return; // stale generation number
-                }
+                    if (mongoConnectionException.Generation != null &&
+                        mongoConnectionException.Generation != _connectionPool.Generation)
+                    {
+                        return; // stale generation number
+                    }
 
-                if (ex is MongoConnectionException mongoConnectionException &&
-                    mongoConnectionException.IsNetworkException &&
-                    !mongoConnectionException.ContainsTimeoutException)
-                {
-                    _monitor.CancelCurrentCheck();
-                }
+                    if (mongoConnectionException.IsNetworkException &&
+                        !mongoConnectionException.ContainsTimeoutException)
+                    {
+                        _monitor.CancelCurrentCheck();
+                    }
 
-                if (ex is MongoConnectionException connectionException &&
-                    (connectionException.IsNetworkException || connectionException.ContainsTimeoutException))
-                {
-                    Invalidate($"ChannelException during handshake: {ex}.", clearConnectionPool: true, responseTopologyVersion: null);
+                    if (mongoConnectionException.IsNetworkException || mongoConnectionException.ContainsTimeoutException)
+                    {
+                        Invalidate($"ChannelException during handshake: {ex}.", clearConnectionPool: true, responseTopologyVersion: null);
+                    }
                 }
             }
         }

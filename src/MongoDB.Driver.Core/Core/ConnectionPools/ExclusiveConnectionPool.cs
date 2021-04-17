@@ -14,8 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,12 +22,10 @@ using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
-using MongoDB.Driver.Core.WireProtocol.Messages;
-using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.ConnectionPools
 {
-    internal sealed class ExclusiveConnectionPool : IConnectionPool
+    internal sealed partial class ExclusiveConnectionPool : IConnectionPool
     {
         // fields
         private readonly IConnectionFactory _connectionFactory;
@@ -42,6 +38,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         private readonly ConnectionPoolSettings _settings;
         private readonly InterlockedInt32 _state;
         private readonly SemaphoreSlim _waitQueue;
+        private readonly SemaphoreSlimSignalable _connectingQueue;
 
         private readonly Action<ConnectionPoolCheckingOutConnectionEvent> _checkingOutConnectionEventHandler;
         private readonly Action<ConnectionPoolCheckedOutConnectionEvent> _checkedOutConnectionEventHandler;
@@ -72,7 +69,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _connectionFactory = Ensure.IsNotNull(connectionFactory, nameof(connectionFactory));
             Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
 
-            _connectionHolder = new ListConnectionHolder(eventSubscriber);
+            _connectingQueue = new SemaphoreSlimSignalable(MongoInternalDefaults.ConnectionPool.MaxConnecting);
+            _connectionHolder = new ListConnectionHolder(eventSubscriber, _connectingQueue);
             _poolQueue = new WaitQueue(settings.MaxConnections);
 #pragma warning disable 618
             _waitQueue = new SemaphoreSlim(settings.WaitQueueSize);
@@ -131,6 +129,15 @@ namespace MongoDB.Driver.Core.ConnectionPools
             get { return Interlocked.CompareExchange(ref _generation, 0, 0); }
         }
 
+        public int PendingCount
+        {
+            get
+            {
+                ThrowIfDisposed();
+                return MongoInternalDefaults.ConnectionPool.MaxConnecting - _connectingQueue.Count;
+            }
+        }
+
         public ServerId ServerId
         {
             get { return _serverId; }
@@ -155,7 +162,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 ThrowIfNotOpen();
                 helper.EnterWaitQueue();
                 var enteredPool = _poolQueue.Wait(_settings.WaitQueueTimeout, cancellationToken);
-                return helper.EnteredPool(enteredPool);
+                return helper.EnteredPool(enteredPool, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -177,7 +184,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 ThrowIfNotOpen();
                 helper.EnterWaitQueue();
                 var enteredPool = await _poolQueue.WaitAsync(_settings.WaitQueueTimeout, cancellationToken).ConfigureAwait(false);
-                return helper.EnteredPool(enteredPool);
+
+                var connectionHandle = await helper.EnteredPoolAsync(enteredPool, cancellationToken).ConfigureAwait(false);
+                return connectionHandle;
             }
             catch (Exception ex)
             {
@@ -242,6 +251,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 _maintenanceCancellationTokenSource.Dispose();
                 _poolQueue.Dispose();
                 _waitQueue.Dispose();
+                _connectingQueue.Dispose();
                 if (_closedEventHandler != null)
                 {
                     _closedEventHandler(new ConnectionPoolClosedEvent(_serverId));
@@ -300,42 +310,23 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
         private async Task EnsureMinSizeAsync(CancellationToken cancellationToken)
         {
+            var minTimeout = TimeSpan.FromMilliseconds(20);
+
             while (CreatedCount < _settings.MinConnections)
             {
                 bool enteredPool = false;
                 try
                 {
-                    enteredPool = await _poolQueue.WaitAsync(TimeSpan.FromMilliseconds(20), cancellationToken).ConfigureAwait(false);
+                    enteredPool = await _poolQueue.WaitAsync(minTimeout, cancellationToken).ConfigureAwait(false);
                     if (!enteredPool)
                     {
                         return;
                     }
 
-                    if (_addingConnectionEventHandler != null)
+                    using (var connectionCreator = new ConnectionCreator(this, minTimeout))
                     {
-                        _addingConnectionEventHandler(new ConnectionPoolAddingConnectionEvent(_serverId, EventContext.OperationId));
-                    }
-
-                    var stopwatch = Stopwatch.StartNew();
-                    var connection = CreateNewConnection();
-                    // when adding in a connection, we need to open it because
-                    // the whole point of having a min pool size is to have
-                    // them available and ready...
-                    try
-                    {
-                        await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
-                    }
-                    catch (Exception)
-                    {
-                        connection.Dispose();
-                        throw;
-                    }
-                    _connectionHolder.Return(connection);
-                    stopwatch.Stop();
-
-                    if (_addedConnectionEventHandler != null)
-                    {
-                        _addedConnectionEventHandler(new ConnectionPoolAddedConnectionEvent(connection.ConnectionId, stopwatch.Elapsed, EventContext.OperationId));
+                        var connection = await connectionCreator.CreateOpenedAsync(cancellationToken).ConfigureAwait(false);
+                        _connectionHolder.Return(connection);
                     }
                 }
                 finally
@@ -396,475 +387,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
             {
                 ThrowIfDisposed();
                 throw new InvalidOperationException("ConnectionPool must be initialized.");
-            }
-        }
-
-        // nested classes
-        private static class State
-        {
-            public const int Initial = 0;
-            public const int Open = 1;
-            public const int Disposed = 2;
-        }
-
-        private class AcquireConnectionHelper
-        {
-            // private fields
-            private readonly ExclusiveConnectionPool _pool;
-            private bool _enteredPool;
-            private bool _enteredWaitQueue;
-            private Stopwatch _stopwatch;
-
-            // constructors
-            public AcquireConnectionHelper(ExclusiveConnectionPool pool)
-            {
-                _pool = pool;
-            }
-
-            // public methods
-            public void CheckingOutConnection()
-            {
-                var handler = _pool._checkingOutConnectionEventHandler;
-                if (handler != null)
-                {
-                    handler(new ConnectionPoolCheckingOutConnectionEvent(_pool._serverId, EventContext.OperationId));
-                }
-            }
-
-            public void EnterWaitQueue()
-            {
-                _enteredWaitQueue = _pool._waitQueue.Wait(0); // don't wait...
-                if (!_enteredWaitQueue)
-                {
-                    throw MongoWaitQueueFullException.ForConnectionPool(_pool._endPoint);
-                }
-
-                _stopwatch = Stopwatch.StartNew();
-            }
-
-            public IConnectionHandle EnteredPool(bool enteredPool)
-            {
-                _enteredPool = enteredPool;
-                if (enteredPool)
-                {
-                    var acquired = AcquireOrCreateConnection();
-                    _stopwatch.Stop();
-
-                    var handler = _pool._checkedOutConnectionEventHandler;
-                    if (handler != null)
-                    {
-                        handler(new ConnectionPoolCheckedOutConnectionEvent(acquired.ConnectionId, _stopwatch.Elapsed, EventContext.OperationId));
-                    }
-                    return acquired;
-                }
-
-                _stopwatch.Stop();
-                var message = string.Format("Timed out waiting for a connection after {0}ms.", _stopwatch.ElapsedMilliseconds);
-                throw new TimeoutException(message);
-            }
-
-            public void Finally()
-            {
-                if (_enteredWaitQueue)
-                {
-                    try
-                    {
-                        _pool._waitQueue.Release();
-                    }
-                    catch
-                    {
-                        // TODO: log this, but don't throw... it's a bug if we get here
-                    }
-                }
-            }
-
-            public void HandleException(Exception ex)
-            {
-                if (_enteredPool)
-                {
-                    try
-                    {
-                        _pool._poolQueue.Release();
-                    }
-                    catch
-                    {
-                        // TODO: log this, but don't throw... it's a bug if we get here
-                    }
-                }
-
-                var handler = _pool._checkingOutConnectionFailedEventHandler;
-                if (handler != null)
-                {
-                    ConnectionCheckOutFailedReason reason;
-                    switch (ex)
-                    {
-                        case ObjectDisposedException _: reason = ConnectionCheckOutFailedReason.PoolClosed; break;
-                        case TimeoutException _: reason = ConnectionCheckOutFailedReason.Timeout; break;
-                        default: reason = ConnectionCheckOutFailedReason.ConnectionError; break;
-                    }
-                    handler(new ConnectionPoolCheckingOutConnectionFailedEvent(_pool._serverId, ex, EventContext.OperationId, reason));
-                }
-            }
-
-            // private methods
-            private IConnectionHandle AcquireOrCreateConnection()
-            {
-                PooledConnection connection = _pool._connectionHolder.Acquire();
-                if (connection == null)
-                {
-                    var addingConnectionEventHandler = _pool._addingConnectionEventHandler;
-                    if (addingConnectionEventHandler != null)
-                    {
-                        addingConnectionEventHandler(new ConnectionPoolAddingConnectionEvent(_pool._serverId, EventContext.OperationId));
-                    }
-
-                    var stopwatch = Stopwatch.StartNew();
-                    connection = _pool.CreateNewConnection();
-                    stopwatch.Stop();
-
-                    var addedConnectionEventHandler = _pool._addedConnectionEventHandler;
-                    if (addedConnectionEventHandler != null)
-                    {
-                        addedConnectionEventHandler(new ConnectionPoolAddedConnectionEvent(connection.ConnectionId, stopwatch.Elapsed, EventContext.OperationId));
-                    }
-                }
-
-                var reference = new ReferenceCounted<PooledConnection>(connection, _pool.ReleaseConnection);
-                return new AcquiredConnection(_pool, reference);
-            }
-
-        }
-
-        private sealed class PooledConnection : IConnection
-        {
-            private readonly IConnection _connection;
-            private readonly ExclusiveConnectionPool _connectionPool;
-            private readonly int _generation;
-
-            public PooledConnection(ExclusiveConnectionPool connectionPool, IConnection connection)
-            {
-                _connectionPool = connectionPool;
-                _connection = connection;
-                _generation = connectionPool._generation;
-            }
-
-            public ConnectionId ConnectionId
-            {
-                get { return _connection.ConnectionId; }
-            }
-
-            public ConnectionDescription Description
-            {
-                get { return _connection.Description; }
-            }
-
-            public EndPoint EndPoint
-            {
-                get { return _connection.EndPoint; }
-            }
-
-            public int Generation
-            {
-                get { return _generation; }
-            }
-
-            public bool IsExpired
-            {
-                get { return _generation < _connectionPool.Generation || _connection.IsExpired; }
-            }
-
-            public ConnectionSettings Settings
-            {
-                get { return _connection.Settings; }
-            }
-
-            public void Dispose()
-            {
-                _connection.Dispose();
-            }
-
-            public void Open(CancellationToken cancellationToken)
-            {
-                _connection.Open(cancellationToken);
-            }
-
-            public Task OpenAsync(CancellationToken cancellationToken)
-            {
-                return _connection.OpenAsync(cancellationToken);
-            }
-
-            public ResponseMessage ReceiveMessage(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
-            {
-                return _connection.ReceiveMessage(responseTo, encoderSelector, messageEncoderSettings, cancellationToken);
-            }
-
-            public Task<ResponseMessage> ReceiveMessageAsync(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
-            {
-                return _connection.ReceiveMessageAsync(responseTo, encoderSelector, messageEncoderSettings, cancellationToken);
-            }
-
-            public void SendMessages(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
-            {
-                _connection.SendMessages(messages, messageEncoderSettings, cancellationToken);
-            }
-
-            public Task SendMessagesAsync(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
-            {
-                return _connection.SendMessagesAsync(messages, messageEncoderSettings, cancellationToken);
-            }
-
-            public void SetReadTimeout(TimeSpan timeout)
-            {
-                _connection.SetReadTimeout(timeout);
-            }
-        }
-
-        private sealed class AcquiredConnection : IConnectionHandle
-        {
-            private ExclusiveConnectionPool _connectionPool;
-            private bool _disposed;
-            private ReferenceCounted<PooledConnection> _reference;
-
-            public AcquiredConnection(ExclusiveConnectionPool connectionPool, ReferenceCounted<PooledConnection> reference)
-            {
-                _connectionPool = connectionPool;
-                _reference = reference;
-            }
-
-            public ConnectionId ConnectionId
-            {
-                get { return _reference.Instance.ConnectionId; }
-            }
-
-            public ConnectionDescription Description
-            {
-                get { return _reference.Instance.Description; }
-            }
-
-            public EndPoint EndPoint
-            {
-                get { return _reference.Instance.EndPoint; }
-            }
-
-            public int Generation
-            {
-                get { return _reference.Instance.Generation; }
-            }
-
-            public bool IsExpired
-            {
-                get
-                {
-                    return _connectionPool._state.Value == State.Disposed || _reference.Instance.IsExpired;
-                }
-            }
-
-            public ConnectionSettings Settings
-            {
-                get { return _reference.Instance.Settings; }
-            }
-
-            public void Dispose()
-            {
-                if (!_disposed)
-                {
-                    _reference.DecrementReferenceCount();
-                    _disposed = true;
-                }
-            }
-
-            public IConnectionHandle Fork()
-            {
-                ThrowIfDisposed();
-                _reference.IncrementReferenceCount();
-                return new AcquiredConnection(_connectionPool, _reference);
-            }
-
-            public void Open(CancellationToken cancellationToken)
-            {
-                ThrowIfDisposed();
-                _reference.Instance.Open(cancellationToken);
-            }
-
-            public Task OpenAsync(CancellationToken cancellationToken)
-            {
-                ThrowIfDisposed();
-                return _reference.Instance.OpenAsync(cancellationToken);
-            }
-
-            public Task<ResponseMessage> ReceiveMessageAsync(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
-            {
-                ThrowIfDisposed();
-                return _reference.Instance.ReceiveMessageAsync(responseTo, encoderSelector, messageEncoderSettings, cancellationToken);
-            }
-
-            public ResponseMessage ReceiveMessage(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
-            {
-                ThrowIfDisposed();
-                return _reference.Instance.ReceiveMessage(responseTo, encoderSelector, messageEncoderSettings, cancellationToken);
-            }
-
-            public void SendMessages(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
-            {
-                ThrowIfDisposed();
-                _reference.Instance.SendMessages(messages, messageEncoderSettings, cancellationToken);
-            }
-
-            public Task SendMessagesAsync(IEnumerable<RequestMessage> messages, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
-            {
-                ThrowIfDisposed();
-                return _reference.Instance.SendMessagesAsync(messages, messageEncoderSettings, cancellationToken);
-            }
-
-            public void SetReadTimeout(TimeSpan timeout)
-            {
-                ThrowIfDisposed();
-                _reference.Instance.SetReadTimeout(timeout);
-            }
-
-            private void ThrowIfDisposed()
-            {
-                if (_disposed)
-                {
-                    throw new ObjectDisposedException(GetType().Name);
-                }
-            }
-        }
-
-        private sealed class WaitQueue : IDisposable
-        {
-            private SemaphoreSlim _semaphore;
-
-            public WaitQueue(int count)
-            {
-                _semaphore = new SemaphoreSlim(count);
-            }
-
-            public int CurrentCount
-            {
-                get { return _semaphore.CurrentCount; }
-            }
-
-            public void Release()
-            {
-                _semaphore.Release();
-            }
-
-            public bool Wait(TimeSpan timeout, CancellationToken cancellationToken)
-            {
-                return _semaphore.Wait(timeout, cancellationToken);
-            }
-
-            public Task<bool> WaitAsync(TimeSpan timeout, CancellationToken cancellationToken)
-            {
-                return _semaphore.WaitAsync(timeout, cancellationToken);
-            }
-
-            public void Dispose()
-            {
-                _semaphore.Dispose();
-            }
-        }
-
-        private class ListConnectionHolder
-        {
-            private readonly object _lock = new object();
-            private readonly List<PooledConnection> _connections;
-
-            private readonly Action<ConnectionPoolRemovingConnectionEvent> _removingConnectionEventHandler;
-            private readonly Action<ConnectionPoolRemovedConnectionEvent> _removedConnectionEventHandler;
-
-            public ListConnectionHolder(IEventSubscriber eventSubscriber)
-            {
-                _connections = new List<PooledConnection>();
-
-                eventSubscriber.TryGetEventHandler(out _removingConnectionEventHandler);
-                eventSubscriber.TryGetEventHandler(out _removedConnectionEventHandler);
-            }
-
-            public int Count
-            {
-                get
-                {
-                    lock (_lock)
-                    {
-                        return _connections.Count;
-                    }
-                }
-            }
-
-            public void Clear()
-            {
-                lock (_lock)
-                {
-                    foreach (var connection in _connections)
-                    {
-                        RemoveConnection(connection);
-                    }
-                    _connections.Clear();
-                }
-            }
-
-            public void Prune()
-            {
-                lock (_lock)
-                {
-                    for (int i = 0; i < _connections.Count; i++)
-                    {
-                        if (_connections[i].IsExpired)
-                        {
-                            RemoveConnection(_connections[i]);
-                            _connections.RemoveAt(i);
-                            break;
-                        }
-                    }
-                }
-            }
-
-            public PooledConnection Acquire()
-            {
-                lock (_lock)
-                {
-                    if (_connections.Count > 0)
-                    {
-                        var connection = _connections[_connections.Count - 1];
-                        _connections.RemoveAt(_connections.Count - 1);
-                        if (connection.IsExpired)
-                        {
-                            RemoveConnection(connection);
-                        }
-                        else
-                        {
-                            return connection;
-                        }
-                    }
-                }
-                return null;
-            }
-
-            public void Return(PooledConnection connection)
-            {
-                lock (_lock)
-                {
-                    _connections.Add(connection);
-                }
-            }
-
-            public void RemoveConnection(PooledConnection connection)
-            {
-                if (_removingConnectionEventHandler != null)
-                {
-                    _removingConnectionEventHandler(new ConnectionPoolRemovingConnectionEvent(connection.ConnectionId, EventContext.OperationId));
-                }
-
-                var stopwatch = Stopwatch.StartNew();
-                connection.Dispose();
-                stopwatch.Stop();
-
-                if (_removedConnectionEventHandler != null)
-                {
-                    _removedConnectionEventHandler(new ConnectionPoolRemovedConnectionEvent(connection.ConnectionId, stopwatch.Elapsed, EventContext.OperationId));
-                }
             }
         }
     }

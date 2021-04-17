@@ -111,7 +111,18 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
                 .SetupGet(c => c.Description)
                 .Returns(new ConnectionDescription(connectionId, isMasterResult, buildInfoResult));
 
-            var generation = applicationError.Contains("generation") ? applicationError["generation"].AsInt32 : 0;
+            int generation = 0;
+            if (applicationError.TryGetValue("generation", out var generationBsonValue))
+            {
+                generation = generationBsonValue.AsInt32;
+
+                if (simulatedException is MongoConnectionException mongoConnectionException)
+                {
+                    mongoConnectionException.Generation = generation;
+                }
+            }
+            
+            mockConnection.SetupGet(c => c.Generation).Returns(generation);
             mockConnection
                 .SetupGet(c => c.Generation)
                 .Returns(generation);
@@ -122,7 +133,7 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
                 switch (when)
                 {
                     case "beforeHandshakeCompletes":
-                        server.HandleBeforeHandshakeCompletesException(mockConnection.Object, simulatedException);
+                        server.HandleBeforeHandshakeCompletesException(simulatedException);
                         break;
                     case "afterHandshakeCompletes":
                         server.HandleChannelException(mockConnection.Object, simulatedException);
@@ -562,9 +573,9 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
             return (IConnectionPool)Reflector.GetFieldValue(server, nameof(_connectionPool));
         }
 
-        public static void HandleBeforeHandshakeCompletesException(this Server server, IConnection connection, Exception ex)
+        public static void HandleBeforeHandshakeCompletesException(this Server server, Exception ex)
         {
-            Reflector.Invoke(server, nameof(HandleBeforeHandshakeCompletesException), connection, ex);
+            Reflector.Invoke(server, nameof(HandleBeforeHandshakeCompletesException), ex);
         }
 
         public static void HandleChannelException(this Server server, IConnection connection, Exception ex)

@@ -177,22 +177,16 @@ namespace MongoDB.Driver.Core.Tests.Jira
             void SetupConnection(Mock<IConnectionHandle> mockConnectionHandle, ServerId serverId)
             {
                 mockConnectionHandle.SetupGet(c => c.ConnectionId).Returns(new ConnectionId(serverId));
-                mockConnectionHandle
-                    .Setup(c => c.Open(It.IsAny<CancellationToken>()))
-                    .Throws(CreateDnsException(mockConnectionHandle.Object.ConnectionId)); // throw command dns exception
-                mockConnectionHandle
-                    .Setup(c => c.OpenAsync(It.IsAny<CancellationToken>()))
-                    .Throws(CreateDnsException(mockConnectionHandle.Object.ConnectionId)); // throw command dns exception
             }
 
             void SetupConnectionPool(Mock<IConnectionPool> mockConnectionPool, IConnectionHandle connection)
             {
                 mockConnectionPool
                     .Setup(c => c.AcquireConnection(It.IsAny<CancellationToken>()))
-                    .Returns(connection);
+                    .Throws(CreateDnsException(connection.ConnectionId)); // throw command dns exception
                 mockConnectionPool
                     .Setup(c => c.AcquireConnectionAsync(It.IsAny<CancellationToken>()))
-                    .Returns(Task.FromResult(connection));
+                    .Throws(CreateDnsException(connection.ConnectionId)); // throw command dns exception
             }
 
             void SetupConnectionPoolFactory(Mock<IConnectionPoolFactory> mockFactory, IConnectionPool connectionPool, ServerId serverId, EndPoint endPoint)
