@@ -15,11 +15,8 @@
 
 using System.Linq.Expressions;
 using MongoDB.Driver.Linq3.Ast;
-using MongoDB.Driver.Linq3.Ast.Expressions;
-using MongoDB.Driver.Linq3.Ast.Stages;
-using MongoDB.Driver.Linq3.Methods;
 using MongoDB.Driver.Linq3.Misc;
-using MongoDB.Driver.Linq3.Serializers;
+using MongoDB.Driver.Linq3.Reflection;
 using MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslators;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators

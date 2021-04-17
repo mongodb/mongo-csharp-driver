@@ -17,15 +17,14 @@ using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Linq3.Ast;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Ast.Stages;
-using MongoDB.Driver.Linq3.Methods;
 using MongoDB.Driver.Linq3.Misc;
+using MongoDB.Driver.Linq3.Reflection;
 using MongoDB.Driver.Linq3.Serializers;
 using MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslators;
-using MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators;
 using MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators.Finalizers;
+using MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators
 {

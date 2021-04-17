@@ -13,25 +13,23 @@
 * limitations under the License.
 */
 
+using System;
 using System.Reflection;
 
-namespace MongoDB.Driver.Linq3.Methods
+namespace MongoDB.Driver.Linq3.Reflection
 {
-    public static class ObjectMethod
+    public static class DateTimeMethod
     {
         // private static fields
-        private static readonly MethodInfo __equals;
-        private static readonly MethodInfo __toString;
+        private static readonly MethodInfo __parse;
 
         // static constructor
-        static ObjectMethod()
+        static DateTimeMethod()
         {
-            __equals = ReflectionInfo.Method((object o, object obj) => o.Equals(obj));
-            __toString = ReflectionInfo.Method((object o) => o.ToString());
+            __parse = ReflectionInfo.Method((string s) => DateTime.Parse(s));
         }
 
         // public properties
-        public static new MethodInfo Equals => __equals;
-        public static new MethodInfo ToString => __toString;
+        public static MethodInfo Parse => __parse;
     }
 }

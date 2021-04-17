@@ -13,22 +13,23 @@
 * limitations under the License.
 */
 
+using System;
 using System.Reflection;
 
-namespace MongoDB.Driver.Linq3.Methods
+namespace MongoDB.Driver.Linq3.Reflection
 {
-    public static class StringProperty
+    public static class EnumMethod
     {
         // private static fields
-        private static readonly PropertyInfo __Length;
+        private static readonly MethodInfo __hasFlag;
 
         // static constructor
-        static StringProperty()
+        static EnumMethod()
         {
-            __Length = ReflectionInfo.Property((string s) => s.Length);
+            __hasFlag = ReflectionInfo.Method((Enum e, Enum flag) => e.HasFlag(flag));
         }
 
         // public properties
-        public static PropertyInfo Length => __Length;
+        public static MethodInfo HasFlag => __hasFlag;
     }
 }

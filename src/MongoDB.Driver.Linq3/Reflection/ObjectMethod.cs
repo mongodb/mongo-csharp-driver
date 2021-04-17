@@ -13,23 +13,25 @@
 * limitations under the License.
 */
 
-using System;
 using System.Reflection;
 
-namespace MongoDB.Driver.Linq3.Methods
+namespace MongoDB.Driver.Linq3.Reflection
 {
-    public static class EnumMethod
+    public static class ObjectMethod
     {
         // private static fields
-        private static readonly MethodInfo __hasFlag;
+        private static readonly MethodInfo __equals;
+        private static readonly MethodInfo __toString;
 
         // static constructor
-        static EnumMethod()
+        static ObjectMethod()
         {
-            __hasFlag = ReflectionInfo.Method((Enum e, Enum flag) => e.HasFlag(flag));
+            __equals = ReflectionInfo.Method((object o, object obj) => o.Equals(obj));
+            __toString = ReflectionInfo.Method((object o) => o.ToString());
         }
 
         // public properties
-        public static MethodInfo HasFlag => __hasFlag;
+        public static new MethodInfo Equals => __equals;
+        public static new MethodInfo ToString => __toString;
     }
 }
