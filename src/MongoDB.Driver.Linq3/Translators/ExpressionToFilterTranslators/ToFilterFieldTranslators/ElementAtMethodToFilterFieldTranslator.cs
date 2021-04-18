@@ -16,6 +16,7 @@
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq3.Ast.Filters;
+using MongoDB.Driver.Linq3.ExtensionMethods;
 using MongoDB.Driver.Linq3.Misc;
 using MongoDB.Driver.Linq3.Reflection;
 
@@ -34,18 +35,14 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilte
                 var sourceField = ExpressionToFilterFieldTranslator.Translate(context, sourceExpression);
 
                 var indexExpression = arguments[1];
-                if (indexExpression is ConstantExpression indexConstantExpression)
+                var index = indexExpression.GetConstantValue<int>(containingExpression: expression);
+
+                if (sourceField.Serializer is IBsonArraySerializer arraySerializer &&
+                    arraySerializer.TryGetItemSerializationInfo(out var itemSerializationInfo))
                 {
-                    var index = (int)indexConstantExpression.Value;
-
-                    if (sourceField.Serializer is IBsonArraySerializer arraySerializer &&
-                        arraySerializer.TryGetItemSerializationInfo(out var itemSerializationInfo))
-                    {
-                        var itemSerializer = itemSerializationInfo.Serializer;
-                        return sourceField.SubField(index.ToString(), itemSerializer);
-                    }
+                    var itemSerializer = itemSerializationInfo.Serializer;
+                    return sourceField.SubField(index.ToString(), itemSerializer);
                 }
-
             }
 
             throw new ExpressionNotSupportedException(expression);

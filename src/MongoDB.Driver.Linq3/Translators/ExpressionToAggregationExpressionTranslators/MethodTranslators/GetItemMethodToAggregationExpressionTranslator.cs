@@ -18,6 +18,7 @@ using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq3.Ast;
 using MongoDB.Driver.Linq3.Ast.Expressions;
+using MongoDB.Driver.Linq3.ExtensionMethods;
 using MongoDB.Driver.Linq3.Misc;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
@@ -39,14 +40,10 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             if (IsDictionaryGetItemMethodWithStringKey(expression, out sourceExpression, out var keyExpression))
             {
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
-                if (keyExpression is ConstantExpression keyConstantExpression)
-                {
-                    var key = (string)keyConstantExpression.Value;
-                    var ast = AstExpression.SubField(sourceTranslation.Ast, key);
-                    var valueSerializer = GetDictionaryValueSerializer(sourceTranslation.Serializer);
-
-                    return new AggregationExpression(expression, ast, valueSerializer);
-                }
+                var key = keyExpression.GetConstantValue<string>(containingExpression: expression);
+                var ast = AstExpression.SubField(sourceTranslation.Ast, key);
+                var valueSerializer = GetDictionaryValueSerializer(sourceTranslation.Serializer);
+                return new AggregationExpression(expression, ast, valueSerializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

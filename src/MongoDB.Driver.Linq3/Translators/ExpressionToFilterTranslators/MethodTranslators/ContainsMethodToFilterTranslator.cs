@@ -18,6 +18,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using MongoDB.Driver.Linq3.Ast.Filters;
+using MongoDB.Driver.Linq3.ExtensionMethods;
 using MongoDB.Driver.Linq3.Misc;
 using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators;
 
@@ -71,24 +72,19 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
         private static AstFilter Translate(TranslationContext context, Expression expression, Expression sourceExpression, Expression itemExpression)
         {
             if (TypeImplementsIEnumerable(sourceExpression.Type, itemExpression.Type) &&
-                itemExpression is ConstantExpression constantItemExpression)
+                itemExpression.NodeType == ExpressionType.Constant)
             {
                 var sourceField = ExpressionToFilterFieldTranslator.Translate(context, sourceExpression);
                 var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceField.Serializer);
-                var value = constantItemExpression.Value;
+                var value = itemExpression.GetConstantValue<object>(containingExpression: expression);
                 var serializedValue = SerializationHelper.SerializeValue(itemSerializer, value);
                 return AstFilter.ElemMatch(sourceField, AstFilter.Eq(AstFilter.Field("$elem", itemSerializer), serializedValue));
             }
 
-            if (sourceExpression is ConstantExpression constantSourceExpression)
-            {
-                var itemField = ExpressionToFilterFieldTranslator.Translate(context, itemExpression);
-                var sourceValues = (IEnumerable)constantSourceExpression.Value;
-                var serializedValues = SerializationHelper.SerializeValues(itemField.Serializer, sourceValues);
-                return AstFilter.In(itemField, serializedValues);
-            }
-
-            throw new ExpressionNotSupportedException(expression);
+            var itemField = ExpressionToFilterFieldTranslator.Translate(context, itemExpression);
+            var sourceValues = sourceExpression.GetConstantValue<IEnumerable>(containingExpression: expression);
+            var serializedValues = SerializationHelper.SerializeValues(itemField.Serializer, sourceValues);
+            return AstFilter.In(itemField, serializedValues);
         }
 
         private static bool TypeImplementsIEnumerable(Type type, Type itemType)

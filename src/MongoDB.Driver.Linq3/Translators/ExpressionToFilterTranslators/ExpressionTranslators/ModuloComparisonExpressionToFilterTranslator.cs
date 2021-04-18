@@ -16,6 +16,7 @@
 using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Driver.Linq3.Ast.Filters;
+using MongoDB.Driver.Linq3.ExtensionMethods;
 using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ExpressionTranslators
@@ -38,37 +39,35 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
 
         public static AstFilter Translate(TranslationContext context, BinaryExpression expression, BinaryExpression moduloExpression, Expression remainderExpression)
         {
-            if (moduloExpression.Right is ConstantExpression divisorConstantExpression &&
-                remainderExpression is ConstantExpression remainderConstantExpression)
+            var fieldExpression = moduloExpression.Left;
+            var field = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
+
+            var divisorExpression = moduloExpression.Right;
+            BsonValue divisor;
+            BsonValue remainder;
+            if (divisorExpression.Type == typeof(int) && remainderExpression.Type == typeof(int))
             {
-                var field = ExpressionToFilterFieldTranslator.Translate(context, moduloExpression.Left);
+                divisor = divisorExpression.GetConstantValue<int>(containingExpression: moduloExpression);
+                remainder = remainderExpression.GetConstantValue<int>(containingExpression: expression);
+            }
+            else if (divisorExpression.Type == typeof(long) && remainderExpression.Type == typeof(long))
+            {
+                divisor = divisorExpression.GetConstantValue<long>(containingExpression: moduloExpression);
+                remainder = remainderExpression.GetConstantValue<long>(containingExpression: expression);
+            }
+            else
+            {
+                throw new ExpressionNotSupportedException(expression);
+            }
 
-                BsonValue divisor;
-                BsonValue remainder;
-                if (divisorConstantExpression.Type == typeof(int) && remainderConstantExpression.Type == typeof(int))
-                {
-                    divisor = (int)divisorConstantExpression.Value;
-                    remainder = (int)remainderConstantExpression.Value;
-                }
-                else if (divisorConstantExpression.Type == typeof(long) && remainderConstantExpression.Type == typeof(long))
-                {
-                    divisor = (long)divisorConstantExpression.Value;
-                    remainder = (long)remainderConstantExpression.Value;
-                }
-                else
-                {
-                    throw new ExpressionNotSupportedException(expression);
-                }
+            var moduloComparisonAst = AstFilter.Mod(field, divisor, remainder);
+            switch (expression.NodeType)
+            {
+                case ExpressionType.Equal:
+                    return moduloComparisonAst;
 
-                var moduloComparisonAst = AstFilter.Mod(field, divisor, remainder);
-                switch (expression.NodeType)
-                {
-                    case ExpressionType.Equal:
-                        return moduloComparisonAst;
-
-                    case ExpressionType.NotEqual:
-                        return AstFilter.Not(moduloComparisonAst);
-                }
+                case ExpressionType.NotEqual:
+                    return AstFilter.Not(moduloComparisonAst);
             }
 
             throw new ExpressionNotSupportedException(expression);

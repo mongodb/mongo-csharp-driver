@@ -19,6 +19,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq3.Ast.Expressions;
+using MongoDB.Driver.Linq3.ExtensionMethods;
 using MongoDB.Driver.Linq3.Misc;
 using MongoDB.Driver.Linq3.Reflection;
 
@@ -114,19 +115,14 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             {
                 if (valueExpression.Type == typeof(char))
                 {
-                    if (valueExpression is ConstantExpression constantExpression)
-                    {
-                        var c = (char)constantExpression.Value;
-                        var value = new string(c, 1);
-                        return new AggregationExpression(valueExpression, value, new StringSerializer());
-                    }
+                    var c = valueExpression.GetConstantValue<char>(containingExpression: expression);
+                    var value = new string(c, 1);
+                    return new AggregationExpression(valueExpression, value, new StringSerializer());
                 }
                 else
                 {
                     return ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
                 }
-
-                throw new ExpressionNotSupportedException(expression);
             }
 
             bool GetOrdinalFromComparisonType()
@@ -136,17 +132,14 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                     return false;
                 }
 
-                if (comparisonTypeExpression is ConstantExpression comparisonTypeConstantExpression)
+                var comparisonType = comparisonTypeExpression.GetConstantValue<StringComparison>(containingExpression: expression);
+                switch (comparisonType)
                 {
-                    var comparisonType = (StringComparison)comparisonTypeConstantExpression.Value;
-                    switch (comparisonType)
-                    {
-                        case StringComparison.CurrentCulture: return false;
-                        case StringComparison.Ordinal: return true;
-                    }
+                    case StringComparison.CurrentCulture: return false;
+                    case StringComparison.Ordinal: return true;
                 }
 
-                throw new ExpressionNotSupportedException(expression);
+                throw new ExpressionNotSupportedException(comparisonTypeExpression, expression);
             }
 
             AstExpression CreateEndAst(AstExpression startIndexAst, AstExpression countAst)

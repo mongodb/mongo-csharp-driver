@@ -15,6 +15,7 @@
 
 using System.Linq.Expressions;
 using MongoDB.Driver.Linq3.Ast.Filters;
+using MongoDB.Driver.Linq3.ExtensionMethods;
 using MongoDB.Driver.Linq3.Misc;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators
@@ -26,15 +27,11 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilte
             if (expression.NodeType == ExpressionType.ArrayIndex)
             {
                 var arrayExpression = expression.Left;
+                var arrayField = ExpressionToFilterFieldTranslator.Translate(context, arrayExpression);
                 var indexExpression = expression.Right;
-
-                if (indexExpression is ConstantExpression constantIndexExpression)
-                {
-                    var index = (int)constantIndexExpression.Value;
-                    var arrayField = ExpressionToFilterFieldTranslator.Translate(context, arrayExpression);
-                    var itemSerializer = ArraySerializerHelper.GetItemSerializer(arrayField.Serializer);
-                    return arrayField.SubField(index.ToString(), itemSerializer);
-                }
+                var index = indexExpression.GetConstantValue<int>(containingExpression: expression);
+                var itemSerializer = ArraySerializerHelper.GetItemSerializer(arrayField.Serializer);
+                return arrayField.SubField(index.ToString(), itemSerializer);
             }
 
             throw new ExpressionNotSupportedException(expression);

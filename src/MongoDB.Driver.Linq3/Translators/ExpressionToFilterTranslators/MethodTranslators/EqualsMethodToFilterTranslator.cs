@@ -15,6 +15,7 @@
 
 using System.Linq.Expressions;
 using MongoDB.Driver.Linq3.Ast.Filters;
+using MongoDB.Driver.Linq3.ExtensionMethods;
 using MongoDB.Driver.Linq3.Misc;
 using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators;
 
@@ -35,7 +36,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
                     {
                         var expression1 = arguments[0];
                         var expression2 = arguments[1];
-                        return Translate(context, expression1, expression2);
+                        return Translate(context, expression, expression1, expression2);
                     }
                 }
                 else
@@ -44,7 +45,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
                     {
                         var expression1 = expression.Object;
                         var expression2 = arguments[0];
-                        return Translate(context, expression1, expression2);
+                        return Translate(context, expression, expression1, expression2);
                     }
                 }
             }
@@ -52,23 +53,22 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             throw new ExpressionNotSupportedException(expression);
         }
 
-        private static AstFilter Translate(TranslationContext context, Expression expression1, Expression expression2)
+        private static AstFilter Translate(TranslationContext context, Expression expression, Expression expression1, Expression expression2)
         {
-            if (expression1 is ConstantExpression constantExpression1 && expression2.NodeType != ExpressionType.Constant)
+            Expression fieldExpression, valueExpression;
+            if (expression1.NodeType == ExpressionType.Constant && expression2.NodeType != ExpressionType.Constant)
             {
-                expression1 = expression2;
-                expression2 = constantExpression1;
+                (fieldExpression, valueExpression) = (expression2, expression1);
+            }
+            else
+            {
+                (fieldExpression, valueExpression) = (expression1, expression2);
             }
 
-            var field = ExpressionToFilterFieldTranslator.Translate(context, expression1);
-            if (expression2 is ConstantExpression constantExpression2)
-            {
-                var value = constantExpression2.Value;
-                var serializedValue = SerializationHelper.SerializeValue(field.Serializer, value);
-                return AstFilter.Eq(field, serializedValue);
-            }
-
-            throw new ExpressionNotSupportedException(expression2);
+            var field = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
+            var value = valueExpression.GetConstantValue<object>(containingExpression: expression);
+            var serializedValue = SerializationHelper.SerializeValue(field.Serializer, value);
+            return AstFilter.Eq(field, serializedValue);
         }
     }
 }

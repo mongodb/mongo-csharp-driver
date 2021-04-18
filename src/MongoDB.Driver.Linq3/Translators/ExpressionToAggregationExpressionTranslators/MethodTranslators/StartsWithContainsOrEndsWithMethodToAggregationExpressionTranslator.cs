@@ -21,6 +21,7 @@ using System.Reflection;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq3.Ast;
 using MongoDB.Driver.Linq3.Ast.Expressions;
+using MongoDB.Driver.Linq3.ExtensionMethods;
 using MongoDB.Driver.Linq3.Misc;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
@@ -125,34 +126,27 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
 
             bool GetIgnoreCaseFromComparisonType(Expression comparisonTypeExpression)
             {
-                if (comparisonTypeExpression is ConstantExpression comparisonTypeConstantExpression)
+                var comparisonType = comparisonTypeExpression.GetConstantValue<StringComparison>(containingExpression: expression);
+                switch (comparisonType)
                 {
-                    var comparisonType = (StringComparison)comparisonTypeConstantExpression.Value;
-                    switch (comparisonType)
-                    {
-                        case StringComparison.CurrentCulture: return false;
-                        case StringComparison.CurrentCultureIgnoreCase: return true;
-                    }
+                    case StringComparison.CurrentCulture: return false;
+                    case StringComparison.CurrentCultureIgnoreCase: return true;
                 }
 
-                throw new ExpressionNotSupportedException(expression);
+                throw new ExpressionNotSupportedException(comparisonTypeExpression, expression);
             }
 
             bool GetIgnoreCaseFromIgnoreCaseAndCulture(Expression ignoreCaseExpression, Expression cultureExpression)
             {
-                if (ignoreCaseExpression is ConstantExpression ignoreCaseConstantExpression &&
-                    cultureExpression is ConstantExpression cultureConstantExpression)
-                {
-                    var ignoreCase = (bool)ignoreCaseConstantExpression.Value;
-                    var culture = (CultureInfo)cultureConstantExpression.Value;
+                var ignoreCase = ignoreCaseExpression.GetConstantValue<bool>(containingExpression: expression);
+                var culture = cultureExpression.GetConstantValue<CultureInfo>(containingExpression: expression);
 
-                    if (culture == CultureInfo.CurrentCulture)
-                    {
-                        return ignoreCase;
-                    }
+                if (culture == CultureInfo.CurrentCulture)
+                {
+                    return ignoreCase;
                 }
 
-                throw new ExpressionNotSupportedException(expression);
+                throw new ExpressionNotSupportedException(cultureExpression, expression);
             }
         }
     }

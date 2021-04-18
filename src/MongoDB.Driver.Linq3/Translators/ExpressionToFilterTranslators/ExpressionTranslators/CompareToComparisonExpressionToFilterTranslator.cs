@@ -16,6 +16,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Driver.Linq3.Ast.Filters;
+using MongoDB.Driver.Linq3.ExtensionMethods;
 using MongoDB.Driver.Linq3.Misc;
 using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators;
 
@@ -44,19 +45,13 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
                 var field = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
 
                 var valueExpression = leftMethodCallExpression.Arguments[0];
-                if (valueExpression is ConstantExpression valueConstantExpression)
-                {
-                    var value = valueConstantExpression.Value;
-                    var serializedValue = SerializationHelper.SerializeValue(field.Serializer, value);
+                var value = valueExpression.GetConstantValue<object>(containingExpression: expression);
+                var serializedValue = SerializationHelper.SerializeValue(field.Serializer, value);
 
-                    if (rightExpression is ConstantExpression rightConstantExpression)
-                    {
-                        var rightConstantValue = (int)rightConstantExpression.Value;
-                        if (rightConstantValue == 0)
-                        {
-                            return AstFilter.Compare(field, comparisonOperator, serializedValue);
-                        }
-                    }
+                var rightValue = rightExpression.GetConstantValue<int>(containingExpression: expression);
+                if (rightValue == 0)
+                {
+                    return AstFilter.Compare(field, comparisonOperator, serializedValue);
                 }
             }
 

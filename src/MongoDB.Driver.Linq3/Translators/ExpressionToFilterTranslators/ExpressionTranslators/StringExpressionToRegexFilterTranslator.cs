@@ -270,7 +270,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             else
             {
                 var trimCharsExpression = arguments[0];
-                var trimChars = trimCharsExpression.GetConstantValue<char[]>();
+                var trimChars = trimCharsExpression.GetConstantValue<char[]>(containingExpression: methodCallWithTrimCharsExpression);
                 if (trimChars == null || trimChars.Length == 0)
                 {
                     return null;
@@ -327,9 +327,9 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
                 propertyInfo.Is(StringProperty.Length);
         }
 
-        private static Modifiers TranslateComparisonType(Modifiers modifiers, Expression comparisonTypeExpression)
+        private static Modifiers TranslateComparisonType(Modifiers modifiers, Expression expression, Expression comparisonTypeExpression)
         {
-            var comparisonType = comparisonTypeExpression.GetConstantValue<StringComparison>();
+            var comparisonType = comparisonTypeExpression.GetConstantValue<StringComparison>(containingExpression: expression);
             switch (comparisonType)
             {
                 case StringComparison.CurrentCulture:
@@ -343,9 +343,9 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             throw new ExpressionNotSupportedException(comparisonTypeExpression);
         }
 
-        private static Modifiers TranslateCulture(Modifiers modifiers, Expression cultureExpression)
+        private static Modifiers TranslateCulture(Modifiers modifiers, Expression expression, Expression cultureExpression)
         {
-            var culture = cultureExpression.GetConstantValue<CultureInfo>();
+            var culture = cultureExpression.GetConstantValue<CultureInfo>(containingExpression: expression);
             if (culture.Equals(CultureInfo.CurrentCulture))
             {
                 return modifiers;
@@ -362,9 +362,9 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             var (field, modifiers) = TranslateField(context, fieldExpression);
 
             var indexExpression = leftGetCharsExpression.Arguments[0];
-            var index = indexExpression.GetConstantValue<int>();
+            var index = indexExpression.GetConstantValue<int>(containingExpression: expression);
 
-            var comparand = rightExpression.GetConstantValue<int>();
+            var comparand = rightExpression.GetConstantValue<int>(containingExpression: expression);
             var comparandChar = (char)comparand;
             var comparandString = new string(comparandChar, 1);
 
@@ -396,9 +396,9 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             }
         }
 
-        private static Modifiers TranslateIgnoreCase(Modifiers modifiers, Expression ignoreCaseExpression)
+        private static Modifiers TranslateIgnoreCase(Modifiers modifiers, Expression expression, Expression ignoreCaseExpression)
         {
-            modifiers.IgnoreCase = ignoreCaseExpression.GetConstantValue<bool>();
+            modifiers.IgnoreCase = ignoreCaseExpression.GetConstantValue<bool>(containingExpression: expression);
             return modifiers;
         }
 
@@ -422,15 +422,15 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             var arguments = expression.Arguments;
 
             var (field, modifiers) = TranslateField(context, expression.Object);
-            var value = arguments[0].GetConstantValue<string>();
+            var value = arguments[0].GetConstantValue<string>(containingExpression: expression);
             if (method.IsOneOf(StringMethod.StartsWithWithComparisonType, StringMethod.EndsWithWithComparisonType))
             {
-                modifiers = TranslateComparisonType(modifiers, arguments[1]);
+                modifiers = TranslateComparisonType(modifiers, expression, arguments[1]);
             }
             if (method.IsOneOf(StringMethod.StartsWithWithIgnoreCaseAndCulture, StringMethod.EndsWithWithIgnoreCaseAndCulture))
             {
-                modifiers = TranslateIgnoreCase(modifiers, arguments[1]);
-                modifiers = TranslateCulture(modifiers, arguments[2]);
+                modifiers = TranslateIgnoreCase(modifiers, expression, arguments[1]);
+                modifiers = TranslateCulture(modifiers, expression, arguments[2]);
             }
 
             if (IsImpossibleMatch(modifiers, value))
@@ -464,7 +464,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
         private static AstFilter TranslateStringComparison(TranslationContext context, Expression expression, Expression leftExpression, AstComparisonFilterOperator comparisonOperator, Expression rightExpression)
         {
             var (field, modifiers) = TranslateField(context, leftExpression);
-            var comparand = rightExpression.GetConstantValue<string>();
+            var comparand = rightExpression.GetConstantValue<string>(containingExpression: expression);
 
             if (comparisonOperator == AstComparisonFilterOperator.Eq || comparisonOperator == AstComparisonFilterOperator.Ne)
             {
@@ -516,7 +516,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             if (method.IsOneOf(__indexOfWithStartIndexMethods))
             {
                 var startIndexExpression = arguments[1];
-                startIndex = startIndexExpression.GetConstantValue<int>();
+                startIndex = startIndexExpression.GetConstantValue<int>(containingExpression: expression);
                 if (startIndex < 0)
                 {
                     throw new ExpressionNotSupportedException(startIndexExpression);
@@ -527,14 +527,14 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             if (method.IsOneOf(__indexOfWithCountMethods))
             {
                 var countExpression = arguments[2];
-                count = countExpression.GetConstantValue<int>();
+                count = countExpression.GetConstantValue<int>(containingExpression: expression);
                 if (count < 0)
                 {
                     throw new ExpressionNotSupportedException(countExpression);
                 }
             }
 
-            var comparand = rightExpression.GetConstantValue<int>();
+            var comparand = rightExpression.GetConstantValue<int>(containingExpression: expression);
 
             if (method.IsOneOf(__indexOfAnyMethods, __indexOfWithCharMethods))
             {
@@ -542,13 +542,13 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
                 if (method.IsOneOf(__indexOfAnyMethods))
                 {
                     var anyOfExpression = arguments[0];
-                    anyOf = anyOfExpression.GetConstantValue<char[]>();
+                    anyOf = anyOfExpression.GetConstantValue<char[]>(containingExpression: expression);
                 }
                 else
                 if (method.IsOneOf(__indexOfWithCharMethods))
                 {
                     var valueExpression = arguments[0];
-                    var value = valueExpression.GetConstantValue<char>();
+                    var value = valueExpression.GetConstantValue<char>(containingExpression: expression);
                     anyOf = new char[] { value };
                 }
                 else
@@ -587,13 +587,13 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             if (method.IsOneOf(__indexOfWithStringMethods))
             {
                 var valueExpression = arguments[0];
-                var value = valueExpression.GetConstantValue<string>();
+                var value = valueExpression.GetConstantValue<string>(containingExpression: expression);
                 var escapedValue = Regex.Escape(value);
 
                 if (method.IsOneOf(__indexOfWithComparisonTypeMethods))
                 {
                     var comparisonTypeExpression = arguments.Last();
-                    modifiers = TranslateComparisonType(modifiers, comparisonTypeExpression);
+                    modifiers = TranslateComparisonType(modifiers, expression, comparisonTypeExpression);
                 }
 
                 var pattern = "";
@@ -648,7 +648,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
 
             var (field, modifiers) = TranslateField(context, fieldExpression);
 
-            var comparand = rightExpression.GetConstantValue<int>();
+            var comparand = rightExpression.GetConstantValue<int>(containingExpression: expression);
             var pattern = comparisonOperator switch
             {
                 AstComparisonFilterOperator.Eq => $".{{{comparand}}}",

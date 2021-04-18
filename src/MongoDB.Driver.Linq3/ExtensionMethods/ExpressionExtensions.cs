@@ -19,14 +19,15 @@ namespace MongoDB.Driver.Linq3.ExtensionMethods
 {
     public static class ExpressionExtensions
     {
-        public static TValue GetConstantValue<TValue>(this Expression expression)
+        public static TValue GetConstantValue<TValue>(this Expression expression, Expression containingExpression)
         {
             if (expression is ConstantExpression constantExpression)
             {
                 return (TValue)constantExpression.Value;
             }
 
-            throw new ExpressionNotSupportedException(expression);
+            var message = $"Expression must be a constant: {expression} in {containingExpression}.";
+            throw new ExpressionNotSupportedException(message);
         }
     }
 }
