@@ -614,8 +614,8 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
         {
             if (arg is AstConstantExpression constantExpression && constantExpression.Value.BsonType == BsonType.String)
             {
-                var value = constantExpression.Value.AsString;
-                return value;
+                var value = constantExpression.Value.AsString.Length;
+                return new AstConstantExpression(value);
             }
             return new AstUnaryExpression(AstUnaryOperator.StrLenCP, arg);
         }
@@ -669,8 +669,8 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
         {
             if (arg is AstConstantExpression constantExpression && constantExpression.Value.BsonType == BsonType.String)
             {
-                var value = constantExpression.Value.AsString;
-                return value.ToLowerInvariant();
+                var value = constantExpression.Value.AsString.ToLowerInvariant();
+                return new AstConstantExpression(value);
             }
 
             return new AstUnaryExpression(AstUnaryOperator.ToLower, arg);
@@ -685,8 +685,8 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
         {
             if (arg is AstConstantExpression constantExpression && constantExpression.Value.BsonType == BsonType.String)
             {
-                var value = constantExpression.Value.AsString;
-                return value.ToUpperInvariant();
+                var value = constantExpression.Value.AsString.ToUpperInvariant();
+                return new AstConstantExpression(value);
             }
 
             return new AstUnaryExpression(AstUnaryOperator.ToUpper, arg);
