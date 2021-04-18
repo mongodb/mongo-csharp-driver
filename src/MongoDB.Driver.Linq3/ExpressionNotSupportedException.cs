@@ -25,11 +25,26 @@ namespace MongoDB.Driver.Linq3
         {
             return $"Expression not supported: {expression}.";
         }
+
+        private static string FormatMessage(Expression expression, Expression containingExpression)
+        {
+            return $"Expression not supported: {expression} in {containingExpression}.";
+        }
         #endregion
 
         // constructors
+        public ExpressionNotSupportedException(string message)
+            : base(message)
+        {
+        }
+
         public ExpressionNotSupportedException(Expression expression)
             : base(FormatMessage(expression))
+        {
+        }
+
+        public ExpressionNotSupportedException(Expression expression, Expression containingExpression)
+            : base(FormatMessage(expression, containingExpression))
         {
         }
     }
