@@ -23,9 +23,9 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
     {
         public static AggregationExpression Translate(TranslationContext context, BinaryExpression expression)
         {
-            if (StringGetCharsComparisonExpressionToAggregationExpressionTranslator.CanTranslate(expression, out var getCharsExpression, out var comparand))
+            if (StringGetCharsComparisonExpressionToAggregationExpressionTranslator.CanTranslate(expression, out var getCharsExpression))
             {
-                return StringGetCharsComparisonExpressionToAggregationExpressionTranslator.Translate(context, expression, getCharsExpression, comparand);
+                return StringGetCharsComparisonExpressionToAggregationExpressionTranslator.Translate(context, expression, getCharsExpression);
             }
 
             switch (expression.NodeType)
