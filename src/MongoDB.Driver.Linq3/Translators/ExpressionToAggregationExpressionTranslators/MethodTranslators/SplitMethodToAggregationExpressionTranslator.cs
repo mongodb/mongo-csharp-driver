@@ -19,6 +19,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq3.Ast.Expressions;
+using MongoDB.Driver.Linq3.ExtensionMethods;
 using MongoDB.Driver.Linq3.Misc;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
@@ -86,13 +87,9 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
 
                 var stringTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, stringExpression);
                 string delimiter;
-                if (!(separatorsExpression is ConstantExpression separatorsConstantExpression))
-                {
-                    goto notSupported;
-                }
                 if (method.IsOneOf(__splitWithCharsMethods))
                 {
-                    var separatorChars = (char[])separatorsConstantExpression.Value;
+                    var separatorChars = separatorsExpression.GetConstantValue<char[]>(containingExpression: expression);
                     if (separatorChars.Length != 1)
                     {
                         goto notSupported;
@@ -101,7 +98,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 }
                 else if (method.IsOneOf(__splitWithStringsMethods))
                 {
-                    var separatorStrings = (string[])separatorsConstantExpression.Value;
+                    var separatorStrings = separatorsExpression.GetConstantValue<string[]>(containingExpression: expression);
                     if (separatorStrings.Length != 1)
                     {
                         goto notSupported;
@@ -116,11 +113,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 var options = StringSplitOptions.None;
                 if (optionsExpression != null)
                 {
-                    if (!(optionsExpression is ConstantExpression constantExpression))
-                    {
-                        goto notSupported;
-                    }
-                    options = (StringSplitOptions)constantExpression.Value;
+                    options = optionsExpression.GetConstantValue<StringSplitOptions>(containingExpression: expression);
                 }
                 if (options == StringSplitOptions.RemoveEmptyEntries)
                 {

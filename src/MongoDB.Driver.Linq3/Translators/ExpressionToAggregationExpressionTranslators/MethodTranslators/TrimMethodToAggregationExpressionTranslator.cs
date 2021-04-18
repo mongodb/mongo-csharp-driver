@@ -18,6 +18,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Driver.Linq3.Ast.Expressions;
+using MongoDB.Driver.Linq3.ExtensionMethods;
 using MongoDB.Driver.Linq3.Misc;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
@@ -71,13 +72,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                     return null;
                 }
 
-                if (trimCharsExpression is ConstantExpression trimCharsConstantExpression)
-                {
-                    var trimChars = (char[])trimCharsConstantExpression.Value;
-                    return trimChars.Length == 0 ? null : AstExpression.Constant(new string(trimChars));
-                }
-
-                throw new ExpressionNotSupportedException(trimCharsExpression);
+                var trimChars = trimCharsExpression.GetConstantValue<char[]>(containingExpression: expression);
+                return trimChars.Length == 0 ? null : AstExpression.Constant(new string(trimChars));
             }
         }
     }

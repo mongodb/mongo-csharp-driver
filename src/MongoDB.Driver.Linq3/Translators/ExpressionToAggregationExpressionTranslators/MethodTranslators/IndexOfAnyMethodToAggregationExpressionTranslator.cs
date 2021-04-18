@@ -21,6 +21,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq3.Ast;
 using MongoDB.Driver.Linq3.Ast.Expressions;
+using MongoDB.Driver.Linq3.ExtensionMethods;
 using MongoDB.Driver.Linq3.Misc;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
@@ -100,13 +101,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             string TranslateAnyOf(ReadOnlyCollection<Expression> arguments)
             {
                 var anyOfExpression = arguments[0];
-                if (anyOfExpression is ConstantExpression anyOfConstantExpression)
-                {
-                    var anyOfChars = (char[])anyOfConstantExpression.Value;
-                    return new string(anyOfChars);
-                }
-
-                throw new ExpressionNotSupportedException(expression);
+                var anyOfChars = anyOfExpression.GetConstantValue<char[]>(containingExpression: expression);
+                return new string(anyOfChars);
             }
 
             (AstVar, AstExpression) TranslateStartIndex(ReadOnlyCollection<Expression> arguments)

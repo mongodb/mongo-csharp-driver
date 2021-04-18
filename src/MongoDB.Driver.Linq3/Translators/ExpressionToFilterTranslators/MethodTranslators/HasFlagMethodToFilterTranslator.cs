@@ -15,6 +15,7 @@
 
 using System.Linq.Expressions;
 using MongoDB.Driver.Linq3.Ast.Filters;
+using MongoDB.Driver.Linq3.ExtensionMethods;
 using MongoDB.Driver.Linq3.Misc;
 using MongoDB.Driver.Linq3.Reflection;
 using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators;
@@ -35,12 +36,9 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
                 var field = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
 
                 var flagExpression = arguments[0];
-                if (flagExpression is ConstantExpression flagConstantExpression)
-                {
-                    var flag = flagConstantExpression.Value;
-                    var serializedFlag = SerializationHelper.SerializeValue(field.Serializer, flag);
-                    return AstFilter.BitsAllSet(field, serializedFlag);
-                }
+                var flag = flagExpression.GetConstantValue<object>(containingExpression: expression);
+                var serializedFlag = SerializationHelper.SerializeValue(field.Serializer, flag);
+                return AstFilter.BitsAllSet(field, serializedFlag);
             }
 
             throw new ExpressionNotSupportedException(expression);

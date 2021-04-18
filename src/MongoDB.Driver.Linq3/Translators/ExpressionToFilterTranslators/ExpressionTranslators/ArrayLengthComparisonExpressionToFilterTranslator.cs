@@ -15,6 +15,7 @@
 
 using System.Linq.Expressions;
 using MongoDB.Driver.Linq3.Ast.Filters;
+using MongoDB.Driver.Linq3.ExtensionMethods;
 using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ExpressionTranslators
@@ -37,12 +38,11 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
 
         public static AstFilter Translate(TranslationContext context, BinaryExpression expression, UnaryExpression arrayLengthExpression, Expression sizeExpression)
         {
-            if (arrayLengthExpression.NodeType == ExpressionType.ArrayLength &&
-                sizeExpression is ConstantExpression sizeConstantExpression)
+            if (arrayLengthExpression.NodeType == ExpressionType.ArrayLength)
             {
                 var arrayExpression = arrayLengthExpression.Operand;
                 var arrayField = ExpressionToFilterFieldTranslator.Translate(context, arrayExpression);
-                var size = (int)sizeConstantExpression.Value;
+                var size = sizeExpression.GetConstantValue<int>(containingExpression: expression);
 
                 switch (expression.NodeType)
                 {

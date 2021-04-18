@@ -19,6 +19,7 @@ using System.Reflection;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.Driver.Linq3.Ast.Filters;
+using MongoDB.Driver.Linq3.ExtensionMethods;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators
 {
@@ -37,19 +38,16 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilte
                 var fieldExpression = expression.Object;
                 var indexExpression = arguments[0];
 
-                if (indexExpression is ConstantExpression indexConstantExpression)
+                if (indexExpression.Type == typeof(int))
                 {
-                    if (indexConstantExpression.Type == typeof(int))
-                    {
-                        var index = (int)indexConstantExpression.Value;
-                        return TranslateWithIntIndex(context, expression, method, fieldExpression, index);
-                    }
+                    var index = indexExpression.GetConstantValue<int>(containingExpression: expression);
+                    return TranslateWithIntIndex(context, expression, method, fieldExpression, index);
+                }
 
-                    if (indexConstantExpression.Type == typeof(string))
-                    {
-                        var index = (string)indexConstantExpression.Value;
-                        return TranslateWithStringIndex(context, expression, method, fieldExpression, index);
-                    }
+                if (indexExpression.Type == typeof(string))
+                {
+                    var index = indexExpression.GetConstantValue<string>(containingExpression: expression);
+                    return TranslateWithStringIndex(context, expression, method, fieldExpression, index);
                 }
             }
 

@@ -19,6 +19,7 @@ using System.Reflection;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq3.Ast.Expressions;
+using MongoDB.Driver.Linq3.ExtensionMethods;
 using MongoDB.Driver.Linq3.Misc;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
@@ -97,13 +98,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             StringComparison comparisonType = StringComparison.Ordinal;
             if (comparisonTypeExpression != null)
             {
-                var constantExpression = comparisonTypeExpression as ConstantExpression;
-                if (constantExpression == null)
-                {
-                    goto notSupported;
-                }
-
-                comparisonType = (StringComparison)constantExpression.Value;
+                comparisonType = comparisonTypeExpression.GetConstantValue<StringComparison>(containingExpression: expression);
             }
 
             var lhsTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, lhsExpression);

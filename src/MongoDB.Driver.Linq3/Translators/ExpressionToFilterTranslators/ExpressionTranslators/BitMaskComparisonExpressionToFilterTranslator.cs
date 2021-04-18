@@ -16,6 +16,7 @@
 using System;
 using System.Linq.Expressions;
 using MongoDB.Driver.Linq3.Ast.Filters;
+using MongoDB.Driver.Linq3.ExtensionMethods;
 using MongoDB.Driver.Linq3.Misc;
 using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators;
 
@@ -44,41 +45,35 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
                 var field = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
 
                 var bitMaskExpression = leftBinaryExpression.Right;
-                if (bitMaskExpression is ConstantExpression bitMaskConstantExpression)
+                var bitMask = bitMaskExpression.GetConstantValue<object>(containingExpression: expression);
+                var serializedBitMask = SerializationHelper.SerializeValue(field.Serializer, bitMask);
+
+                var rightValue = rightExpression.GetConstantValue<object>(containingExpression: expression);
+                var zeroValue = Activator.CreateInstance(bitMask.GetType());
+
+                switch (comparisonOperator)
                 {
-                    var bitMask = bitMaskConstantExpression.Value;
-                    var serializedBitMask = SerializationHelper.SerializeValue(field.Serializer, bitMask);
-
-                    if (rightExpression is ConstantExpression rightConstantExpression)
-                    {
-                        var rightConstantValue = rightConstantExpression.Value;
-                        var zeroValue = Activator.CreateInstance(bitMask.GetType());
-
-                        switch (comparisonOperator)
+                    case AstComparisonFilterOperator.Eq:
+                        if (rightValue.Equals(zeroValue))
                         {
-                            case AstComparisonFilterOperator.Eq:
-                                if (rightConstantValue.Equals(zeroValue))
-                                {
-                                    return AstFilter.BitsAllClear(field, serializedBitMask);
-                                }
-                                else if (rightConstantValue.Equals(bitMask))
-                                {
-                                    return AstFilter.BitsAllSet(field, serializedBitMask);
-                                }
-                                break;
-
-                            case AstComparisonFilterOperator.Ne:
-                                if (rightConstantValue.Equals(zeroValue))
-                                {
-                                    return AstFilter.BitsAnySet(field, serializedBitMask);
-                                }
-                                else if (rightConstantValue.Equals(bitMask))
-                                {
-                                    return AstFilter.BitsAnyClear(field, serializedBitMask);
-                                }
-                                break;
+                            return AstFilter.BitsAllClear(field, serializedBitMask);
                         }
-                    }
+                        else if (rightValue.Equals(bitMask))
+                        {
+                            return AstFilter.BitsAllSet(field, serializedBitMask);
+                        }
+                        break;
+
+                    case AstComparisonFilterOperator.Ne:
+                        if (rightValue.Equals(zeroValue))
+                        {
+                            return AstFilter.BitsAnySet(field, serializedBitMask);
+                        }
+                        else if (rightValue.Equals(bitMask))
+                        {
+                            return AstFilter.BitsAnyClear(field, serializedBitMask);
+                        }
+                        break;
                 }
             }
 

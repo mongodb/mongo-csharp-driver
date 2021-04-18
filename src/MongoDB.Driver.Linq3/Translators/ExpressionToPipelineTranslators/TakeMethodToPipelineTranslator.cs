@@ -16,6 +16,7 @@
 using System.Linq.Expressions;
 using MongoDB.Driver.Linq3.Ast;
 using MongoDB.Driver.Linq3.Ast.Stages;
+using MongoDB.Driver.Linq3.ExtensionMethods;
 using MongoDB.Driver.Linq3.Misc;
 using MongoDB.Driver.Linq3.Reflection;
 
@@ -35,16 +36,13 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
             if (method.Is(QueryableMethod.Take))
             {
                 var countExpression = arguments[1];
-                if (countExpression is ConstantExpression constantExpression)
-                {
-                    var count = (int)constantExpression.Value;
+                var count = countExpression.GetConstantValue<int>(containingExpression: expression);
 
-                    pipeline = pipeline.AddStages(
-                        pipeline.OutputSerializer,
-                        AstStage.Limit(count));
+                pipeline = pipeline.AddStages(
+                    pipeline.OutputSerializer,
+                    AstStage.Limit(count));
 
-                    return pipeline;
-                }
+                return pipeline;
             }
 
             throw new ExpressionNotSupportedException(expression);
