@@ -16,6 +16,7 @@
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq3.Ast.Expressions;
+using MongoDB.Driver.Linq3.ExtensionMethods;
 using MongoDB.Driver.Linq3.Misc;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslators
@@ -23,58 +24,43 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
     public static class StringGetCharsComparisonExpressionToAggregationExpressionTranslator
     {
         // public static methods
-        public static bool CanTranslate(BinaryExpression expression, out MethodCallExpression getCharsExpression, out string comparand)
+        public static bool CanTranslate(BinaryExpression expression, out MethodCallExpression getCharsExpression)
         {
-            if (IsConvertGetCharsExpression(expression.Left, out getCharsExpression) &&
-                IsConstantComparandExpression(expression.Right, out comparand) &&
-                TryGetComparisonOperator(expression.NodeType, out _))
+            if (IsConvertGetCharsExpression(expression.Left, out getCharsExpression))
             {
                 return true;
             }
 
             getCharsExpression = null;
-            comparand = null;
             return false;
         }
 
-        public static AggregationExpression Translate(TranslationContext context, Expression expression, MethodCallExpression getCharsExpression, string comparand)
+        public static AggregationExpression Translate(TranslationContext context, BinaryExpression expression, MethodCallExpression getCharsExpression)
         {
             var method = getCharsExpression.Method;
             var arguments = getCharsExpression.Arguments;
 
             if (method.Is(StringMethod.GetChars))
             {
+                var comparisonOperator = GetComparisonOperator(expression);
                 var objectExpression = getCharsExpression.Object;
                 var objectTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, objectExpression);
                 var indexExpression = arguments[0];
                 var indexTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, indexExpression);
-                if (TryGetComparisonOperator(expression.NodeType, out var comparisonOperator))
-                {
-                    var ast = AstExpression.Comparison(
-                        comparisonOperator,
-                        AstExpression.SubstrCP(objectTranslation.Ast, indexTranslation.Ast, 1),
-                        comparand);
-                    return new AggregationExpression(expression, ast, new BooleanSerializer());
-                }
+                var comparandExpression = expression.Right;
+                var c = (char)comparandExpression.GetConstantValue<int>(expression);
+                var comparand = new string(c, 1);
+                var ast = AstExpression.Comparison(
+                    comparisonOperator,
+                    AstExpression.SubstrCP(objectTranslation.Ast, indexTranslation.Ast, 1),
+                    comparand);
+                return new AggregationExpression(expression, ast, new BooleanSerializer());
             }
 
             throw new ExpressionNotSupportedException(expression);
         }
 
         // private static methods
-        private static bool IsConstantComparandExpression(Expression expression, out string comparand)
-        {
-            if (expression is ConstantExpression constantExpression)
-            {
-                var c = (char)(int)constantExpression.Value;
-                comparand = new string(c, 1);
-                return true;
-            }
-
-            comparand = null;
-            return false;
-        }
-
         private static bool IsConvertGetCharsExpression(Expression expression, out MethodCallExpression getCharsExpression)
         {
             if (expression is UnaryExpression unaryExpression &&
@@ -91,20 +77,21 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             return false;
         }
 
-        private static bool TryGetComparisonOperator(ExpressionType nodeType, out AstBinaryOperator result)
+        private static AstBinaryOperator GetComparisonOperator(Expression expression)
         {
+            var nodeType = expression.NodeType;
             switch (nodeType)
             {
-                case ExpressionType.Equal: result = AstBinaryOperator.Eq; return true;
-                case ExpressionType.NotEqual: result = AstBinaryOperator.Ne; return true;
-                case ExpressionType.LessThan: result = AstBinaryOperator.Lt; return true;
-                case ExpressionType.LessThanOrEqual: result = AstBinaryOperator.Lte; return true;
-                case ExpressionType.GreaterThan: result = AstBinaryOperator.Gt; return true;
-                case ExpressionType.GreaterThanOrEqual: result = AstBinaryOperator.Gte; return true;
+                case ExpressionType.Equal: return AstBinaryOperator.Eq;
+                case ExpressionType.NotEqual: return AstBinaryOperator.Ne;
+                case ExpressionType.LessThan: return AstBinaryOperator.Lt;
+                case ExpressionType.LessThanOrEqual: return AstBinaryOperator.Lte;
+                case ExpressionType.GreaterThan: return AstBinaryOperator.Gt;
+                case ExpressionType.GreaterThanOrEqual: return AstBinaryOperator.Gte;
             }
 
-            result = default;
-            return false;
+            var message = $"Expression not supported: {nodeType} in {expression}.";
+            throw new ExpressionNotSupportedException(message);
         }
     }
 }
