@@ -20,7 +20,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+#if !NETSTANDARD1_5
 using System.Runtime.Serialization;
+#endif
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Conventions;
 
@@ -419,29 +421,11 @@ namespace MongoDB.Bson.Serialization
         // private static methods
         private static Type GetFormatterServicesType()
         {
-#if NET452
-            return typeof(FormatterServices);
-#else
-            // TODO: once we depend on newer versions of .NET Standard we should be able to do this without reflection
-
-            try
-            {
-                // new approach which works on .NET Core 3.0
-                var formattersAssembly = Assembly.Load(new AssemblyName("System.Runtime.Serialization.Formatters"));
-                var formatterServicesType = formattersAssembly.GetType("System.Runtime.Serialization.FormatterServices");
-                if (formatterServicesType != null)
-                {
-                    return formatterServicesType;
-                }
-            }
-            catch
-            {
-                // ignore exceptions and continue to fallback code
-            }
-
-            // fallback to previous approach (which worked on older versions of .NET Core)
+#if NETSTANDARD1_5
             var mscorlibAssembly = typeof(string).GetTypeInfo().Assembly;
             return mscorlibAssembly.GetType("System.Runtime.Serialization.FormatterServices");
+#else
+            return typeof(FormatterServices);
 #endif
         }
 
