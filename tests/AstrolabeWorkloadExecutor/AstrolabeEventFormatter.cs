@@ -28,11 +28,11 @@ namespace AstrolabeWorkloadExecutor
     {
         public string Format(object @event)
         {
-            var jsonWritterSettings = new JsonWriterSettings
+            var jsonWriterSettings = new JsonWriterSettings
             {
                 OutputMode = JsonOutputMode.RelaxedExtendedJson
             };
-            return CreateEventDocument(@event).ToJson(jsonWritterSettings);
+            return CreateEventDocument(@event).ToJson(jsonWriterSettings);
         }
 
         // explicit implementation

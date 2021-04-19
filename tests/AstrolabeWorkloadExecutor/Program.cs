@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using AstrolabeWorkloadExecutor;
 using MongoDB.Bson;
@@ -50,7 +49,7 @@ namespace WorkloadExecutor
 
             Console.CancelKeyPress += cancelHandler;
 
-            Console.WriteLine($"dotnet main> Starting workload executor...");
+            Console.WriteLine("dotnet main> Starting workload executor...");
 
             var async = bool.Parse(Environment.GetEnvironmentVariable("ASYNC") ?? throw new Exception($"ASYNC environment variable must be configured."));
 
@@ -58,7 +57,7 @@ namespace WorkloadExecutor
 
             Console.CancelKeyPress -= cancelHandler;
 
-            Console.WriteLine($"dotnet main finally> Writing final results and events files");
+            Console.WriteLine("dotnet main finally> Writing final results and events files");
             File.WriteAllText(resultsPath, resultsJson);
             File.WriteAllText(eventsPath, eventsJson);
 
@@ -87,7 +86,7 @@ namespace WorkloadExecutor
             }
 
             var eventsDocument = @$"{{ ""events"" : {eventsJson}, ""errors"" : {errorDocuments}, ""failures"" : {failuresDocuments} }}";
-            var resultsDocument = $@"{{ ""numErrors"" : {errorCount}, ""numFailures"" : {failuresCount}, ""numSuccesses"" : {successesCount},  ""numIterations"" : {iterationsCount} }}";
+            var resultsDocument = @$"{{ ""numErrors"" : {errorCount}, ""numFailures"" : {failuresCount}, ""numSuccesses"" : {successesCount},  ""numIterations"" : {iterationsCount} }}";
 
             return (eventsDocument, resultsDocument);
 
@@ -114,16 +113,16 @@ namespace WorkloadExecutor
                 var factory = new TestCaseFactory();
                 var testCase = factory.CreateTestCase(driverWorkload, async);
                 testRunner.Run(testCase);
-                Console.WriteLine($"dotnet ExecuteWorkload> Returning...");
+                Console.WriteLine("dotnet ExecuteWorkload> Returning...");
                 return CreateWorkloadResult(entityMap: testRunner.EntityMap);
             }
         }
 
         private static void CancelWorkloadTask(CancellationTokenSource astrolabeCancellationTokenSource)
         {
-            Console.Write($"dotnet cancel workload> Canceling the workload task...");
+            Console.Write("dotnet cancel workload> Canceling the workload task...");
             astrolabeCancellationTokenSource.Cancel();
-            Console.WriteLine($"Done.");
+            Console.WriteLine("Done.");
         }
 
         private static void HandleCancel(
