@@ -13,12 +13,12 @@
 * limitations under the License.
 */
 
-using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq3.Ast;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Ast.Stages;
+using MongoDB.Driver.Linq3.ExtensionMethods;
 using MongoDB.Driver.Linq3.Misc;
 using MongoDB.Driver.Linq3.Reflection;
 using MongoDB.Driver.Linq3.Serializers;
@@ -46,8 +46,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                 var wrappedOuterSerializer = WrappedValueSerializer.Create("_outer", outerSerializer);
 
                 var innerExpression = arguments[1];
-                var innerQueryProvider = GetMongoQueryProvider(innerExpression);
-                var innerSerializer = innerQueryProvider.DocumentSerializer;
+                var (innerCollectionName, innerSerializer) = innerExpression.GetCollectionInfo(containerExpression: expression);
 
                 var outerKeySelectorLambda = ExpressionHelper.UnquoteLambda(arguments[2]);
                 var localFieldPath = GetLocalFieldPath(context, outerKeySelectorLambda, wrappedOuterSerializer);
@@ -56,7 +55,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
                 var foreignFieldPath = GetForeignFieldPath(context, innerKeySelectorLambda, innerSerializer);
 
                 var lookupStage = AstStage.Lookup(
-                    from: innerQueryProvider.CollectionName,
+                    from: innerCollectionName,
                     match: new AstLookupStageEqualityMatch(localFieldPath, foreignFieldPath),
                     @as: "_inner");
 
@@ -104,18 +103,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
             }
 
             throw new ExpressionNotSupportedException(outerKeySelectorLambda);
-        }
-
-        private static MongoQueryProvider GetMongoQueryProvider(Expression expression)
-        {
-            if (expression is ConstantExpression constantExpression &&
-                constantExpression.Value is IQueryable queryable &&
-                queryable.Provider is MongoQueryProvider mongoQueryProvider)
-            {
-                return mongoQueryProvider;
-            }
-
-            throw new ExpressionNotSupportedException(expression);
         }
     }
 }

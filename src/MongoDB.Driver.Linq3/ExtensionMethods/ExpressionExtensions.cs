@@ -13,12 +13,27 @@
 * limitations under the License.
 */
 
+using System.Linq;
 using System.Linq.Expressions;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Linq3.ExtensionMethods
 {
     public static class ExpressionExtensions
     {
+        public static (string CollectionName, IBsonSerializer DocumentSerializer) GetCollectionInfo(this Expression innerExpression, Expression containerExpression)
+        {
+            if (innerExpression is ConstantExpression constantExpression &&
+                constantExpression.Value is IQueryable queryable &&
+                queryable.Provider is MongoQueryProvider queryProvider)
+            {
+                return (queryProvider.CollectionName, queryProvider.DocumentSerializer);
+            }
+
+            var message = $"Expression inner must be a MongoDB queryable representing a collection: {innerExpression} in {containerExpression}.";
+            throw new ExpressionNotSupportedException(message);
+        }
+
         public static TValue GetConstantValue<TValue>(this Expression expression, Expression containingExpression)
         {
             if (expression is ConstantExpression constantExpression)
