@@ -33,15 +33,11 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 if (arguments.Count == 1 || arguments.Count == 2)
                 {
                     var sourceExpression = arguments[0];
-                    LambdaExpression selectorLambda = null;
+                    var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
+
                     if (arguments.Count == 2)
                     {
-                        selectorLambda = (LambdaExpression)arguments[1];
-                    }
-
-                    var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
-                    if (selectorLambda != null)
-                    {
+                        var selectorLambda = (LambdaExpression)arguments[1];
                         var selectorParameter = selectorLambda.Parameters[0];
                         var selectorParameterSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
                         var selectorContext = context.WithSymbol(selectorParameter, new Symbol("$" + selectorParameter.Name, selectorParameterSerializer));
@@ -53,9 +49,9 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                         var selectorResultSerializer = BsonSerializer.LookupSerializer(selectorLambda.ReturnType);
                         sourceTranslation = new AggregationExpression(selectorLambda, selectorAst, selectorResultSerializer);
                     }
+
                     var ast = AstExpression.StdDev(stddevOperator, sourceTranslation.Ast);
                     var serializer = BsonSerializer.LookupSerializer(expression.Type);
-
                     return new AggregationExpression(expression, ast, serializer);
                 }
             }
@@ -65,8 +61,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
 
         private static bool IsStandardDeviationMethod(MethodInfo methodInfo, out AstUnaryOperator stddevOperator)
         {
-            stddevOperator = default;
-
             if (methodInfo.DeclaringType == typeof(EnumerableExtensions))
             {
                 switch (methodInfo.Name)
@@ -76,6 +70,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 }
             }
 
+            stddevOperator = default;
             return false;
         }
     }

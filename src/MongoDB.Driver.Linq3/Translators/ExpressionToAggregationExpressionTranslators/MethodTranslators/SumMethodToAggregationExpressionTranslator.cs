@@ -58,16 +58,17 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
                 var sourceItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
-                var selectorLambda = arguments.Count == 2 ? (LambdaExpression)arguments[1] : null;
+
                 AstExpression ast;
                 IBsonSerializer serializer;
-                if (selectorLambda == null)
+                if (arguments.Count == 1)
                 {
                     ast = AstExpression.Sum(sourceTranslation.Ast);
                     serializer = sourceItemSerializer;
                 }
                 else
                 {
+                    var selectorLambda = (LambdaExpression)arguments[1];
                     var selectorParameter = selectorLambda.Parameters[0];
                     var selectorSymbol = new Symbol("$" + selectorParameter.Name, sourceItemSerializer);
                     var selectorContext = context.WithSymbol(selectorParameter, selectorSymbol);
@@ -79,6 +80,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                             @in: selectorTranslation.Ast));
                     serializer = selectorTranslation.Serializer;
                 }
+
                 return new AggregationExpression(expression, ast, serializer);
             }
 

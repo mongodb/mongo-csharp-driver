@@ -49,13 +49,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
 
         }
 
-        private static bool IsSimple(AstExpression expression)
-        {
-            return
-                expression.NodeType == AstNodeType.ConstantExpression ||
-                expression.NodeType == AstNodeType.FieldExpression;
-        }
-
         private static AggregationExpression TranslateHelper(TranslationContext context, Expression expression, Expression stringExpression, Expression startIndexExpression, Expression lengthExpression, AstTernaryOperator substrOperator)
         {
             var stringTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, stringExpression);
@@ -65,23 +58,12 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             if (lengthExpression == null)
             {
                 var strlenOperator = substrOperator == AstTernaryOperator.SubstrCP ? AstUnaryOperator.StrLenCP : AstUnaryOperator.StrLenBytes;
-                if (IsSimple(stringTranslation.Ast) && IsSimple(startIndexTranslation.Ast))
-                {
-                    var lengthAst = AstExpression.StrLen(strlenOperator, stringTranslation.Ast);
-                    var countAst = AstExpression.Subtract(lengthAst, startIndexTranslation.Ast);
-                    ast = AstExpression.Substr(substrOperator, stringTranslation.Ast, startIndexTranslation.Ast, countAst);
-                }
-                else
-                {
-                    var stringVar = AstExpression.Var("string", stringTranslation.Ast);
-                    var indexVar = AstExpression.Var("index", startIndexTranslation.Ast);
-                    var stringField = AstExpression.Field("$string");
-                    var indexField = AstExpression.Field("$index");
-                    var lengthAst = AstExpression.StrLen(strlenOperator, stringField);
-                    var countAst = AstExpression.Subtract(lengthAst, indexField);
-                    var inAst = AstExpression.Substr(substrOperator, stringField, indexField, countAst);
-                    ast = AstExpression.Let(stringVar, indexVar, inAst);
-                }
+                var (stringVar, stringAst) = AstExpression.UseVarIfNotSimple("string", stringTranslation.Ast);
+                var (indexVar, indexAst) = AstExpression.UseVarIfNotSimple("index", startIndexTranslation.Ast);
+                var lengthAst = AstExpression.StrLen(strlenOperator, stringAst);
+                var countAst = AstExpression.Subtract(lengthAst, indexAst);
+                var inAst = AstExpression.Substr(substrOperator, stringAst, indexAst, countAst);
+                ast = AstExpression.Let(stringVar, indexVar, inAst);
             }
             else
             {

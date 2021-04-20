@@ -35,10 +35,10 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 var predicateParameter = predicateLambda.Parameters[0];
                 var predicateParameterSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
                 var predicateContext = context.WithSymbol(predicateParameter, new Symbol("$" + predicateParameter.Name, predicateParameterSerializer));
-                var translatedPredicate = ExpressionToAggregationExpressionTranslator.Translate(predicateContext, predicateLambda.Body);
+                var predicateTranslation = ExpressionToAggregationExpressionTranslator.Translate(predicateContext, predicateLambda.Body);
                 var ast = AstExpression.Filter(
                     sourceTranslation.Ast,
-                    translatedPredicate.Ast,
+                    predicateTranslation.Ast,
                     predicateParameter.Name);
                 return new AggregationExpression(expression, ast, sourceTranslation.Serializer);
             }

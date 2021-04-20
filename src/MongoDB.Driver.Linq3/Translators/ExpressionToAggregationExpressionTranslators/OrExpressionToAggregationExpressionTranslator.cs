@@ -26,7 +26,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             var leftTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, expression.Left);
             var rightTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, expression.Right);
             var ast = AstExpression.Or(leftTranslation.Ast, rightTranslation.Ast);
-
             return new AggregationExpression(expression, ast, new BooleanSerializer());
         }
     }

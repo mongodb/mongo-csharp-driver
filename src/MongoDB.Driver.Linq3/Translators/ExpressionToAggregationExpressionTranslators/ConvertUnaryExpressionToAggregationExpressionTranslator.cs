@@ -39,14 +39,12 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                     Type valueSerializerType = typeof(IBsonSerializer<>).MakeGenericType(valueType);
                     var constructorInfo = nullableSerializerType.GetConstructor(new[] { valueSerializerType });
                     var nullableSerializer = (IBsonSerializer)constructorInfo.Invoke(new[] { operandTranslation.Serializer });
-
                     return new AggregationExpression(expression, operandTranslation.Ast, nullableSerializer);
                 }
             }
 
             var ast = AstExpression.Convert(operandTranslation.Ast, expressionType);
             var serializer = BsonSerializer.SerializerRegistry.GetSerializer(expressionType); // TODO: find correct serializer
-
             return new AggregationExpression(expression, ast, serializer);
         }
     }

@@ -24,16 +24,14 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
     {
         public static AggregationExpression Translate(TranslationContext context, NewArrayExpression expression)
         {
-            var itemAsts = new List<AstExpression>();
+            var items = new List<AstExpression>();
             foreach (var itemExpression in expression.Expressions)
             {
                 var itemTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, itemExpression);
-                itemAsts.Add(itemTranslation.Ast);
+                items.Add(itemTranslation.Ast);
             }
-
-            var ast = AstExpression.ComputedArray(itemAsts);
+            var ast = AstExpression.ComputedArray(items);
             var serializer = BsonSerializer.LookupSerializer(expression.Type); // TODO: find known serializer
-
             return new AggregationExpression(expression, ast, serializer);
         }
     }

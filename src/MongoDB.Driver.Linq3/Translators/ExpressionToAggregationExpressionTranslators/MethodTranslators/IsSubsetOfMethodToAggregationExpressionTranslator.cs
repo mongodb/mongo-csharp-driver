@@ -29,7 +29,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
                 var otherTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, otherExpression);
                 var ast = AstExpression.SetIsSubset(sourceTranslation.Ast, otherTranslation.Ast);
-
                 return new AggregationExpression(expression, ast, new BooleanSerializer());
             }
 
@@ -40,25 +39,27 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
+
+            if (!method.IsStatic && method.ReturnType == typeof(bool) && method.Name == "IsSubsetOf" && arguments.Count == 1)
+            {
+                sourceExpression = expression.Object;
+                otherExpression = arguments[0];
+
+                if (sourceExpression.Type.TryGetIEnumerableGenericInterface(out var sourceIEnumerableInterface) &&
+                    otherExpression.Type.TryGetIEnumerableGenericInterface(out var otherIEnumerableInterface))
+                {
+                    var sourceItemType = sourceIEnumerableInterface.GetGenericArguments()[0];
+                    var otherItemType = otherIEnumerableInterface.GetGenericArguments()[0];
+                    if (sourceItemType == otherItemType)
+                    {
+                        return true;
+                    }
+                }
+            }
+
             sourceExpression = null;
             otherExpression = null;
-
-            if (method.IsStatic || method.ReturnType != typeof(bool) || method.Name != "IsSubsetOf" || arguments.Count != 1)
-            {
-                return false;
-            }
-            sourceExpression = expression.Object;
-            otherExpression = arguments[0];
-
-            if (!sourceExpression.Type.TryGetIEnumerableGenericInterface(out var sourceIEnumerableInterface) ||
-                !otherExpression.Type.TryGetIEnumerableGenericInterface(out var otherIEnumerableInterface))
-            {
-                return false;
-            }
-
-            var sourceItemType = sourceIEnumerableInterface.GetGenericArguments()[0];
-            var otherItemType = otherIEnumerableInterface.GetGenericArguments()[0];
-            return sourceItemType == otherItemType;
+            return false;
         }
     }
 }

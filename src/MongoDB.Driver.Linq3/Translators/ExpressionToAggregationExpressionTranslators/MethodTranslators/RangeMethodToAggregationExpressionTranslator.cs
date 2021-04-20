@@ -34,25 +34,19 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             {
                 var startExpression = arguments[0];
                 var startTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, startExpression);
-                var (startVar, startSimpleAst) = AstExpression.UseVarIfNotSimple("start", startTranslation.Ast);
+                var (startVar, startAst) = AstExpression.UseVarIfNotSimple("start", startTranslation.Ast);
                 var countExpression = arguments[1];
                 var countTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, countExpression);
-                var (countVar, countSimpleAst) = AstExpression.UseVarIfNotSimple("count", countTranslation.Ast);
+                var (countVar, countAst) = AstExpression.UseVarIfNotSimple("count", countTranslation.Ast);
                 var ast = AstExpression.Let(
                     startVar,
                     countVar,
-                    AstExpression.Range(startSimpleAst, end: AstExpression.Add(startSimpleAst, countSimpleAst)));
+                    AstExpression.Range(startAst, end: AstExpression.Add(startAst, countAst)));
                 var serializer = IEnumerableSerializer.Create(new Int32Serializer());
                 return new AggregationExpression(expression, ast, serializer);
             }
 
             throw new ExpressionNotSupportedException(expression);
-        }
-
-        private static bool IsSimple(AggregationExpression translation)
-        {
-            var ast = translation.Ast;
-            return ast.NodeType == AstNodeType.ConstantExpression || ast.NodeType == AstNodeType.FieldExpression;
         }
     }
 }

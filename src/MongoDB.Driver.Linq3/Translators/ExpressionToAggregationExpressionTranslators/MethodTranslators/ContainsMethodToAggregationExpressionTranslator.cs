@@ -26,14 +26,14 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
         // public methods
         public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
-            if (IsEnumerableContainsMethod(expression, out var sourceExpression, out var valueExpression))
-            {
-                return TranslateEnumerableContains(context, expression, sourceExpression, valueExpression);
-            }
-
             if (expression.Method.Is(StringMethod.Contains))
             {
                 return StartsWithContainsOrEndsWithMethodToAggregationExpressionTranslator.Translate(context, expression);
+            }
+
+            if (IsEnumerableContainsMethod(expression, out var sourceExpression, out var valueExpression))
+            {
+                return TranslateEnumerableContains(context, expression, sourceExpression, valueExpression);
             }
 
             throw new ExpressionNotSupportedException(expression);
@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 return true;
             }
 
-            if (!method.IsStatic && method.ReturnType == typeof(bool) && arguments.Count == 1)
+            if (!method.IsStatic && method.ReturnType == typeof(bool) && method.Name == "Contains" && arguments.Count == 1)
             {
                 sourceExpression = expression.Object;
                 valueExpression = arguments[0];
@@ -71,7 +71,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
             var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
             var ast = AstExpression.In(valueTranslation.Ast, sourceTranslation.Ast);
-
             return new AggregationExpression(expression, ast, new BooleanSerializer());
         }
     }
