@@ -38,14 +38,14 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
 
             if (method.IsOneOf(QueryableMethod.Last, QueryableMethod.LastWithPredicate, QueryableMethod.LastOrDefault, QueryableMethod.LastOrDefaultWithPredicate))
             {
-                var source = arguments[0];
+                var sourceExpression = arguments[0];
                 if (method.IsOneOf(QueryableMethod.LastWithPredicate, QueryableMethod.LastOrDefaultWithPredicate))
                 {
-                    var predicate = arguments[1];
-                    var tsource = source.Type.GetGenericArguments()[0];
-                    source = Expression.Call(QueryableMethod.MakeWhere(tsource), source, predicate);
+                    var predicateExpression = arguments[1];
+                    var tsource = sourceExpression.Type.GetGenericArguments()[0];
+                    sourceExpression = Expression.Call(QueryableMethod.MakeWhere(tsource), sourceExpression, predicateExpression);
                 }
-                var pipeline = ExpressionToPipelineTranslator.Translate(context, source);
+                var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
 
                 pipeline = pipeline.AddStages(
                     pipeline.OutputSerializer,

@@ -43,20 +43,17 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
 
             if (method.Is(QueryableMethod.All))
             {
-                var source = arguments[0];
-                var tsource = source.Type.GetGenericArguments()[0];
-                var predicateExpression = arguments[1];
-                var predicateLambda = ExpressionHelper.UnquoteLambda(predicateExpression);
+                var sourceExpression = arguments[0];
+                var tsource = sourceExpression.Type.GetGenericArguments()[0];
+                var predicateLambda = ExpressionHelper.UnquoteLambda(arguments[1]);
                 var inverseBody = Expression.Not(predicateLambda.Body);
                 var inverseLambda = Expression.Lambda(inverseBody, predicateLambda.Parameters[0]);
                 var inversePredicateExpression = Expression.Quote(inverseLambda);
-                var sourceWithInversePredicate = Expression.Call(QueryableMethod.MakeWhere(tsource), source, inversePredicateExpression);
-                var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceWithInversePredicate);
+                var sourceWithInversePredicateExpression = Expression.Call(QueryableMethod.MakeWhere(tsource), sourceExpression, inversePredicateExpression);
+                var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceWithInversePredicateExpression);
 
                 pipeline = pipeline.AddStages(
                     __outputSerializer,
-                    //new BsonDocument("$limit", 1),
-                    //new BsonDocument("$project", new BsonDocument { { "_id", 0 }, { "_v", BsonNull.Value } }));
                     AstStage.Limit(1),
                     AstStage.Project(
                         AstProject.ExcludeId(),

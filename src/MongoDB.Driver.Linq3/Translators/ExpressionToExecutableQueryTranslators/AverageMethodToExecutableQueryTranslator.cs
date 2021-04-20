@@ -118,21 +118,21 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
 
             if (method.IsOneOf(__averageMethods))
             {
-                var source = arguments[0];
-                var pipeline = ExpressionToPipelineTranslator.Translate(context, source);
+                var sourceExpression = arguments[0];
+                var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
                 var sourceSerializer = pipeline.OutputSerializer;
 
-                AstExpression avgExpression;
+                AstExpression valueExpression;
                 if (method.IsOneOf(__averageWithSelectorMethods))
                 {
                     var selectorLambda = ExpressionHelper.UnquoteLambda(arguments[1]);
                     var selectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, selectorLambda, sourceSerializer, asCurrentSymbol: true);
-                    avgExpression = selectorTranslation.Ast;
+                    valueExpression = selectorTranslation.Ast;
                 }
                 else
                 {
                     Ensure.That(sourceSerializer is IWrappedValueSerializer, "Expected sourceSerializer to be an IWrappedValueSerializer.", nameof(sourceSerializer));
-                    avgExpression = AstExpression.Field("_v");
+                    valueExpression = AstExpression.Field("_v");
                 }
 
                 var outputValueType = GetValueType(expression);
@@ -143,7 +143,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                     outputWrappedValueSerializer,
                     AstStage.Group(
                         id: BsonNull.Value,
-                        fields: AstExpression.ComputedField("_v", AstUnaryExpression.Avg(avgExpression))),
+                        fields: AstExpression.ComputedField("_v", AstUnaryExpression.Avg(valueExpression))),
                     AstStage.Project(AstProject.ExcludeId()));
 
                 return new ExecutableQuery<TDocument, TOutput, TOutput>(

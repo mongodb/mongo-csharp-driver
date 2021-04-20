@@ -15,6 +15,7 @@
 
 using System.Linq.Expressions;
 using MongoDB.Driver.Linq3.Ast.Stages;
+using MongoDB.Driver.Linq3.ExtensionMethods;
 using MongoDB.Driver.Linq3.Misc;
 using MongoDB.Driver.Linq3.Reflection;
 using MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators.Finalizers;
@@ -35,11 +36,11 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
 
             if (method.Is(QueryableMethod.ElementAt))
             {
-                var source = arguments[0];
-                var pipeline = ExpressionToPipelineTranslator.Translate(context, source);
+                var sourceExpression = arguments[0];
+                var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
 
-                var index = arguments[1];
-                var indexValue = (int)((ConstantExpression)index).Value;
+                var indexExpression = arguments[1];
+                var indexValue = indexExpression.GetConstantValue<int>(containingExpression: expression);
 
                 pipeline = pipeline.AddStages(
                     pipeline.OutputSerializer,

@@ -61,38 +61,38 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
 
             if (method.IsOneOf(__minMethods))
             {
-                var source = arguments[0];
-                var pipeline = ExpressionToPipelineTranslator.Translate(context, source);
+                var sourceExpression = arguments[0];
+                var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
                 var sourceSerializer = pipeline.OutputSerializer;
 
-                AstExpression minArgument;
-                IBsonSerializer minSerializer;
+                AstExpression valueAst;
+                IBsonSerializer valueSerializer;
                 if (method.IsOneOf(__minWithSelectorMethods))
                 {
                     var selectorLambda = ExpressionHelper.UnquoteLambda(arguments[1]);
                     var selectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, selectorLambda, sourceSerializer, asCurrentSymbol: true);
                     if (selectorTranslation.Serializer is IBsonDocumentSerializer)
                     {
-                        minArgument = selectorTranslation.Ast;
-                        minSerializer = selectorTranslation.Serializer;
+                        valueAst = selectorTranslation.Ast;
+                        valueSerializer = selectorTranslation.Serializer;
                     }
                     else
                     {
-                        minArgument = AstExpression.ComputedDocument(new[] { AstExpression.ComputedField("_v", selectorTranslation.Ast) });
-                        minSerializer = WrappedValueSerializer.Create(selectorTranslation.Serializer);
+                        valueAst = AstExpression.ComputedDocument(new[] { AstExpression.ComputedField("_v", selectorTranslation.Ast) });
+                        valueSerializer = WrappedValueSerializer.Create(selectorTranslation.Serializer);
                     }
                 }
                 else
                 {
-                    minArgument = AstExpression.Field("$ROOT");
-                    minSerializer = pipeline.OutputSerializer;
+                    valueAst = AstExpression.Field("$ROOT");
+                    valueSerializer = pipeline.OutputSerializer;
                 }
 
                 pipeline = pipeline.AddStages(
-                    minSerializer,
+                    valueSerializer,
                     AstStage.Group(
                         id: BsonNull.Value,
-                        fields: AstExpression.ComputedField("_min", AstExpression.Min(minArgument))),
+                        fields: AstExpression.ComputedField("_min", AstExpression.Min(valueAst))),
                     AstStage.ReplaceRoot(AstExpression.Field("_min")));
 
                 return new ExecutableQuery<TDocument, TOutput, TOutput>(

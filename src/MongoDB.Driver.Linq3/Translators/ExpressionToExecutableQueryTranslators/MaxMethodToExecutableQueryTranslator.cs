@@ -61,38 +61,38 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
 
             if (method.IsOneOf(__maxMethods))
             {
-                var source = arguments[0];
-                var pipeline = ExpressionToPipelineTranslator.Translate(context, source);
+                var sourceExression = arguments[0];
+                var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExression);
                 var sourceSerializer = pipeline.OutputSerializer;
 
-                AstExpression maxArgument;
-                IBsonSerializer maxSerializer;
+                AstExpression valueAst;
+                IBsonSerializer valueSerializer;
                 if (method.IsOneOf(__maxWithSelectorMethods))
                 {
                     var selectorLambda = ExpressionHelper.UnquoteLambda(arguments[1]);
                     var selectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, selectorLambda, sourceSerializer, asCurrentSymbol: true);
                     if (selectorTranslation.Serializer is IBsonDocumentSerializer)
                     {
-                        maxArgument = selectorTranslation.Ast;
-                        maxSerializer = selectorTranslation.Serializer;
+                        valueAst = selectorTranslation.Ast;
+                        valueSerializer = selectorTranslation.Serializer;
                     }
                     else
                     {
-                        maxArgument = AstExpression.ComputedDocument(new[] { AstExpression.ComputedField("_v", selectorTranslation.Ast) });
-                        maxSerializer = WrappedValueSerializer.Create(selectorTranslation.Serializer);
+                        valueAst = AstExpression.ComputedDocument(new[] { AstExpression.ComputedField("_v", selectorTranslation.Ast) });
+                        valueSerializer = WrappedValueSerializer.Create(selectorTranslation.Serializer);
                     }
                 }
                 else
                 {
-                    maxArgument = AstExpression.Field("$ROOT");
-                    maxSerializer = pipeline.OutputSerializer;
+                    valueAst = AstExpression.Field("$ROOT");
+                    valueSerializer = pipeline.OutputSerializer;
                 }
 
                 pipeline = pipeline.AddStages(
-                    maxSerializer,
+                    valueSerializer,
                     AstStage.Group(
                         id: BsonNull.Value,
-                        fields: AstExpression.ComputedField("_max", AstExpression.Max(maxArgument))),
+                        fields: AstExpression.ComputedField("_max", AstExpression.Max(valueAst))),
                     AstStage.ReplaceRoot(AstExpression.Field("_max")));
 
                 return new ExecutableQuery<TDocument, TOutput, TOutput>(
