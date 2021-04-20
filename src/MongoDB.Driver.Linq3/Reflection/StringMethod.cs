@@ -69,7 +69,11 @@ namespace MongoDB.Driver.Linq3.Misc
             __contains = ReflectionInfo.Method((string s, string value) => s.Contains(value));
             __endsWith = ReflectionInfo.Method((string s, string value) => s.EndsWith(value));
             __endsWithWithComparisonType = ReflectionInfo.Method((string s, string value, StringComparison comparisonType) => s.EndsWith(value, comparisonType));
+#if NETSTANDARD1_5
+            __endsWithWithIgnoreCaseAndCulture = null;
+#else
             __endsWithWithIgnoreCaseAndCulture = ReflectionInfo.Method((string s, string value, bool ignoreCase, CultureInfo culture) => s.EndsWith(value, ignoreCase, culture));
+#endif
             __getChars = ReflectionInfo.Method((string s, int index) => s[index]);
             __indexOfAny = ReflectionInfo.Method((string s, char[] anyOf) => s.IndexOfAny(anyOf));
             __indexOfAnyWithStartIndex = ReflectionInfo.Method((string s, char[] anyOf, int startIndex) => s.IndexOfAny(anyOf, startIndex));
@@ -92,15 +96,27 @@ namespace MongoDB.Driver.Linq3.Misc
             __splitWithStringsAndOptions = ReflectionInfo.Method((string s, string[] separator, StringSplitOptions options) => s.Split(separator, options));
             __startsWith = ReflectionInfo.Method((string s, string value) => s.StartsWith(value));
             __startsWithWithComparisonType = ReflectionInfo.Method((string s, string value, StringComparison comparisonType) => s.StartsWith(value, comparisonType));
+#if NETSTANDARD1_5
+            __startsWithWithIgnoreCaseAndCulture = null;
+#else
             __startsWithWithIgnoreCaseAndCulture = ReflectionInfo.Method((string s, string value, bool ignoreCase, CultureInfo culture) => s.StartsWith(value, ignoreCase, culture));
+#endif
             __substring = ReflectionInfo.Method((string s, int startIndex) => s.Substring(startIndex));
             __substringWithLength = ReflectionInfo.Method((string s, int startIndex, int length) => s.Substring(startIndex, length));
             __toLower = ReflectionInfo.Method((string s) => s.ToLower());
             __toLowerInvariant = ReflectionInfo.Method((string s) => s.ToLowerInvariant());
+#if NETSTANDARD1_5
+            __toLowerWithCulture = null;
+#else
             __toLowerWithCulture = ReflectionInfo.Method((string s, CultureInfo culture) => s.ToLower(culture));
+#endif
             __toUpper = ReflectionInfo.Method((string s) => s.ToUpper());
             __toUpperInvariant = ReflectionInfo.Method((string s) => s.ToUpperInvariant());
+#if NETSTANDARD1_5
+            __toUpperWithCulture = null;
+#else
             __toUpperWithCulture = ReflectionInfo.Method((string s, CultureInfo culture) => s.ToUpper(culture));
+#endif
             __trim = ReflectionInfo.Method((string s) => s.Trim());
             __trimEnd = ReflectionInfo.Method((string s, char[] trimChars) => s.TrimEnd(trimChars));
             __trimStart = ReflectionInfo.Method((string s, char[] trimChars) => s.TrimStart(trimChars));

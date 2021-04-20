@@ -19,6 +19,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq3.Ast.Filters;
+using MongoDB.Driver.Linq3.Misc;
 using MongoDB.Driver.Linq3.Serializers;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators
@@ -34,7 +35,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilte
                 var fieldType = fieldSerializer.ValueType;
                 var targetType = expression.Type;
 
-                if (fieldType.IsEnum)
+                if (fieldType.IsEnum())
                 {
                     var enumType = fieldType;
                     var enumUnderlyingType = enumType.GetEnumUnderlyingType();
@@ -80,7 +81,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilte
                         fieldType.GetGenericTypeDefinition() == typeof(Nullable<>))
                     {
                         var fieldValueType = fieldType.GetGenericArguments()[0];
-                        if (fieldValueType.IsEnum)
+                        if (fieldValueType.IsEnum())
                         {
                             var enumUnderlyingType = fieldValueType.GetEnumUnderlyingType();
                             if (nullableValueType == enumUnderlyingType)
