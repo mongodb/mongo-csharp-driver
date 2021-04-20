@@ -15,11 +15,40 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace MongoDB.Driver.Linq3.Misc
 {
     internal static class TypeExtensions
     {
+#if NETSTANDARD1_5
+        public static ConstructorInfo GetConstructor(this Type type, Type[] types)
+        {
+            return type.GetTypeInfo().GetConstructor(types);
+        }
+#endif
+
+#if NETSTANDARD1_5
+        public static ConstructorInfo[] GetConstructors(this Type type)
+        {
+            return type.GetTypeInfo().GetConstructors();
+        }
+#endif
+
+#if NETSTANDARD1_5
+        public static Type GetEnumUnderlyingType(this Type type)
+        {
+            return type.GetTypeInfo().GetEnumUnderlyingType();
+        }
+#endif
+
+#if NETSTANDARD1_5
+        public static Type[] GetGenericArguments(this Type type)
+        {
+            return type.GetTypeInfo().GetGenericArguments();
+        }
+#endif
+
         public static Type GetIEnumerableGenericInterface(this Type enumerableType)
         {
             if (enumerableType.TryGetIEnumerableGenericInterface(out var ienumerableGenericInterface))
@@ -30,10 +59,24 @@ namespace MongoDB.Driver.Linq3.Misc
             throw new InvalidOperationException($"Could not find IEnumerable<T> interface of type: {enumerableType}.");
         }
 
+#if NETSTANDARD1_5
+        public static Type[] GetInterfaces(this Type type)
+        {
+            return type.GetTypeInfo().GetInterfaces();
+        }
+#endif
+
+#if NETSTANDARD1_5
+        public static PropertyInfo GetProperty(this Type type, string name)
+        {
+            return type.GetTypeInfo().GetProperty(name);
+        }
+#endif
+
         public static bool Implements(this Type type, Type @interface)
         {
             Type interfaceDefinition = null;
-            if (@interface.IsGenericType)
+            if (@interface.IsGenericType())
             {
                 interfaceDefinition = @interface.GetGenericTypeDefinition();
             }
@@ -45,7 +88,7 @@ namespace MongoDB.Driver.Linq3.Misc
                     return true;
                 }
 
-                if (implementedInterface.IsGenericType && implementedInterface.GetGenericTypeDefinition() == interfaceDefinition)
+                if (implementedInterface.IsGenericType() && implementedInterface.GetGenericTypeDefinition() == interfaceDefinition)
                 {
                     return true;
                 }
@@ -61,7 +104,7 @@ namespace MongoDB.Driver.Linq3.Misc
                 return true;
             }
 
-            if (type.IsGenericType && comparand.IsGenericTypeDefinition)
+            if (type.IsGenericType() && comparand.IsGenericTypeDefinition())
             {
                 if (type.GetGenericTypeDefinition() == comparand)
                 {
@@ -72,11 +115,45 @@ namespace MongoDB.Driver.Linq3.Misc
             return false;
         }
 
+#if NETSTANDARD1_5
+        public static bool IsAssignableFrom(this Type type, Type c)
+        {
+            return type.GetTypeInfo().IsAssignableFrom(c);
+        }
+#endif
+
+        public static bool IsEnum(this Type type)
+        {
+#if NETSTANDARD1_5
+            return type.GetTypeInfo().IsEnum;
+#else
+            return type.IsEnum;
+#endif
+        }
+
+        public static bool IsGenericType(this Type type)
+        {
+#if NETSTANDARD1_5
+            return type.GetTypeInfo().IsGenericType;
+#else
+            return type.IsGenericType;
+#endif
+        }
+
+        public static bool IsGenericTypeDefinition(this Type type)
+        {
+#if NETSTANDARD1_5
+            return type.GetTypeInfo().IsGenericTypeDefinition;
+#else
+            return type.IsGenericType;
+#endif
+        }
+
         public static bool TryGetIDictionaryGenericInterface(this Type type, out Type idictionaryGenericInterface)
         {
             foreach (var interfaceType in type.GetInterfaces())
             {
-                if (interfaceType.IsGenericType && interfaceType.GetGenericTypeDefinition() == typeof(IDictionary<,>))
+                if (interfaceType.IsGenericType() && interfaceType.GetGenericTypeDefinition() == typeof(IDictionary<,>))
                 {
                     idictionaryGenericInterface = interfaceType;
                     return true;
@@ -91,7 +168,7 @@ namespace MongoDB.Driver.Linq3.Misc
         {
             foreach (var interfaceType in type.GetInterfaces())
             {
-                if (interfaceType.IsGenericType && interfaceType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                if (interfaceType.IsGenericType() && interfaceType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
                 {
                     ienumerableGenericInterface = interfaceType;
                     return true;
