@@ -29,14 +29,14 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilte
             {
                 var fieldName = symbol == symbolTable.Current ? "$CURRENT" : symbol.Name;
                 var fieldSerializer = symbol.Serializer;
-                var fieldAst = AstFilter.Field(fieldName, fieldSerializer);
+                var field = AstFilter.Field(fieldName, fieldSerializer);
 
                 if (fieldSerializer is IWrappedValueSerializer wrappedValueSerializer)
                 {
-                    fieldAst = fieldAst.SubField("_v", wrappedValueSerializer.ValueSerializer);
+                    field = field.SubField("_v", wrappedValueSerializer.ValueSerializer);
                 }
 
-                return fieldAst; ;
+                return field;
             }
 
             throw new ExpressionNotSupportedException(expression);

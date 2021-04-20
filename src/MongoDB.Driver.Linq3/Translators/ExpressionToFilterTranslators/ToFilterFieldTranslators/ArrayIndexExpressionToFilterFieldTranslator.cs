@@ -36,6 +36,5 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilte
 
             throw new ExpressionNotSupportedException(expression);
         }
-
     }
 }

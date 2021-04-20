@@ -32,16 +32,16 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilte
             if (method.Is(EnumerableMethod.ElementAt))
             {
                 var sourceExpression = arguments[0];
-                var sourceField = ExpressionToFilterFieldTranslator.Translate(context, sourceExpression);
+                var field = ExpressionToFilterFieldTranslator.Translate(context, sourceExpression);
 
                 var indexExpression = arguments[1];
                 var index = indexExpression.GetConstantValue<int>(containingExpression: expression);
 
-                if (sourceField.Serializer is IBsonArraySerializer arraySerializer &&
+                if (field.Serializer is IBsonArraySerializer arraySerializer &&
                     arraySerializer.TryGetItemSerializationInfo(out var itemSerializationInfo))
                 {
                     var itemSerializer = itemSerializationInfo.Serializer;
-                    return sourceField.SubField(index.ToString(), itemSerializer);
+                    return field.SubField(index.ToString(), itemSerializer);
                 }
             }
 

@@ -29,8 +29,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilte
         {
             if (expression.NodeType == ExpressionType.Convert)
             {
-                var fieldAst = ExpressionToFilterFieldTranslator.Translate(context, expression.Operand);
-                var fieldSerializer = fieldAst.Serializer;
+                var field = ExpressionToFilterFieldTranslator.Translate(context, expression.Operand);
+                var fieldSerializer = field.Serializer;
                 var fieldType = fieldSerializer.ValueType;
                 var targetType = expression.Type;
 
@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilte
                     if (targetType == enumUnderlyingType)
                     {
                         var enumAsUnderlyingTypeSerializer = EnumAsUnderlyingTypeSerializer.Create(fieldSerializer);
-                        return AstFilter.Field(fieldAst.Path, enumAsUnderlyingTypeSerializer);
+                        return AstFilter.Field(field.Path, enumAsUnderlyingTypeSerializer);
                     }
                 }
 
@@ -62,7 +62,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilte
                     {
                         targetTypeSerializer = converterConfigurableTargetTypeSerializer.WithConverter(converterConfigurableFieldSerializer.Converter);
                     }
-                    return AstFilter.Field(fieldAst.Path, targetTypeSerializer);
+                    return AstFilter.Field(field.Path, targetTypeSerializer);
                 }
 
                 if (targetType.IsConstructedGenericType &&
@@ -73,7 +73,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilte
                     {
                         var nullableSerializerType = typeof(NullableSerializer<>).MakeGenericType(nullableValueType);
                         var nullableSerializer = (IBsonSerializer)Activator.CreateInstance(nullableSerializerType, fieldSerializer);
-                        return AstFilter.Field(fieldAst.Path, nullableSerializer);
+                        return AstFilter.Field(field.Path, nullableSerializer);
                     }
 
                     if (fieldType.IsConstructedGenericType &&
@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilte
                                     var enumAsUnderlyingTypeSerializer = EnumAsUnderlyingTypeSerializer.Create(enumSerializer);
                                     var nullableSerializerType = typeof(NullableSerializer<>).MakeGenericType(nullableValueType);
                                     var nullableSerializer = (IBsonSerializer)Activator.CreateInstance(nullableSerializerType, enumAsUnderlyingTypeSerializer);
-                                    return AstFilter.Field(fieldAst.Path, nullableSerializer);
+                                    return AstFilter.Field(field.Path, nullableSerializer);
                                 }
                             }
                         }

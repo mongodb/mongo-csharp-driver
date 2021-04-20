@@ -38,16 +38,15 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilte
 
         public static AstFilterField TranslateEnumerable(TranslationContext context, Expression expression)
         {
-            var resolvedFieldAst = Translate(context, expression);
+            var field = Translate(context, expression);
 
-            var serializer = resolvedFieldAst.Serializer;
-            if (serializer is IWrappedEnumerableSerializer wrappedEnumerableSerializer)
+            if (field.Serializer is IWrappedEnumerableSerializer wrappedEnumerableSerializer)
             {
                 var enumerableSerializer = IEnumerableSerializer.Create(wrappedEnumerableSerializer.EnumerableElementSerializer);
-                resolvedFieldAst = resolvedFieldAst.SubField(wrappedEnumerableSerializer.EnumerableFieldName, enumerableSerializer);
+                field = field.SubField(wrappedEnumerableSerializer.EnumerableFieldName, enumerableSerializer);
             }
 
-            return resolvedFieldAst;
+            return field;
         }
     }
 }

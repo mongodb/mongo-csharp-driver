@@ -170,7 +170,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
                 return true;
             }
 
-
             return false;
         }
 
@@ -258,10 +257,10 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             return escaped.ToString();
         }
 
-        private static string GetEscapedTrimChars(MethodCallExpression methodCallWithTrimCharsExpression)
+        private static string GetEscapedTrimChars(MethodCallExpression trimExpression)
         {
-            var method = methodCallWithTrimCharsExpression.Method;
-            var arguments = methodCallWithTrimCharsExpression.Arguments;
+            var method = trimExpression.Method;
+            var arguments = trimExpression.Arguments;
 
             if (method.Is(StringMethod.Trim))
             {
@@ -270,7 +269,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
             else
             {
                 var trimCharsExpression = arguments[0];
-                var trimChars = trimCharsExpression.GetConstantValue<char[]>(containingExpression: methodCallWithTrimCharsExpression);
+                var trimChars = trimCharsExpression.GetConstantValue<char[]>(containingExpression: trimExpression);
                 if (trimChars == null || trimChars.Length == 0)
                 {
                     return null;
