@@ -25,26 +25,26 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilte
     {
         public static AstFilterField Translate(TranslationContext context, MemberExpression memberExpression)
         {
-            var containingFieldAst = ExpressionToFilterFieldTranslator.Translate(context, memberExpression.Expression);
-            var containingFieldSerializer = containingFieldAst.Serializer;
-            var containingFieldSerializerType = containingFieldSerializer.GetType();
+            var field = ExpressionToFilterFieldTranslator.Translate(context, memberExpression.Expression);
+            var fieldSerializer = field.Serializer;
+            var fieldSerializerType = fieldSerializer.GetType();
 
-            if (containingFieldSerializer is IBsonDocumentSerializer documentSerializer &&
+            if (fieldSerializer is IBsonDocumentSerializer documentSerializer &&
                 documentSerializer.TryGetMemberSerializationInfo(memberExpression.Member.Name, out BsonSerializationInfo memberSerializationInfo))
             {
                 var subFieldName = memberSerializationInfo.ElementName;
                 var subFieldSerializer = memberSerializationInfo.Serializer;
-                return containingFieldAst.SubField(subFieldName, subFieldSerializer);
+                return field.SubField(subFieldName, subFieldSerializer);
             }
 
             if (memberExpression.Expression.Type.IsConstructedGenericType &&
                 memberExpression.Expression.Type.GetGenericTypeDefinition() == typeof(Nullable<>) &&
                 memberExpression.Member.Name == "Value" &&
-                containingFieldSerializerType.IsConstructedGenericType &&
-                containingFieldSerializerType.GetGenericTypeDefinition() == typeof(NullableSerializer<>))
+                fieldSerializerType.IsConstructedGenericType &&
+                fieldSerializerType.GetGenericTypeDefinition() == typeof(NullableSerializer<>))
             {
-                var valueSerializer = ((IChildSerializerConfigurable)containingFieldSerializer).ChildSerializer;
-                return AstFilter.Field(containingFieldAst.Path, valueSerializer);
+                var valueSerializer = ((IChildSerializerConfigurable)fieldSerializer).ChildSerializer;
+                return AstFilter.Field(field.Path, valueSerializer);
             }
 
             throw new ExpressionNotSupportedException(memberExpression);

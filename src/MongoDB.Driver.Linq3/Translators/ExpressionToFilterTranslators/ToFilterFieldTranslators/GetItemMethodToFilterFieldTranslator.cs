@@ -46,8 +46,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilte
 
                 if (indexExpression.Type == typeof(string))
                 {
-                    var index = indexExpression.GetConstantValue<string>(containingExpression: expression);
-                    return TranslateWithStringIndex(context, expression, method, fieldExpression, index);
+                    var key = indexExpression.GetConstantValue<string>(containingExpression: expression);
+                    return TranslateWithStringIndex(context, expression, method, fieldExpression, key);
                 }
             }
 
@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilte
             throw new ExpressionNotSupportedException(expression);
         }
 
-        private static AstFilterField TranslateWithStringIndex(TranslationContext context, MethodCallExpression expression, MethodInfo method, Expression fieldExpression, string index)
+        private static AstFilterField TranslateWithStringIndex(TranslationContext context, MethodCallExpression expression, MethodInfo method, Expression fieldExpression, string key)
         {
             var field = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
 
@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilte
                 var valueSerializer = dictionarySerializer.ValueSerializer;
                 if (method.ReturnType.IsAssignableFrom(valueSerializer.ValueType))
                 {
-                    return field.SubField(index, valueSerializer);
+                    return field.SubField(key, valueSerializer);
                 }
             }
 

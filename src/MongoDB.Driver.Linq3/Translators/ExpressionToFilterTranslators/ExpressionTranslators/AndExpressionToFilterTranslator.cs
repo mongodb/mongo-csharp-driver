@@ -22,14 +22,17 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.Express
     {
         public static AstFilter Translate(TranslationContext context, BinaryExpression expression)
         {
-            var leftExpression = expression.Left;
-            var rightExpression = expression.Right;
-
-            if (leftExpression.Type == typeof(bool) && rightExpression.Type == typeof(bool))
+            if (expression.NodeType == ExpressionType.And || expression.NodeType == ExpressionType.AndAlso)
             {
-                var leftTranslation = ExpressionToFilterTranslator.Translate(context, leftExpression);
-                var rightTranslation = ExpressionToFilterTranslator.Translate(context, rightExpression);
-                return AstFilter.And(leftTranslation, rightTranslation);
+                var leftExpression = expression.Left;
+                var rightExpression = expression.Right;
+
+                if (leftExpression.Type == typeof(bool) && rightExpression.Type == typeof(bool))
+                {
+                    var leftTranslation = ExpressionToFilterTranslator.Translate(context, leftExpression);
+                    var rightTranslation = ExpressionToFilterTranslator.Translate(context, rightExpression);
+                    return AstFilter.And(leftTranslation, rightTranslation);
+                }
             }
 
             throw new ExpressionNotSupportedException(expression);
