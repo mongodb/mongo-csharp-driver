@@ -36,8 +36,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
 
             if (method.IsOneOf(QueryableMethod.OrderBy, QueryableMethod.OrderByDescending, QueryableMethod.ThenBy, QueryableMethod.ThenByDescending))
             {
-                var source = arguments[0];
-                var pipeline = ExpressionToPipelineTranslator.Translate(context, source);
+                var sourceExpression = arguments[0];
+                var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
 
                 var keySelectorLambda = ExpressionHelper.UnquoteLambda(arguments[1]);
                 var sortField = CreateSortField(context, method.Name, keySelectorLambda, parameterSerializer: pipeline.OutputSerializer);

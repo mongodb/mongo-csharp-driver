@@ -33,8 +33,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
 
             if (method.Is(QueryableMethod.Distinct))
             {
-                var source = arguments[0];
-                var pipeline = ExpressionToPipelineTranslator.Translate(context, source);
+                var sourceExpression = arguments[0];
+                var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
 
                 pipeline = pipeline.AddStages(
                     pipeline.OutputSerializer,

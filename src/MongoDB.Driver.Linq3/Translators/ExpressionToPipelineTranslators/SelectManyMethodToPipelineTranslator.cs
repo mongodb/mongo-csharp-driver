@@ -32,8 +32,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            var source = arguments[0];
-            var pipeline = ExpressionToPipelineTranslator.Translate(context, source);
+            var sourceExpression = arguments[0];
+            var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
             var sourceSerializer = pipeline.OutputSerializer;
 
             if (method.Is(QueryableMethod.SelectMany))

@@ -32,8 +32,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
 
             if (method.Is(MongoQueryableMethod.Sample))
             {
-                var source = arguments[0];
-                var pipeline = ExpressionToPipelineTranslator.Translate(context, source);
+                var sourceExpression = arguments[0];
+                var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
 
                 var sizeExpression = arguments[1];
                 var size = sizeExpression.GetConstantValue<long>(containingExpression: expression);
